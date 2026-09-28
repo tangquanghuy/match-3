@@ -9,6 +9,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:30:48.972Z"
  },
+ "troop:6037": {
+  "lines": {
+   "L10": "convert Green x2, Brown x1, Blue x1, Red x1 -> Purple x5 ; dmg E11 11 ; buff C hp+11 max+11 ; souls+11  => E11:hp-11 | C:hp+11 max+11  eco:{\"souls\":11}",
+   "R10": "convert Green x2, Brown x1, Blue x1, Red x1 -> Purple x5 ; dmg E11 11 ; buff C hp+11 max+11 ; souls+11  => E11:hp-11 | C:hp+11 max+11  eco:{\"souls\":11}",
+   "L0": "convert Green x2, Brown x1, Blue x1, Red x1 -> Purple x5 ; dmg E11 1 ; buff C hp+1 max+1 ; souls+1  => E11:hp-1 | C:hp+1 max+1  eco:{\"souls\":1}",
+   "K": "convert Green x2, Brown x1, Blue x1, Red x1 -> Purple x5 ; dmg E11 11 ; defeat E11 ; buff C hp+1 max+1 ; souls+11  => E11:hp-1 DEAD | C:hp+1 max+1  eco:{\"souls\":11}"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:40:27.141Z"
+ },
  "troop:6053": {
   "lines": {
    "L10": "dmg E11 17 ; convert Blue x11 -> Red x11 ; souls+12  => E11:hp-7 arm-10  eco:{\"souls\":12}",
@@ -38,6 +48,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:30:53.723Z"
+ },
+ "troop:6203": {
+  "lines": {
+   "L10": "convert Yellow x9 -> Red x9 ; buff C hp+13 max+13 ; buff A1 hp+13 max+13 ; buff A2 hp+13 max+13  => C:hp+13 max+13 | A1:hp+13 max+13 | A2:hp+13 max+13",
+   "R10": "convert Yellow x9 -> Red x9 ; buff C hp+13 max+13 ; buff A1 hp+13 max+13 ; buff A2 hp+13 max+13  => C:hp+13 max+13 | A1:hp+13 max+13 | A2:hp+13 max+13",
+   "L0": "convert Yellow x9 -> Red x9 ; buff C hp+3 max+3 ; buff A1 hp+3 max+3 ; buff A2 hp+3 max+3  => C:hp+3 max+3 | A1:hp+3 max+3 | A2:hp+3 max+3",
+   "K": "convert Yellow x9 -> Red x9 ; buff C hp+13 max+13 ; buff A1 hp+13 max+13 ; buff A2 hp+13 max+13  => C:hp+13 max+13 | A1:hp+13 max+13 | A2:hp+13 max+13"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:40:35.986Z"
  },
  "troop:6215": {
   "lines": {
@@ -169,6 +189,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:36:41.791Z"
  },
+ "troop:6689": {
+  "lines": {
+   "L10": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; status E11 +frozen  => E11:+frozen",
+   "R10": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; status E11 +frozen  => E11:+frozen",
+   "L0": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; status E11 +frozen  => E11:+frozen",
+   "K": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; status E11 +frozen  => E11:+frozen"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:40:38.639Z"
+ },
  "troop:6765": {
   "lines": {
    "L10": "dmg E11 19 ; convert Brown x8 -> Red x8  => E11:hp-9 arm-10",
@@ -178,6 +208,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:36:44.129Z"
+ },
+ "troop:6805": {
+  "lines": {
+   "L10": "convert Blue x11 -> Red x11 ; status C +barrier ; buff C armor+11  => C:arm+11 +barrier",
+   "R10": "convert Blue x11 -> Red x11 ; status C +barrier ; buff C armor+11  => C:arm+11 +barrier",
+   "L0": "convert Blue x11 -> Red x11 ; status C +barrier ; buff C armor+1  => C:arm+1 +barrier",
+   "K": "convert Blue x11 -> Red x11 ; status C +barrier ; buff C armor+11  => C:arm+11 +barrier"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:40:30.311Z"
  },
  "troop:6974": {
   "lines": {
@@ -198,6 +238,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:31:03.982Z"
+ },
+ "troop:7185": {
+  "lines": {
+   "L10": "status E11 +burning ; dmg E11 14 ; convert Red x9 -> skull x9  => E11:hp-4 arm-10 +burning",
+   "R10": "status E11 +burning ; dmg E11 14 ; convert Red x9 -> skull x9  => E11:hp-4 arm-10 +burning",
+   "L0": "status E11 +burning ; dmg E11 4 ; convert Red x9 -> skull x9  => E11:arm-4 +burning",
+   "K": "status E11 +burning ; dmg E11 14 ; defeat E11 ; convert Red x9 -> skull x9  => E11:hp-1 +burning DEAD"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:40:33.253Z"
  },
  "troop:7312": {
   "lines": {
@@ -248,5 +298,15 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:30:33.097Z"
+ },
+ "weapon:1313": {
+  "lines": {
+   "L10": "move C front ; convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6 ; move E11 front",
+   "R10": "move C front ; convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6 ; move E11 front",
+   "L0": "move C front ; convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6 ; move E11 front",
+   "K": "move C front ; convert Green x4, Purple x4, Brown x2, Red x2, Yellow x2 -> skull x14 ; move E11 front"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:42:22.717Z"
  }
 }

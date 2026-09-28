@@ -44,6 +44,27 @@ describe('L4b fix F2: troop:7145 (spell 8694) [Magic + 1]% slay', () => {
   });
 });
 
+describe('L4b fix F2: troop:6689 (spell 8035) Frozen count taken before the freeze', () => {
+  for (const [n, want] of [[0, 6], [1, 9], [2, 12]] as const) it(`${n} enemies already Frozen -> ${want} Blue`, () => {
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, statuses: i >= 2 && i < 2 + n ? [{ id: 'frozen', turns: 99 }] as never : [] }));
+    const r = castSpell({ key: 'troop:6689', enemies });
+    expect(r.summary.gems.created.Blue).toBe(want);
+    expect(r.summary.order.at(-1)).toBe('status E11 +frozen');
+  });
+});
+
+describe('L4b fix F2: weapon:1313 (spell 8299) +8 Skulls only when my Life is higher', () => {
+  it('higher Life -> 14 Skulls; order self front, create, enemy front', () => {
+    const r = castSpell({ key: 'weapon:1313', caster: { hp: 950 } });
+    expect(r.summary.gems.created.skull).toBe(14);
+    expect(r.summary.order[0]).toBe('move C front');
+    expect(r.summary.order.at(-1)).toBe('move E11 front');
+  });
+  it('equal Life -> 6 Skulls', () => {
+    expect(castSpell({ key: 'weapon:1313' }).summary.gems.created.skull).toBe(6);
+  });
+});
+
 describe('L4b fix F2: ally colour counts', () => {
   // troop:6974 spell 8477: CountArmyColor@AllAllies 300 ; IncreaseArmor@AllyColor 1 +Mx1 ; IncreaseSpellPower@AllyColor 3 ; CreateGems 4 Brown
   const rows = [

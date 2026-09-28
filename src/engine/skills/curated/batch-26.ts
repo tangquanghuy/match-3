@@ -203,11 +203,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8035,
     desc: '冻结一名敌人。创造 6 颗蓝色宝石，数量因被冻结的敌军数而增强。 [x3]',
     build: skill(
-      inflict('frozen', 'enemyChosen'),
+      // sa-F2 fix round A (R001): native CountSpecificStatusEffect frozen ; CreateGems ; CauseFrozen — the
+      // count is taken before this cast freezes the target
       // 「数量因…增强」点名创造段；「被冻结的敌军数」= enemyStatusCount('frozen')（batch-25 7488 同款）
       createGems(BaseColor.Blue, 6, 0, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'frozen' } },
       }),
+      inflict('frozen', 'enemyChosen'),
     ),
   },
   {

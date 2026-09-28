@@ -137,8 +137,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "窃取 1 名敌军 [魔法 + 1] 点生命值。创造 5 颗紫色宝石。获得 [魔法 + 1] 个灵魂。",
     // 「窃取生命」= dmg + drain（7302 口径）；「获得灵魂」= gainSouls（§10）
     build: skill(
-      dmg('enemyChosen', 1, 1, { drain: true }),
+      // sa-F2 fix round A (R001): native CreateGems 5 Purple ; StealLife ; GiveSouls
       createGems(BaseColor.Purple, 5),
+      dmg('enemyChosen', 1, 1, { drain: true }),
       gainSouls(1, 1),
     ),
   },

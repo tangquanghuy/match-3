@@ -166,6 +166,49 @@
         ]
       }
     },
+    "7124": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "color",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "hp",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 1,
+                "b": 1
+              },
+              "source": {
+                "kind": "destroyedGems",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allySelf",
+            "statusId": "barrier",
+            "turns": 3
+          }
+        ]
+      }
+    },
     "7129": {
       "description": "创造 6 颗骷髅。召唤一名亡魂。"
     },
@@ -554,9 +597,12 @@
       "prototype": {
         "segments": [
           {
-            "kind": "dispel",
+            "kind": "damage",
             "target": "enemyFront",
-            "statusId": "none"
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            }
           },
           {
             "kind": "gem",
@@ -3046,6 +3092,68 @@
     },
     "8259": {
       "description": "对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。"
+    },
+    "8299": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reposition",
+            "target": "allySelf",
+            "to": "front"
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "attack",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "skull"
+              },
+              "count": {
+                "base": 14,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "casterStatBeatsTarget",
+              "stat": "hp"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "skull"
+              },
+              "count": {
+                "base": 6,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "casterStatBeatsTarget",
+                "stat": "hp"
+              }
+            }
+          },
+          {
+            "kind": "reposition",
+            "target": "enemyChosen",
+            "to": "front"
+          }
+        ]
+      }
     },
     "8347": {
       "prototype": {

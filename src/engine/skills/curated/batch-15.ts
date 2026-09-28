@@ -221,10 +221,11 @@ const SPELLS: CuratedBatch['spells'] = [
       inflict('burning', 'enemyChosen'),
       // 「转换成骷髅头增强伤害效果」：转化段排在被增强段之前，transformedGems 来源才数得到
       // （batch-07 7933 同款句式，含「并」字内嵌写法）；骷髅端点 'SKULL'（SOP 措辞裁定）
-      transform(BaseColor.Red, 'SKULL'),
+      // sa-F2 fix round A (R001): native CountGems Red ; CauseBurning ; Damage ; ConvertGems Red>Skull
       dmg('enemyChosen', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
+      transform(BaseColor.Red, 'SKULL'),
     ),
   },
   {

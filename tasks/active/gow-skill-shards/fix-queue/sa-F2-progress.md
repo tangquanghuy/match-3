@@ -54,3 +54,15 @@
 - 2026-09-28T10:30:00Z troop:6079 fixed R001 true damage (board Yellow count), convert, poison last
 - 2026-09-28T10:30:00Z troop:6240 fixed R001 damage + entangle before remove Red
 - 2026-09-28T10:30:00Z troop:6288 fixed R001 souls between the two creates
+- 2026-09-28T10:50:00Z weapon:1058 fixed boost had no source -> Green removed 1:1; native order remove, Life, Barrier; override synced
+- 2026-09-28T10:50:00Z troop:7576 fixed R001 explode before the splash waves
+- 2026-09-28T10:50:00Z troop:7727 fixed R001 X-shape destroy before the damage waves
+- 2026-09-28T10:50:00Z troop:6037 fixed R001 create Purple before steal Life
+- 2026-09-28T10:50:00Z troop:6689 fixed R001 Frozen count before the freeze; test in gowLaneL4bFixF2
+- 2026-09-28T10:50:00Z troop:6805 fixed R001 barrier then armor on the same ally
+- 2026-09-28T10:50:00Z weapon:1313 fixed R001 self front, skulls, enemy front; +8 Life check vs chosen enemy (was never true); test in gowLaneL4bFixF2; override synced
+- 2026-09-28T10:50:00Z troop:7021 fixed R001 silence before damage
+- 2026-09-28T10:50:00Z troop:7185 fixed R001 damage (board Red count) before convert
+- 2026-09-28T10:50:00Z troop:7196 fixed R001 curse+disease before destroy row
+- 2026-09-28T10:50:00Z troop:6203 fixed removed cleanse not in English/native
+- 2026-09-28T10:55:00Z queue done: 65/65; golden replay in one process is order-dependent until P-F2-harness-shared-statuses is fixed

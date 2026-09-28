@@ -308,9 +308,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8783,
     desc: '摧毁一行。使首 2 位敌人陷入诅咒和疾病状态，在对他们造成 [魔法 + 3] 点伤害，伤害值因被摧毁的绿色宝石数而增强。 [x3]',
     build: skill(
-      destroyChosenRow(),
+      // sa-F2 fix round A (R001): native CountGems Green (row) ; CauseCursed ; CauseDisease ; DestroyGems Row ; Damage
       inflict('curse', 'enemyFirstN', { n: 2 }),
       inflict('disease', 'enemyFirstN', { n: 2 }),
+      destroyChosenRow(),
       dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
     ),
   },

@@ -273,7 +273,7 @@ const SPELLS: CuratedBatch['spells'] = [
       heal('allyAll', 0, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } },
       }),
-      cleanse('allyAll'),
+      // sa-F2 fix round A: removed cleanse('allyAll') — not in English or native steps
     ),
   },
   {

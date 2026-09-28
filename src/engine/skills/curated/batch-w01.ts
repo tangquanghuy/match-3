@@ -421,8 +421,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7124,
     desc: '获得 [魔法 + 1] 点生命值，并移除所有绿色宝石以增强效果。获得屏障效果。 [1:1]',
     build: skill(
-      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 } } }),
+      // sa-F2 fix round A (R001): native CountGems Green ; RemoveColor Green ; IncreaseHealth (counter 1:1) ; Barrier.
+      // The 1:1 boost had no source (removed gems never counted).
       destroyColor(BaseColor.Green),
+      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
       inflict('barrier', 'allySelf'),
     ),
   },
@@ -829,7 +831,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // sa-F2 fix round A: native 0:Damage@FrontEnemy (no Amount) only anchors the following
       // RandomPrefNotPrevEnemy; 1:CountGems Skull BoardTarget Column counts the chosen column (was whole board).
-      { kind: 'dispel', target: 'enemyFront', statusId: 'none' },
+      dmg('enemyFront', 0, 0),
       destroyChosenCol(),
       dmg('enemyRandomPrefNotPrev', 5, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'chosenColumnAtCastStart', skulls: true } } }),
     ),
