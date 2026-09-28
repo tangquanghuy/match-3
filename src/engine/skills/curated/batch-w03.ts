@@ -1109,7 +1109,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8946,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入织网和中毒状态的敌人数而增强。再使他们陷入织网和中毒状态。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
+      // Native 8946: two CountSpecificStatusEffect@AllEnemies (Webbed, Poisoned) x3 each (Webbed was missing).
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'enemyStatusCount', statusId: 'web' }, { kind: 'enemyStatusCount', statusId: 'poison' }] } }),
       inflict('web', 'lastTarget'),
       inflict('poison', 'lastTarget'),
     ),

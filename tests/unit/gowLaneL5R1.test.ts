@@ -343,3 +343,61 @@ describe('L5 sa-R3 B08', () => {
     expect(castSpell({ key: 'troop:6952', enemies: enemies({ 2: { statuses: st('burning') }, 3: { statuses: st('faerie-fire') } }) }).summary.order).toEqual(['dmg E10 24 (all)', 'dmg E11 24 (all)']);
   });
 });
+
+describe('L5 sa-R3 B09', () => {
+  const st = (...ids: string[]) => ids.map(id => ({ id, turns: 99 }));
+  const two = (a: string, b: string) => enemies({ 0: { statuses: st(a) }, 2: { statuses: st(b) }, 3: { statuses: st(a, b) } });
+  const kills = (key: string, en: object[]) => { let n = 0; for (let seed = 1; seed <= 60; seed++) if (castSpell({ key, seed, enemies: en }).summary.order.includes('defeat E11')) n++; return n; };
+  it('status-count boosts: each listed status on each enemy counts once', () => {
+    expect(castSpell({ key: 'troop:7863', enemies: two('entangle', 'bleed') }).summary.order[0]).toBe('dmg E10 20 (all)'); // 12 + 2 x 4
+    expect(castSpell({ key: 'troop:7547', enemies: two('curse', 'web') }).summary.order).toEqual(['dmg E11 25', 'status E11 +poison']);
+    expect(castSpell({ key: 'weapon:1505', enemies: two('web', 'poison') }).summary.order).toEqual(['dmg E11 26', 'status E11 +web', 'status E11 +poison']);
+    expect(castSpell({ key: 'troop:6478', enemies: two('disease', 'poison') }).summary.order[0]).toBe('dmg E10 19 (all)');
+    const total = (o: string[]) => o.filter(x => x.startsWith('dmg')).reduce((s, x) => s + Number(x.split(' ')[2]), 0);
+    expect(total(castSpell({ key: 'troop:6350', enemies: two('poison', 'death-mark') }).summary.order)).toBe(16 + 28);
+    const bw = castSpell({ key: 'troop:6790', enemies: two('entangle', 'bleed') }).summary.order;
+    expect(bw.slice(0, 3)).toEqual(['dmg E11 50 (splash)', 'dmg E10 37 (splash)', 'dmg E12 37 (splash)']);
+    expect(castSpell({ key: 'troop:6813', enemies: two('frozen', 'burning') }).summary.order).toEqual(['dmg E10 20', 'buff C hp+20 max+20']);
+  });
+  it('slay chance grows with the status counts (Velenne 10% + 4 each, Grimborn / Bothros 20% + 5 each)', () => {
+    expect(kills('troop:6950', DEFAULT_ENEMIES)).toBeLessThan(15);
+    expect(kills('troop:6950', two('curse', 'web'))).toBeGreaterThan(8);
+    const many = (a: string, b: string) => DEFAULT_ENEMIES.map(e => ({ ...e, statuses: st(a, b) }));
+    // 20 + 5 x 8 = 60% over 60 seeds vs 20% base
+    const g = kills('troop:7624', many('frozen', 'bleed')); expect(g).toBeGreaterThan(24); expect(g).toBeLessThan(50);
+    const b = kills('troop:7762', many('poison', 'death-mark')); expect(b).toBeGreaterThan(24); expect(b).toBeLessThan(50);
+    expect(kills('troop:7762', DEFAULT_ENEMIES)).toBeLessThan(22);
+  });
+});
+
+describe('L5 sa-R3 B10', () => {
+  const A = (o: object, o2: object = {}) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red], ...o2 }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const hits = (o: string[]) => o.filter(x => x.startsWith('dmg')).map(x => x.split(' ')[1]);
+  it('troop:7650 / troop:7688 random hits only avoid the previous target (repeats allowed, never back-to-back)', () => {
+    let repeat650 = false, repeat688 = false;
+    for (let seed = 1; seed <= 40; seed++) {
+      const a = hits(castSpell({ key: 'troop:7650', seed }).summary.order); expect(a).toHaveLength(3);
+      const b = hits(castSpell({ key: 'troop:7688', seed }).summary.order); expect(b).toHaveLength(4);
+      for (const h of [a, b]) for (let i = 1; i < h.length; i++) expect(h[i]).not.toBe(h[i - 1]);
+      if (new Set(a).size < 3) repeat650 = true; if (new Set(b).size < 4) repeat688 = true;
+    }
+    expect(repeat650).toBe(true); expect(repeat688).toBe(true);
+  });
+  it('troop:7650 x3 per Enchanted ally and enemy; troop:7688 x2 per Enraged ally and enemy', () => {
+    expect(castSpell({ key: 'troop:7650', allies: A({ statuses: st('enchanted') }), enemies: enemies({ 1: { statuses: st('enchanted') } }) }).summary.order[0]).toMatch(/^dmg E\d+ 18$/);
+    expect(castSpell({ key: 'troop:7688', allies: A({ statuses: st('rage') }) }).summary.order[0]).toMatch(/^dmg E\d+ 15$/); // 9 + 2 x (A1, E10, E13)
+  });
+  it('troop:7791 x1.5 per Blessed ally and enemy (other allies)', () => {
+    expect(castSpell({ key: 'troop:7791', allies: A({ statuses: st('blessed') }, { statuses: st('blessed') }) }).summary.order[0]).toBe('dmg E10 13 (all)');
+  });
+  it('single-source status boosts', () => {
+    expect(castSpell({ key: 'troop:6311', enemies: enemies({ 0: { statuses: st('entangle') } }) }).summary.order).toEqual(['dmg E11 16']);
+    expect(castSpell({ key: 'troop:6417', allies: A({ statuses: st('enchanted') }) }).summary.order[0]).toBe('dmg E10 13 (all)');
+    expect(castSpell({ key: 'troop:6637', enemies: enemies({ 0: { statuses: st('web') } }) }).summary.order).toEqual(['dmg E11 18']);
+    expect(castSpell({ key: 'troop:6811', allies: A({ statuses: st('rage') }) }).summary.order).toEqual(['dmg E11 18']);
+    expect(castSpell({ key: 'troop:6823', allies: A({ statuses: st('submerged') }) }).summary.order).toEqual(['dmg E11 18']);
+    expect(castSpell({ key: 'weapon:1218', enemies: enemies({ 0: { statuses: st('frozen') }, 3: { statuses: st('frozen') } }) }).summary.order[0]).toBe('dmg E10 21 (all)');
+    expect(castSpell({ key: 'troop:7508', allies: A({ statuses: st('barrier') }) }).summary.order).toEqual(['dmg E11 23', 'status C +barrier']);
+  });
+});

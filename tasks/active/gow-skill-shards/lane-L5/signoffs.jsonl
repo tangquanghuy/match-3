@@ -110,3 +110,23 @@
 {"format":"compact","key":"troop:6986","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6893","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6952","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:54:59.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7863","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.346Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7547","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.347Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1505","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.347Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6478","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.347Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6950","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.347Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7624","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.348Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7762","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.348Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6350","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.348Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6790","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.348Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6813","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:56:47.348Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7791","decision":"issue","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:22.038Z","issue":"P-R3-ally-status-excl-self","note":"Blessed count must exclude the caster (AllAlliesButNotSelf); rest verified (0.75x round, x1.5, true dmg all); region doubling not exercisable"}
+{"format":"compact","key":"troop:7650","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.686Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7688","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.687Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6311","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.688Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6417","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.688Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6637","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.688Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
+{"format":"compact","key":"troop:6811","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.688Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"}]}
+{"format":"compact","key":"troop:6823","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.689Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"}]}
+{"format":"compact","key":"weapon:1218","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.689Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7508","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T02:59:32.689Z","tests":["tests/unit/gowCastGolden.test.ts"]}

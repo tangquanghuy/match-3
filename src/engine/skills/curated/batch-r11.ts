@@ -389,9 +389,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9563,
     desc: "对 3 名随机敌人造成 [魔法 + 2] 真实伤害，伤害值因被附魔的盟友和敌人数量而增强。如果在星湾中使用，则造成双倍伤害。 [x3]",
     // 附魔盟友+敌人双计数各 ×3（多来源相加，8637 先例）；MultiplyForRegion4007（星湾）
+    // Native 9563: RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3: each hit only avoids the previous one; was 3 distinct).
     build: skill(
-      trueDmg('enemyRandomN', 2, 1, {
-        n: 3,
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => trueDmg(t, 2, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 3 },
           sources: [
@@ -400,7 +400,7 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
         condMult: REGION2('BayOfStars'),
-      }),
+      })),
     ),
   },
   {
@@ -440,9 +440,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9646,
     desc: "对4名随机敌人造成[(魔法 x 0.7) + 2]真实伤害，伤害值因被激怒的盟友和敌人数量而增强。在破碎之地使用时，造成双倍伤害。 [x2]",
     // 激怒盟友+敌人双计数 ×2（9727 先例）；MultiplyForRegion4010（破碎之地）
+    // Native 9646: RandomEnemy + 3 x RandomPrefNotPrevEnemy (R007-3: each hit only avoids the previous one; was 4 distinct).
     build: skill(
-      trueDmg('enemyRandomN', 2, 0.7, {
-        n: 4,
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => trueDmg(t, 2, 0.7, {
         modifier: {
           mod: { kind: 'multiplier', a: 2 },
           sources: [
@@ -451,7 +451,7 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
         condMult: REGION2('BrokenLands'),
-      }),
+      })),
     ),
   },
   {
