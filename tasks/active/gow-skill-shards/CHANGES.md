@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 503 条改动，涉及 871 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 505 条改动，涉及 873 个技能 ID。
 
 ## 按时间
 
@@ -509,6 +509,8 @@
 | 2026-09-28T12:14 | sa-E | L1-E-race-desc | data | 9508, 9754 | weapon:1616 GoldenTalon；weapon:1665 VulpineFangs | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 1616 zh untranslated Stryx; 1665 Wargare as 战神 → 鸟族 / 狼族 (as in troop descs), family wording |  |
 | 2026-09-28T12:19 | sa-E | L1-E-race-pool-immortals | assembler | 7697, 8648, 8770, 9916 | troop:6507 HyndlaFrostcrown；troop:7105 FlamingOni；weapon:1469 CrownOfHorns；weapon:1692 OceanStar | `src/engine/skills/curated/batch-15.ts`<br>`src/engine/skills/curated/batch-20.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | race summon pools missing newer roster troops (Giant: ImmortalGirthrok; Goblin: Murk,Lurk,AndDurk; Merfolk: ImmortalThalassa) → pools = raw TroopType roster (sweep over all native SummoningType* skills: no other diffs) |  |
 | 2026-09-28T12:19 | sa-E | L1-E-race-desc | data | 8622 | weapon:1425 StaffOfStorms | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh Stryx as 冥河 / summon 猎鹰军团 → 鸟族, family wording |  |
+| 2026-09-28T12:23 | sa-E | L1-E-7554-dist | assembler | 9339 | troop:7554 HoundmasterGor | `src/engine/skills/curated/batch-r7.ts` | Blight Hound count uniform 1-3 → 3 independent summons 100/50/50% (25/50/25%) |  |
+| 2026-09-28T12:23 | sa-E | L1-E-7465-dist | assembler | 9181 | troop:7465 Theodorevich | `src/engine/skills/curated/batch-r22.ts` | 4 summons uniform 25% each → Randomize A+(B-C-D-E-F), B and F both Ragnagord: 40/20/20/20% |  |
 
 ## 按技能 ID
 
@@ -1184,6 +1186,7 @@
 | 9163 | 1 | P-create-interleave |
 | 9165 | 1 | L7-R1-random-chain-waves |
 | 9174 | 1 | L4a-r4-7457 |
+| 9181 | 1 | L1-E-7465-dist |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
 | 9190 | 1 | L7-R1-random-chain-waves |
 | 9193 | 1 | L4a-R1-9193-random-explode |
@@ -1227,6 +1230,7 @@
 | 9318 | 1 | L4a-r3-7543 |
 | 9337 | 1 | R7-tarot-extra-turn |
 | 9338 | 1 | L5-C-7553-boss |
+| 9339 | 1 | L1-E-7554-dist |
 | 9341 | 1 | L2-7556-gold-count |
 | 9349 | 2 | B-L4b-1585-entangle-gems、B-L4b-1585-entangle-gems |
 | 9351 | 1 | L1-E-kingdom-summon-raw |

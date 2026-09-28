@@ -725,7 +725,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 裸单颗宝石操作 = 随机一颗（spell-rules §11 追加）
       explodeAt(CELL),
-      summonRef('BlightHound', undefined, { countRange: { min: 1, max: 3 } }),
+      // native Summoning 7555 x3 at 100/50/50% (independent) -> 1/2/3 = 25/50/25%, not uniform 1-3 (sa-E L1)
+      summonRef('BlightHound'), summonRef('BlightHound', undefined, { chance: 0.5 }), summonRef('BlightHound', undefined, { chance: 0.5 }),
     ),
   },
   {
