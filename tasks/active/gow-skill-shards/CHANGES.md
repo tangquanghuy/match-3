@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 562 条改动，涉及 1010 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 563 条改动，涉及 1011 个技能 ID。
 
 ## 按时间
 
@@ -568,6 +568,7 @@
 | 2026-09-28T22:06 | sa-H | L1-H-7497-book-weights | assembler | 9242 | troop:7497 Isban | `src/engine/skills/curated/batch-10.ts` | 3 Books 1/3 each → native A+(B-C-D-E-F): Witches 2/5, Secrets 2/5, Tome of Evil 1/5 |  |
 | 2026-09-28T22:06 | sa-H | L1-H-6651-double-stun-summons | assembler | 7985 | troop:6651 TianYi | `src/engine/skills/curated/batch-r6.ts` | no x2 when my Attack greater; stun = every enemy below max Life; Monkey count uniform 1-3 → x2 via casterStatBeatsTarget attack; stun target + adjacent; Monkey 100% + 50% + 50% |  |
 | 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
+| 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 
 ## 按技能 ID
 
@@ -1308,6 +1309,7 @@
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
+| 9016 | 1 | L1-H-7376-prefnotprev |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9023 | 1 | L4b-R6-B02 |
 | 9025 | 1 | F2-7383-kill-gems |

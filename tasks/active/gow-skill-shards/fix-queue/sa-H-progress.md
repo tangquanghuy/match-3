@@ -65,3 +65,8 @@
 - troop:6673 accept (L1; RemoveColor chosen (R010), 30% run away)
 - troop:6651 fixed+accept (L1; x2 if my Attack greater was missing; stun target+adjacent; summons 100/50/50)
 - troop:6507 fixed+accept (L1; freeze target+adjacent, was all; zh + override 6507)
+- troop:6799 accept (L1; steal [M+2] armor, 30% run away)
+- troop:6557 accept (L1; steal [M+2] life, 30% run away)
+- troop:7376 fixed+accept (L1; RandomEnemy + 3 PrefNotPrev steals, was 4 distinct)
+- weapon:1224 accept (L1; 2 weakest life+armor R005, Undead type pool)
+- troop:6375 accept (L1; Bonestorm, dispel all positive statuses, Undead summon)

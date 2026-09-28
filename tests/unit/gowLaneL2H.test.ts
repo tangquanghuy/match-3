@@ -510,3 +510,25 @@ describe('sa-H L1 B02', () => {
     expect(o.filter(l => l.startsWith('status')).map(l => l.split(' ')[1]).sort()).toEqual(['E10', 'E11']);
   });
 });
+
+describe('sa-H L1 B03', () => {
+  it('troop:6799 / troop:6557 steal then 30% Run Away', () => {
+    for (const key of ['troop:6799', 'troop:6557']) {
+      let fled = 0;
+      for (let seed = 1; seed <= SEEDS; seed++) if (castSpell({ key, seed }).summary.order.some(l => l.startsWith('flee C'))) fled++;
+      within(fled / SEEDS, 0.3, key);
+    }
+  });
+  it('troop:7376 RandomEnemy + 3 x RandomPrefNotPrev Life steals (repeats allowed, never twice in a row)', () => {
+    let repeat = 0;
+    const enemies = [0, 1, 2, 3].map(() => ({ hp: 900, maxHp: 900 }));
+    for (let seed = 1; seed <= 100; seed++) {
+      const hits = orderOf({ key: 'troop:7376', seed, enemies }).filter(l => l.startsWith('dmg ')).map(l => l.split(' ')[1]);
+      expect(hits.length).toBe(4);
+      for (let i = 1; i < 4; i++) expect(hits[i]).not.toBe(hits[i - 1]);
+      if (new Set(hits).size < 4) repeat++;
+    }
+    expect(repeat).toBeGreaterThan(50);
+    expect(orderOf({ key: 'troop:7376', enemies: [{ hp: 900, maxHp: 900 }] }).filter(l => l === 'dmg E10 12').length).toBe(4);
+  });
+});
