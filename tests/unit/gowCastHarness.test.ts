@@ -28,6 +28,14 @@ describe('gowCast harness', () => {
     expect(summary.order.filter(x => x.startsWith('dmg')).map(x => x.split(' ')[1]).sort()).toEqual(['E11', 'E13']);
     expect(summaryLine(summary)).toContain('dmg E11');
   });
+  it('casts are isolated: statuses applied in one cast never leak into the defaults or the next cast', async () => {
+    const { DEFAULT_ALLIES, DEFAULT_ENEMIES } = await import('../helpers/gowCast');
+    const before = JSON.stringify([DEFAULT_ALLIES, DEFAULT_ENEMIES]);
+    const first = summaryLine(castSpell({ key: 'troop:6352' }).summary);
+    castSpell({ key: 'troop:6025' }); castSpell({ key: 'troop:7375' }); // Barrier/Enchant on allies
+    expect(JSON.stringify([DEFAULT_ALLIES, DEFAULT_ENEMIES])).toBe(before);
+    expect(summaryLine(castSpell({ key: 'troop:6352' }).summary)).toBe(first);
+  });
   it('under-mana cast is refused', () => {
     const { summary } = castSpell({ key: 'troop:6614', caster: { mana: 3 } });
     expect(summary.refused).toBe(true); expect(summaryLine(summary)).toBe('REFUSED');

@@ -92,12 +92,15 @@ export function setupCast(o: CastOpts) {
   const side = o.side ?? PlayerSide.Left; const opponent = side === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
   const board = new BoardModel(); const fn = o.board ?? reviewBoard; let id = 1;
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const t = fn(r, c); board.set({ row: r, col: c }, t ? { id: id++, type: t } : null); }
-  const caster = damageCharacter(0, { skillId: skill, mana: cost, manaCost: cost, colors: [...colors], magic: o.magic ?? 10,
+  // Deep-copy every template: engine effects mutate statuses/colors in place, and shared default objects
+  // would leak one cast's statuses into every later cast in the same process.
+  const fresh = (p: Partial<Character>): Partial<Character> => structuredClone(p);
+  const caster = damageCharacter(0, fresh({ skillId: skill, mana: cost, manaCost: cost, colors: [...colors], magic: o.magic ?? 10,
     hp: 900, maxHp: 1000, statuses: [{ id: 'poison', turns: 99 }] as Character['statuses'],
-    troopTypes: ent?.troopTypes, kingdom: ent?.kingdom, ...o.caster } as Partial<Character>);
-  const before = (o.before ?? []).map((a, i) => damageCharacter(5 + i, { mana: 0, ...a }));
-  const allies = (o.allies ?? DEFAULT_ALLIES).map((a, i) => damageCharacter(1 + i, { mana: 0, ...a }));
-  const enemies = (o.enemies ?? DEFAULT_ENEMIES).map((e, i) => damageCharacter(10 + i, { mana: 0, ...e }));
+    troopTypes: ent?.troopTypes, kingdom: ent?.kingdom, ...o.caster } as Partial<Character>));
+  const before = (o.before ?? []).map((a, i) => damageCharacter(5 + i, fresh({ mana: 0, ...a })));
+  const allies = (o.allies ?? DEFAULT_ALLIES).map((a, i) => damageCharacter(1 + i, fresh({ mana: 0, ...a })));
+  const enemies = (o.enemies ?? DEFAULT_ENEMIES).map((e, i) => damageCharacter(10 + i, fresh({ mana: 0, ...e })));
   const mine = { player: side, characters: [...before, caster, ...allies] }; const theirs = { player: opponent, characters: [...enemies] };
   const state = side === PlayerSide.Left ? createGameState(board, mine, theirs) : createGameState(board, theirs, mine, PlayerSide.Right);
   state.activePlayer = side;
