@@ -185,8 +185,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [(魔法 / 2) + 1] 颗宝石。若有一名敌人陷入疾病状态，则使 1 到 4 名敌人中毒。',
     build: skill(
       explodeRandomGems(1, 0.5, 'color'),
-      // 「若有一名敌人陷入疾病状态」= anyEnemyStatus 存在判定 + 「1 到 4 名」= nRange（原语批 §9.7/9.8）
-      inflict('poison', 'enemyRandomN', { nRange: { min: 1, max: 4 }, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      // 「若有一名敌人陷入疾病状态」= anyEnemyStatus 存在判定。sa-A r4: native 「1 到 4 名」= four conditional
+      // Poison@RandomEnemy steps at 100% / 50% / 25% / 25%, each a fresh random pick (ResetTargets, may repeat);
+      // was nRange 1-4 distinct enemies, uniform.
+      inflict('poison', 'enemyRandom', { ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      inflict('poison', 'enemyRandom', { chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      inflict('poison', 'enemyRandom', { chance: 0.25, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      inflict('poison', 'enemyRandom', { chance: 0.25, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
     ),
   },
   {

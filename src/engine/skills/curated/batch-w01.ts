@@ -515,10 +515,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7184,
-    desc: '对前两名敌人造成 [魔法] 点伤害，并移除所有骷髅头以增强伤害效果效果。 [2:1]',
+    desc: '移除所有骷髅头。对前两名敌人造成 [魔法] 点伤害，伤害值因被移除的宝石数而增强。 [2:1]',
     build: skill(
-      dmg('enemyFirstN', 0, 1, { n: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
+      // sa-A r4: native CountGems 50 Skull ; RemoveColor Skull ; Damage Front ; Damage Second (boost had no source, remove came last)
       destroySkulls(),
+      dmg('enemyFirstN', 0, 1, { n: 2, modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems', skulls: true } } }),
     ),
   },
   {

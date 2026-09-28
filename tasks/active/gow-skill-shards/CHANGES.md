@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 461 条改动，涉及 758 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 467 条改动，涉及 764 个技能 ID。
 
 ## 按时间
 
@@ -467,6 +467,12 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
+| 2026-09-28T11:09 | sa-A | L4a-r4-1071 | data | 7184 | weapon:1071 Skullblade | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then remove Skulls; boost had no source (always +0); zh duplicated 效果 → native order: remove Skulls, then damage first 2 boosted [2:1] by Skulls removed; zh reordered |  |
+| 2026-09-28T11:09 | sa-A | L4a-r4-7457 | data | 9174 | troop:7457 Salamandria | `src/engine/skills/curated/batch-p39.ts` | explode Burning gems first, damage boosted x5 by every gem the blasts destroyed → native order: CountGems Burning, true damage boosted x5 per Burning gem on the board, then explode them |  |
+| 2026-09-28T11:12 | sa-A | L4a-r4-6990-zh | data | 8494 | troop:6990 NyarMel | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | zh unreadable machine translation → zh follows English (true heavy splash, boosted by Stone Blocks, explode all, create 3); behaviour unchanged |  |
+| 2026-09-28T11:12 | sa-A | L4a-r4-7318-zh | data | 8930 | troop:7318 Mumakus | `src/engine/skills/curated/batch-r14.ts`<br>`src/data/gowSnapshotOverrides.json` | zh described another spell (5x5, armor/life, gargoyle gems) → zh follows English (destroy a row, damage first 2 boosted by my Life [3:1]); behaviour unchanged |  |
+| 2026-09-28T11:21 | sa-A | L4a-r4-6758 | data | 8138 | troop:6758 Exploadstool | `src/engine/skills/curated/batch-37.ts` | if an enemy is Diseased: Poison 1-4 distinct random enemies (uniform count) → native four conditional Poison@RandomEnemy steps at 100/50/25/25%, fresh random pick each (may repeat) |  |
+| 2026-09-28T11:21 | sa-A | L4a-r4-7174 | data | 8745 | troop:7174 Mechweaver | `src/engine/skills/curated/batch-p37.ts` | destroy chosen row, then chosen column (two clears; a created Bomb could trigger between) → native DestroyGems RowAndColumn: one 15-cell cross clear |  |
 
 ## 按技能 ID
 
@@ -520,6 +526,7 @@
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
+| 7184 | 1 | L4a-r4-1071 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -766,6 +773,7 @@
 | 8113 | 1 | P-counter-per-step |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
+| 8138 | 1 | L4a-r4-6758 |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8140 | 1 | L1-1274-amanithrax |
 | 8150 | 1 | F2-R001-order |
@@ -859,6 +867,7 @@
 | 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
 | 8492 | 1 | L2-6988-one-block |
+| 8494 | 1 | L4a-r4-6990-zh |
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |
 | 8499 | 1 | P-random-stat-pool |
@@ -950,6 +959,7 @@
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
 | 8732 | 1 | L1-7157-devour |
+| 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -1007,6 +1017,7 @@
 | 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
 | 8928 | 1 | P-R1-row-count-at-cast-start |
+| 8930 | 1 | L4a-r4-7318-zh |
 | 8933 | 1 | F2-7321-no-events |
 | 8939 | 1 | R3-B02-7327 |
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -1048,6 +1059,7 @@
 | 9162 | 1 | R012 |
 | 9163 | 1 | P-create-interleave |
 | 9165 | 1 | L7-R1-random-chain-waves |
+| 9174 | 1 | L4a-r4-7457 |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
 | 9190 | 1 | L7-R1-random-chain-waves |
 | 9193 | 1 | L4a-R1-9193-random-explode |
