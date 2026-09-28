@@ -178,10 +178,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7209,
-    desc: '对 1 名敌人造成 [魔法 + 7] 点伤害。如果对方是野兽，则造成双倍伤害。',
+    desc: '对 1 名敌人造成 [魔法 + 7] 点伤害。如果对方是野兽，则造成三倍伤害。',
     build: skill(
       // raceDouble 逐受击目标判定（damage.ts），「对方」= 该敌人为野兽时翻倍
-      dmg('enemyChosen', 7, 1, { raceDouble: 'Beast' }),
+      dmg('enemyChosen', 7, 1, { raceDouble: 'Beast', raceTimes: 3 }), // 原生 MultiplyForBeast StatusAmount 3 = triple（sa-D）
     ),
   },
   {

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 389 条改动，涉及 682 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 397 条改动，涉及 692 个技能 ID。
 
 ## 按时间
 
@@ -395,6 +395,14 @@
 | 2026-09-28T09:20 | sa-P | P-R1-chosen-target-color-cond | primitive | 8467 | troop:6964 StormKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`tests/unit/gowFixP-R1-chosen-target-color-cond.test.ts` | only lastTargetColor existed (needs a prior targeting segment), so 8467 dealt the true damage first and column skulls could miss a killed front target → global condition chosenTargetColor (cast-start colours of the chosen target); 8467 native order DestroyColumn -> IncreaseAttack -> TrueDamage | troop:6964 only |
 | 2026-09-28T09:20 | sa-P | P-R1-row-count-at-cast-start | primitive | 8928 | troop:7316 EyeOfArges | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`tests/unit/gowFixP-R1-row-count-at-cast-start.test.ts` | 8928 counted Red / Brown / Skull gems on the whole board (L10 dmg 178) → castTracking.chosenRowAtCastStart + source chosenRowAtCastStart: only the chosen row, captured before the explode (26 + 8 x row count) | troop:7316 only |
 | 2026-09-28T09:25 | sa-P | P-R1-dual-storm | primitive | 8560, 8562, 8454 | troop:7036 HellclawHunter；troop:7038 HellclawWarrior；weapon:1391 IndrajitsClaw | `src/engine/types.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/storm.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-R1-dual-storm.test.ts` | storms had one colour; Hellstorm (native StormRedPurple) approximated as a Red storm → Team.storm.color2 / storm segment color2 / createStorm opts.color2: both colours get STORM_DROP_WEIGHT in refills, stormPresent matches either; 8560 8562 8454 Red + Purple | storm-change event still reports the primary colour only (UI shows a Red storm) |
+| 2026-09-28T10:19 | sa-D | D-1435-doomskull | assembler | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/curated/batch-w03.ts` | slay chance boosted by all Skulls on the board (boardSkulls) → boosted by Doomskulls only (native CountGems Doomskull 600); order Lethal->TrueDamage still pending P-D-lethal-first-lasttarget |  |
+| 2026-09-28T10:23 | sa-D | D-7575-zh | data | 9371 | troop:7575 ImmortalAquaria | `src/engine/skills/curated/batch-r14.ts`<br>`scripts/curated-pools/pool-30.json`<br>`src/data/gowSnapshotOverrides.json` | zh: 并使其下方敌受到其所受伤害的一半 (no 'all') → zh: 并对其下方所有敌人造成该伤害的一半 (English 'all Enemies below them', native BelowTarget) |  |
+| 2026-09-28T10:25 | sa-D | D-6806-count20 | assembler | 8209 | troop:6806 Night-Slayer | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | damage boosted by target Life ratio 20:1 (5%): 59 vs E11 900 Life; zh did not say whose Life → native CountLife@FromTarget 20 = 20% = [5:1] (R003-2): 194; zh 因其生命值 |  |
+| 2026-09-28T10:30 | sa-D | D-6117-beast-triple | assembler | 7209 | troop:6117 Scarlett | `src/engine/skills/curated/batch-05.ts`<br>`scripts/curated-pools/pool-05.json`<br>`src/data/gowSnapshotOverrides.json` | x2 against Beasts (raceDouble default 2); zh 双倍 → x3 (native MultiplyForBeast StatusAmount 3, English triple); zh 三倍 |  |
+| 2026-09-28T10:37 | sa-D | D-1000-strongest | assembler | 7066 | weapon:1000 KnightsSword | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | damage to the first enemy (enemyFront); zh 对第 1 名敌人 → native Damage@StrongestEnemy -> enemyHealthiest (Life+Armor, R005); zh 对最强的敌人 (pool + reviewed-override description) |  |
+| 2026-09-28T10:39 | sa-D | D-1109-single-hit | assembler | 7246 | weapon:1109 CrimsonInsignia | `src/engine/skills/curated/batch-w01.ts` | 13+ Red Gems: a second separate 8-damage hit → native single Damage step with AddFor10RedGems 8: one hit of [Magic+4]+8 (condBonus) |  |
+| 2026-09-28T10:42 | sa-D | D-b09-targets | assembler | 8463, 7239, 7271, 7648 | troop:6956 Baphomet；weapon:1103 OrderAndChaos；weapon:1119 ChainFlail；troop:6470 Scorpius | `src/engine/skills/curated/batch-08.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-r15.ts` | 6956 3 distinct randoms picked at once (only 2 hits with 2 enemies); 1103 only the last enemy hit (second-last missing); 1119 bonus 9 dmg could hit the chosen enemy again; 6470 lethal re-resolved the last 2 after kills → 6956 randomWaves 3 + notHit (R006-C3); 1103 enemyLastN n2 (second-last then last); 1119 enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy); 6470 lethal on lastTargets (same two enemies) |  |
+| 2026-09-28T10:44 | sa-D | D-1509-mark-target | assembler | 8952 | weapon:1509 VampiricMark | `src/engine/skills/curated/batch-w03.ts` | steal 6 Life if ANY enemy has Hunter's Mark → only if the target has Hunter's Mark (native StealLife@FromTarget AddForHuntersMark) |  |
 
 ## 按技能 ID
 
@@ -426,6 +434,7 @@
 | 7061 | 1 | F3-t6061 |
 | 7063 | 1 | P-create-interleave |
 | 7065 | 1 | F2-R001-order |
+| 7066 | 1 | D-1000-strongest |
 | 7092 | 1 | L4b-7276-singlegem |
 | 7094 | 1 | F2-1028-missing-magic |
 | 7124 | 1 | F2-1058-boost-source |
@@ -444,6 +453,7 @@
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7207 | 1 | P-R1-count-at-native-step |
 | 7208 | 1 | P-prefnotprev-semantics |
+| 7209 | 1 | D-6117-beast-triple |
 | 7210 | 1 | L1-consume-first |
 | 7211 | 1 | F1-steal-before-damage |
 | 7214 | 1 | L1-summon-dist |
@@ -453,15 +463,18 @@
 | 7233 | 1 | F1-items-62-75 |
 | 7236 | 2 | P-random-stat-pool、F1-items-54-60 |
 | 7237 | 2 | L1-6135-allies、P-R1-count-at-native-step |
+| 7239 | 1 | D-b09-targets |
 | 7240 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7244 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7245 | 1 | F1-onkill-order |
+| 7246 | 1 | D-1109-single-hit |
 | 7248 | 1 | L7-R1-weapon-colour-race |
 | 7252 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7254 | 1 | L2-wrong-enemy-branches |
 | 7260 | 1 | F1-items-62-75 |
 | 7265 | 1 | L3-008 |
 | 7266 | 1 | L4b-6152-attack |
+| 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
 | 7280 | 1 | P-create-interleave |
 | 7281 | 1 | L1-R2-consume-first |
@@ -576,6 +589,7 @@
 | 7645 | 1 | F2-6467-life-armor |
 | 7646 | 1 | F3-q07 |
 | 7647 | 1 | L1-6469-order |
+| 7648 | 1 | D-b09-targets |
 | 7654 | 1 | P-prefnotprev-semantics |
 | 7655 | 1 | P-R1-count-at-native-step |
 | 7656 | 1 | P-R1-count-at-native-step |
@@ -676,6 +690,7 @@
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
 | 8204 | 1 | P-counter-per-step |
 | 8208 | 1 | F2-R001-order |
+| 8209 | 1 | D-6806-count20 |
 | 8211 | 1 | L1-6808-branches |
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
@@ -735,6 +750,7 @@
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
+| 8463 | 1 | D-b09-targets |
 | 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
 | 8468 | 1 | F2-R001-order |
 | 8469 | 1 | R011 |
@@ -809,6 +825,7 @@
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
+| 8664 | 1 | D-1435-doomskull |
 | 8665 | 1 | L2-7125-branches |
 | 8666 | 1 | R7-tarot-extra-turn |
 | 8667 | 1 | R7-tarot-extra-turn |
@@ -883,6 +900,7 @@
 | 8939 | 1 | R3-B02-7327 |
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8946 | 1 | R3-B09-1505 |
+| 8952 | 1 | D-1509-mark-target |
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
@@ -954,7 +972,7 @@
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
 | 9370 | 1 | P-prefnotprev-semantics |
-| 9371 | 2 | R012、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
+| 9371 | 3 | R012、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count、D-7575-zh |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9377 | 1 | P-prefnotprev-semantics |
 | 9380 | 1 | L4a-R1-immortal-order |

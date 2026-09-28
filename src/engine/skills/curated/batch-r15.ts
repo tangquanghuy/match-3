@@ -342,7 +342,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后两名敌人造成 [魔法 + 15] 点伤害。若敌人已中毒，则此伤害为致命。',
     build: skill(
       dmg('enemyLastN', 15, 1, { n: 2 }),
-      dmg('enemyLastN', 0, 0, { n: 2, execute: true, ifCond: { kind: 'targetStatus', statusId: 'poison' } }),
+      // 原生 Lethal@SecondLast/Last 与前两段同一批敌人：锁定上一段目标（lastTargets），击杀后不改打新的末两位（sa-D）
+      dmg('lastTargets', 0, 0, { execute: true, ifCond: { kind: 'targetStatus', statusId: 'poison' } }),
     ),
   },
   {

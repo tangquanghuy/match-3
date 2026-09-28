@@ -25,9 +25,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7066,
-    desc: '对第 1 名敌人造成 [(魔法 / 2) + 3] 点伤害。',
+    desc: '对最强的敌人造成 [(魔法 / 2) + 3] 点伤害。',
     build: skill(
-      dmg('enemyFront', 3, 0.5),
+      dmg('enemyHealthiest', 3, 0.5), // 原生 Damage@StrongestEnemy（R005 生命+护甲；sa-D）
     ),
   },
   {
@@ -708,7 +708,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7239,
     desc: '对最后两名敌人造成 [魔法 + 2] 点伤害。如果伤害目标是龙族，则造成双倍伤害。',
     build: skill(
-      dmg('enemyLast', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Dragon' } } }),
+      // 原生 Damage@SecondLastEnemy → Damage@LastEnemy：倒数第二、最后各一次（原缺倒数第二段；sa-D）
+      dmg('enemyLastN', 2, 1, { n: 2, condMult: { times: 2, cond: { kind: 'targetRace', race: 'Dragon' } } }),
     ),
   },
   {
@@ -753,8 +754,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7246,
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。如果板面上有 13 颗或更多红色宝石，则额外造成 8 点伤害。',
     build: skill(
-      dmg('enemyChosen', 4, 1),
-      dmg('enemyChosen', 8, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } }),
+      // 原生单步 Damage [AddFor10RedGems 8]：一次伤害内 +8（不是第二段伤害；sa-D）
+      dmg('enemyChosen', 4, 1, { condBonus: { n: 8, cond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } } }),
     ),
   },
   {
@@ -827,7 +828,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌方有不死族军队，则对另1 名随机敌人造成 9 点伤害。',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('enemyRandomN', 9, 0, { n: 1, ifCond: { kind: 'enemyRacePresent', race: 'Undead' } }),
+      // 原生 Damage@RandomPrefNotPrevEnemy：「另一名」随机敌人，避开上一目标（R007-3；sa-D）
+      dmg('enemyRandomPrefNotPrev', 9, 0, { ifCond: { kind: 'enemyRacePresent', race: 'Undead' } }),
     ),
   },
   {

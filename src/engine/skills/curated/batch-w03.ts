@@ -579,8 +579,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8664,
     desc: '对末位敌人造成 [魔法 + 3] 点真实伤害，有 6% 的几率将其杀戮。每有一颗末日骷髅头则几率增强 6%。 [x6]',
     build: skill(
+      // 原生 CountGems Doomskull → 只计末日骷髅头（sa-D）。原生顺序为先 Lethal 后 TrueDamage（R001），
+      // 但即杀段掷骰失败时不写 lastTarget，后段无法锁定同一名敌人 → 暂保留伤害在前（primitive-queue P-D-lethal-first-lasttarget）
       trueDmg('enemyLast', 3, 1, { trueDamage: true }),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.06, chanceBoost: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSkulls' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.06, chanceBoost: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } } }),
     ),
   },
   {
@@ -1152,7 +1154,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害。若对方陷入猎人标记状态，则窃取其 6 点生命值。',
     build: skill(
       dmg('enemyChosen', 2, 1),
-      dmg('lastTarget', 6, 0, { drain: true, ifCond: { kind: 'anyEnemyStatus', statusId: 'marked' } }),
+      // 原生 StealLife@FromTarget [AddForHuntersMark 6]：看该目标本身是否被猎人标记（不是任一敌人；sa-D）
+      dmg('lastTarget', 6, 0, { drain: true, ifCond: { kind: 'targetStatus', statusId: 'marked' } }),
     ),
   },
   {

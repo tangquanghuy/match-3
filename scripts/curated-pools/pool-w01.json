@@ -4,7 +4,7 @@
   "weaponRef": "KnightsSword",
   "weaponName": "骑士之剑",
   "spellName": "骑士之剑",
-  "desc": "对第 1 名敌人造成 [(魔法 / 2) + 3] 点伤害。",
+  "desc": "对最强的敌人造成 [(魔法 / 2) + 3] 点伤害。",
   "scalings": [
    {
     "base": 3,

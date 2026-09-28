@@ -339,7 +339,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9371,
-    desc: '对一名敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，并使其下方敌受到其所受伤害的一半，伤害值因蓝龙宝石而增强。若在星星湾使用，则伤害翻倍。 [x2]',
+    desc: '对一名敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，并对其下方所有敌人造成该伤害的一半，伤害值因蓝龙宝石而增强。若在星星湾使用，则伤害翻倍。 [x2]',
     // 「其下方所有敌人」= enemyBelowTarget（R13）；「一半」[(M×1.5)+2]×0.5 = [(M×0.75)+1]；
     // 「蓝龙宝石」= boardSpecial dragonGem（引擎计数不分 spec.color，超集口径注明）；
     // MultiplyForRegion4007（星星湾）= regionPresent（R11 建模）
