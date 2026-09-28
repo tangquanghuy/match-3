@@ -56,6 +56,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对 1 名敌人造成一项随机状态效果。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。"
     },
+    "6150": {
+      "spellId": 7264,
+      "reason": "sa-C r9: English Dimetraxia 'There's a 75% chance to Burn all Enemies'; native CauseBurning@AllEnemies PercentageChance 75; old Chinese said 'everyone' (所有人).",
+      "spellDescription": "对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有敌人。"
+    },
     "6163": {
       "spellId": 7289,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",

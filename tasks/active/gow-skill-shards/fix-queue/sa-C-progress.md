@@ -38,3 +38,9 @@
 - weapon:1149 fixed (7446 Cleanse/Enchant allyOthers not allyAll; override entry added)
 - troop:7797 fixed+issue L5-C-7797-chance (9817 kill roll first on already Entangled only; DISPUTE English 30% vs native 25, 30 kept)
 - B13 troop:6450,6690,7323,weapon:1149,troop:7797 approve=4 fixed=3 issue=1
+- weapon:1446 accept (8702 scatter + Tempering, Bless Purple allies, Curse Purple enemies)
+- troop:6150 fixed zh (7264 '所有人' -> '所有敌人' + snapshot override; one 75% roll)
+- troop:6158 accept (7278)
+- troop:7718 fixed (9710 RandomEnemy burn + RandomPrefNotPrev burn 50%)
+- troop:7013 accept (8545 one 75% roll)
+- B14 weapon:1446,troop:6150,6158,7718,7013 approve=5 fixed=2 issue=0

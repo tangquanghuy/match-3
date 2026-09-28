@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 636 条改动，涉及 1088 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 638 条改动，涉及 1090 个技能 ID。
 
 ## 按时间
 
@@ -642,6 +642,8 @@
 | 2026-09-28T22:42 | sa-C | L5-C-r9-1149 | assembler | 7446 | weapon:1149 OrpheusLute | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Cleanse and Enchant allyAll (caster included) → native Cleanse/CauseEnchanted @AllAlliesButNotSelf = allyOthers; reviewed override entry added |  |
 | 2026-09-28T22:42 | sa-C | L5-C-r9-6690 | assembler | 8036 | troop:6690 SilverOak | `src/engine/skills/curated/batch-r18.ts` | Enchant before Bless → native order Health -> Blessed -> Enchanted |  |
 | 2026-09-28T22:42 | sa-C | L5-C-7797-chance | assembler | 9817 | troop:7797 AssassinVine | `src/engine/skills/curated/batch-18.ts` | execute checked after this cast's own Entangle (every cast had the kill roll) → native LethalDamageConditional first: only an already Entangled target; chance kept at English 30% (native 25, dispute) |  |
+| 2026-09-28T22:44 | sa-C | L5-C-r9-7718 | assembler | 9710 | troop:7718 CrimsonWyrmling | `src/engine/skills/curated/batch-r1.ts` | Burn enemyRandomN nRange 1-2 → native Burn RandomEnemy ; Burn RandomPrefNotPrevEnemy 50% |  |
+| 2026-09-28T22:44 | sa-C | L5-C-r9-6150-zh | data | 7264 | troop:6150 Dimetraxia | `src/engine/skills/curated/batch-05.ts`<br>`src/data/gowSnapshotOverrides.json` | zh 75% 的几率燃烧所有人 (everyone) → zh 燃烧所有敌人 (English all Enemies), snapshot override |  |
 
 ## 按技能 ID
 
@@ -735,6 +737,7 @@
 | 7252 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7254 | 1 | L2-wrong-enemy-branches |
 | 7260 | 1 | F1-items-62-75 |
+| 7264 | 1 | L5-C-r9-6150-zh |
 | 7265 | 1 | L3-008 |
 | 7266 | 1 | L4b-6152-attack |
 | 7269 | 1 | L4a-r3-1117 |
@@ -1645,6 +1648,7 @@
 | 9688 | 1 | L7-R1-teamsize-source |
 | 9689 | 1 | P-E-faction-kingdom |
 | 9692 | 1 | P-E-faction-kingdom |
+| 9710 | 1 | L5-C-r9-7718 |
 | 9711 | 1 | L1-7719-random |
 | 9716 | 1 | F3-t7724 |
 | 9719 | 1 | P-prefnotprev-semantics |

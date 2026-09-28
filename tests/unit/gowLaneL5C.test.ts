@@ -415,3 +415,37 @@ describe('L5 sa-C round 9 B13', () => {
     expect(kills).toBeGreaterThan(40); expect(kills).toBeLessThan(80);
   });
 });
+describe('L5 sa-C round 9 B14', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  const sum = (o: string[]) => dmgs(o).reduce((a, x) => a + x.n, 0);
+  it('weapon:1446 scatter total 16 + 2M; Bless Purple allies, Curse Purple enemies only', () => {
+    const o = order({ key: 'weapon:1446', caster: { colors: [BaseColor.Blue] }, allies: allies({ 1: { colors: [BaseColor.Purple] } }) });
+    expect(sum(o)).toBe(36);
+    expect(o.filter(x => x.startsWith('status'))).toEqual(['status A2 +blessed', 'status E12 +curse']);
+  });
+  it('troop:6150 scatter 9 + M; one 75% roll Burns all enemies or none', () => {
+    let all = 0;
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6150', seed }); expect(sum(o)).toBe(19);
+      const b = o.filter(x => x.includes('+burning')).length; expect([0, 4]).toContain(b); if (b === 4) all++;
+    }
+    expect(all).toBeGreaterThan(22); expect(all).toBeLessThan(38);
+  });
+  it('troop:6158 scatter 8 + M, Burn exactly one random enemy', () => {
+    for (const seed of seeds.slice(0, 10)) { const o = order({ key: 'troop:6158', seed }); expect(sum(o)).toBe(18); expect(o.filter(x => x.includes('+burning'))).toHaveLength(1); }
+  });
+  it('troop:7718 Burn a random enemy, then 50% another (prefers a different one)', () => {
+    const n: Record<number, number> = {};
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:7718', seed }); expect(sum(o)).toBe(16);
+      const b = o.filter(x => x.includes('+burning')); if (b.length === 2) expect(b[0]).not.toBe(b[1]);
+      n[b.length] = (n[b.length] ?? 0) + 1;
+    }
+    expect(n[1]).toBeGreaterThan(10); expect(n[2]).toBeGreaterThan(10);
+  });
+  it('troop:7013 scatter 8 + M; one 75% roll Enchants all allies or none', () => {
+    let all = 0;
+    for (const seed of seeds) { const o = order({ key: 'troop:7013', seed }); expect(sum(o)).toBe(18); const e = o.filter(x => x.includes('+enchanted')).length; expect([0, 3]).toContain(e); if (e === 3) all++; }
+    expect(all).toBeGreaterThan(22); expect(all).toBeLessThan(38);
+  });
+});
