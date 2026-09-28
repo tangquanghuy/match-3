@@ -14,3 +14,8 @@
 - troop:6198 fixed+accept (native order Disease before Poison)
 - troop:7605 accept (2 independent DecreaseRandom steps may repeat a Skill; Geheron x2 via state.region)
 - troop:6993 fixed+accept (repeats RandomPrefNotPrev; zh rewritten + override 6993; note: native ResetTargets flag on DestroyColor treated as presentation, like L3)
+- troop:7284 accept (Choose: destroy Purple+first 2 | create 12 Purple+last 2)
+- troop:7281 accept (Choose column | row)
+- troop:6959 fixed+accept (branch gave 12 Mana; native IncreaseSpellPower = 12 Magic)
+- troop:7427 accept (random row, 1 + 2 x 50% statuses)
+- troop:6948 fixed+accept (ABC-DEF either Green or Purple explode, was union pool)

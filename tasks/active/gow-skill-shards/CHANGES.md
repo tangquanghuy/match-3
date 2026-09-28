@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 545 条改动，涉及 994 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 996 个技能 ID。
 
 ## 按时间
 
@@ -551,6 +551,8 @@
 | 2026-09-28T21:26 | sa-H | L2-H-1296-spm034 | assembler | 8253 | weapon:1296 StaffOfInsanity | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Magic branch mult 0.3333 (English Magic / 3) → mult 0.34 = native SpellPowerMultiplier (R001; differs e.g. at Magic 25: 10 vs 9) |  |
 | 2026-09-28T21:26 | sa-H | L2-H-6198-order | assembler | 7340 | troop:6198 Plague | `src/engine/skills/curated/batch-r12.ts` | Poison then Disease → native order Disease then Poison (R001) |  |
 | 2026-09-28T21:26 | sa-H | L2-H-6993-prefnotprev | assembler | 8499 | troop:6993 Dao | `src/engine/skills/curated/batch-r13.ts`<br>`src/data/gowSnapshotOverrides.json` | repeats used plain enemyRandom; zh mistranslated → repeats enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy, R007-3); zh rewritten + override |  |
+| 2026-09-28T21:32 | sa-H | L2-H-6959-magic | assembler | 8459 | troop:6959 KoboldMagi | `src/engine/skills/curated/batch-r1.ts` | second branch gave 12 Mana → gives 12 Magic (native IncreaseSpellPower 12, English gain 12 Magic) |  |
+| 2026-09-28T21:32 | sa-H | L2-H-6948-either-colour | assembler | 8429 | troop:6948 DeepHuntsman | `src/engine/skills/curated/batch-r22.ts` | explode [M+1] gems from a Green+Purple union pool → Randomize ABC-DEF: 1/2 explode [M+1] Green, 1/2 explode [M+1] Purple; then Curse + Web first enemy |  |
 
 ## 按技能 ID
 
@@ -1022,6 +1024,7 @@
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
 | 8427 | 1 | L2-6946-order |
+| 8429 | 1 | L2-H-6948-either-colour |
 | 8430 | 1 | L2-6949-branches |
 | 8432 | 1 | B-L4b-1371-target-status |
 | 8434 | 1 | P-E-faction-kingdom |
@@ -1041,6 +1044,7 @@
 | 8453 | 1 | P-E-faction-kingdom |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
+| 8459 | 1 | L2-H-6959-magic |
 | 8460 | 1 | L1-E-kingdom-summon-raw |
 | 8461 | 1 | L1-E-1394-pool |
 | 8463 | 1 | D-b09-targets |

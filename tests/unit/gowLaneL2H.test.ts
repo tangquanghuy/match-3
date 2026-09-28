@@ -153,3 +153,46 @@ describe('sa-H L2 B03', () => {
     expect(lone.length).toBe(3);
   });
 });
+
+describe('sa-H L2 B04', () => {
+  it('troop:7284 Choose: A destroy Purple + first 2, B create 12 Purple + last 2', () => {
+    const b = choose({ key: 'troop:7284' }, 1);
+    expect(b[0]).toMatch(/-> Purple x12$|^create Purple x12/);
+    expect(b.filter(l => l.startsWith('dmg ')).map(l => l.split(' ')[1])).toEqual(['E12', 'E13']);
+  });
+  it('troop:7281 Choose: column | row', () => {
+    const f = (i: number) => { const s = setupCast({ key: 'troop:7281' }); s.engine.setBranchChooser(new FixedBranchChooser(i));
+      const ev = s.cast(); const d = ev.find(e => e.type === 'gem-destroy') as { cells: { pos: { row: number; col: number } }[] } | undefined; return d?.cells.map(c => c.pos) ?? []; };
+    const col = f(0), row = f(1);
+    expect(col.length).toBe(8); expect(new Set(col.map(p => p.col)).size).toBe(1);
+    expect(row.length).toBe(8); expect(new Set(row.map(p => p.row)).size).toBe(1);
+  });
+  it('troop:6959 AB+(C-D-E-F): column + scatter always, then 1/2 extra turn | 1/2 +12 Magic (not Mana)', () => {
+    let extra = 0, mag = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:6959', seed }).summary.order;
+      if (o.includes('extra-turn skill')) extra++; if (o.includes('buff C magic+12')) mag++;
+      expect(o.some(l => l.startsWith('buff C mana'))).toBe(false);
+    }
+    within(extra / SEEDS, 0.5, 'extra'); within(mag / SEEDS, 0.5, 'magic'); expect(extra + mag).toBe(SEEDS);
+  });
+  it('troop:7427 random row, [M+3] to the chosen enemy, 1 + 2 x 50% random statuses', () => {
+    const counts = [0, 0, 0, 0];
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const f = setupCast({ key: 'troop:7427', seed }); const ev = f.cast();
+      counts[ev.filter(e => e.type === 'status-apply' && e.targetId === 11).length]++;
+    }
+    expect(counts[0]).toBe(0); within(counts[1] / SEEDS, 0.25, '1'); within(counts[2] / SEEDS, 0.5, '2'); within(counts[3] / SEEDS, 0.25, '3');
+  });
+  it('troop:6948 ABC-DEF: explode [M+1] Green OR [M+1] Purple (1/2 each), never a mixed pool', () => {
+    // Green only on row 0, no Purple on the board: the Purple branch explodes nothing
+    const board = (r: number, c: number) => (r === 0 ? { kind: 'color', color: BaseColor.Green } : { kind: 'color', color: (c % 2 ? BaseColor.Red : BaseColor.Blue) }) as never;
+    let exploded = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:6948', seed, board }).summary.order;
+      if (o.some(l => l.startsWith('explode'))) exploded++;
+      expect(o.filter(l => l.startsWith('status E10'))).toEqual(['status E10 +curse', 'status E10 +web']);
+    }
+    within(exploded / SEEDS, 0.5, 'green branch');
+  });
+});
