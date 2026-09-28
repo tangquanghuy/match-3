@@ -92,3 +92,21 @@
 {"key":"troop:6646","done":true,"reason":"only failed on evidence file hash; hashes dropped 2026-09-28","by":"coord","at":"2026-09-27T23:06:15.432Z"}
 {"key":"troop:6219","done":true,"reason":"only failed on evidence file hash; hashes dropped 2026-09-28","by":"coord","at":"2026-09-27T23:06:15.432Z"}
 {"key":"troop:6222","done":true,"reason":"only failed on evidence file hash; hashes dropped 2026-09-28","by":"coord","at":"2026-09-27T23:06:15.432Z"}
+{"key":"troop:6027","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6138","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6206","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6292","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6304","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6479","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6644","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6678","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6800","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6833","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6845","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6929","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6969","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:7070","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:7181","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:7329","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:7467","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"weapon:1081","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
