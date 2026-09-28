@@ -119,6 +119,26 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:51:27.445Z"
  },
+ "troop:6149": {
+  "lines": {
+   "L10": "dmg E11 12 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash)  => E11:hp-12 | E10:hp-3 | E12:hp-3",
+   "R10": "dmg E11 12 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash)  => E11:hp-12 | E10:hp-3 | E12:hp-3",
+   "L0": "dmg E11 2 (splash)  => E11:hp-2",
+   "K": "dmg E11 12 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:38:04.639Z"
+ },
+ "troop:6151": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7  => E10:hp-3 mana-6 | E11:hp-4 mana-7 | E12:hp-6 mana-4 | E13:hp-3 mana-7",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7  => E10:hp-3 mana-6 | E11:hp-4 mana-7 | E12:hp-6 mana-4 | E13:hp-3 mana-7",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7  => E10:hp-1 mana-6 | E11:hp-1 mana-7 | E12:hp-3 mana-4 | E13:hp-1 mana-7",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:38:04.639Z"
+ },
  "troop:6155": {
   "lines": {
    "L10": "dmg E11 19 ; buff C attack+19 ; buff C hp+19 max+19  => E11:hp-9 arm-10 | C:hp+19 max+19 atk+19",
@@ -419,6 +439,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:49:19.936Z"
  },
+ "troop:6526": {
+  "lines": {
+   "L10": "dmg E11 14 ; status E11 +frozen  => E11:hp-4 arm-10 +frozen",
+   "R10": "dmg E11 14 ; status E11 +frozen  => E11:hp-4 arm-10 +frozen",
+   "L0": "dmg E11 4 ; status E11 +frozen  => E11:arm-4 +frozen",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:38:00.920Z"
+ },
  "troop:6531": {
   "lines": {
    "L10": "dmg E11 14 ; extra-turn skill  => E11:hp-4 arm-10  extra:skill",
@@ -558,6 +588,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T09:03:07.017Z"
+ },
+ "troop:6735": {
+  "lines": {
+   "L10": "dmg E11 11 ; status E11 +web  => E11:hp-11 +web",
+   "R10": "dmg E11 11 ; status E11 +web  => E11:hp-11 +web",
+   "L0": "dmg E11 1 ; status E11 +web  => E11:hp-1 +web",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:38:04.639Z"
  },
  "troop:6752": {
   "lines": {
@@ -1109,6 +1149,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T09:07:29.218Z"
  },
+ "troop:7121": {
+  "lines": {
+   "L10": "dmg E11 9 ; buff C hp+9 max+9 ; buff E11 mana-4 ; buff C mana+4 ; buff E11 magic-2 ; buff C magic+2  => E11:hp-9 mag-2 mana-4 | C:hp+9 max+9 mag+2",
+   "R10": "dmg E11 9 ; buff C hp+9 max+9 ; buff E11 mana-4 ; buff C mana+4 ; buff E11 magic-2 ; buff C magic+2  => E11:hp-9 mag-2 mana-4 | C:hp+9 max+9 mag+2",
+   "L0": "dmg E11 1 ; buff C hp+1 max+1 ; buff E11 mana-4 ; buff C mana+4 ; buff E11 magic-2 ; buff C magic+2  => E11:hp-1 mag-2 mana-4 | C:hp+1 max+1 mag+2",
+   "K": "dmg E11 9 ; defeat E11 ; buff C hp+1 max+1  => E11:hp-1 DEAD | C:hp+1 max+1"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:38:04.639Z"
+ },
  "troop:7126": {
   "lines": {
    "L10": "jumble board ; shuffle theirs ; extra-turn skill  extra:skill",
@@ -1418,6 +1468,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:36:06.788Z"
+ },
+ "troop:7401": {
+  "lines": {
+   "L10": "dmg E12 12 ; status E12 +poison ; buff E12 mana-4  => E12:hp-12 mana-4 +poison",
+   "R10": "dmg E12 12 ; status E12 +poison ; buff E12 mana-4  => E12:hp-12 mana-4 +poison",
+   "L0": "dmg E12 2 ; status E12 +poison ; buff E12 mana-4  => E12:hp-2 mana-4 +poison",
+   "K": "dmg E12 12 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:38:04.639Z"
  },
  "troop:7405": {
   "lines": {

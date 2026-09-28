@@ -55,3 +55,11 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - L1 exhausted (10 pending: 10 accept, 0 issue); next L3
 - weapon:1068 fixed+accept (L3; DecreaseMana@FrontEnemy 100 = drain the first enemy; was chosen enemy)
 - L1 B03 + L3 B01 done: accept=5 fixed=2 issue=0
+- troop:7121 accept (L3; steal Life [0.75M+1] = 9 convention:R006-C1, steal 4 Mana, steal 2 Magic)
+- troop:6526 fixed+accept (L3; native StealMana [AddForFrozen 5] BEFORE Damage + Freeze; was checked after Freeze = always stole)
+- troop:7401 accept (L3; random true 12, Poison + drain 5 same target)
+- troop:6735 accept (L3; true 11, drain 5 iff already Webbed, then Web)
+- troop:6151 accept (L3; true scatter 16, drain 7 Mana all)
+- troop:6149 accept (L3; true light splash 12/3, drain all Mana iff target has any status)
+- L3 exhausted (7 pending: 7 accept, 0 issue); L4b and L2: next returns no keys (exhausted)
+- L3 B02 done: accept=6 fixed=1 issue=0

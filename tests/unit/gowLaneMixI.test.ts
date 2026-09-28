@@ -297,3 +297,15 @@ describe('sa-I L3', () => {
     expect(castSpell({ key: 'troop:6526', enemies: frozen }).summary.order.slice(0, 3)).toEqual(['buff E11 mana-5', 'buff C mana+5', 'dmg E11 14']);
   });
 });
+describe('sa-I L3 B02', () => {
+  it('troop:6735 true 11, drains 5 Mana only if already Webbed (checked before this cast Webs them)', () => {
+    expect(castSpell({ key: 'troop:6735' }).summary.order).toEqual(['dmg E11 11', 'status E11 +web']);
+    const webbed = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, armor: 0, mana: 8, statuses: st('web') }];
+    expect(castSpell({ key: 'troop:6735', enemies: webbed }).summary.order.slice(0, 2)).toEqual(['dmg E11 11', 'buff E11 mana-5']);
+  });
+  it('troop:6149 drains all Mana of the target only if it has a status effect', () => {
+    expect(castSpell({ key: 'troop:6149' }).summary.order.some(s => s.includes('mana'))).toBe(false);
+    const sick = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, armor: 0, mana: 8, statuses: st('poison') }];
+    expect(castSpell({ key: 'troop:6149', enemies: sick }).summary.order).toContain('buff E11 mana-8');
+  });
+});

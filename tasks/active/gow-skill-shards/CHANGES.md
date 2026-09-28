@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 642 条改动，涉及 1094 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 643 条改动，涉及 1095 个技能 ID。
 
 ## 按时间
 
@@ -648,6 +648,7 @@
 | 2026-09-28T23:32 | sa-I | L1-I-7140-hag-pool | assembler | 8689 | troop:7140 HornedHag | `src/engine/skills/curated/batch-03.ts` | summon 1 of 7 witch-named troops → native AB-CD-EF: summon Hag 6147 \| NightHag 6292 \| HornedHag 7140 |  |
 | 2026-09-28T23:36 | sa-I | L1-I-7008-prefnotprev | assembler | 8536 | troop:7008 UlfHarrigan | `src/engine/skills/curated/batch-27.ts` | 3 distinct random enemies (enemyRandomN) → native RandomEnemy + 2x RandomPrefNotPrevEnemy, +10 vs wounded checked per hit |  |
 | 2026-09-28T23:36 | sa-I | L3-I-1068-front-drain | assembler | 7176 | weapon:1068 WitheringTouch | `src/engine/skills/curated/batch-w01.ts` | drain all Mana of the chosen enemy → native DecreaseMana@FrontEnemy 100: drain the first enemy |  |
+| 2026-09-28T23:37 | sa-I | L3-I-6526-steal-first | assembler | 7719 | troop:6526 IceWraith | `src/engine/skills/curated/batch-07.ts` | hit, Freeze, then steal 5 Mana if Frozen (always true) → native StealMana [AddForFrozen 5] first: steal only if already Frozen, then hit and Freeze |  |
 
 ## 按技能 ID
 
@@ -920,6 +921,7 @@
 | 7707 | 1 | P-E-faction-kingdom |
 | 7708 | 1 | L4b-R6-B04 |
 | 7712 | 1 | R3-B03-6519 |
+| 7719 | 1 | L3-I-6526-steal-first |
 | 7720 | 1 | F3-q03 |
 | 7722 | 1 | P-E-faction-kingdom |
 | 7723 | 1 | F2-6529-dispel-kill |
