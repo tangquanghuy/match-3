@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 563 条改动，涉及 1017 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 565 条改动，涉及 1018 个技能 ID。
 
 ## 按时间
 
@@ -569,6 +569,8 @@
 | 2026-09-28T21:38 | sa-F | L3-F-6998 | data | 8501 | troop:6998 WilliTheAnchor | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH machine translation (淹没自己 / 额外的转向) → ZH: submerge self, sink to the back, extra turn; behaviour unchanged |  |
 | 2026-09-28T21:40 | sa-F | L3-F-6996 | assembler | 8523 | troop:6996 TheEmperor | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | Attack/Armor/Magic only; ZH garbled → all four Skills incl. Life (native IncreaseAllStats); ZH rewritten |  |
 | 2026-09-28T21:42 | sa-F | L3-F-6992 | data | 8498 | troop:6992 TheArchdeva | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH garbled, amount missing → ZH matches English; behaviour unchanged |  |
+| 2026-09-28T21:46 | sa-F | L3-F-6966 | data | 8469 | troop:6966 SpringEmissary | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH garbled (而等于其法力的半数) → ZH: half their Mana cost; behaviour unchanged |  |
+| 2026-09-28T21:46 | sa-F | L3-F-7736 | assembler | 9613 | troop:7736 MaelstromDagoNath | `src/engine/skills/curated/batch-r8.ts` | 12 plain coloured gems (three createMix pairs) → 12 Mana Potion Gems: native CreateGems2Colors Blue/Green, Red/Yellow, Purple/Brown ManaPotion, 4 each |  |
 
 ## 按技能 ID
 
@@ -1074,7 +1076,7 @@
 | 8463 | 1 | D-b09-targets |
 | 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
 | 8468 | 1 | F2-R001-order |
-| 8469 | 1 | R011 |
+| 8469 | 2 | R011、L3-F-6966 |
 | 8471 | 1 | L1-devour-first |
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
@@ -1477,6 +1479,7 @@
 | 9594 | 1 | R011 |
 | 9597 | 1 | P-counter-per-step |
 | 9602 | 1 | F1-7674-target |
+| 9613 | 1 | L3-F-7736 |
 | 9615 | 1 | L1-7680-pool |
 | 9616 | 1 | F3-q24 |
 | 9628 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |

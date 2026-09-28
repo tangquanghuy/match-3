@@ -382,6 +382,11 @@
       "spellId": 8498,
       "reason": "sa-F: English The Archdeva 'Give them [(Magic x 3) + 3] Attack, Life and Armor, and fill their Mana'; old Chinese was garbled and dropped the amount.",
       "spellDescription": "选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。"
+    },
+    "6966": {
+      "spellId": 8469,
+      "reason": "sa-F: English Spring Emissary 'Give 4 Magic to an Ally and Mana equal to half their Mana cost'; old Chinese was garbled.",
+      "spellDescription": "给予一名盟友 4 点魔力值，以及等同其法力消耗一半的法力值。若他是一名妖仙，则给予其赐福和法印效果。"
     }
   }
 }

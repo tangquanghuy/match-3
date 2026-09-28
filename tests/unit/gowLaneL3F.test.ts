@@ -304,3 +304,24 @@ describe('sa-F B14: conditional ally buffs / storm drain', () => {
     expect(castSpell({ key: 'troop:6995', board: without(BaseColor.Yellow) }).summary.extraTurn).toBeNull();
   });
 });
+
+describe('sa-F B15: Fey buffs / Mana Potion mix', () => {
+  it('troop:6966 SpringEmissary (8469): Bless + Enchant only on a Fey ally', () => {
+    const fey = castSpell({ key: 'troop:6966', allies: [{ hp: 100, maxHp: 100, manaCost: 13, troopTypes: ['Fey'] }] });
+    expect(order(fey)).toEqual(['buff A1 magic+4', 'buff A1 mana+6', 'status A1 +blessed', 'status A1 +enchanted']);
+    const plain = castSpell({ key: 'troop:6966', allies: [{ hp: 100, maxHp: 100, manaCost: 13, troopTypes: ['Human'] }] });
+    expect(order(plain)).toEqual(['buff A1 magic+4', 'buff A1 mana+6']);
+  });
+  it('troop:7736 MaelstromDagoNath (9613): kills the target, then 12 Mana Potion Gems in Blue/Green, Red/Yellow, Purple/Brown fours', () => {
+    const r = castSpell({ key: 'troop:7736' });
+    expect(order(r).slice(0, 2)).toEqual(['dmg E11 910', 'defeat E11']);
+    const converts = order(r).filter(o => o.startsWith('convert'));
+    expect(converts).toHaveLength(3);
+    const pairs = [['Blue', 'Green'], ['Red', 'Yellow'], ['Purple', 'Brown']];
+    converts.forEach((o, i) => {
+      const made = o.split(' -> ')[1].split(', ').map(x => x.split(' x'));
+      expect(made.reduce((s, [, n]) => s + Number(n), 0)).toBe(4);
+      for (const [label] of made) expect(pairs[i].map(c => `manaPotionGem/${c}`)).toContain(label);
+    });
+  });
+});
