@@ -709,6 +709,16 @@
   "by": "sa-C",
   "at": "2026-09-28T11:15:58.667Z"
  },
+ "troop:6785": {
+  "lines": {
+   "L10": "buff A1 armor+18 ; status A2 +barrier  => A1:arm+18 | A2:+barrier",
+   "R10": "buff A1 armor+18 ; status A2 +barrier  => A1:arm+18 | A2:+barrier",
+   "L0": "buff A1 armor+3 ; status A2 +barrier  => A1:arm+3 | A2:+barrier",
+   "K": "buff A1 armor+18 ; status A2 +barrier  => A1:arm+18 | A2:+barrier"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:28:21.454Z"
+ },
  "troop:6788": {
   "lines": {
    "L10": "dmg E11 14 ; status E11 +curse ; status E11 +stun ; status E11 +poison  => E11:hp-4 arm-10 +curse+stun+poison",
@@ -949,6 +959,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:45:26.330Z"
  },
+ "troop:6980": {
+  "lines": {
+   "L10": "buff C armor+11 ; status C +barrier ; move E12 back  => C:arm+11 +barrier",
+   "R10": "buff C armor+11 ; status C +barrier ; move E12 back  => C:arm+11 +barrier",
+   "L0": "buff C armor+1 ; status C +barrier ; move E12 back  => C:arm+1 +barrier",
+   "K": "buff C armor+11 ; status C +barrier ; move E12 back  => C:arm+11 +barrier"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:28:21.454Z"
+ },
  "troop:6985": {
   "lines": {
    "L10": "dmg E11 13 ; status E11 +frozen  => E11:hp-3 arm-10 +frozen",
@@ -1158,6 +1178,26 @@
   },
   "by": "sa-R3",
   "at": "2026-09-28T02:45:26.330Z"
+ },
+ "troop:7191": {
+  "lines": {
+   "L10": "buff C armor+17 ; status C +barrier  => C:arm+17 +barrier",
+   "R10": "buff C armor+17 ; status C +barrier  => C:arm+17 +barrier",
+   "L0": "buff C armor+2 ; status C +barrier  => C:arm+2 +barrier",
+   "K": "buff C armor+17 ; status C +barrier  => C:arm+17 +barrier"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:28:21.454Z"
+ },
+ "troop:7203": {
+  "lines": {
+   "L10": "buff C armor+11 ; status C +barrier  => C:arm+11 +barrier",
+   "R10": "buff C armor+11 ; status C +barrier  => C:arm+11 +barrier",
+   "L0": "buff C armor+1 ; status C +barrier  => C:arm+1 +barrier",
+   "K": "buff C armor+11 ; status C +barrier  => C:arm+11 +barrier"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:28:21.454Z"
  },
  "troop:7262": {
   "lines": {
@@ -2078,6 +2118,16 @@
   },
   "by": "sa-R3",
   "at": "2026-09-28T02:56:47.234Z"
+ },
+ "weapon:1527": {
+  "lines": {
+   "L10": "buff C armor+15 ; buff A1 armor+15 ; buff A2 armor+15  => C:arm+15 | A1:arm+15 | A2:arm+15",
+   "R10": "buff C armor+15 ; buff A1 armor+15 ; buff A2 armor+15  => C:arm+15 | A1:arm+15 | A2:arm+15",
+   "L0": "buff C armor+5 ; buff A1 armor+5 ; buff A2 armor+5  => C:arm+5 | A1:arm+5 | A2:arm+5",
+   "K": "buff C armor+15 ; buff A1 armor+15 ; buff A2 armor+15  => C:arm+15 | A1:arm+15 | A2:arm+15"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:28:21.454Z"
  },
  "weapon:1528": {
   "lines": {

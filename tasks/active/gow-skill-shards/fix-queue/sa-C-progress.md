@@ -20,3 +20,9 @@
 - weapon:1673 accept (doomedBlade Brown 9830)
 - troop:6571 accept (7775 armor strip all -> 2M+7 -> Submerge self)
 - B10 weapon:1670,1671,1672,1673,troop:6571 approve=5 fixed=0 issue=0
+- troop:6785 accept (8175 armor chosen ally, Barrier all below)
+- troop:7203 accept (8790 Barrier Daemons only)
+- weapon:1527 accept (8971 Barrier Whitehelm 3014 only)
+- troop:7191 accept (8772 others Barrier with any Storm)
+- troop:6980 accept (8483 RandomEnemy back)
+- B11 troop:6785,7203,weapon:1527,troop:7191,6980 approve=5 fixed=0 issue=0

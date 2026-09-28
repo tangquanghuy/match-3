@@ -344,3 +344,26 @@ describe('L5 sa-C round 9 B10', () => {
     expect(o.slice(0, 4).every(x => /^buff E1\d armor-/.test(x))).toBe(true);
   });
 });
+describe('L5 sa-C round 9 B11', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6785 armor to the chosen ally, Barrier every ally below it (not the chosen, not above)', () => {
+    expect(order({ key: 'troop:6785', target: 0 })).toEqual(['buff C armor+18', 'status A1 +barrier', 'status A2 +barrier']);
+    expect(order({ key: 'troop:6785', target: 2 })).toEqual(['buff A2 armor+18']);
+  });
+  it('troop:7203 Barriers only Daemon allies', () => {
+    expect(order({ key: 'troop:7203', allies: allies({ 1: { troopTypes: ['Daemon'] } }) })).toEqual(['buff C armor+11', 'status C +barrier', 'status A2 +barrier']);
+    expect(order({ key: 'troop:7203', caster: { troopTypes: ['Construct'] } })).toEqual(['buff C armor+11']);
+  });
+  it('weapon:1527 Barriers only Whitehelm allies after armor to all', () => {
+    expect(order({ key: 'weapon:1527', allies: allies({ 0: { kingdomId: 3014 } }) })).toEqual(['buff C armor+15', 'buff A1 armor+15', 'buff A2 armor+15', 'status A1 +barrier']);
+  });
+  it('troop:7191 other allies Barriered only with a Storm', () => {
+    const f = setupCast({ key: 'troop:7191' }); f.engine.debugSetStorm(BaseColor.Red, f.side);
+    expect(summarize(f, f.cast()).order).toEqual(['buff C armor+17', 'status C +barrier', 'status A1 +barrier', 'status A2 +barrier']);
+  });
+  it('troop:6980 knocks a random enemy (any, the last included) to the back', () => {
+    const who = new Set<string>();
+    for (const seed of seeds) { const o = order({ key: 'troop:6980', seed }); expect(o.slice(0, 2)).toEqual(['buff C armor+11', 'status C +barrier']); const m = o.find(x => x.startsWith('move ')); if (m) who.add(m.split(' ')[1]); }
+    expect(who.size).toBeGreaterThanOrEqual(3);
+  });
+});
