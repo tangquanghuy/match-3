@@ -16,3 +16,4 @@
 - 2026-09-28T21:06:43 R5-B02 weapon:1379-1384,troop:6359,weapon:1549,troop:7461,weapon:1179 approve=10 fixed=7 issue=0 (Doomed x6 armor removal one random enemy; 6359 chosen single hit + create first + zh)
 - 2026-09-28T21:10:31 R5-B03 troop:6888,6357,7261,7642,7360,7558,6221,weapon:1489,troop:6321,6348 approve=10 fixed=2 issue=0 (6321 condition inverted; 1489 Blue Giant Gems missing + override)
 - 2026-09-28T21:13:10 R5-B04 troop:6880,6411,6560,6573,6773,7175,7238,7240,7241,7243 approve=10 fixed=4 issue=0 (7238/7240/7241/7243 R009 Giant Gems; 6573/6773 R000 boss waived)
+- 2026-09-28T21:14:36 R5-B05 troop:7420,7537,7540,7544,7636,7670,7779,weapon:1280,1415,1451 approve=10 fixed=0 issue=0 (FromTarget colour tests; 7540/7670 boss, 7537/7779 tower waived R000)

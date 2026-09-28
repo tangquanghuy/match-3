@@ -232,3 +232,40 @@ describe('L4b R5 B04', () => {
     expect(castSpell({ key: 'troop:6560' }).summary.order).toEqual(['dmg E12 13', 'convert skull x5 -> doomSkull x5']);
   });
 });
+
+describe('L4b R5 B05', () => {
+  // ConvertGems FromTarget: gems of one of the chosen enemy's mana colours (E11 = Yellow/Blue)
+  for (const [key, n, to] of [['troop:7544', 4, 'freezeGem'], ['troop:7636', 6, 'skull'], ['weapon:1415', 3, 'lycanthropyGem']] as const) {
+    it(`${key}: ${n} gems of one of the target's colours -> ${to}; both colours occur`, () => {
+      const seen = new Set<string>();
+      for (let seed = 1; seed <= 30; seed++) {
+        const c = castSpell({ key, seed }).summary.order.find(x => x.startsWith('convert'))!;
+        const m = /^convert (\w+) x(\d+) -> (\w+) x(\d+)$/.exec(c)!;
+        expect(['Yellow', 'Blue']).toContain(m[1]); expect(Number(m[2])).toBe(n); expect(m[3]).toBe(to);
+        seen.add(m[1]);
+      }
+      expect(seen.size).toBe(2);
+    });
+  }
+});
+
+describe('L4b R5 B06', () => {
+  it('troop:6034: 9 gems of one of the damaged enemy\'s colours (E11 Yellow/Blue), both occur', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const c = castSpell({ key: 'troop:6034', seed }).summary.order.find(x => x.startsWith('convert'))!;
+      const to = c.split('-> ')[1];
+      expect(['Yellow x9', 'Blue x9']).toContain(to); seen.add(to);
+    }
+    expect(seen.size).toBe(2);
+  });
+  it('weapon:1683: 4 gems of one of the target\'s colours -> Terror', () => {
+    const c = castSpell({ key: 'weapon:1683' }).summary.order.find(x => x.startsWith('convert'))!;
+    expect(c).toMatch(/^convert (Yellow|Blue) x4 -> terrorGem x4$/);
+  });
+  it('troop:6977: Undead target takes double (22); kill -> 8 Skulls', () => {
+    const undead = DEFAULT_ENEMIES.map(e => ({ ...e, troopTypes: ['Undead'] }));
+    expect(dmgs(castSpell({ key: 'troop:6977', enemies: undead }).summary.order)).toEqual(['dmg E11 22']);
+    expect(dmgs(castSpell({ key: 'troop:6977' }).summary.order)).toEqual(['dmg E11 11']);
+  });
+});
