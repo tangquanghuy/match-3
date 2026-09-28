@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 461 条改动，涉及 758 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 462 条改动，涉及 795 个技能 ID。
 
 ## 按时间
 
@@ -467,6 +467,7 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
+| 2026-09-28T11:10 | sa-P | P-A-target-kingdom | primitive | 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8642, 8807, 8875, 9111, 9593 | weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1429 StarOfNexus；weapon:1479 AegisOfHellcrag；weapon:1499 OrbOfVulpacea；weapon:1560 MydnightsTerror；troop:7665 SeabornKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json`<br>`scripts/_weapon_pools.mjs`<br>`tests/unit/gowFixP-A-target-kingdom.test.ts`<br>`tests/unit/weaponNativeStepRepair.test.ts` | condMult kingdomOf side enemy: any living enemy from the kingdom doubled the hit on any target; zh desc 造成l → new target-relative condition targetKingdom (segment target, fallback chosen target); kingdom weapons anyOf(targetKingdom, kingdomPresent), 9593 targetKingdom; zh stray l removed (pool-w01 + override description/prototype for 34 spells); generator hKingdomCond emits targetKingdom | only kingdom weapons + 9593 used kingdomOf enemy |
 
 ## 按技能 ID
 
@@ -812,6 +813,39 @@
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8316 | 1 | B-L4b-6890-native-chances |
 | 8321 | 1 | L2-1317-branches |
+| 8322 | 1 | P-A-target-kingdom |
+| 8323 | 1 | P-A-target-kingdom |
+| 8324 | 1 | P-A-target-kingdom |
+| 8325 | 1 | P-A-target-kingdom |
+| 8326 | 1 | P-A-target-kingdom |
+| 8327 | 1 | P-A-target-kingdom |
+| 8328 | 1 | P-A-target-kingdom |
+| 8329 | 1 | P-A-target-kingdom |
+| 8330 | 1 | P-A-target-kingdom |
+| 8331 | 1 | P-A-target-kingdom |
+| 8332 | 1 | P-A-target-kingdom |
+| 8333 | 1 | P-A-target-kingdom |
+| 8334 | 1 | P-A-target-kingdom |
+| 8335 | 1 | P-A-target-kingdom |
+| 8336 | 1 | P-A-target-kingdom |
+| 8337 | 1 | P-A-target-kingdom |
+| 8338 | 1 | P-A-target-kingdom |
+| 8339 | 1 | P-A-target-kingdom |
+| 8340 | 1 | P-A-target-kingdom |
+| 8341 | 1 | P-A-target-kingdom |
+| 8342 | 1 | P-A-target-kingdom |
+| 8343 | 1 | P-A-target-kingdom |
+| 8344 | 1 | P-A-target-kingdom |
+| 8345 | 1 | P-A-target-kingdom |
+| 8346 | 1 | P-A-target-kingdom |
+| 8347 | 1 | P-A-target-kingdom |
+| 8348 | 1 | P-A-target-kingdom |
+| 8349 | 1 | P-A-target-kingdom |
+| 8350 | 1 | P-A-target-kingdom |
+| 8351 | 1 | P-A-target-kingdom |
+| 8352 | 1 | P-A-target-kingdom |
+| 8353 | 1 | P-A-target-kingdom |
+| 8354 | 1 | P-A-target-kingdom |
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
 | 8370 | 1 | L4a-r3-6909 |
@@ -921,6 +955,7 @@
 | 8639 | 1 | L7-R1-board-special-counts |
 | 8640 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 8641 | 1 | B-L4b-1428-four-creates |
+| 8642 | 1 | P-A-target-kingdom |
 | 8644 | 1 | L7-R1-weapon-colour-race |
 | 8646 | 1 | L4a-R1-8646-counters |
 | 8650 | 1 | P-prefnotprev-semantics |
@@ -968,7 +1003,7 @@
 | 8798 | 1 | R7-7211-gargoyle-count |
 | 8802 | 1 | F3-t7215 |
 | 8804 | 1 | L2-7217-cell |
-| 8807 | 1 | F2-R001-order |
+| 8807 | 2 | F2-R001-order、P-A-target-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8817 | 1 | L1-7222-chance |
@@ -992,6 +1027,7 @@
 | 8871 | 1 | B-L4b-7257-countmax |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
+| 8875 | 1 | P-A-target-kingdom |
 | 8881 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 8884 | 1 | L2-7265-dragon |
 | 8886 | 1 | R009-7267-color |
@@ -1032,6 +1068,7 @@
 | 9066 | 1 | L1-7417-devour |
 | 9067 | 1 | L3-008 |
 | 9069 | 1 | L2-7406-branch-weights |
+| 9111 | 1 | P-A-target-kingdom |
 | 9115 | 1 | R7-tarot-extra-turn |
 | 9118 | 1 | L1-drain-devour |
 | 9119 | 1 | P-create-interleave |
@@ -1141,6 +1178,7 @@
 | 9579 | 1 | R7-1631-counter-only-drain |
 | 9589 | 1 | L7-R1-random-chain-waves |
 | 9591 | 1 | P-counter-per-step |
+| 9593 | 1 | P-A-target-kingdom |
 | 9594 | 1 | R011 |
 | 9597 | 1 | P-counter-per-step |
 | 9602 | 1 | F1-7674-target |

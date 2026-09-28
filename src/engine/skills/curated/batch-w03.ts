@@ -542,10 +542,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8642,
-    desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自诺斯，或战斗发生在诺斯，则造成双倍伤害。 [3:1]',
+    desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自诺斯，或战斗发生在诺斯，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '诺斯' }, { kind: 'kingdomPresent', kingdom: '诺斯' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '诺斯' }, { kind: 'kingdomPresent', kingdom: '诺斯' }] } } }),
     ),
   },
   {
@@ -937,7 +937,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8807,
     desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，数值因移除的宝石数而增强。若敌人来自地狱悬崖或战斗位于地狱悬崖，则造成双倍伤害。 [3:1]',
     // sa-F2 fix round A (R001): native CountGems 34 Brown ; Damage ; RemoveColor Brown
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"boardGems","color":"Brown"}},"condMult":{"times":2,"cond":{"kind":"anyOf","of":[{"kind":"kingdomOf","side":"enemy","kingdom":"地狱悬崖"},{"kind":"kingdomPresent","kingdom":"地狱悬崖"}]}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Brown"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"boardGems","color":"Brown"}},"condMult":{"times":2,"cond":{"kind":"anyOf","of":[{"kind":"targetKingdom","kingdom":"地狱悬崖"},{"kind":"kingdomPresent","kingdom":"地狱悬崖"}]}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Brown"}}}]} as SkillPrototype),
   },
   {
     id: 8808,
@@ -1040,7 +1040,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自沃尔帕克，或战斗位于沃尔帕克，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '沃尔帕克' }, { kind: 'kingdomPresent', kingdom: '沃尔帕克' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '沃尔帕克' }, { kind: 'kingdomPresent', kingdom: '沃尔帕克' }] } } }),
     ),
   },
   {
@@ -1389,7 +1389,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9111,
     desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自午夜城市或战斗位于午夜城市，则伤害翻倍。 [3:1]',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Brown"}}},{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"destroyedGems"}},"condMult":{"times":2,"cond":{"kind":"anyOf","of":[{"kind":"kingdomOf","side":"enemy","kingdom":"午夜城市"},{"kind":"kingdomPresent","kingdom":"午夜城市"}]}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Brown"}}},{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"destroyedGems"}},"condMult":{"times":2,"cond":{"kind":"anyOf","of":[{"kind":"targetKingdom","kingdom":"午夜城市"},{"kind":"kingdomPresent","kingdom":"午夜城市"}]}}}]} as SkillPrototype),
   },
   {
     id: 9112,

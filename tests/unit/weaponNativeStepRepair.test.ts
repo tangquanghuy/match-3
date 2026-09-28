@@ -159,7 +159,7 @@ describe('weapon-wide verified native-step invariants', () => {
       const cond = segments.find(s => s.kind === 'damage')?.condMult?.cond;
       expect(cond?.kind).toBe('anyOf');
       expect(cond?.of).toEqual([
-        { kind: 'kingdomOf', side: 'enemy', kingdom },
+        { kind: 'targetKingdom', kingdom },
         { kind: 'kingdomPresent', kingdom },
       ]);
     }
