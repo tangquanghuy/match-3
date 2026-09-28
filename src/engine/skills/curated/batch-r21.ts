@@ -104,6 +104,10 @@ const FEYS = [
 ];
 
 /** 「若在夏之岛使用，则伤害翻倍」（R11 惰性条件；标准战斗无 region 字段 → 恒原值） */
+/** 8871: +1 if any enemy is Death Marked (native CountSpecificStatusEffect 100 deathmark ; CountMax 1). */
+const DEATH_MARKED_MAX1: NonNullable<SegmentOpts['modifier']> = {
+  mod: { kind: 'multiplier', a: 1 }, source: { kind: 'enemyStatusCount', statusId: 'death-mark' }, max: 1,
+};
 const REGION2 = (region: string): CondMult => ({ times: 2, cond: { kind: 'regionPresent', region } });
 
 /** 「消除/驱散(一名/所有)敌人正面增益」= 按正面状态逐一驱散（spell-rules §6 口径，r18/r20 同款助手） */
@@ -516,18 +520,17 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8871,
-    desc: '创建 4 颗骷髅头、4 颗末日骷髅头和 4 颗 [1:1]',
+    desc: '创造 4 颗骷髅头、4 颗末日骷髅头和 4 颗超级末日骷髅头。如果有敌人陷入死亡标记状态，则每种骷髅头各多创造 1 颗。 [1:1]',
     // 【挽救】r19 因 ZH 截断（「和 4 颗 [1:1]」末段缺失）留弃；官方 EN 全句实锤：Create 4 Skulls,
     // 4 Doomskulls, and 4 Uber Doomskulls. If an Enemy is Death Marked, create 1 more of each
     // ——三基段 + 三条件段各 +1（anyEnemyStatus death-mark 全局条件）；尾缀 [1:1] 无可绑定来源
     // 句，按官方步骤不落 modifier。
     build: skill(
-    createSkulls(4),
-    createSpecialGems({ kind: 'doomSkull' }, 4),
-    createSpecialGems({ kind: 'uberDoomSkull' }, 4),
-    createSkulls(1, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'death-mark' } }),
-    createSpecialGems({ kind: 'doomSkull' }, 1, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'death-mark' } }),
-    createSpecialGems({ kind: 'uberDoomSkull' }, 1, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'death-mark' } }),
+    // Native 8871: CountSpecificStatusEffect deathmark ; CountMax 1 ; 3 x CreateGems 4 UseCounterForAmount
+    // -> each create is 4 + (1 if any enemy is Death Marked), one create per type (not 4 then +1 later).
+    createSkulls(4, 0, { modifier: DEATH_MARKED_MAX1 }),
+    createSpecialGems({ kind: 'doomSkull' }, 4, 0, { modifier: DEATH_MARKED_MAX1 }),
+    createSpecialGems({ kind: 'uberDoomSkull' }, 4, 0, { modifier: DEATH_MARKED_MAX1 }),
     ),
   },
   {

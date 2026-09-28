@@ -215,3 +215,23 @@
 {"format":"compact","key":"troop:7046","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:24:17.659Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1468","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:24:17.659Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7356","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:24:17.659Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7000","decision":"issue","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:19.475Z","issue":"L4b-7000-countset-order","note":"source-dispute: native 0:CountSet 1 ; 1:CountGems* 50 Yellow ; 2:CreateGems 3 Yellow ; 3:Damage* 3+M. Native counts Yellow BEFORE the 3 are created (R001) -> 13 + floor(9 x 50%) = 17 (or 18 if CountSet 1 seeds the counter); runtime creates first -> 13 + floor(12/2) = 19. CountSet with Amount 1 and CountGems with UseCounterForAmount occur only in this skill; semantics undocumented. zh fixed (changelog B-L4b-7000-zh)."}
+{"format":"compact","key":"troop:6354","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.244Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7490","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6480","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.246Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6762","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.246Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7789","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.246Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7751","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.246Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6274","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.247Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7903","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.247Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7641","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:29:22.247Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7257","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.243Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6299","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.244Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7729","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.244Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7768","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.244Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7814","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7742","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6568","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6579","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7408","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6703","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}

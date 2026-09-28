@@ -2,7 +2,9 @@
 // Real TurnEngine.castSkill through tests/helpers/gowCast.ts; each row has its own entity and expected values.
 import { describe, it, expect } from 'vitest';
 import { BaseColor, specialGem, type GemType, type SpecialGemKind } from '@engine/types';
-import { castSpell, setupCast, summarize, withCells, reviewBoard } from '../helpers/gowCast';
+import { setGoldForSide } from '@engine/battleGold';
+import { castSpell, setupCast, summarize, withCells, reviewBoard, type CastFixture } from '../helpers/gowCast';
+const setGold = (f: CastFixture, g: number) => setGoldForSide(f.state, f.side, g);
 /** review board with `n` copies of a special gem on row 7 (cols 0..n-1). */
 const withSpecials = (kind: SpecialGemKind, n: number, tier?: number) => {
   const over: Record<string, GemType> = {};
@@ -144,5 +146,92 @@ describe('L4b R3 B03', () => {
     const r = castSpell({ key: 'troop:7046', board: withSpecials('lycanthropyGem', 2) }).summary;
     expect(dmgs(r.order)).toEqual(['dmg E10 12', 'dmg E13 12']);
     expect(r.gems.created.doomSkull).toBe(6);
+  });
+});
+
+describe('L4b R3 B04', () => {
+  it('troop:6354: other allies Magic 5 + 7 -> 11 + floor(12 x 50%) = 17 (caster Magic excluded)', () => {
+    const o = castSpell({ key: 'troop:6354', allies: [{ magic: 5 }, { magic: 7 }] }).summary.order;
+    expect(o).toEqual(['convert Blue x11 -> skull x11', 'convert Brown x8 -> Yellow x8', 'dmg E11 17']);
+  });
+  it('troop:7490: steal is capped by the target Magic (CountMagic@FromTarget, CountMaxWithMagic 1+M)', () => {
+    const enemies = [{}, { magic: 5 }, {}, {}];
+    const o = castSpell({ key: 'troop:7490', enemies }).summary.order;
+    expect(o.slice(1)).toEqual(['buff E11 magic-5', 'buff C hp+5 max+5']);
+  });
+  const gold = (key: string, g: number) => { const f = setupCast({ key }); setGold(f, g); return summarize(f, f.cast()); };
+  it('troop:6480 / 6762: 6 + floor(gold x 25% / 20%), capped at +8', () => {
+    expect(gold('troop:6480', 12).gems.created.Red).toBe(9);
+    expect(gold('troop:6480', 1000).gems.created.Red).toBe(14);
+    expect(gold('troop:6762', 12).gems.created.skull).toBe(8);
+    expect(gold('troop:6762', 0).gems.created.skull).toBe(6);
+  });
+  it('troop:7789 / 7751: damage boosted by my Gold at [10:1] / [4:1] (gold 37)', () => {
+    expect(dmgs(gold('troop:7789', 37).order)[0]).toBe('dmg E11 17');
+    expect(dmgs(gold('troop:7751', 37).order)[0]).toBe('dmg E11 22');
+  });
+  it('troop:6274: 2 Treasure Maps -> 8 + 8 = 16 Skulls; 20% chance to gain a map', () => {
+    const f = setupCast({ key: 'troop:6274' }); f.state.economy.maps = 2;
+    expect(summarize(f, f.cast()).gems.created.skull).toBe(16);
+    let gained = 0;
+    for (let seed = 1; seed <= 200; seed++) { const g = setupCast({ key: 'troop:6274', seed }); const m0 = g.state.economy.maps; g.cast(); gained += g.state.economy.maps - m0; }
+    expect(gained).toBeGreaterThan(20); expect(gained).toBeLessThan(65);
+  });
+  it('troop:7903: 23 Souls -> 12 + 4 = 16 to all enemies, then 5 Blue -> Ghost', () => {
+    const f = setupCast({ key: 'troop:7903' }); f.state.economy.souls = 23;
+    const o = summarize(f, f.cast()).order;
+    expect(dmgs(o)).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 16 (all)`));
+    expect(o.at(-1)).toBe('convert Blue x5 -> ghost x5');
+  });
+  it('troop:7641: 2 Cursed enemies -> 3 + 2 = 5 Yellow become Purple Dragon Gems, then Curse + Death Mark one random enemy', () => {
+    const cursed = [0, 1, 2, 3].map(i => (i < 2 ? { statuses: [{ id: 'curse', turns: 99 }] } : {}));
+    const o = castSpell({ key: 'troop:7641', enemies: cursed as never }).summary.order;
+    expect(o[0]).toBe('convert Yellow x5 -> dragonGem/Purple x5');
+  });
+});
+
+describe('L4b R3 B05: status counters', () => {
+  const withStatus = (id: string, n: number, extra: Partial<Record<string, unknown>> = {}) =>
+    [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0, ...extra, ...(i < n ? { statuses: [{ id, turns: 99 }] } : {}) })) as never;
+  it('troop:7257: one Death Marked enemy -> 5 of each skull kind, one create per kind (CountMax 1)', () => {
+    const r = castSpell({ key: 'troop:7257', enemies: withStatus('death-mark', 2) }).summary;
+    expect(r.order.filter(x => x.startsWith('convert'))).toHaveLength(3);
+    expect(r.gems.created).toMatchObject({ skull: 5, doomSkull: 5, uberDoomSkull: 5 });
+    expect(castSpell({ key: 'troop:7257' }).summary.gems.created).toMatchObject({ skull: 4, doomSkull: 4, uberDoomSkull: 4 });
+  });
+  it('troop:6299: Death Marked ally or enemy -> also Yellow -> Skull', () => {
+    expect(castSpell({ key: 'troop:6299', enemies: withStatus('death-mark', 1) }).summary.order[1]).toBe('convert Yellow x9 -> skull x9');
+    expect(castSpell({ key: 'troop:6299', allies: [{ statuses: [{ id: 'death-mark', turns: 99 }] as never }] }).summary.order[1])
+      .toBe('convert Yellow x9 -> skull x9');
+    expect(castSpell({ key: 'troop:6299' }).summary.order.filter(x => x.startsWith('convert'))).toEqual(['convert Green x13 -> Purple x13']);
+  });
+  it('troop:7729: 1 Blessed ally + 2 Blessed enemies -> 13 + 15 = 28 to all', () => {
+    const o = castSpell({ key: 'troop:7729', enemies: withStatus('blessed', 2), allies: [{ statuses: [{ id: 'blessed', turns: 99 }] as never }] }).summary.order;
+    expect(dmgs(o)).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 28 (all)`));
+  });
+  it('troop:7768: damage is not boosted; 2 Poisoned + 1 Diseased enemies -> mix of 16 + 3 = 19 Green/Red', () => {
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0,
+      statuses: i === 0 ? [{ id: 'poison', turns: 99 }, { id: 'disease', turns: 99 }] : i === 1 ? [{ id: 'poison', turns: 99 }] : [] })) as never;
+    const r = castSpell({ key: 'troop:7768', enemies }).summary;
+    expect(dmgs(r.order)).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 18 (all)`));
+    const mix = r.order.find(x => x.startsWith('convert'))!;
+    const n = [...mix.matchAll(/-> .*$/g)][0][0].match(/x(\d+)/g)!.map(x => Number(x.slice(1))).reduce((a, b) => a + b, 0);
+    expect(n).toBe(19);
+  });
+  it('troop:7814: 1 Cursed ally + 1 Cursed enemy -> A1 armor 11 + 6 = 17', () => {
+    const o = castSpell({ key: 'troop:7814', enemies: withStatus('curse', 1), allies: [{ statuses: [{ id: 'curse', turns: 99 }] as never }] }).summary.order;
+    expect(o[0]).toBe('buff A1 armor+17');
+  });
+  it('troop:7742: default (E10, E13 Enraged) -> 14 + 20 = 34 main, second hit prefers another enemy', () => {
+    const o = dmgs(castSpell({ key: 'troop:7742' }).summary.order);
+    expect(o[0]).toBe('dmg E11 34 (splash)');
+    expect(o.filter(x => x.endsWith(' 34 (splash)'))).toHaveLength(2);
+    expect(o[3]).not.toBe('dmg E11 34 (splash)');
+  });
+  const creates: [string, string, number, number, string][] = [
+    ['troop:6568', 'burning', 3, 5, 'Red'], ['troop:6579', 'frozen', 2, 5, 'Blue'], ['troop:7408', 'terror', 2, 7, 'Blue'], ['troop:6703', 'bleed', 2, 6, 'skull'],
+  ];
+  for (const [key, st, per, base, gem] of creates) it(`${key}: 2 ${st} enemies -> ${base} + ${per} x 2 ${gem}`, () => {
+    expect(castSpell({ key, enemies: withStatus(st, 2) }).summary.gems.created[gem]).toBe(base + 2 * per);
   });
 });
