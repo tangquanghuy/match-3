@@ -873,7 +873,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8771,
-    desc: '爆破[魔法 + 1]颗蓝色宝石。给予所有罗格盟友一个随机状态效果。然后召唤一支罗格部队。',
+    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有盗贼盟友一个随机正面增益效果。再召唤一名盗贼军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetRace: 'Rogue', pool: 'positive' }),

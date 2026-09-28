@@ -93,7 +93,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9203,
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有巨人盟友一个随机正面增益效果。再召唤一个巨人军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Brown"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Giant"},{"kind":"summon","params":{"source":{"randomOf":["Ogre","Ettin","StoneGiant","FrostGiant","Berserker","JarlFiremantle","Elf-Eater","Cyclops","Zephyros","Gob-Chomper","SeaTroll","DragonCruncher","RockTroll","DarkTroll","GogAndGud","JotnarStormshield","Ogryn","DesertTroll","ForestTroll","FireGiant","MonsterMuncher","FlameTroll","SkrymirTheLofty","HyndlaFrostcrown","IceTroll","Igneus","HalfgrimHalf-Giant","Sledgepaw","LavaTroll","Stone-Biter","CorruptTroll","Fomorian","FrostfireTroll","CrazedTroll","OgrakShaman","Bone-Biter","IllithianColossus","Smashedmouth","StormKnight","FlameMaiden","Kharybdis","Ogress","Baldr","VidarrTheVast","IcespireShaman","DarkForestTroll","TheOnyxGiant","TheSapphireGiant","TheEmeraldGiant","TheRubyGiant","TheAmethystGiant","TheTopazGiant","TheUmbralGiant","TheGraveGiant","Ogretaur","GiantSentinel","EarthGiant","Jordrin","Kolfrysti","Jarnvisa","GhostOgre","MazeCyclops","GrimbornBloodeye","HeldrTheGrave","Polymetis","SteamTroll","ScoriaGiant-born","VenomousTroll","LavaEttin","AbominableTroll","StormOracle","ToxAndSion","StormGuard","AsbjornTheMountain"]}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Brown"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Giant"},{"kind":"summon","params":{"source":{"randomOf":["Ogre","Ettin","StoneGiant","FrostGiant","Berserker","JarlFiremantle","Elf-Eater","Cyclops","Zephyros","Gob-Chomper","SeaTroll","DragonCruncher","RockTroll","DarkTroll","GogAndGud","JotnarStormshield","Ogryn","DesertTroll","ForestTroll","FireGiant","MonsterMuncher","FlameTroll","SkrymirTheLofty","HyndlaFrostcrown","IceTroll","Igneus","HalfgrimHalf-Giant","Sledgepaw","LavaTroll","Stone-Biter","CorruptTroll","Fomorian","FrostfireTroll","CrazedTroll","OgrakShaman","Bone-Biter","IllithianColossus","Smashedmouth","StormKnight","FlameMaiden","Kharybdis","Ogress","Baldr","VidarrTheVast","IcespireShaman","DarkForestTroll","TheOnyxGiant","TheSapphireGiant","TheEmeraldGiant","TheRubyGiant","TheAmethystGiant","TheTopazGiant","TheUmbralGiant","TheGraveGiant","Ogretaur","GiantSentinel","EarthGiant","Jordrin","Kolfrysti","Jarnvisa","GhostOgre","MazeCyclops","GrimbornBloodeye","HeldrTheGrave","Polymetis","SteamTroll","ScoriaGiant-born","VenomousTroll","LavaEttin","AbominableTroll","StormOracle","ToxAndSion","StormGuard","AsbjornTheMountain","ImmortalGirthrok"]}}}]} as SkillPrototype), // +ImmortalGirthrok (raw TroopType Giant; sa-E L1)
   },
   {
     id: 9204,
@@ -118,7 +118,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9207,
-    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有厄什卡盟友一个正面增益状态效果。再召唤一名厄什卡军队。',
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有厄什卡盟友一个随机正面增益状态效果。再召唤一名厄什卡军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetRace: 'Urska', pool: 'positive' }),
@@ -143,7 +143,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9210,
-    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有怪兽盟友一个正面增益状态效果。再召唤一名怪兽军队。',
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有怪兽盟友一个随机正面增益状态效果。再召唤一名怪兽军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetRace: 'Monster', pool: 'positive' }),
@@ -1087,7 +1087,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9832,
-    desc: '引爆[魔法 + 1]颗绿色宝石。随机赋予所有扎金盟友一个状态效果。然后召唤一个扎金部队。',
+    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有齐埃金盟友一个随机正面增益效果。再召唤一名齐埃金军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '齐埃金', pool: 'positive' }),

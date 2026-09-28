@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 497 条改动，涉及 860 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 500 条改动，涉及 864 个技能 ID。
 
 ## 按时间
 
@@ -503,6 +503,9 @@
 | 2026-09-28T12:03 | sa-E | L1-E-kingdom-summon-raw | assembler | 8451, 8505, 8510, 8707, 8725, 8765, 8766, 8816, 8905, 8911, 8955, 9034, 9036, 9142, 9145, 9205, 9208, 9235, 9264, 9267, 9305, 9351, 9509, 9577, 9628, 9832, 9835, 8460 | weapon:1388 EyeOfOrion；weapon:1402 WildCleaver；weapon:1407 IceSapphire；weapon:1449 TombLordsCrook；weapon:1453 Runegauge；weapon:1464 DaisysCudgel；weapon:1465 FlailOfGaard；weapon:1484 ObsidianLibram；weapon:1491 BaneOfGods；weapon:1497 ThornOfTheGods；weapon:1511 RuthlessDefense；weapon:1534 ElementalFury；weapon:1536 ThreeGraves；weapon:1541 EmeraldBaton；weapon:1544 WatchersBlade；weapon:1553 FoxFang；weapon:1556 KingCrusher；weapon:1569 ChampionsCleaver；weapon:1573 LionsReach；weapon:1576 ShieldOfVengeance；weapon:1583 Moonshard；weapon:1587 Bonecutter；weapon:1617 BloodcrystalBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller；weapon:1675 DeadEnd；weapon:1678 Windfall；troop:6960 Emperinazara | `src/engine/skills/curated/gowKingdomPools.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | summonRandomOfKingdom(<zh kingdom name>) (parent + faction troops); 8460 Kobold list had KoboldEmissary (3012), lacked Emperinazara → summonRandom(rawKingdomPool(<native SummoningKingdom Data>)) from raw KingdomId roster |  |
 | 2026-09-28T12:03 | sa-E | L1-E-kingdom-desc | data | 9205, 9208 | weapon:1553 FoxFang；weapon:1556 KingCrusher | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 一个正面增益状态效果 (random missing) → 一个随机正面增益状态效果 |  |
 | 2026-09-28T12:06 | sa-E | L1-E-kingdom-desc | data | 9305, 9509, 9577, 9628 | weapon:1583 Moonshard；weapon:1617 BloodcrystalBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh kingdom names off-roster (冰封之巅 / 马拉杰之罪 / 地狱岩 / untranslated Dhrak-Zum), 'random positive' wording lost → roster names 冰峰之巅 / 迈纳杰之罪 / 地狱悬崖 / 卓克祖, family wording 赋予…一个随机正面增益效果。再召唤一名…军队 |  |
+| 2026-09-28T12:07 | sa-E | L1-E-kingdom-desc | data | 9832 | weapon:1675 DeadEnd | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh 扎金 (off-roster name), status wording → 齐埃金, family wording |  |
+| 2026-09-28T12:11 | sa-E | L1-E-race-desc | data | 8771, 9207, 9210 | weapon:1470 KingsDagger；weapon:1555 PandaskianWand；weapon:1558 Stonecutter | `src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 1470 zh 罗格 (transliterated Rogue); 1555/1558 'random' missing → 盗贼 + family wording; 一个随机正面增益状态效果 |  |
+| 2026-09-28T12:11 | sa-E | L1-E-1551-giant-pool | assembler | 9203 | weapon:1551 TheEnor-mace | `src/engine/skills/curated/batch-w04.ts` | Giant summon pool lacked ImmortalGirthrok → pool = raw TroopType Giant roster (74 -> 75) |  |
 
 ## 按技能 ID
 
@@ -1068,6 +1071,7 @@
 | 8765 | 1 | L1-E-kingdom-summon-raw |
 | 8766 | 1 | L1-E-kingdom-summon-raw |
 | 8767 | 1 | L7-R1-weapon-colour-race |
+| 8771 | 1 | L1-E-race-desc |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |
 | 8783 | 1 | F2-R001-order |
@@ -1179,8 +1183,11 @@
 | 9197 | 1 | L2-singlegem-cell |
 | 9199 | 1 | P-prefnotprev-semantics |
 | 9200 | 1 | L2-7483-explode-board |
+| 9203 | 1 | L1-E-1551-giant-pool |
 | 9205 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9207 | 1 | L1-E-race-desc |
 | 9208 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9210 | 1 | L1-E-race-desc |
 | 9211 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9212 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9213 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
@@ -1320,7 +1327,7 @@
 | 9812 | 1 | L1-7793-prefnotprev |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
-| 9832 | 1 | L1-E-kingdom-summon-raw |
+| 9832 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9835 | 1 | L1-E-kingdom-summon-raw |
 | 9838 | 1 | L1-devour-first |
 | 9839 | 1 | R7-7800-prefnotprev |

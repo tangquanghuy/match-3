@@ -252,8 +252,28 @@ describe('L1-E B03 SummoningKingdom <id>: pools = raw KingdomId roster (zh kingd
     ['gw_ThreeGraves', 3036], ['gw_EmeraldBaton', 3024], ['gw_WatchersBlade', 3029], ['gw_FoxFang', 3084], ['gw_KingCrusher', 3006], ['8460', 3051],
     // B05
     ['gw_ChampionsCleaver', 3022], ['gw_LionsReach', 3025], ['gw_ShieldOfVengeance', 3014], ['gw_Moonshard', 3011], ['gw_Bonecutter', 3020],
-    ['gw_BloodcrystalBlade', 3037], ['gw_GodsBloodRuby', 3082], ['gw_Stonecaller', 3035], ['gw_EyeOfOrion', 3028], ['gw_WildCleaver', 3027]);
+    ['gw_BloodcrystalBlade', 3037], ['gw_GodsBloodRuby', 3082], ['gw_Stonecaller', 3035], ['gw_EyeOfOrion', 3028], ['gw_WildCleaver', 3027],
+    // B06
+    ['gw_IceSapphire', 3011], ['gw_TombLordsCrook', 3020], ['gw_Runegauge', 3001], ['gw_BaneOfGods', 3037], ['gw_DeadEnd', 3004], ['gw_Windfall', 3023]);
   for (const [skill, k] of cases) it(`${skill}: kingdom ${k}`, () => {
     expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByKingdom(k)));
   });
+});
+
+describe('L1-E B06 AllyType status + SummoningType <race>: weapon:1393 / 1462 / 1463', () => {
+  const cases: [string, string, string][] = [['weapon:1393', 'gw_ScarabBlade', 'Undead'], ['weapon:1462', 'gw_AmethystBand', 'Elf'], ['weapon:1463', 'gw_EbonsHammer', 'Knight'],
+    // B07
+    ['weapon:1470', 'gw_KingsDagger', 'Rogue'], ['weapon:1495', 'gw_Wallhack', 'Orc'], ['weapon:1496', 'gw_Underminer', 'Dwarf'], ['weapon:1510', 'gw_EruptionOfRoses', 'Fey'],
+    ['weapon:1512', 'gw_WingsOfDestruction', 'Dragon'], ['weapon:1533', 'gw_Rockstabba', 'Goblin'], ['weapon:1535', 'gw_Gatekeeper', 'Daemon'], ['weapon:1551', 'gw_TheEnor-mace', 'Giant'],
+    ['weapon:1555', 'gw_PandaskianWand', 'Urska'], ['weapon:1558', 'gw_Stonecutter', 'Monster']];
+  for (const [key, skill, race] of cases) {
+    it(`${skill}: summon pool = raw TroopType ${race} in roster`, () => {
+      expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByType(race)));
+    });
+    it(`${key}: only ${race} allies get the random positive status`, () => {
+      const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: ['Beast'] }] });
+      const got = r.summary.order.filter(x => x.startsWith('status ')).map(x => x.split(' ')[1]);
+      expect(got).toEqual(['A1']);
+    });
+  }
 });
