@@ -218,8 +218,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeAt(CELL),
       inflict('burning', 'enemyAll', { perDestroyed: { color: BaseColor.Red } }),
-      heal('allySelf', 1, 1),
+      // sa-R6：原生 IncreaseArmor 在 IncreaseHealth 之前（R001；原为先生命后护甲）
       armor('allySelf', 1, 1),
+      heal('allySelf', 1, 1),
     ),
   },
   {

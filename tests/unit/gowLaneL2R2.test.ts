@@ -267,3 +267,42 @@ describe('L2 R2 batch 03', () => {
     if (key === 'troop:7411') expect(r.summary.order.at(-1)).toBe('status C +barrier');
   });
 });
+
+describe('L2 R2 batch 04 (golems: CountGems Block3x3 -> ExplodeGems SingleGem -> InflictEffectOnRandomTroops)', () => {
+  const gem = (c: string) => (c === 'Skull' ? { kind: 'skull' } : { kind: 'color', color: c }) as never;
+  /** 3x3 around (3,3): `n` ring cells + optionally the centre of `colour`, the rest alternating two other colours. */
+  const around = (colour: string, n: number, centre: boolean) => {
+    const [a, b] = ['Red', 'Purple', 'Blue', 'Green'].filter(c => c !== colour);
+    const ring = ['2,2', '2,3', '2,4', '3,2', '3,4', '4,2', '4,3', '4,4'];
+    const cells: Record<string, never> = {};
+    ring.forEach(k => { const [r, c] = k.split(',').map(Number); cells[k] = gem((r + c) % 2 ? a : b); });
+    ['2,2', '2,4', '4,3'].slice(0, n).forEach(k => { cells[k] = gem(colour); });
+    cells['3,3'] = gem(centre ? colour : a);
+    return withCells(reviewBoard, cells);
+  };
+  it.each([
+    ['troop:7204', 'Brown', 'barrier', 'ally'], ['troop:7266', 'Yellow', 'silence', 'enemy'], ['troop:6371', 'Purple', 'enraged', 'ally'],
+    ['troop:6797', 'Skull', 'reflect', 'ally'], ['troop:6725', 'Purple', 'curse', 'enemy'], ['troop:6972', 'Red', 'burning', 'enemy'],
+    ['troop:6284', 'Blue', 'frozen', 'enemy'], ['troop:6653', 'Green', 'entangle', 'enemy'], ['troop:6989', 'Skull', 'barrier', 'ally'],
+  ] as const)('%s explodes the chosen 3x3; one %s per %s gem in it (centre included) on a random %s', (key, colour, st, side) => {
+    for (const [n, centre, want] of [[0, false, 0], [3, false, 3], [3, true, 4], [1, true, 2]] as const) {
+      const targets = new Set<string>();
+      for (let seed = 1; seed <= 30; seed++) {
+        const o = castSpell({ key, seed, board: around(colour, n, centre), cell: { row: 3, col: 3 } }).summary.order;
+        expect(o[0]).toBe('explode 9');
+        const hits = o.filter(x => x.endsWith(`+${st}`));
+        hits.forEach(h => targets.add(h.split(' ')[1]));
+        // enemy pool: one event per application; ally pool: a repeat on a unit that already has it may merge
+        if (side === 'enemy') expect(hits).toHaveLength(want); else expect(hits.length).toBeLessThanOrEqual(want);
+        if (want) expect(hits.length).toBeGreaterThan(0);
+        expect(hits.every(h => (side === 'ally' ? /^status (C|A\d) / : /^status E1\d /).test(h))).toBe(true);
+      }
+      if (want >= 3) expect(targets.size).toBeGreaterThan(2); // random per application over the whole side
+    }
+  });
+
+  it('troop:6972 native order: Armor before Life (independent self buffs)', () => {
+    const o = castSpell({ key: 'troop:6972' }).summary.order;
+    expect(o.slice(-2)).toEqual(['buff C armor+11', 'buff C hp+11 max+11']);
+  });
+});

@@ -56,3 +56,13 @@
 {"format":"compact","key":"troop:6731","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6405","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7805","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7204","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.323Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7266","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.324Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6371","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.324Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6797","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.325Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6725","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.325Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6972","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.325Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6284","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.325Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6653","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.325Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6989","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.325Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6621","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:24:38.498Z","issue":"L2-6621-attack-counter","note":"native IncreaseAttack (step 3) has UseCounterForAmount=true after CountGems Block3x3 Yellow, i.e. Attack = [M+1] + Yellow count; English 'Gain [Magic + 1] Attack' has no boost. Runtime follows English (+11). source-dispute: needs a ruling before accept."}
