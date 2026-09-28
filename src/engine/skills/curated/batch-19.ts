@@ -67,7 +67,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       destroyChosenCol(),
       // spell-rules.md §1 核对样例原文：4×被摧毁紫色数；来源带色（batch-12 7298 同款）
-      createSkulls(4, 0, {
+      // native CreateGems Skull has no Amount: 4 per Purple destroyed, no base (sa-R1)
+      createSkulls(0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } },
       }),
     ),

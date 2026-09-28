@@ -85,10 +85,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 行和 1 列。创造 5 颗红色宝石，数量因被摧毁的骷髅头数而增强。 [x2]',
     // CountGems Skull + DestroyGems → 「被摧毁的骷髅头数」= destroyedGems 无色（R8 9639 先例）
     build: skill(
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native RowAndColumn is one step (15 cells); CountGems Skull only (sa-R1)
+      destroyChosenCross(),
       createGems(BaseColor.Red, 5, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },

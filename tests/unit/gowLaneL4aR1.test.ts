@@ -228,3 +228,22 @@ describe('L4a R1: B07 gem-count boosts', () => {
     expect(el.summary.order[0]).toBe('dmg E11 34');
   });
 });
+describe('L4a R1: B08 destroyed-gem boosts', () => {
+  it('troop:6873 Life and Armor both boosted by Skulls destroyed', () => {
+    const o = castSpell({ key: 'troop:6873' }).summary.order;
+    expect(o).toContain('buff C hp+16 max+16');
+    expect(o).toContain('buff C armor+16');
+  });
+  it('troop:6002 four Skulls per Purple gem in the column, none without Purple', () => {
+    expect(castSpell({ key: 'troop:6002' }).summary.order.some(o => o.includes('-> skull'))).toBe(false);
+    const board = withCells(reviewBoard, { '0,3': colorGem(BaseColor.Purple), '2,3': colorGem(BaseColor.Purple) });
+    expect(castSpell({ key: 'troop:6002', board }).summary.order.find(o => o.includes('-> skull'))).toMatch(/-> skull x8$/);
+  });
+  it('troop:6693 / troop:7877 row and column in one 15-cell step; 6693 counts Skulls only', () => {
+    const j = castSpell({ key: 'troop:6693' }).summary.order;
+    expect(j.filter(o => o.startsWith('destroy '))).toEqual([expect.stringMatching(/^destroy 15 /)]);
+    expect(j.find(o => o.startsWith('convert '))).toMatch(/-> Red x7$/); // 5 + 2 x 1 Skull
+    const d = castSpell({ key: 'troop:7877' }).summary.order;
+    expect(d.find(o => o.startsWith('convert '))).toMatch(/-> web x4$/); // 1 + 3 Yellow
+  });
+});

@@ -160,7 +160,10 @@ const SPELLS: CuratedBatch['spells'] = [
       // batch-05 7052 同款：清除段只清骷髅 → destroyedGems 不带色筛选恰等于被摧毁的骷髅数
       destroySkulls(),
       // 一个方括号喂双段（batch-03 8372 同款）；modifier 挂最近数值段（batch-05 7059/7266 口径）
-      heal('allySelf', 1),
+      // native: IncreaseHealth and IncreaseArmor both UseCounterForAmount (Skulls destroyed) (sa-R1)
+      heal('allySelf', 1, 1, {
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems' } },
+      }),
       armor('allySelf', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems' } },
       }),
