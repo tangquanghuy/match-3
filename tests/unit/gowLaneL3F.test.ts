@@ -238,3 +238,17 @@ describe('sa-F B09: conditional steps before the damage (native order)', () => {
     }
   });
 });
+
+describe('sa-F B11: ally mana / named-troop condition', () => {
+  it('troop:7531 Mistlark (9288): 7 Yellow Gems only with Liora Mistveil on the team; quarter Mana to the others first', () => {
+    const r = castSpell({ key: 'troop:7531', allies: [{ hp: 100, maxHp: 100, name: '利奥拉·迷雾谷', manaCost: 16 }, { hp: 100, maxHp: 100, manaCost: 12 }] });
+    expect(order(r).slice(0, 2)).toEqual(['buff A1 mana+4', 'buff A2 mana+3']);
+    expect(order(r)[2]).toMatch(/-> Yellow x7$/);
+    const without = castSpell({ key: 'troop:7531', allies: [{ hp: 100, maxHp: 100, manaCost: 16 }] });
+    expect(order(without)).toEqual(['buff A1 mana+4']);
+  });
+  it('troop:7311 OrpheusPriestess (8923) / troop:6213 MadProphet (7355): other allies only', () => {
+    expect(order(castSpell({ key: 'troop:7311' })).map(o => o.split(' ')[1])).toEqual(['A1', 'A2', 'A1']);
+    expect(order(castSpell({ key: 'troop:6213' })).map(o => o.split(' ')[1])).toEqual(['A1', 'A2', 'A1', 'A2']);
+  });
+});

@@ -305,7 +305,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8923,
-    desc: '赋予所有盟友四分之一的法力值，并净化他们。',
+    desc: '给予所有其他盟友四分之一的法力值，并净化他们。',
     // EN/ST = AllAlliesButNotSelf → allyOthers；「四分之一」= mana fraction（Wave4/R12）
     build: skill(
       mana('allyOthers', 0, 0, { fraction: 0.25 }),

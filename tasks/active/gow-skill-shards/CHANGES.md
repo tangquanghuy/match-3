@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 559 条改动，涉及 1013 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 561 条改动，涉及 1015 个技能 ID。
 
 ## 按时间
 
@@ -565,6 +565,8 @@
 | 2026-09-28T21:34 | sa-F | L3-F-7778 | assembler | 9784 | troop:7778 BloodSpore | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | damage first, then removed the Bleed itself + Curse + drain 3 → native order: if Bleeding Dispel positives (Bleed kept) -> Curse -> drain 3 -> damage; ZH fixed |  |
 | 2026-09-28T21:34 | sa-F | L3-F-doomed-ranged | assembler | 9580, 9581, 9582, 9583 | weapon:1632 DoomedArbalest；weapon:1633 DoomedStingshot；weapon:1634 DoomedDart-thrower；weapon:1635 DoomedBoltshooter | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then explode 3 of the colour if the (already hit) target uses it, then quarter Mana → native order ExplodeColor (chosen target uses colour) -> quarter Mana if enemy has a Doom -> damage |  |
 | 2026-09-28T21:36 | sa-F | L3-F-doomed-ranged | assembler | 9584, 9585 | weapon:1636 DoomedBalliste；weapon:1637 DoomedSauterelle | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then explode 3 of the colour if the (already hit) target uses it, then quarter Mana → native order ExplodeColor (chosen target uses colour) -> quarter Mana if enemy has a Doom -> damage |  |
+| 2026-09-28T21:38 | sa-F | L3-F-7311 | data | 8923 | troop:7311 OrpheusPriestess | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: all allies → ZH: all other allies; behaviour unchanged |  |
+| 2026-09-28T21:38 | sa-F | L3-F-6998 | data | 8501 | troop:6998 WilliTheAnchor | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH machine translation (淹没自己 / 额外的转向) → ZH: submerge self, sink to the back, extra turn; behaviour unchanged |  |
 
 ## 按技能 ID
 
@@ -1087,6 +1089,7 @@
 | 8497 | 1 | F2-6991-explode-mult |
 | 8499 | 1 | P-random-stat-pool |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
+| 8501 | 1 | L3-F-6998 |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 2 | B-L4b-7000-zh、R014-7000-count-before-create |
 | 8505 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
@@ -1274,6 +1277,7 @@
 | 8911 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8916 | 1 | L4a-r3-7304 |
 | 8917 | 1 | R7-tarot-extra-turn |
+| 8923 | 1 | L3-F-7311 |
 | 8924 | 1 | F2-R001-order |
 | 8928 | 1 | P-R1-row-count-at-cast-start |
 | 8930 | 1 | L4a-r4-7318-zh |

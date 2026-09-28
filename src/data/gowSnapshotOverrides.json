@@ -362,6 +362,16 @@
       "spellId": 9784,
       "reason": "sa-F: English Blood Spore 'If they are Bleeding, then Dispel, Curse and drain 3 Mana from them' (native DispelConditional AddForBleed = remove positive statuses); old Chinese said dispel their Bleed.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。"
+    },
+    "7311": {
+      "spellId": 8923,
+      "reason": "sa-F: English Orpheus Priestess 'Give all other Allies a quarter of their Mana' (native AllAlliesButNotSelf); old Chinese omitted 'other'.",
+      "spellDescription": "给予所有其他盟友四分之一的法力值，并净化他们。"
+    },
+    "6998": {
+      "spellId": 8501,
+      "reason": "sa-F: English Willi the Anchor 'Submerge myself, sink to the bottom and gain an extra turn' (native CauseSubmerged, TroopOrderBack, ExtraTurn); old Chinese was machine-translated (drown / extra steering).",
+      "spellDescription": "获得 [魔法 + 1] 黄金。使自身下潜，沉到队尾并获得一个额外回合。"
     }
   }
 }
