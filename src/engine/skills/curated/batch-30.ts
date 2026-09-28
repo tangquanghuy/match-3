@@ -142,8 +142,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一列。每摧毁一颗紫色宝石则耗掉首位敌人 4 点法力值。获得屏障效果。 [x4]',
     build: skill(
       destroyChosenCol(),
-      // 「每摧毁一颗X宝石则耗掉 N 点法力值」：常数 N 为基础、[x4] 每来源叠加（batch-21 8167 同款）
-      reduce('enemyFront', 'mana', 4, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }),
+      // sa-R7: native DecreaseMana UseCounterForAmount without Amount = 4 x Purple gems in the column only
+      // (CountGems 400 before DestroyGems); was base 4 + 4 x count (L3-015 pattern).
+      reduce('enemyFront', 'mana', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }),
       inflict('barrier', 'allySelf'),
     ),
   },

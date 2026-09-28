@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 293 条改动，涉及 534 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 295 条改动，涉及 537 个技能 ID。
 
 ## 按时间
 
@@ -299,6 +299,8 @@
 | 2026-09-28T08:28 | sa-R7 | R7-6825-ratio | assembler | 8235 | troop:6825 Tuliao | `src/engine/skills/curated/batch-r22.ts` | 6 Mana + 4 per chosen-colour gem (x4) → 6 Mana + 1 per 4 chosen-colour gems (native CountGems Amount 25 = [4:1], R003) |  |
 | 2026-09-28T08:30 | sa-R7 | R7-tarot-extra-turn | assembler | 9283, 9337 | troop:7526 JusticeTarot；troop:7551 TheHierophant | `src/engine/skills/curated/batch-r7.ts` | 9283: extra turn only if NO Blue gems, 7% base (+boost); ZH desc said 'no Blue gem'. 9337: 7% base + 7%/Green gem, counted after creation → 7% per counted gem only, rolled before the creation (native CountGems step 0 + ExtraTurnConditional without Amount); 9283 ZH desc fixed to 'each Blue gem' |  |
 | 2026-09-28T08:34 | sa-R7 | R7-dragon-convert-extra-turn | assembler | 8850, 9515, 9516, 9517, 9518, 9519, 9520, 9521 | troop:7251 Diamantina；troop:7616 Belcerulea；troop:7617 Gladius；troop:7618 Thornaressa；troop:7619 Narcithus；troop:7620 Orrissea；troop:7621 Orchidius；troop:7622 Chrysantherax | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-30.ts` | extra-turn chance counted after converting/exploding the counted gems; 9515 boost ratio 300:10 (~0); 9521 boost = all destroyed gems x4 → native CountGems step 0: extra-turn roll placed before the gem change (R001); 9515 +3%/Blue gem; 9521 +4%/Skull on the board (boardSkulls) |  |
+| 2026-09-28T08:43 | sa-R7 | R7-not-board-misread | assembler | 8824, 7457 | troop:7229 AceOfRunes；troop:6307 Shadowblade | `src/engine/skills/curated/batch-r5.ts` | extra turn / full mana only if there are NO Blue/Purple gems, fixed 7%/6% base (+boost); ZH desc 'no gem' → EN 'for each X Gem' + native Conditional without Amount: 7%/6% per gem only; ZH desc fixed |  |
+| 2026-09-28T08:43 | sa-R7 | R7-7061-no-base | assembler | 8589 | troop:7061 DarkKnight | `src/engine/skills/curated/batch-30.ts` | drain 4 + 4 per Purple gem destroyed → drain 4 per Purple gem in the column only (native DecreaseMana UseCounterForAmount, no Amount) |  |
 
 ## 按技能 ID
 
@@ -414,6 +416,7 @@
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7454 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
+| 7457 | 1 | R7-not-board-misread |
 | 7460 | 1 | P-F1-oneof-chosen-target |
 | 7470 | 1 | P-counter-per-step |
 | 7473 | 1 | F1-items-62-75 |
@@ -596,6 +599,7 @@
 | 8570 | 1 | L7-7045 |
 | 8580 | 1 | L3-015 |
 | 8586 | 1 | F2-R001-order |
+| 8589 | 1 | R7-7061-no-base |
 | 8596 | 1 | L4b-7068-potion-colour |
 | 8597 | 1 | P-steal-to-life |
 | 8598 | 3 | L3-007、L3-008、L3-009 |
@@ -650,6 +654,7 @@
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8820 | 1 | P-counter-per-step |
+| 8824 | 1 | R7-not-board-misread |
 | 8830 | 1 | R009-giant-dragon-L4b |
 | 8832 | 1 | R009-giant-dragon-L4b |
 | 8841 | 1 | L4a-R1-8841-random-explode |

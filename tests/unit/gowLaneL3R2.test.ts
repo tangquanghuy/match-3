@@ -363,3 +363,49 @@ describe('L3 R2: B08 Elemental-Dragon "10% extra turn + 3%/gem, counted before t
     expect(order(r)).toEqual(['dmg E10 20', 'extra-turn skill']);
   });
 });
+
+describe('L3 R2: B09 gem-count mana / extra-turn checks', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const only = (c: BaseColor, n: number, other: BaseColor) => (r: number, col: number) => colorGem(r * 8 + col < n ? c : other);
+  const specials = (kind: Parameters<typeof specialGem>[0], n: number) => (r: number, c: number) => (r === 0 && c < n ? specialGem(kind) : colorGem(BaseColor.Red));
+  it.each([['troop:7193', BaseColor.Green, 7], ['troop:7264', BaseColor.Green, 7], ['troop:7168', BaseColor.Green, 7], ['troop:7229', BaseColor.Blue, 7]] as [string, BaseColor, number][])(
+    '%s: extra turn 0 %s gems never, 15 always', (key, c) => {
+      expect(seeds(30).some(seed => castSpell({ key, seed, board: only(c, 0, BaseColor.Brown) }).summary.extraTurn === 'skill')).toBe(false);
+      expect(seeds(30).every(seed => castSpell({ key, seed, board: only(c, 15, BaseColor.Brown) }).summary.extraTurn === 'skill')).toBe(true);
+    });
+  it('troop:6307 Shadowblade: 6% per Purple gem to regain the full mana cost (none without Purple, always with 17)', () => {
+    const regained = (n: number, seed: number) => order(castSpell({ key: 'troop:6307', seed, board: only(BaseColor.Purple, n, BaseColor.Brown) })).some(o => o.startsWith('buff C mana+'));
+    expect(seeds(30).some(seed => regained(0, seed))).toBe(false);
+    expect(seeds(30).every(seed => regained(17, seed))).toBe(true);
+    expect(order(castSpell({ key: 'troop:6307', board: only(BaseColor.Purple, 17, BaseColor.Brown) }))).toContain('buff C mana+9');
+  });
+  it('troop:6861 Moth Mage: 25% + 2%/Brown gem, extra turn and half mana (6) independently', () => {
+    const brown = castSpell({ key: 'troop:6861', board: () => colorGem(BaseColor.Brown) });
+    expect(brown.summary.extraTurn).toBe('skill');
+    expect(order(brown)).toContain('buff C mana+6');
+    const runs = seeds(20).map(seed => castSpell({ key: 'troop:6861', seed, board: () => colorGem(BaseColor.Red) }));
+    const turn = runs.map(r => r.summary.extraTurn === 'skill');
+    const mana = runs.map(r => order(r).includes('buff C mana+6'));
+    expect(turn.some(Boolean) && !turn.every(Boolean)).toBe(true);
+    expect(mana.some(Boolean) && !mana.every(Boolean)).toBe(true);
+  });
+  it('troop:7103 Water Weird: 2 Mana per Elemental Star only (Tower clause waived)', () => {
+    expect(order(castSpell({ key: 'troop:7103', target: 10, board: specials('elementalStar', 3), enemies: [en([])] }))).toEqual(['dmg E10 14', 'buff C mana+6']);
+  });
+  it('troop:7035 Wereraven: drain 2 + 2 per Lycanthropy gem (counted before creating 1-3 more)', () => {
+    const r = castSpell({ key: 'troop:7035', board: specials('lycanthropyGem', 2), enemies: [en([], { mana: 20 }), en([], { mana: 20 })] });
+    expect(order(r).slice(0, 2)).toEqual(['buff E10 mana-6', 'buff E11 mana-6']);
+  });
+  it('troop:7052 Swanmay: 3 Mana per Lycanthropy gem to the other allies only', () => {
+    const r = castSpell({ key: 'troop:7052', board: specials('lycanthropyGem', 2), allies: [{ hp: 500, maxHp: 500, manaCost: 30 }] });
+    expect(order(r)[0]).toBe('buff A1 mana+6');
+    expect(order(r).some(o => o.startsWith('buff C mana'))).toBe(false);
+  });
+  it('troop:7061 Dark Knight: drain 4 per Purple gem in the destroyed column, no base', () => {
+    const col = (n: number) => (r: number, c: number) => colorGem(c === 3 && r < n ? BaseColor.Purple : (r + c) % 2 ? BaseColor.Red : BaseColor.Blue);
+    const three = castSpell({ key: 'troop:7061', cell: { row: 0, col: 3 }, board: col(3), enemies: [en([], { mana: 20 })] });
+    expect(order(three).filter(o => o.startsWith('buff E10 mana'))).toEqual(['buff E10 mana-12']);
+    const none = castSpell({ key: 'troop:7061', cell: { row: 0, col: 3 }, board: col(0), enemies: [en([], { mana: 20 })] });
+    expect(order(none).filter(o => o.startsWith('buff E10 mana'))).toEqual([]);
+  });
+});
