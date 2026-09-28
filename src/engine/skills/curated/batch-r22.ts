@@ -252,12 +252,15 @@ const SPELLS: CuratedBatch['spells'] = [
     // 同 7254（官方两段伤害口径）；「所有技能值增加 8点」= 四维技能各 +8（AddForKill →
     // ifTargetDied，8307 官方 IncreaseAttack AddForKill 同族）。
     build: skill(
-    dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-    dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-    attack('allySelf', 8, 0, { ifTargetDied: true }),
-    armor('allySelf', 8, 0, { ifTargetDied: true }),
-    magic('allySelf', 8, 0, { ifTargetDied: true }),
-    heal('allySelf', 8, 0, { ifTargetDied: true }),
+    // sa-R6 L2-wrong-enemy-branches: native AB-CD = the chosen enemy OR (50%) a random enemy, +8 all Skills if it died; was both hits
+    // (the kill bonus follows the oneOf: it reads whichever enemy that branch hit; one Life segment for gowLifeRules)
+    oneOf([dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })], [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })]),
+    // native IncreaseAllStats AddForKill = all four Skills +8. ifTargetDied only held for the first of the four (each
+    // self buff rewrites lastTarget, so Armor/Magic/Life never applied) -> castEnemyDied (9703 precedent)
+    attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    armor('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    magic('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    heal('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
@@ -830,10 +833,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤实锤（Bloody Club）：Damage FromTarget ×3red → IncreaseAttack 16 AddForKill →
     // Damage RandomEnemy ×3red → IncreaseAttack 16 AddForKill（两轮结构同 8108）。
     build: skill(
-    dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }),
-    attack('allySelf', 16, 0, { ifTargetDied: true }),
-    dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }),
-    attack('allySelf', 16, 0, { ifTargetDied: true }),
+    // sa-R6 L2-wrong-enemy-branches: native AB-CD = the chosen enemy OR (50%) a random enemy, +16 Attack if it died; was both hits
+    oneOf(
+      [dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }), attack('allySelf', 16, 0, { ifTargetDied: true })],
+      [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }), attack('allySelf', 16, 0, { ifTargetDied: true })],
+    ),
     ),
   },
   {

@@ -679,3 +679,98 @@ describe('L2 R2 batch 09', () => {
     expect(choose({ key: 'troop:7798' }, 1).slice(0, 3).join(' ; ')).toMatch(/^dmg E12 14 \(all\) ; dmg E13 14 \(all\) ; convert Red x\d+ -> doomSkull x\d+$/);
   });
 });
+
+describe('L2 R2 batch 10', () => {
+  const tough = (colour = 'Blue') => [0, 1, 2, 3].map(() => ({ hp: 900, maxHp: 900, armor: 0, attack: 50, magic: 50, colors: [colour] })) as never;
+  it.each<Row>([
+    // 7346 AB-CD-EF: extra turn always + -[M+2] Attack to all | [M+2] to all | explode [M+2] gems
+    { key: 'troop:6204', opts: { enemies: tough() }, branches: {
+      'extra-turn skill ; buff E10 attack-12 ; buff E11 attack-12 ; buff E12 attack-12 ; buff E13 attack-12': 1 / 3,
+      'extra-turn skill ; dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)': 1 / 3 } },
+  ])('$key damage / attack branches', ({ key, opts, branches }) => {
+    const t = tally({ key, ...opts }, SEEDS, true);
+    let explode = 0;
+    for (const [line, n] of t) if (!(line in branches)) { expect(line).toMatch(/^extra-turn skill ; explode \d+/); explode += n; }
+    for (const [line, share] of Object.entries(branches)) { expect((t.get(line) ?? 0) / SEEDS).toBeGreaterThan(share * 0.6); expect((t.get(line) ?? 0) / SEEDS).toBeLessThan(share * 1.4); }
+    expect(explode / SEEDS).toBeGreaterThan(0.2); expect(explode / SEEDS).toBeLessThan(0.47);
+  });
+
+  it.each<Row>([
+    // 9027 A-B-C
+    { key: 'troop:7385', opts: { enemies: tough() }, branches: { 'dmg E10 12 (all) ; dmg E11 12 (all)': 1 / 3, 'buff C attack+12': 1 / 3 } },
+    // 8826 A-B: [(M x 1.5) + 3] to all OR Life to all allies
+    { key: 'troop:7231', opts: { enemies: tough() }, branches: { 'dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all)': 1 / 2, 'buff C hp+18 max+18 ; buff A1 hp+18 max+18 ; buff A2 hp+18 max+18': 1 / 2 } },
+    // 8252 AB-CD-EF: [M+3] to all | jumble + extra turn | explode 7
+    { key: 'troop:6847', opts: { enemies: tough() }, branches: { 'dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all)': 1 / 3 } },
+  ])('$key listed branches keep their weight', ({ key, opts, branches }) => {
+    const t = tally({ key, ...opts }, SEEDS, true);
+    for (const [line, share] of Object.entries(branches)) { expect((t.get(line) ?? 0) / SEEDS).toBeGreaterThan(share * 0.6); expect((t.get(line) ?? 0) / SEEDS).toBeLessThan(share * 1.4); }
+    if (key === 'troop:6847') {
+      const jumble = [...t].filter(([l]) => l.includes('jumble board')).reduce((a, [, n]) => a + n, 0);
+      expect(jumble / SEEDS, [...t.keys()].join(' | ')).toBeGreaterThan(0.2);
+      expect([...t].filter(([l]) => l.includes('jumble board')).every(([l]) => l.includes('extra-turn skill'))).toBe(true);
+    }
+  });
+
+  it('troop:7282 Choose: 3 hits / 3 Magic drains, each pick avoids only the previous target; a lone enemy takes all three -- fixed', () => {
+    for (const b of [0, 1]) {
+      let repeatFirst = 0;
+      for (let seed = 1; seed <= 80; seed++) {
+        const f = setupCast({ key: 'troop:7282', seed, enemies: tough() }); f.engine.setBranchChooser(new FixedBranchChooser(b));
+        const t = summarize(f, f.cast()).order.filter(x => b ? x.startsWith('buff E') : x.startsWith('dmg E')).map(x => x.split(' ')[1]);
+        expect(t).toHaveLength(3);
+        expect(t[0]).not.toBe(t[1]); expect(t[1]).not.toBe(t[2]);
+        if (t[0] === t[2]) repeatFirst++;
+      }
+      expect(repeatFirst).toBeGreaterThan(0);
+      const solo = [{ hp: 900, maxHp: 900, armor: 0, magic: 50 }, { hp: 0, maxHp: 900, defeated: true }] as never;
+      expect(choose({ key: 'troop:7282', enemies: solo }, b).filter(x => x.startsWith('dmg E10') || x.startsWith('buff E10'))).toHaveLength(3);
+    }
+  });
+
+  it.each([
+    ['troop:6175', 'Yellow', 15, ['buff C attack+8', 'buff C armor+8', 'buff C magic+8', 'buff C hp+8 max+8']],
+    ['troop:6884', 'Red', 15, ['buff C attack+16']],
+  ] as const)('%s ONE hit (chosen OR random), x3 on %s users, kill bonus -- fixed (was both hits)', (key, colour, dmgv, bonus) => {
+    let chosen = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key, seed, enemies: tough('Yellow' === colour ? 'Blue' : 'Yellow') }).summary.order.filter(x => x.startsWith('dmg '));
+      expect(o).toHaveLength(1); expect(o[0]).toMatch(new RegExp(`^dmg E1\\d ${dmgv}$`));
+      if (o[0].startsWith('dmg E11 ')) chosen++;
+    }
+    expect(chosen / SEEDS).toBeGreaterThan(0.5); expect(chosen / SEEDS).toBeLessThan(0.75);
+    const frail = [0, 1, 2, 3].map(i => ({ hp: i === 1 ? 5 : 900, maxHp: 900, armor: 0, colors: [i === 1 ? colour : 'Blue'] })) as never;
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = castSpell({ key, seed, enemies: frail }).summary.order;
+      const killed = o.includes('defeat E11');
+      bonus.forEach(b => expect(o.includes(b)).toBe(killed));
+      if (killed) expect(o).toContain(`dmg E11 ${3 * dmgv}`);
+    }
+  });
+
+  it('troop:6784 [M+4] (x3-5 on Towers) + extra turn, then explode 4 gems OR Enchant all other allies (1/2 each)', () => {
+    let ench = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:6784', seed }).summary.order;
+      expect(o.slice(0, 2)).toEqual(['dmg E11 14', 'extra-turn skill']);
+      if (o[2] === 'status A1 +enchanted') { expect(o[3]).toBe('status A2 +enchanted'); ench++; } else expect(o[2]).toMatch(/^explode \d+$/);
+    }
+    expect(ench / SEEDS).toBeGreaterThan(0.35); expect(ench / SEEDS).toBeLessThan(0.65);
+  });
+
+  it('weapon:1134 [M+5] to the target; 50%: one of 20 Souls | 100 Gold | 1 Map', () => {
+    const t = new Map<string, number>();
+    for (let seed = 1; seed <= 600; seed++) {
+      const o = castSpell({ key: 'weapon:1134', seed }).summary.order;
+      expect(o[0]).toBe('dmg E11 15');
+      const k = o[1] ?? 'none'; t.set(k, (t.get(k) ?? 0) + 1);
+    }
+    expect([...t.keys()].sort()).toEqual(['gold+100', 'maps+1', 'none', 'souls+20']);
+    expect(t.get('none')! / 600).toBeGreaterThan(0.4); expect(t.get('none')! / 600).toBeLessThan(0.6);
+  });
+
+  it('troop:7293 Choose: [M+3] OR remove all Armor from the target', () => {
+    expect(choose({ key: 'troop:7293' }, 0)).toEqual(['dmg E11 13']);
+    expect(choose({ key: 'troop:7293' }, 1)).toEqual(['buff E11 armor-10']);
+  });
+});

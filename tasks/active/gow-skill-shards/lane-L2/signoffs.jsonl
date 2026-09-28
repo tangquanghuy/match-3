@@ -116,3 +116,13 @@
 {"format":"compact","key":"troop:6140","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.718Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6243","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.718Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6864","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:04:11.876Z","issue":"L2-6864-random-repeat","note":"source-dispute: native CountRange 1..4 -> InflictEffectOnRandomTroops frozen (the engine models this step as independent picks with repeats: perCount/perDestroyed, golems B04); runtime uses enemyRandomN nRange 1-4 = distinct enemies (English 'Freeze 1-4 random Enemies'). Needs a ruling on whether InflictEffectOnRandomTroops can repeat a target; damage [M+1] to all matches."}
+{"format":"compact","key":"troop:7282","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.176Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7293","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.177Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6204","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.178Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6784","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.178Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1134","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.179Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6175","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.179Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6884","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.179Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7385","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.180Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7231","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.180Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6847","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T09:10:46.180Z","tests":["tests/unit/gowCastGolden.test.ts"]}
