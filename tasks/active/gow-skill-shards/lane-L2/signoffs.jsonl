@@ -46,3 +46,13 @@
 {"format":"compact","key":"troop:7209","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T05:54:42.082Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7217","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T05:54:42.083Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1255","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T05:54:42.244Z","issue":"R011-pending","note":"2 x RandomPositiveStatusEffectConditional AllAllies on kill: an ally whose first roll is Blessed loses the second positive status (Blessed currently blocks positives); fey [x8] scatter true damage and kill gate otherwise match"}
+{"format":"compact","key":"troop:6957","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.373Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7342","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.374Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7808","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.374Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6287","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.374Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6313","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1397","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7411","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6731","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6405","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7805","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T06:01:50.375Z","tests":["tests/unit/gowCastGolden.test.ts"]}

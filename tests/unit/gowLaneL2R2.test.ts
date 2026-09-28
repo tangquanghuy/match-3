@@ -7,19 +7,20 @@ import { specialGem } from '@engine/types';
 
 const SEEDS = 300;
 /** Spell-phase effect line (before the first cascade) per seed, tallied. */
-function tally(o: CastOpts, n = SEEDS): Map<string, number> {
+function tally(o: CastOpts, n = SEEDS, norm = false): Map<string, number> {
   const m = new Map<string, number>();
   for (let seed = 1; seed <= n; seed++) {
     const s = castSpell({ ...o, seed }).summary; const i = s.order.indexOf('~cascade~');
-    const line = (i < 0 ? s.order : s.order.slice(0, i)).join(' ; ') || '(none)';
+    let line = (i < 0 ? s.order : s.order.slice(0, i)).join(' ; ') || '(none)';
+    if (norm) line = line.replace(/convert [^;]*? -> /g, 'convert * -> ') + (s.extraTurn === 'skill' && !line.includes('extra-turn') ? ' ; extra-turn skill' : '');
     m.set(line, (m.get(line) ?? 0) + 1);
   }
   return m;
 }
 /** Branch -> expected share; every observed line must be listed and each share within +-40% of expected. */
-type Row = { key: string; opts?: Omit<CastOpts, 'key'>; branches: Record<string, number> };
-function checkRow({ key, opts, branches }: Row) {
-  const t = tally({ key, ...opts });
+type Row = { key: string; opts?: Omit<CastOpts, 'key'>; branches: Record<string, number>; norm?: boolean };
+function checkRow({ key, opts, branches, norm }: Row) {
+  const t = tally({ key, ...opts }, SEEDS, norm);
   expect([...t.keys()].sort()).toEqual(Object.keys(branches).sort());
   for (const [line, share] of Object.entries(branches)) {
     const got = (t.get(line) ?? 0) / SEEDS;
@@ -176,5 +177,93 @@ describe('L2 R2 batch 02', () => {
       o.slice(1).forEach(x => seen.add(x.split(' ')[1]));
     }
     expect([...seen].sort()).toEqual(['A1', 'A2', 'C']);
+  });
+});
+
+describe('L2 R2 batch 03', () => {
+  const S = { kind: 'skull' } as never;
+  const Y = { kind: 'color', color: 'Yellow' } as never;
+  it.each<Row>([
+    // 8457 AB+(C-D-E-F): [M+4] + 34% of Skulls (5 -> 1), then extra turn (C, E) OR 7 Skulls (D, F): 1/2 each
+    { key: 'troop:6957', branches: { 'dmg E11 15 ; convert * -> skull x7': 1 / 2, 'dmg E11 15 ; extra-turn skill': 1 / 2 } },
+    // 9849 DecreaseRandom [M+1] + Daemonic Portal gems [1:1] (R007 pool), then 2 portals
+    { key: 'troop:7808', branches: Object.fromEntries(['hp-11', 'attack-11', 'armor-10', 'magic-11'].map(s => [`buff E11 ${s} ; convert * -> daemonicPortalGem x2`, 1 / 4])) },
+  ])('$key branches and weights', o => checkRow({ ...o, norm: true }));
+
+  it('troop:7342 Choose: random Skill -[M+1] (+34% Angel gems), doubled on Daemons (A) or Undead (B)', () => {
+    const d = { hp: 900, maxHp: 900, attack: 60, armor: 60, magic: 60, troopTypes: ['Daemon'] };
+    const u = { ...d, troopTypes: ['Undead'] };
+    const amount = (o: CastOpts, b: number) => Number(/-(\d+)$/.exec(choose(o, b)[0])![1]);
+    expect(amount({ key: 'troop:7342', enemies: [{}, d] }, 0)).toBe(22);
+    expect(amount({ key: 'troop:7342', enemies: [{}, d] }, 1)).toBe(11);
+    expect(amount({ key: 'troop:7342', enemies: [{}, u] }, 1)).toBe(22);
+    const angels = withCells(reviewBoard, { '0,1': specialGem('angelGem'), '0,2': specialGem('angelGem'), '0,3': specialGem('angelGem') });
+    expect(amount({ key: 'troop:7342', enemies: [{}, u], board: angels }, 0)).toBe(12); // 11 + floor(3 x 34%)
+  });
+
+  it('troop:6287 destroys the chosen row; one Poison on a random enemy per Skull destroyed', () => {
+    const board = withCells(reviewBoard, { '3,0': S, '3,5': S });
+    const r = castSpell({ key: 'troop:6287', board, cell: { row: 3, col: 2 } });
+    expect(r.summary.order[0]).toMatch(/^destroy 8 \(.*skull x2/);
+    expect(r.summary.order.filter(x => x.endsWith('+poison'))).toHaveLength(2);
+    const other = castSpell({ key: 'troop:6287', board, cell: { row: 5, col: 2 } }).summary.order;
+    expect(other.filter(x => x.endsWith('+poison'))).toHaveLength(0);
+  });
+
+  it('troop:6313 destroys both diagonals through the chosen cell; one Barrier per Yellow destroyed', () => {
+    // corner (0,0): one diagonal of 8 cells; reviewBoard main diagonal alternates Red/Yellow (skulls at 0,0 and 6,6)
+    const r = castSpell({ key: 'troop:6313', cell: { row: 0, col: 0 } });
+    expect(r.summary.order[0]).toMatch(/^destroy 8 /);
+    const yellow = /Yellow x(\d+)/.exec(r.summary.order[0])?.[1] ?? '0';
+    expect(r.summary.order.filter(x => x.endsWith('+barrier'))).toHaveLength(Number(yellow));
+    const centre = castSpell({ key: 'troop:6313', cell: { row: 1, col: 6 } }).summary.order[0];
+    expect(centre).not.toBe(r.summary.order[0]);
+  });
+
+  it('troop:6731 chosen row + column; knock back the 1st OR the 2nd enemy (1/2 each), then one hit on the first 2 (+4 per Green destroyed)', () => {
+    let back1 = 0, back2 = 0; // full order (the destroyed cross may cascade before the knock-back)
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:6731', seed }).summary.order.filter(x => x.startsWith('move') || / \(all\)$/.test(x));
+      expect(o.filter(x => x.startsWith('move'))).toHaveLength(1);
+      expect(o.filter(x => x.startsWith('dmg'))).toHaveLength(2); // exactly one damage step (2 targets)
+      if (o[0] === 'move E10 back') back1++; else if (o[0] === 'move E11 back') back2++;
+    }
+    expect(back1 + back2).toBe(SEEDS);
+    expect(back1 / SEEDS).toBeGreaterThan(0.35); expect(back2 / SEEDS).toBeGreaterThan(0.35);
+    const r = castSpell({ key: 'troop:6731', seed: 42 });
+    expect(r.summary.order[0]).toMatch(/^destroy 15 \(.*Green x2/); // row 3 + col 3 of the review board
+    expect(r.summary.order).toContain('dmg E10 22 (all)');
+  });
+
+  it('troop:7805 explodes the chosen gem; [M+3] +3 per Yellow destroyed to a random enemy, random status on it', () => {
+    const board = withCells(reviewBoard, { '2,2': Y, '2,4': Y, '4,2': Y, '4,4': Y, '3,3': Y });
+    const o = castSpell({ key: 'troop:7805', board, cell: { row: 3, col: 3 } }).summary.order;
+    expect(o[0]).toBe('explode 9');
+    const yellow = 5 + [[2, 3], [3, 2], [3, 4], [4, 3]].filter(([r, c]) => (2 * r + c) % 6 === 3).length;
+    const dmg = o.find(x => x.startsWith('dmg E1'))!;
+    expect(Number(dmg.split(' ')[2])).toBe(13 + 3 * yellow);
+    const tgt = dmg.split(' ')[1];
+    expect(o[o.indexOf(dmg) + 1]).toMatch(new RegExp(`^status ${tgt} \\+`));
+  });
+
+  it('troop:6405 dispels all enemies, each loses [(M/2)+1] (+25% Blue gems) of its own random Skill, then all Blue explode', () => {
+    const o = castSpell({ key: 'troop:6405' }).summary.order;
+    expect(o.slice(0, 2)).toEqual(['remove E10 -rage', 'remove E13 -rage']);
+    const skills = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const s = castSpell({ key: 'troop:6405', seed }).summary.order.filter(x => x.startsWith('buff E'));
+      expect(s).toHaveLength(4);
+      s.forEach(x => skills.add(x.split(' ')[2].replace(/-\d+$/, '')));
+    }
+    expect([...skills].sort()).toEqual(['armor', 'attack', 'hp', 'magic']);
+  });
+
+  it.each([
+    ['weapon:1397', 'burning', 'Purple'], ['troop:7411', 'terror', 'Blue'],
+  ] as const)('%s destroys the chosen line; one %s per %s gem destroyed', (key, st, color) => {
+    const r = castSpell({ key, cell: { row: 3, col: 3 } });
+    const n = Number(new RegExp(`${color} x(\\d+)`).exec(r.summary.order[0])?.[1] ?? 0);
+    expect(r.summary.order.filter(x => x.endsWith(`+${st}`))).toHaveLength(n);
+    if (key === 'troop:7411') expect(r.summary.order.at(-1)).toBe('status C +barrier');
   });
 });
