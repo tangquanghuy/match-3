@@ -80,7 +80,10 @@ export type ModifierSource =
    *  敌人数而增强」，8581「每有一名敌人陷入状态效果」） */
   | { kind: 'enemyStatusCount'; statusId?: string }
   /** 己方处于指定状态的存活人数（「因下潜的盟友数而增强」） */
-  | { kind: 'allyStatusCount'; statusId: string }
+  | { kind: 'allyStatusCount'; statusId: string; excludeSelf?: boolean }
+  /** 选定目标施法开始时带有的所列状态个数（P-R3-target-status-count，native 每个状态一步
+   *  CountSpecificStatusEffect@FromTarget，各 +1） */
+  | { kind: 'targetStatusCount'; statusIds: string[] }
   /** 敌方全体的某属性总和（hp=当前生命；R22 批 stat 增 mana、color 筛法力色——
    *  8367「因所有红色敌人的法力值而增强」） */
   | { kind: 'enemyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; color?: BaseColor }
@@ -470,8 +473,10 @@ export function conditionMet(
     case 'casterStatBeatsTarget': {
       const me = findCharacter(ctx.state, ctx.casterId);
       const foe = (() => {
-        const last = ctx.castTracking?.lastTarget;
-        return last ? findCharacter(ctx.state, last.id) : undefined;
+        // P-R3-precast-compare: before the first targeting segment (native CountSet@FromTarget at step 0) the
+        // comparison uses the chosen target.
+        const id = ctx.castTracking?.lastTarget?.id ?? ctx.chosenTargetId;
+        return id !== undefined ? findCharacter(ctx.state, id) : undefined;
       })();
       if (!me || !foe) return false;
       return statOf(me, cond.stat) > statOf(foe, cond.stat);
@@ -546,8 +551,10 @@ export function conditionMet(
     case 'lastTargetSurvived':
     case 'targetStatBeatsCaster': {
       // R22 批 lastTarget 族（全局条件）：统一取跨段追踪主目标判定。
+      // targetStatBeatsCaster falls back to the chosen target before the first targeting segment (P-R3-precast-compare).
       const last = ctx.castTracking?.lastTarget;
-      const ch = last ? findCharacter(ctx.state, last.id) : undefined;
+      const lastId = last?.id ?? (cond.kind === 'targetStatBeatsCaster' ? ctx.chosenTargetId : undefined);
+      const ch = lastId !== undefined ? findCharacter(ctx.state, lastId) : undefined;
       if (!ch) return false;
       switch (cond.kind) {
         case 'lastTargetStatus':
@@ -798,9 +805,22 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     case 'allyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
+      // excludeSelf (P-R3-ally-status-excl-self): native CountSpecificStatusEffect@AllAlliesButNotSelf
       return ctx.state.teams[side].characters.filter(
-        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
+        (c) => !c.defeated && !(source.excludeSelf && c.id === ctx.casterId)
+          && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
       ).length;
+    }
+    case 'targetStatusCount': {
+      // P-R3-target-status-count: native CountSpecificStatusEffect@FromTarget, one step per status (step 0, before
+      // this cast's own statuses): how many of the listed statuses the chosen target had at cast start.
+      const id = ctx.chosenTargetId ?? tracking?.lastTarget?.id;
+      if (id === undefined) return 0;
+      const snapshot = tracking?.statusesAtCastStart;
+      const had: string[] = snapshot
+        ? snapshot[id] ?? []
+        : (findCharacter(ctx.state, id)?.statuses ?? []).filter((s) => s.turns > 0).map((s) => s.id);
+      return source.statusIds.filter((w) => had.some((h) => sameStatus(h, w))).length;
     }
     case 'enemyStatSum':
       return teamStatSum(ctx, 'enemy', source.stat, source.color);

@@ -52,3 +52,9 @@
   - also: previous commit 83b9483 lost the atCastStart type fields in secondary.ts (editor buffer overwrite); restored in this commit, tsc 0
   - re-review (unsigned, only with gargoyle / dragon gems on the board): troop:7851 troop:7380 troop:7210 troop:7643 troop:7626 troop:7611 troop:7627 troop:7575 weapon:1647
   - lane note (not changed): weapon:1467 native ConvertGems Blue>GoodGargoyle, curated w03 transformToSpecial(Blue, gargoyleGem) has no tier (= Good by default, equivalent)
+- 2026-09-28T17:50:00Z P-R4-nextdown-default-range fixed: prototypes.ts default range 'all' for enemyChosenAndNextDown; gowFixP-R4-nextdown-default-range.test.ts; golden diff 0 new lines (curated users already pass range all)
+- 2026-09-28T17:50:00Z P-R3-target-status-count fixed: source targetStatusCount {statusIds} (chosen target, statusesAtCastStart snapshot); 8417 (troop:6936) x10, 8640 (weapon:1427, no override entry) x12; golden diff 0 new lines
+- 2026-09-28T17:50:00Z P-R3-ally-status-excl-self fixed: allyStatusCount excludeSelf; 9808 (troop:7791); golden diff 0 new lines
+- 2026-09-28T17:50:00Z P-R3-precast-compare fixed: casterStatBeatsTarget / targetStatBeatsCaster fall back to ctx.chosenTargetId without lastTarget; 9291 (troop:7533) Barrier before damage; golden diff 0 new lines
+  - re-review (unsigned, situational): troop:6936 weapon:1427 troop:7791 troop:7533; seg-0 damage using these conditions now compare with the chosen target pre-hit: spells 7454 7458 7960 9651 7192 + gw_Kingslayer
+  - process note: some earlier PowerShell [IO.File] edits used relative paths that resolved outside this worktree (D:\Code\match-3 secondary.ts, D:\Code\m3-gow-F2 secondary.ts / p37 / w03 / r11); all of those stray hunks were mine and have been reverted exactly (F2 keeps only sa-R7's own r11 / r15 hunks); all later edits use absolute paths

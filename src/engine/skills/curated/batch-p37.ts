@@ -244,7 +244,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。敌人每陷入中毒、疾病、击晕或诅咒状态的其中一个，则造成多 10 点伤害。 [x10]',
     build: skill(
       dmg('enemyChosen', 3, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 10 }, sources: [{ kind: 'enemyStatusCount', statusId: 'poison' }, { kind: 'enemyStatusCount', statusId: 'disease' }, { kind: 'enemyStatusCount', statusId: 'stun' }, { kind: 'enemyStatusCount', statusId: 'curse' }] },
+        // native 4 x CountSpecificStatusEffect@FromTarget 1000: +10 per listed status on the target (P-R3-target-status-count)
+        modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'targetStatusCount', statusIds: ['poison', 'disease', 'stun', 'curse'] } },
       }),
     ),
   },

@@ -656,8 +656,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9291,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因红色宝石数而增强。若自身护甲值更高，则获得屏障效果。 [x2]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      // native order (R001, P-R3-precast-compare): CountSet@FromTarget [AddForLessArmorOnTarget] -> Barrier@Self, then damage;
+      // the Armor comparison uses the chosen target before the hit
       inflict('barrier', 'allySelf', { ifCond: { kind: 'casterStatBeatsTarget', stat: 'armor' } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
     ),
   },
   {

@@ -711,7 +711,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         // multi-victim too: every resolved enemy takes full damage (L5-010).
         range: segment.range ?? (['enemyAll', 'enemyFirstN', 'enemyLastN',
           'enemyRandomN', 'enemyWeakestN', 'enemyHealthiestN',
-          'enemyChosenAndBelow', 'enemyAboveTarget', 'enemyBelowTarget',
+          'enemyChosenAndBelow', 'enemyChosenAndNextDown', 'enemyAboveTarget', 'enemyBelowTarget',
           'enemyChosenAndAdjacent', 'enemyAllOther'].includes(segment.target)
           ? 'all' : 'single'),
         splashRatio: segment.splashRatio,

@@ -557,7 +557,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: {
           mod: { kind: 'multiplier', a: 1.5 },
           sources: [
-            { kind: 'allyStatusCount', statusId: 'blessed' },
+            // native CountSpecificStatusEffect@AllAlliesButNotSelf (P-R3-ally-status-excl-self)
+            { kind: 'allyStatusCount', statusId: 'blessed', excludeSelf: true },
             { kind: 'enemyStatusCount', statusId: 'blessed' },
           ],
         },

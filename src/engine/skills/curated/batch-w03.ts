@@ -514,7 +514,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8640,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，敌人每陷入以下一个状态效果则再造成 12 点伤害：缠绕、燃烧、冻结、击晕。 [x12]',
     build: skill(
-      dmg('enemyChosen', 3, 1, { condBonus: { n: 12, cond: { kind: 'anyOf', of: [{ kind: 'targetStatus', statusId: 'entangle' }, { kind: 'targetStatus', statusId: 'burning' }, { kind: 'targetStatus', statusId: 'frozen' }, { kind: 'targetStatus', statusId: 'stun' }] } } }),
+      // native 4 x CountSpecificStatusEffect@FromTarget 1200: +12 per listed status on the target (P-R3-target-status-count)
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 12 }, source: { kind: 'targetStatusCount', statusIds: ['entangle', 'burning', 'frozen', 'stun'] } } }),
     ),
   },
   {

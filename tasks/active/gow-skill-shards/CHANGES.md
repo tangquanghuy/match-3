@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 281 条改动，涉及 534 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 284 条改动，涉及 542 个技能 ID。
 
 ## 按时间
 
@@ -287,6 +287,9 @@
 | 2026-09-28T06:00 | sa-P | R010 | test | 7052 | troop:6052 Zombie | `tests/unit/gowFixR010.test.ts` | no test for removed special gems → test: removed bomb/doomSkull/manaPotionGem do not trigger, destroyed ones do; runtime unchanged |  |
 | 2026-09-28T08:36 | sa-P | P-R1-count-at-native-step | primitive | 7207, 7237, 7797, 9237, 7568, 7655, 7656, 7657, 7658, 7659, 7660, 7952, 7963, 7973, 8053, 8077, 8078, 8391, 8392, 9211, 9212, 9213, 9214, 9215, 9216, 8758 | troop:6115 Ranger；troop:6135 GarNok；troop:6593 FallenValdis；troop:7492 Amatiel；weapon:1158 Runeforger；weapon:1180 DoomedTome；weapon:1181 DoomedLibram；weapon:1182 DoomedOpus；weapon:1183 DoomedScripture；weapon:1184 DoomedChronicle；weapon:1185 DoomedCodex；weapon:1226 DoomedBlade；weapon:1229 DoomedClub；weapon:1233 DoomedCrossbow；weapon:1248 DoomedGlaive；weapon:1257 DoomedAxe；weapon:1258 DoomedScythe；weapon:1357 DevilsBane；weapon:1358 HammerOfForce；weapon:1563 DoomedCorseque；weapon:1564 DoomedFauchard；weapon:1565 DoomedImpaler；weapon:1566 DoomedSpear；weapon:1567 DoomedVoulge；weapon:1568 DoomedSpade；troop:7188 FireBeetle | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-30.ts`<br>`src/engine/skills/curated/batch-r21.ts`<br>`src/engine/skills/curated/batch-r13.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`tests/unit/gowFixP-R1-count-at-native-step.test.ts`<br>`tests/unit/gowLaneL3B05.test.ts` | army count sources (teamSize/alliesOf*/enemiesOf* Race/Kingdom/Color) read the live roster when the consuming segment runs: units killed by an earlier segment of the same spell were no longer counted → new atCastStart flag reads castTracking.unitsAtCastStart (alive units at cast start, native Count* at step 0); set on the 26 spells whose native step-0 Count precedes a segment that can kill the counted side | situational: only when a counted unit dies earlier in the same cast; ally-only counts after enemy damage left unflagged (no observable change) |
 | 2026-09-28T08:51 | sa-P | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count | primitive | 9918, 9022, 8797, 9547, 9527, 9494, 9532, 9371, 9649 | troop:7851 Seditius；troop:7380 PetrifiedTreant；troop:7210 Xenith；troop:7643 Mudwalker；troop:7626 DragonlordLuther；troop:7611 Bahamata；troop:7627 DragonknightAmira；troop:7575 ImmortalAquaria；weapon:1647 DrakkonsCrest | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-r11.ts`<br>`src/engine/skills/curated/batch-r8.ts`<br>`src/engine/skills/curated/batch-r10.ts`<br>`src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`tests/unit/gowFixP-boardSpecial-filters.test.ts` | boardSpecial / destroyedGems special / special clear targets matched on kind only: Good and Bad Gargoyles merged; Dragon<Color> counts used every gem of the colour (9527 9494 9532) or every dragon gem (9371 9649) → boardSpecial {tier?, color?}, destroyedGems {specialTier?}, clear target special {tier?} / randomGems {specialTier?} (missing gem tier = 1); 9918 explodes Bad only, 9022 Good only, 8797 counts Bad only, 9547 counts Good and Bad as separate floored steps, dragon counters use dragonGem + colour | only boards with gargoyle / dragon gems; golden review board has none (diff 0 new lines) |
+| 2026-09-28T09:02 | sa-P | P-R4-nextdown-default-range | primitive | 8365 | troop:6904 LordBelanor | `src/engine/skills/prototypes.ts`<br>`tests/unit/gowFixP-R4-nextdown-default-range.test.ts` | damage on enemyChosenAndNextDown without range resolved 2 victims but hit only the first → enemyChosenAndNextDown defaults to range all like enemyChosenAndBelow (curated range:'all' workarounds now redundant) | no curated skill without explicit range (6904/8365 and r22 already pass range all) |
+| 2026-09-28T09:02 | sa-P | P-R3-target-status-count,P-R3-ally-status-excl-self | primitive | 8417, 8640, 9808 | troop:6936 RoyalAssassin；weapon:1427 ElementalReach；troop:7791 ImmortalKhaomani | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r11.ts`<br>`tests/unit/gowFixP-R3-status-counts.test.ts` | 8417 counted listed statuses across all enemies; 8640 condBonus anyOf added +12 once; 9808 allyStatusCount blessed included the caster → new source targetStatusCount {statusIds} = listed statuses on the chosen target at cast start (8417 x10, 8640 x12); allyStatusCount excludeSelf (9808 AllAlliesButNotSelf) | situational (statuses on target / Blessed caster) |
+| 2026-09-28T09:02 | sa-P | P-R3-precast-compare | primitive | 9291, 7454, 7458, 7960, 9651, 7192 | troop:7533 FirebornPaladin | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`tests/unit/gowFixP-R3-status-counts.test.ts` | casterStatBeatsTarget / targetStatBeatsCaster read castTracking.lastTarget only (false before the first targeting segment); 9291 had to grant Barrier after the hit (post-damage Armor) → both fall back to the chosen target when no lastTarget exists; 9291 native order Barrier (Armor compare) then damage | also seg-0 damage condMult/condBonus using these conditions (7454 7458 7960 9651 7192 / Kingslayer) now evaluate against the chosen target pre-hit; golden diff 0 new lines |
 
 ## 按技能 ID
 
@@ -332,6 +335,7 @@
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 1 | L4b-7276-singlegem |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7207 | 1 | P-R1-count-at-native-step |
 | 7208 | 1 | P-prefnotprev-semantics |
@@ -401,7 +405,8 @@
 | 7442 | 1 | R3-B01-6296 |
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
-| 7454 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
+| 7454 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、P-R3-precast-compare |
+| 7458 | 1 | P-R3-precast-compare |
 | 7460 | 1 | P-F1-oneof-chosen-target |
 | 7470 | 1 | P-counter-per-step |
 | 7473 | 1 | F1-items-62-75 |
@@ -485,6 +490,7 @@
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
 | 7952 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
+| 7960 | 1 | P-R3-precast-compare |
 | 7963 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
 | 7964 | 1 | L4a-R1-7230-7964-count |
 | 7973 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
@@ -541,7 +547,7 @@
 | 8299 | 1 | F2-1313-order-life |
 | 8302 | 1 | F1-steal-before-damage |
 | 8357 | 1 | L1-1351-pool |
-| 8365 | 1 | L7-R1-6904-nextdown |
+| 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
 | 8373 | 1 | R3-B03-6912 |
 | 8389 | 1 | L1-1351-pool |
 | 8390 | 1 | P-prefnotprev-semantics |
@@ -554,6 +560,7 @@
 | 8410 | 1 | P-prefnotprev-semantics |
 | 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
+| 8417 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 8420 | 1 | L4a-R1-8420-cross |
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
@@ -601,6 +608,7 @@
 | 8637 | 1 | L4a-R1-8637-row-green |
 | 8638 | 1 | L3-015 |
 | 8639 | 1 | L7-R1-board-special-counts |
+| 8640 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 8644 | 1 | L7-R1-weapon-colour-race |
 | 8646 | 1 | L4a-R1-8646-counters |
 | 8650 | 1 | P-prefnotprev-semantics |
@@ -714,6 +722,7 @@
 | 9280 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 9281 | 1 | L7-7517 |
 | 9282 | 1 | F3-q37 |
+| 9291 | 1 | P-R3-precast-compare |
 | 9303 | 1 | L7-R1-weapon-colour-race |
 | 9306 | 1 | L7-R1-weapon-colour-race |
 | 9352 | 1 | L7-R1-weapon-colour-race |
@@ -771,6 +780,7 @@
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
 | 9649 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
+| 9651 | 1 | P-R3-precast-compare |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
 | 9661 | 2 | F3-q19、R011 |
 | 9666 | 1 | P-chooser-native-restrictions |
@@ -787,6 +797,7 @@
 | 9774 | 1 | P-counter-per-step |
 | 9776 | 1 | P-prefnotprev-semantics |
 | 9784 | 1 | L3-007 |
+| 9808 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 9809 | 1 | L4a-R1-immortal-order |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
