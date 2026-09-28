@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 998 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 549 条改动，涉及 1000 个技能 ID。
 
 ## 按时间
 
@@ -553,6 +553,8 @@
 | 2026-09-28T21:25 | sa-G | G-6334-kill-order | assembler | 7484 | troop:6334 JaguarWarrior | `src/engine/skills/curated/batch-r15.ts` | full heal then Attack +8 (Attack never applied after the heal rewrote lastTarget) → native order Attack +8 then full heal, both castEnemyDied |  |
 | 2026-09-28T21:29 | sa-G | G-kill-all-skills | assembler | 8104 | troop:6734 Stone-Biter | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | on kill only Attack +7; ZH lacked the kill condition → all four Skills +7 via castEnemyDied; ZH 如果敌人身亡 (override 6734) |  |
 | 2026-09-28T21:34 | sa-G | G-6881-kill-double | assembler | 8304 | troop:6881 EldritchGuardian | `src/engine/skills/curated/batch-r20.ts` | Life then Armor +12; kill doubling never applied (ifTargetDied after self segments) → native Armor then Life, +12 each more on kill via castEnemyDied |  |
+| 2026-09-28T21:41 | sa-G | G-1096-steal-2 | assembler | 7221 | weapon:1096 KrisKnife | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json` | steal 1 Magic (ZH 1 too) → steal 2 Magic (EN + native StealMagic 2); ZH 2 |  |
+| 2026-09-28T21:41 | sa-G | G-6976-prefnotprev | assembler | 8479 | troop:6976 Pan | `src/engine/skills/curated/batch-r15.ts` | three plain random hits (could repeat the previous) → hits 2-3 RandomPrefNotPrev (native, R007-3) |  |
 
 ## 按技能 ID
 
@@ -624,6 +626,7 @@
 | 7211 | 1 | F1-steal-before-damage |
 | 7214 | 1 | L1-summon-dist |
 | 7216 | 1 | P-chooser-native-restrictions |
+| 7221 | 1 | G-1096-steal-2 |
 | 7230 | 1 | L4a-R1-7230-7964-count |
 | 7232 | 1 | F2-R001-order |
 | 7233 | 1 | F1-items-62-75 |
@@ -1059,6 +1062,7 @@
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
 | 8475 | 1 | L2-6972-order |
+| 8479 | 1 | G-6976-prefnotprev |
 | 8481 | 1 | L4a-r3-6954 |
 | 8485 | 1 | P-R3-next-up-target |
 | 8487 | 1 | P-E-faction-kingdom |

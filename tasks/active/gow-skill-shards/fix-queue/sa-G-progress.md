@@ -44,3 +44,8 @@
 - weapon:1100 accepted: Magic dmg all + 1 Magic all allies
 - weapon:1065 accepted: dmg + steal 2 Attack from the target
 - troop:6839 accepted: on kill steal 4 Magic from all remaining enemies; boss waived R000
+- troop:6913 accepted: steal 4 Magic only from a surviving target
+- troop:6915 accepted: dmg all, steal 2 Magic from survivors
+- weapon:1096 fixed: steal 1 -> 2 Magic (EN/native), ZH 2 (curated + override + pool-w01) (test)
+- troop:6850 accepted: 3x front dmg + front to back (native FrontEnemy after a kill = new front)
+- troop:6976 fixed: hits 2-3 RandomPrefNotPrev (test)

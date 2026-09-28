@@ -573,7 +573,7 @@
       }
     },
     "7221": {
-      "description": "对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 1 点魔力值。",
+      "description": "对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 2 点魔力值。",
       "prototype": {
         "segments": [
           {
@@ -589,7 +589,7 @@
             "target": "lastTarget",
             "stat": "magic",
             "scaling": {
-              "base": 1,
+              "base": 2,
               "mult": 0
             },
             "gainStat": "magic"

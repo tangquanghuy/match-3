@@ -1657,7 +1657,7 @@
   "weaponRef": "KrisKnife",
   "weaponName": "蛇形短剑",
   "spellName": "蛇形短剑",
-  "desc": "对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 1 点魔力值。",
+  "desc": "对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 2 点魔力值。",
   "scalings": [
    {
     "base": 4,

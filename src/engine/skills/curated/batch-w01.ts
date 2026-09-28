@@ -665,8 +665,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7221,
-    desc: '对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 1 点魔力值。',
-    build: ({"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
+    desc: '对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 2 点魔力值。',
+    build: ({"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"magic","scaling":{"base":2,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
   },
   {
     id: 7222,

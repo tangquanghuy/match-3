@@ -507,11 +507,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤 ×3 组（Damage RandomEnemy + TroopOrderBack FromPrevious）：逐敌独立掷签
     //（RandomPrefNotPrevEnemy 按 8499 先例取独立随机敌）+ 各自击回末位（reposition lastTarget）
     build: skill(
+      // sa-G (R007-3): native hits 2 and 3 are RandomPrefNotPrevEnemy (was plain random: E11 hit twice in a row)
       dmg('enemyRandom', 5, 2),
       reposition('lastTarget', 'back'),
-      dmg('enemyRandom', 5, 2),
+      dmg('enemyRandomPrefNotPrev', 5, 2),
       reposition('lastTarget', 'back'),
-      dmg('enemyRandom', 5, 2),
+      dmg('enemyRandomPrefNotPrev', 5, 2),
       reposition('lastTarget', 'back'),
     ),
   },
