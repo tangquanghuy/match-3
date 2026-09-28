@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 282 条改动，涉及 511 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 286 条改动，涉及 515 个技能 ID。
 
 ## 按时间
 
@@ -288,6 +288,10 @@
 | 2026-09-28T05:41 | sa-R7 | R7-7646-target-colour | assembler | 9550 | troop:7646 ShadowWraith | `src/engine/skills/curated/batch-r7.ts` | half mana if any enemy uses Purple (anyEnemyColor) → half mana if the random enemy that was hit uses Purple (lastTargetColor; native CountArmyColor@RandomEnemy -> Damage@FromPrevious) |  |
 | 2026-09-28T05:48 | sa-R7 | R7-1631-counter-only-drain | assembler | 9579 | weapon:1631 DarkEngraver | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | drain 3 + 3 x Undead allies → native DecreaseMana UseCounterForAmount, no Amount: drain 3 x Undead allies only (L3-015 pattern) |  |
 | 2026-09-28T05:48 | sa-R7 | R7-1667-drain-order | assembler | 9811 | weapon:1667 MonsterasHammer | `src/engine/skills/curated/batch-w04.ts` | splash damage, then drain all Mana if Immortal Monstera → native order (R001): DecreaseMana@FromTarget [Immortal Monstera] then SplashHighDamage |  |
+| 2026-09-28T05:56 | sa-R7 | R7-6269-chosen-daemon | assembler | 7415 | troop:6269 Desdaemona | `src/engine/skills/curated/batch-r7.ts` | extra turn if any enemy is a Daemon (enemyRacePresent), judged after the hit → native CountArmyType@FromTarget daemon (step 0): extra turn if the chosen enemy is a Daemon, judged before the hit (chosenTargetRace; a killed Daemon still counts) |  |
+| 2026-09-28T05:56 | sa-R7 | R7-7691-count150-floor | assembler | 9660 | troop:7691 BlackmaneMontu | `src/engine/skills/curated/batch-r9.ts` | damage + 1.5 x target Attack (fractional, 17 -> 25.5 -> rounded 26) → R003: CountAttack 150 = floor(attack x 150 / 100) (17 -> 25), ratio 2:3 |  |
+| 2026-09-28T05:56 | sa-R7 | R7-6259-chosen-ally | assembler | 7402 | troop:6259 QueenYsabelle | `src/engine/skills/curated/batch-r28.ts` | damage = a random ally's Attack (randomAllyStat), buffs to that random ally → native spell Target=Ally: damage = the chosen ally's pre-buff Attack (chosenStat), Attack/Armor buffs to the chosen ally |  |
+| 2026-09-28T05:58 | sa-R7 | R7-1219-create-before-hit | assembler | 7866 | weapon:1219 SymbolOfAnu | `src/engine/skills/curated/batch-w02.ts` | drain, damage, then create gems of the target colour (after a kill) → native order (R001): DecreaseMana -> CreateGems FromTarget -> Damage |  |
 
 ## 按技能 ID
 
@@ -390,7 +394,9 @@
 | 7395 | 1 | L3-011 |
 | 7396 | 1 | F3-q25 |
 | 7399 | 1 | P-chooser-native-restrictions |
+| 7402 | 1 | R7-6259-chosen-ally |
 | 7408 | 1 | F2-6265-dispel-last |
+| 7415 | 1 | R7-6269-chosen-daemon |
 | 7418 | 1 | L7-R1-random-chain-waves |
 | 7431 | 1 | L3-002 |
 | 7434 | 1 | F2-R001-order |
@@ -466,6 +472,7 @@
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
+| 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
 | 7929 | 1 | R3-B04-1221 |
 | 7930 | 1 | P-counter-per-step |
@@ -751,6 +758,7 @@
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
+| 9660 | 1 | R7-7691-count150-floor |
 | 9661 | 1 | F3-q19 |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |

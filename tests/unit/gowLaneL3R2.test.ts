@@ -140,3 +140,89 @@ describe('L3 R2: race-count boosts (allies incl. caster + enemies)', () => {
     expect(order(castSpell({ key: 'weapon:1631' }))).toEqual(['dmg E11 13']);
   });
 });
+
+describe('L3 R2: B03 extra-turn / mana / count checks', () => {
+  it('troop:6269 Desdaemona: extra turn only if the chosen enemy is a Daemon (another Daemon enemy does not count)', () => {
+    const other = castSpell({ key: 'troop:6269', target: 11, enemies: [en([], { troopTypes: ['Daemon'] }), en([BaseColor.Yellow])] });
+    expect(order(other)).toEqual(['dmg E11 24']);
+    expect(other.summary.turnKept).toBe(false);
+    const hit = castSpell({ key: 'troop:6269', target: 10, enemies: [en([], { troopTypes: ['Daemon'] }), en([])] });
+    expect(order(hit)).toEqual(['extra-turn skill', 'dmg E10 12']);
+    expect(hit.summary.turnKept).toBe(true);
+    // CountArmyType@FromTarget is step 0: a Daemon killed by the hit still grants the extra turn
+    const kill = castSpell({ key: 'troop:6269', target: 10, enemies: [en([], { hp: 1, maxHp: 1, troopTypes: ['Daemon'] }), en([])] });
+    expect(kill.summary.extraTurn).toBe('skill');
+  });
+  it('troop:7691 Blackmane Montu: CountAttack 150 floors (attack 17 -> +25), 2 Bleed stacks, half mana (16 -> 8) on kill', () => {
+    const r = castSpell({ key: 'troop:7691', enemies: [en([], { attack: 17 }), en([], { attack: 17 })] });
+    expect(order(r)).toEqual(['dmg E11 38', 'status E11 +bleed']);
+    const bleed = r.f.enemies[1].statuses.find(s => s.id === 'bleed') as { magnitude?: number } | undefined;
+    expect(bleed?.magnitude).toBe(2); // inflict stacks -> magnitude
+    const k = castSpell({ key: 'troop:7691', enemies: [en([], { hp: 1, maxHp: 1, attack: 17 }), en([], { hp: 1, maxHp: 1, attack: 17 })] });
+    expect(order(k)).toContain('buff C mana+8');
+  });
+  it.each([[1, 'A1'], [2, 'A2']])('troop:6259 Queen Ysabelle: damage = chosen ally %i pre-buff Attack, buffs go to that ally', (target, who) => {
+    const r = castSpell({ key: 'troop:6259', target, allies: [{ hp: 500, maxHp: 500, attack: 9 }, { hp: 500, maxHp: 500, attack: 21 }] });
+    const atk = target === 1 ? 9 : 21;
+    expect(order(r).slice(0, 3)).toEqual([`dmg E10 ${atk}`, `buff ${who} attack+11`, `buff ${who} armor+11`]);
+  });
+  it('troop:7437 Satyr Trickster: steals min(Attack, Magic + 1) and heals that much; 25% extra turn', () => {
+    const r = castSpell({ key: 'troop:7437', enemies: [en([], { attack: 4 }), en([], { attack: 4 })] });
+    expect(order(r).slice(0, 2)).toEqual(['buff E11 attack-4', 'buff C hp+4 max+4']);
+    const kept = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(seed => castSpell({ key: 'troop:7437', seed }).summary.turnKept);
+    expect(kept.some(Boolean)).toBe(true);
+    expect(kept.every(Boolean)).toBe(false);
+  });
+  it('troop:6598 Sloth: drains allies and enemies, heals the total', () => {
+    const r = castSpell({ key: 'troop:6598', allies: [{ hp: 500, maxHp: 500, mana: 7 }, { hp: 500, maxHp: 500, mana: 3 }] });
+    expect(order(r)).toEqual(['buff A1 mana-7', 'buff A2 mana-3', 'buff E10 mana-6', 'buff E11 mana-8', 'buff E12 mana-4', 'buff E13 mana-10', 'buff C hp+38 max+38']);
+  });
+  it('troop:6396 Dwarven Gate: +1 Armor per Dwarf ally incl. caster', () => {
+    const r = castSpell({ key: 'troop:6396', allies: [{ hp: 500, maxHp: 500, troopTypes: ['Dwarf'] }] });
+    expect(order(r)).toEqual(['buff C armor+15', 'status A1 +barrier', 'buff A1 mana+5']);
+  });
+  it('troop:6466 Chief Stronghorn: floor((Attack + Armor + Life) x 34%) + Magic + 1 to the pulled enemy', () => {
+    const r = castSpell({ key: 'troop:6466', caster: { attack: 10, armor: 20, hp: 70, maxHp: 100 } });
+    expect(order(r)).toEqual(['move E11 front', 'dmg E11 45']); // floor(100 x 0.34) = 34 + 11
+  });
+  it('troop:6114 Cockatrice: 6 + floor(drained x 25%) Brown gems', () => {
+    const r = castSpell({ key: 'troop:6114', enemies: [en([]), en([], { mana: 13 })] });
+    expect(order(r).slice(0, 2)).toEqual(['status E11 +entangle', 'buff E11 mana-13']);
+    expect(order(r)[2]).toMatch(/-> Brown x9$/);
+  });
+});
+
+describe('L3 R2: "Drain up to N Mana, create/explode per Mana drained" family', () => {
+  const rich = (mana: number) => [en([]), en([BaseColor.Purple], { mana })];
+  it.each([
+    ['troop:6317', 'Blue'], ['troop:6424', 'Green'], ['troop:6710', 'Purple'], ['troop:6792', 'Red'],
+    ['troop:6852', 'Brown'], ['troop:7060', 'Yellow'], ['troop:7085', 'skull'],
+  ])('%s: 25 Mana -> drains 12, creates 12 %s; 5 Mana -> drains 5, creates 5', (key, gem) => {
+    const r = castSpell({ key, enemies: rich(25) });
+    expect(order(r)[0]).toBe('buff E11 mana-12');
+    expect(order(r)[1]).toMatch(new RegExp(`-> ${gem} x12$`));
+    const s = castSpell({ key, enemies: rich(5) });
+    expect(order(s)[0]).toBe('buff E11 mana-5');
+    expect(order(s)[1]).toMatch(new RegExp(`-> ${gem} x5$`));
+  });
+  it('troop:7502 Kolfrysti: drains up to 20, 1 Freeze gem per 2 drained (25 -> 20/10, 7 -> 7/3)', () => {
+    const a = castSpell({ key: 'troop:7502', enemies: rich(25) });
+    expect(order(a)[0]).toBe('buff E11 mana-20');
+    expect(order(a)[1]).toMatch(/-> freezeGem x10$/);
+    const b = castSpell({ key: 'troop:7502', enemies: rich(7) });
+    expect(order(b)[0]).toBe('buff E11 mana-7');
+    expect(order(b)[1]).toMatch(/-> freezeGem x3$/);
+  });
+  const SP = [BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown];
+  const sparse = (r: number, c: number) => (r % 2 === 0 && c % 2 === 0 ? colorGem(SP[(r + c / 2) % 6]) : null);
+  it('troop:6878 Blind Guardian: drains up to 10, explodes one gem per Mana drained', () => {
+    const r = castSpell({ key: 'troop:6878', board: sparse, enemies: rich(25) });
+    expect(order(r)[0]).toBe('buff E11 mana-10');
+    expect(r.summary.gems.exploded).toBe(10);
+    expect(castSpell({ key: 'troop:6878', board: sparse, enemies: rich(3) }).summary.gems.exploded).toBe(3);
+  });
+  it('weapon:1219 Symbol of Anu: drain 12, create 12 of the target colour before the hit (a killed target still gives its colour)', () => {
+    const r = castSpell({ key: 'weapon:1219', enemies: [en([BaseColor.Red]), en([BaseColor.Purple], { hp: 1, maxHp: 1, mana: 20 })] });
+    expect(order(r).slice(0, 4)).toEqual(['buff E11 mana-12', expect.stringMatching(/-> Purple x12$/), 'dmg E11 14', 'defeat E11']);
+  });
+});

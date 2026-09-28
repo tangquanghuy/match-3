@@ -57,11 +57,13 @@ const SPELLS: CuratedBatch['spells'] = [
     // - 「3 到 8 点法力值」= 数值区间（§9.8 数值型区间已由 buff rangeSpec 通道承载，
     //   R22 7469「3-8 点法力值」同款），「除了自身之外的所有盟友」= allyOthers。
     build: skill(
+      // sa-R7: native spell Target=Ally (chosen), CountAttack@FromTarget before the buffs -> damage = the chosen
+      // ally's pre-buff Attack (was randomAllyStat, a random ally). Damage first keeps the pre-buff value.
       dmg('enemyFront', 0, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'randomAllyStat', stat: 'attack' } },
+        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'chosenStat', stat: 'attack' } },
       }),
-      attack('lastAlly', 1, 1),
-      armor('lastAlly', 1, 1),
+      attack('allyChosen', 1, 1),
+      armor('allyChosen', 1, 1),
       mana('allyOthers', 3, 0, { rangeSpec: { min: flat(3), max: flat(8) } }),
     ),
   },

@@ -280,8 +280,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '耗尽一名敌人最高 12 点法力值，并造成 [魔法 + 4] 点伤害。创造与所耗尽法力值数等数的宝石，创建的宝石色与敌人法力颜色相同。 [1:1]',
     build: skill(
       reduce('enemyChosen', 'mana', 12, 0),
-      dmg('enemyChosen', 4, 1),
+      // sa-R7 (R001): native DecreaseMana -> CreateGems FromTarget -> Damage (create precedes the hit, so a
+      // target killed by the damage still gives its colour)
       createGems('LAST_TARGET', 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'drainedMana' } } }),
+      dmg('enemyChosen', 4, 1),
     ),
   },
   {

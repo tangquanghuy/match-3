@@ -65,3 +65,23 @@
 {"format":"compact","key":"troop:6648","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1631","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1623","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.204Z","issue":"L3-005","note":"GenerateHalfManaConditional@AllAlliesButNotSelf (Immortal Selene): odd manaCost ally gets floor(cost/2) (13 -> 6); rounding unsourced, not in R006. Damage 2+M+4 x Purple gems and troopPresent gate verified."}
+{"format":"compact","key":"troop:6396","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.352Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6269","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.353Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7437","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.354Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7691","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.354Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6466","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.354Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6114","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.355Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6598","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.355Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7804","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.516Z","issue":"L3-005","note":"GenerateHalfManaConditional@AllAllies [AddForKill]: odd-cost ally gets floor(cost/2) (11 -> 5); rounding unsourced, not in R006. Centaur x2 damage and kill gate verified."}
+{"format":"compact","key":"troop:7319","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.614Z","issue":"L3-013","note":"GenerateRandomMana 8 (3-8) to other allies: one roll shared by all recipients vs per-ally roll unsourced. Other steps verified (7319 CountAttack 34 floor; 6259 fixed to chosen ally pre-buff Attack)."}
+{"format":"compact","key":"troop:6259","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.616Z","issue":"L3-013","note":"GenerateRandomMana 8 (3-8) to other allies: one roll shared by all recipients vs per-ally roll unsourced. Other steps verified (7319 CountAttack 34 floor; 6259 fixed to chosen ally pre-buff Attack)."}
+{"format":"compact","key":"troop:6317","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.720Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6424","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.721Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6710","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.721Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6792","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6852","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7060","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7085","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7502","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1219","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.723Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6878","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.723Z","tests":["tests/unit/gowCastGolden.test.ts"]}

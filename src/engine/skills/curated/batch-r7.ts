@@ -195,8 +195,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7415,
     desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人使用黄色法力值，则造成双倍伤害。如果敌人是恶魔，则获得一个额外回合。',
     build: skill(
+      // sa-R7: native CountArmyType@FromTarget daemon (step 0) -> TrueDamage -> ExtraTurnConditional: the chosen
+      // enemy itself must be a Daemon (was any Daemon enemy), judged before the hit so a killed Daemon still counts.
+      extraTurn({ ifCond: { kind: 'chosenTargetRace', race: 'Daemon' } }),
       trueDmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-      extraTurn({ ifCond: { kind: 'enemyRacePresent', race: 'Daemon' } }),
     ),
   },
   {

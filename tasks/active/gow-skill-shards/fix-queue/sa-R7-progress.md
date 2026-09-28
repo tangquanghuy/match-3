@@ -1,3 +1,5 @@
 # sa-R7 progress (lane L3 review round 2, branch gow/r2-L3)
 - B01 weapon:1229,1233,1248,1257,1258,troop:6925,troop:7646,weapon:1236,1242,1245 (+ relapsed weapon:1226, family weapon:1259,1260,1261) approve=13 fixed=14 issue=1 (Doomed damage family: counted self-mana moved before the damage R001; Doomed support family: Magic 2/colour enemy no base, Mana 5+4/Doom enemy; 6925 two hits RandomPrefNotPrev; 7646 lastTargetColor; issue 7646 P-R7-dead-last-target-cond; weapon:1226 golden moved accepted-base -> L3)
 - B02 weapon:1606,1599,1667,1656,1623,1475,troop:6391,6508,6648,weapon:1631 approve=9 fixed=2 issue=1 (1631 counter-only drain no base; 1667 drain before splash R001; issue 1623 L3-005 half-mana rounding)
+- B03 troop:7804,6396,6269,7437,7691,7319,6259,6466,6114,6598 approve=7 fixed=3 issue=3 (6269 chosen-target Daemon judged pre-hit; 7691 CountAttack 150 floor; 6259 chosen ally not random; issues 7804 L3-005, 7319/6259 L3-013)
+- B04 troop:6317,6424,6710,6792,6852,7060,7085,7502,weapon:1219,troop:6878 approve=10 fixed=1 issue=0 (drain-up-to-N family caps verified; 1219 create before damage R001)

@@ -729,7 +729,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // CountAttack 150 → targetStat attack ×1.5；GenerateHalfManaConditional = halve + ifTargetDied
     build: skill(
       dmg('enemyChosen', 3, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 1.5 }, source: { kind: 'targetStat', stat: 'attack' } },
+        // sa-R7 (R003): CountAttack 150 = floor(attack x 150 / 100) (was multiplier 1.5, 17 -> 25.5 rounded up)
+        modifier: { mod: { kind: 'ratio', a: 2, b: 3 }, source: { kind: 'targetStat', stat: 'attack' } },
       }),
       inflict('bleed', 'lastTarget', { stacks: 2 }),
       mana('allySelf', 0, 0, { halve: true, ifTargetDied: true }),
