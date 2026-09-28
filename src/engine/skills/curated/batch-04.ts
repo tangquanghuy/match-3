@@ -144,7 +144,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点轻微溅射伤害，并摧毁 3 颗随机宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3),
-      destroyRandomGems(3, 0, 'color'),
+      // native DestroyGems 3 (colourless): any gem incl. Skulls (R013-5)
+      destroyRandomGems(3, 0, 'all'),
     ),
   },
   {

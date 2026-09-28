@@ -137,3 +137,8 @@
 - troop:6632 accept
 - troop:7150 fix(Enchant Fey allies, was +5 Magic to Elf; zh + override)
 - troop:6938 accept (RemoveColor via gowRemoveRules; Green 0% step no-op)
+- troop:6639 fix(+4 Magic not mana; three independent 50% steps; zh + override)
+- troop:7220 fix(Good/Bad Gargoyle tier mix)
+- troop:7156 accept
+- troop:6153 fix(native order magic-on-kill before destroy; destroy 10 include all)
+- troop:7254 fix(destroy 3 include all)

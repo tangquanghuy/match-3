@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 649 条改动，涉及 1107 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 653 条改动，涉及 1111 个技能 ID。
 
 ## 按时间
 
@@ -655,6 +655,10 @@
 | 2026-09-28T22:46 | sa-A | L4a-R9-6891-skulls | assembler | 8317 | troop:6891 UndeadDrake | `src/engine/skills/curated/batch-37.ts` | 8317 explode 4 include color → include all (R013-5) |  |
 | 2026-09-28T22:49 | sa-A | L4a-R9-7150-enchant-fey | data | 8718 | troop:7150 KingOberron | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | 8718 last step magic +5 to Elf allies; zh '施魔法于所有的精灵同盟' → native CauseEnchanted@AllyType fey: enchant Fey allies; zh '赋予所有仙灵盟友法印效果' + snapshot override |  |
 | 2026-09-28T22:49 | sa-A | L4a-R9-7623-order | assembler | 9489 | troop:7623 ImmortalFurnax | `src/engine/skills/curated/batch-r11.ts` | 9489 attack, heal, armor → native order attack, armor, health (R001) |  |
+| 2026-09-28T22:52 | sa-A | L4a-R9-6639-magic-each | data | 7968 | troop:6639 Tinseltail | `src/engine/skills/curated/batch-r4.ts`<br>`src/data/gowSnapshotOverrides.json` | 7968 mana allyAll 4(+M); one 50% oneOf of dmg/explode/heal; zh 魔力值 + 其一 → native IncreaseSpellPower 4 Magic; three independent 50% steps (dmg all, explode 8 incl. Skulls, heal all); zh + snapshot override |  |
+| 2026-09-28T22:52 | sa-A | L4a-R9-7220-gargoyle-mix | assembler | 8814 | troop:7220 ChromiteSphinx | `src/engine/skills/curated/batch-r14.ts` | 8814 createSpecialGems gargoyleGem 4 (single tier) → native CreateGems2Colors Good/Bad Gargoyle: createSpecialGems2 tier 1 + tier 2 mix |  |
+| 2026-09-28T22:52 | sa-A | L4a-R9-6153-order-skulls | assembler | 7273 | troop:6153 AutumnalImp | `src/engine/skills/curated/batch-12.ts` | 7273 dmg, destroy 10 include color, magic on kill → native order dmg, magic on kill, destroy 10 include all (R001, R013-5) |  |
+| 2026-09-28T22:52 | sa-A | L4a-R9-7254-skulls | assembler | 8840 | troop:7254 Stoneshell | `src/engine/skills/curated/batch-04.ts` | 8840 destroy 3 include color → include all (R013-5) |  |
 
 ## 按技能 ID
 
@@ -757,6 +761,7 @@
 | 7269 | 1 | L4a-r3-1117 |
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
+| 7273 | 1 | L4a-R9-6153-order-skulls |
 | 7274 | 1 | G-6154-order |
 | 7277 | 1 | L2-H-6157-ally-colour |
 | 7280 | 1 | P-create-interleave |
@@ -980,6 +985,7 @@
 | 7962 | 1 | L3-F-6636 |
 | 7963 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7964 | 1 | L4a-R1-7230-7964-count |
+| 7968 | 1 | L4a-R9-6639-magic-each |
 | 7973 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7975 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7976 | 1 | P-E-faction-kingdom |
@@ -1380,6 +1386,7 @@
 | 8809 | 1 | P-E-faction-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8813 | 1 | L4b-R6-B06 |
+| 8814 | 1 | L4a-R9-7220-gargoyle-mix |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8816 | 1 | L1-E-kingdom-summon-raw |
 | 8817 | 1 | L1-7222-chance |
@@ -1393,6 +1400,7 @@
 | 8836 | 1 | B5-L4b-R009-giants |
 | 8837 | 1 | B5-L4b-R009-giants |
 | 8839 | 1 | B5-L4b-R009-giants |
+| 8840 | 1 | L4a-R9-7254-skulls |
 | 8841 | 1 | L4a-R1-8841-random-explode |
 | 8842 | 1 | L1-1486-order |
 | 8844 | 1 | R009-giant |

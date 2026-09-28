@@ -213,3 +213,43 @@ describe('L4a R9 B08', () => {
     expect(o).toEqual(['buff C attack+9', 'buff C armor+9', 'buff C hp+9 max+9']);
   });
 });
+
+describe('L4a R9 B09', () => {
+  // troop:6639 (7968): IncreaseSpellPower@AllAllies 4 ; Damage@AllEnemies 1+M 50% ; ExplodeGems 8 50% ; IncreaseHealth@AllAllies 1+M 50%.
+  it('troop:6639 gives +4 Magic, then rolls each 50% effect independently', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = castSpell({ key: 'troop:6639', seed }).summary.order;
+      expect(o.slice(0, 3)).toEqual(['buff C magic+4', 'buff A1 magic+4', 'buff A2 magic+4']);
+      const flags = [o.some(x => x.startsWith('dmg ')), o.some(x => x.startsWith('explode ')), o.some(x => / hp\+/.test(x))];
+      seen.add(flags.map(Number).join(''));
+      if (flags[0]) expect(o.find(x => x.startsWith('dmg '))).toBe('dmg E10 15 (all)');
+    }
+    expect(seen.has('111')).toBe(true); // all three can happen in one cast
+    expect(seen.has('000')).toBe(true);
+  });
+  // troop:7220 (8814): JumbleBoard ; CreateGems Block 2 ; CreateGems2Colors GoodGargoyle/BadGargoyle 4.
+  it('troop:7220 creates a mix of Good (tier 1) and Bad (tier 2) Gargoyle Gems', () => {
+    const tiers = new Set<number>();
+    for (let seed = 1; seed <= 6; seed++) {
+      const r = castSpell({ key: 'troop:7220', seed });
+      for (let rr = 0; rr < 8; rr++) for (let c = 0; c < 8; c++) {
+        const g = r.f.board.get({ row: rr, col: c });
+        if (g?.type.kind === 'special' && g.type.spec.kind === 'gargoyleGem') tiers.add((g.type.spec as { tier?: number }).tier ?? 0);
+      }
+    }
+    expect([...tiers].sort()).toEqual([1, 2]);
+  });
+  // troop:6153 (7273): ScatterDamage 3+M ; IncreaseSpellPower [AddForKill 8] ; DestroyGems 10 (Skulls eligible).
+  // troop:7254 (8840): SplashDamage 3+M ; DestroyGems 3 (Skulls eligible).
+  it.each([['troop:6153', 10], ['troop:7254', 3]] as const)('%s random destroy can take Skulls', (key, n) => {
+    const d = castSpell({ key, board: skullHeavy }).summary.order.find(o => o.startsWith('destroy '))!;
+    expect(d.startsWith(`destroy ${n} `)).toBe(true);
+    expect(d).toContain('skull');
+  });
+  it('troop:6153 gains 8 Magic on a kill before destroying gems', () => {
+    const o = castSpell({ key: 'troop:6153', enemies: [{ hp: 1, maxHp: 1, armor: 0 }] }).summary.order;
+    expect(o.indexOf('buff C magic+8')).toBeGreaterThan(-1);
+    expect(o.indexOf('buff C magic+8')).toBeLessThan(o.findIndex(x => x.startsWith('destroy ')));
+  });
+});

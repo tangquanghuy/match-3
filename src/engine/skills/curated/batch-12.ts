@@ -219,9 +219,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。摧毁 10 颗随机宝石。如果敌人身亡，则获得 8 点魔力值。',
     build: skill(
       dmgAll(3),
-      // 「宝石」不含骷髅（batch-01 头注口径）→ include:'color'
-      destroyRandomGems(10, 0, 'color'),
+      // native order: ScatterDamage, IncreaseSpellPower [AddForKill 8], then DestroyGems 10 (R001);
+      // colourless DestroyGems = any gem incl. Skulls (R013-5)
       magic('allySelf', 8, 0, { ifTargetDied: true }),
+      destroyRandomGems(10, 0, 'all'),
     ),
   },
   {

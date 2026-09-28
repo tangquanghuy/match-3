@@ -136,6 +136,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。自身一项随机属性获得 3 点。 [3:1]"
     },
+    "6639": {
+      "spellId": 7968,
+      "reason": "sa-A r9: English 'Give all allies 4 Magic, with a 50% chance for each of the following'; stored Chinese says 4 mana (魔力值) and 'one of the following' (其一).",
+      "spellDescription": "给予所有盟友 4 点魔法，并各有 50% 的几率触发以下效果：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。"
+    },
     "6652": {
       "spellId": 7987,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
