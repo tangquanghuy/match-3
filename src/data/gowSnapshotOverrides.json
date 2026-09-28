@@ -263,6 +263,11 @@
       "spellDescription": "对所有敌人造成 [魔法 + 6] 点伤害，伤害值因精灵射击敌人而增强。然后将 3 个骷髅转换为 x2 通配宝石。 [x6]",
       "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
     },
+    "7704": {
+      "spellId": 9665,
+      "reason": "sa-A r8: English 'Destroy a random Column.' (board column); stored Chinese '摧毁一根随机柱子' reads as a physical pillar.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。随机摧毁一列宝石。"
+    },
     "7725": {
       "spellId": 9725,
       "manaCost": 9,

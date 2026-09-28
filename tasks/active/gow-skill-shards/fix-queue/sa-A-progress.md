@@ -34,3 +34,8 @@
 - troop:6376 accept (Bonestorm = dropKind skull)
 - troop:6345 accept
 - weapon:1163 accept
+- troop:7460 accept (R000 waived c2 tower+ascension)
+- troop:7704 fix(zh column not pillar, snapshot override; waived c2 tower+ascension; DISPUTE native step0 UseCounterForAmount without Count step, English Magic+2 kept)
+- troop:7426 fix(DestroyGems 7 include all; waived c2 boss+ascension)
+- troop:7585 fix(DestroyGems 8 include all; waived c2 tower+ascension)
+- troop:6533 accept (waived c2 tower+ascension)

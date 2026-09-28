@@ -112,3 +112,29 @@ describe('L4a R8 B03-B04 storm family', () => {
     expect(summarize(g, g.cast()).order[0]).toBe('dmg E11 14');
   });
 });
+
+describe('L4a R8 B05', () => {
+  // troop:7460 (9177) / troop:7704 (9665): Damage 2+M [Tower x Ascension waived R000] ; DestroyColumn 1 (random, spell targets an enemy).
+  // troop:6533 (7727): Damage 4+M [waived] ; DestroyRow 1.
+  it.each([['troop:7460', 'dmg E11 12'], ['troop:7704', 'dmg E11 12'], ['troop:6533', 'dmg E11 14']] as const)('%s hits the chosen enemy, then destroys one random full line', (key, dmg) => {
+    const lines = new Set<string>();
+    for (let seed = 1; seed <= 10; seed++) {
+      const r = castSpell({ key, seed });
+      expect(r.summary.order[0]).toBe(dmg);
+      const ev = r.events.find(e => e.type === 'gem-destroy') as unknown as { cells: { pos: { row: number; col: number } }[] };
+      expect(ev.cells).toHaveLength(8);
+      const rows = new Set(ev.cells.map(c => c.pos.row)), cols = new Set(ev.cells.map(c => c.pos.col));
+      expect(key === 'troop:6533' ? rows.size : cols.size).toBe(1);
+      lines.add([...(key === 'troop:6533' ? rows : cols)].join());
+    }
+    expect(lines.size).toBeGreaterThan(1);
+  });
+  // troop:7426 (9120) DestroyGems 7 / troop:7585 (9464) DestroyGems 8: any gem incl. Skulls (R013-5).
+  it.each([['troop:7426', 7, 'dmg E11 14'], ['troop:7585', 8, 'dmg E11 12']] as const)('%s destroys %i random gems, Skulls eligible', (key, n, dmg) => {
+    const r = castSpell({ key, board: skullBoard });
+    expect(r.summary.order[0]).toBe(dmg);
+    const d = r.summary.order.find(o => o.startsWith('destroy '))!;
+    expect(d.startsWith(`destroy ${n} `)).toBe(true);
+    expect(d).toContain('skull');
+  });
+});

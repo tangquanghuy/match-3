@@ -539,6 +539,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T03:07:00.542Z"
  },
+ "troop:6533": {
+  "lines": {
+   "L10": "dmg E11 14 ; destroy 8 (Green x2, Yellow x2, skull x1, Brown x1, Red x1, Blue x1) ; skulls E10 1  => E11:hp-4 arm-10 | A2:mana+2 | E10:arm-1",
+   "R10": "dmg E11 14 ; destroy 8 (Green x2, Yellow x2, skull x1, Brown x1, Red x1, Blue x1) ; skulls E10 1  => E11:hp-4 arm-10 | A2:mana+2 | E10:arm-1",
+   "L0": "dmg E11 4 ; destroy 8 (Green x2, Yellow x2, skull x1, Brown x1, Red x1, Blue x1) ; skulls E10 1  => E11:arm-4 | A2:mana+2 | E10:arm-1",
+   "K": "dmg E11 14 ; defeat E11 ; destroy 8 (Green x2, Yellow x2, skull x1, Brown x1, Red x1, Blue x1) ; skulls E10 1 ; defeat E10  => E11:hp-1 DEAD | A2:mana+2 | E10:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:22:20.692Z"
+ },
  "troop:6555": {
   "lines": {
    "L10": "status E10 +web ; status E11 +web ; status E12 +web ; status E13 +web ; dmg E12 15 (all) ; dmg E13 15 (all)  => E10:+web | E11:+web | E12:hp-15 +web | E13:hp-15 +web",
@@ -1369,6 +1379,16 @@
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
  },
+ "troop:7426": {
+  "lines": {
+   "L10": "dmg E11 14 ; destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~  => E11:hp-4 arm-10 | A2:mana+1 | E10:arm-1 | A1:mana+3  cascade",
+   "R10": "dmg E11 14 ; destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~  => E11:hp-4 arm-10 | A2:mana+1 | E10:arm-1 | A1:mana+3  cascade",
+   "L0": "dmg E11 4 ; destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~  => E11:arm-4 | A2:mana+1 | E10:arm-1 | A1:mana+3  cascade",
+   "K": "dmg E11 14 ; defeat E11 ; destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; defeat E10 ; ~cascade~  => E11:hp-1 DEAD | A2:mana+1 | E10:hp-1 DEAD | A1:mana+3  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:22:20.692Z"
+ },
  "troop:7435": {
   "lines": {
    "L10": "convert Blue x11 -> Yellow x11 ; storm Yellow set",
@@ -1388,6 +1408,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T11:10:17.204Z"
+ },
+ "troop:7460": {
+  "lines": {
+   "L10": "dmg E11 12 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:hp-2 arm-10",
+   "R10": "dmg E11 12 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:hp-2 arm-10",
+   "L0": "dmg E11 2 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:arm-2",
+   "K": "dmg E11 12 ; defeat E11 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:22:20.692Z"
  },
  "troop:7467": {
   "lines": {
@@ -1499,6 +1529,16 @@
   "by": "coord",
   "at": "2026-09-28T01:06:39.036Z"
  },
+ "troop:7585": {
+  "lines": {
+   "L10": "dmg E11 12 ; destroy 8 (Green x1, Purple x4, skull x1, Red x1, Yellow x1) ; skulls E10 1  => E11:hp-2 arm-10 | A2:mana+1 | E10:arm-1",
+   "R10": "dmg E11 12 ; destroy 8 (Green x1, Purple x4, skull x1, Red x1, Yellow x1) ; skulls E10 1  => E11:hp-2 arm-10 | A2:mana+1 | E10:arm-1",
+   "L0": "dmg E11 2 ; destroy 8 (Green x1, Purple x4, skull x1, Red x1, Yellow x1) ; skulls E10 1  => E11:arm-2 | A2:mana+1 | E10:arm-1",
+   "K": "dmg E11 12 ; defeat E11 ; destroy 8 (Green x1, Purple x4, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; defeat E10  => E11:hp-1 DEAD | A2:mana+1 | E10:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:22:20.692Z"
+ },
  "troop:7586": {
   "lines": {
    "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
@@ -1598,6 +1638,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T11:21:07.693Z"
+ },
+ "troop:7704": {
+  "lines": {
+   "L10": "dmg E11 12 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:hp-2 arm-10 | A2:mana+3",
+   "R10": "dmg E11 12 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:hp-2 arm-10 | A2:mana+3",
+   "L0": "dmg E11 2 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:arm-2 | A2:mana+3",
+   "K": "dmg E11 12 ; defeat E11 ; destroy 8 (Purple x3, Red x3, Green x2)  => E11:hp-1 DEAD | A2:mana+3"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:22:20.692Z"
  },
  "troop:7708": {
   "lines": {

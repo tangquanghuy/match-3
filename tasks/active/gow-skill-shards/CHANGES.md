@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 541 条改动，涉及 993 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 543 条改动，涉及 996 个技能 ID。
 
 ## 按时间
 
@@ -547,6 +547,8 @@
 | 2026-09-28T21:12 | sa-A | L4a-R8-1578-random-explode | data | 9300 | weapon:1578 Frostbound | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 9300 explode target cell CELL (chosen cell; native spell Target None) → explode randomGems 1 (native ExplodeGems 1, Target None = random gem) |  |
 | 2026-09-28T21:17 | sa-A | L4a-R8-random-any-gem | assembler | 7147 | troop:6077 Behemoth | `src/engine/skills/curated/batch-02.ts` | 7147 destroyRandomGems 12 include color (no Skulls) → include all: native DestroyGems 12 picks any gem, Skulls are Gems (R013-5) |  |
 | 2026-09-28T21:17 | sa-A | L4a-R8-random-any-gem | data | 7121 | weapon:1055 Pigsticker | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 7121 kill branch explodeRandomGems 1 include color → include all (native ExplodeGems AddForKill 1, any gem); override entry added |  |
+| 2026-09-28T21:22 | sa-A | L4a-R8-7704-zh-column | data | 9665 | troop:7704 HanXin | `src/engine/skills/curated/batch-r16.ts`<br>`src/data/gowSnapshotOverrides.json` | 9665 zh '摧毁一根随机柱子' (pillar) → zh '随机摧毁一列宝石' (Destroy a random Column) + snapshot override |  |
+| 2026-09-28T21:22 | sa-A | L4a-R8-random-any-gem | assembler | 9120, 9464 | troop:7426 Hornwing；troop:7585 DwarvenOverseer | `src/engine/skills/curated/batch-r19.ts` | 9120 DestroyGems 7 / 9464 DestroyGems 8 as include color (no Skulls) → include all (any gem, R013-5) |  |
 
 ## 按技能 ID
 
@@ -1287,6 +1289,7 @@
 | 9115 | 1 | R7-tarot-extra-turn |
 | 9118 | 1 | L1-drain-devour |
 | 9119 | 1 | P-create-interleave |
+| 9120 | 1 | L4a-R8-random-any-gem |
 | 9126 | 1 | L5-C-r4-7432 |
 | 9132 | 1 | R009-dragon |
 | 9133 | 1 | R009-dragon |
@@ -1377,6 +1380,7 @@
 | 9385 | 1 | R012 |
 | 9387 | 1 | L4a-R1-immortal-order |
 | 9388 | 1 | L4b-1608-1611-order |
+| 9464 | 1 | L4a-R8-random-any-gem |
 | 9465 | 1 | L4a-r3-7586 |
 | 9466 | 1 | L4b-R6-B02 |
 | 9468 | 1 | L5-C-r6-7589 |
@@ -1453,6 +1457,7 @@
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
 | 9660 | 1 | R7-7691-count150-floor |
 | 9661 | 2 | F3-q19、R011 |
+| 9665 | 1 | L4a-R8-7704-zh-column |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |
 | 9677 | 1 | B-L4b-prefnotprev |
