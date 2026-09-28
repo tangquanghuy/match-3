@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 558 条改动，涉及 1013 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 559 条改动，涉及 1014 个技能 ID。
 
 ## 按时间
 
@@ -564,6 +564,7 @@
 | 2026-09-28T21:52 | sa-A | L4a-R8-random-any-gem | assembler | 9020, 7594 | troop:7378 Ursky；troop:6421 Brownie | `src/engine/skills/curated/batch-04.ts`<br>`src/engine/skills/curated/batch-13.ts` | 9020 / 7594 random destroy include color → include all (R013-5) |  |
 | 2026-09-28T21:52 | sa-A | L4a-R8-7470-order | assembler | 9187 | troop:7470 GiantBadger | `src/engine/skills/curated/batch-r5.ts` | 9187 reposition self front, then last enemy front → native order: last enemy front, then self front (R001) |  |
 | 2026-09-28T21:55 | sa-A | L4a-R8-7136-column | data | 8685 | troop:7136 Narwhale | `src/engine/skills/curated/batch-03.ts`<br>`src/data/gowSnapshotOverrides.json` | 8685 destroyChosenRow; zh '摧毁一行' → destroyChosenCol (native BoardTarget Column); zh '摧毁一列' + snapshot override |  |
+| 2026-09-28T21:57 | sa-A | L4a-R8-6707-same-targets | assembler | 8064 | troop:6707 PlagueRat | `src/engine/skills/curated/batch-34.ts` | 8064 poison enemyRandomN 2, then disease enemyRandomN 2 (independent picks) → native: Disease@RandomEnemy, Poison@FromPrevious, Disease@RandomPrefNotPrev, Poison@FromPrevious (same 2 enemies, Disease first) |  |
 
 ## 按技能 ID
 
@@ -888,6 +889,7 @@
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
+| 8064 | 1 | L4a-R8-6707-same-targets |
 | 8065 | 1 | L5-C-r4-6708 |
 | 8070 | 1 | P-R6-chosen-cell-counts |
 | 8073 | 1 | L7-R1-random-chain-waves |

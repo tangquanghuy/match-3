@@ -417,3 +417,30 @@ describe('L4a R8 B15', () => {
     expect(cells).toHaveLength(24);
   });
 });
+
+describe('L4a R8 B16', () => {
+  // troop:6707 Plague Rat (8064): ExplodeColor Brown 1+M ; Disease@RandomEnemy ; Poison@FromPrevious ; Disease@RandomPrefNotPrevEnemy ; Poison@FromPrevious.
+  it('troop:6707 Diseases then Poisons the same two different enemies', () => {
+    for (let seed = 1; seed <= 12; seed++) {
+      const st = castSpell({ key: 'troop:6707', seed }).summary.order.filter(o => o.startsWith('status'));
+      expect(st).toHaveLength(4);
+      const [d1, p1, d2, p2] = st.map(s => s.split(' '));
+      expect([d1[2], p1[2], d2[2], p2[2]]).toEqual(['+disease', '+poison', '+disease', '+poison']);
+      expect(p1[1]).toBe(d1[1]); expect(p2[1]).toBe(d2[1]); expect(d2[1]).not.toBe(d1[1]);
+    }
+  });
+  // troop:6021 (7021): ExplodeColor Green 1+M ; Poison RandomEnemy + RandomNotPrevEnemy (2 different).
+  it('troop:6021 poisons two different enemies', () => {
+    const st = castSpell({ key: 'troop:6021' }).summary.order.filter(o => o.startsWith('status'));
+    expect(st).toHaveLength(2); expect(new Set(st).size).toBe(2);
+  });
+  // weapon:1056 (7122): ExplodeColor Brown [Magic] ; troop:6019 (7019): Yellow 1+M then Cleanse all allies ; troop:6540 (7734): all Red, Cleanse, +1+M Life.
+  it('troop:6019 / troop:6540 cleanse after the explosion', () => {
+    for (const key of ['troop:6019', 'troop:6540']) {
+      const o = castSpell({ key }).summary.order;
+      const iEx = o.findIndex(x => x.startsWith('explode')), iCl = o.findIndex(x => x.startsWith('cleanse') || x.startsWith('remove'));
+      expect(iEx).toBe(0); expect(iCl).toBeGreaterThan(iEx);
+    }
+    expect(castSpell({ key: 'weapon:1056', magic: 0 }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+  });
+});

@@ -89,3 +89,8 @@
 - troop:6746 accept (native order: block before heavy splash)
 - troop:7136 fix(chosen column not row; zh override)
 - troop:7879 accept
+- weapon:1056 accept
+- troop:6707 fix(same 2 enemies get Disease then Poison, native FromPrevious chain)
+- troop:6021 accept
+- troop:6019 accept
+- troop:6540 accept

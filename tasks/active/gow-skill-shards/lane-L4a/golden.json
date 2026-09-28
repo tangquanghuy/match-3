@@ -49,6 +49,26 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:58:52.154Z"
  },
+ "troop:6019": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison  => A2:mana+10 | A1:mana+4 -poison | E10:arm-3 | C:-poison  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison  => A2:mana+10 | A1:mana+4 -poison | E10:arm-3 | C:-poison  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; cleanse C -poison ; cleanse A1 -poison  => E10:arm-1 | C:-poison | A1:-poison",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison  => A2:mana+10 | A1:mana+4 -poison | E10:hp-1 DEAD | C:-poison  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:57:39.633Z"
+ },
+ "troop:6021": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; status E10 +poison ; status E12 +poison ; extra-turn match  => A2:mana+16 | E10:arm-4 +poison | E12:+poison  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; status E10 +poison ; status E12 +poison ; extra-turn match  => A2:mana+16 | E10:arm-4 +poison | E12:+poison  extra:match  cascade",
+   "L0": "explode 6 ; status E12 +poison ; status E13 +poison  => E12:+poison | E13:+poison",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; status E11 +poison ; status E13 +poison ; extra-turn match  => A2:mana+16 | E10:hp-1 DEAD | E11:+poison | E13:+poison  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:57:39.633Z"
+ },
  "troop:6024": {
   "lines": {
    "L10": "dmg E11 15 ; destroy 13 (Green x13)  => E11:hp-5 arm-10",
@@ -679,6 +699,16 @@
   "by": "sa-A",
   "at": "2026-09-28T21:22:20.692Z"
  },
+ "troop:6540": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade",
+   "L0": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; extra-turn match  => A1:hp+1 max+1 mana+4 -poison | E10:arm-3 | C:hp+1 max+1 -poison | A2:hp+1 max+1  extra:match  cascade",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:hp-1 DEAD | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:57:39.633Z"
+ },
  "troop:6544": {
   "lines": {
    "L10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 13 (all) ; dmg E11 13 (all)  => A2:mana+2 | A1:mana+2 | E10:hp-8 arm-5 | E11:hp-3 arm-10",
@@ -848,6 +878,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T03:01:49.305Z"
+ },
+ "troop:6707": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-3 | E11:+disease+poison | E13:+disease+poison  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-3 | E11:+disease+poison | E13:+disease+poison  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; status E10 +disease ; status E10 +poison ; status E13 +disease ; status E13 +poison  => E10:arm-1 +disease+poison | E13:+disease+poison",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD | E11:+disease+poison | E13:+disease+poison  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:57:39.633Z"
  },
  "troop:6709": {
   "lines": {
@@ -2318,6 +2358,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T21:17:21.478Z"
+ },
+ "weapon:1056": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "(no spell events)",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:57:39.633Z"
  },
  "weapon:1058": {
   "lines": {
