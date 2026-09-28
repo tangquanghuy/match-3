@@ -17,6 +17,7 @@ import gemShopCss from './styles/gem-shop.css?raw';
 import marketCss from './styles/market.css?raw';
 import huntCss from './styles/hunt.css?raw';
 import eventsLockCss from './styles/events-lock.css?raw';
+import eventsCss from './styles/events.css?raw';
 
 interface PageCssSpec {
   css: string;
@@ -28,7 +29,7 @@ const PAGE_CSS: Record<string, PageCssSpec> = {
   troop: { css: troopCss, position: 'first' },
   arena: { css: arenaCss, position: 'last' },
   result: { css: resultCss, position: 'last' },
-  events: { css: liveCss + eventsLockCss, position: 'last' },
+  events: { css: eventsCss + eventsLockCss, position: 'last' },
   invasion: { css: liveCss, position: 'last' },
   bag: { css: bagCss, position: 'last' },
   shop: { css: eventShopCss + marketCss + eventsLockCss, position: 'last' },

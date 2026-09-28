@@ -1,0 +1,454 @@
+/* 每周活动：总览 / 详情 / 里程碑 / 玩法说明（2026-09-28 重做；本页不再加载 live.css） */
+
+.ev-screen {
+  --ev-card: #1a1b23;
+  --ev-card-2: #20212b;
+  --ev-line: rgba(217, 179, 106, .26);
+  --ev-line-soft: rgba(255, 255, 255, .08);
+  --ev-gold: #e8c67f;
+  --ev-ink: #ece6d8;
+  --ev-muted: #a7a194;
+  --ev-accent: #d9b36a;
+  color: var(--ev-ink);
+}
+.ev-screen a { color: inherit; text-decoration: none; }
+.ev-screen [data-icon] { width: 18px; height: 18px; }
+
+/* ———————————————————— 总览 ———————————————————— */
+.ev-overview-screen { overflow-y: auto; padding: 16px 36px 14px; scrollbar-color: #5f5647 #17181e; }
+.ev-overview-layout { display: flex; flex-direction: column; gap: 14px; max-width: 1480px; height: 100%; min-height: 0; margin: 0 auto; }
+.ev-overview-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: none; }
+.ev-overview-header h1 { font: 28px var(--display); color: #f1e6cc; letter-spacing: .06em; }
+.ev-overview-header p, .ev-kingdom { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ev-muted); font-size: 13px; }
+.ev-overview-header p [data-icon], .ev-kingdom [data-icon] { width: 15px; height: 15px; color: var(--ev-gold); }
+.ev-countdown { color: #f0dcae; font-variant-numeric: tabular-nums; }
+
+/* 每周远征：一条轴四个宝石节点 */
+.ev-weekly { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 28px; flex: none; padding: 12px 24px 12px 20px; border: 1px solid var(--ev-line); border-radius: 12px; background: linear-gradient(100deg, #262219, #1a1b22 42%); }
+.ev-weekly header { display: flex; flex-direction: column; gap: 2px; }
+.ev-weekly header b { color: var(--ev-gold); font-size: 15px; letter-spacing: .08em; }
+.ev-weekly header strong { color: #f6ecd2; font: 26px var(--body); }
+.ev-weekly header strong small { color: var(--ev-muted); font: 13px var(--body); }
+.ev-weekly-rail { position: relative; height: 54px; margin: 0 40px 0 10px; }
+.ev-weekly-bar { position: absolute; top: 14px; left: 0; right: 0; height: 6px; border-radius: 99px; background: #2c2d36; }
+.ev-weekly-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #a47a36, #f0cf85); }
+.ev-weekly-goals { position: absolute; inset: 0; }
+.ev-weekly-goals > div { position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; transform: translateX(-50%); }
+.ev-goal-pill { display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 11px 0 8px; border: 1px solid #4a4538; border-radius: 99px; background: #1d1e25; }
+.ev-goal-pill [data-icon] { width: 17px; height: 17px; color: #7fd1ff; }
+.ev-goal-pill b { color: #d8eef9; font-size: 14px; }
+.ev-weekly-goals > div small { color: var(--ev-muted); font-size: 11px; }
+.ev-weekly-goals > div.ready .ev-goal-pill { border-color: var(--ev-gold); box-shadow: 0 0 12px rgba(240, 207, 133, .35); }
+.ev-weekly-goals > div.claimed .ev-goal-pill { border-color: #5aa36f; background: #1f3226; }
+.ev-weekly-goals > div.claimed .ev-goal-pill [data-icon] { color: #9be0ae; }
+.ev-weekly-goals > div.claimed .ev-goal-pill b { color: #9fcaa9; }
+
+/* 六张活动卡：整幅插画 + 底部信息 */
+.ev-overview-track { display: grid; flex: 1; min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ev-overview-card { position: relative; display: flex; min-height: 0; overflow: hidden; border: 1px solid var(--ev-line-soft); border-radius: 12px; background: #15161c; isolation: isolate; }
+.ev-overview-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; z-index: 2; width: 3px; background: var(--ev-accent); }
+.ev-overview-visual { position: absolute; inset: 0; z-index: -1; }
+.ev-overview-visual img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; transition: transform .5s ease, filter .3s; filter: saturate(.9); }
+.ev-overview-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 12, 16, .15) 0%, rgba(12, 12, 16, .35) 38%, rgba(14, 14, 19, .94) 72%); }
+.ev-overview-card:hover .ev-overview-visual img { transform: scale(1.04); filter: saturate(1.05); }
+.ev-overview-card:hover { border-color: color-mix(in srgb, var(--ev-accent) 55%, transparent); }
+.ev-overview-body { display: flex; flex: 1; flex-direction: column; justify-content: flex-end; gap: 8px; min-width: 0; padding: 14px 18px 14px 20px; pointer-events: none; }
+.ev-overview-body a { pointer-events: auto; }
+.ev-overview-top { position: absolute; top: 12px; left: 16px; right: 14px; display: flex; justify-content: flex-end; }
+.ev-overview-main { display: flex; align-items: center; gap: 10px; }
+.ev-overview-main::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.ev-overview-main:focus-visible { outline: none; }
+.ev-overview-card:has(.ev-overview-main:focus-visible) { outline: 2px solid var(--ev-gold); outline-offset: 2px; }
+.ev-overview-icon { display: grid; place-items: center; width: 34px !important; height: 34px !important; padding: 7px; border: 1px solid color-mix(in srgb, var(--ev-accent) 60%, transparent); border-radius: 9px; background: rgba(12, 12, 16, .6); color: var(--ev-accent); }
+.ev-overview-title b { font: 24px var(--display); color: #fbf2dc; letter-spacing: .04em; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
+.ev-overview-arrow { margin-left: auto; transform: rotate(180deg); color: var(--ev-gold); opacity: .8; }
+.ev-overview-hook { margin: 0; color: #d6cfbf; font-size: 13px; }
+.ev-overview-progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 10px; font-size: 12px; }
+.ev-overview-progress span { overflow: hidden; color: var(--ev-muted); white-space: nowrap; text-overflow: ellipsis; }
+.ev-overview-progress b { color: var(--ev-gold); }
+.ev-overview-progress i { grid-column: 1 / -1; height: 4px; overflow: hidden; border-radius: 99px; background: rgba(255, 255, 255, .12); }
+.ev-overview-progress em { display: block; height: 100%; border-radius: inherit; background: var(--ev-accent); }
+.ev-overview-foot { display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, .08); color: var(--ev-muted); font-size: 12px; }
+.ev-overview-foot > span { display: inline-flex; align-items: center; gap: 5px; }
+.ev-overview-foot [data-icon] { width: 15px; height: 15px; color: #7fd1ff; }
+.ev-overview-foot > span:last-child [data-icon] { color: var(--ev-gold); }
+.ev-overview-foot b { color: #f1e9d6; font-size: 13px; }
+
+/* 敌人等级 / 主题标签 */
+.ev-level, .ev-theme { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px; border: 1px solid rgba(255, 255, 255, .16); border-radius: 99px; background: rgba(12, 12, 16, .66); color: #e6dfcf; font-size: 12px; white-space: nowrap; }
+.ev-level.top { border-color: rgba(233, 111, 92, .7); color: #ffc3b4; }
+.ev-theme [data-icon] { width: 14px; height: 14px; color: var(--ev-accent); }
+
+/* ———————————————————— 详情 ———————————————————— */
+.ev-detail { display: grid; grid-template-rows: auto minmax(0, 1fr); align-content: start; gap: 12px; padding: 12px 36px 14px; }
+.ev-tabs { display: flex; align-items: center; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.ev-tab { display: inline-flex; flex: none; align-items: center; gap: 6px; min-height: 36px; padding: 0 16px; border: 1px solid transparent; border-radius: 8px; color: #b9b3a5 !important; font-size: 14px; }
+.ev-tab:hover { color: #f1e9d6 !important; background: rgba(255, 255, 255, .04); }
+.ev-tab.page { border-color: color-mix(in srgb, var(--ev-accent) 70%, transparent); background: color-mix(in srgb, var(--ev-accent) 16%, #17181f); color: #fff4dc !important; }
+.ev-tab-all { margin-right: 8px; border-color: var(--ev-line-soft); }
+.ev-tab-all [data-icon] { width: 14px; height: 14px; }
+.ev-mobile-picker { display: none; }
+
+.ev-screen .ev-panel { border-radius: 0; background: transparent; box-shadow: none; }
+.ev-screen .ev-panel::after { display: none; }
+.ev-panel { display: grid; grid-template-columns: minmax(360px, 34%) minmax(0, 1fr); gap: 18px; min-height: 0; overflow: auto; padding: 0; scrollbar-width: thin; }
+.ev-side, .ev-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
+.ev-main .ev-state { display: flex; flex: 1 0 auto; flex-direction: column; }
+.ev-main .ev-state > h3 + * { margin-top: auto; }
+.ev-main .ev-state > :last-child { margin-bottom: auto; }
+@media (min-width: 1000px) and (min-height: 821px) {
+  /* 高屏桌面：状态区视觉放大，填满右栏 */
+  .ev-main .ev-line-node { padding: 18px 16px; }
+  .ev-main .ev-line-enemies em { height: 9px; }
+  .ev-main .ev-boss-medallion { flex-basis: 112px; height: 112px; }
+  .ev-main .ev-boss-medallion [data-icon] { width: 42px; height: 42px; }
+  .ev-main .ev-hpbar { height: 34px; }
+  .ev-main .ev-tower-scale i { height: 60px; }
+  .ev-main .ev-tower-scale i b { font-size: 18px; }
+  .ev-main .ev-faction-slots i { height: 76px; }
+  .ev-main .ev-trial-steps i:nth-child(1) { height: 70px; }
+  .ev-main .ev-trial-steps i:nth-child(2) { height: 94px; }
+  .ev-main .ev-trial-steps i:nth-child(3) { height: 118px; }
+  .ev-main .ev-trial-steps i:nth-child(4) { height: 142px; }
+  .ev-main .ev-trial-steps i b { font-size: 20px; }
+  .ev-main .ev-trial-steps i small { font-size: 13px; }
+  .ev-main .ev-supply-race, .ev-main .ev-faction-crest { padding: 18px 8px; }
+}
+.ev-main .ev-decision { margin-top: auto; padding: 16px 18px; border: 1px solid var(--ev-line-soft); border-radius: 12px; background: var(--ev-card); }
+
+.ev-banner { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; border: 1px solid var(--ev-line-soft); border-radius: 12px; background: var(--ev-card); }
+.ev-banner-art { position: relative; flex: 1; min-height: 170px; overflow: hidden; }
+.ev-banner-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; }
+.ev-banner-art::after { content: ""; position: absolute; inset: auto 0 0; height: 45%; background: linear-gradient(180deg, transparent, var(--ev-card)); }
+.ev-banner-icon { position: absolute; top: 12px; left: 12px; z-index: 1; display: grid; place-items: center; width: 38px !important; height: 38px !important; padding: 8px; border: 1px solid color-mix(in srgb, var(--ev-accent) 60%, transparent); border-radius: 10px; background: rgba(12, 12, 16, .66); color: var(--ev-accent); }
+.ev-banner-copy { display: flex; flex-direction: column; gap: 10px; padding: 12px 18px 16px; border-left: 3px solid var(--ev-accent); }
+.ev-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ev-title-row h1 { font: 30px var(--display); color: #fbf2dc; letter-spacing: .05em; }
+.ev-title-row a { flex: none; padding: 4px 10px; border: 1px solid var(--ev-line); border-radius: 6px; color: #e2cf9f !important; font-size: 12px; }
+.ev-title-row a:hover { background: rgba(217, 179, 106, .12); }
+.ev-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ev-progress { flex: none; padding: 14px 18px; border: 1px solid var(--ev-line-soft); border-radius: 12px; background: var(--ev-card); }
+.ev-progress-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.ev-progress-head span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ev-progress-head small { color: var(--ev-muted); font-size: 12px; }
+.ev-progress-current b { color: #f7eed8; font: 26px var(--body); line-height: 1; }
+.ev-progress-next { align-items: flex-end; text-align: right; }
+.ev-progress-next b { color: var(--ev-gold); font-size: 14px; }
+.ev-progress-bar { position: relative; height: 8px; margin-top: 12px; border-radius: 99px; background: #2b2c35; }
+.ev-progress-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--ev-accent) 70%, #000), var(--ev-accent)); }
+.ev-progress-bar em { position: absolute; top: -3px; z-index: 1; width: 3px; height: 14px; margin-left: -2px; border-radius: 2px; background: #4a4a55; }
+.ev-progress-bar em.done { background: var(--ev-gold); }
+
+.ev-secondary-links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: none; }
+.ev-secondary-links a { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 10px; min-height: 58px; padding: 8px 14px; border: 1px solid var(--ev-line); border-radius: 10px; background: linear-gradient(180deg, #23221f, #1b1b21); }
+.ev-secondary-links a:hover { border-color: var(--ev-gold); background: #2a2720; }
+.ev-secondary-links a > [data-icon] { grid-row: 1 / span 2; width: 26px; height: 26px; color: var(--ev-gold); }
+.ev-secondary-links a > span:not([data-icon]) { color: var(--ev-muted); font-size: 12px; }
+.ev-secondary-links a > b { color: #f4e8cb; font-size: 15px; }
+
+/* 状态区（每类型一块） */
+.ev-state { flex: none; padding: 16px 20px 18px; border: 1px solid var(--ev-line-soft); border-radius: 12px; background: radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--ev-accent) 14%, transparent), transparent 60%), var(--ev-card); }
+.ev-state h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; color: #f3ead6; font-size: 16px; font-weight: 600; }
+.ev-state h3 > b { margin-left: auto; color: var(--ev-gold); font: 700 15px var(--body); }
+.ev-state-title-icon { display: grid; place-items: center; width: 32px !important; height: 32px !important; padding: 6px; border: 1px solid color-mix(in srgb, var(--ev-accent) 55%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--ev-accent) 14%, transparent); color: var(--ev-accent); }
+
+/* 入侵：三段防线 */
+.ev-lines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ev-line-node { display: grid; grid-template-columns: 26px 1fr; grid-template-rows: auto auto auto; align-items: center; column-gap: 8px; padding: 12px; border: 1px solid var(--ev-line-soft); border-radius: 10px; background: #15161c; }
+.ev-line-icon { grid-row: 1 / span 2; width: 24px !important; height: 24px !important; color: #7d7884; }
+.ev-line-node b { font-size: 14px; }
+.ev-line-node small { color: var(--ev-muted); font-size: 12px; }
+.ev-line-enemies { display: flex; grid-column: 1 / -1; gap: 5px; margin-top: 10px; }
+.ev-line-enemies em { flex: 1; height: 6px; border-radius: 3px; background: #2a2a33; }
+.ev-line-enemies em.boss { flex: 1.6; }
+.ev-line-node.current { border-color: color-mix(in srgb, var(--ev-accent) 75%, transparent); background: color-mix(in srgb, var(--ev-accent) 10%, #15161c); }
+.ev-line-node.current .ev-line-icon { color: var(--ev-accent); }
+.ev-line-node.current .ev-line-enemies em { background: color-mix(in srgb, var(--ev-accent) 70%, #2a2a33); }
+.ev-line-node.cleared { border-color: rgba(90, 163, 111, .55); }
+.ev-line-node.cleared .ev-line-icon { color: #7fcf95; }
+.ev-line-node.cleared .ev-line-enemies em { background: #3b6a48; }
+.ev-line-goal { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--ev-muted); font-size: 13px; }
+.ev-line-goal [data-icon] { color: var(--ev-gold); }
+.ev-line-goal b { margin-left: auto; color: var(--ev-gold); }
+
+/* 突袭：首领徽记 + 血池 */
+.ev-boss-visual { display: flex; align-items: center; gap: 20px; }
+.ev-boss-medallion { display: grid; flex: 0 0 84px; place-items: center; align-content: center; gap: 2px; height: 84px; border: 1px solid rgba(214, 92, 92, .6); border-radius: 50%; background: radial-gradient(circle, rgba(170, 40, 50, .38), rgba(40, 16, 22, .3) 70%); color: #e07c7c; }
+.ev-boss-medallion [data-icon] { width: 32px; height: 32px; }
+.ev-boss-medallion small { color: #d5b1ad; font-size: 11px; }
+.ev-boss-pool { flex: 1; min-width: 0; }
+.ev-hpbar { position: relative; height: 26px; overflow: hidden; border-radius: 7px; background: #2a1d21; }
+.ev-hpbar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #8f1d25, #d8584a); }
+.ev-hpbar b { position: absolute; inset: 0; display: grid; place-items: center; color: #fff0de; font-size: 13px; text-shadow: 0 1px 2px #000; }
+.ev-hp-segments { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 6px; }
+.ev-hp-segments i { height: 4px; border-radius: 2px; background: #2d2c34; }
+.ev-hp-segments i.on { background: #b8443d; }
+.ev-pool-caption { display: flex; justify-content: space-between; margin-top: 8px; color: var(--ev-muted); font-size: 12px; }
+.ev-pool-caption b { color: #f08b7c; font: 700 14px var(--body); }
+
+/* 末日之塔：五段首领刻度 + 队伍生命 */
+.ev-tower-visual { display: flex; align-items: center; gap: 18px; }
+.ev-tower-scale { display: grid; flex: 1; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.ev-tower-scale i { display: grid; place-items: center; height: 38px; border: 1px solid var(--ev-line-soft); border-radius: 7px; background: #15161c; color: #7d7884; }
+.ev-tower-scale i b { font: 700 14px var(--body); }
+.ev-tower-scale i.passed { border-color: rgba(90, 163, 111, .5); background: #1b2a21; color: #8fd0a1; }
+.ev-tower-scale i.current { border-color: var(--ev-accent); background: color-mix(in srgb, var(--ev-accent) 18%, #15161c); color: #e7fbff; }
+.ev-tower-info { display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: 4px; }
+.ev-floor.now { color: #f6eedb; font: 22px var(--display); }
+.ev-floor.meta { color: var(--ev-muted); font-size: 12px; }
+.ev-floor.meta.run { color: #9fdcae; }
+.ev-team-hp-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+.ev-team-hp { position: relative; height: 30px; overflow: hidden; border: 1px solid var(--ev-line-soft); border-radius: 7px; background: #15161c; }
+.ev-team-hp i { position: absolute; inset: 0 auto 0 0; background: rgba(90, 170, 120, .35); }
+.ev-team-hp b { position: relative; z-index: 1; display: grid; place-items: center; height: 100%; font-size: 12px; }
+.ev-team-hp.empty i { background: rgba(255, 255, 255, .04); }
+.ev-team-hp.empty b { color: #6f6b75; }
+.ev-team-hp.dead { border-color: rgba(214, 92, 92, .45); }
+.ev-team-hp.dead b { color: #e58f86; }
+.ev-tower-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.ev-abandon { min-height: 36px; padding: 0 14px; border: 1px solid rgba(229, 143, 134, .5) !important; border-radius: 7px; background: transparent; color: #f0a79d; font-size: 13px; }
+.ev-abandon:hover { background: rgba(229, 143, 134, .1); }
+
+/* 世界事件：种族徽章 + 物资轴 */
+.ev-supply-card { display: flex; align-items: center; gap: 20px; }
+.ev-supply-race { display: grid; flex: 0 0 104px; justify-items: center; gap: 3px; padding: 12px 8px; border: 1px solid color-mix(in srgb, var(--ev-accent) 50%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--ev-accent) 10%, #15161c); text-align: center; }
+.ev-supply-race [data-icon] { width: 24px; height: 24px; color: var(--ev-accent); }
+.ev-supply-race b { font-size: 15px; }
+.ev-supply-race small { color: var(--ev-muted); font-size: 11px; }
+.ev-supply-track { flex: 1; min-width: 0; }
+.ev-supply-bar { position: relative; height: 10px; margin: 22px 12px 0 0; border-radius: 99px; background: #2b2c35; }
+.ev-supply-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3f7a4f, var(--ev-accent)); }
+.ev-supply-marks i { position: absolute; top: -20px; transform: translateX(-50%); color: var(--ev-muted); font-size: 11px; }
+.ev-supply-marks i::after { content: ""; position: absolute; top: 18px; left: 50%; width: 2px; height: 14px; margin-left: -1px; background: #4a4a55; }
+.ev-supply-marks i.done { color: #a6e0b3; }
+.ev-supply-marks i.done::after { background: #a6e0b3; }
+.ev-supply-next { display: block; margin-top: 12px; color: #cfc8b8; font-size: 13px; }
+
+/* 阵营突袭：阵营徽章 + 四格匹配 */
+.ev-faction-visual { display: flex; align-items: center; gap: 18px; }
+.ev-faction-crest { display: grid; flex: 0 0 110px; justify-items: center; gap: 4px; padding: 12px 6px; border: 1px solid color-mix(in srgb, var(--ev-accent) 55%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--ev-accent) 12%, #15161c); text-align: center; }
+.ev-faction-crest [data-icon] { width: 26px; height: 26px; color: var(--ev-accent); }
+.ev-faction-crest b { font-size: 14px; }
+.ev-faction-slots { display: grid; flex: 1; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.ev-faction-slots i { display: grid; place-items: center; height: 54px; border: 1px dashed rgba(255, 255, 255, .16); border-radius: 9px; color: #5f5b66; }
+.ev-faction-slots i [data-icon] { width: 22px; height: 22px; }
+.ev-faction-slots i.hit { border: 1px solid var(--ev-accent); background: color-mix(in srgb, var(--ev-accent) 16%, #15161c); color: var(--ev-accent); }
+.ev-faction-buff { display: grid; flex: none; gap: 4px; color: var(--ev-muted); font-size: 12px; text-align: right; }
+.ev-faction-buff b { color: #f6e3ae; font: 700 16px var(--body); }
+.ev-faction-foot { display: flex; justify-content: space-between; margin-top: 12px; color: var(--ev-muted); font-size: 13px; }
+.ev-faction-foot b { color: var(--ev-gold); }
+
+/* 职业试炼：四级连胜台阶 */
+.ev-trial-visual { display: flex; align-items: flex-end; gap: 18px; }
+.ev-trial-steps { display: grid; flex: 1; grid-template-columns: repeat(4, 1fr); align-items: end; gap: 8px; }
+.ev-trial-steps i { display: grid; place-items: center; align-content: center; gap: 2px; border: 1px solid var(--ev-line-soft); border-radius: 8px; background: #15161c; color: #7d7884; }
+.ev-trial-steps i:nth-child(1) { height: 48px; }
+.ev-trial-steps i:nth-child(2) { height: 58px; }
+.ev-trial-steps i:nth-child(3) { height: 68px; }
+.ev-trial-steps i:nth-child(4) { height: 78px; }
+.ev-trial-steps i b { font: 700 15px var(--body); }
+.ev-trial-steps i small { font-size: 11px; }
+.ev-trial-steps i.on { border-color: color-mix(in srgb, var(--ev-accent) 70%, transparent); background: color-mix(in srgb, var(--ev-accent) 16%, #15161c); color: #e6e9ff; }
+.ev-trial-steps i.current { box-shadow: 0 0 14px color-mix(in srgb, var(--ev-accent) 45%, transparent); }
+.ev-trial-seal { display: grid; flex: none; gap: 2px; padding: 10px 14px; border: 1px solid var(--ev-line); border-radius: 10px; text-align: right; }
+.ev-trial-seal small { color: var(--ev-muted); font-size: 12px; }
+.ev-trial-seal b { color: var(--ev-gold); font: 700 20px var(--body); }
+.ev-hero-lock { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 12px; border: 1px solid rgba(229, 143, 134, .4); border-radius: 8px; color: #f0b3a9; font-size: 13px; }
+.ev-hero-lock a { margin-left: auto; color: #ffd9cf !important; }
+.ev-hero-lock a [data-icon] { width: 13px; height: 13px; transform: rotate(180deg); }
+
+/* 本场战术与出战 */
+.ev-decision { display: flex; flex-direction: column; gap: 14px; flex: none; }
+.ev-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ev-choice { position: relative; display: flex; align-items: flex-start; gap: 12px; min-height: 76px; padding: 14px 16px; border: 1px solid var(--ev-line-soft); border-radius: 10px; background: var(--ev-card); cursor: pointer; }
+.ev-choice:hover { border-color: rgba(255, 255, 255, .2); }
+.ev-choice input { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--ev-accent); }
+.ev-choice span { display: flex; flex-direction: column; gap: 4px; }
+.ev-choice b { color: #f3ead6; font-size: 15px; }
+.ev-choice small { color: var(--ev-muted); font-size: 13px; line-height: 1.45; }
+.ev-choice:has(input:checked) { border-color: color-mix(in srgb, var(--ev-accent) 80%, transparent); background: color-mix(in srgb, var(--ev-accent) 12%, var(--ev-card)); }
+.ev-choice:has(input:focus-visible) { outline: 2px solid var(--ev-gold); outline-offset: 2px; }
+.ev-choice.unavailable { cursor: not-allowed; opacity: .45; }
+.ev-action-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.ev-fight { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 200px; min-height: 52px; padding: 0 30px; border: 1px solid color-mix(in srgb, var(--ev-accent) 80%, #fff) !important; border-radius: 10px; background: linear-gradient(180deg, color-mix(in srgb, var(--ev-accent) 78%, #fff 6%), color-mix(in srgb, var(--ev-accent) 55%, #111)); box-shadow: 0 6px 18px color-mix(in srgb, var(--ev-accent) 28%, transparent); color: #fffaf0; font-size: 18px; font-weight: 700; letter-spacing: .3em; text-indent: .3em; text-shadow: 0 1px 2px rgba(0, 0, 0, .55); }
+.ev-fight [data-icon] { width: 20px; height: 20px; }
+.ev-fight:disabled { box-shadow: none; filter: grayscale(.7); }
+.ev-action-row a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: #d8cfb9 !important; font-size: 14px; }
+.ev-action-row a:hover { color: #fff3d2 !important; }
+.ev-action-row a [data-icon] { width: 16px; height: 16px; color: var(--ev-gold); }
+.ev-warning { display: flex; align-items: center; gap: 8px; margin: 0; color: #f3a99c; font-size: 13px; }
+.ev-warning [data-icon] { width: 15px; height: 15px; }
+
+/* 登塔放弃确认 */
+.ev-tower-confirm-veil { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(6, 6, 10, .72); }
+.ev-tower-confirm { width: min(460px, 100%); padding: 22px 24px; border: 1px solid var(--ev-line, rgba(217, 179, 106, .3)); border-radius: 14px; background: #1b1c24; color: #ece6d8; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); }
+.ev-tower-confirm h2 { font: 22px var(--display); color: #fbf2dc; }
+.ev-tower-confirm p { margin: 8px 0 14px; color: #bdb6a7; font-size: 14px; }
+.ev-tower-confirm dl { display: grid; gap: 8px; margin: 0; }
+.ev-tower-confirm dl div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 8px 10px; border-radius: 8px; background: #15161c; font-size: 13px; }
+.ev-tower-confirm dt { color: #a7a194; }
+.ev-tower-confirm dd { margin: 0; }
+.ev-tower-confirm .gain dd { color: #f0cf85; }
+.ev-tower-confirm .clear dd { color: #f3a99c; }
+.ev-tower-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.ev-tower-confirm-actions button { min-height: 44px; padding: 0 18px; border-radius: 8px; font-size: 14px; }
+.ev-confirm-cancel { border: 1px solid rgba(255, 255, 255, .2) !important; background: #23242d; }
+.ev-confirm-danger { border: 1px solid #c86457 !important; background: #5a2723; color: #ffe3dc; }
+
+/* ———————————————————— 里程碑 / 玩法说明子页 ———————————————————— */
+.ev-rewards-page .ev-panel, .ev-rules-page .ev-panel { display: flex; flex-direction: column; gap: 16px; padding: 22px 26px; border: 1px solid var(--ev-line-soft); border-radius: 12px; background: radial-gradient(90% 70% at 100% 0%, color-mix(in srgb, var(--ev-accent) 12%, transparent), transparent 60%), var(--ev-card); }
+.ev-sub-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; }
+.ev-sub-head h1 { font: 26px var(--display); color: #fbf2dc; }
+.ev-sub-head p { margin: 0 0 0 auto; color: var(--ev-muted); font-size: 14px; }
+.ev-sub-head p b { color: var(--ev-gold); font-size: 16px; }
+.ev-rewards-back { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; color: #d8cfb9 !important; font-size: 13px; }
+.ev-rewards-back [data-icon] { width: 14px; height: 14px; }
+.ev-rewards-back-bottom { display: none; }
+.ev-mile-track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.ev-mile { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border: 1px solid var(--ev-line-soft); border-radius: 10px; background: #15161c; }
+.ev-mile-head { display: flex; align-items: center; gap: 10px; }
+.ev-mile-head b { flex: 1; min-width: 0; font-size: 15px; }
+.ev-mile-head > span:last-child { color: var(--ev-muted); font-size: 13px; white-space: nowrap; }
+.ev-mile-mark { display: grid; place-items: center; width: 30px !important; height: 30px !important; padding: 6px; border-radius: 50%; background: #25262f; color: #8d8894; }
+.ev-mile.ready { border-color: color-mix(in srgb, var(--ev-gold) 70%, transparent); box-shadow: 0 0 14px rgba(240, 207, 133, .15); }
+.ev-mile.ready .ev-mile-mark { background: #4a3c1d; color: var(--ev-gold); }
+.ev-mile.done { border-color: rgba(90, 163, 111, .5); }
+.ev-mile.done .ev-mile-mark { background: #25432f; color: #a6e0b3; }
+.ev-mile-rewards { display: flex; flex-wrap: wrap; gap: 6px; }
+.ev-reward { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 10px 0 4px; border-radius: 7px; background: #20212a; font-size: 12px; }
+.ev-reward-art { display: grid; place-items: center; width: 24px; height: 24px; }
+.ev-reward-art > *, .ev-reward-art img, .ev-reward-art svg { max-width: 24px; max-height: 24px; }
+.ev-reward-art [data-icon] { width: 20px; height: 20px; }
+.ev-reward-art [data-icon="crystal"] { color: #7fd1ff; }
+.ev-reward-art [data-icon="coin"], .ev-reward-art [data-icon="key"], .ev-reward-art [data-icon="glory"] { color: var(--ev-gold); }
+.ev-reward-art [data-icon="soul"] { color: #c9a3f0; }
+.ev-reward-name { color: #cfc8b8; }
+.ev-reward b { color: #f5ead0; }
+.ev-howto { padding: 16px 18px; border: 1px solid var(--ev-line-soft); border-radius: 10px; background: #15161c; }
+.ev-howto h2 { margin-bottom: 8px; color: var(--ev-gold); font-size: 15px; }
+.ev-howto ul { margin: 0; padding-left: 20px; }
+.ev-howto li { color: #cfc8b8; font-size: 14px; line-height: 1.9; }
+
+/* ———————————————————— 自适应 ———————————————————— */
+@media (max-width: 1399px) {
+  .stage.events-responsive { width: 100vw; height: 100dvh; transform: none !important; }
+  .stage.events-responsive .topbar { height: 66px; padding: 0 12px; gap: 6px; }
+  .stage.events-responsive .player { flex: 1; min-width: 0; width: auto; gap: 8px; }
+  .stage.events-responsive .player > img { width: 38px; height: 38px; }
+  .stage.events-responsive .player strong { overflow: hidden; margin: 0; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+  .stage.events-responsive .player span { font-size: 9px; }
+  .stage.events-responsive .player .xp { width: 90px; margin-top: 4px; }
+  .stage.events-responsive .top-title { display: none; }
+  .stage.events-responsive .wallet { flex: none; gap: 3px; }
+  .stage.events-responsive .money { gap: 3px; padding: 0; }
+  .stage.events-responsive .money:not([data-currency="gold"]) { display: none; }
+  .stage.events-responsive .money > [data-icon] { width: 19px; height: 19px; }
+  .stage.events-responsive .money small { font-size: 9px; margin-bottom: 1px; }
+  .stage.events-responsive .money b { font-size: 12px; }
+  .stage.events-responsive .orb { width: 29px; height: 29px; margin-left: 2px; }
+  .stage.events-responsive .orb [data-icon] { width: 16px; height: 16px; }
+  .stage.events-responsive .bottom-bar { height: 58px; padding: 0 6px; }
+  .stage.events-responsive .world-mark, .stage.events-responsive .bottom-hint { display: none; }
+  .stage.events-responsive .bottom-bar nav { position: static; width: 100%; transform: none; gap: 0; }
+  .stage.events-responsive .bottom-bar nav button { flex: 1; min-width: 0; width: auto; flex-direction: column; gap: 1px; font-size: 10px; letter-spacing: 0; }
+  .stage.events-responsive .bottom-bar nav button > [data-icon] { width: 20px; height: 20px; }
+  .ev-screen { inset: 66px 0 58px; }
+  .ev-overview-screen { padding: 16px 24px; }
+  .ev-overview-layout { height: auto; min-height: 100%; }
+  .ev-overview-track { flex: none; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: 250px; }
+  .ev-detail { padding: 12px 20px; }
+  .ev-panel { grid-template-columns: minmax(300px, 38%) minmax(0, 1fr); }
+  .ev-banner-art { min-height: 200px; }
+}
+
+/* 矮屏桌面（如 1280×720）：右栏压缩到一屏内 */
+@media (min-width: 1000px) and (max-height: 820px) {
+  .ev-detail { gap: 10px; padding-top: 10px; padding-bottom: 10px; }
+  .ev-tab { min-height: 32px; }
+  .ev-main { gap: 10px; }
+  .ev-state { padding: 12px 16px; }
+  .ev-state h3 { margin-bottom: 10px; }
+  .ev-progress { padding: 10px 16px; }
+  .ev-progress-current b { font-size: 22px; }
+  .ev-progress-bar { margin-top: 8px; }
+  .ev-secondary-links a { min-height: 48px; padding: 6px 12px; }
+  .ev-main .ev-decision { gap: 10px; padding: 12px 14px; }
+  .ev-choice { min-height: 0; padding: 10px 14px; }
+  .ev-fight { min-height: 46px; }
+  .ev-action-row a { min-height: 40px; }
+  .ev-overview-screen { padding-top: 12px; padding-bottom: 10px; }
+  .ev-overview-layout { gap: 10px; }
+}
+
+@media (max-width: 999px) {
+  .ev-detail { display: flex; flex-direction: column; overflow-y: auto; }
+  .ev-detail > .ev-tabs { flex: none; }
+  .ev-panel { display: flex; flex: none; flex-direction: column; height: auto; min-height: auto; overflow: visible; }
+  .ev-side, .ev-main { flex: none; min-height: auto; }
+  .ev-banner { flex: none; flex-direction: row; }
+  .ev-banner-art { flex: 0 0 42%; min-height: 190px; }
+  .ev-banner-art::after { inset: 0 0 0 auto; width: 40%; height: auto; background: linear-gradient(90deg, transparent, var(--ev-card)); }
+  .ev-banner-copy { flex: 1; justify-content: center; border-left: 0; }
+  .ev-main .ev-decision { order: 1; margin-top: 0; }
+  .ev-main .ev-progress { order: 2; }
+  .ev-main .ev-secondary-links { order: 3; }
+  .ev-weekly { grid-template-columns: 130px minmax(0, 1fr); gap: 18px; }
+  .ev-mile-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ev-rewards-page, .ev-rules-page { overflow-y: auto; }
+  .ev-rewards-page .ev-panel { overflow: visible; }
+}
+
+@media (max-width: 699px) {
+  .ev-overview-screen { padding: 12px; }
+  .ev-overview-layout { gap: 12px; }
+  .ev-overview-header h1 { font-size: 22px; }
+  .ev-overview-header p { font-size: 12px; }
+  .ev-overview-header p > span:last-child { display: none; }
+  .ev-overview-track { grid-template-columns: 1fr; grid-auto-rows: 220px; gap: 12px; }
+  .ev-weekly { grid-template-columns: 1fr; gap: 6px; padding: 12px 14px 8px; }
+  .ev-weekly header { flex-direction: row; align-items: baseline; justify-content: space-between; }
+  .ev-weekly header strong { font-size: 20px; }
+  .ev-weekly-rail { height: 46px; margin: 0 26px 0 4px; }
+  .ev-weekly-bar { top: 11px; }
+  .ev-goal-pill { gap: 2px; height: 28px; padding: 0 6px 0 4px; }
+  .ev-goal-pill [data-icon] { width: 13px; height: 13px; }
+  .ev-goal-pill b { font-size: 12px; }
+  .ev-weekly-goals > div small { font-size: 10px; }
+
+  .ev-detail { gap: 10px; padding: 10px 12px 14px; }
+  .ev-tabs .ev-tab:not(.ev-tab-all) { display: none; }
+  .ev-tab-all { margin-right: 0; }
+  .ev-mobile-picker { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; color: var(--ev-muted); font-size: 12px; }
+  .ev-mobile-picker select { flex: 1; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid var(--ev-line); border-radius: 8px; background: #1b1c24; color: #f1e9d6; font-size: 14px; }
+  .ev-banner { flex-direction: column; }
+  .ev-banner-art { flex: none; height: 150px; min-height: 0; }
+  .ev-banner-art::after { inset: auto 0 0; width: auto; height: 45%; background: linear-gradient(180deg, transparent, var(--ev-card)); }
+  .ev-banner-copy { padding: 10px 14px 14px; border-left: 3px solid var(--ev-accent); }
+  .ev-title-row h1 { font-size: 24px; }
+  .ev-state { padding: 14px; }
+  .ev-lines { gap: 6px; }
+  .ev-line-node { grid-template-columns: 1fr; padding: 10px 8px; text-align: center; justify-items: center; }
+  .ev-line-icon { grid-row: auto; }
+  .ev-line-node b { font-size: 13px; }
+  .ev-line-goal { flex-wrap: wrap; }
+  .ev-boss-visual, .ev-supply-card, .ev-faction-visual, .ev-trial-visual { gap: 12px; }
+  .ev-boss-medallion { flex-basis: 64px; height: 64px; }
+  .ev-boss-medallion [data-icon] { width: 24px; height: 24px; }
+  .ev-supply-race, .ev-faction-crest { flex-basis: 84px; }
+  .ev-faction-visual { flex-wrap: wrap; }
+  .ev-faction-slots { flex-basis: calc(100% - 96px); }
+  .ev-faction-buff { flex-basis: 100%; grid-auto-flow: column; justify-content: flex-start; gap: 16px; text-align: left; }
+  .ev-tower-visual { flex-direction: column; align-items: stretch; gap: 10px; }
+  .ev-tower-info { flex-direction: row; align-items: baseline; justify-content: space-between; }
+  .ev-choices { grid-template-columns: 1fr; }
+  .ev-choice { min-height: 0; padding: 12px 14px; }
+  .ev-fight { flex: 1 1 100%; }
+  .ev-action-row { gap: 4px 18px; }
+  .ev-mile-track { grid-template-columns: 1fr; }
+  .ev-rewards-page .ev-panel, .ev-rules-page .ev-panel { padding: 16px; }
+  .ev-sub-head p { margin-left: 0; }
+  .ev-rewards-back-bottom { display: inline-flex; }
+  .ev-mobile-picker > span { display: none; }
+  .ev-tab-all { padding: 0 12px; }
+}

@@ -90,6 +90,26 @@ function curveLevel(week: EventWeekState, stage: number): { level: number; top: 
   return { level: Math.max(EVENT_DIFFICULTY.topBase, week.eventData[EVENT_STATE_KEYS.topLevel] ?? EVENT_DIFFICULTY.topBase), top: true };
 }
 
+/** 下一场的基础敌人等级（不含战术选择加成；页面展示用，只读状态） */
+export function eventNextLevel(save: MetaSave, weekStart: number, typeId: EventTypeId): { level: number; top: boolean } {
+  const week = ensureEventWeek(save, weekStart, typeId);
+  const d = week.eventData;
+  switch (typeId) {
+    case 'invasion': {
+      const line = Math.min(Math.max(d[EVENT_STATE_KEYS.invLine] ?? 1, 1), 3);
+      return curveLevel(week, (line - 1) + (d.invRepelled ?? 0) * 3);
+    }
+    case 'raidBoss': return { level: raidTierLevel(Math.max(d[EVENT_STATE_KEYS.bossTier] ?? 1, 1)), top: false };
+    case 'towerOfDoom': {
+      const floor = (d[EVENT_STATE_KEYS.runActive] ?? 0) === 1 ? Math.max(d[EVENT_STATE_KEYS.floor] ?? 1, 1) : 1;
+      return { level: towerFloorLevel(floor), top: false };
+    }
+    case 'factionAssault': return curveLevel(week, d.assaultWins ?? 0);
+    case 'worldEvent': return curveLevel(week, d.worldWins ?? 0);
+    case 'classTrials': return curveLevel(week, d.trialWins ?? 0);
+  }
+}
+
 /** 末日之塔第 floor 层（1 起）的敌人等级 */
 export function towerFloorLevel(floor: number): number {
   const f = Math.min(Math.max(Math.floor(floor), 1), EVENT_WEEKLY_RULES.towerFloors);
