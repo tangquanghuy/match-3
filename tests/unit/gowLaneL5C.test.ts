@@ -324,3 +324,23 @@ describe('L5 sa-C round 6 B09', () => {
     }
   });
 });
+describe('L5 sa-C round 9 B10', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('weapon:1670-1673 Doomed blades: each Bleeds only its own mana colour (chosen and random hit)', () => {
+    const cases: [string, BaseColor][] = [['weapon:1670', BaseColor.Red], ['weapon:1671', BaseColor.Yellow], ['weapon:1672', BaseColor.Purple], ['weapon:1673', BaseColor.Brown]];
+    for (const [key, color] of cases) {
+      const all = enemies({ 0: { colors: [color] }, 1: { colors: [color] }, 2: { colors: [color] }, 3: { colors: [color] } });
+      const o = order({ key, enemies: all });
+      expect(dmgs(o).map(x => x.n)).toEqual([13, 13]);
+      expect(o.filter(x => x.includes('+bleed'))).toHaveLength(2);
+      const other = color === BaseColor.Red ? BaseColor.Blue : BaseColor.Red;
+      const none = enemies({ 0: { colors: [other] }, 1: { colors: [other] }, 2: { colors: [other] }, 3: { colors: [other] } });
+      expect(order({ key, enemies: none }).filter(x => x.includes('+bleed'))).toEqual([]);
+    }
+  });
+  it('troop:6571 strips every enemy armor before the (2M+7) hit, then Submerges itself', () => {
+    const o = order({ key: 'troop:6571' });
+    expect(o.slice(4)).toEqual(['dmg E11 27', 'status C +submerged']);
+    expect(o.slice(0, 4).every(x => /^buff E1\d armor-/.test(x))).toBe(true);
+  });
+});

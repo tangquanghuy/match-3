@@ -12,3 +12,11 @@
 
 # sa-C lane L5 review round 6 (branch gow/r6-L5)
 - B09 troop:6517,6301,6208,6235,7023,7589,6460,6821,weapon:1668,1669 approve=10 fixed=3 (1668/1669 Doomed blades: Doom armor break before each hit, Tempering + own-colour Bleed on both hits, RandomPrefNotPrev - family 9825-9830 via doomedBlade(); 7589 2 Magic not Mana) issue=0 waived=6517 c2 tower, 7589 c2 boss
+
+# sa-C lane L5 review round 9 (branch gow/r9-L5, base gow-review-base-12)
+- weapon:1670 accept (doomedBlade Red 9827)
+- weapon:1671 accept (doomedBlade Yellow 9828)
+- weapon:1672 accept (doomedBlade Purple 9829)
+- weapon:1673 accept (doomedBlade Brown 9830)
+- troop:6571 accept (7775 armor strip all -> 2M+7 -> Submerge self)
+- B10 weapon:1670,1671,1672,1673,troop:6571 approve=5 fixed=0 issue=0
