@@ -304,7 +304,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7929,
     desc: '给予一名盟友 [魔法 + 1] 点护甲值，数值因所有敌人攻击力数而增强。再赋予其狂怒和屏障效果。 [2:1]',
     build: skill(
-      armor('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } } }),
+      // Native 7929: CountAttack@AllEnemies 50 = half the summed Attack of all enemies (was the chosen ally's Attack).
+      armor('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'attack' } } }),
       inflict('rage', 'lastTarget'),
       inflict('barrier', 'lastTarget'),
     ),
@@ -516,6 +517,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 1, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
       inflict('curse', 'enemyAll'),
+      // Native 8052 step 3: CauseBurning@AllEnemies (was missing).
+      inflict('burning', 'enemyAll'),
     ),
   },
   {
@@ -587,7 +590,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8076,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，伤害值因所有蓝色盟友和敌人数而增强。若有敌人身亡，则给予所有盟友 3 点魔力值并使他们下潜。 [x4]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"range":"splash","modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"alliesOfColor","color":"Blue"}},"splashRatio":0.75},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":3,"mult":0},"ifCond":{"kind":"anyTrackedDied"}},{"kind":"status","target":"allyAll","statusId":"submerged","turns":3,"ifCond":{"kind":"anyTrackedDied"}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"range":"splash","modifier":{"mod":{"kind":"multiplier","a":4},"sources":[{"kind":"alliesOfColor","color":"Blue"},{"kind":"enemiesOfColor","color":"Blue"}]},"splashRatio":0.75},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":3,"mult":0},"ifCond":{"kind":"anyTrackedDied"}},{"kind":"status","target":"allyAll","statusId":"submerged","turns":3,"ifCond":{"kind":"anyTrackedDied"}}]} as SkillPrototype),
   },
   {
     id: 8077,
@@ -765,7 +768,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点重度溅射伤害，伤害值因骷髅头数而增强。击晕所有受到伤害的敌人。 [1:1]',
     build: skill(
       dmgSplash('enemyChosen', 4, 1, { range: 'splash', modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } } }),
-      inflict('stun', 'enemyAll'),
+      // Native 8155: CauseStun@FromTarget + @AdjacentFromTarget = the splashed troops only (was all enemies).
+      inflict('stun', 'enemyChosen'),
+      inflict('stun', 'enemyChosenAndAdjacent'),
     ),
   },
   {

@@ -855,7 +855,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9687,
     desc: '对一名敌人造成[魔法 + 3]点伤害，伤害值因诅咒宝石数量而增强。如果敌人已中毒，则造成双倍伤害。然后使其中毒。 [x3]',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } }, condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
+      // Native 9687: CountGems 300 Cursed = Curse gems on the board (was Cursed enemies).
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'curseGem' } }, condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'poison' } } }),
       inflict('poison', 'lastTarget'),
     ),
   },
@@ -915,8 +916,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9722,
     desc: '造成[魔法 + 6]点散射伤害，伤害值因暗影星辰而增强。如果我方队伍中有不朽雷奥，则对所有敌人施加2层流血效果。 [x8]',
     build: skill(
-      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'umbralStar' } } }),
+      // Native 9722: conditional Bleed x2 (steps 1-2) before the scatter damage (step 5) (R001).
       inflict('bleed', 'enemyAll', { stacks: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的雷奥' } }),
+      dmg('enemyAll', 6, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'umbralStar' } } }),
     ),
   },
   {

@@ -1002,8 +1002,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7318,
     desc: '净化所有盟友并给予其 [魔法] 点生命值。',
     build: skill(
+      // Native 7318: Cleanse@AllAllies → IncreaseHealth@AllAllies [Magic] (was self only).
       cleanse('allyAll'),
-      heal('allySelf', 0, 1),
+      heal('allyAll', 0, 1),
     ),
   },
   {
@@ -1023,7 +1024,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 6, 1),
       inflict('poison', 'lastTarget'),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
+      // Native 7380: CountSpecificStatusEffect@FromTarget poison (step 0, before this cast's Poison) -> Lethal 10 (+10 if it was
+      // already Poisoned). Was +10 per Poisoned enemy counted after the new Poison (always >= 20%).
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, ifCond: { kind: 'not', cond: { kind: 'lastTargetStatusAtCastStart', statusId: 'poison' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.2, ifCond: { kind: 'lastTargetStatusAtCastStart', statusId: 'poison' } }),
     ),
   },
   {
@@ -1119,7 +1123,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7563,
     desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害，伤害值因下潜的盟友数而增强。 [x7]',
     build: skill(
-      dmgSplash('enemyChosen', 4, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'allyStatusCount', statusId: 'submerged' } } }),
+      // Native 7563: Damage@FromTarget + Damage@AdjacentFromTarget, both the full [Magic + 4] x7 (was 50% splash to neighbours).
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'allyStatusCount', statusId: 'submerged' } } }),
+      dmg('enemyChosenAndAdjacent', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'allyStatusCount', statusId: 'submerged' } } }),
     ),
   },
   {

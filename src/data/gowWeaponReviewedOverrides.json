@@ -2905,10 +2905,16 @@
                 "kind": "multiplier",
                 "a": 4
               },
-              "source": {
-                "kind": "alliesOfColor",
-                "color": "Blue"
-              }
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Blue"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Blue"
+                }
+              ]
             },
             "splashRatio": 0.75
           },
@@ -3719,10 +3725,16 @@
                 "kind": "multiplier",
                 "a": 2
               },
-              "source": {
-                "kind": "alliesOfColor",
-                "color": "Purple"
-              }
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Purple"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Purple"
+                }
+              ]
             }
           },
           {

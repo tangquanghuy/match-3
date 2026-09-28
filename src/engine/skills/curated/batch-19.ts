@@ -274,8 +274,9 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'selfStat', stat: 'armor' } },
       }),
       // 「所有不死族/恶魔」= 目标模式照常 + targetRace（种族英文经 troopTypes 核实）
-      inflict('burning', 'enemyAll', { targetRace: 'Undead' }),
+      // Native 7442 order: Silence Daemon (step 2) before Burn Undead (step 3) (R001).
       inflict('silence', 'enemyAll', { targetRace: 'Daemon' }),
+      inflict('burning', 'enemyAll', { targetRace: 'Undead' }),
     ),
   },
 ];

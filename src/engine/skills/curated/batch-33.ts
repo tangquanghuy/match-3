@@ -64,7 +64,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 1] 点生命值和攻击力，点数因红色宝石数而增强。赋予自身狂怒状态。 [3:1]',
     build: skill(
       // 一个方括号喂双段（batch-03 8372 口径）；泛指「点数」→ modifier 挂最近数值段 = attack
-      heal('allySelf', 1, 1),
+      // Native 7520: IncreaseHealth and IncreaseAttack both UseCounterForAmount (Red gems [3:1]); Life was unboosted.
+      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
       attack('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
       inflict('rage', 'allySelf'),
     ),
@@ -201,7 +202,8 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: {
           mod: { kind: 'multiplier', a: 3 },
-          sources: [{ kind: 'boardGems', color: BaseColor.Blue }, { kind: 'enemyStatusCount', statusId: 'frozen' }],
+          // Native 8692: CountArmyColor@AllEnemies Blue = Blue enemies (was Blue gems on the board).
+          sources: [{ kind: 'enemiesOfColor', color: BaseColor.Blue }, { kind: 'enemyStatusCount', statusId: 'frozen' }],
         },
       }),
     ),
@@ -244,10 +246,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [魔法 + 3] 点溅射伤害，伤害值因狂怒盟友数而增强。获得狂怒效果。 [x2]',
     build: skill(
       // dmgSplash + enemyRandomN 先例（batch-01 7387 口径）；「狂怒的盟友数」= allyStatusCount rage
-      dmgSplash('enemyRandomN', 3, 1, {
-        n: 3,
+      // Native 9280: SplashHighDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (R007-3; was 3 distinct centres).
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => dmgSplash(t, 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'allyStatusCount', statusId: 'rage' } },
-      }),
+      })),
       inflict('rage', 'allySelf'),
     ),
   },

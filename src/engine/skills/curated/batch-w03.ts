@@ -87,7 +87,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8436,
     desc: '对所有敌人造成 [魔法 + 2] 点伤害，伤害值因紫色盟友和敌人数而增强。使所有敌人陷入死亡标记状态。若有 13 或更多颗棕色宝石，则获得 2 点魔力值。 [x2]',
-    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":1},"range":"all","modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"alliesOfColor","color":"Purple"}}},{"kind":"status","target":"enemyAll","statusId":"death-mark","turns":3},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0},"ifCond":{"kind":"boardAtLeast","color":"Brown","n":13}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":1},"range":"all","modifier":{"mod":{"kind":"multiplier","a":2},"sources":[{"kind":"alliesOfColor","color":"Purple"},{"kind":"enemiesOfColor","color":"Purple"}]}},{"kind":"status","target":"enemyAll","statusId":"death-mark","turns":3},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0},"ifCond":{"kind":"boardAtLeast","color":"Brown","n":13}}]} as SkillPrototype),
   },
   {
     id: 8437,
@@ -880,7 +880,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。若自身队伍中有黛希德莫娜， 则使对方陷入叠加 2 次的出血状态。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'troopPresent', side: 'ally', name: '黛希德莫娜' } }),
+      // Native 8776: two conditional Bleed steps = 2 stacks (was 1).
+      inflict('bleed', 'lastTarget', { stacks: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '黛希德莫娜' } }),
     ),
   },
   {
@@ -1108,7 +1109,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8946,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因陷入织网和中毒状态的敌人数而增强。再使他们陷入织网和中毒状态。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
+      // Native 8946: two CountSpecificStatusEffect@AllEnemies (Webbed, Poisoned) x3 each (Webbed was missing).
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'enemyStatusCount', statusId: 'web' }, { kind: 'enemyStatusCount', statusId: 'poison' }] } }),
       inflict('web', 'lastTarget'),
       inflict('poison', 'lastTarget'),
     ),
@@ -1190,7 +1192,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8972,
     desc: '对敌人造成 [魔法 + 5] 点伤害，伤害值因天使宝石和具有屏障的盟友的数量而增强。 [x5]',
     build: skill(
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } } }),
+      // Native 8972: CountGems 500 Angel + CountSpecificStatusEffect@AllAllies 500 barrier (Angel gems were missing).
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, sources: [{ kind: 'boardSpecial', gem: 'angelGem' }, { kind: 'allyStatusCount', statusId: 'barrier' }] } }),
     ),
   },
   {

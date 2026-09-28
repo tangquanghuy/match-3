@@ -109,8 +109,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8535,
     desc: '对末位敌人造成 [魔法 + 1] 点伤害。若队伍里有尔福·哈利干，则使对方陷入叠加 2 次的出血状态。',
     build: skill(
-      dmg('enemyLast', 1),
+      // Native 8535: conditional Bleed x2 on LastEnemy (steps 1-2) before the damage (step 3) (R001).
       inflict('bleed', 'enemyLast', { stacks: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '尔福·哈利干' } }),
+      dmg('enemyLast', 1),
     ),
   },
   {
@@ -128,7 +129,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因陷入织网效果的敌人数而增强。若队伍有丝绸女王，则再造成 10 点伤害。 [x3]',
     build: skill(dmg('enemyChosen', 3, 1, {
       modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'web' } },
-      condBonus: { n: 10, cond: { kind: 'troopPresent', side: 'ally', name: '丝绸女王' } },
+      // TheSilkenQueen (troop:7329) is named 丝绸女皇 locally; 丝绸女王 never matched (R3-B02).
+      condBonus: { n: 10, cond: { kind: 'troopPresent', side: 'ally', name: '丝绸女皇' } },
     })),
   },
   {

@@ -213,7 +213,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
     build: skill(
       dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'disease' } } }),
-      inflict('disease', 'enemyRandomN', { nRange: { min: 1, max: 3 } }),
+      // Native 9222: CauseDisease@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (three rolls, each avoids only the previous; was 1-3 distinct).
+      inflict('disease', 'enemyRandom'),
+      inflict('disease', 'enemyRandomPrefNotPrev'),
+      inflict('disease', 'enemyRandomPrefNotPrev'),
     ),
   },
   {
