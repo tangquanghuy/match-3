@@ -284,8 +284,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 全 163 名（batch-w02 大池先例）；尾缀 [2:1] = 「一半」比率序列化
     build: skill(
       dmg('enemyChosen', 12, 1, { drain: true }),
-      steal('enemyChosen', 'magic', 'magic', 0, 0, { halve: true }),
-      summonRandom([
+      // sa-R5 L1-6428: steal() does not forward `halve` (stole 0 Magic); native CountMagic@FromTarget 50 ->
+      // StealMagic counter = floor(Magic x 50%) = fraction 0.5.
+      steal('enemyChosen', 'magic', 'magic', 0, 0, { fraction: 0.5 }),
+      // sa-R5 L1-6428: native three SummoningTypeConditional undead steps, 100% / 50% / 25% AddForKill, each an
+      // independent random Undead (was countRange 1-3 uniform of one troop).
+      ...((pool: string[]) => [1, 0.5, 0.25].map(chance => ({ ...summonRandom(pool, undefined, { ifTargetDied: true }), ...(chance < 1 ? { chance } : {}) })))([
         'Skeleton', 'Wight', 'Revenant', 'Zombie', 'Banshee', 'VampireLord', 'FleshGolem', 'Ghoul',
         'KeeperOfSouls', 'CrimsonBat', 'LadySapphira', 'Alastair', 'GraveKnight', 'Aziris',
         'BoneDragon', 'Sunweaver', 'Skeleros', 'Draakulis', 'TwistedHero', 'Death',
@@ -315,7 +319,7 @@ const SPELLS: CuratedBatch['spells'] = [
         'CountGobula', 'LordGobthe', 'AqenBloodclaw', 'Sanguinette', 'TheTombkeeper', 'Merneith',
         'Cinereous', 'LordHarker', 'GraveWorm', 'CryptboundWight', 'MoonveilWarden',
         'CursedSailor', 'DarkSpirit', 'RhonaBittershield', 'TheSoulKnight', 'TheBansheeQueen'
-      ], undefined, { countRange: { min: 1, max: 3 }, ifTargetDied: true }),
+      ]),
     ),
   },
   {
@@ -741,7 +745,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyRandom', 3, 1),
       inflict('poison', 'lastTarget'),
-      dmg('enemyRandom', 3, 1),
+      // sa-R5 L1-7510: native second hit RandomPrefNotPrevEnemy (R007-3), was plain RandomEnemy (could repeat).
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       inflict('poison', 'lastTarget'),
       transformTroop('allySelf', 'Basilisk', { chance: 0.3 }),
     ),

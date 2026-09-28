@@ -115,8 +115,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       destroyColor(BaseColor.Green),
       createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
-      dmg('enemyRandom', 0, 0, { execute: true, chance: 0.3 }),
-      dmg('enemyRandom', 0, 0, { execute: true, chance: 0.3 }),
+      // sa-R5 L1-7155: native Consume@RandomEnemy 30% + Consume@RandomPrefNotPrevEnemy 30% (real Devours, R007-3).
+      devour('enemyRandom', { chance: 0.3 }),
+      devour('enemyRandomPrefNotPrev', { chance: 0.3 }),
     ),
   },
   {
@@ -139,7 +140,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       oneOf(
         gainGold(100),
-        dmg('enemyRandom', 0, 0, { execute: true }),
+        // sa-R5 L1-7157: native Consume@RandomEnemy = a real Devour (caster gains stats), not a plain execute.
+        devour('enemyRandom', { chance: 1 }),
         reduce('enemyAll', 'armor', 0, 0, { drainAll: true }),
         dmg('enemyRandom', 2, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'battleGold' } } }),
         heal('allySelf', 2, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'battleGold' } } }),
@@ -187,12 +189,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 逐摧毁计数掷签：chance 0 + chanceBoost 10×摧毁黄宝石数/100（官方 ConsumeConditional
     // UseCounterForAmount x10 实锤，r4 「几率=chance+boost」口径）
     build: skill(
+      // sa-R5 L1-7222: native CountGems Yellow 100 -> ConsumeConditional Amount 10 + counter = 10% + 1% per Yellow
+      // destroyed (English "10% chance ... boosted by Yellow Gems destroyed [1:1]"); a real Devour, not execute.
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
-      }),
+      devour('enemyChosen', { chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
@@ -465,7 +465,8 @@ const SPELLS: CuratedBatch['spells'] = [
         createSpecialGems({ kind: 'doomSkull' }, 7),
         createSpecialGems({ kind: 'uberDoomSkull' }, 5),
         explodeSkulls(),
-        dmg('enemyRandom', 0, 0, { execute: true }),
+        // sa-R5 L1-7417: native Consume@RandomEnemy = a real Devour, not a plain execute.
+        devour('enemyRandom', { chance: 1 }),
         inflict('death-mark', 'enemyRandom'),
       ),
     ),
@@ -494,12 +495,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取一名敌人 6 点法力值。每耗掉一点法力值，则有 5% 的几率吞噬对方。 [x5]',
     // 几率 = 5% × 实耗法力（chance 0 + chanceBoost drainedMana，drainedMana 辖窃取法力族 §1）
     build: skill(
+      // sa-R5 L1-9118: native ConsumeConditional = Devour (caster gains stats), not a plain execute.
       steal('enemyChosen', 'mana', 'mana', 6, 0),
-      dmg('lastTarget', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'drainedMana' } },
-      }),
+      devour('lastTarget', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'drainedMana' } } }),
     ),
   },
   {
@@ -894,9 +892,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '如果棋盘上有 13 个或更多骷髅，则吞噬一个敌人。否则对其造成 [(魔法 x 2) + 2] 点真实伤害。然后创造 9 个骷髅。',
     // 「≥13 骷髅」= boardAtLeast 无色（计骷髅）；否则分支 = not 否定（§12.6）；阈值取锚定 ZH 13
     //（官方步骤 AddFor10Skulls 内部编码为 10，按 desc 口径并注明）
+    // sa-R5: native ConsumeConditional (100% AddFor10Skulls, R003 -> 13) is a Devour (caster gains stats), not a
+    // plain execute; TrueDamage FromTarget follows and only lands when the target was not devoured.
     build: skill(
-      dmg('enemyChosen', 0, 0, { execute: true, ifCond: { kind: 'boardAtLeast', n: 13 } }),
-      trueDmg('enemyChosen', 2, 2, { ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', n: 13 } } }),
+      devour('enemyChosen', { chance: 1, ifCond: { kind: 'boardAtLeast', n: 13 } }),
+      trueDmg('enemyChosen', 2, 2),
       createSkulls(9),
     ),
   },
@@ -1084,8 +1084,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9773,
     desc: '对一名敌人造成[魔法 + 6]点伤害，伤害值因紫色宝石数量而增强。如果敌人使用红色法力值，则有60%的几率将其吞噬。 [x4]',
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (60% if Red) is a real Devour and precedes the Damage.
+      devour('enemyChosen', { chance: 0.6, ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       dmg('enemyChosen', 6, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.6, ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
   },
   {
@@ -1127,13 +1128,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成[魔法 + 4]点伤害，受恐惧敌人和恐惧宝石的影响而提升伤害。如果敌人处于恐惧状态，则有50%的几率将其吞噬。 [x4]',
     // 双来源各 ×4（enemyStatusCount terror + boardSpecial terrorGem，r16 9875 口径）
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (50% if Terrified, a real Devour) precedes the Damage.
+      devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'terror' } }),
       dmg('enemyChosen', 4, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 4 },
           sources: [{ kind: 'enemyStatusCount', statusId: 'terror' }, { kind: 'boardSpecial', gem: 'terrorGem' }],
         },
       }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'terror' } }),
     ),
   },
   {

@@ -62,7 +62,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Green, 8, 0),
       createSpecialGems({ kind: 'web' }, 4),
-      summonRef('GiantSpider', undefined, { countRange: { min: 1, max: 3 } }),
+      // sa-R5 L1-summon-dist: native Summoning 6110 100% / 50% / 25% (1/2/3 = 37.5/50/12.5%), not uniform 1-3.
+      summonRef('GiantSpider'), { ...summonRef('GiantSpider'), chance: 0.5 }, { ...summonRef('GiantSpider'), chance: 0.25 },
     ),
   },
   {

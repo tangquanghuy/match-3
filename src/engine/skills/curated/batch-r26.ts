@@ -106,8 +106,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // ExtraTurnConditional 7%/紫宝石（chanceBoost boardGems Purple）。
     build: skill(
       inflict('lycanthropy', 'enemyRandomN', { n: 2, turns: 3 }),
-      createSpecialGems({ kind: 'lycanthropyGem' }, 2),
+      // sa-R5 L1-7032 (R001): native CountGems Purple is step 0, before CreateGems Lycanthropy (which may overwrite
+      // Purple gems). Rolling the extra turn before the creation reads the same pre-creation Purple count; the extra
+      // turn itself is only granted when the cast ends, so the two orders are otherwise identical.
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
+      createSpecialGems({ kind: 'lycanthropyGem' }, 2),
     ),
   },
 ];

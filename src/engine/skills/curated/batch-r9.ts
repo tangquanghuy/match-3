@@ -154,7 +154,9 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } },
       }),
-      summonRandom(K3016, undefined, { countRange: { min: 1, max: 2 } }),
+      // sa-R5 L1-6786: native SummoningKingdomNoError 3016 + 50% (two independent random troops, not one troop x1-2).
+      summonRandom(K3016),
+      { ...summonRandom(K3016), chance: 0.5 },
     ),
   },
   {
@@ -225,13 +227,17 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予所有盟友 [魔法 + 1] 点护甲值和生命值，数值因红色宝石数而增强。召唤 1-3 名修补匠小镇机器。 [1:1]',
     // 单方括号管两段（R4 §11）；王国 3045（修补匠机器）×3 步 → countRange {1,3}
     build: skill(
-      armor('allyAll', 1, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
-      }),
+      // sa-R5 L1-6930: native order IncreaseHealth -> IncreaseArmor; SummoningKingdom 3045 + 2 x 50% (independent
+      // random Bots: 1/2/3 at 25/50/25%), not countRange 1-3 uniform.
       heal('allyAll', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
-      summonRandom(K3045, undefined, { countRange: { min: 1, max: 3 } }),
+      armor('allyAll', 1, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
+      }),
+      summonRandom(K3045),
+      { ...summonRandom(K3045), chance: 0.5 },
+      { ...summonRandom(K3045), chance: 0.5 },
     ),
   },
   {
@@ -291,7 +297,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Blue, 8),
       createGems(BaseColor.Green, 8),
-      summonRandom(K3008, undefined, { countRange: { min: 1, max: 3 } }),
+      // sa-R5 L1-summon-dist: native SummoningKingdom 3008 + 2 x 50%, each an independent random troop.
+      summonRandom(K3008), { ...summonRandom(K3008), chance: 0.5 }, { ...summonRandom(K3008), chance: 0.5 },
     ),
   },
   {
@@ -752,11 +759,16 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'alliesOfRace', race: 'Mech' } },
       }),
-      dmg('enemyRandomN', 4, 1, {
-        n: 2,
+      // sa-R5 L1-7719-random: native Damage@RandomEnemy (may be the chosen one) + Damage@RandomPrefNotPrevEnemy
+      // (was 2 distinct randoms), and two independent SummoningType mech steps (countRange repeated one mech).
+      dmg('enemyRandom', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'alliesOfRace', race: 'Mech' } },
       }),
-      summonRandom(MECH_REFS, undefined, { countRange: { min: 2, max: 2 } }),
+      dmg('enemyRandomPrefNotPrev', 4, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'alliesOfRace', race: 'Mech' } },
+      }),
+      summonRandom(MECH_REFS),
+      summonRandom(MECH_REFS),
     ),
   },
   {

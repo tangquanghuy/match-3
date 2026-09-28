@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSkulls, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -1108,7 +1108,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7529,
     desc: '创造 8 颗红色宝石和 8 颗黄色宝石，再召唤一颗龙蛋或恶龙蛋。',
     build: skill(
-      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 8, 0),
+      // sa-R5 L1-1154: native Randomize ABC-DEF: (CreateGems Red 8, Yellow 8, summon 6230 Dragon Eggs) or
+      // (Red 8, Yellow 8, summon 6892 Fell Dragon Egg); plain Red/Yellow gems (was 8 Red Dragon Gems, no summon).
+      oneOf(
+        [createGems(BaseColor.Red, 8, 0), createGems(BaseColor.Yellow, 8, 0), summonRef('DragonEggs')],
+        [createGems(BaseColor.Red, 8, 0), createGems(BaseColor.Yellow, 8, 0), summonRef('FellDragonEgg')],
+      ),
     ),
   },
   {

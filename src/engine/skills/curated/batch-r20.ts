@@ -208,15 +208,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [(魔法 x 2) + 7] 点伤害，有 10% 的几率吞噬敌人，几率因红色宝石和陷入燃烧状态的敌人而增强。若敌人身亡，则创造 9 颗红色宝石。 [x4]',
     // 「几率因红宝石+燃烧敌人增强 [x4]」= chanceBoost 双来源各 ×4（9755 口径）；「若敌人身亡创造」= ifTargetDied
     build: skill(
-      dmg('enemyChosen', 7, 2),
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (a real Devour) precedes the Damage.
+      devour('enemyChosen', {
         chance: 0.1,
         chanceBoost: {
           mod: { kind: 'multiplier', a: 4 },
           sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'enemyStatusCount', statusId: 'burning' }],
         },
       }),
+      dmg('enemyChosen', 7, 2),
       createGems(BaseColor.Red, 9, 0, { ifTargetDied: true }),
     ),
   },
@@ -265,24 +265,17 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「首位和末位」= enemyFront/enemyLast 两段；「几率 +3%/名下潜者 [x3]」= chance 0.1 + chanceBoost
     // allyStatusCount/enemyStatusCount submerged 双来源各 ×3（官方两步 ConsumeConditional 独立掷签）
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional@FrontEnemy, ConsumeConditional@LastEnemy (real Devours),
+      // then Damage@FirstLastEnemies on whoever is first/last after the devours.
+      ...(['enemyFront', 'enemyLast'] as const).map(t => devour(t, {
+        chance: 0.1,
+        chanceBoost: {
+          mod: { kind: 'multiplier', a: 3 },
+          sources: [{ kind: 'allyStatusCount', statusId: 'submerged' }, { kind: 'enemyStatusCount', statusId: 'submerged' }],
+        },
+      })),
       dmg('enemyFront', 4, 1),
       dmg('enemyLast', 4, 1),
-      dmg('enemyFront', 0, 0, {
-        execute: true,
-        chance: 0.1,
-        chanceBoost: {
-          mod: { kind: 'multiplier', a: 3 },
-          sources: [{ kind: 'allyStatusCount', statusId: 'submerged' }, { kind: 'enemyStatusCount', statusId: 'submerged' }],
-        },
-      }),
-      dmg('enemyLast', 0, 0, {
-        execute: true,
-        chance: 0.1,
-        chanceBoost: {
-          mod: { kind: 'multiplier', a: 3 },
-          sources: [{ kind: 'allyStatusCount', statusId: 'submerged' }, { kind: 'enemyStatusCount', statusId: 'submerged' }],
-        },
-      }),
     ),
   },
   {
@@ -444,22 +437,20 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '耗掉一名敌人 8 点法力值。板面上每有一颗骷髅头则有 4%  的几率吞噬敌人。 [x4]',
     // 「每颗骷髅 +4% 吞噬几率」= chance 0 + chanceBoost boardSkulls ×4（8817 口径）
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (4%/Skull, a real Devour) precedes DecreaseMana 8.
+      devour('enemyChosen', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } } }),
       reduce('enemyChosen', 'mana', 8, 0),
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } },
-      }),
     ),
   },
   {
     id: 8575,
     desc: '对末位敌人造成 [魔法 + 2] 点伤害并冻结他。若敌人已被冻结，则有 20% 的几率吞噬敌人。',
-    // 「若已被冻结 20% 吞噬」= execute + chance + targetStatus 条件（8979 口径）；「他」= lastTarget
+    // sa-R5 (R001): native ConsumeConditional@LastEnemy (20% if ALREADY Frozen) -> Damage@LastEnemy -> CauseFrozen@LastEnemy.
+    // Old order froze first (the 20% always qualified) and used a plain execute instead of Devour.
     build: skill(
+      devour('enemyLast', { chance: 0.2, ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
       dmg('enemyLast', 2, 1),
       inflict('frozen', 'enemyLast'),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.2, ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
     ),
   },
   {
@@ -490,14 +481,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「蓝色法力再叠 2 次」= AddForBlueTarget ×2 实锤 → 两段条件出血（叠层累加合并）；
     // 「每颗狼化宝石 +5%」= chance 0 + chanceBoost boardSpecial ×5
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (5%/Lycanthropy Gem) is a real Devour and runs first.
+      devour('enemyChosen', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } } }),
       inflict('bleed', 'enemyChosen'),
       inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      dmg('lastTarget', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'lycanthropyGem' } },
-      }),
     ),
   },
   {
@@ -516,13 +504,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '耗掉一名敌人 6 点法力值。对其造成 [魔法 + 2] 点伤害。每耗掉一个法力值则有 2% 的几率吞噬敌人。 [x2]',
     // 「每耗 1 法力 +2% 吞噬」= chance 0 + chanceBoost drainedMana ×2（9118 口径）；「对其」= lastTarget
     build: skill(
+      // sa-R5 L1-7059: native DecreaseMana 6 -> ConsumeConditional (2%/drained Mana, CountMax 12) -> Damage.
+      // Devour (caster gains stats), not a plain execute, and it precedes the damage (R001).
       reduce('enemyChosen', 'mana', 6, 0),
+      devour('lastTarget', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'drainedMana' } } }),
       dmg('lastTarget', 2, 1),
-      dmg('lastTarget', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'drainedMana' } },
-      }),
     ),
   },
   {
@@ -531,11 +517,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「否则」为机翻噪声——官方步骤 Damage 无条件恒发（按 ST 组装，7652 口径）；
     // [x4] = CountGems Blue 400 → chanceBoost boardGems Blue ×4
     build: skill(
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
-        chance: 0.1,
-        chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-      }),
+      // sa-R5 L1-devour-first: native ConsumeConditional = Devour (caster gains stats), not a plain execute.
+      devour('enemyChosen', { chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       dmg('enemyChosen', 4, 1),
     ),
   },

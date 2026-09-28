@@ -228,8 +228,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Devour 家族回收；尾缀 [1:1] 无来源子句可绑（7xxx 无步骤数据），按孤儿尾缀先例
     // 不挂载不硬凑（r15 7032 / r17 7430 同口径）。
     build: skill(
-    dmg('enemyRandom', 2, 1),
-    devour('lastTarget', { chance: 0.25 }),
+    // sa-R5 (R001): native CountAttack@RandomEnemy -> Consume@FromPrevious 25% -> Damage@FromPrevious.
+    devour('enemyRandom', { chance: 0.25 }),
+    dmg('lastTarget', 2, 1),
     ),
   },
   {
@@ -262,8 +263,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。如果敌人是骑士，则造成两倍伤害。有 50% 的几率吞噬骑士。',
     // 同 7211（骑士版，无生命段）。
     build: skill(
-    dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Knight' } } }),
+    // sa-R5 (R001): native ConsumeConditional (50% Knight) precedes Damage x2 Knight.
     devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Knight' } }),
+    dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Knight' } } }),
     ),
   },
   {
@@ -385,8 +387,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。如果敌人是野兽，造成双倍伤害。同时有 10% 的几率吞噬野兽。',
     // 同 7211（野兽版，无生命段）。
     build: skill(
-    dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Beast' } } }),
+    // sa-R5 (R001): native ConsumeConditional (10% Beast) precedes Damage x2 Beast.
     devour('enemyChosen', { chance: 0.1, ifCond: { kind: 'targetRace', race: 'Beast' } }),
+    dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Beast' } } }),
     ),
   },
   {
@@ -434,8 +437,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Devour 家族回收：「使用蓝色法力值则 30% 吞噬」= ifCond targetColor 辖吞噬段
     //（目标相对过滤——非蓝目标整段跳过，几率不掷）。
     build: skill(
-    dmg('enemyChosen', 4, 1),
+    // sa-R5 (R001): native ConsumeConditional (30% Blue) precedes Damage.
     devour('enemyChosen', { chance: 0.3, ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+    dmg('enemyChosen', 4, 1),
     ),
   },
   {
@@ -465,8 +469,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害。如果敌人已下潜，则有 50% 几率吞噬敌人。',
     // Devour 家族回收：「已下潜则 50% 吞噬」= ifCond targetStatus submerged 辖吞噬段。
     build: skill(
-    dmg('enemyChosen', 5, 1),
+    // sa-R5 (R001): native ConsumeConditional (50% Submerged) precedes Damage.
     devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'submerged' } }),
+    dmg('enemyChosen', 5, 1),
     ),
   },
   {
@@ -556,11 +561,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。若敌人已陷入织网或缠绕状态，则有 50% 的几率吞噬敌人。',
     // Devour 家族回收：「织网或缠绕」= anyOf(targetStatus) 析取（目标相对过滤辖吞噬段）。
     build: skill(
+    // sa-R5 (R001): native ConsumeConditional 50% AddForWeb, ConsumeConditional 50% AddForEntangle (two rolls), then Damage.
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'web' } }),
+    devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'entangle' } }),
     dmg('enemyChosen', 4, 1),
-    devour('lastTarget', {
-      chance: 0.5,
-      ifCond: { kind: 'anyOf', of: [{ kind: 'targetStatus', statusId: 'web' }, { kind: 'targetStatus', statusId: 'entangle' }] },
-    }),
     ),
   },
   {
@@ -612,8 +616,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Devour 家族回收：「几率=自身攻击力」= chance 0 + chanceBoost selfStat attack（§11 追加
     // 口径）；尾缀 [1:1] = 几率加成比率的序列化。
     build: skill(
+    // sa-R5 (R001): native ConsumeConditional (chance = my Attack) precedes Damage@FromTarget.
+    devour('enemyChosen', { chance: 0, chanceBoost: boostPer({ kind: 'selfStat', stat: 'attack' }, 1) }),
     dmg('enemyChosen', 4, 1),
-    devour('lastTarget', { chance: 0, chanceBoost: boostPer({ kind: 'selfStat', stat: 'attack' }, 1) }),
     extraTurn(),
     ),
   },
@@ -777,7 +782,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
     devour('enemyRandom', { chance: 0.25 }),
     dmg('enemyChosen', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
-    dmg('enemyRandom', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
+    // sa-R5: native RandomPrefNotPrevEnemy (avoids the chosen enemy just hit; R007-3).
+    dmg('enemyRandomPrefNotPrev', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
     ),
   },
   {
@@ -1144,8 +1150,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // chanceBoost destroyedGems skulls [x6]（官方 Skulls destroyed 口径，「头骨」= 骷髅族）。
     build: skill(
     destroyArea('circle5', 'destroy'),
+    // sa-R5 (R001): native ConsumeConditional@LastEnemy precedes Damage@LastEnemy.
+    devour('enemyLast', { chance: 0.3, chanceBoost: boostPer({ kind: 'destroyedGems', skulls: true }, 6) }),
     dmg('enemyLast', 3, 1),
-    devour('lastTarget', { chance: 0.3, chanceBoost: boostPer({ kind: 'destroyedGems', skulls: true }, 6) }),
     ),
   },
   {
@@ -1174,9 +1181,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '魅惑2名随机敌人并吸取其8点法力值。若有敌人死亡，则获得30点生命值并祝福自身。',
     // 「吸取其 8 点法力值」= lastTargets 全列表目标模式（R22 新目标，双随机目标绑定收口）；
     // 「若有敌人死亡」= anyTrackedDied（R22 新条件）；「祝福」= blessed（R10 落地）。
+    // L1-7793-prefnotprev (R007-3): native Charm@RandomEnemy -> DecreaseMana 8 FromPrevious ->
+    // Charm@RandomPrefNotPrevEnemy -> DecreaseMana 8 FromPrevious; a lone enemy is charmed and drained twice.
     build: skill(
-    inflict('charm', 'enemyRandomN', { n: 2 }),
-    reduce('lastTargets', 'mana', 8, 0),
+    inflict('charm', 'enemyRandom'),
+    reduce('lastTarget', 'mana', 8, 0),
+    inflict('charm', 'enemyRandomPrefNotPrev'),
+    reduce('lastTarget', 'mana', 8, 0),
     heal('allySelf', 30, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     inflict('blessed', 'allySelf', { ifCond: { kind: 'anyTrackedDied' } }),
     ),

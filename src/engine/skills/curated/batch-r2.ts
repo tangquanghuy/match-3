@@ -9,7 +9,8 @@ import type { CuratedBatch } from './index';
 
 // 兵种族引用池（生成器从 troops.json 内联）
 const WRAITH_REFS = ["Wraith","IceWraith","FrostfireWraith"];
-const URSKA_REFS = ["Barbearius","UrskaWanderer","Urskatyr","CorruptedUrska","KingMikhail","UrskaSavage","Doomclaw","XiongMao","PandaskaGuard","CrimsonArrow","UrskaDragoon","Urskula","UrskaDruid","Berengari","PossessedUrska","BlackBjörn","Defiance","Lyrasza","PandaskaMage","PrinceBarislav","Ursuvius","SpiritOfRage","IronVlasta","Ursky","Pandazerker","Theodorevich","Pandallista","ShejiShi","Bearlock","Bieska","Emberclaw","SkeletalUrska","IvarLongclaw","VelesStormborn","PossessedTeddy","PoisonedUrsidae","RangerEvgeniy"];
+// sa-R5: raw kingdom 3029 Zhul'Kari (data/raw/troops.gow.en.json KingdomId), all 45 on the roster.
+const ZHULKARI_REFS = ["ErendrielDarkweave","KnightOfCups","TheWebbedPrince","DarkWitch","ImmortalMaratus","Scrollweaver","Belcerulea","DuskOwlbear","ShadowBeetle","Mandragora","SplinteredGolem","DarkAlchemist","LeapingSpider","TheSilkenQueen","TheSpiderThrone","SilkenFang","SeekraDarkwood","BoundMage","AceOfCups","Mechweaver","ArchproxyYvendra","AransiTheGuardian","Devourer","NightSpider","ArachnaeanWatcher","Malcandessa","Arachnataur","Tarantella","ArachnaeanWeaver","TheWidowQueen","TombSpider","Spinnerette","Cocoon","Shadowblade","SpiderKnight","TalRae","SpiderSwarm","Dokkalfar","GiantSpider","Tyri","Webspinner","SpiderQueen","NightTerror","DarkMaiden","Reaver"];
 
 const SKIPPED: { id: number; reason: string }[] = [
   // 五族复核后仍弃（理由更新，详见 artifacts/recycle/worklist.md）：
@@ -37,7 +38,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7343,
     desc: '献祭一名盟友。对所有敌人造成 12 点散射伤害，并因献祭军队的攻击力而增强。有 30% 的几率召唤阿伯拉瑟。 [1:1]',
     build: skill(
-      sacrifice('allyOthers'),
+      // sa-R5 L1-6201: native CountAttack/Dispel/Damage 10000 all FromTarget = the chosen ally; Dispel first so a
+      // Barrier (or Reflect) cannot stop the sacrifice.
+      ...['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].map(id => dispelStatus(id, 'allyChosen')),
+      sacrifice('allyChosen'),
       dmg('enemyAll', 12, 0, { range: 'all', modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'sacrificedStat', stat: 'attack' } } }),
       { ...summonRef('Abhorath'), chance: 0.3 },
     ),
@@ -73,9 +77,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7704,
     desc: '献祭一名盟友。对所有敌人造成 [(魔法 / 2) + 1] 点伤害，伤害值因被献祭的盟友的生命值而增强。召唤一名随机蛛尔卡里军队。 [3:1]',
     build: skill(
-      sacrifice('allyOthers'),
+      // sa-R5 L1-6513: native CountLife/Dispel/Damage 10000 FromTarget = the chosen ally (Dispel so a Barrier
+      // cannot stop the sacrifice); SummoningKingdomNoError 3029 = Zhul'Kari (was the Urska pool).
+      ...['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].map(id => dispelStatus(id, 'allyChosen')),
+      sacrifice('allyChosen'),
       dmg('enemyAll', 1, 0.5, { range: 'all', modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'sacrificedStat', stat: 'hp' } } }),
-      summonRandom(URSKA_REFS),
+      summonRandom(ZHULKARI_REFS),
     ),
   },
   {

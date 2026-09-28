@@ -22,3 +22,139 @@
 {"format":"compact","key":"troop:6374","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:51:37.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6131","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:51:39.835Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6295","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:51:42.402Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6023","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.417Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6177","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6305","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6363","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6498","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6534","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6605","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.419Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6647","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.419Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus","waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"0","mode":"tower"}]}
+{"format":"compact","key":"troop:6657","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.419Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6769","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.419Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6885","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.419Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:7515","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.420Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:7677","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.420Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:7793","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.420Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:7803","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.420Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"weapon:1310","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:41:21.420Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"}
+{"format":"compact","key":"troop:6292","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.047Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6832","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.050Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6341","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.051Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6577","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.051Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6185","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.051Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6330","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.052Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6404","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.052Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:6459","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.052Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:7048","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.052Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:7050","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:48:47.053Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B02 devour family: native Consume first (R001); 6341 Randomize A-F; 6292 Randomize AB-CD-EF"}
+{"format":"compact","key":"troop:7654","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.981Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6830","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.985Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6655","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.986Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7031","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.987Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7433","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.988Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7680","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.988Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6110","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.989Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6538","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.989Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7273","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.989Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6801","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:52:06.990Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6747","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.700Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1602","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.701Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6397","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.701Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7414","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.702Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6685","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.702Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7014","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.702Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7357","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.920Z","issue":"P-R5-faction-kingdom","note":"Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"}
+{"format":"compact","key":"weapon:1274","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.921Z","issue":"P-R5-faction-kingdom","note":"Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"}
+{"format":"compact","key":"troop:7173","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:26.034Z","issue":"P-R5-named-ally-count","note":"native 3 Doomskulls per Eldritch Minion ally; prototype 3 if any"}
+{"format":"compact","key":"weapon:1647","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:26.136Z","issue":"P-R5-special-gem-color","note":"native counts Green Dragon Gems only; boardSpecial counts all colours. Also native summon precedes damage (unobservable)"}
+{"format":"compact","key":"troop:7583","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.527Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6732","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6594","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6409","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7064","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7392","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7719","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6300","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7066","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6425","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1295","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.855Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7063","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.856Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7065","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.856Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6135","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6161","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6650","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6201","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7059","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7424","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7116","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:53.024Z","issue":"R012-pending","note":"8659: AboveTarget damage after the chosen enemy is killed (K scenario: no second hit); resolve per R012 anchor position"}
+{"format":"compact","key":"troop:6716","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.967Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7032","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7054","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7081","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7767","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7049","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6530","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.969Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6294","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.970Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6242","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.970Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6606","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:36:41.970Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7456","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.234Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7569","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.235Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7382","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.235Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6827","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.235Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6994","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7222","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7155","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6497","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7609","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7358","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6930","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.547Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6849","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.548Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1287","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.549Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6513","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.549Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6260","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.549Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6629","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.550Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7157","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.550Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6872","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.550Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6428","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.749Z","issue":"P-R5-summon-id-reuse","note":"7602 fixed to native (steal floor(Magic/2); Undead summons 100/50/25% on kill) but when the killed enemy holds the highest id the next summon reuses it and the 50%/25% ifTargetDied summons never fire"}
+{"format":"compact","key":"troop:6210","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.848Z","issue":"L1-6210-armor-base","note":"source-dispute: English 'Give 1 Armor to all Allies, boosted by Gems removed [1:1]' vs native IncreaseArmor@AllAllies with UseCounterForAmount and NO Amount (other ConsumeConditional/IncreaseX steps without Amount have base 0) -> 1+skulls or skulls only; order summon/armor/remove otherwise equivalent"}
+{"format":"compact","key":"troop:7799","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.368Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6920","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.369Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6968","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.369Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7763","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.369Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6713","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.369Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6786","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6798","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1486","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7033","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.370Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6410","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:58:11.533Z","issue":"R012-pending","note":"7566: Consume NextDownFromTarget / NextUpFromTarget 25% after the Damage may kill the target; also prototype uses enemyAboveTarget/enemyBelowTarget (all above/below) in up-then-down order vs native single NextDown then NextUp"}
+{"format":"compact","key":"troop:7034","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.991Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7417","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7671","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6349","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7177","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6696","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.993Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6122","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1154","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6572","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7588","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:02:30.994Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7349","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.591Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7133","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.598Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7416","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.599Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7438","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.599Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7659","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.600Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6380","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.600Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7127","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.600Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1063","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.600Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6246","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.601Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6562","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:06:03.602Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6796","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.982Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7374","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.984Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1155","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.984Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6279","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.984Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6844","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.984Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7093","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.985Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7124","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.985Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7307","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.985Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7510","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.985Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6808","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T09:13:09.985Z","tests":["tests/unit/gowCastGolden.test.ts"]}

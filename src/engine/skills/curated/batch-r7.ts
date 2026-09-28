@@ -224,7 +224,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // 「转换…以强化」句式：转化段先执行，transformedGems 来源才数得到（batch-12 7215 同款）
       transform(BaseColor.Purple, BaseColor.Blue),
       dmg('enemyChosen', 6, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } } }),
-      transformTroop('allySelf', 'Werewolf'),
+      // sa-R5 L1-6294: native Transform@Self Data 6295 = Villager (English "Transform into a Villager").
+      transformTroop('allySelf', 'Villager'),
     ),
   },
   {
@@ -628,7 +629,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 8 颗绿色 宝石。召唤 0-3 只驯鹿',
     build: skill(
       createGems(BaseColor.Green, 8),
-      summonRef('Caribou', undefined, { countRange: { min: 0, max: 3 } }),
+      // sa-R5 L1-summon-dist: native Summoning 7438 at 50% / 33% / 25% independently (0-3), not uniform 0-3.
+      ...[0.5, 0.33, 0.25].map(chance => ({ ...summonRef('Caribou'), chance })),
     ),
   },
   {

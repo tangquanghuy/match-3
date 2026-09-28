@@ -63,7 +63,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       reposition('enemyLast', 'front'),
       inflict('charm', 'enemyRandom'),
-      summonRef('Bombot', undefined, { countRange: { min: 1, max: 3 } }),
+      // Native SummoningNoError 6251 Bombot, then 2 x 6251 at 50% each (1/2/3 = 25/50/25%, not uniform 1-3).
+      summonRef('Bombot'),
+      summonRef('Bombot', undefined, { chance: 0.5 }),
+      summonRef('Bombot', undefined, { chance: 0.5 }),
     ),
   },
   {

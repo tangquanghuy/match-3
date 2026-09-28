@@ -739,8 +739,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成 [魔法 + 10] 点散射伤害，伤害值因毒菇林盟友数而增强。每有一名毒菇林盟友，则爆破 3 颗宝石。召唤一名毒菇林军队。 [x3]',
     build: skill(
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
-      explodeRandomGems(3, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
-      summonRandomOfKingdom('齐埃金', undefined),
+      // sa-R5 L1-1274-amanithrax: native ExplodeGems UseCounterForAmount = 3 per Amanithrax ally only (0 allies -> none);
+      // SummoningKingdomNoError 3053 = raw Amanithrax roster (Deathcap 7865 is not in the roster). The ally COUNT still
+      // uses zh kingdom 齐埃金 (all of Zaejin): primitive-queue P-R5-faction-kingdom.
+      explodeRandomGems(0, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
+      summonRandom(['Lifecap', 'KingGobtruffle', 'Exploadstool', 'Fungomancer', 'MushroomMan']),
     ),
   },
   {
@@ -1005,12 +1008,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8283,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值。',
+    // L1-1310-brown: English + native (ExtraTurnConditional 30, GenerateHalfMana PercentageChance 30) have no
+    // Brown-gem boost; the zh snapshot clause 「几率因棕色宝石数而增强」 is dropped.
     build: skill(
       dmg('enemyChosen', 2, 1),
       inflict('charm', 'enemyChosen'),
-      extraTurn({ chance: 0.3, chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
-      mana('allySelf', 0, 0, { halve: true, chance: 0.3, chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      extraTurn({ chance: 0.3 }),
+      mana('allySelf', 0, 0, { halve: true, chance: 0.3 }),
     ),
   },
   {

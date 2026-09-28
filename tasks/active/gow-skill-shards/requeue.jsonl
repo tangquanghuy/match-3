@@ -110,3 +110,4 @@
 {"key":"troop:7329","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
 {"key":"troop:7467","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
 {"key":"weapon:1081","reason":"signoff lapsed: skill changed after approval (round 1 merge); re-review","by":"coord","at":"2026-09-28T05:30:49.919Z"}
+{"key":"troop:6292","done":true,"by":"sa-R5","at":"2026-09-28T05:49:01.2709460Z","note":"re-reviewed round 2: accept lane-L1 (Randomize AB-CD-EF, gowLaneL1FixsaF1)"}

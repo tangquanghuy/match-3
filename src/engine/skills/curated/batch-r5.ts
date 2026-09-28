@@ -174,9 +174,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8546,
     desc: '召唤 1-3 名龙魂。如果自身队伍已有一名龙魂，则爆破 10 颗宝石。',
+    // sa-R5 L1-7014-order: native CountArmyTroop 7013 -> CountMax 10 -> ExplodeGems (counted BEFORE the summons, so
+    // only a pre-existing Dragon Spirit triggers it) -> SummoningNoError 7013, 7013@50%, 7013@50% (1/2/3 = 25/50/25%).
     build: skill(
-      summonRef('DragonSpirit', undefined, { countRange: { min: 1, max: 3 } }),
       explodeRandomGems(10, 0, 'all', undefined, { ifCond: { kind: 'troopPresent', side: 'ally', name: '龙魂' } }),
+      summonRef('DragonSpirit'),
+      summonRef('DragonSpirit', undefined, { chance: 0.5 }),
+      summonRef('DragonSpirit', undefined, { chance: 0.5 }),
     ),
   },
   {
@@ -185,7 +189,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Yellow, 5),
       transformToSpecial(BaseColor.Yellow, 'doomSkull'),
-      summonRef('Warg', undefined, { countRange: { min: 1, max: 3 } }),
+      // sa-R5 L1-summon-dist: native Summoning 6282 + 2 x 50% (1/2/3 = 25/50/25%), not countRange 1-3 uniform.
+      summonRef('Warg'), { ...summonRef('Warg'), chance: 0.5 }, { ...summonRef('Warg'), chance: 0.5 },
     ),
   },
   {
