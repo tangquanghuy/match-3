@@ -183,14 +183,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[(魔法 x 2) + 3]点真实伤害。对敌人造成中毒和流血3次叠加。如果他们已经中毒，有 50% 的几率杀死他们。',
     build: skill(
       trueDmg('enemyChosen', 3, 2),
-      // 回收（第四遍）：「中毒和流血3次叠加」按邻接解析 = 普通中毒 + 3 层流血
-      //（双子座 8752「诅咒和叠加 3 倍的出血状态」同构句式；中毒非叠层状态）；
-      // 「对敌人」= 裸敌人回指 enemyChosen（batch-18 9775 / batch-03 7789 先例）
-      inflict('poison', 'enemyChosen'),
-      inflict('bleed', 'enemyChosen', { stacks: 3 }),
-      // 「如果他们已经中毒，有 50% 的几率杀死他们」= execute + chance + ifCond targetStatus
-      //（batch-18 9817 / batch-03 7789 先例）；「他们」= 同一指定敌人
+      // sa-C r9 native order: TrueDamage -> LethalDamageConditional [AddForPoison 50] (checks Poison
+      // BEFORE this spell's own Poison) -> 3x CauseBleed -> CausePoison. Was Poison first, so the
+      // kill roll always saw the spell's own Poison.
       dmg('enemyChosen', 0, 0, { execute: true, chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'poison' } }),
+      inflict('bleed', 'enemyChosen', { stacks: 3 }),
+      inflict('poison', 'enemyChosen'),
     ),
   },
 ];

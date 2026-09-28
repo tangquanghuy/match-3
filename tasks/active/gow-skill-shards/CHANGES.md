@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 643 条改动，涉及 1095 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 646 条改动，涉及 1098 个技能 ID。
 
 ## 按时间
 
@@ -649,6 +649,9 @@
 | 2026-09-28T23:23 | sa-C | L5-C-r9-7141-poison | assembler | 8690 | troop:7141 SteelCobra | `src/engine/skills/curated/batch-r7.ts` | Poison enemyAll only if Life was damaged (armor-only splash hits skipped) → Poison lastDamaged = target + adjacent (native CausePoison FromTarget + AdjacentFromTarget) |  |
 | 2026-09-28T23:23 | sa-C | L5-C-r9-1252-deathmark | assembler | 8072 | weapon:1252 LifeAndDeath | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Death Mark enemyLastN without n (last enemy only) → Death Mark enemyLastN n=2 (native LastTwoEnemies) |  |
 | 2026-09-28T23:23 | sa-C | L5-C-r9-1278-nextdown | assembler | 8154 | weapon:1278 SpikedManriki | `src/engine/skills/curated/batch-w02.ts` | one enemyChosenAndNextDown splash + lastTargets Stun/Bleed (below target fixed before the first splash) → native order: splash chosen, splash enemyNextDown (R012 per step), Stun chosen/NextDown, Bleed chosen/NextDown |  |
+| 2026-09-28T23:34 | sa-C | L5-C-r9-6900-true | data | 8361 | troop:6900 FrekiTheWild | `src/engine/skills/curated/batch-p37.ts`<br>`scripts/curated-pools/pool-37.json`<br>`src/data/gowSnapshotOverrides.json` | normal damage (armor first), zh lacked 真实; Mark/Bleed as one anyOf(Daemon,Beast) step each → true damage (native TrueDamage), zh 真实伤害 + snapshot override; native 4 steps Mark Daemon/Beast, Bleed Daemon/Beast |  |
+| 2026-09-28T23:34 | sa-C | L5-C-r9-7252-order | assembler | 8851 | troop:7252 Scoprio | `src/engine/skills/curated/batch-27.ts` | Poison + Bleed before the kill roll (roll always saw its own Poison: 50% kill every cast) → native order TrueDamage -> kill roll on already Poisoned -> 3 Bleed -> Poison |  |
+| 2026-09-28T23:34 | sa-C | L5-C-r9-1286-zh | data | 8186 | weapon:1286 WildHunter | `src/engine/skills/curated/batch-w02.ts`<br>`scripts/curated-pools/pool-w01.json` | zh 再使其陷入陷入猎人标记状态 (doubled word) → zh 再使其陷入猎人标记状态 |  |
 
 ## 按技能 ID
 
@@ -1048,6 +1051,7 @@
 | 8180 | 1 | L3-F-6789 |
 | 8182 | 1 | L5-C-6791-precount |
 | 8184 | 1 | L4a-r3-6793 |
+| 8186 | 1 | L5-C-r9-1286-zh |
 | 8193 | 1 | L1-6786-summons |
 | 8197 | 1 | P-E-faction-kingdom |
 | 8199 | 1 | P-E-faction-kingdom |
@@ -1135,6 +1139,7 @@
 | 8354 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8357 | 1 | L1-1351-pool |
 | 8358 | 1 | L3-F-6897 |
+| 8361 | 1 | L5-C-r9-6900-true |
 | 8365 | 3 | L7-R1-6904-nextdown、P-R4-nextdown-default-range、P-E-faction-kingdom |
 | 8369 | 1 | L1-H-6908-four-branches |
 | 8370 | 1 | L4a-r3-6909 |
@@ -1391,6 +1396,7 @@
 | 8848 | 1 | R009-giant |
 | 8849 | 1 | R009-giant |
 | 8850 | 1 | R7-dragon-convert-extra-turn |
+| 8851 | 1 | L5-C-r9-7252-order |
 | 8852 | 1 | L2-H-7253-steal-first |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8856 | 1 | L2-7282-pref-not-prev |

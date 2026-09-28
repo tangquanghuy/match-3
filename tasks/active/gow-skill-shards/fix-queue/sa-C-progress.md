@@ -56,3 +56,9 @@
 - weapon:1278 fixed (8154 native two splashes; NextDown per step R012, Stun/Bleed chosen + NextDown)
 - weapon:1252 fixed (8072 Death Mark LastTwo n=2 + override)
 - B16 troop:7141,6702,6402,weapon:1278,1252 approve=5 fixed=3 issue=0
+- troop:7422 accept (9116 steal + Web)
+- troop:7314 accept (8926 true x2 Purple, Curse)
+- weapon:1286 fixed zh (8186 doubled 陷入 removed; x3 on already Marked)
+- troop:6900 fixed (8361 true damage + zh 真实 override; native 4 race steps, Daemon Beast = 2 Bleed)
+- troop:7252 fixed (8851 kill roll before own Poison; native order 3 Bleed -> Poison)
+- B17 troop:7422,7314,weapon:1286,troop:6900,7252 approve=5 fixed=3 issue=0

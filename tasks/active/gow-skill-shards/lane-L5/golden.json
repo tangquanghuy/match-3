@@ -979,6 +979,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:42:50.363Z"
  },
+ "troop:6900": {
+  "lines": {
+   "L10": "dmg E10 11  => E10:hp-11",
+   "R10": "dmg E10 11  => E10:hp-11",
+   "L0": "dmg E10 1  => E10:hp-1",
+   "K": "dmg E10 11 ; defeat E10  => E10:hp-1 DEAD"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T23:34:39.365Z"
+ },
  "troop:6901": {
   "lines": {
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
@@ -1329,6 +1339,16 @@
   "by": "sa-C",
   "at": "2026-09-28T22:28:21.454Z"
  },
+ "troop:7252": {
+  "lines": {
+   "L10": "dmg E11 23 ; status E11 +bleed ; status E11 +poison  => E11:hp-23 +bleed+poison",
+   "R10": "dmg E11 23 ; status E11 +bleed ; status E11 +poison  => E11:hp-23 +bleed+poison",
+   "L0": "dmg E11 3 ; status E11 +bleed ; status E11 +poison  => E11:hp-3 +bleed+poison",
+   "K": "dmg E11 23 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T23:34:39.365Z"
+ },
  "troop:7262": {
   "lines": {
    "L10": "dmg E12 13 (splash) ; dmg E11 6 (splash) ; dmg E13 6 (splash) ; dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; dmg E13 13 (splash) ; dmg E12 6 (splash)  => E12:hp-13 arm-12 | E11:hp-9 arm-10 | E13:hp-16 arm-3 | E10:hp-1 arm-5",
@@ -1358,6 +1378,16 @@
   },
   "by": "sa-R3",
   "at": "2026-09-28T02:51:48.356Z"
+ },
+ "troop:7314": {
+  "lines": {
+   "L10": "dmg E11 12 ; status E11 +curse  => E11:hp-12 +curse",
+   "R10": "dmg E11 12 ; status E11 +curse  => E11:hp-12 +curse",
+   "L0": "dmg E11 2 ; status E11 +curse  => E11:hp-2 +curse",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T23:34:39.365Z"
  },
  "troop:7323": {
   "lines": {
@@ -1428,6 +1458,16 @@
   },
   "by": "sa-C",
   "at": "2026-09-28T11:15:58.667Z"
+ },
+ "troop:7422": {
+  "lines": {
+   "L10": "dmg E11 11 ; buff C hp+11 max+11 ; status E11 +web  => E11:hp-11 +web | C:hp+11 max+11",
+   "R10": "dmg E11 11 ; buff C hp+11 max+11 ; status E11 +web  => E11:hp-11 +web | C:hp+11 max+11",
+   "L0": "dmg E11 1 ; buff C hp+1 max+1 ; status E11 +web  => E11:hp-1 +web | C:hp+1 max+1",
+   "K": "dmg E11 11 ; defeat E11 ; buff C hp+1 max+1  => E11:hp-1 DEAD | C:hp+1 max+1"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T23:34:39.365Z"
  },
  "troop:7432": {
   "lines": {
@@ -2208,6 +2248,16 @@
   },
   "by": "sa-R3",
   "at": "2026-09-28T02:51:48.356Z"
+ },
+ "weapon:1286": {
+  "lines": {
+   "L10": "dmg E11 13 ; status E11 +marked  => E11:hp-13 +marked",
+   "R10": "dmg E11 13 ; status E11 +marked  => E11:hp-13 +marked",
+   "L0": "dmg E11 3 ; status E11 +marked  => E11:hp-3 +marked",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T23:34:39.365Z"
  },
  "weapon:1294": {
   "lines": {

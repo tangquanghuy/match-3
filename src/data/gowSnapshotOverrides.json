@@ -206,6 +206,11 @@
       "reason": "sa-F: English Arachnaean Watcher 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese omitted 'other'.",
       "spellDescription": "获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]"
     },
+    "6900": {
+      "spellId": 8361,
+      "reason": "sa-C r9: English Freki the Wild 'Deal [Magic + 1] true damage to the first Enemy'; native TrueDamage@FrontEnemy; old Chinese omitted true (真实).",
+      "spellDescription": "对第一名敌人造成 [魔法 + 1] 点真实伤害。若对方使用紫色法力值，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。"
+    },
     "6908": {
       "spellId": 8369,
       "reason": "sa-H r8: English Book of Secrets 'Cause a random status effect on all Enemies or Allies' (native A-B-C-D: allies positive OR enemies negative, separate branches); old Chinese said enemies AND allies.",

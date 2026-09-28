@@ -881,7 +881,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8186,
-    desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，若敌人陷入猎人标记状态，则造成 3 倍伤害。再使其陷入陷入猎人标记状态。',
+    desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，若敌人陷入猎人标记状态，则造成 3 倍伤害。再使其陷入猎人标记状态。',
     build: skill(
       trueDmg('enemyChosen', 3, 1, { trueDamage: true, condMult: { times: 3, cond: { kind: 'targetStatus', statusId: 'marked' } } }),
       inflict('marked', 'lastTarget'),

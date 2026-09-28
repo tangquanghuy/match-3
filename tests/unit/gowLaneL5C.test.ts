@@ -514,3 +514,37 @@ describe('L5 sa-C round 9 B16', () => {
     expect(sts(o)).toEqual(['status E12 +death-mark', 'status E13 +death-mark', 'status C +blessed']);
   });
 });
+describe('L5 sa-C round 9 B17', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:7422 Steal M+1 Life and Web the target; no Web on a kill', () => {
+    expect(order({ key: 'troop:7422' })).toEqual(['dmg E11 11', 'buff C hp+11 max+11', 'status E11 +web']);
+    expect(order({ key: 'troop:7422', enemies: enemies({ 1: { hp: 5, armor: 0 } }) })).toEqual(['dmg E11 11', 'defeat E11', 'buff C hp+5 max+5']);
+  });
+  it('troop:7314 true damage doubled on a Purple enemy, then Curse', () => {
+    expect(order({ key: 'troop:7314' })).toEqual(['dmg E11 12', 'status E11 +curse']);
+    expect(order({ key: 'troop:7314', enemies: enemies({ 1: { colors: [BaseColor.Purple] } }) })).toEqual(['dmg E11 24', 'status E11 +curse']);
+  });
+  it('weapon:1286 triple true damage on a Hunter\'s Marked enemy (checked before its own Mark)', () => {
+    expect(order({ key: 'weapon:1286' })).toEqual(['dmg E11 13', 'status E11 +marked']);
+    expect(order({ key: 'weapon:1286', enemies: enemies({ 1: { statuses: st('marked') } }) })[0]).toBe('dmg E11 39');
+  });
+  it('troop:6900 true damage to the front enemy (x2 Purple); Mark + Bleed only Daemons/Beasts', () => {
+    const r = castSpell({ key: 'troop:6900' });
+    expect(r.summary.order).toEqual(['dmg E10 11']);
+    expect(order({ key: 'troop:6900', enemies: enemies({ 0: { colors: [BaseColor.Purple] } }) })).toEqual(['dmg E10 22']);
+    expect(order({ key: 'troop:6900', enemies: enemies({ 0: { troopTypes: ['Beast'] } }) })).toEqual(['dmg E10 11', 'status E10 +marked', 'status E10 +bleed']);
+    expect(order({ key: 'troop:6900', enemies: enemies({ 0: { troopTypes: ['Daemon'] } }) })).toEqual(['dmg E10 11', 'status E10 +marked', 'status E10 +bleed']);
+    expect(bleeds(castSpell({ key: 'troop:6900', enemies: enemies({ 0: { troopTypes: ['Daemon', 'Beast'] } }) }), 10)).toBe(2); // native Bleed step per race
+  });
+  it('troop:7252 kill roll only on an ALREADY Poisoned target (~50%); otherwise 3 Bleed then Poison', () => {
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:7252', seed });
+      expect(o.includes('defeat E11')).toBe(false);
+      expect(o[0]).toBe('dmg E11 23'); expect(o[o.length - 1]).toBe('status E11 +poison');
+    }
+    expect(bleeds(castSpell({ key: 'troop:7252' }), 11)).toBe(3);
+    let kills = 0;
+    for (const seed of seeds) if (order({ key: 'troop:7252', seed, enemies: enemies({ 1: { statuses: st('poison') } }) }).includes('defeat E11')) kills++;
+    expect(kills).toBeGreaterThan(10); expect(kills).toBeLessThan(30);
+  });
+});
