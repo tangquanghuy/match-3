@@ -119,6 +119,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T09:04:11.605Z"
  },
+ "troop:6247": {
+  "lines": {
+   "L10": "explode 16 ; skulls E10 1 ; ~cascade~ ; buff C attack+11  => A1:mana+1 | A2:mana+1 | E10:arm-1 | C:atk+11  cascade",
+   "R10": "explode 16 ; skulls E10 1 ; ~cascade~ ; buff C attack+11  => A1:mana+1 | A2:mana+1 | E10:arm-1 | C:atk+11  cascade",
+   "L0": "explode 16 ; skulls E10 1 ; ~cascade~ ; buff C attack+1  => A1:mana+1 | A2:mana+1 | E10:arm-1 | C:atk+1  cascade",
+   "K": "explode 16 ; skulls E10 1 ; defeat E10 ; ~cascade~ ; buff C attack+11  => A1:mana+1 | A2:mana+1 | E10:hp-1 DEAD | C:atk+11  cascade"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:37:14.109Z"
+ },
  "troop:6264": {
   "lines": {
    "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Yellow x9 ; buff A1 magic+12 ; buff A2 armor+12  => A1:mag+12 | A2:arm+12",
@@ -188,6 +198,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:24:38.212Z"
+ },
+ "troop:6390": {
+  "lines": {
+   "L10": "buff A1 magic+11 ; extra-turn skill  => A1:mag+11  extra:skill",
+   "R10": "buff A1 magic+11 ; extra-turn skill  => A1:mag+11  extra:skill",
+   "L0": "buff A1 magic+1 ; extra-turn skill  => A1:mag+1  extra:skill",
+   "K": "buff A1 magic+11 ; extra-turn skill  => A1:mag+11  extra:skill"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:37:14.109Z"
  },
  "troop:6405": {
   "lines": {
@@ -769,6 +789,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:47:27.533Z"
  },
+ "troop:7296": {
+  "lines": {
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~  => A2:mana+4 | E10:arm-3  cascade",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~  => A2:mana+4 | E10:arm-3  cascade",
+   "L0": "explode 6",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~  => A2:mana+4 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:37:14.109Z"
+ },
  "troop:7329": {
   "lines": {
    "L10": "buff E11 mana-4  => E11:mana-4",
@@ -989,6 +1019,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:35:30.426Z"
  },
+ "troop:7847": {
+  "lines": {
+   "L10": "explode 19 ; skulls E10 1  => A1:mana+1 | A2:mana+1 | E10:arm-1",
+   "R10": "explode 19 ; skulls E10 1  => A1:mana+1 | A2:mana+1 | E10:arm-1",
+   "L0": "explode 19 ; skulls E10 1  => A1:mana+1 | A2:mana+1 | E10:arm-1",
+   "K": "explode 19 ; skulls E10 1 ; defeat E10  => A1:mana+1 | A2:mana+1 | E10:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:37:14.109Z"
+ },
  "troop:7881": {
   "lines": {
    "L10": "buff E11 attack-11 ; convert Blue x11 -> terrorGem x11  => E11:atk-11",
@@ -1078,6 +1118,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T05:54:41.954Z"
+ },
+ "weapon:1385": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; dmg E10 14 ; shuffle theirs  => A2:mana+1 | A1:mana+1 | E10:hp-11 arm-5",
+   "R10": "explode 24 ; skulls E10 2 ; dmg E10 14 ; shuffle theirs  => A2:mana+1 | A1:mana+1 | E10:hp-11 arm-5",
+   "L0": "explode 24 ; skulls E10 2 ; dmg E10 4 ; shuffle theirs  => A2:mana+1 | A1:mana+1 | E10:hp-1 arm-5",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; dmg E11 14 ; defeat E11 ; shuffle theirs  => A2:mana+1 | A1:mana+1 | E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:37:14.109Z"
  },
  "weapon:1397": {
   "lines": {

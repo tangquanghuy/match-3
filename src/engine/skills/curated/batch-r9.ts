@@ -955,9 +955,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9906,
     desc: '引爆3颗随机颜色的宝石。',
-    // ExplodeColor ×6（六色各 3）实为「引爆 3 颗（非骷髅）宝石」机翻展开 → explodeRandomGems color
+    // 原生 Randomize A-B-C-D-E-F：六步 ExplodeColor <色> 3 择一（各 1/6）= 英文「随机一种颜色的 3 颗宝石」
+    // （sa-H：原为不限色随机 3 颗，混色）
     build: skill(
-      explodeRandomGems(3, 0, 'color'),
+      oneOf(...([BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown] as const)
+        .map(c => [explodeRandomGems(3, 0, 'color', c)])),
     ),
   },
   {

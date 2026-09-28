@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 996 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 550 条改动，涉及 999 个技能 ID。
 
 ## 按时间
 
@@ -553,6 +553,9 @@
 | 2026-09-28T21:26 | sa-H | L2-H-6993-prefnotprev | assembler | 8499 | troop:6993 Dao | `src/engine/skills/curated/batch-r13.ts`<br>`src/data/gowSnapshotOverrides.json` | repeats used plain enemyRandom; zh mistranslated → repeats enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy, R007-3); zh rewritten + override |  |
 | 2026-09-28T21:32 | sa-H | L2-H-6959-magic | assembler | 8459 | troop:6959 KoboldMagi | `src/engine/skills/curated/batch-r1.ts` | second branch gave 12 Mana → gives 12 Magic (native IncreaseSpellPower 12, English gain 12 Magic) |  |
 | 2026-09-28T21:32 | sa-H | L2-H-6948-either-colour | assembler | 8429 | troop:6948 DeepHuntsman | `src/engine/skills/curated/batch-r22.ts` | explode [M+1] gems from a Green+Purple union pool → Randomize ABC-DEF: 1/2 explode [M+1] Green, 1/2 explode [M+1] Purple; then Curse + Web first enemy |  |
+| 2026-09-28T21:37 | sa-H | L2-H-7847-one-colour | assembler | 9906 | troop:7847 CannonMimic | `src/engine/skills/curated/batch-r9.ts` | 3 random coloured gems of mixed colours → Randomize A-F: one colour 1/6, then 3 gems of that colour |  |
+| 2026-09-28T21:37 | sa-H | L2-H-6390-weights | assembler | 7545 | troop:6390 PrincessFizzbang | `src/engine/skills/curated/batch-r15.ts` | extra turn first, then 1/2 explode Green \| 1/2 random Skill → AB-CD-EF: 2/3 explode Green, 1/3 random Skill (Goblin x2), extra turn after each (native order) |  |
+| 2026-09-28T21:37 | sa-H | L2-H-6247-any-gem | assembler | 7390 | troop:6247 Remnant | `src/engine/skills/curated/batch-01.ts` | explode 2 random coloured gems (skulls/specials excluded) → explode 2 random gems of any kind (native ExplodeGems 2, same as signed 6204/6251/6875/7044) |  |
 
 ## 按技能 ID
 
@@ -692,6 +695,7 @@
 | 7383 | 1 | F2-R001-order |
 | 7386 | 1 | L2-wrong-enemy-branches |
 | 7388 | 1 | L4a-R1-7388-chosen-row |
+| 7390 | 1 | L2-H-6247-any-gem |
 | 7391 | 1 | P-E-faction-kingdom |
 | 7392 | 2 | L5-009、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7395 | 1 | L3-011 |
@@ -744,6 +748,7 @@
 | 7533 | 1 | L1-6378-pool |
 | 7541 | 1 | P-R7-dead-last-target-cond |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
+| 7545 | 1 | L2-H-6390-weights |
 | 7548 | 1 | R004-tests |
 | 7553 | 2 | F2-6398-random-dispel、P-F2-precount-explode |
 | 7554 | 1 | P-chooser-native-restrictions |
@@ -1521,6 +1526,7 @@
 | 9882 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、L7-R1-random-chain-waves |
 | 9903 | 1 | L4b-R6-B03-prefnotprev |
 | 9904 | 1 | L4b-R6-B02 |
+| 9906 | 1 | L2-H-7847-one-colour |
 | 9909 | 2 | P-random-stat-pool、L2-7850-target |
 | 9911 | 1 | P-E-faction-kingdom |
 | 9914 | 1 | P-E-faction-kingdom |

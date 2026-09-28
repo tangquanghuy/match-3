@@ -240,11 +240,13 @@ const SPELLS: CuratedBatch['spells'] = [
     //（randomStatEffect 逐受益者判族，buff.ts randomStat 分支实装） ——
     id: 7545,
     desc: "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。",
+    // 原生 Randomize AB-CD-EF：AB = ExplodeColor Green + ExtraTurn；CD = IncreaseRandom@RandomAlly ×2 Goblin + ExtraTurn；
+    // EF = ExplodeColor Green + ExtraTurn → 爆破绿色 2/3、随机属性 1/3，额外回合在后（sa-H：原 1/2 且额外回合在前）
     build: skill(
-      extraTurn(),
       oneOf(
-        explodeColor(BaseColor.Green),
-        randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }),
+        [explodeColor(BaseColor.Green), extraTurn()],
+        [randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }), extraTurn()],
+        [explodeColor(BaseColor.Green), extraTurn()],
       ),
     ),
   },

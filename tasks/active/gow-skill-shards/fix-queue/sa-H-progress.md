@@ -19,3 +19,8 @@
 - troop:6959 fixed+accept (branch gave 12 Mana; native IncreaseSpellPower = 12 Magic)
 - troop:7427 accept (random row, 1 + 2 x 50% statuses)
 - troop:6948 fixed+accept (ABC-DEF either Green or Purple explode, was union pool)
+- troop:7847 fixed+accept (one random colour 1/6 then 3 of it; was mixed-colour pool)
+- troop:6390 fixed+accept (AB-CD-EF = explode 2/3, skill 1/3; extra turn after)
+- troop:7296 accept (Choose explode [M+1] Purple | Mana Burn first 2; ManaBurn primitive as-is)
+- weapon:1385 accept (row|col 1/2 at chosen gem, [M+4] front, jumble enemies)
+- troop:6247 fixed+accept (ExplodeGems 2 any gem incl. skulls; DISPUTE: signed plain ExplodeGems N skills are split between include all/color, e.g. 6622/7359 color)

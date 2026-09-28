@@ -196,3 +196,47 @@ describe('sa-H L2 B04', () => {
     within(exploded / SEEDS, 0.5, 'green branch');
   });
 });
+
+describe('sa-H L2 B05', () => {
+  const G = (color: BaseColor) => ({ kind: 'color', color }) as never;
+  it('troop:7847 one random colour (1/6 each), then 3 gems of that colour', () => {
+    // Red board with 3 Blue gems: Red and Blue branches explode, the other 4 colours find nothing
+    const board = (r: number, c: number) => (['1,1', '1,6', '6,3'].includes(`${r},${c}`) ? G(BaseColor.Blue) : G(BaseColor.Red));
+    let none = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) if (!castSpell({ key: 'troop:7847', seed, board }).summary.order.some(l => l.startsWith('explode'))) none++;
+    within(none / SEEDS, 4 / 6, 'no gem of the rolled colour');
+  });
+  it('troop:6390 AB-CD-EF: 2/3 explode Green, 1/3 random Skill to a random ally (x2 Goblin); extra turn always', () => {
+    let explode = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:6390', seed }).summary.order;
+      expect(o).toContain('extra-turn skill');
+      if (o[0].startsWith('explode')) explode++;
+    }
+    within(explode / SEEDS, 2 / 3, 'explode');
+    const gob = { troopTypes: ['Goblin'] } as never;
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = orderOf({ key: 'troop:6390', seed, caster: gob, allies: [gob, gob] });
+      if (o[0].startsWith('buff')) expect(o[0]).toMatch(/(attack|armor|magic|hp)\+22/);
+    }
+  });
+  it('troop:7296 Choose: explode [M+1] Purple | Mana Burn the first 2 enemies', () => {
+    const b = choose({ key: 'troop:7296' }, 1);
+    expect(b.filter(l => l.startsWith('dmg ')).map(l => l.split(' ')[1])).toEqual(['E10', 'E11']);
+  });
+  it('weapon:1385 ABC-DEF: explode the chosen row OR column (1/2), [M+4] to the first enemy, jumble enemies', () => {
+    let rows = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const f = setupCast({ key: 'weapon:1385', seed }); const ev = f.cast();
+      const ex = ev.find(e => e.type === 'gem-explode') as { cells: { pos: { row: number; col: number } }[] };
+      const rs = new Set(ex.cells.map(c => c.pos.row)).size, cs = new Set(ex.cells.map(c => c.pos.col)).size;
+      if (cs === 8 && rs < 8) rows++; else expect(rs).toBe(8);
+      const o = summarize(f, ev).order; expect(o).toContain('shuffle theirs');
+    }
+    within(rows / SEEDS, 0.5, 'row');
+  });
+  it('troop:6247 explodes 2 random gems of any kind (skulls included)', () => {
+    const skulls = (() => ({ kind: 'skull' })) as never;
+    expect(castSpell({ key: 'troop:6247', board: skulls }).summary.order.some(l => l.startsWith('explode'))).toBe(true);
+  });
+});
