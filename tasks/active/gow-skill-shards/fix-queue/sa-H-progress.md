@@ -80,3 +80,4 @@
 - troop:6908 fixed+accept (L1; A-B-C-D 1/4, allies OR enemies status; zh + override 6908)
 - troop:6556 accept (L1; Beast pool 262, 30% run away)
 - troop:7302 accept (L1; Dragon pool 122, 30% run away)
+- STOP at 80: L2 exhausted (55: 53 accept, 2 issue: 6809 P-H-random-status-n, 1396 L2-H-1396-missing-amount); L1 25 accept. 26 skills changed (changelog changes/sa-H.jsonl). Disputes: 1396 missing Amount; 6247 ExplodeGems include all vs color split among signed skills; 6993 ResetTargets flag treated as presentation; curse removes Enraged in engine (primitive, not reviewed here)
