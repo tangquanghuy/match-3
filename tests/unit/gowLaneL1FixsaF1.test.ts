@@ -45,6 +45,38 @@ describe('L1 fix sa-F1', () => {
     expect([...seen].sort()).toEqual(['buff E11 attack-10', 'buff E11 magic-4', 'transform E11 -> 巨蟾蜍'].sort());
   });
 
+  // troop:7351 native ConsumeConditional (35% if Death Marked) BEFORE the [Magic + 3] +4/Orc damage.
+  it.each([
+    { marked: true, outcomes: ['devour', 'dmg 17'] },
+    { marked: false, outcomes: ['dmg 17'] },
+  ])('troop:7351 devour first when Death Marked=$marked', ({ marked, outcomes }) => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const r = castSpell({ key: 'troop:7351', seed, enemies: [{}, { hp: 900, maxHp: 900, attack: 20, armor: 10, statuses: marked ? [{ id: 'death-mark', turns: 9 }] : [] }] });
+      const o = r.summary.order;
+      if (o[0]?.endsWith('devoured')) { expect(o).toContain('buff C attack+20'); expect(o.filter(x => x.startsWith('dmg'))).toHaveLength(1); seen.add('devour'); }
+      else { expect(o[0]).toBe('dmg E11 17'); seen.add('dmg 17'); }
+    }
+    expect([...seen].sort()).toEqual([...outcomes].sort());
+  });
+
+  // Devour family: native ConsumeConditional (50% if race) -> IncreaseHealth 5 -> Damage [Magic + 4] x2 if race.
+  it.each([
+    { key: 'troop:6119', race: 'Elf' }, { key: 'troop:6173', race: 'Goblin' }, { key: 'troop:6212', race: 'Dragon' },
+    { key: 'troop:6455', race: 'Monster' }, { key: 'troop:6879', race: 'Undead' },
+  ])('$key devours or double-hits a $race, plain hit otherwise', ({ key, race }) => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = castSpell({ key, seed, enemies: [{}, { hp: 900, maxHp: 900, armor: 10, troopTypes: [race] }] }).summary.order;
+      if (o[0]?.endsWith('devoured')) { expect(o.slice(-1)[0]).toBe('buff C hp+5 max+5'); seen.add('devour'); }
+      else { expect(o).toEqual(['buff C hp+5 max+5', 'dmg E11 28']); seen.add('double'); }
+    }
+    expect([...seen].sort()).toEqual(['devour', 'double']);
+    for (let seed = 1; seed <= 10; seed++) {
+      expect(castSpell({ key, seed, enemies: [{}, { hp: 900, maxHp: 900, armor: 10, troopTypes: ['Human'] }] }).summary.order).toEqual(['buff C hp+5 max+5', 'dmg E11 14']);
+    }
+  });
+
   // troop:6931 native Dispel@RandomEnemy before LethalDamage: a Barrier does not save the target.
   it('troop:6931 dispels the random enemy, then kills it', () => {
     const shield = [{ id: 'barrier', turns: 99 }];

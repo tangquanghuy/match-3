@@ -11,3 +11,6 @@
 {"format":"compact","key":"troop:7329","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:40.371Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7825","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:42.842Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1081","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:45.563Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6171","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:24.607Z","issue":"P-random-stat-pool","note":"order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"}
+{"format":"compact","key":"weapon:1104","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:24.608Z","issue":"P-random-stat-pool","note":"order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"}
+{"format":"compact","key":"weapon:1107","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:24.608Z","issue":"P-random-stat-pool","note":"order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"}

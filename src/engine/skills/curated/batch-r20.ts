@@ -28,7 +28,7 @@ import {
   inflict, createGems, createSkulls, createSpecialGems, transform, transformToSpecial,
   destroyColor, destroySpecialGems, destroyRandomRows, destroyArea,
   explodeColor, explodeRandomRows, explodeRandomCols, explodeRandomGems,
-  oneOf, reposition, summonRef, extraTurn, gainGold, gainSouls, CHOSEN, dispelStatus,
+  oneOf, reposition, summonRef, extraTurn, gainGold, gainSouls, CHOSEN, dispelStatus, devour,
 } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
@@ -162,10 +162,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8302,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。若敌人是不死族，则造成双倍伤害并有 50% 的几率将其吞噬。获得 5 点生命值。',
     // 「若不死族双倍」= condMult targetRace；「50% 吞噬」= execute + chance + 同条件（8979 口径）
+    // sa-F1 (R001): native ConsumeConditional (a real Devour) -> IncreaseHealth 5 -> Damage x2, same as the 7211 family.
     build: skill(
-      dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Undead' } } }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.5, ifCond: { kind: 'targetRace', race: 'Undead' } }),
+      devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Undead' } }),
       heal('allySelf', 5, 0),
+      dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Undead' } } }),
     ),
   },
   {

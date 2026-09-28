@@ -485,7 +485,62 @@
       }
     },
     "7240": {
-      "description": "对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。"
+      "description": "对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "random",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "gainStat": "attack"
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            },
+            "condMult": {
+              "times": 3,
+              "cond": {
+                "kind": "targetRace",
+                "race": "Fey"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7244": {
+      "description": "对所有敌人造成 [魔法 + 1] 点伤害。从每名敌人身上窃取 1 点随机技能值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyAll",
+            "stat": "random",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            },
+            "gainStat": "attack"
+          },
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "range": "all"
+          }
+        ]
+      }
     },
     "7245": {
       "description": "对所有敌人造成 [(魔法 / 2) + 2] 点真实伤害。获得 2 点魔力值。如果敌人身亡，则获得一个额外回合。",
@@ -512,7 +567,9 @@
           },
           {
             "kind": "extraTurn",
-            "ifTargetDied": true
+            "ifCond": {
+              "kind": "castEnemyDied"
+            }
           }
         ]
       },
@@ -1115,6 +1172,42 @@
     },
     "7592": {
       "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用蓝色法力值，则造成三倍伤害。"
+    },
+    "7626": {
+      "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。伤害值因所收集的灵魂数而增强。窃取其法力值。 [3:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "gainStat": "mana",
+            "drainAll": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              },
+              "source": {
+                "kind": "battleSouls"
+              }
+            }
+          }
+        ]
+      }
     },
     "7654": {
       "description": "创造 15 颗红色和绿色的宝石。赋予两名随机盟友法印效果。"

@@ -711,9 +711,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7240,
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。',
+    // sa-F1 (R001): native s0 StealRandomStat 5 runs before s1 Damage@FromPrevious.
     build: skill(
+      stealRandomStat('enemyChosen', 5, 0),
       dmg('enemyChosen', 6, 1, { condMult: { times: 3, cond: { kind: 'targetRace', race: 'Fey' } } }),
-      stealRandomStat('lastTarget', 5, 0),
     ),
   },
   {
@@ -734,15 +735,16 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7244,
     desc: '对所有敌人造成 [魔法 + 1] 点伤害。从每名敌人身上窃取 1 点随机技能值。',
+    // sa-F1 (R001): native s0 StealRandomStat@AllEnemies runs before s2 Damage@AllEnemies.
     build: skill(
-      dmg('enemyAll', 1, 1, { range: 'all' }),
       stealRandomStat('enemyAll', 1, 0),
+      dmg('enemyAll', 1, 1, { range: 'all' }),
     ),
   },
   {
     id: 7245,
     desc: '对所有敌人造成 [(魔法 / 2) + 2] 点真实伤害。获得 2 点魔力值。如果敌人身亡，则获得一个额外回合。',
-    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":0.5},"range":"all","trueDamage":true},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0}},{"kind":"extraTurn","ifTargetDied":true}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":0.5},"range":"all","trueDamage":true},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0}},{"kind":"extraTurn","ifCond":{"kind":"castEnemyDied"}}]} as SkillPrototype),
   },
   {
     id: 7246,
@@ -1262,9 +1264,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7626,
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。伤害值因所收集的灵魂数而增强。窃取其法力值。 [3:1]',
+    // sa-F1 (R001): native s1 StealMana 100 runs before s2 Damage.
     build: skill(
+      steal('enemyChosen', 'mana', 'mana', 0, 0, { drainAll: true }),
       dmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'battleSouls' } } }),
-      steal('lastTarget', 'mana', 'mana', 0, 0, { drainAll: true }),
     ),
   },
   {

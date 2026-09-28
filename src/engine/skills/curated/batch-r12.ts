@@ -73,9 +73,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7310,
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，并窃取 [魔法 + 1] 点随机技能值。对机械军队造成两倍伤害。',
     // StealRandom：掷中哪项削哪项、施法者同项入账；「机械军队」= raceDouble 'Mech'
+    // sa-F1 (R001): native s0 StealRandomStat runs before s1 Damage.
     build: skill(
+      stealRandomStat('enemyChosen', 1, 1),
       dmg('enemyChosen', 1, 1, { raceDouble: 'Mech' }),
-      stealRandomStat('lastTarget', 1, 1),
     ),
   },
   {

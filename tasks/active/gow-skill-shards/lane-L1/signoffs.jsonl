@@ -9,3 +9,11 @@
 {"format":"compact","key":"troop:6292","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:33:50.392Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6047","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:35:02.410Z","issue":"P-F1-harness-status-leak","note":"fixed (native Dispel before devour; gowLaneL1FixsaF1 green) but golden replay is order-dependent: leaked A1 Barrier from earlier casts blocks the devour; re-approve after harness fix"}
 {"format":"compact","key":"troop:6326","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:35:02.521Z","issue":"P-F1-harness-status-leak","note":"behaviour matches native in a fresh process; golden replay sees a leaked A1 Barrier and the kill is absorbed; re-approve after harness fix"}
+{"format":"compact","key":"troop:6023","decision":"issue","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:38:46.387Z","issue":"P-charm-instant","note":"kill branch (gain 8 Mana) depends on what Charm does; Charm is a lasting status here and can never kill during the cast"}
+{"format":"compact","key":"troop:7351","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:38:48.658Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6843","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:38:55.841Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6119","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:27.061Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6173","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:29.562Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6212","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:32.106Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6455","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:34.452Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6879","decision":"accept","reviewer":"sa-F1","reviewedAt":"2026-09-28T00:42:36.742Z","tests":["tests/unit/gowCastGolden.test.ts"]}

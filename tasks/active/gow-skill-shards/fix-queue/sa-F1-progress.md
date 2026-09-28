@@ -43,3 +43,18 @@
 - 2026-09-28T00:34:01Z weapon:1081 fixed oneOf target declared; armor removal now common to both branches (was poison branch only); approved + test
 - 2026-09-28T00:35:28Z troop:6047 issue golden dropped: gowCastGolden replay order leaks A1 Barrier (P-F1-harness-status-leak); fix + own test stay
 - 2026-09-28T00:35:28Z troop:6326 issue golden dropped for the same harness leak (P-F1-harness-status-leak)
+- 2026-09-28T00:39:07Z troop:6023 issue P-charm-instant: kill branch depends on Charm semantics (status here, cannot kill during the cast)
+- 2026-09-28T00:39:07Z troop:7351 fixed native order: 35% Devour if Death Marked before damage (was damage then execute); approved + test
+- 2026-09-28T00:39:07Z troop:6086 fixed extra turn on kill never fired (self mana step re-pointed lastTarget); native order; approved
+- 2026-09-28T00:39:07Z weapon:1108 fixed extra turn on any enemy death (castEnemyDied) instead of lastTarget after self buff; approved
+- 2026-09-28T00:39:07Z troop:6843 fixed enemy below skipped when the chosen one died; single chosen+next-down hit; approved
+- 2026-09-28T00:42:52Z troop:6171 issue order fixed to native (StealRandom before damage); remaining P-random-stat-pool
+- 2026-09-28T00:42:52Z weapon:1104 issue order fixed to native (steal 5 random before damage); remaining P-random-stat-pool
+- 2026-09-28T00:42:52Z troop:6119 fixed native order 50% Elf devour -> +5 Life -> damage x2; approved + test
+- 2026-09-28T00:42:52Z troop:6173 fixed same as 6119 (Goblin); approved + test
+- 2026-09-28T00:42:52Z troop:6212 fixed same as 6119 (Dragon); approved + test
+- 2026-09-28T00:42:52Z troop:6455 fixed same as 6119 (Monster); approved + test
+- 2026-09-28T00:42:52Z troop:6569 fixed StealMana 6 before damage (native); Tower/Ascension clause waived R000 tower; approved
+- 2026-09-28T00:42:52Z troop:6879 fixed native order + real Devour (was execute); approved + test
+- 2026-09-28T00:42:52Z weapon:1107 issue order fixed to native (StealRandom all before damage); remaining P-random-stat-pool
+- 2026-09-28T00:42:52Z weapon:1177 fixed StealMana before damage (native); souls [3:1]=34% tested; approved

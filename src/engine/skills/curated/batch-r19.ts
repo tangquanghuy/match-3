@@ -356,9 +356,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8979,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因兽人盟友数而增强。若敌人陷入死亡标记状态，则有 35% 的几率吞噬对方。 [x4]',
     // 官方 ConsumeConditional AddForDeathMark 35 → 即杀挂 ifCond targetStatus + chance（w01 7380 口径）
+    // sa-F1 (R001): native s1 ConsumeConditional (35% if Death Marked) runs BEFORE s2 Damage, and it is a Devour
+    // (devourer gains the target's stats), not a plain kill.
     build: skill(
+      devour('enemyChosen', { chance: 0.35, ifCond: { kind: 'targetStatus', statusId: 'death-mark' } }),
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfRace', race: 'Orc' } } }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.35, ifCond: { kind: 'targetStatus', statusId: 'death-mark' } }),
     ),
   },
   {

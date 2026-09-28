@@ -800,9 +800,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7773,
     desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。窃取 6 点法力值。",
     // 「窃取 6 法力」= steal mana→mana
+    // sa-F1 (R001): native s0 StealMana 6 runs before s1 Damage.
     build: skill(
-      dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
       steal('enemyChosen', 'mana', 'mana', 6, 0),
+      dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
     ),
   },
   {

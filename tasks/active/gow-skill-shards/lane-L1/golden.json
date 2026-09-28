@@ -1,4 +1,34 @@
 {
+ "troop:6119": {
+  "lines": {
+   "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "R10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "L0": "buff C hp+5 max+5 ; dmg E11 4  => C:hp+5 max+5 | E11:arm-4",
+   "K": "buff C hp+5 max+5 ; dmg E11 14 ; defeat E11  => C:hp+5 max+5 | E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:42:26.965Z"
+ },
+ "troop:6173": {
+  "lines": {
+   "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "R10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "L0": "buff C hp+5 max+5 ; dmg E11 4  => C:hp+5 max+5 | E11:arm-4",
+   "K": "buff C hp+5 max+5 ; dmg E11 14 ; defeat E11  => C:hp+5 max+5 | E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:42:29.468Z"
+ },
+ "troop:6212": {
+  "lines": {
+   "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "R10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "L0": "buff C hp+5 max+5 ; dmg E11 4  => C:hp+5 max+5 | E11:arm-4",
+   "K": "buff C hp+5 max+5 ; dmg E11 14 ; defeat E11  => C:hp+5 max+5 | E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:42:32.013Z"
+ },
  "troop:6289": {
   "lines": {
    "L10": "(no spell events)",
@@ -19,6 +49,36 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:33:50.303Z"
  },
+ "troop:6455": {
+  "lines": {
+   "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "R10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "L0": "buff C hp+5 max+5 ; dmg E11 4  => C:hp+5 max+5 | E11:arm-4",
+   "K": "buff C hp+5 max+5 ; dmg E11 14 ; defeat E11  => C:hp+5 max+5 | E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:42:34.364Z"
+ },
+ "troop:6843": {
+  "lines": {
+   "L10": "dmg E11 23 (all) ; dmg E12 23 (all) ; summon mine troop:6477  => A14:new 暗影姐妹 hp18 atk16 arm11 mag9 | E11:hp-23 | E12:hp-23",
+   "R10": "dmg E11 23 (all) ; dmg E12 23 (all) ; summon mine troop:6477  => A14:new 暗影姐妹 hp18 atk16 arm11 mag9 | E11:hp-23 | E12:hp-23",
+   "L0": "dmg E11 13 (all) ; dmg E12 13 (all) ; summon mine troop:6477  => A14:new 暗影姐妹 hp18 atk16 arm11 mag9 | E11:hp-13 | E12:hp-13",
+   "K": "dmg E11 23 (all) ; dmg E12 23 (all) ; defeat E11 ; defeat E12 ; convert Green x4, Brown x2, Blue x1, Red x1, Yellow x4 -> Purple x12 ; ~cascade~  => E11:hp-1 DEAD | E12:hp-1 DEAD  cascade"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:38:55.702Z"
+ },
+ "troop:6879": {
+  "lines": {
+   "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "R10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
+   "L0": "buff C hp+5 max+5 ; dmg E11 4  => C:hp+5 max+5 | E11:arm-4",
+   "K": "buff C hp+5 max+5 ; dmg E11 14 ; defeat E11  => C:hp+5 max+5 | E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:42:36.655Z"
+ },
  "troop:6931": {
   "lines": {
    "L10": "dmg E12 312 ; defeat E12 ; flee C  => E12:hp-300 arm-12 DEAD | C:FLED",
@@ -28,6 +88,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
+ },
+ "troop:7351": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:38:48.572Z"
  },
  "weapon:1311": {
   "lines": {
