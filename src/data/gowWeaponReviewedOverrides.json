@@ -1085,7 +1085,7 @@
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyRandomPrefNotPrev",
             "scaling": {
               "base": 2,
               "mult": 1

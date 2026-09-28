@@ -14,3 +14,8 @@
 - troop:6282 accepted: souls 50% dmg, +10 souls
 - troop:7647 accepted: souls 1:1 dmg, +5 souls; tower/ascension waived R000 (c2, step 1)
 - troop:7658 accepted: souls 34% Attack+Armor, below-self Magic 2 + 2@50% + 1@25%
+- troop:7373 accepted: 2 random PrefNotPrev hits + jumble
+- troop:6634 accepted: dmg, -10 Armor all enemies; tower/ascension waived R000 (c2, step 0)
+- troop:6563 accepted: x3 Monster, -5 Attack
+- troop:6096 accepted: x3 Giant, -5 Magic
+- weapon:1133 fixed: second hit enemyRandom -> enemyRandomPrefNotPrev (curated + reviewed override); accepted (test)

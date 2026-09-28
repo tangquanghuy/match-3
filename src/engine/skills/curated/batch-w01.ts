@@ -946,7 +946,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7299,
     desc: '对 1 名敌人和另 1 名随机敌人造成 [魔法 + 2] 点伤害。从敌人身上窃取 1 点魔力值。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},{"kind":"damage","target":"enemyRandom","scaling":{"base":2,"mult":1}},{"kind":"reduce","target":"enemyChosen","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},{"kind":"damage","target":"enemyRandomPrefNotPrev","scaling":{"base":2,"mult":1}},{"kind":"reduce","target":"enemyChosen","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
   },
   {
     id: 7304,

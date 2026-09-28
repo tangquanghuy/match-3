@@ -33,6 +33,14 @@ describe('L6 sa-G', () => {
     const small = castSpell({ key: 'troop:6914', enemies: enemiesWith(1, { magic: 5 }) });
     expect(small.summary.units.C).toBe('hp+5 max+5 arm+5');
   });
+  it('weapon:1133 second hit is RandomPrefNotPrev (never the chosen enemy while others live), steal from the chosen', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const o = castSpell({ key: 'weapon:1133', seed }).summary.order;
+      expect(o[0]).toBe('dmg E11 12');
+      expect(o[1]).not.toBe('dmg E11 12');
+      expect(o.slice(2)).toEqual(['buff E11 magic-1', 'buff C magic+1']);
+    }
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 542 条改动，涉及 992 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 543 条改动，涉及 993 个技能 ID。
 
 ## 按时间
 
@@ -548,6 +548,7 @@
 | 2026-09-28T21:14 | sa-G | G-7181-zh | data | 8751 | troop:7181 Tauraeus | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH typo 二增强 → ZH 而增强 (troops override 7181) |  |
 | 2026-09-28T21:18 | sa-G | G-6914-zh-order | assembler | 8375 | troop:6914 IllithianColossus | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH said Life and Attack; Life before Armor → ZH Life and Armor (override 6914); native order Armor then Life |  |
 | 2026-09-28T21:18 | sa-G | G-7201-count-before-hit | assembler | 8788 | troop:7201 Leio | `src/engine/skills/curated/batch-15.ts` | Armor counted all Enemy Magic after the hit (a kill shrank it: 30 instead of 36) → Armor segment first so both read the native step-0 count (pre-hit) |  |
+| 2026-09-28T21:21 | sa-G | G-1133-prefnotprev | assembler | 7299 | weapon:1133 SlayBells | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | second hit plain enemyRandom → enemyRandomPrefNotPrev (native Damage@RandomPrefNotPrevEnemy, R007-3) |  |
 
 ## 按技能 ID
 
@@ -646,6 +647,7 @@
 | 7295 | 1 | F3-q35 |
 | 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
+| 7299 | 1 | G-1133-prefnotprev |
 | 7307 | 1 | F3-q27 |
 | 7308 | 1 | L4a-r3-1138 |
 | 7310 | 2 | P-random-stat-pool、F1-steal-before-damage |
