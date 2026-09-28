@@ -4,3 +4,5 @@
 - 2026-09-28T18:24:17 B03 troop:6167,7632,weapon:1585,troop:7790,7824,6104,7192,7046,weapon:1468,troop:7356 approve=10 fixed=2 issue=0 (6104 Blue not Yellow + zh; 1585 Entangle Gems not status; 6167 convert-first order equivalent)
 - 2026-09-28T18:29:22 B04 troop:6354,7490,6480,6762,7789,7751,6274,7903,7000,7641 approve=9 fixed=1(7000 zh, still issue) issue=1 (7000 L4b-7000-countset-order source-dispute; gold/souls/maps counters tested)
 - 2026-09-28T18:33:07 B05 troop:7257,6299,7729,7768,7814,7742,6568,6579,7408,6703 approve=10 fixed=2 issue=0 (7257 CountMax counter + zh; 7768 boost moved damage->mix + zh; status counter table tests)
+- 2026-09-28T18:38:50 B06 troop:6865,6266,6263,6262,6261,6338,7679,7832,6364,6692 approve=9 fixed=2 issue=1 (6261 Life boost; 7832 global entangle count + zh; 6692 P-B-action-status-self-count)
+- 2026-09-28T18:40:08 B07 troop:6933,7263,weapon:1231,troop:6661-6666,7325 approve=8 fixed=0 issue=2 (6933/7325 P-B-action-status-self-count)

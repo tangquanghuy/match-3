@@ -235,3 +235,72 @@ describe('L4b R3 B05: status counters', () => {
     expect(castSpell({ key, enemies: withStatus(st, 2) }).summary.gems.created[gem]).toBe(base + 2 * per);
   });
 });
+
+describe('L4b R3 B06', () => {
+  const st = (id: string, n: number) =>
+    [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0, ...(i < n ? { statuses: [{ id, turns: 99 }] } : {}) })) as never;
+  it('troop:6865: 2 Frozen enemies -> 6 + 4 = 10 Blue, then first/last take 13 + 2 x 21 Blue = 55', () => {
+    const r = castSpell({ key: 'troop:6865', enemies: st('frozen', 2) }).summary;
+    expect(r.gems.created.Blue).toBe(10);
+    expect(dmgs(r.order)).toEqual(['dmg E10 55', 'dmg E13 55']);
+  });
+  // Virtue family: CountSpecificStatusEffect 400 <status> ; CreateGems2Colors 15 <C>>chosen ; buff all other allies (counter)
+  const virtues: [string, string, string, string[]][] = [
+    ['troop:6266', 'stun', 'Brown', ['buff A1 armor+21', 'buff A2 armor+21']],
+    ['troop:6263', 'burning', 'Red', ['buff A1 attack+17', 'buff A2 attack+17']],
+    ['troop:6262', 'entangle', 'Green', ['buff A1 hp+19 max+19', 'buff A2 hp+19 max+19']],
+    ['troop:6261', 'frozen', 'Blue', ['buff A1 hp+14 max+14', 'buff A2 hp+14 max+14', 'buff A1 attack+14', 'buff A2 attack+14']],
+  ];
+  for (const [key, status, color, buffs] of virtues) it(`${key}: 2 ${status} enemies -> other allies +8; 15 ${color}/chosen gems`, () => {
+    const r = castSpell({ key, enemies: st(status, 2), color: BaseColor.Purple }).summary;
+    expect(r.order.filter(x => x.startsWith('buff'))).toEqual(buffs);
+    const conv = r.order.find(x => x.startsWith('convert'))!;
+    expect(conv).toMatch(new RegExp(`-> .*(${color}|Purple)`));
+    const total = conv.split('->')[1].match(/x(\d+)/g)!.map(x => Number(x.slice(1))).reduce((a, b) => a + b, 0);
+    expect(total).toBe(15);
+  });
+  it('troop:6338: 2 Frozen enemies -> 16 + 8 = 24; kill -> 10 Blue', () => {
+    expect(dmgs(castSpell({ key: 'troop:6338', enemies: st('frozen', 2) }).summary.order)[0]).toBe('dmg E11 24');
+    expect(castSpell({ key: 'troop:6338', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0 })) }).summary.gems.created.Blue).toBe(10);
+  });
+  // Faerie Fire itself makes its holder take x1.5 damage (engine status rule), so E10/E11 show 42.
+  it('troop:7679: 2 Faerie Fired enemies -> 16 + 12 = 28 to all (x1.5 on the Faerie Fired); 3 Skulls -> x2 Wildcards', () => {
+    const f = setupCast({ key: 'troop:7679', enemies: st('faerie-fire', 2) });
+    const o = summarize(f, f.cast()).order;
+    expect(dmgs(o)).toEqual(['dmg E10 42 (all)', 'dmg E11 42 (all)', 'dmg E12 28 (all)', 'dmg E13 28 (all)']);
+    const wild: number[] = [];
+    f.board.forEach(g => { const s = g?.type as { kind: string; spec?: { kind: string; tier?: number } } | undefined; if (s?.kind === 'special' && s.spec?.kind === 'wildcard') wild.push(s.spec.tier ?? 2); }); // MatchResolver: untiered wildcard = x2
+    expect(wild.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(wild)).toEqual(new Set([2]));
+  });
+  it('troop:7832: +2 per Entangled enemy applies to every enemy (2 Entangled -> 12 + 4 = 16 each)', () => {
+    expect(dmgs(castSpell({ key: 'troop:7832', enemies: st('entangle', 2) }).summary.order)).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 16 (all)`));
+  });
+  it('troop:6364: 2 Burning enemies -> 9 + 2 = 11 Purple', () => {
+    expect(castSpell({ key: 'troop:6364', enemies: st('burning', 2) }).summary.gems.created.Purple).toBe(11);
+  });
+  // troop:6692 issued (P-B-action-status-self-count): a Submerged caster is not counted. Ally part only:
+  it('troop:6692: A1 Submerged -> 6 + 3 = 9 Blue', () => {
+    expect(castSpell({ key: 'troop:6692', allies: [{ statuses: [{ id: 'submerged', turns: 99 }] as never }] }).summary.gems.created.Blue).toBe(9);
+  });
+});
+
+describe('L4b R3 B07', () => {
+  const st = (id: string, n: number) =>
+    [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0, ...(i < n ? { statuses: [{ id, turns: 99 }] } : {}) })) as never;
+  it('troop:7263: 2 Cursed enemies -> 9 + 2 = 11 Cursed Gems', () => {
+    expect(castSpell({ key: 'troop:7263', enemies: st('curse', 2) }).summary.gems.created.curseGem).toBe(11);
+  });
+  it('weapon:1231: 2 Webbed enemies -> 5 + 6 = 11 Purple', () => {
+    expect(castSpell({ key: 'weapon:1231', enemies: st('web', 2) }).summary.gems.created.Purple).toBe(11);
+  });
+  // Doom family: count Death Marked (x6) BEFORE Death Marking everyone, then create 8 of the colour.
+  for (const [key, color] of [['troop:6661', 'Blue'], ['troop:6662', 'Green'], ['troop:6663', 'Red'], ['troop:6664', 'Yellow'], ['troop:6665', 'Purple'], ['troop:6666', 'Brown']] as const) {
+    it(`${key}: 2 Death Marked -> 14 + 12 = 26, then all Death Marked, 8 ${color}`, () => {
+      const r = castSpell({ key, enemies: st('death-mark', 2) }).summary;
+      expect(dmgs(r.order)).toEqual(['dmg E11 26']);
+      expect(r.gems.created[color]).toBe(8);
+      expect(castSpell({ key }).summary.order[0]).toBe('dmg E11 14');
+    });
+  }
+});

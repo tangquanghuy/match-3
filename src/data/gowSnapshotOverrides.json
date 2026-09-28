@@ -227,6 +227,11 @@
       "spellId": 9874,
       "reason": "sa-F2 fix round A: English/native IncreaseHealth Amount 1 SpellPowerMultiplier 1 = [Magic + 1] Life; old Chinese said 1.",
       "spellDescription": "随机给 2 名盟友赋予 [魔法 + 1] 点生命值。然后将 5 个绿色宝石转化为沉没宝石。"
+    },
+    "7832": {
+      "spellId": 9939,
+      "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
+      "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
     }
   }
 }

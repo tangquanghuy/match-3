@@ -235,3 +235,23 @@
 {"format":"compact","key":"troop:6579","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7408","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6703","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:33:07.245Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6692","decision":"issue","reviewer":"sa-B","reviewedAt":"2026-09-28T10:37:16.371Z","issue":"P-B-action-status-self-count","note":"primitive: caster Submerged removed before the spell counts Submerged allies (native CountSpecificStatusEffect@AllAllies includes self); damage + Blue create otherwise match EN/native"}
+{"format":"compact","key":"troop:6865","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.874Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6266","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.875Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6263","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.875Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6262","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.875Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6261","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.875Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6338","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.876Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7679","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.876Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7832","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.876Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6364","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:38:50.876Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6933","decision":"issue","reviewer":"sa-B","reviewedAt":"2026-09-28T10:39:30.841Z","issue":"P-B-action-status-self-count","note":"primitive: caster Blessed (6933) / Enchanted (7325) removed at cast start, so native CountSpecificStatusEffect@AllAllies misses the caster; rest (damage/heal + Yellow create boosted by other allies) matches EN/native"}
+{"format":"compact","key":"troop:7325","decision":"issue","reviewer":"sa-B","reviewedAt":"2026-09-28T10:39:30.843Z","issue":"P-B-action-status-self-count","note":"primitive: caster Blessed (6933) / Enchanted (7325) removed at cast start, so native CountSpecificStatusEffect@AllAllies misses the caster; rest (damage/heal + Yellow create boosted by other allies) matches EN/native"}
+{"format":"compact","key":"troop:7263","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.499Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1231","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.500Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6661","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.501Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6662","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.501Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6663","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.501Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6664","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.501Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6665","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.502Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6666","decision":"accept","reviewer":"sa-B","reviewedAt":"2026-09-28T10:40:08.502Z","tests":["tests/unit/gowCastGolden.test.ts"]}
