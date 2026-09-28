@@ -59,7 +59,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyFront', 1),
       inflict('frozen', 'enemyFront'),
-      createGems(BaseColor.Blue, 8, 0, { ifCond: { kind: 'casterStatBeatsTarget', stat: 'magic' } }),
+      // Native CreateGems@FrontEnemy [AddForMoreMagicOnTarget]: the front enemy's Magic above mine (was inverted: mine above).
+      createGems(BaseColor.Blue, 8, 0, { ifCond: { kind: 'targetStatBeatsCaster', stat: 'magic' } }),
     ),
   },
   {

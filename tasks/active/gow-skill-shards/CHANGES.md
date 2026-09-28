@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 517 条改动，涉及 894 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 520 条改动，涉及 900 个技能 ID。
 
 ## 按时间
 
@@ -523,6 +523,9 @@
 | 2026-09-28T13:00 | sa-B | B5-L4b-1091-armor-target | data | 7204 | weapon:1091 PrismaticOrb | `src/engine/skills/curated/batch-w01.ts` | Magic Armor to all allies → Magic Armor to the chosen ally only (IncreaseArmor@FromTarget) |  |
 | 2026-09-28T13:06 | sa-B | B5-L4b-doomed-random-armor | data | 8442, 8443, 8444, 8445, 8446, 8447 | weapon:1379 DoomedWand；weapon:1380 DoomedRod；weapon:1381 DoomedStaff；weapon:1382 DoomedFocus；weapon:1383 DoomedMagi；weapon:1384 DoomedBaton | `src/engine/skills/curated/batch-w03.ts` | Doom present: all Armor removed from every enemy → Doom present: all Armor removed from one random enemy (native DecreaseArmor@RandomEnemy) |  |
 | 2026-09-28T13:06 | sa-B | B5-L4b-6359-target | data | 7511 | troop:6359 OrcVeteran | `src/engine/skills/curated/batch-r6.ts`<br>`src/data/gowSnapshotOverrides.json` | range damage split over the first 2 enemies; create after damage; zh stray {2} and 'my Attack higher' → one hit on the chosen enemy; create 8 Red first if the target's Attack is lower (native order); zh fixed |  |
+| 2026-09-28T13:10 | sa-B | B5-L4b-6321-more-magic | data | 7471 | troop:6321 SilverDrakon | `src/engine/skills/curated/batch-r6.ts` | 8 Blue when my Magic is above the target's (inverted) → 8 Blue when the front enemy's Magic is above mine (AddForMoreMagicOnTarget) |  |
+| 2026-09-28T13:10 | sa-B | B5-L4b-1489-blue-giants | data | 8874 | weapon:1489 DiamondRingOfFire&Ice | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | only 3 Red Giant Gems → 3 Blue Giant Gems then 3 Red Giant Gems (native); reviewed override prototype synced |  |
+| 2026-09-28T13:12 | sa-B | B5-L4b-R009-giants | data | 8834, 8836, 8837, 8839 | troop:7238 TheRubyGiant；troop:7240 TheAmethystGiant；troop:7241 TheTopazGiant；troop:7243 TheUmbralGiant | `src/engine/skills/curated/batch-r9.ts` | ConvertGems 5 X > Giant<C> produced plain <C> gems → produces <C> Giant Gems (giantGem, R009) |  |
 
 ## 按技能 ID
 
@@ -687,6 +690,7 @@
 | 7460 | 1 | P-F1-oneof-chosen-target |
 | 7463 | 1 | L2-board-chosen |
 | 7470 | 1 | P-counter-per-step |
+| 7471 | 1 | B5-L4b-6321-more-magic |
 | 7473 | 1 | F1-items-62-75 |
 | 7477 | 1 | L4a-R1-7477-armor-boost |
 | 7478 | 2 | F1-remove-order、P-F1-remove-gems |
@@ -1131,6 +1135,10 @@
 | 8824 | 1 | R7-not-board-misread |
 | 8830 | 1 | R009-giant-dragon-L4b |
 | 8832 | 1 | R009-giant-dragon-L4b |
+| 8834 | 1 | B5-L4b-R009-giants |
+| 8836 | 1 | B5-L4b-R009-giants |
+| 8837 | 1 | B5-L4b-R009-giants |
+| 8839 | 1 | B5-L4b-R009-giants |
 | 8841 | 1 | L4a-R1-8841-random-explode |
 | 8842 | 1 | L1-1486-order |
 | 8844 | 1 | R009-giant |
@@ -1147,6 +1155,7 @@
 | 8871 | 1 | B-L4b-7257-countmax |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
+| 8874 | 1 | B5-L4b-1489-blue-giants |
 | 8875 | 1 | P-A-target-kingdom |
 | 8881 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 8884 | 1 | L2-7265-dragon |

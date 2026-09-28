@@ -183,3 +183,52 @@ describe('L4b R5 B02', () => {
     }
   });
 });
+
+describe('L4b R5 B03', () => {
+  it('troop:6321: 8 Blue only when the front enemy has MORE Magic than me (AddForMoreMagicOnTarget)', () => {
+    const withMagic = (m: number) => DEFAULT_ENEMIES.map(e => ({ ...e, magic: m }));
+    const made = (m: number) => castSpell({ key: 'troop:6321', enemies: withMagic(m) }).summary.order.some(x => x.endsWith('-> Blue x8'));
+    expect(made(11)).toBe(true);
+    expect(made(10)).toBe(false); // tie
+    expect(made(3)).toBe(false);
+  });
+  it('weapon:1489: 3 Blue Giant Gems then 3 Red Giant Gems', () => {
+    const o = castSpell({ key: 'weapon:1489' }).summary.order.filter(x => x.startsWith('convert'));
+    expect(o.map(x => x.split('-> ')[1])).toEqual(['giantGem/Blue x3', 'giantGem/Red x3']);
+  });
+  for (const [key, lo, hi] of [['troop:7360', 8, 12], ['troop:7558', 8, 11]] as const) it(`${key}: CreateGemsRange ${lo}-${hi} Yellow, both ends occur`, () => {
+    const seen = new Set<number>();
+    for (let seed = 1; seed <= 60; seed++) seen.add(castSpell({ key, seed }).summary.gems.created.Yellow ?? 0);
+    expect(Math.min(...seen)).toBe(lo); expect(Math.max(...seen)).toBe(hi);
+  });
+  it('troop:7360: Armor to the chosen ally only', () => {
+    expect(castSpell({ key: 'troop:7360', target: 2 }).summary.order.filter(x => x.includes('armor'))).toEqual(['buff A2 armor+11']);
+  });
+  for (const [key, n, a, b] of [['troop:6888', 18, 'Blue', 'Green'], ['troop:6357', 15, 'Green', 'Yellow'], ['troop:7261', 24, 'Purple', 'skull'], ['troop:7642', 10, 'Brown', 'decayGem']] as const) {
+    it(`${key}: mix of ${n} ${a}/${b} (RL4b-01), both occur`, () => {
+      const c = castSpell({ key }).summary.gems.created;
+      expect((c[a] ?? 0) + (c[b] ?? 0)).toBe(n);
+      expect(c[a]).toBeGreaterThan(0); expect(c[b]).toBeGreaterThan(0);
+    });
+  }
+});
+
+describe('L4b R5 B04', () => {
+  // R009 giants: [key, from, giant colour]
+  const giants: [string, string, string][] = [
+    ['troop:7238', 'Blue', 'Red'], ['troop:7240', 'Yellow', 'Purple'], ['troop:7241', 'Purple', 'Yellow'], ['troop:7243', 'Green', 'Brown'],
+  ];
+  for (const [key, from, giant] of giants) it(`${key}: 14 damage, then 5 ${from} -> ${giant} Giant Gems (R009)`, () => {
+    const o = castSpell({ key }).summary.order;
+    expect(o).toEqual(['dmg E11 14', `convert ${from} x5 -> giantGem/${giant} x5`]);
+  });
+  it('troop:6880: CreateGemsRange 8-12 Purple, both ends occur; Hunter\'s Mark the first enemy', () => {
+    const seen = new Set<number>();
+    for (let seed = 1; seed <= 60; seed++) seen.add(castSpell({ key: 'troop:6880', seed }).summary.gems.created.Purple ?? 0);
+    expect(Math.min(...seen)).toBe(8); expect(Math.max(...seen)).toBe(12);
+    expect(castSpell({ key: 'troop:6880' }).summary.order.slice(0, 2)).toEqual(['dmg E10 12', 'status E10 +marked']);
+  });
+  it('troop:6560: weakest enemy (Life + Armor, R005) takes the hit; all Skulls -> Doomskulls', () => {
+    expect(castSpell({ key: 'troop:6560' }).summary.order).toEqual(['dmg E12 13', 'convert skull x5 -> doomSkull x5']);
+  });
+});

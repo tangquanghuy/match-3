@@ -1041,6 +1041,8 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyAll', 1, 1, { range: 'all' }),
       inflict('frozen', 'enemyAll'),
       inflict('burning', 'enemyAll'),
+      // Native CreateGems 3 GiantBlue then 3 GiantRed (the Blue Giant Gems were missing).
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 3, 0),
       createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 3, 0),
     ),
   },
