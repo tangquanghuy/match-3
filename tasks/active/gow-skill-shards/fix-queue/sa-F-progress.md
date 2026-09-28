@@ -4,3 +4,4 @@
 - B03 troop:6278,troop:6867,troop:6896,troop:6834,troop:6886 approve=5 fixed=3 issue=0 (6278 Entangle->Web order; 6867 ZH; 6834 RandomPrefNotPrev + ZH; 6896 shared 1-3 roll verified; 6886 R000 waived boss c2/step0)
 - B04 troop:7291,troop:6804,weapon:1095,troop:6128,troop:6214 approve=5 fixed=3 issue=0 (7291 drained Magic -> Mana, R000 waived boss c2/step0; 6128 RandomPrefNotPrev; 6214 Barrier no longer saves the self-kill)
 - B05 troop:6477,troop:6543,troop:6679,troop:6531,weapon:1087 approve=5 fixed=0 issue=0 (6543/6531 R000 waived boss c2/step0; 6477 either-kill extra turn tested)
+- B06 troop:7675,troop:6680,troop:6761,troop:7017,troop:6155 approve=5 fixed=0 issue=0 (7675/6680 R000 waived tower c2/step0; independent chance rolls tested)

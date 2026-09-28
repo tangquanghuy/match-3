@@ -79,6 +79,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:51:27.445Z"
  },
+ "troop:6155": {
+  "lines": {
+   "L10": "dmg E11 19 ; buff C attack+19 ; buff C hp+19 max+19  => E11:hp-9 arm-10 | C:hp+19 max+19 atk+19",
+   "R10": "dmg E11 19 ; buff C attack+19 ; buff C hp+19 max+19  => E11:hp-9 arm-10 | C:hp+19 max+19 atk+19",
+   "L0": "dmg E11 9 ; buff C attack+9 ; buff C hp+9 max+9  => E11:arm-9 | C:hp+9 max+9 atk+9",
+   "K": "dmg E11 19 ; defeat E11 ; buff C attack+19 ; buff C hp+19 max+19  => E11:hp-1 DEAD | C:hp+19 max+19 atk+19"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:22:07.897Z"
+ },
  "troop:6190": {
   "lines": {
    "L10": "convert Green x3, Purple x5, skull x1, Red x1, Yellow x2, Brown x1 -> Blue x13 ; buff A1 magic+3 ; buff A2 magic+3  => A1:mag+3 | A2:mag+3",
@@ -389,6 +399,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:20:33.480Z"
  },
+ "troop:6680": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:22:07.897Z"
+ },
  "troop:6691": {
   "lines": {
    "L10": "dmg E11 22  => E11:hp-12 arm-10",
@@ -428,6 +448,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T09:07:29.218Z"
+ },
+ "troop:6761": {
+  "lines": {
+   "L10": "dmg E12 15 (all) ; dmg E13 15 (all)  => E12:hp-3 arm-12 | E13:hp-12 arm-3",
+   "R10": "dmg E12 15 (all) ; dmg E13 15 (all)  => E12:hp-3 arm-12 | E13:hp-12 arm-3",
+   "L0": "dmg E12 5 (all) ; dmg E13 5 (all)  => E12:arm-5 | E13:hp-2 arm-3",
+   "K": "dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E12 ; defeat E13 ; gold+20 ; extra-turn skill  => E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:22:07.897Z"
  },
  "troop:6792": {
   "lines": {
@@ -628,6 +658,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T09:07:29.218Z"
+ },
+ "troop:7017": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; extra-turn skill ; remove C -poison ; status C +blessed  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3 | C:+blessed -poison  extra:skill",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; extra-turn skill ; remove C -poison ; status C +blessed  => E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3 | C:+blessed -poison  extra:skill",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all) ; extra-turn skill ; remove C -poison ; status C +blessed  => E10:arm-1 | E11:arm-1 | E12:arm-1 | E13:arm-1 | C:+blessed -poison  extra:skill",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; extra-turn skill ; remove C -poison ; status C +blessed  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+blessed -poison  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:22:07.897Z"
  },
  "troop:7035": {
   "lines": {
@@ -1428,6 +1468,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:25:46.411Z"
+ },
+ "troop:7675": {
+  "lines": {
+   "L10": "dmg E11 12 ; extra-turn skill ; explode 16 ; skulls E10 1 ; ~cascade~ ; explode 9  => E11:hp-2 arm-10 | A2:mana+2 | A1:mana+1 | E10:arm-1  extra:skill  cascade",
+   "R10": "dmg E11 12 ; extra-turn skill ; explode 16 ; skulls E10 1 ; ~cascade~ ; explode 9  => E11:hp-2 arm-10 | A2:mana+2 | A1:mana+1 | E10:arm-1  extra:skill  cascade",
+   "L0": "dmg E11 2 ; extra-turn skill ; explode 16 ; skulls E10 1 ; ~cascade~ ; explode 9  => E11:arm-2 | A2:mana+2 | A1:mana+1 | E10:arm-1  extra:skill  cascade",
+   "K": "dmg E11 12 ; defeat E11 ; extra-turn skill ; explode 16 ; skulls E10 1 ; defeat E10 ; ~cascade~ ; explode 9  => E11:hp-1 DEAD | A2:mana+2 | A1:mana+1 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:22:07.897Z"
  },
  "troop:7691": {
   "lines": {

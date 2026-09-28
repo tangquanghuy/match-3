@@ -161,3 +161,29 @@ describe('sa-F B05: kill-conditional extra turn', () => {
     expect(none.summary.extraTurn).toBeNull();
   });
 });
+
+describe('sa-F B06: independent chance rolls', () => {
+  const seeds = Array.from({ length: 40 }, (_, i) => i + 1);
+  it('troop:6680 Sharptooth (8026): 30% extra turn and 30% 12 Mana are independent', () => {
+    const runs = seeds.map(seed => castSpell({ key: 'troop:6680', seed }));
+    const mana = (x: ReturnType<typeof castSpell>) => order(x).includes('buff C mana+12');
+    const extra = (x: ReturnType<typeof castSpell>) => x.summary.extraTurn === 'skill';
+    expect(runs.some(x => extra(x) && !mana(x))).toBe(true);
+    expect(runs.some(x => !extra(x) && mana(x))).toBe(true);
+    expect(runs.some(x => !extra(x) && !mana(x))).toBe(true);
+  });
+  it('troop:7017 Huanglong (8548): five independent 50% rolls (Attack, extra turn, Barrier, Enchanted, Blessed)', () => {
+    const runs = seeds.map(seed => castSpell({ key: 'troop:7017', seed }));
+    const sig = (x: ReturnType<typeof castSpell>) => [order(x).includes('buff C attack+11'), x.summary.extraTurn === 'skill',
+      ...['barrier', 'enchanted', 'blessed'].map(s => order(x).includes(`status C +${s}`))].map(Number).join('');
+    expect(new Set(runs.map(sig)).size).toBeGreaterThan(8);
+  });
+  it('troop:6761 CatBurglar (8143): 20 Gold + extra turn when either of the last 2 dies', () => {
+    const r = castSpell({ key: 'troop:6761', enemies: [en(), en({ hp: 1, maxHp: 1 }), en({ hp: 500, maxHp: 500 })] });
+    expect(r.summary.economy.gold).toBe(20);
+    expect(r.summary.extraTurn).toBe('skill');
+    const none = castSpell({ key: 'troop:6761', enemies: [en(), en(), en()] });
+    expect(none.summary.extraTurn).toBeNull();
+    expect(none.summary.economy.gold).toBeUndefined();
+  });
+});
