@@ -15,6 +15,26 @@ import type { CuratedBatch } from './index';
 import { rawKingdomPool } from './gowKingdomPools';
 
 const SKIPPED: { id: number; reason: string }[] = [];
+/**
+ * sa-C L5 (9825-9830 Doomed blades), native per hit: DecreaseArmor [AddIfEnemyHasDoom 1000] ->
+ * Damage 3 +M [AddForTempering 2] -> Bleed [AddFor<Color>Target]; first on FromTarget, then on
+ * RandomPrefNotPrevEnemy / FromPrevious. The random hit's armor break must precede its damage, so
+ * with a Doom the random enemy is picked by the armor step (damage on lastTarget), otherwise by the damage.
+ */
+const TEMPERING_2 = { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } as const;
+const ENEMY_DOOM = { kind: 'targetHasDoom' } as const;
+function doomedBlade(color: BaseColor): SkillPrototype {
+  const bleed = { ifCond: { kind: 'targetColor', color } } as const;
+  return skill(
+    reduce('enemyChosen', 'armor', 0, 0, { drainAll: true, ifCond: ENEMY_DOOM }),
+    dmg('enemyChosen', 3, 1, { modifier: TEMPERING_2 }),
+    inflict('bleed', 'enemyChosen', bleed),
+    reduce('enemyRandomPrefNotPrev', 'armor', 0, 0, { drainAll: true, ifCond: ENEMY_DOOM }),
+    dmg('lastTarget', 3, 1, { modifier: TEMPERING_2, ifCond: ENEMY_DOOM }),
+    dmg('enemyRandomPrefNotPrev', 3, 1, { modifier: TEMPERING_2, ifCond: { kind: 'not', cond: ENEMY_DOOM } }),
+    inflict('bleed', 'lastTarget', bleed),
+  );
+}
 
 const SPELLS: CuratedBatch['spells'] = [
   {
@@ -1018,62 +1038,32 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9825,
     desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用蓝色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
-    build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
-    ),
+    build: doomedBlade(BaseColor.Blue),
   },
   {
     id: 9826,
     desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用绿色法力值，则使其流血。如果敌人拥有末日效果，则优先破坏其护甲。',
-    build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
-    ),
+    build: doomedBlade(BaseColor.Green),
   },
   {
     id: 9827,
     desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用了红色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
-    build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
-    ),
+    build: doomedBlade(BaseColor.Red),
   },
   {
     id: 9828,
     desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用黄色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
-    build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
-    ),
+    build: doomedBlade(BaseColor.Yellow),
   },
   {
     id: 9829,
     desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用紫色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
-    build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
-    ),
+    build: doomedBlade(BaseColor.Purple),
   },
   {
     id: 9830,
     desc: '对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用棕色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。',
-    build: skill(
-      dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
-      reduce('lastTarget', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
-    ),
+    build: doomedBlade(BaseColor.Brown),
   },
   {
     id: 9831,

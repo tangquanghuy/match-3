@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 535 条改动，涉及 983 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 537 条改动，涉及 990 个技能 ID。
 
 ## 按时间
 
@@ -531,6 +531,8 @@
 | 2026-09-28T13:43 | sa-P | P-E-faction-kingdom | primitive | 7241, 7662, 7692, 7707, 7722, 7976, 7391 | weapon:1105 BoneShield；weapon:1186 RadiantJewel；weapon:1188 GlacialCrystal；weapon:1191 TheEdgedBlade；weapon:1193 HookSword；weapon:1234 PrimalAxe；troop:6248 GrandInquisitor | `src/engine/types.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`scripts/lib/gow-skill-audit.mjs` | numeric kingdom refs never matched units carrying only the zh kingdom name (community troops, hand fixtures, old host snapshots); 7 CountArmyKingdom users in w01/w02/r18 still used the zh name → matchesKingdom derives the parent native id from the zh name when kingdomId is absent (ZH_KINGDOM_PARENT_ID; exact for non-faction troops, never matches a faction id); 7241 7662 7692 7707 7722 7976 7391 alliesOfKingdom use the native CountArmyKingdom id | all numeric kingdom filters: name-only units match their parent kingdom again; 7 skills: only differ with a faction ally |
 | 2026-09-28T13:54 | sa-P | R013-5 | primitive | 8861, 7137, 7052, 8297, 7352, 8598, 8976, 7184 | troop:7287 TheWheelOfFortune；troop:6067 Abhorath；troop:6052 Zombie；troop:6873 Ironjaw；troop:6210 AnubiteWarrior；troop:7070 SkyScorpion；troop:7348 FallenSatyr；weapon:1071 Skullblade | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r7.ts` | 'Remove all Gems' (8861, 7137) = allColors, Skulls / Doom Skulls / specials left on the board; clear target 'skulls' took only normal Skulls (Doom / Uber Doom Skulls left) → new clear target allGems (every gem incl. Skulls, skull variants, specials) + builder destroyAllGems for 8861 / 7137 (still remove mode, R010); target 'skulls' = matchJoinKey skull (normal + doomSkull + uberDoomSkull) | 8 skills; skulls target users only differ with Doom / Uber Doom Skulls on the board; golden diff 0 lines |
 | 2026-09-28T14:02 | sa-P | P-C-firstlast-army-color | primitive | 8418 | troop:6937 SisterEbony | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r6.ts` | Barrier if any alive enemy uses Purple (anyEnemyColor; default scenario: middle E12 Purple -> Barrier) → new global condition firstLastEnemyColor (first / last alive enemy at cast start, castTracking.unitsAtCastStart; native CountArmyColor@FirstLastEnemies); 8418 Barrier uses it | only 8418 (sole native CountArmyColor@FirstLastEnemies user) |
+| 2026-09-28T14:26 | sa-C | L5-C-r6-doomed-blades | data | 9825, 9826, 9827, 9828, 9829, 9830 | weapon:1668 DoomedGladius；weapon:1669 DoomedBroadsword；weapon:1670 DoomedFlamberge；weapon:1671 DoomedClaymore；weapon:1672 DoomedEdge；weapon:1673 DoomedFalchion | `src/engine/skills/curated/batch-w04.ts` | chosen hit without Tempering/Bleed/armor break; random plain RandomEnemy; Bleed + armor break (after the damage) on the random only → native per hit: armor break if Doom -> damage +2/Tempering -> own-colour Bleed, on chosen then RandomPrefNotPrev |  |
+| 2026-09-28T14:26 | sa-C | L5-C-r6-7589 | data | 9468 | troop:7589 Ragepaw | `src/engine/skills/curated/batch-r11.ts` | gain 2 Mana → gain 2 Magic (EN / native IncreaseSpellPower@Self) |  |
 | 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9904 | weapon:1685 SinisterReaper | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | only 3 Bleed (+3 on kill); Terror and Poison creates missing; zh said extra only Bleed+Terror → native: Bleed/Terror/Poison 3 each, each +3 AddForKill; zh extra = every gem |  |
 | 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9023 | troop:7381 DragonstoneGuardian | `src/engine/skills/curated/batch-r14.ts` | 5 gargoyleGem tier unset (Good only) → CreateGems2Colors mix: tier 1 Good / tier 2 Evil (createSpecialGems2, 8795 pattern) |  |
 | 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9466 | troop:7587 DaeDrak | `src/engine/skills/curated/batch-r15.ts` | one create with uniform countRange 1-3 → native three independent CreateGems 1 DaemonicPortal; later ones may overwrite an earlier portal (English 1-3) |  |
@@ -1370,6 +1372,7 @@
 | 9388 | 1 | L4b-1608-1611-order |
 | 9465 | 1 | L4a-r3-7586 |
 | 9466 | 1 | L4b-R6-B02 |
+| 9468 | 1 | L5-C-r6-7589 |
 | 9474 | 1 | B-L4b-7595-order |
 | 9475 | 1 | B-L4b-prefnotprev |
 | 9476 | 1 | P-F2-dead-target-colour |
@@ -1470,6 +1473,12 @@
 | 9811 | 1 | R7-1667-drain-order |
 | 9812 | 1 | L1-7793-prefnotprev |
 | 9816 | 1 | L3-012 |
+| 9825 | 1 | L5-C-r6-doomed-blades |
+| 9826 | 1 | L5-C-r6-doomed-blades |
+| 9827 | 1 | L5-C-r6-doomed-blades |
+| 9828 | 1 | L5-C-r6-doomed-blades |
+| 9829 | 1 | L5-C-r6-doomed-blades |
+| 9830 | 1 | L5-C-r6-doomed-blades |
 | 9831 | 1 | L4b-1625-1674-any |
 | 9832 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9835 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |

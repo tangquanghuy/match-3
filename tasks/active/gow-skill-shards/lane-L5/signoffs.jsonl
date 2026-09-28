@@ -240,3 +240,14 @@
 {"format":"compact","key":"weapon:1687","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:04.041Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
 {"format":"compact","key":"weapon:1690","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:04.042Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
 {"format":"compact","key":"weapon:1718","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:04.042Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
+{"format":"compact","key":"troop:6517","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.774Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"}]}
+{"format":"compact","key":"troop:6301","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.775Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6208","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.775Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6235","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.776Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7023","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.776Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7589","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.776Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6460","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.776Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6821","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.776Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1668","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.776Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1669","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:26:29.777Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7589","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T14:27:07.270Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}

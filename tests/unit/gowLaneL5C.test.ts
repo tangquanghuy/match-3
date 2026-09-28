@@ -269,3 +269,58 @@ describe('L5 sa-C round 4 B08', () => {
     expect(k.summary.order.filter(x => x.startsWith('buff'))).toEqual(['buff C magic+3', 'buff A1 magic+3', 'buff A2 magic+3']);
   });
 });
+describe('L5 sa-C round 6 B09', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6517 Barrier to all allies only while the caster is damaged', () => {
+    expect(order({ key: 'troop:6517', caster: { hp: 1000, maxHp: 1000 } })).toEqual(['dmg E11 14']);
+    expect(order({ key: 'troop:6517' })).toEqual(['dmg E11 14', 'status C +barrier', 'status A1 +barrier', 'status A2 +barrier']);
+  });
+  it('troop:6301 / troop:6208 double damage on a Stunned / Webbed target, then Stun / Web', () => {
+    expect(order({ key: 'troop:6301', enemies: enemies({ 1: { statuses: st('stun') } }) })[0]).toBe('dmg E11 28');
+    expect(order({ key: 'troop:6208', enemies: enemies({ 1: { statuses: st('web') } }) })[0]).toBe('dmg E11 32');
+    expect(order({ key: 'troop:6208', enemies: enemies({ 1: { statuses: st('stun') } }) })).toEqual(['dmg E11 16', 'status E11 +web']);
+  });
+  it('troop:6235 bonus damage and Burn on every Yellow enemy (target included), nobody else', () => {
+    expect(order({ key: 'troop:6235', enemies: enemies({ 0: { colors: [BaseColor.Yellow] } }) }))
+      .toEqual(['dmg E11 11', 'dmg E10 11 (all)', 'dmg E11 11 (all)', 'status E10 +burning', 'status E11 +burning']);
+  });
+  it('troop:7589 gains 2 Magic (not Mana) and Enraged', () => {
+    expect(order({ key: 'troop:7589' })).toEqual(['dmg E11 14', 'buff C magic+2', 'status C +enraged']);
+  });
+  it('troop:6460 last enemy: 25% execute; other allies Submerged, never the caster', () => {
+    let kills = 0;
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6460', seed });
+      expect(o[0]).toBe('dmg E13 18');
+      expect(o.filter(x => x.startsWith('status'))).toEqual(['status A1 +submerged', 'status A2 +submerged']);
+      if (o.includes('defeat E13')) kills++;
+    }
+    expect(kills).toBeGreaterThan(2); expect(kills).toBeLessThan(20);
+  });
+  it('troop:6821 kills a Submerged target instead of Submerging it', () => {
+    const o = order({ key: 'troop:6821', enemies: enemies({ 1: { statuses: st('submerged') } }) });
+    expect(o).toContain('defeat E11'); expect(o.filter(x => x.startsWith('status'))).toEqual([]);
+  });
+  it('weapon:1668 / 1669 both hits get Tempering and their own colour Bleed check; random prefers another enemy', () => {
+    for (const seed of seeds.slice(0, 15)) {
+      const o = order({ key: 'weapon:1668', seed });
+      const d = dmgs(o);
+      expect(d[0]).toEqual({ who: 'E11', n: 13 }); expect(d[1].who).not.toBe('E11'); expect(d[1].n).toBe(13);
+      expect(o).toContain('status E11 +bleed'); expect(o.filter(x => x.includes('+bleed'))).toEqual(['status E11 +bleed']);
+    }
+    const g = order({ key: 'weapon:1669', target: 13, enemies: enemies({ 0: { colors: [BaseColor.Green] }, 1: { colors: [BaseColor.Green] }, 2: { colors: [BaseColor.Green] } }) });
+    expect(g.filter(x => x.startsWith('status'))).toHaveLength(2); // E13 + the random (all others Green)
+    expect(g[0]).toBe('dmg E13 13'); expect(g[1]).toBe('status E13 +bleed');
+  });
+  it('weapon:1668 with a Doom enemy: armor broken before each hit (chosen and random)', () => {
+    const doom = enemies({ 3: { troopTypes: ['Doom'] } });
+    for (const seed of seeds.slice(0, 10)) {
+      const r = castSpell({ key: 'weapon:1668', seed, enemies: doom });
+      const o = r.summary.order;
+      expect(o[0]).toBe('buff E11 armor-10'); expect(o[1]).toBe('dmg E11 13');
+      const second = dmgs(o)[1]; expect(second.who).not.toBe('E11');
+      const i = o.indexOf(`dmg ${second.who} 13`);
+      expect(o[i - 1]).toMatch(new RegExp(`^buff ${second.who} armor-`));
+    }
+  });
+});

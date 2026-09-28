@@ -32,7 +32,7 @@
  */
 import type { CuratedBatch } from './index';
 import {
-  skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, drainMana,
+  skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, reduce, drainMana,
   inflict, inflictRandom, createGems, createSkulls, transform, transformToSpecial,
   createSpecialGems, destroyColor, destroyRandomGems, destroyRandomCols, destroyChosenRow,
   destroyChosenCol, explodeRandomGems, explodeChosenRow, explodeRandomSpecialGems,
@@ -310,7 +310,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // Boss 晋升 3-5 倍 = condMult ASC3（目标 Boss 型 ∧ ascended≥3，倍率取区间下限）；「变得愤怒」= enraged（R10 落地）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: ASC3 }),
-      mana('allySelf', 2, 0),
+      magic('allySelf', 2, 0), // sa-C: EN "Gain 2 Magic" / native IncreaseSpellPower@Self (was mana)
       inflict('enraged', 'allySelf'),
     ),
   },

@@ -9,3 +9,6 @@
 - B06 troop:6724,6737,6764,7002,7180,7711,weapon:1378,troop:7352,weapon:1294,1405 approve=10 fixed=2 (1294 target's own Frozen/Burning not any enemy; 1405 last enemy's own Poison + Bleed on it) issue=0 waived=6737/6764 c2 boss, 7711 c2 tower
 - B07 troop:6750,6997,6780,7142,6674,7482,7407,7409,6395,7355 (+ re-approve weapon:1132/1405: LastEnemy re-resolved per step like troop:6674) approve=10 fixed=1 (7142 RandomPrefNotPrev waves) issue=0 waived=6780 c2 boss, 7482 c2 tower
 - B08 troop:7826,6819,6937,6602,6708,6174,6286,6145,6503,6108 approve=9 fixed=5 (6819 Dispel on kill never fired; 6602 NextDown only; 6708 only chosen doubled/Death Marked; 6108 3 Magic + zh override; 6937 damage per-target Blue) issue=1 (6937 P-C-firstlast-army-color) waived=7826/6819/6503 c2 boss
+
+# sa-C lane L5 review round 6 (branch gow/r6-L5)
+- B09 troop:6517,6301,6208,6235,7023,7589,6460,6821,weapon:1668,1669 approve=10 fixed=3 (1668/1669 Doomed blades: Doom armor break before each hit, Tempering + own-colour Bleed on both hits, RandomPrefNotPrev - family 9825-9830 via doomedBlade(); 7589 2 Magic not Mana) issue=0 waived=6517 c2 tower, 7589 c2 boss
