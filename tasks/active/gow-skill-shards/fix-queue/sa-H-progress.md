@@ -75,3 +75,8 @@
 - troop:6230 accept (L1; Baby Dragon + 6 Life)
 - troop:6532 accept (L1; Orion first, heal reaches it)
 - troop:6463 accept (L1; 2 Quasits, chosen colour -> Purple)
+- weapon:1139 accept (L1; Daemon type pool 179)
+- troop:7105 accept (L1; 3 Goblin summons (45), explode [M+1] Green, extra turn)
+- troop:6908 fixed+accept (L1; A-B-C-D 1/4, allies OR enemies status; zh + override 6908)
+- troop:6556 accept (L1; Beast pool 262, 30% run away)
+- troop:7302 accept (L1; Dragon pool 122, 30% run away)

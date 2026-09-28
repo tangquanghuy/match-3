@@ -544,3 +544,27 @@ describe('sa-H L1 B04', () => {
     expect(o[0]).toBe('summon mine troop:6069'); expect(o.filter(l => l.startsWith('buff ')).length).toBe(4);
   });
 });
+
+describe('sa-H L1 B05', () => {
+  it('troop:7105 three independent Goblin summons, explode [M+1] Green, extra turn', () => {
+    const s = castSpell({ key: 'troop:7105', allies: [] }).summary;
+    expect(s.order.filter(l => l.startsWith('summon mine')).length).toBe(3); expect(s.extraTurn).toBe('skill');
+  });
+  it('troop:6908 A-B-C-D 1/4 each: Daemon | positive on all allies | negative on all enemies | [M+2] to the first enemy', () => {
+    const t = { summon: 0, allies: 0, enemies: 0, dmg: 0 };
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:6908', seed });
+      const a = statusesOn(o, 'A1').length, e = statusesOn(o, 'E11').length;
+      expect(a > 0 && e > 0).toBe(false);
+      if (o[0]?.startsWith('summon')) t.summon++; else if (a) t.allies++; else if (e) t.enemies++; else if (o[0] === 'dmg E10 12') t.dmg++;
+    }
+    for (const [k, v] of Object.entries(t)) within(v / SEEDS, 0.25, `6908 ${k}`);
+  });
+  it('troop:6556 / troop:7302 summon then 30% Run Away', () => {
+    for (const key of ['troop:6556', 'troop:7302']) {
+      let fled = 0;
+      for (let seed = 1; seed <= SEEDS; seed++) if (castSpell({ key, seed }).summary.order.some(l => l.startsWith('flee C'))) fled++;
+      within(fled / SEEDS, 0.3, key);
+    }
+  });
+});

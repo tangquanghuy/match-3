@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 563 条改动，涉及 1011 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 564 条改动，涉及 1012 个技能 ID。
 
 ## 按时间
 
@@ -569,6 +569,7 @@
 | 2026-09-28T22:06 | sa-H | L1-H-6651-double-stun-summons | assembler | 7985 | troop:6651 TianYi | `src/engine/skills/curated/batch-r6.ts` | no x2 when my Attack greater; stun = every enemy below max Life; Monkey count uniform 1-3 → x2 via casterStatBeatsTarget attack; stun target + adjacent; Monkey 100% + 50% + 50% |  |
 | 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
+| 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
 
 ## 按技能 ID
 
@@ -1016,6 +1017,7 @@
 | 8354 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 3 | L7-R1-6904-nextdown、P-R4-nextdown-default-range、P-E-faction-kingdom |
+| 8369 | 1 | L1-H-6908-four-branches |
 | 8370 | 1 | L4a-r3-6909 |
 | 8371 | 1 | L1-E-6910-wraith |
 | 8373 | 1 | R3-B03-6912 |

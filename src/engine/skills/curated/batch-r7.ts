@@ -437,12 +437,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8369,
-    desc: '召唤一名随机恶魔，或使所有敌人和盟友陷入一个随机的状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。',
+    desc: '召唤一名随机恶魔，或使所有敌人或所有盟友获得一个随机状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。',
+    // 原生 Randomize A-B-C-D 四选一（各 1/4）：召唤恶魔 | RandomPositiveStatusEffect@AllAllies |
+    // RandomStatusEffect@AllEnemies | Damage@FrontEnemy。sa-H：原为三选一且敌我同时上状态；ZH「敌人和盟友」改「或」+ override 6908
     build: skill(
       oneOf(
         [summonRandom(DAEMON_REFS)],
-        // 随机状态按阵营分池：敌方负面 / 盟友正面（spell-rules §11 补充）
-        [inflictRandom('enemyAll'), inflictRandom('allyAll')],
+        [inflictRandom('allyAll', { pool: 'positive' })],
+        [inflictRandom('enemyAll')],
         [dmg('enemyFront', 2, 1)],
       ),
     ),

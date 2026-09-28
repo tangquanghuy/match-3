@@ -337,6 +337,11 @@
       "spellId": 7697,
       "reason": "sa-H r8: English Hyndla Frostcrown 'Freeze all affected Enemies' (native Frozen FromTarget + AdjacentFromTarget); old Chinese said freeze all enemies.",
       "spellDescription": "对一名敌人造成 [魔法 + 7] 点溅射伤害，并冻结所有受到伤害的敌人。召唤一名随机巨人。"
+    },
+    "6908": {
+      "spellId": 8369,
+      "reason": "sa-H r8: English Book of Secrets 'Cause a random status effect on all Enemies or Allies' (native A-B-C-D: allies positive OR enemies negative, separate branches); old Chinese said enemies AND allies.",
+      "spellDescription": "召唤一名随机恶魔，或使所有敌人或所有盟友获得一个随机状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。"
     }
   }
 }

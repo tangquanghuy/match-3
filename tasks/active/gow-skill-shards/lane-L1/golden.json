@@ -569,6 +569,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
  },
+ "troop:6556": {
+  "lines": {
+   "L10": "summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13",
+   "R10": "summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13",
+   "L0": "summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13",
+   "K": "summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:12:51.322Z"
+ },
  "troop:6557": {
   "lines": {
    "L10": "dmg E11 12 ; buff C hp+12 max+12  => E11:hp-12 | C:hp+12 max+12",
@@ -1009,6 +1019,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6908": {
+  "lines": {
+   "L10": "status E10 +entangle ; status E11 +marked ; status E12 +death-mark ; status E13 +bleed  => E10:+entangle | E11:+marked | E12:+death-mark | E13:+bleed",
+   "R10": "status E10 +entangle ; status E11 +marked ; status E12 +death-mark ; status E13 +bleed  => E10:+entangle | E11:+marked | E12:+death-mark | E13:+bleed",
+   "L0": "status E10 +entangle ; status E11 +marked ; status E12 +death-mark ; status E13 +bleed  => E10:+entangle | E11:+marked | E12:+death-mark | E13:+bleed",
+   "K": "status E10 +entangle ; status E11 +marked ; status E12 +death-mark ; status E13 +bleed  => E10:+entangle | E11:+marked | E12:+death-mark | E13:+bleed"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:12:51.322Z"
+ },
  "troop:6910": {
   "lines": {
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
@@ -1259,6 +1279,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:13:09.865Z"
  },
+ "troop:7105": {
+  "lines": {
+   "L10": "summon mine troop:-1 ; explode 52 ; skulls E10 4 ; ~cascade~ ; extra-turn skill  => A14:new 妖仙食教母 hp16 atk22 arm25 mag5 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:skill  cascade",
+   "R10": "summon mine troop:-1 ; explode 52 ; skulls E10 4 ; ~cascade~ ; extra-turn skill  => A14:new 妖仙食教母 hp16 atk22 arm25 mag5 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:skill  cascade",
+   "L0": "summon mine troop:-1 ; explode 9 ; extra-turn skill  => A14:new 妖仙食教母 hp16 atk22 arm25 mag5 | A1:mana+1 | A2:mana+1  extra:skill",
+   "K": "summon mine troop:-1 ; explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; extra-turn skill  => A14:new 妖仙食教母 hp16 atk22 arm25 mag5 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:12:51.322Z"
+ },
  "troop:7111": {
   "lines": {
    "L10": "buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; status E10 +faerie-fire ; status E11 +faerie-fire ; status E12 +faerie-fire ; status E13 +faerie-fire ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; summon mine troop:-1  => A14:new 梦魇马 hp15 atk14 arm5 mag0 | E10:mana-6 +faerie-fire+burning | E11:mana-7 +faerie-fire+burning | E12:mana-4 +faerie-fire+burning | E13:mana-7 +faerie-fire+burning",
@@ -1368,6 +1398,16 @@
   },
   "by": "sa-E",
   "at": "2026-09-28T11:17:08.834Z"
+ },
+ "troop:7302": {
+  "lines": {
+   "L10": "summon mine troop:-1  => A14:new 龙族长老 hp16 atk22 arm25 mag11",
+   "R10": "summon mine troop:-1  => A14:new 龙族长老 hp16 atk22 arm25 mag11",
+   "L0": "summon mine troop:-1  => A14:new 龙族长老 hp16 atk22 arm25 mag11",
+   "K": "summon mine troop:-1  => A14:new 龙族长老 hp16 atk22 arm25 mag11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:12:51.322Z"
  },
  "troop:7307": {
   "lines": {
@@ -1788,6 +1828,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
+ },
+ "weapon:1139": {
+  "lines": {
+   "L10": "summon mine troop:-1  => A14:new 奥涅伊洛斯 hp32 atk13 arm19 mag11",
+   "R10": "summon mine troop:-1  => A14:new 奥涅伊洛斯 hp32 atk13 arm19 mag11",
+   "L0": "summon mine troop:-1  => A14:new 奥涅伊洛斯 hp32 atk13 arm19 mag11",
+   "K": "summon mine troop:-1  => A14:new 奥涅伊洛斯 hp32 atk13 arm19 mag11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:12:51.322Z"
  },
  "weapon:1145": {
   "lines": {
