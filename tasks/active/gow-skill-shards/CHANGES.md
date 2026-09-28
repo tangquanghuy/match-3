@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 278 条改动，涉及 510 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 279 条改动，涉及 510 个技能 ID。
 
 ## 按时间
 
@@ -284,6 +284,7 @@
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7388-chosen-row | data | 7388 | troop:6245 ArmoredBoar | `src/engine/skills/curated/batch-r22.ts` | random row → chosen row (Board-target spell, BoardTarget Row) |  |
 | 2026-09-28T05:44 | sa-P | R011 | primitive | 9661, 9594, 8469 | troop:7700 Gormungandr；troop:7666 WaterbornTemplar；troop:6966 SpringEmissary | `src/engine/skills/effects/status.ts`<br>`tests/unit/gowFixR011.test.ts` | applyStatus: a Blessed unit rejected every status except blessed/curse (positives too: Barrier, Enchanted, Reflect, Enraged, Submerged) → Blessed blocks only negative statuses (R004 resetting-negative set + negative cleanse set, curse family excluded: curse still cancels blessed); positives apply normally | every skill/trait/gem giving a positive status to a Blessed unit; bless-then-positive spells 9661 (troop:7700), 9594 (troop:7666), 8469 (troop:6966) |
 | 2026-09-28T05:55 | sa-P | R012 | primitive | 8414, 7563, 9385, 9862, 7790, 8590, 9258, 9371, 9162, 8248 | troop:6926 Smashedmouth；weapon:1156 Thingamabob；weapon:1605 SagittariansBow；troop:7818 TwistedHag；troop:6586 Umbraxis；troop:7062 Leanansidhe；troop:7512 FirebornLynx；troop:7575 ImmortalAquaria；weapon:1550 NightShear；troop:6843 MotherOfDarkness | `src/engine/skills/targeting.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/summon.ts`<br>`tests/unit/gowFixR012.test.ts` | BelowTarget/AboveTarget/NextDown/ChosenAndBelow/ChosenAndNextDown/Adjacent anchored on the chosen unit's current formation index and returned [] once an earlier step of the same cast killed it → castTracking.formationAtCastStart (ids per team at cast start); when the anchor left the roster, above/below = units before/after its cast-start slot (NextDown = first surviving below); Adjacent = its cast-start neighbours that are still alive (no shifting further); anchor alive: unchanged. troop:6843 8248 single-segment ChosenAndNextDown kept (equivalent) | every prototype using enemyBelowTarget/enemyAboveTarget/allyBelowTarget/enemyNextDown/enemyChosenAndNextDown/enemyChosenAndBelow/enemyChosenAndAdjacent (33 entities; 9 change in K) |
+| 2026-09-28T06:00 | sa-P | R010 | test | 7052 | troop:6052 Zombie | `tests/unit/gowFixR010.test.ts` | no test for removed special gems → test: removed bomb/doomSkull/manaPotionGem do not trigger, destroyed ones do; runtime unchanged |  |
 
 ## 按技能 ID
 
@@ -308,7 +309,7 @@
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |
 | 7050 | 1 | F3-q29 |
-| 7052 | 1 | F2-R001-order |
+| 7052 | 2 | F2-R001-order、R010 |
 | 7053 | 1 | F2-R001-order |
 | 7054 | 1 | F2-R001-order |
 | 7055 | 1 | F2-R001-order |
