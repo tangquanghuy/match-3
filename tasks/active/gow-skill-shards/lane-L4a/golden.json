@@ -349,6 +349,26 @@
   "by": "sa-A",
   "at": "2026-09-28T21:19:06.927Z"
  },
+ "troop:6344": {
+  "lines": {
+   "L10": "dmg E11 13 ; storm Red set  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13 ; storm Red set  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3 ; storm Red set  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; storm Red set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:48.411Z"
+ },
+ "troop:6345": {
+  "lines": {
+   "L10": "dmg E11 13 ; storm Yellow set  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13 ; storm Yellow set  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3 ; storm Yellow set  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11 ; storm Yellow set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:48.411Z"
+ },
  "troop:6346": {
   "lines": {
    "L10": "dmg E11 13 ; storm Purple set  => E11:hp-3 arm-10",
@@ -408,6 +428,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T11:21:07.693Z"
+ },
+ "troop:6376": {
+  "lines": {
+   "L10": "dmg E11 14 ; storm Brown set  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; storm Brown set  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; storm Brown set  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; storm Brown set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:48.411Z"
  },
  "troop:6401": {
   "lines": {
@@ -1898,6 +1928,26 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T21:19:06.927Z"
+ },
+ "weapon:1162": {
+  "lines": {
+   "L10": "dmg E11 14 ; storm Red set  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; storm Red set  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; storm Red set  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; storm Red set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:48.411Z"
+ },
+ "weapon:1163": {
+  "lines": {
+   "L10": "dmg E11 14 ; storm Yellow set  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; storm Yellow set  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; storm Yellow set  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; storm Yellow set  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:19:48.411Z"
  },
  "weapon:1164": {
   "lines": {

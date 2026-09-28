@@ -29,3 +29,8 @@
 - weapon:1161 accept
 - troop:6346 accept
 - weapon:1164 accept
+- troop:6344 accept
+- weapon:1162 accept
+- troop:6376 accept (Bonestorm = dropKind skull)
+- troop:6345 accept
+- weapon:1163 accept
