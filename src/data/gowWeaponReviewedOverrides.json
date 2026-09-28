@@ -13570,6 +13570,72 @@
           }
         ]
       }
+    },
+    "9903": {
+      "description": "对 3 个随机敌人造成 [魔法 + 2] 点伤害。然后生成 3 个流血宝石。如果一个敌人死亡，则再生成 3 个流血宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "anyTrackedDied"
+            }
+          }
+        ]
+      }
     }
   }
 }

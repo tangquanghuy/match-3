@@ -1162,7 +1162,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9903,
     desc: '对 3 个随机敌人造成 [魔法 + 2] 点伤害。然后生成 3 个流血宝石。如果一个敌人死亡，则再生成 3 个流血宝石。',
     build: skill(
-      dmg('enemyRandomN', 2, 1, { n: 3 }),
+      // native Damage@RandomEnemy → 2 × Damage@RandomPrefNotPrevEnemy (R007-3: avoid only the previous hit)
+      dmg('enemyRandom', 2, 1),
+      dmg('enemyRandomPrefNotPrev', 2, 1),
+      dmg('enemyRandomPrefNotPrev', 2, 1),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     ),

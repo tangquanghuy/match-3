@@ -60,3 +60,52 @@ describe('L4b R6 B02', () => {
     expect(s.order.filter(x => x.endsWith('-> daemonicPortalGem x1'))).toHaveLength(3);
   });
 });
+
+describe('L4b R6 B03', () => {
+  const ONE = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e } : { ...e, hp: 0, defeated: true })) as never;
+  it('R007-3 chains: a lone survivor takes every RandomPrefNotPrev hit (7216 x2, 1684 x3, 7340 x3)', () => {
+    expect(dmgs(castSpell({ key: 'troop:7216', enemies: ONE }).summary.order)).toEqual(['dmg E11 13', 'dmg E11 13']);
+    expect(dmgs(castSpell({ key: 'weapon:1684', enemies: ONE }).summary.order)).toEqual(['dmg E11 12', 'dmg E11 12', 'dmg E11 12']);
+    expect(dmgs(castSpell({ key: 'troop:7340', enemies: ONE }).summary.order)).toEqual(['dmg E11 16', 'dmg E11 16', 'dmg E11 16']);
+  });
+  it('R007-3: third hit only avoids the second target, so it may return to the first', () => {
+    const TWO = DEFAULT_ENEMIES.map((e, i) => (i < 2 ? { ...e, hp: 99, maxHp: 99 } : { ...e, hp: 0, defeated: true })) as never;
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const d = dmgs(castSpell({ key: 'troop:7340', enemies: TWO, seed }).summary.order).map(x => x.split(' ')[1]);
+      expect(d).toHaveLength(3);
+      expect(d[1]).not.toBe(d[0]);
+      expect(d[2]).not.toBe(d[1]);
+    }
+  });
+  it('troop:7216: 3 Evil (tier 2) Gargoyle Gems; weapon:1684 +3 Bleed only on a kill', () => {
+    const { f } = castSpell({ key: 'troop:7216' });
+    const g = cells(f).filter(t => t?.spec?.kind === 'gargoyleGem');
+    expect(g).toHaveLength(3);
+    expect(g.every(t => t?.spec?.tier === 2)).toBe(true);
+    expect(castSpell({ key: 'weapon:1684' }).summary.order.filter(x => x.endsWith('-> bleedGem x3'))).toHaveLength(1);
+    expect(castSpell({ key: 'weapon:1684', enemies: KILL }).summary.order.filter(x => x.endsWith('-> bleedGem x3'))).toHaveLength(2);
+  });
+  it('troop:6449: triple [Magic + 3] vs Burning = 39; 10 Red only on kill', () => {
+    const burn = DEFAULT_ENEMIES.map(e => ({ ...e, statuses: [{ id: 'burning', turns: 99 }] as never }));
+    expect(dmgs(castSpell({ key: 'troop:6449', enemies: burn }).summary.order)).toEqual(['dmg E11 39']);
+    expect(castSpell({ key: 'troop:6449' }).summary.order.some(x => x.includes('-> Red x10'))).toBe(false);
+    expect(castSpell({ key: 'troop:6449', enemies: KILL }).summary.order.some(x => x.endsWith('-> Red x10'))).toBe(true);
+  });
+  it('x3 Wildcard ranges: 7506 1-3, 7340 3-6, all tier 3; 7849 4-10 Blue(row)/Yellow(col) Lightning', () => {
+    // created counts come from the cast events (cascades may consume the gems afterwards)
+    const seen = { a: new Set<number>(), b: new Set<number>(), l: new Set<number>() };
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
+      const a = castSpell({ key: 'troop:7506', seed }).summary.gems.created.wildcard;
+      expect(a).toBeGreaterThanOrEqual(1); expect(a).toBeLessThanOrEqual(3); seen.a.add(a);
+      const b = castSpell({ key: 'troop:7340', seed }).summary.gems.created.wildcard;
+      expect(b).toBeGreaterThanOrEqual(3); expect(b).toBeLessThanOrEqual(6); seen.b.add(b);
+      const c = castSpell({ key: 'troop:7849', seed }).summary.gems.created;
+      const l = (c.lightningRow ?? 0) + (c.lightningCol ?? 0);
+      expect(l).toBeGreaterThanOrEqual(4); expect(l).toBeLessThanOrEqual(10); seen.l.add(l);
+    }
+    expect(seen.a.size).toBeGreaterThan(1); expect(seen.b.size).toBeGreaterThan(1); expect(seen.l.size).toBeGreaterThan(1);
+    const w = cells(castSpell({ key: 'troop:7340' }).f).filter(t => t?.spec?.kind === 'wildcard');
+    expect(w.length).toBeGreaterThan(0);
+    expect(w.every(t => t?.spec?.tier === 3)).toBe(true);
+  });
+});

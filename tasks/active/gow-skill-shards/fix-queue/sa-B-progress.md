@@ -21,3 +21,4 @@
 - 2026-09-28T21:32:00 R5-B06 weapon:1485,1562,1683,troop:6034,6103,6382,6558,6977,6688,6922 approve=10 fixed=1 issue=0 (6034 create FromTarget colour not CASTER + zh override; 6688/6922 tower waived R000)
 - 2026-09-28T22:31:00 R6-B01 troop:7084,7106,7350,7389,7390,7477,7745,7788,weapon:1054,troop:7309 approve=9 fixed=0 issue=1 (7309 Spirit gem colour source-dispute same as 7308; 7389/7477 boss, 7390/7745/7788 tower waived R000) checkpoint f1ff67a
 - 2026-09-28T22:46:04 R6-B02 weapon:1061,1513,1514,1697,troop:6675,7419,7822,7587,weapon:1685,troop:7381 approve=10 fixed=3 issue=0 (1685 Terror+Poison creates missing + zh; 7381 Good/Evil gargoyle tiers; 7587 native 3x single portal create; 6675 boss, 7419/7822 tower waived R000)
+- 2026-09-28T22:51:32 R6-B03 troop:7466,7522,7849,7506,7216,weapon:1684,troop:7340,6449,weapon:1051,troop:6031 approve=10 fixed=3 issue=0 (7216/1684/7340 enemyRandomN -> native RandomPrefNotPrev chain R007-3; 7506 tower waived R000)

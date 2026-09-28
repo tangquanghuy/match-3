@@ -388,7 +388,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8963,
     desc: '对 3 名随机敌人造成 [魔法 + 6] 点伤害。然后创建 3-6 颗 x3 通配宝石。',
     build: skill(
-      dmg('enemyRandomN', 6, 1, { n: 3 }),
+      // native Damage@RandomEnemy → 2 × Damage@RandomPrefNotPrevEnemy (R007-3: avoid only the previous hit)
+      dmg('enemyRandom', 6, 1),
+      dmg('enemyRandomPrefNotPrev', 6, 1),
+      dmg('enemyRandomPrefNotPrev', 6, 1),
       createSpecialGems({ kind: 'wildcard', tier: 3 }, 3, 0, { countRange: { min: 3, max: 6 } }),
     ),
   },

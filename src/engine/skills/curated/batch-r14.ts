@@ -171,7 +171,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 2 名随机敌人造成 [魔法 + 3] 点伤害。再创造 3 颗恶石像鬼宝石。',
     // 恶石像鬼 = gargoyleGem tier 2
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
+      // native Damage@RandomEnemy → Damage@RandomPrefNotPrevEnemy (R007-3: lone survivor is hit twice)
+      dmg('enemyRandom', 3, 1),
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       createSpecialGems({ kind: 'gargoyleGem', tier: 2 }, 3),
     ),
   },
