@@ -74,6 +74,16 @@ describe('L6 sa-G', () => {
       expect(hits[2]).not.toBe(hits[1]);
     }
   });
+  it('troop:7807 knocks the 2nd then the 1st enemy back (native order: final [E12, E13, E11, E10])', () => {
+    const { f } = castSpell({ key: 'troop:7807' });
+    expect(f.state.teams[f.opponent].characters.map(c => c.id)).toEqual([12, 13, 11, 10]);
+  });
+  it('troop:6935 knocks the target back only when I am Enraged', () => {
+    const { f } = castSpell({ key: 'troop:6935', caster: { statuses: [{ id: 'rage', turns: 99 }] as never } });
+    expect(f.state.teams[f.opponent].characters.map(c => c.id)).toEqual([10, 12, 13, 11]);
+    const plain = castSpell({ key: 'troop:6935' }).f;
+    expect(plain.state.teams[plain.opponent].characters.map(c => c.id)).toEqual([10, 11, 12, 13]);
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both

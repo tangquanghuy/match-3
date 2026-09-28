@@ -49,3 +49,8 @@
 - weapon:1096 fixed: steal 1 -> 2 Magic (EN/native), ZH 2 (curated + override + pool-w01) (test)
 - troop:6850 accepted: 3x front dmg + front to back (native FrontEnemy after a kill = new front)
 - troop:6976 fixed: hits 2-3 RandomPrefNotPrev (test)
+- troop:7807 fixed: knock 2nd then 1st back (native SecondEnemy, FrontEnemy; was front twice -> wrong final order) (test)
+- troop:6935 accepted + ZH grammar (并 -> 则, override 6935); knock back iff Enraged (test)
+- troop:6730 accepted: jumble; boss waived R000
+- troop:6552 accepted: all Armor off, dmg; tower waived R000 (c2, step 1)
+- troop:7194 accepted + ZH typo 在 -> 再 (override 7194)

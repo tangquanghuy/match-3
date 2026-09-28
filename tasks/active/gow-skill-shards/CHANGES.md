@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 549 条改动，涉及 1000 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 551 条改动，涉及 1003 个技能 ID。
 
 ## 按时间
 
@@ -555,6 +555,8 @@
 | 2026-09-28T21:34 | sa-G | G-6881-kill-double | assembler | 8304 | troop:6881 EldritchGuardian | `src/engine/skills/curated/batch-r20.ts` | Life then Armor +12; kill doubling never applied (ifTargetDied after self segments) → native Armor then Life, +12 each more on kill via castEnemyDied |  |
 | 2026-09-28T21:41 | sa-G | G-1096-steal-2 | assembler | 7221 | weapon:1096 KrisKnife | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json` | steal 1 Magic (ZH 1 too) → steal 2 Magic (EN + native StealMagic 2); ZH 2 |  |
 | 2026-09-28T21:41 | sa-G | G-6976-prefnotprev | assembler | 8479 | troop:6976 Pan | `src/engine/skills/curated/batch-r15.ts` | three plain random hits (could repeat the previous) → hits 2-3 RandomPrefNotPrev (native, R007-3) |  |
+| 2026-09-28T21:43 | sa-G | G-7807-knock-order | assembler | 9848 | troop:7807 Giraffataur | `src/engine/skills/curated/batch-r9.ts` | front enemy knocked back twice (final ..., 1st, 2nd) → native SecondEnemy then FrontEnemy (final ..., 2nd, 1st) |  |
+| 2026-09-28T21:43 | sa-G | G-zh-typos | data | 8416, 8781 | troop:6935 ArmoredBoarlet；troop:7194 Sabellius | `src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-15.ts`<br>`src/data/gowSnapshotOverrides.json` | 6935 ZH 并将之; 7194 ZH 在对 → 6935 则将之; 7194 再对 (overrides 6935, 7194) |  |
 
 ## 按技能 ID
 
@@ -1027,6 +1029,7 @@
 | 8413 | 1 | R7-6925-two-hits |
 | 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
+| 8416 | 1 | G-zh-typos |
 | 8417 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 8418 | 2 | L5-C-r4-6937、P-C-firstlast-army-color |
 | 8420 | 1 | L4a-R1-8420-cross |
@@ -1199,6 +1202,7 @@
 | 8770 | 1 | L1-E-race-pool-immortals |
 | 8771 | 1 | L1-E-race-desc |
 | 8776 | 1 | R3-B03-1474 |
+| 8781 | 1 | G-zh-typos |
 | 8782 | 1 | L4b-7195-order |
 | 8783 | 1 | F2-R001-order |
 | 8785 | 1 | P-counter-per-step |
@@ -1510,6 +1514,7 @@
 | 9844 | 1 | F1-items-62-75 |
 | 9846 | 1 | L2-board-chosen |
 | 9847 | 1 | L3-015 |
+| 9848 | 1 | G-7807-knock-order |
 | 9849 | 1 | P-random-stat-pool |
 | 9851 | 1 | F3-q34 |
 | 9852 | 1 | P-counter-per-step |

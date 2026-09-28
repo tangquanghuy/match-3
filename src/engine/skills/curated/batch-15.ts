@@ -232,7 +232,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8781,
-    desc: '消除首位敌人全部护甲值。在对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害。',
+    desc: '消除首位敌人全部护甲值。再对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害。',
     build: skill(
       // 「消除…全部护甲值」= reduce armor + drainAll（batch-01 7175 同款）
       reduce('enemyFront', 'armor', 0, 0, { drainAll: true }),

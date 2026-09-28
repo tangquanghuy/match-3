@@ -1,6 +1,16 @@
 {
   "baseline": "Stored GoW English entity + native spell snapshots; not a live official version claim",
   "troops": {
+    "7194": {
+      "spellId": 8781,
+      "reason": "sa-G L6: English 'Then deal ... damage to all Enemies'; old Chinese typo 在 for 再.",
+      "spellDescription": "消除首位敌人全部护甲值。再对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害。"
+    },
+    "6935": {
+      "spellId": 8416,
+      "reason": "sa-G L6: grammar - English 'If I am Enraged, knock them to the back'; old Chinese joined the condition with 并 (and) instead of 则 (then).",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。若自身有狂怒效果，则将之击回末位。"
+    },
     "6734": {
       "spellId": 8104,
       "reason": "sa-G L6: English Stone-Biter 'If the Enemy dies, gain 7 to all Skills' (native IncreaseAllStats AddForKill 7); old Chinese dropped the kill condition.",
