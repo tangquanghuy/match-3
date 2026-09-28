@@ -485,7 +485,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7174,
     desc: '将 1 颗宝石转换成红色，然后再创造 7 颗红色宝石。随机燃烧一名敌人。',
     build: skill(
-      { kind: 'gem', params: { op: 'transform', from: 'ANY', to: BaseColor.Red, count: { base: 1, mult: 0 } } },
+      // Native Target NotRedGems + CreateGems 1 Red BoardTarget SingleGem = the chosen (non-Red) gem (was a random gem).
+      { kind: 'gem', params: { op: 'transform', from: 'CELL', to: BaseColor.Red, count: { base: 1, mult: 0 } } },
       createGems(BaseColor.Red, 7, 0),
       inflict('burning', 'enemyRandom'),
     ),
@@ -637,7 +638,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 8 颗指定盟友的法力颜色的宝石。盟友获得 [魔法] 点护甲值。',
     build: skill(
       createGems('CHOSEN_TARGET', 8, 0),
-      armor('allyAll', 0, 1),
+      // Native IncreaseArmor@FromTarget / English "to them" = the chosen ally only (was all allies).
+      armor('allyChosen', 0, 1),
     ),
   },
   {

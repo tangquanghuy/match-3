@@ -85,3 +85,101 @@ describe('R013-4: weapon:1404 heal boost counts Yellow gems only', () => {
     expect(summary.order.find(x => x.startsWith('buff A1 hp'))).toBe(`buff A1 hp+${11 + yellowNow} max+${11 + yellowNow}`);
   });
 });
+
+describe('L4b R5 B01', () => {
+  const at = (f: { board: { get(p: { row: number; col: number }): { type: unknown } | null } }, row: number, col: number) =>
+    f.board.get({ row, col })?.type as { kind: string; color?: string; spec?: { kind: string } } | undefined;
+  it('troop:7403: Faerie Fire Gem on the chosen cell (native Target Board + SingleGem)', () => {
+    for (const cell of [{ row: 3, col: 3 }, { row: 6, col: 1 }]) {
+      const { f } = castSpell({ key: 'troop:7403', cell });
+      expect(at(f, cell.row, cell.col)?.spec?.kind).toBe('faerieFireGem');
+    }
+  });
+  it('weapon:1067: the chosen gem turns Red, then 7 more Red, Burn a random enemy', () => {
+    const cell = { row: 5, col: 3 };
+    expect(reviewBoard(cell.row, cell.col)).not.toEqual(reviewBoard(5, 2)); // 5,2 is Red (Target NotRedGems)
+    const { events, summary } = castSpell({ key: 'weapon:1067', cell });
+    const first = events.find(e => e.type === 'gem-transform') as { changes: { pos: { row: number; col: number }; to: { color?: string } }[] };
+    expect(first.changes.map(c => [c.pos, c.to.color])).toEqual([[cell, BaseColor.Red]]);
+    expect(summary.order[0]).toMatch(/-> Red x1$/);
+    expect(summary.order[1]).toMatch(/-> Red x7$/);
+    expect(summary.order.filter(x => x.includes('+burning'))).toHaveLength(1);
+  });
+  it('weapon:1091: Armor only to the chosen ally; gems in its mana colour', () => {
+    const o = castSpell({ key: 'weapon:1091', target: 2 }).summary.order;
+    expect(o[0]).toMatch(/-> (Red|Yellow) x8$/);
+    expect(o.filter(x => x.includes('armor'))).toEqual(['buff A2 armor+10']);
+  });
+  it('weapon:1206: CountGems 50 Red after creating 10: +floor(Red/2)', () => {
+    const { f, summary } = castSpell({ key: 'weapon:1206' });
+    void f;
+    // default board: 9 Red + 10 created = 19 -> +9; 2 + 10 + 9 = 21
+    expect(dmgs(summary.order)).toEqual(['dmg E11 21']);
+  });
+  it('troop:6070: IncreaseAttack@Self Amount 0 (10%) is a no-op; true damage 14 to all', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const s = castSpell({ key: 'troop:6070', seed }).summary;
+      expect(s.order.some(x => x.startsWith('buff C attack'))).toBe(false);
+    }
+  });
+});
+
+describe('L4b R5 B02', () => {
+  // Doomed staves: [key, created colour, ally colour, base armor]
+  const doomed: [string, BaseColor, BaseColor, number][] = [
+    ['weapon:1379', BaseColor.Green, BaseColor.Blue, 12], ['weapon:1380', BaseColor.Blue, BaseColor.Green, 11],
+    ['weapon:1381', BaseColor.Yellow, BaseColor.Red, 11], ['weapon:1382', BaseColor.Red, BaseColor.Yellow, 11],
+    ['weapon:1383', BaseColor.Brown, BaseColor.Purple, 11], ['weapon:1384', BaseColor.Purple, BaseColor.Brown, 11],
+  ];
+  const doomTeam = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i === 3 ? ['Doom'] : ['Human'] }));
+  for (const [key, made, ally, arm] of doomed) {
+    it(`${key}: 4 ${made}; +${arm} Armor to ${ally} allies only; no Doom -> no armor removal`, () => {
+      const allies = [{ ...DEFAULT_ALLIES[0], colors: [ally] }, { ...DEFAULT_ALLIES[1], colors: [ally === BaseColor.Red ? BaseColor.Blue : BaseColor.Red] }];
+      const s = castSpell({ key, allies, caster: { colors: [BaseColor.Red === ally ? BaseColor.Blue : BaseColor.Red] } }).summary;
+      expect(s.order[0]).toMatch(new RegExp(`-> ${made} x4$`));
+      expect(s.order.filter(x => x.includes('armor'))).toEqual([`buff A1 armor+${arm}`]);
+    });
+    it(`${key}: enemy team has a Doom -> exactly one random enemy loses all Armor`, () => {
+      const hit = new Set<string>();
+      for (let seed = 1; seed <= 30; seed++) {
+        const red = castSpell({ key, enemies: doomTeam, seed }).summary.order.filter(x => / armor-/.test(x));
+        expect(red).toHaveLength(1);
+        hit.add(red[0].split(' ')[1]);
+      }
+      expect(hit.size).toBeGreaterThan(2);
+    });
+  }
+  it('troop:6359: one hit on the chosen enemy in [(M/2)+6, M+13] = [11, 23]; 8 Red only if its Attack is lower', () => {
+    const seen = new Set<number>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const d = dmgs(castSpell({ key: 'troop:6359', seed }).summary.order);
+      expect(d).toHaveLength(1); expect(d[0]).toMatch(/^dmg E11 /);
+      const v = Number(d[0].split(' ')[2]); expect(v).toBeGreaterThanOrEqual(11); expect(v).toBeLessThanOrEqual(23); seen.add(v);
+    }
+    expect(seen.size).toBeGreaterThan(4);
+    const weak = DEFAULT_ENEMIES.map(e => ({ ...e, attack: 5 }));
+    const strong = DEFAULT_ENEMIES.map(e => ({ ...e, attack: 50 }));
+    const o = castSpell({ key: 'troop:6359', enemies: weak, caster: { attack: 20 } }).summary.order;
+    expect(o[0]).toMatch(/-> Red x8$/); expect(o[1]).toMatch(/^dmg E11 /);
+    expect(castSpell({ key: 'troop:6359', enemies: strong, caster: { attack: 20 } }).summary.order.some(x => x.includes('Red x8'))).toBe(false);
+  });
+  it('weapon:1549: 14 Skull/Terror mix; 3 Bleed stacks on the chosen enemy', () => {
+    const { f, summary } = castSpell({ key: 'weapon:1549' });
+    const c = summary.gems.created;
+    expect((c.skull ?? 0) + (c.terrorGem ?? 0)).toBe(14);
+    // 3 x native CauseBleed = one status segment with stacks 3 (the enemy's turn start may already clear it in the fixture)
+    const seg = (f.proto as { segments: { kind: string; statusId?: string; target?: string; stacks?: number }[] }).segments.find(x => x.statusId === 'bleed');
+    expect(seg).toMatchObject({ target: 'enemyChosen', stacks: 3 });
+    expect(summary.order.filter(x => x.includes('+bleed'))).toEqual(['status E11 +bleed']);
+  });
+  it('troop:7461: Enchant Red allies only, Burn Red enemies only', () => {
+    const o = castSpell({ key: 'troop:7461' }).summary.order.filter(x => x.startsWith('status'));
+    expect(o).toEqual(['status A2 +enchanted', 'status E10 +burning']);
+  });
+  it('weapon:1179: 2 random allies Enchanted, second avoids the first (PrefNotPrev)', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const o = castSpell({ key: 'weapon:1179', seed }).summary.order.filter(x => x.includes('+enchanted')).map(x => x.split(' ')[1]);
+      expect(o).toHaveLength(2); expect(o[0]).not.toBe(o[1]);
+    }
+  });
+});

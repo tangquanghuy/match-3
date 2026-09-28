@@ -12,3 +12,5 @@
 
 # sa-B round 5 (branch gow/r5-L4b): R013 items 1-4 + lane L4b
 - 2026-09-28 R013 weapon:1203 fixed (second hit enemyRandomPrefNotPrev) approve L7; weapon:1404 accepted L4a (Yellow only, already current); troop:7465 accepted L1; troop:7319,6259,7405 accepted L3 (shared roll already current); weapon:1623,troop:7804,6928,weapon:1376 accepted L3 (floor already current: buff.ts floor(manaCost x ratio), no per-target mana roll users found). test gowLaneL4bR5
+- 2026-09-28T21:00:16 R5-B01 troop:6945,6239,6413,6070,7403,6065,6270,weapon:1067,1206,1091 approve=10 fixed=3 issue=0 (7403/1067 SingleGem chosen cell; 1091 armor chosen ally only)
+- 2026-09-28T21:06:43 R5-B02 weapon:1379-1384,troop:6359,weapon:1549,troop:7461,weapon:1179 approve=10 fixed=7 issue=0 (Doomed x6 armor removal one random enemy; 6359 chosen single hit + create first + zh)

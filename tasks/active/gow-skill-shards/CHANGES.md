@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 512 条改动，涉及 884 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 517 条改动，涉及 894 个技能 ID。
 
 ## 按时间
 
@@ -518,6 +518,11 @@
 | 2026-09-28T12:23 | sa-E | L1-E-7465-dist | assembler | 9181 | troop:7465 Theodorevich | `src/engine/skills/curated/batch-r22.ts` | 4 summons uniform 25% each → Randomize A+(B-C-D-E-F), B and F both Ragnagord: 40/20/20/20% |  |
 | 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
 | 2026-09-28T12:51 | sa-B | R013-3 | assembler | 7770 | weapon:1203 DaemonsLeash | `src/engine/skills/curated/batch-w02.ts` | second hit Damage@enemyRandom (may repeat the chosen target) → second hit enemyRandomPrefNotPrev (another random enemy; same one only if alone), per R013-3 |  |
+| 2026-09-28T12:59 | sa-B | B5-L4b-7403-singlegem | data | 9053 | troop:7403 ForestGremlin | `src/engine/skills/curated/batch-r4.ts` | Faerie Fire Gem on a random gem → chosen cell (native Target Board + SingleGem) |  |
+| 2026-09-28T13:00 | sa-B | B5-L4b-1067-singlegem | data | 7174 | weapon:1067 EternalFlame | `src/engine/skills/curated/batch-w01.ts` | random gem converted to Red → chosen non-Red gem (native Target NotRedGems + SingleGem) |  |
+| 2026-09-28T13:00 | sa-B | B5-L4b-1091-armor-target | data | 7204 | weapon:1091 PrismaticOrb | `src/engine/skills/curated/batch-w01.ts` | Magic Armor to all allies → Magic Armor to the chosen ally only (IncreaseArmor@FromTarget) |  |
+| 2026-09-28T13:06 | sa-B | B5-L4b-doomed-random-armor | data | 8442, 8443, 8444, 8445, 8446, 8447 | weapon:1379 DoomedWand；weapon:1380 DoomedRod；weapon:1381 DoomedStaff；weapon:1382 DoomedFocus；weapon:1383 DoomedMagi；weapon:1384 DoomedBaton | `src/engine/skills/curated/batch-w03.ts` | Doom present: all Armor removed from every enemy → Doom present: all Armor removed from one random enemy (native DecreaseArmor@RandomEnemy) |  |
+| 2026-09-28T13:06 | sa-B | B5-L4b-6359-target | data | 7511 | troop:6359 OrcVeteran | `src/engine/skills/curated/batch-r6.ts`<br>`src/data/gowSnapshotOverrides.json` | range damage split over the first 2 enemies; create after damage; zh stray {2} and 'my Attack higher' → one hit on the chosen enemy; create 8 Red first if the target's Attack is lower (native order); zh fixed |  |
 
 ## 按技能 ID
 
@@ -572,11 +577,13 @@
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
+| 7174 | 1 | B5-L4b-1067-singlegem |
 | 7177 | 1 | L5-C-r4-6108 |
 | 7184 | 1 | L4a-r4-1071 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
+| 7204 | 1 | B5-L4b-1091-armor-target |
 | 7207 | 1 | P-R1-count-at-native-step |
 | 7208 | 1 | P-prefnotprev-semantics |
 | 7209 | 1 | D-6117-beast-triple |
@@ -690,6 +697,7 @@
 | 7501 | 1 | L1-summon-dist |
 | 7504 | 2 | L7-6352-a、R005-test-sync |
 | 7507 | 1 | F2-6355-native-order |
+| 7511 | 1 | B5-L4b-6359-target |
 | 7513 | 1 | L4a-r3-6361 |
 | 7518 | 1 | P-prefnotprev-semantics |
 | 7520 | 1 | R3-B07-6368 |
@@ -956,6 +964,12 @@
 | 8438 | 1 | F1-6931-dispel |
 | 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
+| 8442 | 1 | B5-L4b-doomed-random-armor |
+| 8443 | 1 | B5-L4b-doomed-random-armor |
+| 8444 | 1 | B5-L4b-doomed-random-armor |
+| 8445 | 1 | B5-L4b-doomed-random-armor |
+| 8446 | 1 | B5-L4b-doomed-random-armor |
+| 8447 | 1 | B5-L4b-doomed-random-armor |
 | 8448 | 1 | P-R6-chosen-diagonal-transform |
 | 8451 | 1 | L1-E-kingdom-summon-raw |
 | 8454 | 1 | P-R1-dual-storm |
@@ -1179,6 +1193,7 @@
 | 9034 | 1 | L1-E-kingdom-summon-raw |
 | 9036 | 1 | L1-E-kingdom-summon-raw |
 | 9051 | 1 | L3-008 |
+| 9053 | 1 | B5-L4b-7403-singlegem |
 | 9064 | 1 | P-counter-per-step |
 | 9066 | 1 | L1-7417-devour |
 | 9067 | 1 | L3-008 |
