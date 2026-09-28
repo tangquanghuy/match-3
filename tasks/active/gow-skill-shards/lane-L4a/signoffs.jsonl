@@ -139,3 +139,13 @@
 {"format":"compact","key":"troop:6693","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:01:49.428Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6729","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:01:49.428Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7877","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:01:49.428Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1209","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.646Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6942","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.647Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6089","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.647Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6245","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.647Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6267","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6528","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6684","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7183","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7784","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7846","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}

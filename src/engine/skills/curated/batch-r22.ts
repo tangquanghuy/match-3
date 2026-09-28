@@ -60,7 +60,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, reduce, steal,
   drainMana, inflict, createGems, createSkulls, createSpecialGems, createGemsMixAny, transform,
-  destroyRandomRows, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
+  destroyChosenRow, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
   explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, stealGold, gainGold, scale, flat,
   oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt, dispelStatus,
@@ -300,7 +300,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 行。对第一名敌人造成 [魔法 + 2] 点伤害，伤害值因该行被摧毁的骷髅头数而增强。 [x5]',
     // 「该行被摧毁的骷髅头数」= destroyedGems skulls 细分筛（R22 新来源，此前「无骷髅筛」口径收口）。
     build: skill(
-    destroyRandomRows(1),
+    // native DestroyGems BoardTarget Row on a Board-target spell = the chosen gem's row, not a random row (sa-R1)
+    destroyChosenRow(),
     dmg('enemyFront', 2, 1, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 5) }),
     ),
   },

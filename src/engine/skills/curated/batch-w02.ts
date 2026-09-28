@@ -195,7 +195,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一列。每摧毁一颗黄宝石则创造 4 颗红色宝石。 [x4]',
     build: skill(
       destroyChosenCol(),
-      createGems(BaseColor.Red, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
+      // native CreateGems Red has no Amount: 4 per Yellow destroyed, no base (sa-R1)
+      createGems(BaseColor.Red, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),
   },
   {

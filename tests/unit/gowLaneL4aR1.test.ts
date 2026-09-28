@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { castSpell, reviewBoard, withCells } from '../helpers/gowCast';
-import { BaseColor, colorGem, specialGem } from '@engine/types';
+import { BaseColor, colorGem, skullGem, specialGem } from '@engine/types';
 
 const statusTargets = (order: string[], id: string) => order.filter(o => o.endsWith(`+${id}`)).map(o => o.split(' ')[1]);
 
@@ -245,5 +245,21 @@ describe('L4a R1: B08 destroyed-gem boosts', () => {
     expect(j.find(o => o.startsWith('convert '))).toMatch(/-> Red x7$/); // 5 + 2 x 1 Skull
     const d = castSpell({ key: 'troop:7877' }).summary.order;
     expect(d.find(o => o.startsWith('convert '))).toMatch(/-> web x4$/); // 1 + 3 Yellow
+  });
+});
+describe('L4a R1: B09 per-gem creation and chosen lines', () => {
+  it('weapon:1209 4 Red per Yellow in the column, no base; troop:6942 2 Doomskulls per Green, no base', () => {
+    expect(castSpell({ key: 'weapon:1209' }).summary.order.find(o => o.startsWith('convert '))).toMatch(/-> Red x12$/);
+    expect(castSpell({ key: 'troop:6942' }).summary.order.find(o => o.startsWith('convert '))).toMatch(/-> doomSkull x2$/);
+  });
+  it('troop:6089 row and column in one 15-cell step, x7 Yellow', () => {
+    const o = castSpell({ key: 'troop:6089' }).summary.order;
+    expect(o.filter(x => x.startsWith('destroy '))).toEqual([expect.stringMatching(/^destroy 15 /)]);
+    expect(o).toContain('dmg E12 37'); // 16 + 7 x 3
+  });
+  it('troop:6245 destroys the chosen row and counts its Skulls x5', () => {
+    const board = withCells(reviewBoard, { '5,1': skullGem(), '5,6': skullGem() });
+    const o = castSpell({ key: 'troop:6245', board, cell: { row: 5, col: 0 } }).summary.order;
+    expect(o).toContain('dmg E10 22'); // 12 + 5 x 2
   });
 });
