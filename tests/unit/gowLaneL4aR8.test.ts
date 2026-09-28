@@ -276,3 +276,28 @@ describe('L4a R8 B10', () => {
     expect((r.f.proto!.segments[1] as unknown as { params: { target: { include: string } } }).params.target.include).toBe('all');
   });
 });
+
+describe('L4a R8 B11', () => {
+  // troop:7334 (8957): DestroyColor 8 (no colour = 8 random Gems, Skulls eligible) ; CauseBarrier@FrontAlly.
+  it('troop:7334 destroys 8 random gems incl. Skulls, then Barriers the front ally', () => {
+    const r = castSpell({ key: 'troop:7334', board: skullBoard });
+    expect(r.summary.order[0]).toMatch(/^destroy 8 .*skull/);
+    expect(r.summary.order).toContain('status C +barrier');
+  });
+  // troop:7019 (8526): DestroyColor MostUsedManaEnemy 1+M ; CauseWeb@StrongestEnemy (life+armor, R005).
+  it('troop:7019 destroys 11 gems of the most used enemy colour and Webs the strongest enemy', () => {
+    const enemies = [{ colors: [BaseColor.Green] }, { colors: [BaseColor.Green, BaseColor.Red] }, { colors: [BaseColor.Green] }, { hp: 2000, maxHp: 2000, colors: [BaseColor.Blue] }];
+    const r = castSpell({ key: 'troop:7019', enemies: enemies as never });
+    expect(r.summary.order[0]).toMatch(/^destroy 11 \(Green x11\)$/);
+    expect(r.summary.order).toContain('status E13 +web');
+  });
+  // troop:6040 (7040): DestroyColor chosen 1+M ; GiveGold 100 at 40%.  troop:6084 (7154): chosen 4+M ; Gold 5 ; Map at 20%.
+  it('troop:6040 / troop:6084 economy rolls', () => {
+    let gold = 0;
+    for (let seed = 1; seed <= 60; seed++) gold += castSpell({ key: 'troop:6040', seed }).summary.economy.gold ?? 0;
+    expect(gold % 100).toBe(0); expect(gold).toBeGreaterThan(0); expect(gold).toBeLessThan(6000);
+    const r = castSpell({ key: 'troop:6084' });
+    expect(r.summary.order[0]).toMatch(/^destroy 11 \(Blue x11\)$/);
+    expect(r.summary.economy.gold).toBe(5);
+  });
+});

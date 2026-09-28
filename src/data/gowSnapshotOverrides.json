@@ -146,6 +146,11 @@
       "reason": "English Baihu: Create 3 Yellow Gems, damage boosted by Yellow Gems, Enchant myself (native CauseEnchanted@Self). Chinese snapshot was garbled machine translation ('迷惑自己' = confuse).",
       "spellDescription": "创造 3 颗黄色宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因黄色宝石数而增强。赋予自己法印效果。 [2:1]"
     },
+    "7019": {
+      "spellId": 8526,
+      "reason": "sa-A r8: English 'Destroy [Magic + 1] Gems of the most used Enemy Mana Color.'; stored Chinese '使用对多的颜色' is a typo (对多 -> 最多) and drops 'mana'.",
+      "spellDescription": "摧毁 [魔法 + 1] 颗敌方队伍使用最多的法力颜色的宝石。使最强的敌人陷入织网状态。"
+    },
     "7067": {
       "spellId": 8595,
       "reason": "L3 terminology: English \"Magic\" (not Mana) is rendered ħ��ֵ per L3 ruling; curated desc is authoritative.",

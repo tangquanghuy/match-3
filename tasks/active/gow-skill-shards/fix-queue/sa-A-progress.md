@@ -64,3 +64,8 @@
 - troop:6979 accept
 - troop:6099 fix(explode 2 include all)
 - weapon:1052 accept
+- troop:7334 fix(destroy 8 random include all)
+- troop:7019 fix(zh most-used mana colour, snapshot override)
+- troop:6291 accept
+- troop:6040 accept
+- troop:6084 accept
