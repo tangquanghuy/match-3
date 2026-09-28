@@ -9,3 +9,6 @@
 - 2026-09-28T18:42:55 B08 weapon:1151,troop:6408,7458,7053,7092,weapon:1526,troop:6362,7184,6697,weapon:1167 approve=9 fixed=2 issue=1 (1167 FromPrevious magic; 7092 SingleGem->CELL; 1151 P-B-action-status-self-count)
 - 2026-09-28T18:45:56 B09 troop:6223,6112,weapon:1074,troop:7199,7827,weapon:1507,troop:6890,7082,6302,7020 approve=10 fixed=2 issue=0 (6890 native 25% extra rolls; 7082 native CreateGems 2 Yellow + FromPrevious)
 - 2026-09-28T18:52:23 B10 troop:6510,7202,7079,7037,7308,6626,weapon:1428,1417,troop:6080,weapon:1371 approve=9 fixed=6 issue=1 (6510 two creates + zh; 6080 9 not 10 + zh; 6626 order; 1428 four creates; 1417 wildcard tiers; 1371 chosen-target status; 7308 L4b-7308-spirit-colour; 1585 override synced). Note: one accidental full vitest run (empty-string splat) - 14060/14060 passed.
+
+# sa-B round 5 (branch gow/r5-L4b): R013 items 1-4 + lane L4b
+- 2026-09-28 R013 weapon:1203 fixed (second hit enemyRandomPrefNotPrev) approve L7; weapon:1404 accepted L4a (Yellow only, already current); troop:7465 accepted L1; troop:7319,6259,7405 accepted L3 (shared roll already current); weapon:1623,troop:7804,6928,weapon:1376 accepted L3 (floor already current: buff.ts floor(manaCost x ratio), no per-target mana roll users found). test gowLaneL4bR5

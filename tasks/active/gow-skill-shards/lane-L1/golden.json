@@ -1379,6 +1379,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
  },
+ "troop:7465": {
+  "lines": {
+   "L10": "buff A1 mana+7 ; buff A2 mana+7 ; summon mine troop:-1  => A14:new 塔能巴恩 hp19 atk17 arm24 mag9 | A1:mana+7 | A2:mana+7",
+   "R10": "buff A1 mana+7 ; buff A2 mana+7 ; summon mine troop:-1  => A14:new 塔能巴恩 hp19 atk17 arm24 mag9 | A1:mana+7 | A2:mana+7",
+   "L0": "buff A1 mana+7 ; buff A2 mana+7 ; summon mine troop:-1  => A14:new 塔能巴恩 hp19 atk17 arm24 mag9 | A1:mana+7 | A2:mana+7",
+   "K": "buff A1 mana+7 ; buff A2 mana+7 ; summon mine troop:-1  => A14:new 塔能巴恩 hp19 atk17 arm24 mag9 | A1:mana+7 | A2:mana+7"
+  },
+  "by": "sa-B",
+  "at": "2026-09-28T12:52:07.731Z"
+ },
  "troop:7491": {
   "lines": {
    "L10": "destroy 8 (Purple x3, Red x3, Green x2)",

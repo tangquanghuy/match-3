@@ -152,7 +152,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害。如果敌方有恶魔军队，则对另一名随机敌人造成 12 点伤害。',
     build: skill(
       dmg('enemyChosen', 2, 1),
-      dmg('enemyRandom', 12, 0, { ifCond: { kind: 'enemyRacePresent', race: 'Daemon' } }),
+      // R013-3: English "another random Enemy" = RandomPrefNotPrev (native plain RandomEnemy overruled);
+      // repeats the chosen target only when no other enemy is alive.
+      dmg('enemyRandomPrefNotPrev', 12, 0, { ifCond: { kind: 'enemyRacePresent', race: 'Daemon' } }),
     ),
   },
   {

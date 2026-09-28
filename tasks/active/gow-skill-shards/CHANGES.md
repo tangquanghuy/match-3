@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 511 条改动，涉及 883 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 512 条改动，涉及 884 个技能 ID。
 
 ## 按时间
 
@@ -517,6 +517,7 @@
 | 2026-09-28T12:23 | sa-E | L1-E-7554-dist | assembler | 9339 | troop:7554 HoundmasterGor | `src/engine/skills/curated/batch-r7.ts` | Blight Hound count uniform 1-3 → 3 independent summons 100/50/50% (25/50/25%) |  |
 | 2026-09-28T12:23 | sa-E | L1-E-7465-dist | assembler | 9181 | troop:7465 Theodorevich | `src/engine/skills/curated/batch-r22.ts` | 4 summons uniform 25% each → Randomize A+(B-C-D-E-F), B and F both Ragnagord: 40/20/20/20% |  |
 | 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
+| 2026-09-28T12:51 | sa-B | R013-3 | assembler | 7770 | weapon:1203 DaemonsLeash | `src/engine/skills/curated/batch-w02.ts` | second hit Damage@enemyRandom (may repeat the chosen target) → second hit enemyRandomPrefNotPrev (another random enemy; same one only if alone), per R013-3 |  |
 
 ## 按技能 ID
 
@@ -760,6 +761,7 @@
 | 7765 | 1 | P-counter-per-step |
 | 7768 | 1 | F2-R001-order |
 | 7769 | 1 | L4a-R1-7769-column-count |
+| 7770 | 1 | R013-3 |
 | 7773 | 1 | F1-steal-before-damage |
 | 7780 | 1 | F3-q04 |
 | 7781 | 1 | L1-R2-consume-first |

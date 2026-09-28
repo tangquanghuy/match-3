@@ -1819,6 +1819,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:30:26.264Z"
  },
+ "weapon:1404": {
+  "lines": {
+   "L10": "destroy 9 (Purple x9) ; convert Green x5, Brown x2, Blue x1, Red x1 -> Yellow x9 ; buff A1 hp+32 max+32  => A1:hp+32 max+32",
+   "R10": "destroy 9 (Purple x9) ; convert Green x5, Brown x2, Blue x1, Red x1 -> Yellow x9 ; buff A1 hp+32 max+32  => A1:hp+32 max+32",
+   "L0": "destroy 9 (Purple x9) ; convert Green x5, Brown x2, Blue x1, Red x1 -> Yellow x9 ; buff A1 hp+22 max+22  => A1:hp+22 max+22",
+   "K": "destroy 9 (Purple x9) ; convert Green x5, Brown x2, Blue x1, Red x1 -> Yellow x9 ; buff A1 hp+32 max+32  => A1:hp+32 max+32"
+  },
+  "by": "sa-B",
+  "at": "2026-09-28T12:52:05.379Z"
+ },
  "weapon:1408": {
   "lines": {
    "L10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E10 14 (scatter) ; dmg E11 8 (scatter) ; dmg E12 11 (scatter) ; dmg E13 5 (scatter)  => E10:hp-9 arm-5 | E11:arm-8 | E12:arm-11 | E13:hp-2 arm-3  cascade",
