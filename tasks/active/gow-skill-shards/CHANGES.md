@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 604 条改动，涉及 1060 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 630 条改动，涉及 1082 个技能 ID。
 
 ## 按时间
 
@@ -556,6 +556,8 @@
 | 2026-09-28T21:13 | sa-F | L3-F-7774 | data | 9780 | troop:7774 CountGobula | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: 14 Green and 14 Bleed → ZH: 14 Green/Bleed total (random mix); behaviour unchanged |  |
 | 2026-09-28T21:14 | sa-G | G-6154-order | assembler | 7274 | troop:6154 Faunessa | `src/engine/skills/curated/batch-r22.ts` | damage first, then Life boosted by lastDamage 3:1 (0 through a Barrier) → native order: Life boosted by the chosen enemy Attack x34% first, then damage equal to its Attack |  |
 | 2026-09-28T21:14 | sa-G | G-7181-zh | data | 8751 | troop:7181 Tauraeus | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH typo 二增强 → ZH 而增强 (troops override 7181) |  |
+| 2026-09-28T21:15 | sa-H | L2-H-7047-last2-random | assembler | 8572 | troop:7047 SisterOfNightmares | `src/engine/skills/curated/batch-r4.ts` | RandomStatusEffect@LastTwoEnemies approximated by one random status on the last enemy only → random status rolled separately on 2nd-last and last enemy (enemySecondLast + enemyLastN), then Poison both |  |
+| 2026-09-28T21:15 | sa-H | L2-H-6706-prefnotprev | assembler | 8063 | troop:6706 Rattigar | `src/engine/skills/curated/batch-r15.ts` | second hit plain enemyRandom (could repeat the first target) → second hit enemyRandomPrefNotPrev per native RandomPrefNotPrevEnemy (R007-3) |  |
 | 2026-09-28T21:16 | sa-F | L3-F-6278 | assembler | 7424 | troop:6278 SirSnothelm | `src/engine/skills/curated/batch-13.ts` | Web then Entangle → Entangle then Web (native CauseEntangle -> CauseWeb, R001) |  |
 | 2026-09-28T21:16 | sa-F | L3-F-6867 | data | 8289 | troop:6867 Solari | `src/engine/skills/curated/batch-r12.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: other allies enemies → ZH: all other allies; behaviour unchanged |  |
 | 2026-09-28T21:16 | sa-F | L3-F-6834 | assembler | 8239 | troop:6834 Finesse | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | second hit plain random enemy (could re-hit the chosen one); ZH stray comma → second hit RandomPrefNotPrevEnemy (native); ZH punctuation fixed |  |
@@ -563,6 +565,7 @@
 | 2026-09-28T21:17 | sa-A | L4a-R8-random-any-gem | data | 7121 | weapon:1055 Pigsticker | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 7121 kill branch explodeRandomGems 1 include color → include all (native ExplodeGems AddForKill 1, any gem); override entry added |  |
 | 2026-09-28T21:18 | sa-G | G-6914-zh-order | assembler | 8375 | troop:6914 IllithianColossus | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH said Life and Attack; Life before Armor → ZH Life and Armor (override 6914); native order Armor then Life |  |
 | 2026-09-28T21:18 | sa-G | G-7201-count-before-hit | assembler | 8788 | troop:7201 Leio | `src/engine/skills/curated/batch-15.ts` | Armor counted all Enemy Magic after the hit (a kill shrank it: 30 instead of 36) → Armor segment first so both read the native step-0 count (pre-hit) |  |
+| 2026-09-28T21:18 | sa-H | L2-H-7737-zh | data | 9640 | troop:7737 CourtWitch | `src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 消除 [魔法 + 2] 个敌人的攻击 (reads [M+2] as number of enemies) → zh: 消除一名敌人 [魔法 + 2] 点攻击力 / 一项随机技能 [魔法 + 2] 点 (matches English one enemy) |  |
 | 2026-09-28T21:19 | sa-F | L3-F-7291 | assembler | 8865 | troop:7291 SableSpiritbane | `src/engine/skills/curated/batch-r19.ts` | drains 5 Magic → drains 5 Mana (native DecreaseMana 5) |  |
 | 2026-09-28T21:19 | sa-F | L3-F-6128 | assembler | 7229 | troop:6128 Hobgoblin | `src/engine/skills/curated/batch-r15.ts` | second hit plain random enemy → second hit RandomPrefNotPrevEnemy (native) |  |
 | 2026-09-28T21:19 | sa-F | L3-F-6214 | assembler | 7356 | troop:6214 DwarvenSlayer | `src/engine/skills/curated/batch-r7.ts` | one self-sacrifice: a Barrier saved the caster → two self-sacrifice steps (native two Damage@Self 10000): Barrier popped, then dies |  |
@@ -574,13 +577,22 @@
 | 2026-09-28T21:24 | sa-F | L3-F-6789 | data | 8180 | troop:6789 TheGrayKing | `src/engine/skills/curated/batch-r11.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH [魔法 + 9]  真实伤害 → ZH [魔法 + 9] 点真实伤害; behaviour unchanged |  |
 | 2026-09-28T21:25 | sa-G | G-kill-all-skills | assembler | 7165, 7294 | troop:6095 Tau；weapon:1130 RunicBlade | `src/engine/skills/curated/batch-05.ts`<br>`src/engine/skills/curated/batch-w01.ts` | on kill only Attack applied (ifTargetDied re-read lastTarget = caster after the first self buff) → all four Skills via ifCond castEnemyDied (7314 precedent) |  |
 | 2026-09-28T21:25 | sa-G | G-6334-kill-order | assembler | 7484 | troop:6334 JaguarWarrior | `src/engine/skills/curated/batch-r15.ts` | full heal then Attack +8 (Attack never applied after the heal rewrote lastTarget) → native order Attack +8 then full heal, both castEnemyDied |  |
+| 2026-09-28T21:26 | sa-H | L2-H-7186-enemy-drain | assembler | 8756 | troop:7186 CryptHound | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | drained 7 Mana from a chosen ALLY (zh said ally) → drains 7 Mana from the chosen enemy (English/native DecreaseMana FromTarget), zh fixed + override |  |
+| 2026-09-28T21:26 | sa-H | L2-H-1296-spm034 | assembler | 8253 | weapon:1296 StaffOfInsanity | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Magic branch mult 0.3333 (English Magic / 3) → mult 0.34 = native SpellPowerMultiplier (R001; differs e.g. at Magic 25: 10 vs 9) |  |
+| 2026-09-28T21:26 | sa-H | L2-H-6198-order | assembler | 7340 | troop:6198 Plague | `src/engine/skills/curated/batch-r12.ts` | Poison then Disease → native order Disease then Poison (R001) |  |
+| 2026-09-28T21:26 | sa-H | L2-H-6993-prefnotprev | assembler | 8499 | troop:6993 Dao | `src/engine/skills/curated/batch-r13.ts`<br>`src/data/gowSnapshotOverrides.json` | repeats used plain enemyRandom; zh mistranslated → repeats enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy, R007-3); zh rewritten + override |  |
 | 2026-09-28T21:29 | sa-G | G-kill-all-skills | assembler | 8104 | troop:6734 Stone-Biter | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | on kill only Attack +7; ZH lacked the kill condition → all four Skills +7 via castEnemyDied; ZH 如果敌人身亡 (override 6734) |  |
+| 2026-09-28T21:32 | sa-H | L2-H-6959-magic | assembler | 8459 | troop:6959 KoboldMagi | `src/engine/skills/curated/batch-r1.ts` | second branch gave 12 Mana → gives 12 Magic (native IncreaseSpellPower 12, English gain 12 Magic) |  |
+| 2026-09-28T21:32 | sa-H | L2-H-6948-either-colour | assembler | 8429 | troop:6948 DeepHuntsman | `src/engine/skills/curated/batch-r22.ts` | explode [M+1] gems from a Green+Purple union pool → Randomize ABC-DEF: 1/2 explode [M+1] Green, 1/2 explode [M+1] Purple; then Curse + Web first enemy |  |
 | 2026-09-28T21:34 | sa-G | G-6881-kill-double | assembler | 8304 | troop:6881 EldritchGuardian | `src/engine/skills/curated/batch-r20.ts` | Life then Armor +12; kill doubling never applied (ifTargetDied after self segments) → native Armor then Life, +12 each more on kill via castEnemyDied |  |
 | 2026-09-28T21:34 | sa-F | L3-F-7778 | assembler | 9784 | troop:7778 BloodSpore | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | damage first, then removed the Bleed itself + Curse + drain 3 → native order: if Bleeding Dispel positives (Bleed kept) -> Curse -> drain 3 -> damage; ZH fixed |  |
 | 2026-09-28T21:34 | sa-F | L3-F-doomed-ranged | assembler | 9580, 9581, 9582, 9583 | weapon:1632 DoomedArbalest；weapon:1633 DoomedStingshot；weapon:1634 DoomedDart-thrower；weapon:1635 DoomedBoltshooter | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then explode 3 of the colour if the (already hit) target uses it, then quarter Mana → native order ExplodeColor (chosen target uses colour) -> quarter Mana if enemy has a Doom -> damage |  |
 | 2026-09-28T21:34 | sa-A | L4a-R8-7535-ghost-chances | assembler | 9292 | troop:7535 GhostOgre | `src/engine/skills/curated/batch-r7.ts` | 9292 one explode segment countRange 1-4 (uniform) → 4 native steps: Ghost 1 always, then Ghost 1 at 60%/50%/40% independent chances |  |
 | 2026-09-28T21:34 | sa-A | L4a-R8-random-any-gem | assembler | 8134 | troop:6755 QueenXochi | `src/engine/skills/curated/batch-37.ts` | 8134 storm explode 5 include color → include all (any gem, R013-5) |  |
 | 2026-09-28T21:36 | sa-F | L3-F-doomed-ranged | assembler | 9584, 9585 | weapon:1636 DoomedBalliste；weapon:1637 DoomedSauterelle | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then explode 3 of the colour if the (already hit) target uses it, then quarter Mana → native order ExplodeColor (chosen target uses colour) -> quarter Mana if enemy has a Doom -> damage |  |
+| 2026-09-28T21:37 | sa-H | L2-H-7847-one-colour | assembler | 9906 | troop:7847 CannonMimic | `src/engine/skills/curated/batch-r9.ts` | 3 random coloured gems of mixed colours → Randomize A-F: one colour 1/6, then 3 gems of that colour |  |
+| 2026-09-28T21:37 | sa-H | L2-H-6390-weights | assembler | 7545 | troop:6390 PrincessFizzbang | `src/engine/skills/curated/batch-r15.ts` | extra turn first, then 1/2 explode Green \| 1/2 random Skill → AB-CD-EF: 2/3 explode Green, 1/3 random Skill (Goblin x2), extra turn after each (native order) |  |
+| 2026-09-28T21:37 | sa-H | L2-H-6247-any-gem | assembler | 7390 | troop:6247 Remnant | `src/engine/skills/curated/batch-01.ts` | explode 2 random coloured gems (skulls/specials excluded) → explode 2 random gems of any kind (native ExplodeGems 2, same as signed 6204/6251/6875/7044) |  |
 | 2026-09-28T21:38 | sa-F | L3-F-7311 | data | 8923 | troop:7311 OrpheusPriestess | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH: all allies → ZH: all other allies; behaviour unchanged |  |
 | 2026-09-28T21:38 | sa-F | L3-F-6998 | data | 8501 | troop:6998 WilliTheAnchor | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH machine translation (淹没自己 / 额外的转向) → ZH: submerge self, sink to the back, extra turn; behaviour unchanged |  |
 | 2026-09-28T21:39 | sa-A | L4a-R8-7561-chosen-column | data | 9346 | troop:7561 WingedDonkey | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 9346 destroyRandomCols(1); zh '摧毁一个随机列' → destroyChosenCol (native spell Target Board, DestroyGems BoardTarget Column); zh '摧毁一列宝石' + snapshot override |  |
@@ -590,11 +602,15 @@
 | 2026-09-28T21:41 | sa-G | G-6976-prefnotprev | assembler | 8479 | troop:6976 Pan | `src/engine/skills/curated/batch-r15.ts` | three plain random hits (could repeat the previous) → hits 2-3 RandomPrefNotPrev (native, R007-3) |  |
 | 2026-09-28T21:41 | sa-A | L4a-R8-1370-order-electrostorm | data | 8409 | weapon:1370 TinkersBuzzblade | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8409 damage then Mech -30 Armor; storm Yellow only → native order: -30 Armor [AddIfIHaveMech] first, then damage (R001); StormRedYellow = storm Red + color2 Yellow; override entry added |  |
 | 2026-09-28T21:41 | sa-A | L4a-R8-random-any-gem | assembler | 7001 | troop:6099 Warhound | `src/engine/skills/curated/batch-11.ts` | 7001 explode 2 include color → include all (any gem, R013-5) |  |
+| 2026-09-28T21:41 | sa-H | L2-H-6981-chosen-line | assembler | 8484 | troop:6981 Rhinotaur | `src/engine/skills/curated/batch-r20.ts` | explode a RANDOM row or column → explode the chosen gem's row or column (spell Target Board + BoardTarget Row/Column), 1/2 each |  |
+| 2026-09-28T21:41 | sa-H | L2-H-1418-one-colour | assembler | 8578 | weapon:1418 CelestialFlask | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json` | 3 potions from a 5-colour mixed pool; zh said 3 kinds of potion → A+(B-C-D-E-F): extra turn, then 3 potions of one colour (1/5 each); zh fixed in pool + weapon override |  |
 | 2026-09-28T21:42 | sa-F | L3-F-6992 | data | 8498 | troop:6992 TheArchdeva | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH garbled, amount missing → ZH matches English; behaviour unchanged |  |
 | 2026-09-28T21:43 | sa-G | G-7807-knock-order | assembler | 9848 | troop:7807 Giraffataur | `src/engine/skills/curated/batch-r9.ts` | front enemy knocked back twice (final ..., 1st, 2nd) → native SecondEnemy then FrontEnemy (final ..., 2nd, 1st) |  |
 | 2026-09-28T21:43 | sa-G | G-zh-typos | data | 8416, 8781 | troop:6935 ArmoredBoarlet；troop:7194 Sabellius | `src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-15.ts`<br>`src/data/gowSnapshotOverrides.json` | 6935 ZH 并将之; 7194 ZH 在对 → 6935 则将之; 7194 再对 (overrides 6935, 7194) |  |
 | 2026-09-28T21:44 | sa-A | L4a-R8-random-any-gem | assembler | 8957 | troop:7334 Eleanor | `src/engine/skills/curated/batch-04.ts` | 8957 destroy 8 random include color → include all ('Destroy 8 random Gems', R013-5) |  |
 | 2026-09-28T21:44 | sa-A | L4a-R8-7019-zh | data | 8526 | troop:7019 Cloakmantle | `src/engine/skills/curated/batch-r11.ts`<br>`src/data/gowSnapshotOverrides.json` | 8526 zh '敌人队伍使用对多的颜色宝石' → zh '敌方队伍使用最多的法力颜色的宝石' + snapshot override |  |
+| 2026-09-28T21:46 | sa-H | L2-H-6157-ally-colour | assembler | 7277 | troop:6157 Djinn | `src/engine/skills/curated/batch-r7.ts` | created 6 gems of the CASTER's colour → 6 gems of the chosen ally's colour (native CreateGems FromTarget) |  |
+| 2026-09-28T21:46 | sa-H | L2-H-1396-any-gem | assembler | 8517 | weapon:1396 ExperimentalElixir | `src/engine/skills/curated/batch-w03.ts` | explode 1 random coloured gem → explode 1 random gem of any kind (native ExplodeGems 1); skill issued for Amount dispute |  |
 | 2026-09-28T21:46 | sa-G | G-6258-order | assembler | 7401 | troop:6258 Innkeeper | `src/engine/skills/curated/batch-01.ts` | Attack to others, then -1 Magic → native order: -1 Magic, then Attack |  |
 | 2026-09-28T21:46 | sa-F | L3-F-6966 | data | 8469 | troop:6966 SpringEmissary | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH garbled (而等于其法力的半数) → ZH: half their Mana cost; behaviour unchanged |  |
 | 2026-09-28T21:46 | sa-F | L3-F-7736 | assembler | 9613 | troop:7736 MaelstromDagoNath | `src/engine/skills/curated/batch-r8.ts` | 12 plain coloured gems (three createMix pairs) → 12 Mana Potion Gems: native CreateGems2Colors Blue/Green, Red/Yellow, Purple/Brown ManaPotion, 4 each |  |
@@ -602,14 +618,24 @@
 | 2026-09-28T21:46 | sa-A | L4a-R8-random-any-gem | assembler | 7462 | troop:6312 Bogstrider | `src/engine/skills/curated/batch-01.ts` | 7462 destroy 1+M include color → include all (R013-5) |  |
 | 2026-09-28T21:47 | sa-G | G-6728-order | assembler | 8098 | troop:6728 Thunderforge | `src/engine/skills/curated/batch-07.ts` | Armor then Attack → native order: Attack then Armor (Dwarf double on both) |  |
 | 2026-09-28T21:49 | sa-G | G-7514-order | assembler | 9260 | troop:7514 KooTheBrave | `src/engine/skills/curated/batch-11.ts` | Life then Attack → native order: Attack then Life (Tauros double on both) |  |
+| 2026-09-28T21:49 | sa-H | L2-H-6817-one-skill | assembler | 8216 | troop:6817 ShahbanuVespera | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | each grant split [(M/2)+1] across several Skills; zh said 2 other allies → each native IncreaseRandom gives the whole amount to one random Skill (oneSkill); zh 'repeat 2 more times for random allies' + override |  |
 | 2026-09-28T21:50 | sa-A | L4a-R8-random-any-gem | assembler | 8823, 8022 | troop:7228 BORK-3000；troop:6676 Plainsjumper | `src/engine/skills/curated/batch-34.ts`<br>`src/engine/skills/curated/batch-03.ts` | 8823 / 8022 random destroy include color → include all (R013-5) |  |
 | 2026-09-28T21:50 | sa-A | L4a-R8-1452-column-only | data | 8721 | weapon:1452 ShockHammer | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8721 chosenCross (row+column); zh '摧毁其行和列' → chosenLine col (native BoardTarget Column, English 'destroy its column'); zh '摧毁其所在的列'; override description+prototype |  |
 | 2026-09-28T21:50 | sa-F | L3-F-6462 | assembler | 7640 | troop:6462 ClawDancer | `src/engine/skills/curated/batch-r5.ts`<br>`src/data/gowSnapshotOverrides.json` | range damage on the front enemy split into 2 hits (hit E10 and E11); ZH {2} placeholder → one range hit on the chosen enemy (native RandomHighDamage@FromTarget, L7-7517 precedent); ZH fixed |  |
 | 2026-09-28T21:50 | sa-F | L3-F-6636 | assembler | 7962 | troop:6636 Rhynaggor | `src/engine/skills/curated/batch-07.ts` | 12 Mana only if the splash centre died → 12 Mana if any enemy died to the cast (EN 'If an enemy dies', AddForKill; castEnemyDied as 7802) |  |
 | 2026-09-28T21:52 | sa-A | L4a-R8-random-any-gem | assembler | 9020, 7594 | troop:7378 Ursky；troop:6421 Brownie | `src/engine/skills/curated/batch-04.ts`<br>`src/engine/skills/curated/batch-13.ts` | 9020 / 7594 random destroy include color → include all (R013-5) |  |
 | 2026-09-28T21:52 | sa-A | L4a-R8-7470-order | assembler | 9187 | troop:7470 GiantBadger | `src/engine/skills/curated/batch-r5.ts` | 9187 reposition self front, then last enemy front → native order: last enemy front, then self front (R001) |  |
+| 2026-09-28T21:54 | sa-H | L2-H-7253-steal-first | assembler | 8852 | troop:7253 Sagittarian | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | true damage first, then steal 10 MANA \| 20 Life \| 20 Armor; zh 盔甲魔力值 → native AB-CD-EF: steal 10 Magic \| 20 Armor \| 20 Life before the true damage (R001); zh fixed + override |  |
 | 2026-09-28T21:55 | sa-A | L4a-R8-7136-column | data | 8685 | troop:7136 Narwhale | `src/engine/skills/curated/batch-03.ts`<br>`src/data/gowSnapshotOverrides.json` | 8685 destroyChosenRow; zh '摧毁一行' → destroyChosenCol (native BoardTarget Column); zh '摧毁一列' + snapshot override |  |
+| 2026-09-28T21:57 | sa-H | L2-H-7746-kill-gate | assembler | 9731 | troop:7746 Cascabel | `src/engine/skills/curated/batch-r17.ts` | 3 x ifTargetDied random-status segments: 2nd/3rd looked at the 1st status segment's living target and never fired (always exactly 1 status on kill) → gate all three on castEnemyDied: kill -> 1 + 50% + 50% random negative statuses on each other enemy |  |
 | 2026-09-28T21:57 | sa-A | L4a-R8-6707-same-targets | assembler | 8064 | troop:6707 PlagueRat | `src/engine/skills/curated/batch-34.ts` | 8064 poison enemyRandomN 2, then disease enemyRandomN 2 (independent picks) → native: Disease@RandomEnemy, Poison@FromPrevious, Disease@RandomPrefNotPrev, Poison@FromPrevious (same 2 enemies, Disease first) |  |
+| 2026-09-28T22:00 | sa-H | L1-H-6854-magic | assembler | 8273 | troop:6854 Lyriath | `src/engine/skills/curated/batch-r22.ts` | Yellow allies gained 2 Mana → Yellow allies gain 2 Magic (native IncreaseSpellPower 2) |  |
+| 2026-09-28T22:00 | sa-H | L1-H-7235-one-skill | assembler | 8831 | troop:7235 FakyrTheWise | `src/engine/skills/curated/batch-r9.ts` | each IncreaseRandom split [M+1] across Skills → each of the two IncreaseRandom steps gives the whole [M+1] to one random Skill |  |
+| 2026-09-28T22:06 | sa-H | L1-H-7497-book-weights | assembler | 9242 | troop:7497 Isban | `src/engine/skills/curated/batch-10.ts` | 3 Books 1/3 each → native A+(B-C-D-E-F): Witches 2/5, Secrets 2/5, Tome of Evil 1/5 |  |
+| 2026-09-28T22:06 | sa-H | L1-H-6651-double-stun-summons | assembler | 7985 | troop:6651 TianYi | `src/engine/skills/curated/batch-r6.ts` | no x2 when my Attack greater; stun = every enemy below max Life; Monkey count uniform 1-3 → x2 via casterStatBeatsTarget attack; stun target + adjacent; Monkey 100% + 50% + 50% |  |
+| 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
+| 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
+| 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
 
 ## 按技能 ID
 
@@ -709,6 +735,7 @@
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
 | 7274 | 1 | G-6154-order |
+| 7277 | 1 | L2-H-6157-ally-colour |
 | 7280 | 1 | P-create-interleave |
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
@@ -735,7 +762,7 @@
 | 7334 | 1 | L7-6193 |
 | 7338 | 2 | L5-006、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7339 | 1 | F1-items-62-75 |
-| 7340 | 1 | P-random-stat-pool |
+| 7340 | 2 | P-random-stat-pool、L2-H-6198-order |
 | 7343 | 1 | L1-6201-dispel |
 | 7345 | 1 | F2-6203-no-cleanse |
 | 7347 | 1 | R7-6205-steal-order |
@@ -761,6 +788,7 @@
 | 7383 | 1 | F2-R001-order |
 | 7386 | 1 | L2-wrong-enemy-branches |
 | 7388 | 1 | L4a-R1-7388-chosen-row |
+| 7390 | 1 | L2-H-6247-any-gem |
 | 7391 | 1 | P-E-faction-kingdom |
 | 7392 | 2 | L5-009、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7395 | 1 | L3-011 |
@@ -817,6 +845,7 @@
 | 7533 | 1 | L1-6378-pool |
 | 7541 | 1 | P-R7-dead-last-target-cond |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
+| 7545 | 1 | L2-H-6390-weights |
 | 7548 | 1 | R004-tests |
 | 7553 | 2 | F2-6398-random-dispel、P-F2-precount-explode |
 | 7554 | 1 | P-chooser-native-restrictions |
@@ -867,7 +896,7 @@
 | 7685 | 1 | L1-6498-summon-dist |
 | 7692 | 1 | P-E-faction-kingdom |
 | 7693 | 1 | F2-R001-order |
-| 7697 | 1 | L1-E-race-pool-immortals |
+| 7697 | 2 | L1-E-race-pool-immortals、L1-H-6507-freeze-affected |
 | 7700 | 1 | B-L4b-6510-two-creates |
 | 7704 | 1 | L1-6513-sacrifice |
 | 7707 | 1 | P-E-faction-kingdom |
@@ -932,6 +961,7 @@
 | 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
 | 7984 | 1 | L1-R2-consume-first |
+| 7985 | 1 | L1-H-6651-double-stun-summons |
 | 7991 | 1 | L1-E-1238-pool |
 | 8022 | 1 | L4a-R8-random-any-gem |
 | 8024 | 1 | P-prefnotprev-semantics |
@@ -950,6 +980,7 @@
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
+| 8063 | 1 | L2-H-6706-prefnotprev |
 | 8064 | 1 | L4a-R8-6707-same-targets |
 | 8065 | 1 | L5-C-r4-6708 |
 | 8070 | 1 | P-R6-chosen-cell-counts |
@@ -1007,6 +1038,7 @@
 | 8209 | 1 | D-6806-count20 |
 | 8211 | 1 | L1-6808-branches |
 | 8215 | 1 | L4a-R1-8215-fromprevious |
+| 8216 | 1 | L2-H-6817-one-skill |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
 | 8221 | 1 | L5-C-r4-1294 |
@@ -1028,10 +1060,12 @@
 | 8248 | 2 | F1-onkill-order、R012 |
 | 8250 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
+| 8253 | 1 | L2-H-1296-spm034 |
 | 8260 | 1 | P-E-faction-kingdom |
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |
 | 8263 | 1 | P-E-faction-kingdom |
+| 8273 | 1 | L1-H-6854-magic |
 | 8282 | 1 | L3-F-6863 |
 | 8283 | 1 | L1-1310-brown |
 | 8285 | 1 | P-E-faction-kingdom |
@@ -1082,6 +1116,7 @@
 | 8357 | 1 | L1-1351-pool |
 | 8358 | 1 | L3-F-6897 |
 | 8365 | 3 | L7-R1-6904-nextdown、P-R4-nextdown-default-range、P-E-faction-kingdom |
+| 8369 | 1 | L1-H-6908-four-branches |
 | 8370 | 1 | L4a-r3-6909 |
 | 8371 | 1 | L1-E-6910-wraith |
 | 8373 | 1 | R3-B03-6912 |
@@ -1115,6 +1150,7 @@
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
 | 8427 | 1 | L2-6946-order |
+| 8429 | 1 | L2-H-6948-either-colour |
 | 8430 | 1 | L2-6949-branches |
 | 8432 | 1 | B-L4b-1371-target-status |
 | 8434 | 1 | P-E-faction-kingdom |
@@ -1134,6 +1170,7 @@
 | 8453 | 1 | P-E-faction-kingdom |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
+| 8459 | 1 | L2-H-6959-magic |
 | 8460 | 1 | L1-E-kingdom-summon-raw |
 | 8461 | 1 | L1-E-1394-pool |
 | 8463 | 1 | D-b09-targets |
@@ -1147,6 +1184,7 @@
 | 8478 | 1 | L3-F-6975 |
 | 8479 | 1 | G-6976-prefnotprev |
 | 8481 | 1 | L4a-r3-6954 |
+| 8484 | 1 | L2-H-6981-chosen-line |
 | 8485 | 1 | P-R3-next-up-target |
 | 8487 | 1 | P-E-faction-kingdom |
 | 8488 | 1 | R7-b14-status-counts |
@@ -1156,7 +1194,7 @@
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |
 | 8498 | 1 | L3-F-6992 |
-| 8499 | 1 | P-random-stat-pool |
+| 8499 | 2 | P-random-stat-pool、L2-H-6993-prefnotprev |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8501 | 1 | L3-F-6998 |
 | 8502 | 1 | R3-B12-6999 |
@@ -1168,6 +1206,7 @@
 | 8513 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8517 | 1 | L2-H-1396-any-gem |
 | 8523 | 1 | L3-F-6996 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8526 | 1 | L4a-R8-7019-zh |
@@ -1186,9 +1225,11 @@
 | 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8569 | 1 | L4a-r3-7044 |
 | 8570 | 1 | L7-7045 |
+| 8572 | 1 | L2-H-7047-last2-random |
 | 8574 | 1 | L1-devour-first |
 | 8575 | 1 | L1-7050-order |
 | 8577 | 1 | B-L4b-1417-wildcard-tiers |
+| 8578 | 1 | L2-H-1418-one-colour |
 | 8580 | 1 | L3-015 |
 | 8582 | 1 | L1-devour-first |
 | 8586 | 1 | F2-R001-order |
@@ -1280,6 +1321,7 @@
 | 8751 | 3 | P-counter-per-step、P-counter-per-step、G-7181-zh |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8755 | 1 | F2-R001-order |
+| 8756 | 1 | L2-H-7186-enemy-drain |
 | 8758 | 1 | P-R1-count-at-native-step |
 | 8761 | 1 | R7-1460-burning-gems |
 | 8762 | 1 | P-R6-chosen-diagonal-transform |
@@ -1312,6 +1354,7 @@
 | 8823 | 1 | L4a-R8-random-any-gem |
 | 8824 | 1 | R7-not-board-misread |
 | 8830 | 1 | R009-giant-dragon-L4b |
+| 8831 | 1 | L1-H-7235-one-skill |
 | 8832 | 1 | R009-giant-dragon-L4b |
 | 8834 | 1 | B5-L4b-R009-giants |
 | 8836 | 1 | B5-L4b-R009-giants |
@@ -1326,6 +1369,7 @@
 | 8848 | 1 | R009-giant |
 | 8849 | 1 | R009-giant |
 | 8850 | 1 | R7-dragon-convert-extra-turn |
+| 8852 | 1 | L2-H-7253-steal-first |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8856 | 1 | L2-7282-pref-not-prev |
 | 8859 | 1 | P-random-stat-pool |
@@ -1383,6 +1427,7 @@
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
+| 9016 | 1 | L1-H-7376-prefnotprev |
 | 9020 | 1 | L4a-R8-random-any-gem |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9023 | 1 | L4b-R6-B02 |
@@ -1443,6 +1488,7 @@
 | 9235 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9237 | 1 | P-R1-count-at-native-step |
 | 9241 | 2 | P-random-stat-pool、L2-7496-pref-not-prev |
+| 9242 | 1 | L1-H-7497-book-weights |
 | 9244 | 1 | L4b-7499-dragon |
 | 9245 | 1 | P-E-faction-kingdom |
 | 9249 | 1 | P-E-faction-kingdom |
@@ -1568,7 +1614,7 @@
 | 9635 | 2 | L7-R1-teamsize-source、P-E-faction-kingdom |
 | 9636 | 1 | L7-R1-weapon-colour-race |
 | 9639 | 1 | L4a-R1-9639-block-gargoyle |
-| 9640 | 1 | P-random-stat-pool |
+| 9640 | 2 | P-random-stat-pool、L2-H-7737-zh |
 | 9641 | 1 | P-prefnotprev-semantics |
 | 9642 | 1 | L4a-r3-7685 |
 | 9646 | 1 | R3-B10-7688 |
@@ -1594,6 +1640,7 @@
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9722 | 1 | R3-B02-1657 |
 | 9723 | 1 | F2-7728-no-damage |
+| 9731 | 1 | L2-H-7746-kill-gate |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |
 | 9749 | 1 | P-E-faction-kingdom |
@@ -1642,6 +1689,7 @@
 | 9882 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、L7-R1-random-chain-waves |
 | 9903 | 1 | L4b-R6-B03-prefnotprev |
 | 9904 | 1 | L4b-R6-B02 |
+| 9906 | 1 | L2-H-7847-one-colour |
 | 9909 | 2 | P-random-stat-pool、L2-7850-target |
 | 9911 | 1 | P-E-faction-kingdom |
 | 9914 | 1 | P-E-faction-kingdom |

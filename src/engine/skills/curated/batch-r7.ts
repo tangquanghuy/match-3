@@ -14,7 +14,7 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, explodeRandomSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, explodeRandomSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill, CHOSEN_TARGET } from '../builders';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -91,7 +91,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予一名盟友 [魔法 + 1] 点生命值，并获得下列其一：创造 6 颗具有该军队法力颜色的宝石，或给予其 2 点魔力值。',
     build: skill(
       heal('allyChosen', 1, 1),
-      oneOf([createGems(CASTER, 6)], [magic('lastTarget', 2, 0)]),
+      // 原生 CreateGems Color1 FromTarget = 所选盟友的法力色（sa-H：原为施法者颜色 CASTER）
+      oneOf([createGems(CHOSEN_TARGET, 6)], [magic('lastTarget', 2, 0)]),
     ),
   },
   {
@@ -417,12 +418,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8369,
-    desc: '召唤一名随机恶魔，或使所有敌人和盟友陷入一个随机的状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。',
+    desc: '召唤一名随机恶魔，或使所有敌人或所有盟友获得一个随机状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。',
+    // 原生 Randomize A-B-C-D 四选一（各 1/4）：召唤恶魔 | RandomPositiveStatusEffect@AllAllies |
+    // RandomStatusEffect@AllEnemies | Damage@FrontEnemy。sa-H：原为三选一且敌我同时上状态；ZH「敌人和盟友」改「或」+ override 6908
     build: skill(
       oneOf(
         [summonRandom(DAEMON_REFS)],
-        // 随机状态按阵营分池：敌方负面 / 盟友正面（spell-rules §11 补充）
-        [inflictRandom('enemyAll'), inflictRandom('allyAll')],
+        [inflictRandom('allyAll', { pool: 'positive' })],
+        [inflictRandom('enemyAll')],
         [dmg('enemyFront', 2, 1)],
       ),
     ),

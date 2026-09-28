@@ -181,7 +181,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7390,
     desc: "随机爆破两颗宝石，自身一项随机属性获得 [魔法 + 1] 点。",
     build: skill(
-      explodeRandomGems(2, 0, 'color'),
+      // 原生 ExplodeGems 2（无色限定）= 任意 2 颗随机宝石，与已签收同族（6204/6251/6875/7044）一致用 'all'（sa-H：原 'color'）
+      explodeRandomGems(2, 0, 'all'),
       randomStat('allySelf', 1, 1, { oneSkill: true }),
     ),
   },

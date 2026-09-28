@@ -397,7 +397,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8517,
     desc: '获得 [魔法 + 1] 点生命值。再创造 7 颗红色宝石或获得一个额外回合，或爆破一颗随机宝石。',
-    build: skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'color')])),
+    build: skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'all')])), // sa-H: ExplodeGems 1 = any gem
   },
   {
     id: 8518,
@@ -465,10 +465,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8578,
-    desc: '制造 3 种药水，蓝色、绿色、红色、黄色或紫色。可获得额外的回合。',
+    desc: '制造 3 瓶同一种颜色的药水（蓝色、绿色、红色、黄色或紫色随机其一）。获得额外的回合。',
+    // 原生 A+(B-C-D-E-F)：ExtraTurn 必发在前，再五色 CreateGems <色>ManaPotion 3 择一（各 1/5）
+    // （sa-H：原为五色混合池；旧 ZH「3 种药水」误）
     build: skill(
-      createGemsMixAny([{ kind: 'manaPotionGem', color: BaseColor.Blue }, { kind: 'manaPotionGem', color: BaseColor.Green }, { kind: 'manaPotionGem', color: BaseColor.Red }, { kind: 'manaPotionGem', color: BaseColor.Yellow }, { kind: 'manaPotionGem', color: BaseColor.Purple }], 3, 0),
       extraTurn(),
+      oneOf(...([BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple] as const)
+        .map(c => [createSpecialGems({ kind: 'manaPotionGem', color: c }, 3)])),
     ),
   },
   {

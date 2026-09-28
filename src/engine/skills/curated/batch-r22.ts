@@ -61,7 +61,7 @@ import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, reduce, steal,
   drainMana, inflict, createGems, createSkulls, createSpecialGems, createGemsMixAny, transform,
   destroyChosenRow, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
-  explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
+  explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, stealGold, gainGold, scale, flat,
   oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt, dispelStatus,
 } from '../builders';
@@ -825,7 +825,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // summonCopy enemyFront（官方 SummoningTarget FrontEnemy 35%，R22 新原语）。
     build: skill(
     heal('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-    mana('allyAll', 2, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+    // sa-H：原生 IncreaseSpellPower 2 / 英文 2 Magic = 魔法属性（原为 mana）
+    magic('allyAll', 2, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     summonCopy('enemyFront', { chance: 0.35 }),
     ),
   },
@@ -920,10 +921,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8429,
     desc: '爆破 [魔法 + 1] 颗绿色或紫色宝石。再使第一位敌人陷入诅咒和织网状态。',
-    // 官方步骤（Skittering Charge）：ExplodeColor Green ×1 与 ExplodeColor Purple ×1 两步骤
-    // 均发（非二选一），各按 [M+1] 缩放；双色并集池 = explodeRandomGemsAny（R22 新原语）。
+    // 原生 Randomize ABC-DEF：A = ExplodeColor Green [M+1] → Curse → Web；D = ExplodeColor Purple [M+1] → Curse → Web
+    // （二选一各 1/2；两分支状态段相同，提到 oneOf 之后，顺序不变）。sa-H：原为双色并集池同时爆破。
     build: skill(
-    explodeRandomGemsAny([BaseColor.Green, BaseColor.Purple], 1, 1),
+    oneOf(
+      [explodeRandomGems(1, 1, 'color', BaseColor.Green)],
+      [explodeRandomGems(1, 1, 'color', BaseColor.Purple)],
+    ),
     inflict('curse', 'enemyFront'),
     inflict('web', 'enemyFront'),
     ),

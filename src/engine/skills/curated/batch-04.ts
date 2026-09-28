@@ -167,8 +167,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9016,
     desc: '窃取 4 名随机敌人 [魔法 + 2] 点生命值，并召唤莫桑尼的意志。',
+    // 原生 StealLife@RandomEnemy + 3 × StealLife@RandomPrefNotPrevEnemy：每步只避开上一目标，可回到更早目标
+    // （R007-3；sa-H：原为 4 名不重复随机敌人）
     build: skill(
-      dmg('enemyRandomN', 2, 1, { n: 4, drain: true }),
+      dmg('enemyRandom', 2, 1, { drain: true }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { drain: true }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { drain: true }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { drain: true }),
       summonRef('MorthanisWill', 6205),
     ),
   },

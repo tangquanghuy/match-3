@@ -8046,7 +8046,7 @@
   "weaponRef": "CelestialFlask",
   "weaponName": "天国的药剂瓶",
   "spellName": "天国的药剂瓶",
-  "desc": "制造 3 种药水，蓝色、绿色、红色、黄色或紫色。可获得额外的回合。",
+  "desc": "制造 3 瓶同一种颜色的药水（蓝色、绿色、红色、黄色或紫色随机其一）。获得额外的回合。",
   "scalings": [],
   "manaCost": 14,
   "colors": [

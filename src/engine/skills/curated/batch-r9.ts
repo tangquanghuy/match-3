@@ -340,10 +340,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8831,
     desc: '给予一名盟友 [魔法 + 1] 点随机技能值，并重复一次。再召唤一名随机聚沙之地军队。',
-    // IncreaseRandom = randomStat（「随机技能值」口径）；王国 3024 召唤
+    // IncreaseRandom ×2 = 每步全额给一项随机技能（oneSkill，R007-2；sa-H：原为拆分到多项）；王国 3024 召唤
     build: skill(
-      randomStat('allyChosen', 1, 1),
-      randomStat('allyChosen', 1, 1),
+      randomStat('allyChosen', 1, 1, { oneSkill: true }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true }),
       summonRandom(K3024),
     ),
   },
@@ -386,14 +386,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8852,
-    desc: '对一名敌人造成[(魔法 x 2) + 4]点真实伤害。然后从敌人那里偷取魔力值10，或者生命值20，或者盔甲魔力值20。',
-    // 「或者」= oneOf 掷签三选一（§9.3）；「盔甲魔力值」机翻 = 护甲（官方 StealArmor）
+    desc: '对一名敌人造成 [(魔法 x 2) + 4] 点真实伤害。然后从该敌人处窃取 10 点魔力值，或 20 点生命值，或 20 点护甲值。',
+    // 原生 AB-CD-EF：StealMagic 10 | StealArmor 20 | StealLife 20，各自在 TrueDamage [(M×2)+4] 之前（R001：
+    // 先窃取魔力会提高本次伤害）。sa-H：原为先伤害、且 A 分支窃取的是法力（英文/原生为 Magic）；ZH「盔甲魔力值」改
     build: skill(
-      trueDmg('enemyChosen', 4, 2),
       oneOf(
-        [steal('lastTarget', 'mana', 'mana', 10, 0)],
-        [dmg('lastTarget', 20, 0, { drain: true })],
-        [steal('lastTarget', 'armor', 'armor', 20, 0)],
+        [steal('enemyChosen', 'magic', 'magic', 10, 0), trueDmg('enemyChosen', 4, 2)],
+        [steal('enemyChosen', 'armor', 'armor', 20, 0), trueDmg('enemyChosen', 4, 2)],
+        [dmg('enemyChosen', 20, 0, { drain: true }), trueDmg('enemyChosen', 4, 2)],
       ),
     ),
   },
@@ -956,9 +956,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9906,
     desc: '引爆3颗随机颜色的宝石。',
-    // ExplodeColor ×6（六色各 3）实为「引爆 3 颗（非骷髅）宝石」机翻展开 → explodeRandomGems color
+    // 原生 Randomize A-B-C-D-E-F：六步 ExplodeColor <色> 3 择一（各 1/6）= 英文「随机一种颜色的 3 颗宝石」
+    // （sa-H：原为不限色随机 3 颗，混色）
     build: skill(
-      explodeRandomGems(3, 0, 'color'),
+      oneOf(...([BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown] as const)
+        .map(c => [explodeRandomGems(3, 0, 'color', c)])),
     ),
   },
   {

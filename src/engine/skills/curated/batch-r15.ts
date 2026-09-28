@@ -243,11 +243,13 @@ const SPELLS: CuratedBatch['spells'] = [
     //（randomStatEffect 逐受益者判族，buff.ts randomStat 分支实装） ——
     id: 7545,
     desc: "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。",
+    // 原生 Randomize AB-CD-EF：AB = ExplodeColor Green + ExtraTurn；CD = IncreaseRandom@RandomAlly ×2 Goblin + ExtraTurn；
+    // EF = ExplodeColor Green + ExtraTurn → 爆破绿色 2/3、随机属性 1/3，额外回合在后（sa-H：原 1/2 且额外回合在前）
     build: skill(
-      extraTurn(),
       oneOf(
-        explodeColor(BaseColor.Green),
-        randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }),
+        [explodeColor(BaseColor.Green), extraTurn()],
+        [randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }), extraTurn()],
+        [explodeColor(BaseColor.Green), extraTurn()],
       ),
     ),
   },
@@ -410,13 +412,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8063,
     desc: '对 2 名随机敌人造成 [魔法 + 1] 点伤害。并使二者各陷入一个随机负面状态。',
-    // 官方步骤 Damage+RandomStatusEffect@FromPrevious ×2（第二步 RandomPrefNotPrevEnemy，
-    // 8499 先例按独立随机敌组装）；「随机状态」= inflictRandom（§11 阵营分池，敌方=负面池），
-    // 跨段绑定 lastTarget
+    // 官方步骤 Damage@RandomEnemy+RandomStatusEffect@FromPrevious，再 Damage@RandomPrefNotPrevEnemy
+    // +RandomStatusEffect@FromPrevious（R007-3：第二击只避开上一目标，仅剩一人时可重复）；
+    // 「随机状态」= inflictRandom（敌方=负面池），跨段绑定 lastTarget
     build: skill(
       dmg('enemyRandom', 1, 1),
       inflictRandom('lastTarget'),
-      dmg('enemyRandom', 1, 1),
+      dmg('enemyRandomPrefNotPrev', 1, 1),
       inflictRandom('lastTarget'),
     ),
   },
