@@ -15,3 +15,8 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - weapon:1561 accept (L7; heavy splash 13/9 chosen, light splash plain RandomEnemy may repeat)
 - weapon:1273 accept (L7; SplashHigh 16/8, x2 with any storm)
 - troop:6057 fixed+accept (L7; +6 vs wounded; zh added 对一名敌人 + override 6057)
+- weapon:1026 accept (L7; true 15 chosen)
+- weapon:1027 accept (L7; true 17 random)
+- weapon:1041 accept (L7; true 13 chosen)
+- weapon:1042 accept (L7; true 14 random)
+- weapon:1115 accept (L7; true 11, x2 vs marked)

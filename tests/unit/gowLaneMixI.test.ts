@@ -104,3 +104,36 @@ describe('sa-I L7 B03', () => {
     expect(dmgLines({ key: 'troop:6057', enemies: hurt, target: 10 })).toEqual(['dmg E10 11']);
   });
 });
+describe('sa-I L7 B04', () => {
+  const armoured = [{ hp: 900, maxHp: 900, armor: 50 }, { hp: 900, maxHp: 900, armor: 50 }, { hp: 900, maxHp: 900, armor: 50 }];
+  it.each([['weapon:1026', 15], ['weapon:1041', 13]])('%s true damage %i to the chosen enemy, ignores Armor', (key, n) => {
+    const r = castSpell({ key, enemies: armoured, target: 12 }).summary;
+    expect(r.order).toEqual([`dmg E12 ${n}`]); expect(r.units.E12).toMatch(new RegExp(`hp-${n}\\b`)); expect(r.units.E12).not.toMatch(/arm-/);
+  });
+  it.each([['weapon:1027', 17], ['weapon:1042', 14]])('%s true damage %i to a random enemy, ignores Armor', (key, n) => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const l = dmgLines({ key, seed, enemies: armoured }); expect(l).toHaveLength(1);
+      expect(l[0]).toMatch(new RegExp(` ${n}$`)); seen.add(l[0].split(' ')[1]);
+    }
+    expect(seen.size).toBe(3);
+  });
+  it('weapon:1115 true damage 11, doubled on a Hunter-Marked target', () => {
+    const m = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, statuses: st('marked') }];
+    expect(dmgLines({ key: 'weapon:1115', enemies: m })).toEqual(['dmg E11 22']);
+    expect(dmgLines({ key: 'weapon:1115', enemies: m, target: 10 })).toEqual(['dmg E10 11']);
+  });
+});
+describe('sa-I L7 B05', () => {
+  it('weapon:1118 true damage 12, +5 only when the target itself is Divine (was any Divine enemy)', () => {
+    const d = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, troopTypes: ['Divine'] }];
+    expect(dmgLines({ key: 'weapon:1118', enemies: d })).toEqual(['dmg E11 17']);
+    expect(dmgLines({ key: 'weapon:1118', enemies: d, target: 10 })).toEqual(['dmg E10 12']);
+  });
+  it('troop:6883 two true hits on the same enemy: x2 if Poisoned, x2 if Stunned, independently', () => {
+    const e = (...s: string[]) => [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, statuses: st(...s) }];
+    expect(dmgLines({ key: 'troop:6883', enemies: e('poison') })).toEqual(['dmg E11 22', 'dmg E11 11']);
+    expect(dmgLines({ key: 'troop:6883', enemies: e('stun') })).toEqual(['dmg E11 11', 'dmg E11 22']);
+    expect(dmgLines({ key: 'troop:6883', enemies: e('poison', 'stun') })).toEqual(['dmg E11 22', 'dmg E11 22']);
+  });
+});
