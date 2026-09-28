@@ -198,7 +198,7 @@ export class EventShopScreen implements Screen {
   private filters = new Map<EventTypeId, ShopCategory>();
   private scrollPositions = new Map<EventTypeId, number>();
   private returnGoods = new Map<EventTypeId, string>();
-  private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
+  private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject, boolean]> = [];
 
   html(ctx: ShellCtx, param?: string): string {
     const typeId = parseTypeId(param);
@@ -226,9 +226,11 @@ export class EventShopScreen implements Screen {
           <header class="shop-page-head"><h1>商店</h1>${shopNavHtml('events')}</header>
           <nav class="shop-tabs" aria-label="活动商店页签">${tabs}</nav><label class="shop-mobile-picker"><span>活动兑换</span><select id="shopTypePicker" aria-label="选择活动商店">${EVENT_ROTATION.map(t=>`<option value="${t.id}" ${t.id===typeId?'selected':''}>${t.name}</option>`).join('')}</select></label>
           <div class="shop-hero">
-            <div class="shop-hero-copy"><h2>${def.name}</h2><p>${def.brief}</p>
-              <div class="shop-page-meta">${tokenBalanceHtml(shop.week.tokens, def.tokenName)}<span class="shop-reset"><span data-icon="time"></span><span id="shopRefreshLabel">${remainingLabel(now, shop.period.end)}后刷新</span></span></div></div>
-            <a class="shop-earn-link" href="#events/${typeId}">前往活动 →</a>
+            <div class="shop-hero-copy"><h2>${def.name}</h2><p>${def.brief}</p></div>
+            <div class="shop-hero-side">
+              <div class="shop-page-meta">${tokenBalanceHtml(shop.week.tokens, def.tokenName)}<span class="shop-reset"><span data-icon="time"></span><span id="shopRefreshLabel">${remainingLabel(now, shop.period.end)}后刷新</span></span></div>
+              <a class="shop-earn-link" href="#events/${typeId}">前往活动 <span aria-hidden="true">→</span></a>
+            </div>
           </div>
           <section class="shop-catalog"><div class="shop-section-head"><div><h2>本期货架</h2><span class="shop-catalog-count">${shop.rows.length-1} 款</span></div></div>
             <nav class="shop-categories" aria-label="商品分类">${SHOP_CATEGORIES.filter(category=>category.id==='all'||shop.rows.some(row=>row!==surplus&&goodsCategory(row.goods)===category.id)).map(category=>`<button type="button" data-shop-category="${category.id}" aria-pressed="${filter===category.id}"><span data-icon="${category.icon}"></span>${category.name}<span class="shop-category-count">${shop.rows.filter(row=>row!==surplus&&(category.id==='all'||goodsCategory(row.goods)===category.id)).length}</span></button>`).join('')}</nav>
@@ -250,7 +252,14 @@ export class EventShopScreen implements Screen {
     panel.scrollTop = this.scrollPositions.get(currentShop) ?? 0;
     const returnId = this.returnGoods.get(currentShop);
     if (returnId) { panel.querySelector<HTMLAnchorElement>(`[data-shop-troop="${returnId}"]`)?.focus({preventScroll:true}); this.returnGoods.delete(currentShop); }
-    this.on(panel, 'scroll', () => this.scrollPositions.set(currentShop, panel.scrollTop));
+    // 离开本页时先定格滚动位置：切路由会先撤掉本页样式，面板塌缩时触发的 scroll 不能覆盖记录
+    let leaving = false;
+    this.on(panel, 'scroll', () => { if (!leaving) this.scrollPositions.set(currentShop, panel.scrollTop); });
+    this.on(document, 'click', (event) => {
+      if (!(event.target as HTMLElement).closest('a[href^="#"], [data-shop-troop]')) return;
+      this.scrollPositions.set(currentShop, panel.scrollTop);
+      leaving = true;
+    }, true);
     const picker=document.querySelector<HTMLSelectElement>('#shopTypePicker');
     if(picker)this.on(picker,'change',()=>ctx.navigate(`#shop/${picker.value}`));
     const checkRefresh = (): boolean => {
@@ -332,15 +341,15 @@ export class EventShopScreen implements Screen {
     });
   }
 
-  private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {
-    target.addEventListener(type, fn);
-    this.listeners.push([target, type, fn]);
+  private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject, capture = false): void {
+    target.addEventListener(type, fn, capture);
+    this.listeners.push([target, type, fn, capture]);
   }
 
   dispose(): void {
     if (this.refreshTimer !== null) clearTimeout(this.refreshTimer);
     this.refreshTimer = null;
-    for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
+    for (const [target, type, fn, capture] of this.listeners.splice(0)) target.removeEventListener(type, fn, capture);
   }
 }
 

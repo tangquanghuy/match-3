@@ -492,10 +492,10 @@
 .shop-v3 .shop-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  grid-template-areas: "title meta link" "brief meta link";
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "title side" "brief side";
   align-items: center;
-  gap: 4px 22px;
+  gap: 4px 24px;
   min-height: 96px;
   padding: 14px 22px;
   margin-bottom: 12px;
@@ -512,29 +512,55 @@
 .shop-v3 .shop-hero-copy { display: contents; }
 .shop-v3 .shop-hero h2 { grid-area: title; align-self: end; margin: 0; color: #fff4df; font: 28px var(--display); letter-spacing: 4px; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
 .shop-v3 .shop-hero p { grid-area: brief; align-self: start; max-width: 520px; margin: 0; color: #d8cfbf; font: 13px/1.6 var(--body); text-shadow: 0 1px 4px #000; }
-.shop-v3 .shop-hero .shop-page-meta { grid-area: meta; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin: 0; }
-.shop-v3 .shop-hero .shop-earn-link { grid-area: link; }
-.shop-v3 .shop-token-bar { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border: 1px solid color-mix(in srgb, var(--shop-accent) 55%, #6b5b3e); border-radius: 999px; background: rgba(8, 6, 12, .78); }
-.shop-v3 .shop-token-orb { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--shop-accent) 35%, #1a1520); color: #fff0d2; }
-.shop-v3 .shop-token-bar > b { color: #e9dfcb; font: 13px var(--body); }
-.shop-v3 .shop-token-bar strong { color: #ffe29a; font: 700 22px Georgia, var(--body); }
-.shop-v3 .shop-reset { color: #cfc6b4; text-shadow: 0 1px 3px #000; }
-.shop-v3 .shop-reset [data-icon] { color: #e8c98c; }
+/* 右侧信息卡：印记余额（上）+ 刷新倒计时（下）+ 前往活动（金色主按钮），三者一组，不再散落在画面上 */
+.shop-v3 .shop-hero-side {
+  grid-area: side;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 10px 10px 14px;
+  border: 1px solid rgba(240, 214, 160, .28);
+  border-radius: 14px;
+  background: rgba(10, 8, 14, .8);
+  box-shadow: inset 0 1px rgba(255, 240, 210, .08), 0 8px 22px rgba(0, 0, 0, .45);
+  backdrop-filter: blur(6px);
+}
+.shop-v3 .shop-hero-side .shop-page-meta { display: grid; gap: 6px; margin: 0; }
+.shop-v3 .shop-token-bar {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas: "orb name" "orb num";
+  align-items: center;
+  justify-content: start;
+  gap: 0 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.shop-v3 .shop-token-orb { grid-area: orb; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--shop-accent) 40%, #1a1520); box-shadow: 0 0 0 1px color-mix(in srgb, var(--shop-accent) 70%, #d8c08a); color: #fff0d2; }
+.shop-v3 .shop-token-bar > b { grid-area: name; color: #bfb3a0; font: 12px/1.3 var(--body); }
+.shop-v3 .shop-token-bar strong { grid-area: num; color: #ffe29a; font: 700 24px/1.05 Georgia, var(--body); font-variant-numeric: tabular-nums; }
+.shop-v3 .shop-reset { display: inline-flex; align-items: center; gap: 5px; padding-top: 6px; border-top: 1px solid rgba(240, 214, 160, .16); color: #b9ae9a; font: 11px var(--body); white-space: nowrap; }
+.shop-v3 .shop-reset [data-icon] { width: 13px; height: 13px; color: #e8c98c; }
 .shop-v3 .shop-hero .shop-earn-link {
   flex: none;
   display: inline-flex;
   align-items: center;
-  min-height: 42px;
-  padding: 0 20px;
-  border: 1px solid rgba(240, 214, 160, .6);
-  border-radius: 999px;
-  background: rgba(10, 8, 14, .7);
-  color: #fff1cf;
+  gap: 6px;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f3d792, #c99c4e);
+  box-shadow: inset 0 1px rgba(255, 250, 225, .6), 0 4px 10px rgba(0, 0, 0, .35);
+  color: #231a0c;
   font: 600 14px var(--body);
+  letter-spacing: 1px;
   text-decoration: none;
-  backdrop-filter: blur(4px);
 }
-.shop-v3 .shop-hero .shop-earn-link:hover { border-color: #ffe29a; background: rgba(40, 30, 20, .8); }
+.shop-v3 .shop-hero .shop-earn-link:hover { background: linear-gradient(180deg, #fbe3a8, #d8ab5c); }
+.shop-v3 .shop-hero .shop-earn-link:focus-visible { outline: 2px solid #aadbd7; outline-offset: 3px; }
 
 /* 货架标题与分类合一行 */
 .shop-v3 .shop-catalog { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px 24px; padding: 0 0 20px; }
@@ -548,8 +574,9 @@
 .shop-v3 .shop-grid { grid-column: 1 / -1; }
 
 /* 商品卡 */
-.shop-v3 .shop-grid .shop-goods { min-height: 288px; border: 1px solid var(--v3-line); border-radius: 12px; background: var(--v3-card); box-shadow: 0 8px 22px rgba(0, 0, 0, .35); transition: border-color .15s, transform .15s; }
-.shop-v3 .shop-grid .shop-goods:hover { border-color: color-mix(in srgb, var(--goods-tone) 70%, #fff 0%); transform: translateY(-2px); }
+.shop-v3 .shop-grid .shop-goods { min-height: 288px; border: 1px solid var(--v3-line); border-radius: 12px; background: var(--v3-card); box-shadow: 0 8px 22px rgba(0, 0, 0, .35); transition: border-color .15s, box-shadow .15s; }
+/* 悬停只换描边与投影，不位移：卡片在指针下挪动会让点击落空、面板跟着跳 */
+.shop-v3 .shop-grid .shop-goods:hover { border-color: color-mix(in srgb, var(--goods-tone) 70%, #fff 0%); box-shadow: 0 10px 26px rgba(0, 0, 0, .45); }
 .shop-v3 .shop-grid .shop-goods.featured { border-color: color-mix(in srgb, var(--shop-accent) 70%, #e7c985); box-shadow: 0 0 0 1px color-mix(in srgb, var(--shop-accent) 35%, transparent), 0 10px 26px rgba(0, 0, 0, .45); }
 .shop-v3 .shop-grid .shop-goods-art {
   height: 108px;
@@ -585,11 +612,17 @@
   .shop-v3 .shop-page-head { min-height: 44px; padding-bottom: 8px; }
   .shop-v3 .shop-tabs { padding-bottom: 8px; }
   .shop-v3 .shop-tab { min-height: 46px; }
-  .shop-v3 .shop-hero { grid-template-areas: "title meta link"; min-height: 0; padding: 10px 20px; margin-bottom: 10px; }
+  .shop-v3 .shop-hero { grid-template-areas: "title side"; min-height: 0; padding: 8px 10px 8px 20px; margin-bottom: 10px; }
   .shop-v3 .shop-hero h2 { align-self: center; font-size: 24px; }
   .shop-v3 .shop-hero p { display: none; }
-  .shop-v3 .shop-hero .shop-page-meta { flex-direction: row; align-items: center; gap: 16px; }
-  .shop-v3 .shop-token-bar { padding-block: 3px; }
+  /* 矮屏：信息卡改单行——余额 | 刷新 | 按钮 */
+  .shop-v3 .shop-hero-side { padding: 6px 6px 6px 12px; gap: 14px; }
+  .shop-v3 .shop-hero-side .shop-page-meta { display: flex; align-items: center; gap: 14px; }
+  .shop-v3 .shop-token-bar { grid-template-columns: auto auto auto; grid-template-areas: "orb name num"; }
+  .shop-v3 .shop-token-orb { width: 28px; height: 28px; }
+  .shop-v3 .shop-token-bar strong { font-size: 20px; }
+  .shop-v3 .shop-reset { padding: 0 0 0 14px; border-top: 0; border-left: 1px solid rgba(240, 214, 160, .16); }
+  .shop-v3 .shop-hero .shop-earn-link { min-height: 40px; padding: 0 18px; }
   .shop-v3 .shop-catalog { gap: 10px 24px; padding-bottom: 12px; }
   .shop-v3 .shop-categories button { min-height: 36px; }
   .shop-v3 .shop-grid .shop-goods { min-height: 270px; }
@@ -602,6 +635,8 @@
 }
 /* 面板是纵向 flex 滚动容器：各块保持自身高度，不被压扁 */
 .event-shop-panel.shop-v3 > * { flex: none; }
+/* 从图鉴返回时由脚本还原滚动位置；关掉浏览器滚动锚定，免得图片晚到把位置顶走 */
+.event-shop-panel.shop-v3 { overflow-anchor: none; }
 @media (max-width: 1000px) {
   .shop-v3 .shop-catalog { grid-template-columns: 1fr; }
   .shop-v3 .shop-categories { justify-content: flex-start; }
@@ -613,13 +648,19 @@
   .shop-v3 .market-switch a { flex: 1; justify-content: center; }
   .shop-v3 .shop-mobile-picker { padding-bottom: 10px; color: #c9bfae; }
   .shop-v3 .shop-mobile-picker select { border-color: rgba(214, 190, 140, .35); border-radius: 999px; background: #1a1622; color: #f3eee4; }
-  .shop-v3 .shop-hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "brief" "meta"; gap: 6px; min-height: 0; padding: 14px 16px; background: linear-gradient(180deg, rgba(10, 8, 14, .55), rgba(10, 8, 14, .92) 70%), var(--shop-hero, none) 70% 30% / cover no-repeat, #19141f; }
+  .shop-v3 .shop-hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "brief" "side"; gap: 6px; min-height: 0; padding: 14px 16px; background: linear-gradient(180deg, rgba(10, 8, 14, .55), rgba(10, 8, 14, .92) 70%), var(--shop-hero, none) 70% 30% / cover no-repeat, #19141f; }
   .shop-v3 .shop-hero h2 { font-size: 22px; }
   .shop-v3 .shop-hero p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 12px; }
-  .shop-v3 .shop-hero .shop-page-meta { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 12px; }
-  .shop-v3 .shop-token-bar strong { font-size: 18px; }
-  .shop-v3 .shop-hero .shop-earn-link { position: absolute; top: 12px; right: 12px; min-height: 34px; padding: 0 12px; font-size: 12px; }
+  /* 手机：信息卡铺满横幅底部，余额与刷新在左、按钮在右 */
+  .shop-v3 .shop-hero-side { justify-content: space-between; gap: 10px; margin-top: 4px; padding: 8px 8px 8px 10px; }
+  .shop-v3 .shop-hero-side .shop-page-meta { min-width: 0; gap: 4px; }
+  .shop-v3 .shop-token-orb { width: 30px; height: 30px; }
+  .shop-v3 .shop-token-bar strong { font-size: 20px; }
+  .shop-v3 .shop-reset { padding-top: 4px; white-space: normal; }
+  .shop-v3 .shop-hero .shop-earn-link { min-height: 44px; padding: 0 14px; font-size: 13px; }
   .shop-v3 .shop-catalog { gap: 10px; }
   .shop-v3 .shop-section-head { display: none; }
+  /* 底部留白：筛选后只剩一张卡时也有足够的滚动余量，返回时能准确还原位置 */
+  .event-shop-panel.shop-v3 { padding-bottom: 48px; }
   .shop-v3 .shop-grid .shop-goods-art { height: 100%; min-height: 0; }
 }
