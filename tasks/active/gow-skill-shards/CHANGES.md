@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 537 条改动，涉及 990 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 538 条改动，涉及 990 个技能 ID。
 
 ## 按时间
 
@@ -543,6 +543,7 @@
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9648 | troop:7689 ImmortalDrakkon | `src/engine/skills/curated/batch-r11.ts` | 6 Yellow -> plain Green → 6 Yellow -> Green Dragon Gems (R009) |  |
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9220 | troop:7487 Takshaka | `src/engine/skills/curated/batch-r9.ts` | second hit enemyRandom (could repeat the chosen target) → native RandomPrefNotPrevEnemy (avoids the chosen target) |  |
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
+| 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
 
 ## 按技能 ID
 
@@ -1053,7 +1054,7 @@
 | 8499 | 1 | P-random-stat-pool |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
-| 8503 | 1 | B-L4b-7000-zh |
+| 8503 | 2 | B-L4b-7000-zh、R014-7000-count-before-create |
 | 8505 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8506 | 1 | P-E-faction-kingdom |
 | 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |

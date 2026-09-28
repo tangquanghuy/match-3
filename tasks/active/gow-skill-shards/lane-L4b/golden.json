@@ -1309,6 +1309,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T02:37:56.126Z"
  },
+ "troop:7000": {
+  "lines": {
+   "L10": "convert Blue x1, Green x1, skull x1 -> Yellow x3 ; dmg E11 17 ; status C +enchanted  => E11:hp-7 arm-10 | C:+enchanted",
+   "R10": "convert Blue x1, Green x1, skull x1 -> Yellow x3 ; dmg E11 17 ; status C +enchanted  => E11:hp-7 arm-10 | C:+enchanted",
+   "L0": "convert Blue x1, Green x1, skull x1 -> Yellow x3 ; dmg E11 7 ; status C +enchanted  => E11:arm-7 | C:+enchanted",
+   "K": "convert Blue x1, Green x1, skull x1 -> Yellow x3 ; dmg E11 17 ; defeat E11 ; status C +enchanted  => E11:hp-1 DEAD | C:+enchanted"
+  },
+  "by": "coord",
+  "at": "2026-09-28T15:44:44.509Z"
+ },
  "troop:7020": {
   "lines": {
    "L10": "convert Green x2, skull x1, Brown x1, Purple x3, Blue x3 -> Yellow x10 ; convert Yellow x2, Purple x1, Red x2, Green x1, Blue x2 -> skull x8 ; ~cascade~  cascade",

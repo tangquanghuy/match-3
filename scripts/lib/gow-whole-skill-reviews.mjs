@@ -108,7 +108,9 @@ export function assessCompactSignoff(row,review,{receipt,fingerprint,changes=[]}
   fail(!!src&&sourceAllowsExclusion(src,WAIVED_KIND,w.part==='step',w.mode),`waiver:${w.part}:${w.id}`);
  }
  const t=Date.parse(review?.reviewedAt??'');
- const later=changes.find(c=>Date.parse(c.at)>t&&((c.spells??[]).map(String).includes(String(row.spellId))||(c.keys??[]).includes(row.key)));
+ // Only direct edits of this skill (assembler / data) revoke the signoff. Shared-primitive changes list every
+ // potentially affected key; their behaviour impact is guarded by gowCastGolden + the full-run receipt instead.
+ const later=changes.find(c=>c.kind!=='primitive'&&Date.parse(c.at)>t&&((c.spells??[]).map(String).includes(String(row.spellId))||(c.keys??[]).includes(row.key)));
  fail(!later,'changed-after-signoff');
  return {eligible:failures.length===0,failures,...(later?{changedBy:`${later.issue??''} ${later.at}`}:{})};
 }
