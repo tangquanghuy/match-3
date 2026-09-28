@@ -424,3 +424,31 @@ describe('sa-H L2 B10', () => {
     for (const v of Object.values(t)) within(v / SEEDS, 1 / 3, '6818');
   });
 });
+
+describe('sa-H L2 B11', () => {
+  it('troop:6610 Darkstorm, then 1/3 Disease | Freeze | Stun on all enemies', () => {
+    const t: Record<string, number> = {};
+    for (let seed = 1; seed <= SEEDS; seed++) { const s = statusesOn(orderOf({ key: 'troop:6610', seed }), 'E12'); t[s[0]] = (t[s[0]] ?? 0) + 1; }
+    expect(Object.keys(t).sort()).toEqual(['disease', 'frozen', 'stun']);
+    for (const v of Object.values(t)) within(v / SEEDS, 1 / 3, '6610');
+  });
+  it('troop:7794 Choose B: Enchant self, convert one of the chosen enemy colours to Yellow', () => {
+    const b = choose({ key: 'troop:7794' }, 1);
+    expect(b[0]).toBe('status C +enchanted'); expect(b[1]).toMatch(/^convert (Yellow|Blue) x\d+ -> Yellow x\d+$/);
+  });
+  it('troop:7298 Choose B: weakest enemy takes [M+1] + 2 per Red gem + 2 per Spirit gem', () => {
+    const board = (r: number, c: number) => ({ kind: 'color', color: r === 0 && c < 3 ? BaseColor.Red : BaseColor.Blue }) as never;
+    const b = choose({ key: 'troop:7298', board }, 1);
+    expect(b[0]).toBe('dmg E12 17'); // E12 weakest (300 + 12); 11 + 3 Red x2
+  });
+  it('troop:7746 kill -> 1 + 50% + 50% random negative statuses on the other enemies', () => {
+    let total = 0;
+    const enemies = [{ hp: 900, maxHp: 900 }, { hp: 1, maxHp: 1, armor: 0 }, { hp: 900, maxHp: 900 }];
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const f = setupCast({ key: 'troop:7746', seed, enemies }); const ev = f.cast();
+      total += ev.filter(e => e.type === 'status-apply' && e.targetId === 10).length;
+    }
+    within(total / SEEDS, 2, 'mean');
+    expect(orderOf({ key: 'troop:7746' }).some(l => l.startsWith('status'))).toBe(false);
+  });
+});

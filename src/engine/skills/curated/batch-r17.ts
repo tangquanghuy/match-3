@@ -396,11 +396,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 1]真实伤害。若该敌人死亡，则对所有其他敌人造成1-3个负面状态效果。',
     // 官方三步 RandomStatusEffectConditional（100%+50%+50%）全挂 AddForKill → ifTargetDied；
     // 目标身亡后 enemyAll 天然排除死者（=「所有其他敌人」）
+    // sa-H：ifTargetDied 看「最近产目标段」的主目标——第 1 个随机状态段解析 enemyAll 后，第 2/3 段看的是存活敌人，
+    // 永不触发；改用本次施放击杀计数 castEnemyDied（唯一伤害段就是对所选敌人的这一击）
     build: skill(
       trueDmg('enemyChosen', 1, 1),
-      inflictRandom('enemyAll', { ifTargetDied: true }),
-      inflictRandom('enemyAll', { ifTargetDied: true, chance: 0.5 }),
-      inflictRandom('enemyAll', { ifTargetDied: true, chance: 0.5 }),
+      inflictRandom('enemyAll', { ifCond: { kind: 'castEnemyDied' } }),
+      inflictRandom('enemyAll', { ifCond: { kind: 'castEnemyDied' }, chance: 0.5 }),
+      inflictRandom('enemyAll', { ifCond: { kind: 'castEnemyDied' }, chance: 0.5 }),
     ),
   },
   {

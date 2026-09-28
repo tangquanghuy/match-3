@@ -49,3 +49,8 @@
 - weapon:1503 accept (Choose steal Magic|Mana then damage last enemy, native order)
 - troop:7253 fixed+accept (steal before damage per native; branch A stole Mana, now Magic; zh fixed + override 7253)
 - troop:6818 accept (Green storm + 1/3 disease|poison|entangle)
+- troop:6610 accept (Darkstorm + 1/3 disease|freeze|stun)
+- troop:6332 accept (Darkstorm + [M/2] random Skill all enemies)
+- troop:7794 accept (Choose true dmg | enchant self + chosen enemy colour -> Yellow)
+- troop:7298 accept (Choose; weakest + Red x2 + Spirit x2 counters)
+- troop:7746 fixed+accept (chained ifTargetDied: 2nd/3rd 50% statuses never fired; now castEnemyDied gate. HINT: other skills with >1 consecutive ifTargetDied segments after a targeting segment may share this)

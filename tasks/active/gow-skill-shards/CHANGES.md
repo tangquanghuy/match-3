@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 556 条改动，涉及 1005 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 557 条改动，涉及 1006 个技能 ID。
 
 ## 按时间
 
@@ -562,6 +562,7 @@
 | 2026-09-28T21:46 | sa-H | L2-H-1396-any-gem | assembler | 8517 | weapon:1396 ExperimentalElixir | `src/engine/skills/curated/batch-w03.ts` | explode 1 random coloured gem → explode 1 random gem of any kind (native ExplodeGems 1); skill issued for Amount dispute |  |
 | 2026-09-28T21:49 | sa-H | L2-H-6817-one-skill | assembler | 8216 | troop:6817 ShahbanuVespera | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | each grant split [(M/2)+1] across several Skills; zh said 2 other allies → each native IncreaseRandom gives the whole amount to one random Skill (oneSkill); zh 'repeat 2 more times for random allies' + override |  |
 | 2026-09-28T21:54 | sa-H | L2-H-7253-steal-first | assembler | 8852 | troop:7253 Sagittarian | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | true damage first, then steal 10 MANA \| 20 Life \| 20 Armor; zh 盔甲魔力值 → native AB-CD-EF: steal 10 Magic \| 20 Armor \| 20 Life before the true damage (R001); zh fixed + override |  |
+| 2026-09-28T21:57 | sa-H | L2-H-7746-kill-gate | assembler | 9731 | troop:7746 Cascabel | `src/engine/skills/curated/batch-r17.ts` | 3 x ifTargetDied random-status segments: 2nd/3rd looked at the 1st status segment's living target and never fired (always exactly 1 status on kill) → gate all three on castEnemyDied: kill -> 1 + 50% + 50% random negative statuses on each other enemy |  |
 
 ## 按技能 ID
 
@@ -1492,6 +1493,7 @@
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9722 | 1 | R3-B02-1657 |
 | 9723 | 1 | F2-7728-no-damage |
+| 9731 | 1 | L2-H-7746-kill-gate |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |
 | 9749 | 1 | P-E-faction-kingdom |
