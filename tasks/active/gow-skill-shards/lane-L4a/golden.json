@@ -699,6 +699,16 @@
   "by": "sa-A",
   "at": "2026-09-28T21:22:20.692Z"
  },
+ "troop:6536": {
+  "lines": {
+   "L10": "explode 30 ; skulls E10 3 ; status E11 +stun  => A1:mana+3 | A2:mana+3 | E10:arm-3 | E11:+stun",
+   "R10": "explode 30 ; skulls E10 3 ; status E11 +stun  => A1:mana+3 | A2:mana+3 | E10:arm-3 | E11:+stun",
+   "L0": "explode 30 ; skulls E10 3 ; status E11 +stun  => A1:mana+3 | A2:mana+3 | E10:arm-3 | E11:+stun",
+   "K": "explode 30 ; skulls E10 3 ; defeat E10 ; status E11 +stun  => A1:mana+3 | A2:mana+3 | E10:hp-1 DEAD | E11:+stun"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:32:42.590Z"
+ },
  "troop:6540": {
   "lines": {
    "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade",
@@ -1759,6 +1769,16 @@
   "by": "sa-A",
   "at": "2026-09-28T21:52:25.256Z"
  },
+ "troop:7380": {
+  "lines": {
+   "L10": "buff C attack+11 ; buff C armor+11  => C:arm+11 atk+11",
+   "R10": "buff C attack+11 ; buff C armor+11  => C:arm+11 atk+11",
+   "L0": "buff C attack+1 ; buff C armor+1  => C:arm+1 atk+1",
+   "K": "buff C attack+11 ; buff C armor+11  => C:arm+11 atk+11"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:32:42.590Z"
+ },
  "troop:7391": {
   "lines": {
    "L10": "dmg E11 14 ; explode 23 ; skulls E10 2 ; ~cascade~  => E11:hp-4 arm-10 | A2:mana+2 | E10:arm-2  cascade",
@@ -1768,6 +1788,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T21:32:50.945Z"
+ },
+ "troop:7402": {
+  "lines": {
+   "L10": "explode 3 ; ~cascade~ ; status E11 +entangle ; status E11 +web  => E11:+entangle+web  cascade",
+   "R10": "explode 3 ; ~cascade~ ; status E11 +entangle ; status E11 +web  => E11:+entangle+web  cascade",
+   "L0": "explode 3 ; ~cascade~ ; status E11 +entangle ; status E11 +web  => E11:+entangle+web  cascade",
+   "K": "explode 3 ; ~cascade~ ; status E11 +entangle ; status E11 +web  => E11:+entangle+web  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:32:42.590Z"
  },
  "troop:7404": {
   "lines": {
@@ -2398,6 +2428,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:39:53.465Z"
+ },
+ "weapon:1064": {
+  "lines": {
+   "L10": "explode 9  => A1:mana+1 | A2:mana+1",
+   "R10": "explode 9  => A1:mana+1 | A2:mana+1",
+   "L0": "explode 9  => A1:mana+1 | A2:mana+1",
+   "K": "explode 9  => A1:mana+1 | A2:mana+1"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:32:42.590Z"
  },
  "weapon:1069": {
   "lines": {

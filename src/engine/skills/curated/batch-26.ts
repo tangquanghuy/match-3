@@ -142,7 +142,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7730,
     desc: '随机爆破 4 颗宝石。击晕一名敌人。如果敌人是一名神祇军队，则窃取 8 点生命值。',
     build: skill(
-      explodeRandomGems(4, 0, 'color'),
+      // native ExplodeGems 4 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(4, 0, 'all'),
       inflict('stun', 'enemyChosen'),
       // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节）；「窃取 X 点生命值」
       // = dmg + drain（batch-01 7302 / batch-08 头注口径）；神祇 = Divine（batch-20 头注核实）

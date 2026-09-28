@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 631 条改动，涉及 1083 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 635 条改动，涉及 1087 个技能 ID。
 
 ## 按时间
 
@@ -637,6 +637,10 @@
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
 | 2026-09-28T22:28 | sa-A | L4a-R9-7404-purple | assembler | 9054 | troop:7404 HauntedDoll | `src/engine/skills/curated/batch-r4.ts` | 9054 explodeRandomGems(1,1) any gem incl. Skulls → native ExplodeColor Purple: explode 1+M Purple gems only |  |
+| 2026-09-28T22:32 | sa-A | L4a-R9-7001-zh | data | 8504 | troop:7001 HoundOfYaoGuai | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | 8504 zh '炸毁三个骷髅头。获得一次攻击。' → zh '爆破 3 颗骷髅。获得 [(魔法 / 2) + 1] 点攻击力。' + snapshot override |  |
+| 2026-09-28T22:32 | sa-A | L4a-R9-1064-zh | data | 7071 | weapon:1064 CrudeClub | `src/engine/skills/curated/batch-w05.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 7071 zh '?????????' → zh '随机爆破一颗宝石。' (English 'Explode a random Gem.') |  |
+| 2026-09-28T22:32 | sa-A | L4a-R9-7402-same-target | assembler | 9052 | troop:7402 TriTerror | `src/engine/skills/curated/batch-r22.ts` | 9052 entangle enemyRandom, web enemyRandom (independent) → native CauseWeb@FromPrevious: web lastTarget (same random enemy) |  |
+| 2026-09-28T22:32 | sa-A | L4a-R9-6536-skulls | assembler | 7730 | troop:6536 Vargouille | `src/engine/skills/curated/batch-26.ts` | 7730 explodeRandomGems 4 include color → include all: Skulls are Gems (R013-5) |  |
 
 ## 按技能 ID
 
@@ -674,6 +678,7 @@
 | 7063 | 1 | P-create-interleave |
 | 7065 | 1 | F2-R001-order |
 | 7066 | 1 | D-1000-strongest |
+| 7071 | 1 | L4a-R9-1064-zh |
 | 7092 | 1 | L4b-7276-singlegem |
 | 7094 | 1 | F2-1028-missing-magic |
 | 7102 | 1 | L4a-r3-1036 |
@@ -907,6 +912,7 @@
 | 7722 | 1 | P-E-faction-kingdom |
 | 7723 | 1 | F2-6529-dispel-kill |
 | 7728 | 2 | L1-6534-order、L1-charm-instant |
+| 7730 | 1 | L4a-R9-6536-skulls |
 | 7735 | 1 | P-chooser-native-restrictions |
 | 7740 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7743 | 1 |  |
@@ -1200,6 +1206,7 @@
 | 8501 | 1 | L3-F-6998 |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 2 | B-L4b-7000-zh、R014-7000-count-before-create |
+| 8504 | 1 | L4a-R9-7001-zh |
 | 8505 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8506 | 1 | P-E-faction-kingdom |
 | 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
@@ -1436,6 +1443,7 @@
 | 9034 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9036 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9051 | 1 | L3-008 |
+| 9052 | 1 | L4a-R9-7402-same-target |
 | 9053 | 1 | B5-L4b-7403-singlegem |
 | 9054 | 1 | L4a-R9-7404-purple |
 | 9064 | 1 | P-counter-per-step |

@@ -415,3 +415,8 @@
 {"format":"compact","key":"weapon:1098","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.474Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7404","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.474Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6857","decision":"issue","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.639Z","issue":"P-A-chosen-target-status-precast","note":"native order ExplodeColor Red [AddForBurning] -> ExplodeColor Green [AddForDisease] -> Damage@FromTarget; curated runs damage first (needs tracked target for lastTargetStatus) then Green then Red. No condition reads the chosen target's status before any targeting segment; queued primitive."}
+{"format":"compact","key":"troop:7380","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:32:42.694Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1064","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:32:42.695Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7402","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:32:42.695Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6536","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:32:42.696Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7001","decision":"issue","reviewer":"sa-A","reviewedAt":"2026-09-28T22:32:42.851Z","issue":"P-A-random-skulls-variants","note":"native ExplodeColor Skull 3: random pool should include Doom Skull variants (R013-5); explodeRandomSkulls picks plain Skulls only. zh fixed (snapshot override)."}

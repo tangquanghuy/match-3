@@ -40,3 +40,30 @@ describe('L4a R9 B01', () => {
     expect(one.summary.order.filter(o => /^status E1\d \+terror$/.test(o))).toHaveLength(4);
   });
 });
+
+describe('L4a R9 B02', () => {
+  // troop:7402 (9052): ExplodeGems Block3x1 ; CauseEntangle@RandomEnemy ; CauseWeb@FromPrevious.
+  it('troop:7402 entangles and webs the same random enemy', () => {
+    const targets = new Set<string>();
+    for (let seed = 1; seed <= 10; seed++) {
+      const o = castSpell({ key: 'troop:7402', seed }).summary.order.filter(x => x.startsWith('status '));
+      expect(o).toHaveLength(2);
+      const [a, b] = o.map(x => x.split(' ')[1]);
+      expect(o[0]).toMatch(/\+entangle$/); expect(o[1]).toMatch(/\+web$/);
+      expect(b).toBe(a); targets.add(a);
+    }
+    expect(targets.size).toBeGreaterThan(1);
+  });
+  // troop:6536 (7730) ExplodeGems 4 / weapon:1064 (7071) ExplodeGems 1: colourless, Skulls eligible (R013-5).
+  it.each([['troop:6536'], ['weapon:1064']] as const)('%s random explosion can centre on Skulls', (key) => {
+    const r = castSpell({ key, board: (rr, c) => (rr < 7 ? skullGem() : reviewBoard(rr, c)) });
+    const ev = r.events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+  it('troop:6536 steals 8 Life only from a Divine target', () => {
+    const plain = castSpell({ key: 'troop:6536', board: noColour(BaseColor.Purple) });
+    expect(plain.summary.order.some(o => o.startsWith('dmg '))).toBe(false);
+    const div = castSpell({ key: 'troop:6536', board: noColour(BaseColor.Purple), enemies: [{}, { troopTypes: ['Divine'], armor: 0 }, {}, {}] });
+    expect(div.summary.order).toContain('dmg E11 8');
+  });
+});

@@ -102,3 +102,8 @@
 - troop:6857 issue(P-A-chosen-target-status-precast: native explode Red/Green before damage on chosen target status)
 - weapon:1098 accept
 - troop:7404 fix(explode 1+M Purple only, was any gem)
+- troop:7001 issue(P-A-random-skulls-variants: random Skull pool excludes Doom Skulls, R013-5) + zh fix (snapshot override)
+- troop:7380 accept
+- weapon:1064 fix(zh was '?????????'; pool + override entry)
+- troop:7402 fix(web the same random enemy, native FromPrevious)
+- troop:6536 fix(explode 4 include all)
