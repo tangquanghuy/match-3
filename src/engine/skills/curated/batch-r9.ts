@@ -186,7 +186,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8282,
-    desc: '创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。',
+    desc: '创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。',
     // TrueScatterDamage Target=AllEnemies → trueDmg enemyAll range all（8639 口径）；
     // 官方步骤无棕色宝石计数步（ZH「几率因棕色宝石数」无 [xN] 且官方无 UseCounter）→ 不挂 chanceBoost
     build: skill(
