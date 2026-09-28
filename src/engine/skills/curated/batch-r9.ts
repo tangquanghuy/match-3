@@ -670,8 +670,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '使敌人患病并晕眩，然后将其击退。引爆 2 颗与其法力颜色相同的宝石。',
     // 「击退」= 击回末位（§12.1）；ExplodeColor FromTarget Amount 2 = 定量爆破其法力色
     build: skill(
+      inflict('stun', 'enemyChosen'), // native order: CauseStun, CauseDisease
       inflict('disease', 'enemyChosen'),
-      inflict('stun', 'enemyChosen'),
       reposition('enemyChosen', 'back'),
       explodeRandomGems(2, 0, 'color', 'LAST_TARGET'),
     ),

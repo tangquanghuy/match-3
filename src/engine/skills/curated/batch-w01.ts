@@ -1129,10 +1129,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7568,
-    desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。敌我双方每有一名棕色军队则爆破一颗随机棕色宝石。 [1:1]',
+    desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。敌我双方每有一名棕色军队则爆破一颗随机宝石。 [1:1]',
     build: skill(
       dmgSplash('enemyChosen', 4, 1, { range: 'splash' }),
-      explodeRandomGems(1, 0, 'color', BaseColor.Brown, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
+      // native ExplodeGems (any random gem, no base) x (Brown allies + Brown enemies)
+      explodeRandomGems(0, 0, 'all', undefined, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
     ),
   },
   {

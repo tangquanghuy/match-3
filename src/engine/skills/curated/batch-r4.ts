@@ -129,7 +129,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '使最强大的敌人陷入诅咒和死亡标记效果。再摧毁 [魔法 + 1] 颗其法力颜色的宝石。',
     build: skill(
       inflict('curse', 'enemyHealthiest'),
-      inflict('death-mark', 'enemyHealthiest'),
+      // native CauseDeathMark@FromPrevious: same enemy as the Curse (a re-pick could differ on strongest ties)
+      inflict('death-mark', 'lastTarget'),
       destroyRandomGems(1, 1, 'color', 'LAST_TARGET'),
     ),
   },

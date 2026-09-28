@@ -59,3 +59,23 @@
 {"format":"compact","key":"weapon:1120","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:42:20.329Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7576","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:39.131Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after R007-3 random-target change"}
 {"format":"compact","key":"troop:7727","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T01:06:39.132Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after R007-3 random-target change"}
+{"format":"compact","key":"weapon:1263","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.761Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6812","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.762Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1220","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.762Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6367","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.763Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7638","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.763Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6555","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.763Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7764","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.763Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6723","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.763Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7353","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.763Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6858","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:30:57.764Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1158","decision":"issue","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:48.615Z","issue":"P-R1-count-at-native-step","note":"fixed count-only any-gem explode; remaining: Brown enemy killed by the splash must still count (native Count at step 0)"}
+{"format":"compact","key":"troop:6964","decision":"issue","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:48.741Z","issue":"P-R1-chosen-target-color-cond","note":"fixed target-only Blue count; remaining: native order Destroy/Attack before TrueDamage needs chosenTargetColor condition"}
+{"format":"compact","key":"troop:7435","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.165Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6927","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.166Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6251","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.166Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6620","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.167Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7188","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.167Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1433","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.167Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7883","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.167Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7500","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:36:51.167Z","tests":["tests/unit/gowCastGolden.test.ts"]}

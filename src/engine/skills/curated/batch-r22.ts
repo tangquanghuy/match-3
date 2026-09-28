@@ -906,8 +906,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若敌人使用蓝色法力值」= lastTargetColor 全局条件（R22 新条件）。
     build: skill(
     trueDmg('enemyChosen', 2, 1),
-    destroyRandomCols(1, 0, { modifier: boostPer({ kind: 'enemiesOfColor', color: BaseColor.Blue }, 1), ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
-    attack('allySelf', 0, 0, { modifier: boostPer({ kind: 'enemiesOfColor', color: BaseColor.Blue }, 5), ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
+    // CountArmyColor@FromTarget 500 Blue counts the target only (0/1): fixed 1 column / +5 Attack gated on the target's colour (sa-R1)
+    destroyRandomCols(1, 0, { ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
+    attack('allySelf', 5, 0, { ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
     ),
   },
   {
