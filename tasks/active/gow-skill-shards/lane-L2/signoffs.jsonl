@@ -86,3 +86,13 @@
 {"format":"compact","key":"troop:6264","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:43:08.158Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7496","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:43:08.158Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7850","decision":"issue","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:43:08.370Z","issue":"L2-7850-web-allies","note":"source-dispute: native step 0 CountSpecificStatusEffect web Target=AllAllies (x2) + step 1 cursed AllEnemies; English 'boosted by Cursed and Webbed Enemies'. Runtime counts webbed ENEMIES (English). Chosen-target fix applied (was random enemy)."}
+{"format":"compact","key":"troop:6946","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.688Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1426","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.690Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7137","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.691Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6237","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.691Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6181","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.691Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6163","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.692Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6877","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.692Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7702","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.692Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7265","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.693Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7294","decision":"accept","reviewer":"sa-R6","reviewedAt":"2026-09-28T08:47:27.693Z","tests":["tests/unit/gowCastGolden.test.ts"]}

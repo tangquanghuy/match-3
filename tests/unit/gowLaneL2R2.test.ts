@@ -493,3 +493,57 @@ describe('L2 R2 batch 06', () => {
     expect(enraged.every(x => /-14$/.test(x))).toBe(true); // 11 + 3 x 1 enraged ally
   });
 });
+
+describe('L2 R2 batch 07', () => {
+  it.each<Row>([
+    // 7378 A-B-C-D-E-F: 12 gems of ONE random colour, 1/6 each -- fixed (was a six-colour mix)
+    { key: 'troop:6237', branches: Object.fromEntries(['Red', 'Brown', 'Yellow', 'Green', 'Blue', 'Purple'].map(c => [`convert * -> ${c} x12`, 1 / 6])) },
+    // 8884 AB-CD: 5 Blue Dragon gems, then extra turn OR 3 more -- fixed (were plain Blue gems, R009)
+    { key: 'troop:7265', branches: { 'convert * -> dragonGem/Blue x5 ; extra-turn skill': 1 / 2, 'convert * -> dragonGem/Blue x5 ; convert * -> dragonGem/Blue x3': 1 / 2 } },
+  ])('$key branches and weights', o => checkRow({ ...o, norm: true }));
+
+  it('troop:7702 6 Terror OR 6 Bomb gems (1/2 each), then explode 1 random gem', () => {
+    let terror = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:7702', seed }).summary.order;
+      expect(o[0]).toMatch(/-> (terrorGem|bomb) x6$/);
+      expect(o[1]).toMatch(/^explode \d$/);
+      if (o[0].endsWith('terrorGem x6')) terror++;
+    }
+    expect(terror / SEEDS).toBeGreaterThan(0.35); expect(terror / SEEDS).toBeLessThan(0.65);
+  });
+
+  it('troop:6946 one Barrier per Cursed enemy BEFORE the damage (dead cursed enemies still count) -- fixed (was after)', () => {
+    const cursed = [0, 1, 2, 3].map(i => ({ hp: 1, maxHp: 1, armor: 0, statuses: i < 3 ? [{ id: 'curse', turns: 3 }] : [] })) as never;
+    const o = castSpell({ key: 'troop:6946', enemies: cursed }).summary.order;
+    const firstDmg = o.findIndex(x => x.startsWith('dmg '));
+    expect(o.slice(0, firstDmg).every(x => /^status (C|A\d) \+barrier$/.test(x))).toBe(true);
+    expect(firstDmg).toBeGreaterThan(0);
+    expect(o.filter(x => x.startsWith('dmg '))).toHaveLength(4);
+    const tough = [0, 1, 2, 3].map(i => ({ hp: 900, maxHp: 900, armor: 0, statuses: i < 2 ? [{ id: 'curse', turns: 3 }] : [] })) as never;
+    expect(castSpell({ key: 'troop:6946', enemies: tough }).summary.order.filter(x => x.startsWith('dmg '))).toEqual(
+      ['dmg E10 15 (all)', 'dmg E11 15 (all)', 'dmg E12 15 (all)', 'dmg E13 15 (all)']); // 11 + 2 x 2 cursed
+  });
+
+  it('troop:6181 creates 5 Red AND 5 Purple (10 gems), then [M+1] on one random Skill of a random ally -- fixed (was 5 mixed)', () => {
+    const r = castSpell({ key: 'troop:6181' });
+    expect(r.summary.gems.created).toMatchObject({ Red: 5, Purple: 5 });
+    expect(r.summary.order[2]).toMatch(/^buff (C|A\d) (hp\+11 max\+11|attack\+11|armor\+11|magic\+11)$/);
+  });
+
+  it.each([
+    ['troop:6877', 0, /-> Green x9$/], ['troop:6877', 1, /^destroy 9 \(Green x9\)$/],
+    ['weapon:1426', 0, /-> elementalStar x6$/], ['weapon:1426', 1, /-> umbralStar x7$/],
+    ['troop:7294', 0, /-> freezeGem x3$/], ['troop:7294', 1, /^buff E1\d armor-\d+$/],
+  ] as const)('%s Choose branch %i', (key, b, re) => {
+    const o = choose({ key }, b);
+    expect(o[0]).toMatch(re);
+    if (key === 'weapon:1426') expect(o.filter(x => x.endsWith(b ? '+curse' : '+blessed'))).toHaveLength(b ? 4 : 3);
+    if (key === 'troop:7294') expect(o.includes('extra-turn skill')).toBe(b === 0);
+  });
+
+  it('troop:7137 5 Yellow, then all Yellow -> Red, then -[M+1] random Skill on the target', () => {
+    const o = castSpell({ key: 'troop:7137' }).summary.order;
+    expect(o[0]).toMatch(/-> Yellow x5$/); expect(o[1]).toMatch(/^convert Yellow x\d+ -> Red x\d+$/); expect(o[2]).toMatch(/^buff E11 /);
+  });
+});

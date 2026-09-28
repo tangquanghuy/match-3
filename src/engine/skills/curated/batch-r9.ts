@@ -402,8 +402,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 5 颗蓝色龙族宝石。再获得一个额外回合，或创造 3 颗宝石。',
     // DragonBlue → 基础色 Blue（R8 口径）；「或」= oneOf 二选一
     build: skill(
-      createGems(BaseColor.Blue, 5),
-      oneOf([extraTurn()], [createGems(BaseColor.Blue, 3)]),
+      // sa-R6 L2-7265-dragon：原生 CreateGems DragonBlue = 蓝色龙宝石（R009；原为普通蓝色宝石）；AB-CD 两支都先创造 5 颗
+      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Blue }, 5),
+      oneOf([extraTurn()], [createSpecialGems({ kind: 'dragonGem', color: BaseColor.Blue }, 3)]),
     ),
   },
   {

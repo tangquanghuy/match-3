@@ -31,7 +31,7 @@
 import type { CuratedBatch } from './index';
 import {
   skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
-  cleanse, randomStat, createGems, createMix, createSpecialGems, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
+  cleanse, randomStat, createGems, createSpecialGems, destroySpecialGems, explodeSpecialGems, explodeRandomGems,
   explodeColor, explodeSkulls, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
   transformTroop, inflict,
   inflictRandom, shuffleBoard, extraTurn, oneOf, reposition, summonRandom, summonRef,
@@ -170,9 +170,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7378,
     desc: '创造 12 颗随机单色的宝石。',
     build: skill(
-      createMix(
-        [BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown],
-        12, 0,
+      // sa-R6 L2-6237-one-colour：原生 Randomize A-B-C-D-E-F = 六色之一（各 1/6）创造 12 颗同色（原为六色逐颗混合）
+      oneOf(
+        ...[BaseColor.Red, BaseColor.Brown, BaseColor.Yellow, BaseColor.Green, BaseColor.Blue, BaseColor.Purple].map(c => [createGems(c, 12)]),
       ),
     ),
   },

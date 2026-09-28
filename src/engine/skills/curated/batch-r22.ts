@@ -886,8 +886,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 伤害 [x2] 诅咒敌人数（官方 CountSpecificStatusEffect cursed 200）；「每有一名…则赋予
     // 一名随机盟友屏障」= perCount 计数驱动施加（R22 新原语，官方 InflictEffectOnRandomTroops）。
     build: skill(
-    dmg('enemyAll', 1, 1, { range: 'all', modifier: boostPer({ kind: 'enemyStatusCount', statusId: 'curse' }, 2) }),
+    // sa-R6 L2-6946-order：原生先计诅咒数并施屏障（步骤 0-1），再重新计数、伤害（2-4）；原为先伤害后屏障，
+    // 伤害打死的受诅咒敌人不再计入屏障数（R001）
     inflict('barrier', 'allyAll', { perCount: boostPer({ kind: 'enemyStatusCount', statusId: 'curse' }, 1) }),
+    dmg('enemyAll', 1, 1, { range: 'all', modifier: boostPer({ kind: 'enemyStatusCount', statusId: 'curse' }, 2) }),
     ),
   },
   {
