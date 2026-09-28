@@ -410,3 +410,8 @@
 {"format":"compact","key":"troop:6021","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:57:39.744Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6019","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:57:39.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6540","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:57:39.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7114","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.472Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1276","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.474Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1098","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.474Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7404","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.474Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6857","decision":"issue","reviewer":"sa-A","reviewedAt":"2026-09-28T22:28:51.639Z","issue":"P-A-chosen-target-status-precast","note":"native order ExplodeColor Red [AddForBurning] -> ExplodeColor Green [AddForDisease] -> Damage@FromTarget; curated runs damage first (needs tracked target for lastTargetStatus) then Green then Red. No condition reads the chosen target's status before any targeting segment; queued primitive."}

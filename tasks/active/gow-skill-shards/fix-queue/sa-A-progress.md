@@ -96,3 +96,9 @@
 - troop:6540 accept
 - R8 summary: 80 reviewed; accepted 79, issued 1 (troop:7884), fixed 24 (12 of them randomGems include color->all). Primitive queue: none new.
 - R8 OPEN for coordinator: (a) include:'color' vs 'all' for colourless random DestroyGems/ExplodeGems (sa-A applies R013-5 "Skulls are Gems"; ~18 older accepts + ~15 unreviewed still use 'color'); (b) troop:7704 native UseCounterForAmount without a Count step (English Magic+2 kept); (c) troop:7884 native 2+1+1+1 vs English 2-5.
+# sa-A L4a progress (review round 9, branch gow/r9-L4a, tests tests/unit/gowLaneL4aR9.test.ts)
+- troop:7114 accept
+- weapon:1276 accept
+- troop:6857 issue(P-A-chosen-target-status-precast: native explode Red/Green before damage on chosen target status)
+- weapon:1098 accept
+- troop:7404 fix(explode 1+M Purple only, was any gem)

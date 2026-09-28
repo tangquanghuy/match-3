@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 630 条改动，涉及 1082 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 631 条改动，涉及 1083 个技能 ID。
 
 ## 按时间
 
@@ -636,6 +636,7 @@
 | 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
+| 2026-09-28T22:28 | sa-A | L4a-R9-7404-purple | assembler | 9054 | troop:7404 HauntedDoll | `src/engine/skills/curated/batch-r4.ts` | 9054 explodeRandomGems(1,1) any gem incl. Skulls → native ExplodeColor Purple: explode 1+M Purple gems only |  |
 
 ## 按技能 ID
 
@@ -1436,6 +1437,7 @@
 | 9036 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9051 | 1 | L3-008 |
 | 9053 | 1 | B5-L4b-7403-singlegem |
+| 9054 | 1 | L4a-R9-7404-purple |
 | 9064 | 1 | P-counter-per-step |
 | 9066 | 1 | L1-7417-devour |
 | 9067 | 1 | L3-008 |

@@ -444,7 +444,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9054,
     desc: '爆破 [魔法 + 1] 颗紫色宝石。再恢复全部生命值，并使所有敌人陷入恐怖状态。',
     build: skill(
-      explodeRandomGems(1, 1),
+      // native ExplodeColor Purple (1 + M): Purple gems only, not any gem
+      explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       heal('allySelf', 0, 0, { full: true }),
       inflict('terror', 'enemyAll'),
     ),
