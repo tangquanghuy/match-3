@@ -348,7 +348,8 @@ describe('E · 已知武器快照断言（期望值从 raw dump 人工核对后�
     expect(w!.spell).toMatchObject({
       id: 7066,
       name: '骑士之剑',
-      description: '对第 1 名敌人造成 [(魔法 / 2) + 3] 点伤害。',
+      // English: "to the strongest Enemy" (sa-D r3 fix; the old snapshot zh said 第 1 名)
+      description: '对最强的敌人造成 [(魔法 / 2) + 3] 点伤害。',
       meta: {
         scalings: [{ base: 3, mult: 0.5 }],
         parsed: true,

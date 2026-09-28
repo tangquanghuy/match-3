@@ -89938,12 +89938,11 @@
     {
       "format": "compact",
       "key": "weapon:1479",
-      "decision": "accept",
-      "reviewer": "sa-F2",
-      "reviewedAt": "2026-09-28T00:34:05.889Z",
-      "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.130Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
     },
     {
       "format": "compact",
@@ -92135,8 +92134,8 @@
       "format": "compact",
       "key": "troop:7467",
       "decision": "accept",
-      "reviewer": "sa-R1",
-      "reviewedAt": "2026-09-28T02:49:48.530Z",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.078Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ]
@@ -94322,11 +94321,12 @@
       "format": "compact",
       "key": "troop:6800",
       "decision": "accept",
-      "reviewer": "sa-R3",
-      "reviewedAt": "2026-09-28T02:42:50.466Z",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.190Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
     },
     {
       "format": "compact",
@@ -96107,18 +96107,19 @@
       "format": "compact",
       "key": "troop:6304",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:53:19.158Z",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.679Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
     },
     {
       "format": "compact",
       "key": "troop:6644",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:53:19.160Z",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:14:03.667Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
       ],
@@ -96127,6 +96128,11 @@
           "part": "clause",
           "id": "c2",
           "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
         }
       ]
     },
@@ -96134,11 +96140,12 @@
       "format": "compact",
       "key": "troop:6833",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:53:19.160Z",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.680Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
     },
     {
       "format": "compact",
@@ -96154,11 +96161,12 @@
       "format": "compact",
       "key": "troop:6138",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:53:19.160Z",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.678Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
     },
     {
       "format": "compact",
@@ -100399,6 +100407,3353 @@
       "reviewedAt": "2026-09-28T09:07:29.604Z",
       "issue": "L3-013",
       "note": "9055 GenerateRandomMana 10 to other allies: one roll shared vs per-ally (L3-013). Blessed allies x4 damage boost verified by trace."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1069",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.079Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7744",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.079Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7874",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.080Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7685",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.080Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7546",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.080Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6736",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.080Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7205",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.081Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6514",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.081Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6224",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:15:57.081Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6777",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.740Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6361",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.741Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6056",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.741Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7676",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.742Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6422",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.742Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7139",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.742Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6233",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.742Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6909",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.742Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6954",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.743Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6401",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:22:07.743Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7545",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.300Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6807",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.301Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6166",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.302Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6303",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.302Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1117",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.302Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6628",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.302Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6720",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.302Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6415",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.303Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7823",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.303Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7539",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:26:04.303Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7304",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.561Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7478",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.562Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7586",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.562Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6778",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.562Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7366",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.563Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6767",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.563Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6008",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.563Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6125",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.563Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6645",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:14.563Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6810",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:31:17.071Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "SurroundingGems count read as the 3x3 explosion (sa-R1 troop:7218/weapon:1478 precedent); centre inclusion unverified"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1523",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.862Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6188",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.863Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6793",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.863Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7821",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.863Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7543",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.863Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7024",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.864Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7134",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.864Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7044",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.864Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7086",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:06.864Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6822",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:41:17.237Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "SurroundingGems count read as the 3x3 explosion (sa-R1 troop:7218/weapon:1478 precedent); centre inclusion unverified"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7488",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.566Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7018",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.568Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6010",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.568Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7320",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.568Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1036",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.568Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1037",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.569Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1038",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.569Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1039",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.569Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1040",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.569Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1044",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:23.569Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1404",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:46:34.740Z",
+      "issue": "L4a-r3-1404-counter-accumulate",
+      "note": "source dispute: native CountGems Purple -> RemoveColor -> CreateGems (counter) -> CountGems Yellow (UseCounterForAmount, no CountSet) -> IncreaseHealth. Elsewhere natives reset with CountSet before a second count (troop:7586), and R007-1 sums Count steps, so native heal boost may be Purple removed + Yellow on board; English says Yellow on board only (current). Also unclear whether the removed holes refill before the Yellow count. Needs coordinator ruling on counter accumulation without CountSet."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1318",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.119Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1319",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.121Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1320",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.121Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1321",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.121Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1322",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.122Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1323",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.122Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1324",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.123Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1325",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.123Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1326",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.124Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1327",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.124Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1328",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.124Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1329",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.124Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1330",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.124Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1331",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.125Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1332",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.126Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1333",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.127Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1334",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.127Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1335",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.127Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1336",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.127Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1337",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.127Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1338",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.128Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1339",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.128Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1340",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.128Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1341",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.128Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1342",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.128Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1343",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1344",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1345",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1346",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1347",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1348",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1349",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.129Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1350",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.130Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1429",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.130Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1499",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.130Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1560",
+      "decision": "issue",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:51:53.130Z",
+      "issue": "P-A-target-kingdom",
+      "note": "MultiplyForKingdom on Damage@FromTarget must test the target's kingdom; kingdomOf side enemy doubles when any enemy is from the kingdom (primitive-queue/sa-A.jsonl). Remove/count/damage otherwise match native (base 5 + Magic + 34% removed). zh has stray 'l' (造成l)."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1138",
+      "decision": "accept",
+      "reviewer": "sa-A",
+      "reviewedAt": "2026-09-28T10:53:31.580Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7600",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.959Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7635",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7780",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6869",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7509",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7538",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.962Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7566",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.962Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7590",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.962Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7678",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.962Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7757",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:14:20.962Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7873",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.520Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1570",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.521Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1613",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.522Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7568",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.522Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7596",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.522Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7716",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.522Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1713",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.522Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6318",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.523Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7595",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.523Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7848",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:20:45.523Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6167",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.656Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7632",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.657Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1585",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.658Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7790",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.658Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7824",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.658Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6104",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.658Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7192",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.659Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7046",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.659Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1468",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.659Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7356",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:24:17.659Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7000",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:19.475Z",
+      "issue": "L4b-7000-countset-order",
+      "note": "source-dispute: native 0:CountSet 1 ; 1:CountGems* 50 Yellow ; 2:CreateGems 3 Yellow ; 3:Damage* 3+M. Native counts Yellow BEFORE the 3 are created (R001) -> 13 + floor(9 x 50%) = 17 (or 18 if CountSet 1 seeds the counter); runtime creates first -> 13 + floor(12/2) = 19. CountSet with Amount 1 and CountGems with UseCounterForAmount occur only in this skill; semantics undocumented. zh fixed (changelog B-L4b-7000-zh)."
+    },
+    {
+      "format": "compact",
+      "key": "troop:6354",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.244Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7490",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6480",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.246Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6762",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.246Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7789",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.246Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7751",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.246Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6274",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.247Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7903",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.247Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7641",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:29:22.247Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7257",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.243Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6299",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.244Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7729",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.244Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7768",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.244Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7814",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7742",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6568",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6579",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7408",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6703",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:33:07.245Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6692",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:37:16.371Z",
+      "issue": "P-B-action-status-self-count",
+      "note": "primitive: caster Submerged removed before the spell counts Submerged allies (native CountSpecificStatusEffect@AllAllies includes self); damage + Blue create otherwise match EN/native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6865",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.874Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6266",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.875Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6263",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.875Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6262",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.875Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6261",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.875Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6338",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.876Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7679",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.876Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7832",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.876Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6364",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:38:50.876Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6933",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:39:30.841Z",
+      "issue": "P-B-action-status-self-count",
+      "note": "primitive: caster Blessed (6933) / Enchanted (7325) removed at cast start, so native CountSpecificStatusEffect@AllAllies misses the caster; rest (damage/heal + Yellow create boosted by other allies) matches EN/native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7325",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:39:30.843Z",
+      "issue": "P-B-action-status-self-count",
+      "note": "primitive: caster Blessed (6933) / Enchanted (7325) removed at cast start, so native CountSpecificStatusEffect@AllAllies misses the caster; rest (damage/heal + Yellow create boosted by other allies) matches EN/native"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7263",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.499Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1231",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.500Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6661",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.501Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6662",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.501Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6663",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.501Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6664",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.501Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6665",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.502Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6666",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:40:08.502Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1151",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:53.309Z",
+      "issue": "P-B-action-status-self-count",
+      "note": "primitive: Enchanted caster removed at cast start, so native CountSpecificStatusEffect@AllAllies 300 enchanted misses the caster; heal + Green create otherwise match"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6408",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.852Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7458",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.853Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7053",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.853Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7092",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.853Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1526",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6362",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7184",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6697",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1167",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:42:55.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6223",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.386Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6112",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.387Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1074",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.387Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7199",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.387Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7827",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.387Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1507",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.388Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6890",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.388Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7082",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.388Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6302",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.388Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7020",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:45:56.388Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7308",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:21.008Z",
+      "issue": "L4b-7308-spirit-colour",
+      "note": "source-dispute: native CreateGems 8 Spirit has no colour; runtime creates spiritGem/Purple (project placeholder noted in batch-r19 8920, not original evidence). Yellow create + Enchant self match EN/native. Need a source for the colour of created Spirit Gems (random / caster colour / fixed)."
+    },
+    {
+      "format": "compact",
+      "key": "troop:6510",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.246Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7202",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.247Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7079",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.247Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7037",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.247Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6626",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.248Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1428",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.248Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1417",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.248Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6080",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.248Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1371",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T10:52:23.248Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6791",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.191Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7900",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.191Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7581",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.192Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7578",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.192Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7901",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.192Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6414",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.192Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7553",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.193Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6748",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.193Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6624",
+      "decision": "issue",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:19:19.390Z",
+      "issue": "L5-C-self-submerged-timing",
+      "note": "Definition matches EN/native (CountSpecificStatusEffect@AllAllies submerged x2). But engine removes the caster's own Submerged at cast start (R004 'holder acts') before the count, so a Submerged Mershark does not count itself. Source unclear whether GoW counts the caster's Submerged before it is removed."
+    },
+    {
+      "format": "compact",
+      "key": "troop:7003",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.852Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7783",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.853Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1250",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7710",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1695",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1442",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.854Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1443",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.855Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1444",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.855Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6007",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:25:20.855Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6856",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.173Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7512",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.174Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1124",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.174Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6744",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.175Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6788",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.175Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1550",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.175Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7331",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.175Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1176",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.175Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6184",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.176Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6389",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T10:27:03.176Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6613",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.680Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1262",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.680Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1454",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.680Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1455",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.681Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1456",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.681Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1457",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:13:59.682Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "r3 re-review; Doomed tempering chance=0 (no tempering system), lastTarget re-resolve unobservable"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1435",
+      "decision": "issue",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:55.760Z",
+      "issue": "P-D-lethal-first-lasttarget",
+      "note": "Doomskull count fixed (was all Skulls); native order LethalDamageConditional before TrueDamage needs a primitive (failed roll leaves no lastTarget)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1458",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.454Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1459",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.455Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7117",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.455Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7119",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.455Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7104",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.455Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7610",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.456Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7259",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.456Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6360",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.456Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7153",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:20:58.456Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7651",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.223Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7771",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.224Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6643",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.225Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7317",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.225Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1531",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.225Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7575",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.225Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7579",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.225Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7801",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.225Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7860",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.226Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7726",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:23:45.226Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "region x2 = condMult regionPresent (not exercisable); 7575 zh fixed"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7571",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.447Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7604",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.448Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7932",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.448Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6106",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.449Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6195",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.449Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6580",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.449Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6806",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.449Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7753",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.450Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6835",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.450Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6109",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:25:23.450Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6781",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.528Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7933",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.529Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6143",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.530Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6501",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.530Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6273",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.530Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7025",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.531Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1366",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.531Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7463",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.531Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6117",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.531Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6189",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:30:15.531Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6860",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.177Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1000",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1006",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1007",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1009",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1021",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1022",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.179Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1024",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.180Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1025",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.180Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1029",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:37:35.180Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1032",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.429Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1033",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.430Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1034",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1047",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1048",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1049",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1079",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1080",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.431Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1082",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.432Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1083",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:38:29.432Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1088",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.004Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1109",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.006Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1121",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.006Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1127",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.006Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1166",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.006Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1168",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.007Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1169",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.007Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1170",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.007Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1171",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.007Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1172",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:39:34.007Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1173",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.958Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6012",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.959Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6726",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.959Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "1",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7332",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.960Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6956",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.960Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6866",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.960Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6470",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.960Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6257",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1103",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1119",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:42:23.961Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1203",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.294Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6272",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.295Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6581",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.295Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6585",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.296Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6753",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.296Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1387",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.296Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1509",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.296Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1015",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.296Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1030",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.297Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1045",
+      "decision": "accept",
+      "reviewer": "sa-D",
+      "reviewedAt": "2026-09-28T10:44:29.297Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "1203: native plain RandomEnemy (may repeat the chosen target) kept over English 'another'"
     }
   ]
 }

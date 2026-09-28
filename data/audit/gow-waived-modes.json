@@ -192,6 +192,15 @@
    "note": ""
   },
   {
+   "key": "troop:6644",
+   "name": "Earthcaller",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
    "key": "troop:7831",
    "name": "Balearic",
    "part": "clause",
@@ -387,6 +396,222 @@
    "id": "1",
    "mode": "tower",
    "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:7600",
+   "name": "Discordia",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7600",
+   "name": "Discordia",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":1}",
+   "note": ""
+  },
+  {
+   "key": "troop:7635",
+   "name": "CorruptedCrystalem",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7635",
+   "name": "CorruptedCrystalem",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":800}",
+   "note": ""
+  },
+  {
+   "key": "troop:7509",
+   "name": "Retribution",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7509",
+   "name": "Retribution",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":400}",
+   "note": ""
+  },
+  {
+   "key": "troop:7678",
+   "name": "Caspian",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7678",
+   "name": "Caspian",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:7873",
+   "name": "Fionnuala",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7873",
+   "name": "Fionnuala",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":1}",
+   "note": ""
+  },
+  {
+   "key": "troop:6414",
+   "name": "XiongMao",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+  },
+  {
+   "key": "troop:7553",
+   "name": "BarrowLord",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "region doubling (7900/7581/7578/7901) not exercisable in standard battle"
+  },
+  {
+   "key": "troop:6856",
+   "name": "Lucifria",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6580",
+   "name": "HalfgrimHalf-Giant",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6580",
+   "name": "HalfgrimHalf-Giant",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:6806",
+   "name": "Night-Slayer",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6806",
+   "name": "Night-Slayer",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:7753",
+   "name": "Siobhan",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7753",
+   "name": "Siobhan",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:6501",
+   "name": "Wazir",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6501",
+   "name": "Wazir",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:6726",
+   "name": "BlackfireCannon",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6726",
+   "name": "BlackfireCannon",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:6726",
+   "name": "BlackfireCannon",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"RandomEnemy\",\"StatusAmount\":3,\"Amount\":4,\"PercentageChance\":30,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
    "note": ""
   }
  ]
