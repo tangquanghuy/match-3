@@ -39,3 +39,8 @@
 - troop:6817 fixed+accept (IncreaseRandom whole amount to one Skill, was split; zh 'another 2 allies' fixed + override 6817)
 - troop:7012 accept (+4 Magic first, then 1/3 Life|damage|+10 Magic)
 - troop:7286 accept (Choose +3 Magic all | [M+6] scatter)
+- weapon:1622 accept (5 InflictEffectOnRandomTroops steps, distinct per step; hit [M+2]-[2M+4])
+- troop:6121 accept (random range, +12 one Skill, 50% extra turn)
+- weapon:1621 accept (native order: hit before Faerie Fire/Entangle, English lists them first)
+- troop:6147 accept (random status chosen enemy, one Skill to random ally)
+- weapon:1237 accept (1+60%+50%+50% negative statuses, explode 4 of target colour)

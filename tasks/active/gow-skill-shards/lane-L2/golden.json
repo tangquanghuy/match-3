@@ -1,4 +1,14 @@
 {
+ "troop:6121": {
+  "lines": {
+   "L10": "dmg E12 14 ; buff C magic+12  => E12:hp-2 arm-12 | C:mag+12",
+   "R10": "dmg E12 14 ; buff C magic+12  => E12:hp-2 arm-12 | C:mag+12",
+   "L0": "dmg E12 7 ; buff C magic+12  => E12:arm-7 | C:mag+12",
+   "K": "dmg E12 14 ; defeat E12 ; buff C magic+12  => E12:hp-1 DEAD | C:mag+12"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:51:47.368Z"
+ },
  "troop:6140": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -8,6 +18,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T09:04:11.605Z"
+ },
+ "troop:6147": {
+  "lines": {
+   "L10": "status E11 +curse ; buff A1 magic+11  => E11:+curse | A1:mag+11",
+   "R10": "status E11 +curse ; buff A1 magic+11  => E11:+curse | A1:mag+11",
+   "L0": "status E11 +curse ; buff A1 magic+1  => E11:+curse | A1:mag+1",
+   "K": "status E11 +curse ; buff A1 magic+11  => E11:+curse | A1:mag+11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:51:47.368Z"
  },
  "troop:6157": {
   "lines": {
@@ -1209,6 +1229,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:49:39.708Z"
  },
+ "weapon:1237": {
+  "lines": {
+   "L10": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+web | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
+   "R10": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+web | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
+   "L0": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+web | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
+   "K": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 1 ; defeat E10 ; ~cascade~  => E11:+curse+marked+web | A2:mana+2 | A1:mana+3 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:51:47.368Z"
+ },
  "weapon:1296": {
   "lines": {
    "L10": "buff A1 magic+4 ; buff A2 magic+4  => A1:mag+4 | A2:mag+4",
@@ -1318,6 +1348,26 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:54:46.622Z"
+ },
+ "weapon:1621": {
+  "lines": {
+   "L10": "dmg E11 15 ; status E11 +faerie-fire ; status E13 +faerie-fire ; status E12 +entangle ; status E10 +entangle  => E11:hp-5 arm-10 +faerie-fire | E13:+faerie-fire | E12:+entangle | E10:+entangle",
+   "R10": "dmg E11 15 ; status E11 +faerie-fire ; status E13 +faerie-fire ; status E12 +entangle ; status E10 +entangle  => E11:hp-5 arm-10 +faerie-fire | E13:+faerie-fire | E12:+entangle | E10:+entangle",
+   "L0": "dmg E11 7 ; status E11 +faerie-fire ; status E13 +faerie-fire ; status E12 +entangle ; status E10 +entangle  => E11:arm-7 +faerie-fire | E13:+faerie-fire | E12:+entangle | E10:+entangle",
+   "K": "dmg E11 15 ; defeat E11 ; status E12 +faerie-fire ; status E13 +faerie-fire ; status E13 +entangle ; status E10 +entangle  => E11:hp-1 DEAD | E12:+faerie-fire | E13:+faerie-fire+entangle | E10:+entangle"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:51:47.368Z"
+ },
+ "weapon:1622": {
+  "lines": {
+   "L10": "status E12 +faerie-fire ; status E11 +faerie-fire ; status E13 +entangle ; status E12 +entangle ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed ; status E10 +bleed ; status E10 +bleed ; status E13 +bleed ; dmg E11 32  => E12:+faerie-fire+entangle+bleed | E11:hp-22 arm-10 +faerie-fire+bleed | E13:+entangle+bleed | E10:+bleed",
+   "R10": "status E12 +faerie-fire ; status E11 +faerie-fire ; status E13 +entangle ; status E12 +entangle ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed ; status E10 +bleed ; status E10 +bleed ; status E13 +bleed ; dmg E11 32  => E12:+faerie-fire+entangle+bleed | E11:hp-22 arm-10 +faerie-fire+bleed | E13:+entangle+bleed | E10:+bleed",
+   "L0": "status E12 +faerie-fire ; status E11 +faerie-fire ; status E13 +entangle ; status E12 +entangle ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed ; status E10 +bleed ; status E10 +bleed ; status E13 +bleed ; dmg E11 6  => E12:+faerie-fire+entangle+bleed | E11:arm-6 +faerie-fire+bleed | E13:+entangle+bleed | E10:+bleed",
+   "K": "status E12 +faerie-fire ; status E11 +faerie-fire ; status E13 +entangle ; status E12 +entangle ; status E10 +bleed ; status E12 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed ; status E10 +bleed ; status E10 +bleed ; status E13 +bleed ; dmg E11 32 ; defeat E11  => E12:+faerie-fire+entangle+bleed | E11:hp-1 +faerie-fire+bleed DEAD | E13:+entangle+bleed | E10:+bleed"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:51:47.368Z"
  },
  "weapon:1686": {
   "lines": {

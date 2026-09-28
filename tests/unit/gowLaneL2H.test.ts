@@ -352,3 +352,39 @@ describe('sa-H L2 B08', () => {
     expect(b.filter(l => l.includes('(scatter)')).reduce((s, l) => s + Number(l.split(' ')[2]), 0)).toBe(16);
   });
 });
+
+describe('sa-H L2 B09', () => {
+  it('weapon:1622 2 Faerie Fire + 2 Entangle + 3/3/2 Bleed on distinct random enemies per native step, then the hit', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = orderOf({ key: 'weapon:1622', seed });
+      const st = o.filter(l => l.startsWith('status '));
+      expect(st.length).toBe(12);
+      const groups = [st.slice(0, 2), st.slice(2, 4), st.slice(4, 7), st.slice(7, 10), st.slice(10, 12)];
+      for (const g of groups) expect(new Set(g.map(l => l.split(' ')[1])).size).toBe(g.length);
+      expect(groups.map(g => g[0].split('+')[1])).toEqual(['faerie-fire', 'entangle', 'bleed', 'bleed', 'bleed']);
+      expect(o[12]).toMatch(/^dmg E11 \d+$/);
+    }
+  });
+  it('troop:6121 [(M/2)+5]-[M+10] to a random enemy, +12 to one random Skill, 50% extra turn', () => {
+    let extra = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const s = castSpell({ key: 'troop:6121', seed, enemies: [{ hp: 900, maxHp: 900, armor: 0 }] }).summary;
+      const d = Number(s.order[0].split(' ')[2]); expect(d).toBeGreaterThanOrEqual(10); expect(d).toBeLessThanOrEqual(20);
+      expect(s.order.filter(l => /^buff C \w+\+12/.test(l)).length).toBe(1);
+      if (s.extraTurn === 'skill') extra++;
+    }
+    within(extra / SEEDS, 0.5, 'extra');
+  });
+  it('weapon:1621 native order: the hit first, then Faerie Fire x2 and Entangle x2 on random enemies', () => {
+    const o = orderOf({ key: 'weapon:1621' });
+    expect(o[0]).toMatch(/^dmg E11/); expect(o.slice(1).every(l => l.startsWith('status'))).toBe(true);
+  });
+  it('weapon:1237 1 + 60% + 50% + 50% random negative statuses, then 4 gems of the target colour explode', () => {
+    let total = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const f = setupCast({ key: 'weapon:1237', seed }); const ev = f.cast();
+      total += ev.filter(e => e.type === 'status-apply' && e.targetId === 11).length;
+    }
+    within(total / SEEDS, 2.6, 'mean statuses');
+  });
+});
