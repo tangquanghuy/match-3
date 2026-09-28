@@ -1351,11 +1351,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8209,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因生命值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [5:1]",
-    // 「因其生命值而增强」= 官方 CountLife 20 = ratio 20:1 targetStat hp（r11 编码；尾缀 [5:1] 与官方步骤不一致，按步骤）
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因其生命值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [5:1]",
+    // 「因其生命值而增强」= 原生 CountLife@FromTarget 20 = 20%（R003-2，即英文 [5:1]）→ ratio 5:1 targetStat hp（sa-D）
     build: skill(
       dmg('enemyChosen', 4, 1, {
-    modifier: { mod: { kind: 'ratio', a: 20, b: 1 }, source: { kind: 'targetStat', stat: 'hp' } },
+    modifier: { mod: { kind: 'ratio', a: 5, b: 1 }, source: { kind: 'targetStat', stat: 'hp' } },
     condMult: BOSS_ASC3,
   }),
     ),
