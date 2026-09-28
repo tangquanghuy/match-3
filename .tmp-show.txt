@@ -1,0 +1,215 @@
+{
+ "key": "weapon:1647",
+ "name": "DrakkonsCrest",
+ "spellId": 9649,
+ "accepted": false,
+ "english": "Deal [Magic + 8] scatter damage, boosted by Green Dragon Gems. If Immortal Drakkon is in my team, summon a random Dragon. [x4]",
+ "clauses": [
+  "c1: Deal [Magic + 8] scatter damage, boosted by Green Dragon Gems.",
+  "c2: If Immortal Drakkon is in my team, summon a random Dragon.",
+  "c3: [x4]"
+ ],
+ "nativeTarget": "None",
+ "randomize": null,
+ "steps": [
+  {
+   "i": 0,
+   "Target": "AllAllies",
+   "Amount": 10000,
+   "Type": "CountArmyTroop",
+   "Data": "7689"
+  },
+  {
+   "i": 1,
+   "UseCounterForAmount": true,
+   "Type": "SummoningTypeConditional",
+   "Data": "dragon",
+   "Delay": 800
+  },
+  {
+   "i": 2,
+   "Type": "CountSet",
+   "Delay": 800
+  },
+  {
+   "i": 3,
+   "Color1": "DragonGreen",
+   "Amount": 400,
+   "Type": "CountGems"
+  },
+  {
+   "i": 4,
+   "SpellPowerMultiplier": 1,
+   "Target": "AllEnemies",
+   "UseCounterForAmount": true,
+   "Amount": 8,
+   "Primarypower": true,
+   "Type": "ScatterDamage"
+  }
+ ],
+ "cost": 20,
+ "colors": [
+  "Red"
+ ],
+ "zh": "造成[魔法 + 8]点散射伤害，伤害值因绿龙宝石数量而增强。如果我的队伍中有不朽的德拉肯，则随机召唤一条龙。 [x4]",
+ "prototype": {
+  "segments": [
+   {
+    "kind": "damage",
+    "target": "enemyAll",
+    "scaling": {
+     "base": 8,
+     "mult": 1
+    },
+    "range": "scatter",
+    "modifier": {
+     "mod": {
+      "kind": "multiplier",
+      "a": 4
+     },
+     "source": {
+      "kind": "boardSpecial",
+      "gem": "dragonGem",
+      "color": "Green"
+     }
+    }
+   },
+   {
+    "kind": "summon",
+    "params": {
+     "source": {
+      "randomOf": [
+       "Sheggra",
+       "Venoxia",
+       "ShadowDragon",
+       "Emperina",
+       "Celestasia",
+       "BoneDragon",
+       "DrakeRider",
+       "Dimetraxia",
+       "Wyvern",
+       "Venbarak",
+       "Borealis",
+       "DragonEggs",
+       "BabyDragon",
+       "Dragonette",
+       "Dragotaur",
+       "Dragonmoth",
+       "Visk",
+       "TheDragonSoul",
+       "Couatl",
+       "Sylvanimora",
+       "DRACOS-1337",
+       "DragonianRogue",
+       "DragonianMonk",
+       "SilverDrakon",
+       "Krystenax",
+       "Drake",
+       "Elemaugrim",
+       "DragonTurtle",
+       "Asha",
+       "Leviathan",
+       "Penglong",
+       "Glitterclaw",
+       "TheWorldbreaker",
+       "Divinia",
+       "LordEmber",
+       "LadyGarnetia",
+       "Tinseltail",
+       "Shimmerscale",
+       "Volthrenax",
+       "Thaumaris",
+       "Droggo",
+       "Sylfrostenath",
+       "MatronDragotani",
+       "UndeadDrake",
+       "FellDragonEgg",
+       "FellDragon",
+       "Nocturnia",
+       "Ishtara",
+       "DragonianSage",
+       "Obregonia",
+       "DragonSpirit",
+       "Essencia",
+       "Huanglong",
+       "Veneratus",
+       "HornedWyrm",
+       "NetherWyrm",
+       "TerraWyrm",
+       "TheGreatWyrm",
+       "Tihamata",
+       "RedAhriman",
+       "TwinkleBerry",
+       "MagmaDragon",
+       "Sabellius",
+       "Adakite",
+       "Obsidiaxas",
+       "Sapphirax",
+       "Emeraldrin",
+       "Rubirath",
+       "Topasarth",
+       "Amethialas",
+       "Garnetaerlin",
+       "Diamantina",
+       "Aquaria",
+       "TheElderDragon",
+       "HeraldOfKrystenax",
+       "TheGuardianDragon",
+       "CobaltDrake",
+       "HuntmasterArborius",
+       "CrystalEggs",
+       "DragonstoneGuardian",
+       "TheVoidDragon",
+       "Comethalas",
+       "Nebuladryx",
+       "Meteoridan",
+       "Solarithus",
+       "Lunarelleon",
+       "Eklipsos",
+       "Stellarix",
+       "DraconicSentinel",
+       "Tianlong",
+       "BrassDrake",
+       "Venerabilax",
+       "Chromaticea",
+       "Kukulkan",
+       "ImmortalAquaria",
+       "Leucithrax",
+       "TheSlimeDragon",
+       "Bahamata",
+       "Gingeraxia",
+       "Belcerulea",
+       "Gladius",
+       "Thornaressa",
+       "Narcithus",
+       "Orrissea",
+       "Orchidius",
+       "Chrysantherax",
+       "Chargrimax",
+       "Crackleleaf",
+       "Mistmother",
+       "DrakeEggs",
+       "ImmortalDrakkon",
+       "CrimsonWyrmling",
+       "Dragonhawk",
+       "Amethony",
+       "Creteus",
+       "Krakynos",
+       "Runethius",
+       "Hematrax",
+       "Vizinium",
+       "Demizerius",
+       "Amenhotrex",
+       "Pandemonia"
+      ]
+     }
+    },
+    "ifCond": {
+     "kind": "troopPresent",
+     "side": "ally",
+     "name": "不朽的德拉肯"
+    }
+   }
+  ]
+ }
+}
