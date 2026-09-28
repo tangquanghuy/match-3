@@ -14,6 +14,13 @@ const MODERN = 'Modern anime gacha game UI icon, in the refined restrained style
   + 'Simple readable silhouette, centered, single isolated object on a fully transparent background. '
   + 'No text, no letters, no numbers, no watermark, no frame, no circular badge background.';
 
+// 2026-09-28 用户第二次定调：现代二次元游戏图标，但要有颜色——不是清一色象牙白。
+const ANIME_COLOR = 'Modern anime gacha game UI icon, in the polished style of contemporary Japanese / Chinese anime RPG item icons. '
+  + 'Clean crisp shapes, bold cel shading with smooth gradients, glossy highlights, thin dark outlines, '
+  + 'vivid saturated but harmonious colors with one clear dominant hue, good contrast so it reads on a dark UI. '
+  + 'Moderate detail only: no heavy baroque gold filigree, no rivets, no grime, no photorealism, no big glowing aura. '
+  + 'Simple readable silhouette, centered, single isolated object on a fully transparent background. '
+  + 'No text, no letters, no numbers, no watermark, no frame, no circular badge background.';
 const BANNER = (cloth) => ({
   size: '1024x1536',
   out: `src/assets/meta/kingdom/banner-${cloth.id}.webp`,
@@ -73,37 +80,42 @@ export const ASSETS = {
       + ICON + ' ' + MODERN,
   },
   // —— 地图底部「每日行动」四枚图标（放进深色圆框，物体要紧凑、居中） ——
+  // 2026-09-28 用户二次反馈：不要清一色象牙白。每枚图标一个鲜明主色，四枚放在一起要一眼分得开。
   'daily-firstwin': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/firstwin.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'Daily first victory icon: a compact rounded composition, a short silver sword laid diagonally across a simple ivory laurel wreath, '
-      + 'one small sky-blue crystal at the center of the wreath. The whole icon is roughly square, not tall. ' + ICON + ' ' + MODERN,
+    prompt: 'Daily first victory icon: a compact rounded composition, a short sword with a bright steel blade and a crimson-red hilt '
+      + 'laid diagonally across a warm golden laurel wreath, a small bright blue gem at the center of the wreath. '
+      + 'Dominant colors: warm gold and crimson red. The whole icon is roughly square, not tall. ' + ICON + ' ' + ANIME_COLOR,
   },
   'daily-tribute': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/tribute.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'Kingdom tribute icon: a small neat ivory-white and slate-navy coffer with the lid slightly open, a short stack of gold coins '
-      + 'and one small violet crystal peeking out. ' + ICON + ' ' + MODERN,
+    prompt: 'Kingdom tribute icon: a small chubby treasure coffer in rich royal purple with bright gold corner caps, lid slightly open, '
+      + 'a short stack of shiny gold coins and one glowing violet crystal peeking out. '
+      + 'Dominant colors: royal purple and bright gold. ' + ICON + ' ' + ANIME_COLOR,
   },
   'daily-arena': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/arena.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'Arena icon: two slim silver sabres crossed in an X behind a small round ivory shield with a plain slate-navy center and a thin coral-red rim. '
-      + ICON + ' ' + MODERN,
+    prompt: 'Arena icon: two slim sabres with bright steel blades crossed in an X behind a small round shield with a vivid azure-blue face, '
+      + 'a bold orange-red stripe across the shield and a small gold rim. '
+      + 'Dominant colors: azure blue and orange-red. ' + ICON + ' ' + ANIME_COLOR,
   },
   'daily-hunt': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/hunt.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'Treasure hunt icon: a folded clean cream-colored map with a simple dotted path and a small coral-red X, '
-      + 'a minimal silver compass resting on its corner. ' + ICON + ' ' + MODERN,
+    prompt: 'Treasure hunt icon: a folded treasure map in warm tan parchment with a simple dotted red path and a red X, '
+      + 'a round compass with a bright emerald-teal face and a bronze case resting on its corner. '
+      + 'Dominant colors: emerald teal and warm tan. ' + ICON + ' ' + ANIME_COLOR,
   },
 };
 

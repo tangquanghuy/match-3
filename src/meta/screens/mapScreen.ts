@@ -32,6 +32,7 @@ import { cssUrlVar, dailyArt, kingdomArt } from '../shell/artAssets';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { bannerUnlocked } from '../systems/banners';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
+import { playTributeChime, primeTributeChime } from '../../audio/TributeChime';
 import { ART, KINGDOM_VIEWS, kingdomViewOf, type KingdomView } from './mapData';
 import { MapFog, fogSeenLevel, markFogSeen, type FogHole } from './mapFog';
 import {
@@ -1608,6 +1609,7 @@ export class MapScreen implements Screen {
     const btn = $('#tributeConfirm') as HTMLButtonElement;
     if (btn.disabled || btn.classList.contains('is-done')) return;
     btn.disabled = true;
+    primeTributeChime();
     const { result } = await ctx.gateway.collectAllTribute(Date.now());
     if (!result.ready) {
       toast('尚无可领取进贡。');
@@ -1624,6 +1626,7 @@ export class MapScreen implements Screen {
     ].filter(Boolean).join('，');
     this.renderTreasury(result, true);
     $('#treasurySheet').classList.add('is-collected');
+    playTributeChime(t);
     toast(`已收取 ${result.readyCount} 国进贡：${summary}`);
     this.afterMutation(ctx);
     this.collectTimer = window.setTimeout(() => this.closeTreasury(), 1800);
