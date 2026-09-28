@@ -269,6 +269,16 @@
   "by": "sa-A",
   "at": "2026-09-28T21:55:58.441Z"
  },
+ "troop:6141": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; dmg E10 12 (splash) ; dmg E11 6 (splash) ; move E10 back  => A1:mana+2 | A2:mana+1 | E10:hp-9 arm-5 | E11:arm-6",
+   "R10": "explode 24 ; skulls E10 2 ; dmg E10 12 (splash) ; dmg E11 6 (splash) ; move E10 back  => A1:mana+2 | A2:mana+1 | E10:hp-9 arm-5 | E11:arm-6",
+   "L0": "explode 24 ; skulls E10 2 ; dmg E10 2 (splash) ; dmg E11 1 (splash) ; move E10 back  => A1:mana+2 | A2:mana+1 | E10:arm-4 | E11:arm-1",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; dmg E11 12 (splash) ; dmg E12 6 (splash) ; defeat E11 ; defeat E12 ; move E13 back  => A1:mana+2 | A2:mana+1 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:46:53.800Z"
+ },
  "troop:6166": {
   "lines": {
    "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; dmg E10 16 (scatter) ; dmg E11 10 (scatter) ; dmg E12 14 (scatter) ; dmg E13 8 (scatter)  => E10:hp-12 arm-5 | E11:arm-10 | E12:hp-2 arm-12 | E13:hp-5 arm-3",
@@ -1198,6 +1208,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T11:12:46.111Z"
+ },
+ "troop:6891": {
+  "lines": {
+   "L10": "explode 30 ; skulls E10 3 ; storm Brown set  => A2:mana+1 | E10:arm-3",
+   "R10": "explode 30 ; skulls E10 3 ; storm Brown set  => A2:mana+1 | E10:arm-3",
+   "L0": "explode 30 ; skulls E10 3 ; storm Brown set  => A2:mana+1 | E10:arm-3",
+   "K": "explode 30 ; skulls E10 3 ; defeat E10 ; storm Brown set  => A2:mana+1 | E10:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:46:53.800Z"
  },
  "troop:6907": {
   "lines": {
@@ -2719,6 +2739,16 @@
   "by": "sa-A",
   "at": "2026-09-28T11:12:46.111Z"
  },
+ "weapon:1152": {
+  "lines": {
+   "L10": "buff C attack+5 ; buff A2 attack+5 ; dmg E12 14 (all) ; storm Yellow set  => C:atk+5 | A2:atk+5 | E12:hp-2 arm-12",
+   "R10": "buff C attack+5 ; buff A2 attack+5 ; dmg E12 14 (all) ; storm Yellow set  => C:atk+5 | A2:atk+5 | E12:hp-2 arm-12",
+   "L0": "buff C attack+5 ; buff A2 attack+5 ; dmg E12 4 (all) ; storm Yellow set  => C:atk+5 | A2:atk+5 | E12:arm-4",
+   "K": "buff C attack+5 ; buff A2 attack+5 ; storm Yellow set  => C:atk+5 | A2:atk+5"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:46:53.800Z"
+ },
  "weapon:1159": {
   "lines": {
    "L10": "dmg E11 13 (all) ; dmg E13 13 (all) ; destroy 9 (Purple x9)  => E11:hp-3 arm-10 | E13:hp-10 arm-3",
@@ -2818,6 +2848,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:30:57.645Z"
+ },
+ "weapon:1227": {
+  "lines": {
+   "L10": "buff A1 armor+11  => A1:arm+11",
+   "R10": "buff A1 armor+11  => A1:arm+11",
+   "L0": "buff A1 armor+1  => A1:arm+1",
+   "K": "buff A1 armor+11  => A1:arm+11"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:46:56.366Z"
  },
  "weapon:1263": {
   "lines": {

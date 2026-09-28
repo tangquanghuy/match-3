@@ -7262,6 +7262,7 @@
       }
     },
     "8521": {
+      "description": "对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。",
       "prototype": {
         "segments": [
           {
@@ -7285,11 +7286,11 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
-              "kind": "anyEnemyStatus",
+              "kind": "lastTargetStatus",
               "statusId": "stun"
             }
           }

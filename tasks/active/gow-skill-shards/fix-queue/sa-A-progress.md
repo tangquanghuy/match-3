@@ -127,3 +127,8 @@
 - troop:7452 fix(R009 Brown giantGem; zh + override)
 - weapon:1114 fix(explode 3 include all)
 - troop:7006 accept (native order: Construct explode, then two splashes)
+- weapon:1413 issue(P-A-chosen-target-status-precast: native explode before damage) + fix(target-stun not any-enemy, include all, zh pool + override)
+- troop:6141 accept
+- troop:6891 fix(explode 4 include all)
+- weapon:1227 accept (R000 waived c3 + step1 boss)
+- weapon:1152 accept (StormRandom = 6-colour oneOf, precedent)

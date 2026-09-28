@@ -163,3 +163,36 @@ describe('L4a R9 B06', () => {
     expect(c.find(o => o.startsWith('dmg '))).toBe('dmg E11 12 (splash)');
   });
 });
+
+describe('L4a R9 B07', () => {
+  // weapon:1413 (8521): ExplodeGems 4 [AddForStun@FromTarget] ; SplashHeavyDamage@FromTarget 3+M. (order issued: P-A-chosen-target-status-precast)
+  it('weapon:1413 explodes 4 gems only when the chosen enemy is Stunned (not any enemy)', () => {
+    const other = castSpell({ key: 'weapon:1413', enemies: [{ statuses: [{ id: 'stun', turns: 99 }] }, {}, {}, {}] as never });
+    expect(other.summary.order.some(o => o.startsWith('explode'))).toBe(false);
+    const own = castSpell({ key: 'weapon:1413', enemies: [{}, { statuses: [{ id: 'stun', turns: 99 }] }, {}, {}] as never, board: skullHeavy });
+    expect(own.summary.order[0]).toBe('dmg E11 13 (splash)');
+    expect(own.summary.order.some(o => o.startsWith('explode'))).toBe(true);
+  });
+  // troop:6891 (8317): ExplodeGems 4 (Skulls eligible) ; StormSkull.
+  it('troop:6891 random explosion can centre on Skulls and conjures a Bonestorm', () => {
+    const r = castSpell({ key: 'troop:6891', board: skullHeavy });
+    const ev = r.events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+    const st = r.events.find(e => e.type === 'storm-change') as unknown as { dropKind?: string };
+    expect(st.dropKind).toBe('skull');
+  });
+  // weapon:1227 (7955): IncreaseArmor@FromTarget 1+M [x2 if Red] ; Boss explode waived (R000).
+  it('weapon:1227 doubles the armor for a Red ally', () => {
+    expect(castSpell({ key: 'weapon:1227', target: 2 }).summary.order[0]).toBe('buff A2 armor+22');
+    expect(castSpell({ key: 'weapon:1227', target: 1 }).summary.order[0]).toBe('buff A1 armor+11');
+  });
+  // weapon:1152 (7492): IncreaseAttack@AllyColor Yellow 5 ; Damage@EnemyColor Purple 4+M ; StormRandom.
+  it('weapon:1152 buffs Yellow allies, hits Purple enemies, storm colour varies', () => {
+    const storms = new Set<string>();
+    for (let seed = 1; seed <= 12; seed++) storms.add(castSpell({ key: 'weapon:1152', seed }).summary.order.find(o => o.startsWith('storm '))!);
+    expect(storms.size).toBeGreaterThan(2);
+    const o = castSpell({ key: 'weapon:1152', caster: { colors: [BaseColor.Blue] } }).summary.order;
+    expect(o.filter(x => x.startsWith('buff '))).toEqual(['buff A2 attack+5']);
+    expect(o.filter(x => x.startsWith('dmg '))).toEqual(['dmg E12 14 (all)']);
+  });
+});

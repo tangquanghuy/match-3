@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 645 条改动，涉及 1103 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 647 条改动，涉及 1105 个技能 ID。
 
 ## 按时间
 
@@ -651,6 +651,8 @@
 | 2026-09-28T22:40 | sa-A | L4a-R9-giant-9168 | assembler | 9168, 9169, 9170 | troop:7447 GiantSentinel；troop:7448 ElementalSentinel；troop:7449 DaemonicSentinel | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | createGems plain Blue/Green/Red 8 if any enemy Cursed; zh '若敌人被诅咒' → R009 giantGem special of that colour; zh '若有任一敌人被诅咒' + snapshot overrides |  |
 | 2026-09-28T22:43 | sa-A | L4a-R9-giant-9171 | assembler | 9171, 9172, 9173 | troop:7450 DraconicSentinel；troop:7451 UndeadSentinel；troop:7452 MonstrousSentinel | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | createGems plain Yellow/Purple/Brown 8 if any enemy Cursed; zh '若敌人被诅咒' → R009 giantGem special of that colour; zh '若有任一敌人被诅咒' + snapshot overrides |  |
 | 2026-09-28T22:43 | sa-A | L4a-R9-1114-skulls | assembler | 7251 | weapon:1114 Boom-Boom | `src/engine/skills/curated/batch-w01.ts` | 7251 explode 3 include color → include all (R013-5) |  |
+| 2026-09-28T22:46 | sa-A | L4a-R9-1413-target-stun | data | 8521 | weapon:1413 FleurDeLeon | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8521 explode 4 include color if ANY enemy Stunned; zh machine text '结果 ... 超级重击 ... 打昏 ... 炸毁四枚' → explode 4 include all if the damaged target is Stunned (lastTargetStatus); zh '对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。'; native order still issued |  |
+| 2026-09-28T22:46 | sa-A | L4a-R9-6891-skulls | assembler | 8317 | troop:6891 UndeadDrake | `src/engine/skills/curated/batch-37.ts` | 8317 explode 4 include color → include all (R013-5) |  |
 
 ## 按技能 ID
 
@@ -1102,6 +1104,7 @@
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8313 | 1 | P-E-faction-kingdom |
 | 8316 | 1 | B-L4b-6890-native-chances |
+| 8317 | 1 | L4a-R9-6891-skulls |
 | 8321 | 1 | L2-1317-branches |
 | 8322 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8323 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
@@ -1232,6 +1235,7 @@
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8517 | 1 | L2-H-1396-any-gem |
+| 8521 | 1 | L4a-R9-1413-target-stun |
 | 8523 | 1 | L3-F-6996 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8526 | 1 | L4a-R8-7019-zh |

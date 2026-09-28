@@ -227,7 +227,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8317,
     desc: '爆破 4 颗宝石并召唤一个骸骨风暴。',
     build: skill(
-      explodeRandomGems(4, 0, 'color'),
+      // native ExplodeGems 4 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(4, 0, 'all'),
       createStorm(BaseColor.Brown, { dropKind: 'skull' }),
     ),
   },

@@ -440,3 +440,8 @@
 {"format":"compact","key":"troop:7452","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:43:49.788Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1114","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:43:49.788Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7006","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:43:49.789Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6141","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:46:53.900Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6891","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:46:53.901Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1152","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:46:53.902Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1227","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:46:56.457Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"R000 waived c3/step1 boss (AddIfEnemyHasBoss explode Red)","waived":[{"part":"clause","id":"c3","mode":"boss"},{"part":"step","id":"1","mode":"boss"}]}
+{"format":"compact","key":"weapon:1413","decision":"issue","reviewer":"sa-A","reviewedAt":"2026-09-28T22:46:56.629Z","issue":"P-A-chosen-target-status-precast","note":"native ExplodeGems 4 [AddForStun@FromTarget] runs before the heavy splash; curated can only read the target status after the damage (lastTargetStatus). Condition (target, not any enemy), include all and zh fixed."}
