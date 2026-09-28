@@ -85,3 +85,13 @@
 {"format":"compact","key":"troop:7502","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1219","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.723Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6878","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.723Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6906","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.006Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6199","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.007Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7608","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.007Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1362","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7657","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6072","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6599","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6862","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7062","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.158Z","issue":"R012-pending","note":"8590 Damage@AboveTarget after the chosen target may be killed by the first hit; K scenario drops the AboveTarget hit. Wait for R012."}
+{"format":"compact","key":"troop:6928","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.244Z","issue":"L3-005","note":"8406 GenerateQuarterMana to other allies: floor(manaCost/4) rounding unsourced (L3-005). Rest verified: x7 Red gems per full-Mana enemy (test), 15% self destruct; ZH desc fixed 8->7."}

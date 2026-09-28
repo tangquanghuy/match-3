@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 286 条改动，涉及 515 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 288 条改动，涉及 517 个技能 ID。
 
 ## 按时间
 
@@ -292,6 +292,8 @@
 | 2026-09-28T05:56 | sa-R7 | R7-7691-count150-floor | assembler | 9660 | troop:7691 BlackmaneMontu | `src/engine/skills/curated/batch-r9.ts` | damage + 1.5 x target Attack (fractional, 17 -> 25.5 -> rounded 26) → R003: CountAttack 150 = floor(attack x 150 / 100) (17 -> 25), ratio 2:3 |  |
 | 2026-09-28T05:56 | sa-R7 | R7-6259-chosen-ally | assembler | 7402 | troop:6259 QueenYsabelle | `src/engine/skills/curated/batch-r28.ts` | damage = a random ally's Attack (randomAllyStat), buffs to that random ally → native spell Target=Ally: damage = the chosen ally's pre-buff Attack (chosenStat), Attack/Armor buffs to the chosen ally |  |
 | 2026-09-28T05:58 | sa-R7 | R7-1219-create-before-hit | assembler | 7866 | weapon:1219 SymbolOfAnu | `src/engine/skills/curated/batch-w02.ts` | drain, damage, then create gems of the target colour (after a kill) → native order (R001): DecreaseMana -> CreateGems FromTarget -> Damage |  |
+| 2026-09-28T08:22 | sa-R7 | R7-6599-full-or | assembler | 7808 | troop:6599 Envy | `src/engine/skills/curated/batch-r22.ts` | one count of enemies with both full Life and full Mana, x4 → native CountEnemiesFullHealth 400 + CountEnemiesFullMana 400: two separate counts (full Life or full Mana), x4 each; ZH desc 或 |  |
+| 2026-09-28T08:22 | sa-R7 | R7-6928-zh-count | data | 8406 | troop:6928 Detect-o-bot | `src/engine/skills/curated/batch-r22.ts` | ZH desc: 8 Red gems per full-Mana enemy → ZH desc: 7 (English/native CountEnemiesFullMana 700; runtime already x7) |  |
 
 ## 按技能 ID
 
@@ -471,6 +473,7 @@
 | 7797 | 1 | L4a-R1-7797-order |
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
+| 7808 | 1 | R7-6599-full-or |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
@@ -553,6 +556,7 @@
 | 8393 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8403 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 8404 | 3 | L5-001、L5-002、L5-003 |
+| 8406 | 1 | R7-6928-zh-count |
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8410 | 1 | P-prefnotprev-semantics |
 | 8413 | 1 | R7-6925-two-hits |

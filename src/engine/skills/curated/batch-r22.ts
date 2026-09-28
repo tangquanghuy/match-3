@@ -565,7 +565,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7808,
-    desc: '对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值和法力值满值的敌军数而增强。 [x4]',
+    desc: '对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值满值或法力值满值的敌军数而增强。 [x4]',
     // 「生命值和法力值满值的敌军数」= enemyFull{hp,mana}（R22 新来源，官方 CountEnemiesFullMana 族）。
     build: skill(
     // sa-R7: native CountEnemiesFullHealth 400 + CountEnemiesFullMana 400 = two separate counts, each x4
@@ -873,7 +873,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8406,
-    desc: '给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 8 颗红色宝石。有 15% 的几率自毁。 [x7]',
+    desc: '给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 7 颗红色宝石。有 15% 的几率自毁。 [x7]',
     // 「每有一名法力值满值的敌人 [x7]」= enemyFull mana 来源 ×7（官方 CountEnemiesFullMana 700
     // 实锤，ZH「8 颗」为机取出入、按原句口径）；quarter 法力 + 15% 自毁（sacrifice，§11 追加）。
     build: skill(

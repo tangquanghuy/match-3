@@ -226,3 +226,33 @@ describe('L3 R2: "Drain up to N Mana, create/explode per Mana drained" family', 
     expect(order(r).slice(0, 4)).toEqual(['buff E11 mana-12', expect.stringMatching(/-> Purple x12$/), 'dmg E11 14', 'defeat E11']);
   });
 });
+
+describe('L3 R2: B05 drained-mana / full-enemy / conditional extra-turn checks', () => {
+  it('troop:6906 Pandaska Mage: counts [2:1] Mana on Red enemies only, drains 5 from each Red enemy after the hit', () => {
+    const r = castSpell({ key: 'troop:6906', target: 11, enemies: [en([BaseColor.Red], { mana: 10 }), en([BaseColor.Blue], { mana: 20 }), en([BaseColor.Red], { mana: 6 })] });
+    expect(order(r)).toEqual(['dmg E11 21', 'buff E10 mana-5', 'buff E12 mana-5']); // floor(16 x 50%) = 8
+  });
+  it('troop:6599 Envy: full-Life and full-Mana enemies counted separately, x4 each', () => {
+    const r = castSpell({ key: 'troop:6599', enemies: [
+      en([BaseColor.Red], { manaCost: 10, mana: 0 }), en([BaseColor.Red], { hp: 50, manaCost: 10, mana: 10 }),
+      en([BaseColor.Red], { manaCost: 10, mana: 10 }), en([BaseColor.Red], { hp: 50, manaCost: 10, mana: 0 }),
+    ] });
+    // full Life: E10, E12; full Mana: E11, E12 -> 4 x 4 = 16; two strongest (Life + Armor) = E10, E12
+    expect(order(r).filter(o => o.startsWith('dmg ')).sort()).toEqual(['dmg E10 28 (all)', 'dmg E12 28 (all)']);
+  });
+  it('troop:6928 Detect-o-bot: 7 Red gems per enemy at full Mana', () => {
+    const r = castSpell({ key: 'troop:6928', seed: 3, enemies: [en([BaseColor.Blue], { manaCost: 10, mana: 10 }), en([BaseColor.Blue], { manaCost: 10, mana: 10 }), en([BaseColor.Blue], { manaCost: 10, mana: 2 })] });
+    expect(order(r).find(o => o.startsWith('convert '))).toMatch(/-> Red x14$/);
+  });
+  it('troop:6862 Scarab Knight: 25% + 2% per Brown gem, extra turn and half mana rolled independently', () => {
+    const brown = castSpell({ key: 'troop:6862', board: () => colorGem(BaseColor.Brown) });
+    expect(brown.summary.extraTurn).toBe('skill');
+    expect(order(brown)).toContain('buff C mana+6');
+    const runs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(seed => castSpell({ key: 'troop:6862', seed, board: () => colorGem(BaseColor.Red) }));
+    const turn = runs.map(r => r.summary.extraTurn === 'skill');
+    const mana = runs.map(r => order(r).includes('buff C mana+6'));
+    expect(turn.some(Boolean) && !turn.every(Boolean)).toBe(true);
+    expect(mana.some(Boolean) && !mana.every(Boolean)).toBe(true);
+    expect(turn.some((t, i) => t !== mana[i])).toBe(true);
+  });
+});
