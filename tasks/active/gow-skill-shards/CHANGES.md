@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 494 条改动，涉及 832 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 497 条改动，涉及 860 个技能 ID。
 
 ## 按时间
 
@@ -500,6 +500,9 @@
 | 2026-09-28T11:55 | sa-E | L1-E-1414-desc | data | 8529 | weapon:1414 JellyShot | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh desc typo 使用对多的颜色 → 使用最多的颜色 (curated desc + pool-w01 + reviewed override) |  |
 | 2026-09-28T11:55 | sa-E | L1-E-6596-row | assembler | 7818 | troop:6596 GloryGnome | `src/engine/skills/curated/batch-39.ts` | destroy a random row → destroy the chosen row (native Target Board, DestroyGems BoardTarget Row) |  |
 | 2026-09-28T11:55 | sa-E | L1-E-6601-target | assembler | 7810 | troop:6601 Gluttony | `src/engine/skills/curated/batch-acceptance.ts` | explode colour of a RANDOM enemy (TRACKED_ENEMY) and 20% devour that random enemy; no target prompt → native Target Enemy: explode 4 gems of the chosen enemy's colour (CHOSEN_TARGET), 20% devour the chosen enemy |  |
+| 2026-09-28T12:03 | sa-E | L1-E-kingdom-summon-raw | assembler | 8451, 8505, 8510, 8707, 8725, 8765, 8766, 8816, 8905, 8911, 8955, 9034, 9036, 9142, 9145, 9205, 9208, 9235, 9264, 9267, 9305, 9351, 9509, 9577, 9628, 9832, 9835, 8460 | weapon:1388 EyeOfOrion；weapon:1402 WildCleaver；weapon:1407 IceSapphire；weapon:1449 TombLordsCrook；weapon:1453 Runegauge；weapon:1464 DaisysCudgel；weapon:1465 FlailOfGaard；weapon:1484 ObsidianLibram；weapon:1491 BaneOfGods；weapon:1497 ThornOfTheGods；weapon:1511 RuthlessDefense；weapon:1534 ElementalFury；weapon:1536 ThreeGraves；weapon:1541 EmeraldBaton；weapon:1544 WatchersBlade；weapon:1553 FoxFang；weapon:1556 KingCrusher；weapon:1569 ChampionsCleaver；weapon:1573 LionsReach；weapon:1576 ShieldOfVengeance；weapon:1583 Moonshard；weapon:1587 Bonecutter；weapon:1617 BloodcrystalBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller；weapon:1675 DeadEnd；weapon:1678 Windfall；troop:6960 Emperinazara | `src/engine/skills/curated/gowKingdomPools.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | summonRandomOfKingdom(<zh kingdom name>) (parent + faction troops); 8460 Kobold list had KoboldEmissary (3012), lacked Emperinazara → summonRandom(rawKingdomPool(<native SummoningKingdom Data>)) from raw KingdomId roster |  |
+| 2026-09-28T12:03 | sa-E | L1-E-kingdom-desc | data | 9205, 9208 | weapon:1553 FoxFang；weapon:1556 KingCrusher | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 一个正面增益状态效果 (random missing) → 一个随机正面增益状态效果 |  |
+| 2026-09-28T12:06 | sa-E | L1-E-kingdom-desc | data | 9305, 9509, 9577, 9628 | weapon:1583 Moonshard；weapon:1617 BloodcrystalBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh kingdom names off-roster (冰封之巅 / 马拉杰之罪 / 地狱岩 / untranslated Dhrak-Zum), 'random positive' wording lost → roster names 冰峰之巅 / 迈纳杰之罪 / 地狱悬崖 / 卓克祖, family wording 赋予…一个随机正面增益效果。再召唤一名…军队 |  |
 
 ## 按技能 ID
 
@@ -932,8 +935,10 @@
 | 8438 | 1 | F1-6931-dispel |
 | 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
+| 8451 | 1 | L1-E-kingdom-summon-raw |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
+| 8460 | 1 | L1-E-kingdom-summon-raw |
 | 8461 | 1 | L1-E-1394-pool |
 | 8463 | 1 | D-b09-targets |
 | 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
@@ -955,7 +960,9 @@
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
+| 8505 | 1 | L1-E-kingdom-summon-raw |
 | 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
+| 8510 | 1 | L1-E-kingdom-summon-raw |
 | 8513 | 1 | L1-E-kingdom-summon-raw |
 | 8514 | 1 | L1-E-kingdom-summon-raw |
 | 8515 | 1 | L1-E-kingdom-summon-raw |
@@ -1045,9 +1052,11 @@
 | 8698 | 1 | L5-C-cursebreaker-targets |
 | 8699 | 1 | L5-C-cursebreaker-targets |
 | 8700 | 1 | L5-C-cursebreaker-targets |
+| 8707 | 1 | L1-E-kingdom-summon-raw |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
+| 8725 | 1 | L1-E-kingdom-summon-raw |
 | 8732 | 1 | L1-7157-devour |
 | 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
@@ -1056,6 +1065,8 @@
 | 8755 | 1 | F2-R001-order |
 | 8758 | 1 | P-R1-count-at-native-step |
 | 8761 | 1 | R7-1460-burning-gems |
+| 8765 | 1 | L1-E-kingdom-summon-raw |
+| 8766 | 1 | L1-E-kingdom-summon-raw |
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |
@@ -1071,6 +1082,7 @@
 | 8807 | 2 | F2-R001-order、P-A-target-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8815 | 1 | L7-R1-board-special-counts |
+| 8816 | 1 | L1-E-kingdom-summon-raw |
 | 8817 | 1 | L1-7222-chance |
 | 8820 | 1 | P-counter-per-step |
 | 8824 | 1 | R7-not-board-misread |
@@ -1104,6 +1116,8 @@
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
+| 8905 | 1 | L1-E-kingdom-summon-raw |
+| 8911 | 1 | L1-E-kingdom-summon-raw |
 | 8916 | 1 | L4a-r3-7304 |
 | 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
@@ -1115,6 +1129,7 @@
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8946 | 1 | R3-B09-1505 |
 | 8952 | 1 | D-1509-mark-target |
+| 8955 | 1 | L1-E-kingdom-summon-raw |
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
@@ -1130,6 +1145,8 @@
 | 9015 | 2 | L5-001、L5-002 |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9025 | 1 | F2-7383-kill-gems |
+| 9034 | 1 | L1-E-kingdom-summon-raw |
+| 9036 | 1 | L1-E-kingdom-summon-raw |
 | 9051 | 1 | L3-008 |
 | 9064 | 1 | P-counter-per-step |
 | 9066 | 1 | L1-7417-devour |
@@ -1149,6 +1166,8 @@
 | 9138 | 1 | P-create-interleave |
 | 9139 | 1 | P-steal-to-life |
 | 9140 | 1 | L1-summon-dist |
+| 9142 | 1 | L1-E-kingdom-summon-raw |
+| 9145 | 1 | L1-E-kingdom-summon-raw |
 | 9161 | 1 | L4b-1548-steps |
 | 9162 | 1 | R012 |
 | 9163 | 1 | P-create-interleave |
@@ -1160,6 +1179,8 @@
 | 9197 | 1 | L2-singlegem-cell |
 | 9199 | 1 | P-prefnotprev-semantics |
 | 9200 | 1 | L2-7483-explode-board |
+| 9205 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9208 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9211 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9212 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9213 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
@@ -1169,12 +1190,15 @@
 | 9221 | 1 | L4a-r3-7488 |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
+| 9235 | 1 | L1-E-kingdom-summon-raw |
 | 9237 | 1 | P-R1-count-at-native-step |
 | 9241 | 2 | P-random-stat-pool、L2-7496-pref-not-prev |
 | 9244 | 1 | L4b-7499-dragon |
 | 9256 | 1 | L1-7510-prefnotprev |
 | 9258 | 1 | R012 |
 | 9262 | 1 | L7-R1-1571-native-gems |
+| 9264 | 1 | L1-E-kingdom-summon-raw |
+| 9267 | 1 | L1-E-kingdom-summon-raw |
 | 9279 | 1 | L1-7515-summon-dist |
 | 9280 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 9281 | 1 | L7-7517 |
@@ -1183,6 +1207,7 @@
 | 9291 | 1 | P-R3-precast-compare |
 | 9297 | 1 | L4a-r3-7539 |
 | 9303 | 1 | L7-R1-weapon-colour-race |
+| 9305 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9306 | 1 | L7-R1-weapon-colour-race |
 | 9313 | 1 | L2-7523-one-colour |
 | 9318 | 1 | L4a-r3-7543 |
@@ -1190,6 +1215,7 @@
 | 9338 | 1 | L5-C-7553-boss |
 | 9341 | 1 | L2-7556-gold-count |
 | 9349 | 2 | B-L4b-1585-entangle-gems、B-L4b-1585-entangle-gems |
+| 9351 | 1 | L1-E-kingdom-summon-raw |
 | 9352 | 1 | L7-R1-weapon-colour-race |
 | 9355 | 1 | L7-R1-weapon-colour-race |
 | 9363 | 1 | F2-R001-order |
@@ -1215,6 +1241,7 @@
 | 9494 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9505 | 1 | B-L4b-1613-zh |
 | 9507 | 1 | L7-R1-weapon-colour-race |
+| 9509 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
 | 9514 | 1 | P-random-stat-pool |
@@ -1243,6 +1270,7 @@
 | 9563 | 1 | R3-B10-7650 |
 | 9569 | 1 | L1-7654-devour |
 | 9573 | 1 | L4b-1625-1674-any |
+| 9577 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9578 | 1 | L7-R1-weapon-colour-race |
 | 9579 | 1 | R7-1631-counter-only-drain |
 | 9589 | 1 | L7-R1-random-chain-waves |
@@ -1253,6 +1281,7 @@
 | 9602 | 1 | F1-7674-target |
 | 9615 | 1 | L1-7680-pool |
 | 9616 | 1 | F3-q24 |
+| 9628 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
 | 9630 | 1 | L7-R1-weapon-colour-race |
 | 9633 | 1 | L7-R1-weapon-colour-race |
 | 9635 | 1 | L7-R1-teamsize-source |
@@ -1291,6 +1320,8 @@
 | 9812 | 1 | L1-7793-prefnotprev |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
+| 9832 | 1 | L1-E-kingdom-summon-raw |
+| 9835 | 1 | L1-E-kingdom-summon-raw |
 | 9838 | 1 | L1-devour-first |
 | 9839 | 1 | R7-7800-prefnotprev |
 | 9842 | 1 | L4b-1682-order |

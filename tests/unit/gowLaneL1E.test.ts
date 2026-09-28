@@ -247,6 +247,12 @@ describe('L1-E B03 troop:6601 Gluttony (7810): native Target Enemy -> explode th
 
 describe('L1-E B03 SummoningKingdom <id>: pools = raw KingdomId roster (zh kingdom name also merges faction troops)', () => {
   const cases: [string, number][] = [['gw_JellyShot', 3058], ['gw_CobaltineWand', 3030], ['gw_FireGodsHeart', 3000], ['gw_King-Chopper', 3018], ['gw_OldMagusStaff', 3017], ['gw_EmeraldBlade', 3009]];
+  // B04: the rest of the "Grant ... all <Kingdom> Allies. Then summon a <Kingdom> Troop." weapon family (+ 8460 Emperinazara).
+  cases.push(['gw_DaisysCudgel', 3003], ['gw_FlailOfGaard', 3006], ['gw_ThornOfTheGods', 3015], ['gw_RuthlessDefense', 3010], ['gw_ElementalFury', 3080],
+    ['gw_ThreeGraves', 3036], ['gw_EmeraldBaton', 3024], ['gw_WatchersBlade', 3029], ['gw_FoxFang', 3084], ['gw_KingCrusher', 3006], ['8460', 3051],
+    // B05
+    ['gw_ChampionsCleaver', 3022], ['gw_LionsReach', 3025], ['gw_ShieldOfVengeance', 3014], ['gw_Moonshard', 3011], ['gw_Bonecutter', 3020],
+    ['gw_BloodcrystalBlade', 3037], ['gw_GodsBloodRuby', 3082], ['gw_Stonecaller', 3035], ['gw_EyeOfOrion', 3028], ['gw_WildCleaver', 3027]);
   for (const [skill, k] of cases) it(`${skill}: kingdom ${k}`, () => {
     expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByKingdom(k)));
   });

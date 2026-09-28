@@ -8,10 +8,11 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { CHOSEN, armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
+import { CHOSEN, armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, transform, transformToSpecial, trueDmg } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
+import { rawKingdomPool } from './gowKingdomPools';
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
@@ -29,7 +30,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '蛛尔卡里', pool: 'positive' }),
-      summonRandomOfKingdom('蛛尔卡里', undefined),
+      summonRandom(rawKingdomPool(3029), undefined) /* native SummoningKingdom 3029 (zh '蛛尔卡里' adds faction troops) */,
     ),
   },
   {
@@ -101,11 +102,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9205,
-    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有沃尔帕克盟友一个正面增益状态效果。再召唤一名沃尔帕克军队。',
+    desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有沃尔帕克盟友一个随机正面增益状态效果。再召唤一名沃尔帕克军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '沃尔帕克', pool: 'positive' }),
-      summonRandomOfKingdom('沃尔帕克', undefined),
+      summonRandom(rawKingdomPool(3084), undefined) /* native SummoningKingdom 3084 (zh '沃尔帕克' adds faction troops) */,
     ),
   },
   {
@@ -126,11 +127,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9208,
-    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有剑锋崖盟友一个正面增益状态效果。再召唤一名剑锋崖军队。',
+    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有剑锋崖盟友一个随机正面增益状态效果。再召唤一名剑锋崖军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '剑锋崖', pool: 'positive' }),
-      summonRandomOfKingdom('剑锋崖', undefined),
+      summonRandom(rawKingdomPool(3006), undefined) /* native SummoningKingdom 3006 (zh '剑锋崖' adds faction troops) */,
     ),
   },
   {
@@ -209,7 +210,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetKingdom: '黑石', pool: 'positive' }),
-      summonRandomOfKingdom('黑石', undefined),
+      summonRandom(rawKingdomPool(3022), undefined) /* native SummoningKingdom 3022 (zh '黑石' adds faction troops) */,
     ),
   },
   {
@@ -241,7 +242,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '狮心帝国', pool: 'positive' }),
-      summonRandomOfKingdom('狮心帝国', undefined),
+      summonRandom(rawKingdomPool(3025), undefined) /* native SummoningKingdom 3025 (zh '狮心帝国' adds faction troops) */,
     ),
   },
   {
@@ -266,7 +267,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
       inflictRandom('allyAll', { targetKingdom: '白盔国', pool: 'positive' }),
-      summonRandomOfKingdom('白盔国', undefined),
+      summonRandom(rawKingdomPool(3014), undefined) /* native SummoningKingdom 3014 (zh '白盔国' adds faction troops) */,
     ),
   },
   {
@@ -304,11 +305,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9305,
-    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有冰封之巅盟友一个随机正面增益状态效果。再召唤一名冰封之巅军队。',
+    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有冰峰之巅盟友一个随机正面增益状态效果。再召唤一名冰峰之巅军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '冰峰之巅', pool: 'positive' }),
-      summonRandomOfKingdom('冰峰之巅', undefined),
+      summonRandom(rawKingdomPool(3011), undefined) /* native SummoningKingdom 3011 (zh '冰峰之巅' adds faction troops) */,
     ),
   },
   {
@@ -347,7 +348,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '盖塔尔', pool: 'positive' }),
-      summonRandomOfKingdom('盖塔尔', undefined),
+      summonRandom(rawKingdomPool(3020), undefined) /* native SummoningKingdom 3020 (zh '盖塔尔' adds faction troops) */,
     ),
   },
   {
@@ -594,11 +595,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9509,
-    desc: '引爆 [魔法 + 1] 颗紫色宝石。为所有马拉杰之罪盟友赋予随机状态效果。然后召唤一支马拉杰之罪部队。',
+    desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有迈纳杰之罪盟友一个随机正面增益效果。再召唤一名迈纳杰之罪军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetKingdom: '迈纳杰之罪', pool: 'positive' }),
-      summonRandomOfKingdom('迈纳杰之罪', undefined),
+      summonRandom(rawKingdomPool(3037), undefined) /* native SummoningKingdom 3037 (zh '迈纳杰之罪' adds faction troops) */,
     ),
   },
   {
@@ -703,11 +704,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9577,
-    desc: '引爆 [魔法 + 1] 颗棕色宝石。为所有地狱岩盟友赋予随机状态效果。然后召唤地狱岩部队。',
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有地狱悬崖盟友一个随机正面增益效果。再召唤一名地狱悬崖军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetKingdom: '地狱悬崖', pool: 'positive' }),
-      summonRandomOfKingdom('地狱悬崖', undefined),
+      summonRandom(rawKingdomPool(3082), undefined) /* native SummoningKingdom 3082 (zh '地狱悬崖' adds faction troops) */,
     ),
   },
   {
@@ -779,11 +780,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9628,
-    desc: '引爆 [魔法 + 1] 颗棕色宝石。为所有 Dhrak-Zum 盟友赋予随机状态效果。然后召唤一支 Dhrak-Zum 部队。',
+    desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有卓克祖盟友一个随机正面增益效果。再召唤一名卓克祖军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetKingdom: '卓克祖', pool: 'positive' }),
-      summonRandomOfKingdom('卓克祖', undefined),
+      summonRandom(rawKingdomPool(3035), undefined) /* native SummoningKingdom 3035 (zh '卓克祖' adds faction troops) */,
     ),
   },
   {
@@ -1090,7 +1091,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '齐埃金', pool: 'positive' }),
-      summonRandomOfKingdom('齐埃金', undefined),
+      summonRandom(rawKingdomPool(3004), undefined) /* native SummoningKingdom 3004 (zh '齐埃金' adds faction troops) */,
     ),
   },
   {
@@ -1110,7 +1111,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9835,
     desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有日冕盟友一个随机正面增益效果。再召唤一名日冕军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Yellow"}}},{"kind":"randomStatus","target":"allyAll","targetKingdom":"日冕","pool":"positive"},{"kind":"summon","params":{"source":{"randomOfKingdom":"日冕"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Yellow"}}},{"kind":"randomStatus","target":"allyAll","targetKingdom":"日冕","pool":"positive"},{"kind":"summon","params":{"source":{"randomOf":rawKingdomPool(3023)}}}]} as SkillPrototype),
   },
   {
     id: 9836,
