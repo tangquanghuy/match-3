@@ -181,3 +181,34 @@ describe('L4a R1: B05 row counters', () => {
     expect(r.summary.units.C ?? '').not.toContain('-poison');
   });
 });
+describe('L4a R1: B06 line/area counters', () => {
+  it('troop:6939 row and column in one step: 15 cells, boosted by Purple + Yellow in the cross', () => {
+    const o = castSpell({ key: 'troop:6939' }).summary.order;
+    expect(o.filter(x => x.startsWith('destroy '))).toEqual([expect.stringMatching(/^destroy 15 /)]);
+    expect(o).toContain('dmg E11 19 (all)'); // 11 + 2 x (3 Yellow + 1 Purple)
+  });
+  it('weapon:1202 boosted by Skulls and Brown gems in the destroyed column', () => {
+    expect(castSpell({ key: 'weapon:1202' }).summary.order).toContain('dmg E11 16'); // 12 + 2 x (1 Skull + 1 Brown)
+  });
+  it('troop:7218 one extra random explosion per Skull destroyed, no base', () => {
+    const noSkull = withCells(reviewBoard, { '4,2': colorGem(BaseColor.Red) });
+    expect(castSpell({ key: 'troop:7218', board: noSkull }).summary.order.filter(x => x.startsWith('explode '))).toEqual(['explode 9']);
+    expect(castSpell({ key: 'troop:7218' }).summary.order.filter(x => x.startsWith('explode '))).toHaveLength(2);
+  });
+  it('troop:7038 Attack and Life both boosted by Red + Purple gems', () => {
+    const o = castSpell({ key: 'troop:7038' }).summary.order;
+    expect(o).toContain('buff C attack+29');
+    expect(o).toContain('buff C hp+29 max+29');
+  });
+  it('troop:7690 three splash centres: each avoids only the previous one', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const centres = castSpell({ key: 'troop:7690', seed }).summary.order.filter(x => / 17 \(splash\)$/.test(x)).map(x => x.split(' ')[1]);
+      expect(centres).toHaveLength(3);
+      expect(centres[1]).not.toBe(centres[0]);
+      expect(centres[2]).not.toBe(centres[1]);
+      if (centres[2] === centres[0]) seen.add('repeat');
+    }
+    expect(seen.has('repeat')).toBe(true); // the third centre may return to the first (R007-3)
+  });
+});

@@ -139,7 +139,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 列。对最强大的敌人造成 [魔法 + 2] 点伤害，伤害值因被摧毁的骷髅头和棕色宝石数而增强。 [x2]',
     build: skill(
       destroyChosenCol(),
-      dmg('enemyHealthiest', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
+      // native CountGems Skull + Brown BoardTarget Column x2 = gems in the destroyed column (sa-R1)
+      dmg('enemyHealthiest', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'destroyedGems', skulls: true }, { kind: 'destroyedGems', color: BaseColor.Brown }] } }),
     ),
   },
   {

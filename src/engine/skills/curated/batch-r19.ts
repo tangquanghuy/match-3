@@ -965,13 +965,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对3名随机敌人造成[魔法 + 2]溅射伤害，伤害值因愤怒宝石和骷髅头数量而增强。然后召唤一场末日风暴。 [1:1]',
     // 双来源各 ×1（boardSpecial enrageGem + boardSkulls）；末日风暴 = dropKind doomSkull（p37 先例）
     build: skill(
-      dmgSplash('enemyRandomN', 2, 1, {
-        n: 3,
+      // native RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3: each avoids only the previous centre, may return to the first) (sa-R1)
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => dmgSplash(t, 2, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 1 },
           sources: [{ kind: 'boardSpecial', gem: 'enrageGem' }, { kind: 'boardSkulls' }],
         },
-      }),
+      })),
       createStorm(BaseColor.Brown, { dropKind: 'doomSkull' }),
     ),
   },

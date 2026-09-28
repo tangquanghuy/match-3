@@ -1019,7 +1019,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 首颗点选；「每有一颗骷髅头被摧毁则再爆破一颗」= destroyedGems skulls 驱动爆破数量 [1:1]。
     build: skill(
     explodeAt(CELL),
-    explodeRandomGems(1, 0, 'all', undefined, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 1) }),
+    // native second ExplodeGems has no Amount: one per Skull destroyed, no base (sa-R1)
+    explodeRandomGems(0, 0, 'all', undefined, { modifier: boostPer({ kind: 'destroyedGems', skulls: true }, 1) }),
     ),
   },
   {
