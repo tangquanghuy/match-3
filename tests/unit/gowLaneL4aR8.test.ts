@@ -2,8 +2,17 @@
  * Lane L4a review round 8 (sa-A): table-driven checks for behaviour the default scenarios do not show.
  */
 import { describe, expect, it } from 'vitest';
-import { BaseColor, colorGem, skullGem } from '@engine/types';
-import { castSpell, setupCast, summarize, reviewBoard, type BoardFn } from '../helpers/gowCast';
+import { BaseColor, colorGem, skullGem, specialGem } from '@engine/types';
+import { castSpell, setupCast, summarize, reviewBoard, withCells, type BoardFn } from '../helpers/gowCast';
+
+const countSpecial = (r: ReturnType<typeof castSpell>, kind: string) => {
+  let n = 0;
+  for (let rr = 0; rr < 8; rr++) for (let c = 0; c < 8; c++) {
+    const g = r.f.board.get({ row: rr, col: c });
+    if (g?.type.kind === 'special' && g.type.spec.kind === kind) n += 1;
+  }
+  return n;
+};
 
 describe('L4a R8 B01', () => {
   // weapon:1578 Frostbound (9300): CreateGems2Colors 16 Ghost>Freeze ; ExplodeGems 1 (spell Target None = random gem).
@@ -157,4 +166,25 @@ describe('L4a R8 B06', () => {
       expect(r.summary.order[0]).toBe(dmg);
       expect(r.summary.order[1]).toMatch(/^explode \d+$/);
     });
+});
+
+describe('L4a R8 B07', () => {
+  // troop:7166 (8741) / troop:7761 (9746): Damage ; ExplodeColor FromTarget N (one of the target's mana colours; E11 = Yellow/Blue).
+  it.each([['troop:7166', 'dmg E11 13'], ['troop:7761', 'dmg E11 12']] as const)('%s explodes gems of the target mana colours only', (key, dmg) => {
+    const noneBoard: BoardFn = (r, c) => colorGem([BaseColor.Red, BaseColor.Green, BaseColor.Purple, BaseColor.Brown][(2 * r + c) % 4]);
+    expect(castSpell({ key, board: noneBoard }).summary.order).toEqual([dmg]);
+    const r = castSpell({ key });
+    expect(r.summary.order[0]).toBe(dmg);
+    expect(r.summary.order[1]).toMatch(/^explode \d+$/);
+  });
+  // troop:7434 (9128): ExplodeColor Web 3 ; troop:7715 (9676): ExplodeColor Doomskull 3.
+  it.each([['troop:7434', 'web'], ['troop:7715', 'doomSkull']] as const)('%s explodes up to 3 %s gems, nothing else', (key, kind) => {
+    expect(castSpell({ key }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+    const cells = ['0,2', '2,6', '4,4', '6,1'];
+    const board = withCells(reviewBoard, Object.fromEntries(cells.map(k => [k, specialGem(kind as never)])));
+    const r = castSpell({ key, board });
+    expect(r.summary.order[0]).toBe('dmg E11 14');
+    expect(r.summary.order.filter(o => o.startsWith('explode ')).length).toBeGreaterThanOrEqual(1);
+    expect(countSpecial(r, kind)).toBeLessThanOrEqual(1);
+  });
 });

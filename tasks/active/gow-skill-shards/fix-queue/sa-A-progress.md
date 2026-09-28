@@ -44,3 +44,8 @@
 - troop:6591 accept (waived c2 tower+ascension)
 - troop:6597 accept
 - troop:6768 accept (waived c2 tower+ascension)
+- troop:7166 accept
+- troop:7391 accept (waived c2 boss+ascension)
+- troop:7434 accept (waived c2 boss+ascension)
+- troop:7715 accept (waived c2 boss+ascension)
+- troop:7761 accept (waived c2 tower+ascension)
