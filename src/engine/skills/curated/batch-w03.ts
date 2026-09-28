@@ -685,10 +685,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8701,
-    desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有黄色盟友并诅咒所有黄色敌人。',
+    desc: '对 2 名随机敌人造成 [魔法 + 8] 点真实伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有黄色盟友并诅咒所有黄色敌人。',
+    // sa-C r9 native: TrueDamage RandomEnemy -> TrueDamage RandomPrefNotPrevEnemy, both [AddForTempering 4];
+    // was normal damage to the first + last enemy with Tempering on one hit only (zh said 首位和末位).
     build: skill(
-      dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      trueDmg('enemyRandom', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      trueDmg('enemyRandomPrefNotPrev', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),

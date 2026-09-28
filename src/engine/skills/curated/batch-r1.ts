@@ -136,7 +136,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成[魔法 + 6]点散射伤害。然后燃烧1-2名随机敌人。',
     build: skill(
       dmg('enemyAll', 6, 1, { range: 'all' }),
-      inflict('burning', 'enemyRandomN', { nRange: { min: 1, max: 2 } }),
+      // sa-C r9 native: CauseBurning@RandomEnemy ; CauseBurning@RandomPrefNotPrevEnemy PercentageChance 50
+      inflict('burning', 'enemyRandom'),
+      inflict('burning', 'enemyRandomPrefNotPrev', { chance: 0.5 }),
     ),
   },
   {

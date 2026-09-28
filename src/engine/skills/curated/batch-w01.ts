@@ -1083,8 +1083,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 4] 点生命值。净化和赋予所有其他的盟友法印效果。',
     build: skill(
       heal('allySelf', 4, 1),
-      cleanse('allyAll'),
-      inflict('enchanted', 'allyAll'),
+      // sa-C r9: native Cleanse / CauseEnchanted @AllAlliesButNotSelf (「所有其他的盟友」)
+      cleanse('allyOthers'),
+      inflict('enchanted', 'allyOthers'),
     ),
   },
   {

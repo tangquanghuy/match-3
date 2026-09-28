@@ -56,6 +56,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对 1 名敌人造成一项随机状态效果。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。"
     },
+    "6150": {
+      "spellId": 7264,
+      "reason": "sa-C r9: English Dimetraxia 'There's a 75% chance to Burn all Enemies'; native CauseBurning@AllEnemies PercentageChance 75; old Chinese said 'everyone' (所有人).",
+      "spellDescription": "对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有敌人。"
+    },
     "6163": {
       "spellId": 7289,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
@@ -211,10 +216,20 @@
       "reason": "sa-F: English Solari 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese said 'other allies enemies'.",
       "spellDescription": "对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。"
     },
+    "6882": {
+      "spellId": 8305,
+      "reason": "sa-C r9: English Swamp Rat '50% chance to deal [Magic + 1] true damage to the second last Enemy'; native TrueDamage@SecondLastEnemy PercentageChance 50; old Chinese said the 3rd enemy (第 3 位).",
+      "spellDescription": "对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对倒数第二名敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。"
+    },
     "6897": {
       "spellId": 8358,
       "reason": "sa-F: English Arachnaean Watcher 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese omitted 'other'.",
       "spellDescription": "获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]"
+    },
+    "6900": {
+      "spellId": 8361,
+      "reason": "sa-C r9: English Freki the Wild 'Deal [Magic + 1] true damage to the first Enemy'; native TrueDamage@FrontEnemy; old Chinese omitted true (真实).",
+      "spellDescription": "对第一名敌人造成 [魔法 + 1] 点真实伤害。若对方使用紫色法力值，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。"
     },
     "6908": {
       "spellId": 8369,

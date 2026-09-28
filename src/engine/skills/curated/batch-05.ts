@@ -208,11 +208,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7264,
-    desc: '对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有人。',
+    desc: '对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有敌人。',
     build: skill(
       // 「对所有敌人…散射」：散射只是类型词，全体目标各自结算（SOP 措辞裁定）
       dmgAll(9),
-      // 概率只辖所在子句（spell-rules.md §2）；「所有人」= 敌方全体
+      // 概率只辖所在子句（spell-rules.md §2）；sa-C r9: 原生 CauseBurning@AllEnemies PercentageChance 75（zh 覆盖「所有敌人」）
       inflict('burning', 'enemyAll', { chance: 0.75 }),
     ),
   },

@@ -601,7 +601,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取最后两名敌人 [魔法 + 1] 点生命值并使其陷入死亡标记状态。再赐福自身。',
     build: skill(
       dmg('enemyLastN', 1, 1, { n: 2, drain: true }),
-      inflict('death-mark', 'enemyLastN'),
+      // sa-C r9: native CauseDeathMark LastTwoEnemies; n was missing (defaulted to the last enemy only).
+      inflict('death-mark', 'enemyLastN', { n: 2 }),
       inflict('blessed', 'allySelf'),
     ),
   },
@@ -809,9 +810,15 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8154,
     desc: '对一名敌人和其下方的敌人造成 [魔法 + 1] 点溅射伤害。使目标敌人陷入击晕和出血状态。',
     build: skill(
-      dmgSplash('enemyChosenAndNextDown', 1, 1, { range: 'splash' }),
-      inflict('stun', 'lastTargets'),
-      inflict('bleed', 'lastTargets'),
+      // sa-C r9: native order Splash FromTarget -> Splash NextDownFromTarget -> Stun both -> Bleed both.
+      // NextDown resolved per step (R012: next living enemy below the target's slot), so a first
+      // splash that kills the enemy below moves the second splash on to the next one.
+      dmgSplash('enemyChosen', 1, 1, { range: 'splash' }),
+      dmgSplash('enemyNextDown', 1, 1, { range: 'splash' }),
+      inflict('stun', 'enemyChosen'),
+      inflict('stun', 'enemyNextDown'),
+      inflict('bleed', 'enemyChosen'),
+      inflict('bleed', 'enemyNextDown'),
     ),
   },
   {
@@ -874,7 +881,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8186,
-    desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，若敌人陷入猎人标记状态，则造成 3 倍伤害。再使其陷入陷入猎人标记状态。',
+    desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，若敌人陷入猎人标记状态，则造成 3 倍伤害。再使其陷入猎人标记状态。',
     build: skill(
       trueDmg('enemyChosen', 3, 1, { trueDamage: true, condMult: { times: 3, cond: { kind: 'targetStatus', statusId: 'marked' } } }),
       inflict('marked', 'lastTarget'),

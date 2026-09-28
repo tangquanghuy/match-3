@@ -2,6 +2,95 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
+    "8701": {
+      "description": "对 2 名随机敌人造成 [魔法 + 8] 点真实伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有黄色盟友并诅咒所有黄色敌人。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          }
+        ]
+      }
+    },
+    "7446": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "hp",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "cleanse",
+            "target": "allyOthers"
+          },
+          {
+            "kind": "status",
+            "target": "allyOthers",
+            "statusId": "enchanted",
+            "turns": 3
+          }
+        ]
+      }
+    },
     "8409": {
       "prototype": {
         "segments": [
@@ -3646,7 +3735,8 @@
             "kind": "status",
             "target": "enemyLastN",
             "statusId": "death-mark",
-            "turns": 3
+            "turns": 3,
+            "n": 2
           },
           {
             "kind": "status",

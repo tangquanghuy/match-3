@@ -407,12 +407,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8305,
-    desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对第 3 位敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
+    desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对倒数第二名敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
     // Native SecondLastEnemy: the penultimate survivor only; the 50% chance
     // applies solely to this second hit, not to the guaranteed last-enemy hit.
     build: skill(
-      trueDmg('enemyLast', 1, 1),
+      // sa-C r9: native order SecondLastEnemy (50%) -> LastEnemy; zh 第 3 位 -> 倒数第二名 (English second last).
       trueDmg('enemySecondLast', 1, 1, { chance: 0.5 }),
+      trueDmg('enemyLast', 1, 1),
       inflict('submerged', 'allySelf'),
     ),
   },
@@ -471,8 +472,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点严重的溅射伤害。击晕所有受到伤害的敌人。再打乱敌方队伍队形。',
     build: skill(
       dmgSplash('enemyChosen', 4, 1),
-      // 「击晕所有受到伤害的敌人」= enemyAll + targetHpDamaged（batch-r6 7985 同款）
-      inflict('stun', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
+      // sa-C r9: native CauseStun FromTarget + AdjacentFromTarget = the whole splash group
+      // (armor-only hits included); was enemyAll + targetHpDamaged, which skipped armor-only hits.
+      inflict('stun', 'lastDamaged'),
       shuffleTeam('enemy'),
     ),
   },
@@ -526,8 +528,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。再使所有受伤害的敌人陷入中毒状态。',
     build: skill(
       dmgSplash('enemyChosen', 4, 1),
-      // 「所有受伤害的敌人」= enemyAll + targetHpDamaged（batch-r6 7985 同款）
-      inflict('poison', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
+      // sa-C r9: native CausePoison FromTarget + AdjacentFromTarget = the whole splash group
+      // (armor-only hits included); was enemyAll + targetHpDamaged.
+      inflict('poison', 'lastDamaged'),
     ),
   },
   {
