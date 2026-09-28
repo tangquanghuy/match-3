@@ -1,0 +1,42 @@
+{
+ "weapon:1706": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison | E11:+curse",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison | E11:+curse",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+1 max+1 +blessed -poison | C:+blessed -poison | E11:+curse",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ },
+ "weapon:1708": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; remove E10 -rage ; status E10 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E10:+curse -rage",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; remove E10 -rage ; status E10 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E10:+curse -rage",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; status A2 +blessed ; remove E10 -rage ; status E10 +curse  => A1:hp+1 max+1 | C:+blessed -poison | A2:+blessed | E10:+curse -rage",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E10 +curse ; status E11 +curse ; status E12 +curse ; status E13 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E10:+curse | E11:+curse | E12:+curse | E13:+curse"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ },
+ "weapon:1709": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E11 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E11:+curse",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E11 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E11:+curse",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E11 +curse  => A1:hp+1 max+1 | C:+blessed -poison | A2:+blessed | E11:+curse",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ },
+ "weapon:1711": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove E13 -rage ; status E13 +curse  => A1:hp+11 max+11 | C:+blessed -poison | E13:+curse -rage",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove E13 -rage ; status E13 +curse  => A1:hp+11 max+11 | C:+blessed -poison | E13:+curse -rage",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; remove E13 -rage ; status E13 +curse  => A1:hp+1 max+1 | C:+blessed -poison | E13:+curse -rage",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed  => A1:hp+11 max+11 | C:+blessed -poison"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "troop:6931": {
+  "lines": {
+   "L10": "dmg E12 312 ; defeat E12 ; flee C  => E12:hp-300 arm-12 DEAD | C:FLED",
+   "R10": "dmg E12 312 ; defeat E12 ; flee C  => E12:hp-300 arm-12 DEAD | C:FLED",
+   "L0": "dmg E12 312 ; defeat E12 ; flee C  => E12:hp-300 arm-12 DEAD | C:FLED",
+   "K": "dmg E12 1 ; defeat E12 ; flee C  => E12:hp-1 DEAD | C:FLED"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:19:26.339Z"
+ },
+ "weapon:1311": {
+  "lines": {
+   "L10": "status A1 +rage ; buff A1 attack+6 ; summon mine troop:-1  => A14:new 獠牙大盗 hp20 atk14 arm7 mag10 | A1:atk+6 +rage",
+   "R10": "status A1 +rage ; buff A1 attack+6 ; summon mine troop:-1  => A14:new 獠牙大盗 hp20 atk14 arm7 mag10 | A1:atk+6 +rage",
+   "L0": "status A1 +rage ; buff A1 attack+1 ; summon mine troop:-1  => A14:new 獠牙大盗 hp20 atk14 arm7 mag10 | A1:atk+1 +rage",
+   "K": "status A1 +rage ; buff A1 attack+6 ; summon mine troop:-1  => A14:new 獠牙大盗 hp20 atk14 arm7 mag10 | A1:atk+6 +rage"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:19:26.339Z"
+ }
+}

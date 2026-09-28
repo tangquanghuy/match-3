@@ -1282,9 +1282,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 10003,
-    desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有蓝色盟友，诅咒所有蓝色敌人。如果敌人带有厄运效果，则获得额外回合。',
+    desc: '给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有蓝色盟友，诅咒所有蓝色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      randomStat('allyRandom', 1, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       extraTurn({ ifCond: { kind: 'targetHasDoom' } }),
@@ -1292,9 +1292,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 10005,
-    desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有红色盟友，诅咒所有红色敌人。如果敌人带有厄运效果，则获得额外回合。',
+    desc: '给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有红色盟友，诅咒所有红色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      randomStat('allyRandom', 1, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       extraTurn({ ifCond: { kind: 'targetHasDoom' } }),
@@ -1302,9 +1302,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 10006,
-    desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有黄色盟友，诅咒所有黄色敌人。如果敌人带有厄运效果，则获得额外回合。',
+    desc: '给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有黄色盟友，诅咒所有黄色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      randomStat('allyRandom', 1, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       extraTurn({ ifCond: { kind: 'targetHasDoom' } }),
@@ -1312,9 +1312,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 10008,
-    desc: '随机给予一名盟友1点技能点数，每提升一级强化等级额外增加3点。祝福所有棕色盟友，诅咒所有棕色敌人。如果敌人带有厄运效果，则获得额外回合。',
+    desc: '给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有棕色盟友，诅咒所有棕色敌人。如果敌人带有厄运效果，则获得额外回合。',
     build: skill(
-      randomStat('allyRandom', 1, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
       extraTurn({ ifCond: { kind: 'targetHasDoom' } }),

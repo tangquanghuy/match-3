@@ -3172,6 +3172,40 @@
         "skippedClauses": []
       }
     },
+    "8440": {
+      "description": "消除 [魔法 + 1] 点随机技能值，再使一名敌人陷入诅咒、死亡标记和疾病状态。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "random",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "curse",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "death-mark",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "disease",
+            "turns": 3
+          }
+        ]
+      }
+    },
     "8441": {
       "description": "对一名敌人造成 [魔法 + 6] 点伤害。若敌人使用紫色法力值，则使其陷入死亡标记状态。"
     },
@@ -5290,6 +5324,210 @@
     },
     "9985": {
       "description": "若我方队伍中有不朽的拜布利奥斯，使选定敌人陷入沉默。削减该敌人 [魔法 + 1] 点攻击力和 4 点魔法，两项削减均因被诅咒的敌人数而增强。 [x3]"
+    },
+    "10003": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有蓝色盟友，诅咒所有蓝色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "10005": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有红色盟友，诅咒所有红色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "10006": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有黄色盟友，诅咒所有黄色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "10008": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有棕色盟友，诅咒所有棕色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
     },
     "10045": {
       "description": "对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]",

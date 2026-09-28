@@ -73,13 +73,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7349,
     desc: '耗尽一名敌人 7 点法力值。造成 [魔法 + 1] 点真实伤害，移除所有黄色宝石。伤害值因移除的宝石数而增强。 [2:1]',
     build: skill(
-      // 「移除所有黄色宝石。伤害值因移除的宝石数而增强」：清除段前移、来源不带色筛选
-      // （batch-04 7010 同款，见文件头备注）
+      // Native (R001, sa-F1): CountGems Yellow 50 → DecreaseMana 7 → TrueDamage +count → RemoveColor Yellow.
+      // The count is the Yellow gems on the board before the removal, so the removal stays last.
       reduce('enemyChosen', 'mana', 7, 0),
-      destroyColor(BaseColor.Yellow),
       trueDmg('enemyChosen', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      destroyColor(BaseColor.Yellow),
     ),
   },
   {

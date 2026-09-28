@@ -373,12 +373,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7478,
     desc: "对所有敌人造成 [魔法 + 4] 点伤害，伤害值因选定的颜色数量而增强，然后移除该指定颜色宝石。召唤一只银天龙。 [2:1]",
     // 【挽救】EN 原句顺序「Remove all Gems of a chosen Color」在前——destroyColor(CHOSEN) 前移后 destroyedGems 即「移除的宝石数」；[2:1] = ratio 2:1
+    // Native (R001, sa-F1): CountGems chosen 50 → Damage@AllEnemies +count → RemoveColor → summon.
     build: skill(
-      destroyColor(CHOSEN),
       dmg('enemyAll', 4, 1, {
     range: 'all',
-    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } },
+    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } },
   }),
+      destroyColor(CHOSEN),
       summonRef('SilverDrakon', 6321),
     ),
   },

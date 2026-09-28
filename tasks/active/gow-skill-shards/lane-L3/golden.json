@@ -1,0 +1,42 @@
+{
+ "troop:6319": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; buff A1 mana+6 ; buff A2 mana+6 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A1:mana+6 -poison | A2:mana+6",
+   "R10": "cleanse A1 -poison ; buff A1 mana+6 ; buff A2 mana+6 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A1:mana+6 -poison | A2:mana+6",
+   "L0": "cleanse A1 -poison ; buff A1 mana+6 ; buff A2 mana+6 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A1:mana+6 -poison | A2:mana+6",
+   "K": "cleanse A1 -poison ; buff A1 mana+6 ; buff A2 mana+6 ; convert Purple x1, skull x1, Red x1 -> bomb x3  => A1:mana+6 -poison | A2:mana+6"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:06:27.871Z"
+ },
+ "troop:6871": {
+  "lines": {
+   "L10": "convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "R10": "convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "L0": "convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "K": "convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:19:23.772Z"
+ },
+ "troop:7341": {
+  "lines": {
+   "L10": "buff A1 attack+2 ; extra-turn skill  => A1:atk+2  extra:skill",
+   "R10": "buff A1 attack+2 ; extra-turn skill  => A1:atk+2  extra:skill",
+   "L0": "buff A1 attack+2 ; extra-turn skill  => A1:atk+2  extra:skill",
+   "K": "buff A1 attack+2 ; extra-turn skill  => A1:atk+2  extra:skill"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:19:23.772Z"
+ },
+ "troop:7749": {
+  "lines": {
+   "L10": "buff A1 attack+11 ; status A1 +barrier  => A1:atk+11 +barrier",
+   "R10": "buff A1 attack+11 ; status A1 +barrier  => A1:atk+11 +barrier",
+   "L0": "buff A1 attack+1 ; status A1 +barrier  => A1:atk+1 +barrier",
+   "K": "buff A1 attack+11 ; status A1 +barrier  => A1:atk+11 +barrier"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:19:23.772Z"
+ }
+}

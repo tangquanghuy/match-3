@@ -139,12 +139,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7596,
     desc: '移除选定颜色的宝石。减除最后一名敌人 [魔法 + 1] 点随机技能值，数量因被移除的宝石数量而增强。窃取 4 点法力值。 [3:1]',
     // 「因被移除的宝石数量」= destroyedGems 无色（R10 9639 口径，含任意被摧毁宝石）
+    // Native (R001, sa-F1): CountGems chosen 34 → DecreaseRandom@LastEnemy → StealMana 4 → RemoveColor chosen.
     build: skill(
-      destroyColor('CHOSEN'),
       reduce('enemyLast', 'random', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } },
       }),
       steal('enemyLast', 'mana', 'mana', 4, 0),
+      destroyColor('CHOSEN'),
     ),
   },
   {
