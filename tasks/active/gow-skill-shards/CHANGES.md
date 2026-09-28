@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 553 条改动，涉及 1005 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 554 条改动，涉及 1006 个技能 ID。
 
 ## 按时间
 
@@ -559,6 +559,7 @@
 | 2026-09-28T21:43 | sa-G | G-zh-typos | data | 8416, 8781 | troop:6935 ArmoredBoarlet；troop:7194 Sabellius | `src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-15.ts`<br>`src/data/gowSnapshotOverrides.json` | 6935 ZH 并将之; 7194 ZH 在对 → 6935 则将之; 7194 再对 (overrides 6935, 7194) |  |
 | 2026-09-28T21:46 | sa-G | G-6258-order | assembler | 7401 | troop:6258 Innkeeper | `src/engine/skills/curated/batch-01.ts` | Attack to others, then -1 Magic → native order: -1 Magic, then Attack |  |
 | 2026-09-28T21:47 | sa-G | G-6728-order | assembler | 8098 | troop:6728 Thunderforge | `src/engine/skills/curated/batch-07.ts` | Armor then Attack → native order: Attack then Armor (Dwarf double on both) |  |
+| 2026-09-28T21:49 | sa-G | G-7514-order | assembler | 9260 | troop:7514 KooTheBrave | `src/engine/skills/curated/batch-11.ts` | Life then Attack → native order: Attack then Life (Tauros double on both) |  |
 
 ## 按技能 ID
 
@@ -1358,6 +1359,7 @@
 | 9249 | 1 | P-E-faction-kingdom |
 | 9256 | 1 | L1-7510-prefnotprev |
 | 9258 | 1 | R012 |
+| 9260 | 1 | G-7514-order |
 | 9262 | 1 | L7-R1-1571-native-gems |
 | 9264 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9267 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |

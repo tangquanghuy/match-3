@@ -64,3 +64,8 @@
 - weapon:1112 accepted: Armor + Attack all; 13+ Yellow -> +4 Life and Magic (test)
 - troop:6351 accepted: M/2+4 Armor + 1 Magic, x2 Divine
 - troop:6728 fixed (order only): native Attack then Armor, x2 Dwarf
+- weapon:1084 accepted: M+1 Attack then Armor to chosen ally
+- troop:7514 fixed (order only): native Attack then Life, x2 Tauros (test)
+- troop:7015 accepted: first 2 Attack; 2 weakest Life (A1, A2); 2 strongest Life+Armor (C, A2) +10 Magic
+- weapon:1070 accepted: all allies M+1 Life
+- troop:7741 accepted: Life then Armor, x2 when a Storm is active

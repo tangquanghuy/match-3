@@ -95,6 +95,16 @@ describe('L6 sa-G', () => {
     expect(castSpell({ key: 'weapon:1112', board: nOf(BaseColor.Yellow, 13) }).summary.units.A2).toBe('hp+4 max+4 arm+13 atk+5 mag+4');
     expect(castSpell({ key: 'weapon:1112', board: nOf(BaseColor.Yellow, 12) }).summary.units.A2).toBe('arm+13 atk+5');
   });
+  it.each([
+    ['troop:7514', 'Tauros', ['buff A1 attack+22', 'buff A1 hp+22 max+22']],
+    ['troop:6740', 'Human', ['buff A1 hp+22 max+22', 'buff A1 attack+10']],
+    ['troop:6315', 'Elemental', ['buff A1 hp+22 max+22', 'buff A1 magic+4']],
+    ['troop:7354', 'Fey', ['buff A1 hp+22 max+22', 'buff A1 magic+6']],
+    ['troop:7747', 'Centaur', ['buff A1 hp+22 max+22', 'buff A1 magic+4']],
+  ])('%s doubles both parts on a %s ally (native order)', (key, race, order) => {
+    const allies = [{ ...DEFAULT_ALLIES[0], troopTypes: [race] }, DEFAULT_ALLIES[1]];
+    expect(castSpell({ key, allies }).summary.order).toEqual(order);
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both
