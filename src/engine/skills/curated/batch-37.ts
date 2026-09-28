@@ -30,6 +30,7 @@ import { skill, dmg, dmgAll, trueDmg, heal, armor, magic, mana, inflict, reduce,
   createGems, createSpecialGems, transform, transformToSpecial, dispelStatus, createStorm,
   oneOf, explodeRandomGems, explodeSpecialGems, destroySpecialGems, targetedSkill } from '../builders';
 import { BaseColor } from '../../types';
+import { POSITIVE_STATUS_IDS } from '../effects/status';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -341,14 +342,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9784,
-    desc: '对一名敌人造成[魔法 + 4]点伤害。如果该敌人处于流血状态，则驱散其流血效果，施加诅咒并吸取其3点法力值。',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。',
     build: skill(
-      dmg('enemyChosen', 4, 1),
-      // 条件子句辖三段：该敌人处于流血才生效（ifCond targetStatus 逐目标过滤，静态同目标合法）
-      dispelStatus('bleed', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
+      // sa-F: native order DispelConditional -> Curse -> DecreaseMana 3 (all AddForBleed) -> Damage (R001).
+      // Dispel = remove the target's positive statuses (Bleed is negative and stays).
+      ...POSITIVE_STATUS_IDS.map(statusId => dispelStatus(statusId, 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } })),
       inflict('curse', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
       // L3-007: 「吸取其 3 点法力值」native DecreaseMana (drain) — no refill to the caster
       reduce('enemyChosen', 'mana', 3, 0, { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
+      dmg('enemyChosen', 4, 1),
     ),
   },
 ];

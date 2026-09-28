@@ -256,3 +256,8 @@
 {"format":"compact","key":"troop:6967","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:24:30.895Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B08"}
 {"format":"compact","key":"troop:6911","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:24:30.895Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B08"}
 {"format":"compact","key":"troop:6789","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:24:30.895Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B08"}
+{"format":"compact","key":"troop:7778","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:34:56.951Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B09; Tempering +4/level implemented (not an R000 mode)"}
+{"format":"compact","key":"weapon:1632","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:34:56.953Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B09; Tempering +4/level implemented (not an R000 mode)"}
+{"format":"compact","key":"weapon:1633","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:34:56.953Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B09; Tempering +4/level implemented (not an R000 mode)"}
+{"format":"compact","key":"weapon:1634","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:34:56.953Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B09; Tempering +4/level implemented (not an R000 mode)"}
+{"format":"compact","key":"weapon:1635","decision":"accept","reviewer":"sa-F","reviewedAt":"2026-09-28T21:34:56.953Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"sa-F B09; Tempering +4/level implemented (not an R000 mode)"}

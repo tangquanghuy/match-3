@@ -11583,23 +11583,6 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
-            "target": "enemyChosen",
-            "scaling": {
-              "base": 3,
-              "mult": 1
-            },
-            "modifier": {
-              "mod": {
-                "kind": "multiplier",
-                "a": 4
-              },
-              "source": {
-                "kind": "tempering"
-              }
-            }
-          },
-          {
             "kind": "gem",
             "params": {
               "op": "clear",
@@ -11615,7 +11598,7 @@
               }
             },
             "ifCond": {
-              "kind": "targetColor",
+              "kind": "chosenTargetColor",
               "color": "Blue"
             }
           },
@@ -11631,14 +11614,7 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          }
-        ]
-      }
-    },
-    "9581": {
-      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用绿色法力值，则引爆 3 颗绿色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。",
-      "prototype": {
-        "segments": [
+          },
           {
             "kind": "damage",
             "target": "enemyChosen",
@@ -11655,7 +11631,14 @@
                 "kind": "tempering"
               }
             }
-          },
+          }
+        ]
+      }
+    },
+    "9581": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用绿色法力值，则引爆 3 颗绿色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。",
+      "prototype": {
+        "segments": [
           {
             "kind": "gem",
             "params": {
@@ -11672,7 +11655,7 @@
               }
             },
             "ifCond": {
-              "kind": "targetColor",
+              "kind": "chosenTargetColor",
               "color": "Green"
             }
           },
@@ -11688,14 +11671,7 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          }
-        ]
-      }
-    },
-    "9582": {
-      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用红色法力值，则引爆 3 颗红色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。",
-      "prototype": {
-        "segments": [
+          },
           {
             "kind": "damage",
             "target": "enemyChosen",
@@ -11712,7 +11688,14 @@
                 "kind": "tempering"
               }
             }
-          },
+          }
+        ]
+      }
+    },
+    "9582": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用红色法力值，则引爆 3 颗红色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。",
+      "prototype": {
+        "segments": [
           {
             "kind": "gem",
             "params": {
@@ -11729,7 +11712,7 @@
               }
             },
             "ifCond": {
-              "kind": "targetColor",
+              "kind": "chosenTargetColor",
               "color": "Red"
             }
           },
@@ -11745,14 +11728,7 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          }
-        ]
-      }
-    },
-    "9583": {
-      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用黄色法力值，则引爆 3 颗黄色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。",
-      "prototype": {
-        "segments": [
+          },
           {
             "kind": "damage",
             "target": "enemyChosen",
@@ -11769,7 +11745,14 @@
                 "kind": "tempering"
               }
             }
-          },
+          }
+        ]
+      }
+    },
+    "9583": {
+      "description": "对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用黄色法力值，则引爆 3 颗黄色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。",
+      "prototype": {
+        "segments": [
           {
             "kind": "gem",
             "params": {
@@ -11786,7 +11769,7 @@
               }
             },
             "ifCond": {
-              "kind": "targetColor",
+              "kind": "chosenTargetColor",
               "color": "Yellow"
             }
           },
@@ -11801,6 +11784,23 @@
             "fraction": 0.25,
             "ifCond": {
               "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
             }
           }
         ]

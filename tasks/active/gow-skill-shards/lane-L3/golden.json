@@ -1659,6 +1659,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:35:11.787Z"
  },
+ "troop:7778": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:34:56.834Z"
+ },
  "troop:7781": {
   "lines": {
    "L10": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Yellow x1, Purple x2, Green x1, bleedGem x1 -> decayGem x5 ; extra-turn skill  extra:skill",
@@ -2158,6 +2168,46 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T05:49:19.936Z"
+ },
+ "weapon:1632": {
+  "lines": {
+   "L10": "explode 23 ; skulls E10 2 ; ~cascade~ ; dmg E11 13  => A2:mana+6 | E10:arm-2 | E11:hp-3 arm-10  cascade",
+   "R10": "explode 23 ; skulls E10 2 ; ~cascade~ ; dmg E11 13  => A2:mana+6 | E10:arm-2 | E11:hp-3 arm-10  cascade",
+   "L0": "explode 23 ; skulls E10 2 ; ~cascade~ ; dmg E11 3  => A2:mana+6 | E10:arm-2 | E11:arm-3  cascade",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:34:56.834Z"
+ },
+ "weapon:1633": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "explode 19 ; skulls E10 1 ; defeat E10 ; ~cascade~ ; dmg E11 13 ; defeat E11  => A2:mana+5 | A1:mana+2 | E10:hp-1 DEAD | E11:hp-1 DEAD  cascade"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:34:56.834Z"
+ },
+ "weapon:1634": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "explode 21 ; dmg E11 13 ; defeat E11  => A2:mana+2 | A1:mana+2 | E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:34:56.834Z"
+ },
+ "weapon:1635": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; dmg E11 13  => A2:mana+2 | A1:mana+1 | E10:arm-2 | E11:hp-3 arm-10  cascade",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; dmg E11 13  => A2:mana+2 | A1:mana+1 | E10:arm-2 | E11:hp-3 arm-10  cascade",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; dmg E11 3  => A2:mana+2 | A1:mana+1 | E10:arm-2 | E11:arm-3  cascade",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:34:56.834Z"
  },
  "weapon:1656": {
   "lines": {

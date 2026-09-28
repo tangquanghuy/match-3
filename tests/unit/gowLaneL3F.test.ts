@@ -214,3 +214,26 @@ describe('sa-F B08: drain order / chosen-colour enemies', () => {
       'status E10 +silence', 'status E12 +silence', 'status E10 +frozen', 'status E12 +frozen']);
   });
 });
+
+describe('sa-F B09: conditional steps before the damage (native order)', () => {
+  it('troop:7778 BloodSpore (9784): if Bleeding, Dispel (positives, Bleed kept) + Curse + drain 3, all before the damage', () => {
+    const r = castSpell({ key: 'troop:7778', target: 10, enemies: [en({ mana: 5, statuses: st('bleed', 'barrier') }), en()] });
+    expect(order(r)).toEqual(['remove E10 -barrier', 'status E10 +curse', 'buff E10 mana-3', 'dmg E10 14']);
+    expect(r.f.enemies[0].statuses.map(s => s.id)).toContain('bleed');
+    const dry = castSpell({ key: 'troop:7778', target: 10, enemies: [en({ mana: 5, statuses: st('barrier') }), en()] });
+    expect(order(dry).filter(o => !o.startsWith('dmg') && !o.startsWith('remove'))).toEqual([]);
+  });
+  it('weapon:1632-1635 Doomed ranged weapons: explode 3 of the target colour and quarter Mana (enemy Doom) before the damage', () => {
+    const cases = [['weapon:1632', BaseColor.Blue], ['weapon:1633', BaseColor.Green], ['weapon:1634', BaseColor.Red], ['weapon:1635', BaseColor.Yellow]] as const;
+    for (const [key, c] of cases) {
+      const cost = entitySkill(key).cost;
+      const r = castSpell({ key, target: 10, enemies: [en({ hp: 500, maxHp: 500, colors: [c] }), en({ troopTypes: ['Doom'] })] });
+      const o = order(r);
+      expect(o[0]).toMatch(/^explode /);
+      expect(o.indexOf(`buff C mana+${Math.floor(cost / 4)}`)).toBeGreaterThan(0);
+      expect(o.indexOf(`buff C mana+${Math.floor(cost / 4)}`)).toBeLessThan(o.findIndex(x => x.startsWith('dmg E10')));
+      const plain = castSpell({ key, target: 10, enemies: [en({ colors: [BaseColor.Purple] }), en()] });
+      expect(order(plain)).toEqual(['dmg E10 13']);
+    }
+  });
+});

@@ -357,6 +357,11 @@
       "spellId": 8180,
       "reason": "sa-F: English The Gray King '[Magic + 9] true damage'; old Chinese dropped the unit (double space).",
       "spellDescription": "摧毁所有选定颜色的宝石。所有使用此颜色的敌人都受到 [魔法 + 9] 点真实伤害，耗尽所有法力值，并陷入沉默和冻结状态。"
+    },
+    "7778": {
+      "spellId": 9784,
+      "reason": "sa-F: English Blood Spore 'If they are Bleeding, then Dispel, Curse and drain 3 Mana from them' (native DispelConditional AddForBleed = remove positive statuses); old Chinese said dispel their Bleed.",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。"
     }
   }
 }
