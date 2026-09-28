@@ -759,6 +759,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:44:13.787Z"
  },
+ "troop:7287": {
+  "lines": {
+   "L10": "extra-turn skill ; destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; gold+10  => A2:mana+6  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "R10": "extra-turn skill ; destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; gold+10  => A2:mana+6  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "L0": "extra-turn skill ; destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; gold+10  => A2:mana+6  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "K": "extra-turn skill ; destroy 64 (skull x5, Blue x11, Green x13, Yellow x9, Purple x9, Brown x8, Red x9) ; ~cascade~ ; gold+10  => A2:mana+6  extra:skill  cascade  eco:{\"gold\":10,\"goldMine\":10}"
+  },
+  "by": "sa-P",
+  "at": "2026-09-28T13:54:55.859Z"
+ },
  "troop:7305": {
   "lines": {
    "L10": "extra-turn skill ; convert Brown x1 -> spiritGem/Purple x1  extra:skill",

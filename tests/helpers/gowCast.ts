@@ -61,7 +61,7 @@ export const DEFAULT_ALLIES: Partial<Character>[] = [
 /** Both sides start with gold so steal/take-gold effects are visible. */
 export const DEFAULT_GOLD = 100;
 
-export interface EntitySkill { key: string; skill: string; numericSkill: string; cost: number; colors: BaseColor[]; kind: 'troop' | 'weapon'; troopTypes?: string[]; kingdom?: string }
+export interface EntitySkill { key: string; skill: string; numericSkill: string; cost: number; colors: BaseColor[]; kind: 'troop' | 'weapon'; troopTypes?: string[]; kingdom?: string; kingdomId?: number }
 type WeaponRow = { id: number; referenceName: string; manaCost: number; manaColors: string[]; spell: { id: number } };
 const WEAPONS = weaponData as unknown as WeaponRow[];
 /** Skill binding exactly as the game uses it: troops `String(spell.id)`, weapons `gw_<referenceName>`. */
@@ -70,7 +70,7 @@ export function entitySkill(key: string): EntitySkill {
   if (kind === 'troop') {
     const t = TROOPS.find(x => x.id === id); if (!t) throw new Error(`unknown ${key}`);
     return { key, kind, skill: String(t.spell.id), numericSkill: String(t.spell.id), cost: t.manaCost, colors: [...t.manaColors] as BaseColor[],
-      troopTypes: (t as { troopTypes?: string[] }).troopTypes, kingdom: (t as { kingdom?: string }).kingdom };
+      troopTypes: (t as { troopTypes?: string[] }).troopTypes, kingdom: (t as { kingdom?: string }).kingdom, kingdomId: t.kingdomId ?? undefined };
   }
   const w = WEAPONS.find(x => x.id === id); if (!w) throw new Error(`unknown ${key}`);
   return { key, kind: 'weapon', skill: `gw_${w.referenceName}`, numericSkill: String(w.spell.id), cost: w.manaCost, colors: w.manaColors as BaseColor[] };
@@ -97,7 +97,7 @@ export function setupCast(o: CastOpts) {
   const fresh = (p: Partial<Character>): Partial<Character> => structuredClone(p);
   const caster = damageCharacter(0, fresh({ skillId: skill, mana: cost, manaCost: cost, colors: [...colors], magic: o.magic ?? 10,
     hp: 900, maxHp: 1000, statuses: [{ id: 'poison', turns: 99 }] as Character['statuses'],
-    troopTypes: ent?.troopTypes, kingdom: ent?.kingdom, ...o.caster } as Partial<Character>));
+    troopTypes: ent?.troopTypes, kingdom: ent?.kingdom, kingdomId: ent?.kingdomId, ...o.caster } as Partial<Character>));
   const before = (o.before ?? []).map((a, i) => damageCharacter(5 + i, fresh({ mana: 0, ...a })));
   const allies = (o.allies ?? DEFAULT_ALLIES).map((a, i) => damageCharacter(1 + i, fresh({ mana: 0, ...a })));
   const enemies = (o.enemies ?? DEFAULT_ENEMIES).map((e, i) => damageCharacter(10 + i, fresh({ mana: 0, ...e })));
@@ -109,7 +109,7 @@ export function setupCast(o: CastOpts) {
   const engine = new TurnEngine(state, new SeededRNG(o.seed ?? 42), () => gid++, registry);
   engine.skullChance = o.skullChance ?? 0;
   engine.setSummonResolver(ref => troopToSummonTemplate(ref));
-  engine.setSummonKingdomResolver(k => TROOPS.filter(t => t.kingdom === k).map(t => t.referenceName));
+  engine.setSummonKingdomResolver(k => TROOPS.filter(t => (typeof k === 'number' ? t.kingdomId === k : t.kingdom === k)).map(t => t.referenceName));
   const proto = registry.prototypes.get(skill) as SkillPrototype | undefined;
   const mode = proto ? prototypeChosenTargetMode(proto) : null;
   const defaultTarget = mode && /ally/i.test(String(mode)) ? allies[0]?.id ?? 0 : enemies[1]?.id ?? enemies[0]?.id ?? 10;

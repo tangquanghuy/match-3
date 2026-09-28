@@ -162,7 +162,7 @@ function runBattle(cfg: SimConfig, seed: number, index: number): BattleTrace {
   const state = createGameState(board, playerTeam, enemyTeam);
   const engine = new TurnEngine(state, rng, idGen, registry);
   engine.setSummonResolver((ref) => troopToSummonTemplate(ref, request.arenaRules));
-  engine.setSummonKingdomResolver((kingdom) => TROOPS.filter((t) => t.kingdom === kingdom).map((t) => t.referenceName));
+  engine.setSummonKingdomResolver((kingdom) => TROOPS.filter((t) => (typeof kingdom === 'number' ? t.kingdomId === kingdom : t.kingdom === kingdom)).map((t) => t.referenceName));
   engine.setDaemonPool(TROOPS.filter((t) => t.troopTypes.includes('Daemon')).map((t) => t.referenceName));
   engine.setBeastPool(TROOPS.filter((t) => t.troopTypes.includes('Beast')).map((t) => t.referenceName));
   setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, request.arenaRules));

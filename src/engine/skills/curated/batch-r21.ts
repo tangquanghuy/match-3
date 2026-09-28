@@ -423,7 +423,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「一名敌人和其下方的敌人」= 原生 Damage@FromTarget + Damage@NextDownFromTarget：
     // 仅正下方一名（enemyChosenAndNextDown），不是下方全部。
     build: skill(
-    dmg('enemyChosenAndNextDown', 3, 1, { range: 'all', modifier: alliesOfKingdomBoost('荆棘森林', 4) }),
+    dmg('enemyChosenAndNextDown', 3, 1, { range: 'all', modifier: alliesOfKingdomBoost(3015, 4) }),
     ),
   },
   {
@@ -435,7 +435,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
     heal('allyChosen', 1, 1),
     magic('allyChosen', 2, 0),
-    inflict('enchanted', 'allyChosen', { targetKingdom: '圣唐' }),
+    inflict('enchanted', 'allyChosen', { targetKingdom: 3030 }),
     ),
   },
   {
@@ -486,8 +486,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
     createGems(BaseColor.Green, 8),
     createGems(BaseColor.Red, 8),
-    inflict('blessed', 'allyAll', { targetKingdom: '皓彩森林' }),
-    magic('allyAll', 3, 0, { targetKingdom: '皓彩森林' }),
+    inflict('blessed', 'allyAll', { targetKingdom: 3002 }),
+    magic('allyAll', 3, 0, { targetKingdom: 3002 }),
     ),
   },
   {

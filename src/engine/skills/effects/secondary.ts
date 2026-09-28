@@ -12,9 +12,9 @@
  *
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isSameMatchType, colorGem, skullGem, PlayerSide, opponentOf } from '../../types';
+import { isSameMatchType, colorGem, skullGem, PlayerSide, opponentOf, matchesKingdom } from '../../types';
 import type { SpecialGemKind, SkullStormDropKind } from '../../types';
-import type { BaseColor, Character } from '../../types';
+import type { BaseColor, Character, KingdomRef } from '../../types';
 import { BoardModel } from '../../BoardModel';
 import { goldForSide } from '../../battleGold';
 import type { SecondaryModifier } from '../scaling';
@@ -73,14 +73,14 @@ export type ModifierSource =
   | { kind: 'enemiesOfRace'; race: string; atCastStart?: boolean }
   /** 施法方指定王国的存活盟友数（原语 Wave4 批，「因 Dhrak-Zum 盟友数量而增强」；
    *  与 alliesOfRace 对称，按 Character.kingdom 筛选） */
-  | { kind: 'alliesOfKingdom'; kingdom: string; atCastStart?: boolean }
+  | { kind: 'alliesOfKingdom'; kingdom: KingdomRef; atCastStart?: boolean }
   /** P-R5-named-ally-count: alive allies (caster included) of a named troop (native CountArmyTroop@AllAllies);
    *  name = zh Character.name (troopPresent 口径) */
   | { kind: 'alliesNamed'; name: string | string[]; atCastStart?: boolean }
   // name[] (P-R5-faction-kingdom): any of several troops — native CountArmyKingdom on a faction kingdom id
   // (3048 Wild Court / 3053 Amanithrax) whose members share the zh parent-kingdom name with the rest of the kingdom
   /** 敌方指定王国的存活敌人数（原语 Wave4 批；与 enemiesOfColor 同构，按 kingdom 筛选） */
-  | { kind: 'enemiesOfKingdom'; kingdom: string; atCastStart?: boolean }
+  | { kind: 'enemiesOfKingdom'; kingdom: KingdomRef; atCastStart?: boolean }
   /** 施法方关联指定法力色的存活盟友数（「因蓝色盟友数而增强」） */
   | { kind: 'alliesOfColor'; color: BaseColor; atCastStart?: boolean }
   /** 敌方关联指定法力色的存活敌人数（「因红色敌人（的数量）而增强」，R13 批；与 alliesOfColor 对称） */
@@ -289,6 +289,12 @@ export type Condition =
   | { kind: 'casterStatBeatsTarget'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
   /** 任一存活敌人带该法力色（「若其中一个使用蓝色法力值」的聚合判定，全局条件） */
   | { kind: 'anyEnemyColor'; color: BaseColor }
+  /**
+   * P-C-firstlast-army-color: the first or the last enemy uses this mana colour (native CountArmyColor@FirstLastEnemies,
+   * e.g. 8418 Sister Ebony Purple -> Barrier). Read on the alive enemies at cast start (the native count precedes the
+   * primary damage, so a kill by this cast does not change it); a lone enemy is both first and last.
+   */
+  | { kind: 'firstLastEnemyColor'; color: BaseColor }
   /** 否定（「板面上没有一颗紫色宝石」，2026-09-17 回收批）：子条件不成立即成立 */
   | { kind: 'not'; cond: Condition }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
@@ -323,13 +329,13 @@ export type Condition =
    * （enemyRacePresent 的王国版，全局条件整段判定；Character.kingdom 缺省者不属于
    * 任何王国，恒不匹配）。
    */
-  | { kind: 'kingdomOf'; side: 'ally' | 'enemy'; kingdom: string }
+  | { kind: 'kingdomOf'; side: 'ally' | 'enemy'; kingdom: KingdomRef }
   /**
    * P-A-target-kingdom: the segment's own target belongs to the kingdom (native StatusModifier
    * MultiplyForKingdom<id> on Damage@FromTarget: "If the Enemy is from <Kingdom>"). Target-relative,
    * symmetric to targetRace / targetColor; without a target it falls back to the chosen target.
    */
-  | { kind: 'targetKingdom'; kingdom: string }
+  | { kind: 'targetKingdom'; kingdom: KingdomRef }
   /**
    * 敌方拥有劫数（武器原语批 K-E，官方 Doomed 档武器族 76 把的
    * 「if the Enemy has a Doom / 如果敌方有劫数，则再增加 N 点」条件）。
@@ -524,6 +530,11 @@ export function conditionMet(
         (c) => !c.defeated && c.colors.includes(cond.color),
       );
     }
+    case 'firstLastEnemyColor': {
+      const enemies = armyUnits(ctx, 'enemy', true);
+      if (enemies.length === 0) return false;
+      return [enemies[0], enemies[enemies.length - 1]].some((c) => c.colors.includes(cond.color));
+    }
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
       return !!caster && hasStatusForCast(ctx, caster, cond.statusId);
@@ -564,12 +575,12 @@ export function conditionMet(
         ? mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left
         : mySide;
       return ctx.state.teams[side].characters.some(
-        (c) => !c.defeated && c.kingdom === cond.kingdom,
+        (c) => !c.defeated && matchesKingdom(c, cond.kingdom),
       );
     }
     case 'targetKingdom': {
       const unit = target ?? (ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId));
-      return !!unit && unit.kingdom === cond.kingdom;
+      return !!unit && matchesKingdom(unit, cond.kingdom);
     }
     case 'targetHasDoom': {
       // 敌方拥有劫数（K-E 批，考证见 Condition 定义处）：敌方存活者存在 TroopType 'Doom'。
@@ -831,7 +842,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => hasTroopType(c, source.race)).length;
     case 'alliesOfKingdom':
       // 施法方该王国存活盟友数（Wave4 批，与 alliesOfRace 对称，按 kingdom 筛选）
-      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => matchesKingdom(c, source.kingdom)).length;
     case 'alliesNamed':
       // P-R5-named-ally-count: native CountArmyTroop — one per matching ally, not a boolean like troopPresent
     {
@@ -840,7 +851,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     }
     case 'enemiesOfKingdom':
       // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）
-      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => matchesKingdom(c, source.kingdom)).length;
     case 'enemyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;

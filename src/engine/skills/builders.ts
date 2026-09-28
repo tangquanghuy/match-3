@@ -13,7 +13,7 @@
  * 纯逻辑：无 pixi/gsap/dom 依赖。所有数值以 [魔法 x mult + base] 表达（mult 默认 1，
  * 纯常数用 mult=0）。
  */
-import type { BaseColor, CellPos, SkullStormDropKind, SpecialGemKind, SpecialGemSpec } from '../types';
+import type { BaseColor, CellPos, KingdomRef, SkullStormDropKind, SpecialGemKind, SpecialGemSpec } from '../types';
 import type { ScalingSpec } from './scaling';
 import type { TargetMode } from './targeting';
 import type { DamageRange } from './effects/damage';
@@ -100,7 +100,7 @@ export interface SegmentOpts {
   /** 种族限定目标：只作用于 troopTypes 含该族的目标（「所有恶魔盟友」） */
   targetRace?: string;
   /** 王国限定目标（武器原语批 K-E）：只作用于 kingdom 匹配的目标（「对所有来自阿达纳的敌人…」） */
-  targetKingdom?: string;
+  targetKingdom?: KingdomRef;
 }
 
 /** 把公共选项拷到段上（仅写出现的字段，保持序列化确定性） */
@@ -117,7 +117,7 @@ function attach<T extends object>(seg: T, opts?: SegmentOpts): T {
   if (opts.ifCond !== undefined) s.ifCond = opts.ifCond;
   if (opts.condBonus !== undefined) s.condBonus = opts.condBonus;
   if (opts.targetRace !== undefined) (s as { targetRace?: string }).targetRace = opts.targetRace;
-  if (opts.targetKingdom !== undefined) (s as { targetKingdom?: string }).targetKingdom = opts.targetKingdom;
+  if (opts.targetKingdom !== undefined) (s as { targetKingdom?: KingdomRef }).targetKingdom = opts.targetKingdom;
   return seg;
 }
 
@@ -621,6 +621,8 @@ export function destroyColor(color: ColorSpec, opts?: SegmentOpts): GemSegment {
 export function explodeColor(color: ColorSpec, opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'color', color }, opts); }
 export function destroyAllColors(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'allColors' }, opts); }
 export function destroySkulls(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'skulls' }, opts); }
+/** R013-5「移除／摧毁所有宝石」：棋盘全部宝石（颜色 + 骷髅及末日骷髅等变种 + 特殊宝石） */
+export function destroyAllGems(opts?: SegmentOpts): GemSegment { return clearSeg('destroy', { kind: 'allGems' }, opts); }
 export function explodeSkulls(opts?: SegmentOpts): GemSegment { return clearSeg('explode', { kind: 'skulls' }, opts); }
 
 // 随机 N 颗宝石（include: 'color' 仅颜色 / 'all' 含骷髅 / 'skull' 仅普通骷髅，默认 all；
@@ -784,7 +786,7 @@ export function summonTemplate(template: SummonTemplate, troopId?: number): Summ
  * TurnEngine.setSummonKingdomResolver 注入），再种子化掷选一名召唤——官方语义 =
  * 整个王国兵册均匀随机。清单为空/解析器缺省 → 整段安全跳过（零随机消耗）。
  */
-export function summonRandomOfKingdom(kingdom: string, troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
+export function summonRandomOfKingdom(kingdom: KingdomRef, troopId?: number, opts?: SegmentOpts & { countRange?: { min: number; max: number } }): SummonSegment {
   const source: SummonSource = troopId !== undefined
     ? { randomOfKingdom: kingdom, troopId }
     : { randomOfKingdom: kingdom };
@@ -949,12 +951,12 @@ export function enemiesOfRaceBoost(race: string, a: number): ModifierSpec {
 }
 
 /** 王国盟友计数增幅（「因X王国盟友数量而增强 [xN]」，来源 alliesOfKingdom） */
-export function alliesOfKingdomBoost(kingdom: string, a: number): ModifierSpec {
+export function alliesOfKingdomBoost(kingdom: KingdomRef, a: number): ModifierSpec {
   return boostPer({ kind: 'alliesOfKingdom', kingdom }, a);
 }
 
 /** 王国敌人计数增幅（「因来自X王国的敌人数量而增强 [xN]」，来源 enemiesOfKingdom） */
-export function enemiesOfKingdomBoost(kingdom: string, a: number): ModifierSpec {
+export function enemiesOfKingdomBoost(kingdom: KingdomRef, a: number): ModifierSpec {
   return boostPer({ kind: 'enemiesOfKingdom', kingdom }, a);
 }
 

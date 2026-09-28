@@ -7,7 +7,7 @@
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import type { GameEvent, ExtraTurnEvent } from '../../events';
-import type { Character } from '../../types';
+import type { Character, KingdomRef } from '../../types';
 import { PlayerSide } from '../../types';
 import { MAX_ACTIVE_TEAM_SIZE, resolveDefeatEvents, allocateCharId, pruneDefeated } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
@@ -123,6 +123,7 @@ export function applyTransformTemplate(target: Character, template: SummonTempla
   target.traitIds = [...(template.traitIds ?? [])];
   target.troopTypes = [...(template.troopTypes ?? [])];
   target.kingdom = template.kingdom;
+  target.kingdomId = template.kingdomId;
   target.statuses = [];
   attachPassives(target);
 }
@@ -147,7 +148,7 @@ export type SummonSource =
   | { template: SummonTemplate; troopId?: number }
   | { ref: string; troopId?: number }
   | { randomOf: string[]; troopId?: number }
-  | { randomOfKingdom: string; troopId?: number };
+  | { randomOfKingdom: KingdomRef; troopId?: number }; // number = raw KingdomId (P-E-faction-kingdom)
 
 export interface SummonParams {
   /** 召唤物来源 */

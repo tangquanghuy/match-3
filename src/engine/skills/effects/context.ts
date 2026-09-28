@@ -9,7 +9,7 @@
 import type { GameState } from '../../GameState';
 import type { GameEvent } from '../../events';
 import type { SeededRNG } from '../../rng';
-import type { Character, Team, PlayerSide, GemType, BaseColor, CellPos } from '../../types';
+import type { Character, Team, PlayerSide, GemType, BaseColor, CellPos, KingdomRef } from '../../types';
 import { PlayerSide as Side } from '../../types';
 import { isWebbed } from './status';
 
@@ -208,7 +208,7 @@ export interface EffectContext {
    * 来源用它先取候选集再种子化掷选（随后仍经 resolveSummonRef 解析属性）；
    * 缺省时该来源安全跳过（同 resolveSummonRef 的缺省口径）。
    */
-  resolveKingdomSummonRefs?: (kingdom: string) => string[] | null;
+  resolveKingdomSummonRefs?: (kingdom: KingdomRef) => string[] | null;
   /**
    * 单次施法的跨段追踪（五机制：二次缩放来源 / 段间死亡条件）。
    * executePrototype 进入段循环前创建；缺省（纯原语单测）时相关来源按 0 计、

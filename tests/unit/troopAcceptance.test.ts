@@ -55,7 +55,7 @@ function smoke(troop: typeof TROOPS[number], seed: number) {
   const presentationBoard = board.clone();
   const engine = new TurnEngine(state, new SeededRNG(seed), () => gid++, registry);
   engine.setSummonResolver(troopToSummonTemplate);
-  engine.setSummonKingdomResolver(k => TROOPS.filter(t => t.kingdom === k).map(t => t.referenceName));
+  engine.setSummonKingdomResolver(k => TROOPS.filter(t => (typeof k === 'number' ? t.kingdomId === k : t.kingdom === k)).map(t => t.referenceName));
   engine.setDaemonPool(TROOPS.filter(t => t.troopTypes.includes('Daemon')).map(t => t.referenceName));
   const initial = engine.takeInitialEvents();
   caster.mana = caster.manaCost;

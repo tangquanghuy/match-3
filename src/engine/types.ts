@@ -537,6 +537,36 @@ export interface StatusInstance {
 /** @deprecated 旧空壳别名，保留以兼容早期引用；等价于 StatusInstance。 */
 export type StatusEffect = StatusInstance;
 
+/**
+ * P-E-faction-kingdom: a kingdom filter value. number = raw native KingdomId (matches Character.kingdomId,
+ * so faction troops are told apart from their parent kingdom); string = zh kingdom name (Character.kingdom,
+ * legacy form, still used by community troops and callers without a native id).
+ */
+export type KingdomRef = string | number;
+/**
+ * zh kingdom name -> parent native KingdomId (majority id of the troops.json troops carrying that name;
+ * same table as scripts/_weapon_pools.mjs KINGDOM_ID). Used when a unit has only the zh name
+ * (community troops, host snapshots / hand fixtures without kingdomId): exact for non-faction troops,
+ * a name-only unit never matches a faction id (the zh dump folds factions into the parent name).
+ */
+export const ZH_KINGDOM_PARENT_ID: Readonly<Record<string, number>> = {
+  破碎尖塔: 3000, 阿达纳: 3001, 皓彩森林: 3002, 潘神之谷: 3003, 齐埃金: 3004, 荣耀之地: 3005, 剑锋崖: 3006,
+  加尔凡尼亚: 3007, 毛格瑞姆森林: 3008, 玉银林地: 3009, 厄什卡亚: 3010, 冰峰之巅: 3011, 卡其尔: 3012,
+  风暴峡湾: 3013, 白盔国: 3014, 荆棘森林: 3015, 鳞雾沼泽: 3016, 卡拉考斯: 3017, 葛洛什奈克: 3018, 龙爪: 3019,
+  盖塔尔: 3020, 荒芜之地: 3021, 黑石: 3022, 日冕: 3023, 聚沙之地: 3024, 狮心帝国: 3025, 黑鹰: 3026,
+  狂野平原: 3027, 卜筮之原: 3028, 蛛尔卡里: 3029, 圣唐: 3030, 混沌: 3032, 守护者: 3033, 天启: 3034,
+  卓克祖: 3035, 梅兰堤斯: 3036, 迈纳杰之罪: 3037, 藏宝库: 3038, 诺斯: 3080, 地狱悬崖: 3082, 沃尔帕克: 3084,
+  午夜城市: 3085,
+};
+/** Native KingdomId of a unit: its raw kingdomId, else the parent id derived from the zh kingdom name. */
+export function unitKingdomId(unit: { kingdom?: string | null; kingdomId?: number | null }): number | undefined {
+  if (unit.kingdomId != null) return unit.kingdomId;
+  return unit.kingdom ? ZH_KINGDOM_PARENT_ID[unit.kingdom] : undefined;
+}
+export function matchesKingdom(unit: { kingdom?: string | null; kingdomId?: number | null }, ref: KingdomRef): boolean {
+  return typeof ref === 'number' ? unitKingdomId(unit) === ref : unit.kingdom === ref;
+}
+
 /** 角色（需求 13） */
 export interface Character {
   eventTarget?: 'boss' | 'tower';
@@ -582,6 +612,13 @@ export interface Character {
    * 可选：宿主快照未携带或手写夹具省略即不属于任何王国（条件不成立、计数不计入）。
    */
   kingdom?: string;
+  /**
+   * P-E-faction-kingdom: raw native KingdomId (data/raw/troops.gow.en.json, e.g. 3030 Shentang, 3070 its faction).
+   * `kingdom` is the zh parent-kingdom name, which faction troops share with their parent; native
+   * AllyKingdom / CountArmyKingdom / MultiplyForKingdom steps use this raw id. Kingdom filters given a numeric
+   * kingdom (KingdomRef) match this field; optional (community troops / hand fixtures have none).
+   */
+  kingdomId?: number;
   /**
    * 淬炼段位（武器原语批 K-E，官方 Doomed 档武器「+N per Tempering level」的缩放来源）：
    * 施法者（主角）的武器淬炼等级。modifier 来源 `{ kind: 'tempering' }` 按它计数——

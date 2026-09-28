@@ -86,11 +86,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若其中一个使用蓝色法力值，则双倍伤害」（anyEnemyColor Blue ×2 辖两段伤害，§13.3 超集口径）
     build: skill(
       // native Damage@FirstLastEnemies MultiplyForBlueTarget: each of the two targets doubled on its own Blue mana
-      // (sa-C r4). Barrier (CountArmyColor@FirstLastEnemies Purple before the damage) still reads any enemy:
-      // primitive queued as P-C-firstlast-army-color.
+      // (sa-C r4). Barrier: native CountArmyColor@FirstLastEnemies Purple before the primary damage
+      // (P-C-firstlast-army-color: first / last alive enemy at cast start only, a middle Purple enemy does not count).
       dmg('enemyFront', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
       dmg('enemyLast', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
-      inflict('barrier', 'allySelf', { ifCond: { kind: 'anyEnemyColor', color: BaseColor.Purple } }),
+      inflict('barrier', 'allySelf', { ifCond: { kind: 'firstLastEnemyColor', color: BaseColor.Purple } }),
     ),
   },
 ];

@@ -29,7 +29,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有蛛尔卡里盟友一个随机正面增益效果。再召唤一名蛛尔卡里军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
-      inflictRandom('allyAll', { targetKingdom: '蛛尔卡里', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3029, pool: 'positive' }),
       summonRandom(rawKingdomPool(3029), undefined) /* native SummoningKingdom 3029 (zh '蛛尔卡里' adds faction troops) */,
     ),
   },
@@ -105,7 +105,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有沃尔帕克盟友一个随机正面增益状态效果。再召唤一名沃尔帕克军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
-      inflictRandom('allyAll', { targetKingdom: '沃尔帕克', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3084, pool: 'positive' }),
       summonRandom(rawKingdomPool(3084), undefined) /* native SummoningKingdom 3084 (zh '沃尔帕克' adds faction troops) */,
     ),
   },
@@ -130,7 +130,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有剑锋崖盟友一个随机正面增益状态效果。再召唤一名剑锋崖军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
-      inflictRandom('allyAll', { targetKingdom: '剑锋崖', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3006, pool: 'positive' }),
       summonRandom(rawKingdomPool(3006), undefined) /* native SummoningKingdom 3006 (zh '剑锋崖' adds faction troops) */,
     ),
   },
@@ -209,7 +209,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有黑石盟友一个随机正面增益状态效果。再召唤一名黑石军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
-      inflictRandom('allyAll', { targetKingdom: '黑石', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3022, pool: 'positive' }),
       summonRandom(rawKingdomPool(3022), undefined) /* native SummoningKingdom 3022 (zh '黑石' adds faction troops) */,
     ),
   },
@@ -241,7 +241,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有狮心帝国盟友一个随机正面增益状态效果。再召唤一名随机狮心帝国军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
-      inflictRandom('allyAll', { targetKingdom: '狮心帝国', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3025, pool: 'positive' }),
       summonRandom(rawKingdomPool(3025), undefined) /* native SummoningKingdom 3025 (zh '狮心帝国' adds faction troops) */,
     ),
   },
@@ -266,7 +266,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗黄色宝石。使所有白盔国盟友获得一个随机正面增益效果。再召唤一名白盔国军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
-      inflictRandom('allyAll', { targetKingdom: '白盔国', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3014, pool: 'positive' }),
       summonRandom(rawKingdomPool(3014), undefined) /* native SummoningKingdom 3014 (zh '白盔国' adds faction troops) */,
     ),
   },
@@ -287,7 +287,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9302,
     desc: '对首 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因玉银林地盟友数而增强。 [x3]',
-    build: ({"segments":[{"kind":"damage","target":"enemyFirstN","scaling":{"base":3,"mult":1},"n":2,"modifier":{"mod":{"kind":"multiplier","a":3},"source":{"kind":"alliesOfKingdom","kingdom":"玉银林地"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyFirstN","scaling":{"base":3,"mult":1},"n":2,"modifier":{"mod":{"kind":"multiplier","a":3},"source":{"kind":"alliesOfKingdom","kingdom":3009}}}]} as SkillPrototype),
   },
   {
     id: 9303,
@@ -308,7 +308,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有冰峰之巅盟友一个随机正面增益状态效果。再召唤一名冰峰之巅军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
-      inflictRandom('allyAll', { targetKingdom: '冰峰之巅', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3011, pool: 'positive' }),
       summonRandom(rawKingdomPool(3011), undefined) /* native SummoningKingdom 3011 (zh '冰峰之巅' adds faction troops) */,
     ),
   },
@@ -347,7 +347,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有盖塔尔盟友一个随机正面增益状态效果。再召唤一名盖塔尔军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
-      inflictRandom('allyAll', { targetKingdom: '盖塔尔', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3020, pool: 'positive' }),
       summonRandom(rawKingdomPool(3020), undefined) /* native SummoningKingdom 3020 (zh '盖塔尔' adds faction troops) */,
     ),
   },
@@ -369,7 +369,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9354,
     desc: '对首 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因蛛尔卡里盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '蛛尔卡里' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3029 } } }),
     ),
   },
   {
@@ -574,7 +574,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9506,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因狐狸座盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '沃尔帕克' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3084 } } }),
     ),
   },
   {
@@ -598,7 +598,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有迈纳杰之罪盟友一个随机正面增益效果。再召唤一名迈纳杰之罪军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
-      inflictRandom('allyAll', { targetKingdom: '迈纳杰之罪', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3037, pool: 'positive' }),
       summonRandom(rawKingdomPool(3037), undefined) /* native SummoningKingdom 3037 (zh '迈纳杰之罪' adds faction troops) */,
     ),
   },
@@ -686,7 +686,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9574,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因银林地盟友的数量而增强。 [x3]',
-    build: ({"segments":[{"kind":"damage","target":"enemyFirstN","scaling":{"base":3,"mult":1},"n":2,"modifier":{"mod":{"kind":"multiplier","a":3},"source":{"kind":"alliesOfKingdom","kingdom":"玉银林地"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyFirstN","scaling":{"base":3,"mult":1},"n":2,"modifier":{"mod":{"kind":"multiplier","a":3},"source":{"kind":"alliesOfKingdom","kingdom":3009}}}]} as SkillPrototype),
   },
   {
     id: 9575,
@@ -707,7 +707,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有地狱悬崖盟友一个随机正面增益效果。再召唤一名地狱悬崖军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
-      inflictRandom('allyAll', { targetKingdom: '地狱悬崖', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3082, pool: 'positive' }),
       summonRandom(rawKingdomPool(3082), undefined) /* native SummoningKingdom 3082 (zh '地狱悬崖' adds faction troops) */,
     ),
   },
@@ -783,7 +783,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗棕色宝石。赋予所有卓克祖盟友一个随机正面增益效果。再召唤一名卓克祖军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
-      inflictRandom('allyAll', { targetKingdom: '卓克祖', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3035, pool: 'positive' }),
       summonRandom(rawKingdomPool(3035), undefined) /* native SummoningKingdom 3035 (zh '卓克祖' adds faction troops) */,
     ),
   },
@@ -814,7 +814,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9632,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因暗石盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '黑石' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3022 } } }),
     ),
   },
   {
@@ -835,7 +835,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9635,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因梅兰堤斯盟友数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '梅兰堤斯' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3036 } } }),
     ),
   },
   {
@@ -886,7 +886,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9689,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因阿达纳盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '阿达纳' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3001 } } }),
     ),
   },
   {
@@ -909,7 +909,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9692,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因流沙盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '聚沙之地' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3024 } } }),
     ),
   },
   {
@@ -957,7 +957,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9749,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因圣力场盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '卜筮之原' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3028 } } }),
     ),
   },
   {
@@ -978,7 +978,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9752,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因潘之谷盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '潘神之谷' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3003 } } }),
     ),
   },
   {
@@ -1090,7 +1090,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗绿色宝石。赋予所有齐埃金盟友一个随机正面增益效果。再召唤一名齐埃金军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
-      inflictRandom('allyAll', { targetKingdom: '齐埃金', pool: 'positive' }),
+      inflictRandom('allyAll', { targetKingdom: 3004, pool: 'positive' }),
       summonRandom(rawKingdomPool(3004), undefined) /* native SummoningKingdom 3004 (zh '齐埃金' adds faction troops) */,
     ),
   },
@@ -1111,7 +1111,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9835,
     desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有日冕盟友一个随机正面增益效果。再召唤一名日冕军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Yellow"}}},{"kind":"randomStatus","target":"allyAll","targetKingdom":"日冕","pool":"positive"},{"kind":"summon","params":{"source":{"randomOf":rawKingdomPool(3023)}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Yellow"}}},{"kind":"randomStatus","target":"allyAll","targetKingdom":3023,"pool":"positive"},{"kind":"summon","params":{"source":{"randomOf":rawKingdomPool(3023)}}}]} as SkillPrototype),
   },
   {
     id: 9836,
@@ -1147,7 +1147,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9876,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到地狱峭壁盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '地狱悬崖' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3082 } } }),
     ),
   },
   {
@@ -1184,7 +1184,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9911,
     desc: '给予所有黑石盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。',
-    build: skill(attack('allyAll', 1, 1, { targetKingdom: '黑石' }), heal('allyAll', 1, 1, { targetKingdom: '黑石' }), inflict('blessed', 'allyAll', { targetKingdom: '黑石' })),
+    build: skill(attack('allyAll', 1, 1, { targetKingdom: 3022 }), heal('allyAll', 1, 1, { targetKingdom: 3022 }), inflict('blessed', 'allyAll', { targetKingdom: 3022 })),
   },
   {
     id: 9912,
@@ -1203,7 +1203,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9914,
     desc: '给予所有沃尔帕克盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。',
-    build: skill(attack('allyAll', 1, 1, { targetKingdom: '沃尔帕克' }), heal('allyAll', 1, 1, { targetKingdom: '沃尔帕克' }), inflict('blessed', 'allyAll', { targetKingdom: '沃尔帕克' })),
+    build: skill(attack('allyAll', 1, 1, { targetKingdom: 3084 }), heal('allyAll', 1, 1, { targetKingdom: 3084 }), inflict('blessed', 'allyAll', { targetKingdom: 3084 })),
   },
   {
     id: 9915,
@@ -1261,7 +1261,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9974,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到德拉克-祖姆盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '卓克祖' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3035 } } }),
     ),
   },
   {
@@ -1280,7 +1280,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9977,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到荒野平原盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '狂野平原' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3027 } } }),
     ),
   },
   {
@@ -1353,7 +1353,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 10047,
     desc: '对前 2 个敌人造成 [魔法 + 3] 点伤害，受到荆棘森林盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '荆棘森林' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: 3015 } } }),
     ),
   },
   {
@@ -1373,7 +1373,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 10050,
     desc: '给予所有聚沙之地盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。',
-    build: skill(attack('allyAll', 1, 1, { targetKingdom: '聚沙之地' }), heal('allyAll', 1, 1, { targetKingdom: '聚沙之地' }), inflict('blessed', 'allyAll', { targetKingdom: '聚沙之地' })),
+    build: skill(attack('allyAll', 1, 1, { targetKingdom: 3024 }), heal('allyAll', 1, 1, { targetKingdom: 3024 }), inflict('blessed', 'allyAll', { targetKingdom: 3024 })),
   },
 ];
 

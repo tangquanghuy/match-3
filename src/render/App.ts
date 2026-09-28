@@ -712,7 +712,7 @@ export class App {
     this.narrator.start(state);
     this.engine = new TurnEngine(state, rng, idGen, this.registry);
     this.engine.setSummonResolver((ref) => troopToSummonTemplate(ref, battleRequest.arenaRules));
-    this.engine.setSummonKingdomResolver(kingdom => TROOPS.filter(t => t.kingdom === kingdom).map(t => t.referenceName));
+    this.engine.setSummonKingdomResolver(kingdom => TROOPS.filter(t => (typeof kingdom === 'number' ? t.kingdomId === kingdom : t.kingdom === kingdom)).map(t => t.referenceName));
     this.engine.setDaemonPool(TROOPS.filter(t => t.troopTypes.includes('Daemon')).map(t => t.referenceName));
     this.engine.setBeastPool(TROOPS.filter(t => t.troopTypes.includes('Beast')).map(t => t.referenceName));
     // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据

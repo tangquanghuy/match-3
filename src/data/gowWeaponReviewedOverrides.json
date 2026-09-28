@@ -5073,7 +5073,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "阿达纳"
+                    "kingdom": 3001
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5125,7 +5125,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "卡拉考斯"
+                    "kingdom": 3017
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5177,7 +5177,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "蛛尔卡里"
+                    "kingdom": 3029
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5229,7 +5229,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "卜筮之原"
+                    "kingdom": 3028
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5281,7 +5281,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "鳞雾沼泽"
+                    "kingdom": 3016
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5333,7 +5333,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "荆棘森林"
+                    "kingdom": 3015
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5385,7 +5385,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "白盔国"
+                    "kingdom": 3014
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5437,7 +5437,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "潘神之谷"
+                    "kingdom": 3003
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5489,7 +5489,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "卡其尔"
+                    "kingdom": 3012
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5541,7 +5541,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "盖塔尔"
+                    "kingdom": 3020
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5593,7 +5593,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "齐埃金"
+                    "kingdom": 3004
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5645,7 +5645,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "荣耀之地"
+                    "kingdom": 3005
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5697,7 +5697,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "加尔凡尼亚"
+                    "kingdom": 3007
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5749,7 +5749,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "剑锋崖"
+                    "kingdom": 3006
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5801,7 +5801,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "风暴峡湾"
+                    "kingdom": 3013
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5853,7 +5853,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "毛格瑞姆森林"
+                    "kingdom": 3008
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5905,7 +5905,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "葛洛什奈克"
+                    "kingdom": 3018
                   },
                   {
                     "kind": "kingdomPresent",
@@ -5957,7 +5957,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "狂野平原"
+                    "kingdom": 3027
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6009,7 +6009,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "黑石"
+                    "kingdom": 3022
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6061,7 +6061,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "聚沙之地"
+                    "kingdom": 3024
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6113,7 +6113,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "荒芜之地"
+                    "kingdom": 3021
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6165,7 +6165,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "冰峰之巅"
+                    "kingdom": 3011
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6217,7 +6217,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "狮心帝国"
+                    "kingdom": 3025
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6269,7 +6269,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "龙爪"
+                    "kingdom": 3019
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6321,7 +6321,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "黑鹰"
+                    "kingdom": 3026
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6372,7 +6372,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "玉银林地"
+                    "kingdom": 3009
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6425,7 +6425,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "日冕"
+                    "kingdom": 3023
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6477,7 +6477,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "厄什卡亚"
+                    "kingdom": 3010
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6529,7 +6529,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "梅兰堤斯"
+                    "kingdom": 3036
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6581,7 +6581,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "皓彩森林"
+                    "kingdom": 3002
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6633,7 +6633,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "圣唐"
+                    "kingdom": 3030
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6685,7 +6685,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "卓克祖"
+                    "kingdom": 3035
                   },
                   {
                     "kind": "kingdomPresent",
@@ -6737,7 +6737,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "迈纳杰之罪"
+                    "kingdom": 3037
                   },
                   {
                     "kind": "kingdomPresent",
@@ -7093,7 +7093,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "葛洛什奈克",
+            "targetKingdom": 3018,
             "pool": "positive"
           },
           {
@@ -7684,7 +7684,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "诺斯"
+                    "kingdom": 3080
                   },
                   {
                     "kind": "kingdomPresent",
@@ -7829,7 +7829,7 @@
             "kind": "randomStatus",
             "pool": "positive",
             "target": "allyAll",
-            "targetKingdom": "玉银林地"
+            "targetKingdom": 3009
           },
           {
             "kind": "summon",
@@ -8665,7 +8665,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "地狱悬崖"
+                    "kingdom": 3082
                   },
                   {
                     "kind": "kingdomPresent",
@@ -9514,7 +9514,7 @@
                 "of": [
                   {
                     "kind": "targetKingdom",
-                    "kingdom": "午夜城市"
+                    "kingdom": 3085
                   },
                   {
                     "kind": "kingdomPresent",
@@ -9796,7 +9796,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "沃尔帕克",
+            "targetKingdom": 3084,
             "pool": "positive"
           },
           {
@@ -9939,7 +9939,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "剑锋崖",
+            "targetKingdom": 3006,
             "pool": "positive"
           },
           {
@@ -10821,7 +10821,7 @@
               },
               "source": {
                 "kind": "alliesOfKingdom",
-                "kingdom": "玉银林地"
+                "kingdom": 3009
               }
             }
           }
@@ -10850,7 +10850,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "冰峰之巅",
+            "targetKingdom": 3011,
             "pool": "positive"
           },
           {
@@ -11207,7 +11207,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "迈纳杰之罪",
+            "targetKingdom": 3037,
             "pool": "positive"
           },
           {
@@ -11424,7 +11424,7 @@
               },
               "source": {
                 "kind": "alliesOfKingdom",
-                "kingdom": "玉银林地"
+                "kingdom": 3009
               }
             }
           }
@@ -11453,7 +11453,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "地狱悬崖",
+            "targetKingdom": 3082,
             "pool": "positive"
           },
           {
@@ -11907,7 +11907,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "卓克祖",
+            "targetKingdom": 3035,
             "pool": "positive"
           },
           {
@@ -12416,7 +12416,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "齐埃金",
+            "targetKingdom": 3004,
             "pool": "positive"
           },
           {
@@ -12497,7 +12497,7 @@
           {
             "kind": "randomStatus",
             "target": "allyAll",
-            "targetKingdom": "日冕",
+            "targetKingdom": 3023,
             "pool": "positive"
           },
           {
@@ -12635,7 +12635,7 @@
               "base": 1,
               "mult": 1
             },
-            "targetKingdom": "黑石"
+            "targetKingdom": 3022
           },
           {
             "kind": "buff",
@@ -12645,7 +12645,7 @@
               "base": 1,
               "mult": 1
             },
-            "targetKingdom": "黑石",
+            "targetKingdom": 3022,
             "lifeMode": "gain"
           },
           {
@@ -12653,7 +12653,7 @@
             "target": "allyAll",
             "statusId": "blessed",
             "turns": 3,
-            "targetKingdom": "黑石"
+            "targetKingdom": 3022
           }
         ]
       }
@@ -12670,7 +12670,7 @@
               "base": 1,
               "mult": 1
             },
-            "targetKingdom": "沃尔帕克"
+            "targetKingdom": 3084
           },
           {
             "kind": "buff",
@@ -12680,7 +12680,7 @@
               "base": 1,
               "mult": 1
             },
-            "targetKingdom": "沃尔帕克",
+            "targetKingdom": 3084,
             "lifeMode": "gain"
           },
           {
@@ -12688,7 +12688,7 @@
             "target": "allyAll",
             "statusId": "blessed",
             "turns": 3,
-            "targetKingdom": "沃尔帕克"
+            "targetKingdom": 3084
           }
         ]
       }
@@ -13320,7 +13320,7 @@
               "base": 1,
               "mult": 1
             },
-            "targetKingdom": "聚沙之地"
+            "targetKingdom": 3024
           },
           {
             "kind": "buff",
@@ -13330,7 +13330,7 @@
               "base": 1,
               "mult": 1
             },
-            "targetKingdom": "聚沙之地",
+            "targetKingdom": 3024,
             "lifeMode": "gain"
           },
           {
@@ -13338,7 +13338,7 @@
             "target": "allyAll",
             "statusId": "blessed",
             "turns": 3,
-            "targetKingdom": "聚沙之地"
+            "targetKingdom": 3024
           }
         ]
       }

@@ -233,3 +233,5 @@
 {"format":"compact","key":"troop:6145","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.193Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6503","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.193Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"}]}
 {"format":"compact","key":"troop:6108","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T11:20:45.193Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6248","decision":"accept","reviewer":"sa-P","reviewedAt":"2026-09-28T13:43:20.469Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6937","decision":"accept","reviewer":"sa-P","reviewedAt":"2026-09-28T14:02:07.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}

@@ -933,9 +933,9 @@ export class TurnEngine {
    * 随机部队」randomOfKingdom 召唤来源的候选池）：由装配层从 troops.json kingdom 字段
    * 提供。缺省时该来源安全跳过（零随机消耗），既有对局不受影响。
    */
-  private summonKingdomResolver: ((kingdom: string) => string[] | null) | null = null;
+  private summonKingdomResolver: ((kingdom: import('./types').KingdomRef) => string[] | null) | null = null;
 
-  setSummonKingdomResolver(resolver: (kingdom: string) => string[] | null): void {
+  setSummonKingdomResolver(resolver: (kingdom: import('./types').KingdomRef) => string[] | null): void {
     this.summonKingdomResolver = resolver;
   }
 
