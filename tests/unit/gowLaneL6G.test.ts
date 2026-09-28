@@ -50,6 +50,15 @@ describe('L6 sa-G', () => {
     expect(castSpell({ key: 'troop:6734', ...K }).summary.units.C).toBe('hp+7 max+7 arm+7 atk+7 mag+7');
     for (const key of ['troop:6095', 'weapon:1130', 'troop:6334', 'troop:6734']) expect(castSpell({ key }).summary.units.C).toBeUndefined();
   });
+  it('troop:6881 Armor then Life +12, doubled on a kill', () => {
+    const K = { enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) };
+    expect(castSpell({ key: 'troop:6881', ...K }).summary.units.C).toBe('hp+24 max+24 arm+24');
+    expect(castSpell({ key: 'troop:6881' }).summary.order).toEqual(['dmg E11 14', 'buff C armor+12', 'buff C hp+12 max+12']);
+  });
+  it('troop:6308 triples only when the enemy Armor is lower than mine', () => {
+    expect(castSpell({ key: 'troop:6308', caster: { armor: 20 } }).summary.order[0]).toBe('dmg E11 48');
+    expect(castSpell({ key: 'troop:6308', caster: { armor: 10 } }).summary.order[0]).toBe('dmg E11 16');
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both

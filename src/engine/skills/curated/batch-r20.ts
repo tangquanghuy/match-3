@@ -175,10 +175,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若敌人身亡则数值翻倍」= AddForKill 12 实锤 → 基础 12 + 追加 12 段同挂 ifTargetDied（9716 口径）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
-      heal('allySelf', 12, 0),
+      // sa-G (R001): native IncreaseArmor@Self 12 [AddForKill 12] -> IncreaseHealth@Self 12 [AddForKill 12]; the kill
+      // halves never applied (ifTargetDied re-read lastTarget = caster) -> castEnemyDied (7314 precedent)
       armor('allySelf', 12, 0),
-      heal('allySelf', 12, 0, { ifTargetDied: true }),
-      armor('allySelf', 12, 0, { ifTargetDied: true }),
+      armor('allySelf', 12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 12, 0),
+      heal('allySelf', 12, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

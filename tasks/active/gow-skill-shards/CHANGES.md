@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 546 条改动，涉及 997 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 998 个技能 ID。
 
 ## 按时间
 
@@ -552,6 +552,7 @@
 | 2026-09-28T21:25 | sa-G | G-kill-all-skills | assembler | 7165, 7294 | troop:6095 Tau；weapon:1130 RunicBlade | `src/engine/skills/curated/batch-05.ts`<br>`src/engine/skills/curated/batch-w01.ts` | on kill only Attack applied (ifTargetDied re-read lastTarget = caster after the first self buff) → all four Skills via ifCond castEnemyDied (7314 precedent) |  |
 | 2026-09-28T21:25 | sa-G | G-6334-kill-order | assembler | 7484 | troop:6334 JaguarWarrior | `src/engine/skills/curated/batch-r15.ts` | full heal then Attack +8 (Attack never applied after the heal rewrote lastTarget) → native order Attack +8 then full heal, both castEnemyDied |  |
 | 2026-09-28T21:29 | sa-G | G-kill-all-skills | assembler | 8104 | troop:6734 Stone-Biter | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | on kill only Attack +7; ZH lacked the kill condition → all four Skills +7 via castEnemyDied; ZH 如果敌人身亡 (override 6734) |  |
+| 2026-09-28T21:34 | sa-G | G-6881-kill-double | assembler | 8304 | troop:6881 EldritchGuardian | `src/engine/skills/curated/batch-r20.ts` | Life then Armor +12; kill doubling never applied (ifTargetDied after self segments) → native Armor then Life, +12 each more on kill via castEnemyDied |  |
 
 ## 按技能 ID
 
@@ -958,6 +959,7 @@
 | 8297 | 2 | L4a-R1-8297-life-boost、R013-5 |
 | 8299 | 1 | F2-1313-order-life |
 | 8302 | 1 | F1-steal-before-damage |
+| 8304 | 1 | G-6881-kill-double |
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8313 | 1 | P-E-faction-kingdom |
 | 8316 | 1 | B-L4b-6890-native-chances |

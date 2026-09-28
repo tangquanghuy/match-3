@@ -29,3 +29,8 @@
 - troop:6293 accepted: dmg + pull chosen to front
 - weapon:1089 accepted: dmg + 10 souls
 - troop:6734 fixed: kill -> all four Skills +7 (castEnemyDied); ZH kill condition restored (override 6734); tower waived R000 (test)
+- troop:6308 accepted: x3 when enemy Armor < mine (test), +5 Armor
+- troop:6539 accepted: all allies +8 Armor; tower waived R000
+- troop:7498 accepted: all allies +8 Armor; tower waived R000
+- troop:6881 fixed: native Armor then Life, kill doubling via castEnemyDied (was never applied); boss waived R000 (test)
+- troop:6545 accepted: +4 Attack; tower waived R000
