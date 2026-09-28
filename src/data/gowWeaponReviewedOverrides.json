@@ -4199,7 +4199,13 @@
               },
               "source": {
                 "kind": "alliesNamed",
-                "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                "name": [
+                  "火蘑菇",
+                  "食松露大王",
+                  "爆毒菌",
+                  "霉菌法师",
+                  "蘑菇人"
+                ],
                 "atCastStart": true
               }
             }
@@ -4224,7 +4230,13 @@
                 },
                 "source": {
                   "kind": "alliesNamed",
-                  "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                  "name": [
+                    "火蘑菇",
+                    "食松露大王",
+                    "爆毒菌",
+                    "霉菌法师",
+                    "蘑菇人"
+                  ],
                   "atCastStart": true
                 }
               }
@@ -4236,7 +4248,13 @@
               },
               "source": {
                 "kind": "alliesNamed",
-                "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                "name": [
+                  "火蘑菇",
+                  "食松露大王",
+                  "爆毒菌",
+                  "霉菌法师",
+                  "蘑菇人"
+                ],
                 "atCastStart": true
               }
             }
@@ -12080,16 +12098,21 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
+            "kind": "reduce",
             "target": "enemyChosen",
+            "stat": "armor",
             "scaling": {
-              "base": 3,
-              "mult": 1
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
             }
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyChosen",
             "scaling": {
               "base": 3,
               "mult": 1
@@ -12101,6 +12124,73 @@
               },
               "source": {
                 "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyRandomPrefNotPrev",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "targetHasDoom"
               }
             }
           },
@@ -12114,19 +12204,6 @@
               "kind": "targetColor",
               "color": "Blue"
             }
-          },
-          {
-            "kind": "reduce",
-            "target": "lastTarget",
-            "stat": "armor",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "drainAll": true,
-            "ifCond": {
-              "kind": "targetHasDoom"
-            }
           }
         ]
       }
@@ -12136,16 +12213,21 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
+            "kind": "reduce",
             "target": "enemyChosen",
+            "stat": "armor",
             "scaling": {
-              "base": 3,
-              "mult": 1
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
             }
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyChosen",
             "scaling": {
               "base": 3,
               "mult": 1
@@ -12157,6 +12239,73 @@
               },
               "source": {
                 "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Green"
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyRandomPrefNotPrev",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "targetHasDoom"
               }
             }
           },
@@ -12170,19 +12319,6 @@
               "kind": "targetColor",
               "color": "Green"
             }
-          },
-          {
-            "kind": "reduce",
-            "target": "lastTarget",
-            "stat": "armor",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "drainAll": true,
-            "ifCond": {
-              "kind": "targetHasDoom"
-            }
           }
         ]
       }
@@ -12192,16 +12328,21 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
+            "kind": "reduce",
             "target": "enemyChosen",
+            "stat": "armor",
             "scaling": {
-              "base": 3,
-              "mult": 1
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
             }
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyChosen",
             "scaling": {
               "base": 3,
               "mult": 1
@@ -12213,6 +12354,73 @@
               },
               "source": {
                 "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyRandomPrefNotPrev",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "targetHasDoom"
               }
             }
           },
@@ -12226,19 +12434,6 @@
               "kind": "targetColor",
               "color": "Red"
             }
-          },
-          {
-            "kind": "reduce",
-            "target": "lastTarget",
-            "stat": "armor",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "drainAll": true,
-            "ifCond": {
-              "kind": "targetHasDoom"
-            }
           }
         ]
       }
@@ -12248,16 +12443,21 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
+            "kind": "reduce",
             "target": "enemyChosen",
+            "stat": "armor",
             "scaling": {
-              "base": 3,
-              "mult": 1
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
             }
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyChosen",
             "scaling": {
               "base": 3,
               "mult": 1
@@ -12269,6 +12469,73 @@
               },
               "source": {
                 "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyRandomPrefNotPrev",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "targetHasDoom"
               }
             }
           },
@@ -12282,19 +12549,6 @@
               "kind": "targetColor",
               "color": "Yellow"
             }
-          },
-          {
-            "kind": "reduce",
-            "target": "lastTarget",
-            "stat": "armor",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "drainAll": true,
-            "ifCond": {
-              "kind": "targetHasDoom"
-            }
           }
         ]
       }
@@ -12304,16 +12558,21 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
+            "kind": "reduce",
             "target": "enemyChosen",
+            "stat": "armor",
             "scaling": {
-              "base": 3,
-              "mult": 1
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
             }
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyChosen",
             "scaling": {
               "base": 3,
               "mult": 1
@@ -12325,6 +12584,73 @@
               },
               "source": {
                 "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          },
+          {
+            "kind": "reduce",
+            "target": "enemyRandomPrefNotPrev",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "targetHasDoom"
               }
             }
           },
@@ -12338,19 +12664,6 @@
               "kind": "targetColor",
               "color": "Purple"
             }
-          },
-          {
-            "kind": "reduce",
-            "target": "lastTarget",
-            "stat": "armor",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "drainAll": true,
-            "ifCond": {
-              "kind": "targetHasDoom"
-            }
           }
         ]
       }
@@ -12360,16 +12673,21 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
+            "kind": "reduce",
             "target": "enemyChosen",
+            "stat": "armor",
             "scaling": {
-              "base": 3,
-              "mult": 1
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true,
+            "ifCond": {
+              "kind": "targetHasDoom"
             }
           },
           {
             "kind": "damage",
-            "target": "enemyRandom",
+            "target": "enemyChosen",
             "scaling": {
               "base": 3,
               "mult": 1
@@ -12386,7 +12704,7 @@
           },
           {
             "kind": "status",
-            "target": "lastTarget",
+            "target": "enemyChosen",
             "statusId": "bleed",
             "turns": 3,
             "magnitude": 1,
@@ -12397,7 +12715,7 @@
           },
           {
             "kind": "reduce",
-            "target": "lastTarget",
+            "target": "enemyRandomPrefNotPrev",
             "stat": "armor",
             "scaling": {
               "base": 0,
@@ -12406,6 +12724,60 @@
             "drainAll": true,
             "ifCond": {
               "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "lastTarget",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            },
+            "ifCond": {
+              "kind": "not",
+              "cond": {
+                "kind": "targetHasDoom"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
             }
           }
         ]
