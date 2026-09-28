@@ -61,3 +61,5 @@
 - 2026-09-28T18:10:00Z P-R3-next-up-target fixed: targeting.ts mode enemyNextUp (R012 anchor slot), App.ts deferred-target note; 8485 (troop:6982) silence chosen / enemyNextUp / enemyNextDown each 30%; gowFixP-R3-next-up-target.test.ts; golden diff 0 new lines
   - re-review (unsigned, random): troop:6982 / 8485
   - lane note (not changed): troop:6410 native Consume@NextDownFromTarget then Consume@NextUpFromTarget and troop:6377 silence NextUp/NextDown may now be written with enemyNextUp / enemyNextDown
+- 2026-09-28T18:25:00Z P-R2-chosen-color-modifier fixed: colorChooser.ts prototypeNeedsColor also finds a boardGems 'CHOSEN' count source anywhere in a segment; registry scan: only 8060 (troop:6704) newly asks for a colour (the other boardGems CHOSEN users already had a CHOSEN gem op); gowFixP-R2-chosen-color-modifier.test.ts; golden diff 0 new lines
+  - re-review (unsigned): troop:6704 / 8060 (chosen colour -> one Red per gem of that colour)

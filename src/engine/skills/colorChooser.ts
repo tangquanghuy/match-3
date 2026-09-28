@@ -77,6 +77,9 @@ export function prototypeNeedsColor(proto: { segments: readonly unknown[] }): bo
     }
     // 动态色条件（R11 批）：ifCond（含嵌套 not/anyOf/allOf）里出现 targetColor 'CHOSEN'
     if (segmentIfCondNeedsColor(seg)) return true;
+    // P-R2-chosen-color-modifier: a count source { kind: 'boardGems', color: 'CHOSEN' } anywhere in the segment
+    // (modifier / params.modifier / countModifier / chanceBoost, source / sources / sourceGroups)
+    if (modifierSourceNeedsColor(seg)) return true;
     if (seg.kind !== 'gem') continue;
     const params = seg.params as {
       op?: string;
@@ -97,6 +100,15 @@ export function prototypeNeedsColor(proto: { segments: readonly unknown[] }): bo
     }
   }
   return false;
+}
+
+/** P-R2-chosen-color-modifier: recursive search for a boardGems source reading the chosen colour. */
+function modifierSourceNeedsColor(node: unknown): boolean {
+  if (Array.isArray(node)) return node.some(modifierSourceNeedsColor);
+  if (!node || typeof node !== 'object') return false;
+  const o = node as Record<string, unknown>;
+  if (o.kind === 'boardGems' && o.color === 'CHOSEN') return true;
+  return Object.values(o).some(modifierSourceNeedsColor);
 }
 
 /** 递归检查一段的 ifCond 是否依赖 'CHOSEN'（targetColor / not / anyOf / allOf 嵌套） */
