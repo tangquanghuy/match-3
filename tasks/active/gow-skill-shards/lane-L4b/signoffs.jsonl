@@ -183,3 +183,5 @@
 {"format":"compact","key":"troop:6356","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.299Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6419","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.300Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6456","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.300Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1181","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T10:00:30.448Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"post-merge r2: P-R1 count at native step"}
+{"format":"compact","key":"weapon:1182","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T10:00:30.449Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"post-merge r2: P-R1 count at native step"}

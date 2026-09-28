@@ -394,10 +394,10 @@
    "L10": "dmg E11 17 ; buff E12 mana-4 ; buff E13 mana-7 ; move E11 back ; extra-turn skill  => E11:hp-7 arm-10 | E12:mana-4 | E13:mana-7  extra:skill",
    "R10": "dmg E11 17 ; buff E12 mana-4 ; buff E13 mana-7 ; move E11 back ; extra-turn skill  => E11:hp-7 arm-10 | E12:mana-4 | E13:mana-7  extra:skill",
    "L0": "dmg E11 7 ; buff E12 mana-4 ; buff E13 mana-7 ; move E11 back ; extra-turn skill  => E11:arm-7 | E12:mana-4 | E13:mana-7  extra:skill",
-   "K": "dmg E11 17 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+   "K": "dmg E11 17 ; defeat E11 ; buff E12 mana-5 ; buff E13 mana-5 ; extra-turn skill  => E11:hp-1 DEAD | E12:mana-5 | E13:mana-5  extra:skill"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:51:25.001Z"
+  "by": "coord",
+  "at": "2026-09-28T10:00:25.681Z"
  },
  "troop:6978": {
   "lines": {

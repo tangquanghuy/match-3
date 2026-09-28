@@ -155,3 +155,4 @@
 {"format":"compact","key":"troop:6467","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
 {"format":"compact","key":"troop:6965","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
 {"format":"compact","key":"troop:7058","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
+{"format":"compact","key":"troop:7188","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T10:00:28.151Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"post-merge r2: P-R1 count at native step"}

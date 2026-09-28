@@ -271,6 +271,123 @@
    "mode": "tower",
    "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
    "note": ""
+  },
+  {
+   "key": "troop:6647",
+   "name": "Vassara",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"
+  },
+  {
+   "key": "troop:6647",
+   "name": "Vassara",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R008 charm = persistent negative status; 6605 Randomize AB-CD equivalent to one 40% transform into Succubus/Incubus"
+  },
+  {
+   "key": "troop:6630",
+   "name": "LadyGarnetia",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7775",
+   "name": "LordGobthe",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7775",
+   "name": "LordGobthe",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:7103",
+   "name": "WaterWeird",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7103",
+   "name": "WaterWeird",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":1}",
+   "note": ""
+  },
+  {
+   "key": "troop:6691",
+   "name": "LordEhrondil",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6691",
+   "name": "LordEhrondil",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:6718",
+   "name": "RedCharlotte",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6718",
+   "name": "RedCharlotte",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": ""
+  },
+  {
+   "key": "troop:7365",
+   "name": "Slughoarder",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7365",
+   "name": "Slughoarder",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": ""
   }
  ]
 }

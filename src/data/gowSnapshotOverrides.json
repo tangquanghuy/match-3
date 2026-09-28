@@ -46,6 +46,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "创造 15 颗宝石，所创造的宝石混合黄色和一种选定类型。所有其他盟友各有一项随机属性获得 [魔法 + 2] 点，点数因陷入沉默状态的敌军数量而增强。 [x4]"
     },
+    "6307": {
+      "spellId": 7457,
+      "reason": "sa-R7 R7-not-board-misread: English \"for each Purple Gem on the board\"; snapshot ZH misreads as û��.",
+      "spellDescription": "对一名随机敌人造成 [魔法 + 3] 点真实伤害。板面上每有一颗紫色宝石，则有 6% 的几率重新获得消耗的法力值。 [x6]"
+    },
     "6383": {
       "spellId": 7538,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
@@ -55,6 +60,11 @@
       "spellId": 7545,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
+    },
+    "6599": {
+      "spellId": 7808,
+      "reason": "sa-R7 R7-6599-full-or: native counts enemies with full Life OR full Mana.",
+      "spellDescription": "对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值满值或法力值满值的敌军数而增强。 [x4]"
     },
     "6623": {
       "spellId": 7941,
@@ -76,15 +86,30 @@
       "reason": "L4b-6751-zh: English \"Convert all Green Gems to Doomskulls\" and native ConvertGems Color2 Doomskull; the stored Chinese snapshot drops 末日 (Doomskull). Display correction only.",
       "spellDescription": "诅咒所有敌人。将所有绿色宝石转换成末日骷髅头。"
     },
+    "6759": {
+      "spellId": 8139,
+      "reason": "sa-R7 R7-b14-status-counts: gem count (not damage) is boosted by Poisoned/Diseased enemies per English/native.",
+      "spellDescription": "对所有敌人造成 [魔法 + 2] 点伤害。创造 14 颗绿色和棕色的混合宝石，数量因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]"
+    },
     "6824": {
       "spellId": 8234,
       "reason": "L4b-6824-zh: English \"Barrier and Submerge a random Ally\" / native CauseBarrier RandomAlly then CauseSubmerged FromPrevious; stored Chinese says 一名盟友 (reads as a chosen ally) and reverses the order.",
       "spellDescription": "将选定颜色的宝石转换成棕色。赋予一名随机盟友屏障效果并使其下潜。"
     },
+    "6928": {
+      "spellId": 8406,
+      "reason": "sa-R7 R7-6928-zh-count: English/native create 7 Red Gems per full-Mana enemy.",
+      "spellDescription": "给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 7 颗红色宝石。有 15% 的几率自毁。 [x7]"
+    },
     "6991": {
       "spellId": 8497,
       "reason": "sa-F2 fix round A: English/native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] Gems; old Chinese said one gem.",
       "spellDescription": "创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。"
+    },
+    "7067": {
+      "spellId": 8595,
+      "reason": "L3 terminology: English \"Magic\" (not Mana) is rendered ħ��ֵ per L3 ruling; curated desc is authoritative.",
+      "spellDescription": "将 [(魔法 / 2) + 1] 点魔法值赋予一名随机盟友。每有一颗黄色宝石则有 7% 的几率获得一个额外回合。 [x7]"
     },
     "7108": {
       "spellId": 8651,
@@ -100,6 +125,11 @@
       "spellId": 8687,
       "reason": "L4b-7138-zh: stored Chinese snapshot typo 发力颜色 for 法力颜色 (\"one of their Mana Colors\"). Display correction only.",
       "spellDescription": "赐予一名盟友法印效果，并给予其 3 点魔力值。再创建 12 颗其法力颜色之一的宝石。"
+    },
+    "7229": {
+      "spellId": 8824,
+      "reason": "sa-R7 R7-not-board-misread: English \"for each Blue Gem on the board\"; snapshot ZH misreads as û��.",
+      "spellDescription": "给予一名盟友 4 点护甲值。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]"
     },
     "7260": {
       "spellId": 8894,
@@ -157,6 +187,11 @@
       "spellId": 9251,
       "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造 1-3 颗 x3 通配宝石。",
       "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
+    },
+    "7526": {
+      "spellId": 9283,
+      "reason": "sa-R7 R7-tarot-extra-turn: English \"for each Blue Gem on the board\"; snapshot ZH misreads as û��.",
+      "spellDescription": "创造 1 颗鬼魂宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]"
     },
     "7679": {
       "spellId": 9614,

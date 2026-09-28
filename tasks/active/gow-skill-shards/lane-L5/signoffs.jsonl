@@ -150,3 +150,4 @@
 {"format":"compact","key":"troop:7262","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:05:13.105Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7516","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:05:13.105Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7607","decision":"accept","reviewer":"sa-R3","reviewedAt":"2026-09-28T03:05:13.105Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1156","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T10:00:32.862Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"post-merge r2: R012 pre-kill neighbours"}

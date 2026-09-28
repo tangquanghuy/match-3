@@ -564,10 +564,10 @@
    "L10": "explode 9 ; skulls E10 1 ; convert Purple x1, Green x2 -> burningGem x3  => E10:arm-1",
    "R10": "explode 9 ; skulls E10 1 ; convert Purple x1, Green x2 -> burningGem x3  => E10:arm-1",
    "L0": "explode 9 ; skulls E10 1 ; convert Purple x1, Green x2 -> burningGem x3  => E10:arm-1",
-   "K": "explode 9 ; skulls E10 1 ; defeat E10 ; convert Purple x1, Green x2, Brown x1, Yellow x1 -> burningGem x5  => E10:hp-1 DEAD"
+   "K": "explode 9 ; skulls E10 1 ; defeat E10 ; convert Purple x1, Green x3, Brown x1, Yellow x1 -> burningGem x6  => E10:hp-1 DEAD"
   },
-  "by": "sa-R1",
-  "at": "2026-09-28T02:36:51.061Z"
+  "by": "coord",
+  "at": "2026-09-28T10:00:28.063Z"
  },
  "troop:7196": {
   "lines": {

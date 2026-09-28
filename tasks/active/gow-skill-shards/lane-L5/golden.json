@@ -1054,10 +1054,10 @@
    "L10": "dmg E11 14 ; dmg E10 14 (all) ; dmg E12 14 (all)  => E11:hp-4 arm-10 | E10:hp-9 arm-5 | E12:hp-2 arm-12",
    "R10": "dmg E11 14 ; dmg E10 14 (all) ; dmg E12 14 (all)  => E11:hp-4 arm-10 | E10:hp-9 arm-5 | E12:hp-2 arm-12",
    "L0": "dmg E11 4 ; dmg E10 4 (all) ; dmg E12 4 (all)  => E11:arm-4 | E10:arm-4 | E12:arm-4",
-   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+   "K": "dmg E11 14 ; defeat E11 ; dmg E10 14 (all) ; dmg E12 14 (all) ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
   },
-  "by": "sa-R3",
-  "at": "2026-09-28T03:03:21.220Z"
+  "by": "coord",
+  "at": "2026-09-28T10:00:32.764Z"
  },
  "weapon:1178": {
   "lines": {
