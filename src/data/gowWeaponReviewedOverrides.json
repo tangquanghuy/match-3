@@ -8615,7 +8615,8 @@
               },
               "source": {
                 "kind": "diagonalGems",
-                "color": "Yellow"
+                "color": "Yellow",
+                "anchor": "chosenCell"
               }
             }
           },
@@ -8626,7 +8627,8 @@
               "mode": "destroy",
               "target": {
                 "kind": "area",
-                "shape": "x"
+                "shape": "x",
+                "center": "CELL"
               }
             }
           }

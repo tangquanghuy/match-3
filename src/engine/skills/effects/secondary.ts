@@ -45,7 +45,9 @@ export type ModifierSource =
   | { kind: 'destroyedGems'; color?: BaseColor; skulls?: boolean; special?: SpecialGemKind; specialTier?: number }
   | { kind: 'countedAdjacentSpecial' }
   /** Count color gems on both diagonals through the same center as area:x. */
-  | { kind: 'diagonalGems'; color: BaseColor }
+  | { kind: 'diagonalGems'; color: BaseColor; anchor?: 'chosenCell' }
+  // anchor 'chosenCell' (P-R6-chosen-cell-counts): the X through ctx.chosenCell (native Target Board CountGems
+  // BoardTarget Diagonals, like area:x center 'CELL'); no chosen cell -> 0. Without anchor: board centre.
   /** 本技能前序段直接转化（transform）的宝石数，可筛颜色（按转化后的颜色计） */
   | { kind: 'transformedGems'; color?: BaseColor }
   /** 当前棋盘上某色宝石数（在段执行时刻读取）。R22 批：color 亦可为 'CHOSEN'（运行时取
@@ -190,7 +192,8 @@ export type ModifierSource =
    * 3x3 方块（含中心格，越界收边）内该基色宝石数，在判定时刻读棋盘——后续爆破同一格前即可预读。
    * 未选格 → 0。
    */
-  | { kind: 'chosenCellBlockGems'; color: BaseColor };
+  | { kind: 'chosenCellBlockGems'; color?: BaseColor; skulls?: boolean };
+  // skulls (P-R6-chosen-cell-counts, native CountGems Skull Block3x3): count skull-family gems instead of a colour
 
 /** 二次缩放规格：解析出的 [xN]/[N:M] + 来源，段定义里以纯数据存在（可 JSON 化） */
 export interface ModifierSpec {
@@ -749,10 +752,13 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return (tracking?.chosenRowAtCastStart ?? []).filter(g => source.skulls ? isSkull(g) : matchGem(g, source.color)).length;
     case 'countedAdjacentSpecial': return tracking?.countedAdjacentSpecial ?? 0;
     case 'diagonalGems': {
-      const center = Math.floor((BoardModel.ROWS - 1) / 2);
+      const mid = Math.floor((BoardModel.ROWS - 1) / 2);
+      const anchor = source.anchor === 'chosenCell' ? ctx.chosenCell : { row: mid, col: mid };
+      if (!anchor) return 0;
       let n = 0;
       ctx.state.board.forEach((gem, pos) => {
-        if (gem && (pos.row - pos.col === 0 || pos.row + pos.col === 2 * center) && matchGem(gem.type, source.color)) n++;
+        if (gem && (pos.row - pos.col === anchor.row - anchor.col || pos.row + pos.col === anchor.row + anchor.col)
+          && matchGem(gem.type, source.color)) n++;
       });
       return n;
     }
@@ -990,7 +996,8 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
           const pos = { row: centre.row + dr, col: centre.col + dc };
           if (pos.row < 0 || pos.col < 0 || pos.row >= BoardModel.ROWS || pos.col >= BoardModel.COLS) continue;
           const gem = ctx.state.board.get(pos);
-          if (gem && gem.type.kind === 'color' && gem.type.color === source.color) n += 1;
+          if (!gem) continue;
+          if (source.skulls ? isSkull(gem.type) : gem.type.kind === 'color' && gem.type.color === source.color) n += 1;
         }
       }
       return n;

@@ -126,7 +126,9 @@ describe('GoW weapon native-step repair regressions', () => {
   });
 
   it('8965 blesses based on the original X before destroying it', () => {
+    // P-R6-chosen-cell-counts: Target Board spell, X through the chosen cell (3,3) = the former fixed centre X
     const { events } = cast(8965, ctx => {
+      ctx.chosenCell = { row: 3, col: 3 };
       ctx.state.board.set({ row: 0, col: 0 }, { id: 1001, type: colorGem(BaseColor.Yellow) });
       ctx.state.board.set({ row: 1, col: 4 }, { id: 1002, type: colorGem(BaseColor.Yellow) });
       ctx.state.board.set({ row: 2, col: 4 }, { id: 1003, type: colorGem(BaseColor.Yellow) });

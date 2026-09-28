@@ -137,11 +137,16 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8070,
     desc: '爆破一颗宝石。每摧毁一颗骷髅头则使一名随机敌人陷入死亡标记状态。获得 [魔法 + 1] 点攻击力和护甲值。 [1:1]',
+    // P-R6-chosen-cell-counts: native 0:CountGems Skull Block3x3 (chosen cell, before the explode) ->
+    // InflictEffectOnRandomTroops@AllEnemies deathmark x counter -> ExplodeGems SingleGem -> IncreaseArmor -> IncreaseAttack
+    // (was explode first + perDestroyed skulls: enemies killed by the skull damage / cascade left the pool)
     build: skill(
+      inflict('death-mark', 'enemyAll', {
+        perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'chosenCellBlockGems', skulls: true } },
+      }),
       explodeAt(CELL),
-      inflict('death-mark', 'enemyAll', { perDestroyed: { color: 'skull' } }),
-      attack('allySelf', 1, 1),
       armor('allySelf', 1, 1),
+      attack('allySelf', 1, 1),
     ),
   },
   {

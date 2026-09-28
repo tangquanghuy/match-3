@@ -99,3 +99,5 @@
   - accepted (L2): weapon:1461
   - re-review (unsigned, behaviour changed): weapon:1385 (8448, native Target Board Randomize ABC-DEF ExplodeGems Row|Column) and troop:6625 (7943) now pick a cell and explode the chosen row / column (before: oneOf hid the cell step, no chosenCell, the explode was skipped)
   - weaponNativeStepRepair.test.ts 8762 case now sets chosenCell (3,3) and accepts either diagonal through it (7 or 8 cells); full vitest 402 files green
+- 2026-09-28T21:45:00Z P-R6-chosen-cell-counts fixed: secondary.ts diagonalGems {anchor:'chosenCell'} (X through ctx.chosenCell; no cell -> 0) and chosenCellBlockGems {skulls} (color optional); 8965 (weapon:1525) diagonalGems anchor + clear area x center 'CELL' (curated + override); 8070 (troop:6712) inflict death-mark perCount chosenCellBlockGems skulls -> explodeAt(CELL) -> armor -> attack (native order); gowFixP-R6-chosen-cell-counts.test.ts; weaponNativeStepRepair 8965 case sets chosenCell (3,3); golden diff 0 lines
+  - accepted (L2): weapon:1525 troop:6712

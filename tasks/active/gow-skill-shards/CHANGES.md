@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 494 条改动，涉及 831 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 495 条改动，涉及 833 个技能 ID。
 
 ## 按时间
 
@@ -500,6 +500,7 @@
 | 2026-09-28T11:55 | sa-P | P-R5-named-ally-count | primitive | 8744, 8658 | troop:7173 Uvhash-Ka；troop:7115 AbjectOfDespond | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r11.ts` | troopPresent boolean: 3 extra Doomskulls / 3 more Magic if any Eldritch Minion / Despond ally → modifier source alliesNamed {name, atCastStart}: 3 per matching ally (native CountArmyTroop step 0 counter) |  |
 | 2026-09-28T12:00 | sa-P | P-R7-dead-last-target-cond | primitive | 9550, 7410, 7541 | troop:7646 ShadowWraith；weapon:1144 SpiderTotem；troop:6386 Warhawk | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts` | lastTargetColor/Race/Status false once the hit killed the target (unit spliced, findCharacter undefined) → castTracking.lastTarget.unit keeps the picked Character; colour/race/status conditions read it after death | lastTargetColor/Race/Status users: 8925 8276 8533 8373 9550 7410 7541 |
 | 2026-09-28T12:10 | sa-P | P-R6-chosen-diagonal-transform | primitive | 8762, 8448, 7943 | weapon:1461 SlashingEmbers；weapon:1385 MinosCleaver；troop:6625 Hammerclaw | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/cellChooser.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | transform diagonal fixed to the board's main diagonals; prototypeNeedsCell ignored oneOf branches (8448 / 7943 chosen row/col explode had no cell and exploded nothing) → transform diagonalAnchor 'chosenCell' (row-col / row+col of the chosen cell); prototypeNeedsCell recurses into oneOf options | Target Board spells whose cell step is inside a random oneOf branch: 8762 8448 7943 |
+| 2026-09-28T12:19 | sa-P | P-R6-chosen-cell-counts | primitive | 8965, 8070 | weapon:1525 StarLocket；troop:6712 BoneGolem | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8965 counted and destroyed the fixed centre X; 8070 exploded first and marked per destroyed skull (killed enemies left the pool), attack before armor → diagonalGems anchor chosenCell + area x center CELL; chosenCellBlockGems skulls; 8070 native order count -> death marks -> explode -> armor -> attack |  |
 
 ## 按技能 ID
 
@@ -795,6 +796,7 @@
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
 | 8065 | 1 | L5-C-r4-6708 |
+| 8070 | 1 | P-R6-chosen-cell-counts |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -1115,6 +1117,7 @@
 | 8946 | 1 | R3-B09-1505 |
 | 8952 | 1 | D-1509-mark-target |
 | 8961 | 1 | F2-7338-cross-skulls |
+| 8965 | 1 | P-R6-chosen-cell-counts |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
 | 8970 | 2 | P-prefnotprev-semantics、R7-tarot-extra-turn |
