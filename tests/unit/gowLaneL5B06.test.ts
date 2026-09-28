@@ -186,11 +186,11 @@ describe('L5 troop:6506 / spell:7696 Cleanse + Barrier an ally, +2M+2 Life, move
   expect(f.state.teams[side].characters.map(c=>c.id)).toEqual([2,0,1]);
   expect(sids(f.allies[0])).toEqual([]);expect(f.foes.every(e=>e.hp===1000&&e.statuses.length===0)).toBe(true);
  });
- it('caster may choose itself; Blessed ally blocks Barrier but still gains Life and moves; already-front ally stays first',()=>{
+ it('caster may choose itself; R011: Blessed ally gets Barrier, Life and moves; already-front ally stays first',()=>{
   const a=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:3,chosen:0});
   a.cast();expect(sids(a.caster)).toEqual(['barrier']);expect(a.caster.maxHp).toBe(1008);expect(a.state.teams.Left.characters.map(c=>c.id)).toEqual([0,1,2]);
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Right,magic:3,chosen:1,allies:[{statuses:[{id:'blessed',turns:3}]},{}]});
-  const bev=b.cast();expect(applied(bev,'barrier')).toEqual([]);expect(sids(b.allies[0])).toEqual(['blessed']);
+  const bev=b.cast();expect(applied(bev,'barrier')).toEqual([1]);expect(sids(b.allies[0])).toEqual(['blessed','barrier']);
   expect(b.allies[0].maxHp).toBe(1008);expect(b.state.teams.Right.characters.map(c=>c.id)).toEqual([1,0,2]);
  });
  it('dead chosen ally is not a legal target: cast refused, no mana/action spent',()=>{
@@ -235,11 +235,11 @@ describe('L5 troop:6325 / spell:7475 Cleanse, Enchant and give an ally Magic+1 L
   const ev=f.engine.castSkill(1);expect(ev.some(e=>e.type==='status-expire'&&e.targetId===1&&e.statusId==='enchanted')).toBe(true);
   expect(sids(a)).toEqual([]);expect(sids(f.allies[1])).toEqual(['enchanted']);
  });
- it('Silenced ally is Cleansed first, so the Enchant mana is not blocked; Blessed ally blocks Enchant only',()=>{
+ it('Silenced ally is Cleansed first, so the Enchant mana is not blocked; R011: Blessed ally is Enchanted too',()=>{
   const a=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:2,chosen:1,allies:[{statuses:[{id:'silence',turns:3}],manaCost:20},{}]});
   a.cast();expect(sids(a.allies[0])).toEqual(['enchanted']);tickStatuses(a.allies[0]);expect(a.allies[0].mana).toBe(2);
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Right,magic:2,chosen:1,allies:[{statuses:[{id:'blessed',turns:3}]},{}]});
-  const bev=b.cast();expect(applied(bev,'enchanted')).toEqual([]);expect(b.allies[0].maxHp).toBe(1003);
+  const bev=b.cast();expect(applied(bev,'enchanted')).toEqual([1]);expect(b.allies[0].maxHp).toBe(1003);
  });
  block(()=>setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:2,chosen:1}),COST);
 });
@@ -277,11 +277,11 @@ describe('L5 troop:6028 / spell:7028 Cleanse an ally, give Magic+1 Armor and Bar
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Right,magic:4,chosen:1});
   expect(b.cast().filter(e=>e.type==='status-cleanse')).toEqual([]);expect(sids(b.allies[0])).toEqual(['barrier']);
  });
- it('R002: Barrier has no timer, absorbs one hit then is removed; Blessed ally keeps Armor gain but no Barrier',()=>{
+ it('R002: Barrier has no timer, absorbs one hit then is removed; R011: Blessed ally gets Armor and Barrier',()=>{
   const a=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:4,chosen:1});
   a.cast();for(let i=0;i<6;i++)tickStatuses(a.allies[0],roll(0));expect(sids(a.allies[0])).toEqual(['barrier']);
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:4,chosen:1,allies:[{statuses:[{id:'blessed',turns:3}]},{}]});
-  const bev=b.cast();expect(applied(bev,'barrier')).toEqual([]);expect(b.allies[0].armor).toBe(5);
+  const bev=b.cast();expect(applied(bev,'barrier')).toEqual([1]);expect(b.allies[0].armor).toBe(5);
  });
  block(()=>setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:4,chosen:1}),COST);
 });

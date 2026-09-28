@@ -189,12 +189,12 @@ describe('L5 troop:6924 / spell:8393 Enrage all allies and all enemies',()=>{
   expect(ev.some(e=>e.type==='skill-damage')).toBe(false);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
  });
- it('Blessed enemy is immune; already-Enraged unit refreshed, not duplicated (enraged alias counts)',()=>{
+ it('R011: Blessed enemy is Enraged too (positive); already-Enraged unit refreshed, not duplicated (enraged alias counts)',()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:5,chosen:10});
   f.foes[0].statuses=[{id:'blessed',turns:3}];f.ally.statuses=[{id:'rage',turns:1}];
   const ev=f.cast();
-  expect(applied(ev,'rage')).toEqual([0,1,11,12,13]);
-  expect(sids(f.foes[0])).toEqual(['blessed']);
+  expect(applied(ev,'rage')).toEqual([0,1,10,11,12,13]);
+  expect(sids(f.foes[0])).toEqual(['blessed','rage']);
   expect(f.ally.statuses.filter(s=>s.id==='rage')).toHaveLength(1);
  });
  it('mana block: costs 6',()=>{

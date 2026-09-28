@@ -69,7 +69,7 @@ export const TERROR_DROP_CHANCE = 0.1;
 /**
  * 赐福状态（GoW Blessed，官方语义已核实——官方帮助中心「All status effects」+ wiki 状态表
  * 交叉，见 GEMS-SEMANTICS-2 ⭐官方数据核验节）：施加时**净化全部负面状态**，存续期间
- * **免疫一切状态效果**（正面负面皆拦，吞噬/法力燃烧分别在对应入口处理；诅咒例外——
+ * **免疫负面状态**（R011：正面状态照常施加；吞噬/法力燃烧分别在对应入口处理；诅咒例外——
  * 官方「诅咒落在赐福单位上时两者互相抵消」，且诅咒本就穿透普通免疫）。
  * gowhead 数据的施加步骤名为 CauseBlessed；中文数据「赐福/祝福」同义。
  * 无时限（R004）：持有者行动（施法，或作为首位兵种造成骷髅伤害）后移除，见 endActionStatuses。
@@ -124,6 +124,14 @@ const AUTO_RECOVER_STATUS_IDS = new Set([
 ]);
 /** 获得时重置累积自愈概率的负面状态（R004：任何负面状态，含中毒）。 */
 const RESETTING_NEGATIVE_STATUS_IDS = new Set([...AUTO_RECOVER_STATUS_IDS, 'poison']);
+/** 赐福拦截的状态（R011：只拦负面；诅咒族除外，由诅咒×赐福互消处理）。 */
+const BLESSED_BLOCKED_STATUS_IDS: ReadonlySet<string> = new Set(
+  [...RESETTING_NEGATIVE_STATUS_IDS, ...NEGATIVE_STATUS_IDS].filter((id) => !CURSE_STATUS_IDS.has(id)),
+);
+/** R011：该状态是否会被赐福挡下（负面状态，诅咒除外）。 */
+export function isBlessedBlockedStatus(statusId: string): boolean {
+  return BLESSED_BLOCKED_STATUS_IDS.has(statusId);
+}
 /**
  * 无时限状态（tick 不递减 turns，R002/R004）：中毒（仅净化解除）、屏障／反射（受一次伤害后
  * 移除）、附魔（施放法术后移除）、狂怒（造成一次骷髅伤害后移除）、潜水／祝福（持有者行动后
@@ -331,12 +339,10 @@ export function applyStatus(
   opts: { stack?: boolean } = {},
 ): GameEvent[] {
   if (char.defeated) return [];
-  // 赐福（GoW Blessed）：存续期间免疫一切状态效果。赐福自身放行（重复施加按既有
-  // max 合并刷新）；诅咒放行——官方「诅咒落在赐福单位上时两者互相抵消」，且诅咒
-  // 本就穿透普通免疫（见下方 curse 分支的互消处理）。
-  if (status.id !== 'blessed'
-    && !CURSE_STATUS_IDS.has(status.id)
-    && hasStatus(char, 'blessed')) return [];
+  // 赐福（GoW Blessed，rulings/R011）：存续期间只免疫**负面**状态；正面状态（屏障、附魔、
+  // 反射、狂怒、潜水、赐福自身）照常施加。诅咒放行——官方「诅咒落在赐福单位上时两者互相
+  // 抵消」，且诅咒本就穿透普通免疫（见下方 curse 分支的互消处理）。
+  if (isBlessedBlockedStatus(status.id) && hasStatus(char, 'blessed')) return [];
   // 免疫特质（防火/隔热/警醒/健壮/灵巧/无坚不摧…）：不施加、不发事件
   // GoW Curse penetrates ordinary immunities. Invulnerable remains the one
   // exception; its trait id is retained on Character for this distinction.

@@ -35,3 +35,7 @@
 - 2026-09-28T14:45:00Z P-F3-blessed-blocks-enchant skipped (source-dispute): proposal rulings/R011-blessed-positive-statuses.md
 - 2026-09-28T14:45:00Z P-F1-dead-anchor-targets skipped (source-dispute): proposal rulings/R012-dead-anchor-targets.md
 - queue done. Full vitest: only gowCastGolden (7 golden-signed re-review items above) fails; tsc 0. Golden diff total: 28 lines / 7 keys (all from P-F1-remove-gems).
+# sa-P progress (review round 2, branch gow/r2-P)
+- 2026-09-28T13:45:00Z R011 fixed: status.ts applyStatus Blessed guard -> isBlessedBlockedStatus (negatives only; curse family still passes and cancels Blessed); gowFixR011.test.ts; 7 lane/core tests updated to new behaviour (L4bB01 7517, L4bB05 7666-spell, L5B01 9015/8245/7561, L5B03 8393, L5B06 7696/7475/7028, Worker02 6081, positiveStatus); golden diff 0 lines
+  - reverse check (registry scan, bless + positive in one spell): 9661 troop:7700 (K: caster now Blessed+Enchanted), 9594 troop:7666 (Elemental ally: Blessed then Barrier), 8469 troop:6966 (Fey ally: Blessed then Enchanted); 8036 / 8548 apply the positive before Blessed (unchanged); other hits are dispel-all-positive lists
+  - re-review (unsigned, behaviour changed): troop:7700 / 9661, troop:7666 / 9594, troop:6966 / 8469; situational for any positive-status skill/trait targeting an already-Blessed unit (none golden-signed changed)

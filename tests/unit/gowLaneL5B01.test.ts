@@ -81,13 +81,13 @@ describe('L5 troop:7375 / spell:9015 Barrier+Enchant all allies, self Gain Life'
   expect(order).toEqual(['barrier','barrier','barrier','enchanted','enchanted','enchanted','life']);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
  });
- it('dead ally skipped; Blessed ally immune to both; existing Barrier refreshed (not duplicated)',()=>{
+ it('dead ally skipped; R011: Blessed ally still gets both positives; existing Barrier refreshed (not duplicated)',()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:7,chosen:0,
    allies:[{defeated:true,hp:0},{statuses:[{id:'blessed',turns:3}]}],caster:{statuses:[{id:'barrier',turns:1}]}});
   const ev=f.cast();
-  expect(ids(ev,'status-apply','barrier')).toEqual([0]);expect(ids(ev,'status-apply','enchanted')).toEqual([0]);
+  expect(ids(ev,'status-apply','barrier')).toEqual([0,2]);expect(ids(ev,'status-apply','enchanted')).toEqual([0,2]);
   expect(f.caster.statuses.filter(s=>s.id==='barrier')).toEqual([{id:'barrier',turns:3}]);
-  expect(f.allies[0].statuses).toEqual([]);expect(f.allies[1].statuses.map(s=>s.id)).toEqual(['blessed']);
+  expect(f.allies[0].statuses).toEqual([]);expect(f.allies[1].statuses.map(s=>s.id).sort()).toEqual(['barrier','blessed','enchanted']);
  });
  it('Enchanted gives +2 mana at owner turn start through the real turn flow',()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:7,chosen:0});
@@ -228,11 +228,11 @@ describe('L5 troop:6840 / spell:8245 Barrier chosen ally + Magic+1 Armor, Knight
   expect(ev.filter(e=>e.type==='status-apply'||e.type==='buff').map(e=>e.type)).toEqual(['status-apply','buff']);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
  });
- it('Knight-double scales Armor only (single Barrier); Blessed Knight still gets doubled armor but no Barrier',()=>{
+ it('Knight-double scales Armor only (single Barrier); R011: Blessed Knight gets doubled armor and Barrier',()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:7,chosen:1,allies:[{troopTypes:['Knight'],statuses:[{id:'blessed',turns:3}]}]});
   const ev=f.cast();
-  expect(ids(ev,'status-apply','barrier')).toEqual([]);expect(f.allies[0].armor).toBe(16);
-  expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed']);
+  expect(ids(ev,'status-apply','barrier')).toEqual([1]);expect(f.allies[0].armor).toBe(16);
+  expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed','barrier']);
  });
  it('FIXED L5-001 (R002): Barrier on the chosen ally persists without damage, then absorbs one skull hit and is removed',()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Right,magic:7,chosen:1,allies:[{}]});
@@ -285,11 +285,11 @@ describe('L5 troop:6406 / spell:7561 chosen ally Magic+3 Armor, Barrier, then Su
   expect(ev.filter(e=>e.type==='status-apply'||e.type==='buff').map(e=>e.type==='buff'?'armor':e.statusId)).toEqual(['armor','barrier','submerged']);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
  });
- it('caster may choose itself; Blessed ally keeps armor gain but blocks Barrier/Submerge; already-Submerged is refreshed',()=>{
+ it('caster may choose itself; R011: Blessed ally gets armor, Barrier and Submerge; already-Submerged is refreshed',()=>{
   const s=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:11,chosen:0});
   s.cast();expect(s.caster.armor).toBe(14);expect(s.caster.statuses.map(x=>x.id)).toEqual(['barrier','submerged']);
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:11,chosen:1,allies:[{statuses:[{id:'blessed',turns:3}]}]});
-  b.cast();expect(b.allies[0].armor).toBe(14);expect(b.allies[0].statuses.map(x=>x.id)).toEqual(['blessed']);
+  b.cast();expect(b.allies[0].armor).toBe(14);expect(b.allies[0].statuses.map(x=>x.id)).toEqual(['blessed','barrier','submerged']);
   const r=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:11,chosen:1,allies:[{statuses:[{id:'submerged',turns:1}]}]});
   r.cast();expect(r.allies[0].statuses.filter(x=>x.id==='submerged')).toEqual([{id:'submerged',turns:3}]);
  });
