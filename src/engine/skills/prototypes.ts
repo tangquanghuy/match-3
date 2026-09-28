@@ -321,6 +321,8 @@ export interface StormSegment extends SegmentOptions {
   turns: number;
   /** 骷髅系风暴（骸骨/末日/超级末日）：掉落加权目标；缺省 = 颜色风暴 */
   dropKind?: import('../types').SkullStormDropKind;
+  /** Second colour of a two-colour storm (P-R1-dual-storm, native StormRedPurple) */
+  color2?: BaseColor;
 }
 
 /** 打乱板面段（引擎原语批）：复用 boardUtils.reshuffle + 既有 reshuffle 事件 */
@@ -799,7 +801,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         statusId: segment.statusId,
       });
     case 'storm':
-      return stormEffect({ color: segment.color, turns: segment.turns, dropKind: segment.dropKind });
+      return stormEffect({ color: segment.color, turns: segment.turns, dropKind: segment.dropKind, color2: segment.color2 });
     case 'removeStorm':
       return removeStormEffect();
     case 'shuffleBoard':

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 288 条改动，涉及 545 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 289 条改动，涉及 546 个技能 ID。
 
 ## 按时间
 
@@ -294,6 +294,7 @@
 | 2026-09-28T09:13 | sa-P | P-R2-chosen-color-modifier | primitive | 8060 | troop:6704 ShamanOfSet | `src/engine/skills/colorChooser.ts`<br>`tests/unit/gowFixP-R2-chosen-color-modifier.test.ts` | prototypeNeedsColor ignored modifier sources; 8060 never asked for a colour and its boardGems CHOSEN count read 0 (created 0 Red) → boardGems 'CHOSEN' sources anywhere in a segment trigger the colour chooser; 8060 creates one Red per gem of the chosen colour | registry scan: 8060 only |
 | 2026-09-28T09:20 | sa-P | P-R1-chosen-target-color-cond | primitive | 8467 | troop:6964 StormKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`tests/unit/gowFixP-R1-chosen-target-color-cond.test.ts` | only lastTargetColor existed (needs a prior targeting segment), so 8467 dealt the true damage first and column skulls could miss a killed front target → global condition chosenTargetColor (cast-start colours of the chosen target); 8467 native order DestroyColumn -> IncreaseAttack -> TrueDamage | troop:6964 only |
 | 2026-09-28T09:20 | sa-P | P-R1-row-count-at-cast-start | primitive | 8928 | troop:7316 EyeOfArges | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`tests/unit/gowFixP-R1-row-count-at-cast-start.test.ts` | 8928 counted Red / Brown / Skull gems on the whole board (L10 dmg 178) → castTracking.chosenRowAtCastStart + source chosenRowAtCastStart: only the chosen row, captured before the explode (26 + 8 x row count) | troop:7316 only |
+| 2026-09-28T09:25 | sa-P | P-R1-dual-storm | primitive | 8560, 8562, 8454 | troop:7036 HellclawHunter；troop:7038 HellclawWarrior；weapon:1391 IndrajitsClaw | `src/engine/types.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/storm.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-R1-dual-storm.test.ts` | storms had one colour; Hellstorm (native StormRedPurple) approximated as a Red storm → Team.storm.color2 / storm segment color2 / createStorm opts.color2: both colours get STORM_DROP_WEIGHT in refills, stormPresent matches either; 8560 8562 8454 Red + Purple | storm-change event still reports the primary colour only (UI shows a Red storm) |
 
 ## 按技能 ID
 
@@ -572,6 +573,7 @@
 | 8436 | 1 | R3-B01-1374 |
 | 8438 | 1 | F1-6931-dispel |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
+| 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
 | 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
 | 8468 | 1 | F2-R001-order |
@@ -590,8 +592,8 @@
 | 8540 | 1 | L7-R1-random-chain-waves |
 | 8549 | 1 | P-random-stat-pool |
 | 8557 | 1 | L4b-7030-dragon |
-| 8560 | 1 | P-counter-per-step |
-| 8562 | 2 | P-counter-per-step、L4a-R1-8562-attack-boost |
+| 8560 | 2 | P-counter-per-step、P-R1-dual-storm |
+| 8562 | 3 | P-counter-per-step、L4a-R1-8562-attack-boost、P-R1-dual-storm |
 | 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8570 | 1 | L7-7045 |
 | 8580 | 1 | L3-015 |

@@ -231,7 +231,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一个敌人造成 [魔法 + 2] 真实伤害，伤害值因红色和紫色宝石而增强。召唤地狱风暴。 [x2]',
     build: skill(
       trueDmg('enemyLast', 2, 1, { trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] } }),
-      createStorm(BaseColor.Red),
+      // native StormRedPurple (Hellstorm): two-colour storm (P-R1-dual-storm)
+      createStorm(BaseColor.Red, { color2: BaseColor.Purple }),
     ),
   },
   {

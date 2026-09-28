@@ -1168,5 +1168,6 @@ export interface Team {
    * dropKind 设置时为骷髅系风暴（骸骨/末日/超级末日）：加权作用于骷髅系掉落，
    * color 仅作表现层主色（见 SkullStormDropKind）。
    */
-  storm?: { color: BaseColor; turns: number; troopId: number; dropKind?: SkullStormDropKind };
+  /** color2 (P-R1-dual-storm): second weighted colour of a two-colour storm (native StormRedPurple = Hellstorm) */
+  storm?: { color: BaseColor; turns: number; troopId: number; dropKind?: SkullStormDropKind; color2?: BaseColor };
 }

@@ -728,10 +728,11 @@ export function inflict(
 /** 风暴段选项：颜色必填；骷髅系风暴（骸骨/末日/超级末日）给 dropKind；持续回合缺省 8 */
 export function createStorm(
   color: BaseColor,
-  opts: SegmentOpts & { turns?: number; dropKind?: SkullStormDropKind } = {},
+  opts: SegmentOpts & { turns?: number; dropKind?: SkullStormDropKind; color2?: BaseColor } = {},
 ): StormSegment {
   const seg: StormSegment = { kind: 'storm', color, turns: opts.turns ?? 8 };
   if (opts.dropKind !== undefined) seg.dropKind = opts.dropKind;
+  if (opts.color2 !== undefined) seg.color2 = opts.color2;
   return attach(seg, opts);
 }
 

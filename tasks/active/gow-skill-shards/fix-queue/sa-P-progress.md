@@ -67,3 +67,7 @@
   - re-review (unsigned): troop:6964 / 8467 (L10: destroy + buff now before the dmg; front-enemy target takes the column skulls first)
 - 2026-09-28T18:50:00Z P-R1-row-count-at-cast-start fixed: castTracking.chosenRowAtCastStart + source chosenRowAtCastStart {color?, skulls?}; 8928 (troop:7316) Red / Brown / Skull in the chosen row before the explode (was whole board: L10 178 -> 26 + 8 x row count); trace scan: only 7316 says "in the row"; golden diff 0 new lines
   - re-review (unsigned, value changed): troop:7316 / 8928
+- 2026-09-28T19:15:00Z P-R1-dual-storm fixed: Team.storm.color2 + storm segment / stormEffect / createStorm color2; TurnEngine.stormDropWeights weights both colours; stormPresent color matches either; 8560 (troop:7036), 8562 (troop:7038), 8454 (weapon:1391, no override entry) -> Red + Purple; gowFixP-R1-dual-storm.test.ts; golden diff 0 new lines
+  - re-review (unsigned): troop:7036 troop:7038 weapon:1391 (refills now also favour Purple)
+  - open: storm-change event / UI still show only the primary colour; lane note: weapon:1370 / 8409 native StormRedYellow but curated createStorm(Yellow) (not changed, lane to confirm)
+- queue round 2 done: sa-R1 (5), sa-R2 (2), sa-R3 (6, P-R3-below-dead-target closed by R012), sa-R4 (2) all fixed. Full vitest: only gowCastGolden (6 golden-signed re-review keys: L3 troop:6926, L5 weapon:1156 from R012; L4a troop:7188, L4b weapon:1181 / 1182, L7 troop:6115 from P-R1-count-at-native-step) + spellData 8656/8651 desc (pre-existing, generated data) fail; tsc 0

@@ -27,6 +27,8 @@ export interface StormPayload {
   troopId: number;
   /** 骷髅系风暴（骸骨/末日/超级末日）：掉落加权目标；缺省 = 颜色风暴 */
   dropKind?: SkullStormDropKind;
+  /** Second weighted colour (P-R1-dual-storm, native StormRedPurple = Hellstorm) */
+  color2?: BaseColor;
 }
 
 /**
@@ -60,6 +62,7 @@ export function applyStormToTeam(
   own.storm = {
     color: payload.color, turns: payload.turns, troopId: payload.troopId,
     dropKind: payload.dropKind,
+    ...(payload.color2 !== undefined ? { color2: payload.color2 } : {}),
   };
   const ev: StormChangeEvent = {
     type: 'storm-change', player: side, color: payload.color,
@@ -99,6 +102,8 @@ export interface StormEffectParams {
   /** 持续回合；缺省 8（官方口径） */
   turns?: number;
   dropKind?: SkullStormDropKind;
+  /** Second weighted colour of a two-colour storm (P-R1-dual-storm) */
+  color2?: BaseColor;
 }
 
 /**
@@ -116,6 +121,7 @@ export function stormEffect(params: StormEffectParams): EffectPrimitive {
         turns,
         troopId: skillStormTroopId(params.color),
         dropKind: params.dropKind,
+        color2: params.color2,
       });
     },
   };

@@ -474,7 +474,7 @@ export function conditionMet(
         const storm = ctx.state.teams[side].storm;
         if (!storm) continue;
         if (cond.dropKind !== undefined && storm.dropKind !== cond.dropKind) continue;
-        if (cond.color !== undefined && storm.color !== cond.color) continue;
+        if (cond.color !== undefined && storm.color !== cond.color && storm.color2 !== cond.color) continue;
         return true;
       }
       return false;

@@ -2449,7 +2449,12 @@ export class TurnEngine {
   private stormDropWeights(): Map<BaseColor, number> | undefined {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       const storm = this.state.teams[side].storm;
-      if (storm && !storm.dropKind) return new Map([[storm.color, STORM_DROP_WEIGHT]]);
+      if (storm && !storm.dropKind) {
+        // P-R1-dual-storm: a two-colour storm weights both colours
+        const weights = new Map([[storm.color, STORM_DROP_WEIGHT]]);
+        if (storm.color2 !== undefined) weights.set(storm.color2, STORM_DROP_WEIGHT);
+        return weights;
+      }
     }
     return undefined;
   }

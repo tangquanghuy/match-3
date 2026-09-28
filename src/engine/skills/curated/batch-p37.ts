@@ -274,7 +274,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害，伤害值因红色和紫色宝石而增强。召唤地狱风暴。 [1:1]',
     build: skill(
       dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] } }),
-      createStorm(BaseColor.Red),
+      // native StormRedPurple (Hellstorm): two-colour storm (P-R1-dual-storm)
+      createStorm(BaseColor.Red, { color2: BaseColor.Purple }),
     ),
   },
   {
@@ -284,7 +285,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // native: IncreaseAttack and IncreaseHealth both UseCounterForAmount (Red + Purple gems) (sa-R1)
       attack('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] } }),
       heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'boardGems', color: BaseColor.Purple }] } }),
-      createStorm(BaseColor.Red),
+      // native StormRedPurple (Hellstorm): two-colour storm (P-R1-dual-storm)
+      createStorm(BaseColor.Red, { color2: BaseColor.Purple }),
     ),
   },
   {
