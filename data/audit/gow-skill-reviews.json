@@ -90116,21 +90116,23 @@
       "format": "compact",
       "key": "weapon:1687",
       "decision": "accept",
-      "reviewer": "sa-F3",
-      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.041Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1690",
       "decision": "accept",
-      "reviewer": "sa-F3",
-      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.042Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -90166,11 +90168,12 @@
       "format": "compact",
       "key": "weapon:1718",
       "decision": "accept",
-      "reviewer": "sa-F3",
-      "reviewedAt": "2026-09-28T00:20:05.696Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.042Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -91535,11 +91538,12 @@
       "format": "compact",
       "key": "troop:7500",
       "decision": "accept",
-      "reviewer": "sa-R1",
-      "reviewedAt": "2026-09-28T02:36:51.167Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.149Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -92637,11 +92641,12 @@
       "format": "compact",
       "key": "weapon:1501",
       "decision": "accept",
-      "reviewer": "sa-R2",
-      "reviewedAt": "2026-09-28T02:43:22.778Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.940Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -93693,21 +93698,23 @@
       "format": "compact",
       "key": "troop:7504",
       "decision": "accept",
-      "reviewer": "sa-R3",
-      "reviewedAt": "2026-09-28T02:36:49.093Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.041Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "troop:7171",
       "decision": "accept",
-      "reviewer": "sa-R3",
-      "reviewedAt": "2026-09-28T02:36:49.094Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.040Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -95165,175 +95172,177 @@
       "format": "compact",
       "key": "troop:6741",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:35:33.735Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.825Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "waived": [
-        {
-          "part": "clause",
-          "id": "c2",
-          "mode": "tower"
-        }
-      ]
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "troop:7660",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:35:33.736Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.826Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "waived": [
-        {
-          "part": "clause",
-          "id": "c2",
-          "mode": "boss"
-        }
-      ]
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1580",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:35:33.736Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.826Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1590",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:35:33.736Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.827Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1614",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:35:33.736Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.827Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1626",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:35:33.736Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.828Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1642",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.332Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.828Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1645",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.334Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.828Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1651",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.334Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.829Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1654",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.334Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.829Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1660",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.334Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.829Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1663",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.334Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.829Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1694",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.334Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.829Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1700",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.335Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.830Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1703",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.335Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.830Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1715",
       "decision": "accept",
-      "reviewer": "sa-R4",
-      "reviewedAt": "2026-09-28T02:41:46.335Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.830Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -102118,11 +102127,12 @@
       "format": "compact",
       "key": "troop:7079",
       "decision": "accept",
-      "reviewer": "sa-B",
-      "reviewedAt": "2026-09-28T10:52:23.247Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:03.939Z",
       "tests": [
-        "tests/unit/gowCastGolden.test.ts"
-      ]
+        "tests/unit/gowFixP-E-faction-kingdom.test.ts"
+      ],
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -104794,265 +104804,265 @@
       "format": "compact",
       "key": "weapon:1364",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.523Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.260Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1410",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.524Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.262Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1412",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.524Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.263Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1438",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.524Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.263Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1464",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1465",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1497",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1511",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1534",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.525Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1536",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.265Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1541",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.265Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1544",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.265Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1553",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.265Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1556",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.265Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1569",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.526Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.265Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1573",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.266Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1576",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.266Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1583",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.266Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1587",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.266Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1617",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.267Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1629",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.267Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1638",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.527Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.267Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1388",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.261Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1402",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.262Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -105091,78 +105101,78 @@
       "format": "compact",
       "key": "weapon:1407",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.262Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1411",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.262Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1449",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.263Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1453",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.528Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1491",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.529Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.264Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1675",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.529Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.267Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
       "key": "weapon:1678",
       "decision": "accept",
-      "reviewer": "sa-P",
-      "reviewedAt": "2026-09-28T13:09:15.529Z",
+      "reviewer": "sa-Q",
+      "reviewedAt": "2026-09-28T14:42:04.267Z",
       "tests": [
         "tests/unit/gowFixP-E-faction-kingdom.test.ts"
       ],
-      "note": "P-E-faction-kingdom: RandomPositiveStatusEffect@AllyKingdom <id> now filters by raw KingdomId (targetKingdom number, Character.kingdomId), faction troops excluded; explode + raw summon pool unchanged"
+      "note": "re-review after P-E-faction-kingdom"
     },
     {
       "format": "compact",
@@ -106334,6 +106344,886 @@
           "id": "0",
           "mode": "tower"
         }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7084",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.317Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7106",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.318Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7350",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.318Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7389",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.319Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7390",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.319Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7477",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.319Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7745",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.319Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7788",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.320Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1054",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.320Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7309",
+      "decision": "issue",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:25:51.507Z",
+      "issue": "L4b-7308-spirit-colour",
+      "note": "source-dispute (same as troop:7308): native CreateGems 3 Spirit has no colour; runtime spiritGem/Purple is a project placeholder. Lead: official news thread t/78789 #2 says the campaign Spirit Gem matches with Blue. Damage [Magic+3] chosen enemy correct."
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1061",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.075Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1513",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.076Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1514",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.076Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1697",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.076Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6675",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.077Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7419",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.077Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7822",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.077Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7587",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.077Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1685",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.077Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7381",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:45:24.078Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7466",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.712Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7522",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.713Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7849",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.713Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7506",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.714Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1",
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        },
+        {
+          "part": "step",
+          "id": "0",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7216",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.714Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1684",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.714Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7340",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.715Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6449",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.715Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1051",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.715Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6031",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:50:53.715Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7339",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.997Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1592",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.998Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1593",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1594",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1595",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1596",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1597",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6745",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6516",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:04.999Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7333",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T14:55:05.000Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B04; fixed 1592-1597 Giant gem colour (R009), 6516 native Daemon then Undead steps; 7333 Attack/Armor order unobservable (R001)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7454",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.931Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7129",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.932Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7158",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.932Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6887",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.932Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7393",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.933Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7232",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.933Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7836",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.933Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6126",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.933Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1225",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.933Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7187",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:00:26.933Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B05; 7158 0.8x rounding convention:R006-C1; 7454/7129 buff order unobservable (distinct stats)"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1515",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.973Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1639",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.974Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7219",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.974Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6120",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.975Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6898",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.975Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7773",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.975Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1399",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.975Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7689",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.975Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1524",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.976Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:7487",
+      "decision": "accept",
+      "reviewer": "sa-B",
+      "reviewedAt": "2026-09-28T15:14:09.976Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R6-B06; fixed 7219 gargoyle tiers + zh splash, 7689 Green Dragon gems (R009), 7487/1524 RandomPrefNotPrev (R007-3); 7689 Southwild x2 via state.region (not set in standard battles); 7689 0.8x exact"
+    },
+    {
+      "format": "compact",
+      "key": "troop:6517",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.774Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "tower"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6301",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.775Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6208",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.775Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6235",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.776Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7023",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.776Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:7589",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:27:07.270Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "waived": [
+        {
+          "part": "clause",
+          "id": "c2",
+          "mode": "boss"
+        }
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6460",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.776Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "troop:6821",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.776Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1668",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.776Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ]
+    },
+    {
+      "format": "compact",
+      "key": "weapon:1669",
+      "decision": "accept",
+      "reviewer": "sa-C",
+      "reviewedAt": "2026-09-28T14:26:29.777Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
       ]
     }
   ]

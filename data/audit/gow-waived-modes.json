@@ -147,24 +147,6 @@
    "note": ""
   },
   {
-   "key": "troop:6741",
-   "name": "GeneralSuladin",
-   "part": "clause",
-   "id": "c2",
-   "mode": "tower",
-   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
-   "note": ""
-  },
-  {
-   "key": "troop:7660",
-   "name": "DugallRamhorn",
-   "part": "clause",
-   "id": "c2",
-   "mode": "boss",
-   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
-   "note": ""
-  },
-  {
    "key": "troop:7707",
    "name": "LOCK-1887",
    "part": "clause",
@@ -955,6 +937,186 @@
    "mode": "tower",
    "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":1}",
    "note": "Tower x Ascension 3x-5x waived (R000 tower)"
+  },
+  {
+   "key": "troop:7389",
+   "name": "PrinceBasalt",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7389",
+   "name": "PrinceBasalt",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7390",
+   "name": "TheIronMaiden",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7390",
+   "name": "TheIronMaiden",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7477",
+   "name": "DragonCommander",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7477",
+   "name": "DragonCommander",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7745",
+   "name": "Azbeel",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7745",
+   "name": "Azbeel",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7788",
+   "name": "GraveWorm",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:7788",
+   "name": "GraveWorm",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R6-B01; boss/tower Ascension multipliers waived (R000); 7477 Yellow Lightning = lightningCol (SPECIAL_MATCH_COLOR Yellow)"
+  },
+  {
+   "key": "troop:6675",
+   "name": "Nightwing",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:6675",
+   "name": "Nightwing",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:7419",
+   "name": "LadyOfRuin",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:7419",
+   "name": "LadyOfRuin",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:7822",
+   "name": "SirGeoffreyTheFallen",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:7822",
+   "name": "SirGeoffreyTheFallen",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R6-B02; 6675 boss, 7419/7822 tower Ascension waived (R000); fixed 1685 Terror+Poison creates + zh, 7381 Good/Evil gargoyle tiers, 7587 native 3x CreateGems 1 portal; 1685 1.75x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:7506",
+   "name": "DoeStoneshatter",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:7506",
+   "name": "DoeStoneshatter",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "R6-B03; 7506 tower Ascension waived (R000); fixed 7216/1684/7340 RandomPrefNotPrev chain (R007-3); 7522 1.25x rounding convention:R006-C1"
+  },
+  {
+   "key": "troop:6517",
+   "name": "StatueOfSt.Veritas",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7589",
+   "name": "Ragepaw",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
   }
  ]
 }
