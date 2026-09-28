@@ -125,10 +125,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8595,
-    desc: '将 [(魔法 / 2) + 1] 点魔力赋予一名随机盟友。每有一颗黄色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '将 [(魔法 / 2) + 1] 点魔法值赋予一名随机盟友。每有一颗黄色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      // 「魔力」= mana 资源（SOP 措辞裁定；「魔法/2」为缩放基数）
-      mana('allyRandom', 1, 0.5),
+      // sa-R7: EN "Give ... Magic" / native IncreaseSpellPower = the Magic skill, not Mana (was mana()).
+      magic('allyRandom', 1, 0.5),
       // 回收：chanceBoost 现支持「每颗X宝石 7% 几率」（SOP 示例句式；boardGems Yellow）
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),

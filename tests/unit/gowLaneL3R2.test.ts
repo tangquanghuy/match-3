@@ -431,3 +431,24 @@ describe('L3 R2: B10 Tarot buff family (7% per gem, no base)', () => {
       expect(alone).toEqual(Array(n).fill(`buff C ${buff}`));
     });
 });
+
+describe('L3 R2: B11 Tarot tail + Ankh of Nefertani', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const only = (c: BaseColor, n: number, other: BaseColor) => (r: number, col: number) => colorGem(r * 8 + col < n ? c : other);
+  it.each([
+    ['troop:7772', BaseColor.Green], ['troop:7868', BaseColor.Green], ['troop:7629', BaseColor.Green], ['troop:7067', BaseColor.Yellow],
+    ['troop:7189', BaseColor.Red], ['troop:7387', BaseColor.Red], ['troop:7413', BaseColor.Red], ['troop:7628', BaseColor.Red], ['troop:7287', BaseColor.Green],
+  ] as [string, BaseColor][])('%s: 0 %s gems never, 15 always (counted before any gem change)', (key, c) => {
+    const other = c === BaseColor.Red ? BaseColor.Purple : BaseColor.Red;
+    expect(seeds(30).some(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill')).toBe(false);
+    expect(seeds(30).every(seed => castSpell({ key, seed, board: only(c, 15, other) }).summary.extraTurn === 'skill')).toBe(true);
+  });
+  it('troop:7067 The Star: gives Magic (not Mana): (10 / 2) + 1 = 6', () => {
+    const r = castSpell({ key: 'troop:7067', allies: [], board: only(BaseColor.Yellow, 0, BaseColor.Red) });
+    expect(order(r)).toEqual(['buff C magic+6']);
+  });
+  it('weapon:1376 Ankh of Nefertani: chosen ally only, Life 1 + Magic + 2/Brown gem, then a quarter of its mana', () => {
+    const r = castSpell({ key: 'weapon:1376', target: 1, board: only(BaseColor.Brown, 4, BaseColor.Red), allies: [{ hp: 50, maxHp: 50, manaCost: 16 }, { hp: 50, maxHp: 50, manaCost: 16 }] });
+    expect(order(r)).toEqual(['buff A1 hp+19 max+19', 'buff A1 mana+4']);
+  });
+});

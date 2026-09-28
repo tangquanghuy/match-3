@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 296 条改动，涉及 538 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 297 条改动，涉及 541 个技能 ID。
 
 ## 按时间
 
@@ -302,6 +302,7 @@
 | 2026-09-28T08:43 | sa-R7 | R7-not-board-misread | assembler | 8824, 7457 | troop:7229 AceOfRunes；troop:6307 Shadowblade | `src/engine/skills/curated/batch-r5.ts` | extra turn / full mana only if there are NO Blue/Purple gems, fixed 7%/6% base (+boost); ZH desc 'no gem' → EN 'for each X Gem' + native Conditional without Amount: 7%/6% per gem only; ZH desc fixed |  |
 | 2026-09-28T08:43 | sa-R7 | R7-7061-no-base | assembler | 8589 | troop:7061 DarkKnight | `src/engine/skills/curated/batch-30.ts` | drain 4 + 4 per Purple gem destroyed → drain 4 per Purple gem in the column only (native DecreaseMana UseCounterForAmount, no Amount) |  |
 | 2026-09-28T08:47 | sa-R7 | R7-tarot-extra-turn | assembler | 8970, 8666 | troop:7552 TwoOfSwords；troop:7126 TheFool | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r5.ts` | extra-turn chance 7% base + 7% per gem → 7% per gem only (native ExtraTurnConditional UseCounterForAmount, no Amount) |  |
+| 2026-09-28T08:53 | sa-R7 | R7-b11-defs | assembler | 8595, 8439, 8861 | troop:7067 TheStar；weapon:1376 AnkhOfNefertani；troop:7287 TheWheelOfFortune | `src/engine/skills/curated/batch-27.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts` | 8595 gave Mana; 8439 healed + quarter mana to all allies; 8861 extra-turn chance counted on the refilled board after Remove all Gems → 8595 gives Magic (IncreaseSpellPower); 8439 chosen ally only (FromTarget); 8861 chance counted before the removal (CountGems step 0) |  |
 
 ## 按技能 ID
 
@@ -577,6 +578,7 @@
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
 | 8436 | 1 | R3-B01-1374 |
 | 8438 | 1 | F1-6931-dispel |
+| 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8458 | 1 | L2-6958-order |
 | 8467 | 1 | L4a-R1-8467-target-count |
@@ -601,6 +603,7 @@
 | 8580 | 1 | L3-015 |
 | 8586 | 1 | F2-R001-order |
 | 8589 | 1 | R7-7061-no-base |
+| 8595 | 1 | R7-b11-defs |
 | 8596 | 1 | L4b-7068-potion-colour |
 | 8597 | 1 | P-steal-to-life |
 | 8598 | 3 | L3-007、L3-008、L3-009 |
@@ -669,6 +672,7 @@
 | 8850 | 1 | R7-dragon-convert-extra-turn |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8859 | 1 | P-random-stat-pool |
+| 8861 | 1 | R7-b11-defs |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
 | 8881 | 2 | P-prefnotprev-semantics、R3-B12-7262 |

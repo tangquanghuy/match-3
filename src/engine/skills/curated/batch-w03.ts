@@ -102,8 +102,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8439,
     desc: '给予一位盟友 [魔法 + 1] 点生命值，数值因棕色宝石而增强。再给予其四分之一的法力值。 [x2]',
     build: skill(
-      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
-      mana('allyAll', 0, 0, { fraction: 0.25 }),
+      // sa-R7: native spell Target Ally, both steps FromTarget = the one chosen ally (was allyAll).
+      heal('allyChosen', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      mana('allyChosen', 0, 0, { fraction: 0.25 }),
     ),
   },
   {

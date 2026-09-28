@@ -209,9 +209,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '移除所有宝石。获得 10 黄金。板面上每有一颗绿色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     // 「移除所有宝石」= destroyAllColors（不含骷髅，batch-01 宝石/骷髅术语口径）
     build: skill(
+      // sa-R7: native CountGems Green 700 is step 0 -> chance counted on the board before the removal
+      // (was counted on the refilled board after it; R001).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
       destroyAllColors(),
       gainGold(10),
-      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
     ),
   },
   {

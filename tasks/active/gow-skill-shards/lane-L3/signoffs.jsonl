@@ -147,3 +147,13 @@
 {"format":"compact","key":"troop:7096","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7662","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7126","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7772","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.843Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7868","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.844Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7629","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.844Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7067","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.844Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7189","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7387","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7413","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7628","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1376","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:51.024Z","issue":"L3-005","note":"8439 GenerateQuarterMana@FromTarget: floor(manaCost/4) rounding unsourced (L3-005). Rest verified after fix: chosen ally only, Life 1 + Magic + 2/Brown gem (test)."}
+{"format":"compact","key":"troop:7287","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:51.115Z","issue":"L3-remove-all-skulls","note":"8861 native RemoveGems 100 (EN 'Remove all Gems') assembled as destroyAllColors, which leaves Skulls on the board (L10: 5 skulls kept); same for 7137. Does 'all Gems' include Skulls? Extra-turn count moved before the removal (fixed, test)."}
