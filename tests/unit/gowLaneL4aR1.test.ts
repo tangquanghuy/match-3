@@ -2,8 +2,8 @@
  * Lane L4a review round 1 (sa-R1): table-driven checks for behaviour the default scenarios do not show.
  */
 import { describe, expect, it } from 'vitest';
-import { castSpell } from '../helpers/gowCast';
-import { BaseColor, colorGem } from '@engine/types';
+import { castSpell, reviewBoard, withCells } from '../helpers/gowCast';
+import { BaseColor, colorGem, specialGem } from '@engine/types';
 
 const statusTargets = (order: string[], id: string) => order.filter(o => o.endsWith(`+${id}`)).map(o => o.split(' ')[1]);
 
@@ -72,5 +72,69 @@ describe('L4a R1: army counters', () => {
     const r = castSpell({ key: 'troop:7883', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, colors: [BaseColor.Red] })) });
     expect(r.summary.order).toContain('defeat E10');
     expect(r.summary.order).toContain('buff C attack+23'); // 1 + 10 + 3 x 4
+  });
+});
+describe('L4a R1: "if <troop> is on my team" clauses', () => {
+  const withAlly = (key: string, name: string, extra: Record<string, unknown> = {}) =>
+    castSpell({ key, allies: [{ name, colors: [BaseColor.Red] }, { colors: [BaseColor.Red] }] as never, ...extra });
+  it('troop:7476 Dragon Commander present: one random explosion after the Lightning conversion', () => {
+    const r = withAlly('troop:7476', '龙族指挥官');
+    expect(r.summary.order[0]).toMatch(/^convert Purple x\d+ -> lightningRow x\d+$/);
+    expect(r.summary.order[1]).toMatch(/^explode \d+$/);
+    expect(castSpell({ key: 'troop:7476' }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+  });
+  it('troop:7476 explosion centre is random, not the chosen cell', () => {
+    const r = castSpell({ key: 'troop:7476', board: sparseBoard, cell: { row: 1, col: 1 }, allies: [{ name: '龙族指挥官' }, {}] as never });
+    expect(r.summary.order).toContain('explode 1'); // (1,1) is empty on the sparse board: a chosen-cell explode would clear 4
+  });
+  it('troop:7787 Queen Wilhelmina present: Brown -> Bleed, then Magic + 1 explosions', () => {
+    const r = withAlly('troop:7787', '威廉明娜女王', { board: sparseBoard });
+    expect(r.summary.order[0]).toMatch(/^convert Brown x\d+ -> bleedGem x\d+$/);
+    expect(r.summary.order[1]).toBe('explode 11');
+  });
+  it.each([
+    ['weapon:1600', '永生神路西法', /^explode 3$/],
+    ['weapon:1472', '泽菲罗斯', /^explode 5$/],
+  ])('%s explosion count with the Immortal', (key, name, re) => {
+    const r = withAlly(key, name, { board: sparseBoard });
+    expect(r.summary.order.find(o => o.startsWith('explode'))).toMatch(re);
+  });
+  it('weapon:1600 explodes before the damage (native order)', () => {
+    const o = withAlly('weapon:1600', '永生神路西法').summary.order;
+    expect(o.findIndex(x => x.startsWith('explode'))).toBeLessThan(o.findIndex(x => x.startsWith('dmg E11')));
+  });
+  it('weapon:1607 destroys 2 columns before the true damage; Bomb count read after the columns', () => {
+    const o = withAlly('weapon:1607', '永生神提泰纽斯').summary.order;
+    const cols = o.filter(x => x.startsWith('destroy '));
+    expect(cols.length).toBeGreaterThanOrEqual(1);
+    expect(o.findIndex(x => x.startsWith('destroy '))).toBeLessThan(o.findIndex(x => x.startsWith('dmg E11')));
+  });
+  it('weapon:1609 two rows, plus two columns with Immortal Raqiyah', () => {
+    const cells = (r: ReturnType<typeof castSpell>) => r.summary.order.filter(o => o.startsWith('destroy ')).reduce((n, o) => n + Number(o.split(' ')[1]), 0);
+    expect(cells(castSpell({ key: 'weapon:1609' }))).toBe(16); // 2 full rows of 8
+    expect(cells(withAlly('weapon:1609', '不朽的拉基亚'))).toBe(32); // + 2 columns of 8 (the board refills between the row and column steps)
+  });
+  it('troop:7115 Despond present: -6 Magic in total', () => {
+    const r = withAlly('troop:7115', '沮丧');
+    expect(r.summary.units.E11).toContain('mag-6');
+    expect(castSpell({ key: 'troop:7115' }).summary.units.E11).toContain('mag-3');
+  });
+  it.each([
+    ['weapon:1610', '不朽的亚巴顿', 'daemonicPortalGem'],
+    ['weapon:1704', '不朽的泽法尔', 'deathMarkGem'],
+    ['weapon:1666', '不朽的考马尼', 'angelGem'],
+  ])('%s explodes all %s before the damage', (key, name, kind) => {
+    const board = withCells(reviewBoard, { '6,1': specialGem(kind as never), '6,4': specialGem(kind as never) });
+    const o = withAlly(key, name, { board }).summary.order;
+    const ex = o.findIndex(x => x.startsWith('explode'));
+    expect(ex).toBeGreaterThanOrEqual(0);
+    expect(ex).toBeLessThan(o.findIndex(x => x.startsWith('dmg ')));
+    expect(castSpell({ key, board }).summary.order.some(x => x.startsWith('explode'))).toBe(false);
+  });
+  it('weapon:1704 skull count is read after the Death Mark explosion', () => {
+    // Death Mark gem next to the Skull at 2,5: the explosion removes that skull, so damage = 13 + 2 x 4.
+    const board = withCells(reviewBoard, { '2,4': specialGem('deathMarkGem') });
+    const o = withAlly('weapon:1704', '不朽的泽法尔', { board }).summary.order;
+    expect(o).toContain('dmg E11 21');
   });
 });

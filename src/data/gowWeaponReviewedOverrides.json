@@ -5441,24 +5441,6 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
-            "target": "enemyChosen",
-            "scaling": {
-              "base": 3,
-              "mult": 2
-            },
-            "modifier": {
-              "mod": {
-                "kind": "multiplier",
-                "a": 6
-              },
-              "source": {
-                "kind": "allyStatusCount",
-                "statusId": "barrier"
-              }
-            }
-          },
-          {
             "kind": "gem",
             "params": {
               "op": "clear",
@@ -5476,6 +5458,24 @@
               "kind": "troopPresent",
               "side": "ally",
               "name": "永生神路西法"
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 2
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 6
+              },
+              "source": {
+                "kind": "allyStatusCount",
+                "statusId": "barrier"
+              }
             }
           }
         ]

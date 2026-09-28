@@ -295,7 +295,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 中文名（7477 龙族指挥官，官方 CountArmyTroop Data:7477）；尾缀 [1:1] = 爆破数 1:1 计数序列化
     build: skill(
       transformToSpecial(BaseColor.Purple, 'lightningRow'),
-      explodeAt(CELL, {
+      // native ExplodeGems x CountArmyTroop (Dragon Commander): a random gem, not the chosen cell (sa-R1)
+      explodeRandomGems(1, 0, 'all', undefined, {
         ifCond: { kind: 'troopPresent', side: 'ally', name: '龙族指挥官' },
       }),
     ),
