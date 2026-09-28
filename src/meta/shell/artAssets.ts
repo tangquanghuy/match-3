@@ -8,6 +8,7 @@
  */
 const RESULT = import.meta.glob('../../assets/meta/result/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const KINGDOM = import.meta.glob('../../assets/meta/kingdom/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const DAILY = import.meta.glob('../../assets/meta/daily/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 function pick(map: Record<string, string>, name: string): string {
   const hit = Object.entries(map).find(([path]) => path.endsWith(`/${name}.webp`));
@@ -22,6 +23,11 @@ export function resultArt(name: string): string {
 /** 王国 / 进贡 / 旗帜素材 URL */
 export function kingdomArt(name: string): string {
   return pick(KINGDOM, name);
+}
+
+/** 地图底部「每日行动」徽章素材 URL（firstwin / tribute / arena / hunt） */
+export function dailyArt(name: string): string {
+  return pick(DAILY, name);
 }
 
 /** 生成 `--name:url("…")` 形式的 CSS 变量声明（用于 style 属性） */

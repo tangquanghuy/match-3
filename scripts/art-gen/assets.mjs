@@ -64,6 +64,40 @@ export const ASSETS = {
     pad: 0.02,
     prompt: 'A small ornate golden royal crown with red and blue jewels and pearl tips, glowing softly. ' + ICON + ' ' + STYLE,
   },
+  // —— 地图底部「每日行动」四枚徽章（放进圆形金框，物体要紧凑、居中） ——
+  'daily-firstwin': {
+    size: '1024x1024',
+    out: 'src/assets/meta/daily/firstwin.webp',
+    longest: 160,
+    pad: 0.02,
+    prompt: 'Two crossed ornate steel swords with gold hilts behind a golden victory laurel wreath, a glowing faceted blue gemstone '
+      + 'set at the center of the wreath. ' + ICON + ' ' + STYLE,
+  },
+  'daily-tribute': {
+    size: '1024x1024',
+    out: 'src/assets/meta/daily/tribute.webp',
+    longest: 160,
+    pad: 0.02,
+    prompt: 'A small royal tribute coffer: a compact ornate treasure casket of dark wood and gold bands with the lid ajar, '
+      + 'stacked shining gold coins and one glowing violet soul-essence vial on top, a heraldic red ribbon seal on the front. '
+      + ICON + ' ' + STYLE,
+  },
+  'daily-arena': {
+    size: '1024x1024',
+    out: 'src/assets/meta/daily/arena.webp',
+    longest: 160,
+    pad: 0.02,
+    prompt: 'Gladiator arena emblem: a round bronze-and-gold gladiator shield with a lion head boss, two crossed spears behind it '
+      + 'and a small crimson pennant fluttering from one spear. ' + ICON + ' ' + STYLE,
+  },
+  'daily-hunt': {
+    size: '1024x1024',
+    out: 'src/assets/meta/daily/hunt.webp',
+    longest: 160,
+    pad: 0.02,
+    prompt: 'A partly unrolled old parchment treasure map with a dotted trail and a red X mark, tied with a leather cord, '
+      + 'an antique brass compass lying on top of it. ' + ICON + ' ' + STYLE,
+  },
 };
 
 /** 结算页素材（2026-09-28 生成，原图在主工作树 artifacts/result-redesign/gen/raw）：只记录输出位置 */

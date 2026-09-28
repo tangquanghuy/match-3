@@ -24,17 +24,18 @@ import {
 import { BANNERS } from '../data/banners';
 import { EVENT_MILESTONES, EVENT_TYPES, type EventTypeId } from '../data/events';
 import { anyWeaponById } from '../data/weaponCatalog';
-import { kingdomUpgradeCost, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
+import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_GEMS, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import { eventMetricOf, eventShopOf } from '../systems/events';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { cssUrlVar, kingdomArt, resultArt } from '../shell/artAssets';
+import { cssUrlVar, dailyArt, kingdomArt, resultArt } from '../shell/artAssets';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { bannerUnlocked } from '../systems/banners';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
 import { ART, KINGDOM_VIEWS, kingdomViewOf, type KingdomView } from './mapData';
 import { MapFog, fogSeenLevel, markFogSeen, type FogHole } from './mapFog';
 import {
+  CURRENCY_ICON,
   currencyList,
   levelPerksHtml,
   levelPipsHtml,
@@ -159,6 +160,15 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
       poolSize: pool.length,
     };
   });
+}
+
+/** 地图底部每日行动牌：彩绘徽章 + 标题/状态两行 + 右侧状态角标（进贡另带 12 小时进度条） */
+function dailyButtonHtml(id: string, art: string, title: string, bar = false): string {
+  return `<button class="dq" id="${id}" data-dq="${art}" type="button">
+    <span class="dq-medal" aria-hidden="true"><img src="${dailyArt(art)}" alt="" draggable="false"></span>
+    <span class="dq-copy"><b>${title}</b><small id="${id}Copy"></small>${bar ? `<i class="dq-bar" aria-hidden="true"><i id="${id}Bar"></i></i>` : ''}</span>
+    <span class="dq-tag" id="${id}Tag" hidden></span>
+  </button>`;
 }
 
 function crestSvg(view: KingdomView): string {
@@ -813,11 +823,11 @@ export class MapScreen implements Screen {
             <span class="rail-copy"><b>馈赠</b><small>敬请期待</small></span>
           </button>
         </aside>
-        <div class="daily" id="daily">
-          <button class="chip" id="dailyWin" type="button"><span data-icon="swords"></span><span id="dailyWinCopy">每日首胜</span></button>
-          <button class="chip gold" id="dailyTribute" type="button"><span data-icon="bag"></span><span id="dailyTributeCopy">进贡</span></button>
-          <button class="chip" id="dailyArena" type="button"><span data-icon="ticket"></span><span id="dailyArenaCopy">竞技场</span></button>
-          <button class="chip" id="dailyHunt" type="button"><span data-icon="compass"></span><span id="dailyHuntCopy">寻宝</span></button>
+        <div class="daily" id="daily" role="group" aria-label="每日行动">
+          ${dailyButtonHtml('dailyWin', 'firstwin', '每日首胜')}
+          ${dailyButtonHtml('dailyTribute', 'tribute', '王国进贡', true)}
+          ${dailyButtonHtml('dailyArena', 'arena', '竞技场')}
+          ${dailyButtonHtml('dailyHunt', 'hunt', '寻宝')}
         </div>
       </div>
       ${bottomNavHtml('地图', `Lv.${ctx.save().hero.level} · 王国 ${kingdomsUnlockedAt(ctx.save().hero.level).length}/${ALL_KINGDOMS_UNLOCK_LEVEL}`)}
@@ -1392,27 +1402,49 @@ export class MapScreen implements Screen {
 
   private refreshDaily(save: MetaSave, ctx: ShellCtx): void {
     const now = Date.now();
+    // 每张牌：标题固定，第二行说「现在能做什么」，右侧角标给一眼可读的状态
+    const setDaily = (id: string, state: 'hot' | 'ready' | 'idle' | 'done', copy: string, tag = '', label = ''): void => {
+      const el = $(`#${id}`);
+      el.dataset.state = state;
+      $(`#${id}Copy`).textContent = copy;
+      const tagEl = $(`#${id}Tag`);
+      tagEl.hidden = !tag;
+      tagEl.innerHTML = tag;
+      el.setAttribute('aria-label', `${el.querySelector('.dq-copy b')?.textContent ?? ''}：${label || copy}`);
+    };
+    const gem = `<img src="${CURRENCY_ICON.gems}" alt="">`;
+    const gold = `<img src="${CURRENCY_ICON.gold}" alt="">`;
+
     const winReady = save.dailyFirstWinAt < todayStartOf(now);
-    $('#dailyWinCopy').textContent = winReady ? '每日首胜未领' : '每日首胜已领';
-    $('#dailyWin').classList.toggle('hot', winReady);
-    // 底栏只说玩家要做的事：可收、已满、还在累积。国数和金额留在宝库里。
-    const readyKingdoms = this.nodes.filter((n) => !n.locked && n.tributeReady);
-    const urgent = readyKingdoms.some((n) => n.tributeOverflowing);
-    $('#dailyTributeCopy').textContent = urgent
-      ? '进贡已满'
-      : readyKingdoms.length
-        ? '收取进贡'
-        : '进贡累积中';
-    $('#dailyTribute').classList.toggle('gold', readyKingdoms.length > 0);
-    $('#dailyTribute').classList.toggle('over', urgent);
-    $('#dailyArenaCopy').textContent = save.arena.activeDraft ? '继续竞技场' : '竞技场 · 1000黄金';
-    $('#dailyArena').classList.toggle('hot', !!save.arena.activeDraft);
+    setDaily('dailyWin', winReady ? 'hot' : 'done',
+      winReady ? '赢一场即可领取' : '今日已领 · 明日重置',
+      winReady ? `${gem}${DAILY_FIRST_WIN_GEMS}` : '✓',
+      winReady ? `未领，赢一场得 ${DAILY_FIRST_WIN_GEMS} 宝石` : '今日已领');
+
+    // 进贡：进度条 = 攒得最久的王国已攒小时 / 12；满了变红提示溢出
+    const treasury = tributeTreasury(save, now);
+    const hours = treasury.kingdoms.reduce((m, p) => Math.max(m, p.hours), 0);
+    ($(`#dailyTributeBar`) as HTMLElement).style.width = `${Math.round((hours / TRIBUTE.capHours) * 100)}%`;
+    if (treasury.overflowing) {
+      setDaily('dailyTribute', 'hot', `已满 · ${treasury.readyCount} 国可收`, '已满', `已满，${treasury.readyCount} 国可收`);
+    } else if (treasury.ready) {
+      setDaily('dailyTribute', 'ready', `${treasury.readyCount} 国可收 · ${hours}/${TRIBUTE.capHours} 时`, '可收');
+    } else {
+      setDaily('dailyTribute', 'idle', `累积中 · 下一次 ${clockOf(treasury.nextHourAt)}`, `${hours}/${TRIBUTE.capHours}`);
+    }
+
+    if (save.arena.activeDraft) {
+      setDaily('dailyArena', 'ready', '比赛进行中', '继续');
+    } else {
+      const fee = ARENA.entryFeeGold.toLocaleString('en-US');
+      const afford = save.currencies.gold >= ARENA.entryFeeGold;
+      setDaily('dailyArena', afford ? 'idle' : 'done', afford ? '四轮随机对决' : '黄金不足', `${gold}${fee}`, `入场 ${fee} 黄金`);
+    }
+
     const maps = save.materials.treasureMaps;
-    $('#dailyHuntCopy').textContent = save.treasureHunt
-      ? '寻宝进行中'
-      : maps > 0
-        ? `寻宝 ${maps.toLocaleString('en-US')}`
-        : '寻宝';
+    if (save.treasureHunt) setDaily('dailyHunt', 'ready', '寻宝进行中', '继续');
+    else if (maps > 0) setDaily('dailyHunt', 'idle', '用藏宝图开一局', `×${maps.toLocaleString('en-US')}`, `藏宝图 ${maps} 张`);
+    else setDaily('dailyHunt', 'done', '没有藏宝图', '×0', '没有藏宝图');
     // 王国数与满级加成：让「王国」本身在地图上有存在感
     const open = this.nodes.filter((n) => !n.locked).length;
     $('#kingdomListCopy').textContent = `王国 ${open}/${this.nodes.length}`;
