@@ -2,6 +2,10 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
+    "7184": {
+      "description": "移除所有骷髅头。对前两名敌人造成 [魔法] 点伤害，伤害值因被移除的宝石数而增强。 [2:1]",
+      "prototype": {"segments":[{"kind":"gem","params":{"op":"clear","mode":"remove","target":{"kind":"skulls"}}},{"kind":"damage","target":"enemyFirstN","scaling":{"base":0,"mult":1},"n":2,"modifier":{"mod":{"kind":"ratio","a":2,"b":1},"source":{"kind":"destroyedGems","skulls":true}}}]}
+    },
     "7066": {
       "description": "对最强的敌人造成 [(魔法 / 2) + 3] 点伤害。"
     },

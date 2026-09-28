@@ -224,8 +224,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9174,
     desc: '爆破所有燃烧宝石。对首 2 位敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，伤害值因被摧毁的燃烧宝石数而增强。 [x5]',
     build: skill(
+      // sa-A r4: native CountGems 500 Burning ; TrueDamage@FirstTwoEnemies ; ExplodeColor Burning
+      // (was: explode first, boosted x5 by every gem the 3x3 blasts destroyed)
+      trueDmg('enemyFirstN', 2, 1.5, { n: 2, modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'burningGem' } } }),
       explodeSpecialGems('burningGem'),
-      trueDmg('enemyFirstN', 2, 1.5, { n: 2, modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
   {

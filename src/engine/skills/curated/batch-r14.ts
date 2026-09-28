@@ -264,10 +264,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8930,
-    desc: '摧毁 5x5 圈宝石。获得 [魔法 + 2] 点护甲值和生命值，数值因被摧毁的石像鬼宝石数而增强。 [3:1]',
+    desc: '摧毁一行。对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因自身生命值而增强。 [3:1]',
     // ZH 为机翻转写；官方 EN「Destroy a row. Deal [Magic + 2] damage to the first 2 Enemies,
     // boosted by my Life. [3:1]」+ Steps（DestroyGems 行 / CountLife Self x34 → FirstTwoEnemies）
-    // 按官方句组装（EN 优先口径），desc 仍逐字锚定 troops.json
+    // 按官方句组装（EN 优先口径）；sa-A r4: zh desc corrected via gowSnapshotOverrides troops[7318]
     build: skill(
       destroyChosenRow(),
       dmg('enemyFirstN', 2, 1, {

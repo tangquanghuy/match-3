@@ -20,7 +20,7 @@
  */
 import type { CuratedBatch } from './index';
 import { skill, dmg, dmgAll, heal, armor, attack, magic, mana, inflict,
-  createGems, createSpecialGems, transform, destroyChosenRow, destroyChosenCol,
+  createGems, createSpecialGems, transform, destroyChosenRow, destroyChosenCross,
   createStorm, summonRef, extraTurn, transformTroop, oneOf, scale, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -306,8 +306,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「选择一颗宝石」由 chosenLine 选择器承担：两条 chosenLine 读同一 ctx.chosenCell = 行+列十字（batch-13/14 口径）
       createSpecialGems({ kind: 'bomb' }, 3),
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // sa-A r4: native DestroyGems BoardTarget RowAndColumn is one step (15 cells, one clear), sa-R1 / r3 6303 precedent
+      destroyChosenCross(),
     ),
   },
   {
