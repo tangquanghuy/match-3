@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 647 条改动，涉及 1105 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 649 条改动，涉及 1107 个技能 ID。
 
 ## 按时间
 
@@ -653,6 +653,8 @@
 | 2026-09-28T22:43 | sa-A | L4a-R9-1114-skulls | assembler | 7251 | weapon:1114 Boom-Boom | `src/engine/skills/curated/batch-w01.ts` | 7251 explode 3 include color → include all (R013-5) |  |
 | 2026-09-28T22:46 | sa-A | L4a-R9-1413-target-stun | data | 8521 | weapon:1413 FleurDeLeon | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8521 explode 4 include color if ANY enemy Stunned; zh machine text '结果 ... 超级重击 ... 打昏 ... 炸毁四枚' → explode 4 include all if the damaged target is Stunned (lastTargetStatus); zh '对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。'; native order still issued |  |
 | 2026-09-28T22:46 | sa-A | L4a-R9-6891-skulls | assembler | 8317 | troop:6891 UndeadDrake | `src/engine/skills/curated/batch-37.ts` | 8317 explode 4 include color → include all (R013-5) |  |
+| 2026-09-28T22:49 | sa-A | L4a-R9-7150-enchant-fey | data | 8718 | troop:7150 KingOberron | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | 8718 last step magic +5 to Elf allies; zh '施魔法于所有的精灵同盟' → native CauseEnchanted@AllyType fey: enchant Fey allies; zh '赋予所有仙灵盟友法印效果' + snapshot override |  |
+| 2026-09-28T22:49 | sa-A | L4a-R9-7623-order | assembler | 9489 | troop:7623 ImmortalFurnax | `src/engine/skills/curated/batch-r11.ts` | 9489 attack, heal, armor → native order attack, armor, health (R001) |  |
 
 ## 按技能 ID
 
@@ -1340,6 +1342,7 @@
 | 8707 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
+| 8718 | 1 | L4a-R9-7150-enchant-fey |
 | 8721 | 1 | L4a-R8-1452-column-only |
 | 8722 | 1 | L2-singlegem-cell |
 | 8723 | 1 | P-E-faction-kingdom |
@@ -1590,6 +1593,7 @@
 | 9485 | 1 | P-random-stat-pool |
 | 9486 | 1 | L4a-R1-immortal-order |
 | 9488 | 1 | L4b-1608-1611-order |
+| 9489 | 1 | L4a-R9-7623-order |
 | 9492 | 1 | L1-devour-first |
 | 9494 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9505 | 1 | B-L4b-1613-zh |

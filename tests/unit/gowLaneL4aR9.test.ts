@@ -196,3 +196,20 @@ describe('L4a R9 B07', () => {
     expect(o.filter(x => x.startsWith('dmg '))).toEqual(['dmg E12 14 (all)']);
   });
 });
+
+describe('L4a R9 B08', () => {
+  // troop:7150 (8718): IncreaseHealth@AllAllies 3+M ; IncreaseSpellPower@AllAllies 5 ; StormRed ; CauseEnchanted@AllyType fey.
+  it('troop:7150 enchants Fey allies only and gives no extra Magic', () => {
+    const r = castSpell({ key: 'troop:7150', allies: [{ troopTypes: ['Fey'] }, { troopTypes: ['Elf'] }] as never });
+    const st = r.summary.order.filter(o => o.startsWith('status '));
+    expect(st).toContain('status A1 +enchanted'); expect(st).not.toContain('status A2 +enchanted');
+    expect(st.every(s => s.endsWith('+enchanted'))).toBe(true);
+    expect(r.summary.order.filter(o => o.includes('magic+'))).toHaveLength(3);
+    expect(r.summary.order).toContain('storm Red set');
+  });
+  // troop:7623 (9489): Attack, Armor, Health each (M x 0.8) + 1 = 9 (Central Spire region inert) ; ExplodeColor Red 5.
+  it('troop:7623 buffs in native order and explodes Red gems only', () => {
+    const o = castSpell({ key: 'troop:7623', board: noColour(BaseColor.Red) }).summary.order;
+    expect(o).toEqual(['buff C attack+9', 'buff C armor+9', 'buff C hp+9 max+9']);
+  });
+});

@@ -256,13 +256,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8718,
-    desc: '给所有同盟[魔法 + 3]点生命值和5点魔法。然后发起一场烈火风暴并施魔法于所有的精灵同盟。',
+    desc: '给予所有盟友 [魔法 + 3] 点生命值和 5 点魔法。然后发起一场烈火风暴，并赋予所有仙灵盟友法印效果。',
     build: skill(
       heal('allyAll', 3, 1),
       magic('allyAll', 5, 0),
       createStorm(BaseColor.Red),
-      // 精灵 = Elf（troops.json troopTypes）；「施魔法」共享前句常数 5（batch-35 原判可表达）
-      magic('allyAll', 5, 0, { targetRace: 'Elf' }),
+      // native CauseEnchanted@AllyType fey: Enchant all Fey allies (was +5 Magic to Elf allies)
+      inflict('enchanted', 'allyAll', { targetRace: 'Fey' }),
     ),
   },
   {

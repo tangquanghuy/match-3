@@ -132,3 +132,8 @@
 - troop:6891 fix(explode 4 include all)
 - weapon:1227 accept (R000 waived c3 + step1 boss)
 - weapon:1152 accept (StormRandom = 6-colour oneOf, precedent)
+- troop:6705 accept
+- troop:7623 fix(native buff order attack/armor/health; Central Spire region inert)
+- troop:6632 accept
+- troop:7150 fix(Enchant Fey allies, was +5 Magic to Elf; zh + override)
+- troop:6938 accept (RemoveColor via gowRemoveRules; Green 0% step no-op)

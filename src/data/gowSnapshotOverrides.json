@@ -311,6 +311,11 @@
       "reason": "sa-A r3: English Destroy a column / native DestroyGems BoardTarget Column; AllyType mystic = every Mystic ally. Old Chinese said row and one ally.",
       "spellDescription": "摧毁一列。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有秘士盟友，则给予他们 3 点魔力值。 [x3]"
     },
+    "7150": {
+      "spellId": 8718,
+      "reason": "sa-A r9: English '... Enchant all Fey Allies.'; stored Chinese '施魔法于所有的精灵同盟' (cast magic on Elf allies) mistranslates Enchant and Fey.",
+      "spellDescription": "给予所有盟友 [魔法 + 3] 点生命值和 5 点魔法。然后发起一场烈火风暴，并赋予所有仙灵盟友法印效果。"
+    },
     "7181": {
       "spellId": 8751,
       "reason": "sa-G L6: ZH typo 二增强 -> 而增强 (EN boosted by my Attack, Life and Armor)",

@@ -356,9 +356,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "获得 [(魔法 x 0.8) + 1] 点攻击力、生命值和护甲。如果在中央尖塔中使用，效果加倍。引爆 5 颗红宝石。",
     // Gain 攻/生/甲三段各挂 region 倍率（MultiplyForRegion4001 中央尖塔）；「引爆 5 颗红宝石」= 红色池随机爆破 5
     build: skill(
+      // native order: IncreaseAttack, IncreaseArmor, IncreaseHealth (R001)
       attack('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
-      heal('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
       armor('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
+      heal('allySelf', 1, 0.8, { condMult: REGION2('CentralSpire') }),
       explodeRandomGems(5, 0, 'color', BaseColor.Red),
     ),
   },
