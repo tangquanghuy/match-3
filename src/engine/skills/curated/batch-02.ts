@@ -48,12 +48,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7015,
-    desc: '减除一名敌人 [魔法 + 1] 点护甲值，使他他陷入织网状态并耗掉他所有法力值。',
+    desc: '减除一名敌人 [魔法 + 1] 点护甲值，使他陷入织网状态并耗掉他所有法力值。',
     build: skill(
-      reduce('enemyChosen', 'armor', 1),
-      inflict('web', 'enemyChosen'),
+      // sa-F: native order DecreaseMana 100 -> DecreaseArmor -> CauseWeb (R001)
       // 「耗掉他所有法力值」= 清空语义
       drainMana('enemyChosen'),
+      reduce('enemyChosen', 'armor', 1),
+      inflict('web', 'enemyChosen'),
     ),
   },
   {

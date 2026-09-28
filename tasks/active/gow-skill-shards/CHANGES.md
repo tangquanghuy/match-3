@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 554 条改动，涉及 1005 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 556 条改动，涉及 1007 个技能 ID。
 
 ## 按时间
 
@@ -560,6 +560,8 @@
 | 2026-09-28T21:19 | sa-F | L3-F-6128 | assembler | 7229 | troop:6128 Hobgoblin | `src/engine/skills/curated/batch-r15.ts` | second hit plain random enemy → second hit RandomPrefNotPrevEnemy (native) |  |
 | 2026-09-28T21:19 | sa-F | L3-F-6214 | assembler | 7356 | troop:6214 DwarvenSlayer | `src/engine/skills/curated/batch-r7.ts` | one self-sacrifice: a Barrier saved the caster → two self-sacrifice steps (native two Damage@Self 10000): Barrier popped, then dies |  |
 | 2026-09-28T21:23 | sa-F | L3-F-6975 | data | 8478 | troop:6975 Metztli | `src/engine/skills/curated/batch-p39.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH typo 在召唤 → ZH 再召唤; behaviour unchanged |  |
+| 2026-09-28T21:24 | sa-F | L3-F-6015 | assembler | 7015 | troop:6015 SpiderQueen | `src/engine/skills/curated/batch-02.ts`<br>`src/data/gowSnapshotOverrides.json` | Armor, Web, then drain; ZH 他他 → drain all Mana -> Armor -> Web (native order, R001); ZH typo fixed |  |
+| 2026-09-28T21:24 | sa-F | L3-F-6789 | data | 8180 | troop:6789 TheGrayKing | `src/engine/skills/curated/batch-r11.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH [魔法 + 9]  真实伤害 → ZH [魔法 + 9] 点真实伤害; behaviour unchanged |  |
 
 ## 按技能 ID
 
@@ -576,6 +578,7 @@
 | 7006 | 1 | L5-C-6007-random-burn |
 | 7009 | 1 | P-create-interleave |
 | 7014 | 1 | L4a-R1-7014-order |
+| 7015 | 1 | L3-F-6015 |
 | 7022 | 1 | F3-q18 |
 | 7023 | 1 | L1-charm-instant |
 | 7024 | 1 | F2-R001-order |
@@ -923,6 +926,7 @@
 | 8169 | 1 | P-create-interleave |
 | 8176 | 1 | P-E-faction-kingdom |
 | 8178 | 1 | P-E-faction-kingdom |
+| 8180 | 1 | L3-F-6789 |
 | 8182 | 1 | L5-C-6791-precount |
 | 8184 | 1 | L4a-r3-6793 |
 | 8193 | 1 | L1-6786-summons |

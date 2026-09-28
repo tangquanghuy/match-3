@@ -347,6 +347,16 @@
       "spellId": 8478,
       "reason": "sa-F: English Metztli 'Then conjure a Darkstorm'; old Chinese had typo 在 for 再.",
       "spellDescription": "耗掉一名敌人所有法力值。若存在风暴，则使他陷入死亡标记效果。再召唤暗风暴。"
+    },
+    "6015": {
+      "spellId": 7015,
+      "reason": "sa-F: English Spider Queen text; old Chinese had a doubled pronoun (他他).",
+      "spellDescription": "减除一名敌人 [魔法 + 1] 点护甲值，使他陷入织网状态并耗掉他所有法力值。"
+    },
+    "6789": {
+      "spellId": 8180,
+      "reason": "sa-F: English The Gray King '[Magic + 9] true damage'; old Chinese dropped the unit (double space).",
+      "spellDescription": "摧毁所有选定颜色的宝石。所有使用此颜色的敌人都受到 [魔法 + 9] 点真实伤害，耗尽所有法力值，并陷入沉默和冻结状态。"
     }
   }
 }

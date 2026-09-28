@@ -202,3 +202,15 @@ describe('sa-F B07: mana drain + storms / target colours', () => {
     expect([...picked].sort()).toEqual(['Blue', 'Yellow']);
   });
 });
+
+describe('sa-F B08: drain order / chosen-colour enemies', () => {
+  it('troop:6015 SpiderQueen (7015): drain all Mana, then Armor, then Web (native order)', () => {
+    expect(order(castSpell({ key: 'troop:6015' }))).toEqual(['buff E11 mana-8', 'buff E11 armor-10', 'status E11 +web']);
+  });
+  it('troop:6789 TheGrayKing (8180): only enemies of the chosen colour are hit, drained, Silenced and Frozen', () => {
+    const r = castSpell({ key: 'troop:6789', color: BaseColor.Red, enemies: [en({ mana: 5 }), en({ mana: 5, colors: [BaseColor.Blue] }), en({ mana: 5, colors: [BaseColor.Green, BaseColor.Red] })] });
+    const hits = order(r).filter(o => /^(dmg|buff|status) /.test(o));
+    expect(hits).toEqual(['dmg E10 19 (all)', 'dmg E12 19 (all)', 'buff E10 mana-5', 'buff E12 mana-5',
+      'status E10 +silence', 'status E12 +silence', 'status E10 +frozen', 'status E12 +frozen']);
+  });
+});

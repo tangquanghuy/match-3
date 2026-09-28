@@ -1,4 +1,14 @@
 {
+ "troop:6015": {
+  "lines": {
+   "L10": "buff E11 mana-8 ; buff E11 armor-10 ; status E11 +web  => E11:arm-10 mana-8 +web",
+   "R10": "buff E11 mana-8 ; buff E11 armor-10 ; status E11 +web  => E11:arm-10 mana-8 +web",
+   "L0": "buff E11 mana-8 ; buff E11 armor-1 ; status E11 +web  => E11:arm-1 mana-8 +web",
+   "K": "buff E11 mana-5 ; status E11 +web  => E11:mana-5 +web"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:24:30.780Z"
+ },
  "troop:6036": {
   "lines": {
    "L10": "convert Green x2, Purple x3, Brown x1, Red x1 -> skull x7 ; buff C armor+12 ; extra-turn skill  => C:arm+12  extra:skill",
@@ -469,6 +479,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:22:07.897Z"
  },
+ "troop:6789": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 19 (all) ; buff E11 mana-8 ; status E11 +silence ; status E11 +frozen  => E11:hp-19 mana-8 +silence+frozen  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 19 (all) ; buff E11 mana-8 ; status E11 +silence ; status E11 +frozen  => E11:hp-19 mana-8 +silence+frozen  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 9 (all) ; buff E11 mana-8 ; status E11 +silence ; status E11 +frozen  => E11:hp-9 mana-8 +silence+frozen  cascade",
+   "K": "destroy 11 (Blue x11) ; ~cascade~  cascade"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:24:30.780Z"
+ },
  "troop:6792": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8  => E11:mana-8",
@@ -619,6 +639,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:22:49.913Z"
  },
+ "troop:6911": {
+  "lines": {
+   "L10": "buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4 ; buff C armor+11 ; buff C hp+11 max+11  => E10:mana-4 | E11:mana-4 | E12:mana-4 | E13:mana-4 | C:hp+11 max+11 arm+11",
+   "R10": "buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4 ; buff C armor+11 ; buff C hp+11 max+11  => E10:mana-4 | E11:mana-4 | E12:mana-4 | E13:mana-4 | C:hp+11 max+11 arm+11",
+   "L0": "buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4 ; buff C armor+1 ; buff C hp+1 max+1  => E10:mana-4 | E11:mana-4 | E12:mana-4 | E13:mana-4 | C:hp+1 max+1 arm+1",
+   "K": "buff E10 mana-4 ; buff E11 mana-4 ; buff E12 mana-4 ; buff E13 mana-4 ; buff C armor+11 ; buff C hp+11 max+11  => E10:mana-4 | E11:mana-4 | E12:mana-4 | E13:mana-4 | C:hp+11 max+11 arm+11"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:24:30.780Z"
+ },
  "troop:6925": {
   "lines": {
    "L10": "dmg E12 15 ; dmg E11 15 ; extra-turn skill  => E12:hp-3 arm-12 | E11:hp-5 arm-10  extra:skill",
@@ -648,6 +678,16 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T12:52:12.441Z"
+ },
+ "troop:6967": {
+  "lines": {
+   "L10": "buff E11 mana-7 ; buff E11 magic-6 ; status E11 +stun ; status E11 +entangle  => E11:mag-6 mana-7 +stun+entangle",
+   "R10": "buff E11 mana-7 ; buff E11 magic-6 ; status E11 +stun ; status E11 +entangle  => E11:mag-6 mana-7 +stun+entangle",
+   "L0": "buff E11 mana-7 ; buff E11 magic-1 ; status E11 +stun ; status E11 +entangle  => E11:mag-1 mana-7 +stun+entangle",
+   "K": "buff E11 mana-5 ; buff E11 magic-6 ; status E11 +stun ; status E11 +entangle  => E11:mag-6 mana-5 +stun+entangle"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:24:30.780Z"
  },
  "troop:6975": {
   "lines": {
@@ -1778,6 +1818,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:23:09.976Z"
+ },
+ "weapon:1085": {
+  "lines": {
+   "L10": "buff E10 mana-6 ; buff E13 mana-10 ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => E10:mana-6 | E13:mana-10 | C:mag+1 | A1:mag+1 | A2:mag+1",
+   "R10": "buff E10 mana-6 ; buff E13 mana-10 ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => E10:mana-6 | E13:mana-10 | C:mag+1 | A1:mag+1 | A2:mag+1",
+   "L0": "buff E10 mana-6 ; buff E13 mana-10 ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => E10:mana-6 | E13:mana-10 | C:mag+1 | A1:mag+1 | A2:mag+1",
+   "K": "buff E10 mana-5 ; buff E13 mana-5 ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => E10:mana-5 | E13:mana-5 | C:mag+1 | A1:mag+1 | A2:mag+1"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:24:30.780Z"
  },
  "weapon:1087": {
   "lines": {

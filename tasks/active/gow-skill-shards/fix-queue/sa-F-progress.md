@@ -6,3 +6,4 @@
 - B05 troop:6477,troop:6543,troop:6679,troop:6531,weapon:1087 approve=5 fixed=0 issue=0 (6543/6531 R000 waived boss c2/step0; 6477 either-kill extra turn tested)
 - B06 troop:7675,troop:6680,troop:6761,troop:7017,troop:6155 approve=5 fixed=0 issue=0 (7675/6680 R000 waived tower c2/step0; independent chance rolls tested)
 - B07 troop:7040,troop:6180,troop:6975,troop:7372,troop:7882 approve=5 fixed=1 issue=0 (6975 ZH typo; storm check before own Darkstorm tested; 7882 random target colour tested)
+- B08 troop:6015,weapon:1085,troop:6967,troop:6911,troop:6789 approve=5 fixed=2 issue=0 (6015 native order drain->armor->web + ZH; 6789 ZH unit; chosen-colour targets tested)
