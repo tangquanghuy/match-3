@@ -204,7 +204,7 @@ describe('L3 weapon:1226/spell:7952 [Magic+3] to all (+1 per Tempering), Red -> 
    {kind:'damage',target:'enemyAll',scaling:{base:3,mult:1},range:'all',modifier:{mod:{kind:'multiplier',a:1},source:{kind:'tempering'}}},
    {kind:'gem',params:{op:'transform',from:'Red',to:'SKULL',toSpecial:'doomSkull'}},
    {kind:'gem',params:{op:'create',gem:{kind:'special',spec:{kind:'doomSkull'}},count:{base:5,mult:0}},ifCond:{kind:'targetHasDoom'}},
-   {kind:'buff',target:'allySelf',stat:'mana',scaling:{base:0,mult:0},modifier:{mod:{kind:'multiplier',a:3},source:{kind:'enemiesOfColor',color:'Blue'}}}]};
+   {kind:'buff',target:'allySelf',stat:'mana',scaling:{base:0,mult:0},modifier:{mod:{kind:'multiplier',a:3},source:{kind:'enemiesOfColor',color:'Blue',atCastStart:true}}}]};
   expect(registry.prototypes.get('7952')).toEqual(proto);expect(registry.prototypes.get('gw_DoomedBlade')).toEqual(proto);
  });
  for(const side of SIDES)for(const alias of ['7952','gw_DoomedBlade'])for(const magic of [0,10])

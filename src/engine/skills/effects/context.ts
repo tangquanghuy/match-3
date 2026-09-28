@@ -137,6 +137,12 @@ export interface CastTracking {
    * 离场后，按其施法开始时的位置解析上方／下方的存活单位。
    */
   formationAtCastStart?: Partial<Record<'Left' | 'Right', number[]>>;
+  /**
+   * P-R1-count-at-native-step: shallow copies of the units alive at cast start, per side. Army count sources
+   * with `atCastStart` (native CountArmyColor / CountArmyType / CountArmyKingdom at step 0) read this, so a
+   * unit killed by an earlier segment of the same spell is still counted.
+   */
+  unitsAtCastStart?: Partial<Record<'Left' | 'Right', Character[]>>;
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */

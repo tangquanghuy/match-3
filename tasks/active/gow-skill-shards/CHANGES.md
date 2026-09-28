@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 279 条改动，涉及 510 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 280 条改动，涉及 528 个技能 ID。
 
 ## 按时间
 
@@ -285,6 +285,7 @@
 | 2026-09-28T05:44 | sa-P | R011 | primitive | 9661, 9594, 8469 | troop:7700 Gormungandr；troop:7666 WaterbornTemplar；troop:6966 SpringEmissary | `src/engine/skills/effects/status.ts`<br>`tests/unit/gowFixR011.test.ts` | applyStatus: a Blessed unit rejected every status except blessed/curse (positives too: Barrier, Enchanted, Reflect, Enraged, Submerged) → Blessed blocks only negative statuses (R004 resetting-negative set + negative cleanse set, curse family excluded: curse still cancels blessed); positives apply normally | every skill/trait/gem giving a positive status to a Blessed unit; bless-then-positive spells 9661 (troop:7700), 9594 (troop:7666), 8469 (troop:6966) |
 | 2026-09-28T05:55 | sa-P | R012 | primitive | 8414, 7563, 9385, 9862, 7790, 8590, 9258, 9371, 9162, 8248 | troop:6926 Smashedmouth；weapon:1156 Thingamabob；weapon:1605 SagittariansBow；troop:7818 TwistedHag；troop:6586 Umbraxis；troop:7062 Leanansidhe；troop:7512 FirebornLynx；troop:7575 ImmortalAquaria；weapon:1550 NightShear；troop:6843 MotherOfDarkness | `src/engine/skills/targeting.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/summon.ts`<br>`tests/unit/gowFixR012.test.ts` | BelowTarget/AboveTarget/NextDown/ChosenAndBelow/ChosenAndNextDown/Adjacent anchored on the chosen unit's current formation index and returned [] once an earlier step of the same cast killed it → castTracking.formationAtCastStart (ids per team at cast start); when the anchor left the roster, above/below = units before/after its cast-start slot (NextDown = first surviving below); Adjacent = its cast-start neighbours that are still alive (no shifting further); anchor alive: unchanged. troop:6843 8248 single-segment ChosenAndNextDown kept (equivalent) | every prototype using enemyBelowTarget/enemyAboveTarget/allyBelowTarget/enemyNextDown/enemyChosenAndNextDown/enemyChosenAndBelow/enemyChosenAndAdjacent (33 entities; 9 change in K) |
 | 2026-09-28T06:00 | sa-P | R010 | test | 7052 | troop:6052 Zombie | `tests/unit/gowFixR010.test.ts` | no test for removed special gems → test: removed bomb/doomSkull/manaPotionGem do not trigger, destroyed ones do; runtime unchanged |  |
+| 2026-09-28T08:36 | sa-P | P-R1-count-at-native-step | primitive | 7207, 7237, 7797, 9237, 7568, 7655, 7656, 7657, 7658, 7659, 7660, 7952, 7963, 7973, 8053, 8077, 8078, 8391, 8392, 9211, 9212, 9213, 9214, 9215, 9216, 8758 | troop:6115 Ranger；troop:6135 GarNok；troop:6593 FallenValdis；troop:7492 Amatiel；weapon:1158 Runeforger；weapon:1180 DoomedTome；weapon:1181 DoomedLibram；weapon:1182 DoomedOpus；weapon:1183 DoomedScripture；weapon:1184 DoomedChronicle；weapon:1185 DoomedCodex；weapon:1226 DoomedBlade；weapon:1229 DoomedClub；weapon:1233 DoomedCrossbow；weapon:1248 DoomedGlaive；weapon:1257 DoomedAxe；weapon:1258 DoomedScythe；weapon:1357 DevilsBane；weapon:1358 HammerOfForce；weapon:1563 DoomedCorseque；weapon:1564 DoomedFauchard；weapon:1565 DoomedImpaler；weapon:1566 DoomedSpear；weapon:1567 DoomedVoulge；weapon:1568 DoomedSpade；troop:7188 FireBeetle | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-30.ts`<br>`src/engine/skills/curated/batch-r21.ts`<br>`src/engine/skills/curated/batch-r13.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`tests/unit/gowFixP-R1-count-at-native-step.test.ts`<br>`tests/unit/gowLaneL3B05.test.ts` | army count sources (teamSize/alliesOf*/enemiesOf* Race/Kingdom/Color) read the live roster when the consuming segment runs: units killed by an earlier segment of the same spell were no longer counted → new atCastStart flag reads castTracking.unitsAtCastStart (alive units at cast start, native Count* at step 0); set on the 26 spells whose native step-0 Count precedes a segment that can kill the counted side | situational: only when a counted unit dies earlier in the same cast; ally-only counts after enemy damage left unflagged (no observable change) |
 
 ## 按技能 ID
 
@@ -331,6 +332,7 @@
 | 7169 | 1 | L4b-7276-singlegem |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
+| 7207 | 1 | P-R1-count-at-native-step |
 | 7208 | 1 | P-prefnotprev-semantics |
 | 7210 | 1 | L1-consume-first |
 | 7211 | 1 | F1-steal-before-damage |
@@ -339,6 +341,7 @@
 | 7232 | 1 | F2-R001-order |
 | 7233 | 1 | F1-items-62-75 |
 | 7236 | 2 | P-random-stat-pool、F1-items-54-60 |
+| 7237 | 1 | P-R1-count-at-native-step |
 | 7240 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7244 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7245 | 1 | F1-onkill-order |
@@ -420,7 +423,7 @@
 | 7560 | 1 | P-random-stat-pool |
 | 7561 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 7563 | 2 | R3-B11-1156、R012 |
-| 7568 | 2 | P-counter-per-step、L4a-R1-7568-random-gem |
+| 7568 | 3 | P-counter-per-step、L4a-R1-7568-random-gem、P-R1-count-at-native-step |
 | 7574 | 1 | L2-6416-branch-weights |
 | 7576 | 1 | F2-R001-order |
 | 7577 | 1 | F2-1159-boost-source |
@@ -437,6 +440,12 @@
 | 7646 | 1 | F3-q07 |
 | 7647 | 1 | L1-6469-order |
 | 7654 | 1 | P-prefnotprev-semantics |
+| 7655 | 1 | P-R1-count-at-native-step |
+| 7656 | 1 | P-R1-count-at-native-step |
+| 7657 | 1 | P-R1-count-at-native-step |
+| 7658 | 1 | P-R1-count-at-native-step |
+| 7659 | 1 | P-R1-count-at-native-step |
+| 7660 | 1 | P-R1-count-at-native-step |
 | 7666 | 1 | P-prefnotprev-semantics |
 | 7668 | 1 | L3-010 |
 | 7670 | 1 | P-F3-prehit-target-compare |
@@ -460,7 +469,7 @@
 | 7786 | 1 | P-prefnotprev-semantics |
 | 7790 | 1 | R012 |
 | 7791 | 2 | F3-q21、P-F3-lasttarget-damaged |
-| 7797 | 1 | L4a-R1-7797-order |
+| 7797 | 2 | L4a-R1-7797-order、P-R1-count-at-native-step |
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
@@ -474,10 +483,10 @@
 | 7941 | 1 | F2-6623-column-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
-| 7952 | 2 | L3-015、L3-016 |
-| 7963 | 2 | L3-015、L3-016 |
+| 7952 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
+| 7963 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
 | 7964 | 1 | L4a-R1-7230-7964-count |
-| 7973 | 2 | L3-015、L3-016 |
+| 7973 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
 | 7975 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7978 | 1 | L5-013 |
 | 7983 | 1 | P-counter-per-step |
@@ -486,12 +495,12 @@
 | 8035 | 1 | F2-R001-order |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
 | 8052 | 1 | R3-B03-1247 |
-| 8053 | 2 | L3-015、L3-016 |
+| 8053 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
-| 8077 | 2 | L3-015、L3-016 |
-| 8078 | 2 | L3-015、L3-016 |
+| 8077 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
+| 8078 | 3 | L3-015、L3-016、P-R1-count-at-native-step |
 | 8083 | 1 | L7-R1-lethal-order-doomskull |
 | 8084 | 1 | L5-007 |
 | 8097 | 1 | F3-q06 |
@@ -535,6 +544,8 @@
 | 8373 | 1 | R3-B03-6912 |
 | 8389 | 1 | L1-1351-pool |
 | 8390 | 1 | P-prefnotprev-semantics |
+| 8391 | 1 | P-R1-count-at-native-step |
+| 8392 | 1 | P-R1-count-at-native-step |
 | 8393 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8403 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 8404 | 3 | L5-001、L5-002、L5-003 |
@@ -611,6 +622,7 @@
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8755 | 1 | F2-R001-order |
+| 8758 | 1 | P-R1-count-at-native-step |
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |
@@ -684,8 +696,15 @@
 | 9193 | 1 | L4a-R1-9193-random-explode |
 | 9197 | 1 | L2-singlegem-cell |
 | 9199 | 1 | P-prefnotprev-semantics |
+| 9211 | 1 | P-R1-count-at-native-step |
+| 9212 | 1 | P-R1-count-at-native-step |
+| 9213 | 1 | P-R1-count-at-native-step |
+| 9214 | 1 | P-R1-count-at-native-step |
+| 9215 | 1 | P-R1-count-at-native-step |
+| 9216 | 1 | P-R1-count-at-native-step |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
+| 9237 | 1 | P-R1-count-at-native-step |
 | 9241 | 1 | P-random-stat-pool |
 | 9244 | 1 | L4b-7499-dragon |
 | 9258 | 1 | R012 |

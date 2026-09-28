@@ -680,6 +680,19 @@ function isSkull(gemType: import('../../types').GemType): boolean {
  * 解析来源计数（段执行时刻）。
  * 跨段追踪（destroyed/transformed/drainedMana/主目标）缺省时按 0 计。
  */
+/**
+ * Alive units of the caster's ally / enemy side. atCastStart (P-R1-count-at-native-step) reads
+ * castTracking.unitsAtCastStart and keys the side off ctx.casterSide when the caster already left the roster.
+ */
+function armyUnits(ctx: EffectContext, which: 'ally' | 'enemy', atCastStart?: boolean): Character[] {
+  const snapshot = atCastStart ? ctx.castTracking?.unitsAtCastStart : undefined;
+  const side = findSide(ctx.state, ctx.casterId) ?? (snapshot ? ctx.casterSide ?? null : null);
+  if (side === null) return [];
+  const targetSide = which === 'ally' ? side : (side === 'Left' ? 'Right' : 'Left');
+  if (snapshot) return snapshot[targetSide] ?? [];
+  return ctx.state.teams[targetSide].characters.filter((c) => !c.defeated);
+}
+
 export function resolveModifierCount(source: ModifierSource, ctx: EffectContext): number {
   const tracking = ctx.castTracking;
   switch (source.kind) {
@@ -746,37 +759,21 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       const caster = findCharacter(ctx.state, ctx.casterId);
       return caster ? statOf(caster, source.stat) : 0;
     }
-    case 'teamSize': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const targetSide = source.side === 'ally' ? side : (side === 'Left' ? 'Right' : 'Left');
-      return ctx.state.teams[targetSide].characters.filter((c) => !c.defeated).length;
-    }
-    case 'alliesOfRace': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      return ctx.state.teams[side].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
-    }
-    case 'enemiesOfRace': {
+    // Army counts (native CountArmyColor / CountArmyType / CountArmyKingdom). atCastStart reads the units alive at
+    // cast start (P-R1-count-at-native-step), otherwise the live roster when the consuming segment runs.
+    case 'teamSize':
+      return armyUnits(ctx, source.side, source.atCastStart).length;
+    case 'alliesOfRace':
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => hasTroopType(c, source.race)).length;
+    case 'enemiesOfRace':
       // 敌方该种族存活计数（K-E 批，与 alliesOfRace 对称、敌方侧形态补齐）
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
-    }
-    case 'alliesOfKingdom': {
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => hasTroopType(c, source.race)).length;
+    case 'alliesOfKingdom':
       // 施法方该王国存活盟友数（Wave4 批，与 alliesOfRace 对称，按 kingdom 筛选）
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      return ctx.state.teams[side].characters.filter((c) => !c.defeated && c.kingdom === source.kingdom).length;
-    }
-    case 'enemiesOfKingdom': {
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
+    case 'enemiesOfKingdom':
       // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && c.kingdom === source.kingdom).length;
-    }
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
     case 'enemyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
@@ -787,23 +784,12 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
           : c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0)),
       ).length;
     }
-    case 'alliesOfColor': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      return ctx.state.teams[side].characters.filter(
-        (c) => !c.defeated && c.colors.includes(source.color),
-      ).length;
-    }
-    case 'enemiesOfColor': {
+    case 'alliesOfColor':
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.colors.includes(source.color)).length;
+    case 'enemiesOfColor':
       // 敌方该法力色存活计数（R13 批，官方 CountArmyColor Target=AllEnemies）：
       // 与 alliesOfColor 同构，仅换算敌方侧。
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter(
-        (c) => !c.defeated && c.colors.includes(source.color),
-      ).length;
-    }
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => c.colors.includes(source.color)).length;
     case 'allyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;

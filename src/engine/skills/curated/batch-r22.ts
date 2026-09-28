@@ -144,7 +144,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「随机分配给所有敌人」= 随机切点分摊（splitRandom，R22 新原语）；[x4] 按存活敌军数增强总额。
     build: skill(
     dmg('enemyChosen', 4, 1),
-    dmg('enemyAll', 8, 0, { splitRandom: true, modifier: boostPer({ kind: 'teamSize', side: 'enemy' }, 4) }),
+    dmg('enemyAll', 8, 0, { splitRandom: true, modifier: boostPer({ kind: 'teamSize', side: 'enemy', atCastStart: true }, 4) }),
     ),
   },
   {

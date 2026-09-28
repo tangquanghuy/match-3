@@ -362,7 +362,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue, atCastStart: true } } }),
     ),
   },
   {
@@ -391,7 +391,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Brown } } }),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Brown, atCastStart: true } } }),
     ),
   },
   {
@@ -428,7 +428,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red, atCastStart: true } } }),
     ),
   },
   {
@@ -539,7 +539,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green } } }),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green, atCastStart: true } } }),
     ),
   },
   {
@@ -610,7 +610,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow } } }),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow, atCastStart: true } } }),
     ),
   },
   {
@@ -622,7 +622,7 @@ const SPELLS: CuratedBatch['spells'] = [
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple } } }),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple, atCastStart: true } } }),
     ),
   },
   {
@@ -1389,7 +1389,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 4] 点伤害。有 4% 的几率直接杀死对方，几率因恶魔敌人数而增强。 [x4]',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Daemon' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Daemon', atCastStart: true } } }),
     ),
   },
   {
@@ -1397,7 +1397,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 4] 点伤害。有 4% 的几率直接杀死对方，几率因元素敌人数而增强。 [x4]',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Elemental' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Elemental', atCastStart: true } } }),
     ),
   },
   {

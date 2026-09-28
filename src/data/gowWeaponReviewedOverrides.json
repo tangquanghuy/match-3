@@ -1574,7 +1574,8 @@
                 },
                 "source": {
                   "kind": "enemiesOfColor",
-                  "color": "Blue"
+                  "color": "Blue",
+                  "atCastStart": true
                 }
               }
             },
@@ -1585,7 +1586,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Blue"
+                "color": "Blue",
+                "atCastStart": true
               }
             }
           },
@@ -1656,7 +1658,8 @@
                 },
                 "source": {
                   "kind": "enemiesOfColor",
-                  "color": "Green"
+                  "color": "Green",
+                  "atCastStart": true
                 }
               }
             },
@@ -1667,7 +1670,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Green"
+                "color": "Green",
+                "atCastStart": true
               }
             }
           },
@@ -1738,7 +1742,8 @@
                 },
                 "source": {
                   "kind": "enemiesOfColor",
-                  "color": "Red"
+                  "color": "Red",
+                  "atCastStart": true
                 }
               }
             },
@@ -1749,7 +1754,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Red"
+                "color": "Red",
+                "atCastStart": true
               }
             }
           },
@@ -1820,7 +1826,8 @@
                 },
                 "source": {
                   "kind": "enemiesOfColor",
-                  "color": "Yellow"
+                  "color": "Yellow",
+                  "atCastStart": true
                 }
               }
             },
@@ -1831,7 +1838,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Yellow"
+                "color": "Yellow",
+                "atCastStart": true
               }
             }
           },
@@ -1902,7 +1910,8 @@
                 },
                 "source": {
                   "kind": "enemiesOfColor",
-                  "color": "Purple"
+                  "color": "Purple",
+                  "atCastStart": true
                 }
               }
             },
@@ -1913,7 +1922,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Purple"
+                "color": "Purple",
+                "atCastStart": true
               }
             }
           },
@@ -1984,7 +1994,8 @@
                 },
                 "source": {
                   "kind": "enemiesOfColor",
-                  "color": "Brown"
+                  "color": "Brown",
+                  "atCastStart": true
                 }
               }
             },
@@ -1995,7 +2006,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Brown"
+                "color": "Brown",
+                "atCastStart": true
               }
             }
           },
@@ -2359,7 +2371,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Blue"
+                "color": "Blue",
+                "atCastStart": true
               }
             }
           }
@@ -2433,7 +2446,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Brown"
+                "color": "Brown",
+                "atCastStart": true
               }
             }
           }
@@ -2504,7 +2518,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Red"
+                "color": "Red",
+                "atCastStart": true
               }
             }
           }
@@ -2850,7 +2865,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Green"
+                "color": "Green",
+                "atCastStart": true
               }
             }
           }
@@ -3041,7 +3057,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Yellow"
+                "color": "Yellow",
+                "atCastStart": true
               }
             }
           }
@@ -3112,7 +3129,8 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Purple"
+                "color": "Purple",
+                "atCastStart": true
               }
             }
           }

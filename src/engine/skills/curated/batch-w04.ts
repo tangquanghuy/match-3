@@ -154,7 +154,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Blue, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'enemiesOfColor', color: BaseColor.Blue }] } }),
+      createGems(BaseColor.Blue, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Blue, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -163,7 +163,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名绿色盟友和敌人则创造 2 颗绿色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Green, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'enemiesOfColor', color: BaseColor.Green }] } }),
+      createGems(BaseColor.Green, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Green, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -172,7 +172,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名红色盟友和敌人则创造 2 颗红色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Red, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red }, { kind: 'enemiesOfColor', color: BaseColor.Red }] } }),
+      createGems(BaseColor.Red, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Red, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -181,7 +181,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名黄色盟友和敌人则创造 2 颗黄色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Yellow, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'enemiesOfColor', color: BaseColor.Yellow }] } }),
+      createGems(BaseColor.Yellow, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Yellow, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -190,7 +190,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名紫色盟友和敌人则创造 2 颗紫色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Purple, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple }, { kind: 'enemiesOfColor', color: BaseColor.Purple }] } }),
+      createGems(BaseColor.Purple, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Purple, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -199,7 +199,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名棕色盟友和敌人则创造 2 颗棕色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Brown, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
+      createGems(BaseColor.Brown, 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Brown, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },

@@ -916,8 +916,12 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     const colorsAtCastStart: Record<number, BaseColor[]> = {};
     // R012: formation order at cast start (anchor slot for relative targets after the anchor died).
     const formationAtCastStart: Partial<Record<'Left' | 'Right', number[]>> = {};
+    // P-R1-count-at-native-step: alive units at cast start (army counts of native step-0 Count* steps).
+    const unitsAtCastStart: Partial<Record<'Left' | 'Right', Character[]>> = {};
     for (const side of ['Left', 'Right'] as const) {
       formationAtCastStart[side] = ctx.state.teams[side].characters.map((c) => c.id);
+      unitsAtCastStart[side] = ctx.state.teams[side].characters.filter((c) => !c.defeated)
+        .map((c) => ({ ...c, colors: [...c.colors], statuses: c.statuses.map((s) => ({ ...s })) }));
       for (const c of ctx.state.teams[side].characters) {
         const active = c.statuses.filter((s) => s.turns > 0).map((s) => s.id);
         if (active.length > 0) snapshot[c.id] = active;
@@ -946,6 +950,7 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
       statusesAtCastStart: snapshot,
       colorsAtCastStart,
       formationAtCastStart,
+      unitsAtCastStart,
     };
   }
   return ctx.castTracking;

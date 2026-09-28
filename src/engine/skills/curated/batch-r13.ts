@@ -226,8 +226,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: {
           mod: { kind: 'multiplier', a: 1 },
           sources: [
-            { kind: 'alliesOfColor', color: BaseColor.Red },
-            { kind: 'enemiesOfColor', color: BaseColor.Red },
+            { kind: 'alliesOfColor', color: BaseColor.Red, atCastStart: true },
+            { kind: 'enemiesOfColor', color: BaseColor.Red, atCastStart: true },
           ],
         },
       }),
