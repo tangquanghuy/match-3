@@ -15,7 +15,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7521,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，点数因棕色宝石数而增强。赋予一名随机盟友一项随机状态效果。 [3:1]',
     build: skill(
-      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      // sa-R6：原生 CountGems Brown Amount 34 = [3:1]（R003，floor(n × 34%)）；原为每颗棕色 +3
+      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
       inflictRandom('allyRandom'),
     ),
   },

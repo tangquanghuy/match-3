@@ -268,41 +268,131 @@ describe('L2 R2 batch 03', () => {
   });
 });
 
+const gem = (c: string) => (c === 'Skull' ? { kind: 'skull' } : { kind: 'color', color: c }) as never;
+/** 3x3 around (3,3): `n` ring cells + optionally the centre of `colour`, the rest alternating two other colours. */
+const around = (colour: string, n: number, centre: boolean) => {
+  const [a, b] = ['Red', 'Purple', 'Blue', 'Green'].filter(c => c !== colour);
+  const ring = ['2,2', '2,3', '2,4', '3,2', '3,4', '4,2', '4,3', '4,4'];
+  const cells: Record<string, never> = {};
+  ring.forEach(k => { const [r, c] = k.split(',').map(Number); cells[k] = gem((r + c) % 2 ? a : b); });
+  ['2,2', '2,4', '4,3'].slice(0, n).forEach(k => { cells[k] = gem(colour); });
+  cells['3,3'] = gem(centre ? colour : a);
+  return withCells(reviewBoard, cells);
+};
+type GolemRow = readonly [key: string, colour: string, status: string, side: 'ally' | 'enemy'];
+/** One status per `colour` gem in the chosen 3x3 (centre included), each on a random unit of `side`. */
+function checkGolem([key, colour, st, side]: GolemRow) {
+  for (const [n, centre, want] of [[0, false, 0], [3, false, 3], [3, true, 4], [1, true, 2]] as const) {
+    const targets = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const o = castSpell({ key, seed, board: around(colour, n, centre), cell: { row: 3, col: 3 } }).summary.order;
+      expect(o[0]).toBe('explode 9');
+      const hits = o.filter(x => x.endsWith(`+${st}`));
+      hits.forEach(h => targets.add(h.split(' ')[1]));
+      // enemy pool: one event per application; ally pool: a repeat on a unit that already has it may merge
+      if (side === 'enemy') expect(hits).toHaveLength(want); else expect(hits.length).toBeLessThanOrEqual(want);
+      if (want) expect(hits.length).toBeGreaterThan(0);
+      expect(hits.every(h => (side === 'ally' ? /^status (C|A\d) / : /^status E1\d /).test(h))).toBe(true);
+    }
+    if (want >= 3) expect(targets.size).toBeGreaterThan(2); // random per application over the whole side
+  }
+}
+
 describe('L2 R2 batch 04 (golems: CountGems Block3x3 -> ExplodeGems SingleGem -> InflictEffectOnRandomTroops)', () => {
-  const gem = (c: string) => (c === 'Skull' ? { kind: 'skull' } : { kind: 'color', color: c }) as never;
-  /** 3x3 around (3,3): `n` ring cells + optionally the centre of `colour`, the rest alternating two other colours. */
-  const around = (colour: string, n: number, centre: boolean) => {
-    const [a, b] = ['Red', 'Purple', 'Blue', 'Green'].filter(c => c !== colour);
-    const ring = ['2,2', '2,3', '2,4', '3,2', '3,4', '4,2', '4,3', '4,4'];
-    const cells: Record<string, never> = {};
-    ring.forEach(k => { const [r, c] = k.split(',').map(Number); cells[k] = gem((r + c) % 2 ? a : b); });
-    ['2,2', '2,4', '4,3'].slice(0, n).forEach(k => { cells[k] = gem(colour); });
-    cells['3,3'] = gem(centre ? colour : a);
-    return withCells(reviewBoard, cells);
-  };
-  it.each([
+  it.each<GolemRow>([
     ['troop:7204', 'Brown', 'barrier', 'ally'], ['troop:7266', 'Yellow', 'silence', 'enemy'], ['troop:6371', 'Purple', 'enraged', 'ally'],
     ['troop:6797', 'Skull', 'reflect', 'ally'], ['troop:6725', 'Purple', 'curse', 'enemy'], ['troop:6972', 'Red', 'burning', 'enemy'],
     ['troop:6284', 'Blue', 'frozen', 'enemy'], ['troop:6653', 'Green', 'entangle', 'enemy'], ['troop:6989', 'Skull', 'barrier', 'ally'],
-  ] as const)('%s explodes the chosen 3x3; one %s per %s gem in it (centre included) on a random %s', (key, colour, st, side) => {
-    for (const [n, centre, want] of [[0, false, 0], [3, false, 3], [3, true, 4], [1, true, 2]] as const) {
-      const targets = new Set<string>();
-      for (let seed = 1; seed <= 30; seed++) {
-        const o = castSpell({ key, seed, board: around(colour, n, centre), cell: { row: 3, col: 3 } }).summary.order;
-        expect(o[0]).toBe('explode 9');
-        const hits = o.filter(x => x.endsWith(`+${st}`));
-        hits.forEach(h => targets.add(h.split(' ')[1]));
-        // enemy pool: one event per application; ally pool: a repeat on a unit that already has it may merge
-        if (side === 'enemy') expect(hits).toHaveLength(want); else expect(hits.length).toBeLessThanOrEqual(want);
-        if (want) expect(hits.length).toBeGreaterThan(0);
-        expect(hits.every(h => (side === 'ally' ? /^status (C|A\d) / : /^status E1\d /).test(h))).toBe(true);
-      }
-      if (want >= 3) expect(targets.size).toBeGreaterThan(2); // random per application over the whole side
-    }
-  });
+  ])('%s explodes the chosen 3x3; one %s per %s gem in it (centre included) on a random %s', (...row) => checkGolem(row));
 
   it('troop:6972 native order: Armor before Life (independent self buffs)', () => {
     const o = castSpell({ key: 'troop:6972' }).summary.order;
     expect(o.slice(-2)).toEqual(['buff C armor+11', 'buff C hp+11 max+11']);
+  });
+});
+
+describe('L2 R2 batch 05', () => {
+  it.each<GolemRow>([['troop:6458', 'Green', 'submerged', 'ally']])('%s explodes the chosen 3x3; one %s per %s gem in it on a random %s', (...row) => checkGolem(row));
+
+  it('troop:7125 extra turn always, then 2 Wish | damage all | heal others | 3 Wish (native AB+(C-D-E-F), 1/4 each)', () => {
+    const t = new Map<string, number>();
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const s = castSpell({ key: 'troop:7125', seed }).summary;
+      expect(s.order[0]).toBe('extra-turn skill');
+      const o = s.order.join(' ; ');
+      const b = /-> wish x2\b/.test(o) ? 'wish2' : /-> wish x3\b/.test(o) ? 'wish3' : o.includes('(all)') ? 'dmg' : /buff A1 hp\+11/.test(o) ? 'heal' : o;
+      t.set(b, (t.get(b) ?? 0) + 1);
+    }
+    expect([...t.keys()].sort()).toEqual(['dmg', 'heal', 'wish2', 'wish3']);
+    for (const n of t.values()) { expect(n / SEEDS).toBeGreaterThan(0.15); expect(n / SEEDS).toBeLessThan(0.35); }
+    // Wish gems [x5] on damage and heal
+    const board = withCells(reviewBoard, { '3,3': specialGem('wish'), '5,5': specialGem('wish') });
+    const lines = [...tally({ key: 'troop:7125', board }, 60).keys()].join('\n');
+    expect(lines).toContain('dmg E10 21 (all)');
+    expect(lines).toContain('buff A1 hp+21 max+21');
+  });
+
+  it('troop:6369 all allies +[M+1] +34% of Brown gems (R003), one random positive status on a random ally', () => {
+    // review board: 8 Brown -> floor(8 x 34%) = 2
+    expect(castSpell({ key: 'troop:6369' }).summary.order.slice(0, 3)).toEqual(['buff C hp+13 max+13', 'buff A1 hp+13 max+13', 'buff A2 hp+13 max+13']);
+    const brown = withCells(reviewBoard, Object.fromEntries(['0,1', '0,3', '0,5', '0,7', '1,0', '1,2', '1,4'].map(k => [k, gem('Brown')])));
+    const n = Number(/hp\+(\d+)/.exec(castSpell({ key: 'troop:6369', board: brown }).summary.order[0])![1]) - 11;
+    expect(n).toBeGreaterThanOrEqual(2); expect(n).toBeLessThanOrEqual(5); // 8..15 Brown -> 2..5, never 3 per gem
+    const who = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const st = castSpell({ key: 'troop:6369', seed }).summary.order.filter(x => x.startsWith('status '));
+      expect(st).toHaveLength(1);
+      who.add(st[0].split(' ')[1]);
+    }
+    expect([...who].sort()).toEqual(['A1', 'A2', 'C']);
+  });
+
+  it('troop:7530 one Barrier on a random ally per Ghost gem on the board, then [M+1] Armor', () => {
+    const board = withCells(reviewBoard, { '3,3': specialGem('ghost'), '5,1': specialGem('ghost'), '6,4': specialGem('ghost') });
+    const who = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = castSpell({ key: 'troop:7530', seed, board }).summary.order;
+      expect(o.at(-1)).toBe('buff C armor+11');
+      const b = o.filter(x => x.endsWith('+barrier'));
+      expect(b.length).toBeGreaterThan(0); expect(b.length).toBeLessThanOrEqual(3);
+      b.forEach(x => who.add(x.split(' ')[1]));
+    }
+    expect([...who].sort()).toEqual(['A1', 'A2', 'C']);
+  });
+
+  it('troop:7829 Either [M+4] heavy splash (75%) on a random enemy +3 per Poison gem, OR all Yellow -> Poison gems (1/2 each)', () => {
+    let conv = 0; const centres = new Set<string>();
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = castSpell({ key: 'troop:7829', seed }).summary.order;
+      if (o[0] === 'convert Yellow x9 -> poisonGem x9') { conv++; continue; }
+      expect(o[0]).toMatch(/^dmg E1\d 14 \(splash\)$/);
+      expect(o.slice(1).every(x => / 10 \(splash\)$/.test(x))).toBe(true); // floor(14 x 75%)
+      centres.add(o[0].split(' ')[1]);
+    }
+    expect(conv / SEEDS).toBeGreaterThan(0.35); expect(conv / SEEDS).toBeLessThan(0.65);
+    expect(centres.size).toBe(4);
+    const board = withCells(reviewBoard, { '3,3': specialGem('poisonGem'), '5,5': specialGem('poisonGem') });
+    const lines = [...tally({ key: 'troop:7829', board }, 40).keys()];
+    expect(lines.some(l => /^dmg E1\d 20 \(splash\)/.test(l))).toBe(true);
+  });
+
+  it('troop:7041 steals [M+2] Life from the target; one Death Mark on a random enemy per Lycanthropy gem', () => {
+    const board = withCells(reviewBoard, { '3,3': specialGem('lycanthropyGem'), '5,1': specialGem('lycanthropyGem'), '6,4': specialGem('lycanthropyGem') });
+    const who = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = castSpell({ key: 'troop:7041', seed, board }).summary.order;
+      expect(o.slice(0, 2)).toEqual(['dmg E11 12', 'buff C hp+12 max+12']);
+      const d = o.filter(x => x.endsWith('+death-mark'));
+      expect(d).toHaveLength(3);
+      d.forEach(x => who.add(x.split(' ')[1]));
+    }
+    expect(who.size).toBe(4);
+  });
+
+  it('troop:7288 Choose: [M+4] true damage OR [M+4] splash (50%), both +2 per Blue gem', () => {
+    expect(choose({ key: 'troop:7288' }, 0)).toEqual(['dmg E11 36']);
+    const s = choose({ key: 'troop:7288' }, 1);
+    expect(s[0]).toBe('dmg E11 36 (splash)');
+    expect(s.slice(1).sort()).toEqual(['dmg E10 18 (splash)', 'dmg E12 18 (splash)']);
   });
 });
