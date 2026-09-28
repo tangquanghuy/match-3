@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 491 条改动，涉及 825 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 492 条改动，涉及 827 个技能 ID。
 
 ## 按时间
 
@@ -497,6 +497,7 @@
 | 2026-09-28T11:21 | sa-A | L4a-r4-7174 | data | 8745 | troop:7174 Mechweaver | `src/engine/skills/curated/batch-p37.ts` | destroy chosen row, then chosen column (two clears; a created Bomb could trigger between) → native DestroyGems RowAndColumn: one 15-cell cross clear |  |
 | 2026-09-28T11:21 | sa-P | P-D-lethal-first-lasttarget | primitive | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-D-lethal-first-lasttarget.test.ts` | failed chance roll of an execute segment returned before target resolution (no lastTarget); 8664 wrote true damage before the slay roll → runSegment: failed roll of a damage execute segment still resolves/tracks its targets; 8664 native order execute enemyLast -> trueDmg lastTarget | execute+chance segments followed by lastTarget/ifTargetDied steps now see the (surviving) victim: troop:6252 6460 6585 6753 7016 7145 7252 7797 |
 | 2026-09-28T11:47 | sa-P | P-R5-summon-id-reuse | primitive | 7602, 7643 | troop:6428 Xathenos；troop:6465 Hyena | `src/engine/teamRoster.ts`<br>`src/engine/GameState.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/summon.ts` | summon id = max living id + 1: killing the highest-id unit made the next summon reuse its id, lastTarget resolved to the summon and later ifTargetDied summons skipped → monotonic allocateCharId (GameState.charIdHighWater records removed ids); dead ids never reused | every summon (ids after a kill now > highest removed id) |
+| 2026-09-28T11:55 | sa-P | P-R5-named-ally-count | primitive | 8744, 8658 | troop:7173 Uvhash-Ka；troop:7115 AbjectOfDespond | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r11.ts` | troopPresent boolean: 3 extra Doomskulls / 3 more Magic if any Eldritch Minion / Despond ally → modifier source alliesNamed {name, atCastStart}: 3 per matching ally (native CountArmyTroop step 0 counter) |  |
 
 ## 按技能 ID
 
@@ -1014,6 +1015,7 @@
 | 8651 | 1 | L4b-7108-purple-enemies |
 | 8654 | 2 | L3-008、L1-E-7111-dist |
 | 8656 | 2 | P-prefnotprev-semantics、L7-R1-7113-enemy-colour |
+| 8658 | 1 | P-R5-named-ally-count |
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
@@ -1039,6 +1041,7 @@
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
 | 8732 | 1 | L1-7157-devour |
+| 8744 | 1 | P-R5-named-ally-count |
 | 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |

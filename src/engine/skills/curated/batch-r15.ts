@@ -622,13 +622,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8744,
     desc: '将所有紫色宝石转换成末日骷髅头。若自身队伍中有邪老爪牙，则再创造 3 颗骷髅头。再召唤一个邪老爪牙。 [x3]',
-    // 「再创造 3 颗」= base 3 + ifCond troopPresent（§11.5 特定兵种在场，中文名匹配）；
-    // 末日骷髅 = doomSkull（transformToSpecial/createSpecialGems）；尾缀 [x3] = 该条件创造
-    // 的数量序列化
+    // 末日骷髅 = doomSkull（transformToSpecial/createSpecialGems）；尾缀 [x3] = 该条件创造的数量序列化。
+    // P-R5-named-ally-count: native 0:CountArmyTroop 7172 @AllAllies 300 -> CreateGems Doomskull UseCounterForAmount
+    // = 3 per Eldritch Minion ally (counted at step 0, before this cast's summon), not a boolean troopPresent.
     build: skill(
       transformToSpecial(BaseColor.Purple, 'doomSkull'),
-      createSpecialGems({ kind: 'doomSkull' }, 3, 0, {
-        ifCond: { kind: 'troopPresent', side: 'ally', name: '邪老爪牙' },
+      createSpecialGems({ kind: 'doomSkull' }, 0, 0, {
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: '邪老爪牙', atCastStart: true } },
       }),
       summonRef('EldritchMinion'),
     ),
