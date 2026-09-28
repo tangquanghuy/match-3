@@ -163,3 +163,23 @@
 {"format":"compact","key":"troop:6564","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:58:29.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6733","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:58:29.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6743","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:58:29.745Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6815","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.167Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6846","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.168Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7225","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.168Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7663","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.168Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7669","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7754","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7786","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7699","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7765","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7415","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:59:53.169Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6704","decision":"issue","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:02:16.041Z","issue":"P-R2-chosen-color-modifier","note":"chosen colour never requested: modifier-only boardGems CHOSEN not detected by prototypeNeedsColor; 0 Red created"}
+{"format":"compact","key":"troop:7210","decision":"issue","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:02:16.142Z","issue":"P-R2-gargoyle-tier","note":"curated fixed to Doomskull (was plain Skulls); evil-only gargoyle count needs tier filter on boardSpecial"}
+{"format":"compact","key":"troop:7362","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.297Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6895","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.298Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6144","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.298Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6176","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.299Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6238","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.299Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6356","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.299Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6419","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.300Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6456","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T03:03:07.300Z","tests":["tests/unit/gowCastGolden.test.ts"]}

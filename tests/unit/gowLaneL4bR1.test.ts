@@ -334,3 +334,37 @@ describe('L4b B11', () => {
     expect(dmg).toBe(38);
   });
 });
+
+describe('L4b B12', () => {
+  const sp = (spec: object) => ({ kind: 'special', spec }) as never;
+  const withRow7 = (gems: never[]) => (r: number, c: number) => (r === 7 && c < gems.length ? gems[c] : colorGem(OTHERS[(2 * r + c) % 5]));
+  it('troop:7786: 3 Bleed + 2 Faerie Fire Gems -> 1 + 10 + 2 x 5 = 21', () => {
+    const b = sp({ kind: 'bleedGem' }), ff = sp({ kind: 'faerieFireGem' });
+    expect(castSpell({ key: 'troop:7786', board: withRow7([b, b, b, ff, ff]) }).summary.order[0]).toBe('dmg E11 21');
+  });
+  it('troop:7765: 1 good + 1 evil Gargoyle Gem -> 3 + 10 + 2 x 2 = 17', () => {
+    const g = castSpell({ key: 'troop:7765', board: withRow7([sp({ kind: 'gargoyleGem', tier: 1 }), sp({ kind: 'gargoyleGem', tier: 2 })]) });
+    expect(g.summary.order[0]).toMatch(/^dmg E1\d 17$/);
+  });
+  it('troop:7699: 2 Freeze Gems + 0 Skulls -> 4 + 10 + 4 = 18 to the two weakest', () => {
+    const f = sp({ kind: 'freezeGem' });
+    const o = castSpell({ key: 'troop:7699', board: withRow7([f, f]) }).summary.order;
+    expect(o.slice(0, 2)).toEqual(['dmg E12 18 (all)', 'dmg E10 18 (all)']);
+  });
+});
+
+describe('L4b B13', () => {
+  it('troop:7210: creates Doomskulls, not plain Skulls', () => {
+    expect(castSpell({ key: 'troop:7210' }).summary.order[0]).toMatch(/-> doomSkull x5$/);
+  });
+  it('troop:6895: chosen Red (9) -> 9 + 3 Red; Red allies get [Magic + 1] Life', () => {
+    const r = castSpell({ key: 'troop:6895', color: BaseColor.Red });
+    expect(r.summary.gems.created.Red).toBe(12);
+    expect(r.summary.order.filter(x => x.startsWith('buff'))).toEqual(['buff A2 hp+11 max+11']);
+  });
+  // Doubling family: CountGems 100 <C> ; CreateGems <C> (counter) ; CreateGems 3 <C>
+  for (const [key, color, n] of [['troop:6176', 'Blue', 11], ['troop:6238', 'Brown', 8], ['troop:6356', 'Yellow', 9], ['troop:6419', 'Green', 13], ['troop:6456', 'Red', 9]] as const) {
+    it(`${key}: ${n} ${color} on board -> +${n + 3}`, () => { expect(castSpell({ key }).summary.gems.created[color]).toBe(n + 3); });
+  }
+  it('troop:6144: 5 Skulls on board -> +7', () => { expect(castSpell({ key: 'troop:6144' }).summary.gems.created.skull).toBe(7); });
+});

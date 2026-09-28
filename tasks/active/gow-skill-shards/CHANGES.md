@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 198 条改动，涉及 395 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 199 条改动，涉及 396 个技能 ID。
 
 ## 按时间
 
@@ -204,6 +204,7 @@
 | 2026-09-28T02:58 | sa-R2 | L4b-6152-attack | data | 7266 | troop:6152 AnointedOne | `src/engine/skills/curated/batch-05.ts` | Attack unboosted → Attack and Life both + floor(converted x 34%) |  |
 | 2026-09-28T02:58 | sa-R2 | L4b-7277-7094 | data | 8902, 8629 | troop:7277 QueenAsh；troop:7094 KingHeliodor | `src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r7.ts` | second source teamSize (all allies); 7277 enemyLastN 2 both main targets; 7094 missing 3 Elemental Stars → Brown allies (CountArmyColor Data 5); 7277 single enemySecondLast main; 7094 creates 3 Elemental Stars |  |
 | 2026-09-28T02:58 | sa-R2 | L4b-7108-purple-enemies | data | 8651 | troop:7108 MoonPhoenix | `src/engine/skills/curated/batch-p37.ts` | boost by Purple allies (desc 紫色盟友) → boost by Purple enemies (CountArmyColor@AllEnemies Data 4); desc 紫色敌人 |  |
+| 2026-09-28T03:03 | sa-R2 | L4b-7210-doomskull | data | 8797 | troop:7210 Xenith | `src/engine/skills/curated/batch-r16.ts` | createSkulls (plain Skulls) → createSpecialGems doomSkull (native CreateGems Doomskull); evil-only count queued P-R2-gargoyle-tier |  |
 
 ## 按技能 ID
 
@@ -472,6 +473,7 @@
 | 8785 | 1 | P-counter-per-step |
 | 8788 | 1 | L7-7201 |
 | 8795 | 1 | L3-003 |
+| 8797 | 1 | L4b-7210-doomskull |
 | 8802 | 1 | F3-t7215 |
 | 8807 | 1 | F2-R001-order |
 | 8820 | 1 | P-counter-per-step |
