@@ -335,3 +335,8 @@
 {"format":"compact","key":"troop:7528","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.372Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7594","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.372Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"clause","id":"c2","mode":"ascension"}]}
 {"format":"compact","key":"troop:6476","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:12:11.373Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6077","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:17:21.588Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1055","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:17:21.589Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6342","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:17:21.589Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1160","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:17:21.589Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6347","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:17:21.589Z","tests":["tests/unit/gowCastGolden.test.ts"]}

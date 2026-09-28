@@ -18,3 +18,9 @@
 - troop:7528 accept
 - troop:7594 accept (R000 waived c2 tower+ascension; storm-present -5 Magic test)
 - troop:6476 accept
+- troop:6077 fix(DestroyGems 12 include all: Skulls are Gems, R013-5)
+- weapon:1055 fix(kill explode 1 include all + override entry)
+- troop:6342 accept
+- weapon:1160 accept
+- troop:6347 accept
+- NOTE dispute: 18 already-accepted skills use randomGems include:'color' for native colourless DestroyGems/ExplodeGems (e.g. troop:6064,6146,6555,6607,6622,6758,6878,6991,7206,7359, weapon:1150,1157,1274,1472,1484); sa-A now fixes new ones to include:'all' (R013-5). Coordinator: rule on requeue.

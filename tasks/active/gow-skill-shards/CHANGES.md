@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 539 条改动，涉及 991 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 541 条改动，涉及 993 个技能 ID。
 
 ## 按时间
 
@@ -545,6 +545,8 @@
 | 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
 | 2026-09-28T15:44 | coord | R014-7000-count-before-create | assembler | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/context.ts` | Yellow counted after CreateGems 3 Yellow (created gems boosted the damage) → castStartBoardGems Yellow: counted before the create, CountSet 1 not added (R014) | new source castStartBoardGems; only 8503 uses it |
 | 2026-09-28T21:12 | sa-A | L4a-R8-1578-random-explode | data | 9300 | weapon:1578 Frostbound | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 9300 explode target cell CELL (chosen cell; native spell Target None) → explode randomGems 1 (native ExplodeGems 1, Target None = random gem) |  |
+| 2026-09-28T21:17 | sa-A | L4a-R8-random-any-gem | assembler | 7147 | troop:6077 Behemoth | `src/engine/skills/curated/batch-02.ts` | 7147 destroyRandomGems 12 include color (no Skulls) → include all: native DestroyGems 12 picks any gem, Skulls are Gems (R013-5) |  |
+| 2026-09-28T21:17 | sa-A | L4a-R8-random-any-gem | data | 7121 | weapon:1055 Pigsticker | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 7121 kill branch explodeRandomGems 1 include color → include all (native ExplodeGems AddForKill 1, any gem); override entry added |  |
 
 ## 按技能 ID
 
@@ -588,6 +590,7 @@
 | 7105 | 1 | L4a-r3-1040 |
 | 7109 | 1 | L4a-r3-1044 |
 | 7116 | 1 | L4a-r3-1038 |
+| 7121 | 1 | L4a-R8-random-any-gem |
 | 7124 | 1 | F2-1058-boost-source |
 | 7133 | 1 | L4a-R1-7133-no-base |
 | 7137 | 1 | R013-5 |
@@ -595,6 +598,7 @@
 | 7139 | 1 | F3-q28 |
 | 7143 | 1 | R004-tests |
 | 7146 | 2 | F1-remove-order、P-F1-remove-gems |
+| 7147 | 1 | L4a-R8-random-any-gem |
 | 7149 | 1 | F2-R001-order |
 | 7150 | 1 | B-L4b-6080-nine |
 | 7156 | 1 | F1-onkill-order |

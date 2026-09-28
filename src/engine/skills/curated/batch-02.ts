@@ -149,8 +149,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 5] 点伤害。摧毁 12 个随机的宝石。',
     build: skill(
       dmgAll(5),
-      // 「宝石」不含骷髅 → include:'color'
-      destroyRandomGems(12, 0, 'color'),
+      // native DestroyGems 12: any gem, Skulls included (R013-5: Skulls are Gems)
+      destroyRandomGems(12, 0, 'all'),
     ),
   },
   {
