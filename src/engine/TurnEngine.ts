@@ -120,6 +120,8 @@ export class TurnEngine {
   private targetChooser: TargetChooser = new AiTargetChooser();
   /** 选格器：技能含"点选一枚宝石"的段（引爆某格 / 摧毁其所在行列）时用它；默认 AI 策略 */
   private cellChooser: CellChooser = new AiCellChooser();
+  /** Active while a spell prototype executes: pure board rewrites defer their settle to the spell end. */
+  private spellBoardSettle: { pending: boolean } | null = null;
   private branchChooser: BranchChooser = new AiBranchChooser();
   /** 召唤物 referenceName → 属性模板 解析器（需求 7）；默认无（ref/randomOf 来源将安全跳过） */
   private summonResolver: ((referenceName: string) => SummonTemplate | null) | null = null;
@@ -2754,14 +2756,20 @@ export class TurnEngine {
         const chosenCell = prototypeNeedsCell(proto)
           ? this.cellChooser.choose(this.state, ch.id, this.rng, choiceRule) ?? undefined
           : undefined;
-        events.push(
-          ...this.resolveDefeatWithRevive(
-            executePrototype(
-              proto,
-              this.makeEffectContext(ch.id, chosenColor, chosenTargetId, chosenCell),
-            ),
-          ),
-        );
+        // P-create-interleave: defer the settle of pure board rewrites to the end of the spell
+        const settle = { pending: false };
+        this.spellBoardSettle = settle;
+        let produced: GameEvent[];
+        try {
+          produced = executePrototype(
+            proto,
+            this.makeEffectContext(ch.id, chosenColor, chosenTargetId, chosenCell),
+          );
+        } finally {
+          this.spellBoardSettle = null;
+        }
+        if (settle.pending) this.resolveBoardChange([], produced, this.state.activePlayer);
+        events.push(...this.resolveDefeatWithRevive(produced));
         // 自己召唤部队后的触发（职业天赋 hauntedweave「当我召唤部队时，织网一名随机敌人」
         // 的施法路径）：法术含召唤段且实际产出了召唤 → 触发施法者自身的该被动。
         if (events.some((e) => e.type === 'summon')
@@ -2799,7 +2807,17 @@ export class TurnEngine {
       casterId,
       rng: this.rng,
       nextGemId: this.nextGemId,
-      resolveBoardChange: (destroyed, events, mode) => this.resolveBoardChange(destroyed, events, this.state.activePlayer, mode),
+      resolveBoardChange: (destroyed, events, mode) => {
+        // P-create-interleave (lane-L1 L1-6160): a pure board rewrite (create / transform / jumble,
+        // nothing removed) does not settle mid-spell — native SpellSteps all run first, then the
+        // board resolves. Removals (destroy / explode) still settle at once (mana, gravity, cascades).
+        if (destroyed.length === 0 && this.spellBoardSettle) {
+          this.spellBoardSettle.pending = true;
+          return;
+        }
+        this.resolveBoardChange(destroyed, events, this.state.activePlayer, mode);
+        if (this.spellBoardSettle) this.spellBoardSettle.pending = false;
+      },
       grantExtraTurn: () => {
         this.pendingExtraTurnSource = 'skill';
       },

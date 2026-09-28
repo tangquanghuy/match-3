@@ -10,3 +10,4 @@
 {"id":"P-prefnotprev-semantics","done":true,"by":"sa-P","at":"2026-09-28T09:15:00Z","note":"damage.ts waves/splash avoid previous only (randomPrefer notHit for 8160); targeting allyRandomPrefNotPrevN; 16 ally spells reassembled"}
 {"id":"P-steal-to-life","done":true,"by":"sa-P","at":"2026-09-28T09:40:00Z","note":"debuff.ts modifierAfterCap + gainLifeMode; 8597/9139/9223 reassembled"}
 {"id":"P-chooser-native-restrictions","done":true,"by":"sa-P","at":"2026-09-28T10:05:00Z","note":"gowChoiceRules.ts + AI colour/cell choosers; App.ts palette still unrestricted (UI note)"}
+{"id":"P-create-interleave","done":true,"by":"sa-P","at":"2026-09-28T10:40:00Z","note":"TurnEngine defers settle of pure board rewrites to spell end; 12 golden-signed keys need re-review"}
