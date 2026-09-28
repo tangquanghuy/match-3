@@ -60,3 +60,8 @@
 - troop:6854 fixed+accept (L1; Yellow allies +2 Magic, was Mana)
 - troop:6960 accept (L1; raw kingdom 3051 pool, 1/2 extra turn | second Kobold)
 - troop:7235 fixed+accept (L1; IncreaseRandom x2 oneSkill, was split)
+- troop:7497 fixed+accept (L1; Book weights 2/5 2/5 1/5 per native, was 1/3 each)
+- weapon:1145 accept (L1; Mana Burn + Burn, kill -> transform self into random Dragon, pool 122 = Dragon type)
+- troop:6673 accept (L1; RemoveColor chosen (R010), 30% run away)
+- troop:6651 fixed+accept (L1; x2 if my Attack greater was missing; stun target+adjacent; summons 100/50/50)
+- troop:6507 fixed+accept (L1; freeze target+adjacent, was all; zh + override 6507)

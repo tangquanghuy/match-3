@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 559 条改动，涉及 1008 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 562 条改动，涉及 1010 个技能 ID。
 
 ## 按时间
 
@@ -565,6 +565,9 @@
 | 2026-09-28T21:57 | sa-H | L2-H-7746-kill-gate | assembler | 9731 | troop:7746 Cascabel | `src/engine/skills/curated/batch-r17.ts` | 3 x ifTargetDied random-status segments: 2nd/3rd looked at the 1st status segment's living target and never fired (always exactly 1 status on kill) → gate all three on castEnemyDied: kill -> 1 + 50% + 50% random negative statuses on each other enemy |  |
 | 2026-09-28T22:00 | sa-H | L1-H-6854-magic | assembler | 8273 | troop:6854 Lyriath | `src/engine/skills/curated/batch-r22.ts` | Yellow allies gained 2 Mana → Yellow allies gain 2 Magic (native IncreaseSpellPower 2) |  |
 | 2026-09-28T22:00 | sa-H | L1-H-7235-one-skill | assembler | 8831 | troop:7235 FakyrTheWise | `src/engine/skills/curated/batch-r9.ts` | each IncreaseRandom split [M+1] across Skills → each of the two IncreaseRandom steps gives the whole [M+1] to one random Skill |  |
+| 2026-09-28T22:06 | sa-H | L1-H-7497-book-weights | assembler | 9242 | troop:7497 Isban | `src/engine/skills/curated/batch-10.ts` | 3 Books 1/3 each → native A+(B-C-D-E-F): Witches 2/5, Secrets 2/5, Tome of Evil 1/5 |  |
+| 2026-09-28T22:06 | sa-H | L1-H-6651-double-stun-summons | assembler | 7985 | troop:6651 TianYi | `src/engine/skills/curated/batch-r6.ts` | no x2 when my Attack greater; stun = every enemy below max Life; Monkey count uniform 1-3 → x2 via casterStatBeatsTarget attack; stun target + adjacent; Monkey 100% + 50% + 50% |  |
+| 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
 
 ## 按技能 ID
 
@@ -805,7 +808,7 @@
 | 7685 | 1 | L1-6498-summon-dist |
 | 7692 | 1 | P-E-faction-kingdom |
 | 7693 | 1 | F2-R001-order |
-| 7697 | 1 | L1-E-race-pool-immortals |
+| 7697 | 2 | L1-E-race-pool-immortals、L1-H-6507-freeze-affected |
 | 7700 | 1 | B-L4b-6510-two-creates |
 | 7704 | 1 | L1-6513-sacrifice |
 | 7707 | 1 | P-E-faction-kingdom |
@@ -868,6 +871,7 @@
 | 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
 | 7984 | 1 | L1-R2-consume-first |
+| 7985 | 1 | L1-H-6651-double-stun-summons |
 | 7991 | 1 | L1-E-1238-pool |
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
@@ -1361,6 +1365,7 @@
 | 9235 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9237 | 1 | P-R1-count-at-native-step |
 | 9241 | 2 | P-random-stat-pool、L2-7496-pref-not-prev |
+| 9242 | 1 | L1-H-7497-book-weights |
 | 9244 | 1 | L4b-7499-dragon |
 | 9245 | 1 | P-E-faction-kingdom |
 | 9249 | 1 | P-E-faction-kingdom |

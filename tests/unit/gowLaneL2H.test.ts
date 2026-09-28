@@ -5,12 +5,14 @@ import { castSpell, setupCast, summarize, type CastOpts } from '../helpers/gowCa
 import { RANDOM_NEGATIVE_STATUS_POOL, RANDOM_POSITIVE_STATUS_POOL } from '@engine/skills/effects/status';
 import { FixedBranchChooser } from '@engine/skills/branchChooser';
 import { BaseColor } from '@engine/types';
+import troopData from '../../src/data/troops.json';
 const choose = (o: CastOpts, branch: number) => { const f = setupCast(o); f.engine.setBranchChooser(new FixedBranchChooser(branch)); return summarize(f, f.cast()).order; };
 const SEEDS = 300;
 const orderOf = (o: CastOpts) => { const s = castSpell(o).summary; const i = s.order.indexOf('~cascade~'); return i < 0 ? s.order : s.order.slice(0, i); };
 const statusesOn = (order: string[], who: string) => order.filter(l => l.startsWith(`status ${who} +`)).map(l => l.split('+')[1]);
 const within = (got: number, share: number, label: string) => { expect(got, label).toBeGreaterThan(share * 0.6); expect(got, label).toBeLessThan(share * 1.4); };
 const ONE_ENEMY = [{ hp: 900, maxHp: 900, armor: 0 }];
+const entityName = (ref: string) => (troopData as { referenceName: string; name: string }[]).find(t => t.referenceName === ref)!.name;
 
 describe('sa-H L2 B01', () => {
   it('troop:6658 every ally (caster included) gets one positive status', () => {
@@ -481,5 +483,30 @@ describe('sa-H L1 B01', () => {
       const b = orderOf({ key: 'troop:7235', seed }).filter(l => l.startsWith('buff A1'));
       expect(b.length).toBe(2); for (const l of b) expect(l).toMatch(/\+11( max\+11)?$/);
     }
+  });
+});
+
+describe('sa-H L1 B02', () => {
+  const summoned = (key: string, o: CastOpts) => { const f = setupCast({ key, ...o }); f.cast();
+    const mine = f.side === f.state.teams.Left.player ? f.state.teams.Left : f.state.teams.Right;
+    return mine.characters.filter(c => !f.snap.has(c.id)).map(c => c.name); };
+  it('troop:7497 Book weights from native A+(B-C-D-E-F): Witches 2/5, Secrets 2/5, Evil 1/5', () => {
+    const t: Record<string, number> = {};
+    for (let seed = 1; seed <= SEEDS; seed++) for (const n of summoned('troop:7497', { seed })) t[n] = (t[n] ?? 0) + 1;
+    const [a, b, c] = ['BookOfWitches', 'BookOfSecrets', 'TomeOfEvil'].map(r => entityName(r));
+    within((t[a] ?? 0) / SEEDS, 0.4, 'witches'); within((t[b] ?? 0) / SEEDS, 0.4, 'secrets'); within((t[c] ?? 0) / SEEDS, 0.2, 'evil');
+  });
+  it('troop:6651 x2 damage when my Attack is greater; stun target + adjacent only; Monkey 1 + 50% + 50%', () => {
+    const o = orderOf({ key: 'troop:6651', caster: { attack: 50 } });
+    expect(o[0]).toBe('dmg E11 50 (splash)');
+    const far = orderOf({ key: 'troop:6651', enemies: [{ hp: 800, maxHp: 900 }, {}, {}, { hp: 700, maxHp: 900 }], target: 10 });
+    expect(far.filter(l => l.startsWith('status')).map(l => l.split(' ')[1]).sort()).toEqual(['E10', 'E11']);
+    const counts = [0, 0, 0, 0];
+    for (let seed = 1; seed <= SEEDS; seed++) counts[summoned('troop:6651', { seed, allies: [] }).length]++;
+    within(counts[1] / SEEDS, 0.25, '1'); within(counts[2] / SEEDS, 0.5, '2'); within(counts[3] / SEEDS, 0.25, '3');
+  });
+  it('troop:6507 freezes the target and its adjacent enemies only', () => {
+    const o = orderOf({ key: 'troop:6507', target: 10 });
+    expect(o.filter(l => l.startsWith('status')).map(l => l.split(' ')[1]).sort()).toEqual(['E10', 'E11']);
   });
 });

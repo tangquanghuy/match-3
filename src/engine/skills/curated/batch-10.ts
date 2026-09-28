@@ -14,7 +14,7 @@
  * - 「若盟友是 X 则效果翻 N 倍」：raceDouble 仅支持翻倍（×2），×3 一律 SKIP。
  */
 import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, magic, cleanse,
-  createGems, createMix, inflict, summonRandom, extraTurn, explodeChosenRow } from '../builders';
+  createGems, createMix, inflict, summonRef, oneOf, extraTurn, explodeChosenRow } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -166,8 +166,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「魔力值」= magic 属性（SOP 措辞裁定）
       magic('allyRandom', 1),
-      // 「随机书卷」= 书卷家族三兵种（troops.json 查询，排除滚动编织者/水生抄书吏）
-      summonRandom(['TomeOfEvil', 'BookOfSecrets', 'BookOfWitches']),
+      // 原生 A+(B-C-D-E-F)：Summoning 7494 | 6908 | 7494 | 6475 | 6908 五选一 → 女巫之书 2/5、秘密之书 2/5、
+      // 邪恶之书 1/5（sa-H：原为三者等概率）
+      oneOf(...['BookOfWitches', 'BookOfSecrets', 'BookOfWitches', 'TomeOfEvil', 'BookOfSecrets'].map(r => [summonRef(r)])),
     ),
   },
 ];

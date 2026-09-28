@@ -221,11 +221,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7697,
-    desc: '对一名敌人造成 [魔法 + 7] 点溅射伤害。冻结所有敌人。召唤一名随机巨人。',
+    desc: '对一名敌人造成 [魔法 + 7] 点溅射伤害，并冻结所有受到伤害的敌人。召唤一名随机巨人。',
     build: skill(
       // 「对 1 名敌人…溅射」= 溅射链（SOP 措辞裁定）
       dmgSplash('enemyChosen', 7),
-      inflict('frozen', 'enemyAll'),
+      // sa-H：原生 Frozen@FromTarget + Frozen@AdjacentFromTarget（英文 all affected Enemies），原为冻结全体；ZH 同改 + override 6507
+      inflict('frozen', 'enemyChosen'),
+      inflict('frozen', 'enemyChosenAndAdjacent'),
       // 巨人 = troopTypes 含 Giant 全集（SOP §6 程序核实）
       summonRandom(GIANTS),
     ),

@@ -332,6 +332,11 @@
       "spellId": 8852,
       "reason": "sa-H r8: English Sagittarian 'steal either: 10 Magic, OR 20 Life, OR 20 Armor'; old Chinese said 盔甲魔力值 (armor magic).",
       "spellDescription": "对一名敌人造成 [(魔法 x 2) + 4] 点真实伤害。然后从该敌人处窃取 10 点魔力值，或 20 点生命值，或 20 点护甲值。"
+    },
+    "6507": {
+      "spellId": 7697,
+      "reason": "sa-H r8: English Hyndla Frostcrown 'Freeze all affected Enemies' (native Frozen FromTarget + AdjacentFromTarget); old Chinese said freeze all enemies.",
+      "spellDescription": "对一名敌人造成 [魔法 + 7] 点溅射伤害，并冻结所有受到伤害的敌人。召唤一名随机巨人。"
     }
   }
 }

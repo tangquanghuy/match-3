@@ -449,6 +449,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6507": {
+  "lines": {
+   "L10": "dmg E11 17 (splash) ; dmg E10 8 (splash) ; dmg E12 8 (splash) ; status E11 +frozen ; status E10 +frozen ; status E12 +frozen ; summon mine troop:-1  => A14:new 暗黑森林巨魔 hp39 atk15 arm0 mag0 | E11:hp-7 arm-10 +frozen | E10:hp-3 arm-5 +frozen | E12:arm-8 +frozen",
+   "R10": "dmg E11 17 (splash) ; dmg E10 8 (splash) ; dmg E12 8 (splash) ; status E11 +frozen ; status E10 +frozen ; status E12 +frozen ; summon mine troop:-1  => A14:new 暗黑森林巨魔 hp39 atk15 arm0 mag0 | E11:hp-7 arm-10 +frozen | E10:hp-3 arm-5 +frozen | E12:arm-8 +frozen",
+   "L0": "dmg E11 7 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash) ; status E11 +frozen ; status E10 +frozen ; status E12 +frozen ; summon mine troop:-1  => A14:new 暗黑森林巨魔 hp39 atk15 arm0 mag0 | E11:arm-7 +frozen | E10:arm-3 +frozen | E12:arm-3 +frozen",
+   "K": "dmg E11 17 (splash) ; dmg E10 8 (splash) ; dmg E12 8 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; summon mine troop:-1  => A14:new 暗黑森林巨魔 hp39 atk15 arm0 mag0 | E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:06:20.810Z"
+ },
  "troop:6509": {
   "lines": {
    "L10": "dmg E11 14 ; summon mine troop:-1  => A14:new 溺水船长 hp39 atk15 arm0 mag0 | E11:hp-4 arm-10",
@@ -629,6 +639,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:29:52.740Z"
  },
+ "troop:6651": {
+  "lines": {
+   "L10": "dmg E11 25 (splash) ; dmg E10 18 (splash) ; dmg E12 18 (splash) ; status E11 +stun ; status E10 +stun ; status E12 +stun ; summon mine troop:-1  => A14:new 美猴王 hp20 atk14 arm7 mag6 | E11:hp-15 arm-10 +stun | E10:hp-13 arm-5 +stun | E12:hp-6 arm-12 +stun",
+   "R10": "dmg E11 25 (splash) ; dmg E10 18 (splash) ; dmg E12 18 (splash) ; status E11 +stun ; status E10 +stun ; status E12 +stun ; summon mine troop:-1  => A14:new 美猴王 hp20 atk14 arm7 mag6 | E11:hp-15 arm-10 +stun | E10:hp-13 arm-5 +stun | E12:hp-6 arm-12 +stun",
+   "L0": "dmg E11 15 (splash) ; dmg E10 11 (splash) ; dmg E12 11 (splash) ; status E11 +stun ; status E10 +stun ; status E12 +stun ; summon mine troop:-1  => A14:new 美猴王 hp20 atk14 arm7 mag6 | E11:hp-5 arm-10 +stun | E10:hp-6 arm-5 +stun | E12:arm-11 +stun",
+   "K": "dmg E11 25 (splash) ; dmg E10 18 (splash) ; dmg E12 18 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; summon mine troop:-1  => A14:new 美猴王 hp20 atk14 arm7 mag6 | E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:06:20.810Z"
+ },
  "troop:6655": {
   "lines": {
    "L10": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; summon mine troop:-1  => A14:new 绿魔像 hp13 atk15 arm20 mag9",
@@ -658,6 +678,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
+ },
+ "troop:6673": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; flee C  => C:FLED  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; flee C  => C:FLED  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; flee C  => C:FLED  cascade",
+   "K": "destroy 11 (Blue x11) ; ~cascade~ ; flee C  => C:FLED  cascade"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:06:20.810Z"
  },
  "troop:6685": {
   "lines": {
@@ -1439,6 +1469,16 @@
   "by": "sa-E",
   "at": "2026-09-28T11:55:26.875Z"
  },
+ "troop:7497": {
+  "lines": {
+   "L10": "buff A1 magic+11 ; summon mine troop:-1  => A14:new 女王之书 hp20 atk16 arm8 mag17 | A1:mag+11",
+   "R10": "buff A1 magic+11 ; summon mine troop:-1  => A14:new 女王之书 hp20 atk16 arm8 mag17 | A1:mag+11",
+   "L0": "buff A1 magic+1 ; summon mine troop:-1  => A14:new 女王之书 hp20 atk16 arm8 mag17 | A1:mag+1",
+   "K": "buff A1 magic+11 ; summon mine troop:-1  => A14:new 女王之书 hp20 atk16 arm8 mag17 | A1:mag+11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:06:20.810Z"
+ },
  "troop:7510": {
   "lines": {
    "L10": "dmg E12 13 ; status E12 +poison ; dmg E11 13 ; status E11 +poison  => E12:hp-1 arm-12 +poison | E11:hp-3 arm-10 +poison",
@@ -1658,6 +1698,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
+ },
+ "weapon:1145": {
+  "lines": {
+   "L10": "dmg E11 18 ; status E11 +burning  => E11:hp-8 arm-10 +burning",
+   "R10": "dmg E11 18 ; status E11 +burning  => E11:hp-8 arm-10 +burning",
+   "L0": "dmg E11 8 ; status E11 +burning  => E11:arm-8 +burning",
+   "K": "dmg E11 15 ; defeat E11 ; transform C -> 龙族长老  => E11:hp-1 DEAD | C:now 龙族长老"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T22:06:20.810Z"
  },
  "weapon:1154": {
   "lines": {
