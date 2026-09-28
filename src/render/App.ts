@@ -3392,7 +3392,7 @@ export class App {
         const who = automaticMode.startsWith('ally') ? '盟友' : '敌人';
         const isDeferred = automaticMode.startsWith('last')
           || automaticMode.endsWith('Target')
-          || automaticMode === 'enemyNextDown' || automaticMode === 'enemyNextUp';
+          || automaticMode === 'enemyNextDown';
         if (automaticMode === 'enemyAll' || automaticMode === 'allyAll') notes.push(`目标：全体${who}`);
         else if (automaticMode === 'allyOthers') notes.push('目标：其他全体盟友');
         else if (automaticMode === 'allySelf') notes.push('目标：自身');
