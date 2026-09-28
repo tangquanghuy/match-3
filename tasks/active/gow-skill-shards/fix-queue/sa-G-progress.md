@@ -24,3 +24,8 @@
 - weapon:1059 accepted: first enemy, +7 Attack on kill
 - troop:6334 fixed: native order Attack +8 then full heal on kill (Attack was dropped) (test)
 - troop:6168 accepted: x2 Daemon, random ally +8 Life on kill
+- troop:6049 accepted: +5 Magic on kill (single self segment, ifTargetDied ok)
+- troop:6156 accepted: 5 dmg all, first enemy to back
+- troop:6293 accepted: dmg + pull chosen to front
+- weapon:1089 accepted: dmg + 10 souls
+- troop:6734 fixed: kill -> all four Skills +7 (castEnemyDied); ZH kill condition restored (override 6734); tower waived R000 (test)

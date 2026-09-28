@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 545 条改动，涉及 996 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 546 条改动，涉及 997 个技能 ID。
 
 ## 按时间
 
@@ -551,6 +551,7 @@
 | 2026-09-28T21:21 | sa-G | G-1133-prefnotprev | assembler | 7299 | weapon:1133 SlayBells | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | second hit plain enemyRandom → enemyRandomPrefNotPrev (native Damage@RandomPrefNotPrevEnemy, R007-3) |  |
 | 2026-09-28T21:25 | sa-G | G-kill-all-skills | assembler | 7165, 7294 | troop:6095 Tau；weapon:1130 RunicBlade | `src/engine/skills/curated/batch-05.ts`<br>`src/engine/skills/curated/batch-w01.ts` | on kill only Attack applied (ifTargetDied re-read lastTarget = caster after the first self buff) → all four Skills via ifCond castEnemyDied (7314 precedent) |  |
 | 2026-09-28T21:25 | sa-G | G-6334-kill-order | assembler | 7484 | troop:6334 JaguarWarrior | `src/engine/skills/curated/batch-r15.ts` | full heal then Attack +8 (Attack never applied after the heal rewrote lastTarget) → native order Attack +8 then full heal, both castEnemyDied |  |
+| 2026-09-28T21:29 | sa-G | G-kill-all-skills | assembler | 8104 | troop:6734 Stone-Biter | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | on kill only Attack +7; ZH lacked the kill condition → all four Skills +7 via castEnemyDied; ZH 如果敌人身亡 (override 6734) |  |
 
 ## 按技能 ID
 
@@ -888,6 +889,7 @@
 | 8097 | 1 | F3-q06 |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
+| 8104 | 1 | G-kill-all-skills |
 | 8106 | 1 | L4a-r3-6736 |
 | 8108 | 1 | L2-wrong-enemy-branches |
 | 8111 | 1 | P-E-faction-kingdom |

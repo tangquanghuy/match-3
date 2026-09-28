@@ -47,7 +47,8 @@ describe('L6 sa-G', () => {
     expect(castSpell({ key: 'weapon:1130', ...K }).summary.units.C).toBe('hp+10 max+10 arm+10 atk+10 mag+10');
     const j = castSpell({ key: 'troop:6334', ...K }).summary;
     expect(j.order.slice(2)).toEqual(['buff C attack+8', 'buff C hp+100']);
-    for (const key of ['troop:6095', 'weapon:1130', 'troop:6334']) expect(castSpell({ key }).summary.units.C).toBeUndefined();
+    expect(castSpell({ key: 'troop:6734', ...K }).summary.units.C).toBe('hp+7 max+7 arm+7 atk+7 mag+7');
+    for (const key of ['troop:6095', 'weapon:1130', 'troop:6334', 'troop:6734']) expect(castSpell({ key }).summary.units.C).toBeUndefined();
   });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
