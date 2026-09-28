@@ -11,3 +11,12 @@
 - 2026-09-28T10:40:00Z P-create-interleave fixed: root cause = gems.ts create/transform/shuffle call ctx.resolveBoardChange immediately; TurnEngine.castSkill now defers the settle of pure rewrites (destroyed=[]) to the spell end, removals still settle at once; L1B02Repro it.fails->it, gowWorker02Completion 7425 extra-turn assertion made board-independent
   - re-review (golden-signed, behaviour changed, NOT approved; gowCastGolden.test.ts fails for exactly these 12 until re-approved): accepted-base troop:6009 troop:6063 troop:6612 troop:6779 troop:6941 troop:7097 troop:7098 troop:7099 troop:7100 troop:7425 troop:7446 troop:7453 (cascade moves after the remaining native steps; 6009/6941/7446/7453 random picks shift with rng order)
 - 2026-09-28T10:55:00Z P-charm-instant issue (skipped, not implemented): sources agree Charm is instant/not a status, but disagree on the effect (neighbours above+below vs the charmed troop itself; armor/Barrier unknown); proposal written to rulings/R008-charm.md for the coordinator
+
+# sa-P progress (review round 1, branch gow/r1-P)
+
+- withdrawn per REVIEW-ROUND-1: P-F1-giant-dragon-gems (R009, lane fix), P-F1-harness-status-leak / P-F2-harness-shared-statuses (fixed on main)
+- 2026-09-28T12:00:00Z L1-charm-instant closed per R008 (no runtime change): charm already in AUTO_RECOVER set (R004 shared cumulative roll, reset on new negative, Blessed blocks); gowFixL1-charm-instant.test.ts; L1B02Repro it.fails -> it (asserts lasting charm); golden diff 0 lines
+- 2026-09-28T12:10:00Z P-F1-oneof-chosen-target fixed: targetChooser.ts prototypeChosenTargetMode recurses into oneOf branches; registry scan found spell 7460 (troop:6310) branch-only enemyChosen with no inputTarget -> previously no effect; golden diff 0 lines
+  - re-review (unsigned, behaviour changed): troop:6310 / 7460
+- 2026-09-28T12:20:00Z P-F1-summon-after-caster-death fixed: summon.ts summon/summonCopy fall back to ctx.casterSide (captured at cast start); curated 7542 -> native self-kill + summonRef('Sunbird', 6387) (selfRevive dropped); golden diff 0 lines
+  - re-review (unsigned, behaviour changed): troop:6387 / 7542 (caster really dies, fresh Sunbird appended at the back)

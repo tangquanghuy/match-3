@@ -57,7 +57,23 @@ export class FixedTargetChooser implements TargetChooser {
  */
 export function prototypeChosenTargetMode(proto: SkillPrototype): ChosenTargetMode | null {
   if (proto.inputTarget) return proto.inputTarget;
-  for (const seg of proto.segments) {
+  return segmentsChosenTargetMode(proto.segments);
+}
+
+/**
+ * P-F1-oneof-chosen-target：按段序扫描；oneOf（原生 Randomize）分支里的手动选目标同样要先
+ * 向 TargetChooser 请求目标，否则分支内 enemyChosen / allyChosen 解析为空、整发技能无效。
+ * 根段优先（按顺序遇到的首个模式），分支内按分支顺序取首个。
+ */
+function segmentsChosenTargetMode(segments: readonly SkillPrototype['segments'][number][]): ChosenTargetMode | null {
+  for (const seg of segments) {
+    if (seg.kind === 'oneOf') {
+      for (const branch of seg.options) {
+        const mode = segmentsChosenTargetMode(branch);
+        if (mode) return mode;
+      }
+      continue;
+    }
     // 溅射仅当主目标本身就是手动指定时才需要选目标（enemyFront/enemyRandomN 等自带模式）
     if (seg.kind === 'damage' && seg.range === 'splash' && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'enemyChosen') return 'enemyChosen';

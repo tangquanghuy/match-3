@@ -29,9 +29,9 @@ describe('L1-6378-pool: spell 7533 native Randomize A+(B-C-D-E-F) over Summoning
   expect([...p.segments[1].params!.source.randomOf!].sort()).toEqual(['GiantSpider','SpiderSwarm','Spinnerette','TombSpider','Webspinner']);
  });
 });
-describe('L1-charm-instant: native Charm is an instant spell mechanic, not a persistent status (official status guide)',()=>{
- for(const [spell,cost] of [[9605,12],[8159,9],[7728,14]] as const)it.fails(`spell ${spell}: no enemy keeps a lasting charm status after the cast`,()=>{
-  const f=setup(spell,cost);f.cast();expect(f.foes.every(e=>!e.statuses.some(s=>s.id==='charm'))).toBe(true);
+describe('L1-charm-instant (closed by R008): native Charm is a temporary negative status that auto-recovers per R004',()=>{
+ for(const [spell,cost] of [[9605,12],[8159,9],[7728,14]] as const)it(`spell ${spell}: the charmed enemy keeps a lasting charm status after the cast`,()=>{
+  const f=setup(spell,cost);f.cast();expect(f.foes.some(e=>e.statuses.some(s=>s.id==='charm'))).toBe(true);
  });
 });
 describe('L1-6534-order: spell 7728 native Charm -> Damage -> Poison (prototype damaged first)',()=>{
