@@ -49,6 +49,8 @@ export interface CombatantSnapshot {
    * 可选字段，老宿主不传即可（该角色不属于任何王国），不构成 `schemaVersion` 不兼容变更。
    */
   kingdom?: string;
+  /** P-E-faction-kingdom: raw native KingdomId (faction troops keep their own id); optional, see Character.kingdomId. */
+  kingdomId?: number;
   /**
    * 技能显示文本（素材批追补 2026-09-19）：宿主侧已知的技能名/描述，
    * 供详情面板与卡面展示（引擎原型无文本，宿主不传时客户端按池回落）。

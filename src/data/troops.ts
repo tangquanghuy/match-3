@@ -58,6 +58,8 @@ export interface TroopData {
   rarity: Rarity;
   rarityIdx: number;
   kingdom: string | null;
+  /** P-E-faction-kingdom: raw native KingdomId (en dump; faction troops keep their own id). Absent for community troops. */
+  kingdomId?: number | null;
   /** 种族/类型，可有 1~2 个（用于特质羁绊，如 beastbond） */
   troopTypes: string[];
   role: TroopRole | null;
@@ -114,6 +116,11 @@ export function getTroopById(id: number): TroopData | undefined {
 /** 按 referenceName 取兵种 */
 export function getTroopByRef(referenceName: string): TroopData | undefined {
   return BY_REF.get(referenceName);
+}
+
+/** Summon roster of a kingdom (randomOfKingdom): number = raw KingdomId, string = zh kingdom name. */
+export function troopRefsOfKingdom(kingdom: string | number): string[] {
+  return TROOPS.filter((t) => (typeof kingdom === 'number' ? t.kingdomId === kingdom : t.kingdom === kingdom)).map((t) => t.referenceName);
 }
 
 /** 按稀有度筛选 */
@@ -173,6 +180,7 @@ export function troopToCharacter(troop: TroopData, id: number, level = OFFICIAL_
     // 种族光环（族亲/之盾）按 troopTypes 筛选受益对象
     troopTypes: [...troop.troopTypes],
     kingdom: troop.kingdom ?? undefined,
+    ...(troop.kingdomId != null ? { kingdomId: troop.kingdomId } : {}),
   };
 }
 
@@ -208,5 +216,6 @@ export function troopToSummonTemplate(
     traitIds: arenaRules ? [] : troop.traits.map(t => t.code),
     troopTypes: [...troop.troopTypes],
     kingdom: troop.kingdom ?? undefined,
+    ...(troop.kingdomId != null ? { kingdomId: troop.kingdomId } : {}),
   };
 }

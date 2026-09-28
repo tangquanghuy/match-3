@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * 窗口 K-B · 武器法术池提取 + 规则化编译 + W 系批次生成（三合一）。
  *
@@ -191,6 +191,11 @@ const TROOP_NAME_ALIAS = {
 };
 /** 王国名清单（troops.json 42 王国；按王国限定目标/随机召唤 = 无对应原语，batch-16 8831 先例） */
 const KINGDOM_NAMES = ['破碎尖塔', '阿达纳', '卡拉考斯', '蛛尔卡里', '卜筮之原', '鳞雾沼泽', '荆棘森林', '白盔国', '潘神之谷', '盖塔尔', '卡其尔', '齐埃金', '荣耀之地', '加尔凡尼亚', '剑锋崖', '风暴峡湾', '毛格瑞姆森林', '葛洛什奈克', '混沌', '狂野平原', '黑石', '聚沙之地', '荒芜之地', '冰峰之巅', '天启', '狮心帝国', '龙爪', '守护者', '黑鹰', '玉银林地', '日冕', '厄什卡亚', '藏宝库', '梅兰堤斯', '圣唐', '皓彩森林', '卓克祖', '迈纳杰之罪', '沃尔帕克', '诺斯', '地狱悬崖', '午夜城市', '盛唐'];
+/** P-E-faction-kingdom: zh kingdom name -> raw native KingdomId (main kingdom; data/raw/troops.gow.zh.json KingdomId by
+ *  kingdom_name, 1:1). Kingdom filters are emitted in the id form so faction troops (own raw id, parent zh name) are excluded. */
+const KINGDOM_ID = { 破碎尖塔: 3000, 阿达纳: 3001, 皓彩森林: 3002, 潘神之谷: 3003, 齐埃金: 3004, 荣耀之地: 3005, 剑锋崖: 3006, 加尔凡尼亚: 3007, 毛格瑞姆森林: 3008, 玉银林地: 3009, 厄什卡亚: 3010, 冰峰之巅: 3011, 卡其尔: 3012, 风暴峡湾: 3013, 白盔国: 3014, 荆棘森林: 3015, 鳞雾沼泽: 3016, 卡拉考斯: 3017, 葛洛什奈克: 3018, 龙爪: 3019, 盖塔尔: 3020, 荒芜之地: 3021, 黑石: 3022, 日冕: 3023, 聚沙之地: 3024, 狮心帝国: 3025, 黑鹰: 3026, 狂野平原: 3027, 卜筮之原: 3028, 蛛尔卡里: 3029, 圣唐: 3030, 混沌: 3032, 守护者: 3033, 天启: 3034, 卓克祖: 3035, 梅兰堤斯: 3036, 迈纳杰之罪: 3037, 藏宝库: 3038, 诺斯: 3080, 地狱悬崖: 3082, 沃尔帕克: 3084, 午夜城市: 3085 };
+const kref = (kg) => KINGDOM_ID[kg] ?? kg;
+const krefCode = (kg) => (typeof kref(kg) === 'number' ? String(kref(kg)) : `'${kg}'`);
 /** 全视之眼 = Ocularen 族（batch-08 7752 先例的引用清单） */
 const OCULAREN_REFS = ['OcularenLeech', 'Ocularen', 'BurningOcularen', 'GloomOcularen'];
 /** 风暴颜色（spell-rules §9.1；地狱≈火 = batch-p37 8560 先例）。
@@ -277,11 +282,11 @@ class Compiler {
       7249: { imports: ['skill', 'armor', 'attack', 'heal', 'magic'],
         build: "skill(armor('allyAll', 3, 1), attack('allyAll', 5, 0), heal('allyAll', 4, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Yellow, n: 13 } }), magic('allyAll', 4, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Yellow, n: 13 } }))" },
       9837: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetRace: 'Undead' }), heal('allyAll', 1, 1, { targetRace: 'Undead' }), inflict('blessed', 'allyAll', { targetRace: 'Undead' }))" },
-      9911: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: '黑石' }), heal('allyAll', 1, 1, { targetKingdom: '黑石' }), inflict('blessed', 'allyAll', { targetKingdom: '黑石' }))" },
-      9914: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: '沃尔帕克' }), heal('allyAll', 1, 1, { targetKingdom: '沃尔帕克' }), inflict('blessed', 'allyAll', { targetKingdom: '沃尔帕克' }))" },
+      9911: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: 3022 }), heal('allyAll', 1, 1, { targetKingdom: 3022 }), inflict('blessed', 'allyAll', { targetKingdom: 3022 }))" },
+      9914: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: 3084 }), heal('allyAll', 1, 1, { targetKingdom: 3084 }), inflict('blessed', 'allyAll', { targetKingdom: 3084 }))" },
       9976: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetRace: 'Mystic' }), heal('allyAll', 1, 1, { targetRace: 'Mystic' }), inflict('blessed', 'allyAll', { targetRace: 'Mystic' }))" },
       10046: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetRace: 'Construct' }), heal('allyAll', 1, 1, { targetRace: 'Construct' }), inflict('blessed', 'allyAll', { targetRace: 'Construct' }))" },
-      10050: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: '聚沙之地' }), heal('allyAll', 1, 1, { targetKingdom: '聚沙之地' }), inflict('blessed', 'allyAll', { targetKingdom: '聚沙之地' }))" },
+      10050: { imports: ['skill','attack','heal','inflict'], build: "skill(attack('allyAll', 1, 1, { targetKingdom: 3024 }), heal('allyAll', 1, 1, { targetKingdom: 3024 }), inflict('blessed', 'allyAll', { targetKingdom: 3024 }))" },
       8900: { imports: ['targetedSkill','chooseSkill','transformToSpecial','dmg'], build: "targetedSkill('enemyChosen', chooseSkill([\"将所选敌人一种法力颜色的宝石转化为灵魂宝石\",\"对所选敌人造成［魔法＋2］伤害，每颗灵魂宝石增强4点\"], [transformToSpecial('CHOSEN_TARGET', 'spiritGem')], [dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'spiritGem' } } })]))" },
       8951: { imports: ["skill","chooseSkill","createSpecialGems","extraTurn","trueDmg"], build: "skill(chooseSkill([\"创造8颗灵魂宝石并获得额外回合\",\"对一名随机敌人造成［魔法×2＋3］真实伤害\"], [createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 8, 0), extraTurn()], [trueDmg('enemyRandom', 3, 2, { trueDamage: true })]))" },
       8876: { imports: ["skill","chooseSkill","transform","CHOSEN","explodeAt","CELL","createGems"], build: "skill(chooseSkill([\"将所有绿色宝石转化为所选颜色\",\"爆破所选宝石，创造10颗绿色宝石\"], [transform(BaseColor.Green, CHOSEN)], [explodeAt(CELL), createGems(BaseColor.Green, 10, 0)]))" },
@@ -611,7 +616,7 @@ class Compiler {
     let m = /^(?:如果|若)敌人来自([\u4e00-\u9fa5]+?)(?:，或战斗(?:发生在|位于)([\u4e00-\u9fa5]+?))?[，,]?(?:则造成\s*(双倍|三倍|\d+\s*倍)伤害|(?:则)?伤害(双倍|翻倍|三倍|\d+\s*倍))$/.exec(c);
     if (m) {
       const kg = normalizeGroupName(m[1]);
-      const of = [{ kind: 'targetKingdom', kingdom: kg }]; // P-A-target-kingdom: the damaged target's kingdom
+      const of = [{ kind: 'targetKingdom', kingdom: kref(kg) }]; // P-A-target-kingdom: the damaged target's kingdom
       if (m[2]) of.push({ kind: 'kingdomPresent', kingdom: normalizeGroupName(m[2]) });
       const cond = of.length === 1 ? of[0] : { kind: 'anyOf', of };
       const w = m[3] ?? m[4];
@@ -954,12 +959,12 @@ class Compiler {
         const id = matchStatus(pm[1]);
         if (!id) return `盟友王国条件 payload 状态词无法识别「${pm[1]}」`;
         this.use('inflict');
-        state.segments.push(`inflict('${id}', 'allyAll', { targetKingdom: '${kg}' })`);
+        state.segments.push(`inflict('${id}', 'allyAll', { targetKingdom: ${krefCode(kg)} })`);
         return '';
       }
       const stash = this.parseSub(m[2], state);
       if (typeof stash === 'string') return `盟友王国条件 payload：${stash}`;
-      state.segments.push(...stash.map((s) => appendOpt(s, `targetKingdom: '${kg}'`)));
+      state.segments.push(...stash.map((s) => appendOpt(s, `targetKingdom: ${krefCode(kg)}`)));
       return '';
     }
     // 「若自身队伍中有X / 若队伍里有永生神X / 如果我的队伍中有X，则<payload>」→ troopPresent（§11.5）
@@ -2633,7 +2638,7 @@ class Compiler {
       }
       if (buffMod) seg = appendOpt(seg, `modifier: ${jsonMod(buffMod)}`);
       if (race) seg = appendOpt(seg, `targetRace: '${race}'`);
-      if (kingdom) seg = appendOpt(seg, `targetKingdom: '${kingdom}'`);
+      if (kingdom) seg = appendOpt(seg, `targetKingdom: ${krefCode(kingdom)}`);
       if (color) seg = appendOpt(seg, `ifCond: { kind: 'targetColor', color: BaseColor.${color} }`);
       segs.push(seg);
     }
@@ -3453,7 +3458,7 @@ function allyRandomStatusSeg(grp, _compiler) {
   if (isKingdomGroup(g) || isKingdomGroup(g2)) {
     // K-E 第五轮接线：王国限定盟友 → 段级 targetKingdom 过滤（「赋予所有圣唐盟友一个随机状态效果」8399）
     const kg = isKingdomGroup(g) ? normalizeGroupName(g) : normalizeGroupName(g2);
-    return { seg: `inflictRandom('allyAll', { targetKingdom: '${kg}', pool: 'positive' })` };
+    return { seg: `inflictRandom('allyAll', { targetKingdom: ${krefCode(kg)}, pool: 'positive' })` };
   }
   return { err: `群体名称无法可靠映射到种族/王国「${g}」（语义拿不准）` };
 }
@@ -3499,8 +3504,8 @@ function allySourceOf(grp, isEnemy) {
   if (isKingdomGroup(g)) {
     const kg = normalizeGroupName(g);
     return isEnemy
-      ? { source: { kind: 'enemiesOfKingdom', kingdom: kg } }
-      : { source: { kind: 'alliesOfKingdom', kingdom: kg } };
+      ? { source: { kind: 'enemiesOfKingdom', kingdom: kref(kg) } }
+      : { source: { kind: 'alliesOfKingdom', kingdom: kref(kg) } };
   }
   if (isEnemy) {
     if (color) return { source: { kind: 'enemiesOfColor', color } };
@@ -3874,8 +3879,8 @@ function parseModifierSource(body) {
     if (kgRaw && isKingdomGroup(kgRaw)) {
       const kg = normalizeGroupName(kgRaw);
       return /敌/.test(b)
-        ? { source: { kind: 'enemiesOfKingdom', kingdom: kg } }
-        : { source: { kind: 'alliesOfKingdom', kingdom: kg } };
+        ? { source: { kind: 'enemiesOfKingdom', kingdom: kref(kg) } }
+        : { source: { kind: 'alliesOfKingdom', kingdom: kref(kg) } };
     }
   }
   for (const [zh, race] of Object.entries(RACE_ALIAS)) {

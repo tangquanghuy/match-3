@@ -1213,7 +1213,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「因狮心帝国盟友数 [x4]」= alliesOfKingdom（Wave4 来源，官方 CountArmyKingdom 3025 = ×4）
     build: skill(
       dmg('enemyChosen', 4, 1, {
-    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfKingdom', kingdom: '狮心帝国' } },
+    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfKingdom', kingdom: 3025 } },
     condMult: CASTLE_ASC3,
   }),
     ),

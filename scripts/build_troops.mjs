@@ -80,6 +80,11 @@ function buildSkillMetadata(desc) {
 }
 
 const raw = JSON.parse(fs.readFileSync(IN, 'utf8'));
+// P-E-faction-kingdom: the zh dump's KingdomId folds faction kingdoms into their parent (5 Dripping Caverns 3058 troops
+// carry Grosh-Nak 3018, like kingdom_name). The en dump keeps the raw native KingdomId that SpellSteps use.
+const RAW_EN = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8'));
+const RAW_KINGDOM_ID = new Map((Array.isArray(RAW_EN) ? RAW_EN : RAW_EN.troops ?? Object.values(RAW_EN)).map((t) => [t.Id, t.KingdomId]));
+const rawKingdomId = (id) => (Number.isFinite(RAW_KINGDOM_ID.get(id)) ? RAW_KINGDOM_ID.get(id) : null);
 
 const troops = raw.troops.map((t) => {
   const s = t.stats ?? {};
@@ -96,6 +101,7 @@ const troops = raw.troops.map((t) => {
     rarity: RARITY[t.RarityIdx] ?? 'Common',
     rarityIdx: t.RarityIdx,
     kingdom: s.kingdom_name ?? null,
+    kingdomId: rawKingdomId(t.id),
     troopTypes: [t.TroopType, t.TroopType2].filter(Boolean),
     role: t._TroopRole_parsed?.[0] ?? null,
     // 战斗数值：顶层字段是 GoW 的 20 级（满级）值
@@ -134,7 +140,7 @@ const troops = raw.troops.map((t) => {
 // Preserve separately sourced installed entries absent from the Chinese snapshot.
 const supplements = JSON.parse(fs.readFileSync('src/data/gowTroopSnapshotSupplements.json', 'utf8')).troops;
 for (const entry of supplements) {
-  if (!troops.some((troop) => troop.id === entry.id)) troops.push(entry);
+  if (!troops.some((troop) => troop.id === entry.id)) troops.push({ ...entry, kingdomId: entry.kingdomId ?? rawKingdomId(entry.id) });
 }
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });

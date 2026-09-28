@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 511 条改动，涉及 883 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 512 条改动，涉及 938 个技能 ID。
 
 ## 按时间
 
@@ -517,6 +517,7 @@
 | 2026-09-28T12:23 | sa-E | L1-E-7554-dist | assembler | 9339 | troop:7554 HoundmasterGor | `src/engine/skills/curated/batch-r7.ts` | Blight Hound count uniform 1-3 → 3 independent summons 100/50/50% (25/50/25%) |  |
 | 2026-09-28T12:23 | sa-E | L1-E-7465-dist | assembler | 9181 | troop:7465 Theodorevich | `src/engine/skills/curated/batch-r22.ts` | 4 summons uniform 25% each → Randomize A+(B-C-D-E-F), B and F both Ragnagord: 40/20/20/20% |  |
 | 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
+| 2026-09-28T13:09 | sa-P | P-E-faction-kingdom | primitive | 8111, 8365, 8556, 8607, 8723, 9245, 9249, 9588, 9593, 8045, 8048, 8051, 8054, 8119, 8121, 8123, 8125, 8176, 8178, 8197, 8199, 8201, 8260, 8261, 8262, 8263, 8285, 8313, 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8383, 8385, 8399, 8434, 8451, 8452, 8453, 8487, 8505, 8506, 8510, 8513, 8514, 8515, 8620, 8642, 8645, 8669, 8670, 8707, 8725, 8765, 8766, 8807, 8809, 8905, 8911, 8875, 8877, 8955, 8971, 9034, 9036, 9142, 9145, 9205, 9208, 9111, 9235, 9264, 9267, 9302, 9305, 9351, 9354, 9506, 9509, 9574, 9577, 9628, 9632, 9635, 9689, 9692, 9749, 9752, 9832, 9835, 9911, 9914, 9876, 9974, 9977, 10047, 10050 | troop:6741 GeneralSuladin；troop:6904 LordBelanor；troop:7029 SkyMage；troop:7079 LadyEstelle；troop:7171 LordArchimedus；troop:7500 ManeCourser；troop:7504 Belladonnus；troop:7660 DugallRamhorn；troop:7665 SeabornKnight；weapon:1240 RoseBow；weapon:1243 SpikedMace；weapon:1246 CrystalPoint；weapon:1249 Razorclaw；weapon:1265 DrillShooter；weapon:1267 Grudgekeeper；weapon:1269 PlumedStaff；weapon:1271 SummerAegis；weapon:1282 KoragsInvention；weapon:1284 WolfHammer；weapon:1288 MedusaTome；weapon:1290 CatsPaw；weapon:1292 OakenCrown；weapon:1303 SickleOfSin；weapon:1304 StingingWind；weapon:1305 Soulreaper；weapon:1306 GuardianHammer；weapon:1312 StaffOfOtherworlds；weapon:1314 AmberPartizan；weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1353 AranaeanBloom；weapon:1355 Krys-hook；weapon:1364 CobaltineWand；weapon:1372 ScreamingTome；weapon:1388 EyeOfOrion；weapon:1389 DragonTales；weapon:1390 GinormousCleaver；weapon:1400 PiratesSignet；weapon:1402 WildCleaver；weapon:1403 Whump!；weapon:1407 IceSapphire；weapon:1410 FireGodsHeart；weapon:1411 King-Chopper；weapon:1412 OldMagusStaff；weapon:1423 AxeOfLeeching；weapon:1429 StarOfNexus；weapon:1432 VolcansMace；weapon:1437 HackJob；weapon:1438 EmeraldBlade；weapon:1449 TombLordsCrook；weapon:1453 Runegauge；weapon:1464 DaisysCudgel；weapon:1465 FlailOfGaard；weapon:1479 AegisOfHellcrag；weapon:1481 WatchfulBlade；weapon:1491 BaneOfGods；weapon:1497 ThornOfTheGods；weapon:1499 OrbOfVulpacea；weapon:1501 FoxfireTome；weapon:1511 RuthlessDefense；weapon:1527 AngelsFaith；weapon:1534 ElementalFury；weapon:1536 ThreeGraves；weapon:1541 EmeraldBaton；weapon:1544 WatchersBlade；weapon:1553 FoxFang；weapon:1556 KingCrusher；weapon:1560 MydnightsTerror；weapon:1569 ChampionsCleaver；weapon:1573 LionsReach；weapon:1576 ShieldOfVengeance；weapon:1580 MistyJournal；weapon:1583 Moonshard；weapon:1587 Bonecutter；weapon:1590 ShadowStaff；weapon:1614 TrickstersSlice；weapon:1617 BloodcrystalBlade；weapon:1626 CrystallianBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller；weapon:1642 PoisonousBrew；weapon:1645 CoralBow；weapon:1651 TeslasWrench；weapon:1654 LostTreasure；weapon:1660 ArcaneComet；weapon:1663 JewelOfMischief；weapon:1675 DeadEnd；weapon:1678 Windfall；weapon:1687 MiasmicDirk；weapon:1690 Spiritflame；weapon:1694 Nightwatch；weapon:1700 SlayersCleaver；weapon:1703 BigBang；weapon:1715 GrimoireOfTheGrove；weapon:1718 DesertStar | `scripts/build_troops.mjs`<br>`src/data/troops.ts`<br>`src/engine/types.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/summon.ts`<br>`src/session/contract.ts`<br>`src/session/combatantMapping.ts`<br>`src/meta/systems/battleBridge.ts`<br>`scripts/_weapon_pools.mjs`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r21.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | kingdom filters (targetKingdom / alliesOfKingdom / kingdomOf) matched the zh kingdom name, which faction troops share with their parent kingdom (e.g. raw 3070 troops = 圣唐) → troops.json/Character carry raw native kingdomId; KingdomRef number matches kingdomId; curated users of native AllyKingdom / CountArmyKingdom / MultiplyForKingdom<id> switched to the id; kingdomPresent (battle kingdom) keeps the zh name | 126 skills with a native kingdom id step; only differs when a faction troop (or mis-assigned zh kingdom) is on the field |
 
 ## 按技能 ID
 
@@ -807,10 +808,14 @@
 | 8035 | 1 | F2-R001-order |
 | 8038 | 1 | P-B-action-status-self-count |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
+| 8045 | 1 | P-E-faction-kingdom |
 | 8047 | 1 | R7-doomed-support-counters |
+| 8048 | 1 | P-E-faction-kingdom |
 | 8050 | 1 | R7-doomed-support-counters |
+| 8051 | 1 | P-E-faction-kingdom |
 | 8052 | 1 | R3-B03-1247 |
 | 8053 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
+| 8054 | 1 | P-E-faction-kingdom |
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
@@ -831,8 +836,13 @@
 | 8103 | 1 | P-counter-per-step |
 | 8106 | 1 | L4a-r3-6736 |
 | 8108 | 1 | L2-wrong-enemy-branches |
+| 8111 | 1 | P-E-faction-kingdom |
 | 8112 | 1 | F3-q33 |
 | 8113 | 1 | P-counter-per-step |
+| 8119 | 1 | P-E-faction-kingdom |
+| 8121 | 1 | P-E-faction-kingdom |
+| 8123 | 1 | P-E-faction-kingdom |
+| 8125 | 1 | P-E-faction-kingdom |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
 | 8137 | 1 | L1-E-6757-target |
@@ -847,9 +857,14 @@
 | 8167 | 1 | L4a-r3-6777 |
 | 8168 | 1 | L4a-r3-6778 |
 | 8169 | 1 | P-create-interleave |
+| 8176 | 1 | P-E-faction-kingdom |
+| 8178 | 1 | P-E-faction-kingdom |
 | 8182 | 1 | L5-C-6791-precount |
 | 8184 | 1 | L4a-r3-6793 |
 | 8193 | 1 | L1-6786-summons |
+| 8197 | 1 | P-E-faction-kingdom |
+| 8199 | 1 | P-E-faction-kingdom |
+| 8201 | 1 | P-E-faction-kingdom |
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
 | 8204 | 1 | P-counter-per-step |
 | 8208 | 1 | F2-R001-order |
@@ -876,62 +891,70 @@
 | 8248 | 2 | F1-onkill-order、R012 |
 | 8250 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
+| 8260 | 1 | P-E-faction-kingdom |
+| 8261 | 1 | P-E-faction-kingdom |
+| 8262 | 1 | P-E-faction-kingdom |
+| 8263 | 1 | P-E-faction-kingdom |
 | 8283 | 1 | L1-1310-brown |
+| 8285 | 1 | P-E-faction-kingdom |
 | 8288 | 1 | P-prefnotprev-semantics |
 | 8294 | 1 | P-prefnotprev-semantics |
 | 8297 | 1 | L4a-R1-8297-life-boost |
 | 8299 | 1 | F2-1313-order-life |
 | 8302 | 1 | F1-steal-before-damage |
 | 8307 | 1 | L2-wrong-enemy-branches |
+| 8313 | 1 | P-E-faction-kingdom |
 | 8316 | 1 | B-L4b-6890-native-chances |
 | 8321 | 1 | L2-1317-branches |
-| 8322 | 1 | P-A-target-kingdom |
-| 8323 | 1 | P-A-target-kingdom |
-| 8324 | 1 | P-A-target-kingdom |
-| 8325 | 1 | P-A-target-kingdom |
-| 8326 | 1 | P-A-target-kingdom |
-| 8327 | 1 | P-A-target-kingdom |
-| 8328 | 1 | P-A-target-kingdom |
-| 8329 | 1 | P-A-target-kingdom |
-| 8330 | 1 | P-A-target-kingdom |
-| 8331 | 1 | P-A-target-kingdom |
-| 8332 | 1 | P-A-target-kingdom |
-| 8333 | 1 | P-A-target-kingdom |
-| 8334 | 1 | P-A-target-kingdom |
-| 8335 | 1 | P-A-target-kingdom |
-| 8336 | 1 | P-A-target-kingdom |
-| 8337 | 1 | P-A-target-kingdom |
-| 8338 | 1 | P-A-target-kingdom |
-| 8339 | 1 | P-A-target-kingdom |
-| 8340 | 1 | P-A-target-kingdom |
-| 8341 | 1 | P-A-target-kingdom |
-| 8342 | 1 | P-A-target-kingdom |
-| 8343 | 1 | P-A-target-kingdom |
-| 8344 | 1 | P-A-target-kingdom |
-| 8345 | 1 | P-A-target-kingdom |
-| 8346 | 1 | P-A-target-kingdom |
-| 8347 | 1 | P-A-target-kingdom |
-| 8348 | 1 | P-A-target-kingdom |
-| 8349 | 1 | P-A-target-kingdom |
-| 8350 | 1 | P-A-target-kingdom |
-| 8351 | 1 | P-A-target-kingdom |
-| 8352 | 1 | P-A-target-kingdom |
-| 8353 | 1 | P-A-target-kingdom |
-| 8354 | 1 | P-A-target-kingdom |
+| 8322 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8323 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8324 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8325 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8326 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8327 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8328 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8329 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8330 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8331 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8332 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8333 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8334 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8335 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8336 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8337 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8338 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8339 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8340 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8341 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8342 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8343 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8344 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8345 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8346 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8347 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8348 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8349 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8350 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8351 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8352 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8353 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8354 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8357 | 1 | L1-1351-pool |
-| 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
+| 8365 | 3 | L7-R1-6904-nextdown、P-R4-nextdown-default-range、P-E-faction-kingdom |
 | 8370 | 1 | L4a-r3-6909 |
 | 8371 | 1 | L1-E-6910-wraith |
 | 8373 | 1 | R3-B03-6912 |
 | 8377 | 1 | L2-6916-one-skill |
 | 8382 | 1 | L1-devour-first |
+| 8383 | 1 | P-E-faction-kingdom |
+| 8385 | 1 | P-E-faction-kingdom |
 | 8389 | 1 | L1-1351-pool |
 | 8390 | 1 | P-prefnotprev-semantics |
 | 8391 | 1 | P-R1-count-at-native-step |
 | 8392 | 1 | P-R1-count-at-native-step |
 | 8393 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8396 | 1 | L2-1361-daemon-barrier |
-| 8399 | 1 | L1-E-kingdom-summon-raw |
+| 8399 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8403 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 8404 | 3 | L5-001、L5-002、L5-003 |
 | 8406 | 1 | R7-6928-zh-count |
@@ -950,12 +973,15 @@
 | 8427 | 1 | L2-6946-order |
 | 8430 | 1 | L2-6949-branches |
 | 8432 | 1 | B-L4b-1371-target-status |
+| 8434 | 1 | P-E-faction-kingdom |
 | 8436 | 1 | R3-B01-1374 |
 | 8438 | 1 | F1-6931-dispel |
 | 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8448 | 1 | P-R6-chosen-diagonal-transform |
-| 8451 | 1 | L1-E-kingdom-summon-raw |
+| 8451 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8452 | 1 | P-E-faction-kingdom |
+| 8453 | 1 | P-E-faction-kingdom |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
 | 8460 | 1 | L1-E-kingdom-summon-raw |
@@ -970,6 +996,7 @@
 | 8475 | 1 | L2-6972-order |
 | 8481 | 1 | L4a-r3-6954 |
 | 8485 | 1 | P-R3-next-up-target |
+| 8487 | 1 | P-E-faction-kingdom |
 | 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
 | 8492 | 1 | L2-6988-one-block |
@@ -980,12 +1007,13 @@
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
-| 8505 | 1 | L1-E-kingdom-summon-raw |
+| 8505 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8506 | 1 | P-E-faction-kingdom |
 | 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
-| 8510 | 1 | L1-E-kingdom-summon-raw |
-| 8513 | 1 | L1-E-kingdom-summon-raw |
-| 8514 | 1 | L1-E-kingdom-summon-raw |
-| 8515 | 1 | L1-E-kingdom-summon-raw |
+| 8510 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8513 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8529 | 2 | L1-E-kingdom-summon-raw、L1-E-1414-desc |
@@ -994,6 +1022,7 @@
 | 8546 | 1 | L1-7014-order |
 | 8549 | 1 | P-random-stat-pool |
 | 8553 | 1 | L1-7032-count-first |
+| 8556 | 1 | P-E-faction-kingdom |
 | 8557 | 1 | L4b-7030-dragon |
 | 8559 | 1 | L1-summon-dist |
 | 8560 | 2 | P-counter-per-step、P-R1-dual-storm |
@@ -1023,10 +1052,12 @@
 | 8603 | 1 | R7-guardian-potions |
 | 8605 | 1 | R7-guardian-potions |
 | 8606 | 1 | R7-guardian-potions |
+| 8607 | 1 | P-E-faction-kingdom |
 | 8609 | 1 | L1-devour-first |
 | 8610 | 1 | B-L4b-7082-native-create |
 | 8614 | 1 | L4a-r3-7086 |
 | 8618 | 1 | L2-1420-branches |
+| 8620 | 1 | P-E-faction-kingdom |
 | 8622 | 1 | L1-E-race-desc |
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
@@ -1044,8 +1075,9 @@
 | 8639 | 1 | L7-R1-board-special-counts |
 | 8640 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 8641 | 1 | B-L4b-1428-four-creates |
-| 8642 | 1 | P-A-target-kingdom |
+| 8642 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 8644 | 1 | L7-R1-weapon-colour-race |
+| 8645 | 1 | P-E-faction-kingdom |
 | 8646 | 1 | L4a-R1-8646-counters |
 | 8648 | 1 | L1-E-race-pool-immortals |
 | 8650 | 1 | P-prefnotprev-semantics |
@@ -1061,7 +1093,8 @@
 | 8666 | 1 | R7-tarot-extra-turn |
 | 8667 | 1 | R7-tarot-extra-turn |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
-| 8670 | 1 | L1-E-kingdom-summon-raw |
+| 8669 | 1 | P-E-faction-kingdom |
+| 8670 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8675 | 1 | L5-C-r4-7131 |
@@ -1075,11 +1108,12 @@
 | 8698 | 1 | L5-C-cursebreaker-targets |
 | 8699 | 1 | L5-C-cursebreaker-targets |
 | 8700 | 1 | L5-C-cursebreaker-targets |
-| 8707 | 1 | L1-E-kingdom-summon-raw |
+| 8707 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
-| 8725 | 1 | L1-E-kingdom-summon-raw |
+| 8723 | 1 | P-E-faction-kingdom |
+| 8725 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8732 | 1 | L1-7157-devour |
 | 8744 | 1 | P-R5-named-ally-count |
 | 8745 | 1 | L4a-r4-7174 |
@@ -1090,8 +1124,8 @@
 | 8758 | 1 | P-R1-count-at-native-step |
 | 8761 | 1 | R7-1460-burning-gems |
 | 8762 | 1 | P-R6-chosen-diagonal-transform |
-| 8765 | 1 | L1-E-kingdom-summon-raw |
-| 8766 | 1 | L1-E-kingdom-summon-raw |
+| 8765 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8766 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8770 | 1 | L1-E-race-pool-immortals |
 | 8771 | 1 | L1-E-race-desc |
@@ -1106,7 +1140,8 @@
 | 8798 | 1 | R7-7211-gargoyle-count |
 | 8802 | 1 | F3-t7215 |
 | 8804 | 1 | L2-7217-cell |
-| 8807 | 2 | F2-R001-order、P-A-target-kingdom |
+| 8807 | 3 | F2-R001-order、P-A-target-kingdom、P-E-faction-kingdom |
+| 8809 | 1 | P-E-faction-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8816 | 1 | L1-E-kingdom-summon-raw |
@@ -1131,7 +1166,8 @@
 | 8871 | 1 | B-L4b-7257-countmax |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
-| 8875 | 1 | P-A-target-kingdom |
+| 8875 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
+| 8877 | 1 | P-E-faction-kingdom |
 | 8881 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 8884 | 1 | L2-7265-dragon |
 | 8886 | 1 | R009-7267-color |
@@ -1143,8 +1179,8 @@
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
-| 8905 | 1 | L1-E-kingdom-summon-raw |
-| 8911 | 1 | L1-E-kingdom-summon-raw |
+| 8905 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8911 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8916 | 1 | L4a-r3-7304 |
 | 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
@@ -1156,12 +1192,13 @@
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8946 | 1 | R3-B09-1505 |
 | 8952 | 1 | D-1509-mark-target |
-| 8955 | 1 | L1-E-kingdom-summon-raw |
+| 8955 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8965 | 1 | P-R6-chosen-cell-counts |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
 | 8970 | 2 | P-prefnotprev-semantics、R7-tarot-extra-turn |
+| 8971 | 1 | P-E-faction-kingdom |
 | 8972 | 1 | R3-B05-1528 |
 | 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
@@ -1174,14 +1211,14 @@
 | 9015 | 2 | L5-001、L5-002 |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9025 | 1 | F2-7383-kill-gems |
-| 9034 | 1 | L1-E-kingdom-summon-raw |
-| 9036 | 1 | L1-E-kingdom-summon-raw |
+| 9034 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 9036 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9051 | 1 | L3-008 |
 | 9064 | 1 | P-counter-per-step |
 | 9066 | 1 | L1-7417-devour |
 | 9067 | 1 | L3-008 |
 | 9069 | 1 | L2-7406-branch-weights |
-| 9111 | 1 | P-A-target-kingdom |
+| 9111 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 9115 | 1 | R7-tarot-extra-turn |
 | 9118 | 1 | L1-drain-devour |
 | 9119 | 1 | P-create-interleave |
@@ -1195,8 +1232,8 @@
 | 9138 | 1 | P-create-interleave |
 | 9139 | 1 | P-steal-to-life |
 | 9140 | 1 | L1-summon-dist |
-| 9142 | 1 | L1-E-kingdom-summon-raw |
-| 9145 | 1 | L1-E-kingdom-summon-raw |
+| 9142 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 9145 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9161 | 1 | L4b-1548-steps |
 | 9162 | 1 | R012 |
 | 9163 | 1 | P-create-interleave |
@@ -1210,9 +1247,9 @@
 | 9199 | 1 | P-prefnotprev-semantics |
 | 9200 | 1 | L2-7483-explode-board |
 | 9203 | 1 | L1-E-1551-giant-pool |
-| 9205 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9205 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9207 | 1 | L1-E-race-desc |
-| 9208 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9208 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9210 | 1 | L1-E-race-desc |
 | 9211 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9212 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
@@ -1223,15 +1260,17 @@
 | 9221 | 1 | L4a-r3-7488 |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
-| 9235 | 1 | L1-E-kingdom-summon-raw |
+| 9235 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9237 | 1 | P-R1-count-at-native-step |
 | 9241 | 2 | P-random-stat-pool、L2-7496-pref-not-prev |
 | 9244 | 1 | L4b-7499-dragon |
+| 9245 | 1 | P-E-faction-kingdom |
+| 9249 | 1 | P-E-faction-kingdom |
 | 9256 | 1 | L1-7510-prefnotprev |
 | 9258 | 1 | R012 |
 | 9262 | 1 | L7-R1-1571-native-gems |
-| 9264 | 1 | L1-E-kingdom-summon-raw |
-| 9267 | 1 | L1-E-kingdom-summon-raw |
+| 9264 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 9267 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9279 | 1 | L1-7515-summon-dist |
 | 9280 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 9281 | 1 | L7-7517 |
@@ -1239,8 +1278,9 @@
 | 9283 | 1 | R7-tarot-extra-turn |
 | 9291 | 1 | P-R3-precast-compare |
 | 9297 | 1 | L4a-r3-7539 |
+| 9302 | 1 | P-E-faction-kingdom |
 | 9303 | 1 | L7-R1-weapon-colour-race |
-| 9305 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9305 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9306 | 1 | L7-R1-weapon-colour-race |
 | 9313 | 1 | L2-7523-one-colour |
 | 9318 | 1 | L4a-r3-7543 |
@@ -1249,8 +1289,9 @@
 | 9339 | 1 | L1-E-7554-dist |
 | 9341 | 1 | L2-7556-gold-count |
 | 9349 | 2 | B-L4b-1585-entangle-gems、B-L4b-1585-entangle-gems |
-| 9351 | 1 | L1-E-kingdom-summon-raw |
+| 9351 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9352 | 1 | L7-R1-weapon-colour-race |
+| 9354 | 1 | P-E-faction-kingdom |
 | 9355 | 1 | L7-R1-weapon-colour-race |
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
@@ -1274,9 +1315,10 @@
 | 9492 | 1 | L1-devour-first |
 | 9494 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9505 | 1 | B-L4b-1613-zh |
+| 9506 | 1 | P-E-faction-kingdom |
 | 9507 | 1 | L7-R1-weapon-colour-race |
 | 9508 | 1 | L1-E-race-desc |
-| 9509 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9509 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
 | 9514 | 1 | P-random-stat-pool |
@@ -1305,21 +1347,24 @@
 | 9563 | 1 | R3-B10-7650 |
 | 9569 | 1 | L1-7654-devour |
 | 9573 | 1 | L4b-1625-1674-any |
-| 9577 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9574 | 1 | P-E-faction-kingdom |
+| 9577 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9578 | 1 | L7-R1-weapon-colour-race |
 | 9579 | 1 | R7-1631-counter-only-drain |
+| 9588 | 1 | P-E-faction-kingdom |
 | 9589 | 1 | L7-R1-random-chain-waves |
 | 9591 | 1 | P-counter-per-step |
-| 9593 | 1 | P-A-target-kingdom |
+| 9593 | 2 | P-A-target-kingdom、P-E-faction-kingdom |
 | 9594 | 1 | R011 |
 | 9597 | 1 | P-counter-per-step |
 | 9602 | 1 | F1-7674-target |
 | 9615 | 1 | L1-7680-pool |
 | 9616 | 1 | F3-q24 |
-| 9628 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
+| 9628 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
 | 9630 | 1 | L7-R1-weapon-colour-race |
+| 9632 | 1 | P-E-faction-kingdom |
 | 9633 | 1 | L7-R1-weapon-colour-race |
-| 9635 | 1 | L7-R1-teamsize-source |
+| 9635 | 2 | L7-R1-teamsize-source、P-E-faction-kingdom |
 | 9636 | 1 | L7-R1-weapon-colour-race |
 | 9639 | 1 | L4a-R1-9639-block-gargoyle |
 | 9640 | 1 | P-random-stat-pool |
@@ -1337,6 +1382,8 @@
 | 9677 | 1 | B-L4b-prefnotprev |
 | 9687 | 1 | R3-B06-1649 |
 | 9688 | 1 | L7-R1-teamsize-source |
+| 9689 | 1 | P-E-faction-kingdom |
+| 9692 | 1 | P-E-faction-kingdom |
 | 9711 | 1 | L1-7719-random |
 | 9716 | 1 | F3-t7724 |
 | 9719 | 1 | P-prefnotprev-semantics |
@@ -1345,6 +1392,8 @@
 | 9723 | 1 | F2-7728-no-damage |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |
+| 9749 | 1 | P-E-faction-kingdom |
+| 9752 | 1 | P-E-faction-kingdom |
 | 9754 | 1 | L1-E-race-desc |
 | 9773 | 1 | L1-devour-first |
 | 9774 | 2 | P-counter-per-step、B-L4b-7768-mix-boost |
@@ -1356,8 +1405,8 @@
 | 9812 | 1 | L1-7793-prefnotprev |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
-| 9832 | 2 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc |
-| 9835 | 1 | L1-E-kingdom-summon-raw |
+| 9832 | 3 | L1-E-kingdom-summon-raw、L1-E-kingdom-desc、P-E-faction-kingdom |
+| 9835 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9838 | 1 | L1-devour-first |
 | 9839 | 1 | R7-7800-prefnotprev |
 | 9842 | 1 | L4b-1682-order |
@@ -1375,10 +1424,13 @@
 | 9873 | 1 | L2-7829-heavy-splash |
 | 9874 | 2 | F2-7830-heal-mult、P-prefnotprev-semantics |
 | 9875 | 1 | L7-R1-teamsize-source |
+| 9876 | 1 | P-E-faction-kingdom |
 | 9879 | 1 | F3-q38 |
 | 9880 | 1 | P-prefnotprev-semantics |
 | 9882 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、L7-R1-random-chain-waves |
 | 9909 | 2 | P-random-stat-pool、L2-7850-target |
+| 9911 | 1 | P-E-faction-kingdom |
+| 9914 | 1 | P-E-faction-kingdom |
 | 9915 | 1 | L7-R1-weapon-colour-race |
 | 9916 | 1 | L1-E-race-pool-immortals |
 | 9918 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
@@ -1394,6 +1446,8 @@
 | 9952 | 1 | L4a-R1-cross-8039-9952 |
 | 9957 | 1 | L3-007 |
 | 9958 | 1 | L4a-R1-9958-count-order |
+| 9974 | 1 | P-E-faction-kingdom |
+| 9977 | 1 | P-E-faction-kingdom |
 | 9982 | 1 | L5-C-7900-waves |
 | 9983 | 1 | L4a-R1-immortal-order |
 | 9986 | 1 | F3-q22 |
@@ -1402,6 +1456,8 @@
 | 10006 | 1 | F1-doomed-random-skill |
 | 10008 | 1 | F1-doomed-random-skill |
 | 10045 | 1 | B-L4b-prefnotprev |
+| 10047 | 1 | P-E-faction-kingdom |
 | 10048 | 1 | L7-R1-weapon-colour-race |
+| 10050 | 1 | P-E-faction-kingdom |
 | 10061 | 1 |  |
 | 10063 | 1 | F3-q30 |

@@ -65,6 +65,7 @@ export function snapshotToCharacter(snapshot: CombatantSnapshot, internalId: num
     // 王国透传（Wave4 批）；kingdomOf 条件与 alliesOf/enemiesOfKingdom 来源按它筛选。
     // 可选字段：快照未携带时不写键（该角色不属于任何王国）。
     ...(snapshot.kingdom !== undefined ? { kingdom: snapshot.kingdom } : {}),
+    ...(snapshot.kingdomId !== undefined ? { kingdomId: snapshot.kingdomId } : {}),
     // 武器淬炼等级透传（素材批 2026-09-19）；tempering 来源 modifier 按它计数。缺省不写键。
     ...(snapshot.temperingLevel !== undefined ? { temperingLevel: snapshot.temperingLevel } : {}),
     // 技能/特质显示文本透传（素材批追补）：详情面板与卡面兜底。缺省不写键。

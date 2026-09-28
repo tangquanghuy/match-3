@@ -106,6 +106,7 @@ export function troopToSnapshot(
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
     kingdom: troop.kingdom ?? undefined,
+    ...(troop.kingdomId != null ? { kingdomId: troop.kingdomId } : {}),
     manaColors: [...troop.manaColors],
     manaCost: troop.manaCost,
     traitIds: knownTraits(troop, (i) => rec.traits[i]),
@@ -131,6 +132,7 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
     kingdom: troop.kingdom ?? undefined,
+    ...(troop.kingdomId != null ? { kingdomId: troop.kingdomId } : {}),
     manaColors: [...troop.manaColors],
     manaCost: troop.manaCost,
     // Engine and display follow the same explicit NPC training policy.

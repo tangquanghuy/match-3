@@ -8,17 +8,19 @@ const KEYS = [
   ...Array.from({ length: 33 }, (_, i) => `weapon:${1318 + i}`),
   'weapon:1429', 'weapon:1479', 'weapon:1499', 'weapon:1560', 'troop:7665',
 ];
-type Cond = { kind: string; kingdom?: string; of?: Cond[] };
-function kingdomOf(key: string): string {
+type Cond = { kind: string; kingdom?: string | number; of?: Cond[] };
+// P-E-faction-kingdom: the curated leaf now carries the raw native KingdomId (matches Character.kingdomId)
+function kingdomOf(key: string): number {
   const proto = registry.prototypes.get(entitySkill(key).skill) as SkillPrototype;
   const seg = (proto.segments as Array<{ kind: string; condMult?: { cond: Cond } }>).find(s => s.condMult);
   const cond = seg!.condMult!.cond;
   const leaf = cond.kind === 'anyOf' ? cond.of!.find(c => c.kind === 'targetKingdom') : cond;
   expect(leaf?.kind, key).toBe('targetKingdom');
-  return leaf!.kingdom!;
+  expect(typeof leaf!.kingdom, key).toBe('number');
+  return leaf!.kingdom as number;
 }
-const hpLost = (key: string, kingdoms: (string | undefined)[]) => {
-  const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, kingdom: kingdoms[i] }));
+const hpLost = (key: string, kingdoms: (number | undefined)[]) => {
+  const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, kingdomId: kingdoms[i] }));
   const r = castSpell({ key, target: 11, enemies, seed: 1 });
   const e11 = r.f.enemies.find(e => e.id === 11)!;
   return 900 - e11.hp;

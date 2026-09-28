@@ -214,6 +214,11 @@ function validateCombatant(
     }
   }
 
+  // kingdomId optional (P-E-faction-kingdom): raw native KingdomId, integer when given
+  if (c.kingdomId !== undefined && !Number.isInteger(c.kingdomId)) {
+    issues.push({ path: `${path}.kingdomId`, code: 'bad-type', message: '必须是整数' });
+  }
+
   // traitIds 可选：省略时若有 tier 由分拣引擎按阶级+种族编配；显式给了就逐个校验
   if (c.traitIds !== undefined) {
     if (!Array.isArray(c.traitIds)) {

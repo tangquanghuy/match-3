@@ -537,6 +537,16 @@ export interface StatusInstance {
 /** @deprecated 旧空壳别名，保留以兼容早期引用；等价于 StatusInstance。 */
 export type StatusEffect = StatusInstance;
 
+/**
+ * P-E-faction-kingdom: a kingdom filter value. number = raw native KingdomId (matches Character.kingdomId,
+ * so faction troops are told apart from their parent kingdom); string = zh kingdom name (Character.kingdom,
+ * legacy form, still used by community troops and callers without a native id).
+ */
+export type KingdomRef = string | number;
+export function matchesKingdom(unit: { kingdom?: string | null; kingdomId?: number | null }, ref: KingdomRef): boolean {
+  return typeof ref === 'number' ? unit.kingdomId === ref : unit.kingdom === ref;
+}
+
 /** 角色（需求 13） */
 export interface Character {
   eventTarget?: 'boss' | 'tower';
@@ -582,6 +592,13 @@ export interface Character {
    * 可选：宿主快照未携带或手写夹具省略即不属于任何王国（条件不成立、计数不计入）。
    */
   kingdom?: string;
+  /**
+   * P-E-faction-kingdom: raw native KingdomId (data/raw/troops.gow.en.json, e.g. 3030 Shentang, 3070 its faction).
+   * `kingdom` is the zh parent-kingdom name, which faction troops share with their parent; native
+   * AllyKingdom / CountArmyKingdom / MultiplyForKingdom steps use this raw id. Kingdom filters given a numeric
+   * kingdom (KingdomRef) match this field; optional (community troops / hand fixtures have none).
+   */
+  kingdomId?: number;
   /**
    * 淬炼段位（武器原语批 K-E，官方 Doomed 档武器「+N per Tempering level」的缩放来源）：
    * 施法者（主角）的武器淬炼等级。modifier 来源 `{ kind: 'tempering' }` 按它计数——

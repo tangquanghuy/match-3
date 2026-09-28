@@ -127,7 +127,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 6, 1, {
         range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: '荆棘森林' } },
+        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3015 } },
       }),
       inflict('silence', 'enemyFront'),
     ),
@@ -642,7 +642,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 王国计数首落地：alliesOfKingdom（Leonis Empire 3025 = 本地「狮心帝国」）；[1:1] = CountArmyKingdom x100
     build: skill(
       explodeRandomGems(1, 0, 'all', undefined, {
-        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'alliesOfKingdom', kingdom: '狮心帝国' } },
+        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'alliesOfKingdom', kingdom: 3025 } },
       }),
     ),
   },
@@ -666,13 +666,13 @@ const SPELLS: CuratedBatch['spells'] = [
       heal('allySelf', 1, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 4 },
-          sources: [{ kind: 'alliesOfKingdom', kingdom: '皓彩森林' }, { kind: 'enemyStatusCount', statusId: 'faerie-fire' }],
+          sources: [{ kind: 'alliesOfKingdom', kingdom: 3002 }, { kind: 'enemyStatusCount', statusId: 'faerie-fire' }],
         },
       }),
       armor('allySelf', 1, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 4 },
-          sources: [{ kind: 'alliesOfKingdom', kingdom: '皓彩森林' }, { kind: 'enemyStatusCount', statusId: 'faerie-fire' }],
+          sources: [{ kind: 'alliesOfKingdom', kingdom: 3002 }, { kind: 'enemyStatusCount', statusId: 'faerie-fire' }],
         },
       }),
       inflict('barrier', 'allySelf'),
@@ -925,7 +925,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // r16 卡点回收：alliesOfKingdom（Dhrak-Zum 3035 = 本地「卓克祖」）；[x4] = CountArmyKingdom x400
     build: skill(
       dmg('enemyChosen', 4, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfKingdom', kingdom: '卓克祖' } },
+        modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfKingdom', kingdom: 3035 } },
         condMult: BOSS_ASC3,
       }),
     ),
@@ -938,7 +938,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-        condMult: { times: 2, cond: { kind: 'targetKingdom', kingdom: '梅兰堤斯' } },
+        condMult: { times: 2, cond: { kind: 'targetKingdom', kingdom: 3036 } },
       }),
     ),
   },

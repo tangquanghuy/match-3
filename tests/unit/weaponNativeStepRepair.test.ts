@@ -153,16 +153,18 @@ describe('weapon-wide verified native-step invariants', () => {
   it('Silverglade and kingdom-or-battle filters use real kingdoms and both branches', () => {
     const silverglade = String.fromCharCode(0x7389, 0x94f6, 0x6797, 0x5730);
     for (const id of [8347, 8670, 9302, 9574]) {
-      expect(JSON.stringify(weapons.get(id))).toContain(silverglade);
+      // P-E-faction-kingdom: ally/target filters carry the raw KingdomId 3009; the battle-kingdom half keeps the name
+      const json = JSON.stringify(weapons.get(id));
+      expect(json.includes(silverglade) || /"(targetKingdom|kingdom)":3009\b/.test(json), String(id)).toBe(true);
       expect(JSON.stringify(weapons.get(id))).not.toContain(silverglade.replace(/^/, silverglade[0]));
     }
     for (const [id, kingdom] of [[8807, String.fromCharCode(0x5730, 0x72f1, 0x60ac, 0x5d16)],
       [9111, String.fromCharCode(0x5348, 0x591c, 0x57ce, 0x5e02)]] as const) {
-      const segments = weapons.get(id)!.segments as Array<{ kind: string; condMult?: { cond: { kind: string; of: Array<{ kind: string; kingdom: string }> } } }>;
+      const segments = weapons.get(id)!.segments as Array<{ kind: string; condMult?: { cond: { kind: string; of: Array<{ kind: string; kingdom: string | number }> } } }>;
       const cond = segments.find(s => s.kind === 'damage')?.condMult?.cond;
       expect(cond?.kind).toBe('anyOf');
       expect(cond?.of).toEqual([
-        { kind: 'targetKingdom', kingdom },
+        { kind: 'targetKingdom', kingdom: id === 8807 ? 3082 : 3085 },
         { kind: 'kingdomPresent', kingdom },
       ]);
     }
