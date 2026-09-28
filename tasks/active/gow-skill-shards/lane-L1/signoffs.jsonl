@@ -68,3 +68,13 @@
 {"format":"compact","key":"weapon:1274","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:25.921Z","issue":"P-R5-faction-kingdom","note":"Wild Court 3048 / Amanithrax 3053 faction count uses zh parent kingdom (all Adana/Zaejin allies); primitive-queue/sa-R5.jsonl"}
 {"format":"compact","key":"troop:7173","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:26.034Z","issue":"P-R5-named-ally-count","note":"native 3 Doomskulls per Eldritch Minion ally; prototype 3 if any"}
 {"format":"compact","key":"weapon:1647","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T05:57:26.136Z","issue":"P-R5-special-gem-color","note":"native counts Green Dragon Gems only; boardSpecial counts all colours. Also native summon precedes damage (unobservable)"}
+{"format":"compact","key":"troop:7583","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.527Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6732","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6594","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6409","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7064","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7392","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.528Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7719","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6300","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7066","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6425","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}

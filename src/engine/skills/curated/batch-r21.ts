@@ -297,9 +297,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「因敌军的妖仙数量 [x8]」= enemiesOfRace Fey ×8；「银天龙或克里斯坦纳斯」= oneOf（官方两变体步骤）。
     build: skill(
     dmg('enemyChosen', 2, 1, { modifier: enemiesOfRaceBoost('Fey', 8) }),
+    // sa-R5 L1-6425-dist: native Randomize AB+(C-D-E-F) over SilverDrakon, Krystenax, SilverDrakon, SilverDrakon (75/25).
     oneOf(
       [summonRef('SilverDrakon', 6321)],
       [summonRef('Krystenax', 6328)],
+      [summonRef('SilverDrakon', 6321)],
+      [summonRef('SilverDrakon', 6321)],
     ),
     ),
   },
@@ -345,9 +348,10 @@ const SPELLS: CuratedBatch['spells'] = [
         sources: [{ kind: 'alliesOfRace', race: 'Daemon' }, { kind: 'enemiesOfRace', race: 'Daemon' }],
       },
     }),
+    // sa-R5: native RandomEnemy, then 2 x RandomPrefNotPrevEnemy (R007-3).
     transformTroopRandom('enemyRandom', DAEMONS, { chance: 0.2 }),
-    transformTroopRandom('enemyRandom', DAEMONS, { chance: 0.2 }),
-    transformTroopRandom('enemyRandom', DAEMONS, { chance: 0.2 }),
+    transformTroopRandom('enemyRandomPrefNotPrev', DAEMONS, { chance: 0.2 }),
+    transformTroopRandom('enemyRandomPrefNotPrev', DAEMONS, { chance: 0.2 }),
     ),
   },
   {

@@ -168,6 +168,46 @@ describe('L1 R2 charm family (sa-R5)', () => {
     expect(t['2']).toBeGreaterThan(160); expect(t['2']).toBeLessThan(240);
     expect(t['3']).toBeGreaterThan(65); expect(t['3']).toBeLessThan(140);
   });
+  // troop:7064 / 7066 CountArmyType gnome (zh 地精): Gnome allies boost, Goblin allies do not.
+  it.each([
+    { key: 'troop:7064', t: ['Gnome'], skulls: 9 }, { key: 'troop:7064', t: ['Goblin'], skulls: 6 },
+  ])('$key skulls with a $t ally -> $skulls (caster is a Gnome)', ({ key, t, skulls }) => {
+    const s = castSpell({ key, allies: [{ troopTypes: t }, { troopTypes: ['Human'] }] }).summary;
+    expect(s.gems.created.skull).toBe(skulls);
+  });
+  it.each([
+    { t: ['Gnome'], dmg: 24 }, { t: ['Goblin'], dmg: 18 },
+  ])('troop:7066 damage with a $t ally -> $dmg', ({ t, dmg }) => {
+    expect(castSpell({ key: 'troop:7066', allies: [{ troopTypes: t }, { troopTypes: ['Human'] }] }).summary.order[0]).toBe(`dmg E11 ${dmg}`);
+  });
+  // troop:7719 chosen + RandomEnemy + RandomPrefNotPrevEnemy; two independent random Mech summons.
+  it('troop:7719 lone enemy hit three times; two summons can differ', () => {
+    const lone = castSpell({ key: 'troop:7719', target: 10, enemies: [{ hp: 900, maxHp: 900, armor: 0 }] }).summary.order.filter(x => x.startsWith('dmg'));
+    expect(lone).toHaveLength(3);
+    let differ = false;
+    for (let seed = 1; seed <= 20 && !differ; seed++) {
+      const r = castSpell({ key: 'troop:7719', seed, allies: [{}] });
+      const names = Object.values(r.summary.units).filter(v => v.startsWith('new ')).map(v => v.split(' ')[1]);
+      expect(names).toHaveLength(2);
+      differ = names[0] !== names[1];
+    }
+    expect(differ).toBe(true);
+  });
+  // troop:6425 Randomize AB+(C-D-E-F): Silver Drakon 75%, Krystenax 25%.
+  it('troop:6425 Silver Drakon 3:1 Krystenax', () => {
+    const t = tally(Array.from({ length: 400 }, (_, i) => castSpell({ key: 'troop:6425', seed: i + 1 }).summary.units.A14?.split(' ')[1] ?? 'none'));
+    const silver = TROOPS.find(x => x.referenceName === 'SilverDrakon')!.name;
+    expect(t[silver]).toBeGreaterThan(260); expect(t[silver]).toBeLessThan(340);
+  });
+  // troop:6594 3 x 20% daemon transforms: RandomEnemy then RandomPrefNotPrevEnemy x2.
+  it('troop:6594 up to three different enemies transformed', () => {
+    let three = false;
+    for (let seed = 1; seed <= 400 && !three; seed++) {
+      const o = castSpell({ key: 'troop:6594', seed }).summary.order.filter(x => x.startsWith('transform'));
+      if (o.length === 3) { expect(new Set(o.map(x => x.split(' ')[1])).size).toBeGreaterThanOrEqual(2); three = true; }
+    }
+    expect(three).toBe(true);
+  });
   // weapon:1310 independent 30% extra turn and 30% half mana (8 of 16); no Brown-gem boost (English + native).
   it('weapon:1310 independent 30% chances, half mana = 8', () => {
     let extra = 0, half = 0, both = 0;

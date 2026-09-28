@@ -752,11 +752,16 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'alliesOfRace', race: 'Mech' } },
       }),
-      dmg('enemyRandomN', 4, 1, {
-        n: 2,
+      // sa-R5 L1-7719-random: native Damage@RandomEnemy (may be the chosen one) + Damage@RandomPrefNotPrevEnemy
+      // (was 2 distinct randoms), and two independent SummoningType mech steps (countRange repeated one mech).
+      dmg('enemyRandom', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'alliesOfRace', race: 'Mech' } },
       }),
-      summonRandom(MECH_REFS, undefined, { countRange: { min: 2, max: 2 } }),
+      dmg('enemyRandomPrefNotPrev', 4, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'alliesOfRace', race: 'Mech' } },
+      }),
+      summonRandom(MECH_REFS),
+      summonRandom(MECH_REFS),
     ),
   },
   {

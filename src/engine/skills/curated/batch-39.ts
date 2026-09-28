@@ -160,7 +160,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害，数量因地精盟友而增强。有 30% 的几率跑掉。 [x6]',
     // 修正（2026-09-18 官方复核）：官方 Damage@FromTarget = 指定的敌人，非随机
     build: skill(
-      dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Goblin' } } }),
+      // sa-R5 L1-gnome-race: native CountArmyType gnome (zh 地精 = Gnome; Goblin is 哥布林).
+      dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Gnome' } } }),
       escape(0.3),
     ),
   },
@@ -200,7 +201,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8592,
     desc: '创建 3 颗骷髅头，数量因地精盟友而增强。有 30% 的几率跑掉。 [x3]',
     build: skill(
-      createSkulls(3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Goblin' } } }),
+      // sa-R5 L1-gnome-race: native CountArmyType gnome (zh 地精 = Gnome; Goblin is 哥布林).
+      createSkulls(3, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Gnome' } } }),
       escape(0.3),
     ),
   },
