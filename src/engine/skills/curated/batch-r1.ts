@@ -176,7 +176,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名随机敌人造成 [(魔法 / 2) + 1] – [魔法 + 2] 伤害，伤害值因绿色宝石和盟友数而增强。 [1:1]',
     build: skill(dmg('enemyRandom', 0, 0, {
       rangeSpec: { min: scale(1, 0.5), max: scale(2, 1) },
-      modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Green }, { kind: 'teamSize', side: 'ally' }] },
+      modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Green }, { kind: 'alliesOfColor', color: BaseColor.Green }] },
     })),
   },
   {

@@ -170,11 +170,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8626,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，数值因蓝色宝石和盟友数而增强。 [1:1]',
     build: skill(
-      // sources[] 双来源：boardGems Blue + teamSize ally（「盟友数」含自身，SOP 来源表）
+      // sources[] 双来源：boardGems Blue + alliesOfColor Blue（原生 CountArmyColor Data 0 = 蓝色盟友，含自身）
       heal('allyAll', 1, 1, {
         modifier: {
           mod: { kind: 'ratio', a: 1, b: 1 },
-          sources: [{ kind: 'boardGems', color: BaseColor.Blue }, { kind: 'teamSize', side: 'ally' }],
+          sources: [{ kind: 'boardGems', color: BaseColor.Blue }, { kind: 'alliesOfColor', color: BaseColor.Blue }],
         },
       }),
     ),

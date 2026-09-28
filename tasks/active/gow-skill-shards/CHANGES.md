@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 185 条改动，涉及 376 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 186 条改动，涉及 379 个技能 ID。
 
 ## 按时间
 
@@ -191,6 +191,7 @@
 | 2026-09-28T02:28 | sa-R4 | L7-R1-7113-enemy-colour | assembler | 8656 | troop:7113 IcespireShaman | `src/engine/skills/curated/batch-r1.ts` | boost counted Blue allies + all enemies (teamSize); zh desc said random allies → boost x3 per Blue ally + Blue enemy (CountArmyColor AllEnemies); zh desc targets random enemies |  |
 | 2026-09-28T02:28 | sa-R4 | L7-R1-weapon-colour-race | assembler | 8644, 8767 | weapon:1431 ThornsBlade；weapon:1466 Bloodkeeper | `src/engine/skills/curated/batch-w03.ts` | boost counted race allies only (Green/Purple colour count dropped) → boost x3 per Green (8644) / Purple (8767) ally plus per Elemental / Undead ally, counted separately |  |
 | 2026-09-28T02:32 | sa-R4 | L7-R1-weapon-colour-race | assembler | 9303, 9306, 9352, 9355, 9507, 9578, 9630, 9633, 9636, 9915, 10048, 7248 | weapon:1581 LickOfFire；weapon:1584 SharpReef；weapon:1588 Bloodblight；weapon:1591 TheBeatenPath；weapon:1615 HolyPath；weapon:1630 BurningClaw；weapon:1640 TitanicCleaver；weapon:1643 FrozenFractal；weapon:1648 Haresplitter；weapon:1691 ClawOfTheNorth；weapon:1716 FeralDagger；weapon:1111 ShatteredBlade | `src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-w01.ts` | boost counted only one of the two named sources (race only: 9303/9306/9352/9355; colour only: 9507/9578/9630/9633/9636/9915/10048; Divine only: 7248) → both native Count steps (CountArmyColor + CountArmyType, or 2x CountArmyType for 7248) summed per ally |  |
+| 2026-09-28T02:41 | sa-R4 | L7-R1-teamsize-source | assembler | 9635, 9688, 8624, 9875, 8626 | weapon:1645 CoralBow；weapon:1650 HolyBreeze；troop:7089 NaturebornWarden；troop:7831 Balearic；troop:7091 WaterbornPriestess | `src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r1.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-33.ts` | boost counted every ally (teamSize) instead of the native Count source → native source: Merlantis allies (9635, CountArmyKingdom 3036), Divine allies (9688), Green/Blue allies (8624/9875/8626, CountArmyColor Data 1/0) alongside the gem count |  |
 
 ## 按技能 ID
 
@@ -428,9 +429,9 @@
 | 8597 | 1 | P-steal-to-life |
 | 8598 | 3 | L3-007、L3-008、L3-009 |
 | 8599 | 1 | L4b-7071-base |
-| 8624 | 1 | P-counter-per-step |
+| 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
-| 8626 | 1 | P-counter-per-step |
+| 8626 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8632 | 2 | L3-001、P-create-interleave |
 | 8633 | 2 | L3-001、P-create-interleave |
 | 8634 | 2 | L3-001、P-create-interleave |
@@ -528,6 +529,7 @@
 | 9616 | 1 | F3-q24 |
 | 9630 | 1 | L7-R1-weapon-colour-race |
 | 9633 | 1 | L7-R1-weapon-colour-race |
+| 9635 | 1 | L7-R1-teamsize-source |
 | 9636 | 1 | L7-R1-weapon-colour-race |
 | 9640 | 1 | P-random-stat-pool |
 | 9641 | 1 | P-prefnotprev-semantics |
@@ -535,6 +537,7 @@
 | 9661 | 1 | F3-q19 |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |
+| 9688 | 1 | L7-R1-teamsize-source |
 | 9716 | 1 | F3-t7724 |
 | 9719 | 1 | P-prefnotprev-semantics |
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |
@@ -553,6 +556,7 @@
 | 9861 | 1 | P-random-stat-pool |
 | 9869 | 1 | F1-7825-count |
 | 9874 | 2 | F2-7830-heal-mult、P-prefnotprev-semantics |
+| 9875 | 1 | L7-R1-teamsize-source |
 | 9879 | 1 | F3-q38 |
 | 9880 | 1 | P-prefnotprev-semantics |
 | 9882 | 1 | P-counter-per-step |

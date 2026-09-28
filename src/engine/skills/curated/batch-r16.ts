@@ -293,7 +293,7 @@ const SPELLS: CuratedBatch['spells'] = [
           mod: { kind: 'multiplier', a: 2 },
           sources: [
             { kind: 'boardGems', color: BaseColor.Blue },
-            { kind: 'teamSize', side: 'ally' },
+            { kind: 'alliesOfColor', color: BaseColor.Blue },
           ],
         },
         condMult: CASTLE_ASC3,

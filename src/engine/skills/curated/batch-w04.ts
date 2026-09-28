@@ -822,9 +822,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9635,
-    desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因 Merlantis 盟友数量而增强。 [x3]',
+    desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因梅兰堤斯盟友数量而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '梅兰堤斯' } } }),
     ),
   },
   {
@@ -863,7 +863,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9688,
     desc: '对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因神圣盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'teamSize', side: 'ally' } } }),
+      dmg('enemyFirstN', 3, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Divine' } } }),
     ),
   },
   {

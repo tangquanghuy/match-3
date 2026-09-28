@@ -67,12 +67,47 @@ describe('L7 sa-R4: "boosted by <Kingdom> Allies" (CountArmyKingdom AllAllies, c
   const kRows: [string, string, number, number, number][] = [ // key, kingdom, base, a, targets
     ['weapon:1580', '玉银林地', 13, 3, 2], ['weapon:1590', '蛛尔卡里', 13, 3, 2], ['weapon:1614', '沃尔帕克', 13, 3, 2], ['weapon:1626', '玉银林地', 13, 3, 2],
     ['troop:6741', '狮心帝国', 14, 4, 1], ['troop:7660', '卓克祖', 14, 4, 1],
+    ['weapon:1642', '黑石', 13, 3, 2], ['weapon:1645', '梅兰堤斯', 13, 3, 2], ['weapon:1651', '阿达纳', 13, 3, 2], ['weapon:1654', '聚沙之地', 13, 3, 2],
+    ['weapon:1660', '卜筮之原', 13, 3, 2], ['weapon:1663', '潘神之谷', 13, 3, 2], ['weapon:1694', '地狱悬崖', 13, 3, 2], ['weapon:1700', '卓克祖', 13, 3, 2],
+    ['weapon:1703', '狂野平原', 13, 3, 2], ['weapon:1715', '荆棘森林', 13, 3, 2],
   ];
   it.each(kRows)('%s: +a per %s ally', (key, kingdom, base, a, targets) => {
     const allies = [{ ...unit([Red]), kingdom }, { ...unit([Red]), kingdom }, { ...unit([Red]), kingdom: '混沌' }];
     const self = key.startsWith('troop:') ? 1 : 0; // weapons: hero has no kingdom in the harness
     expect(dmgs(castSpell({ key, allies }))).toEqual(Array(targets).fill(base + a * (2 + self)));
     expect(dmgs(castSpell({ key, allies: [unit([Red])] }))).toEqual(Array(targets).fill(base + a * self));
+  });
+});
+
+const boardCount = (color: BaseColor) => {
+  let n = 0;
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = sixColourBoard(r, c); if (g && g.kind === 'color' && g.color === color) n++; }
+  return n;
+};
+
+describe('L7 sa-R4: "<Colour> Gems and Allies" = CountGems + CountArmyColor (Data = colour), not team size', () => {
+  it('troop:7831 [M+2] x2 per Blue gem and per Blue ally', () => {
+    const allies = [unit([Blue]), unit([Red]), unit([Red])];
+    const r = castSpell({ key: 'troop:7831', caster: { colors: [Blue] }, allies, board: sixColourBoard });
+    expect(dmgs(r)).toEqual([12 + 2 * (boardCount(Blue) + 2)]);
+  });
+  it('troop:7089 random [(M/2)+1]-[M+2] +1 per Green gem and per Green ally', () => {
+    const allies = [unit([Green]), unit([Red]), unit([Red])];
+    const boost = boardCount(Green) + 2;
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const d = dmgs(castSpell({ key: 'troop:7089', caster: { colors: [Green] }, allies, board: sixColourBoard, seed }));
+      expect(d).toHaveLength(1);
+      expect(d[0]).toBeGreaterThanOrEqual(6 + boost);
+      expect(d[0]).toBeLessThanOrEqual(12 + boost);
+    }
+    const low = dmgs(castSpell({ key: 'troop:7089', caster: { colors: [Green] }, allies: [unit([Red])], board: sixColourBoard, magic: 0 }))[0];
+    expect(low - (boardCount(Green) + 1)).toBeGreaterThanOrEqual(1);
+    expect(low - (boardCount(Green) + 1)).toBeLessThanOrEqual(2);
+  });
+  it('weapon:1650 [M+3] to first 2 x3 per Divine ally (not per ally)', () => {
+    const allies = [unit([Red], ['Divine']), unit([Red]), unit([Red], ['Divine'])];
+    expect(dmgs(castSpell({ key: 'weapon:1650', allies }))).toEqual([19, 19]);
+    expect(dmgs(castSpell({ key: 'weapon:1650', allies: [unit([Red]), unit([Red])] }))).toEqual([13, 13]);
   });
 });
 
