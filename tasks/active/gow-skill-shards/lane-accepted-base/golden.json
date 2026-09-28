@@ -1494,10 +1494,10 @@
    "L10": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | E11:+curse+death-mark | E12:hp-6 arm-12 | E13:hp-15 arm-3",
    "R10": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | E11:+curse+death-mark | E12:hp-6 arm-12 | E13:hp-15 arm-3",
    "L0": "status E11 +curse ; status E11 +death-mark ; dmg E12 3 (all) ; dmg E13 3 (all) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | E11:+curse+death-mark | E12:arm-3 | E13:arm-3",
-   "K": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; defeat E12 ; defeat E13 ; summon mine troop:-1  => E11:+curse+death-mark | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "status E11 +curse ; status E11 +death-mark ; dmg E12 18 (all) ; dmg E13 18 (all) ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp34 atk25 arm17 mag16 | E11:+curse+death-mark | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:26.172Z"
  },
  "troop:7270": {
   "lines": {

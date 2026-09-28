@@ -203,6 +203,10 @@ export interface TransformGemParams {
    *  池匹配按 kind 精确对位（石块/石像鬼等不可匹配宝石 isSameMatchType 恒 false） */
   fromSpecial?: SpecialGemKind;
   diagonal?: 'left' | 'right';
+  /** P-R6-chosen-diagonal-transform: diagonal through the player's chosen cell (native Target Board spell with
+   *  BoardTarget LeftDiagonal / RightDiagonal) instead of the board's main diagonals.
+   *  left = row - col equal to the chosen cell's, right = row + col equal. No chosen cell -> no-op. */
+  diagonalAnchor?: 'chosenCell';
   /**
    * toSpecial 的 tier 掷签（原语 Wave4 批，8801「Convert 4 Stone Blocks to either Good
    * or Evil Gargoyle Gems」官方 Randomize AB-CD 两分支 = 整段一次掷签、本次转换的
@@ -482,9 +486,13 @@ function doTransform(params: TransformGemParams, ctx: EffectContext): GameEvent[
   // 收集匹配来源的宝石格；'ANY' 时排除「已是目标类型」的宝石（转了等于没转）
   const pool: CellPos[] = [];
   if (params.diagonal) {
+    const anchor = params.diagonalAnchor === 'chosenCell' ? ctx.chosenCell : undefined;
+    if (params.diagonalAnchor === 'chosenCell' && !anchor) return [];
+    const diff = anchor ? anchor.row - anchor.col : 0;
+    const sum = anchor ? anchor.row + anchor.col : BoardModel.COLS - 1;
     board.forEach((gem, pos) => {
       if (!gem) return;
-      if (params.diagonal === 'left' ? pos.row === pos.col : pos.row + pos.col === BoardModel.COLS - 1) {
+      if (params.diagonal === 'left' ? pos.row - pos.col === diff : pos.row + pos.col === sum) {
         if (!gemTypeEquals(gem.type, toType)) pool.push(pos);
       }
     });

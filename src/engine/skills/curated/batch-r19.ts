@@ -370,11 +370,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8985,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因狂野皇廷盟友数而增强。有 40% 的几率召唤另一只妖犬。 [x4]',
-    // 王国计数首落地：「狂野皇廷」= 官方 KingdomId 3048，本地 troops.json 王国名「卜筮之原」
-    //（kingdomOf/alliesOfKingdom 按本地 Character.kingdom 匹配）；召唤自身 = FeyHound 7357
+    // 召唤自身 = FeyHound 7357。
+    // P-R5-faction-kingdom: native 0:CountArmyKingdom@AllAllies 3048 (Wild Court) = raw KingdomId 3048 roster only
+    // (TheWendigo, FeyHound, WildKnight, Puka, RedCap), not every ally of the zh parent kingdom 卜筮之原 (Adana);
+    // counted by zh troop name (alliesNamed), caster included (AllAllies).
     build: skill(
       dmg('enemyChosen', 3, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfKingdom', kingdom: '卜筮之原' } },
+        modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesNamed', name: ['溫迪戈', '妖犬', '狂野骑士', '普卡', '红帽'], atCastStart: true } },
       }),
       summonRef('FeyHound', 7357, { chance: 0.4 }),
     ),

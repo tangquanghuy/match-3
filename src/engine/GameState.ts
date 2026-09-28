@@ -26,6 +26,11 @@ export interface GameState {
   actionLog: ActionLogEntry[];
   /** Per-side defeats since battle start, including summoned units and non-spell kills. */
   battleDeaths?: Record<PlayerSide, number>;
+  /**
+   * P-R5-summon-id-reuse: highest character id ever removed from a roster (defeat splice / defeated filter).
+   * teamRoster.allocateCharId never hands out an id <= this, so a summon cannot reuse a dead unit's id.
+   */
+  charIdHighWater?: number;
   /** 玩家奖励计数；黄金按双方独立持有，见 BattleEconomy 注释 */
   economy: BattleEconomy;
   /** Right-side battle Gold; optional only for legacy state fixtures (defaults to zero). */

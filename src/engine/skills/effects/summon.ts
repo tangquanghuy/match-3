@@ -9,7 +9,7 @@
 import type { GameEvent, ExtraTurnEvent } from '../../events';
 import type { Character } from '../../types';
 import { PlayerSide } from '../../types';
-import { MAX_ACTIVE_TEAM_SIZE, resolveDefeatEvents } from '../../teamRoster';
+import { MAX_ACTIVE_TEAM_SIZE, resolveDefeatEvents, allocateCharId, pruneDefeated } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
 import { attachPassives } from '../../traits';
 import { findSide } from './context';
@@ -168,17 +168,8 @@ export interface SummonParams {
 /** 计算队伍中下一个新角色 id（现有最大 id + 1），保证确定性 */
 function deriveCharId(ctx: EffectContext): number {
   if (ctx.nextCharId) return ctx.nextCharId();
-  let max = 0;
-  for (const side of ['Left', 'Right'] as const) {
-    const team = ctx.state.teams[side];
-    for (const c of team.characters) {
-      if (c.id > max) max = c.id;
-    }
-    for (const queued of team.summonQueue ?? []) {
-      if (queued.character.id > max) max = queued.character.id;
-    }
-  }
-  return max + 1;
+  // P-R5-summon-id-reuse: monotonic (retired ids are never reused)
+  return allocateCharId(ctx.state);
 }
 
 /**
@@ -259,7 +250,7 @@ export function summonEffect(params: SummonParams): EffectPrimitive {
       const team = ctx.state.teams[side];
       // Keep the active roster free of stale defeated entries. Normal engine flow removes
       // them at defeat time; this also preserves sane behavior for direct primitive tests.
-      team.characters = team.characters.filter((character) => !character.defeated);
+      pruneDefeated(ctx.state, team);
 
       const count = params.countRange
         ? params.countRange.min + ctx.rng.nextInt(Math.max(1, params.countRange.max - params.countRange.min + 1))
@@ -289,7 +280,7 @@ export function summonCopyEffect(params: SummonCopyParams): EffectPrimitive {
       const source = params.targets.find((c) => !c.defeated);
       if (!source) return [];
       const team = ctx.state.teams[side];
-      team.characters = team.characters.filter((character) => !character.defeated);
+      pruneDefeated(ctx.state, team);
       const events: GameEvent[] = [];
       appendSummon(team, side, templateOf(source), -1, ctx, events);
       return events;

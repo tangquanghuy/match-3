@@ -47,7 +47,7 @@ import type { SkullStormDropKind, StatusGemKind, StatusInstance, SpecialGemKind,
 const EXPLODED_SKULL_DAMAGE = { normal: 1, doom: 5, uber: 10 } as const;
 import type { ActionLogEntry, BattleAction, CellPos, GemType, Character, Team } from './types';
 import type { GameState } from './GameState';
-import { resolveDefeatEvents, MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
+import { resolveDefeatEvents, MAX_ACTIVE_TEAM_SIZE, allocateCharId, pruneDefeated } from './teamRoster';
 import { resolveDefeatAfterRevive } from './skills/effects/summon';
 import {
   applyBattleStartTraits,
@@ -2482,22 +2482,14 @@ export class TurnEngine {
 
   /** 下一角色 id（场上+队列最大值+1，与 summon 效果的 deriveCharId 同口径） */
   private nextCharId(): number {
-    let max = 0;
-    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
-      for (const c of this.state.teams[side].characters) {
-        if (c.id > max) max = c.id;
-      }
-      for (const q of this.state.teams[side].summonQueue ?? []) {
-        if (q.character.id > max) max = q.character.id;
-      }
-    }
-    return max + 1;
+    // P-R5-summon-id-reuse: monotonic allocator (a dead unit's id is never handed to a summon)
+    return allocateCharId(this.state);
   }
 
   /** 已完成 id 分配的召唤物入场：有空位追加到队尾；满四人时召唤失效。 */
   private enqueueSummon(summoned: Character, troopId: number, side: PlayerSide): GameEvent[] {
     const team = this.state.teams[side];
-    team.characters = team.characters.filter((c) => !c.defeated);
+    pruneDefeated(this.state, team);
     if (team.characters.length >= MAX_ACTIVE_TEAM_SIZE) return [];
     team.characters.push(summoned);
     return [{

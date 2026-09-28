@@ -170,11 +170,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8658,
     desc: "摧毁敌人使用颜色最多的宝石，再消除所有敌人 3 点法力值。若队伍中有沮丧，则再消除 3 点法力值。 [x3]",
-    // 「摧毁敌人使用颜色最多的宝石」= destroyColor ENEMY_MOST_USED；「若队伍中有沮丧，则再消除 3 点」= troopPresent 条件段（官方 UseCounterForAmount 每名沮丧 ×3，按 zh 条件句取布尔近似并注明）；[x3] 即该计数词
+    // 「摧毁敌人使用颜色最多的宝石」= destroyColor ENEMY_MOST_USED；[x3] 即该计数词。
+    // P-R5-named-ally-count: native 0:CountArmyTroop@AllAllies 300 -> DecreaseSpellPower counter = 3 per Despond ally
+    // (was a boolean troopPresent approximation)
     build: skill(
       destroyColor('ENEMY_MOST_USED'),
       reduce('enemyAll', 'magic', 3, 0),
-      reduce('enemyAll', 'magic', 3, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '沮丧' } }),
+      reduce('enemyAll', 'magic', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: '沮丧', atCastStart: true } } }),
     ),
   },
   {

@@ -324,10 +324,10 @@
    "L10": "dmg E12 14 ; status E12 +silence ; dmg E13 14 ; status E13 +silence ; summon mine troop:6373  => A14:new 雅嘎的小屋 hp19 atk15 arm21 mag8 | E12:hp-2 arm-12 +silence | E13:hp-11 arm-3 +silence",
    "R10": "dmg E12 14 ; status E12 +silence ; dmg E13 14 ; status E13 +silence ; summon mine troop:6373  => A14:new 雅嘎的小屋 hp19 atk15 arm21 mag8 | E12:hp-2 arm-12 +silence | E13:hp-11 arm-3 +silence",
    "L0": "dmg E12 4 ; status E12 +silence ; dmg E13 4 ; status E13 +silence ; summon mine troop:6373  => A14:new 雅嘎的小屋 hp19 atk15 arm21 mag8 | E12:arm-4 +silence | E13:hp-1 arm-3 +silence",
-   "K": "dmg E12 14 ; defeat E12 ; status E11 +silence ; dmg E13 14 ; defeat E13 ; status E11 +silence ; summon mine troop:6373  => E12:hp-1 DEAD | E11:+silence | E13:hp-1 DEAD"
+   "K": "dmg E12 14 ; defeat E12 ; status E11 +silence ; dmg E13 14 ; defeat E13 ; status E11 +silence ; summon mine troop:6373  => A14:new 雅嘎的小屋 hp19 atk15 arm21 mag8 | E12:hp-1 DEAD | E11:+silence | E13:hp-1 DEAD"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:51:37.275Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6380": {
   "lines": {
@@ -354,10 +354,10 @@
    "L10": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:hp-7 arm-12 +stun | E13:hp-16 arm-3 +stun",
    "R10": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:hp-7 arm-12 +stun | E13:hp-16 arm-3 +stun",
    "L0": "status E12 +stun ; status E13 +stun ; dmg E12 9 (all) ; dmg E13 9 (all) ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:arm-9 +stun | E13:hp-6 arm-3 +stun",
-   "K": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; defeat E12 ; defeat E13 ; summon mine troop:-1  => E12:hp-1 +stun DEAD | E13:hp-1 +stun DEAD"
+   "K": "status E12 +stun ; status E13 +stun ; dmg E12 19 (all) ; dmg E13 19 (all) ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 深渊锻工 hp20 atk16 arm9 mag11 | E12:hp-1 +stun DEAD | E13:hp-1 +stun DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T05:57:25.574Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6400": {
   "lines": {
@@ -384,10 +384,10 @@
    "L10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; summon mine troop:6350  => A14:new 骸骨纳迦 hp15 atk15 arm18 mag12 | E10:hp-15 | E11:hp-15 | E12:hp-15 | E13:hp-15",
    "R10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; summon mine troop:6350  => A14:new 骸骨纳迦 hp15 atk15 arm18 mag12 | E10:hp-15 | E11:hp-15 | E12:hp-15 | E13:hp-15",
    "L0": "dmg E10 5 (all) ; dmg E11 5 (all) ; dmg E12 5 (all) ; dmg E13 5 (all) ; summon mine troop:6350  => A14:new 骸骨纳迦 hp15 atk15 arm18 mag12 | E10:hp-5 | E11:hp-5 | E12:hp-5 | E13:hp-5",
-   "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:6350  => A3:new 骸骨纳迦 hp15 atk15 arm18 mag12 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:6350  => A14:new 骸骨纳迦 hp15 atk15 arm18 mag12 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T06:01:52.428Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6425": {
   "lines": {
@@ -454,10 +454,10 @@
    "L10": "dmg A1 500 ; defeat A1 ; dmg E10 176 (all) ; dmg E11 176 (all) ; dmg E12 176 (all) ; dmg E13 176 (all) ; summon mine troop:-1  => A14:new 狼蛛拉 hp22 atk17 arm13 mag12 | A1:hp-500 DEAD | E10:hp-171 arm-5 | E11:hp-166 arm-10 | E12:hp-164 arm-12 | E13:hp-173 arm-3",
    "R10": "dmg A1 500 ; defeat A1 ; dmg E10 176 (all) ; dmg E11 176 (all) ; dmg E12 176 (all) ; dmg E13 176 (all) ; summon mine troop:-1  => A14:new 狼蛛拉 hp22 atk17 arm13 mag12 | A1:hp-500 DEAD | E10:hp-171 arm-5 | E11:hp-166 arm-10 | E12:hp-164 arm-12 | E13:hp-173 arm-3",
    "L0": "dmg A1 500 ; defeat A1 ; dmg E10 171 (all) ; dmg E11 171 (all) ; dmg E12 171 (all) ; dmg E13 171 (all) ; summon mine troop:-1  => A14:new 狼蛛拉 hp22 atk17 arm13 mag12 | A1:hp-500 DEAD | E10:hp-166 arm-5 | E11:hp-161 arm-10 | E12:hp-159 arm-12 | E13:hp-168 arm-3",
-   "K": "dmg A1 500 ; defeat A1 ; dmg E10 176 (all) ; dmg E11 176 (all) ; dmg E12 176 (all) ; dmg E13 176 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 狼蛛拉 hp22 atk17 arm13 mag12 | A1:hp-500 DEAD | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg A1 500 ; defeat A1 ; dmg E10 176 (all) ; dmg E11 176 (all) ; dmg E12 176 (all) ; dmg E13 176 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 狼蛛拉 hp22 atk17 arm13 mag12 | A1:hp-500 DEAD | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:53:48.435Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6515": {
   "lines": {
@@ -654,10 +654,10 @@
    "L10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
    "R10": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-9 arm-5 | E11:hp-4 arm-10 | E12:hp-2 arm-12 | E13:hp-11 arm-3",
    "L0": "dmg E10 4 (all) ; dmg E11 4 (all) ; dmg E12 4 (all) ; dmg E13 4 (all) ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:arm-4 | E11:arm-4 | E12:arm-4 | E13:hp-1 arm-3",
-   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 14 (all) ; dmg E11 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 蔚蔓藤 hp24 atk13 arm13 mag12 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T05:57:25.574Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6696": {
   "lines": {
@@ -674,10 +674,10 @@
    "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
    "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
    "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2",
-   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:58:11.265Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6716": {
   "lines": {
@@ -694,10 +694,10 @@
    "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 狐焰大王 hp28 atk21 arm8 mag8 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
    "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 狐焰大王 hp28 atk21 arm8 mag8 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
    "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; summon mine troop:-1  => A14:new 狐焰大王 hp28 atk21 arm8 mag8 | E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2",
-   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 狐焰大王 hp28 atk21 arm8 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 狐焰大王 hp28 atk21 arm8 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T06:01:52.428Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:6747": {
   "lines": {
@@ -1284,10 +1284,10 @@
    "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
    "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
    "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all) ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:arm-1 | E11:arm-1 | E12:arm-1 | E13:arm-1",
-   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:42:25.119Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:7384": {
   "lines": {
@@ -1314,10 +1314,10 @@
    "L10": "status E12 +terror ; status E10 +terror ; dmg E12 19 (all) ; dmg E10 19 (all) ; summon mine troop:-1  => A14:new 虚空龙 hp16 atk22 arm25 mag5 | E12:hp-7 arm-12 +terror | E10:hp-14 arm-5 +terror",
    "R10": "status E12 +terror ; status E10 +terror ; dmg E12 19 (all) ; dmg E10 19 (all) ; summon mine troop:-1  => A14:new 虚空龙 hp16 atk22 arm25 mag5 | E12:hp-7 arm-12 +terror | E10:hp-14 arm-5 +terror",
    "L0": "status E12 +terror ; status E10 +terror ; dmg E12 9 (all) ; dmg E10 9 (all) ; summon mine troop:-1  => A14:new 虚空龙 hp16 atk22 arm25 mag5 | E12:arm-9 +terror | E10:hp-4 arm-5 +terror",
-   "K": "status E12 +terror ; status E11 +terror ; dmg E13 19 (all) ; dmg E12 19 (all) ; defeat E13 ; defeat E12 ; summon mine troop:-1  => E12:hp-1 +terror DEAD | E11:+terror | E13:hp-1 DEAD"
+   "K": "status E12 +terror ; status E11 +terror ; dmg E13 19 (all) ; dmg E12 19 (all) ; defeat E13 ; defeat E12 ; summon mine troop:-1  => A14:new 钢铬 hp25 atk23 arm14 mag10 | E12:hp-1 +terror DEAD | E11:+terror | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T05:57:25.574Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:7416": {
   "lines": {
@@ -1444,10 +1444,10 @@
    "L10": "dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; summon mine troop:6328  => A14:new 克里斯坦纳斯 hp19 atk17 arm24 mag8 | E10:hp-12 arm-5 | E11:hp-7 arm-10 | E12:hp-5 arm-12 | E13:hp-14 arm-3",
    "R10": "dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; summon mine troop:6328  => A14:new 克里斯坦纳斯 hp19 atk17 arm24 mag8 | E10:hp-12 arm-5 | E11:hp-7 arm-10 | E12:hp-5 arm-12 | E13:hp-14 arm-3",
    "L0": "dmg E10 7 (all) ; dmg E11 7 (all) ; dmg E12 7 (all) ; dmg E13 7 (all) ; summon mine troop:6328  => A14:new 克里斯坦纳斯 hp19 atk17 arm24 mag8 | E10:hp-2 arm-5 | E11:arm-7 | E12:arm-7 | E13:hp-4 arm-3",
-   "K": "dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:6328  => A3:new 克里斯坦纳斯 hp19 atk17 arm24 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:6328  => A14:new 克里斯坦纳斯 hp19 atk17 arm24 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T06:01:52.428Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:7588": {
   "lines": {
@@ -1544,10 +1544,10 @@
    "L10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; summon mine troop:-1  => A14:new 别克萨 hp16 atk22 arm25 mag5 | E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3",
    "R10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; summon mine troop:-1  => A14:new 别克萨 hp16 atk22 arm25 mag5 | E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3",
    "L0": "dmg E10 1 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter) ; summon mine troop:-1  => A14:new 梦魇马 hp15 atk14 arm5 mag0 | E10:arm-1 | E11:arm-3 | E12:arm-4 | E13:arm-2",
-   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 酷燃达拉 hp19 atk16 arm34 mag9 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A14:new 酷燃达拉 hp19 atk16 arm34 mag9 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:58:11.265Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "troop:7767": {
   "lines": {
@@ -1754,10 +1754,10 @@
    "L10": "dmg E13 14 ; summon mine troop:-1  => A14:new 科博法师 hp22 atk17 arm13 mag13 | E13:hp-11 arm-3",
    "R10": "dmg E13 14 ; summon mine troop:-1  => A14:new 科博法师 hp22 atk17 arm13 mag13 | E13:hp-11 arm-3",
    "L0": "dmg E13 4 ; summon mine troop:-1  => A14:new 科博法师 hp22 atk17 arm13 mag13 | E13:hp-1 arm-3",
-   "K": "dmg E13 14 ; defeat E13 ; summon mine troop:-1  => E13:hp-1 DEAD"
+   "K": "dmg E13 14 ; defeat E13 ; summon mine troop:-1  => A14:new 科博法师 hp22 atk17 arm13 mag13 | E13:hp-1 DEAD"
   },
-  "by": "sa-E",
-  "at": "2026-09-28T11:09:02.647Z"
+  "by": "sa-P",
+  "at": "2026-09-28T11:46:23.561Z"
  },
  "weapon:1401": {
   "lines": {

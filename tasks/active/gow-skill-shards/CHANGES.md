@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 505 条改动，涉及 873 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 511 条改动，涉及 883 个技能 ID。
 
 ## 按时间
 
@@ -496,21 +496,27 @@
 | 2026-09-28T11:21 | sa-A | L4a-r4-6758 | data | 8138 | troop:6758 Exploadstool | `src/engine/skills/curated/batch-37.ts` | if an enemy is Diseased: Poison 1-4 distinct random enemies (uniform count) → native four conditional Poison@RandomEnemy steps at 100/50/25/25%, fresh random pick each (may repeat) |  |
 | 2026-09-28T11:21 | sa-A | L4a-r4-7174 | data | 8745 | troop:7174 Mechweaver | `src/engine/skills/curated/batch-p37.ts` | destroy chosen row, then chosen column (two clears; a created Bomb could trigger between) → native DestroyGems RowAndColumn: one 15-cell cross clear |  |
 | 2026-09-28T11:21 | sa-P | P-D-lethal-first-lasttarget | primitive | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-D-lethal-first-lasttarget.test.ts` | failed chance roll of an execute segment returned before target resolution (no lastTarget); 8664 wrote true damage before the slay roll → runSegment: failed roll of a damage execute segment still resolves/tracks its targets; 8664 native order execute enemyLast -> trueDmg lastTarget | execute+chance segments followed by lastTarget/ifTargetDied steps now see the (surviving) victim: troop:6252 6460 6585 6753 7016 7145 7252 7797 |
+| 2026-09-28T11:47 | sa-P | P-R5-summon-id-reuse | primitive | 7602, 7643 | troop:6428 Xathenos；troop:6465 Hyena | `src/engine/teamRoster.ts`<br>`src/engine/GameState.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/summon.ts` | summon id = max living id + 1: killing the highest-id unit made the next summon reuse its id, lastTarget resolved to the summon and later ifTargetDied summons skipped → monotonic allocateCharId (GameState.charIdHighWater records removed ids); dead ids never reused | every summon (ids after a kill now > highest removed id) |
 | 2026-09-28T11:55 | sa-E | L1-E-kingdom-summon-raw | assembler | 8399, 8513, 8514, 8515, 8529, 8670 | weapon:1364 CobaltineWand；weapon:1410 FireGodsHeart；weapon:1411 King-Chopper；weapon:1412 OldMagusStaff；weapon:1414 JellyShot；weapon:1438 EmeraldBlade | `src/engine/skills/curated/gowKingdomPools.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | summonRandomOfKingdom(<zh kingdom name>) = parent kingdom + its faction troops (1411 King-Chopper also drew Dripping Caverns only) → summonRandom(rawKingdomPool(<native Data id>)): roster troops with raw KingdomId 3030/3000/3018/3017/3058/3009 |  |
 | 2026-09-28T11:55 | sa-E | L1-E-1414-desc | data | 8529 | weapon:1414 JellyShot | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh desc typo 使用对多的颜色 → 使用最多的颜色 (curated desc + pool-w01 + reviewed override) |  |
 | 2026-09-28T11:55 | sa-E | L1-E-6596-row | assembler | 7818 | troop:6596 GloryGnome | `src/engine/skills/curated/batch-39.ts` | destroy a random row → destroy the chosen row (native Target Board, DestroyGems BoardTarget Row) |  |
 | 2026-09-28T11:55 | sa-E | L1-E-6601-target | assembler | 7810 | troop:6601 Gluttony | `src/engine/skills/curated/batch-acceptance.ts` | explode colour of a RANDOM enemy (TRACKED_ENEMY) and 20% devour that random enemy; no target prompt → native Target Enemy: explode 4 gems of the chosen enemy's colour (CHOSEN_TARGET), 20% devour the chosen enemy |  |
+| 2026-09-28T11:55 | sa-P | P-R5-named-ally-count | primitive | 8744, 8658 | troop:7173 Uvhash-Ka；troop:7115 AbjectOfDespond | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r11.ts` | troopPresent boolean: 3 extra Doomskulls / 3 more Magic if any Eldritch Minion / Despond ally → modifier source alliesNamed {name, atCastStart}: 3 per matching ally (native CountArmyTroop step 0 counter) |  |
+| 2026-09-28T12:00 | sa-P | P-R7-dead-last-target-cond | primitive | 9550, 7410, 7541 | troop:7646 ShadowWraith；weapon:1144 SpiderTotem；troop:6386 Warhawk | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts` | lastTargetColor/Race/Status false once the hit killed the target (unit spliced, findCharacter undefined) → castTracking.lastTarget.unit keeps the picked Character; colour/race/status conditions read it after death | lastTargetColor/Race/Status users: 8925 8276 8533 8373 9550 7410 7541 |
 | 2026-09-28T12:03 | sa-E | L1-E-kingdom-summon-raw | assembler | 8451, 8505, 8510, 8707, 8725, 8765, 8766, 8816, 8905, 8911, 8955, 9034, 9036, 9142, 9145, 9205, 9208, 9235, 9264, 9267, 9305, 9351, 9509, 9577, 9628, 9832, 9835, 8460 | weapon:1388 EyeOfOrion；weapon:1402 WildCleaver；weapon:1407 IceSapphire；weapon:1449 TombLordsCrook；weapon:1453 Runegauge；weapon:1464 DaisysCudgel；weapon:1465 FlailOfGaard；weapon:1484 ObsidianLibram；weapon:1491 BaneOfGods；weapon:1497 ThornOfTheGods；weapon:1511 RuthlessDefense；weapon:1534 ElementalFury；weapon:1536 ThreeGraves；weapon:1541 EmeraldBaton；weapon:1544 WatchersBlade；weapon:1553 FoxFang；weapon:1556 KingCrusher；weapon:1569 ChampionsCleaver；weapon:1573 LionsReach；weapon:1576 ShieldOfVengeance；weapon:1583 Moonshard；weapon:1587 Bonecutter；weapon:1617 BloodcrystalBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller；weapon:1675 DeadEnd；weapon:1678 Windfall；troop:6960 Emperinazara | `src/engine/skills/curated/gowKingdomPools.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | summonRandomOfKingdom(<zh kingdom name>) (parent + faction troops); 8460 Kobold list had KoboldEmissary (3012), lacked Emperinazara → summonRandom(rawKingdomPool(<native SummoningKingdom Data>)) from raw KingdomId roster |  |
 | 2026-09-28T12:03 | sa-E | L1-E-kingdom-desc | data | 9205, 9208 | weapon:1553 FoxFang；weapon:1556 KingCrusher | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 一个正面增益状态效果 (random missing) → 一个随机正面增益状态效果 |  |
 | 2026-09-28T12:06 | sa-E | L1-E-kingdom-desc | data | 9305, 9509, 9577, 9628 | weapon:1583 Moonshard；weapon:1617 BloodcrystalBlade；weapon:1629 GodsBloodRuby；weapon:1638 Stonecaller | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh kingdom names off-roster (冰封之巅 / 马拉杰之罪 / 地狱岩 / untranslated Dhrak-Zum), 'random positive' wording lost → roster names 冰峰之巅 / 迈纳杰之罪 / 地狱悬崖 / 卓克祖, family wording 赋予…一个随机正面增益效果。再召唤一名…军队 |  |
 | 2026-09-28T12:07 | sa-E | L1-E-kingdom-desc | data | 9832 | weapon:1675 DeadEnd | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh 扎金 (off-roster name), status wording → 齐埃金, family wording |  |
+| 2026-09-28T12:10 | sa-P | P-R6-chosen-diagonal-transform | primitive | 8762, 8448, 7943 | weapon:1461 SlashingEmbers；weapon:1385 MinosCleaver；troop:6625 Hammerclaw | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/cellChooser.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | transform diagonal fixed to the board's main diagonals; prototypeNeedsCell ignored oneOf branches (8448 / 7943 chosen row/col explode had no cell and exploded nothing) → transform diagonalAnchor 'chosenCell' (row-col / row+col of the chosen cell); prototypeNeedsCell recurses into oneOf options | Target Board spells whose cell step is inside a random oneOf branch: 8762 8448 7943 |
 | 2026-09-28T12:11 | sa-E | L1-E-race-desc | data | 8771, 9207, 9210 | weapon:1470 KingsDagger；weapon:1555 PandaskianWand；weapon:1558 Stonecutter | `src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 1470 zh 罗格 (transliterated Rogue); 1555/1558 'random' missing → 盗贼 + family wording; 一个随机正面增益状态效果 |  |
 | 2026-09-28T12:11 | sa-E | L1-E-1551-giant-pool | assembler | 9203 | weapon:1551 TheEnor-mace | `src/engine/skills/curated/batch-w04.ts` | Giant summon pool lacked ImmortalGirthrok → pool = raw TroopType Giant roster (74 -> 75) |  |
 | 2026-09-28T12:14 | sa-E | L1-E-race-desc | data | 9508, 9754 | weapon:1616 GoldenTalon；weapon:1665 VulpineFangs | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 1616 zh untranslated Stryx; 1665 Wargare as 战神 → 鸟族 / 狼族 (as in troop descs), family wording |  |
+| 2026-09-28T12:19 | sa-P | P-R6-chosen-cell-counts | primitive | 8965, 8070 | weapon:1525 StarLocket；troop:6712 BoneGolem | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8965 counted and destroyed the fixed centre X; 8070 exploded first and marked per destroyed skull (killed enemies left the pool), attack before armor → diagonalGems anchor chosenCell + area x center CELL; chosenCellBlockGems skulls; 8070 native order count -> death marks -> explode -> armor -> attack |  |
 | 2026-09-28T12:19 | sa-E | L1-E-race-pool-immortals | assembler | 7697, 8648, 8770, 9916 | troop:6507 HyndlaFrostcrown；troop:7105 FlamingOni；weapon:1469 CrownOfHorns；weapon:1692 OceanStar | `src/engine/skills/curated/batch-15.ts`<br>`src/engine/skills/curated/batch-20.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | race summon pools missing newer roster troops (Giant: ImmortalGirthrok; Goblin: Murk,Lurk,AndDurk; Merfolk: ImmortalThalassa) → pools = raw TroopType roster (sweep over all native SummoningType* skills: no other diffs) |  |
 | 2026-09-28T12:19 | sa-E | L1-E-race-desc | data | 8622 | weapon:1425 StaffOfStorms | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh Stryx as 冥河 / summon 猎鹰军团 → 鸟族, family wording |  |
 | 2026-09-28T12:23 | sa-E | L1-E-7554-dist | assembler | 9339 | troop:7554 HoundmasterGor | `src/engine/skills/curated/batch-r7.ts` | Blight Hound count uniform 1-3 → 3 independent summons 100/50/50% (25/50/25%) |  |
 | 2026-09-28T12:23 | sa-E | L1-E-7465-dist | assembler | 9181 | troop:7465 Theodorevich | `src/engine/skills/curated/batch-r22.ts` | 4 summons uniform 25% each → Randomize A+(B-C-D-E-F), B and F both Ragnagord: 40/20/20/20% |  |
+| 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
 
 ## 按技能 ID
 
@@ -651,7 +657,7 @@
 | 7402 | 1 | R7-6259-chosen-ally |
 | 7404 | 1 | B-L4b-6261-life-boost |
 | 7408 | 1 | F2-6265-dispel-last |
-| 7410 | 1 | R7-b14-status-counts |
+| 7410 | 2 | R7-b14-status-counts、P-R7-dead-last-target-cond |
 | 7415 | 1 | R7-6269-chosen-daemon |
 | 7418 | 1 | L7-R1-random-chain-waves |
 | 7425 | 1 | L1-6279-chosen |
@@ -691,6 +697,7 @@
 | 7529 | 1 | L1-1154-egg |
 | 7532 | 1 | L5-C-r4-6377 |
 | 7533 | 1 | L1-6378-pool |
+| 7541 | 1 | P-R7-dead-last-target-cond |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
 | 7548 | 1 | R004-tests |
 | 7553 | 2 | F2-6398-random-dispel、P-F2-precount-explode |
@@ -710,7 +717,7 @@
 | 7598 | 1 | L1-6425-dist |
 | 7599 | 1 | F2-R001-order |
 | 7601 | 1 | L4a-R1-7601-targets |
-| 7602 | 1 | L1-6428-steal-summon |
+| 7602 | 2 | L1-6428-steal-summon、P-R5-summon-id-reuse |
 | 7624 | 1 | F1-items-54-60 |
 | 7625 | 1 | L5-C-1176-knight |
 | 7626 | 1 | F1-steal-before-damage |
@@ -718,6 +725,7 @@
 | 7633 | 1 | F1-steal-before-damage |
 | 7635 | 1 | F2-6457-dispel-self |
 | 7637 | 1 | L1-R2-consume-first |
+| 7643 | 1 | P-R5-summon-id-reuse |
 | 7644 | 2 | P-counter-per-step、P-counter-per-step |
 | 7645 | 1 | F2-6467-life-armor |
 | 7646 | 1 | F3-q07 |
@@ -779,6 +787,7 @@
 | 7936 | 1 | P-create-interleave |
 | 7941 | 1 | F2-6623-column-order |
 | 7942 | 1 | P-B-action-status-self-count |
+| 7943 | 1 | P-R6-chosen-diagonal-transform |
 | 7944 | 1 | B-L4b-6626-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
@@ -806,6 +815,7 @@
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
 | 8065 | 1 | L5-C-r4-6708 |
+| 8070 | 1 | P-R6-chosen-cell-counts |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -828,7 +838,7 @@
 | 8137 | 1 | L1-E-6757-target |
 | 8138 | 1 | L4a-r4-6758 |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
-| 8140 | 1 | L1-1274-amanithrax |
+| 8140 | 2 | L1-1274-amanithrax、P-R5-faction-kingdom |
 | 8150 | 1 | F2-R001-order |
 | 8155 | 1 | R3-B07-1279 |
 | 8160 | 1 | P-prefnotprev-semantics |
@@ -944,6 +954,7 @@
 | 8438 | 1 | F1-6931-dispel |
 | 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
+| 8448 | 1 | P-R6-chosen-diagonal-transform |
 | 8451 | 1 | L1-E-kingdom-summon-raw |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
@@ -1041,6 +1052,7 @@
 | 8651 | 1 | L4b-7108-purple-enemies |
 | 8654 | 2 | L3-008、L1-E-7111-dist |
 | 8656 | 2 | P-prefnotprev-semantics、L7-R1-7113-enemy-colour |
+| 8658 | 1 | P-R5-named-ally-count |
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
@@ -1069,6 +1081,7 @@
 | 8722 | 1 | L2-singlegem-cell |
 | 8725 | 1 | L1-E-kingdom-summon-raw |
 | 8732 | 1 | L1-7157-devour |
+| 8744 | 1 | P-R5-named-ally-count |
 | 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
@@ -1076,6 +1089,7 @@
 | 8755 | 1 | F2-R001-order |
 | 8758 | 1 | P-R1-count-at-native-step |
 | 8761 | 1 | R7-1460-burning-gems |
+| 8762 | 1 | P-R6-chosen-diagonal-transform |
 | 8765 | 1 | L1-E-kingdom-summon-raw |
 | 8766 | 1 | L1-E-kingdom-summon-raw |
 | 8767 | 1 | L7-R1-weapon-colour-race |
@@ -1144,12 +1158,14 @@
 | 8952 | 1 | D-1509-mark-target |
 | 8955 | 1 | L1-E-kingdom-summon-raw |
 | 8961 | 1 | F2-7338-cross-skulls |
+| 8965 | 1 | P-R6-chosen-cell-counts |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
 | 8970 | 2 | P-prefnotprev-semantics、R7-tarot-extra-turn |
 | 8972 | 1 | R3-B05-1528 |
 | 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
+| 8985 | 1 | P-R5-faction-kingdom |
 | 8987 | 1 | P-counter-per-step |
 | 8995 | 1 | L4a-r3-1523 |
 | 9003 | 1 | R7-tarot-extra-turn |
@@ -1285,7 +1301,7 @@
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |
 | 9547 | 2 | P-counter-per-step、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
-| 9550 | 1 | R7-7646-target-colour |
+| 9550 | 2 | R7-7646-target-colour、P-R7-dead-last-target-cond |
 | 9563 | 1 | R3-B10-7650 |
 | 9569 | 1 | L1-7654-devour |
 | 9573 | 1 | L4b-1625-1674-any |

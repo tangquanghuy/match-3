@@ -804,7 +804,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8762,
     desc: '将所有向上或向下斜方宝石转换成燃烧宝石。造成 [魔法 + 8] 点散射伤害。',
-    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"left"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}],[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"right"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}]]}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"left","diagonalAnchor":"chosenCell"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}],[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"right","diagonalAnchor":"chosenCell"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}]]}]} as SkillPrototype),
   },
   {
     id: 8763,
@@ -1204,7 +1204,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8965,
     desc: '摧毁 X 形宝石。每摧毁一颗黄色宝石，即可祝福一名随机盟友。 [1:1]',
-    build: ({"segments":[{"kind":"status","target":"allyAll","statusId":"blessed","turns":3,"perCount":{"mod":{"kind":"multiplier","a":1},"source":{"kind":"diagonalGems","color":"Yellow"}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"area","shape":"x"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"status","target":"allyAll","statusId":"blessed","turns":3,"perCount":{"mod":{"kind":"multiplier","a":1},"source":{"kind":"diagonalGems","color":"Yellow","anchor":"chosenCell"}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"area","shape":"x","center":"CELL"}}}]} as SkillPrototype),
   },
   {
     id: 8966,

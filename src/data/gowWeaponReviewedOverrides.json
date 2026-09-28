@@ -4198,8 +4198,9 @@
                 "a": 3
               },
               "source": {
-                "kind": "alliesOfKingdom",
-                "kingdom": "齐埃金"
+                "kind": "alliesNamed",
+                "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                "atCastStart": true
               }
             }
           },
@@ -4222,8 +4223,9 @@
                   "a": 3
                 },
                 "source": {
-                  "kind": "alliesOfKingdom",
-                  "kingdom": "齐埃金"
+                  "kind": "alliesNamed",
+                  "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                  "atCastStart": true
                 }
               }
             },
@@ -4233,8 +4235,9 @@
                 "a": 3
               },
               "source": {
-                "kind": "alliesOfKingdom",
-                "kingdom": "齐埃金"
+                "kind": "alliesNamed",
+                "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                "atCastStart": true
               }
             }
           },
@@ -8268,7 +8271,8 @@
                     "from": "ANY",
                     "to": "Red",
                     "toSpecial": "burningGem",
-                    "diagonal": "left"
+                    "diagonal": "left",
+                    "diagonalAnchor": "chosenCell"
                   }
                 },
                 {
@@ -8289,7 +8293,8 @@
                     "from": "ANY",
                     "to": "Red",
                     "toSpecial": "burningGem",
-                    "diagonal": "right"
+                    "diagonal": "right",
+                    "diagonalAnchor": "chosenCell"
                   }
                 },
                 {
@@ -8991,7 +8996,8 @@
               },
               "source": {
                 "kind": "diagonalGems",
-                "color": "Yellow"
+                "color": "Yellow",
+                "anchor": "chosenCell"
               }
             }
           },
@@ -9002,7 +9008,8 @@
               "mode": "destroy",
               "target": {
                 "kind": "area",
-                "shape": "x"
+                "shape": "x",
+                "center": "CELL"
               }
             }
           }

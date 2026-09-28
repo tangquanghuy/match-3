@@ -86,7 +86,7 @@ describe('L3 R2: troop:7646 Shadow Wraith (9550) half mana if the hit enemy uses
     expect(order(r)).toEqual(['dmg E11 13', 'buff C mana+6']);
   });
   // P-R7-dead-last-target-cond: native counts the target colour before the hit (CountArmyColor@RandomEnemy step 0)
-  it.fails('Purple enemy killed by the hit still refunds half the mana (primitive queue)', () => {
+  it('Purple enemy killed by the hit still refunds half the mana (P-R7-dead-last-target-cond)', () => {
     const r = castSpell({ key: 'troop:7646', seed: 7, enemies: [en([BaseColor.Purple], { hp: 1, maxHp: 1 }), en([BaseColor.Red])] });
     expect(order(r)).toEqual(['dmg E10 13', 'defeat E10', 'buff C mana+6']);
   });
@@ -570,7 +570,7 @@ describe('L3 R2: B14 status-count boosts (counted before the hit)', () => {
     expect(webbed.summary.extraTurn).toBe('skill');
   });
   // P-R7-dead-last-target-cond: the status is counted at step 0, so a killed target still grants it
-  it.fails('weapon:1144: a Webbed target killed by the hit still grants the extra turn (primitive queue)', () => {
+  it('weapon:1144: a Webbed target killed by the hit still grants the extra turn (P-R7-dead-last-target-cond)', () => {
     expect(castSpell({ key: 'weapon:1144', target: 10, enemies: [weak(st('web')), en([])] }).summary.extraTurn).toBe('skill');
   });
   it('troop:6386 Warhawk: Hunter\'s Mark -> +10 and an extra turn; unmarked -> neither', () => {
@@ -579,7 +579,7 @@ describe('L3 R2: B14 status-count boosts (counted before the hit)', () => {
     const u = castSpell({ key: 'troop:6386', target: 10, enemies: [en([]), en([], { statuses: st('marked') })] });
     expect(order(u)).toEqual(['dmg E10 14']);
   });
-  it.fails('troop:6386: a marked target killed by the hit still grants the extra turn (primitive queue)', () => {
+  it('troop:6386: a marked target killed by the hit still grants the extra turn (P-R7-dead-last-target-cond)', () => {
     expect(castSpell({ key: 'troop:6386', target: 10, enemies: [weak(st('marked')), en([])] }).summary.extraTurn).toBe('skill');
   });
   it('troop:7613 Blighted Husk: drain 4 + 2 per Diseased enemy, then Disease', () => {
