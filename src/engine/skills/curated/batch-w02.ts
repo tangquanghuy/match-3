@@ -634,7 +634,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 6] 点伤害。若敌人陷入出血状态，则伤害翻倍。有 10% 的几率直接杀死敌人，几率因末日骷髅头的数量而增强。 [x2]',
     build: skill(
       dmg('enemyChosen', 6, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'bleed' } } }),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSkulls' } } }),
+      // 原生 CountGems Doomskull（末日骷髅头，不含普通骷髅）
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } } }),
     ),
   },
   {

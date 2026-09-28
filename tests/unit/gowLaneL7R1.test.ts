@@ -201,6 +201,47 @@ describe('L7 sa-R4: RandomEnemy + RandomPrefNotPrevEnemy chains are N separate h
   });
 });
 
+describe('L7 sa-R4: instant-kill chances boosted by gems / tempering', () => {
+  const killRate = (o: Parameters<typeof castSpell>[0], victim: string, runs = 400) => {
+    let k = 0;
+    for (let seed = 1; seed <= runs; seed++) if (castSpell({ ...o, seed }).summary.order.includes(`defeat ${victim}`)) k++;
+    return k / runs;
+  };
+  const noPurple: BoardFn = (r, c) => { const g = sixColourBoard(r, c); return g && g.kind === 'color' && g.color === Purple ? colorGemOf(Blue) : g; };
+  const doom = (n: number) => withSpecials(Array.from({ length: n }, () => specialGem('doomSkull')));
+  it('troop:6613 [M+1], then 10% +2% per Purple gem to slay', () => {
+    expect(dmgs(castSpell({ key: 'troop:6613' }))[0]).toBe(11);
+    expect(killRate({ key: 'troop:6613', board: noPurple }, 'E11')).toBeLessThan(0.16);
+    const p = boardCount(Purple);
+    const r = killRate({ key: 'troop:6613', board: sixColourBoard }, 'E11');
+    expect(Math.abs(r - (0.1 + 0.02 * p))).toBeLessThan(0.08);
+  });
+  it('weapon:1262 [M+6] (x2 on Bleeding), then 10% +2% per Doomskull (not per Skull)', () => {
+    const bleeding = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, statuses: [{ id: 'bleed', turns: 99 }] as Character['statuses'] } : e));
+    expect(dmgs(castSpell({ key: 'weapon:1262', enemies: bleeding }))[0]).toBe(32);
+    expect(killRate({ key: 'weapon:1262' }, 'E11')).toBeLessThan(0.16); // 5 plain Skulls on the review board
+    expect(killRate({ key: 'weapon:1262', board: doom(10) }, 'E11')).toBeGreaterThan(0.2);
+  });
+  it.each([['troop:7117', 0.03, 0.03], ['troop:7119', 0.05, 0.05]] as const)('%s: native order Lethal then Damage; %d base +%d per Doomskull', (key, base, per) => {
+    const r = castSpell({ key, board: doom(8), seed: 1 });
+    expect(r.summary.order[0]).toMatch(/^(dmg E11 13|defeat E11)/);
+    const rate = killRate({ key, board: doom(8) }, 'E11');
+    expect(Math.abs(rate - (base + 8 * per))).toBeLessThan(0.1);
+    expect(killRate({ key, board: sixColourBoard }, 'E11')).toBeLessThan(0.1);
+  });
+  const doomed: [string, BaseColor][] = [['weapon:1454', Blue], ['weapon:1455', Green], ['weapon:1456', Red], ['weapon:1457', Yellow], ['weapon:1458', Purple], ['weapon:1459', Brown]];
+  it.each(doomed)('%s: last enemy [M+4] + %s gems, x2 with Doom, 3% per tempering level to kill', (key, color) => {
+    const n = boardCount(color);
+    expect(dmgs(castSpell({ key, board: sixColourBoard }))).toEqual([14 + n]);
+    // "If they have a Doom" = the enemy team fields a Doom-type troop (any living enemy, not only the target)
+    const withDoom = DEFAULT_ENEMIES.map((e, i) => (i === 0 ? { ...e, troopTypes: ['Doom'] } : e));
+    expect(dmgs(castSpell({ key, board: sixColourBoard, enemies: withDoom }))).toEqual([(14 + n) * 2]);
+    expect(killRate({ key, board: sixColourBoard }, 'E13', 100)).toBe(0);
+    const t = killRate({ key, board: sixColourBoard, caster: { temperingLevel: 10 } as Partial<Character> }, 'E13');
+    expect(Math.abs(t - 0.3)).toBeLessThan(0.08);
+  });
+});
+
 describe('L7 sa-R4: targets and race counts on both sides', () => {
   it('troop:6904 hits the chosen enemy and only the one directly below (NextDownFromTarget), x4 per Forest of Thorns ally', () => {
     const allies = [{ ...unit([Red]), kingdom: '荆棘森林' }, unit([Red])];

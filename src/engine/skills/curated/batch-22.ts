@@ -106,27 +106,29 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8660,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，有 3% 的几率将其杀戮。每有一颗末日骷髅头则几率增强 3%。 [x3]',
     build: skill(
-      dmg('enemyChosen', 3),
       // 回收（第六遍）：「杀戮」= 即杀 execute（batch-03 7789「处死」同款）；几率增强 =
       // chanceBoost + boardSpecial（文本明说『末日骷髅头』→ 精确计数该种类；『因骷髅头数』才用 boardSkulls）
+      // R001（sa-R4）：原生先 LethalDamageConditional 后 Damage → 即杀段在前
       dmg('enemyChosen', 0, 0, {
         execute: true,
         chance: 0.03,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } },
       }),
+      dmg('enemyChosen', 3),
     ),
   },
   {
     id: 8662,
     desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，有 5% 的几率将其杀戮。每有一颗末日骷髅头则几率增强 5%。 [x5]',
     build: skill(
-      trueDmg('enemyChosen', 3),
       // 同 8660：execute + chance + chanceBoost(boardSpecial doomSkull)；主伤害为真实伤害 → trueDmg
+      // R001（sa-R4）：原生先 LethalDamageConditional 后 TrueDamage
       dmg('enemyChosen', 0, 0, {
         execute: true,
         chance: 0.05,
         chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } },
       }),
+      trueDmg('enemyChosen', 3),
     ),
   },
   {
