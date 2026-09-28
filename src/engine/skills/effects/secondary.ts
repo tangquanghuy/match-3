@@ -174,7 +174,14 @@ export type ModifierSource =
    * 即 8 邻中的正下格，故按 3x3 邻域口径计数、不含锚格自身）。锚缺失（前序无成功创造段）
    * 按 0 计。只数基色宝石（boardGems 同口径，不含归属色特殊宝石）。
    */
-  | { kind: 'surroundingGems'; color: BaseColor; anchor: 'lastCreated' };
+  | { kind: 'surroundingGems'; color: BaseColor; anchor: 'lastCreated' }
+  /**
+   * 原生 CountGems <色> BoardTarget Block3x3（P-F2-precount-explode，7553「爆破一颗宝石……伤害值因
+   * 被摧毁的蓝色宝石数而增强」：计数是第 0 步，爆破是最后一步）：以本次选定格 ctx.chosenCell 为中心的
+   * 3x3 方块（含中心格，越界收边）内该基色宝石数，在判定时刻读棋盘——后续爆破同一格前即可预读。
+   * 未选格 → 0。
+   */
+  | { kind: 'chosenCellBlockGems'; color: BaseColor };
 
 /** 二次缩放规格：解析出的 [xN]/[N:M] + 来源，段定义里以纯数据存在（可 JSON 化） */
 export interface ModifierSpec {
@@ -346,6 +353,18 @@ export type Condition =
   /** 最近目标段的主目标属性高于施法者（R22 批反向属性比较，7960「若其攻击力比较大」——
    *  §13.2 casterStatBeatsTarget 只支持施法者>目标正向，本条件为其对偶）。 */
   | { kind: 'targetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /**
+   * 原生 FromTarget（本次手动选定的目标 ctx.chosenTargetId）在**判定时刻**的属性高于施法者
+   *（P-F3-prehit-target-compare，7670 CountSet [AddForMoreLifeOnTarget] 在伤害前比较）。
+   * 与 targetStatBeatsCaster 的区别：不依赖跨段追踪，首个目标段之前也可判定。全局条件。
+   */
+  | { kind: 'chosenTargetStatBeatsCaster'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
+  /**
+   * 原生 FromTarget（手动选定的目标）存活且生命未满（P-F3-lasttarget-damaged，7791
+   * CountSet@FromTarget [AddForDamaged] → Enrage@Self：命中后该敌受损则自身狂怒）。
+   * 挂在自身目标段上也按选定目标判定（全局条件）。
+   */
+  | { kind: 'chosenTargetDamaged' }
   /**
    * 战场经济池某币种 ≥n（batch-r28，7435「如果自身有 12 个或更多灵魂」——经济阈值条件
    * 缺口；读 GameState.economy 共用池现值，全局条件整段判定）。
@@ -547,6 +566,14 @@ export function conditionMet(
           return _never;
         }
       }
+    }
+    case 'chosenTargetStatBeatsCaster':
+    case 'chosenTargetDamaged': {
+      const chosen = ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId);
+      if (!chosen || chosen.defeated) return false;
+      if (cond.kind === 'chosenTargetDamaged') return chosen.hp < chosen.maxHp;
+      const me = findCharacter(ctx.state, ctx.casterId);
+      return !!me && statOf(chosen, cond.stat) > statOf(me, cond.stat);
     }
     case 'castSacrificed': return ctx.castTracking?.sacrificeSucceeded === true;
     case 'castEnemyDied': return (ctx.castTracking?.enemyDeaths ?? 0) > 0;
@@ -892,6 +919,20 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
         for (let dc = -1; dc <= 1; dc++) {
           if (dr === 0 && dc === 0) continue;
           const pos = { row: anchor.row + dr, col: anchor.col + dc };
+          if (pos.row < 0 || pos.col < 0 || pos.row >= BoardModel.ROWS || pos.col >= BoardModel.COLS) continue;
+          const gem = ctx.state.board.get(pos);
+          if (gem && gem.type.kind === 'color' && gem.type.color === source.color) n += 1;
+        }
+      }
+      return n;
+    }
+    case 'chosenCellBlockGems': {
+      const centre = ctx.chosenCell;
+      if (!centre) return 0;
+      let n = 0;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          const pos = { row: centre.row + dr, col: centre.col + dc };
           if (pos.row < 0 || pos.col < 0 || pos.row >= BoardModel.ROWS || pos.col >= BoardModel.COLS) continue;
           const gem = ctx.state.board.get(pos);
           if (gem && gem.type.kind === 'color' && gem.type.color === source.color) n += 1;

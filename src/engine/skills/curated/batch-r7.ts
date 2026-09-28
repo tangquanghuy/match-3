@@ -340,9 +340,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。若敌人生命值受损，则获得狂怒效果并再造成 10 点伤害。',
     build: skill(
       // 原生：Damage [AddForDamaged 10]（命中前判受损，同一击）→ 击杀则狂怒自身 → 命中后目标受损则狂怒自身。
-      // 命中后「目标受损」无全局条件叶子 → primitive-queue P-F3-lasttarget-damaged。
+      // 命中后「目标受损」= chosenTargetDamaged（sa-P P-F3-lasttarget-damaged，读选定目标，自身段也可判定）。
       dmg('enemyChosen', 4, 1, { condBonus: { n: 10, cond: { kind: 'targetHpDamaged' } } }),
       inflict('rage', 'allySelf', { ifTargetDied: true }),
+      inflict('rage', 'allySelf', { ifCond: { kind: 'chosenTargetDamaged' } }),
     ),
   },
   {

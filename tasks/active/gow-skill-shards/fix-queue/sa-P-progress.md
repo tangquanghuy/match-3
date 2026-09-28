@@ -26,3 +26,12 @@
   - re-review (golden-signed, behaviour changed, NOT approved; gowCastGolden.test.ts fails for exactly these 7 until re-approved; 28 scenario lines): accepted-base troop:7070 (removed Skulls no longer hit E10), L4a troop:6052 (same), L4a troop:6054 / 6240 (A2 no mana+9 from removed Red), L4a troop:6467 / 6965 (A1 no mana+11 from removed Blue), L4a troop:7058 (A1 mana only from the cascade)
 - 2026-09-28T14:00:00Z P-counter-per-step (sa-F2 8228 note) fixed: secondary.ts ModifierSpec.sourceGroups (sum per group, one floor per native Count step, R007-1); 8228 -> [Attack+Armor+Life] + [Magic] (L10 E11 482 -> 481); reverse-check of all native CountAttackArmorLife: 7252 7454 7644 7975 8203 8238 8751 9184 9882 were 3 per-source floors -> pooled: true; golden diff 0 new lines (none signed)
   - re-review (unsigned, values changed when stats are not multiples): troop:6826 6138 6304 6466 6644 6800 6833 7181 7467 7838; lane note: weapon:1217 / 7864 native CountAttackArmorLife 34 but curated counts Attack only
+- 2026-09-28T14:30:00Z P-F3-lasttarget-damaged fixed: secondary.ts global condition chosenTargetDamaged; 7791 + inflict rage@Self ifCond chosenTargetDamaged (native CountSet@FromTarget [AddForDamaged] -> Enrage@Self); golden diff 0 lines
+  - re-review (unsigned): troop:6587 / 7791 (surviving damaged target -> caster Enraged)
+- 2026-09-28T14:35:00Z P-F3-prehit-target-compare fixed: global condition chosenTargetStatBeatsCaster; 7670 native order souls 10 (+20) then damage x3, both on the pre-hit Life comparison; golden diff 0 lines
+  - re-review (unsigned): troop:6483 / 7670 (souls before damage; caster hp 890 case: souls 30, dmg 39)
+- 2026-09-28T14:40:00Z P-F2-precount-explode fixed: modifier source chosenCellBlockGems (native CountGems Block3x3 at step 0); 7553 native order dispel -> true damage -> explode last; golden diff 0 lines
+  - re-review (unsigned): troop:6398 / 7553 (spell damage now lands before the explosion's skull/mana settle)
+- 2026-09-28T14:45:00Z P-F3-blessed-blocks-enchant skipped (source-dispute): proposal rulings/R011-blessed-positive-statuses.md
+- 2026-09-28T14:45:00Z P-F1-dead-anchor-targets skipped (source-dispute): proposal rulings/R012-dead-anchor-targets.md
+- queue done. Full vitest: only gowCastGolden (7 golden-signed re-review items above) fails; tsc 0. Golden diff total: 28 lines / 7 keys (all from P-F1-remove-gems).
