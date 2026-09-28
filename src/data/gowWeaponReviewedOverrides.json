@@ -14433,6 +14433,121 @@
           }
         ]
       }
+    },
+    "8578": {
+      "description": "制造 3 瓶同一种颜色的药水（蓝色、绿色、红色、黄色或紫色随机其一）。获得额外的回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "extraTurn"
+          },
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "create",
+                    "gem": {
+                      "kind": "special",
+                      "spec": {
+                        "kind": "manaPotionGem",
+                        "color": "Blue"
+                      }
+                    },
+                    "count": {
+                      "base": 3,
+                      "mult": 0
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "create",
+                    "gem": {
+                      "kind": "special",
+                      "spec": {
+                        "kind": "manaPotionGem",
+                        "color": "Green"
+                      }
+                    },
+                    "count": {
+                      "base": 3,
+                      "mult": 0
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "create",
+                    "gem": {
+                      "kind": "special",
+                      "spec": {
+                        "kind": "manaPotionGem",
+                        "color": "Red"
+                      }
+                    },
+                    "count": {
+                      "base": 3,
+                      "mult": 0
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "create",
+                    "gem": {
+                      "kind": "special",
+                      "spec": {
+                        "kind": "manaPotionGem",
+                        "color": "Yellow"
+                      }
+                    },
+                    "count": {
+                      "base": 3,
+                      "mult": 0
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "kind": "gem",
+                  "params": {
+                    "op": "create",
+                    "gem": {
+                      "kind": "special",
+                      "spec": {
+                        "kind": "manaPotionGem",
+                        "color": "Purple"
+                      }
+                    },
+                    "count": {
+                      "base": 3,
+                      "mult": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      }
     }
   }
 }

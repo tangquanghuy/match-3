@@ -240,3 +240,49 @@ describe('sa-H L2 B05', () => {
     expect(castSpell({ key: 'troop:6247', board: skulls }).summary.order.some(l => l.startsWith('explode'))).toBe(true);
   });
 });
+
+describe('sa-H L2 B06', () => {
+  const explodedSpan = (key: string, seed: number, cell = { row: 3, col: 3 }) => {
+    const f = setupCast({ key, seed, cell }); const ev = f.cast();
+    const ex = ev.find(e => e.type === 'gem-explode') as { cells: { pos: { row: number; col: number } }[] };
+    return { rows: new Set(ex.cells.map(c => c.pos.row)), cols: new Set(ex.cells.map(c => c.pos.col)), order: summarize(f, ev).order };
+  };
+  it('troop:6981 AB-CD: explode the CHOSEN row or column (1/2), then last enemy to the front', () => {
+    let rows = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const s = explodedSpan('troop:6981', seed, { row: 0, col: 7 });
+      // chosen gem at row 0 / col 7: row branch spans rows 0-1, column branch spans cols 6-7
+      if (s.cols.size === 8) { rows++; expect([...s.rows].sort()).toEqual([0, 1]); } else expect([...s.cols].sort()).toEqual([6, 7]);
+      expect(s.order).toContain('move E13 front');
+    }
+    within(rows / SEEDS, 0.5, 'row');
+  });
+  it('weapon:1418 extra turn + 3 potions of ONE colour (1/5 each of Blue/Green/Red/Yellow/Purple)', () => {
+    const t: Record<string, number> = {};
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const s = castSpell({ key: 'weapon:1418', seed }).summary;
+      expect(s.extraTurn).toBe('skill');
+      const kinds = Object.keys(s.gems.created); expect(kinds.length).toBe(1); expect(s.gems.created[kinds[0]]).toBe(3);
+      t[kinds[0]] = (t[kinds[0]] ?? 0) + 1;
+    }
+    expect(Object.keys(t).sort()).toEqual(['Blue', 'Green', 'Purple', 'Red', 'Yellow'].map(c => `manaPotionGem/${c}`));
+    for (const v of Object.values(t)) within(v / SEEDS, 1 / 5, '1418');
+  });
+  it('troop:7582 Choose B: other allies gain round(0.75M)+1 to all four Skills', () => {
+    const b = choose({ key: 'troop:7582' }, 1);
+    expect(b.filter(l => l.startsWith('buff C'))).toEqual([]);
+    expect(b.filter(l => l.startsWith('buff A1')).map(l => l.replace(' max+9', ''))).toEqual(['buff A1 attack+9', 'buff A1 armor+9', 'buff A1 hp+9', 'buff A1 magic+9']);
+  });
+  it('troop:7713 Choose B: 10 gems of the chosen ally colour, then Enchant that ally', () => {
+    const b = choose({ key: 'troop:7713' }, 1);
+    expect(b[0]).toMatch(/-> Blue x10$|^create Blue x10/); expect(b[1]).toBe('status A1 +enchanted');
+  });
+  it('troop:7740 AB-CD-EF 1/3 each: heal+Bless allies | [M+7] + Curse enemies | explode Gargoyle gems', () => {
+    let heal = 0, dmg = 0, other = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:7740', seed });
+      if (o[0]?.startsWith('buff C hp+17')) heal++; else if (o[0] === 'dmg E10 17 (all)') dmg++; else other++;
+    }
+    within(heal / SEEDS, 1 / 3, 'heal'); within(dmg / SEEDS, 1 / 3, 'dmg'); within(other / SEEDS, 1 / 3, 'gargoyle');
+  });
+});

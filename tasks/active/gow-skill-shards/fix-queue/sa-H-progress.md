@@ -24,3 +24,8 @@
 - troop:7296 accept (Choose explode [M+1] Purple | Mana Burn first 2; ManaBurn primitive as-is)
 - weapon:1385 accept (row|col 1/2 at chosen gem, [M+4] front, jumble enemies)
 - troop:6247 fixed+accept (ExplodeGems 2 any gem incl. skulls; DISPUTE: signed plain ExplodeGems N skills are split between include all/color, e.g. 6622/7359 color)
+- troop:6981 fixed+accept (chosen row|col, was random line)
+- weapon:1418 fixed+accept (one potion colour 1/5, was mixed; zh '3 种药水' fixed in pool-w01 + weapon override)
+- troop:7582 accept (Choose; [(0.75M)+1] round, convention:R006-C1)
+- troop:7713 accept (Choose heal+barrier | 10 gems of chosen ally colour + enchant)
+- troop:7740 accept (AB-CD-EF 1/3; Good+Bad gargoyle = gargoyleGem kind)

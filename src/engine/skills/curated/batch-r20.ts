@@ -27,7 +27,7 @@ import {
   skill, dmg, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
   inflict, createGems, createSkulls, createSpecialGems, transform, transformToSpecial,
   destroyColor, destroySpecialGems, destroyRandomRows, destroyArea,
-  explodeColor, explodeRandomRows, explodeRandomCols, explodeRandomGems,
+  explodeColor, explodeChosenRow, explodeChosenCol, explodeRandomGems,
   oneOf, reposition, summonRef, extraTurn, gainGold, gainSouls, CHOSEN, dispelStatus, devour,
 } from '../builders';
 import type { SegmentOpts } from '../builders';
@@ -306,11 +306,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8484,
     desc: '爆破 1 行或 1 列。再将末位敌人拉到首位。',
-    // 「行或列」= oneOf（官方两变体步骤，击退段公共抽出，9663 口径）
+    // 「行或列」= oneOf（官方 AB-CD 两变体，击退段公共抽出）；施法目标 Board + BoardTarget Row/Column
+    // = 玩家所选宝石所在行/列（sa-H：原为随机行/列；同 weapon:1385、7281）
     build: skill(
       oneOf(
-        [explodeRandomRows(1)],
-        [explodeRandomCols(1)],
+        [explodeChosenRow()],
+        [explodeChosenCol()],
       ),
       reposition('enemyLast', 'front'),
     ),

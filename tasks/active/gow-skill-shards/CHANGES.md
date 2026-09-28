@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 550 条改动，涉及 999 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 552 条改动，涉及 1001 个技能 ID。
 
 ## 按时间
 
@@ -556,6 +556,8 @@
 | 2026-09-28T21:37 | sa-H | L2-H-7847-one-colour | assembler | 9906 | troop:7847 CannonMimic | `src/engine/skills/curated/batch-r9.ts` | 3 random coloured gems of mixed colours → Randomize A-F: one colour 1/6, then 3 gems of that colour |  |
 | 2026-09-28T21:37 | sa-H | L2-H-6390-weights | assembler | 7545 | troop:6390 PrincessFizzbang | `src/engine/skills/curated/batch-r15.ts` | extra turn first, then 1/2 explode Green \| 1/2 random Skill → AB-CD-EF: 2/3 explode Green, 1/3 random Skill (Goblin x2), extra turn after each (native order) |  |
 | 2026-09-28T21:37 | sa-H | L2-H-6247-any-gem | assembler | 7390 | troop:6247 Remnant | `src/engine/skills/curated/batch-01.ts` | explode 2 random coloured gems (skulls/specials excluded) → explode 2 random gems of any kind (native ExplodeGems 2, same as signed 6204/6251/6875/7044) |  |
+| 2026-09-28T21:41 | sa-H | L2-H-6981-chosen-line | assembler | 8484 | troop:6981 Rhinotaur | `src/engine/skills/curated/batch-r20.ts` | explode a RANDOM row or column → explode the chosen gem's row or column (spell Target Board + BoardTarget Row/Column), 1/2 each |  |
+| 2026-09-28T21:41 | sa-H | L2-H-1418-one-colour | assembler | 8578 | weapon:1418 CelestialFlask | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json` | 3 potions from a 5-colour mixed pool; zh said 3 kinds of potion → A+(B-C-D-E-F): extra turn, then 3 potions of one colour (1/5 each); zh fixed in pool + weapon override |  |
 
 ## 按技能 ID
 
@@ -1061,6 +1063,7 @@
 | 8473 | 1 | P-F1-remove-gems |
 | 8475 | 1 | L2-6972-order |
 | 8481 | 1 | L4a-r3-6954 |
+| 8484 | 1 | L2-H-6981-chosen-line |
 | 8485 | 1 | P-R3-next-up-target |
 | 8487 | 1 | P-E-faction-kingdom |
 | 8488 | 1 | R7-b14-status-counts |
@@ -1100,6 +1103,7 @@
 | 8574 | 1 | L1-devour-first |
 | 8575 | 1 | L1-7050-order |
 | 8577 | 1 | B-L4b-1417-wildcard-tiers |
+| 8578 | 1 | L2-H-1418-one-colour |
 | 8580 | 1 | L3-015 |
 | 8582 | 1 | L1-devour-first |
 | 8586 | 1 | F2-R001-order |
