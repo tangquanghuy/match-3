@@ -1,6 +1,6 @@
 // sa-R4 lane review round 1, lane L7: count boosts the standard golden scenarios cannot show. Real TurnEngine casts.
 import { describe, it, expect } from 'vitest';
-import { castSpell, DEFAULT_ENEMIES } from '../helpers/gowCast';
+import { castSpell, DEFAULT_ENEMIES, sixColourBoard } from '../helpers/gowCast';
 import { BaseColor, type Character } from '@engine/types';
 
 const { Red, Blue, Green, Yellow, Purple, Brown } = BaseColor;
@@ -34,6 +34,15 @@ describe('L7 sa-R4: "boosted by <Colour> and <Race> Allies" (CountArmyColor + Co
     ['weapon:1652', Yellow, 'Knight', 14, 3],
     ['weapon:1691', Green, 'Urska', 14, 3],
     ['weapon:1716', Yellow, 'Wildfolk', 14, 3],
+    ['weapon:1655', Brown, 'Dwarf', 14, 3],
+    ['weapon:1661', Brown, 'Tauros', 14, 3],
+    ['weapon:1664', Purple, 'Dragon', 14, 3],
+    ['weapon:1676', Red, 'Raksha', 14, 3],
+    ['weapon:1679', Blue, 'Human', 14, 3],
+    ['weapon:1688', Red, 'Orc', 14, 3],
+    ['weapon:1698', Green, 'Mystic', 14, 3],
+    ['weapon:1701', Yellow, 'Mech', 14, 3],
+    ['weapon:1712', Green, 'Goblin', 14, 3],
   ];
   it.each(rows)('%s: colour and race counted separately (a unit with both counts twice); enemies ignored', (key, color, race, base, a) => {
     const n = other(color);
@@ -51,6 +60,39 @@ describe('L7 sa-R4: "boosted by <Race> and <Race> Allies" (two CountArmyType, Al
     const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
     expect(sum(dmgs(castSpell({ key: 'weapon:1111', allies })))).toBe(29); // scatter total split over enemies: 14 + 5 x (1 + 2)
     expect(sum(dmgs(castSpell({ key: 'weapon:1111', allies: [unit([Red], ['Human'])] })))).toBe(14);
+  });
+});
+
+describe('L7 sa-R4: "boosted by <Kingdom> Allies" (CountArmyKingdom AllAllies, caster included)', () => {
+  const kRows: [string, string, number, number, number][] = [ // key, kingdom, base, a, targets
+    ['weapon:1580', '玉银林地', 13, 3, 2], ['weapon:1590', '蛛尔卡里', 13, 3, 2], ['weapon:1614', '沃尔帕克', 13, 3, 2], ['weapon:1626', '玉银林地', 13, 3, 2],
+    ['troop:6741', '狮心帝国', 14, 4, 1], ['troop:7660', '卓克祖', 14, 4, 1],
+  ];
+  it.each(kRows)('%s: +a per %s ally', (key, kingdom, base, a, targets) => {
+    const allies = [{ ...unit([Red]), kingdom }, { ...unit([Red]), kingdom }, { ...unit([Red]), kingdom: '混沌' }];
+    const self = key.startsWith('troop:') ? 1 : 0; // weapons: hero has no kingdom in the harness
+    expect(dmgs(castSpell({ key, allies }))).toEqual(Array(targets).fill(base + a * (2 + self)));
+    expect(dmgs(castSpell({ key, allies: [unit([Red])] }))).toEqual(Array(targets).fill(base + a * self));
+  });
+});
+
+describe('L7 sa-R4: colour / gem / condition boosts', () => {
+  it('troop:6868 x4 per Purple enemy only (allies ignored)', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, colors: i < 3 ? [Purple] : [Red] }));
+    expect(dmgs(castSpell({ key: 'troop:6868', allies: [unit([Purple])], enemies }))).toEqual([14 + 4 * 3]);
+  });
+  it('troop:6905 x2 per Blue ally plus per Blue gem on the board', () => {
+    let blue = 0;
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = sixColourBoard(r, c); if (g && g.kind === 'color' && g.color === Blue) blue++; }
+    expect(blue).toBeGreaterThan(8);
+    const r = castSpell({ key: 'troop:6905', caster: { colors: [Blue] }, allies: [unit([Blue]), unit([Red])], board: sixColourBoard });
+    expect(dmgs(r)[0]).toBe(13 + 2 * (2 + blue));
+  });
+  it('troop:6394 hits the last enemy x3 per Blue ally, doubled when that enemy is damaged', () => {
+    const allies = [unit([Blue]), unit([Red])];
+    expect(castSpell({ key: 'troop:6394', allies }).summary.order).toEqual(['dmg E13 19']); // 13 + 3 x 2 (caster + A1)
+    const enemies = DEFAULT_ENEMIES.map((e, i) => (i === 3 ? { ...e, hp: 400 } : e));
+    expect(castSpell({ key: 'troop:6394', allies, enemies }).summary.order).toEqual(['dmg E13 38']);
   });
 });
 
