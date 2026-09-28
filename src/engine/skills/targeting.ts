@@ -58,6 +58,7 @@ export type TargetMode =
   | 'allyFront'
   | 'allyRandom'
   | 'allyRandomN' // 随机 N 名盟友（不重复）
+  | 'allyRandomPrefNotPrevN' // Native RandomAlly + (N-1) x RandomPrefNotPrevAlly in one segment (R007-3): each pick avoids only the previous pick; may repeat.
   | 'allyWeakest'
   | 'allyLowestManaOther' // Lowest current mana among living allies excluding the caster; ties follow team order.
   | 'allyWeakestN'
@@ -362,6 +363,22 @@ export function selectTargets(
       const preferred = alive.filter(c => c.id !== excludedId);
       const pool = preferred.length ? preferred : alive;
       return [pool[rng.nextInt(pool.length)]];
+    }
+    case 'allyRandomPrefNotPrevN': {
+      // R007-3 (rulings/R007-counters-random-pools.md): native RandomAlly followed by N-1
+      // RandomPrefNotPrevAlly steps. Every step avoids only the immediately previous pick
+      // (step 3 may return to step 1's ally); a lone survivor is picked every time. The
+      // list can contain repeats — each entry is one native step applied to that ally.
+      const picked: Character[] = [];
+      let prev: number | undefined;
+      for (let i = 0; i < Math.max(1, n); i++) {
+        const preferred = alive.filter(c => c.id !== prev);
+        const pool = preferred.length ? preferred : alive;
+        const pick = pool[rng.nextInt(pool.length)];
+        picked.push(pick);
+        prev = pick.id;
+      }
+      return picked;
     }
     case 'enemyRandomOther': {
       const others = alive.filter(c => c.id !== excludedId);

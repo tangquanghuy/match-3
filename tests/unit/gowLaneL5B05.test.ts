@@ -140,18 +140,19 @@ describe('L5 troop:7862 / spell:9937 Stun all enemies, then Magic+5 splash to 3 
   expect(loss(f)).toEqual(expectedLoss(c,magic+5));
   expect(f.state.activePlayer).toBe(f.other);
  });
- it('centres vary over seeds and are always 3 different enemies while 3+ live (convention:R006-C3)',()=>{
-  const seen=new Set<string>();
+ it('centres vary over seeds; consecutive centres always differ while 2+ live, the third may return to the first (R007-3 RandomPrefNotPrevEnemy)',()=>{
+  const seen=new Set<string>();let returned=false;
   for(let seed=0;seed<30;seed++){
    const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:4,chosen:10,seed});
-   const c=centresOf(f.cast());expect(new Set(c).size).toBe(3);seen.add([...c].sort().join());
+   const c=centresOf(f.cast());expect(c).toHaveLength(3);expect(c[1]).not.toBe(c[0]);expect(c[2]).not.toBe(c[1]);
+   if(c[2]===c[0])returned=true;seen.add([...c].sort().join());
    expect(loss(f)).toEqual(expectedLoss(c,9));
   }
-  expect(seen.size).toBeGreaterThan(1);
+  expect(seen.size).toBeGreaterThan(1);expect(returned).toBe(true);
  });
- it('two living enemies: still three waves, the third re-hits one of them (R006-C3); lone enemy takes all three',()=>{
+ it('two living enemies: still three waves alternating A-B-A (R007-3); lone enemy takes all three',()=>{
   const a=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:4,chosen:10,enemies:[{defeated:true,hp:0},{},{defeated:true,hp:0},{}]});
-  const c=centresOf(a.cast());expect(c).toHaveLength(3);expect(new Set(c.slice(0,2)).size).toBe(2);
+  const c=centresOf(a.cast());expect(c).toHaveLength(3);expect(new Set(c.slice(0,2)).size).toBe(2);expect(c[2]).toBe(c[0]);
   // living 11 and 13 are formation neighbours once 12 is dead: each wave = 9 centre + 4 splash
   expect(a.foes[1].hp+a.foes[3].hp).toBe(2000-3*13);
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Right,magic:4,chosen:10,enemies:[{defeated:true,hp:0},{defeated:true,hp:0},{},{defeated:true,hp:0}]});

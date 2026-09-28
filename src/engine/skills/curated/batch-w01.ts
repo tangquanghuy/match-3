@@ -1276,7 +1276,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 15 颗红色和绿色的宝石。赋予两名随机盟友法印效果。',
     build: skill(
       createMix([BaseColor.Red, BaseColor.Green], 15),
-      inflict('enchanted', 'allyRandomN', { n: 2 }),
+      inflict('enchanted', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {

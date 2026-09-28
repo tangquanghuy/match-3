@@ -91,6 +91,11 @@ export interface DamageSegment extends SegmentOptions {
   splashChances?: number[];
   /** Source has this many separate RandomEnemy/RandomPrefNotPrevEnemy damage steps. */
   randomWaves?: number;
+  /**
+   * Random waves / enemyRandomN splash centres: default avoids only the previous pick (R007-3,
+   * native RandomPrefNotPrevEnemy); 'notHit' prefers not-yet-hit enemies (R006-C3, plain RandomEnemy chains).
+   */
+  randomPrefer?: 'notHit';
   trueDamage?: boolean;
   /** Native ManaBurn: add each victim's current Mana, never drain it. */
   manaBurn?: boolean;
@@ -692,6 +697,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         randomSplashCount: randomCount,
         randomSplashChances: randomSplash ? segment.splashChances : undefined,
         randomDamageWaves: segment.target === 'enemyRandomN' && segment.range !== 'splash' ? segment.randomWaves : undefined,
+        randomPrefer: segment.randomPrefer,
         scaling: segment.scaling,
         // Target modes ending in N and enemyAll resolve several distinct victims.
         // An omitted range means full damage PER resolved victim, not "first victim only".

@@ -163,6 +163,8 @@ export interface DmgOpts extends SegmentOpts, NRangeOpts {
   splashChances?: number[];
   /** Native repeated random damage steps, including repeat hits when fewer enemies remain. */
   randomWaves?: number;
+  /** 'notHit': plain RandomEnemy chains prefer not-yet-hit enemies (R006-C3); default avoids only the previous (R007-3). */
+  randomPrefer?: 'notHit';
   trueDamage?: boolean;
   /** Native ManaBurn: add each victim's current Mana, never drain it. */
   manaBurn?: boolean;
@@ -199,6 +201,7 @@ export function dmg(
   if (opts.splashRatio !== undefined) seg.splashRatio = opts.splashRatio;
   if (opts.splashChances !== undefined) seg.splashChances = [...opts.splashChances];
   if (opts.randomWaves !== undefined) seg.randomWaves = opts.randomWaves;
+  if (opts.randomPrefer) seg.randomPrefer = opts.randomPrefer;
   if (opts.trueDamage) seg.trueDamage = true;
   if (opts.manaBurn) seg.manaBurn = true;
   if (opts.n !== undefined) seg.n = opts.n;

@@ -37,6 +37,12 @@ export interface DamageParams {
   randomSplashChances?: number[];
   /** Number of separate native random damage steps, sampled sequentially. */
   randomDamageWaves?: number;
+  /**
+   * Candidate rule for random waves / random splash centres. Default (R007-3, native
+   * RandomEnemy + RandomPrefNotPrevEnemy chains): avoid only the previous pick. 'notHit'
+   * (R006-C3, chains of plain RandomEnemy steps): prefer enemies not yet hit in this segment.
+   */
+  randomPrefer?: 'notHit';
   /** 二次缩放（[xN]/[N:M] + 来源），叠加在基础伤害上 */
   modifier?: ModifierSpec;
   /**
@@ -305,6 +311,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         // A multi-target segment represents one complete splash per centre.
         // Snapshot each wave before dealing it; killing its centre does not cancel collateral.
         const selected = new Set<number>();
+        let prevId: number | undefined;
         const centres: { id: number; aliveBefore: boolean }[] = [];
         const randomSplash = params.randomSplashCount !== undefined || params.randomSplashChances !== undefined;
         const waves = params.randomSplashChances?.length ?? params.randomSplashCount ?? targets.length;
@@ -316,11 +323,16 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
           let primary = targets[wave];
           if (randomSplash) {
             const alive = targets.filter(t => !t.defeated);
-            const preferred = alive.filter(t => !selected.has(t.id));
+            // R007-3: native RandomPrefNotPrevEnemy avoids only the previous centre;
+            // randomPrefer 'notHit' (R006-C3, plain RandomEnemy chains) avoids every earlier centre.
+            const preferred = params.randomPrefer === 'notHit'
+              ? alive.filter(t => !selected.has(t.id))
+              : alive.filter(t => t.id !== prevId);
             const candidates = preferred.length ? preferred : alive;
             if (!candidates.length) break;
             primary = candidates[ctx.rng.nextInt(candidates.length)];
             selected.add(primary.id);
+            prevId = primary.id;
           }
           if (!primary || primary.defeated) continue;
           if (randomSplash && ctx.castTracking) {
@@ -353,20 +365,25 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
       }
 
       if (params.randomDamageWaves !== undefined && range === 'all') {
-        // Source steps pick a new, currently alive target each time. Prefer one not
-        // previously hit; when the pool is exhausted, subsequent native steps can
-        // hit earlier survivors again. Never select an enemy killed in this cast.
+        // Source steps pick a new, currently alive target each time (never one killed in this cast).
+        // R007-3: native RandomPrefNotPrevEnemy avoids only the immediately previous victim and may
+        // repeat it when it is the only one alive; randomPrefer 'notHit' (R006-C3, plain RandomEnemy
+        // chains) prefers enemies not yet hit and repeats only once all were hit.
         const selected = new Set<number>();
+        let prevId: number | undefined;
         const snapshots: { id: number; aliveBefore: boolean }[] = [];
         const damageEvents: SkillDamageEvent[] = [];
         const tailEvents: GameEvent[] = [];
         for (let wave = 0; wave < params.randomDamageWaves; wave++) {
           const alive = targets.filter(target => !target.defeated);
-          const fresh = alive.filter(target => !selected.has(target.id));
+          const fresh = params.randomPrefer === 'notHit'
+            ? alive.filter(target => !selected.has(target.id))
+            : alive.filter(target => target.id !== prevId);
           const choices = fresh.length ? fresh : alive;
           if (!choices.length) break;
           const victim = choices[ctx.rng.nextInt(choices.length)];
           selected.add(victim.id);
+          prevId = victim.id;
           snapshots.push({ id: victim.id, aliveBefore: true });
           const perWaveAmount = params.rangeSpec ? drawAmount() : amount;
           const produced = hit(victim, doubled(victim, perWaveAmount), range);

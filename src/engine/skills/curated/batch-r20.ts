@@ -233,7 +233,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「按 X 形摧毁」= destroyArea('x')（官方 BoardTarget Diagonals，7463 口径）
     build: skill(
       destroyArea('x', 'destroy'),
-      inflict('enchanted', 'allyRandomN', { n: 2 }),
+      inflict('enchanted', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {
@@ -565,7 +565,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '赋予 2 名随机盟友法印效果。板面上每有一颗紫色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     // [x7] = CountGems Purple 700 → chanceBoost boardGems Purple ×7（8861 口径）
     build: skill(
-      inflict('enchanted', 'allyRandomN', { n: 2 }),
+      inflict('enchanted', 'allyRandomPrefNotPrevN', { n: 2 }),
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
     ),
   },

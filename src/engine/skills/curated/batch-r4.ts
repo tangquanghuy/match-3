@@ -383,7 +383,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8970,
     desc: '为 2 名盟友提供 3 点护甲。棋盘上每有一颗黄色宝石，就有 7% 的几率获得额外回合。 [x7]',
     build: skill(
-      armor('allyRandomN', 3, 0, { n: 2 }),
+      armor('allyRandomPrefNotPrevN', 3, 0, { n: 2 }),
       extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
