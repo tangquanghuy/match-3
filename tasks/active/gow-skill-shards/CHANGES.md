@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 286 条改动，涉及 544 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 288 条改动，涉及 545 个技能 ID。
 
 ## 按时间
 
@@ -292,6 +292,8 @@
 | 2026-09-28T09:02 | sa-P | P-R3-precast-compare | primitive | 9291, 7454, 7458, 7960, 9651, 7192 | troop:7533 FirebornPaladin | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r7.ts`<br>`tests/unit/gowFixP-R3-status-counts.test.ts` | casterStatBeatsTarget / targetStatBeatsCaster read castTracking.lastTarget only (false before the first targeting segment); 9291 had to grant Barrier after the hit (post-damage Armor) → both fall back to the chosen target when no lastTarget exists; 9291 native order Barrier (Armor compare) then damage | also seg-0 damage condMult/condBonus using these conditions (7454 7458 7960 9651 7192 / Kingslayer) now evaluate against the chosen target pre-hit; golden diff 0 new lines |
 | 2026-09-28T09:07 | sa-P | P-R3-next-up-target | primitive | 8485 | troop:6982 Mechataur | `src/engine/skills/targeting.ts`<br>`src/render/App.ts`<br>`src/engine/skills/curated/batch-r13.ts`<br>`tests/unit/gowFixP-R3-next-up-target.test.ts` | no single-unit NextUpFromTarget mode; 8485 silenced both neighbours with one shared 30% roll (enemyChosenAndAdjacent) → new target mode enemyNextUp (living enemy right above the chosen one, R012 cast-start slot); 8485 silence chosen / enemyNextUp / enemyNextDown, three independent 30% rolls | troop:6982 only (random split) |
 | 2026-09-28T09:13 | sa-P | P-R2-chosen-color-modifier | primitive | 8060 | troop:6704 ShamanOfSet | `src/engine/skills/colorChooser.ts`<br>`tests/unit/gowFixP-R2-chosen-color-modifier.test.ts` | prototypeNeedsColor ignored modifier sources; 8060 never asked for a colour and its boardGems CHOSEN count read 0 (created 0 Red) → boardGems 'CHOSEN' sources anywhere in a segment trigger the colour chooser; 8060 creates one Red per gem of the chosen colour | registry scan: 8060 only |
+| 2026-09-28T09:20 | sa-P | P-R1-chosen-target-color-cond | primitive | 8467 | troop:6964 StormKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`tests/unit/gowFixP-R1-chosen-target-color-cond.test.ts` | only lastTargetColor existed (needs a prior targeting segment), so 8467 dealt the true damage first and column skulls could miss a killed front target → global condition chosenTargetColor (cast-start colours of the chosen target); 8467 native order DestroyColumn -> IncreaseAttack -> TrueDamage | troop:6964 only |
+| 2026-09-28T09:20 | sa-P | P-R1-row-count-at-cast-start | primitive | 8928 | troop:7316 EyeOfArges | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`tests/unit/gowFixP-R1-row-count-at-cast-start.test.ts` | 8928 counted Red / Brown / Skull gems on the whole board (L10 dmg 178) → castTracking.chosenRowAtCastStart + source chosenRowAtCastStart: only the chosen row, captured before the explode (26 + 8 x row count) | troop:7316 only |
 
 ## 按技能 ID
 
@@ -571,7 +573,7 @@
 | 8438 | 1 | F1-6931-dispel |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8458 | 1 | L2-6958-order |
-| 8467 | 1 | L4a-R1-8467-target-count |
+| 8467 | 2 | L4a-R1-8467-target-count、P-R1-chosen-target-color-cond |
 | 8468 | 1 | F2-R001-order |
 | 8469 | 1 | R011 |
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -673,6 +675,7 @@
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
 | 8924 | 1 | F2-R001-order |
+| 8928 | 1 | P-R1-row-count-at-cast-start |
 | 8933 | 1 | F2-7321-no-events |
 | 8939 | 1 | R3-B02-7327 |
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |

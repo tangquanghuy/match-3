@@ -36,6 +36,8 @@ export interface CastTracking {
   skullsAtCastStart?: number;
   /** Selected-column gems before any spell segment, for native CountGems -> Explode -> Create. */
   chosenColumnAtCastStart?: GemType[];
+  /** Selected-row gems before any spell segment (P-R1-row-count-at-cast-start, native CountGems BoardTarget Row). */
+  chosenRowAtCastStart?: GemType[];
   /** Adjacent specials captured before the chosen-gem explosion. */
   countedAdjacentSpecial?: number;
   /** 本技能效果段直接摧毁的宝石（不含连锁；按执行顺序累积） */

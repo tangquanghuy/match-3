@@ -929,11 +929,13 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
       }
     }
     const chosenColumnAtCastStart: GemType[] = [];
+    // P-R1-row-count-at-cast-start: gems of the chosen row (native CountGems <Color> BoardTarget Row before the explode)
+    const chosenRowAtCastStart: GemType[] = [];
     if (ctx.chosenCell) ctx.state.board.forEach((gem, pos) => {
-      if (gem && pos.col === ctx.chosenCell!.col) {
-        chosenColumnAtCastStart.push(gem.type.kind === 'special'
-          ? { kind: 'special', spec: { ...gem.type.spec } } : { ...gem.type });
-      }
+      if (!gem) return;
+      const copy: GemType = gem.type.kind === 'special' ? { kind: 'special', spec: { ...gem.type.spec } } : { ...gem.type };
+      if (pos.col === ctx.chosenCell!.col) chosenColumnAtCastStart.push(copy);
+      if (pos.row === ctx.chosenCell!.row) chosenRowAtCastStart.push(copy);
     });
     let skullsAtCastStart = 0;
     ctx.state.board.forEach((gem) => {
@@ -942,6 +944,7 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     ctx.castTracking = {
       skullsAtCastStart,
       chosenColumnAtCastStart,
+      chosenRowAtCastStart,
       destroyed: [],
       transformed: 0,
       drainedMana: 0,

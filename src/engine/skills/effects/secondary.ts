@@ -40,6 +40,8 @@ export type ModifierSource =
    *  R22 批：skulls=true 筛普通骷髅族（「因该行被摧毁的骷髅头数而增强」，7388/7977/8812/9492）、
    *  special 筛指定特殊宝石 kind（「因被摧毁的石像鬼宝石数而增强」，8927） */
   | { kind: 'chosenColumnAtCastStart'; color?: BaseColor; skulls?: boolean }
+  /** Chosen-row gems at cast start (P-R1-row-count-at-cast-start), same filters as chosenColumnAtCastStart. */
+  | { kind: 'chosenRowAtCastStart'; color?: BaseColor; skulls?: boolean }
   | { kind: 'destroyedGems'; color?: BaseColor; skulls?: boolean; special?: SpecialGemKind; specialTier?: number }
   | { kind: 'countedAdjacentSpecial' }
   /** Count color gems on both diagonals through the same center as area:x. */
@@ -341,6 +343,9 @@ export type Condition =
    *  是建造」、8573 配合 devour 等）。无追踪目标 → false。 */
   /** Race of the original selected enemy, unaffected by later random target steps. */
   | { kind: 'chosenTargetRace'; race: string }
+  /** P-R1-chosen-target-color-cond: the chosen target's mana colour at cast start (native CountArmyColor@FromTarget
+   *  at step 0), usable before any targeting segment and after the target died. */
+  | { kind: 'chosenTargetColor'; color: BaseColor }
   | { kind: 'lastTargetRace'; race: string }
   /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力值」） */
   | { kind: 'lastTargetColor'; color: BaseColor }
@@ -398,6 +403,12 @@ export function conditionMet(
     case 'chosenTargetRace': {
       const selected = ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId);
       return !!selected && !selected.defeated && hasTroopType(selected, cond.race);
+    }
+    case 'chosenTargetColor': {
+      const id = ctx.chosenTargetId;
+      if (id === undefined) return false;
+      const colors = ctx.castTracking?.colorsAtCastStart?.[id] ?? findCharacter(ctx.state, id)?.colors ?? [];
+      return colors.includes(cond.color);
     }
     case 'targetColor': {
       if (!target) return false;
@@ -706,6 +717,8 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
   switch (source.kind) {
     case 'chosenColumnAtCastStart':
       return (tracking?.chosenColumnAtCastStart ?? []).filter(g => source.skulls ? isSkull(g) : matchGem(g, source.color)).length;
+    case 'chosenRowAtCastStart':
+      return (tracking?.chosenRowAtCastStart ?? []).filter(g => source.skulls ? isSkull(g) : matchGem(g, source.color)).length;
     case 'countedAdjacentSpecial': return tracking?.countedAdjacentSpecial ?? 0;
     case 'diagonalGems': {
       const center = Math.floor((BoardModel.ROWS - 1) / 2);

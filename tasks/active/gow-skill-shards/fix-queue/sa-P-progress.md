@@ -63,3 +63,7 @@
   - lane note (not changed): troop:6410 native Consume@NextDownFromTarget then Consume@NextUpFromTarget and troop:6377 silence NextUp/NextDown may now be written with enemyNextUp / enemyNextDown
 - 2026-09-28T18:25:00Z P-R2-chosen-color-modifier fixed: colorChooser.ts prototypeNeedsColor also finds a boardGems 'CHOSEN' count source anywhere in a segment; registry scan: only 8060 (troop:6704) newly asks for a colour (the other boardGems CHOSEN users already had a CHOSEN gem op); gowFixP-R2-chosen-color-modifier.test.ts; golden diff 0 new lines
   - re-review (unsigned): troop:6704 / 8060 (chosen colour -> one Red per gem of that colour)
+- 2026-09-28T18:50:00Z P-R1-chosen-target-color-cond fixed: global condition chosenTargetColor (colorsAtCastStart of ctx.chosenTargetId); 8467 (troop:6964) native order destroy column -> +5 Attack -> true damage last; gowFixP-R1-chosen-target-color-cond.test.ts; golden diff 0 new lines
+  - re-review (unsigned): troop:6964 / 8467 (L10: destroy + buff now before the dmg; front-enemy target takes the column skulls first)
+- 2026-09-28T18:50:00Z P-R1-row-count-at-cast-start fixed: castTracking.chosenRowAtCastStart + source chosenRowAtCastStart {color?, skulls?}; 8928 (troop:7316) Red / Brown / Skull in the chosen row before the explode (was whole board: L10 178 -> 26 + 8 x row count); trace scan: only 7316 says "in the row"; golden diff 0 new lines
+  - re-review (unsigned, value changed): troop:7316 / 8928

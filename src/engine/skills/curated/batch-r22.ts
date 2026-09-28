@@ -908,10 +908,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // IncreaseAttack UseCounter（[x5] 挂攻击段）→ TrueDamage FromTarget ×2——
     // 「若敌人使用蓝色法力值」= lastTargetColor 全局条件（R22 新条件）。
     build: skill(
-    trueDmg('enemyChosen', 2, 1),
     // CountArmyColor@FromTarget 500 Blue counts the target only (0/1): fixed 1 column / +5 Attack gated on the target's colour (sa-R1)
-    destroyRandomCols(1, 0, { ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
-    attack('allySelf', 5, 0, { ifCond: { kind: 'lastTargetColor', color: BaseColor.Blue } }),
+    // native order (R001, P-R1-chosen-target-color-cond): DestroyColumn, IncreaseAttack, then TrueDamage last
+    destroyRandomCols(1, 0, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Blue } }),
+    attack('allySelf', 5, 0, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Blue } }),
+    trueDmg('enemyChosen', 2, 1),
     ),
   },
   {
