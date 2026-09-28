@@ -255,7 +255,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8416,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害。若自身有狂怒效果，并将之击回末位。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害。若自身有狂怒效果，则将之击回末位。',
     // TroopOrderBackConditional → selfStatus rage 条件击退（§11 R4 selfStatus 条件）
     build: skill(
       dmg('enemyChosen', 2, 1),
@@ -887,7 +887,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方 TroopOrderBack SecondEnemy + FrontEnemy：先推首位后（新）首位顶上再推，两段等效
     build: skill(
       dmg('enemyFirstN', 2, 1, { n: 2 }),
-      reposition('enemyFront', 'back'),
+      // sa-G (R001): native TroopOrderBack@SecondEnemy then @FrontEnemy -> ends [.., 2nd, 1st] (front twice ended [.., 1st, 2nd])
+      reposition('enemyNth', 'back', { n: 2 }),
       reposition('enemyFront', 'back'),
     ),
   },

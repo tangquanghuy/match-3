@@ -223,8 +223,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害。如果敌人身亡，则恢复自身原有生命值，并获得 8 点攻击力。',
     build: skill(
       dmg('enemyChosen', 5, 1),
-      heal('allySelf', 0, 0, { full: true, ifTargetDied: true }),
-      attack('allySelf', 8, 0, { ifTargetDied: true }),
+      // sa-G (R001): native IncreaseAttack AddForKill 8 -> Heal AddForKill 100; the Attack never applied after the
+      // self heal rewrote lastTarget -> castEnemyDied (7314 precedent), native order
+      attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 0, 0, { full: true, ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
@@ -506,11 +508,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤 ×3 组（Damage RandomEnemy + TroopOrderBack FromPrevious）：逐敌独立掷签
     //（RandomPrefNotPrevEnemy 按 8499 先例取独立随机敌）+ 各自击回末位（reposition lastTarget）
     build: skill(
+      // sa-G (R007-3): native hits 2 and 3 are RandomPrefNotPrevEnemy (was plain random: E11 hit twice in a row)
       dmg('enemyRandom', 5, 2),
       reposition('lastTarget', 'back'),
-      dmg('enemyRandom', 5, 2),
+      dmg('enemyRandomPrefNotPrev', 5, 2),
       reposition('lastTarget', 'back'),
-      dmg('enemyRandom', 5, 2),
+      dmg('enemyRandomPrefNotPrev', 5, 2),
       reposition('lastTarget', 'back'),
     ),
   },

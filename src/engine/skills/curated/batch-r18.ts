@@ -1175,14 +1175,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8104,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。所有技能值增加 7 点。",
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人身亡，所有技能值增加 7 点。",
     // 「所有技能值 +7」= 攻/甲/魔/血四段（官方 IncreaseAllStats）；「若敌人身亡」= ifTargetDied（EN 原句条件，ZH 机翻脱落）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
-      attack('allySelf', 7, 0, { ifTargetDied: true }),
-      armor('allySelf', 7, 0, { ifTargetDied: true }),
-      magic('allySelf', 7, 0, { ifTargetDied: true }),
-      heal('allySelf', 7, 0, { ifTargetDied: true }),
+      // sa-G: ifTargetDied only held for the first self buff -> castEnemyDied (7314 precedent, P-G-ifTargetDied-after-self)
+      attack('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      armor('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      magic('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

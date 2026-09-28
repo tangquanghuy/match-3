@@ -189,9 +189,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7401,
     desc: '给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔力值。',
     build: skill(
-      attack('allyOthers', 1),
+      // sa-G (R001): native DecreaseSpellPower@AllAlliesButNotSelf 1 before IncreaseAttack
       // 「魔力值」= magic 属性（SOP 措辞裁定；与 7465 同口径）
       reduce('allyOthers', 'magic', 1, 0),
+      attack('allyOthers', 1),
     ),
   },
   {

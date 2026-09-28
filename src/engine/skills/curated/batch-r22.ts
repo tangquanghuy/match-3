@@ -210,8 +210,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「等同于其攻击力」= 单目标段 targetStat attack ×1（lastTarget 即该敌人）；
     // 「因造成的伤害而增强 [3:1]」= lastDamage 来源（R22 新来源）ratio 3:1。
     build: skill(
+    // sa-G (R001): native CountAttack@FromTarget 34 -> IncreaseHealth@AllAllies -> CountSet -> CountAttack 100 -> Damage.
+    // The Life boost reads the chosen enemy's Attack x34% before the hit (was lastDamage after it: 0 through a Barrier).
+    heal('allyAll', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'chosenStat', stat: 'attack' } } }),
     dmg('enemyChosen', 0, 0, { modifier: boostPer({ kind: 'targetStat', stat: 'attack' }, 1) }),
-    heal('allyAll', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'lastDamage' } } }),
     ),
   },
   {

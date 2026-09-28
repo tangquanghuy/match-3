@@ -665,8 +665,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7221,
-    desc: '对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 1 点魔力值。',
-    build: ({"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
+    desc: '对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 2 点魔力值。',
+    build: ({"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"magic","scaling":{"base":2,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
   },
   {
     id: 7222,
@@ -919,10 +919,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害。如果敌人身亡，所有技能值增加 10 点。',
     build: skill(
       dmg('enemyChosen', 6, 1),
-      attack('allySelf', 10, 0, { ifTargetDied: true }),
-      armor('allySelf', 10, 0, { ifTargetDied: true }),
-      heal('allySelf', 10, 0, { ifTargetDied: true }),
-      magic('allySelf', 10, 0, { ifTargetDied: true }),
+      // sa-G: all four Skills +10 on kill; ifTargetDied only held for the first -> castEnemyDied (7314 precedent)
+      attack('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      armor('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      magic('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
@@ -946,7 +947,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7299,
     desc: '对 1 名敌人和另 1 名随机敌人造成 [魔法 + 2] 点伤害。从敌人身上窃取 1 点魔力值。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},{"kind":"damage","target":"enemyRandom","scaling":{"base":2,"mult":1}},{"kind":"reduce","target":"enemyChosen","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},{"kind":"damage","target":"enemyRandomPrefNotPrev","scaling":{"base":2,"mult":1}},{"kind":"reduce","target":"enemyChosen","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
   },
   {
     id: 7304,

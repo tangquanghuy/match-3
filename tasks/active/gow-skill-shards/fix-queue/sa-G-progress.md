@@ -1,0 +1,81 @@
+# sa-G progress (review round 8, lane L6 stats/economy; branch gow/r8-L6; test tests/unit/gowLaneL6G.test.ts)
+- troop:7181 accepted + ZH fix (二增强 -> 而增强; override 7181); pooled CountAttackArmorLife 10%, C1 round 0.75
+- troop:6154 fixed: native order heal first, boost = chosen enemy Attack x34% (was lastDamage after the hit); accepted
+- weapon:1217 accepted: pooled 34% (sum 917 -> 311) scatter + all Skills 2
+- troop:7091 accepted: Blue gems + Blue allies incl. caster (test)
+- troop:7661 accepted: 4 random waves PrefNotPrev, x3 Submerge, 50% jumble (not rolled at seed 42)
+- troop:7648 accepted: Yellow gems 50%, x3 on Yellow ally (test)
+- troop:7577 accepted: true dmg 0.75 C1, Geheron x2 region, others Life x2 Angel gems
+- troop:6914 fixed: ZH 攻击力 -> 护甲值 (override 6914); native order Armor then Life; steal = min(M+1, enemy Magic) (test)
+- troop:7201 fixed: Armor first so both segments read the pre-hit all-Enemy-Magic count (K 30 -> 36) (test)
+- troop:6763 accepted: CountMyGold 20% (100 -> +20) to all four Skills
+- troop:7513 accepted: CountMyGold 50% Armor, +10 gold
+- troop:7557 accepted: maps x4, +1 map; tower/ascension x3-5 waived R000 (c2, step 1)
+- troop:6282 accepted: souls 50% dmg, +10 souls
+- troop:7647 accepted: souls 1:1 dmg, +5 souls; tower/ascension waived R000 (c2, step 1)
+- troop:7658 accepted: souls 34% Attack+Armor, below-self Magic 2 + 2@50% + 1@25%
+- troop:7373 accepted: 2 random PrefNotPrev hits + jumble
+- troop:6634 accepted: dmg, -10 Armor all enemies; tower/ascension waived R000 (c2, step 0)
+- troop:6563 accepted: x3 Monster, -5 Attack
+- troop:6096 accepted: x3 Giant, -5 Magic
+- weapon:1133 fixed: second hit enemyRandom -> enemyRandomPrefNotPrev (curated + reviewed override); accepted (test)
+- troop:6095 fixed: kill bonus all four Skills +4 (only Attack applied) via castEnemyDied; queued P-G-ifTargetDied-after-self (test)
+- weapon:1130 fixed: same, +10 all Skills (test)
+- weapon:1059 accepted: first enemy, +7 Attack on kill
+- troop:6334 fixed: native order Attack +8 then full heal on kill (Attack was dropped) (test)
+- troop:6168 accepted: x2 Daemon, random ally +8 Life on kill
+- troop:6049 accepted: +5 Magic on kill (single self segment, ifTargetDied ok)
+- troop:6156 accepted: 5 dmg all, first enemy to back
+- troop:6293 accepted: dmg + pull chosen to front
+- weapon:1089 accepted: dmg + 10 souls
+- troop:6734 fixed: kill -> all four Skills +7 (castEnemyDied); ZH kill condition restored (override 6734); tower waived R000 (test)
+- troop:6308 accepted: x3 when enemy Armor < mine (test), +5 Armor
+- troop:6539 accepted: all allies +8 Armor; tower waived R000
+- troop:7498 accepted: all allies +8 Armor; tower waived R000
+- troop:6881 fixed: native Armor then Life, kill doubling via castEnemyDied (was never applied); boss waived R000 (test)
+- troop:6545 accepted: +4 Attack; tower waived R000
+- weapon:1101 accepted: Magic dmg all + 2 Attack all allies
+- weapon:1116 accepted: +6 Attack iff wounded (test)
+- troop:7485 accepted: +6 Attack then Life; boss waived R000
+- troop:7474 accepted: +5 Attack/Life/Armor native order; tower waived R000 (ZH stray space only, left)
+- troop:6537 accepted: +6 Life; boss waived R000
+- weapon:1099 accepted: Magic dmg all + 2 Life all allies
+- troop:6547 accepted: two weakest (Life+Armor, R005: E12, E10), +10 Life then Attack
+- weapon:1100 accepted: Magic dmg all + 1 Magic all allies
+- weapon:1065 accepted: dmg + steal 2 Attack from the target
+- troop:6839 accepted: on kill steal 4 Magic from all remaining enemies; boss waived R000
+- troop:6913 accepted: steal 4 Magic only from a surviving target
+- troop:6915 accepted: dmg all, steal 2 Magic from survivors
+- weapon:1096 fixed: steal 1 -> 2 Magic (EN/native), ZH 2 (curated + override + pool-w01) (test)
+- troop:6850 accepted: 3x front dmg + front to back (native FrontEnemy after a kill = new front)
+- troop:6976 fixed: hits 2-3 RandomPrefNotPrev (test)
+- troop:7807 fixed: knock 2nd then 1st back (native SecondEnemy, FrontEnemy; was front twice -> wrong final order) (test)
+- troop:6935 accepted + ZH grammar (并 -> 则, override 6935); knock back iff Enraged (test)
+- troop:6730 accepted: jumble; boss waived R000
+- troop:6552 accepted: all Armor off, dmg; tower waived R000 (c2, step 1)
+- troop:7194 accepted + ZH typo 在 -> 再 (override 7194)
+- weapon:1197 accepted: all Armor off, x3 iff enemy Life > mine (test)
+- troop:7083 accepted: all Armor off, dmg target and all below
+- weapon:1228 accepted: Armor off, dmg, pull to front
+- weapon:1076 accepted: all Magic off
+- troop:6258 fixed (order only): native -1 Magic before +Attack to other allies
+- weapon:1093 accepted: all allies M+1 Armor
+- troop:6097 accepted: M+3 self Armor; 13+ Brown -> all allies +5 (test)
+- weapon:1112 accepted: Armor + Attack all; 13+ Yellow -> +4 Life and Magic (test)
+- troop:6351 accepted: M/2+4 Armor + 1 Magic, x2 Divine
+- troop:6728 fixed (order only): native Attack then Armor, x2 Dwarf
+- weapon:1084 accepted: M+1 Attack then Armor to chosen ally
+- troop:7514 fixed (order only): native Attack then Life, x2 Tauros (test)
+- troop:7015 accepted: first 2 Attack; 2 weakest Life (A1, A2); 2 strongest Life+Armor (C, A2) +10 Magic
+- weapon:1070 accepted: all allies M+1 Life
+- troop:7741 accepted: Life then Armor, x2 when a Storm is active
+- troop:6740 accepted: Life then 5 Attack, x2 Human (test)
+- troop:6315 accepted: Life then 2 Magic, x2 Elemental (test)
+- troop:7354 accepted: Life then 3 Magic, x2 Fey (test)
+- troop:7747 accepted: Life then 2 Magic, x2 Centaur (test)
+- weapon:1419 accepted: self M+1 Life, chosen ally +2 Magic
+- weapon:1517 accepted: 2 Magic all (+1/Tempering), M+2 Armor Blue allies, +10 Attack iff enemy Doom troop (test)
+- weapon:1518 accepted: same, Green (test)
+- weapon:1519 accepted: same, Red (test)
+- weapon:1520 accepted: same, Yellow (test)
+- weapon:1521 accepted: same, Purple (test)

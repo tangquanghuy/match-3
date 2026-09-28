@@ -152,8 +152,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '为一名盟友赋予 [魔法 + 1] 点生命和攻击力。如果盟友是金牛座，则效果加倍。',
     build: skill(
       // 金牛座 = Tauros（troopTypes 核对）；raceDouble 逐受益者判定，数值段逐段挂
-      heal('allyChosen', 1, 1, { raceDouble: 'Tauros' }),
+      // sa-G (R001): native IncreaseAttack before IncreaseHealth
       attack('allyChosen', 1, 1, { raceDouble: 'Tauros' }),
+      heal('allyChosen', 1, 1, { raceDouble: 'Tauros' }),
     ),
   },
   {
