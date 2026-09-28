@@ -353,7 +353,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // GiantRed → ZH 色名「红」恢复基础色（R8 8830 先例）
     build: skill(
       dmg('enemyChosen', 4, 1),
-      transform(BaseColor.Blue, BaseColor.Red, { count: 5 }),
+      // R009: native ConvertGems 5 Blue > GiantRed = Red Giant Gems (was plain Red)
+      transformToSpecial(BaseColor.Blue, { kind: 'giantGem', color: BaseColor.Red }, { count: 5 }),
     ),
   },
   {
@@ -361,7 +362,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 4]点伤害。然后将5枚黄宝石转化成紫色巨型宝石。',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      transform(BaseColor.Yellow, BaseColor.Purple, { count: 5 }),
+      // R009: native ConvertGems 5 Yellow > GiantPurple = Purple Giant Gems (was plain Purple)
+      transformToSpecial(BaseColor.Yellow, { kind: 'giantGem', color: BaseColor.Purple }, { count: 5 }),
     ),
   },
   {
@@ -369,7 +371,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 4]点伤害。然后将5枚紫色宝石转化成黄色巨型宝石。',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      transform(BaseColor.Purple, BaseColor.Yellow, { count: 5 }),
+      // R009: native ConvertGems 5 Purple > GiantYellow = Yellow Giant Gems (was plain Yellow)
+      transformToSpecial(BaseColor.Purple, { kind: 'giantGem', color: BaseColor.Yellow }, { count: 5 }),
     ),
   },
   {
@@ -377,7 +380,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 4]点伤害。然后将5枚绿宝石转化成棕色巨型宝石。',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      transform(BaseColor.Green, BaseColor.Brown, { count: 5 }),
+      // R009: native ConvertGems 5 Green > GiantBrown = Brown Giant Gems (was plain Brown)
+      transformToSpecial(BaseColor.Green, { kind: 'giantGem', color: BaseColor.Brown }, { count: 5 }),
     ),
   },
   {

@@ -134,7 +134,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Green, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 2, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
+      // Native DecreaseArmor@RandomEnemy [AddIfEnemyHasDoom]: one random enemy (was every enemy).
+      reduce('enemyRandom', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -143,7 +144,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Blue, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
-      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
+      // Native DecreaseArmor@RandomEnemy [AddIfEnemyHasDoom]: one random enemy (was every enemy).
+      reduce('enemyRandom', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -152,7 +154,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Yellow, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
-      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
+      // Native DecreaseArmor@RandomEnemy [AddIfEnemyHasDoom]: one random enemy (was every enemy).
+      reduce('enemyRandom', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -161,7 +164,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Red, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
+      // Native DecreaseArmor@RandomEnemy [AddIfEnemyHasDoom]: one random enemy (was every enemy).
+      reduce('enemyRandom', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -170,7 +174,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Brown, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
-      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
+      // Native DecreaseArmor@RandomEnemy [AddIfEnemyHasDoom]: one random enemy (was every enemy).
+      reduce('enemyRandom', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -179,7 +184,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       createGems(BaseColor.Purple, 4, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       armor('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
-      reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
+      // Native DecreaseArmor@RandomEnemy [AddIfEnemyHasDoom]: one random enemy (was every enemy).
+      reduce('enemyRandom', 'armor', 0, 0, { drainAll: true, ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
   {
@@ -1035,6 +1041,8 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyAll', 1, 1, { range: 'all' }),
       inflict('frozen', 'enemyAll'),
       inflict('burning', 'enemyAll'),
+      // Native CreateGems 3 GiantBlue then 3 GiantRed (the Blue Giant Gems were missing).
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 3, 0),
       createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 3, 0),
     ),
   },

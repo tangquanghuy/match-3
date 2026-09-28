@@ -12,7 +12,7 @@
 import { skill, dmg, dmgAll, dmgSplash, heal, armor, attack,
   cleanse, reduce, drainMana, randomStat, createGems, transform,
   destroyChosenCol, destroyRandomGems, explodeRandomGems, inflict,
-  extraTurn, CHOSEN, CASTER } from '../builders';
+  extraTurn, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -75,11 +75,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7034,
-    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗具有该军队法力颜色的宝石。',
+    desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗该敌人某一种法力颜色的宝石。',
     build: skill(
       dmg('enemyChosen', 1),
-      // 「该军队法力颜色」= CASTER 占位符（builders 口径）
-      createGems(CASTER, 9, 0),
+      // Native CreateGems Color1 FromTarget / English "one of their Mana Colors" = the damaged enemy's colour
+      // (was CASTER: my own colour).
+      createGems('LAST_TARGET', 9, 0),
     ),
   },
   {

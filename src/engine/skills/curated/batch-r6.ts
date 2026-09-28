@@ -59,15 +59,18 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyFront', 1),
       inflict('frozen', 'enemyFront'),
-      createGems(BaseColor.Blue, 8, 0, { ifCond: { kind: 'casterStatBeatsTarget', stat: 'magic' } }),
+      // Native CreateGems@FrontEnemy [AddForMoreMagicOnTarget]: the front enemy's Magic above mine (was inverted: mine above).
+      createGems(BaseColor.Blue, 8, 0, { ifCond: { kind: 'targetStatBeatsCaster', stat: 'magic' } }),
     ),
   },
   {
     id: 7511,
-    desc: '对 1 名敌人造成 [(魔法 / 2) + 6] – [魔法 + 13] 到 {2} 点伤害。如果自身攻击力较高，则创造 8 颗红色宝石。',
+    desc: '对一名敌人造成 [(魔法 / 2) + 6] – [魔法 + 13] 点伤害。如果该敌人的攻击力比我低，则创造 8 颗红色宝石。',
+    // sa-B r5: native (Target Enemy) CreateGems@FromTarget 8 Red [AddForLessAttackOnTarget] -> RandomHighDamage@FromTarget:
+    // the chosen enemy, one hit (was the first 2 enemies, split from the stray "{2}"); create first (R001).
     build: skill(
-      dmg('enemyFront', 0, 0, { rangeSpec: { min: scale(6, 0.5), max: scale(13, 1) }, split: 2 }),
       createGems(BaseColor.Red, 8, 0, { ifCond: { kind: 'casterStatBeatsTarget', stat: 'attack' } }),
+      dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(6, 0.5), max: scale(13, 1) } }),
     ),
   },
   {

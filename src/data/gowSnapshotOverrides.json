@@ -292,6 +292,16 @@
       "spellId": 7177,
       "reason": "sa-C r4: English Ice Witch 'If the Enemy dies, give 3 Magic to all Allies'; native IncreaseSpellPower AddForKill StatusAmount 3; old Chinese said 1.",
       "spellDescription": "对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 3 点魔力值。"
+    },
+    "6359": {
+      "spellId": 7511,
+      "reason": "sa-B r5: English Orc Veteran 'Deal [(Magic / 2) + 6] - [Magic + 13] damage to an Enemy. If the Enemy's Attack is weaker, create 8 Red Gems'; old Chinese had a stray '到 {2}' and said 'if my Attack is higher'.",
+      "spellDescription": "对一名敌人造成 [(魔法 / 2) + 6] – [魔法 + 13] 点伤害。如果该敌人的攻击力比我低，则创造 8 颗红色宝石。"
+    },
+    "6034": {
+      "spellId": 7034,
+      "reason": "sa-B r5: English Siren 'create 9 Gems of one of their Mana Colors' (native CreateGems Color1 FromTarget = the damaged enemy); old Chinese said 'this troop's mana colour'.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗该敌人某一种法力颜色的宝石。"
     }
   }
 }

@@ -433,7 +433,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9053,
     desc: '创建一颗妖火宝石，并对末位敌人造成 [魔法 + 3] 点伤害。',
-    build: skill(createSpecialGems({ kind: 'faerieFireGem' }, 1), dmg('enemyLast', 3)),
+    // Native Target Board + CreateGems 1 FaerieFire BoardTarget SingleGem = the chosen cell (L4b-7276 / 7092 convention).
+    build: skill(transformToSpecial('CELL', 'faerieFireGem'), dmg('enemyLast', 3)),
   },
   {
     id: 9054,
