@@ -177,7 +177,8 @@ for (const id of [6033,6073,6081,6393] as const) describe(`troop:${id} status du
   // R004 (sa-L5 2026-09-28): the caster's own Blessed ends when it casts (before the spell body),
   // so a self-targeted status now lands on the caster; an enemy's Blessed still blocks.
   if(id===6073){expect(status.flatMap(e=>e.type==='status-apply'?[e.targetId]:[])).toEqual([10,11,13,0]);}
-  if(id===6081){expect(status).toHaveLength(0);expect(f.front.attack).toBe(29);}
+  // R011: Blessed blocks negatives only, so the front ally's Barrier (positive) still lands.
+  if(id===6081){expect(status).toHaveLength(1);expect(f.front.attack).toBe(29);}
   if(id===6393){expect(status).toHaveLength(1);expect(f.enemies[0].hp).toBe(984);}
   expect(f.state.actionLog).toHaveLength(1);
  });

@@ -260,8 +260,9 @@ export type ClearTarget =
   | { kind: 'color'; color: ColorSpec }
   | { kind: 'allColors' }
   | { kind: 'skulls' }
-  | { kind: 'special'; gem: SpecialGemKind }
-  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; countRange?: { min: number; max: number } }
+  /** tier: only that special tier (gargoyleGem 1 = Good / 2 = Bad; missing tier on the gem counts as 1) */
+  | { kind: 'special'; gem: SpecialGemKind; tier?: number }
+  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; specialTier?: number; countRange?: { min: number; max: number } }
   | { kind: 'cell'; cell: CellPos | 'CELL' }
   | { kind: 'area'; shape: AreaShape; center?: CellPos | 'CELL' | 'RANDOM' }
   | { kind: 'chosenCross' }
@@ -592,7 +593,10 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
     case 'special': {
       // 按特殊宝石种类全量清除（「摧毁所有末日骷髅头」）；末日族与普通骷髅分属不同 kind
       const cells: CellPos[] = [];
-      board.forEach((gem, pos) => { if (gem && gem.type.kind === 'special' && gem.type.spec.kind === target.gem) cells.push(pos); });
+      board.forEach((gem, pos) => {
+        if (gem && gem.type.kind === 'special' && gem.type.spec.kind === target.gem
+          && (target.tier === undefined || (gem.type.spec.tier ?? 1) === target.tier)) cells.push(pos);
+      });
       return cells;
     }
     case 'randomGems': {
@@ -620,7 +624,8 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
       const pool: CellPos[] = [];
       board.forEach((gem, pos) => {
         if (!gem) return;
-        if (target.special !== undefined && !(gem.type.kind === 'special' && gem.type.spec.kind === target.special)) return;
+        if (target.special !== undefined && !(gem.type.kind === 'special' && gem.type.spec.kind === target.special
+          && (target.specialTier === undefined || (gem.type.spec.tier ?? 1) === target.specialTier))) return;
         if (target.include === 'color' && gem.type.kind !== 'color') return;
         // include 'skull'（R22 批，7136/8504）：仅普通骷髅（末日族属 special kind，不在池内）
         if (target.include === 'skull' && gem.type.kind !== 'skull') return;

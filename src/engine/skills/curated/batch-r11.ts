@@ -378,7 +378,9 @@ const SPELLS: CuratedBatch['spells'] = [
           mod: { kind: 'ratio', a: 3, b: 1 },
           sources: [
             { kind: 'boardSpecial', gem: 'decayGem' },
-            { kind: 'boardSpecial', gem: 'gargoyleGem' },
+            // native CountGems 34 GoodGargoyle + 34 BadGargoyle: separate steps, one floor each (P-R4-gargoyle-tier-count)
+            { kind: 'boardSpecial', gem: 'gargoyleGem', tier: 1 },
+            { kind: 'boardSpecial', gem: 'gargoyleGem', tier: 2 },
           ],
         },
         condMult: ASC3,
@@ -555,7 +557,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: {
           mod: { kind: 'multiplier', a: 1.5 },
           sources: [
-            { kind: 'allyStatusCount', statusId: 'blessed' },
+            // native CountSpecificStatusEffect@AllAlliesButNotSelf (P-R3-ally-status-excl-self)
+            { kind: 'allyStatusCount', statusId: 'blessed', excludeSelf: true },
             { kind: 'enemyStatusCount', statusId: 'blessed' },
           ],
         },

@@ -40,7 +40,9 @@ export type ModifierSource =
    *  R22 批：skulls=true 筛普通骷髅族（「因该行被摧毁的骷髅头数而增强」，7388/7977/8812/9492）、
    *  special 筛指定特殊宝石 kind（「因被摧毁的石像鬼宝石数而增强」，8927） */
   | { kind: 'chosenColumnAtCastStart'; color?: BaseColor; skulls?: boolean }
-  | { kind: 'destroyedGems'; color?: BaseColor; skulls?: boolean; special?: SpecialGemKind }
+  /** Chosen-row gems at cast start (P-R1-row-count-at-cast-start), same filters as chosenColumnAtCastStart. */
+  | { kind: 'chosenRowAtCastStart'; color?: BaseColor; skulls?: boolean }
+  | { kind: 'destroyedGems'; color?: BaseColor; skulls?: boolean; special?: SpecialGemKind; specialTier?: number }
   | { kind: 'countedAdjacentSpecial' }
   /** Count color gems on both diagonals through the same center as area:x. */
   | { kind: 'diagonalGems'; color: BaseColor }
@@ -56,30 +58,34 @@ export type ModifierSource =
   /** Skull-family gems captured before the spell's first segment (native CountGems ordering). */
   | { kind: 'castStartBoardSkulls' }
   /** 当前棋盘上指定种类的特殊宝石数（「因炸弹宝石数而增强」） */
-  | { kind: 'boardSpecial'; gem: SpecialGemKind }
+  | { kind: 'boardSpecial'; gem: SpecialGemKind; tier?: number; color?: BaseColor }
   /** 施法者自身属性（hp=当前生命；missingHp=已损失生命） */
   | { kind: 'selfStat'; stat: 'attack' | 'armor' | 'hp' | 'missingHp' | 'magic' | 'manaCost' }
-  /** 某方存活人数（ally=施法方含自身；enemy=敌方） */
-  | { kind: 'teamSize'; side: 'ally' | 'enemy' }
+  /** 某方存活人数（ally=施法方含自身；enemy=敌方）。atCastStart（P-R1-count-at-native-step，本行至
+   *  enemiesOfColor 的军队计数通用）：读施法开始时的存活单位（native Count* 位于 step 0） */
+  | { kind: 'teamSize'; side: 'ally' | 'enemy'; atCastStart?: boolean }
   /** 施法方指定种族的存活盟友数 */
-  | { kind: 'alliesOfRace'; race: string }
+  | { kind: 'alliesOfRace'; race: string; atCastStart?: boolean }
   /** 敌方指定种族的存活敌人数（武器原语批 K-E，「因恶魔敌人数而增强」；与 alliesOfRace 对称，
    *  敌方侧形态补齐——enemiesOfColor 的种族版） */
-  | { kind: 'enemiesOfRace'; race: string }
+  | { kind: 'enemiesOfRace'; race: string; atCastStart?: boolean }
   /** 施法方指定王国的存活盟友数（原语 Wave4 批，「因 Dhrak-Zum 盟友数量而增强」；
    *  与 alliesOfRace 对称，按 Character.kingdom 筛选） */
-  | { kind: 'alliesOfKingdom'; kingdom: string }
+  | { kind: 'alliesOfKingdom'; kingdom: string; atCastStart?: boolean }
   /** 敌方指定王国的存活敌人数（原语 Wave4 批；与 enemiesOfColor 同构，按 kingdom 筛选） */
-  | { kind: 'enemiesOfKingdom'; kingdom: string }
+  | { kind: 'enemiesOfKingdom'; kingdom: string; atCastStart?: boolean }
   /** 施法方关联指定法力色的存活盟友数（「因蓝色盟友数而增强」） */
-  | { kind: 'alliesOfColor'; color: BaseColor }
+  | { kind: 'alliesOfColor'; color: BaseColor; atCastStart?: boolean }
   /** 敌方关联指定法力色的存活敌人数（「因红色敌人（的数量）而增强」，R13 批；与 alliesOfColor 对称） */
-  | { kind: 'enemiesOfColor'; color: BaseColor }
+  | { kind: 'enemiesOfColor'; color: BaseColor; atCastStart?: boolean }
   /** 敌方处于指定状态的存活人数；R22 批 statusId 可缺省 = 任意状态（「因身负状态效果的
    *  敌人数而增强」，8581「每有一名敌人陷入状态效果」） */
   | { kind: 'enemyStatusCount'; statusId?: string }
   /** 己方处于指定状态的存活人数（「因下潜的盟友数而增强」） */
-  | { kind: 'allyStatusCount'; statusId: string }
+  | { kind: 'allyStatusCount'; statusId: string; excludeSelf?: boolean }
+  /** 选定目标施法开始时带有的所列状态个数（P-R3-target-status-count，native 每个状态一步
+   *  CountSpecificStatusEffect@FromTarget，各 +1） */
+  | { kind: 'targetStatusCount'; statusIds: string[] }
   /** 敌方全体的某属性总和（hp=当前生命；R22 批 stat 增 mana、color 筛法力色——
    *  8367「因所有红色敌人的法力值而增强」） */
   | { kind: 'enemyStatSum'; stat: 'attack' | 'armor' | 'hp' | 'magic' | 'mana'; color?: BaseColor }
@@ -337,6 +343,9 @@ export type Condition =
    *  是建造」、8573 配合 devour 等）。无追踪目标 → false。 */
   /** Race of the original selected enemy, unaffected by later random target steps. */
   | { kind: 'chosenTargetRace'; race: string }
+  /** P-R1-chosen-target-color-cond: the chosen target's mana colour at cast start (native CountArmyColor@FromTarget
+   *  at step 0), usable before any targeting segment and after the target died. */
+  | { kind: 'chosenTargetColor'; color: BaseColor }
   | { kind: 'lastTargetRace'; race: string }
   /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力值」） */
   | { kind: 'lastTargetColor'; color: BaseColor }
@@ -394,6 +403,12 @@ export function conditionMet(
     case 'chosenTargetRace': {
       const selected = ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId);
       return !!selected && !selected.defeated && hasTroopType(selected, cond.race);
+    }
+    case 'chosenTargetColor': {
+      const id = ctx.chosenTargetId;
+      if (id === undefined) return false;
+      const colors = ctx.castTracking?.colorsAtCastStart?.[id] ?? findCharacter(ctx.state, id)?.colors ?? [];
+      return colors.includes(cond.color);
     }
     case 'targetColor': {
       if (!target) return false;
@@ -459,7 +474,7 @@ export function conditionMet(
         const storm = ctx.state.teams[side].storm;
         if (!storm) continue;
         if (cond.dropKind !== undefined && storm.dropKind !== cond.dropKind) continue;
-        if (cond.color !== undefined && storm.color !== cond.color) continue;
+        if (cond.color !== undefined && storm.color !== cond.color && storm.color2 !== cond.color) continue;
         return true;
       }
       return false;
@@ -469,8 +484,10 @@ export function conditionMet(
     case 'casterStatBeatsTarget': {
       const me = findCharacter(ctx.state, ctx.casterId);
       const foe = (() => {
-        const last = ctx.castTracking?.lastTarget;
-        return last ? findCharacter(ctx.state, last.id) : undefined;
+        // P-R3-precast-compare: before the first targeting segment (native CountSet@FromTarget at step 0) the
+        // comparison uses the chosen target.
+        const id = ctx.castTracking?.lastTarget?.id ?? ctx.chosenTargetId;
+        return id !== undefined ? findCharacter(ctx.state, id) : undefined;
       })();
       if (!me || !foe) return false;
       return statOf(me, cond.stat) > statOf(foe, cond.stat);
@@ -545,8 +562,10 @@ export function conditionMet(
     case 'lastTargetSurvived':
     case 'targetStatBeatsCaster': {
       // R22 批 lastTarget 族（全局条件）：统一取跨段追踪主目标判定。
+      // targetStatBeatsCaster falls back to the chosen target before the first targeting segment (P-R3-precast-compare).
       const last = ctx.castTracking?.lastTarget;
-      const ch = last ? findCharacter(ctx.state, last.id) : undefined;
+      const lastId = last?.id ?? (cond.kind === 'targetStatBeatsCaster' ? ctx.chosenTargetId : undefined);
+      const ch = lastId !== undefined ? findCharacter(ctx.state, lastId) : undefined;
       if (!ch) return false;
       switch (cond.kind) {
         case 'lastTargetStatus':
@@ -680,11 +699,26 @@ function isSkull(gemType: import('../../types').GemType): boolean {
  * 解析来源计数（段执行时刻）。
  * 跨段追踪（destroyed/transformed/drainedMana/主目标）缺省时按 0 计。
  */
+/**
+ * Alive units of the caster's ally / enemy side. atCastStart (P-R1-count-at-native-step) reads
+ * castTracking.unitsAtCastStart and keys the side off ctx.casterSide when the caster already left the roster.
+ */
+function armyUnits(ctx: EffectContext, which: 'ally' | 'enemy', atCastStart?: boolean): Character[] {
+  const snapshot = atCastStart ? ctx.castTracking?.unitsAtCastStart : undefined;
+  const side = findSide(ctx.state, ctx.casterId) ?? (snapshot ? ctx.casterSide ?? null : null);
+  if (side === null) return [];
+  const targetSide = which === 'ally' ? side : (side === 'Left' ? 'Right' : 'Left');
+  if (snapshot) return snapshot[targetSide] ?? [];
+  return ctx.state.teams[targetSide].characters.filter((c) => !c.defeated);
+}
+
 export function resolveModifierCount(source: ModifierSource, ctx: EffectContext): number {
   const tracking = ctx.castTracking;
   switch (source.kind) {
     case 'chosenColumnAtCastStart':
       return (tracking?.chosenColumnAtCastStart ?? []).filter(g => source.skulls ? isSkull(g) : matchGem(g, source.color)).length;
+    case 'chosenRowAtCastStart':
+      return (tracking?.chosenRowAtCastStart ?? []).filter(g => source.skulls ? isSkull(g) : matchGem(g, source.color)).length;
     case 'countedAdjacentSpecial': return tracking?.countedAdjacentSpecial ?? 0;
     case 'diagonalGems': {
       const center = Math.floor((BoardModel.ROWS - 1) / 2);
@@ -699,7 +733,8 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return (tracking?.destroyed ?? []).filter((d) => {
         if (source.skulls) return isSkull(d.gemType);
         if (source.special !== undefined) {
-          return d.gemType.kind === 'special' && d.gemType.spec.kind === source.special;
+          return d.gemType.kind === 'special' && d.gemType.spec.kind === source.special
+            && (source.specialTier === undefined || (d.gemType.spec.tier ?? 1) === source.specialTier);
         }
         return matchGem(d.gemType, source.color);
       }).length;
@@ -738,7 +773,10 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     case 'boardSpecial': {
       let n = 0;
       ctx.state.board.forEach((gem) => {
-        if (gem && gem.type.kind === 'special' && gem.type.spec.kind === source.gem) n += 1;
+        // tier (gargoyleGem 1 Good / 2 Bad, native Good/BadGargoyle) and color (dragonGem etc., native Dragon<Color>)
+        if (gem && gem.type.kind === 'special' && gem.type.spec.kind === source.gem
+          && (source.tier === undefined || (gem.type.spec.tier ?? 1) === source.tier)
+          && (source.color === undefined || gem.type.spec.color === source.color)) n += 1;
       });
       return n;
     }
@@ -746,37 +784,21 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       const caster = findCharacter(ctx.state, ctx.casterId);
       return caster ? statOf(caster, source.stat) : 0;
     }
-    case 'teamSize': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const targetSide = source.side === 'ally' ? side : (side === 'Left' ? 'Right' : 'Left');
-      return ctx.state.teams[targetSide].characters.filter((c) => !c.defeated).length;
-    }
-    case 'alliesOfRace': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      return ctx.state.teams[side].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
-    }
-    case 'enemiesOfRace': {
+    // Army counts (native CountArmyColor / CountArmyType / CountArmyKingdom). atCastStart reads the units alive at
+    // cast start (P-R1-count-at-native-step), otherwise the live roster when the consuming segment runs.
+    case 'teamSize':
+      return armyUnits(ctx, source.side, source.atCastStart).length;
+    case 'alliesOfRace':
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => hasTroopType(c, source.race)).length;
+    case 'enemiesOfRace':
       // 敌方该种族存活计数（K-E 批，与 alliesOfRace 对称、敌方侧形态补齐）
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && hasTroopType(c, source.race)).length;
-    }
-    case 'alliesOfKingdom': {
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => hasTroopType(c, source.race)).length;
+    case 'alliesOfKingdom':
       // 施法方该王国存活盟友数（Wave4 批，与 alliesOfRace 对称，按 kingdom 筛选）
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      return ctx.state.teams[side].characters.filter((c) => !c.defeated && c.kingdom === source.kingdom).length;
-    }
-    case 'enemiesOfKingdom': {
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
+    case 'enemiesOfKingdom':
       // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter((c) => !c.defeated && c.kingdom === source.kingdom).length;
-    }
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
     case 'enemyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
@@ -787,29 +809,31 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
           : c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0)),
       ).length;
     }
-    case 'alliesOfColor': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      return ctx.state.teams[side].characters.filter(
-        (c) => !c.defeated && c.colors.includes(source.color),
-      ).length;
-    }
-    case 'enemiesOfColor': {
+    case 'alliesOfColor':
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.colors.includes(source.color)).length;
+    case 'enemiesOfColor':
       // 敌方该法力色存活计数（R13 批，官方 CountArmyColor Target=AllEnemies）：
       // 与 alliesOfColor 同构，仅换算敌方侧。
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter(
-        (c) => !c.defeated && c.colors.includes(source.color),
-      ).length;
-    }
+      return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => c.colors.includes(source.color)).length;
     case 'allyStatusCount': {
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return 0;
+      // excludeSelf (P-R3-ally-status-excl-self): native CountSpecificStatusEffect@AllAlliesButNotSelf
       return ctx.state.teams[side].characters.filter(
-        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
+        (c) => !c.defeated && !(source.excludeSelf && c.id === ctx.casterId)
+          && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
       ).length;
+    }
+    case 'targetStatusCount': {
+      // P-R3-target-status-count: native CountSpecificStatusEffect@FromTarget, one step per status (step 0, before
+      // this cast's own statuses): how many of the listed statuses the chosen target had at cast start.
+      const id = ctx.chosenTargetId ?? tracking?.lastTarget?.id;
+      if (id === undefined) return 0;
+      const snapshot = tracking?.statusesAtCastStart;
+      const had: string[] = snapshot
+        ? snapshot[id] ?? []
+        : (findCharacter(ctx.state, id)?.statuses ?? []).filter((s) => s.turns > 0).map((s) => s.id);
+      return source.statusIds.filter((w) => had.some((h) => sameStatus(h, w))).length;
     }
     case 'enemyStatSum':
       return teamStatSum(ctx, 'enemy', source.stat, source.color);

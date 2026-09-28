@@ -139,9 +139,9 @@ describe('L4b troop:6479/spell:7666 Red->Skulls, Green->Yellow, Enchant 2 random
   const ap=applied(ev);expect(ap.map(a=>a[1])).toEqual(['enchanted','enchanted']);expect(new Set(ap.map(a=>a[0])).size).toBe(2);
   assertTurnAndMana(f,ev);
  });
- it('Blessed ally (official: immune to all status effects) is picked but resists Enchanted; caster still Enchanted',()=>{
+ it('R011: Blessed ally is picked and still Enchanted (Blessed blocks negatives only); caster Enchanted too',()=>{
   const f=setup({...base,board,allies:[{statuses:[{id:'blessed',turns:3}]}]});const ev=f.cast();
-  expect(applied(ev).map(a=>a[0])).toEqual([0]);expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed']);
+  expect(applied(ev).map(a=>a[0])).toEqual([1,0]);expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed','enchanted']);
  });
  it('lone caster: both native picks fall back to the caster (two applications, R007-3); Enchanted once',()=>{
   const f=setup({...base,board,allies:[]});expect(applied(f.cast()).map(a=>a[0])).toEqual([0,0]);

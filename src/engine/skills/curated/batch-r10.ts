@@ -180,7 +180,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 2, 1, {
         range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
+        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'dragonGem', color: BaseColor.Purple } }, // native CountGems DragonPurple (P-R3-dragon-gem-count)
       }),
       inflict('barrier', 'allySelf'),
       inflict('enchanted', 'allySelf'),

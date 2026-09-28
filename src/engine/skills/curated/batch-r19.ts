@@ -1197,7 +1197,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Red } },
         condMult: BOSS_ASC3,
       }),
-      explodeRandomSpecialGems('gargoyleGem', 3),
+      // native ExplodeColor 3 BadGargoyle: tier 2 only (P-R1-gargoyle-tier-filter)
+      explodeRandomSpecialGems('gargoyleGem', 3, 0, undefined, 2),
     ),
   },
   {

@@ -1422,7 +1422,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 4] 点伤害。有 4% 的几率直接杀死对方，几率因恶魔敌人数而增强。 [x4]',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Daemon' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Daemon', atCastStart: true } } }),
     ),
   },
   {
@@ -1430,7 +1430,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 4] 点伤害。有 4% 的几率直接杀死对方，几率因元素敌人数而增强。 [x4]',
     build: skill(
       dmg('enemyChosen', 4, 1),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Elemental' } } }),
+      dmg('lastTarget', 0, 0, { execute: true, chance: 0.04, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemiesOfRace', race: 'Elemental', atCastStart: true } } }),
     ),
   },
   {

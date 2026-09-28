@@ -64,9 +64,10 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: {
           mod: { kind: 'multiplier', a: 8 },
           sources: [
-            { kind: 'boardGems', color: BaseColor.Red },
-            { kind: 'boardGems', color: BaseColor.Brown },
-            { kind: 'boardSkulls' },
+            // native CountGems Red / Brown / Skull BoardTarget Row, counted before the explode (P-R1-row-count-at-cast-start)
+            { kind: 'chosenRowAtCastStart', color: BaseColor.Red },
+            { kind: 'chosenRowAtCastStart', color: BaseColor.Brown },
+            { kind: 'chosenRowAtCastStart', skulls: true },
           ],
         },
       }),

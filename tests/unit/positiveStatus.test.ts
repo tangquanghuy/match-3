@@ -68,9 +68,10 @@ describe('Blessed 赐福（净化 + 免疫一切状态）', () => {
     applyStatus(ch, { id: 'blessed', turns: 3 });
 
     expect(applyStatus(ch, { id: 'poison', turns: 2 })).toEqual([]);
-    expect(applyStatus(ch, { id: 'barrier', turns: 2 })).toEqual([]);
+    // R011: Blessed blocks negatives only; positive statuses still apply.
+    expect(applyStatus(ch, { id: 'barrier', turns: 2 })).toHaveLength(1);
     expect(hasStatus(ch, 'poison')).toBe(false);
-    expect(hasStatus(ch, 'barrier')).toBe(false);
+    expect(hasStatus(ch, 'barrier')).toBe(true);
 
     // 自身重复施加 = 刷新时长（不拦）
     expect(applyStatus(ch, { id: 'blessed', turns: 5 }).length).toBe(1);

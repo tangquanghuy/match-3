@@ -154,7 +154,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'enemiesOfColor', color: BaseColor.Blue }] } }),
+      createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Blue, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -163,7 +163,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名绿色盟友和敌人则创造 2 颗绿色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Green, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'enemiesOfColor', color: BaseColor.Green }] } }),
+      createGems(BaseColor.Green, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Green, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -172,7 +172,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名红色盟友和敌人则创造 2 颗红色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Red, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red }, { kind: 'enemiesOfColor', color: BaseColor.Red }] } }),
+      createGems(BaseColor.Red, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Red, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -181,7 +181,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名黄色盟友和敌人则创造 2 颗黄色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Yellow, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'enemiesOfColor', color: BaseColor.Yellow }] } }),
+      createGems(BaseColor.Yellow, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Yellow, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -190,7 +190,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名紫色盟友和敌人则创造 2 颗紫色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Purple, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple }, { kind: 'enemiesOfColor', color: BaseColor.Purple }] } }),
+      createGems(BaseColor.Purple, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Purple, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Purple, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -199,7 +199,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名棕色盟友和敌人则创造 2 颗棕色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]',
     build: skill(
       dmg('enemyFirstN', 5, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'tempering' } } }),
-      createGems(BaseColor.Brown, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'enemiesOfColor', color: BaseColor.Brown }] } }),
+      createGems(BaseColor.Brown, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown, atCastStart: true }, { kind: 'enemiesOfColor', color: BaseColor.Brown, atCastStart: true }] } }),
       inflictRandom('allySelf', { pool: 'positive', ifCond: { kind: 'targetHasDoom' } }),
     ),
   },
@@ -860,7 +860,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9649,
     desc: '造成[魔法 + 8]点散射伤害，伤害值因绿龙宝石数量而增强。如果我的队伍中有不朽的德拉肯，则随机召唤一条龙。 [x4]',
     build: skill(
-      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'dragonGem' } } }),
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'dragonGem', color: BaseColor.Green } } }), // native CountGems DragonGreen (P-R3-dragon-gem-count)
       summonRandom(['Sheggra', 'Venoxia', 'ShadowDragon', 'Emperina', 'Celestasia', 'BoneDragon', 'DrakeRider', 'Dimetraxia', 'Wyvern', 'Venbarak', 'Borealis', 'DragonEggs', 'BabyDragon', 'Dragonette', 'Dragotaur', 'Dragonmoth', 'Visk', 'TheDragonSoul', 'Couatl', 'Sylvanimora', 'DRACOS-1337', 'DragonianRogue', 'DragonianMonk', 'SilverDrakon', 'Krystenax', 'Drake', 'Elemaugrim', 'DragonTurtle', 'Asha', 'Leviathan', 'Penglong', 'Glitterclaw', 'TheWorldbreaker', 'Divinia', 'LordEmber', 'LadyGarnetia', 'Tinseltail', 'Shimmerscale', 'Volthrenax', 'Thaumaris', 'Droggo', 'Sylfrostenath', 'MatronDragotani', 'UndeadDrake', 'FellDragonEgg', 'FellDragon', 'Nocturnia', 'Ishtara', 'DragonianSage', 'Obregonia', 'DragonSpirit', 'Essencia', 'Huanglong', 'Veneratus', 'HornedWyrm', 'NetherWyrm', 'TerraWyrm', 'TheGreatWyrm', 'Tihamata', 'RedAhriman', 'TwinkleBerry', 'MagmaDragon', 'Sabellius', 'Adakite', 'Obsidiaxas', 'Sapphirax', 'Emeraldrin', 'Rubirath', 'Topasarth', 'Amethialas', 'Garnetaerlin', 'Diamantina', 'Aquaria', 'TheElderDragon', 'HeraldOfKrystenax', 'TheGuardianDragon', 'CobaltDrake', 'HuntmasterArborius', 'CrystalEggs', 'DragonstoneGuardian', 'TheVoidDragon', 'Comethalas', 'Nebuladryx', 'Meteoridan', 'Solarithus', 'Lunarelleon', 'Eklipsos', 'Stellarix', 'DraconicSentinel', 'Tianlong', 'BrassDrake', 'Venerabilax', 'Chromaticea', 'Kukulkan', 'ImmortalAquaria', 'Leucithrax', 'TheSlimeDragon', 'Bahamata', 'Gingeraxia', 'Belcerulea', 'Gladius', 'Thornaressa', 'Narcithus', 'Orrissea', 'Orchidius', 'Chrysantherax', 'Chargrimax', 'Crackleleaf', 'Mistmother', 'DrakeEggs', 'ImmortalDrakkon', 'CrimsonWyrmling', 'Dragonhawk', 'Amethony', 'Creteus', 'Krakynos', 'Runethius', 'Hematrax', 'Vizinium', 'Demizerius', 'Amenhotrex', 'Pandemonia'], undefined, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的德拉肯' } }),
     ),
   },

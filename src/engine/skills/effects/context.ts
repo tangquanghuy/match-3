@@ -36,6 +36,8 @@ export interface CastTracking {
   skullsAtCastStart?: number;
   /** Selected-column gems before any spell segment, for native CountGems -> Explode -> Create. */
   chosenColumnAtCastStart?: GemType[];
+  /** Selected-row gems before any spell segment (P-R1-row-count-at-cast-start, native CountGems BoardTarget Row). */
+  chosenRowAtCastStart?: GemType[];
   /** Adjacent specials captured before the chosen-gem explosion. */
   countedAdjacentSpecial?: number;
   /** 本技能效果段直接摧毁的宝石（不含连锁；按执行顺序累积） */
@@ -131,6 +133,18 @@ export interface CastTracking {
    * CHOSEN_TARGET 仍按此快照解析「其法力颜色」。仅在角色已不在编队时回退使用。
    */
   colorsAtCastStart?: Record<number, BaseColor[]>;
+  /**
+   * 施法开始时两队编队顺序（角色 id，R012）：以选定目标为锚的相对目标（BelowTarget /
+   * AboveTarget / NextDownFromTarget / NextUpFromTarget / 相邻）在锚已被本次施法击杀
+   * 离场后，按其施法开始时的位置解析上方／下方的存活单位。
+   */
+  formationAtCastStart?: Partial<Record<'Left' | 'Right', number[]>>;
+  /**
+   * P-R1-count-at-native-step: shallow copies of the units alive at cast start, per side. Army count sources
+   * with `atCastStart` (native CountArmyColor / CountArmyType / CountArmyKingdom at step 0) read this, so a
+   * unit killed by an earlier segment of the same spell is still counted.
+   */
+  unitsAtCastStart?: Partial<Record<'Left' | 'Right', Character[]>>;
 }
 
 /** 效果原语执行上下文（施法者、状态、随机源、宝石 id 分配器） */

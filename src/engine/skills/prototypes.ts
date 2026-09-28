@@ -321,6 +321,8 @@ export interface StormSegment extends SegmentOptions {
   turns: number;
   /** 骷髅系风暴（骸骨/末日/超级末日）：掉落加权目标；缺省 = 颜色风暴 */
   dropKind?: import('../types').SkullStormDropKind;
+  /** Second colour of a two-colour storm (P-R1-dual-storm, native StormRedPurple) */
+  color2?: BaseColor;
 }
 
 /** 打乱板面段（引擎原语批）：复用 boardUtils.reshuffle + 既有 reshuffle 事件 */
@@ -598,6 +600,7 @@ function resolveTargets(
     n,
     ctx.chosenTargetId,
     ctx.castTracking?.lastTarget?.id,
+    ctx.castTracking?.formationAtCastStart,
   );
   return filterResolvedTargets(segment, ctx, picked);
 }
@@ -710,7 +713,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         // multi-victim too: every resolved enemy takes full damage (L5-010).
         range: segment.range ?? (['enemyAll', 'enemyFirstN', 'enemyLastN',
           'enemyRandomN', 'enemyWeakestN', 'enemyHealthiestN',
-          'enemyChosenAndBelow', 'enemyAboveTarget', 'enemyBelowTarget',
+          'enemyChosenAndBelow', 'enemyChosenAndNextDown', 'enemyAboveTarget', 'enemyBelowTarget',
           'enemyChosenAndAdjacent', 'enemyAllOther'].includes(segment.target)
           ? 'all' : 'single'),
         splashRatio: segment.splashRatio,
@@ -798,7 +801,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         statusId: segment.statusId,
       });
     case 'storm':
-      return stormEffect({ color: segment.color, turns: segment.turns, dropKind: segment.dropKind });
+      return stormEffect({ color: segment.color, turns: segment.turns, dropKind: segment.dropKind, color2: segment.color2 });
     case 'removeStorm':
       return removeStormEffect();
     case 'shuffleBoard':
@@ -913,7 +916,14 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     const snapshot: Record<number, string[]> = {};
     // P-F2-dead-target-colour: mana colours per unit, so a target killed mid-cast keeps "their Mana Color".
     const colorsAtCastStart: Record<number, BaseColor[]> = {};
+    // R012: formation order at cast start (anchor slot for relative targets after the anchor died).
+    const formationAtCastStart: Partial<Record<'Left' | 'Right', number[]>> = {};
+    // P-R1-count-at-native-step: alive units at cast start (army counts of native step-0 Count* steps).
+    const unitsAtCastStart: Partial<Record<'Left' | 'Right', Character[]>> = {};
     for (const side of ['Left', 'Right'] as const) {
+      formationAtCastStart[side] = ctx.state.teams[side].characters.map((c) => c.id);
+      unitsAtCastStart[side] = ctx.state.teams[side].characters.filter((c) => !c.defeated)
+        .map((c) => ({ ...c, colors: [...c.colors], statuses: c.statuses.map((s) => ({ ...s })) }));
       for (const c of ctx.state.teams[side].characters) {
         const active = c.statuses.filter((s) => s.turns > 0).map((s) => s.id);
         if (active.length > 0) snapshot[c.id] = active;
@@ -921,11 +931,13 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
       }
     }
     const chosenColumnAtCastStart: GemType[] = [];
+    // P-R1-row-count-at-cast-start: gems of the chosen row (native CountGems <Color> BoardTarget Row before the explode)
+    const chosenRowAtCastStart: GemType[] = [];
     if (ctx.chosenCell) ctx.state.board.forEach((gem, pos) => {
-      if (gem && pos.col === ctx.chosenCell!.col) {
-        chosenColumnAtCastStart.push(gem.type.kind === 'special'
-          ? { kind: 'special', spec: { ...gem.type.spec } } : { ...gem.type });
-      }
+      if (!gem) return;
+      const copy: GemType = gem.type.kind === 'special' ? { kind: 'special', spec: { ...gem.type.spec } } : { ...gem.type };
+      if (pos.col === ctx.chosenCell!.col) chosenColumnAtCastStart.push(copy);
+      if (pos.row === ctx.chosenCell!.row) chosenRowAtCastStart.push(copy);
     });
     let skullsAtCastStart = 0;
     ctx.state.board.forEach((gem) => {
@@ -934,6 +946,7 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     ctx.castTracking = {
       skullsAtCastStart,
       chosenColumnAtCastStart,
+      chosenRowAtCastStart,
       destroyed: [],
       transformed: 0,
       drainedMana: 0,
@@ -941,6 +954,8 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
       allyDeaths: 0,
       statusesAtCastStart: snapshot,
       colorsAtCastStart,
+      formationAtCastStart,
+      unitsAtCastStart,
     };
   }
   return ctx.castTracking;

@@ -124,10 +124,10 @@ describe('L4b troop:6365/spell:7517 Barrier+Life to other allies, create 10 chos
   const f=setup({...base,allies:[],color:BaseColor.Red});const ev=f.cast();
   expect(ev.some(e=>e.type==='status-apply'||e.type==='buff')).toBe(false);expect(creations(ev)).toHaveLength(10);
  });
- it('Blessed ally is immune to Barrier but still gains [Magic+1] Life',()=>{
+ it('R011: Blessed ally still gets Barrier (Blessed blocks negatives only) and gains [Magic+1] Life',()=>{
   const f=setup({...base,allies:[{statuses:[{id:'blessed',turns:3}]},{}]});const ev=f.cast();
-  expect(ev.filter(e=>e.type==='status-apply').map(e=>e.type==='status-apply'&&e.targetId)).toEqual([2]);
-  expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed']);expect(f.allies[0].maxHp).toBe(1011);
+  expect(ev.filter(e=>e.type==='status-apply').map(e=>e.type==='status-apply'&&e.targetId)).toEqual([1,2]);
+  expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed','barrier']);expect(f.allies[0].maxHp).toBe(1011);
  });
  it('defeated ally is skipped by Barrier and Life',()=>{
   const f=setup({...base,allies:[{defeated:true,hp:0},{}]});const ev=f.cast();

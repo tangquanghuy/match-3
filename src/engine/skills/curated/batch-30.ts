@@ -97,7 +97,7 @@ const SPELLS: CuratedBatch['spells'] = [
       trueDmg('allyAll', 1, 0, { range: 'all' }),
       createGems(BaseColor.Red, 7, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'alliesOfRace', race: 'Orc' } } }),
       // 「创造的宝石数因兽人盟友数而增强」：modifier 挂最近创造段（batch-15 8614 口径）
-      createGems(BaseColor.Brown, 7, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'alliesOfRace', race: 'Orc' } } }),
+      createGems(BaseColor.Brown, 7, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'alliesOfRace', race: 'Orc', atCastStart: true } } }),
       summonRandom(ORCS),
     ),
   },

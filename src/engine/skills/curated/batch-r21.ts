@@ -332,7 +332,8 @@ const SPELLS: CuratedBatch['spells'] = [
     dmg('enemyAll', 7, 1),
     // native order (R001): Damage, CauseSilence@EnemyType, then ExplodeColor Doomskull (sa-R1)
     inflict('silence', 'enemyAll', { targetRace: 'Divine' }),
-    explodeRandomSpecialGems('doomSkull', 3, 0, { modifier: enemiesOfRaceBoost('Divine', 1) }),
+    // P-R1-count-at-native-step: native CountArmyType@AllEnemies is step 0, Divine enemies killed by the damage still count
+    explodeRandomSpecialGems('doomSkull', 3, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'enemiesOfRace', race: 'Divine', atCastStart: true } } }),
     ),
   },
   {
@@ -553,7 +554,7 @@ const SPELLS: CuratedBatch['spells'] = [
     dmg('enemyAll', 1, 1, {
       modifier: {
         mod: { kind: 'multiplier', a: 10 },
-        sources: [{ kind: 'enemiesOfRace', race: 'Undead' }, { kind: 'enemiesOfRace', race: 'Daemon' }],
+        sources: [{ kind: 'enemiesOfRace', race: 'Undead', atCastStart: true }, { kind: 'enemiesOfRace', race: 'Daemon', atCastStart: true }],
       },
     }),
     ),

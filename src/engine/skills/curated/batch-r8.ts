@@ -537,7 +537,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 2, 1, {
         range: 'all',
-        modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
+        modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'dragonGem', color: BaseColor.Blue } }, // native CountGems DragonBlue (P-R3-dragon-gem-count)
       }),
       inflict('barrier', 'allySelf'),
     ),
@@ -548,7 +548,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       trueDmg('enemyLastN', 2, 1, {
         n: 2,
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardGems', color: BaseColor.Red } },
+        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'dragonGem', color: BaseColor.Red } }, // native CountGems DragonRed (P-R3-dragon-gem-count)
       }),
       inflict('barrier', 'allySelf'),
     ),
