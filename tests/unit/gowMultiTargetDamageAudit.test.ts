@@ -34,7 +34,8 @@ function runtime(row: AuditRow) {
 describe('multi-victim damage compared with repository native/English snapshot', () => {
   it('covers a substantial explicit-quantity cross-section of original spells', () => {
     expect(cases.length).toBeGreaterThan(120);
-    for (const id of [7012, 7418, 7748, 8752, 9016, 9777, 7949, 8072]) {
+    // 9016 (troop:7376) left this set: native RandomEnemy + 3 x RandomPrefNotPrevEnemy (R007-3, sa-H) is a chain, not N distinct victims
+    for (const id of [7012, 7418, 7748, 8752, 9777, 7949, 8072]) {
       expect(cases.some(c => c.row.spellId === id)).toBe(true);
     }
   });
