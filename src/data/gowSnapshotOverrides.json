@@ -267,6 +267,11 @@
       "spellId": 9939,
       "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
       "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
+    },
+    "7131": {
+      "spellId": 8675,
+      "reason": "sa-C r4: English Vault Guard 'Then Freeze and Death Mark them'; native CauseFrozen + CauseDeathMark both; old Chinese said 'or'.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。"
     }
   }
 }

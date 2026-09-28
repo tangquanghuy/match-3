@@ -240,13 +240,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8675,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结或死亡标记状态。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。',
+    // English "Then Freeze and Death Mark them"; native CauseFrozen + CauseDeathMark, both always (not one of).
     build: skill(
       dmg('enemyChosen', 2, 1),
-      oneOf(
-        [inflict('frozen', 'enemyChosen')],
-        [inflict('death-mark', 'enemyChosen')],
-      ),
+      inflict('frozen', 'enemyChosen'),
+      inflict('death-mark', 'enemyChosen'),
     ),
   },
   {

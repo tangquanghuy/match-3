@@ -500,7 +500,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。有 50% 的几率冻结其下方所有敌人。',
     build: skill(
       dmg('enemyChosen', 4),
-      inflict('frozen', 'enemyChosenAndBelow', { chance: 0.5 }),
+      inflict('frozen', 'enemyBelowTarget', { chance: 0.5 }), // native BelowTarget: target itself excluded
     ),
   },
   {

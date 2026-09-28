@@ -937,7 +937,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一名敌人造成 [魔法 + 4] 点伤害。如果敌人已被冻结，则造成额外 10 点伤害。冻结敌人。',
     build: skill(
       dmg('enemyLast', 4, 1, { condBonus: { n: 10, cond: { kind: 'targetStatus', statusId: 'frozen' } } }),
-      inflict('frozen', 'enemyChosen'),
+      inflict('frozen', 'lastTarget'), // native LastEnemy (same enemy as the damage), not the chosen target
     ),
   },
   {

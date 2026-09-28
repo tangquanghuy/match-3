@@ -124,3 +124,55 @@ describe('L5 sa-C B03', () => {
     }
   });
 });
+describe('L5 sa-C round 4 B04', () => {
+  it('troop:6578 Enchant only ally Daemons, Barrier only ally Mystics (caster Medea is Human/Mystic)', () => {
+    const r = castSpell({ key: 'troop:6578', allies: allies({ 0: { troopTypes: ['Daemon'] }, 1: { troopTypes: ['Mystic', 'Daemon'] } }) });
+    expect(r.summary.order.filter(x => x.startsWith('status'))).toEqual(['status A1 +enchanted', 'status A2 +enchanted', 'status C +barrier', 'status A2 +barrier']);
+  });
+  it('troop:7432 one 50% roll freezes every enemy below the target, never the target; still below it after a kill (R012)', () => {
+    let hit = 0, miss = 0;
+    for (const seed of seeds) {
+      const st2 = castSpell({ key: 'troop:7432', seed }).summary.order.filter(x => x.startsWith('status'));
+      if (st2.length) { hit++; expect(st2).toEqual(['status E12 +frozen', 'status E13 +frozen']); } else miss++;
+    }
+    expect(hit > 5 && miss > 5).toBe(true);
+    let killHit = false;
+    for (const seed of seeds) {
+      const st2 = castSpell({ key: 'troop:7432', seed, enemies: enemies({ 1: { hp: 1 } }) }).summary.order.filter(x => x.startsWith('status'));
+      if (st2.length) { killHit = true; expect(st2).toEqual(['status E12 +frozen', 'status E13 +frozen']); }
+    }
+    expect(killHit).toBe(true);
+  });
+});
+describe('L5 sa-C round 4 B05', () => {
+  const statuses = (r: ReturnType<typeof castSpell>) => r.summary.order.filter(x => x.startsWith('status'));
+  it('weapon:1132 +10 when the last enemy is Frozen; Freezes that last enemy (not the chosen one)', () => {
+    expect(castSpell({ key: 'weapon:1132' }).summary.order).toEqual(['dmg E13 14', 'status E13 +frozen']);
+    expect(castSpell({ key: 'weapon:1132', enemies: enemies({ 3: { statuses: st('frozen') } }) }).summary.order[0]).toBe('dmg E13 24');
+    expect(statuses(castSpell({ key: 'weapon:1132', enemies: enemies({ 3: { hp: 1 } }) }))).toEqual([]);
+  });
+  it('troop:7131 Freezes AND Death Marks the target', () => {
+    expect(statuses(castSpell({ key: 'troop:7131' }))).toEqual(['status E11 +frozen', 'status E11 +death-mark']);
+  });
+  it('troop:6388 triple damage only on a Hunter\'s Marked target', () => {
+    expect(castSpell({ key: 'troop:6388', enemies: enemies({ 1: { statuses: st('marked') } }) }).summary.order[0]).toBe('dmg E11 42');
+  });
+  it('troop:6051 Poison and Burn the damaged strongest enemy; nothing re-picked after it dies', () => {
+    expect(statuses(castSpell({ key: 'troop:6051' }))).toEqual(['status E11 +poison', 'status E11 +burning']);
+    const k = castSpell({ key: 'troop:6051', enemies: enemies({ 1: { hp: 1 } }) });
+    expect(k.summary.order[0]).toBe('dmg E13 13'); // E13 800+3 is now the strongest
+    expect(statuses(castSpell({ key: 'troop:6051', enemies: DEFAULT_ENEMIES.map(e => ({ ...e, hp: 1 })) }))).toEqual([]);
+  });
+  it('troop:6377 target always Silenced; above and below each roll their own 50%, also after a kill (R012)', () => {
+    const seen = new Set<string>();
+    for (const seed of seeds) {
+      const s = statuses(castSpell({ key: 'troop:6377', seed }));
+      expect(s[0]).toBe('status E11 +silence');
+      seen.add(s.slice(1).join(','));
+    }
+    expect([...seen].sort()).toEqual(['', 'status E10 +silence', 'status E10 +silence,status E12 +silence', 'status E12 +silence']);
+    let k = false;
+    for (const seed of seeds) if (statuses(castSpell({ key: 'troop:6377', seed, enemies: enemies({ 1: { hp: 1 } }) })).length) k = true;
+    expect(k).toBe(true);
+  });
+});

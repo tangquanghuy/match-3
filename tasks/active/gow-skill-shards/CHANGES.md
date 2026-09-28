@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 461 条改动，涉及 758 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 466 条改动，涉及 763 个技能 ID。
 
 ## 按时间
 
@@ -467,6 +467,11 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
+| 2026-09-28T11:07 | sa-C | L5-C-r4-7432 | data | 9126 | troop:7432 LivingRime | `src/engine/skills/curated/batch-r4.ts` | 50% Freeze enemyChosenAndBelow (target included) → 50% Freeze enemyBelowTarget (native BelowTarget, target excluded, R012 pre-kill anchor) |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-1132 | data | 7296 | weapon:1132 IceDagger | `src/engine/skills/curated/batch-w01.ts` | Freeze enemyChosen → Freeze lastTarget = the LastEnemy that was damaged (native LastEnemy) |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-7131 | data | 8675 | troop:7131 VaultGuard | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | oneOf(Freeze \| Death Mark); zh 'or' → Freeze and Death Mark (native both steps); zh override 'and' |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-6051 | data | 7051 | troop:6051 Chimera | `src/engine/skills/curated/batch-02.ts` | Poison/Burn re-pick enemyHealthiest each step → Poison/Burn lastTarget (native FromPrevious); none after a kill |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-6377 | data | 7532 | troop:6377 Parrot | `src/engine/skills/curated/batch-r11.ts` | one 50% roll for both adjacent enemies → NextUp and NextDown each own 50% roll (native two PercentageChance steps) |  |
 
 ## 按技能 ID
 
@@ -492,6 +497,7 @@
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |
 | 7050 | 1 | F3-q29 |
+| 7051 | 1 | L5-C-r4-6051 |
 | 7052 | 2 | F2-R001-order、R010 |
 | 7053 | 1 | F2-R001-order |
 | 7054 | 1 | F2-R001-order |
@@ -554,6 +560,7 @@
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
 | 7295 | 1 | F3-q35 |
+| 7296 | 1 | L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
 | 7307 | 1 | F3-q27 |
 | 7308 | 1 | L4a-r3-1138 |
@@ -640,6 +647,7 @@
 | 7521 | 1 | L2-6369-ratio |
 | 7526 | 1 | F1-items-62-75 |
 | 7529 | 1 | L1-1154-egg |
+| 7532 | 1 | L5-C-r4-6377 |
 | 7533 | 1 | L1-6378-pool |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
 | 7548 | 1 | R004-tests |
@@ -937,6 +945,7 @@
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
+| 8675 | 1 | L5-C-r4-7131 |
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
@@ -1035,6 +1044,7 @@
 | 9115 | 1 | R7-tarot-extra-turn |
 | 9118 | 1 | L1-drain-devour |
 | 9119 | 1 | P-create-interleave |
+| 9126 | 1 | L5-C-r4-7432 |
 | 9132 | 1 | R009-dragon |
 | 9133 | 1 | R009-dragon |
 | 9134 | 1 | R009-dragon |
