@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 633 条改动，涉及 1085 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 634 条改动，涉及 1086 个技能 ID。
 
 ## 按时间
 
@@ -639,6 +639,7 @@
 | 2026-09-28T22:30 | sa-I | L7-I-7337-single-hit | assembler | 8960 | troop:7337 Militiaman | `src/engine/skills/curated/batch-r5.ts` | front enemy, damage split in 2 hits → native RandomHighDamage@FromTarget: one hit on the chosen enemy ({2} is snapshot residue) |  |
 | 2026-09-28T22:30 | sa-I | L7-I-1078-fey | assembler | 7191 | weapon:1078 DreamCatcher | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json` | +10 if enemy has an Elf; zh 精灵 → native AddIfEnemyHasFey: +10 if enemy has a Fey; zh 妖仙 |  |
 | 2026-09-28T22:35 | sa-I | L7-I-6057-zh-target | data | 7057 | troop:6057 WolfKnight | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 造成 [魔法 + 1] 点真实伤害 (no target) → zh: 对一名敌人造成 ... (EN to an Enemy); override 6057 |  |
+| 2026-09-28T22:39 | sa-I | L7-I-1118-target-divine | assembler | 7270 | weapon:1118 ChaosBlade | `src/engine/skills/curated/batch-w01.ts` | +5 if any enemy is Divine (enemyRacePresent) → native AddForDivine: +5 only if the target is Divine (targetRace) |  |
 
 ## 按技能 ID
 
@@ -737,6 +738,7 @@
 | 7265 | 1 | L3-008 |
 | 7266 | 1 | L4b-6152-attack |
 | 7269 | 1 | L4a-r3-1117 |
+| 7270 | 1 | L7-I-1118-target-divine |
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
 | 7274 | 1 | G-6154-order |

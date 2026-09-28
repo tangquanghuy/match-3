@@ -137,3 +137,30 @@ describe('sa-I L7 B05', () => {
     expect(dmgLines({ key: 'troop:6883', enemies: e('poison', 'stun') })).toEqual(['dmg E11 22', 'dmg E11 22']);
   });
 });
+const buffs = (o: CastOpts) => castSpell(o).summary.order.filter(s => s.startsWith('buff '));
+describe('sa-I L6 B01', () => {
+  it('weapon:1522 +2 Magic to all allies first, then [M+2] = 14 Armor to Brown allies only, +10 Attack iff an enemy is Doom', () => {
+    const allies = [{ hp: 500, maxHp: 500, colors: [BaseColor.Brown] }, { hp: 500, maxHp: 500, colors: [BaseColor.Red] }];
+    expect(buffs({ key: 'weapon:1522', allies })).toEqual(['buff C magic+2', 'buff A1 magic+2', 'buff A2 magic+2', 'buff C armor+14', 'buff A1 armor+14']);
+    const doom = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, troopTypes: ['Doom'] }];
+    expect(buffs({ key: 'weapon:1522', enemies: doom }).at(-1)).toBe('buff C attack+10');
+  });
+  it('troop:6699 3 true hits 14..28 (RandomEnemy + 2 PrefNotPrev, lone enemy thrice), then 14..28 Armor (EN range)', () => {
+    for (let seed = 1; seed <= 60; seed++) {
+      const t = targets({ key: 'troop:6699', seed });
+      expect(t).toHaveLength(3); expect(t[1]).not.toBe(t[0]); expect(t[2]).not.toBe(t[1]);
+    }
+    expect(targets({ key: 'troop:6699', enemies: ONE })).toEqual(['E10', 'E10', 'E10']);
+    expect(range({ key: 'troop:6699' }, 150)).toMatchObject({ min: 14, max: 28 });
+    const arm: number[] = [];
+    for (let seed = 1; seed <= 200; seed++) arm.push(Number(buffs({ key: 'troop:6699', seed })[0].split('+')[1]));
+    expect(Math.min(...arm)).toBe(14); expect(Math.max(...arm)).toBe(28);
+  });
+  it('weapon:1035 scatter 18 only: native DecreaseArmor@FrontEnemy 5 has PercentageChance 0 (never fires)', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const o = castSpell({ key: 'weapon:1035', seed }).summary.order;
+      expect(o.every(s => s.startsWith('dmg ') && s.endsWith('(scatter)'))).toBe(true);
+      expect(dmgs({ key: 'weapon:1035', seed }).reduce((a, b) => a + b, 0)).toBe(18);
+    }
+  });
+});

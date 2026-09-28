@@ -449,6 +449,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:35:33.627Z"
  },
+ "troop:6883": {
+  "lines": {
+   "L10": "dmg E11 11 ; dmg E11 11  => E11:hp-22",
+   "R10": "dmg E11 11 ; dmg E11 11  => E11:hp-22",
+   "L0": "dmg E11 1 ; dmg E11 1  => E11:hp-2",
+   "K": "dmg E11 11 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T22:39:28.946Z"
+ },
  "troop:6904": {
   "lines": {
    "L10": "dmg E11 17 (all) ; dmg E12 17 (all)  => E11:hp-7 arm-10 | E12:hp-5 arm-12",
@@ -1468,6 +1478,16 @@
   },
   "by": "sa-I",
   "at": "2026-09-28T22:38:14.326Z"
+ },
+ "weapon:1118": {
+  "lines": {
+   "L10": "dmg E11 12  => E11:hp-12",
+   "R10": "dmg E11 12  => E11:hp-12",
+   "L0": "dmg E11 2  => E11:hp-2",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T22:39:28.946Z"
  },
  "weapon:1119": {
   "lines": {

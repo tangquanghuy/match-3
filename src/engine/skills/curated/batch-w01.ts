@@ -824,7 +824,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7270,
     desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人是神祇军队，则额外造成 5 点真实伤害。',
     build: skill(
-      trueDmg('enemyChosen', 2, 1, { trueDamage: true, condBonus: { n: 5, cond: { kind: 'enemyRacePresent', race: 'Divine' } } }),
+      // sa-I: native AddForDivine / EN "If the Enemy is Divine" = the target itself, was any enemy Divine
+      trueDmg('enemyChosen', 2, 1, { trueDamage: true, condBonus: { n: 5, cond: { kind: 'targetRace', race: 'Divine' } } }),
     ),
   },
   {

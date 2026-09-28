@@ -289,6 +289,16 @@
   "by": "sa-G",
   "at": "2026-09-28T21:21:58.788Z"
  },
+ "troop:6699": {
+  "lines": {
+   "L10": "dmg E13 16 (all) ; dmg E11 18 (all) ; dmg E13 26 (all) ; buff C armor+21  => E13:hp-42 | E11:hp-18 | C:arm+21",
+   "R10": "dmg E13 16 (all) ; dmg E11 18 (all) ; dmg E13 26 (all) ; buff C armor+21  => E13:hp-42 | E11:hp-18 | C:arm+21",
+   "L0": "dmg E13 4 (all) ; dmg E11 5 (all) ; dmg E13 8 (all) ; buff C armor+6  => E13:hp-12 | E11:hp-5 | C:arm+6",
+   "K": "dmg E13 16 (all) ; dmg E11 18 (all) ; dmg E12 26 (all) ; defeat E13 ; defeat E11 ; defeat E12 ; buff C armor+21  => E13:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | C:arm+21"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T22:45:47.779Z"
+ },
  "troop:6717": {
   "lines": {
    "L10": "dmg E11 62 ; gold+50  => E11:hp-52 arm-10  eco:{\"gold\":50,\"goldMine\":50,\"goldTheirs\":-50}",
@@ -799,6 +809,16 @@
   "by": "sa-G",
   "at": "2026-09-28T21:43:42.176Z"
  },
+ "weapon:1035": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter)  => E10:arm-3 | E11:arm-4 | E12:arm-8 | E13:arm-3",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter)  => E10:arm-3 | E11:arm-4 | E12:arm-8 | E13:arm-3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 4 (scatter) ; dmg E13 1 (scatter)  => E10:arm-1 | E11:arm-2 | E12:arm-4 | E13:arm-1",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T22:45:47.779Z"
+ },
  "weapon:1059": {
   "lines": {
    "L10": "dmg E10 17  => E10:hp-12 arm-5",
@@ -1078,5 +1098,15 @@
   },
   "by": "sa-G",
   "at": "2026-09-28T21:54:32.161Z"
+ },
+ "weapon:1522": {
+  "lines": {
+   "L10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2",
+   "R10": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2",
+   "L0": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+4  => C:arm+4 mag+2 | A1:mag+2 | A2:mag+2",
+   "K": "buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2 ; buff C armor+14  => C:arm+14 mag+2 | A1:mag+2 | A2:mag+2"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T22:45:47.779Z"
  }
 }

@@ -20,3 +20,9 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - weapon:1041 accept (L7; true 13 chosen)
 - weapon:1042 accept (L7; true 14 random)
 - weapon:1115 accept (L7; true 11, x2 vs marked)
+- weapon:1118 fixed+accept (L7; +5 when target is Divine, was any Divine enemy)
+- troop:6883 accept (L7; 2 true hits same target, x2 poison / x2 stun each)
+- L7 exhausted (22 pending: 22 accept, 0 issue); next L6
+- weapon:1522 accept (L6; +2 Magic all then [M+2] Armor Brown, +10 Attack iff Doom; Tempering 0)
+- troop:6699 accept (L6; 3 true hits 14..28 PrefNotPrev; armor EN range 14..28 vs native fixed [2M+8] = DISPUTE, EN kept)
+- weapon:1035 accept (L6; native DecreaseArmor PercentageChance 0 never fires)
