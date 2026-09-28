@@ -386,3 +386,40 @@ describe('L1 R2 B08 (sa-R5)', () => {
     expect(dev).toBeGreaterThan(40); expect(dev).toBeLessThan(200);
   });
 });
+
+// ---------------------------------------------------------------- B09
+describe('L1 R2 B09 (sa-R5)', () => {
+  const raw = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops as { ReferenceName: string; KingdomId: number; TroopType: string; TroopType2: string }[];
+  const pools = (skill: string) => (registry.prototypes.get(skill) as { segments: { kind: string; chance?: number; params?: { source: { randomOf?: string[] } } }[] }).segments
+    .filter(s => s.kind === 'summon').map(s => ({ chance: s.chance ?? 1, pool: [...(s.params?.source.randomOf ?? [])].sort() }));
+  const dist = (key: string, n: number, o: Parameters<typeof castSpell>[0]) => {
+    const t: Record<number, number> = {};
+    for (let seed = 1; seed <= n; seed++) { const k = castSpell({ key, seed, ...o }).summary.summons.length; t[k] = (t[k] ?? 0) + 1; }
+    return t;
+  };
+  it('troop:6930 Bot + 2 x 50% Bots from raw kingdom 3045 (1/2/3 = 25/50/25%)', () => {
+    const k = raw.filter(t => t.KingdomId === 3045).map(t => t.ReferenceName).sort();
+    expect(pools('8408')).toEqual([{ chance: 1, pool: k }, { chance: 0.5, pool: k }, { chance: 0.5, pool: k }]);
+    const t = dist('troop:6930', 400, { allies: [] });
+    expect(t[1]).toBeGreaterThan(70); expect(t[1]).toBeLessThan(130); expect(t[2]).toBeGreaterThan(165); expect(t[2]).toBeLessThan(235);
+  });
+  it('troop:6513 chosen ally (even with Barrier) sacrificed; [(M/2)+1] + its Life [3:1]; Zhul\'Kari summon', () => {
+    const r = castSpell({ key: 'troop:6513', target: 2, allies: [{}, { hp: 300, maxHp: 300, statuses: [{ id: 'barrier', turns: 99 }] as never }] });
+    expect(r.f.allies[1].defeated).toBe(true); expect(r.f.allies[0].defeated).toBe(false);
+    expect(r.summary.order.filter(x => x.startsWith('dmg E'))).toEqual(['dmg E10 108 (all)', 'dmg E11 108 (all)', 'dmg E12 108 (all)', 'dmg E13 108 (all)']);
+    expect(pools('7704')).toEqual([{ chance: 1, pool: raw.filter(t => t.KingdomId === 3029).map(t => t.ReferenceName).sort() }]);
+  });
+  it('troop:6428 steals half the target Magic (floor) and, on a kill, summons Undead 100% / 50% / 25%', () => {
+    const s = castSpell({ key: 'troop:6428', enemies: [{}, { hp: 900, maxHp: 900, armor: 0, magic: 11 }] }).summary;
+    expect(s.order).toEqual(['dmg E11 22', 'buff C hp+22 max+22', 'buff E11 magic-5', 'buff C magic+5']);
+    const undead = new Set(raw.filter(t => [t.TroopType, t.TroopType2].includes('Undead')).map(t => t.ReferenceName));
+    const p = pools('7602'); expect(p.map(x => x.chance)).toEqual([1, 0.5, 0.25]);
+    for (const x of p) expect(x.pool.every(r => undead.has(r))).toBe(true);
+    const t = dist('troop:6428', 400, { allies: [], enemies: [{}, { hp: 5, maxHp: 5, armor: 0 }, {}, {}] });
+    expect(t[1]).toBeGreaterThan(120); expect(t[2]).toBeGreaterThan(165); expect(t[3]).toBeGreaterThan(25); expect(t[3]).toBeLessThan(80);
+    expect(castSpell({ key: 'troop:6428' }).summary.summons).toEqual([]);
+  });
+  it('troop:7157 devour branch is a real Devour (1 of 5)', () => {
+    const n = devourRate('troop:7157', 400); expect(n).toBeGreaterThan(55); expect(n).toBeLessThan(110);
+  });
+});

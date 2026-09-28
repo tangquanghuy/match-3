@@ -140,7 +140,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       oneOf(
         gainGold(100),
-        dmg('enemyRandom', 0, 0, { execute: true }),
+        // sa-R5 L1-7157: native Consume@RandomEnemy = a real Devour (caster gains stats), not a plain execute.
+        devour('enemyRandom', { chance: 1 }),
         reduce('enemyAll', 'armor', 0, 0, { drainAll: true }),
         dmg('enemyRandom', 2, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'battleGold' } } }),
         heal('allySelf', 2, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'battleGold' } } }),

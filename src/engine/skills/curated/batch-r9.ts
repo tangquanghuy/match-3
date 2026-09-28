@@ -225,13 +225,17 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予所有盟友 [魔法 + 1] 点护甲值和生命值，数值因红色宝石数而增强。召唤 1-3 名修补匠小镇机器。 [1:1]',
     // 单方括号管两段（R4 §11）；王国 3045（修补匠机器）×3 步 → countRange {1,3}
     build: skill(
-      armor('allyAll', 1, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
-      }),
+      // sa-R5 L1-6930: native order IncreaseHealth -> IncreaseArmor; SummoningKingdom 3045 + 2 x 50% (independent
+      // random Bots: 1/2/3 at 25/50/25%), not countRange 1-3 uniform.
       heal('allyAll', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
-      summonRandom(K3045, undefined, { countRange: { min: 1, max: 3 } }),
+      armor('allyAll', 1, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
+      }),
+      summonRandom(K3045),
+      { ...summonRandom(K3045), chance: 0.5 },
+      { ...summonRandom(K3045), chance: 0.5 },
     ),
   },
   {

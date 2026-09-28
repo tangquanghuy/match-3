@@ -108,3 +108,13 @@
 {"format":"compact","key":"troop:6497","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7609","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7358","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:42:25.236Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6930","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.547Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6849","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.548Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1287","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.549Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6513","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.549Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6260","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.549Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6629","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.550Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7157","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.550Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6872","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.550Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6428","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.749Z","issue":"P-R5-summon-id-reuse","note":"7602 fixed to native (steal floor(Magic/2); Undead summons 100/50/25% on kill) but when the killed enemy holds the highest id the next summon reuses it and the 50%/25% ifTargetDied summons never fire"}
+{"format":"compact","key":"troop:6210","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:53:48.848Z","issue":"L1-6210-armor-base","note":"source-dispute: English 'Give 1 Armor to all Allies, boosted by Gems removed [1:1]' vs native IncreaseArmor@AllAllies with UseCounterForAmount and NO Amount (other ConsumeConditional/IncreaseX steps without Amount have base 0) -> 1+skulls or skulls only; order summon/armor/remove otherwise equivalent"}
