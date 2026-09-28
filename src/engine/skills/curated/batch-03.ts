@@ -84,7 +84,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 18 颗板面上的宝石。对所有敌人造成 [魔法 + 5] 点伤害。',
     build: skill(
       // 无颜色/选定字样 → 随机色宝石（文件头备注）
-      explodeRandomGems(18, 0, 'color'),
+      explodeRandomGems(18, 0, 'all'),
       dmgAll(5),
     ),
   },
@@ -143,7 +143,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7931,
     desc: '爆破 4 颗宝石。窃取第一名敌人 [魔法 + 1] 点攻击力。',
     build: skill(
-      explodeRandomGems(4, 0, 'color'),
+      explodeRandomGems(4, 0, 'all'),
       // native StealAttack Amount 1 SpellPowerMultiplier 1 = [Magic + 1] (sa-F2 fix round A)
       steal('enemyFront', 'attack', 'attack', 1, 1),
     ),

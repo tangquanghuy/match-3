@@ -88,7 +88,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 数量二次缩放挂在随机清除段（SOP §3）；「冻结与燃烧状态的敌人数」= 双状态计数相加
       // （batch-26 7565「纳迦和不死族盟友数」同款）
-      explodeRandomGems(2, 0, 'color', undefined, {
+      explodeRandomGems(2, 0, 'all', undefined, {
         modifier: {
           mod: { kind: 'ratio', a: 1, b: 1 },
           sources: [

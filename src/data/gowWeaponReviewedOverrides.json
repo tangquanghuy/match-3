@@ -4284,7 +4284,7 @@
                   "base": 0,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               },
               "modifier": {
                 "mod": {
@@ -4549,7 +4549,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4564,7 +4564,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4626,7 +4626,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4641,7 +4641,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4703,7 +4703,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4718,7 +4718,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4780,7 +4780,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4795,7 +4795,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4857,7 +4857,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4872,7 +4872,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -4934,7 +4934,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -4949,7 +4949,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -7285,7 +7285,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -7980,7 +7980,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           },
@@ -8653,7 +8653,7 @@
                   "base": 5,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {
@@ -9569,7 +9569,7 @@
                   "base": 4,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             }
           }
@@ -11154,7 +11154,7 @@
                   "base": 3,
                   "mult": 0
                 },
-                "include": "color"
+                "include": "all"
               }
             },
             "ifCond": {

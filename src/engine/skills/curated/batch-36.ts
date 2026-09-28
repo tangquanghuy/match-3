@@ -146,7 +146,7 @@ const SPELLS: CuratedBatch['spells'] = [
       steal('enemyAll', 'armor', 'armor', 1, 1),
       createSpecialGems({ kind: 'bomb' }, 10, 0),
       // 「宝石」不含骷髅 → include 'color'（batch-34 8823 口径）
-      explodeRandomGems(1, 0, 'color'),
+      explodeRandomGems(1, 0, 'all'),
     ),
   },
   {

@@ -476,7 +476,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9380,
     desc: '对一名敌人造成 [(魔法 x 2) + 3] 点伤害，伤害值因拥有屏障效果的盟友数而增强。若队伍里有永生神路西法，则爆破 3 颗宝石。 [x6]',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"永生神路西法"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":2},"modifier":{"mod":{"kind":"multiplier","a":6},"source":{"kind":"allyStatusCount","statusId":"barrier"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"all"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"永生神路西法"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":2},"modifier":{"mod":{"kind":"multiplier","a":6},"source":{"kind":"allyStatusCount","statusId":"barrier"}}}]} as SkillPrototype),
   },
   {
     id: 9381,
@@ -949,7 +949,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9720,
     desc: '引爆5颗宝石，因盟友受到屏障而增强。若我方队伍中有不朽者扎卡利尔，则获得额外回合。 [1:1]',
     build: skill(
-      explodeRandomGems(5, 0, 'color', undefined, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } } }),
+      explodeRandomGems(5, 0, 'all', undefined, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } } }),
       extraTurn({ ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的扎卡利尔' } }),
     ),
   },

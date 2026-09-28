@@ -184,7 +184,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8138,
     desc: '爆破 [(魔法 / 2) + 1] 颗宝石。若有一名敌人陷入疾病状态，则使 1 到 4 名敌人中毒。',
     build: skill(
-      explodeRandomGems(1, 0.5, 'color'),
+      explodeRandomGems(1, 0.5, 'all'),
       // 「若有一名敌人陷入疾病状态」= anyEnemyStatus 存在判定。sa-A r4: native 「1 到 4 名」= four conditional
       // Poison@RandomEnemy steps at 100% / 50% / 25% / 25%, each a fresh random pick (ResetTargets, may repeat);
       // was nRange 1-4 distinct enemies, uniform.
@@ -227,7 +227,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8317,
     desc: '爆破 4 颗宝石并召唤一个骸骨风暴。',
     build: skill(
-      explodeRandomGems(4, 0, 'color'),
+      explodeRandomGems(4, 0, 'all'),
       createStorm(BaseColor.Brown, { dropKind: 'skull' }),
     ),
   },

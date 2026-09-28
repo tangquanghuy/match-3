@@ -128,7 +128,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 10 颗棕色宝石。再爆破 [魔法 + 1] 颗宝石。',
     build: skill(
       createGems(BaseColor.Brown, 10, 0),
-      explodeRandomGems(1, 1, 'color'),
+      explodeRandomGems(1, 1, 'all'),
     ),
   },
   {
@@ -144,7 +144,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点轻微溅射伤害，并摧毁 3 颗随机宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3),
-      destroyRandomGems(3, 0, 'color'),
+      destroyRandomGems(3, 0, 'all'),
     ),
   },
   {

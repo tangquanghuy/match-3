@@ -134,7 +134,7 @@ const SPELLS: CuratedBatch['spells'] = [
       extraTurn({ ifCond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } }),
       // 「承受 2 点伤害」= 对自身造成 2 点伤害（SOP §0「自身」= allySelf，常数 mult=0）
       dmg('allySelf', 2, 0),
-      destroyRandomGems(4, 1, 'color'),
+      destroyRandomGems(4, 1, 'all'),
     ),
   },
   {

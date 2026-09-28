@@ -82,7 +82,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // sa-F2 fix round A (R001): native Damage ; DestroyGems 6 ; DecreaseAllStats@FrontEnemy 1
       dmg('enemyFront', 3, 1),
-      destroyRandomGems(6, 0, 'color'),
+      destroyRandomGems(6, 0, 'all'),
       reduce('enemyFront', 'attack', 1, 0),
       reduce('enemyFront', 'armor', 1, 0),
       reduce('enemyFront', 'magic', 1, 0),
