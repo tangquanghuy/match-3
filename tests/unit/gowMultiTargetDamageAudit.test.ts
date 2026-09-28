@@ -152,7 +152,8 @@ describe('multi-victim damage compared with repository native/English snapshot',
       .toEqual(['SecondLastEnemy', 'LastEnemy']);
     const proto = runtime(original);
     expect(proto.segments.filter(s => s.kind === 'damage').map(s => [s.target, s.chance]))
-      .toEqual([['enemyLast', undefined], ['enemySecondLast', 0.5]]);
+      // native step order (sa-C r9, R001): 50% SecondLastEnemy first, then the guaranteed LastEnemy
+      .toEqual([['enemySecondLast', 0.5], ['enemyLast', undefined]]);
     const observed = new Set<number>();
     for (let seed = 1; seed <= 20; seed++) {
       const f = damageFixture();
@@ -160,8 +161,8 @@ describe('multi-victim damage compared with repository native/English snapshot',
       const engine = new TurnEngine(f.state, new SeededRNG(seed), f.ctx.nextGemId, registry);
       engine.skullChance = 0;
       const ids = engine.castSkill(f.caster.id).filter(e => e.type === 'skill-damage').map(e => e.targetId);
-      expect(ids[0]).toBe(13);
-      expect(ids.slice(1).every(id => id === 12)).toBe(true);
+      expect(ids[ids.length - 1]).toBe(13);
+      expect(ids.slice(0, -1).every(id => id === 12)).toBe(true);
       expect(ids.length).toBeLessThanOrEqual(2);
       observed.add(ids.length);
     }

@@ -1,6 +1,6 @@
 # GoW skill signoff progress
 
-Generated: 2026-09-28T22:22:18.878Z; source fingerprint: fa1fdf480bbf584b08c3eb3e01a424ee9ec08b461cb4952e0b5fbd41e80bceb3.
+Generated: 2026-09-28T23:50:52.477Z; source fingerprint: 27c43c488bb13995ba4e662d6771f25fb14a7b9b49b9f233b00671a92c425a96.
 Baseline: stored English and native spell snapshots, not a live official API.
 
 | Item | Count |
@@ -9,13 +9,13 @@ Baseline: stored English and native spell snapshots, not a live official API.
 | Original weapons | 718 |
 | Custom excluded | 13 |
 | Original entities | 2518 |
-| Accepted whole skills | 2203 / 2518 |
-| Review records | 2314 |
-| Eligible reviews | 2203 |
+| Accepted whole skills | 2351 / 2518 |
+| Review records | 2479 |
+| Eligible reviews | 2351 |
 | Confirmed difference entities | 3 |
-| Remaining pending reviews | 312 |
+| Remaining pending reviews | 164 |
 
-Full regression: 15499 passed, 0 failed; TypeScript exit code 0.
+Full regression: 15826 passed, 0 failed; TypeScript exit code 0.
 
 ## Evidence and limitations
 

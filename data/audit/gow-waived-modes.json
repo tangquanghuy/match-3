@@ -777,15 +777,6 @@
    "note": ""
   },
   {
-   "key": "troop:6819",
-   "name": "Faemark",
-   "part": "clause",
-   "id": "c2",
-   "mode": "boss",
-   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
-   "note": ""
-  },
-  {
    "key": "troop:6503",
    "name": "Freya",
    "part": "clause",
@@ -1569,42 +1560,6 @@
    "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; -10 Armor all enemies"
   },
   {
-   "key": "troop:6734",
-   "name": "Stone-Biter",
-   "part": "clause",
-   "id": "c2",
-   "mode": "tower",
-   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
-   "note": "sa-G r8: kill -> all Skills +7 (castEnemyDied); ZH kill condition restored; tower/ascension waived R000"
-  },
-  {
-   "key": "troop:6734",
-   "name": "Stone-Biter",
-   "part": "step",
-   "id": "0",
-   "mode": "tower",
-   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":1}",
-   "note": "sa-G r8: kill -> all Skills +7 (castEnemyDied); ZH kill condition restored; tower/ascension waived R000"
-  },
-  {
-   "key": "troop:6881",
-   "name": "EldritchGuardian",
-   "part": "clause",
-   "id": "c2",
-   "mode": "boss",
-   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
-   "note": "sa-G r8: Armor then Life 12, doubled on kill; Boss/Ascension x3-5 waived R000 boss"
-  },
-  {
-   "key": "troop:6881",
-   "name": "EldritchGuardian",
-   "part": "step",
-   "id": "0",
-   "mode": "boss",
-   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":1}",
-   "note": "sa-G r8: Armor then Life 12, doubled on kill; Boss/Ascension x3-5 waived R000 boss"
-  },
-  {
    "key": "troop:6539",
    "name": "SirWulfric",
    "part": "clause",
@@ -1765,6 +1720,42 @@
    "mode": "tower",
    "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
    "note": "sa-G r8: tower waived R000; remove all Armor then dmg"
+  },
+  {
+   "key": "weapon:1227",
+   "name": "VolcanicShield",
+   "part": "clause",
+   "id": "c3",
+   "mode": "boss",
+   "text": "If the Enemy has a Boss, explode all Red Gems.",
+   "note": "R000 waived c3/step1 boss (AddIfEnemyHasBoss explode Red)"
+  },
+  {
+   "key": "weapon:1227",
+   "name": "VolcanicShield",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"Target\":\"AllEnemies\",\"StatusAmount\":100,\"Color1\":\"Red\",\"StatusModifier\":\"AddIfEnemyHasBoss\",\"Type\":\"ExplodeColor\"}",
+   "note": "R000 waived c3/step1 boss (AddIfEnemyHasBoss explode Red)"
+  },
+  {
+   "key": "troop:6575",
+   "name": "Cloudstalker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6575",
+   "name": "Cloudstalker",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":16,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"RandomHighDamage\"}",
+   "note": ""
   }
  ]
 }
