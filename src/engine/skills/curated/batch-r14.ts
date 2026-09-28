@@ -16,7 +16,7 @@ import type { CuratedBatch } from './index';
 import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, inflict,
   transform, transformToSpecial, createSpecialGems, createSpecialGems2, createSkulls,
   explodeColor, explodeSpecialGems, explodeRandomGems, destroyChosenRow,
-  shuffleBoard, extraTurn, summonRandom, summonRef, } from '../builders';
+  shuffleBoard, extraTurn, summonRandom, summonRef, oneOf, } from '../builders';
 import { BaseColor } from '../../types';
 
 // 诺斯王国（官方 KingdomId 3080/3081，来源 data/raw/gow-2026-09-18/troops.en.json）：
@@ -155,10 +155,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8796,
     desc: '创造一颗石像鬼宝石。板面上每有一颗棕色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
-    // 官方步骤（善/恶两变体）重复两轮，desc 为单轮 → 按 desc 组一轮；无基础几率（步骤无 Amount）
+    // 原生 Randomize ABC-DEF：CountGems Brown 700 → CreateGems GoodGargoyle | BadGargoyle → ExtraTurnConditional，
+    // 善/恶各 1/2；无基础几率（步骤无 Amount）。棕色计数在创造之前（新宝石可能覆盖一颗棕色）：
+    // 额外回合段放在创造段之前读取计数，两者互不影响，结果与原生顺序相同。
     build: skill(
-      createSpecialGems({ kind: 'gargoyleGem' }, 1),
-      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      oneOf(
+        [extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }), createSpecialGems({ kind: 'gargoyleGem', tier: 1 }, 1)],
+        [extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }), createSpecialGems({ kind: 'gargoyleGem', tier: 2 }, 1)],
+      ),
     ),
   },
   {

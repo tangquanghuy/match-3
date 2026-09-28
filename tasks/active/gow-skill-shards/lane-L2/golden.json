@@ -6,8 +6,58 @@
    "L0": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
    "K": "buff E11 mana-5 ; buff C mana+5  => E11:mana-5"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:33:30.755Z"
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
+ },
+ "troop:6583": {
+  "lines": {
+   "L10": "convert Blue x11 -> Blue x11 ; storm Yellow set",
+   "R10": "convert Blue x11 -> Blue x11 ; storm Yellow set",
+   "L0": "convert Blue x11 -> Blue x11 ; storm Yellow set",
+   "K": "convert Blue x11 -> Blue x11 ; storm Yellow set"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
+ },
+ "troop:6630": {
+  "lines": {
+   "L10": "dmg E11 14 ; buff C hp+3 max+3  => E11:hp-4 arm-10 | C:hp+3 max+3",
+   "R10": "dmg E11 14 ; buff C hp+3 max+3  => E11:hp-4 arm-10 | C:hp+3 max+3",
+   "L0": "dmg E11 4 ; buff C hp+3 max+3  => E11:arm-4 | C:hp+3 max+3",
+   "K": "dmg E11 14 ; defeat E11 ; buff C hp+3 max+3  => E11:hp-1 DEAD | C:hp+3 max+3"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
+ },
+ "troop:6652": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; buff C hp+10 max+10  => E11:arm-10 | C:hp+10 max+10",
+   "R10": "buff E11 armor-10 ; buff C hp+10 max+10  => E11:arm-10 | C:hp+10 max+10",
+   "L0": "buff E11 armor-1 ; buff C hp+1 max+1  => E11:arm-1 | C:hp+1 max+1",
+   "K": "(no spell events)"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
+ },
+ "troop:6782": {
+  "lines": {
+   "L10": "dmg E11 14 ; dmg C 900 ; defeat C  => E11:hp-4 arm-10 | C:hp-900 DEAD",
+   "R10": "dmg E11 14 ; dmg C 900 ; defeat C  => E11:hp-4 arm-10 | C:hp-900 DEAD",
+   "L0": "dmg E11 4 ; dmg C 900 ; defeat C  => E11:arm-4 | C:hp-900 DEAD",
+   "K": "dmg E11 14 ; defeat E11 ; dmg C 900 ; defeat C  => E11:hp-1 DEAD | C:hp-900 DEAD"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
+ },
+ "troop:6814": {
+  "lines": {
+   "L10": "dmg E11 22 ; status E11 +burning  => E11:hp-12 arm-10 +burning",
+   "R10": "dmg E11 22 ; status E11 +burning  => E11:hp-12 arm-10 +burning",
+   "L0": "dmg E11 12 ; status E11 +burning  => E11:hp-2 arm-10 +burning",
+   "K": "dmg E11 22 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
  },
  "troop:6838": {
   "lines": {
@@ -26,8 +76,8 @@
    "L0": "buff E11 attack-1 ; buff C attack+1  => E11:atk-1 | C:atk+1",
    "K": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:33:33.002Z"
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
  },
  "troop:6929": {
   "lines": {
@@ -36,8 +86,8 @@
    "L0": "dmg E11 3  => E11:arm-3",
    "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:33:35.253Z"
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
  },
  "troop:6969": {
   "lines": {
@@ -46,8 +96,8 @@
    "L0": "(no spell events)",
    "K": "(no spell events)"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:33:37.796Z"
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
  },
  "troop:7090": {
   "lines": {
@@ -59,6 +109,36 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:46:26.605Z"
  },
+ "troop:7209": {
+  "lines": {
+   "L10": "extra-turn skill ; convert skull x1 -> gargoyleGem x1  extra:skill",
+   "R10": "extra-turn skill ; convert skull x1 -> gargoyleGem x1  extra:skill",
+   "L0": "extra-turn skill ; convert skull x1 -> gargoyleGem x1  extra:skill",
+   "K": "extra-turn skill ; convert skull x1 -> gargoyleGem x1  extra:skill"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
+ },
+ "troop:7217": {
+  "lines": {
+   "L10": "status E12 +poison ; status E11 +poison ; convert Yellow x1 -> gargoyleGem x1 ; extra-turn skill  => E12:+poison | E11:+poison  extra:skill",
+   "R10": "status E12 +poison ; status E11 +poison ; convert Yellow x1 -> gargoyleGem x1 ; extra-turn skill  => E12:+poison | E11:+poison  extra:skill",
+   "L0": "status E12 +poison ; status E11 +poison ; convert Yellow x1 -> gargoyleGem x1 ; extra-turn skill  => E12:+poison | E11:+poison  extra:skill",
+   "K": "status E12 +poison ; status E11 +poison ; convert Yellow x1 -> gargoyleGem x1 ; extra-turn skill  => E12:+poison | E11:+poison  extra:skill"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
+ },
+ "troop:7258": {
+  "lines": {
+   "L10": "buff C hp+13 max+13  => C:hp+13 max+13",
+   "R10": "buff C hp+13 max+13  => C:hp+13 max+13",
+   "L0": "buff C hp+3 max+3  => C:hp+3 max+3",
+   "K": "buff C hp+13 max+13  => C:hp+13 max+13"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
+ },
  "troop:7278": {
   "lines": {
    "L10": "status C +enraged ; status A1 +enchanted ; status A2 +submerged ; buff C hp+11 max+11 ; buff A1 attack+11 ; buff A2 hp+11 max+11 ; gold+50 ; souls+20 ; maps+2  => C:hp+11 max+11 +enraged | A1:atk+11 +enchanted | A2:hp+11 max+11 +submerged  eco:{\"gold\":50,\"souls\":20,\"maps\":2,\"goldMine\":50}",
@@ -69,6 +149,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:51:44.757Z"
  },
+ "troop:7292": {
+  "lines": {
+   "L10": "dmg E11 18  => E11:hp-8 arm-10",
+   "R10": "dmg E11 18  => E11:hp-8 arm-10",
+   "L0": "dmg E11 8  => E11:arm-8",
+   "K": "dmg E11 18 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
+ },
  "troop:7329": {
   "lines": {
    "L10": "buff E11 mana-4  => E11:mana-4",
@@ -76,8 +166,28 @@
    "L0": "buff E11 mana-4  => E11:mana-4",
    "K": "buff E11 mana-4  => E11:mana-4"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:33:40.285Z"
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
+ },
+ "troop:7507": {
+  "lines": {
+   "L10": "status E12 +terror ; status E11 +terror ; souls+10  => E12:+terror | E11:+terror  eco:{\"souls\":10}",
+   "R10": "status E12 +terror ; status E11 +terror ; souls+10  => E12:+terror | E11:+terror  eco:{\"souls\":10}",
+   "L0": "status E12 +terror ; status E11 +terror ; souls+10  => E12:+terror | E11:+terror  eco:{\"souls\":10}",
+   "K": "status E12 +terror ; status E11 +terror ; souls+10  => E12:+terror | E11:+terror  eco:{\"souls\":10}"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
+ },
+ "troop:7614": {
+  "lines": {
+   "L10": "buff E11 hp-13 ; status E11 +terror  => E11:hp-13 +terror",
+   "R10": "buff E11 hp-13 ; status E11 +terror  => E11:hp-13 +terror",
+   "L0": "buff E11 hp-3 ; status E11 +terror  => E11:hp-3 +terror",
+   "K": "defeat E11 ; buff E11 hp-1  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
  },
  "troop:7825": {
   "lines": {
@@ -96,8 +206,18 @@
    "L0": "buff E11 armor-10 ; dmg E11 2  => E11:hp-2 arm-10",
    "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
   },
-  "by": "sa-F1",
-  "at": "2026-09-28T00:33:45.460Z"
+  "by": "sa-R6",
+  "at": "2026-09-28T05:40:50.994Z"
+ },
+ "weapon:1361": {
+  "lines": {
+   "L10": "buff C armor+11  => C:arm+11",
+   "R10": "buff C armor+11  => C:arm+11",
+   "L0": "buff C armor+1  => C:arm+1",
+   "K": "buff C armor+11  => C:arm+11"
+  },
+  "by": "sa-R6",
+  "at": "2026-09-28T05:54:41.954Z"
  },
  "weapon:1706": {
   "lines": {

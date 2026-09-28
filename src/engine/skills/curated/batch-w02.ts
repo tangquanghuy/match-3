@@ -1418,10 +1418,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8396,
-    desc: '没有一名恶魔敌人则获得 [魔法 + 1] 点护甲值并赋予一名随机盟友屏障效果。 [1:1]',
+    desc: '获得 [魔法 + 1] 点护甲值，每有一名恶魔敌人则赋予一名随机盟友屏障效果。 [1:1]',
+    // 原生：CountArmyType AllEnemies daemon 100 → IncreaseArmor Self [M+1]（不用计数）→
+    // InflictEffectOnRandomTroops AllAllies barrier ×计数（perCount 随机盟友池）
     build: skill(
-      armor('allySelf', 1, 1, { ifCond: { kind: 'not', cond: { kind: 'enemyRacePresent', race: 'Daemon' } }, modifier: { mod: { kind: 'ratio', a: 1, b: 1 } } }),
-      inflict('barrier', 'allyRandom', { ifCond: { kind: 'not', cond: { kind: 'enemyRacePresent', race: 'Daemon' } } }),
+      armor('allySelf', 1, 1),
+      inflict('barrier', 'allyAll', { perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'enemiesOfRace', race: 'Daemon' } } }),
     ),
   },
   {

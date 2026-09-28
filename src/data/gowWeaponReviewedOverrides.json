@@ -3691,6 +3691,38 @@
         "skippedClauses": []
       }
     },
+    "8396": {
+      "description": "获得 [魔法 + 1] 点护甲值，每有一名恶魔敌人则赋予一名随机盟友屏障效果。 [1:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "armor",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "perCount": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 1
+              },
+              "source": {
+                "kind": "enemiesOfRace",
+                "race": "Daemon"
+              }
+            }
+          }
+        ]
+      }
+    },
     "8400": {
       "description": "消除所有敌人 2 点法力值，每颗石块额外消除 1 点。摧毁 [魔法 + 1] 颗所选颜色的宝石。 [1:1]",
       "metadata": {
@@ -5329,6 +5361,480 @@
     },
     "9204": {
       "description": "选择一项：创造 8 颗蓝色闪电宝石，对一名敌人造成 [魔法 + 3] 点溅射伤害；或创造 8 颗黄色闪电宝石，对一名敌人造成 [魔法 + 3] 点溅射伤害。"
+    },
+    "9211": {
+      "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Blue"
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Blue"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Blue"
+                  }
+                ]
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Blue"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Blue"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            },
+            "pool": "positive"
+          }
+        ]
+      }
+    },
+    "9212": {
+      "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名绿色盟友和敌人则创造 2 颗绿色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Green"
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Green"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Green"
+                  }
+                ]
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Green"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Green"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            },
+            "pool": "positive"
+          }
+        ]
+      }
+    },
+    "9213": {
+      "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名红色盟友和敌人则创造 2 颗红色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Red"
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Red"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Red"
+                  }
+                ]
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Red"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Red"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            },
+            "pool": "positive"
+          }
+        ]
+      }
+    },
+    "9214": {
+      "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名黄色盟友和敌人则创造 2 颗黄色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Yellow"
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Yellow"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Yellow"
+                  }
+                ]
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Yellow"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Yellow"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            },
+            "pool": "positive"
+          }
+        ]
+      }
+    },
+    "9215": {
+      "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名紫色盟友和敌人则创造 2 颗紫色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Purple"
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Purple"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Purple"
+                  }
+                ]
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Purple"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Purple"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            },
+            "pool": "positive"
+          }
+        ]
+      }
+    },
+    "9216": {
+      "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名棕色盟友和敌人则创造 2 颗棕色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 5,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "color",
+                "color": "Brown"
+              },
+              "count": {
+                "base": 0,
+                "mult": 0
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 2
+                },
+                "sources": [
+                  {
+                    "kind": "alliesOfColor",
+                    "color": "Brown"
+                  },
+                  {
+                    "kind": "enemiesOfColor",
+                    "color": "Brown"
+                  }
+                ]
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "sources": [
+                {
+                  "kind": "alliesOfColor",
+                  "color": "Brown"
+                },
+                {
+                  "kind": "enemiesOfColor",
+                  "color": "Brown"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allySelf",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            },
+            "pool": "positive"
+          }
+        ]
+      }
     },
     "9300": {
       "prototype": {

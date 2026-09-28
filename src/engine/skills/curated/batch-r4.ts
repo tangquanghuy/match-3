@@ -141,7 +141,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，数值因蓝色与红色宝石数而增强。再冻结或燃烧敌人。 [2:1]',
     build: skill(
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, sources: [{ kind: 'boardGems', color: BaseColor.Blue }, { kind: 'boardGems', color: BaseColor.Red }] } }),
-      oneOf([inflict('frozen', 'enemyChosen')], [inflict('burning', 'enemyChosen')]),
+      // 原生 Randomize ABC+(D-E-F)：D 冻结 / E 燃烧 / F 冻结 → 冻结 2/3、燃烧 1/3
+      oneOf([inflict('frozen', 'enemyChosen')], [inflict('burning', 'enemyChosen')], [inflict('frozen', 'enemyChosen')]),
     ),
   },
   {
