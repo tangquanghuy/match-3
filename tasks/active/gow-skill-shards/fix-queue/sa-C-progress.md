@@ -32,3 +32,9 @@
 - troop:6695 accept (8041)
 - troop:6335 fixed (7485 native order Attack -> Life -> Cleanse -> Red Magic)
 - B12 troop:7703,7706,7666,6695,6335 approve=5 fixed=3 issue=0
+- troop:6450 accept (7628)
+- troop:6690 fixed (8036 native order Health -> Blessed -> Enchanted)
+- troop:7323 accept (8935)
+- weapon:1149 fixed (7446 Cleanse/Enchant allyOthers not allyAll; override entry added)
+- troop:7797 fixed+issue L5-C-7797-chance (9817 kill roll first on already Entangled only; DISPUTE English 30% vs native 25, 30 kept)
+- B13 troop:6450,6690,7323,weapon:1149,troop:7797 approve=4 fixed=3 issue=1

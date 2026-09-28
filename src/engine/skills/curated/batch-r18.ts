@@ -1091,9 +1091,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "给予一名盟友 [魔法 + 1] 点生命值，再赋予其法印和赐福效果。",
     // 「赋予法印和赐福」= enchanted + blessed（R10 批）
     build: skill(
+      // sa-C r9 native order: IncreaseHealth -> CauseBlessed -> CauseEnchanted
       heal('allyChosen', 1, 1),
-      inflict('enchanted', 'allyChosen'),
       inflict('blessed', 'allyChosen'),
+      inflict('enchanted', 'allyChosen'),
     ),
   },
   {

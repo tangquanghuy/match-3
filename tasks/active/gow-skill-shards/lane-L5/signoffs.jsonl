@@ -266,3 +266,8 @@
 {"format":"compact","key":"troop:7666","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:36:23.592Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6695","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:36:23.593Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6335","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:36:23.593Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6450","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:42:40.151Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6690","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:42:40.153Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7323","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:42:40.153Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1149","decision":"accept","reviewer":"sa-C","reviewedAt":"2026-09-28T22:42:40.153Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7797","decision":"issue","reviewer":"sa-C","reviewedAt":"2026-09-28T22:42:40.390Z","issue":"L5-C-7797-chance","note":"source-dispute: English/zh 30% kill chance vs native LethalDamageConditional StatusAmount 25 (AddForEntangle); curated order fixed to native (roll first, only already Entangled), chance kept 30%. Coordinator: rule 25 vs 30"}

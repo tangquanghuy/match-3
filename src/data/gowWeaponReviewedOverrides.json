@@ -2,6 +2,32 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
+    "7446": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "hp",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "cleanse",
+            "target": "allyOthers"
+          },
+          {
+            "kind": "status",
+            "target": "allyOthers",
+            "statusId": "enchanted",
+            "turns": 3
+          }
+        ]
+      }
+    },
     "8409": {
       "prototype": {
         "segments": [

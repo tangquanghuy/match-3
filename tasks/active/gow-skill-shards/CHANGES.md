@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 633 条改动，涉及 1085 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 636 条改动，涉及 1088 个技能 ID。
 
 ## 按时间
 
@@ -639,6 +639,9 @@
 | 2026-09-28T22:36 | sa-C | L5-C-r9-7703 | assembler | 9664 | troop:7703 Xuanwu | `src/engine/skills/curated/batch-r10.ts` | Barrier/Enchant FromTarget used lastTarget = caster after the self armor step; chosen ally got nothing → Barrier + Enchant on allyChosen, then on self (native order) |  |
 | 2026-09-28T22:36 | sa-C | L5-C-r9-7706 | assembler | 9667 | troop:7706 WATTS-1927 | `src/engine/skills/curated/batch-04.ts` | heal/armor/barrier each re-resolved allyWeakest, heal first → native IncreaseArmor@WeakestAlly -> Health/Barrier @FromPrevious (lastTarget) |  |
 | 2026-09-28T22:36 | sa-C | L5-C-r9-6335 | assembler | 7485 | troop:6335 Tezca | `src/engine/skills/curated/batch-13.ts` | Life before Attack → native order Attack -> Life -> Cleanse -> Magic (Red) |  |
+| 2026-09-28T22:42 | sa-C | L5-C-r9-1149 | assembler | 7446 | weapon:1149 OrpheusLute | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Cleanse and Enchant allyAll (caster included) → native Cleanse/CauseEnchanted @AllAlliesButNotSelf = allyOthers; reviewed override entry added |  |
+| 2026-09-28T22:42 | sa-C | L5-C-r9-6690 | assembler | 8036 | troop:6690 SilverOak | `src/engine/skills/curated/batch-r18.ts` | Enchant before Bless → native order Health -> Blessed -> Enchanted |  |
+| 2026-09-28T22:42 | sa-C | L5-C-7797-chance | assembler | 9817 | troop:7797 AssassinVine | `src/engine/skills/curated/batch-18.ts` | execute checked after this cast's own Entangle (every cast had the kill roll) → native LethalDamageConditional first: only an already Entangled target; chance kept at English 30% (native 25, dispute) |  |
 
 ## 按技能 ID
 
@@ -816,6 +819,7 @@
 | 7442 | 1 | R3-B01-6296 |
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7446 | 1 | L5-C-r9-1149 |
 | 7453 | 1 | L4a-r3-6303 |
 | 7454 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、P-R3-precast-compare |
 | 7455 | 1 | L1-6305-repeat |
@@ -971,6 +975,7 @@
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
+| 8036 | 1 | L5-C-r9-6690 |
 | 8038 | 1 | P-B-action-status-self-count |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
 | 8045 | 1 | P-E-faction-kingdom |
@@ -1662,6 +1667,7 @@
 | 9811 | 1 | R7-1667-drain-order |
 | 9812 | 1 | L1-7793-prefnotprev |
 | 9816 | 1 | L3-012 |
+| 9817 | 1 | L5-C-7797-chance |
 | 9825 | 1 | L5-C-r6-doomed-blades |
 | 9826 | 1 | L5-C-r6-doomed-blades |
 | 9827 | 1 | L5-C-r6-doomed-blades |

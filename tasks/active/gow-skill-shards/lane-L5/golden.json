@@ -369,6 +369,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:59:32.592Z"
  },
+ "troop:6450": {
+  "lines": {
+   "L10": "buff C hp+15 max+15 ; status C +barrier ; dmg E11 8  => C:hp+15 max+15 +barrier | E11:arm-8",
+   "R10": "buff C hp+15 max+15 ; status C +barrier ; dmg E11 8  => C:hp+15 max+15 +barrier | E11:arm-8",
+   "L0": "buff C hp+5 max+5 ; status C +barrier ; dmg E11 8  => C:hp+5 max+5 +barrier | E11:arm-8",
+   "K": "buff C hp+15 max+15 ; status C +barrier ; dmg E11 8 ; defeat E11  => C:hp+15 max+15 +barrier | E11:hp-1 DEAD"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:42:40.022Z"
+ },
  "troop:6460": {
   "lines": {
    "L10": "dmg E13 18 ; status A1 +submerged ; status A2 +submerged  => E13:hp-15 arm-3 | A1:+submerged | A2:+submerged",
@@ -598,6 +608,16 @@
   },
   "by": "sa-C",
   "at": "2026-09-28T11:15:58.667Z"
+ },
+ "troop:6690": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove A1 -poison ; status A1 +blessed ; status A1 +enchanted  => A1:hp+11 max+11 +blessed+enchanted -poison",
+   "R10": "buff A1 hp+11 max+11 ; remove A1 -poison ; status A1 +blessed ; status A1 +enchanted  => A1:hp+11 max+11 +blessed+enchanted -poison",
+   "L0": "buff A1 hp+1 max+1 ; remove A1 -poison ; status A1 +blessed ; status A1 +enchanted  => A1:hp+1 max+1 +blessed+enchanted -poison",
+   "K": "buff A1 hp+11 max+11 ; remove A1 -poison ; status A1 +blessed ; status A1 +enchanted  => A1:hp+11 max+11 +blessed+enchanted -poison"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:42:40.022Z"
  },
  "troop:6695": {
   "lines": {
@@ -1249,6 +1269,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:51:48.356Z"
  },
+ "troop:7323": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; status E12 +disease ; status E13 +disease  => C:hp+11 max+11 | A1:hp+11 max+11 | E12:+disease | E13:+disease",
+   "R10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; status E12 +disease ; status E13 +disease  => C:hp+11 max+11 | A1:hp+11 max+11 | E12:+disease | E13:+disease",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; status E12 +disease ; status E13 +disease  => C:hp+1 max+1 | A1:hp+1 max+1 | E12:+disease | E13:+disease",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; status E12 +disease ; status E13 +disease  => C:hp+11 max+11 | A1:hp+11 max+11 | E12:+disease | E13:+disease"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:42:40.022Z"
+ },
  "troop:7327": {
   "lines": {
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
@@ -1888,6 +1918,16 @@
   },
   "by": "sa-R3",
   "at": "2026-09-28T03:03:21.220Z"
+ },
+ "weapon:1149": {
+  "lines": {
+   "L10": "buff C hp+14 max+14 ; cleanse A1 -poison ; status A1 +enchanted ; status A2 +enchanted  => C:hp+14 max+14 | A1:+enchanted -poison | A2:+enchanted",
+   "R10": "buff C hp+14 max+14 ; cleanse A1 -poison ; status A1 +enchanted ; status A2 +enchanted  => C:hp+14 max+14 | A1:+enchanted -poison | A2:+enchanted",
+   "L0": "buff C hp+4 max+4 ; cleanse A1 -poison ; status A1 +enchanted ; status A2 +enchanted  => C:hp+4 max+4 | A1:+enchanted -poison | A2:+enchanted",
+   "K": "buff C hp+14 max+14 ; cleanse A1 -poison ; status A1 +enchanted ; status A2 +enchanted  => C:hp+14 max+14 | A1:+enchanted -poison | A2:+enchanted"
+  },
+  "by": "sa-C",
+  "at": "2026-09-28T22:42:40.022Z"
  },
  "weapon:1156": {
   "lines": {

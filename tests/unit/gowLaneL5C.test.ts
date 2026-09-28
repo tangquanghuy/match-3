@@ -389,3 +389,29 @@ describe('L5 sa-C round 9 B12', () => {
     expect(order({ key: 'troop:6335', allies: allies({ 0: { colors: [BaseColor.Red] } }) })).toEqual(['buff A1 attack+11', 'buff A1 hp+11 max+11', 'cleanse A1 -poison', 'buff A1 magic+3']);
   });
 });
+describe('L5 sa-C round 9 B13', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6450 Life + Barrier on self, then a flat 8 damage', () => {
+    expect(order({ key: 'troop:6450' })).toEqual(['buff C hp+15 max+15', 'status C +barrier', 'dmg E11 8']);
+    expect(order({ key: 'troop:6450', magic: 0 })).toEqual(['buff C hp+5 max+5', 'status C +barrier', 'dmg E11 8']);
+  });
+  it('troop:6690 native order Life -> Blessed -> Enchanted on the chosen ally', () => {
+    expect(order({ key: 'troop:6690' })).toEqual(['buff A1 hp+11 max+11', 'remove A1 -poison', 'status A1 +blessed', 'status A1 +enchanted']);
+  });
+  it('troop:7323 Life to the first 2 allies, Disease on the last 2 enemies', () => {
+    expect(order({ key: 'troop:7323' })).toEqual(['buff C hp+11 max+11', 'buff A1 hp+11 max+11', 'status E12 +disease', 'status E13 +disease']);
+  });
+  it('weapon:1149 Cleanse and Enchant all OTHER allies (caster keeps its Poison, not Enchanted)', () => {
+    expect(order({ key: 'weapon:1149' })).toEqual(['buff C hp+14 max+14', 'cleanse A1 -poison', 'status A1 +enchanted', 'status A2 +enchanted']);
+  });
+  it('troop:7797 the kill roll only fires on an ALREADY Entangled target (checked before its own Entangle), ~30%', () => {
+    for (const seed of seeds) expect(order({ key: 'troop:7797', seed })).toEqual(['dmg E11 13', 'status E11 +entangle', 'status E11 +bleed']);
+    let kills = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const o = order({ key: 'troop:7797', seed, enemies: enemies({ 1: { statuses: st('entangle') } }) });
+      if (o.includes('defeat E11')) { kills++; expect(o).toEqual(['dmg E11 910', 'defeat E11']); } // execute = lethal hit; later steps skip the dead target
+      else expect(o).toEqual(['dmg E11 13', 'status E11 +entangle', 'status E11 +bleed']);
+    }
+    expect(kills).toBeGreaterThan(40); expect(kills).toBeLessThan(80);
+  });
+});
