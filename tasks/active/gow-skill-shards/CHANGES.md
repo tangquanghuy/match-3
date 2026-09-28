@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 389 条改动，涉及 682 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 397 条改动，涉及 693 个技能 ID。
 
 ## 按时间
 
@@ -395,6 +395,14 @@
 | 2026-09-28T09:20 | sa-P | P-R1-chosen-target-color-cond | primitive | 8467 | troop:6964 StormKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`tests/unit/gowFixP-R1-chosen-target-color-cond.test.ts` | only lastTargetColor existed (needs a prior targeting segment), so 8467 dealt the true damage first and column skulls could miss a killed front target → global condition chosenTargetColor (cast-start colours of the chosen target); 8467 native order DestroyColumn -> IncreaseAttack -> TrueDamage | troop:6964 only |
 | 2026-09-28T09:20 | sa-P | P-R1-row-count-at-cast-start | primitive | 8928 | troop:7316 EyeOfArges | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`tests/unit/gowFixP-R1-row-count-at-cast-start.test.ts` | 8928 counted Red / Brown / Skull gems on the whole board (L10 dmg 178) → castTracking.chosenRowAtCastStart + source chosenRowAtCastStart: only the chosen row, captured before the explode (26 + 8 x row count) | troop:7316 only |
 | 2026-09-28T09:25 | sa-P | P-R1-dual-storm | primitive | 8560, 8562, 8454 | troop:7036 HellclawHunter；troop:7038 HellclawWarrior；weapon:1391 IndrajitsClaw | `src/engine/types.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/storm.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-R1-dual-storm.test.ts` | storms had one colour; Hellstorm (native StormRedPurple) approximated as a Red storm → Team.storm.color2 / storm segment color2 / createStorm opts.color2: both colours get STORM_DROP_WEIGHT in refills, stormPresent matches either; 8560 8562 8454 Red + Purple | storm-change event still reports the primary colour only (UI shows a Red storm) |
+| 2026-09-28T10:19 | sa-C | L5-C-7900-waves | assembler | 9982, 9374 | troop:7900 ImmortalZephaar；troop:7578 ImmortalSagittarian | `src/engine/skills/curated/batch-r11.ts` | 3 random hits as one enemyRandomN draw (3 distinct enemies; 7578 one damage roll shared by the 3 random hits) → randomWaves 3: native RandomEnemy + 2x RandomPrefNotPrevEnemy (avoid only previous, repeats allowed), per-step damage roll |  |
+| 2026-09-28T10:19 | sa-C | L5-C-7553-boss | assembler | 9338 | troop:7553 BarrowLord | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | zh + condMult said Tower (Castle x3) → Boss per English/native MultiplyForAscensionBoss (waived R000); zh override |  |
+| 2026-09-28T10:19 | sa-C | L5-C-6791-precount | assembler | 8182 | troop:6791 RedCap | `src/engine/skills/curated/batch-r22.ts` | Hunter's Mark checked on the target after the damage (killed marked target -> no Faerie Fire) → lastTargetStatusAtCastStart: native CountSpecificStatusEffect@FromTarget is step 0, before the damage |  |
+| 2026-09-28T10:25 | sa-C | L5-C-1250-bleed-n | assembler | 8062 | weapon:1250 BloodthirstyAxe | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Bleed only on the first enemy (enemyFirstN without n) → Bleed on the first 2 enemies (native CauseBleed@FirstTwoEnemies) |  |
+| 2026-09-28T10:25 | sa-C | L5-C-1695-lycanthropy | assembler | 9934 | weapon:1695 KveldulfsMaw | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Kveldulf branch inflicted Curse → Kveldulf branch inflicts Lycanthropy (native Data lycanthropy) |  |
+| 2026-09-28T10:25 | sa-C | L5-C-cursebreaker-targets | assembler | 8698, 8699, 8700 | weapon:1442 CursebreakerSword；weapon:1443 CursebreakerBow；weapon:1444 CursebreakerAxe | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | all three hit last + first; Tempering bonus only on the first-enemy hit; 1443/1444 zh said first and last → 1442 first + last, 1443 last 2, 1444 first 2 (native FirstLast/LastTwo/FirstTwo), +4 per Tempering on every hit; zh for 1443/1444 fixed |  |
+| 2026-09-28T10:25 | sa-C | L5-C-6007-random-burn | assembler | 7006 | troop:6007 FlameCannon | `src/engine/skills/curated/batch-04.ts` | 20% Burn on the chosen enemy → 20% Burn on a random enemy (native CauseBurning@RandomEnemy) |  |
+| 2026-09-28T10:27 | sa-C | L5-C-1176-knight | assembler | 7625 | weapon:1176 HeartOfXathenos | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Disease on Divine enemies → Disease on Knight enemies (native CauseDisease@EnemyType knight) |  |
 
 ## 按技能 ID
 
@@ -408,6 +416,7 @@
 | 6548 | 1 | L4b-7200-rage-alias |
 | 6751 | 1 | L4b-6751-zh |
 | 6824 | 1 | L4b-6824-random-ally |
+| 7006 | 1 | L5-C-6007-random-burn |
 | 7009 | 1 | P-create-interleave |
 | 7014 | 1 | L4a-R1-7014-order |
 | 7022 | 1 | F3-q18 |
@@ -567,6 +576,7 @@
 | 7601 | 1 | L4a-R1-7601-targets |
 | 7602 | 1 | L1-6428-steal-summon |
 | 7624 | 1 | F1-items-54-60 |
+| 7625 | 1 | L5-C-1176-knight |
 | 7626 | 1 | F1-steal-before-damage |
 | 7631 | 1 | L1-6453-order |
 | 7633 | 1 | F1-steal-before-damage |
@@ -647,6 +657,7 @@
 | 8053 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
+| 8062 | 1 | L5-C-1250-bleed-n |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -672,6 +683,7 @@
 | 8165 | 1 | P-random-stat-pool |
 | 8166 | 1 | P-random-stat-pool |
 | 8169 | 1 | P-create-interleave |
+| 8182 | 1 | L5-C-6791-precount |
 | 8193 | 1 | L1-6786-summons |
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
 | 8204 | 1 | P-counter-per-step |
@@ -820,6 +832,9 @@
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
+| 8698 | 1 | L5-C-cursebreaker-targets |
+| 8699 | 1 | L5-C-cursebreaker-targets |
+| 8700 | 1 | L5-C-cursebreaker-targets |
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
@@ -948,6 +963,7 @@
 | 9306 | 1 | L7-R1-weapon-colour-race |
 | 9313 | 1 | L2-7523-one-colour |
 | 9337 | 1 | R7-tarot-extra-turn |
+| 9338 | 1 | L5-C-7553-boss |
 | 9341 | 1 | L2-7556-gold-count |
 | 9352 | 1 | L7-R1-weapon-colour-race |
 | 9355 | 1 | L7-R1-weapon-colour-race |
@@ -956,6 +972,7 @@
 | 9370 | 1 | P-prefnotprev-semantics |
 | 9371 | 2 | R012、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
+| 9374 | 1 | L5-C-7900-waves |
 | 9377 | 1 | P-prefnotprev-semantics |
 | 9380 | 1 | L4a-R1-immortal-order |
 | 9385 | 1 | R012 |
@@ -1065,6 +1082,7 @@
 | 9915 | 1 | L7-R1-weapon-colour-race |
 | 9918 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9933 | 1 | P-prefnotprev-semantics |
+| 9934 | 1 | L5-C-1695-lycanthropy |
 | 9935 | 1 | P-prefnotprev-semantics |
 | 9936 | 1 | F3-q02 |
 | 9937 | 1 | P-prefnotprev-semantics |
@@ -1073,6 +1091,7 @@
 | 9952 | 1 | L4a-R1-cross-8039-9952 |
 | 9957 | 1 | L3-007 |
 | 9958 | 1 | L4a-R1-9958-count-order |
+| 9982 | 1 | L5-C-7900-waves |
 | 9983 | 1 | L4a-R1-immortal-order |
 | 9986 | 1 | F3-q22 |
 | 10003 | 1 | F1-doomed-random-skill |

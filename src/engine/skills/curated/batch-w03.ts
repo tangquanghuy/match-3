@@ -629,28 +629,29 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8698,
     desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有蓝色盟友并诅咒所有蓝色敌人。',
     build: skill(
-      dmg('enemyLast', 8, 1),
+      // sa-C r3: native Damage@FirstLastEnemies, +4 per Tempering on both hits
       dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      dmg('enemyLast', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
     ),
   },
   {
     id: 8699,
-    desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有绿色盟友并诅咒所有绿色敌人。',
+    desc: '对最后 2 位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有绿色盟友并诅咒所有绿色敌人。',
     build: skill(
-      dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      // sa-C r3: native Damage@LastTwoEnemies (was first + last), +4 per Tempering
+      dmg('enemyLastN', 8, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
     ),
   },
   {
     id: 8700,
-    desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有红色盟友并诅咒所有红色敌人。',
+    desc: '对首 2 位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有红色盟友并诅咒所有红色敌人。',
     build: skill(
-      dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      // sa-C r3: native Damage@FirstTwoEnemies (was first + last), +4 per Tempering
+      dmg('enemyFirstN', 8, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),

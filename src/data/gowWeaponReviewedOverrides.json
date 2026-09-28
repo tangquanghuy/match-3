@@ -1961,6 +1961,35 @@
         ]
       }
     },
+    "7625": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 4,
+              "mult": 0.5
+            },
+            "range": "all"
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "death-mark",
+            "turns": 3,
+            "targetRace": "Divine"
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "disease",
+            "turns": 3,
+            "targetRace": "Knight"
+          }
+        ]
+      }
+    },
     "7626": {
       "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。伤害值因所收集的灵魂数而增强。窃取其法力值。 [3:1]",
       "prototype": {
@@ -3469,6 +3498,29 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
+          }
+        ]
+      }
+    },
+    "8062": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            },
+            "n": 2
+          },
+          {
+            "kind": "status",
+            "target": "enemyFirstN",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "n": 2
           }
         ]
       }
@@ -5683,6 +5735,156 @@
           }
         ]
       }
+    },
+    "8698": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFront",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyLast",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          }
+        ]
+      }
+    },
+    "8699": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyLastN",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Green"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Green"
+            }
+          }
+        ]
+      },
+      "description": "对最后 2 位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有绿色盟友并诅咒所有绿色敌人。"
+    },
+    "8700": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 8,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          }
+        ]
+      },
+      "description": "对首 2 位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有红色盟友并诅咒所有红色敌人。"
     },
     "8702": {
       "description": "对所有敌人造成 [(魔法 x 2) + 16] 点散射伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有紫色盟友并诅咒所有紫色敌人。",
@@ -9169,6 +9371,51 @@
                   "Ipanema"
                 ]
               }
+            }
+          }
+        ]
+      }
+    },
+    "9934": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 2
+            }
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "stacks": 2
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "bleed",
+            "turns": 3,
+            "magnitude": 1,
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的克维尔杜尔夫"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "lycanthropy",
+            "turns": 3,
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的克维尔杜尔夫"
             }
           }
         ]

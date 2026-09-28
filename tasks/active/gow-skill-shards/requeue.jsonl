@@ -117,3 +117,4 @@
 {"key":"troop:6969","done":true,"by":"sa-R6","at":"2026-09-28T05:41:55.1957202Z","note":"re-reviewed round 2: accept (lane-L2 golden, tests/unit/gowLaneL2R2.test.ts branch weights)"}
 {"key":"troop:7329","done":true,"by":"sa-R6","at":"2026-09-28T05:41:55.1957202Z","note":"re-reviewed round 2: accept (lane-L2 golden, tests/unit/gowLaneL2R2.test.ts branch weights)"}
 {"key":"weapon:1081","done":true,"by":"sa-R6","at":"2026-09-28T05:41:55.1957202Z","note":"re-reviewed round 2: accept (lane-L2 golden, tests/unit/gowLaneL2R2.test.ts branch weights)"}
+{"key":"troop:6800","done":true,"by":"sa-C","at":"2026-09-28T10:20:00Z"}

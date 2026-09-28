@@ -51,7 +51,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 1] 点伤害。有 20% 几率燃烧一名敌人。',
     build: skill(
       dmgAll(1),
-      inflict('burning', 'enemyChosen', { chance: 0.2 }),
+      inflict('burning', 'enemyRandom', { chance: 0.2 }), // sa-C r3: native CauseBurning@RandomEnemy 20%
     ),
   },
   {

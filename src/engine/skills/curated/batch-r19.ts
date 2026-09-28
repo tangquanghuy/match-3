@@ -797,9 +797,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9338,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得屏障效果。',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得屏障效果。',
+    // sa-C r3: English/native = Boss (MultiplyForAscensionBoss), not Tower; waived per R000
     build: skill(
-      dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
+      dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
       inflict('barrier', 'allySelf'),
     ),
   },
