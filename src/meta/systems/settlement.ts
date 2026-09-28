@@ -219,7 +219,10 @@ export function applySettlement(
         points = Math.min(EVENT_TRIAL_POINTS_CAP, Math.round(points * trialMultiplier(streak) * (ordeal ? 1.25 : 1)));
       }
       week.points += points;
-      if (victory) week.wins += 1;
+      if (victory) {
+        week.wins += 1;
+        save.gifts.eventWins += 1; // 馈赠：跨周累计
+      }
       const tokensGain = Math.min(eventTokensFor(points), Math.max(0, EVENT_WEEKLY_RULES.tokenCap - week.tokensEarned));
       week.tokens += tokensGain;
       week.tokensEarned += tokensGain;
@@ -235,6 +238,7 @@ export function applySettlement(
 
     // 各类型玩法推进（入侵防线/首领血池/塔层/物资/连胜，胜败都推进）
     const progress = eventBattleProgress(save, ctx.plan, result, victory);
+    if (typeId === 'towerOfDoom') save.gifts.towerBest = Math.max(save.gifts.towerBest, week.eventData.floorBest ?? 0);
     for (const l of progress.lines) {
       lines.push({ key: 'event-progress', label: l.label, deltas: l.deltas, mats: l.mats, note: l.note });
     }

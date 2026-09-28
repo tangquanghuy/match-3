@@ -10,6 +10,7 @@ import { WishlistScreen } from '../screens/wishlistScreen';
 import './styles/style.css';
 import './styles/screens.css';
 import './styles/extras.css';
+import './styles/tutorial.css';
 
 import { initMetaGateway } from '../gateway';
 import { heroXpToNext } from '../data/classes';
@@ -30,6 +31,8 @@ import { EventShopScreen } from '../screens/eventShopScreen';
 import { GemShopScreen, isGemShopParam } from '../screens/gemShopScreen';
 import { HuntScreen } from '../screens/huntScreen';
 import { WeaponsScreen } from '../screens/weaponsScreen';
+import { GiftsScreen } from '../screens/giftsScreen';
+import { TutorialGuide } from './tutorial';
 import { $, $$, fitStage, mountIcons, toast } from './chrome';
 import { BattleLauncher } from './battleLauncher';
 import { applyPageCss } from './pageCss';
@@ -61,6 +64,7 @@ const ctx: ShellCtx = {
   launchArenaBattle: () => launcher.launchArenaBattle(),
   launchEventBattle: (choice) => launcher.launchEventBattle(choice),
   launchInvasionBattle: (mirrorId) => launcher.launchInvasionBattle(mirrorId),
+  launchTutorialBattle: () => launcher.launchTutorialBattle(),
   showResult: (detail, meta) => {
     resultScreen.setDetail(detail, meta);
     ctx.navigate('#result');
@@ -69,6 +73,7 @@ const ctx: ShellCtx = {
 
 const launcher = new BattleLauncher(battleRoot, ctx);
 const resultScreen = new ResultScreen();
+const guide = new TutorialGuide(ctx, battleRoot);
 
 const SCREENS: Record<string, Screen> = {
   map: new MapScreen(),
@@ -88,6 +93,7 @@ const SCREENS: Record<string, Screen> = {
   gems: new GemShopScreen(),
   weapons: new WeaponsScreen(),
   hunt: new HuntScreen(),
+  gifts: new GiftsScreen(),
 };
 
 const PAGE_TITLES: Record<string, string> = {
@@ -108,6 +114,7 @@ const PAGE_TITLES: Record<string, string> = {
   gems: '宝 石 商 店',
   weapons: '武 器 中 心',
   hunt: '寻 宝',
+  gifts: '馈 赠',
 };
 
 /** 路由名 → 底部导航高亮项（result/settings 等无导航页不高亮） */
@@ -137,6 +144,7 @@ async function render(): Promise<void> {
   screen.mount(ctx, stage, param);
   current = { name, screen, param };
   bindChrome(name);
+  if (guide.sync(name, param)) return;
   const musicScene = musicForScreen(name);
   if (musicScene) backgroundMusic.setAmbientScene(musicScene);
 }

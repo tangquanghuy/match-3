@@ -147,6 +147,32 @@ export const ASSETS = {
       + 'large glowing sapphire-blue crystals growing from the floor, soft cyan light beams. The main subject sits in the right half; '
       + 'the left third is calm, darker and low-detail so UI text can be placed there. Dominant sapphire blue and cool silver colors with small gold accents. ' + KEY_ART,
   },
+  // —— 馈赠页（2026-09-29）：顶部横幅 + 七个分组图标 ——
+  'gift-hall': {
+    size: '1536x1024',
+    background: 'opaque',
+    out: 'src/assets/meta/gift/hall.webp',
+    longest: 1280,
+    pad: 0,
+    prompt: 'Wide banner illustration: a grand celebratory treasure hall, stacks of gift boxes tied with crimson ribbons, open chests overflowing with glowing '
+      + 'sky-blue gems, floating golden confetti and warm lantern light, a tall arched window with morning sky. The main subject sits in the right half; '
+      + 'the left third is calm, darker and low-detail so UI text can be placed there. Dominant warm gold and crimson with sky-blue gem accents. ' + KEY_ART,
+  },
+  ...Object.fromEntries([
+    ['starter', 'a chubby gift box wrapped in bright crimson paper with a big glossy gold ribbon bow, three small sky-blue gems peeking from the lid. Dominant crimson and gold'],
+    ['hero', 'a small ornate royal crown in bright gold with one large ruby at the front and tiny sparkles, sitting on a short violet cushion. Dominant gold and violet'],
+    ['kingdom', 'a compact castle keep with two round towers, blue slate roofs and a tiny red pennant flag on top. Dominant sky blue and warm stone beige'],
+    ['arena', 'two slim sabres crossed behind a small round shield with a vivid orange-red face and a gold rim. Dominant orange-red and steel'],
+    ['invasion', 'a horned war helmet in dark gunmetal with glowing magenta eye slits and a torn purple plume. Dominant magenta purple and gunmetal'],
+    ['events', 'a small golden hourglass with glowing teal sand, surrounded by a thin ring of teal sparkles. Dominant teal and gold'],
+    ['collection', 'a thick spellbook with an emerald-green leather cover, gold corner caps and a glowing card-shaped bookmark. Dominant emerald green and gold'],
+  ].map(([id, subject]) => [`gift-${id}`, {
+    size: '1024x1024',
+    out: `src/assets/meta/gift/${id}.webp`,
+    longest: 160,
+    pad: 0.02,
+    prompt: `Milestone category icon: ${subject}. The whole icon is compact and roughly square. ` + ICON + ' ' + ANIME_COLOR,
+  }])),
 };
 
 /** 结算页素材（2026-09-28 生成，原图在主工作树 artifacts/result-redesign/gen/raw）：只记录输出位置 */

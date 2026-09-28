@@ -301,6 +301,26 @@ export interface MetaSave {
    * 开局已扣掉的藏宝图记在这一局里，刷新后接着下。
    */
   treasureHunt: TreasureHuntState | null;
+  /** 新手引导（加性字段；旧档缺省视为已完成） */
+  onboarding: OnboardingState;
+  /** 馈赠里程碑（加性字段） */
+  gifts: GiftState;
+}
+
+/** 新手引导步骤：试炼战 → 领取新手馈赠 → 新手十连 → 自由行动 */
+export type OnboardingStep = 'battle' | 'gift' | 'summon' | 'done';
+
+export interface OnboardingState {
+  step: OnboardingStep;
+  /** 新手十连（1000 宝石，必出一名异界来客）是否已用 */
+  noviceSummonUsed: boolean;
+}
+
+/** 馈赠里程碑：已领 id + 跨周累计的活动统计（周活动账本每周清零，这里不清） */
+export interface GiftState {
+  claimed: string[];
+  eventWins: number;
+  towerBest: number;
 }
 
 /** 寻宝棋盘。cells 为 8×8，0 铜币 … 7 金库。 */
@@ -320,6 +340,8 @@ export interface NewSaveOptions {
   currencies?: Partial<Currencies>;
   /** 初始预设队名（默认用起始王国名组装；仅当给了 ≥3 张 starter 时创建） */
   starterTeamName?: string | null;
+  /** true = 真正的新玩家：从新手引导开始，新手十连可用（默认 false，供测试与工具构档） */
+  tutorial?: boolean;
 }
 
 function newHero(): HeroState {
@@ -377,6 +399,10 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     eventShops: {},
     settings: { language: 'zh', battleDebug: false },
     treasureHunt: null,
+    onboarding: options.tutorial
+      ? { step: 'battle', noviceSummonUsed: false }
+      : { step: 'done', noviceSummonUsed: true },
+    gifts: { claimed: [], eventWins: 0, towerBest: 0 },
   };
   const starters = options.starterTroopIds ?? [];
   for (const id of starters) {

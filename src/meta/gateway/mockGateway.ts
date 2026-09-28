@@ -11,7 +11,8 @@ import type { BattleResult } from '@session/index';
 import { SaveStore, type StorageLike } from '../state/save';
 import type { Materials, MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
-import { starterTroopIds } from '../data/economy';
+import { starterTroopIds, STARTING_KINGDOM } from '../data/economy';
+import { claimGift, claimAllGifts } from '../systems/gifts';
 import {
   restoreInitialCollection,
   restoreRealCollection,
@@ -42,7 +43,7 @@ import {
   settleArenaBattle,
   currentDraftChoices,
 } from '../systems/arena';
-import { questNodeUnlocked, planQuestEncounter, planExploreEncounter } from '../systems/encounter';
+import { questNodeUnlocked, planQuestEncounter, planExploreEncounter, planTutorialEncounter } from '../systems/encounter';
 import { buildBattleRequest } from '../systems/battleBridge';
 import { applySettlement } from '../systems/settlement';
 import { beginHunt, commitMove } from '../systems/treasureHunt';
@@ -132,7 +133,7 @@ export class MockGateway implements MetaGateway {
   }
 
   async resetToNewGame(): Promise<GatewaySnapshot> {
-    this.save = newSave({ now: Date.now(), starterTroopIds: starterTroopIds() });
+    this.save = newSave({ now: Date.now(), starterTroopIds: starterTroopIds(), tutorial: true });
     this.store.persist(this.save);
     return { save: this.save, fresh: true, warning: null };
   }
@@ -403,6 +404,32 @@ export class MockGateway implements MetaGateway {
     return buildBattleRequest(this.save, plan);
   }
 
+  /** 新手引导试炼战：两名半血半攻的 Lv.1 杂兵 */
+  async planTutorialBattle() {
+    if (this.save.onboarding.step !== 'battle') return fail('INVALID', '新手试炼已完成');
+    const plan = planTutorialEncounter(STARTING_KINGDOM, this.nextSeed());
+    const outcome = buildBattleRequest(this.save, plan);
+    if (outcome.ok) {
+      for (const enemy of outcome.request.enemyTeam) {
+        enemy.stats.hp = Math.max(1, Math.ceil(enemy.stats.hp * 0.5));
+        enemy.stats.attack = Math.max(1, Math.floor(enemy.stats.attack * 0.5));
+      }
+    }
+    return outcome;
+  }
+
+  async claimGift(id: string) {
+    const result = claimGift(this.save, id);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
+  async claimAllGifts() {
+    const result = claimAllGifts(this.save);
+    if (result.ok) this.persist();
+    return { result, save: this.save };
+  }
+
   async planExploreBattle(kingdom: string) {
     if (!exploreUnlocked(this.save, kingdom)) {
       return fail('PREREQ_LOCKED', '先通关该王国主线');
@@ -416,6 +443,10 @@ export class MockGateway implements MetaGateway {
   async applyBattleSettlement(result: BattleResult, ctx: SettlementContext) {
     const before = this.materialSnapshot();
     const detail = applySettlement(this.save, result, ctx);
+    // 新手试炼获胜 → 引导进入「领取馈赠」；战败留在本步重打
+    if (ctx.plan.source.kind === 'quest' && ctx.plan.source.tutorial && detail.victory && this.save.onboarding.step === 'battle') {
+      this.save.onboarding.step = 'gift';
+    }
     this.markMaterialGains(before);
     this.persist();
     return { result: detail, save: this.save };

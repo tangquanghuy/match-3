@@ -29,7 +29,7 @@ export interface GachaAudit {
   wishlistIds: number[];
   pursuitBefore: GachaPursuit;
   pursuitAfter: GachaPursuit;
-  reasons: Array<'normal' | 'ten-pity' | 'pursuit'>;
+  reasons: Array<'normal' | 'ten-pity' | 'pursuit' | 'novice'>;
 }
 export function emptyGachaWishlist(): GachaWishlist {
   return { troopIds: [], pursuit: { targetId: null, progress: 0, completed: 0, limit: GACHA_RULES.firstPursuitLimit } };

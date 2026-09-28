@@ -37,7 +37,8 @@ export interface EncounterEnemy {
 }
 
 export type EncounterSource =
-  | { kind: 'quest'; node: number }
+  /** tutorial = 新手引导试炼战（按起始王国第 1 关结算，敌人削弱） */
+  | { kind: 'quest'; node: number; tutorial?: boolean }
   | { kind: 'explore'; tier: number }
   /** 每周活动战斗（素材批 2026-09-19）：weekStart 锚定活动周实例，typeId 定主题 */
   | { kind: 'event'; weekStart: number; typeId: string; choice?: string; matchingTroops?: number; bossStartHp?: number; topTier?: boolean };
@@ -110,6 +111,16 @@ export function pickEnemies(
     chosen.add(troop.id);
     return { troopId: troop.id, level: enemyLevel(level), tier, traitCount: enemyTraitCount(level) };
   });
+}
+
+/** 新手引导试炼战：起始王国第 1 关、只有两名 Lv.1 杂兵（请求层再削弱面板） */
+export function planTutorialEncounter(kingdom: string, seed: number): EncounterPlan {
+  return {
+    kingdom,
+    source: { kind: 'quest', node: 1, tutorial: true },
+    seed: seed >>> 0,
+    enemies: pickEnemies(kingdom, 1, ['minion', 'minion'], new SeededRNG(seed)).map((e) => ({ ...e, traitCount: 0 })),
+  };
 }
 
 /** 任务关出敌。node 越界抛 RangeError；是否可打由 questNodeUnlocked 校验（屏层先查再调）。 */

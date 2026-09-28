@@ -26,6 +26,7 @@ import { EVENT_MILESTONES, EVENT_TYPES, EVENT_UNLOCK_HERO_LEVEL, type EventTypeI
 import { anyWeaponById } from '../data/weaponCatalog';
 import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_GEMS, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import { eventMetricOf, eventShopOf, eventsUnlocked } from '../systems/events';
+import { giftsReady } from '../systems/gifts';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, dailyArt, kingdomArt, resultArt } from '../shell/artAssets';
@@ -757,9 +758,9 @@ export class MapScreen implements Screen {
             <span class="facet"><span data-icon="temple"></span></span>
             <span class="rail-copy"><b>神殿</b><small id="railTempleCopy">职业进阶</small></span>
           </button>
-          <button type="button" class="is-lock" data-rail="馈赠" id="railGifts" data-locked="1">
-            <span class="facet"><span data-icon="chest"></span><i class="rail-lock" data-icon="lock"></i></span>
-            <span class="rail-copy"><b>馈赠</b><small>敬请期待</small></span>
+          <button type="button" data-rail="馈赠" id="railGifts">
+            <span class="facet"><span data-icon="chest"></span><span class="rail-event-badge" id="railGiftsBadge" hidden><b id="railGiftsBadgeCount">0</b></span></span>
+            <span class="rail-copy"><b>馈赠</b><small id="railGiftsCopy">成长奖励</small></span>
           </button>
         </aside>
         <div class="daily" id="daily" role="group" aria-label="每日行动">
@@ -1347,8 +1348,15 @@ export class MapScreen implements Screen {
     }
     this.on($('#railTemple'), 'click', () => ctx.navigate('#hero'));
 
-    // 右 3 · 馈赠：无对应系统 → 诚实锁态
-    this.on($('#railGifts'), 'click', () => toast('每周礼遇尚未开放，敬请期待。'));
+    // 右 3 · 馈赠：成长里程碑，有可领时出红点
+    const giftsReadyCount = giftsReady(save);
+    if (giftsReadyCount > 0) {
+      $('#railGifts').classList.add('has-actions');
+      $('#railGiftsBadge').hidden = false;
+      $('#railGiftsBadgeCount').textContent = String(giftsReadyCount);
+      $('#railGiftsCopy').textContent = `${giftsReadyCount} 项可领取`;
+    }
+    this.on($('#railGifts'), 'click', () => ctx.navigate('#gifts'));
   }
 
   /** 王国任务 rail 的落点（批次 3 后改为 #quest/<王国> 主线页） */
