@@ -6,6 +6,13 @@ const STYLE = 'Premium high-fantasy match-3 RPG game UI asset. Hand-painted digi
   + 'polished antique gold filigree, dramatic soft rim lighting, rich saturated colors, highly detailed, centered, '
   + 'single isolated object on a fully transparent background. No text, no letters, no numbers, no watermark, no frame around the image.';
 const ICON = 'Square game icon, the object fills about 80% of the canvas, front three-quarter view.';
+// 2026-09-28 用户定调：整体是「克制的现代二次元游戏风格」，不要老旧、传奇味的厚重金雕花。
+const MODERN = 'Modern anime gacha game UI icon, in the refined restrained style of contemporary Japanese / Chinese anime RPGs. '
+  + 'Clean crisp vector-like shapes, soft cel shading with gentle gradients, thin clean outlines, matte finish, '
+  + 'a limited elegant palette of ivory white, soft silver, muted slate navy and one small accent color, only a hint of pale gold trim. '
+  + 'Minimal ornament: no heavy gold filigree, no rivets, no grime, no photorealism, no glowing aura, no sparkles. '
+  + 'Simple readable silhouette, centered, single isolated object on a fully transparent background. '
+  + 'No text, no letters, no numbers, no watermark, no frame, no circular badge background.';
 
 const BANNER = (cloth) => ({
   size: '1024x1536',
@@ -42,61 +49,59 @@ export const ASSETS = {
     out: 'src/assets/meta/kingdom/treasury-hoard.webp',
     longest: 900,
     pad: 0.02,
-    prompt: 'A royal tribute treasure hoard: an open ornate dark wooden treasure chest bound with polished gold bands, overflowing '
-      + 'with shining gold coins, several glowing violet soul-essence crystal vials, sparkling cut red, blue and green gemstones, '
-      + 'two ornate golden keys and a small gold laurel medal, warm golden light rising from inside the chest, a few coins '
-      + 'spilling onto the ground in front. Front three-quarter view, wide composition. ' + STYLE,
+    prompt: 'A tidy royal treasury display: a sleek ivory-white and slate-navy treasure chest with thin pale-gold edges, lid open, '
+      + 'a neat stack of gold coins, a few clear violet soul crystals and cut blue gemstones, one simple golden key leaning on the side. '
+      + 'Calm soft studio lighting, clean composition, front three-quarter view, wide framing. ' + MODERN,
   },
   'kingdom-shield': {
     size: '1024x1024',
     out: 'src/assets/meta/kingdom/kingdom-shield.webp',
     longest: 300,
     pad: 0.02,
-    prompt: 'Heraldic kingdom level badge: a heater-shaped shield with a thick polished gold rim and a deep royal-blue enamel face '
-      + 'with delicate gold filigree in the corners, a small gold crown on top of the shield, the middle of the shield face smooth '
-      + 'and completely empty (a number will be overlaid later). Perfectly symmetrical straight-on front view, fills about 85% '
-      + 'of the canvas. ' + STYLE,
+    prompt: 'Kingdom level badge: a simple heater-shaped shield with a thin silver-white rim and a smooth muted slate-navy face, '
+      + 'a tiny minimal crown shape above it, the shield face completely empty and flat (a number will be overlaid later). '
+      + 'Perfectly symmetrical straight-on front view, fills about 85% of the canvas. ' + MODERN,
   },
   'home-crown': {
     size: '1024x1024',
     out: 'src/assets/meta/kingdom/home-crown.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'A small ornate golden royal crown with red and blue jewels and pearl tips, glowing softly. ' + ICON + ' ' + STYLE,
+    prompt: 'A small minimal crown icon: a clean five-point crown in ivory white with pale gold edges and one small sky-blue gem. '
+      + ICON + ' ' + MODERN,
   },
-  // —— 地图底部「每日行动」四枚徽章（放进圆形金框，物体要紧凑、居中） ——
+  // —— 地图底部「每日行动」四枚图标（放进深色圆框，物体要紧凑、居中） ——
   'daily-firstwin': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/firstwin.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'Two crossed ornate steel swords with gold hilts behind a golden victory laurel wreath, a glowing faceted blue gemstone '
-      + 'set at the center of the wreath. ' + ICON + ' ' + STYLE,
+    prompt: 'Daily first victory icon: a compact rounded composition, a short silver sword laid diagonally across a simple ivory laurel wreath, '
+      + 'one small sky-blue crystal at the center of the wreath. The whole icon is roughly square, not tall. ' + ICON + ' ' + MODERN,
   },
   'daily-tribute': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/tribute.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'A small royal tribute coffer: a compact ornate treasure casket of dark wood and gold bands with the lid ajar, '
-      + 'stacked shining gold coins and one glowing violet soul-essence vial on top, a heraldic red ribbon seal on the front. '
-      + ICON + ' ' + STYLE,
+    prompt: 'Kingdom tribute icon: a small neat ivory-white and slate-navy coffer with the lid slightly open, a short stack of gold coins '
+      + 'and one small violet crystal peeking out. ' + ICON + ' ' + MODERN,
   },
   'daily-arena': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/arena.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'Gladiator arena emblem: a round bronze-and-gold gladiator shield with a lion head boss, two crossed spears behind it '
-      + 'and a small crimson pennant fluttering from one spear. ' + ICON + ' ' + STYLE,
+    prompt: 'Arena icon: two slim silver sabres crossed in an X behind a small round ivory shield with a plain slate-navy center and a thin coral-red rim. '
+      + ICON + ' ' + MODERN,
   },
   'daily-hunt': {
     size: '1024x1024',
     out: 'src/assets/meta/daily/hunt.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'A partly unrolled old parchment treasure map with a dotted trail and a red X mark, tied with a leather cord, '
-      + 'an antique brass compass lying on top of it. ' + ICON + ' ' + STYLE,
+    prompt: 'Treasure hunt icon: a folded clean cream-colored map with a simple dotted path and a small coral-red X, '
+      + 'a minimal silver compass resting on its corner. ' + ICON + ' ' + MODERN,
   },
 };
 

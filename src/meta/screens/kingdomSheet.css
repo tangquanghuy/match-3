@@ -215,7 +215,21 @@
 .kh-muted { color: #8f8595; font-size: 12px; }
 .kh-stock { margin: 0; color: #d9ccb2; font-size: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .kh-tribute .tribute-meter { gap: 5px; }
-.kh-tribute .tribute-btn { width: 100%; margin-top: auto; }
+/* 与宝库「全部收取」同一套象牙白胶囊，替代原来的大块金色渐变 */
+.kh-tribute .tribute-btn {
+  width: 100%;
+  margin-top: auto;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fbf5e4 0%, #eadcb6 100%);
+  box-shadow: inset 0 -2px 0 rgba(150, 120, 60, .18), 0 4px 12px rgba(0, 0, 0, .4);
+  color: #231d2b;
+  text-shadow: none;
+  letter-spacing: 2px;
+}
+.kh-tribute .tribute-btn [data-icon] { color: #3a3346; }
+.kh-tribute .tribute-btn:hover:not(:disabled) { filter: none; background: linear-gradient(180deg, #ffffff 0%, #f0e4c4 100%); }
+.kh-tribute .tribute-btn:disabled { border-color: rgba(255, 255, 255, .15); background: rgba(255, 255, 255, .08); box-shadow: none; color: rgba(240, 232, 214, .45); filter: none; opacity: 1; }
 
 .kc-amount { display: inline-flex; align-items: center; gap: 4px; color: #fff0c4; }
 .kc-amount img { width: 20px; height: 20px; object-fit: contain; filter: drop-shadow(0 1px 2px #000); }
@@ -347,32 +361,41 @@
 .tr-row-gain { display: flex; gap: 12px; }
 .treasury .tb-acts { padding: 4px 24px 0; display: flex; justify-content: center; align-items: center; gap: 18px; }
 .treasury .tb-acts .cancel { margin: 0; }
+/* 主按钮：现代克制风格——象牙白胶囊 + 深色字，靠留白和细高光，不用彩绘金牌 */
 .tr-collect {
   position: relative;
-  isolation: isolate;
-  height: 60px;
-  aspect-ratio: 820 / 153;
-  border: 0;
-  background: none;
-  color: #3a2206;
-  font: 700 22px var(--display);
-  letter-spacing: 6px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6)) drop-shadow(0 0 14px rgba(255, 210, 110, .3));
+  min-width: 300px;
+  height: 52px;
+  padding: 0 40px;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fbf5e4 0%, #eadcb6 100%);
+  box-shadow: inset 0 -2px 0 rgba(150, 120, 60, .18), 0 6px 18px rgba(0, 0, 0, .45);
+  color: #231d2b;
+  font: 600 18px var(--body);
+  letter-spacing: 3px;
+  transition: transform .15s, box-shadow .15s, background .15s;
 }
-.tr-collect::before {
+/* 两端的细菱形点缀，替代原来的雕花 */
+.tr-collect::before, .tr-collect::after {
   content: "";
   position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--kg-art-button, linear-gradient(180deg, #f8dd8c, #c08a2e)) center / 100% 100% no-repeat;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  translate: 0 -50%;
+  rotate: 45deg;
+  background: rgba(35, 29, 43, .45);
 }
-.tr-collect:hover:not(:disabled) { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6)) drop-shadow(0 0 22px rgba(255, 220, 130, .6)) brightness(1.07); }
-.tr-collect:disabled { color: rgba(58, 34, 6, .5); cursor: default; }
-.tr-collect:disabled::before { filter: grayscale(.8) brightness(.75); }
-.tr-collect span { position: relative; text-shadow: 0 1px 0 rgba(255, 250, 225, .75); }
-.tr-collect.is-done { pointer-events: none; color: #1f3a12; }
-.tr-collect.is-done::before { filter: hue-rotate(50deg) saturate(.9) brightness(1.05); }
-/* 收取后：合计格依次亮起 */
+.tr-collect::before { left: 20px; }
+.tr-collect::after { right: 20px; }
+.tr-collect:hover:not(:disabled) { background: linear-gradient(180deg, #ffffff 0%, #f0e4c4 100%); box-shadow: inset 0 -2px 0 rgba(150, 120, 60, .18), 0 8px 22px rgba(0, 0, 0, .5), 0 0 0 3px rgba(255, 240, 200, .18); }
+.tr-collect:active:not(:disabled) { transform: translateY(1px); }
+.tr-collect:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; }
+.tr-collect:disabled { border-color: rgba(255, 255, 255, .15); background: rgba(255, 255, 255, .08); box-shadow: none; color: rgba(240, 232, 214, .45); cursor: default; }
+.tr-collect:disabled::before, .tr-collect:disabled::after { background: rgba(240, 232, 214, .25); }
+.tr-collect span { position: relative; }
+.tr-collect.is-done { pointer-events: none; border-color: rgba(170, 230, 190, .6); background: linear-gradient(180deg, #e3f5e6 0%, #bfe3c8 100%); color: #1d3a26; }/* 收取后：合计格依次亮起 */
 .treasury.is-collected .tr-total:not(.zero) { animation: tr-pop .7s cubic-bezier(.2, 1.5, .4, 1) calc(var(--i, 0) * .08s) both; border-color: #ffe08a; box-shadow: 0 0 16px rgba(255, 210, 110, .45); }
 .treasury.is-collected .tr-hero img { animation: tr-burst .9s ease-out both, tr-float 4s ease-in-out .9s infinite; }
 @keyframes tr-float { 0%, 100% { translate: -50% 0; } 50% { translate: -50% -5px; } }
@@ -407,7 +430,7 @@
   .stage.map-responsive .tr-row-gain .kc-amount img { width: 16px; height: 16px; }
   .stage.map-responsive .tr-row-gain .kc-amount b { font-size: 12px; }
   .stage.map-responsive .treasury .tb-acts { padding: 4px 12px 0; gap: 10px; }
-  .stage.map-responsive .tr-collect { height: 46px; font-size: 17px; letter-spacing: 4px; }
+  .stage.map-responsive .tr-collect { min-width: 0; flex: 1; height: 46px; padding: 0 28px; font-size: 16px; letter-spacing: 2px; }
   .stage.map-responsive .tr-block > header { flex-wrap: wrap; row-gap: 2px; }
   .stage.map-responsive .tr-block > header b { white-space: nowrap; }
   .stage.map-responsive .tr-block > header small { text-align: left; }
@@ -459,13 +482,13 @@
   translate: 0 -54%;
   display: grid;
   place-items: center;
-  border: 2px solid #caa75c;
+  border: 1px solid rgba(226, 232, 244, .45);
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 38%, #3d3024, #15111a 72%);
-  box-shadow: 0 0 0 2px #17120e, 0 0 0 3px rgba(202, 167, 92, .45), 0 6px 12px rgba(0, 0, 0, .75);
+  background: radial-gradient(circle at 50% 35%, #2e3448, #151722 75%);
+  box-shadow: 0 0 0 3px rgba(12, 13, 20, .9), 0 6px 12px rgba(0, 0, 0, .6);
   transition: scale .15s;
 }
-.dq-medal img { width: 54px; height: 54px; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .7)); user-select: none; }
+.dq-medal img { width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .5)); user-select: none; }
 .dq:hover .dq-medal { scale: 1.05; }
 
 .dq-copy { flex: 1; min-width: 0; display: grid; gap: 1px; }
@@ -493,7 +516,7 @@
 
 /* 状态：hot = 该做了（首胜未领 / 进贡已满）；ready = 可以做；done = 已完成或做不了 */
 .dq[data-state="hot"] { border-color: #e6c46e; background: linear-gradient(90deg, rgba(255, 196, 90, .16), transparent 55%), linear-gradient(180deg, #33261ef7, #16110ff7); }
-.dq[data-state="hot"] .dq-medal { border-color: #f3d27a; animation: dq-glow 2.2s ease-in-out infinite; }
+.dq[data-state="hot"] .dq-medal { border-color: rgba(246, 226, 176, .85); animation: dq-glow 2.4s ease-in-out infinite; }
 .dq[data-state="hot"] .dq-medal::after {
   content: "";
   position: absolute;
@@ -515,8 +538,8 @@
 .dq[data-state="done"] .dq-copy b { color: #cdbd98; }
 .dq[data-state="done"] .dq-copy small, .dq[data-state="done"] .dq-tag { color: #8e8575; }
 @keyframes dq-glow {
-  0%, 100% { box-shadow: 0 0 0 2px #17120e, 0 0 0 3px rgba(243, 210, 122, .55), 0 6px 12px rgba(0, 0, 0, .75); }
-  50% { box-shadow: 0 0 0 2px #17120e, 0 0 0 3px rgba(243, 210, 122, .9), 0 0 18px rgba(255, 205, 110, .75); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(12, 13, 20, .9), 0 6px 12px rgba(0, 0, 0, .6); }
+  50% { box-shadow: 0 0 0 3px rgba(12, 13, 20, .9), 0 0 14px rgba(246, 226, 176, .45); }
 }
 
 @media (max-width: 1399px) {
@@ -525,7 +548,7 @@
   .stage.map-responsive .dq { flex: 1 1 0; width: auto; min-width: 0; height: 44px; padding-left: 58px; }
   .stage.map-responsive .dq::before { left: 40px; }
   .stage.map-responsive .dq-medal { width: 54px; height: 54px; }
-  .stage.map-responsive .dq-medal img { width: 46px; height: 46px; }
+  .stage.map-responsive .dq-medal img { width: 42px; height: 42px; }
   .stage.map-responsive .dq-copy b { font-size: 14px; letter-spacing: 1px; }
 }
 @media (max-width: 699px) {

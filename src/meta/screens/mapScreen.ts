@@ -28,7 +28,7 @@ import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_GEMS, INVASION, TRIBUTE, KIN
 import { eventMetricOf, eventShopOf } from '../systems/events';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { cssUrlVar, dailyArt, kingdomArt, resultArt } from '../shell/artAssets';
+import { cssUrlVar, dailyArt, kingdomArt } from '../shell/artAssets';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { bannerUnlocked } from '../systems/banners';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
@@ -49,7 +49,6 @@ import KINGDOM_SHEET_CSS from './kingdomSheet.css?inline';
 /** 地图屏用到的彩绘底板（CSS 变量挂在地图根节点上） */
 const MAP_CSS_ART = [
   cssUrlVar('kg-art-crown', kingdomArt('home-crown')),
-  cssUrlVar('kg-art-button', resultArt('continue-button')),
 ].filter(Boolean).join(';');
 
 const MAP_W = 5440;
