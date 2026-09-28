@@ -27,7 +27,7 @@ import type {
 import type { ScalingSpec } from '../scaling';
 import { evaluateScaling } from '../scaling';
 import type { EffectContext, EffectPrimitive, DestroyedGem } from './context';
-import { casterMagic, findCharacter, findSide } from './context';
+import { casterMagic, findCharacter, findSide, setLastTarget } from './context';
 import { evaluateWithModifier, modifierBonus } from './secondary';
 import { mostUsedManaColorForCast } from './manaColor';
 export { mostUsedManaColor } from './manaColor';
@@ -100,7 +100,7 @@ function resolveColor(spec: ColorSpec, ctx: EffectContext): BaseColor | null {
     if (!char || char.colors.length === 0) return null;
     if (spec === 'TRACKED_ENEMY' && ctx.castTracking) {
       const snapshot = { id: char.id, aliveBefore: !char.defeated };
-      ctx.castTracking.lastTarget = snapshot;
+      setLastTarget(ctx, snapshot, true);
       ctx.castTracking.lastTargets = [snapshot];
       (ctx.castTracking.allTargets ??= []).push(snapshot);
     }
