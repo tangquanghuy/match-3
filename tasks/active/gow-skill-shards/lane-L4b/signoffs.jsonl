@@ -14,3 +14,17 @@
 {"format":"compact","key":"troop:6025","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:11.838Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7312","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:11.838Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6130","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:28:11.838Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7830","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:33.182Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7728","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:35.480Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6355","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:37.754Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7383","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:39.968Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6418","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:42.305Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6215","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:44.530Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6559","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:46.735Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6025","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:49.059Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7312","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:51.320Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6130","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:53.814Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6974","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:56.656Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6265","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:30:59.090Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6529","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:31:01.626Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7145","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:31:04.080Z","tests":["tests/unit/gowCastGolden.test.ts"]}

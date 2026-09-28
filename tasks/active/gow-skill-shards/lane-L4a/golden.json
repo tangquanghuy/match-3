@@ -7,7 +7,7 @@
    "K": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; skulls E10 5 ; defeat E10 ; ~cascade~  => C:hp+13 max+13 | E10:hp-1 DEAD  cascade"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:28:06.919Z"
+  "at": "2026-09-28T00:30:14.938Z"
  },
  "troop:6055": {
   "lines": {
@@ -17,7 +17,7 @@
    "K": "buff C hp+12 max+12 ; explode 24 ; skulls E10 2 ; defeat E10 ; buff E11 magic-1 ; buff E12 magic-1 ; buff E13 magic-1  => C:hp+12 max+12 | A1:mana+2 | A2:mana+1 | E10:hp-1 DEAD | E11:mag-1 | E12:mag-1 | E13:mag-1"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:28:06.919Z"
+  "at": "2026-09-28T00:30:19.389Z"
  },
  "troop:6457": {
   "lines": {
@@ -27,7 +27,7 @@
    "K": "explode 25 ; skulls E10 1 ; defeat E10 ; dmg E11 15 ; defeat E11 ; dmg C 900 ; defeat C  => A2:mana+2 | A1:mana+2 | E10:hp-1 DEAD | E11:hp-1 DEAD | C:hp-900 DEAD"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:35.664Z"
+  "at": "2026-09-28T00:30:23.977Z"
  },
  "troop:6467": {
   "lines": {
@@ -37,7 +37,7 @@
    "K": "dmg E11 14 ; defeat E11 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-1 DEAD | A1:mana+11  cascade"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:28:06.919Z"
+  "at": "2026-09-28T00:30:12.647Z"
  },
  "troop:6504": {
   "lines": {
@@ -47,7 +47,7 @@
    "K": "buff C armor+17 ; buff A1 armor+17 ; buff A2 armor+17 ; destroy 11 (Blue x11) ; ~cascade~  => C:arm+17 | A1:arm+17 mana+11 | A2:arm+17  cascade"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:28:06.919Z"
+  "at": "2026-09-28T00:30:17.198Z"
  },
  "troop:6607": {
   "lines": {
@@ -57,7 +57,7 @@
    "K": "explode 31 ; skulls E10 3 ; defeat E10 ; buff E11 attack-11 ; buff C attack+11  => A1:mana+3 | A2:mana+2 | E10:hp-1 DEAD | E11:atk-11 | C:atk+11"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:29:56.909Z"
  },
  "troop:6623": {
   "lines": {
@@ -67,7 +67,7 @@
    "K": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:hp-1 DEAD  extra:match  cascade"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:28:09.314Z"
+  "at": "2026-09-28T00:30:30.722Z"
  },
  "troop:6754": {
   "lines": {
@@ -77,7 +77,7 @@
    "K": "storm Brown set ; explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~  => A1:mana+5 | E10:hp-1 DEAD  cascade"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:30:05.957Z"
  },
  "troop:6991": {
   "lines": {
@@ -87,7 +87,7 @@
    "K": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 35 ; trigger doomSkull ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 3 ; trigger doomSkull ; explode 1 ; skulls E10 34 ; defeat E10 ; ~cascade~  => A2:mana+2 | E10:hp-1 DEAD  cascade"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:29:59.146Z"
  },
  "troop:7009": {
   "lines": {
@@ -97,7 +97,7 @@
    "K": "destroy 9 (Red x2, Blue x1, Green x2, Yellow x1, Purple x1, skull x1, Brown x1) ; skulls E10 1 ; defeat E10 ; buff A1 magic+3 ; buff A2 magic+3  => A1:mag+3 mana+1 | E10:hp-1 DEAD | A2:mag+3"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:35.664Z"
+  "at": "2026-09-28T00:30:21.742Z"
  },
  "troop:7321": {
   "lines": {
@@ -107,7 +107,7 @@
    "K": "explode 33 ; skulls E10 3 ; defeat E10 ; move E11 back  => A1:mana+3 | A2:mana+2 | E10:hp-1 DEAD"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:30:10.448Z"
  },
  "troop:7338": {
   "lines": {
@@ -117,7 +117,7 @@
    "K": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; defeat E10 ; dmg E11 9 (scatter) ; dmg E12 6 (scatter) ; dmg E13 5 (scatter) ; defeat E11 ; defeat E12 ; defeat E13  => A2:mana+5 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:30:08.150Z"
  },
  "troop:7345": {
   "lines": {
@@ -127,7 +127,7 @@
    "K": "dmg E11 464 ; defeat E11  => E11:hp-1 DEAD"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:25:12.099Z"
+  "at": "2026-09-28T00:30:28.465Z"
  },
  "weapon:1028": {
   "lines": {
@@ -137,7 +137,7 @@
    "K": "explode 9 ; skulls E10 1 ; defeat E10 ; buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2  => A2:mag+2 mana+1 | E10:hp-1 DEAD | C:mag+2 | A1:mag+2"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:30:03.676Z"
  },
  "weapon:1092": {
   "lines": {
@@ -147,7 +147,7 @@
    "K": "explode 9 ; skulls E10 1 ; defeat E10 ; destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => A2:mana+4 | E10:hp-1 DEAD"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:33.149Z"
+  "at": "2026-09-28T00:30:01.405Z"
  },
  "weapon:1277": {
   "lines": {
@@ -157,6 +157,6 @@
    "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
   },
   "by": "sa-F2",
-  "at": "2026-09-28T00:19:35.664Z"
+  "at": "2026-09-28T00:30:26.264Z"
  }
 }
