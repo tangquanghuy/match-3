@@ -430,3 +430,8 @@
 {"format":"compact","key":"troop:6471","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:36:25.536Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"7573: TrueRandomDamage one shared roll; MultiplyForRegion4009 Summer Isle via inert regionPresent"}
 {"format":"compact","key":"troop:7364","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:36:25.536Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"7573: TrueRandomDamage one shared roll; MultiplyForRegion4009 Summer Isle via inert regionPresent"}
 {"format":"compact","key":"troop:7573","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:36:25.536Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"7573: TrueRandomDamage one shared roll; MultiplyForRegion4009 Summer Isle via inert regionPresent"}
+{"format":"compact","key":"troop:7725","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:40:49.757Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6943","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:40:49.758Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7447","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:40:49.758Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7448","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:40:49.759Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7449","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:40:49.759Z","tests":["tests/unit/gowCastGolden.test.ts"]}

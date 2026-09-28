@@ -1289,6 +1289,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T03:07:00.542Z"
  },
+ "troop:6943": {
+  "lines": {
+   "L10": "explode 5 ; ~cascade~ ; buff C armor+11 ; status C +barrier  => C:arm+11 +barrier  cascade",
+   "R10": "explode 5 ; ~cascade~ ; buff C armor+11 ; status C +barrier  => C:arm+11 +barrier  cascade",
+   "L0": "explode 5 ; ~cascade~ ; buff C armor+1 ; status C +barrier  => C:arm+1 +barrier  cascade",
+   "K": "explode 5 ; ~cascade~ ; buff C armor+11 ; status C +barrier  => C:arm+11 +barrier  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:40:49.652Z"
+ },
  "troop:6954": {
   "lines": {
    "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; buff C attack+17 ; buff C armor+17 ; status C +barrier  => E10:arm-1 | C:arm+17 atk+17 +barrier",
@@ -1909,6 +1919,36 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:36:51.061Z"
  },
+ "troop:7447": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:40:49.652Z"
+ },
+ "troop:7448": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:40:49.652Z"
+ },
+ "troop:7449": {
+  "lines": {
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:40:49.652Z"
+ },
  "troop:7457": {
   "lines": {
    "L10": "dmg E10 17 (all) ; dmg E11 17 (all)  => E10:hp-17 | E11:hp-17",
@@ -2248,6 +2288,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T21:32:50.945Z"
+ },
+ "troop:7725": {
+  "lines": {
+   "L10": "explode 16 ; skulls E10 1 ; ~cascade~ ; explode 9 ; dmg E10 9  => A2:mana+3 | E10:hp-5 arm-5  cascade",
+   "R10": "explode 16 ; skulls E10 1 ; ~cascade~ ; explode 9 ; dmg E10 9  => A2:mana+3 | E10:hp-5 arm-5  cascade",
+   "L0": "explode 16 ; skulls E10 1 ; ~cascade~ ; explode 9 ; dmg E10 4  => A2:mana+3 | E10:arm-5  cascade",
+   "K": "explode 16 ; skulls E10 1 ; defeat E10 ; ~cascade~ ; explode 9 ; dmg E11 9 ; defeat E11  => A2:mana+3 | E10:hp-1 DEAD | E11:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T22:40:49.652Z"
  },
  "troop:7727": {
   "lines": {

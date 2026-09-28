@@ -467,29 +467,32 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9168,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗蓝色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗蓝色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Blue, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantBlue = Blue giantGem special, not plain Blue
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9169,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗绿色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗绿色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Green, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantGreen = Green giantGem special, not plain Green
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Green }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9170,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗红色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗红色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Red, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantRed = Red giantGem special, not plain Red
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {

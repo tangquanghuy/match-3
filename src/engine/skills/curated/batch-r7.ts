@@ -758,7 +758,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9725,
-    desc: '爆破 2-4 颗宝石。',
+    desc: '爆破 2-4 颗宝石。对第一名敌人造成 [(魔法 / 2) + 4] 点伤害。',
     build: skill(explodeRandomGems(2), { ...explodeRandomGems(1), chance: 0.5 }, { ...explodeRandomGems(1), chance: 0.25 }, dmg('enemyFront', 4, 0.5)),
   },
   {

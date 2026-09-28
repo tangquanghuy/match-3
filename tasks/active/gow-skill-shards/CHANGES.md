@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 640 条改动，涉及 1094 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 643 条改动，涉及 1099 个技能 ID。
 
 ## 按时间
 
@@ -646,6 +646,9 @@
 | 2026-09-28T22:36 | sa-A | L4a-R9-6721-prefnotprev | assembler | 8091 | troop:6721 ROVER-300 | `src/engine/skills/curated/batch-36.ts` | 8091 dmg enemyRandomN n=2 (distinct, range all) → native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007-3) |  |
 | 2026-09-28T22:36 | sa-A | L4a-R9-6471-skulls | assembler | 7649 | troop:6471 TheWorldbreaker | `src/engine/skills/curated/batch-03.ts` | 7649 explode 18 include color → include all (R013-5) |  |
 | 2026-09-28T22:36 | sa-A | L4a-R9-7364-cross | assembler | 9004 | troop:7364 BoatswainBart | `src/engine/skills/curated/batch-r15.ts` | 9004 destroyChosenRow then destroyChosenCol (two steps) → native DestroyGems RowAndColumn: destroyChosenCross (one step) |  |
+| 2026-09-28T22:40 | sa-A | L4a-R9-7725-zh | data | 9725 | troop:7725 PrisonerLuther | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 9725 zh '爆破 2-4 颗宝石。' (damage clause missing) → zh adds '对第一名敌人造成 [(魔法 / 2) + 4] 点伤害。' + snapshot override |  |
+| 2026-09-28T22:40 | sa-A | L4a-R9-6943-cell | assembler | 8424 | troop:6943 HauntedGuardian | `src/engine/skills/curated/batch-r12.ts` | 8424 cross3 explode at fixed board centre (3,3) → cross3 explode centred on the chosen cell (spell Target Board) |  |
+| 2026-09-28T22:40 | sa-A | L4a-R9-giant-9168 | assembler | 9168, 9169, 9170 | troop:7447 GiantSentinel；troop:7448 ElementalSentinel；troop:7449 DaemonicSentinel | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | createGems plain Blue/Green/Red 8 if any enemy Cursed; zh '若敌人被诅咒' → R009 giantGem special of that colour; zh '若有任一敌人被诅咒' + snapshot overrides |  |
 
 ## 按技能 ID
 
@@ -1166,6 +1169,7 @@
 | 8420 | 1 | L4a-R1-8420-cross |
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
+| 8424 | 1 | L4a-R9-6943-cell |
 | 8427 | 1 | L2-6946-order |
 | 8429 | 1 | L2-H-6948-either-colour |
 | 8430 | 1 | L2-6949-branches |
@@ -1483,6 +1487,9 @@
 | 9162 | 1 | R012 |
 | 9163 | 1 | P-create-interleave |
 | 9165 | 1 | L7-R1-random-chain-waves |
+| 9168 | 1 | L4a-R9-giant-9168 |
+| 9169 | 1 | L4a-R9-giant-9168 |
+| 9170 | 1 | L4a-R9-giant-9168 |
 | 9174 | 1 | L4a-r4-7457 |
 | 9181 | 1 | L1-E-7465-dist |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
@@ -1662,6 +1669,7 @@
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9722 | 1 | R3-B02-1657 |
 | 9723 | 1 | F2-7728-no-damage |
+| 9725 | 1 | L4a-R9-7725-zh |
 | 9731 | 1 | L2-H-7746-kill-gate |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |

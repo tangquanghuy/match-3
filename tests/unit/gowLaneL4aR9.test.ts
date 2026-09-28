@@ -114,3 +114,34 @@ describe('L4a R9 B04', () => {
     expect(cells.length).toBeGreaterThanOrEqual(12);
   });
 });
+
+describe('L4a R9 B05', () => {
+  // troop:7725 (9725): ExplodeGems 2 ; ExplodeGems 1 @50% ; ExplodeGems 1 @25% ; Damage@FrontEnemy (M/2)+4.
+  it('troop:7725 explodes 2 gems plus 50% and 25% extra single explosions, then hits the front enemy for 9', () => {
+    const counts = new Map<number, number>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = castSpell({ key: 'troop:7725', seed, board: noColour(BaseColor.Purple) }).summary.order;
+      const ex = o.filter(x => x.startsWith('explode ')).length;
+      counts.set(ex, (counts.get(ex) ?? 0) + 1);
+      expect(o).toContain('dmg E10 9');
+    }
+    expect([...counts.keys()].every(k => k >= 1 && k <= 3)).toBe(true);
+    expect(counts.size).toBeGreaterThan(1);
+  });
+  // troop:6943 (8424): ExplodeGems Block1x3 + Block3x1 on the chosen cell ; IncreaseArmor 1+M ; CauseBarrier.
+  it('troop:6943 explodes the 5-cell cross around the chosen cell', () => {
+    const r = castSpell({ key: 'troop:6943', board: noColour(BaseColor.Purple), cell: { row: 4, col: 5 } });
+    const ev = r.events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.map(c => `${c.pos.row},${c.pos.col}`).sort()).toEqual(['3,5', '4,4', '4,5', '4,6', '5,5']);
+    expect(r.summary.order).toContain('buff C armor+11');
+    expect(r.summary.order).toContain('status C +barrier');
+  });
+  // troop:7447/7448/7449 (9168-9170): CreateGems Giant<C> 8 [AddForCursed on AllEnemies] = <C> giantGem (R009).
+  it.each([['troop:7447', BaseColor.Blue], ['troop:7448', BaseColor.Green], ['troop:7449', BaseColor.Red]] as const)('%s creates 8 %s Giant Gems only if an enemy is Cursed', (key, color) => {
+    const cursed = [{}, {}, { statuses: [{ id: 'curse', turns: 99 }] }, {}] as never;
+    const r = castSpell({ key, enemies: cursed });
+    expect(r.summary.order.some(o => /^(create|convert .* ->) giantGem\//.test(o) && o.endsWith(`giantGem/${color} x8`))).toBe(true);
+    expect(r.summary.order).toContain('buff C hp+16 max+16');
+    expect(castSpell({ key }).summary.order.some(o => o.includes('giantGem'))).toBe(false);
+  });
+});

@@ -117,3 +117,8 @@
 - troop:6471 fix(explode 18 include all)
 - troop:7364 fix(RowAndColumn one cross step)
 - troop:7573 accept (TrueRandomDamage shared roll; Summer Isle region inert regionPresent)
+- troop:7725 fix(zh missing damage clause; snapshot override)
+- troop:6943 fix(cross centred on chosen cell, not board centre; NOTE dead duplicate 8424 entry in batch-r9.ts)
+- troop:7447 fix(R009 Blue giantGem; zh 'any enemy' + override)
+- troop:7448 fix(R009 Green giantGem; zh + override)
+- troop:7449 fix(R009 Red giantGem; zh + override)
