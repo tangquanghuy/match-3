@@ -394,7 +394,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '为 2 名盟友提供 3 点护甲。棋盘上每有一颗黄色宝石，就有 7% 的几率获得额外回合。 [x7]',
     build: skill(
       armor('allyRandomPrefNotPrevN', 3, 0, { n: 2 }),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      // sa-R7: ExtraTurnConditional has no base Amount -> 7% x Yellow gems only (was 7% base + boost).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
   {

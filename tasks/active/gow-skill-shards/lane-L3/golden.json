@@ -389,6 +389,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:28:35.477Z"
  },
+ "troop:7096": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11 | A1:hp+11 max+11  extra:skill",
+   "R10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11 | A1:hp+11 max+11  extra:skill",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; extra-turn skill  => C:hp+1 max+1 | A1:hp+1 max+1  extra:skill",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11 | A1:hp+11 max+11  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
+ },
  "troop:7103": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -408,6 +418,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:28:35.477Z"
+ },
+ "troop:7126": {
+  "lines": {
+   "L10": "jumble board ; shuffle theirs ; extra-turn skill  extra:skill",
+   "R10": "jumble board ; shuffle theirs ; extra-turn skill  extra:skill",
+   "L0": "jumble board ; shuffle theirs ; extra-turn skill  extra:skill",
+   "K": "jumble board ; shuffle theirs ; extra-turn skill  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
  },
  "troop:7168": {
   "lines": {
@@ -448,6 +468,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:44:13.787Z"
+ },
+ "troop:7233": {
+  "lines": {
+   "L10": "buff C attack+11 ; buff A1 attack+11 ; buff A2 attack+11 ; extra-turn skill  => C:atk+11 | A1:atk+11 | A2:atk+11  extra:skill",
+   "R10": "buff C attack+11 ; buff A1 attack+11 ; buff A2 attack+11 ; extra-turn skill  => C:atk+11 | A1:atk+11 | A2:atk+11  extra:skill",
+   "L0": "buff C attack+1 ; buff A1 attack+1 ; buff A2 attack+1 ; extra-turn skill  => C:atk+1 | A1:atk+1 | A2:atk+1  extra:skill",
+   "K": "buff C attack+11 ; buff A1 attack+11 ; buff A2 attack+11 ; extra-turn skill  => C:atk+11 | A1:atk+11 | A2:atk+11  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
  },
  "troop:7244": {
   "lines": {
@@ -699,6 +729,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:31:32.712Z"
  },
+ "troop:7552": {
+  "lines": {
+   "L10": "buff A1 armor+3 ; buff C armor+3  => A1:arm+3 | C:arm+3",
+   "R10": "buff A1 armor+3 ; buff C armor+3  => A1:arm+3 | C:arm+3",
+   "L0": "buff A1 armor+3 ; buff C armor+3  => A1:arm+3 | C:arm+3",
+   "K": "buff A1 armor+3 ; buff C armor+3  => A1:arm+3 | C:arm+3"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
+ },
  "troop:7608": {
   "lines": {
    "L10": "buff E11 mana-8 ; dmg E10 20 (all) ; dmg E11 20 (all) ; dmg E12 20 (all) ; dmg E13 20 (all)  => E11:hp-10 arm-10 mana-8 | E10:hp-15 arm-5 | E12:hp-8 arm-12 | E13:hp-17 arm-3",
@@ -779,6 +819,36 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:35:11.787Z"
  },
+ "troop:7630": {
+  "lines": {
+   "L10": "buff A1 armor+8 ; buff C armor+8 ; buff A2 armor+8 ; extra-turn skill  => A1:arm+8 | C:arm+8 | A2:arm+8  extra:skill",
+   "R10": "buff A1 armor+8 ; buff C armor+8 ; buff A2 armor+8 ; extra-turn skill  => A1:arm+8 | C:arm+8 | A2:arm+8  extra:skill",
+   "L0": "buff A1 armor+8 ; buff C armor+8 ; buff A2 armor+8 ; extra-turn skill  => A1:arm+8 | C:arm+8 | A2:arm+8  extra:skill",
+   "K": "buff A1 armor+8 ; buff C armor+8 ; buff A2 armor+8 ; extra-turn skill  => A1:arm+8 | C:arm+8 | A2:arm+8  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
+ },
+ "troop:7631": {
+  "lines": {
+   "L10": "buff A1 attack+4 ; buff C attack+4 ; buff A2 attack+4  => A1:atk+4 | C:atk+4 | A2:atk+4",
+   "R10": "buff A1 attack+4 ; buff C attack+4 ; buff A2 attack+4  => A1:atk+4 | C:atk+4 | A2:atk+4",
+   "L0": "buff A1 attack+4 ; buff C attack+4 ; buff A2 attack+4  => A1:atk+4 | C:atk+4 | A2:atk+4",
+   "K": "buff A1 attack+4 ; buff C attack+4 ; buff A2 attack+4  => A1:atk+4 | C:atk+4 | A2:atk+4"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
+ },
+ "troop:7633": {
+  "lines": {
+   "L10": "buff C attack+4 ; buff A1 attack+4 ; buff A2 attack+4 ; extra-turn skill  => C:atk+4 | A1:atk+4 | A2:atk+4  extra:skill",
+   "R10": "buff C attack+4 ; buff A1 attack+4 ; buff A2 attack+4 ; extra-turn skill  => C:atk+4 | A1:atk+4 | A2:atk+4  extra:skill",
+   "L0": "buff C attack+4 ; buff A1 attack+4 ; buff A2 attack+4 ; extra-turn skill  => C:atk+4 | A1:atk+4 | A2:atk+4  extra:skill",
+   "K": "buff C attack+4 ; buff A1 attack+4 ; buff A2 attack+4 ; extra-turn skill  => C:atk+4 | A1:atk+4 | A2:atk+4  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
+ },
  "troop:7657": {
   "lines": {
    "L10": "buff E11 mana-8 ; buff A1 hp+19 max+19  => E11:mana-8 | A1:hp+19 max+19",
@@ -788,6 +858,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:22:49.913Z"
+ },
+ "troop:7662": {
+  "lines": {
+   "L10": "buff C hp+10 max+10 ; buff A1 hp+10 max+10 ; buff A2 hp+10 max+10 ; extra-turn skill  => C:hp+10 max+10 | A1:hp+10 max+10 | A2:hp+10 max+10  extra:skill",
+   "R10": "buff C hp+10 max+10 ; buff A1 hp+10 max+10 ; buff A2 hp+10 max+10 ; extra-turn skill  => C:hp+10 max+10 | A1:hp+10 max+10 | A2:hp+10 max+10  extra:skill",
+   "L0": "buff C hp+10 max+10 ; buff A1 hp+10 max+10 ; buff A2 hp+10 max+10 ; extra-turn skill  => C:hp+10 max+10 | A1:hp+10 max+10 | A2:hp+10 max+10  extra:skill",
+   "K": "buff C hp+10 max+10 ; buff A1 hp+10 max+10 ; buff A2 hp+10 max+10 ; extra-turn skill  => C:hp+10 max+10 | A1:hp+10 max+10 | A2:hp+10 max+10  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
  },
  "troop:7674": {
   "lines": {
@@ -809,6 +889,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T05:57:15.234Z"
  },
+ "troop:7701": {
+  "lines": {
+   "L10": "buff C armor+10 ; buff A1 armor+10 ; buff A2 armor+10 ; extra-turn skill  => C:arm+10 | A1:arm+10 | A2:arm+10  extra:skill",
+   "R10": "buff C armor+10 ; buff A1 armor+10 ; buff A2 armor+10 ; extra-turn skill  => C:arm+10 | A1:arm+10 | A2:arm+10  extra:skill",
+   "L0": "buff C armor+10 ; buff A1 armor+10 ; buff A2 armor+10 ; extra-turn skill  => C:arm+10 | A1:arm+10 | A2:arm+10  extra:skill",
+   "K": "buff C armor+10 ; buff A1 armor+10 ; buff A2 armor+10 ; extra-turn skill  => C:arm+10 | A1:arm+10 | A2:arm+10  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
+ },
  "troop:7720": {
   "lines": {
    "L10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E10 22 (scatter) ; dmg E11 20 (scatter) ; dmg E12 21 (scatter) ; dmg E13 19 (scatter) ; extra-turn skill  => A2:mana+2 | E10:hp-19 arm-5 | E11:hp-10 arm-10 | E12:hp-9 arm-12 | E13:hp-16 arm-3  extra:skill",
@@ -818,6 +908,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:44:13.787Z"
+ },
+ "troop:7743": {
+  "lines": {
+   "L10": "buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5 ; extra-turn skill  => C:atk+5 | A1:atk+5 | A2:atk+5  extra:skill",
+   "R10": "buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5 ; extra-turn skill  => C:atk+5 | A1:atk+5 | A2:atk+5  extra:skill",
+   "L0": "buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5 ; extra-turn skill  => C:atk+5 | A1:atk+5 | A2:atk+5  extra:skill",
+   "K": "buff C attack+5 ; buff A1 attack+5 ; buff A2 attack+5 ; extra-turn skill  => C:atk+5 | A1:atk+5 | A2:atk+5  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
  },
  "troop:7749": {
   "lines": {
@@ -838,6 +938,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:35:11.787Z"
+ },
+ "troop:7816": {
+  "lines": {
+   "L10": "buff C armor+8 ; buff A1 armor+8 ; buff A2 armor+8 ; extra-turn skill  => C:arm+8 | A1:arm+8 | A2:arm+8  extra:skill",
+   "R10": "buff C armor+8 ; buff A1 armor+8 ; buff A2 armor+8 ; extra-turn skill  => C:arm+8 | A1:arm+8 | A2:arm+8  extra:skill",
+   "L0": "buff C armor+8 ; buff A1 armor+8 ; buff A2 armor+8 ; extra-turn skill  => C:arm+8 | A1:arm+8 | A2:arm+8  extra:skill",
+   "K": "buff C armor+8 ; buff A1 armor+8 ; buff A2 armor+8 ; extra-turn skill  => C:arm+8 | A1:arm+8 | A2:arm+8  extra:skill"
+  },
+  "by": "sa-R7",
+  "at": "2026-09-28T08:47:28.689Z"
  },
  "troop:7839": {
   "lines": {

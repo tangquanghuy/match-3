@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 295 条改动，涉及 537 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 296 条改动，涉及 538 个技能 ID。
 
 ## 按时间
 
@@ -301,6 +301,7 @@
 | 2026-09-28T08:34 | sa-R7 | R7-dragon-convert-extra-turn | assembler | 8850, 9515, 9516, 9517, 9518, 9519, 9520, 9521 | troop:7251 Diamantina；troop:7616 Belcerulea；troop:7617 Gladius；troop:7618 Thornaressa；troop:7619 Narcithus；troop:7620 Orrissea；troop:7621 Orchidius；troop:7622 Chrysantherax | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-30.ts` | extra-turn chance counted after converting/exploding the counted gems; 9515 boost ratio 300:10 (~0); 9521 boost = all destroyed gems x4 → native CountGems step 0: extra-turn roll placed before the gem change (R001); 9515 +3%/Blue gem; 9521 +4%/Skull on the board (boardSkulls) |  |
 | 2026-09-28T08:43 | sa-R7 | R7-not-board-misread | assembler | 8824, 7457 | troop:7229 AceOfRunes；troop:6307 Shadowblade | `src/engine/skills/curated/batch-r5.ts` | extra turn / full mana only if there are NO Blue/Purple gems, fixed 7%/6% base (+boost); ZH desc 'no gem' → EN 'for each X Gem' + native Conditional without Amount: 7%/6% per gem only; ZH desc fixed |  |
 | 2026-09-28T08:43 | sa-R7 | R7-7061-no-base | assembler | 8589 | troop:7061 DarkKnight | `src/engine/skills/curated/batch-30.ts` | drain 4 + 4 per Purple gem destroyed → drain 4 per Purple gem in the column only (native DecreaseMana UseCounterForAmount, no Amount) |  |
+| 2026-09-28T08:47 | sa-R7 | R7-tarot-extra-turn | assembler | 8970, 8666 | troop:7552 TwoOfSwords；troop:7126 TheFool | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r5.ts` | extra-turn chance 7% base + 7% per gem → 7% per gem only (native ExtraTurnConditional UseCounterForAmount, no Amount) |  |
 
 ## 按技能 ID
 
@@ -626,6 +627,7 @@
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
+| 8666 | 1 | R7-tarot-extra-turn |
 | 8667 | 1 | R7-tarot-extra-turn |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8672 | 1 | R3-B06-7128 |
@@ -688,7 +690,7 @@
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
-| 8970 | 1 | P-prefnotprev-semantics |
+| 8970 | 2 | P-prefnotprev-semantics、R7-tarot-extra-turn |
 | 8972 | 1 | R3-B05-1528 |
 | 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |

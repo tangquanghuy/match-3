@@ -168,7 +168,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       shuffleBoard(),
       shuffleTeam('enemy'),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      // sa-R7: ExtraTurnConditional has no base Amount -> 7% x Brown gems only (was 7% base + boost).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
     ),
   },
   {

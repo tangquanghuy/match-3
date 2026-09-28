@@ -9,3 +9,4 @@
 - B08 troop:7251,7616,7617,7618,7619,7620,7621,7429,7622,7775 approve=10 fixed=8 issue=0 (Elemental-Dragon family: extra-turn roll before the 5-gem conversion/explosion (R001); 7616 boost ratio 300:10 -> x3; 7622 boost destroyedGems -> boardSkulls x4; 7775 boss waived R000)
 - note: uncommitted src/engine/skills/effects/secondary.ts diff (atCastStart?: boolean on ally/enemy count sources) appeared in this worktree during B08; not made by sa-R7, left unstaged
 - B09 troop:6861,7103,7035,7061,7720,7052,7193,7264,7168,7229 (+ troop:6307 same misread) approve=11 fixed=3 issue=0 (7229/6307 "no X gem" misread -> 7%/6% per gem, ZH fixed; 7061 drain 4/Purple no base; 7103 tower waived)
+- B10 troop:7701,7816,7552,7630,7233,7633,7743,7631,7096,7662 (+ troop:7126 same family) approve=11 fixed=2 issue=0 (7552/7126 7% base removed; PrefNotPrevAlly repeat on lone caster verified)

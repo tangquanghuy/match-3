@@ -409,3 +409,25 @@ describe('L3 R2: B09 gem-count mana / extra-turn checks', () => {
     expect(order(none).filter(o => o.startsWith('buff E10 mana'))).toEqual([]);
   });
 });
+
+describe('L3 R2: B10 Tarot buff family (7% per gem, no base)', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const only = (c: BaseColor, n: number, other: BaseColor) => (r: number, col: number) => colorGem(r * 8 + col < n ? c : other);
+  it.each([
+    ['troop:7701', BaseColor.Blue], ['troop:7816', BaseColor.Blue], ['troop:7552', BaseColor.Yellow], ['troop:7630', BaseColor.Blue],
+    ['troop:7233', BaseColor.Red], ['troop:7633', BaseColor.Yellow], ['troop:7743', BaseColor.Yellow], ['troop:7631', BaseColor.Yellow],
+    ['troop:7096', BaseColor.Red], ['troop:7662', BaseColor.Green], ['troop:7126', BaseColor.Brown],
+  ] as [string, BaseColor][])('%s: 0 %s gems never, 15 always', (key, c) => {
+    const other = c === BaseColor.Red ? BaseColor.Purple : BaseColor.Red;
+    expect(seeds(30).some(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill')).toBe(false);
+    expect(seeds(30).every(seed => castSpell({ key, seed, board: only(c, 15, other) }).summary.extraTurn === 'skill')).toBe(true);
+  });
+  it.each([['troop:7552', 'armor+3', 2], ['troop:7630', 'armor+8', 3], ['troop:7631', 'attack+4', 3]] as [string, string, number][])(
+    '%s: RandomAlly then RandomPrefNotPrevAlly: distinct allies while available, repeats on a lone caster', (key, buff, n) => {
+      const full = order(castSpell({ key, board: only(BaseColor.Purple, 0, BaseColor.Red) })).filter(o => o.startsWith('buff '));
+      expect(full).toHaveLength(n);
+      expect(new Set(full).size).toBe(n);
+      const alone = order(castSpell({ key, allies: [], board: only(BaseColor.Purple, 0, BaseColor.Red) })).filter(o => o.startsWith('buff '));
+      expect(alone).toEqual(Array(n).fill(`buff C ${buff}`));
+    });
+});
