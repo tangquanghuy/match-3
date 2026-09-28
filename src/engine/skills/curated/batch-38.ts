@@ -108,10 +108,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「妖仙宝石」= 精灵火宝石（官方 SpellSteps CountGems Color1=FaerieFire，见头注）
       // 「一名盟友」= allyChosen（batch-05 7288 口径）；「数值…增强」管两段
-      heal('allyChosen', 1, 1, {
+      // sa-A r3: native order IncreaseAttack then IncreaseHealth
+      attack('allyChosen', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'faerieFireGem' } },
       }),
-      attack('allyChosen', 1, 1, {
+      heal('allyChosen', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'faerieFireGem' } },
       }),
       destroyRandomRows(2),

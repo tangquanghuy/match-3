@@ -195,3 +195,35 @@ describe('L4a R3 B05', () => {
     expect(r.summary.order.slice(0, 2)).toEqual(['buff C attack+13', 'buff C armor+13']);
   });
 });
+
+describe('L4a R3 B06', () => {
+  // Remove-all weapons (R010): damage = base + 10 + floor(removed x Amount / 100); native CountGems before RemoveColor.
+  it.each([
+    ['weapon:1036', 'E13', 3, 9, 34],
+    ['weapon:1037', 'E11', 4, 11, 50],
+    ['weapon:1038', 'E11', 4, 9, 34],
+    ['weapon:1039', 'E12', 2, 8, 34],
+    ['weapon:1040', 'E10', 4, 9, 34],
+    ['weapon:1044', 'E11', 2, 13, 50],
+  ] as const)('%s boosted by removed gems', (key, target, base, removed, pct) => {
+    const r = castSpell({ key });
+    expect(r.summary.order.some(o => o.startsWith(`destroy ${removed} `))).toBe(true);
+    expect(r.summary.order.some(o => o === `dmg ${target} ${base + 10 + Math.floor(removed * pct / 100)}` || o.startsWith(`dmg ${target} ${base + 10 + Math.floor(removed * pct / 100)} `))).toBe(true);
+  });
+  // troop:7018 RockSquid (8525): Armor = 2 x gems removed (no base).
+  it('troop:7018 gains 2 Armor per removed gem', () => {
+    expect(castSpell({ key: 'troop:7018' }).summary.order).toContain('buff C armor+18');
+    expect(castSpell({ key: 'troop:7018', magic: 0 }).summary.order).toContain('buff C armor+2');
+  });
+});
+
+describe('L4a R3 B07', () => {
+  // weapon:1138 DragonOak (7308): remove all gems of one of the chosen enemy's colours; 5 + 10 + floor(removed / 2).
+  it.each([1, 2, 3, 4])('weapon:1138 removes a colour of the chosen enemy (seed %i)', (seed) => {
+    const r = castSpell({ key: 'weapon:1138', seed }); // E11 is Yellow/Blue: 9 Yellow or 11 Blue on the review board
+    const d = r.summary.order.find(o => o.startsWith('destroy '))!;
+    const m = /^destroy (\d+) \((Yellow|Blue) x\d+\)$/.exec(d);
+    expect(m).not.toBeNull();
+    expect(r.summary.order.some(o => o.startsWith(`dmg E11 ${15 + Math.floor(Number(m![1]) / 2)}`))).toBe(true);
+  });
+});

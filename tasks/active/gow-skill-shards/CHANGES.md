@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 415 条改动，涉及 708 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 424 条改动，涉及 717 个技能 ID。
 
 ## 按时间
 
@@ -421,6 +421,15 @@
 | 2026-09-28T10:40 | sa-A | L4a-r3-7543 | data | 9318 | troop:7543 Emberclaw | `src/engine/skills/curated/batch-r8.ts` | boosted x5 by every colour gem on the board → boosted x5 per Elemental Star on the board before the explosion |  |
 | 2026-09-28T10:40 | sa-A | L4a-r3-7044 | data | 8569 | troop:7044 Researcher | `src/engine/skills/curated/batch-p38.ts` | explode 2, then explode 1 per Bomb left → one explosion of 2 + 1 per Bomb (single native ExplodeGems) |  |
 | 2026-09-28T10:40 | sa-A | L4a-r3-7086 | data | 8614 | troop:7086 TerraWyrm | `src/engine/skills/curated/batch-15.ts` | Attack unboosted; explode 3 colour gems → Attack and Armor both +floor(Skulls/2); explode 3 random gems of any kind |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-7488 | data | 9221 | troop:7488 Unagh | `src/engine/skills/curated/batch-38.ts` | Life then Attack → native order Attack then Life |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-7018 | data | 8525 | troop:7018 RockSquid | `src/engine/skills/curated/batch-r11.ts` | Armor 2 + 2 x removed → Armor 2 x removed (native IncreaseArmor has no Amount) |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1036 | data | 7102 | weapon:1036 Shadowbringer | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Purple gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1037 | data | 7103 | weapon:1037 GhostsBane | `src/engine/skills/curated/batch-w01.ts` | [2:1] boost had no source (always 0) → boosted 50% of Blue gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1038 | data | 7116 | weapon:1038 FrozenSoul | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Red gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1039 | data | 7104 | weapon:1039 LionsClaw | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Brown gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1040 | data | 7105 | weapon:1040 HolyAvenger | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Yellow gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1044 | data | 7109 | weapon:1044 EagleEye | `src/engine/skills/curated/batch-w01.ts` | [2:1] boost had no source (always 0) → boosted 50% of Green gems removed |  |
+| 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
 
 ## 按技能 ID
 
@@ -454,6 +463,12 @@
 | 7065 | 1 | F2-R001-order |
 | 7092 | 1 | L4b-7276-singlegem |
 | 7094 | 1 | F2-1028-missing-magic |
+| 7102 | 1 | L4a-r3-1036 |
+| 7103 | 1 | L4a-r3-1037 |
+| 7104 | 1 | L4a-r3-1039 |
+| 7105 | 1 | L4a-r3-1040 |
+| 7109 | 1 | L4a-r3-1044 |
+| 7116 | 1 | L4a-r3-1038 |
 | 7124 | 1 | F2-1058-boost-source |
 | 7133 | 1 | L4a-R1-7133-no-base |
 | 7138 | 2 | L4b-7138-zh、L4b-6068-order |
@@ -497,6 +512,7 @@
 | 7295 | 1 | F3-q35 |
 | 7297 | 1 | F3-q20 |
 | 7307 | 1 | F3-q27 |
+| 7308 | 1 | L4a-r3-1138 |
 | 7310 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7312 | 1 | F1-steal-before-damage |
 | 7314 | 1 | L2-wrong-enemy-branches |
@@ -792,6 +808,7 @@
 | 8499 | 1 | P-random-stat-pool |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
+| 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8535 | 1 | R3-B02-7007 |
 | 8540 | 1 | L7-R1-random-chain-waves |
@@ -976,6 +993,7 @@
 | 9214 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9215 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9216 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
+| 9221 | 1 | L4a-r3-7488 |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
 | 9237 | 1 | P-R1-count-at-native-step |

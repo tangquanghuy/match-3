@@ -29,6 +29,16 @@
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
  },
+ "troop:6010": {
+  "lines": {
+   "L10": "destroy 9 (Purple x9) ; dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "destroy 9 (Purple x9) ; dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "destroy 9 (Purple x9) ; dmg E11 4  => E11:arm-4",
+   "K": "destroy 9 (Purple x9) ; dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
  "troop:6014": {
   "lines": {
    "L10": "dmg E12 11  => E12:arm-11",
@@ -719,6 +729,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:30:21.742Z"
  },
+ "troop:7018": {
+  "lines": {
+   "L10": "destroy 9 (Yellow x9) ; ~cascade~ ; buff C armor+18  => C:arm+18  cascade",
+   "R10": "destroy 9 (Yellow x9) ; ~cascade~ ; buff C armor+18  => C:arm+18  cascade",
+   "L0": "destroy 1 (Yellow x1) ; buff C armor+2  => C:arm+2",
+   "K": "destroy 11 (Green x11) ; buff C armor+22  => C:arm+22"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
  "troop:7021": {
   "lines": {
    "L10": "status E10 +silence ; status E13 +silence ; dmg E10 13 ; dmg E13 13 ; explode 33 ; skulls E10 2  => E10:hp-13 arm-2 +silence | E13:hp-13 +silence | A2:mana+5",
@@ -949,6 +969,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:54:14.389Z"
  },
+ "troop:7320": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E13 35  => E13:hp-32 arm-3  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E13 35  => E13:hp-32 arm-3  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E13 25  => E13:hp-22 arm-3  cascade",
+   "K": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E13 35 ; defeat E13  => E13:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
  "troop:7321": {
   "lines": {
    "L10": "explode 33 ; skulls E10 2 ; move E11 back  => A1:mana+2 | A2:mana+2 | E10:arm-2",
@@ -1048,6 +1078,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
+ },
+ "troop:7488": {
+  "lines": {
+   "L10": "buff A1 attack+11 ; buff A1 hp+11 max+11 ; destroy 16 (Green x3, Yellow x3, skull x1, Brown x2, Red x3, Blue x3, Purple x1) ; skulls E10 1 ; destroy 16 (Purple x5, Brown x2, skull x1, Green x5, Red x3) ; skulls E10 1 ; ~cascade~  => A1:hp+11 max+11 atk+11 mana+3 | A2:mana+6 | E10:arm-2  cascade",
+   "R10": "buff A1 attack+11 ; buff A1 hp+11 max+11 ; destroy 16 (Green x3, Yellow x3, skull x1, Brown x2, Red x3, Blue x3, Purple x1) ; skulls E10 1 ; destroy 16 (Purple x5, Brown x2, skull x1, Green x5, Red x3) ; skulls E10 1 ; ~cascade~  => A1:hp+11 max+11 atk+11 mana+3 | A2:mana+6 | E10:arm-2  cascade",
+   "L0": "buff A1 attack+1 ; buff A1 hp+1 max+1 ; destroy 16 (Green x3, Yellow x3, skull x1, Brown x2, Red x3, Blue x3, Purple x1) ; skulls E10 1 ; destroy 16 (Purple x5, Brown x2, skull x1, Green x5, Red x3) ; skulls E10 1 ; ~cascade~  => A1:hp+1 max+1 atk+1 mana+3 | A2:mana+6 | E10:arm-2  cascade",
+   "K": "buff A1 attack+11 ; buff A1 hp+11 max+11 ; destroy 16 (Green x3, Yellow x3, skull x1, Brown x2, Red x3, Blue x3, Purple x1) ; skulls E10 1 ; defeat E10 ; destroy 16 (Purple x5, Brown x2, skull x1, Green x5, Red x3) ; skulls E11 1 ; defeat E11 ; ~cascade~  => A1:hp+11 max+11 atk+11 mana+3 | A2:mana+6 | E10:hp-1 DEAD | E11:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
  },
  "troop:7500": {
   "lines": {
@@ -1319,6 +1359,66 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:30:03.676Z"
  },
+ "weapon:1036": {
+  "lines": {
+   "L10": "destroy 9 (Purple x9) ; dmg E13 16  => E13:hp-13 arm-3",
+   "R10": "destroy 9 (Purple x9) ; dmg E13 16  => E13:hp-13 arm-3",
+   "L0": "destroy 9 (Purple x9) ; dmg E13 6  => E13:hp-3 arm-3",
+   "K": "destroy 9 (Purple x9) ; dmg E13 16 ; defeat E13  => E13:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
+ "weapon:1037": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 19  => E11:hp-9 arm-10  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 19  => E11:hp-9 arm-10  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 9  => E11:arm-9  cascade",
+   "K": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E10 19 ; defeat E10  => E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
+ "weapon:1038": {
+  "lines": {
+   "L10": "destroy 9 (Red x9) ; dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "destroy 9 (Red x9) ; dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "destroy 9 (Red x9) ; dmg E11 7  => E11:arm-7",
+   "K": "destroy 9 (Red x9) ; dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
+ "weapon:1039": {
+  "lines": {
+   "L10": "destroy 8 (Brown x8) ; ~cascade~ ; dmg E12 14  => E12:hp-2 arm-12  cascade",
+   "R10": "destroy 8 (Brown x8) ; ~cascade~ ; dmg E12 14  => E12:hp-2 arm-12  cascade",
+   "L0": "destroy 8 (Brown x8) ; ~cascade~ ; dmg E12 4  => E12:arm-4  cascade",
+   "K": "destroy 8 (Brown x8) ; ~cascade~ ; dmg E13 14 ; defeat E13  => E13:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
+ "weapon:1040": {
+  "lines": {
+   "L10": "destroy 9 (Yellow x9) ; ~cascade~ ; dmg E10 17  => E10:hp-12 arm-5  cascade",
+   "R10": "destroy 9 (Yellow x9) ; ~cascade~ ; dmg E10 17  => E10:hp-12 arm-5  cascade",
+   "L0": "destroy 9 (Yellow x9) ; ~cascade~ ; dmg E10 7  => E10:hp-2 arm-5  cascade",
+   "K": "destroy 9 (Yellow x9) ; ~cascade~ ; dmg E10 17 ; defeat E10  => E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
+ "weapon:1044": {
+  "lines": {
+   "L10": "destroy 13 (Green x13) ; dmg E11 18  => E11:hp-8 arm-10",
+   "R10": "destroy 13 (Green x13) ; dmg E11 18  => E11:hp-8 arm-10",
+   "L0": "destroy 13 (Green x13) ; dmg E11 8  => E11:arm-8",
+   "K": "destroy 13 (Green x13) ; dmg E11 18 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:46:23.459Z"
+ },
  "weapon:1058": {
   "lines": {
    "L10": "destroy 13 (Green x13) ; buff C hp+24 max+24 ; status C +barrier  => C:hp+24 max+24 +barrier",
@@ -1368,6 +1468,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:42:20.238Z"
+ },
+ "weapon:1138": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 20  => A2:mana+3 | E11:hp-10 arm-10  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 20  => A2:mana+3 | E11:hp-10 arm-10  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; dmg E11 10  => A2:mana+3 | E11:arm-10  cascade",
+   "K": "destroy 13 (Green x13) ; dmg E11 21 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T10:53:31.487Z"
  },
  "weapon:1159": {
   "lines": {
