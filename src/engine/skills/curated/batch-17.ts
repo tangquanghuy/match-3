@@ -125,11 +125,12 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 回收（第六遍）：转化终点为特殊宝石 → transformToSpecial；「以增强」句式转化段前置，
       // transformedGems 来源才数得到（batch-07 7933 同款句式）
-      transformToSpecial(BaseColor.Yellow, 'doomSkull'),
+      // sa-F2 fix round A (R001): native CountGems Yellow 200 ; TrueDamage ; ConvertGems Yellow>Doomskull
       trueDmg('enemyFirstN', 2, 1, {
         n: 2,
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      transformToSpecial(BaseColor.Yellow, 'doomSkull'),
     ),
   },
   {

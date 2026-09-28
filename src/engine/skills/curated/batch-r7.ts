@@ -269,8 +269,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名随机敌人造成 [魔法 + 5] 点伤害。将所有蓝色宝石转换成绿色以增强效果。使所有敌人陷入妖火状态。 [2:1]',
     build: skill(
       // 「转换…以增强」句式：转化段先执行，transformedGems 来源才数得到（batch-12 7215 同款）
+      // sa-F2 fix round A (R001): native CountGems Blue ; Damage ; ConvertGems Blue>Green ; CauseFaerieFire
+      dmg('enemyRandom', 5, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       transform(BaseColor.Blue, BaseColor.Green),
-      dmg('enemyRandom', 5, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'transformedGems' } } }),
       inflict('faerie-fire', 'enemyAll'),
     ),
   },

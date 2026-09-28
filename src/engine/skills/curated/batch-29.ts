@@ -53,13 +53,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7149,
     desc: '使所有敌人陷入中毒状态，并对 1 名随机的敌人造成 [魔法 + 1] 点真实伤害。将所有黄色的宝石转换成紫色宝石。伤害值因转换的宝石数而增强。 [x3]',
     build: skill(
-      inflict('poison', 'enemyAll'),
-      // 转化段前置：transformedGems 来源才数得到（batch-12 7215 同款）
-      transform(BaseColor.Yellow, BaseColor.Purple),
+      // sa-F2 fix round A (R001): native CountGems Yellow 300 ; TrueDamage@RandomEnemy ; ConvertGems ; CausePoison
       dmg('enemyRandom', 1, 1, {
         trueDamage: true,
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      transform(BaseColor.Yellow, BaseColor.Purple),
+      inflict('poison', 'enemyAll'),
     ),
   },
   {

@@ -49,3 +49,4 @@
 {"format":"compact","key":"troop:6064","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:34:08.386Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6054","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:34:10.888Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1120","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:34:13.593Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6240","decision":"accept","reviewer":"sa-F2","reviewedAt":"2026-09-28T00:37:00.628Z","tests":["tests/unit/gowCastGolden.test.ts"]}

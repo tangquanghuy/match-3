@@ -59,6 +59,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:33:56.277Z"
  },
+ "troop:6240": {
+  "lines": {
+   "L10": "dmg E10 15 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:hp-10 arm-5 +entangle | A2:mana+9",
+   "R10": "dmg E10 15 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:hp-10 arm-5 +entangle | A2:mana+9",
+   "L0": "dmg E10 5 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:arm-5 +entangle | A2:mana+9",
+   "K": "dmg E10 15 ; defeat E10 ; status E11 +entangle ; destroy 9 (Red x9)  => E10:hp-1 DEAD | E11:+entangle | A2:mana+9"
+  },
+  "by": "sa-F2",
+  "at": "2026-09-28T00:37:00.540Z"
+ },
  "troop:6457": {
   "lines": {
    "L10": "explode 25 ; skulls E10 1 ; dmg E10 15 ; dmg C 900 ; defeat C  => A2:mana+2 | A1:mana+2 | E10:hp-11 arm-5 | C:hp-900 DEAD",

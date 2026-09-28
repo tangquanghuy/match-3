@@ -42,3 +42,15 @@
 - 2026-09-28T10:00:00Z troop:6064 fixed R001 destroy 6 before the stat loss
 - 2026-09-28T10:00:00Z troop:6054 fixed R001 true damage (board Red count) before remove, then Life
 - 2026-09-28T10:00:00Z weapon:1120 fixed column skull count (was whole board) + front-enemy anchor for RandomPrefNotPrev; override synced
+- 2026-09-28T10:30:00Z troop:6566 fixed R001 damage (board Blue count) before convert
+- 2026-09-28T10:30:00Z troop:6608 fixed R001 damage (board Brown count) before convert
+- 2026-09-28T10:30:00Z troop:6609 fixed R001 damage (board Yellow count) before convert
+- 2026-09-28T10:30:00Z troop:6686 fixed R001 splash (board Red count) before convert
+- 2026-09-28T10:30:00Z troop:6765 fixed R001 damage (board Brown count) before convert
+- 2026-09-28T10:30:00Z troop:7567 fixed R001 true damage (board Yellow count) before convert
+- 2026-09-28T10:30:00Z troop:6053 fixed R001 damage (board Blue count) before convert, souls last
+- 2026-09-28T10:30:00Z troop:6297 fixed R001 damage before convert, souls last
+- 2026-09-28T10:30:00Z troop:6426 fixed R001 damage (board Blue count) before convert, faerie fire last
+- 2026-09-28T10:30:00Z troop:6079 fixed R001 true damage (board Yellow count), convert, poison last
+- 2026-09-28T10:30:00Z troop:6240 fixed R001 damage + entangle before remove Red
+- 2026-09-28T10:30:00Z troop:6288 fixed R001 souls between the two creates

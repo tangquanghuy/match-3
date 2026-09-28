@@ -321,13 +321,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7383,
     desc: '对第一名敌人造成 [魔法 + 2] 点伤害，移除所有红色宝石以强化伤害。缠绕敌人。 [3:1]',
     build: skill(
-      // 清除段先执行，destroyedGems 来源才数得到（batch-04 7010 同款）
-      destroyColor(BaseColor.Red),
+      // sa-F2 fix round A (R001): native CountGems Red ; Damage@FrontEnemy ; CauseEntangle@FrontEnemy ; RemoveColor Red
       dmg('enemyFront', 2, 1, {
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Red } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
       // 「缠绕敌人」= 前文第一名敌人
       inflict('entangle', 'enemyFront'),
+      destroyColor(BaseColor.Red),
     ),
   },
   {

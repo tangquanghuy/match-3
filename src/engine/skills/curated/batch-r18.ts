@@ -20,7 +20,7 @@
  */
 import type { CuratedBatch } from './index';
 import { explodeChosenCol } from '../builders';
-import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, explodeRandomCols, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
@@ -156,10 +156,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对 1 名敌人造成 [魔法 + 2] 点伤害，并将所有蓝色宝石转换成红色以增强伤害效果。获得 [魔法 + 2] 个灵魂。  [2:1]",
     // 转换段前移供 transformedGems 计数（batch-25 清除段前移同口径）；[2:1] = ratio 2:1 transformedGems
     build: skill(
-      transform(BaseColor.Blue, BaseColor.Red),
+      // sa-F2 fix round A (R001): native CountGems Blue ; Damage ; ConvertGems Blue>Red ; GiveSouls
       dmg('enemyChosen', 2, 1, {
-    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'transformedGems' } },
+    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
   }),
+      transform(BaseColor.Blue, BaseColor.Red),
       gainSouls(2, 1),
     ),
   },
@@ -324,10 +325,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "将黄色宝石转换为紫色。对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因所获得的灵魂数量而增强。获得 20 个灵魂。 [1:1]",
     // 「因所获得的灵魂数 [1:1]」= battleSouls ratio 1:1；「获得 20 灵魂」= gainSouls
     build: skill(
-      transform(BaseColor.Yellow, BaseColor.Purple),
+      // sa-F2 fix round A (R001): native CountMySouls ; Damage ; ConvertGems Yellow>Purple ; GiveSouls 20
       dmg('enemyChosen', 1, 1, {
     modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'battleSouls' } },
   }),
+      transform(BaseColor.Yellow, BaseColor.Purple),
       gainSouls(20),
     ),
   },

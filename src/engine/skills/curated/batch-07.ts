@@ -106,11 +106,12 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 回收（第六遍）：转化终点为特殊宝石 → transformToSpecial；「以增强」句式转化段前置，
       // transformedGems 来源才数得到（batch-07 7932/7933 头注同款）
-      transformToSpecial(BaseColor.Blue, 'doomSkull'),
+      // sa-F2 fix round A (R001): native CountGems Blue ; Damage ; ConvertGems Blue>Doomskull
       dmg('enemyHealthiestN', 4, 1, {
         n: 2,
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
+      transformToSpecial(BaseColor.Blue, 'doomSkull'),
     ),
   },
   {
@@ -128,11 +129,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最弱的两名敌人造成 [魔法 + 2] 点伤害，并将所有棕色宝石转换成绿色以增强效果。 [1:1]',
     build: skill(
       // 「以增强」句式：转化段先执行，transformedGems 来源才数得到（batch-04 头注同款）
-      transform(BaseColor.Brown, BaseColor.Green),
+      // sa-F2 fix round A (R001): native CountGems Brown ; Damage ; ConvertGems Brown>Green
       dmg('enemyWeakestN', 2, 1, {
         n: 2,
-        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } },
       }),
+      transform(BaseColor.Brown, BaseColor.Green),
     ),
   },
   {
@@ -140,11 +142,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对前两名敌人造成 [魔法 + 3] 点伤害，并将所有黄色宝石转换成骷髅头以增强效果。 [1:1]',
     build: skill(
       // 转化段前置（同 7932）；骷髅端点 'SKULL' 为 transform 合法端点（SOP 措辞裁定）
-      transform(BaseColor.Yellow, 'SKULL'),
+      // sa-F2 fix round A (R001): native CountGems Yellow ; Damage ; ConvertGems Yellow>Skull
       dmg('enemyFirstN', 3, 1, {
         n: 2,
-        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'transformedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      transform(BaseColor.Yellow, 'SKULL'),
     ),
   },
   {

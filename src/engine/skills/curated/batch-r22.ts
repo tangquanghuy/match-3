@@ -330,9 +330,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「翻倍」= 创造数量 = 板面紫宝石数（boardGems Purple [1:1]）——R22 8355 官方口径同款
     //（CreateGems UseCounterForAmount）；尾缀 [1:1] 挂翻倍段。
     build: skill(
+    // sa-F2 fix round A (R001): native CreateGems (counter) ; GiveSouls 3+M ; Delay ; CreateGems 3 Purple
     createGems(BaseColor.Purple, 0, 0, { modifier: boostPer({ kind: 'boardGems', color: BaseColor.Purple }, 1) }),
-    createGems(BaseColor.Purple, 3),
     gainSouls(3, 1),
+    createGems(BaseColor.Purple, 3),
     ),
   },
   {
