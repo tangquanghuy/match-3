@@ -926,6 +926,10 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
         .map((c) => ({ ...c, colors: [...c.colors], statuses: c.statuses.map((s) => ({ ...s })) }));
       for (const c of ctx.state.teams[side].characters) {
         const active = c.statuses.filter((s) => s.turns > 0).map((s) => s.id);
+        // P-B-action-status-self-count: the caster's action-ended statuses were still on it when the cast began
+        if (c.id === ctx.casterId && ctx.actionEndedStatusIds) {
+          for (const id of ctx.actionEndedStatusIds) if (!active.includes(id)) active.push(id);
+        }
         if (active.length > 0) snapshot[c.id] = active;
         colorsAtCastStart[c.id] = [...c.colors];
       }

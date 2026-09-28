@@ -397,6 +397,16 @@ export interface CondMult {
   cond: Condition;
 }
 
+/**
+ * P-B-action-status-self-count: live status check that also sees the caster's Enchanted / Submerged / Blessed the
+ * engine removed when this cast began (R002 / R004 "after the holder acts"; native Count* steps of the same spell
+ * still count them).
+ */
+function hasStatusForCast(ctx: EffectContext, c: Character, statusId: string): boolean {
+  if (c.statuses.some((s) => sameStatus(s.id, statusId) && s.turns > 0)) return true;
+  return c.id === ctx.casterId && (ctx.actionEndedStatusIds ?? []).some((id) => sameStatus(id, statusId));
+}
+
 /** 条件是否成立（target 类需传目标；全局类忽略 target） */
 export function conditionMet(
   cond: Condition,
@@ -471,7 +481,7 @@ export function conditionMet(
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return false;
       return ctx.state.teams[side].characters.some(
-        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, cond.statusId) && s.turns > 0),
+        (c) => !c.defeated && hasStatusForCast(ctx, c, cond.statusId),
       );
     }
     case 'stormPresent': {
@@ -508,7 +518,7 @@ export function conditionMet(
     }
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
-      return !!caster && caster.statuses.some((st) => sameStatus(st.id, cond.statusId) && st.turns > 0);
+      return !!caster && hasStatusForCast(ctx, caster, cond.statusId);
     }
     case 'troopPresent': {
       const mySide = findSide(ctx.state, ctx.casterId);
@@ -831,7 +841,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       // excludeSelf (P-R3-ally-status-excl-self): native CountSpecificStatusEffect@AllAlliesButNotSelf
       return ctx.state.teams[side].characters.filter(
         (c) => !c.defeated && !(source.excludeSelf && c.id === ctx.casterId)
-          && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
+          && hasStatusForCast(ctx, c, source.statusId),
       ).length;
     }
     case 'targetStatusCount': {

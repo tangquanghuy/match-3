@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 462 条改动，涉及 795 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 463 条改动，涉及 800 个技能 ID。
 
 ## 按时间
 
@@ -468,6 +468,7 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
 | 2026-09-28T11:10 | sa-P | P-A-target-kingdom | primitive | 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8642, 8807, 8875, 9111, 9593 | weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1429 StarOfNexus；weapon:1479 AegisOfHellcrag；weapon:1499 OrbOfVulpacea；weapon:1560 MydnightsTerror；troop:7665 SeabornKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json`<br>`scripts/_weapon_pools.mjs`<br>`tests/unit/gowFixP-A-target-kingdom.test.ts`<br>`tests/unit/weaponNativeStepRepair.test.ts` | condMult kingdomOf side enemy: any living enemy from the kingdom doubled the hit on any target; zh desc 造成l → new target-relative condition targetKingdom (segment target, fallback chosen target); kingdom weapons anyOf(targetKingdom, kingdomPresent), 9593 targetKingdom; zh stray l removed (pool-w01 + override description/prototype for 34 spells); generator hKingdomCond emits targetKingdom | only kingdom weapons + 9593 used kingdomOf enemy |
+| 2026-09-28T11:16 | sa-P | P-B-action-status-self-count | primitive | 8038, 8411, 8937, 7491, 7942 | troop:6692 Mervorax；troop:6933 Ishtara；troop:7325 Tuzi；weapon:1151 EmeraldTear；troop:6624 Mershark | `src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`tests/unit/gowFixP-B-action-status-self-count.test.ts` | TurnEngine.castSkill removed the caster's Enchanted/Submerged/Blessed before the spell body; allyStatusCount/selfStatus/anyAllyStatus never saw the caster's own status → removed ids kept in ctx.actionEndedStatusIds (and castTracking.statusesAtCastStart of the caster); allyStatusCount / selfStatus / anyAllyStatus count the caster; the status is still removed | self-including allyStatusCount/anyAllyStatus/selfStatus users of submerged/blessed/enchanted: troop:6412 6417 6519 6576 6713 6823 6968 7109 7262 7405 7650 7729 7813 weapon:1156 |
 
 ## 按技能 ID
 
@@ -632,6 +633,7 @@
 | 7480 | 2 | L4b-7276-singlegem、L1-R2-consume-first |
 | 7482 | 1 | P-random-stat-pool |
 | 7489 | 1 | P-counter-per-step |
+| 7491 | 1 | P-B-action-status-self-count |
 | 7501 | 1 | L1-summon-dist |
 | 7504 | 2 | L7-6352-a、R005-test-sync |
 | 7507 | 1 | F2-6355-native-order |
@@ -724,6 +726,7 @@
 | 7933 | 1 | F2-R001-order |
 | 7936 | 1 | P-create-interleave |
 | 7941 | 1 | F2-6623-column-order |
+| 7942 | 1 | P-B-action-status-self-count |
 | 7944 | 1 | B-L4b-6626-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
@@ -740,6 +743,7 @@
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
+| 8038 | 1 | P-B-action-status-self-count |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
 | 8047 | 1 | R7-doomed-support-counters |
 | 8050 | 1 | R7-doomed-support-counters |
@@ -864,6 +868,7 @@
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8408 | 1 | L1-6930-summons |
 | 8410 | 1 | P-prefnotprev-semantics |
+| 8411 | 1 | P-B-action-status-self-count |
 | 8413 | 1 | R7-6925-two-hits |
 | 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
@@ -1044,6 +1049,7 @@
 | 8924 | 1 | F2-R001-order |
 | 8928 | 1 | P-R1-row-count-at-cast-start |
 | 8933 | 1 | F2-7321-no-events |
+| 8937 | 1 | P-B-action-status-self-count |
 | 8939 | 1 | R3-B02-7327 |
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8946 | 1 | R3-B09-1505 |
