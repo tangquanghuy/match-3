@@ -473,6 +473,16 @@ describe('L1 R2 B10 (sa-R5)', () => {
     }
     expect(two).toBeGreaterThan(115); expect(two).toBeLessThan(185); expect(differ).toBe(true);
   });
+  // ---- B12
+  it('B12 pools: Mech type (7349), kingdom 3035 (7659); troop:7438 Caribou 50/33/25% independent', () => {
+    expect(pools('8977')).toEqual([{ chance: 1, pool: ofType('Mech') }]);
+    expect(pools('9587')).toEqual([{ chance: 1, pool: kingdom(3035) }]);
+    expect(pools('9140').map(p => p.chance)).toEqual([0.5, 0.33, 0.25]);
+    const t: Record<number, number> = {};
+    for (let seed = 1; seed <= 600; seed++) { const k = castSpell({ key: 'troop:7438', seed, allies: [] }).summary.summons.length; t[k] = (t[k] ?? 0) + 1; }
+    // P(0) = .5 x .67 x .75 = 25%, P(3) = .5 x .33 x .25 = 4%
+    expect(t[0]).toBeGreaterThan(115); expect(t[0]).toBeLessThan(190); expect(t[3] ?? 0).toBeLessThan(45);
+  });
   // ---- B11
   it('B11 summon distributions and pools follow native steps', () => {
     expect(pools('7501')).toEqual([1, 0.5, 0.5].map(chance => ({ chance, pool: kingdom(3006) })));

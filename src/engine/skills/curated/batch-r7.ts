@@ -629,7 +629,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 8 颗绿色 宝石。召唤 0-3 只驯鹿',
     build: skill(
       createGems(BaseColor.Green, 8),
-      summonRef('Caribou', undefined, { countRange: { min: 0, max: 3 } }),
+      // sa-R5 L1-summon-dist: native Summoning 7438 at 50% / 33% / 25% independently (0-3), not uniform 0-3.
+      ...[0.5, 0.33, 0.25].map(chance => ({ ...summonRef('Caribou'), chance })),
     ),
   },
   {
