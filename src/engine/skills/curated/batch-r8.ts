@@ -16,7 +16,7 @@
  */
 import type { CuratedBatch } from './index';
 import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, inflict, cleanse, reduce,
-  transform, transformToSpecial, createGems, createSpecialGems, createSpecialGems2, createSkulls, destroyChosenRow, explodeChosenRow, explodeChosenCol,
+  transform, transformToSpecial, createSpecialGems, createSpecialGems2, createSkulls, destroyChosenRow, explodeChosenRow, explodeChosenCol,
   reposition, extraTurn, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
 // 龙族引用池（从 troops.json troopTypes='Dragon' 内联，与 batch-r7 同源）
@@ -497,29 +497,32 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9171,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗黄色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗黄色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Yellow, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantYellow = Yellow giantGem special, not plain Yellow
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Yellow }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9172,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗紫色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗紫色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Purple, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantPurple = Purple giantGem special, not plain Purple
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Purple }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9173,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗棕色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗棕色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Brown, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantBrown = Brown giantGem special, not plain Brown
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Brown }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {

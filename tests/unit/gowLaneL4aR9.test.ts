@@ -137,11 +137,29 @@ describe('L4a R9 B05', () => {
     expect(r.summary.order).toContain('status C +barrier');
   });
   // troop:7447/7448/7449 (9168-9170): CreateGems Giant<C> 8 [AddForCursed on AllEnemies] = <C> giantGem (R009).
-  it.each([['troop:7447', BaseColor.Blue], ['troop:7448', BaseColor.Green], ['troop:7449', BaseColor.Red]] as const)('%s creates 8 %s Giant Gems only if an enemy is Cursed', (key, color) => {
+  it.each([['troop:7447', BaseColor.Blue], ['troop:7448', BaseColor.Green], ['troop:7449', BaseColor.Red],
+    ['troop:7450', BaseColor.Yellow], ['troop:7451', BaseColor.Purple], ['troop:7452', BaseColor.Brown]] as const)('%s creates 8 %s Giant Gems only if an enemy is Cursed', (key, color) => {
     const cursed = [{}, {}, { statuses: [{ id: 'curse', turns: 99 }] }, {}] as never;
     const r = castSpell({ key, enemies: cursed });
     expect(r.summary.order.some(o => /^(create|convert .* ->) giantGem\//.test(o) && o.endsWith(`giantGem/${color} x8`))).toBe(true);
     expect(r.summary.order).toContain('buff C hp+16 max+16');
     expect(castSpell({ key }).summary.order.some(o => o.includes('giantGem'))).toBe(false);
+  });
+});
+
+describe('L4a R9 B06', () => {
+  // weapon:1114 (7251): ExplodeGems 3 (Skulls eligible) ; ScatterDamage@AllEnemies 5+M (total split over enemies).
+  it('weapon:1114 random explosion can centre on Skulls; scatter total is 15', () => {
+    const ev = castSpell({ key: 'weapon:1114', board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+    const o = castSpell({ key: 'weapon:1114', board: noColour(BaseColor.Purple) }).summary.order.filter(x => x.startsWith('dmg '));
+    expect(o.reduce((s, x) => s + Number(x.split(' ')[2]), 0)).toBe(15);
+  });
+  // troop:7006 (8534): ExplodeGems 8 [AddForConstruct@FromTarget] ; SplashDamage@FromTarget 2+M ; SplashDamage@RandomPrefNotPrevEnemy 2+M.
+  it('troop:7006 explodes 8 gems first only when the chosen enemy is a Construct', () => {
+    expect(castSpell({ key: 'troop:7006' }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+    const c = castSpell({ key: 'troop:7006', enemies: [{}, { troopTypes: ['Construct'] }, {}, {}] }).summary.order;
+    expect(c[0]).toMatch(/^explode /);
+    expect(c.find(o => o.startsWith('dmg '))).toBe('dmg E11 12 (splash)');
   });
 });

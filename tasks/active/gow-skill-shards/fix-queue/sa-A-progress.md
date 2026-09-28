@@ -122,3 +122,8 @@
 - troop:7447 fix(R009 Blue giantGem; zh 'any enemy' + override)
 - troop:7448 fix(R009 Green giantGem; zh + override)
 - troop:7449 fix(R009 Red giantGem; zh + override)
+- troop:7450 fix(R009 Yellow giantGem; zh + override)
+- troop:7451 fix(R009 Purple giantGem; zh + override)
+- troop:7452 fix(R009 Brown giantGem; zh + override)
+- weapon:1114 fix(explode 3 include all)
+- troop:7006 accept (native order: Construct explode, then two splashes)

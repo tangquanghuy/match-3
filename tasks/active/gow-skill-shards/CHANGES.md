@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 643 条改动，涉及 1099 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 645 条改动，涉及 1103 个技能 ID。
 
 ## 按时间
 
@@ -649,6 +649,8 @@
 | 2026-09-28T22:40 | sa-A | L4a-R9-7725-zh | data | 9725 | troop:7725 PrisonerLuther | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 9725 zh '爆破 2-4 颗宝石。' (damage clause missing) → zh adds '对第一名敌人造成 [(魔法 / 2) + 4] 点伤害。' + snapshot override |  |
 | 2026-09-28T22:40 | sa-A | L4a-R9-6943-cell | assembler | 8424 | troop:6943 HauntedGuardian | `src/engine/skills/curated/batch-r12.ts` | 8424 cross3 explode at fixed board centre (3,3) → cross3 explode centred on the chosen cell (spell Target Board) |  |
 | 2026-09-28T22:40 | sa-A | L4a-R9-giant-9168 | assembler | 9168, 9169, 9170 | troop:7447 GiantSentinel；troop:7448 ElementalSentinel；troop:7449 DaemonicSentinel | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | createGems plain Blue/Green/Red 8 if any enemy Cursed; zh '若敌人被诅咒' → R009 giantGem special of that colour; zh '若有任一敌人被诅咒' + snapshot overrides |  |
+| 2026-09-28T22:43 | sa-A | L4a-R9-giant-9171 | assembler | 9171, 9172, 9173 | troop:7450 DraconicSentinel；troop:7451 UndeadSentinel；troop:7452 MonstrousSentinel | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | createGems plain Yellow/Purple/Brown 8 if any enemy Cursed; zh '若敌人被诅咒' → R009 giantGem special of that colour; zh '若有任一敌人被诅咒' + snapshot overrides |  |
+| 2026-09-28T22:43 | sa-A | L4a-R9-1114-skulls | assembler | 7251 | weapon:1114 Boom-Boom | `src/engine/skills/curated/batch-w01.ts` | 7251 explode 3 include color → include all (R013-5) |  |
 
 ## 按技能 ID
 
@@ -742,6 +744,7 @@
 | 7245 | 1 | F1-onkill-order |
 | 7246 | 1 | D-1109-single-hit |
 | 7248 | 1 | L7-R1-weapon-colour-race |
+| 7251 | 1 | L4a-R9-1114-skulls |
 | 7252 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7254 | 1 | L2-wrong-enemy-branches |
 | 7260 | 1 | F1-items-62-75 |
@@ -1490,6 +1493,9 @@
 | 9168 | 1 | L4a-R9-giant-9168 |
 | 9169 | 1 | L4a-R9-giant-9168 |
 | 9170 | 1 | L4a-R9-giant-9168 |
+| 9171 | 1 | L4a-R9-giant-9171 |
+| 9172 | 1 | L4a-R9-giant-9171 |
+| 9173 | 1 | L4a-R9-giant-9171 |
 | 9174 | 1 | L4a-r4-7457 |
 | 9181 | 1 | L1-E-7465-dist |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
