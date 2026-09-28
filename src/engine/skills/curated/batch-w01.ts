@@ -770,7 +770,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7248,
     desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。伤害值因己方神祇和骑士盟友数而增强。 [x5]',
     build: skill(
-      dmg('enemyAll', 4, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'alliesOfRace', race: 'Divine' } } }),
+      dmg('enemyAll', 4, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 5 }, sources: [{ kind: 'alliesOfRace', race: 'Divine' }, { kind: 'alliesOfRace', race: 'Knight' }] } }),
     ),
   },
   {

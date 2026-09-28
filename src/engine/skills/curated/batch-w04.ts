@@ -289,7 +289,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9303,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因红色和元素盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Elemental' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red }, { kind: 'alliesOfRace', race: 'Elemental' }] } }),
     ),
   },
   {
@@ -312,7 +312,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9306,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因蓝色和不死族盟友数量而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Undead' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'alliesOfRace', race: 'Undead' }] } }),
     ),
   },
   {
@@ -350,7 +350,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9352,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因红色和恶魔盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red }, { kind: 'alliesOfRace', race: 'Daemon' }] } }),
     ),
   },
   {
@@ -371,7 +371,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9355,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色和人马族盟友数而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Centaur' } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'alliesOfRace', race: 'Centaur' }] } }),
     ),
   },
   {
@@ -572,7 +572,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9507,
     desc: '对敌人造成 [魔法 + 4] 点伤害，伤害值因黄色盟友和神圣盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Yellow } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'alliesOfRace', race: 'Divine' }] } }),
     ),
   },
   {
@@ -705,7 +705,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9578,
     desc: '对敌人造成 [魔法 + 4] 点伤害，伤害值因红色盟友和仙灵盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Red } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Red }, { kind: 'alliesOfRace', race: 'Fey' }] } }),
     ),
   },
   {
@@ -789,7 +789,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9630,
     desc: '对敌人造成 [魔法 + 4] 点伤害，伤害值因棕色盟友和巨型盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Brown } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Brown }, { kind: 'alliesOfRace', race: 'Giant' }] } }),
     ),
   },
   {
@@ -810,7 +810,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9633,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因蓝色盟友和仙灵盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Blue } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'alliesOfRace', race: 'Fey' }] } }),
     ),
   },
   {
@@ -831,7 +831,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9636,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和野蛮人盟友的数量而增强。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Green } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Wildfolk' }] } }),
     ),
   },
   {
@@ -1188,7 +1188,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9915,
     desc: '对敌人造成[魔法 + 4]点伤害，受到绿色盟友和乌尔斯卡盟友的加成。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Green } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Urska' }] } }),
     ),
   },
   {
@@ -1337,7 +1337,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 10048,
     desc: '对敌人造成[魔法 + 4]点伤害，黄色盟友和野人盟友可提升伤害。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Yellow } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Yellow }, { kind: 'alliesOfRace', race: 'Wildfolk' }] } }),
     ),
   },
   {

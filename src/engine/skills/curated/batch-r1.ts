@@ -79,12 +79,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8656,
-    desc: '对 2 名随机盟友造成 [(魔法 / 2) + 3] 点轻微散射伤害，伤害值因蓝色盟友和敌人数而增强。 [x3]',
+    desc: '对 2 名随机敌人造成 [(魔法 / 2) + 3] 点轻微散射伤害，伤害值因蓝色盟友和蓝色敌人数而增强。 [x3]',
     // 敌我颠倒修正（2026-09-18 官方复核）：官方 SplashDamage@RandomEnemy ×2 打敌人，非盟友（中文机翻误译）
     build: skill(dmg('enemyRandomN', 3, 0.5, {
       range: 'splash',
       n: 2,
-      modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'teamSize', side: 'enemy' }] },
+      modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Blue }, { kind: 'enemiesOfColor', color: BaseColor.Blue }] },
     })),
   },
   {
