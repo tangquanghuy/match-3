@@ -8,10 +8,11 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { oneOf, armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyColor, dispelStatus, dmg, dmgSplash, drainMana, explodeColor, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, reduce, reposition, skill, steal, summonRandom, summonRandomOfKingdom, transformToSpecial, trueDmg, CHOSEN } from '../builders';
+import { oneOf, armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyChosenCol, destroyColor, dispelStatus, dmg, dmgSplash, drainMana, explodeColor, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, magic, mana, reduce, reposition, skill, steal, summonRandom, transformToSpecial, trueDmg, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
+import { rawKingdomPool } from './gowKingdomPools';
 
 const SIN_OF_MARAJ_3037 = ['ImmortalZephaar', 'MaidenOfPain', 'FelineOfEnvy', 'BaneOfAmbition', 'TenOfWands', 'ImmortalAbaddon', 'TheBaneOfValor', 'StingBat', 'DarkHerald', 'Eklipsos', 'TheBaneOfMercy', 'WarMachine', 'AnimusOfEnvy', 'Despond', 'AbjectOfDespond', 'MaidOfEnvy', 'TheScourgeOfHonor', 'IndolatorOfSloth', 'GaelSpiritwhisperer', 'EnvoyOfPride', 'BrokerOfGreed', 'Glutmaw', 'QueenOfSin', 'SoldierOfWrath', 'SibylOfLust', 'Lust', 'Wrath', 'Pride', 'Barghast', 'Gluttony', 'Greed', 'Envy', 'Sloth'];
 const PURPLE13 = { kind: 'boardAtLeast', color: BaseColor.Purple, n: 13 } as const;
@@ -1489,7 +1490,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
       inflictRandom('allyAll', { targetKingdom: '圣唐', pool: 'positive' }),
-      summonRandomOfKingdom('圣唐', undefined),
+      summonRandom(rawKingdomPool(3030), undefined), // native SummoningKingdom 3030 (raw ids; zh name adds faction troops)
     ),
   },
   {

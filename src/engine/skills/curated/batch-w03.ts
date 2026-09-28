@@ -12,6 +12,7 @@ import { armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, crea
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
+import { rawKingdomPool } from './gowKingdomPools';
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
@@ -356,7 +357,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
       inflictRandom('allyAll', { targetKingdom: '破碎尖塔', pool: 'positive' }),
-      summonRandomOfKingdom('破碎尖塔', undefined),
+      summonRandom(rawKingdomPool(3000), undefined), // native SummoningKingdom 3000 (raw ids; zh name adds faction troops)
     ),
   },
   {
@@ -365,7 +366,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
       inflictRandom('allyAll', { targetKingdom: '葛洛什奈克', pool: 'positive' }),
-      summonRandomOfKingdom('葛洛什奈克', undefined),
+      summonRandom(rawKingdomPool(3018), undefined), // native SummoningKingdomNoError 3018 (raw ids; zh name adds Dripping Caverns 3058 etc.)
     ),
   },
   {
@@ -374,7 +375,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetKingdom: '卡拉考斯', pool: 'positive' }),
-      summonRandomOfKingdom('卡拉考斯', undefined),
+      summonRandom(rawKingdomPool(3017), undefined), // native SummoningKingdom 3017 (raw ids; zh name adds faction troops)
     ),
   },
   {
@@ -418,10 +419,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8529,
-    desc: '摧毁 [魔法 + 1] 颗敌人队伍使用对多的颜色宝石。召唤一名随机滴答洞穴军队。',
+    desc: '摧毁 [魔法 + 1] 颗敌人队伍使用最多的颜色宝石。召唤一名随机滴答洞穴军队。',
     build: skill(
       destroyRandomGems(1, 1, 'color', 'ENEMY_MOST_USED'),
-      summonRandomOfKingdom('葛洛什奈克', undefined),
+      summonRandom(rawKingdomPool(3058), undefined), // native SummoningKingdom 3058 Dripping Caverns (zh name = parent Grosh-Nak)
     ),
   },
   {
@@ -617,7 +618,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8670,
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有玉银林地盟友一个随机正面增益效果。再召唤一名玉银林地军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Purple"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetKingdom":"玉银林地"},{"kind":"summon","params":{"source":{"randomOfKingdom":"玉银林地"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Purple"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetKingdom":"玉银林地"},{"kind":"summon","params":{"source":{"randomOf":rawKingdomPool(3009)}}}]} as SkillPrototype),
   },
   {
     id: 8680,

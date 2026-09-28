@@ -27,7 +27,7 @@
  *   （batch-20 GIANTS 同口径，名单由 SOP §6 查询命令生成）。
  */
 import { skill, dmg, steal, armor, attack, createSkulls, createSpecialGems, explodeRandomGems,
-  destroyRandomRows, destroyRandomCols, destroyColor, summonRandom, stealGold, escape, CHOSEN } from '../builders';
+  destroyRandomCols, destroyChosenRow, destroyColor, summonRandom, stealGold, escape, CHOSEN } from '../builders';
 import type { CuratedBatch } from './index';
 
 
@@ -133,7 +133,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7818,
     desc: '摧毁一行。有 30% 的几率跑掉。',
     build: skill(
-      destroyRandomRows(1, 0),
+      destroyChosenRow(), // native Target Board + DestroyGems BoardTarget Row = the player's chosen row (sa-E L1)
       escape(0.3),
     ),
   },

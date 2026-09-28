@@ -196,3 +196,58 @@ describe('L1-E B02 troop:7111 Oneiros (8654): Nightmare x3 at 100/50/25%', () =>
     expect(d[3]).toBeGreaterThan(25); expect(d[3]).toBeLessThan(80);
   });
 });
+
+// ---------------------------------------------------------------- B03
+const fled = (ev: GameEvent[]) => ev.filter(e => e.type === 'flee') as { characterId: number }[];
+describe('L1-E B03 RunAway@Self 30%: troop:7491 Valhawk (random column), troop:6596 Glory Gnome (chosen row)', () => {
+  for (const key of ['troop:7491', 'troop:6596']) it(`${key}: caster flees ~30% over 300 seeds`, () => {
+    let n = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const f = fled(castSpell({ key, seed }).events);
+      if (f.length) { n++; expect(f).toEqual([expect.objectContaining({ characterId: 0 })]); }
+    }
+    expect(n).toBeGreaterThan(60); expect(n).toBeLessThan(120);
+  });
+  it('Glory Gnome (native Target Board, BoardTarget Row) destroys the chosen row: 8 gems in row 5', () => {
+    const r = castSpell({ key: 'troop:6596', cell: { row: 5, col: 0 } });
+    expect(r.summary.gems.destroyed).toBe(8);
+    expect(registry.prototypes.get('7818')).toMatchObject({ segments: [{ params: { target: { kind: 'chosenLine', orientation: 'row' } } }, {}] });
+  });
+});
+
+describe('L1-E B03 troop:6631 Angry Mob (7956): Randomize ABC-DEF', () => {
+  it('always destroy + burn; then exactly one of (Angry Mob summon | Magic+1 = 11 to the first enemy), ~50/50', () => {
+    let s = 0, d = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const r = castSpell({ key: 'troop:6631', seed, allies: [] });
+      const sm = summons(r.events), hit = dmgTo(r.events, 10);
+      expect(r.summary.order.filter(x => x.includes('+burning'))).toHaveLength(1);
+      if (sm.length) { s++; expect(sm).toHaveLength(1); expect(r.summary.units[`A${sm[0].characterId}`]).toContain(`new ${nameOfRef('AngryMob')} `); expect(r.summary.order.some(x => x.startsWith('dmg '))).toBe(false); }
+      else { d++; expect(hit.at(-1)).toBe(11); }
+    }
+    expect(s).toBeGreaterThan(70); expect(d).toBeGreaterThan(70);
+  });
+});
+
+describe('L1-E B03 troop:6601 Gluttony (7810): native Target Enemy -> explode the chosen enemy colour, 20% devour it', () => {
+  const devoured = (ev: GameEvent[]) => ev.filter(e => e.type === 'skill-damage' && (e as { devoured?: boolean }).devoured).map(e => (e as { targetId: number }).targetId);
+  it('devour only ever hits the chosen target, ~20% over 300 seeds', () => {
+    let n = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const v = devoured(castSpell({ key: 'troop:6601', seed, target: 12, enemies: oneHp() }).events);
+      if (v.length) { n++; expect(v).toEqual([12]); }
+    }
+    expect(n).toBeGreaterThan(35); expect(n).toBeLessThan(90);
+  });
+  it('colour comes from the chosen enemy: Purple-only E12 on a board without Purple explodes nothing; Red E10 explodes', () => {
+    expect(castSpell({ key: 'troop:6601', target: 12, board: redRich }).summary.gems.exploded).toBe(0);
+    expect(castSpell({ key: 'troop:6601', target: 10, board: redRich }).summary.gems.exploded).toBeGreaterThan(0);
+  });
+});
+
+describe('L1-E B03 SummoningKingdom <id>: pools = raw KingdomId roster (zh kingdom name also merges faction troops)', () => {
+  const cases: [string, number][] = [['gw_JellyShot', 3058], ['gw_CobaltineWand', 3030], ['gw_FireGodsHeart', 3000], ['gw_King-Chopper', 3018], ['gw_OldMagusStaff', 3017], ['gw_EmeraldBlade', 3009]];
+  for (const [skill, k] of cases) it(`${skill}: kingdom ${k}`, () => {
+    expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByKingdom(k)));
+  });
+});

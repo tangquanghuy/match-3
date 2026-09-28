@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 467 条改动，涉及 763 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 471 条改动，涉及 771 个技能 ID。
 
 ## 按时间
 
@@ -473,6 +473,10 @@
 | 2026-09-28T11:16 | sa-E | L1-E-6910-wraith | assembler | 8371 | troop:6910 GaelSpiritwhisperer | `src/engine/skills/curated/batch-r4.ts` | transform into random of Wraith/IceWraith/FrostfireWraith → native Data 6206 = Wraith only |  |
 | 2026-09-28T11:16 | sa-E | L1-E-6757-target | assembler | 8137 | troop:6757 Fungomancer | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | transform if ANY enemy Diseased; zh desc said any enemy → target itself Diseased (TransformConditional@FromTarget AddForDisease); zh desc + snapshot override |  |
 | 2026-09-28T11:16 | sa-E | L1-E-7111-dist | assembler | 8654 | troop:7111 Oneiros | `src/engine/skills/curated/batch-r5.ts` | Nightmare uniform 1-3 → 3 independent summons 100/50/25% |  |
+| 2026-09-28T11:55 | sa-E | L1-E-kingdom-summon-raw | assembler | 8399, 8513, 8514, 8515, 8529, 8670 | weapon:1364 CobaltineWand；weapon:1410 FireGodsHeart；weapon:1411 King-Chopper；weapon:1412 OldMagusStaff；weapon:1414 JellyShot；weapon:1438 EmeraldBlade | `src/engine/skills/curated/gowKingdomPools.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | summonRandomOfKingdom(<zh kingdom name>) = parent kingdom + its faction troops (1411 King-Chopper also drew Dripping Caverns only) → summonRandom(rawKingdomPool(<native Data id>)): roster troops with raw KingdomId 3030/3000/3018/3017/3058/3009 |  |
+| 2026-09-28T11:55 | sa-E | L1-E-1414-desc | data | 8529 | weapon:1414 JellyShot | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh desc typo 使用对多的颜色 → 使用最多的颜色 (curated desc + pool-w01 + reviewed override) |  |
+| 2026-09-28T11:55 | sa-E | L1-E-6596-row | assembler | 7818 | troop:6596 GloryGnome | `src/engine/skills/curated/batch-39.ts` | destroy a random row → destroy the chosen row (native Target Board, DestroyGems BoardTarget Row) |  |
+| 2026-09-28T11:55 | sa-E | L1-E-6601-target | assembler | 7810 | troop:6601 Gluttony | `src/engine/skills/curated/batch-acceptance.ts` | explode colour of a RANDOM enemy (TRACKED_ENEMY) and 20% devour that random enemy; no target prompt → native Target Enemy: explode 4 gems of the chosen enemy's colour (CHOSEN_TARGET), 20% devour the chosen enemy |  |
 
 ## 按技能 ID
 
@@ -719,7 +723,9 @@
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
 | 7808 | 1 | R7-6599-full-or |
+| 7810 | 1 | L1-E-6601-target |
 | 7816 | 1 | L1-E-1213-dist |
+| 7818 | 1 | L1-E-6596-row |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
 | 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
@@ -834,6 +840,7 @@
 | 8392 | 1 | P-R1-count-at-native-step |
 | 8393 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8396 | 1 | L2-1361-daemon-barrier |
+| 8399 | 1 | L1-E-kingdom-summon-raw |
 | 8403 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 8404 | 3 | L5-001、L5-002、L5-003 |
 | 8406 | 1 | R7-6928-zh-count |
@@ -876,8 +883,12 @@
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
+| 8513 | 1 | L1-E-kingdom-summon-raw |
+| 8514 | 1 | L1-E-kingdom-summon-raw |
+| 8515 | 1 | L1-E-kingdom-summon-raw |
 | 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
+| 8529 | 2 | L1-E-kingdom-summon-raw、L1-E-1414-desc |
 | 8535 | 1 | R3-B02-7007 |
 | 8540 | 1 | L7-R1-random-chain-waves |
 | 8546 | 1 | L1-7014-order |
@@ -946,6 +957,7 @@
 | 8666 | 1 | R7-tarot-extra-turn |
 | 8667 | 1 | R7-tarot-extra-turn |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 8670 | 1 | L1-E-kingdom-summon-raw |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8684 | 1 | P-random-stat-pool |

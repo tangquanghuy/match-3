@@ -5367,6 +5367,83 @@
         ]
       }
     },
+    "8514": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Red"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "葛洛什奈克",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Hematrax",
+                  "Shargral",
+                  "Warfang",
+                  "MorZarn",
+                  "KingOfSwords",
+                  "KragRaxBloodskull",
+                  "ImmortalAngRak",
+                  "TenOfRunes",
+                  "DaeDrak",
+                  "OrcRogue",
+                  "MouthOfZorn",
+                  "EyeOfArges",
+                  "TrkNala",
+                  "RokGarTheGuardian",
+                  "TuskRaider",
+                  "ArmoredBoarlet",
+                  "WarDrok",
+                  "BrawlmasterBurNakh",
+                  "WarWolf",
+                  "GorThrum",
+                  "ShadeOfZorn",
+                  "BorGakk",
+                  "FistOfZorn",
+                  "VorKarn",
+                  "DireBoar",
+                  "SolZara",
+                  "Gargantaur",
+                  "Drake",
+                  "OrcVeteran",
+                  "Ogryn",
+                  "FelDras",
+                  "ArmoredBoar",
+                  "KruargTheDread",
+                  "Wyvern",
+                  "GarNok",
+                  "DarkSong",
+                  "DrakeRider",
+                  "Cyclops",
+                  "Summoner",
+                  "Orc"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
     "8518": {
       "prototype": {
         "segments": [
@@ -5433,6 +5510,43 @@
           }
         ]
       }
+    },
+    "8529": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "ENEMY_MOST_USED"
+              }
+            }
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "BlackOoze",
+                  "Shoggorath",
+                  "OchreJelly",
+                  "Cloakmantle",
+                  "RockSquid"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "摧毁 [魔法 + 1] 颗敌人队伍使用最多的颜色宝石。召唤一名随机滴答洞穴军队。"
     },
     "8577": {
       "description": "创建 3-8 颗拥有各种翻倍量的通配宝石。",
@@ -5890,7 +6004,50 @@
             "kind": "summon",
             "params": {
               "source": {
-                "randomOfKingdom": "玉银林地"
+                "randomOf": [
+                  "KingElbormor",
+                  "Siobhan",
+                  "ElvenNoble",
+                  "Cosmo",
+                  "ImmortalSelene",
+                  "CorruptedCrystalem",
+                  "WoodRot",
+                  "Leucithrax",
+                  "GuardianSpirit",
+                  "LioraMistveil",
+                  "Mistlark",
+                  "ArcaneSabercat",
+                  "SirAiluin",
+                  "CrystalEggs",
+                  "HeraldOfKrystenax",
+                  "Amethialas",
+                  "FloraFawn",
+                  "MoonMage",
+                  "SwordMaiden",
+                  "Tannenbaum",
+                  "MoonPhoenix",
+                  "TheMagician",
+                  "Forgemistress",
+                  "StarryMage",
+                  "SapphireKnight",
+                  "WillOfNysha",
+                  "Grimcorn",
+                  "LordEhrondil",
+                  "SilverOak",
+                  "Willow",
+                  "Arcanus",
+                  "Hind",
+                  "QueenAurora",
+                  "Wisp",
+                  "Krystenax",
+                  "TheSilvermaiden",
+                  "PrincessElspeth",
+                  "Unicorn",
+                  "Enchantress",
+                  "ElvenBard",
+                  "Swordmaster",
+                  "SilverDrakon"
+                ]
               }
             }
           }
