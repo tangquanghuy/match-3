@@ -29,9 +29,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，则可拿回大部分法力值，并获得一个额外回合。',
     // EN「gain 9 Mana back and an extra turn」：ZH「大部分法力值」机翻，官方固定 9 点；两段同挂 ifTargetDied
     build: skill(
+      // sa-F1: native order ExtraTurnConditional (s2) then GenerateMana (s3); the self mana step re-points lastTarget
+      // to the caster, so with mana first the extra turn never fired.
       dmg('enemyChosen', 3, 1),
-      mana('allySelf', 9, 0, { ifTargetDied: true }),
       extraTurn({ ifTargetDied: true }),
+      mana('allySelf', 9, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

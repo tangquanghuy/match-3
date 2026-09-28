@@ -37,7 +37,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, heal, armor, attack, mana, reduce, steal, stealRandomStat,
   createGems, transform, destroyChosenRow, destroyColor, destroyRandomGems, destroyArea,
-  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold,
+  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold, targetedSkill,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -63,19 +63,20 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「兽人或恶魔」= anyOf(targetRace Orc, targetRace Daemon)（目标相对条件，SOP 种族英文拼写）
     build: skill(
       dmg('enemyChosen', 6, 1),
-      reduce('lastTarget', 'random', 4, 0),
-      steal('lastTarget', 'mana', 'mana', 6, 0, {
-        ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Orc' }, { kind: 'targetRace', race: 'Daemon' }] },
-      }),
+      reduce('enemyChosen', 'random', 4, 0),
+      // sa-F1: native has two StealMana steps (AddForDaemon 6, AddForOrc 6) — an Orc Daemon loses 12.
+      steal('enemyChosen', 'mana', 'mana', 6, 0, { ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      steal('enemyChosen', 'mana', 'mana', 6, 0, { ifCond: { kind: 'targetRace', race: 'Orc' } }),
     ),
   },
   {
     id: 7310,
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，并窃取 [魔法 + 1] 点随机技能值。对机械军队造成两倍伤害。',
     // StealRandom：掷中哪项削哪项、施法者同项入账；「机械军队」= raceDouble 'Mech'
+    // sa-F1 (R001): native s0 StealRandomStat runs before s1 Damage.
     build: skill(
+      stealRandomStat('enemyChosen', 1, 1),
       dmg('enemyChosen', 1, 1, { raceDouble: 'Mech' }),
-      stealRandomStat('lastTarget', 1, 1),
     ),
   },
   {
@@ -87,9 +88,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7323,
     desc: '摧毁一行。对第一名敌人造成 [魔法 + 1] 点伤害，并减除 [魔法 + 1] 点随机技能值，减除数量因被摧毁的蓝色宝石而增强。 [x2]',
+    // sa-F1: native s1 Damage also has UseCounterForAmount (Blue gems in the row x2), so both steps are boosted.
+    // Native counts before the row is destroyed and destroys last; no "chosen row at cast start" source exists,
+    // so the destroy stays first and destroyedGems Blue carries the count.
     build: skill(
       destroyChosenRow(),
-      dmg('enemyFront', 1, 1),
+      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } } }),
       reduce('enemyFront', 'random', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
       }),
@@ -139,12 +143,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7596,
     desc: '移除选定颜色的宝石。减除最后一名敌人 [魔法 + 1] 点随机技能值，数量因被移除的宝石数量而增强。窃取 4 点法力值。 [3:1]',
     // 「因被移除的宝石数量」= destroyedGems 无色（R10 9639 口径，含任意被摧毁宝石）
+    // Native (R001, sa-F1): CountGems chosen 34 → DecreaseRandom@LastEnemy → StealMana 4 → RemoveColor chosen.
     build: skill(
-      destroyColor('CHOSEN'),
       reduce('enemyLast', 'random', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } },
       }),
       steal('enemyLast', 'mana', 'mana', 4, 0),
+      destroyColor('CHOSEN'),
     ),
   },
   {
@@ -285,7 +290,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9602,
     desc: '选择一名敌人。摧毁其4颗相同法力颜色的宝石，数量等于我的金币。之后获得10金币并获得额外回合。 [10:1]',
     // 「其…法力颜色」= LAST_TARGET（首段无跨段追踪 → 回退 chosenTargetId）；「数量等于我的金币 [10:1]」
-    build: skill(
+    // sa-F1: native Target Enemy — declare the chosen enemy (inputTarget), otherwise no target is picked and
+    // LAST_TARGET resolves to nothing (no gems destroyed).
+    build: targetedSkill('enemyChosen',
       destroyRandomGems(4, 0, 'color', 'LAST_TARGET', {
         modifier: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } },
       }),

@@ -216,6 +216,48 @@
         "skippedClauses": []
       }
     },
+    "7194": {
+      "description": "减除一名敌人全部护甲值，在使其中毒，或造成 [魔法 + 2] 点伤害。",
+      "prototype": {
+        "inputTarget": "enemyChosen",
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "drainAll": true
+          },
+          {
+            "kind": "oneOf",
+            "options": [
+              [
+                {
+                  "kind": "status",
+                  "target": "enemyChosen",
+                  "statusId": "poison",
+                  "turns": 3,
+                  "magnitude": 3
+                }
+              ],
+              [
+                {
+                  "kind": "damage",
+                  "target": "enemyChosen",
+                  "scaling": {
+                    "base": 2,
+                    "mult": 1
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    },
     "7198": {
       "description": "耗尽第一名和最后一名敌人的法力值。为所有盟友提供 1 点魔力值。",
       "prototype": {
@@ -443,7 +485,62 @@
       }
     },
     "7240": {
-      "description": "对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。"
+      "description": "对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "random",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "gainStat": "attack"
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            },
+            "condMult": {
+              "times": 3,
+              "cond": {
+                "kind": "targetRace",
+                "race": "Fey"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7244": {
+      "description": "对所有敌人造成 [魔法 + 1] 点伤害。从每名敌人身上窃取 1 点随机技能值。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyAll",
+            "stat": "random",
+            "scaling": {
+              "base": 1,
+              "mult": 0
+            },
+            "gainStat": "attack"
+          },
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "range": "all"
+          }
+        ]
+      }
     },
     "7245": {
       "description": "对所有敌人造成 [(魔法 / 2) + 2] 点真实伤害。获得 2 点魔力值。如果敌人身亡，则获得一个额外回合。",
@@ -470,7 +567,9 @@
           },
           {
             "kind": "extraTurn",
-            "ifTargetDied": true
+            "ifCond": {
+              "kind": "castEnemyDied"
+            }
           }
         ]
       },
@@ -1073,6 +1172,92 @@
     },
     "7592": {
       "description": "对第一名敌人造成 [魔法 + 4] 点伤害。如果敌人使用蓝色法力值，则造成三倍伤害。"
+    },
+    "7624": {
+      "description": "给一名盟友 [魔法 + 2] 点生命值和一半的法力值。将其净化，并赋予其屏障和法印效果。 [2:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "cleanse",
+            "target": "allyChosen"
+          },
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "halve": true,
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 2,
+                "b": 1
+              }
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "hp",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "status",
+            "target": "allyChosen",
+            "statusId": "barrier",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "allyChosen",
+            "statusId": "enchanted",
+            "turns": 3
+          }
+        ]
+      }
+    },
+    "7626": {
+      "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。伤害值因所收集的灵魂数而增强。窃取其法力值。 [3:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "gainStat": "mana",
+            "drainAll": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 3,
+                "b": 1
+              },
+              "source": {
+                "kind": "battleSouls"
+              }
+            }
+          }
+        ]
+      }
     },
     "7654": {
       "description": "创造 15 颗红色和绿色的宝石。赋予两名随机盟友法印效果。"
@@ -3170,6 +3355,40 @@
         "fidelity": "full",
         "missingFeatures": [],
         "skippedClauses": []
+      }
+    },
+    "8440": {
+      "description": "消除 [魔法 + 1] 点随机技能值，再使一名敌人陷入诅咒、死亡标记和疾病状态。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "random",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "curse",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "death-mark",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyChosen",
+            "statusId": "disease",
+            "turns": 3
+          }
+        ]
       }
     },
     "8441": {
@@ -5290,6 +5509,210 @@
     },
     "9985": {
       "description": "若我方队伍中有不朽的拜布利奥斯，使选定敌人陷入沉默。削减该敌人 [魔法 + 1] 点攻击力和 4 点魔法，两项削减均因被诅咒的敌人数而增强。 [x3]"
+    },
+    "10003": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有蓝色盟友，诅咒所有蓝色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "10005": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有红色盟友，诅咒所有红色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "10006": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有黄色盟友，诅咒所有黄色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "10008": {
+      "description": "给予一名盟友 [魔法 + 1] 点随机技能值，每提升一级强化等级额外增加3点。祝福所有棕色盟友，诅咒所有棕色敌人。如果敌人带有厄运效果，则获得额外回合。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "randomStat",
+            "target": "allyChosen",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "oneSkill": true,
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "blessed",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "curse",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "extraTurn",
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
     },
     "10045": {
       "description": "对 3 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因火山宝石数而增强。若有敌人死亡，创造 12 颗火山宝石。[x4]",

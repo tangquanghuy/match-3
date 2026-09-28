@@ -334,10 +334,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7473,
     desc: "给予一名盟友 2 点魔力值，给予其自身一半的法力值并赋予法印效果。 [2:1]",
     // 「一半的法力值」= mana halve（§9.6，按其自身 manaCost 现算）；[2:1] = 减半比率序列化（r15 口径）
+    // sa-F1 (R001): native CountManaCost → CauseEnchanted → GenerateMana (half cost) → IncreaseSpellPower 2.
     build: skill(
-      magic('allyChosen', 2, 0),
-      mana('allyChosen', 0, 0, { halve: true }),
       inflict('enchanted', 'allyChosen'),
+      mana('allyChosen', 0, 0, { halve: true }),
+      magic('allyChosen', 2, 0),
     ),
   },
   {
@@ -373,12 +374,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7478,
     desc: "对所有敌人造成 [魔法 + 4] 点伤害，伤害值因选定的颜色数量而增强，然后移除该指定颜色宝石。召唤一只银天龙。 [2:1]",
     // 【挽救】EN 原句顺序「Remove all Gems of a chosen Color」在前——destroyColor(CHOSEN) 前移后 destroyedGems 即「移除的宝石数」；[2:1] = ratio 2:1
+    // Native (R001, sa-F1): CountGems chosen 50 → Damage@AllEnemies +count → RemoveColor → summon.
     build: skill(
-      destroyColor(CHOSEN),
       dmg('enemyAll', 4, 1, {
     range: 'all',
-    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } },
+    modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } },
   }),
+      destroyColor(CHOSEN),
       summonRef('SilverDrakon', 6321),
     ),
   },
@@ -799,9 +801,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7773,
     desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。窃取 6 点法力值。",
     // 「窃取 6 法力」= steal mana→mana
+    // sa-F1 (R001): native s0 StealMana 6 runs before s1 Damage.
     build: skill(
-      dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
       steal('enemyChosen', 'mana', 'mana', 6, 0),
+      dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
     ),
   },
   {

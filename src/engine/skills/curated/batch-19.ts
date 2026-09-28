@@ -117,20 +117,21 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7233,
     desc: '给予所有盟友 [(魔法 / 2) + 3] 点生命值。召唤一名骸骨恶魔。',
+    // sa-F1 (R001): native s0 SummoningNoError runs before s1 IncreaseHealth@AllAllies, so the Bone Daemon is healed too.
     build: skill(
-      heal('allyAll', 3, 0.5),
       summonRef('BoneDaemon', 6376),
+      heal('allyAll', 3, 0.5),
     ),
   },
   {
     id: 7260,
     desc: '随机摧毁 [魔法 + 4] 颗宝石。承受 2 点伤害。如果板面上有 13 颗或更多红色宝石，则获得一个额外回合。',
+    // sa-F1 (R001): native s0 ExtraTurnConditional (13+ Red, R003) is checked BEFORE s1 self damage and s2 DestroyGems.
     build: skill(
-      destroyRandomGems(4, 1, 'color'),
+      extraTurn({ ifCond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } }),
       // 「承受 2 点伤害」= 对自身造成 2 点伤害（SOP §0「自身」= allySelf，常数 mult=0）
       dmg('allySelf', 2, 0),
-      // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节，boardAtLeast 全局条件示例同款）
-      extraTurn({ ifCond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } }),
+      destroyRandomGems(4, 1, 'color'),
     ),
   },
   {

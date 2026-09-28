@@ -1,0 +1,80 @@
+# sa-F1 progress (fix-queue/F1.md, lanes L1/L2/L3)
+
+- 2026-09-28T00:00:00Z troop:6319 approved Cleanse Amount/SpellPowerMultiplier has no observable effect; cleanse others + 3-8 mana + 3 bombs match
+- 2026-09-28T00:09:41Z weapon:1706 fixed IncreaseRandom was allyRandom/Magic-ignored/split; now chosen ally, [Magic+1] one random Skill (+zh)
+- 2026-09-28T00:09:41Z weapon:1708 fixed same as 1706 (spell 10005)
+- 2026-09-28T00:09:41Z weapon:1709 fixed same as 1706 (spell 10006)
+- 2026-09-28T00:09:41Z weapon:1711 fixed same as 1706 (spell 10008)
+- 2026-09-28T00:19:38Z troop:6871 approved quarter mana only for Purple allies (none in default team); test gowLaneL3FixsaF1
+- 2026-09-28T00:19:38Z troop:7341 approved stale hint: chosen ally +2 Attack now visible; 7%/Yellow extra-turn chance
+- 2026-09-28T00:19:38Z troop:7749 approved stale hint: [Magic+1] Attack + Barrier visible; Tauros half mana tested
+- 2026-09-28T00:19:38Z weapon:1311 approved stale hint: Enrage + [(M/2)+1] Attack +1/Orc ally tested, Orc summon
+- 2026-09-28T00:19:38Z weapon:1377 issue fixed DecreaseRandom target (lastTarget no-op -> chosen enemy); remaining P-random-stat-pool (Life missing from pool)
+- 2026-09-28T00:19:38Z troop:6931 fixed added native Dispel@RandomEnemy before the kill (Barrier absorbed it); approved
+- 2026-09-28T00:19:38Z troop:6970 issue P-F1-remove-gems: RemoveColor grants mana (engine has no remove mode); order already native
+- 2026-09-28T00:19:38Z troop:6207 issue fixed order to native (count, drain, true dmg, then remove); remaining P-F1-remove-gems
+- 2026-09-28T00:19:38Z troop:6423 issue fixed order to native (count, DecreaseRandom, steal, then remove); remaining P-F1-remove-gems
+- 2026-09-28T00:19:38Z troop:6076 issue fixed order to native (count, life, remove, summon, extra); remaining P-F1-remove-gems
+- 2026-09-28T00:19:38Z troop:6328 issue fixed order to native (count, damage, remove, summon); remaining P-F1-remove-gems
+- 2026-09-28T00:25:54Z troop:6047 fixed hint was harness status leak; added native Dispel@FromTarget before devour (Barrier blocked it); approved + test
+- 2026-09-28T00:25:54Z troop:6326 approved fresh process: create 11 of ally colour, kill ally, summon knight (hint was harness status leak, queued P-F1-harness-status-leak)
+- 2026-09-28T00:25:54Z troop:7674 fixed no chosen target declared -> no gems destroyed; targetedSkill enemyChosen; approved + test (14 gems at 100 gold)
+- 2026-09-28T00:25:54Z troop:7245 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7246 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7247 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7248 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7249 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7250 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7440 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7441 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7442 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7443 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7444 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:25:54Z troop:7445 queued P-F1-giant-dragon-gems: convert to Giant/Dragon gems is a no-op; damage/extra-turn ok
+- 2026-09-28T00:34:01Z troop:6387 issue fixed missing self-kill (native Damage@Self 1+10000); rebirth = in-place full revive until P-F1-summon-after-caster-death
+- 2026-09-28T00:34:01Z troop:6206 fixed chosen enemy only inside oneOf -> spell did nothing; targetedSkill enemyChosen; approved + branch test
+- 2026-09-28T00:34:01Z troop:6289 approved no Daemon allies / souls in default; +2 Magic to Daemons and 12-soul summon tested
+- 2026-09-28T00:34:01Z troop:6292 fixed oneOf chosen target declared; halve Attack/Magic/Giant Toad branches tested; approved
+- 2026-09-28T00:34:01Z troop:6845 fixed oneOf chosen target declared; 3 branches tested; approved
+- 2026-09-28T00:34:01Z troop:6929 fixed oneOf target declared + triple damage 3x[M+3] (was 3+3M); approved + test
+- 2026-09-28T00:34:01Z troop:6969 fixed oneOf target declared; true dmg+burn / destroy bombs branches tested; approved
+- 2026-09-28T00:34:01Z troop:7329 fixed oneOf target declared; Web [x2] boost tested; approved
+- 2026-09-28T00:34:01Z troop:7825 fixed one curse per Poison Gem (native count) instead of per gem in the blasts; approved + test
+- 2026-09-28T00:34:01Z weapon:1081 fixed oneOf target declared; armor removal now common to both branches (was poison branch only); approved + test
+- 2026-09-28T00:35:28Z troop:6047 issue golden dropped: gowCastGolden replay order leaks A1 Barrier (P-F1-harness-status-leak); fix + own test stay
+- 2026-09-28T00:35:28Z troop:6326 issue golden dropped for the same harness leak (P-F1-harness-status-leak)
+- 2026-09-28T00:39:07Z troop:6023 issue P-charm-instant: kill branch depends on Charm semantics (status here, cannot kill during the cast)
+- 2026-09-28T00:39:07Z troop:7351 fixed native order: 35% Devour if Death Marked before damage (was damage then execute); approved + test
+- 2026-09-28T00:39:07Z troop:6086 fixed extra turn on kill never fired (self mana step re-pointed lastTarget); native order; approved
+- 2026-09-28T00:39:07Z weapon:1108 fixed extra turn on any enemy death (castEnemyDied) instead of lastTarget after self buff; approved
+- 2026-09-28T00:39:07Z troop:6843 fixed enemy below skipped when the chosen one died; single chosen+next-down hit; approved
+- 2026-09-28T00:42:52Z troop:6171 issue order fixed to native (StealRandom before damage); remaining P-random-stat-pool
+- 2026-09-28T00:42:52Z weapon:1104 issue order fixed to native (steal 5 random before damage); remaining P-random-stat-pool
+- 2026-09-28T00:42:52Z troop:6119 fixed native order 50% Elf devour -> +5 Life -> damage x2; approved + test
+- 2026-09-28T00:42:52Z troop:6173 fixed same as 6119 (Goblin); approved + test
+- 2026-09-28T00:42:52Z troop:6212 fixed same as 6119 (Dragon); approved + test
+- 2026-09-28T00:42:52Z troop:6455 fixed same as 6119 (Monster); approved + test
+- 2026-09-28T00:42:52Z troop:6569 fixed StealMana 6 before damage (native); Tower/Ascension clause waived R000 tower; approved
+- 2026-09-28T00:42:52Z troop:6879 fixed native order + real Devour (was execute); approved + test
+- 2026-09-28T00:42:52Z weapon:1107 issue order fixed to native (StealRandom all before damage); remaining P-random-stat-pool
+- 2026-09-28T00:42:52Z weapon:1177 fixed StealMana before damage (native); souls [3:1]=34% tested; approved
+- 2026-09-28T00:46:39Z troop:6838 fixed IncreaseRandom was all other allies + split points; now chosen ally, one random Skill, +gold [1:1]; approved
+- 2026-09-28T00:46:39Z troop:7057 issue F1-7057-block5x5-count source-dispute: native counts skulls in 5x5, explodes 3x3
+- 2026-09-28T00:46:39Z troop:7090 fixed armor boosted by Red allies (not team size) first; burns 2 + 50% + 25% (not uniform 2-4); approved + test
+- 2026-09-28T00:46:39Z weapon:1175 fixed native order cleanse -> mana -> life -> barrier -> enchant; approved
+- 2026-09-28T00:46:39Z troop:6134 issue split Orc/Daemon steals (native two steps, tested); remaining P-random-stat-pool
+- 2026-09-28T00:46:39Z troop:6776 issue matches native except DecreaseRandom pool (P-random-stat-pool)
+- 2026-09-28T00:51:57Z troop:7625 fixed drain hit a re-rolled enemy set; native dmg->drain pairs (PrefNotPrev); approved + test
+- 2026-09-28T00:51:57Z troop:6182 issue damage boost by Blue-in-row added; remaining P-random-stat-pool (destroy-first kept, no row-count source)
+- 2026-09-28T00:51:57Z troop:6926 fixed drain BelowTarget before knock-back (was only the target); approved; K dead-anchor question in P-F1-dead-anchor-targets
+- 2026-09-28T00:51:57Z troop:6146 fixed 13-Red extra-turn check moved before destroy (native); approved + test
+- 2026-09-28T00:51:57Z troop:6197 fixed native order damage -> burn all -> extra turn on kill; approved
+- 2026-09-28T00:51:57Z troop:6227 fixed native per-enemy dmg/stun/drain on front then second; approved
+- 2026-09-28T00:51:57Z troop:6374 fixed native per-enemy dmg/silence second-last then last, then summon; approved
+- 2026-09-28T00:51:57Z troop:6323 fixed native order enchant -> mana -> magic; approved
+- 2026-09-28T00:51:57Z troop:7278 fixed status before one-skill IncreaseRandom (was split points); zh adds 2 Treasure Maps (snapshot override); approved
+- 2026-09-28T00:51:57Z troop:7793 issue P-charm-instant: kill branch depends on Charm semantics
+- 2026-09-28T00:51:57Z troop:7803 issue order fixed (submerge after the already-submerged 50% check); Charm semantics P-charm-instant
+- 2026-09-28T00:51:57Z troop:6131 fixed summon Bone Daemon before the heal (native), so it is healed; approved
+- 2026-09-28T00:51:57Z troop:6295 fixed transform into Werewolf before converting gems (native); approved
+- 2026-09-28T00:55:16Z troop:7625 issue golden dropped: replay-order status leak (Poison) doubles the drain (P-F1-harness-status-leak); fix + own test stay

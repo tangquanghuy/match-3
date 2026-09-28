@@ -1,0 +1,142 @@
+{
+ "troop:6206": {
+  "lines": {
+   "L10": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
+   "R10": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
+   "L0": "buff E11 mana-8 ; buff C mana+7  => E11:mana-8",
+   "K": "buff E11 mana-5 ; buff C mana+5  => E11:mana-5"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:30.755Z"
+ },
+ "troop:6838": {
+  "lines": {
+   "L10": "buff A1 hp+105 max+105 ; explode 19 ; skulls E10 1  => A1:hp+105 max+105 mana+1 | E10:arm-1  eco:{\"goldMine\":-100}",
+   "R10": "buff A1 hp+105 max+105 ; explode 19 ; skulls E10 1  => A1:hp+105 max+105 mana+1 | E10:arm-1  eco:{\"goldMine\":-100}",
+   "L0": "buff A1 hp+105 max+105 ; explode 19 ; skulls E10 1  => A1:hp+105 max+105 mana+1 | E10:arm-1  eco:{\"goldMine\":-100}",
+   "K": "buff A1 hp+105 max+105 ; explode 19 ; skulls E10 1 ; defeat E10  => A1:hp+105 max+105 mana+1 | E10:hp-1 DEAD  eco:{\"goldMine\":-100}"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:46:24.120Z"
+ },
+ "troop:6845": {
+  "lines": {
+   "L10": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11",
+   "R10": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11",
+   "L0": "buff E11 attack-1 ; buff C attack+1  => E11:atk-1 | C:atk+1",
+   "K": "buff E11 attack-11 ; buff C attack+11  => E11:atk-11 | C:atk+11"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:33.002Z"
+ },
+ "troop:6929": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:35.253Z"
+ },
+ "troop:6969": {
+  "lines": {
+   "L10": "(no spell events)",
+   "R10": "(no spell events)",
+   "L0": "(no spell events)",
+   "K": "(no spell events)"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:37.796Z"
+ },
+ "troop:7090": {
+  "lines": {
+   "L10": "buff C armor+33 ; status E12 +burning ; status E11 +burning  => C:arm+33 | E12:+burning | E11:+burning",
+   "R10": "buff C armor+33 ; status E12 +burning ; status E11 +burning  => C:arm+33 | E12:+burning | E11:+burning",
+   "L0": "buff C armor+23 ; status E12 +burning ; status E11 +burning  => C:arm+23 | E12:+burning | E11:+burning",
+   "K": "buff C armor+33 ; status E12 +burning ; status E11 +burning  => C:arm+33 | E12:+burning | E11:+burning"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:46:26.605Z"
+ },
+ "troop:7278": {
+  "lines": {
+   "L10": "status C +enraged ; status A1 +enchanted ; status A2 +submerged ; buff C hp+11 max+11 ; buff A1 attack+11 ; buff A2 hp+11 max+11 ; gold+50 ; souls+20 ; maps+2  => C:hp+11 max+11 +enraged | A1:atk+11 +enchanted | A2:hp+11 max+11 +submerged  eco:{\"gold\":50,\"souls\":20,\"maps\":2,\"goldMine\":50}",
+   "R10": "status C +enraged ; status A1 +enchanted ; status A2 +submerged ; buff C hp+11 max+11 ; buff A1 attack+11 ; buff A2 hp+11 max+11 ; gold+50 ; souls+20 ; maps+2  => C:hp+11 max+11 +enraged | A1:atk+11 +enchanted | A2:hp+11 max+11 +submerged  eco:{\"gold\":50,\"souls\":20,\"maps\":2,\"goldMine\":50}",
+   "L0": "status C +enraged ; status A1 +enchanted ; status A2 +submerged ; buff C hp+1 max+1 ; buff A1 attack+1 ; buff A2 hp+1 max+1 ; gold+50 ; souls+20 ; maps+2  => C:hp+1 max+1 +enraged | A1:atk+1 +enchanted | A2:hp+1 max+1 +submerged  eco:{\"gold\":50,\"souls\":20,\"maps\":2,\"goldMine\":50}",
+   "K": "status C +enraged ; status A1 +enchanted ; status A2 +submerged ; buff C hp+11 max+11 ; buff A1 attack+11 ; buff A2 hp+11 max+11 ; gold+50 ; souls+20 ; maps+2  => C:hp+11 max+11 +enraged | A1:atk+11 +enchanted | A2:hp+11 max+11 +submerged  eco:{\"gold\":50,\"souls\":20,\"maps\":2,\"goldMine\":50}"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:51:44.757Z"
+ },
+ "troop:7329": {
+  "lines": {
+   "L10": "buff E11 mana-4  => E11:mana-4",
+   "R10": "buff E11 mana-4  => E11:mana-4",
+   "L0": "buff E11 mana-4  => E11:mana-4",
+   "K": "buff E11 mana-4  => E11:mana-4"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:40.285Z"
+ },
+ "troop:7825": {
+  "lines": {
+   "L10": "(no spell events)",
+   "R10": "(no spell events)",
+   "L0": "(no spell events)",
+   "K": "(no spell events)"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:42.756Z"
+ },
+ "weapon:1081": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; dmg E11 12  => E11:hp-12 arm-10",
+   "R10": "buff E11 armor-10 ; dmg E11 12  => E11:hp-12 arm-10",
+   "L0": "buff E11 armor-10 ; dmg E11 2  => E11:hp-2 arm-10",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:33:45.460Z"
+ },
+ "weapon:1706": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison | E11:+curse",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison | E11:+curse",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status E11 +curse  => A1:hp+1 max+1 +blessed -poison | C:+blessed -poison | E11:+curse",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed  => A1:hp+11 max+11 +blessed -poison | C:+blessed -poison"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ },
+ "weapon:1708": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; remove E10 -rage ; status E10 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E10:+curse -rage",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; remove E10 -rage ; status E10 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E10:+curse -rage",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; status A2 +blessed ; remove E10 -rage ; status E10 +curse  => A1:hp+1 max+1 | C:+blessed -poison | A2:+blessed | E10:+curse -rage",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E10 +curse ; status E11 +curse ; status E12 +curse ; status E13 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E10:+curse | E11:+curse | E12:+curse | E13:+curse"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ },
+ "weapon:1709": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E11 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E11:+curse",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E11 +curse  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed | E11:+curse",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; status A2 +blessed ; status E11 +curse  => A1:hp+1 max+1 | C:+blessed -poison | A2:+blessed | E11:+curse",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; status A2 +blessed  => A1:hp+11 max+11 | C:+blessed -poison | A2:+blessed"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ },
+ "weapon:1711": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove E13 -rage ; status E13 +curse  => A1:hp+11 max+11 | C:+blessed -poison | E13:+curse -rage",
+   "R10": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed ; remove E13 -rage ; status E13 +curse  => A1:hp+11 max+11 | C:+blessed -poison | E13:+curse -rage",
+   "L0": "buff A1 hp+1 max+1 ; remove C -poison ; status C +blessed ; remove E13 -rage ; status E13 +curse  => A1:hp+1 max+1 | C:+blessed -poison | E13:+curse -rage",
+   "K": "buff A1 hp+11 max+11 ; remove C -poison ; status C +blessed  => A1:hp+11 max+11 | C:+blessed -poison"
+  },
+  "by": "sa-F1",
+  "at": "2026-09-28T00:09:29.273Z"
+ }
+}

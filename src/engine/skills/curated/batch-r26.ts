@@ -88,6 +88,12 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'hp' } },
       }),
+      // sa-F1: native s2-s5 = Damage@Self 1, Damage@Self 10000 (the Sunbird really dies), SummoningNoError 6387
+      // (a fresh Sunbird). selfRevive never fired because nothing in the spell killed the caster. The engine cannot
+      // summon once the caster has left the roster (P-F1-summon-after-caster-death), so the rebirth stays a
+      // full-Life in-place revive for now.
+      dmg('allySelf', 1, 0),
+      dmg('allySelf', 0, 0, { execute: true }),
       selfRevive(0.5, { full: true }),
     ),
   },

@@ -28,7 +28,7 @@
  */
 import { skill, dmg, dmgAll, trueDmg, heal, armor, magic, mana, inflict, reduce, steal,
   createGems, createSpecialGems, transform, transformToSpecial, dispelStatus, createStorm,
-  oneOf, explodeRandomGems, explodeSpecialGems, destroySpecialGems } from '../builders';
+  oneOf, explodeRandomGems, explodeSpecialGems, destroySpecialGems, targetedSkill } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -229,8 +229,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8472,
     desc: '对一名敌人造成 [魔法 + 1] 点真实伤害，再使他们陷入燃烧状态。或摧毁所有炸弹宝石。',
-    build: skill(
+    build: targetedSkill('enemyChosen',
       // 「或」= 二选一掷签；第一支含两段（真实伤害+燃烧，同目标）
+      // sa-F1: native Target Enemy; declare the chosen enemy (inputTarget) — oneOf branches are not scanned for it.
       oneOf(
         [trueDmg('enemyChosen', 1, 1), inflict('burning', 'enemyChosen')],
         destroySpecialGems('bomb'),

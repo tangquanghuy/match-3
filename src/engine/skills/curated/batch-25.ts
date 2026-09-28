@@ -61,25 +61,26 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7339,
     desc: '燃烧所有敌人。对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因自身攻击力而增强。如果敌人身亡，则获得一个额外回合。 [1:1]',
+    // sa-F1 (R001): native CountAttack → Damage → CauseBurning@AllEnemies → ExtraTurnConditional AddForKill.
     build: skill(
-      inflict('burning', 'enemyAll'),
       dmg('enemyChosen', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'attack' } },
       }),
-      extraTurn({ ifTargetDied: true }),
+      inflict('burning', 'enemyAll'),
+      extraTurn({ ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
     id: 7349,
     desc: '耗尽一名敌人 7 点法力值。造成 [魔法 + 1] 点真实伤害，移除所有黄色宝石。伤害值因移除的宝石数而增强。 [2:1]',
     build: skill(
-      // 「移除所有黄色宝石。伤害值因移除的宝石数而增强」：清除段前移、来源不带色筛选
-      // （batch-04 7010 同款，见文件头备注）
+      // Native (R001, sa-F1): CountGems Yellow 50 → DecreaseMana 7 → TrueDamage +count → RemoveColor Yellow.
+      // The count is the Yellow gems on the board before the removal, so the removal stays last.
       reduce('enemyChosen', 'mana', 7, 0),
-      destroyColor(BaseColor.Yellow),
       trueDmg('enemyChosen', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      destroyColor(BaseColor.Yellow),
     ),
   },
   {

@@ -171,9 +171,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7526,
     desc: '对最后两名敌人造成 [魔法 + 4] 点伤害，并使其陷入沉默状态。然后召唤雅嘎的小屋。',
+    // sa-F1 (R001): native per enemy — Damage + Silence on SecondLastEnemy, then Damage + Silence on LastEnemy.
     build: skill(
-      dmg('enemyLastN', 4, 1, { n: 2 }),
-      inflict('silence', 'enemyLastN', { n: 2 }),
+      dmg('enemySecondLast', 4, 1),
+      inflict('silence', 'enemySecondLast'),
+      dmg('enemyLast', 4, 1),
+      inflict('silence', 'enemyLast'),
       // 雅嘎的小屋 = YagasHut（troops.json 6373）
       summonRef('YagasHut', 6373),
     ),

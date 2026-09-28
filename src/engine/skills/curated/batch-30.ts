@@ -81,8 +81,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「移除…以增强」句式：清除段前置，destroyedGems 来源才数得到（batch-04 7002 同款）；
       // 来源不带色筛选，色限定由 destroyColor(CHOSEN) 承担（batch-04 头注口径）
+      // Native (R001, sa-F1): CountGems chosen 50 → IncreaseHealth 8 +count → RemoveColor → summon → extra turn.
+      heal('allySelf', 8, 0, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } } }),
       destroyColor(CHOSEN),
-      heal('allySelf', 8, 0, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } } }),
       summonRandom(GOBLINS),
       extraTurn(),
     ),

@@ -14,7 +14,8 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllColors, destroyChosenRow, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
+import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { SpecialGemKind } from '../../types';
 import type { GemSegment } from '../prototypes';
@@ -135,7 +136,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7348,
     desc: '窃取 1 名敌人 [魔法 + 2] 点生命值，或窃取其法力值。',
-    build: skill(
+    // sa-F1: native Target Enemy; the chosen target sits inside oneOf, so declare it (inputTarget) or no target is picked.
+    build: targetedSkill('enemyChosen',
       // 「窃取生命」= 窃取式伤害；「窃取其法力值」无数值 = 全部窃取（「耗尽其法力值」同族口径）
       oneOf(
         [dmg('enemyChosen', 2, 1, { drain: true })],
@@ -227,9 +229,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7441,
     desc: '将黄色宝石转换为棕色。转化为一名狼人。',
+    // sa-F1 (R001): native s0 Transform@Self (Werewolf 6294) runs before s2 ConvertGems Yellow>Brown.
     build: skill(
-      transform(BaseColor.Yellow, BaseColor.Brown),
       transformTroop('allySelf', 'Werewolf'),
+      transform(BaseColor.Yellow, BaseColor.Brown),
     ),
   },
   {
@@ -442,8 +445,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8438,
     desc: '杀死一名随机敌人，再跑掉。只能施放一次。',
+    // Native: Dispel@RandomEnemy → LethalDamage@FromPrevious → RunAway (sa-F1: dispel first, so a Barrier cannot absorb the kill).
     build: skillOnce(
-      dmg('enemyRandom', 0, 0, { execute: true }),
+      ...POSITIVE_STATUS_IDS.map((statusId, index) => dispelStatus(statusId, index === 0 ? 'enemyRandom' : 'lastTarget')),
+      dmg('lastTarget', 0, 0, { execute: true }),
       escape(1),
     ),
   },

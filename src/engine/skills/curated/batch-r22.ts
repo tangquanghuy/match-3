@@ -63,8 +63,9 @@ import {
   destroyRandomRows, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
   explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, stealGold, gainGold, scale, flat,
-  oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt,
+  oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt, dispelStatus,
 } from '../builders';
+import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { CondMult } from '../effects/secondary';
 
@@ -119,7 +120,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7047,
     desc: '吞噬一名盟友。治疗自身并创造 6 颗骷髅头。',
     // Devour 家族回收（R22 devour 原语）：吞噬选定盟友（即杀+官方成长额度）→ 回满生命 → 6 骷髅。
+    // sa-F1: native step 0 Dispel@FromTarget runs before Consume, so an ally's Barrier cannot block the devour.
     build: skill(
+    ...POSITIVE_STATUS_IDS.map((statusId) => dispelStatus(statusId, 'allyChosen')),
     devour('allyChosen', { chance: 1 }),
     heal('allySelf', 0, 0, { full: true }),
     createSkulls(6),
@@ -158,10 +161,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌人是精灵，则造成双倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬精灵。',
     // Devour 家族回收：「是精灵则双倍」= condMult targetRace；「吞噬精灵」= ifCond targetRace
     // 辖吞噬段（非精灵目标被过滤、整段跳过）。
+    // sa-F1 (R001): native s0 ConsumeConditional → s1 IncreaseHealth 5 → s2 Damage x2.
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elf' } } }),
-    heal('allySelf', 5, 0),
     devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Elf' } }),
+    heal('allySelf', 5, 0),
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elf' } } }),
     ),
   },
   {
@@ -232,10 +236,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7312,
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害，如果敌人是哥布林，则造成双倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬哥布林。',
     // 同 7211（哥布林版）。
+    // sa-F1 (R001): native ConsumeConditional -> IncreaseHealth 5 -> Damage x2.
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Goblin' } } }),
-    heal('allySelf', 5, 0),
     devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Goblin' } }),
+    heal('allySelf', 5, 0),
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Goblin' } } }),
     ),
   },
   {
@@ -274,10 +279,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7354,
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害，如果敌人是龙族，则造成两倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬龙族。',
     // 同 7211（龙族版）。
+    // sa-F1 (R001): native ConsumeConditional -> IncreaseHealth 5 -> Damage x2.
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Dragon' } } }),
-    heal('allySelf', 5, 0),
     devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Dragon' } }),
+    heal('allySelf', 5, 0),
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Dragon' } } }),
     ),
   },
   {
@@ -445,10 +451,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7633,
     desc: '对 1 名敌人造成 [魔法 + 4] 伤害。如果敌人是怪兽，则造成双倍伤害。获得 5 点生命值。同时有 50% 的几率吞噬怪兽。',
     // 同 7211（怪兽版）。
+    // sa-F1 (R001): native ConsumeConditional -> IncreaseHealth 5 -> Damage x2.
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Monster' } } }),
-    heal('allySelf', 5, 0),
     devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetRace', race: 'Monster' } }),
+    heal('allySelf', 5, 0),
+    dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Monster' } } }),
     ),
   },
   {
@@ -776,8 +783,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Purple UseCounter）→ CreateGems Purple 12 AddForKill → SummoningConditional 6477 ×2
     //（无击杀才召唤）——NextDown = enemyNextDown（R22 新目标）；「否则」= not anyTrackedDied。
     build: skill(
-    dmg('enemyChosen', 4, 1, { trueDamage: true, modifier: boostPer({ kind: 'boardGems', color: BaseColor.Purple }, 1) }),
-    dmg('enemyNextDown', 4, 1, { trueDamage: true, modifier: boostPer({ kind: 'boardGems', color: BaseColor.Purple }, 1) }),
+    // sa-F1: both hits in one segment (enemyChosenAndNextDown) — enemyNextDown found nothing once the chosen enemy
+    // had died from the first hit, so the enemy below was skipped exactly when the kill branch fires.
+    dmg('enemyChosenAndNextDown', 4, 1, { range: 'all', trueDamage: true, modifier: boostPer({ kind: 'boardGems', color: BaseColor.Purple }, 1) }),
     createGems(BaseColor.Purple, 12, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     summonRef('SisterOfShadows', 6477, { countRange: { min: 2, max: 2 }, ifCond: { kind: 'not', cond: { kind: 'anyTrackedDied' } } }),
     ),

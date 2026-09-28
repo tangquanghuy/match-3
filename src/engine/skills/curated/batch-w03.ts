@@ -110,7 +110,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8440,
     desc: '消除 [魔法 + 1] 点随机技能值，再使一名敌人陷入诅咒、死亡标记和疾病状态。',
     build: skill(
-      reduce('lastTarget', 'random', 1, 1),
+      reduce('enemyChosen', 'random', 1, 1),
       inflict('curse', 'enemyChosen'),
       inflict('death-mark', 'enemyChosen'),
       inflict('disease', 'enemyChosen'),

@@ -246,11 +246,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8895,
-    desc: '给予所有盟友 [魔法 + 1] 点随机技能值，并赋予他们一个随机正面增益状态效果。获得 50 黄金、20 个灵魂。',
+    desc: '赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。',
     // ZH 漏译「并获得 2 张藏宝图」——EN/ST（GiveTreasureMaps x2）补齐（8930 EN 优先口径）
+    // sa-F1 (R001): native RandomPositiveStatusEffect@AllAllies first, then IncreaseRandom@AllAllies [Magic + 1]
+    // (the whole value on one random Skill per ally, oneSkill), then gold / souls / maps.
     build: skill(
-      randomStat('allyAll', 1, 1),
       inflictRandom('allyAll', { pool: 'positive' }),
+      randomStat('allyAll', 1, 1, { oneSkill: true }),
       gainGold(50),
       gainSouls(20),
       gainMaps(2),
@@ -356,9 +358,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8979,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因兽人盟友数而增强。若敌人陷入死亡标记状态，则有 35% 的几率吞噬对方。 [x4]',
     // 官方 ConsumeConditional AddForDeathMark 35 → 即杀挂 ifCond targetStatus + chance（w01 7380 口径）
+    // sa-F1 (R001): native s1 ConsumeConditional (35% if Death Marked) runs BEFORE s2 Damage, and it is a Devour
+    // (devourer gains the target's stats), not a plain kill.
     build: skill(
+      devour('enemyChosen', { chance: 0.35, ifCond: { kind: 'targetStatus', statusId: 'death-mark' } }),
       dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesOfRace', race: 'Orc' } } }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.35, ifCond: { kind: 'targetStatus', statusId: 'death-mark' } }),
     ),
   },
   {
@@ -1146,9 +1150,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '引爆所有毒宝石。每引爆一颗毒宝石，就诅咒一个随机敌人。 [1:1]',
     // EN 原句「for each Gem exploded」= 逐被摧毁宝石（perDestroyed 无色 = 全部，含爆破波及）；
     // 尾缀 [1:1] = perDestroyed 驱动比率序列化（r15 特例口径）
+    // sa-F1 (R001): native s0 CountGems Poison 100 → s1 ExplodeColor Poison → s2 InflictEffectOnRandomTroops UseCounter:
+    // one curse per Poison Gem (counted before the explosion), not per gem caught in the 3x3 blasts.
     build: skill(
       explodeSpecialGems('poisonGem'),
-      inflict('curse', 'enemyAll', { perDestroyed: {} }),
+      inflict('curse', 'enemyAll', { perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', special: 'poisonGem' } } }),
     ),
   },
   {

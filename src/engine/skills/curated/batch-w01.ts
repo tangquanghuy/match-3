@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -562,8 +562,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7194,
     desc: '减除一名敌人全部护甲值，在使其中毒，或造成 [魔法 + 2] 点伤害。',
-    build: skill(
-      oneOf([reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }), inflict('poison', 'lastTarget')], [dmg('enemyChosen', 2, 1)]),
+    // sa-F1: native Randomize AB-CD — both branches start with DecreaseArmor 10001, so the armor removal is common;
+    // chosen enemy declared (inputTarget) because oneOf branches are not scanned for it.
+    build: targetedSkill('enemyChosen',
+      reduce('enemyChosen', 'armor', 0, 0, { drainAll: true }),
+      oneOf([inflict('poison', 'enemyChosen')], [dmg('enemyChosen', 2, 1)]),
     ),
   },
   {
@@ -708,9 +711,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7240,
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害，并随机窃取 5 点能力值。如果目标是妖仙，则造成三倍伤害。',
+    // sa-F1 (R001): native s0 StealRandomStat 5 runs before s1 Damage@FromPrevious.
     build: skill(
+      stealRandomStat('enemyChosen', 5, 0),
       dmg('enemyChosen', 6, 1, { condMult: { times: 3, cond: { kind: 'targetRace', race: 'Fey' } } }),
-      stealRandomStat('lastTarget', 5, 0),
     ),
   },
   {
@@ -731,15 +735,16 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7244,
     desc: '对所有敌人造成 [魔法 + 1] 点伤害。从每名敌人身上窃取 1 点随机技能值。',
+    // sa-F1 (R001): native s0 StealRandomStat@AllEnemies runs before s2 Damage@AllEnemies.
     build: skill(
-      dmg('enemyAll', 1, 1, { range: 'all' }),
       stealRandomStat('enemyAll', 1, 0),
+      dmg('enemyAll', 1, 1, { range: 'all' }),
     ),
   },
   {
     id: 7245,
     desc: '对所有敌人造成 [(魔法 / 2) + 2] 点真实伤害。获得 2 点魔力值。如果敌人身亡，则获得一个额外回合。',
-    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":0.5},"range":"all","trueDamage":true},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0}},{"kind":"extraTurn","ifTargetDied":true}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":2,"mult":0.5},"range":"all","trueDamage":true},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":2,"mult":0}},{"kind":"extraTurn","ifCond":{"kind":"castEnemyDied"}}]} as SkillPrototype),
   },
   {
     id: 7246,
@@ -1239,12 +1244,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7624,
     desc: '给一名盟友 [魔法 + 2] 点生命值和一半的法力值。将其净化，并赋予其屏障和法印效果。 [2:1]',
+    // sa-F1 (R001): native Cleanse → GenerateMana (half mana cost) → IncreaseHealth [Magic + 2] → Barrier → Enchant
+    // (cleansing first matters: a Silenced / Frozen ally is cleared before the mana).
     build: skill(
-      heal('allyChosen', 2, 1),
+      cleanse('allyChosen'),
       mana('allyChosen', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
-      cleanse('lastTarget'),
-      inflict('barrier', 'lastTarget'),
-      inflict('enchanted', 'lastTarget'),
+      heal('allyChosen', 2, 1),
+      inflict('barrier', 'allyChosen'),
+      inflict('enchanted', 'allyChosen'),
     ),
   },
   {
@@ -1259,9 +1266,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7626,
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。伤害值因所收集的灵魂数而增强。窃取其法力值。 [3:1]',
+    // sa-F1 (R001): native s1 StealMana 100 runs before s2 Damage.
     build: skill(
+      steal('enemyChosen', 'mana', 'mana', 0, 0, { drainAll: true }),
       dmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'battleSouls' } } }),
-      steal('lastTarget', 'mana', 'mana', 0, 0, { drainAll: true }),
     ),
   },
   {
