@@ -188,3 +188,42 @@ describe('L4a R8 B07', () => {
     expect(countSpecial(r, kind)).toBeLessThanOrEqual(1);
   });
 });
+
+describe('L4a R8 B08', () => {
+  // troop:7535 Ogre Ghost (9292): ExplodeColor Ghost 1 ; then Ghost 1 at 60% ; 50% ; 40% (independent native steps).
+  it('troop:7535 explodes 1 Ghost Gem always and up to 3 more on independent 60/50/40% rolls', () => {
+    const segs = (castSpell({ key: 'troop:7535' }).f.proto!.segments as unknown as { kind: string; chance?: number; params?: { target?: { special?: string } } }[]);
+    expect(segs.map(s => s.kind)).toEqual(['damage', 'gem', 'gem', 'gem', 'gem']);
+    expect(segs.slice(1).map(s => s.chance)).toEqual([undefined, 0.6, 0.5, 0.4]);
+    expect(segs.slice(1).every(s => s.params?.target?.special === 'ghost')).toBe(true);
+    const cells = ['0,2', '0,6', '4,1', '4,5', '7,1', '7,6'];
+    const board = withCells(reviewBoard, Object.fromEntries(cells.map(k => [k, specialGem('ghost')])));
+    const counts = new Set<number>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const r = castSpell({ key: 'troop:7535', board, seed });
+      expect(r.summary.order[0]).toBe('dmg E11 13');
+      const n = r.summary.order.filter(o => o.startsWith('explode ')).length;
+      expect(n).toBeGreaterThanOrEqual(1); expect(n).toBeLessThanOrEqual(4); counts.add(n);
+    }
+    expect(counts.size).toBeGreaterThan(1);
+  });
+  // troop:6755 (8134): Damage all 3+M ; ExplodeGems [AddForAnyStorm 5] (any gem incl. Skulls).
+  it('troop:6755 explodes 5 random gems only with a Storm', () => {
+    expect(castSpell({ key: 'troop:6755' }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+    const f = setupCast({ key: 'troop:6755', board: skullBoard }); f.engine.debugSetStorm(BaseColor.Red, f.side);
+    const s = summarize(f, f.cast());
+    expect(s.order.filter(o => o.startsWith('dmg'))).toHaveLength(4);
+    expect(s.order.some(o => o.startsWith('explode '))).toBe(true);
+    expect((f.proto!.segments[1] as unknown as { params: { target: { include: string } } }).params.target.include).toBe('all');
+  });
+  // weapon:1125 (7286): Damage@LastEnemy 7+M ; RemoveColor Green [AddForStormBrown] ; StormBrown.
+  it('weapon:1125 removes all Green only under a Duststorm (checked before the new storm)', () => {
+    const plain = castSpell({ key: 'weapon:1125' });
+    expect(plain.summary.order).toEqual(['dmg E13 17', 'storm Brown set']);
+    const f = setupCast({ key: 'weapon:1125' }); f.engine.debugSetStorm(BaseColor.Brown, f.side);
+    const s = summarize(f, f.cast());
+    expect(s.order[0]).toBe('dmg E13 17');
+    expect(s.order[1]).toMatch(/^destroy \d+ \(Green x\d+\)$/);
+    expect(s.units.A1 ?? '').not.toContain('mana'); // removed gems give no mana (R010)
+  });
+});

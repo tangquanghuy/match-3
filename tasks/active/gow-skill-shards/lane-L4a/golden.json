@@ -759,6 +759,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:30:05.957Z"
  },
+ "troop:6755": {
+  "lines": {
+   "L10": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all)  => E10:hp-8 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3",
+   "R10": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all)  => E10:hp-8 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3",
+   "L0": "dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all)  => E10:arm-3 | E11:arm-3 | E12:arm-3 | E13:arm-3",
+   "K": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:34:59.275Z"
+ },
  "troop:6758": {
   "lines": {
    "L10": "explode 43 ; skulls E10 3  => A2:mana+3 | A1:mana+4 | E10:arm-3",
@@ -1279,6 +1289,16 @@
   "by": "sa-A",
   "at": "2026-09-28T11:21:07.693Z"
  },
+ "troop:7213": {
+  "lines": {
+   "L10": "dmg E11 14 ; explode 22 ; skulls E10 2  => E11:hp-4 arm-10 | A1:mana+2 | A2:mana+2 | E10:arm-2",
+   "R10": "dmg E11 14 ; explode 22 ; skulls E10 2  => E11:hp-4 arm-10 | A1:mana+2 | A2:mana+2 | E10:arm-2",
+   "L0": "dmg E11 4 ; explode 22 ; skulls E10 2  => E11:arm-4 | A1:mana+2 | A2:mana+2 | E10:arm-2",
+   "K": "dmg E11 14 ; defeat E11 ; explode 22 ; skulls E10 2 ; defeat E10  => E11:hp-1 DEAD | A1:mana+2 | A2:mana+2 | E10:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:34:59.275Z"
+ },
  "troop:7218": {
   "lines": {
    "L10": "explode 9 ; skulls E10 1 ; explode 9 ; skulls E10 1 ; ~cascade~  => E10:arm-2 | A1:mana+1  cascade",
@@ -1558,6 +1578,16 @@
   },
   "by": "sa-A",
   "at": "2026-09-28T21:12:11.254Z"
+ },
+ "troop:7535": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:34:59.275Z"
  },
  "troop:7539": {
   "lines": {
@@ -2028,6 +2058,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:42:20.238Z"
+ },
+ "weapon:1125": {
+  "lines": {
+   "L10": "dmg E13 17 ; storm Brown set  => E13:hp-14 arm-3",
+   "R10": "dmg E13 17 ; storm Brown set  => E13:hp-14 arm-3",
+   "L0": "dmg E13 7 ; storm Brown set  => E13:hp-4 arm-3",
+   "K": "dmg E13 17 ; defeat E13 ; storm Brown set  => E13:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:34:59.275Z"
  },
  "weapon:1138": {
   "lines": {

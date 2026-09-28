@@ -49,3 +49,8 @@
 - troop:7434 accept (waived c2 boss+ascension)
 - troop:7715 accept (waived c2 boss+ascension)
 - troop:7761 accept (waived c2 tower+ascension)
+- troop:7535 fix(4 native Ghost explode steps, 60/50/40% chances, not uniform 1-4)
+- troop:6755 fix(storm explode 5 include all)
+- troop:7213 accept (waived c2 boss+ascension)
+- troop:7884 issue(L4a-R8-7884-explode-count-dispute: native 2+1+1+1 no chances vs English 2-5)
+- weapon:1125 accept

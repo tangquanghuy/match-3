@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 543 条改动，涉及 996 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 545 条改动，涉及 998 个技能 ID。
 
 ## 按时间
 
@@ -549,6 +549,8 @@
 | 2026-09-28T21:17 | sa-A | L4a-R8-random-any-gem | data | 7121 | weapon:1055 Pigsticker | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 7121 kill branch explodeRandomGems 1 include color → include all (native ExplodeGems AddForKill 1, any gem); override entry added |  |
 | 2026-09-28T21:22 | sa-A | L4a-R8-7704-zh-column | data | 9665 | troop:7704 HanXin | `src/engine/skills/curated/batch-r16.ts`<br>`src/data/gowSnapshotOverrides.json` | 9665 zh '摧毁一根随机柱子' (pillar) → zh '随机摧毁一列宝石' (Destroy a random Column) + snapshot override |  |
 | 2026-09-28T21:22 | sa-A | L4a-R8-random-any-gem | assembler | 9120, 9464 | troop:7426 Hornwing；troop:7585 DwarvenOverseer | `src/engine/skills/curated/batch-r19.ts` | 9120 DestroyGems 7 / 9464 DestroyGems 8 as include color (no Skulls) → include all (any gem, R013-5) |  |
+| 2026-09-28T21:34 | sa-A | L4a-R8-7535-ghost-chances | assembler | 9292 | troop:7535 GhostOgre | `src/engine/skills/curated/batch-r7.ts` | 9292 one explode segment countRange 1-4 (uniform) → 4 native steps: Ghost 1 always, then Ghost 1 at 60%/50%/40% independent chances |  |
+| 2026-09-28T21:34 | sa-A | L4a-R8-random-any-gem | assembler | 8134 | troop:6755 QueenXochi | `src/engine/skills/curated/batch-37.ts` | 8134 storm explode 5 include color → include all (any gem, R013-5) |  |
 
 ## 按技能 ID
 
@@ -894,6 +896,7 @@
 | 8125 | 1 | P-E-faction-kingdom |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
+| 8134 | 1 | L4a-R8-random-any-gem |
 | 8137 | 1 | L1-E-6757-target |
 | 8138 | 1 | L4a-r4-6758 |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
@@ -1346,6 +1349,7 @@
 | 9282 | 1 | F3-q37 |
 | 9283 | 1 | R7-tarot-extra-turn |
 | 9291 | 1 | P-R3-precast-compare |
+| 9292 | 1 | L4a-R8-7535-ghost-chances |
 | 9297 | 1 | L4a-r3-7539 |
 | 9300 | 1 | L4a-R8-1578-random-explode |
 | 9302 | 1 | P-E-faction-kingdom |
