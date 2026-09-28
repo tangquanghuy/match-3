@@ -314,7 +314,10 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'burning' } },
       }),
-      inflict('burning', 'enemyRandomN', { nRange: { min: 1, max: 3 } }),
+      // Native 8502: CauseBurning@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (three rolls, each avoids only the previous; was 1-3 distinct).
+      inflict('burning', 'enemyRandom'),
+      inflict('burning', 'enemyRandomPrefNotPrev'),
+      inflict('burning', 'enemyRandomPrefNotPrev'),
     ),
   },
   {

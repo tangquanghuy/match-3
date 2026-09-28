@@ -65,10 +65,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [魔法 + 3] 点溅射伤害，伤害值因下潜的盟友数而增强。 [x3]',
     build: skill(
       // 「溅射伤害」+ 随机多名目标（batch-01 7208 同构）；「因下潜的盟友数」= allyStatusCount(submerged)
-      dmgSplash('enemyRandomN', 3, 1, {
-        n: 3,
+      // Native 8881: SplashHighDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (R007-3; was 3 distinct centres).
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => dmgSplash(t, 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'allyStatusCount', statusId: 'submerged' } },
-      }),
+      })),
     ),
   },
   {

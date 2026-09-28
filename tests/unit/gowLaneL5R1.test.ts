@@ -434,3 +434,39 @@ describe('L5 sa-R3 B11', () => {
     expect(castSpell({ key: 'troop:6836', target: 13, allies: A({ statuses: st('rage') }) }).summary.order[0]).toBe('dmg E13 36'); // (13 + 5) x 2
   });
 });
+
+describe('L5 sa-R3 B12', () => {
+  const A = (o: object) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red] }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const total = (o: string[]) => o.filter(x => x.startsWith('dmg')).reduce((s, x) => s + Number(x.split(' ')[2]), 0);
+  it('troop:6999 / troop:7489 three Burn / Disease rolls, each avoiding only the previous target', () => {
+    let two = false, three = false;
+    for (let seed = 1; seed <= 40; seed++) for (const [key, id] of [['troop:6999', 'burning'], ['troop:7489', 'disease']] as const) {
+      const t = castSpell({ key, seed }).summary.order.filter(x => x.endsWith(`+${id}`)).map(x => x.split(' ')[1]);
+      expect(t).toHaveLength(3); for (let i = 1; i < 3; i++) expect(t[i]).not.toBe(t[i - 1]);
+      if (new Set(t).size === 2) two = true; if (new Set(t).size === 3) three = true;
+    }
+    expect(two && three).toBe(true);
+  });
+  it('troop:7262 / troop:7516 three splash centres chosen RandomPrefNotPrev (never the same centre twice in a row)', () => {
+    for (let seed = 1; seed <= 30; seed++) for (const key of ['troop:7262', 'troop:7516']) {
+      const o = castSpell({ key, seed }).summary.order.filter(x => x.startsWith('dmg'));
+      const centres = o.filter(x => / 13 \(splash\)$/.test(x)).map(x => x.split(' ')[1]);
+      expect(centres).toHaveLength(3); for (let i = 1; i < 3; i++) expect(centres[i]).not.toBe(centres[i - 1]);
+    }
+    expect(castSpell({ key: 'troop:7262', allies: A({ statuses: st('submerged') }) }).summary.order[0]).toMatch(/ 16 \(splash\)$/);
+    expect(castSpell({ key: 'troop:7516', allies: A({ statuses: st('rage') }) }).summary.order[0]).toMatch(/ 15 \(splash\)$/);
+  });
+  it('status-count boosts: 7152 armor x4 Burning, 6794 x5 Marked, 1178 x8 Faerie Fire, 6588 x8 Enraged ally, 6654 x6 Entangled, 7607 x3 Poisoned', () => {
+    expect(castSpell({ key: 'troop:7152', enemies: enemies({ 0: { statuses: st('burning') } }) }).summary.order).toEqual(['dmg E11 11', 'buff C armor+15']);
+    const w = castSpell({ key: 'troop:6794', magic: 0, enemies: enemies({ 0: { statuses: st('marked') } }) }).summary.order[0];
+    expect(Number(w.split(' ')[2])).toBeGreaterThanOrEqual(8); expect(Number(w.split(' ')[2])).toBeLessThanOrEqual(12);
+    expect(total(castSpell({ key: 'weapon:1178', enemies: enemies({ 3: { statuses: st('faerie-fire') } }) }).summary.order)).toBeGreaterThanOrEqual(28);
+    expect(total(castSpell({ key: 'troop:6588', allies: A({ statuses: st('rage') }) }).summary.order)).toBe(28);
+    expect(castSpell({ key: 'troop:6654', enemies: enemies({ 0: { statuses: st('entangle') } }) }).summary.order[0]).toBe('dmg E11 20 (splash)');
+    expect(castSpell({ key: 'troop:7607', enemies: enemies({ 1: { statuses: st('poison') } }) }).summary.order).toEqual(['dmg E10 16', 'dmg E13 16']);
+  });
+  it('troop:6794 Blesses all allies only when an enemy dies', () => {
+    expect(castSpell({ key: 'troop:6794' }).summary.order.some(x => x.includes('blessed'))).toBe(false);
+  });
+});

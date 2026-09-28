@@ -246,10 +246,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [魔法 + 3] 点溅射伤害，伤害值因狂怒盟友数而增强。获得狂怒效果。 [x2]',
     build: skill(
       // dmgSplash + enemyRandomN 先例（batch-01 7387 口径）；「狂怒的盟友数」= allyStatusCount rage
-      dmgSplash('enemyRandomN', 3, 1, {
-        n: 3,
+      // Native 9280: SplashHighDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (R007-3; was 3 distinct centres).
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => dmgSplash(t, 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'allyStatusCount', statusId: 'rage' } },
-      }),
+      })),
       inflict('rage', 'allySelf'),
     ),
   },
