@@ -1251,13 +1251,13 @@
  },
  "troop:7070": {
   "lines": {
-   "L10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => E10:arm-5 mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
-   "R10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => E10:arm-5 mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
-   "L0": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => E10:arm-5 mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
-   "K": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-5 ; buff E11 mana-5 ; buff E12 mana-5 ; buff E13 mana-5 ; destroy 5 (skull x5) ; skulls E10 5 ; defeat E10 ; ~cascade~  => E10:hp-1 mana-5 +poison DEAD | E11:mana-5 +poison | E12:mana-5 +poison | E13:mana-5 +poison  cascade"
+   "L10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; ~cascade~  => E10:mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
+   "R10": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; ~cascade~  => E10:mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
+   "L0": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-6 ; buff E11 mana-7 ; buff E12 mana-4 ; buff E13 mana-7 ; destroy 5 (skull x5) ; ~cascade~  => E10:mana-6 +poison | E11:mana-7 +poison | E12:mana-4 +poison | E13:mana-7 +poison  cascade",
+   "K": "status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; buff E10 mana-5 ; buff E11 mana-5 ; buff E12 mana-5 ; buff E13 mana-5 ; destroy 5 (skull x5) ; ~cascade~  => E10:mana-5 +poison | E11:mana-5 +poison | E12:mana-5 +poison | E13:mana-5 +poison  cascade"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "coord (re-lock after P-F1-remove-gems)",
+  "at": "2026-09-28T05:09:28.932Z"
  },
  "troop:7071": {
   "lines": {

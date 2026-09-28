@@ -2860,6 +2860,32 @@
     "8072": {
       "description": "窃取最后两名敌人 [魔法 + 1] 点生命值并使其陷入死亡标记状态。再赐福自身。"
     },
+    "8073": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandomN",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "randomWaves": 2,
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 2,
+                "b": 1
+              },
+              "source": {
+                "kind": "bothGold"
+              }
+            }
+          }
+        ]
+      }
+    },
     "8074": {
       "description": "对所有敌人造成 [魔法 + 5] 点伤害。将第一名敌人击退至末位，并有 50% 的几率再将当前第一名敌人击退至末位。",
       "metadata": {

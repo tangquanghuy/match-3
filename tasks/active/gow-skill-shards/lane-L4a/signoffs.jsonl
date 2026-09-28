@@ -149,3 +149,9 @@
 {"format":"compact","key":"troop:7183","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7784","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7846","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T03:07:00.648Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6052","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.386Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
+{"format":"compact","key":"troop:6054","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.387Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
+{"format":"compact","key":"troop:6240","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
+{"format":"compact","key":"troop:6467","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
+{"format":"compact","key":"troop:6965","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}
+{"format":"compact","key":"troop:7058","decision":"accept","reviewer":"coord","reviewedAt":"2026-09-28T05:09:31.388Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-approved after remove mode (no mana/skull damage from removed gems)"}

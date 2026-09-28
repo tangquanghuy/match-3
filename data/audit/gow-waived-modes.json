@@ -82,6 +82,195 @@
    "mode": "boss",
    "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
    "note": ""
+  },
+  {
+   "key": "weapon:1196",
+   "name": "WallOfOblivion",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If enemy is a Boss, Death Mark all other enemies.",
+   "note": ""
+  },
+  {
+   "key": "weapon:1208",
+   "name": "IceAegis",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If enemy is a Boss, Freeze all enemies and Barrier all allies.",
+   "note": ""
+  },
+  {
+   "key": "troop:6637",
+   "name": "Tarantella",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6811",
+   "name": "BlackBjörn",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6823",
+   "name": "Nereida",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6698",
+   "name": "Berengari",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6868",
+   "name": "Patience",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6741",
+   "name": "GeneralSuladin",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7660",
+   "name": "DugallRamhorn",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7707",
+   "name": "LOCK-1887",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7876",
+   "name": "RhonaBittershield",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6644",
+   "name": "Earthcaller",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7831",
+   "name": "Balearic",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7748",
+   "name": "Eridana",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6683",
+   "name": "BorGakk",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6722",
+   "name": "CarlsonMarshall",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7423",
+   "name": "BoneCatapult",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x-5x damage, based on my ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7431",
+   "name": "TheBestialFey",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7469",
+   "name": "KitTheSly",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7529",
+   "name": "Shadowhisker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7880",
+   "name": "FacelessLord",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
   }
  ]
 }

@@ -12347,7 +12347,7 @@
   "weaponRef": "CoralBow",
   "weaponName": "珊瑚弓",
   "spellName": "珊瑚弓",
-  "desc": "对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因 Merlantis 盟友数量而增强。 [x3]",
+  "desc": "对前 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因梅兰堤斯盟友数量而增强。 [x3]",
   "scalings": [
    {
     "base": 3,

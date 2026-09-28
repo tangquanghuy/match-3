@@ -41,23 +41,23 @@
  },
  "troop:6052": {
   "lines": {
-   "L10": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => C:hp+13 max+13 | E10:arm-5  cascade",
-   "R10": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => C:hp+13 max+13 | E10:arm-5  cascade",
-   "L0": "buff C hp+3 max+3 ; destroy 5 (skull x5) ; skulls E10 5 ; ~cascade~  => C:hp+3 max+3 | E10:arm-5  cascade",
-   "K": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; skulls E10 5 ; defeat E10 ; ~cascade~  => C:hp+13 max+13 | E10:hp-1 DEAD  cascade"
+   "L10": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; ~cascade~  => C:hp+13 max+13  cascade",
+   "R10": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; ~cascade~  => C:hp+13 max+13  cascade",
+   "L0": "buff C hp+3 max+3 ; destroy 5 (skull x5) ; ~cascade~  => C:hp+3 max+3  cascade",
+   "K": "buff C hp+13 max+13 ; destroy 5 (skull x5) ; ~cascade~  => C:hp+13 max+13  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:30:14.938Z"
+  "by": "coord",
+  "at": "2026-09-28T05:09:31.283Z"
  },
  "troop:6054": {
   "lines": {
-   "L10": "dmg E11 15 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-15 | A2:mana+9 | C:hp+4 max+4",
-   "R10": "dmg E11 15 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-15 | A2:mana+9 | C:hp+4 max+4",
-   "L0": "dmg E11 5 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-5 | A2:mana+9 | C:hp+4 max+4",
-   "K": "dmg E11 15 ; defeat E11 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-1 DEAD | A2:mana+9 | C:hp+4 max+4"
+   "L10": "dmg E11 15 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-15 | C:hp+4 max+4",
+   "R10": "dmg E11 15 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-15 | C:hp+4 max+4",
+   "L0": "dmg E11 5 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-5 | C:hp+4 max+4",
+   "K": "dmg E11 15 ; defeat E11 ; destroy 9 (Red x9) ; buff C hp+4 max+4  => E11:hp-1 DEAD | C:hp+4 max+4"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:34:10.794Z"
+  "by": "coord",
+  "at": "2026-09-28T05:09:31.283Z"
  },
  "troop:6055": {
   "lines": {
@@ -111,13 +111,13 @@
  },
  "troop:6240": {
   "lines": {
-   "L10": "dmg E10 15 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:hp-10 arm-5 +entangle | A2:mana+9",
-   "R10": "dmg E10 15 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:hp-10 arm-5 +entangle | A2:mana+9",
-   "L0": "dmg E10 5 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:arm-5 +entangle | A2:mana+9",
-   "K": "dmg E10 15 ; defeat E10 ; status E11 +entangle ; destroy 9 (Red x9)  => E10:hp-1 DEAD | E11:+entangle | A2:mana+9"
+   "L10": "dmg E10 15 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:hp-10 arm-5 +entangle",
+   "R10": "dmg E10 15 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:hp-10 arm-5 +entangle",
+   "L0": "dmg E10 5 ; status E10 +entangle ; destroy 9 (Red x9)  => E10:arm-5 +entangle",
+   "K": "dmg E10 15 ; defeat E10 ; status E11 +entangle ; destroy 9 (Red x9)  => E10:hp-1 DEAD | E11:+entangle"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:37:00.540Z"
+  "by": "coord",
+  "at": "2026-09-28T05:09:31.283Z"
  },
  "troop:6245": {
   "lines": {
@@ -201,13 +201,13 @@
  },
  "troop:6467": {
   "lines": {
-   "L10": "buff E11 armor-10 ; dmg E11 14 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-14 arm-10 | A1:mana+11  cascade",
-   "R10": "buff E11 armor-10 ; dmg E11 14 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-14 arm-10 | A1:mana+11  cascade",
-   "L0": "buff E11 armor-4 ; dmg E11 4 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-4 arm-4 | A1:mana+11  cascade",
-   "K": "dmg E11 14 ; defeat E11 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-1 DEAD | A1:mana+11  cascade"
+   "L10": "buff E11 armor-10 ; dmg E11 14 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-14 arm-10  cascade",
+   "R10": "buff E11 armor-10 ; dmg E11 14 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-14 arm-10  cascade",
+   "L0": "buff E11 armor-4 ; dmg E11 4 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-4 arm-4  cascade",
+   "K": "dmg E11 14 ; defeat E11 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-1 DEAD  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:30:12.647Z"
+  "by": "coord",
+  "at": "2026-09-28T05:09:31.283Z"
  },
  "troop:6504": {
   "lines": {
@@ -431,13 +431,13 @@
  },
  "troop:6965": {
   "lines": {
-   "L10": "dmg E11 15 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-5 arm-10 | A1:mana+11  cascade",
-   "R10": "dmg E11 15 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-5 arm-10 | A1:mana+11  cascade",
-   "L0": "dmg E11 5 ; destroy 11 (Blue x11) ; ~cascade~  => E11:arm-5 | A1:mana+11  cascade",
-   "K": "dmg E11 15 ; defeat E11 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-1 DEAD | A1:mana+11  cascade"
+   "L10": "dmg E11 15 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-5 arm-10  cascade",
+   "R10": "dmg E11 15 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-5 arm-10  cascade",
+   "L0": "dmg E11 5 ; destroy 11 (Blue x11) ; ~cascade~  => E11:arm-5  cascade",
+   "K": "dmg E11 15 ; defeat E11 ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-1 DEAD  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:33:58.688Z"
+  "by": "coord",
+  "at": "2026-09-28T05:09:31.283Z"
  },
  "troop:6991": {
   "lines": {
@@ -481,13 +481,13 @@
  },
  "troop:7058": {
   "lines": {
-   "L10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+15  extra:match  cascade",
-   "R10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+15  extra:match  cascade",
-   "L0": "dmg E10 31 (scatter) ; dmg E11 30 (scatter) ; dmg E12 33 (scatter) ; dmg E13 26 (scatter) ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-31 | E11:hp-30 | E12:hp-33 | E13:hp-26 | A1:mana+11 | A2:mana+3  cascade",
-   "K": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | A1:mana+11  cascade"
+   "L10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+4  extra:match  cascade",
+   "R10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+4  extra:match  cascade",
+   "L0": "dmg E10 31 (scatter) ; dmg E11 30 (scatter) ; dmg E12 33 (scatter) ; dmg E13 26 (scatter) ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-31 | E11:hp-30 | E12:hp-33 | E13:hp-26 | A2:mana+3  cascade",
+   "K": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-F2",
-  "at": "2026-09-28T00:34:01.064Z"
+  "by": "coord",
+  "at": "2026-09-28T05:09:31.283Z"
  },
  "troop:7102": {
   "lines": {

@@ -1,11 +1,6 @@
 {
   "baseline": "Stored GoW English entity + native spell snapshots; not a live official version claim",
   "troops": {
-    "7278": {
-      "spellId": 8895,
-      "reason": "sa-F1: English lists 2 Treasure Maps (native GiveTreasureMaps 2) that the Chinese snapshot dropped; native order is RandomPositiveStatusEffect then IncreaseRandom (one random Skill per ally).",
-      "spellDescription": "赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。"
-    },
     "6009": {
       "spellId": 7009,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
@@ -91,6 +86,16 @@
       "reason": "sa-F2 fix round A: English/native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] Gems; old Chinese said one gem.",
       "spellDescription": "创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。"
     },
+    "7108": {
+      "spellId": 8651,
+      "reason": "English: boosted by Wildcards and Purple Enemies (native CountArmyColor@AllEnemies); stored zh said Purple allies (review round 1, sa-R2).",
+      "spellDescription": "造成 [魔法 + 8] 点散射伤害，伤害值因通配宝石和紫色敌人数而增强。若有敌人身亡，则创建 4 颗 x2 通配宝石。 [x4]"
+    },
+    "7113": {
+      "spellId": 8656,
+      "reason": "English: 2 random Enemies, boosted by Blue Allies and Enemies; stored zh said random allies (review round 1, sa-R4).",
+      "spellDescription": "对 2 名随机敌人造成 [(魔法 / 2) + 3] 点轻微散射伤害，伤害值因蓝色盟友和蓝色敌人数而增强。 [x3]"
+    },
     "7138": {
       "spellId": 8687,
       "reason": "L4b-7138-zh: stored Chinese snapshot typo 发力颜色 for 法力颜色 (\"one of their Mana Colors\"). Display correction only.",
@@ -100,6 +105,11 @@
       "spellId": 8894,
       "reason": "L1-7260-target: English \"Curse and Deathmark an Enemy\" and native Target Enemy + FromTarget; the stored Chinese snapshot says 一名盟友 (an Ally). Display correction only.",
       "spellDescription": "使一名敌人陷入诅咒和死亡标记状态。再对其下位所有敌人造成 [(魔法 x 1.5) + 3] 点伤害。再召唤阿伯拉瑟。"
+    },
+    "7278": {
+      "spellId": 8895,
+      "reason": "sa-F1: English lists 2 Treasure Maps (native GiveTreasureMaps 2) that the Chinese snapshot dropped; native order is RandomPositiveStatusEffect then IncreaseRandom (one random Skill per ally).",
+      "spellDescription": "赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。"
     },
     "7334": {
       "spellId": 8957,

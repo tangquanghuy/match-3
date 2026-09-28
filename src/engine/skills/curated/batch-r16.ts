@@ -22,7 +22,7 @@
 import type { CuratedBatch } from './index';
 import {
   skill, dmg, trueDmg, heal, armor, attack, magic, reduce, steal, inflict,
-  createGems, createSkulls, createSpecialGems, transformToSpecial, destroyColor,
+  createGems, createSpecialGems, transformToSpecial, destroyColor,
   destroyRandomCols, explodeRandomGems, explodeRandomSpecialGems, createStorm, oneOf,
   extraTurn, shuffleBoard, summonRef, CHOSEN,
 } from '../builders';
