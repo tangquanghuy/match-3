@@ -1,4 +1,4 @@
-import type { GachaCard } from '../systems/gacha';
+import { gemMultiCost, noviceSummonAvailable, type GachaCard } from '../systems/gacha';
 /**
  * 宝箱 / 抽卡屏（计划 §5.7）。开箱结果来自 gacha 系统（种子化 + 十连保底稀有或以上），
  * 翻牌演出/音效沿用小样资产；概率公示从 economy 权重表派生（数值单源）。
@@ -385,7 +385,7 @@ export class ChestsScreen implements Screen {
    */
   private paintOpenButton(btn: HTMLButtonElement): void {
     const kind = btn.dataset.open as OpenKind;
-    const spec = OPEN_SPECS[kind];
+    const spec = this.specOf(kind);
     if (!spec) return;
     const cn = POOL_CN[spec.pool];
     const balance = this.balanceOf(spec.pool);
@@ -427,6 +427,13 @@ export class ChestsScreen implements Screen {
     btn.classList.add('is-unaffordable');
     btn.classList.remove('is-partial');
     paint(shortLabel(spec.pool, spec.cost - balance), spec.cost, `${cn.currency}不足：需要 ${fmt(spec.cost)}，现有 ${fmt(balance)}`);
+  }
+
+  /** 首次宝石十连 = 新手十连（1000 宝石，必出异界来客） */
+  private specOf(kind: OpenKind): OpenSpec | undefined {
+    const spec = OPEN_SPECS[kind];
+    if (kind !== 'gem-10' || !spec || !noviceSummonAvailable(this.ctx.save())) return spec;
+    return { ...spec, cost: gemMultiCost(this.ctx.save()), label: '新手十连' };
   }
 
   // —— 部分开启的二次确认（CH-1：不允许静默扣费，也不允许静默拦下） ——
@@ -521,7 +528,7 @@ export class ChestsScreen implements Screen {
           fxClass: fxClassOf(rarityIdx),
           rarity: rarityNameByIndex(rarityIdx),
           duplicate: c.duplicate,
-          wishLabel: c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
+          wishLabel: c.noviceGuaranteed ? ' · 异界来客保底' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
         };
       });
       return { rewards, summary };
@@ -538,7 +545,7 @@ export class ChestsScreen implements Screen {
         fxClass: fxClassOf(rarityIdx),
         rarity: rarityNameByIndex(rarityIdx),
         duplicate: c.duplicate,
-          wishLabel: c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
+          wishLabel: c.noviceGuaranteed ? ' · 异界来客保底' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
       };
     }) };
   }
@@ -551,7 +558,7 @@ export class ChestsScreen implements Screen {
   private async requestOpen(kind: OpenKind): Promise<void> {
     if (this.phase !== 'closed') return;
     if (!$('#partialVeil').hidden) return;
-    const spec = OPEN_SPECS[kind];
+    const spec = this.specOf(kind);
     if (!spec) return;
     const balance = this.balanceOf(spec.pool);
     if (balance >= spec.cost) return void (await this.openSummon(spec.pool, spec.count));

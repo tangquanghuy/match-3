@@ -43,7 +43,8 @@ for (const viewport of [
     expect(layout.frameHeight).toBeGreaterThan(430);
     expect(layout.frameBelowRail).toBe(true);
     expect(layout.dailyAboveNav).toBe(true);
-    expect(layout.visibleRailButtons).toBe(viewport.width < 700 ? 5 : 7);
+    // 手机隐藏锁定入口；馈赠已开放，所以手机可见 6 个
+    expect(layout.visibleRailButtons).toBe(viewport.width < 700 ? 6 : 7);
     expect(layout.documentOverflow).toBe(false);
 
     await page.screenshot({ path: `artifacts/ux-phase-b/map-responsive-${viewport.label}.png` });

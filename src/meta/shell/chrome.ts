@@ -69,6 +69,7 @@ export function fitStage(): void {
     ['wishlist-responsive', '.wishlist-screen'],
     ['invasion-mobile', '.inv-screen'],
     ['events-responsive', '.ev-screen'],
+    ['gifts-responsive', '.gift-screen'],
     ['event-shop-responsive', '.event-shop-screen'],
     ['gem-shop-responsive', '.gem-shop-screen'],
     ['weapons-responsive', '.weapons-screen'],

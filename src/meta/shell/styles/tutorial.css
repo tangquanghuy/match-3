@@ -1,0 +1,15 @@
+/* 新手引导遮罩（全局，gameMain 直接引入） */
+.tut-layer { position: fixed; inset: 0; z-index: 900; pointer-events: none; background: rgba(5, 6, 10, .74); }
+.tut-layer.has-hole { background: transparent; }
+.tut-layer.no-dim, .tut-layer.no-dim.has-hole { background: transparent; }
+.tut-hole { position: fixed; display: none; border: 2px solid #f0cf85; border-radius: 12px; box-shadow: 0 0 0 200vmax rgba(5, 6, 10, .74), 0 0 24px rgba(240, 207, 133, .55); transition: left .2s, top .2s, width .2s, height .2s; animation: tut-pulse 1.6s ease-in-out infinite; }
+.tut-layer.has-hole .tut-hole { display: block; }
+.tut-layer.no-dim .tut-hole { box-shadow: 0 0 24px rgba(240, 207, 133, .55); }
+.tut-bubble { position: fixed; width: min(360px, calc(100vw - 24px)); padding: 16px 20px 18px; border: 1px solid rgba(240, 207, 133, .55); border-radius: 14px; background: linear-gradient(160deg, #262219, #17181f 60%); box-shadow: 0 18px 48px rgba(0, 0, 0, .55); color: #ece6d8; pointer-events: auto; }
+.tut-bubble small { color: #c9a45e; font-size: 12px; letter-spacing: .2em; }
+.tut-bubble h2 { margin: 4px 0 6px; color: #fbf2dc; font: 22px var(--display, serif); }
+.tut-bubble p { margin: 0; color: #cfc8b8; font-size: 14px; line-height: 1.7; }
+.tut-action { display: block; width: 100%; min-height: 48px; margin-top: 14px; border: 1px solid #f0cf85; border-radius: 10px; background: linear-gradient(180deg, #d9a849, #9a6c24); color: #fffaf0; font-size: 16px; font-weight: 700; letter-spacing: .2em; cursor: pointer; }
+.tut-action:focus-visible { outline: 2px solid #fff1c8; outline-offset: 3px; }
+@keyframes tut-pulse { 50% { border-color: #fff1c8; } }
+@media (prefers-reduced-motion: reduce) { .tut-hole { animation: none; transition: none; } }

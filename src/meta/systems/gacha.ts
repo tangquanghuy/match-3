@@ -12,6 +12,7 @@
 import { GACHA_RULES, type GachaAudit } from '../data/gachaRules';
 import { reallyOwned } from './wishlist';
 import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
+import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 import { SeededRNG } from '../../engine/rng';
 import { BaseColor } from '../../engine/types';
 import { stoneColorKeyOf, stoneKey, type MaterialDelta } from '../data/materials';
@@ -61,6 +62,8 @@ export interface GachaCard {
   duplicate: boolean;
   wishlistHit?: boolean;
   pursuitGuaranteed?: boolean;
+  /** 新手十连的异界来客保底 */
+  noviceGuaranteed?: boolean;
 }
 
 export interface GachaDrawResult {
@@ -155,7 +158,45 @@ function commit(save: MetaSave, troopId: number): GachaCard {
   return { troopId, rarityIdx, duplicate };
 }
 
-/** 宝石宝箱：count = 1（150 宝石）或 10（1500 宝石，保底稀有或以上） */
+/** 新手十连价格（首次宝石十连；馈赠的新手礼正好 1000） */
+export const NOVICE_SUMMON_COST = 1000;
+/** 新手十连保底：异界来客按稀有度档加权（传说 3 : 史诗 2 : 神话 1），档内均匀 */
+export const NOVICE_VISITOR_WEIGHTS: Readonly<Record<number, number>> = { 3: 3, 4: 2, 5: 1 };
+
+/** 异界来客保底池（按稀有度档分组） */
+const VISITOR_BANDS: Readonly<Record<number, readonly TroopData[]>> = (() => {
+  const bands: Record<number, TroopData[]> = {};
+  for (const troop of TROOPS) {
+    if (troop.kingdom !== COMMUNITY_KINGDOM || NOVICE_VISITOR_WEIGHTS[troop.rarityIdx] === undefined) continue;
+    (bands[troop.rarityIdx] ??= []).push(troop);
+  }
+  return bands;
+})();
+
+export function noviceSummonAvailable(save: MetaSave): boolean {
+  return !save.onboarding.noviceSummonUsed;
+}
+
+/** 当前宝石十连的实际价格（新手十连未用时为 1000） */
+export function gemMultiCost(save: MetaSave): number {
+  return noviceSummonAvailable(save) ? NOVICE_SUMMON_COST : GEM_CHEST.multiCost;
+}
+
+/** 按 3:2:1 抽一名异界来客（缺档自动跳过） */
+export function pickNoviceVisitor(rng: SeededRNG): number {
+  const tiers = Object.keys(VISITOR_BANDS).map(Number).filter((idx) => VISITOR_BANDS[idx]!.length > 0);
+  const total = tiers.reduce((sum, idx) => sum + NOVICE_VISITOR_WEIGHTS[idx]!, 0);
+  let roll = rng.next() * total;
+  let tier = tiers[tiers.length - 1]!;
+  for (const idx of tiers) {
+    roll -= NOVICE_VISITOR_WEIGHTS[idx]!;
+    if (roll < 0) { tier = idx; break; }
+  }
+  const pool = VISITOR_BANDS[tier]!;
+  return pool[rng.nextInt(pool.length)]!.id;
+}
+
+/** 宝石宝箱：count = 1（150 宝石）或 10（1500 宝石，保底稀有或以上；首次十连为新手十连） */
 export function openGemChest(
   save: MetaSave,
   seed: number,
@@ -164,13 +205,28 @@ export function openGemChest(
   if (count !== 1 && count !== GEM_CHEST.multiCount) {
     return fail('INVALID', '宝石宝箱只支持单抽或十连');
   }
-  const cost = count === 1 ? GEM_CHEST.singleCost : GEM_CHEST.multiCost;
+  const novice = count === GEM_CHEST.multiCount && noviceSummonAvailable(save);
+  const cost = count === 1 ? GEM_CHEST.singleCost : gemMultiCost(save);
   const paid = spend(save, { gems: cost });
   if (!paid.ok) return paid;
   const rng = new SeededRNG(seed);
   const audit: GachaAudit = { rulesVersion: GACHA_RULES.version, wishlistIds: [...save.gachaWishlist.troopIds],
     pursuitBefore: { ...save.gachaWishlist.pursuit }, pursuitAfter: { ...save.gachaWishlist.pursuit }, reasons: [] };
-  const { cards, pityUsed } = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count, count === GEM_CHEST.multiCount, audit);
+  let cards: GachaCard[];
+  let pityUsed = false;
+  if (novice) {
+    // 前 9 张正常抽；第 10 张固定为异界来客（稀有度 ≥ 传说，天然满足十连保底）
+    cards = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count - 1, false, audit).cards;
+    const card = commit(save, pickNoviceVisitor(rng));
+    card.wishlistHit = audit.wishlistIds.includes(card.troopId);
+    card.noviceGuaranteed = true;
+    audit.reasons.push('novice');
+    cards.push(card);
+    save.onboarding.noviceSummonUsed = true;
+    if (save.onboarding.step === 'summon') save.onboarding.step = 'done';
+  } else {
+    ({ cards, pityUsed } = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count, count === GEM_CHEST.multiCount, audit));
+  }
   audit.pursuitAfter = { ...save.gachaWishlist.pursuit };
   return draw(save, 'gem', seed, cards, pityUsed, { gems: cost }, audit);
 }

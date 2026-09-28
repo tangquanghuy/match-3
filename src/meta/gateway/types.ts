@@ -26,6 +26,7 @@ import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { TeamMember, MetaSave, TreasureHuntState } from '../state/schema';
 import type { CollectionModifierOk } from '../systems/collectionModifier';
+import type { GiftClaimResult } from '../systems/gifts';
 
 /** load 的返回：save 是网关当前权威状态，屏层直接读 */
 export interface GatewaySnapshot {
@@ -177,6 +178,12 @@ export interface MetaGateway {
   // —— 战斗闭环（M2） ——
   /** 任务关出战计划（只读组合：出敌 + 过会话校验的请求） */
   planQuestBattle(kingdom: string, node: number): Promise<BridgeOutcome | MetaFailure>;
+  /** 新手引导试炼战（仅引导第一步可用；获胜后结算推进引导） */
+  planTutorialBattle(): Promise<BridgeOutcome | MetaFailure>;
+  /** 领取一项馈赠里程碑 */
+  claimGift(id: string): Promise<GatewayUpdate<GiftClaimResult>>;
+  /** 一键领取全部已达成的馈赠 */
+  claimAllGifts(): Promise<GatewayUpdate<GiftClaimResult>>;
   /** 探索出战计划（档位取存档当前 Hard/VH 关） */
   planExploreBattle(kingdom: string): Promise<BridgeOutcome | MetaFailure>;
   /** 结算入账（击杀/胜利/首胜/任务推进/战败保底逐行明细） */

@@ -78,6 +78,16 @@ export class BattleLauncher {
     await this.run(plan, 'event');
   }
 
+  /** 新手引导试炼战：按起始王国第 1 关结算，结算屏返回世界地图 */
+  async launchTutorialBattle(): Promise<void> {
+    const plan = await this.ctx.gateway.planTutorialBattle();
+    if (isFailure(plan)) {
+      toast(plan.message);
+      return;
+    }
+    await this.run(plan, 'quest');
+  }
+
   /** 入侵出战（mirrorId = 候选对手） */
   async launchInvasionBattle(mirrorId: string): Promise<void> {
     const now = Date.now();

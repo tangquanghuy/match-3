@@ -129,7 +129,7 @@ export function hydrateGachaAudit(raw: unknown, count: number): GachaAudit | und
   const a = raw as GachaAudit;
   if (!Number.isSafeInteger(a.rulesVersion) || a.rulesVersion < 1 || !Array.isArray(a.wishlistIds)
     || validateWishlist(a.wishlistIds) || !Array.isArray(a.reasons) || a.reasons.length !== count
-    || a.reasons.some(r=>!['normal','ten-pity','pursuit'].includes(r))) return undefined;
+    || a.reasons.some(r=>!['normal','ten-pity','pursuit','novice'].includes(r))) return undefined;
   for (const p of [a.pursuitBefore,a.pursuitAfter]) {
     if (!p || !Number.isSafeInteger(p.progress) || p.progress < 0 || !Number.isSafeInteger(p.completed) || p.completed < 0
       || !Number.isSafeInteger(p.limit) || p.limit < 1 || p.progress >= p.limit

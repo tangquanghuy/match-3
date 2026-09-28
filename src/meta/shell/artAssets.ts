@@ -10,6 +10,12 @@ const RESULT = import.meta.glob('../../assets/meta/result/*.webp', { eager: true
 const KINGDOM = import.meta.glob('../../assets/meta/kingdom/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const DAILY = import.meta.glob('../../assets/meta/daily/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const SHOP = import.meta.glob('../../assets/meta/shop/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const GIFT = import.meta.glob('../../assets/meta/gift/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+
+/** 馈赠页素材 URL（hall / 分组 id） */
+export function giftArt(name: string): string {
+  return pick(GIFT, name);
+}
 
 function pick(map: Record<string, string>, name: string): string {
   const hit = Object.entries(map).find(([path]) => path.endsWith(`/${name}.webp`));

@@ -18,6 +18,7 @@ import marketCss from './styles/market.css?raw';
 import huntCss from './styles/hunt.css?raw';
 import eventsLockCss from './styles/events-lock.css?raw';
 import eventsCss from './styles/events.css?raw';
+import giftsCss from './styles/gifts.css?raw';
 
 interface PageCssSpec {
   css: string;
@@ -35,6 +36,7 @@ const PAGE_CSS: Record<string, PageCssSpec> = {
   shop: { css: eventShopCss + marketCss + eventsLockCss, position: 'last' },
   gems: { css: gemShopCss + marketCss, position: 'last' },
   hunt: { css: huntCss, position: 'last' },
+  gifts: { css: giftsCss, position: 'last' },
 };
 
 const STYLE_ID = 'meta-page-css';

@@ -171,7 +171,8 @@ export const AnimConfig = {
     // Effect 0481: green single-target impact.
     green_single_hit: { frames: 26, frameW: 276, frameH: 240, displayH: 230, duration: 650 },
     // Effect 0353: faint cyan particles drifting away from a defeated card.
-    death_drift: { frames: 26, frameW: 315, frameH: 240, displayH: 220, duration: 960 },
+    // 480ms（原 960）：阵亡粒子加倍速，缩短死卡占位时间
+    death_drift: { frames: 26, frameW: 315, frameH: 240, displayH: 220, duration: 480 },
     // Effect 0406: color-neutral impact on every splash-chain victim.
     splash_hit: { frames: 16, frameW: 233, frameH: 240, displayH: 235, duration: 520 },
     // Effect 0083: enlarged board-centered release for selected-target splash chain.
@@ -251,7 +252,8 @@ export const AnimConfig = {
   },
 
   /** Defeated cards stay gray through death FX, then fade out before the team reflows. */
-  defeat: { cardExitDuration: 240 },
+  // 160ms（原 240）：阵亡退场加快，后排尽快补位，连续骷髅攻击不再对着消散中的卡「鞭尸」
+  defeat: { cardExitDuration: 160 },
 
   /**
    * 通用程序化弹道（所有发射类技能共用，仅颜色不同）：从施法者直线飞向目标的能量剑气。

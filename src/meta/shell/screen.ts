@@ -24,7 +24,7 @@ export type PvpSettlementView =
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
   | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
-  | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt'
+  | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt' | 'gifts'
   /** 王国主线页 `#quest/<王国>`（M10） */
   | 'quest';
 
@@ -56,6 +56,8 @@ export interface ShellCtx {
   launchEventBattle(choice?: string): Promise<void>;
   /** 启动一场入侵对战（mirrorId = 候选对手 id；结算走入侵屏自身） */
   launchInvasionBattle(mirrorId: string): Promise<void>;
+  /** 启动新手引导试炼战（结算后回世界地图） */
+  launchTutorialBattle(): Promise<void>;
   /** 展示结算屏（普通战斗带逐行入账，PvP 带战果与加分构成） */
   showResult(
     detail: SettlementDetail | PvpSettlementView,

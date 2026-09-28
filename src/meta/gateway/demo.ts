@@ -109,6 +109,8 @@ export function buildDemoSave(now: number): MetaSave {
     for (let i = 0; i < 3; i++) temperWeaponOnSave(save, STARTER_WEAPON_ID);
   }
 
+  // 演示档跳过新手引导，但保留一次新手十连（方便查看异界来客保底）
+  save.onboarding = { step: 'done', noviceSummonUsed: false };
   save.stats.battlesWon = 34;
   save.stats.battlesLost = 7;
   if (demoClass) save.hero.classWins[demoClass.id] = 34;

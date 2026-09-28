@@ -556,6 +556,30 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
     eventShops,
     settings: { ...base.settings },
     treasureHunt,
+    onboarding: hydrateOnboarding(raw.onboarding, gachaLog),
+    gifts: hydrateGifts(raw.gifts, eventWeeks),
+  };
+}
+
+const ONBOARDING_STEPS = ['battle', 'gift', 'summon', 'done'] as const;
+
+/** 旧档没有引导字段：视为已完成；没抽过宝石箱的旧档仍可用一次新手十连。 */
+function hydrateOnboarding(raw: unknown, gachaLog: MetaSave['gachaLog']): MetaSave['onboarding'] {
+  const pulledGem = gachaLog.some((entry) => entry.kind === 'gem');
+  if (!isObject(raw)) return { step: 'done', noviceSummonUsed: pulledGem };
+  const step = ONBOARDING_STEPS.includes(raw.step as MetaSave['onboarding']['step']) ? raw.step as MetaSave['onboarding']['step'] : 'done';
+  return { step, noviceSummonUsed: typeof raw.noviceSummonUsed === 'boolean' ? raw.noviceSummonUsed : pulledGem };
+}
+
+function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks']): MetaSave['gifts'] {
+  const weekWins = Object.values(eventWeeks).reduce((sum, w) => sum + (w?.wins ?? 0), 0);
+  const weekTower = eventWeeks.towerOfDoom?.eventData.floorBest ?? 0;
+  if (!isObject(raw)) return { claimed: [], eventWins: weekWins, towerBest: weekTower };
+  const claimed = Array.isArray(raw.claimed) ? [...new Set(raw.claimed.filter((id): id is string => typeof id === 'string'))] : [];
+  return {
+    claimed,
+    eventWins: Math.max(num(raw.eventWins, 0, 0), weekWins),
+    towerBest: Math.max(num(raw.towerBest, 0, 0), weekTower),
   };
 }
 

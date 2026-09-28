@@ -85,3 +85,6 @@ fixes: <id>: <文件> <技能ID> <摘要>; changelog entries C
 open: <id> <key> <kind> <一句话>
 tests: <文件数> files, <通过数> passed
 ```
+
+## 生成数据必须随合并提交（2026-09-29 补）
+子 agent 仍然不提交 `src/data/troops.json / weapons.json / traits.json`（避免冲突），但**协调者每次合并验收后必须在验收 worktree 重建并提交这三个文件**。否则中文描述修正、`kingdomId` 等只存在于源文件，游戏里仍显示旧数据（骑士之剑曾因此一直显示「对第 1 名敌人」，实际行为是「最强的敌人」）。
