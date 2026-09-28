@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 495 条改动，涉及 833 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 496 条改动，涉及 834 个技能 ID。
 
 ## 按时间
 
@@ -501,6 +501,7 @@
 | 2026-09-28T12:00 | sa-P | P-R7-dead-last-target-cond | primitive | 9550, 7410, 7541 | troop:7646 ShadowWraith；weapon:1144 SpiderTotem；troop:6386 Warhawk | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts` | lastTargetColor/Race/Status false once the hit killed the target (unit spliced, findCharacter undefined) → castTracking.lastTarget.unit keeps the picked Character; colour/race/status conditions read it after death | lastTargetColor/Race/Status users: 8925 8276 8533 8373 9550 7410 7541 |
 | 2026-09-28T12:10 | sa-P | P-R6-chosen-diagonal-transform | primitive | 8762, 8448, 7943 | weapon:1461 SlashingEmbers；weapon:1385 MinosCleaver；troop:6625 Hammerclaw | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/cellChooser.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | transform diagonal fixed to the board's main diagonals; prototypeNeedsCell ignored oneOf branches (8448 / 7943 chosen row/col explode had no cell and exploded nothing) → transform diagonalAnchor 'chosenCell' (row-col / row+col of the chosen cell); prototypeNeedsCell recurses into oneOf options | Target Board spells whose cell step is inside a random oneOf branch: 8762 8448 7943 |
 | 2026-09-28T12:19 | sa-P | P-R6-chosen-cell-counts | primitive | 8965, 8070 | weapon:1525 StarLocket；troop:6712 BoneGolem | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r17.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8965 counted and destroyed the fixed centre X; 8070 exploded first and marked per destroyed skull (killed enemies left the pool), attack before armor → diagonalGems anchor chosenCell + area x center CELL; chosenCellBlockGems skulls; 8070 native order count -> death marks -> explode -> armor -> attack |  |
+| 2026-09-28T12:24 | sa-P | P-R5-faction-kingdom | primitive | 8985, 8140 | troop:7357 FeyHound；weapon:1274 TomeOfSpores | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | alliesOfKingdom zh parent kingdom (卜筮之原 / 齐埃金) counted every Adana / Zaejin ally → alliesNamed name[] = raw KingdomId 3048 / 3053 roster zh names (Wild Court 5, Amanithrax 5) |  |
 
 ## 按技能 ID
 
@@ -819,7 +820,7 @@
 | 8137 | 1 | L1-E-6757-target |
 | 8138 | 1 | L4a-r4-6758 |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
-| 8140 | 1 | L1-1274-amanithrax |
+| 8140 | 2 | L1-1274-amanithrax、P-R5-faction-kingdom |
 | 8150 | 1 | F2-R001-order |
 | 8155 | 1 | R3-B07-1279 |
 | 8160 | 1 | P-prefnotprev-semantics |
@@ -1124,6 +1125,7 @@
 | 8972 | 1 | R3-B05-1528 |
 | 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
+| 8985 | 1 | P-R5-faction-kingdom |
 | 8987 | 1 | P-counter-per-step |
 | 8995 | 1 | L4a-r3-1523 |
 | 9003 | 1 | R7-tarot-extra-turn |

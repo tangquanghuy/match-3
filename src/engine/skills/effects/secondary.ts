@@ -76,7 +76,9 @@ export type ModifierSource =
   | { kind: 'alliesOfKingdom'; kingdom: string; atCastStart?: boolean }
   /** P-R5-named-ally-count: alive allies (caster included) of a named troop (native CountArmyTroop@AllAllies);
    *  name = zh Character.name (troopPresent 口径) */
-  | { kind: 'alliesNamed'; name: string; atCastStart?: boolean }
+  | { kind: 'alliesNamed'; name: string | string[]; atCastStart?: boolean }
+  // name[] (P-R5-faction-kingdom): any of several troops — native CountArmyKingdom on a faction kingdom id
+  // (3048 Wild Court / 3053 Amanithrax) whose members share the zh parent-kingdom name with the rest of the kingdom
   /** 敌方指定王国的存活敌人数（原语 Wave4 批；与 enemiesOfColor 同构，按 kingdom 筛选） */
   | { kind: 'enemiesOfKingdom'; kingdom: string; atCastStart?: boolean }
   /** 施法方关联指定法力色的存活盟友数（「因蓝色盟友数而增强」） */
@@ -832,7 +834,10 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;
     case 'alliesNamed':
       // P-R5-named-ally-count: native CountArmyTroop — one per matching ally, not a boolean like troopPresent
-      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => c.name === source.name).length;
+    {
+      const names = Array.isArray(source.name) ? source.name : [source.name];
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => names.includes(c.name)).length;
+    }
     case 'enemiesOfKingdom':
       // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）
       return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => c.kingdom === source.kingdom).length;

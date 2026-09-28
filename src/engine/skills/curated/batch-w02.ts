@@ -772,11 +772,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8140,
     desc: '造成 [魔法 + 10] 点散射伤害，伤害值因毒菇林盟友数而增强。每有一名毒菇林盟友，则爆破 3 颗宝石。召唤一名毒菇林军队。 [x3]',
     build: skill(
-      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
+      dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: ['火蘑菇', '食松露大王', '爆毒菌', '霉菌法师', '蘑菇人'], atCastStart: true } } }),
       // sa-R5 L1-1274-amanithrax: native ExplodeGems UseCounterForAmount = 3 per Amanithrax ally only (0 allies -> none);
-      // SummoningKingdomNoError 3053 = raw Amanithrax roster (Deathcap 7865 is not in the roster). The ally COUNT still
-      // uses zh kingdom 齐埃金 (all of Zaejin): primitive-queue P-R5-faction-kingdom.
-      explodeRandomGems(0, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfKingdom', kingdom: '齐埃金' } } }),
+      // SummoningKingdomNoError 3053 = raw Amanithrax roster (Deathcap 7865 is not in the roster). P-R5-faction-kingdom: native CountArmyKingdom 3053// counts only that raw roster (by zh troop name), not every ally of the zh parent kingdom 齐埃金 (Zaejin).
+      explodeRandomGems(0, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: ['火蘑菇', '食松露大王', '爆毒菌', '霉菌法师', '蘑菇人'], atCastStart: true } } }),
       summonRandom(['Lifecap', 'KingGobtruffle', 'Exploadstool', 'Fungomancer', 'MushroomMan']),
     ),
   },

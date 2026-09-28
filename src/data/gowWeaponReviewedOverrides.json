@@ -4165,8 +4165,9 @@
                 "a": 3
               },
               "source": {
-                "kind": "alliesOfKingdom",
-                "kingdom": "齐埃金"
+                "kind": "alliesNamed",
+                "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                "atCastStart": true
               }
             }
           },
@@ -4189,8 +4190,9 @@
                   "a": 3
                 },
                 "source": {
-                  "kind": "alliesOfKingdom",
-                  "kingdom": "齐埃金"
+                  "kind": "alliesNamed",
+                  "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                  "atCastStart": true
                 }
               }
             },
@@ -4200,8 +4202,9 @@
                 "a": 3
               },
               "source": {
-                "kind": "alliesOfKingdom",
-                "kingdom": "齐埃金"
+                "kind": "alliesNamed",
+                "name": ["火蘑菇", "食松露大王", "爆毒菌", "霉菌法师", "蘑菇人"],
+                "atCastStart": true
               }
             }
           },
