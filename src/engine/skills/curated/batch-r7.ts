@@ -819,8 +819,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9846,
     desc: '引爆一颗宝石。对随机敌人造成[魔法 + 3]点伤害，伤害值根据被摧毁的黄色宝石数量增加，并对其施加一个随机状态效果。 [x3]',
+    // sa-R6 L2-board-chosen：原生 ExplodeGems BoardTarget SingleGem（spell Target Board）= 引爆玩家选定的那颗（原为随机一颗）
     build: skill(
-      explodeRandomGems(1, 0, 'all'),
+      explodeAt(CELL),
       dmg('enemyRandom', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
       inflictRandom('lastTarget'),
     ),

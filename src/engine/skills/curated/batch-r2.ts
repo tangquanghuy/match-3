@@ -174,7 +174,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9873,
     desc: '选项一：对随机一名敌人造成[魔法 + 4]点大量溅射伤害，伤害值受毒宝石加成。或者，将所有黄色宝石转化为毒宝石。 [x3]',
     build: skill(oneOf(
-      [dmgSplash('enemyRandom', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'poisonGem' } } })],
+      // sa-R6：原生 SplashHeavyDamage = 邻位 75%（原为默认 50%）
+      [dmgSplash('enemyRandom', 4, 1, { splashRatio: 0.75, modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'poisonGem' } } })],
       [transformToSpecial(BaseColor.Yellow, 'poisonGem')],
     )),
   },

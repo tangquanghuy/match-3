@@ -19,7 +19,7 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
-import { explodeChosenCol } from '../builders';
+import { explodeChosenCol, destroyChosenCross } from '../builders';
 import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
@@ -1163,19 +1163,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8101,
     desc: "摧毁一行和一列。将位于前方的两名敌人的其中一名打回后方，再对前方两位敌人造成 [魔法 + 4] 点伤害，伤害值因被摧毁的绿色宝石数而增强。 [x4]",
     // 【挽救】官方步骤两轮「击退+伤害」（TroopOrderBack Front/Second + Damage FirstTwo）——reposition n 通道（Wave4）落地后可对号；ZH 压缩为一轮，按官方步骤组装
+    // sa-R6 L2-6731：原生 BoardTarget RowAndColumn（spell Target Board）= 选定格所在行+列（原为随机行+随机列）；
+    // Randomize AB+(CD-EF) = 击退首位敌人 或 击退第二位敌人（各 1/2），之后只打一次前两位（原为两轮全执行）。
     build: skill(
-      destroyRandomRows(1),
-      destroyRandomCols(1),
-      reposition('enemyFront', 'back'),
-      dmg('enemyFirstN', 4, 1, {
-    n: 2,
-    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Green } },
-  }),
-      reposition('enemyNth', 'back', { n: 2 }),
-      dmg('enemyFirstN', 4, 1, {
-    n: 2,
-    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Green } },
-  }),
+      destroyChosenCross(),
+      oneOf(
+        [reposition('enemyFront', 'back'), dmg('enemyFirstN', 4, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } })],
+        [reposition('enemyNth', 'back', { n: 2 }), dmg('enemyFirstN', 4, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } })],
+      ),
     ),
   },
   {

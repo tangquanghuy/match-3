@@ -15,7 +15,7 @@
  * - 「爆破一行」= explodeChosenRow（batch-03 7384「爆破一列」同款，无随机字样）。
  */
 import { skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic, mana,
-  reduce, steal, drainMana, randomStat, createGems, createMix, transform,
+  reduce, steal, drainMana, randomStat, createGems, transform,
   destroyChosenRow, destroyColor, destroySkulls, explodeChosenRow, explodeRandomGems,
   inflict, extraTurn } from '../builders';
 import { BaseColor } from '../../types';
@@ -246,7 +246,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "创造 5 颗红色和紫色宝石。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。",
     build: skill(
       // 5 颗总数、红紫混色 → createMix 逐颗随机取色
-      createMix([BaseColor.Red, BaseColor.Purple], 5),
+      // sa-R6 L2-6181-create：原生两步 CreateGems Red 5 + CreateGems Purple 5 = 共 10 颗（原为红紫混合共 5 颗）
+      createGems(BaseColor.Red, 5),
+      createGems(BaseColor.Purple, 5),
       randomStat('allyRandom', 1, 1, { oneSkill: true }),
     ),
   },

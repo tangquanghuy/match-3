@@ -18,7 +18,7 @@
  * - 王国/晋升度条件族条目本轮不碰（等并行批落地），见批尾复核注记。
  */
 import type { CuratedBatch } from './index';
-import { targetedSkill, chooseSkill, skill, dmg, trueDmg, heal, armor, attack, mana, reduce, drainMana, cleanse, inflict, inflictRandom, createGems, createSkulls, createSpecialGems, createSpecialGems2, transformToSpecial, destroyRandomRows, destroyArea, explodeRandomGems, reposition, summonRef, extraTurn, oneOf, sacrifice, CELL, explodeAt } from '../builders';
+import { targetedSkill, chooseSkill, skill, dmg, trueDmg, heal, armor, attack, mana, reduce, drainMana, cleanse, inflict, inflictRandom, createGems, createSkulls, createSpecialGems, createSpecialGems2, transformToSpecial, destroyRandomRows, destroyChosenRow, destroyArea, explodeRandomGems, reposition, summonRef, extraTurn, oneOf, sacrifice, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -49,18 +49,20 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7433,
     desc: '摧毁 1 行。每摧毁一个骷髅头，便使一名随机敌人陷入中毒状态。 [1:1]',
-    // 「摧毁 1 行」= 随机一行；perDestroyed 'skull' 筛骷髅族（含同行被摧毁的末日骷髅）
+    // 原生 BoardTarget Row（spell Target Board）= 玩家选定的那一行（sa-R6 L2-board-chosen；原为随机一行）；
+    // perDestroyed 'skull' 筛骷髅族（含同行被摧毁的末日骷髅）
     build: skill(
-      destroyRandomRows(1),
+      destroyChosenRow(),
       inflict('poison', 'enemyAll', { perDestroyed: { color: 'skull' } }),
     ),
   },
   {
     id: 7463,
     desc: '以 X 形状摧毁宝石。每摧毁一颗黄色宝石，便赋予一名随机盟友屏障效果。 [1:1]',
-    // 官方 BoardTarget=X → destroyArea('x')（缺省棋盘中心）；屏障族 perDestroyed（Wave4 builders 注记先例）
+    // 官方 BoardTarget=Diagonals（spell Target Board）→ 过玩家选定格的两条对角线（sa-R6 L2-board-chosen；
+    // 原为固定棋盘中心）；屏障族 perDestroyed（Wave4 builders 注记先例）
     build: skill(
-      destroyArea('x', 'destroy'),
+      destroyArea('x', 'destroy', CELL),
       inflict('barrier', 'allyAll', { perDestroyed: { color: BaseColor.Yellow } }),
     ),
   },
@@ -216,8 +218,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeAt(CELL),
       inflict('burning', 'enemyAll', { perDestroyed: { color: BaseColor.Red } }),
-      heal('allySelf', 1, 1),
+      // sa-R6：原生 IncreaseArmor 在 IncreaseHealth 之前（R001；原为先生命后护甲）
       armor('allySelf', 1, 1),
+      heal('allySelf', 1, 1),
     ),
   },
   {

@@ -177,14 +177,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将指定法力的颜色转换为蓝色。召唤 一个随机风暴。',
     build: skill(
       transform(CHOSEN, BaseColor.Blue),
-      // 「随机风暴」无专用原语 → oneOf 六色风暴等概率掷选（等价于随机取一种，见汇报）
+      // 原生 Randomize A+(B-C-D-E-F)：蓝/绿/红/黄/紫五种风暴等概率（无棕色）
       oneOf(
+        [createStorm(BaseColor.Blue)],
         [createStorm(BaseColor.Green)],
         [createStorm(BaseColor.Red)],
-        [createStorm(BaseColor.Blue)],
         [createStorm(BaseColor.Yellow)],
         [createStorm(BaseColor.Purple)],
-        [createStorm(BaseColor.Brown)],
       ),
     ),
   },

@@ -29,7 +29,7 @@
  * （condMult 固定取官方下限 3）；尾缀 [N:M]/[xN] 语义被显式段消费时不再重复挂载
  * （§14.12 口径）。
  */
-import { skill, dmg, magic, attack, armor, mana, createGems, createSkulls, createSpecialGems2,
+import { skill, dmg, magic, attack, armor, mana, createGems, createSkulls,
   inflict, oneOf, devour, summonRandomOfRace, stealGold, spendGold, gainGold, randomStat,
   explodeRandomGems, transformToSpecial, reposition, extraTurn, flat } from '../builders';
 import { BaseColor } from '../../types';
@@ -301,11 +301,16 @@ const SPELLS: CuratedBatch['spells'] = [
     //   SurroundingGems = 3x3 邻域，「下方」即其中正下格；锚 = 刚创造的宝石格）。
     //   [1:1] = multiplier 1 × 该计数，由 perCount 消费（次数 = 绿色邻位数，逐次随机
     //   取敌方一名，官方 InflictEffectOnRandomTroops 同口径）。
+    // sa-R6（L2-7217-cell）：原生 CountGems SurroundingGems 在 CreateGems2Colors BoardTarget SingleGem
+    //   之前（spell Target Board）→ 石像鬼落在玩家选定格；「下方或周围」= 选定格本身（被覆盖的那颗）
+    //   + 8 邻格，按创造前计数（chosenCellBlockGems 3x3）。原生 InflictEffectOnRandomTroops AllEnemies
+    //   = 每次从全体存活敌人随机取一名（原 enemyRandom 池只有一人，全部中毒落在同一敌人）。
+    //   中毒段先于创造段执行：两者互不影响，计数读到的正是创造前的棋盘，结果与原生顺序相同。
     build: skill(
-      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 1),
-      inflict('poison', 'enemyRandom', {
-        perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'surroundingGems', color: BaseColor.Green, anchor: 'lastCreated' } },
+      inflict('poison', 'enemyAll', {
+        perCount: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'chosenCellBlockGems', color: BaseColor.Green } },
       }),
+      transformToSpecial('CELL', { kind: 'gargoyleGem' }, { count: 1, tiers: [1, 2] }),
       extraTurn(),
     ),
   },

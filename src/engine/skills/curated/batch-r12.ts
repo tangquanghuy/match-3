@@ -256,9 +256,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9241,
     desc: '消除 2 名随机敌人 [魔法 + 1] 点随机技能值，数值因狂怒盟友数而择期。 [x3]',
     // 「择期」为乱码，官方 CountSpecificStatusEffect enraged = 数值增强（R10 enraged 同族口径）
+    // sa-R6 L2-7496-pref-not-prev：原生 DecreaseRandom RandomEnemy + DecreaseRandom RandomPrefNotPrevEnemy（R007-3）
+    // = 两步各自掷签，第二步只避开上一目标、只剩一人时重复命中（原为 enemyRandomN 2 人不重复，只剩一人时只削一次）
     build: skill(
-      reduce('enemyRandomN', 'random', 1, 1, {
-        n: 2,
+      reduce('enemyRandom', 'random', 1, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'allyStatusCount', statusId: 'enraged' } },
+      }),
+      reduce('enemyRandomPrefNotPrev', 'random', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'allyStatusCount', statusId: 'enraged' } },
       }),
     ),
@@ -329,7 +333,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '随机减少一名敌人的[魔法 + 1]点技能点数，诅咒和蛛网束缚的敌人可提升此效果。然后诅咒并束缚该敌人。 [x2]',
     // 「诅咒并束缚」= CauseCursed + CauseWeb（官方步骤实锤「束缚」=web）；「然后该敌人」= lastTarget
     build: skill(
-      reduce('enemyRandom', 'random', 1, 1, {
+      // sa-R6 L2-7850-target：原生 spell Target=Enemy，DecreaseRandom/CauseCursed/CauseWeb 均 FromTarget = 选定敌人（原为随机敌人）
+      reduce('enemyChosen', 'random', 1, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 2 },
           sources: [{ kind: 'enemyStatusCount', statusId: 'curse' }, { kind: 'enemyStatusCount', statusId: 'web' }],

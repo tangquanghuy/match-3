@@ -187,8 +187,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「打错敌人」家族按 8108/8307 官方步骤实锤口径：两段伤害各自掷签（FromTarget +
     // RandomEnemy），ZH「50% 打错」为机翻合并；「对方使用棕色法力值三倍」= condMult targetColor。
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } }),
-    dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } }),
+    // sa-R6 L2-wrong-enemy-branches: native A-B = the chosen enemy OR (50%) a random enemy; was both hits in sequence
+    oneOf(
+      [dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } })],
+      [dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Brown } } })],
+    ),
     ),
   },
   {
@@ -250,12 +253,15 @@ const SPELLS: CuratedBatch['spells'] = [
     // 同 7254（官方两段伤害口径）；「所有技能值增加 8点」= 四维技能各 +8（AddForKill →
     // ifTargetDied，8307 官方 IncreaseAttack AddForKill 同族）。
     build: skill(
-    dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-    dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-    attack('allySelf', 8, 0, { ifTargetDied: true }),
-    armor('allySelf', 8, 0, { ifTargetDied: true }),
-    magic('allySelf', 8, 0, { ifTargetDied: true }),
-    heal('allySelf', 8, 0, { ifTargetDied: true }),
+    // sa-R6 L2-wrong-enemy-branches: native AB-CD = the chosen enemy OR (50%) a random enemy, +8 all Skills if it died; was both hits
+    // (the kill bonus follows the oneOf: it reads whichever enemy that branch hit; one Life segment for gowLifeRules)
+    oneOf([dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })], [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })]),
+    // native IncreaseAllStats AddForKill = all four Skills +8. ifTargetDied only held for the first of the four (each
+    // self buff rewrites lastTarget, so Armor/Magic/Life never applied) -> castEnemyDied (9703 precedent)
+    attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    armor('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    magic('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    heal('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
@@ -293,8 +299,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 4] 点伤害，有 50% 的几率打错敌人。如果对方使用绿色法力值，则造成三倍伤害。',
     // 同 7254（绿色版）。
     build: skill(
-    dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
-    dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } }),
+    // sa-R6 L2-wrong-enemy-branches: native A-B = the chosen enemy OR (50%) a random enemy; was both hits in sequence
+    oneOf(
+      [dmg('enemyChosen', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } })],
+      [dmg('enemyRandom', 4, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Green } } })],
+    ),
     ),
   },
   {
@@ -676,10 +685,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤实锤（Bone Flail）：Damage FromTarget → CreateGems Skull 8 AddForKill →
     // Damage RandomEnemy → CreateGems Skull 8 AddForKill——「50% 打中另一名」为机翻合并。
     build: skill(
-    dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
-    createSkulls(8, 0, { ifTargetDied: true }),
-    dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
-    createSkulls(8, 0, { ifTargetDied: true }),
+    // sa-R6 L2-wrong-enemy-branches: native AB-CD = hit the chosen enemy OR (50%) a random enemy, each followed by
+    // 8 Skulls if it died; was both hits in sequence
+    oneOf(
+      [dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }), createSkulls(8, 0, { ifTargetDied: true })],
+      [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Purple } } }), createSkulls(8, 0, { ifTargetDied: true })],
+    ),
     ),
   },
   {
@@ -828,10 +839,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤实锤（Bloody Club）：Damage FromTarget ×3red → IncreaseAttack 16 AddForKill →
     // Damage RandomEnemy ×3red → IncreaseAttack 16 AddForKill（两轮结构同 8108）。
     build: skill(
-    dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }),
-    attack('allySelf', 16, 0, { ifTargetDied: true }),
-    dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }),
-    attack('allySelf', 16, 0, { ifTargetDied: true }),
+    // sa-R6 L2-wrong-enemy-branches: native AB-CD = the chosen enemy OR (50%) a random enemy, +16 Attack if it died; was both hits
+    oneOf(
+      [dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }), attack('allySelf', 16, 0, { ifTargetDied: true })],
+      [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Red } } }), attack('allySelf', 16, 0, { ifTargetDied: true })],
+    ),
     ),
   },
   {
@@ -892,8 +904,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 伤害 [x2] 诅咒敌人数（官方 CountSpecificStatusEffect cursed 200）；「每有一名…则赋予
     // 一名随机盟友屏障」= perCount 计数驱动施加（R22 新原语，官方 InflictEffectOnRandomTroops）。
     build: skill(
-    dmg('enemyAll', 1, 1, { range: 'all', modifier: boostPer({ kind: 'enemyStatusCount', statusId: 'curse' }, 2) }),
+    // sa-R6 L2-6946-order：原生先计诅咒数并施屏障（步骤 0-1），再重新计数、伤害（2-4）；原为先伤害后屏障，
+    // 伤害打死的受诅咒敌人不再计入屏障数（R001）
     inflict('barrier', 'allyAll', { perCount: boostPer({ kind: 'enemyStatusCount', statusId: 'curse' }, 1) }),
+    dmg('enemyAll', 1, 1, { range: 'all', modifier: boostPer({ kind: 'enemyStatusCount', statusId: 'curse' }, 2) }),
     ),
   },
   {
@@ -1128,9 +1142,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「每有 10 黄金则使随机敌人疾病」= perCount battleGold ratio 10:1（R22 新原语，
     // 官方 CountGold 步骤口径）。
     build: skill(
+    // sa-R6 L2-7556-gold-count：原生 CountMyGold 是第 0 步（获得黄金之前）→ 疾病段移到 gainGold 之前，
+    // 计数不含本次获得的 [魔法 + 1]（原为获得后计数）；转换、获得黄金与疾病互不影响，其余顺序不可观察。
     transform(BaseColor.Yellow, BaseColor.Brown),
-    gainGold(1, 1),
     inflict('disease', 'enemyAll', { perCount: { mod: { kind: 'ratio', a: 10, b: 1 }, source: { kind: 'battleGold' } } }),
+    gainGold(1, 1),
     ),
   },
   {

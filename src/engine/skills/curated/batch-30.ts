@@ -152,7 +152,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8856,
     desc: '&& 对 3 名随机敌人造成 [(魔法 / 2) + 2] 点伤害 && 消除 3 名随机敌人 3 点魔力值',
-    build: skill(chooseSkill(['三名随机敌人受到伤害', '削减三名随机敌人各三点魔法'], [dmg('enemyRandomN', 2, 0.5, { n: 3 })], [reduce('enemyRandomN', 'magic', 3, 0, { n: 3 })])),
+    // sa-R6 L2-7282-pref-not-prev: native RandomEnemy + 2 x RandomPrefNotPrevEnemy in each branch (R007-3): each pick avoids
+    // only the previous one (the third may repeat the first, a lone enemy takes all three); was enemyRandomN n:3 (distinct)
+    build: skill(chooseSkill(['三名随机敌人受到伤害', '削减三名随机敌人各三点魔法'],
+      (['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => dmg(t, 2, 0.5)),
+      (['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t => reduce(t, 'magic', 3, 0)))),
   },
   {
     id: 8858,

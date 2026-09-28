@@ -13,7 +13,7 @@
  *   7494-7499/7530/7934/8718 共 8 条移入 batch-37；7482 因「随机一项技能值降低」维持 SKIP。
  * - 「承受 3 点伤害」= 对自身普通伤害 dmg allySelf（屏障/护甲先吸收，7392；L5-009）。
  */
-import { skill, dmg, dmgAll, heal, armor, mana, inflict, summonRandom, createSpecialGems, transformToSpecial, transform } from '../builders';
+import { skill, oneOf, dmg, dmgAll, heal, armor, mana, inflict, summonRandom, createSpecialGems, transformToSpecial, transform } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -100,9 +100,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8430,
     desc: '对所有敌人造成 [(魔法 / 2) + 1] 点伤害，再使他们全部陷入诅咒和织网状态。',
     build: skill(
+      // sa-R6 L2-6949-branches：原生 AB-CD = 伤害 + 诅咒 或 伤害 + 蛛网，各 1/2（原为诅咒与蛛网都施加）
       dmgAll(1, 0.5),
-      inflict('curse', 'enemyAll'),
-      inflict('web', 'enemyAll'),
+      oneOf([inflict('curse', 'enemyAll')], [inflict('web', 'enemyAll')]),
     ),
   },
   {

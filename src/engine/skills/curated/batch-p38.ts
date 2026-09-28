@@ -125,10 +125,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得一个额外回合，再创造 2-3 颗许愿宝石，或对所有敌人造成 [魔法 + 1] 点伤害，伤害值因许愿宝石数而增强，或给予所有其他盟友 [魔法 + 1] 点生命值，数值因许愿宝石数而增强。 [x5]',
     build: skill(
       extraTurn(),
+      // sa-R6 L2-7125-branches：原生 Randomize AB+(C-D-E-F) = 2 颗 | 伤害 | 治疗 | 3 颗，各 1/4
+      // （原为三选一、创造分支内再 2-3 掷签：创造 1/3、伤害 1/3、治疗 1/3）
       oneOf(
-        [createSpecialGems({ kind: 'wish' }, 2, 0, { countRange: { min: 2, max: 3 } })],
+        [createSpecialGems({ kind: 'wish' }, 2)],
         [dmg('enemyAll', 1, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'wish' } } })],
         [heal('allyOthers', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'wish' } } })],
+        [createSpecialGems({ kind: 'wish' }, 3)],
       ),
     ),
   },

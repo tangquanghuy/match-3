@@ -91,7 +91,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Count 步骤编码产物，文本无「因…增强」来源句 → §14.12 孤儿治理维持不挂载、不硬凑。
     build: skill(
       reduce('enemyChosen', 'magic', 1, 1),
+      // sa-R6 L2-6916-one-skill：原生 IncreaseRandom = 每名盟友一项随机技能获得全额（R007-2；原为逐点随机分摊）
       randomStat('allyAll', 0, 0, {
+        oneSkill: true,
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } },
       }),
     ),

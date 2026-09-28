@@ -20,7 +20,7 @@
  * - 7050「如果敌人身亡者获得 4 点攻击力」：「者」为「则」之笔误（batch-07 8041 处理笔误同款），
  *   逐字保留原文。
  */
-import { skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic, cleanse, reduce, inflict, createGems, createMix, createSkulls, destroyChosenRow, destroyColor, explodeRandomGems, extraTurn, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgAll, trueDmg, heal, armor, attack, magic, cleanse, reduce, inflict, createGems, createSkulls, oneOf, destroyChosenRow, destroyColor, explodeRandomGems, extraTurn, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -183,8 +183,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 2] 点伤害。然后创造 13 颗蓝色、绿色、红色、黄色或紫色的宝石。',
     build: skill(
       dmgAll(2),
-      // 五色混色逐颗随机取色（batch-05 7322 createMix 同款）
-      createMix([BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple], 13, 0),
+      // sa-R6 L2-7523-one-colour：原生 A+(B-C-D-E-F) = 五色之一创造 13 颗同色，各 1/5（原为五色逐颗混合）
+      oneOf(...[BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple].map(c => [createGems(c, 13)])),
     ),
   },
   {
