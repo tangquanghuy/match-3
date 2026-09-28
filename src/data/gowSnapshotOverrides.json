@@ -166,6 +166,11 @@
       "reason": "sa-R7 R7-b14-status-counts: gem count (not damage) is boosted by Poisoned/Diseased enemies per English/native.",
       "spellDescription": "对所有敌人造成 [魔法 + 2] 点伤害。创造 14 颗绿色和棕色的混合宝石，数量因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]"
     },
+    "6770": {
+      "spellId": 8160,
+      "reason": "sa-A r9: English 'light splash damage'; stored Chinese typo '溅射上海' (Shanghai) for '溅射伤害'.",
+      "spellDescription": "对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射伤害。爆破板面上半数蓝色宝石。 [2:1]"
+    },
     "6789": {
       "spellId": 8180,
       "reason": "sa-F: English The Gray King '[Magic + 9] true damage'; old Chinese dropped the unit (double space).",

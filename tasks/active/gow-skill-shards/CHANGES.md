@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 653 条改动，涉及 1111 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 655 条改动，涉及 1114 个技能 ID。
 
 ## 按时间
 
@@ -659,6 +659,8 @@
 | 2026-09-28T22:52 | sa-A | L4a-R9-7220-gargoyle-mix | assembler | 8814 | troop:7220 ChromiteSphinx | `src/engine/skills/curated/batch-r14.ts` | 8814 createSpecialGems gargoyleGem 4 (single tier) → native CreateGems2Colors Good/Bad Gargoyle: createSpecialGems2 tier 1 + tier 2 mix |  |
 | 2026-09-28T22:52 | sa-A | L4a-R9-6153-order-skulls | assembler | 7273 | troop:6153 AutumnalImp | `src/engine/skills/curated/batch-12.ts` | 7273 dmg, destroy 10 include color, magic on kill → native order dmg, magic on kill, destroy 10 include all (R001, R013-5) |  |
 | 2026-09-28T22:52 | sa-A | L4a-R9-7254-skulls | assembler | 8840 | troop:7254 Stoneshell | `src/engine/skills/curated/batch-04.ts` | 8840 destroy 3 include color → include all (R013-5) |  |
+| 2026-09-28T22:57 | sa-A | L4a-R9-8254-skulls | assembler | 8254, 8255, 8256 | weapon:1297 DoomedHammer；weapon:1298 DoomedBreaker；weapon:1299 DoomedMaul | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/_weapon_pools.mjs` | explode 4 (+3 if enemy Doom) include color → include all (R013-5); override prototypes + generator strings updated |  |
+| 2026-09-28T22:57 | sa-A | L4a-R9-6770-zh | data | 8160 | troop:6770 Aquaticus | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | 8160 zh '溅射上海' → zh '溅射伤害' + snapshot override |  |
 
 ## 按技能 ID
 
@@ -1050,7 +1052,7 @@
 | 8140 | 2 | L1-1274-amanithrax、P-R5-faction-kingdom |
 | 8150 | 1 | F2-R001-order |
 | 8155 | 1 | R3-B07-1279 |
-| 8160 | 1 | P-prefnotprev-semantics |
+| 8160 | 2 | P-prefnotprev-semantics、L4a-R9-6770-zh |
 | 8165 | 1 | P-random-stat-pool |
 | 8166 | 1 | P-random-stat-pool |
 | 8167 | 1 | L4a-r3-6777 |
@@ -1094,6 +1096,9 @@
 | 8250 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8251 | 1 | P-counter-per-step |
 | 8253 | 1 | L2-H-1296-spm034 |
+| 8254 | 1 | L4a-R9-8254-skulls |
+| 8255 | 1 | L4a-R9-8254-skulls |
+| 8256 | 1 | L4a-R9-8254-skulls |
 | 8260 | 1 | P-E-faction-kingdom |
 | 8261 | 1 | P-E-faction-kingdom |
 | 8262 | 1 | P-E-faction-kingdom |

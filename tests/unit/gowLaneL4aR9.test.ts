@@ -253,3 +253,20 @@ describe('L4a R9 B09', () => {
     expect(o.indexOf('buff C magic+8')).toBeLessThan(o.findIndex(x => x.startsWith('destroy ')));
   });
 });
+
+describe('L4a R9 B10', () => {
+  // weapon:1297/1298/1299 (8254-8256): ... ExplodeGems 4 [+3 AddIfEnemyHasDoom] (Skulls eligible).
+  it.each([['weapon:1297'], ['weapon:1298'], ['weapon:1299']] as const)('%s explodes 4 gems, 3 more if the enemy team has a Doom; Skulls eligible', (key) => {
+    const base = castSpell({ key, board: noColour(BaseColor.Purple) }).summary.order.filter(o => o.startsWith('explode ')).length;
+    const doom = castSpell({ key, board: noColour(BaseColor.Purple), enemies: [{}, {}, {}, { troopTypes: ['Doom'] }] as never }).summary.order.filter(o => o.startsWith('explode ')).length;
+    expect(doom).toBeGreaterThan(base);
+    const ev = castSpell({ key, board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+  // troop:6770 (8160): 3 x SplashDamage@RandomEnemy 8+M ; CountGems Blue 50% ; ExplodeColor Blue [counter].
+  it('troop:6770 explodes floor(Blue/2) Blue gems', () => {
+    const ev = castSpell({ key: 'troop:6770', board: withCells(noColour(BaseColor.Blue), { '0,0': colorGem(BaseColor.Blue), '7,7': colorGem(BaseColor.Blue), '0,7': colorGem(BaseColor.Blue) }) }).events.filter(e => e.type === 'gem-explode') as unknown as Cells[];
+    expect(ev).toHaveLength(1); // floor(3 / 2) = 1
+    expect(ev[0].cells.some(c => c.gemType.color === BaseColor.Blue)).toBe(true);
+  });
+});

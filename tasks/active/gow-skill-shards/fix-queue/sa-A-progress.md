@@ -142,3 +142,8 @@
 - troop:7156 accept
 - troop:6153 fix(native order magic-on-kill before destroy; destroy 10 include all)
 - troop:7254 fix(destroy 3 include all)
+- weapon:1057 accept
+- troop:6770 fix(zh '溅射上海' typo; override) accept convention:R006-C3
+- weapon:1297 fix(explode include all; override + generator)
+- weapon:1298 fix(explode include all; override + generator)
+- weapon:1299 fix(explode include all; override + generator)

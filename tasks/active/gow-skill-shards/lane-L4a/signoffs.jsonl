@@ -455,3 +455,8 @@
 {"format":"compact","key":"troop:7156","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:53:17.306Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6153","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:53:17.306Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7254","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:53:17.307Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1057","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:58:36.877Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1297","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:58:36.878Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1298","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:58:36.879Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1299","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:58:36.879Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6770","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T22:59:20.749Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"convention:R006-C3 3 x plain RandomEnemy (ResetTargets) = prefer not-yet-hit"}
