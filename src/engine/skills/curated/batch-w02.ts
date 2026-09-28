@@ -1005,12 +1005,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8283,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值。',
+    // L1-1310-brown: English + native (ExtraTurnConditional 30, GenerateHalfMana PercentageChance 30) have no
+    // Brown-gem boost; the zh snapshot clause 「几率因棕色宝石数而增强」 is dropped.
     build: skill(
       dmg('enemyChosen', 2, 1),
       inflict('charm', 'enemyChosen'),
-      extraTurn({ chance: 0.3, chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
-      mana('allySelf', 0, 0, { halve: true, chance: 0.3, chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      extraTurn({ chance: 0.3 }),
+      mana('allySelf', 0, 0, { halve: true, chance: 0.3 }),
     ),
   },
   {

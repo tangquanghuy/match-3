@@ -2,6 +2,18 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
+    "8283": {
+      "description": "对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值。",
+      "metadata": {"fidelity":"full","missingFeatures":[],"skippedClauses":[]},
+      "prototype": {
+        "segments": [
+          {"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},
+          {"kind":"status","target":"enemyChosen","statusId":"charm","turns":3},
+          {"kind":"extraTurn","chance":0.3},
+          {"kind":"buff","target":"allySelf","stat":"mana","scaling":{"base":0,"mult":0},"halve":true,"chance":0.3}
+        ]
+      }
+    },
     "7070": {
       "description": "对第一名敌人造成 [(魔法 / 2) + 4] 点轻度溅射伤害。",
       "metadata": {

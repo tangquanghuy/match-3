@@ -1174,9 +1174,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '魅惑2名随机敌人并吸取其8点法力值。若有敌人死亡，则获得30点生命值并祝福自身。',
     // 「吸取其 8 点法力值」= lastTargets 全列表目标模式（R22 新目标，双随机目标绑定收口）；
     // 「若有敌人死亡」= anyTrackedDied（R22 新条件）；「祝福」= blessed（R10 落地）。
+    // L1-7793-prefnotprev (R007-3): native Charm@RandomEnemy -> DecreaseMana 8 FromPrevious ->
+    // Charm@RandomPrefNotPrevEnemy -> DecreaseMana 8 FromPrevious; a lone enemy is charmed and drained twice.
     build: skill(
-    inflict('charm', 'enemyRandomN', { n: 2 }),
-    reduce('lastTargets', 'mana', 8, 0),
+    inflict('charm', 'enemyRandom'),
+    reduce('lastTarget', 'mana', 8, 0),
+    inflict('charm', 'enemyRandomPrefNotPrev'),
+    reduce('lastTarget', 'mana', 8, 0),
     heal('allySelf', 30, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     inflict('blessed', 'allySelf', { ifCond: { kind: 'anyTrackedDied' } }),
     ),

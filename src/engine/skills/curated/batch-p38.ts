@@ -233,7 +233,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       inflict('charm', 'enemyChosen'),
       dmg('enemyChosen', 1, 2, { drain: true }),
-      summonRandom(['Succubus', 'Incubus'], undefined, { countRange: { min: 1, max: 3 } }),
+      // L1-7515-summon-dist: native Summoning 6305 Incubus, 6180 Succubus 50%, 6305 Incubus 25% (independent).
+      summonRef('Incubus'),
+      summonRef('Succubus', undefined, { chance: 0.5 }),
+      summonRef('Incubus', undefined, { chance: 0.25 }),
     ),
   },
   {

@@ -79,8 +79,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7455,
     desc: '魅惑两名随机敌人。',
+    // L1-6305-repeat: native two independent Charm@RandomEnemy steps (the same enemy may be picked twice).
     build: skill(
-      inflict('charm', 'enemyRandomN', { n: 2 }),
+      inflict('charm', 'enemyRandom'),
+      inflict('charm', 'enemyRandom'),
     ),
   },
   {
