@@ -1123,11 +1123,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9840,
-    desc: '对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽巨龟，则引爆4颗许愿宝石。 [x4]',
+    desc: '对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽的穴居人，则爆破 4 颗许愿宝石。 [x4]',
     build: skill(
-      trueDmg('enemyChosen', 2, 1, { trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 4 } } }),
+      trueDmg('enemyChosen', 2, 1, { trueDamage: true }),
       inflict('burning', 'lastTarget'),
-      explodeRandomSpecialGems('wish', 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的穴居人' } }),
+      // native CountArmyTroop 7800 @AllAllies x400 -> ExplodeColor Wish UseCounterForAmount = 4 per Immortal Trogolin ally
+      explodeRandomSpecialGems('wish', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesNamed', name: '不朽的穴居人' } } }),
     ),
   },
   {

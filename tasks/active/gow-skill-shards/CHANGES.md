@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 658 条改动，涉及 1118 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 660 条改动，涉及 1120 个技能 ID。
 
 ## 按时间
 
@@ -664,6 +664,8 @@
 | 2026-09-28T23:13 | sa-A | L4a-R9-8257-skulls | assembler | 8257, 8258, 8259 | weapon:1300 DoomedGavel；weapon:1301 DoomedRam；weapon:1302 DoomedSledge | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/_weapon_pools.mjs` | explode 4 (+3 if enemy Doom) include color → include all (R013-5); override prototypes + generator strings updated |  |
 | 2026-09-28T23:13 | sa-A | L4a-R9-6366-prefnotprev | assembler | 7518 | troop:6366 Infernus | `src/engine/skills/curated/batch-06.ts` | 7518 dmgSplash enemyRandomN n2; explode 5 include color → native SplashHighDamage@RandomEnemy + @RandomPrefNotPrevEnemy (R007-3); explode 5 include all (R013-5) |  |
 | 2026-09-28T23:13 | sa-A | L4a-R9-1409-zh | data | 8512 | weapon:1409 Facestick | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 8512 zh machine text '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。' → zh '对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。' + override description |  |
+| 2026-09-28T23:24 | sa-A | L4a-R9-7167-skulls | assembler | 8719 | troop:7167 TheSparkinator | `src/engine/skills/curated/batch-36.ts` | 8719 explode 1 random include color → include all (R013-5) |  |
+| 2026-09-28T23:24 | sa-A | L4a-R9-1681-trogolin-count | assembler | 9840 | weapon:1681 TrogolinsFlameKnife | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 9840 true dmg with sourceless x4 modifier; explode 4 Wish if troopPresent Trogolin; zh '不朽巨龟 ... 引爆4颗' → native CountArmyTroop 7800 x400: explode 4 Wish per Immortal Trogolin ally (alliesNamed); inert dmg modifier removed; zh '不朽的穴居人 ... 爆破 4 颗'; override description + prototype |  |
 
 ## 按技能 ID
 
@@ -1361,6 +1363,7 @@
 | 8713 | 1 | P-counter-per-step |
 | 8715 | 1 | L1-7155-devour |
 | 8718 | 1 | L4a-R9-7150-enchant-fey |
+| 8719 | 1 | L4a-R9-7167-skulls |
 | 8721 | 1 | L4a-R8-1452-column-only |
 | 8722 | 1 | L2-singlegem-cell |
 | 8723 | 1 | P-E-faction-kingdom |
@@ -1731,6 +1734,7 @@
 | 9835 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9838 | 1 | L1-devour-first |
 | 9839 | 1 | R7-7800-prefnotprev |
+| 9840 | 1 | L4a-R9-1681-trogolin-count |
 | 9842 | 1 | L4b-1682-order |
 | 9844 | 1 | F1-items-62-75 |
 | 9846 | 1 | L2-board-chosen |

@@ -13049,6 +13049,65 @@
         ]
       }
     },
+    "9840": {
+      "description": "对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽的穴居人，则爆破 4 颗许愿宝石。 [x4]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "burning",
+            "turns": 3,
+            "magnitude": 3
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 0,
+                  "mult": 0
+                },
+                "include": "all",
+                "special": "wish"
+              },
+              "modifier": {
+                "mod": {
+                  "kind": "multiplier",
+                  "a": 4
+                },
+                "source": {
+                  "kind": "alliesNamed",
+                  "name": "不朽的穴居人"
+                }
+              }
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 4
+              },
+              "source": {
+                "kind": "alliesNamed",
+                "name": "不朽的穴居人"
+              }
+            }
+          }
+        ]
+      }
+    },
     "9910": {
       "prototype": {
         "segments": [

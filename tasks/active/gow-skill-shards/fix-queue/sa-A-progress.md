@@ -151,3 +151,8 @@
 - weapon:1302 fix(explode include all; override + generator)
 - troop:6366 fix(Random + PrefNotPrev splash hits, not enemyRandomN; explode 5 include all)
 - weapon:1409 fix(zh machine text; pool + override)
+- troop:7167 fix(explode 1 include all)
+- troop:6088 accept (StealLife = drain dmg; ExplodeColor Angel = all Angel Gems)
+- troop:6337 accept (Lightstorm; +5 Attack AddForKill)
+- troop:6739 accept (knock back, explode (M/2)+1 of target colour)
+- weapon:1681 fix(4 Wish per Trogolin ally via alliesNamed; inert dmg modifier removed; zh name + override)

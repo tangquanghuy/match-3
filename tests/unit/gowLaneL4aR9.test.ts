@@ -2,7 +2,7 @@
  * Lane L4a review round 9 (sa-A): table-driven checks for behaviour the default scenarios do not show.
  */
 import { describe, expect, it } from 'vitest';
-import { BaseColor, colorGem, skullGem } from '@engine/types';
+import { BaseColor, colorGem, skullGem, specialGem } from '@engine/types';
 import { castSpell, reviewBoard, withCells, type BoardFn } from '../helpers/gowCast';
 
 type Cells = { cells: { pos: { row: number; col: number }; gemType: { kind: string; color?: string } }[] };
@@ -290,5 +290,30 @@ describe('L4a R9 B11', () => {
     }
     const ev = castSpell({ key: 'troop:6366', board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
     expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+});
+
+describe('L4a R9 B12', () => {
+  type SCells = { cells: { pos: { row: number; col: number }; gemType: { kind: string; spec?: { kind: string } } }[] };
+  const specialHits = (events: { type: string }[], kind: string) => (events.filter(e => e.type === 'gem-explode') as unknown as SCells[])
+    .flatMap(e => e.cells).filter(c => c.gemType.kind === 'special' && c.gemType.spec?.kind === kind).length;
+  // troop:7167 (8719): StealArmor@AllEnemies 1+M ; CreateGems Bomb 10 ; ExplodeGems 1 (Skulls eligible).
+  it('troop:7167 random explosion can centre on a Skull', () => {
+    const ev = castSpell({ key: 'troop:7167', board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+  // troop:6088 (7158): StealLife 1+M ; ExplodeColor Angel 100 (= all Angel Gems).
+  it('troop:6088 explodes every Angel Gem and nothing without one', () => {
+    const board = withCells(noColour(BaseColor.Purple), { '0,0': specialGem('angelGem'), '0,7': specialGem('angelGem'), '7,0': specialGem('angelGem'), '7,7': specialGem('angelGem') });
+    expect(specialHits(castSpell({ key: 'troop:6088', board }).events, 'angelGem')).toBe(4);
+    expect(castSpell({ key: 'troop:6088', board: noColour(BaseColor.Purple) }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
+  });
+  // weapon:1681 (9840): TrueDamage 2+M ; CauseBurning ; CountArmyTroop 7800 x400 ; ExplodeColor Wish [counter].
+  it('weapon:1681 explodes 4 Wish Gems per Immortal Trogolin ally, none without one', () => {
+    const board = withCells(noColour(BaseColor.Purple), Object.fromEntries(['0,0', '0,7', '7,0', '7,7', '3,3', '4,6'].map(k => [k, specialGem('wish')])));
+    const one = castSpell({ key: 'weapon:1681', board, allies: [{ name: '不朽的穴居人', colors: [BaseColor.Red] }, { colors: [BaseColor.Red] }] as never });
+    expect(specialHits(one.events, 'wish')).toBe(4);
+    expect(one.summary.order[0]).toBe('dmg E11 12');
+    expect(castSpell({ key: 'weapon:1681', board }).summary.order.some(o => o.startsWith('explode'))).toBe(false);
   });
 });
