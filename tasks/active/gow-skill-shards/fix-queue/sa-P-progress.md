@@ -115,3 +115,5 @@
   - accepted (golden approve, sa-P): L3 troop:7287 (was issue L3-remove-all-skulls; native Count Green -> RemoveGems -> Gold -> ExtraTurnConditional; chance counted before the removal), L4a troop:6067 (RemoveGems -> Heal full -> +M+1 Attack)
   - re-approved (golden unchanged, relock after changelog): L4a troop:6052 troop:6873 troop:7348 weapon:1071, accepted-base troop:7070
   - re-review (unsigned / issue, only with Doom Skulls on the board): troop:6210 (open issue L1-6210-armor-base)
+- 2026-09-29T00:10:00Z P-C-firstlast-army-color fixed: secondary.ts global condition firstLastEnemyColor (first / last alive enemy at cast start via castTracking.unitsAtCastStart; lone enemy counts as both; a kill by this cast does not change it); 8418 (troop:6937) Barrier ifCond firstLastEnemyColor Purple (was anyEnemyColor: middle E12 Purple gave Barrier); registry scan: 8418 is the only native CountArmyColor@FirstLastEnemies; gowFixP-C-firstlast-army-color.test.ts; golden diff 0 lines
+  - accepted (L5, golden approve, sa-P): troop:6937 (was issue P-C-firstlast-army-color; default scenario: E10 Red / E13 Green+Brown -> no Barrier, no Blue double)

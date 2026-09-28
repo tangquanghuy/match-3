@@ -289,6 +289,12 @@ export type Condition =
   | { kind: 'casterStatBeatsTarget'; stat: 'attack' | 'armor' | 'magic' | 'hp' }
   /** 任一存活敌人带该法力色（「若其中一个使用蓝色法力值」的聚合判定，全局条件） */
   | { kind: 'anyEnemyColor'; color: BaseColor }
+  /**
+   * P-C-firstlast-army-color: the first or the last enemy uses this mana colour (native CountArmyColor@FirstLastEnemies,
+   * e.g. 8418 Sister Ebony Purple -> Barrier). Read on the alive enemies at cast start (the native count precedes the
+   * primary damage, so a kill by this cast does not change it); a lone enemy is both first and last.
+   */
+  | { kind: 'firstLastEnemyColor'; color: BaseColor }
   /** 否定（「板面上没有一颗紫色宝石」，2026-09-17 回收批）：子条件不成立即成立 */
   | { kind: 'not'; cond: Condition }
   /** 析取（「若敌人是兽人或恶魔」）：任一子条件成立即成立 */
@@ -523,6 +529,11 @@ export function conditionMet(
       return ctx.state.teams[enemySide].characters.some(
         (c) => !c.defeated && c.colors.includes(cond.color),
       );
+    }
+    case 'firstLastEnemyColor': {
+      const enemies = armyUnits(ctx, 'enemy', true);
+      if (enemies.length === 0) return false;
+      return [enemies[0], enemies[enemies.length - 1]].some((c) => c.colors.includes(cond.color));
     }
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
