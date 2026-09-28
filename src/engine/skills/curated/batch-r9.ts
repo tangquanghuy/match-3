@@ -858,8 +858,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [(魔法 x 0.75) + 2] 点伤害并使其中毒。',
     // Damage + CausePoison FromPrevious ×3 → N 随机伤害 + N 随机中毒（batch-03 8112 先例）
     build: skill(
-      dmg('enemyRandomN', 2, 0.75, { n: 3 }),
-      inflict('poison', 'enemyRandomN', { n: 3 }),
+      // 原生 3 ×（Damage@Random / RandomPrefNotPrev → CausePoison@FromPrevious）（R001）
+      dmg('enemyRandom', 2, 0.75),
+      inflict('poison', 'lastTarget'),
+      dmg('enemyRandomPrefNotPrev', 2, 0.75),
+      inflict('poison', 'lastTarget'),
+      dmg('enemyRandomPrefNotPrev', 2, 0.75),
+      inflict('poison', 'lastTarget'),
     ),
   },
   {

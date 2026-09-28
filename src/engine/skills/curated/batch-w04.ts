@@ -1208,14 +1208,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9936,
-    desc: '对一名敌人造成1点溅射伤害，并使自身狂暴。如果我方队伍中有不朽牛头怪，则所有友方单位获得5点攻击力、生命值和护甲值。 [x5]',
-    build: skill(
-      dmgSplash('enemyChosen', 1, 0, { range: 'splash' }),
-      inflict('rage', 'allySelf'),
-      attack('allyAll', 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的陶拉乌斯' } }),
-      heal('allyAll', 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的陶拉乌斯' } }),
-      armor('allyAll', 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的陶拉乌斯' }, modifier: { mod: { kind: 'multiplier', a: 5 } } }),
-    ),
+    desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害，并使自身狂暴。如果我方队伍中有不朽的陶拉乌斯，则所有友方单位获得 5 点攻击力、生命值和护甲值。 [x5]',
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.5},{"kind":"status","target":"allySelf","statusId":"rage","turns":3},{"kind":"buff","target":"allyAll","stat":"attack","scaling":{"base":5,"mult":0},"ifCond":{"kind":"troopPresent","side":"ally","name":"不朽的陶拉乌斯"}},{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":5,"mult":0},"ifCond":{"kind":"troopPresent","side":"ally","name":"不朽的陶拉乌斯"},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"armor","scaling":{"base":5,"mult":0},"ifCond":{"kind":"troopPresent","side":"ally","name":"不朽的陶拉乌斯"}}]} as SkillPrototype),
   },
   {
     id: 9971,

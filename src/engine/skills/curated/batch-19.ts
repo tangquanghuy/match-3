@@ -143,7 +143,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
       // 「若有敌人身亡」= 死亡条件判最近产目标段（dmg）主目标（spell-rules.md §4）
-      inflict('frozen', 'enemyAll', { ifTargetDied: true }),
+      // 「若有敌人身亡」= 任一敌人阵亡（不只 lastTarget 主目标）
+      inflict('frozen', 'enemyAll', { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

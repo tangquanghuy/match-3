@@ -226,7 +226,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 3] 点伤害并窃取 2 点魔力值，并有 5% 的几率杀死他们，每个末日骷髅增加 5%。 [x5]',
     build: skill(
       // 裸「敌人」= enemyChosen（batch-17 头注 9572/9592 口径）
-      dmg('enemyChosen', 3),
+      // 原生序 StealMagic → LethalDamageConditional → Damage（R001）
       // 「魔力值」= magic 属性（SOP 措辞裁定）
       steal('enemyChosen', 'magic', 'magic', 2, 0),
       // 回收（第六遍）：「杀死他们」= 即杀 execute；几率增强 = chanceBoost + boardSpecial
@@ -236,6 +236,7 @@ const SPELLS: CuratedBatch['spells'] = [
         chance: 0.05,
         chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } },
       }),
+      dmg('enemyChosen', 3),
     ),
   },
 ];

@@ -1,0 +1,5 @@
+{"format":"compact","key":"troop:6483","decision":"issue","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:19:51.065Z","issue":"P-F3-prehit-target-compare","note":"native compares target Life before souls and damage; engine condition needs a tracked target so souls follow damage and compare post-hit Life"}
+{"format":"compact","key":"troop:6499","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:20:10.320Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6226","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:20:10.321Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7681","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:20:12.631Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1126","decision":"accept","reviewer":"sa-F3","reviewedAt":"2026-09-28T00:20:12.632Z","tests":["tests/unit/gowCastGolden.test.ts"]}

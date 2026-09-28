@@ -689,10 +689,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7720,
     desc: "对一名敌人造成 [魔法 + 3] 点伤害并消除其所有正面增益效果。获得 4 点魔力值和法印效果。",
-    // 「其所有正面增益」= lastTarget 驱散族（dispel 段更新跨段追踪）
+    // 原生步骤序 Dispel → Damage → IncreaseSpellPower → CauseEnchanted（R001：先驱散屏障再伤害）
     build: skill(
+      ...dispelPositives('enemyChosen'),
       dmg('enemyChosen', 3, 1),
-      ...dispelPositives('lastTarget'),
       magic('allySelf', 4, 0),
       inflict('enchanted', 'allySelf'),
     ),

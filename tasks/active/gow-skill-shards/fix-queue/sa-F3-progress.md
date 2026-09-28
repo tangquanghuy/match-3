@@ -1,0 +1,38 @@
+- 2026-09-28T00:20:36Z troop:6499 approved hint stale (Attack buff present); Raksha double proven in gowLaneL6FixSaF3
+- 2026-09-28T00:20:36Z weapon:1696 fixed splash [Magic+3] (was flat 1), dropped stray x5 on Armor, zh desc; Tauraeus test
+- 2026-09-28T00:20:36Z troop:6527 fixed dispel before damage (R001); Barrier test
+- 2026-09-28T00:20:36Z troop:6576 fixed 2 Magic (was Mana) + self dispel before sacrifice (Barrier blocked it)
+- 2026-09-28T00:20:36Z weapon:1140 fixed added missing [Magic+1] damage to all; Death Mark weakest then strongest
+- 2026-09-28T00:20:36Z troop:6727 fixed Curse unconditional (was only-if-Cursed)
+- 2026-09-28T00:20:36Z troop:6468 fixed damage on chosen enemy (lastTarget unset when dispels skip -> no events)
+- 2026-09-28T00:20:36Z troop:7867 fixed slay roll then [Magic+4] damage (was execute-only, no damage)
+- 2026-09-28T00:20:36Z weapon:1653 approved no Monster ally in default scene; filter test
+- 2026-09-28T00:20:36Z weapon:1659 approved Daemon filter test
+- 2026-09-28T00:20:36Z weapon:1680 approved Undead filter test
+- 2026-09-28T00:20:36Z weapon:1687 approved Darkstone kingdom filter test
+- 2026-09-28T00:20:36Z weapon:1690 approved Vulpacea kingdom filter test
+- 2026-09-28T00:20:36Z weapon:1699 approved Elemental filter test
+- 2026-09-28T00:20:36Z weapon:1702 approved Mystic filter test
+- 2026-09-28T00:20:36Z weapon:1714 approved Construct filter test
+- 2026-09-28T00:20:36Z weapon:1718 approved Drifting Sands kingdom filter test
+- 2026-09-28T00:20:36Z troop:6022 fixed Poison FromPrevious (lastTarget); kill gives 3 Magic
+- 2026-09-28T00:20:36Z troop:7700 issue P-F3-blessed-blocks-enchant; kill branch fixed via castEnemyDied
+- 2026-09-28T00:20:36Z troop:6165 fixed Freeze on any enemy death (castEnemyDied)
+- 2026-09-28T00:20:36Z troop:6587 issue P-F3-lasttarget-damaged; fixed same-hit +10 and Enrage self on kill (was Rage on enemy)
+- 2026-09-28T00:20:36Z troop:7902 fixed 3 x RandomPrefNotPrev hits; Terror on castEnemyDied
+- 2026-09-28T00:20:36Z troop:6226 fixed steal Magic before true damage
+- 2026-09-28T00:20:36Z troop:7681 fixed steal > slay roll > damage
+- 2026-09-28T00:20:36Z troop:6253 fixed steal > damage > silence
+- 2026-09-28T00:20:36Z weapon:1126 fixed armor reduction then pull front
+- 2026-09-28T00:20:36Z weapon:1137 fixed armor > barrier others > move front
+- 2026-09-28T00:20:36Z troop:6069 fixed damage > magic > mark
+- 2026-09-28T00:20:36Z troop:6050 fixed damage > cleanse self > Attack on kill
+- 2026-09-28T00:20:36Z weapon:1720 fixed hit/knock-back x2 with RandomPrefNotPrev; Thalassa test
+- 2026-09-28T00:20:36Z weapon:1215 approved hint stale; ally colour buff present
+- 2026-09-28T00:20:36Z troop:6403 fixed hit chosen > silence > hit PrefNotPrev > silence same
+- 2026-09-28T00:20:36Z troop:6742 fixed per-hit Stun+Poison on the same enemy
+- 2026-09-28T00:20:36Z troop:7810 fixed per-hit Poison on the same enemy (3 hits)
+- 2026-09-28T00:20:36Z weapon:1131 fixed damage > stun > pull front
+- 2026-09-28T00:20:36Z troop:6483 issue P-F3-prehit-target-compare
+- 2026-09-28T00:20:36Z troop:7525 fixed Curse/Freeze before Life steal; Barrier test
+- 2026-09-28T00:20:36Z troop:7835 fixed Bleed x4 before damage on two strongest

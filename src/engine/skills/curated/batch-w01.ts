@@ -872,8 +872,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7287,
     desc: '将一名敌人拉到首位。减除所有敌人 [魔法 + 1] 点护甲值。',
     build: skill(
-      reposition('enemyChosen', 'front'),
+      // 原生序 DecreaseArmor@AllEnemies → Delay → TroopOrderFront@FromTarget（R001）
       reduce('enemyAll', 'armor', 1, 1),
+      reposition('enemyChosen', 'front'),
     ),
   },
   {
@@ -912,9 +913,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7295,
     desc: '将一名军队拉到首位。对其造成 [魔法 + 6] 点伤害并将其击晕。',
     build: skill(
-      reposition('enemyChosen', 'front'),
-      dmg('lastTarget', 6, 1),
+      // 原生序 Damage → CauseStun → Delay → TroopOrderFront@FromTarget（R001）
+      dmg('enemyChosen', 6, 1),
       inflict('stun', 'lastTarget'),
+      reposition('enemyChosen', 'front'),
     ),
   },
   {
@@ -954,9 +956,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7307,
     desc: '获得 [魔法 + 1] 点护甲，并移至队伍首位。赋予所有其他盟友屏障效果。',
     build: skill(
+      // 原生序 IncreaseArmor@Self → CauseBarrier@AllAlliesButNotSelf → Delay → TroopOrderFront@Self（R001）
       armor('allySelf', 1, 1),
-      reposition('allySelf', 'front'),
       inflict('barrier', 'allyOthers'),
+      reposition('allySelf', 'front'),
     ),
   },
   {
@@ -977,9 +980,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7317,
     desc: '使最强和最弱的敌人陷入死亡标记状态，并对所有敌人造成 [魔法 + 1] 点伤害。',
+    // 原生序：Damage@AllEnemies → Delay → DeathMark@Weakest → DeathMark@Strongest（R001）
     build: skill(
-      inflict('death-mark', 'enemyHealthiest'),
+      dmg('enemyAll', 1, 1, { range: 'all' }),
       inflict('death-mark', 'enemyWeakest'),
+      inflict('death-mark', 'enemyHealthiest'),
     ),
   },
   {
