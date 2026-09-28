@@ -395,7 +395,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7964,
     desc: '对一名敌人造成 [魔法 + 5] 点伤害。若对方是一名元素军队则造成双倍伤害。移除所有棕色宝石以增强效果。 [3:1]',
     build: skill(
-      dmg('enemyChosen', 5, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } }, modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      // native CountGems Brown 34 (board, before the removal) (sa-R1)
+      dmg('enemyChosen', 5, 1, { condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } }, modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
       destroyColor(BaseColor.Brown),
     ),
   },

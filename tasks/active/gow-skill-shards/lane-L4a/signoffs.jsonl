@@ -119,3 +119,13 @@
 {"format":"compact","key":"weapon:1478","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:54:14.502Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7218","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:54:14.503Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7690","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:54:14.503Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1102","decision":"issue","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:49.710Z","issue":"P-F1-remove-gems","note":"boost fixed (Green 34%); remaining: RemoveColor must not give mana/skulls"}
+{"format":"compact","key":"weapon:1230","decision":"issue","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:49.817Z","issue":"P-F1-remove-gems","note":"boost fixed (Brown 34%); remaining: RemoveColor must not give mana/skulls"}
+{"format":"compact","key":"troop:7851","decision":"issue","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:49.922Z","issue":"P-R1-gargoyle-tier-filter","note":"damage 4 + M + 2 x Red verified (32); explode 3 Bad Gargoyles also hits Good ones (no tier filter)"}
+{"format":"compact","key":"troop:6918","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.248Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6919","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.249Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6014","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.250Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1529","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.250Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6917","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.250Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7782","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.250Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7055","decision":"accept","reviewer":"sa-R1","reviewedAt":"2026-09-28T02:58:52.251Z","tests":["tests/unit/gowCastGolden.test.ts"]}

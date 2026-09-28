@@ -212,3 +212,19 @@ describe('L4a R1: B06 line/area counters', () => {
     expect(seen.has('repeat')).toBe(true); // the third centre may return to the first (R007-3)
   });
 });
+describe('L4a R1: B07 gem-count boosts', () => {
+  it('troop:6014 Web gems counted x2 before the damage, destroyed after it', () => {
+    const board = withCells(reviewBoard, { '6,1': specialGem('web'), '6,4': specialGem('web') });
+    const o = castSpell({ key: 'troop:6014', board }).summary.order;
+    expect(o[0]).toBe('dmg E12 15'); // 1 + 10 + 2 x 2
+    expect(o[1]).toMatch(/^destroy 2 /);
+  });
+  it('weapon:1102 Magic +1 + Green gems at 34% (13 -> 4)', () => {
+    expect(castSpell({ key: 'weapon:1102' }).summary.order).toContain('buff C magic+5');
+  });
+  it('weapon:1230 damage boosted by Brown gems at 34% (8 -> 2), doubled vs Elementals', () => {
+    expect(castSpell({ key: 'weapon:1230' }).summary.order[0]).toBe('dmg E11 17');
+    const el = castSpell({ key: 'weapon:1230', enemies: [{ hp: 600, maxHp: 600 }, { hp: 900, maxHp: 900, troopTypes: ['Elemental'] }] as never });
+    expect(el.summary.order[0]).toBe('dmg E11 34');
+  });
+});

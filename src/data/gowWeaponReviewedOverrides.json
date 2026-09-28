@@ -516,6 +516,10 @@
                 "kind": "ratio",
                 "a": 3,
                 "b": 1
+              },
+              "source": {
+                "kind": "boardGems",
+                "color": "Green"
               }
             }
           },

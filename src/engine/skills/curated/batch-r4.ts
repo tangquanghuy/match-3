@@ -20,8 +20,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7014,
     desc: '摧毁所有织网宝石。对最弱的敌人造成 [魔法 + 1] 点伤害，伤害值因被摧毁的织网宝石数而增强。 [x2]',
     build: skill(
+      // native: CountGems Web x2 (step 0), Damage@WeakestEnemy, then DestroyColor Web (R001) (sa-R1)
+      dmg('enemyWeakest', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'web' } } }),
       destroySpecialGems('web'),
-      dmg('enemyWeakest', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
   {

@@ -702,7 +702,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7230,
     desc: '对 1 名敌人造成 [魔法] 点伤害。获得 1 点魔力值并移除所有绿色宝石以强化此效果。 [3:1]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":0,"mult":1}},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":1,"mult":0},"modifier":{"mod":{"kind":"ratio","a":3,"b":1}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Green"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":0,"mult":1}},{"kind":"buff","target":"allySelf","stat":"magic","scaling":{"base":1,"mult":0},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"boardGems","color":"Green"}}},{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Green"}}}]} as SkillPrototype),
   },
   {
     id: 7239,
