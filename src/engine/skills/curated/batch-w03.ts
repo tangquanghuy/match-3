@@ -880,7 +880,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。若自身队伍中有黛希德莫娜， 则使对方陷入叠加 2 次的出血状态。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      inflict('bleed', 'lastTarget', { ifCond: { kind: 'troopPresent', side: 'ally', name: '黛希德莫娜' } }),
+      // Native 8776: two conditional Bleed steps = 2 stacks (was 1).
+      inflict('bleed', 'lastTarget', { stacks: 2, ifCond: { kind: 'troopPresent', side: 'ally', name: '黛希德莫娜' } }),
     ),
   },
   {

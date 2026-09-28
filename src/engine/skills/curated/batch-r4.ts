@@ -67,7 +67,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7712,
     desc: '对一名敌人和其下方的敌人造成  [魔法 + 5] 点伤害，伤害值因已方海族和下潜的盟友数而增强。下潜所有蓝色盟友，并使所有敌方蓝色军队陷入沉默状态。 [x8]',
     build: skill(
-      dmg('enemyChosenAndBelow', 5, 1, {
+      // Native 7712: Damage@FromTarget + Damage@NextDownFromTarget = chosen and the one enemy below (was all below).
+      dmg('enemyChosenAndNextDown', 5, 1, {
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 8 }, sources: [{ kind: 'alliesOfRace', race: 'Merfolk' }, { kind: 'allyStatusCount', statusId: 'submerged' }] },
       }),
@@ -264,7 +265,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8415,
     desc: '对第一位敌人造成 [魔法 + 4] 点伤害，伤害值因其攻击力而增强。若自身有狂怒效果，则使第一位敌人出血 2 次。 [3:1]',
     build: skill(
-      dmg('enemyFront', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'selfStat', stat: 'attack' } } }),
+      // Native 8415: CountAttack@FrontEnemy 34 = the first enemy's Attack [3:1] (was the caster's Attack).
+      dmg('enemyFront', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } } }),
       inflict('bleed', 'enemyFront', { stacks: 2, ifCond: { kind: 'selfStatus', statusId: 'rage' } }),
     ),
   },

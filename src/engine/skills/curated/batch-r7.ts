@@ -204,7 +204,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害，伤害值因敌方攻击力而增强。冻结敌人。 [2:1]',
     build: skill(
       // 裸「因敌人X而增强」= enemyStatSum（batch-r6 8866 同款）
-      dmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'attack' } } }),
+      // Native 7436: CountAttack@FromTarget 50 = the damaged enemy's own Attack [2:1] (was the sum over all enemies).
+      dmg('enemyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } } }),
       inflict('frozen', 'lastTarget'),
     ),
   },
@@ -443,7 +444,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。如果自身身处狂怒状态，则造成双倍伤害。若敌人是一名恶魔，则自身获得狂怒效果。',
     build: skill(
       dmg('enemyChosen', 3, 1, { condMult: { times: 2, cond: { kind: 'selfStatus', statusId: 'rage' } } }),
-      inflict('rage', 'allySelf', { ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      // "if the Enemy is a Daemon": lastTargetRace (targetRace on an allySelf segment tested the caster, never fired).
+      inflict('rage', 'allySelf', { ifCond: { kind: 'lastTargetRace', race: 'Daemon' } }),
     ),
   },
   {

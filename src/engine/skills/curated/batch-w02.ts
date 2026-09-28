@@ -304,7 +304,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7929,
     desc: '给予一名盟友 [魔法 + 1] 点护甲值，数值因所有敌人攻击力数而增强。再赋予其狂怒和屏障效果。 [2:1]',
     build: skill(
-      armor('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } } }),
+      // Native 7929: CountAttack@AllEnemies 50 = half the summed Attack of all enemies (was the chosen ally's Attack).
+      armor('allyChosen', 1, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'attack' } } }),
       inflict('rage', 'lastTarget'),
       inflict('barrier', 'lastTarget'),
     ),
@@ -516,6 +517,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 1, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfRace', race: 'Daemon' } } }),
       inflict('curse', 'enemyAll'),
+      // Native 8052 step 3: CauseBurning@AllEnemies (was missing).
+      inflict('burning', 'enemyAll'),
     ),
   },
   {

@@ -101,3 +101,95 @@ describe('L5 sa-R3 B02', () => {
     expect(castSpell({ key: 'weapon:1471', allies: A({ name: '阿卡卢斯' }) }).summary.order).toEqual(['dmg E11 13', 'status C +enchanted']);
   });
 });
+
+describe('L5 sa-R3 B03', () => {
+  const A = (o: object, o2: object = {}) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red], ...o2 }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const bleedMag = (u: { statuses: { id: string }[] }) => (u.statuses.find(s => s.id === 'bleed') as { magnitude?: number } | undefined)?.magnitude;
+  it('weapon:1474 2 Bleed stacks only with Desdaemona', () => {
+    expect(castSpell({ key: 'weapon:1474' }).summary.order).toEqual(['dmg E11 13']);
+    const r = castSpell({ key: 'weapon:1474', allies: A({ name: '黛希德莫娜' }) });
+    expect(r.summary.order).toEqual(['dmg E11 13', 'status E11 +bleed']); expect(bleedMag(r.f.enemies[1])).toBe(2);
+  });
+  it('troop:6519 hits the chosen enemy and only the next one below; x8 per Merfolk and Submerged ally', () => {
+    const r = castSpell({ key: 'troop:6519', allies: A({ troopTypes: ['Merfolk'] }, { statuses: st('submerged') }) });
+    expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(['dmg E11 39 (all)', 'dmg E12 39 (all)']); // 15 + 8 x (C, A1, A2)
+    expect(r.summary.order.filter(x => x.startsWith('status'))).toEqual(['status C +submerged', 'status A1 +submerged', 'status E11 +silence']);
+  });
+  it('troop:6329 true damage x7 per Barriered ally and per Giant ally (caster is a Giant)', () => {
+    expect(castSpell({ key: 'troop:6329', allies: A({ statuses: st('barrier') }, { troopTypes: ['Giant'] }) }).summary.order).toEqual(['dmg E11 36']);
+  });
+  it('weapon:1247 x3 per Daemon ally, then Curse and Burn all enemies', () => {
+    const r = castSpell({ key: 'weapon:1247', allies: A({ troopTypes: ['Daemon'] }) });
+    expect(r.summary.order[0]).toBe('dmg E10 14 (all)');
+    expect(r.summary.order.filter(x => x.startsWith('status'))).toEqual([...['E10', 'E11', 'E12', 'E13'].map(e => `status ${e} +curse`), ...['E10', 'E11', 'E12', 'E13'].map(e => `status ${e} +burning`)]);
+  });
+  it('troop:6912 double damage when Enraged; Enrage self only against a Daemon', () => {
+    expect(castSpell({ key: 'troop:6912', caster: { statuses: st('rage') } }).summary.order).toEqual(['dmg E11 26']);
+    expect(castSpell({ key: 'troop:6912', enemies: enemies({ 1: { troopTypes: ['Daemon'] } }) }).summary.order).toEqual(['dmg E11 13', 'status C +rage']);
+  });
+  it('troop:7005 Enchant all other allies only against an Elemental', () => {
+    expect(castSpell({ key: 'troop:7005', enemies: enemies({ 1: { troopTypes: ['Elemental'] } }) }).summary.order).toEqual(['dmg E11 11', 'status A1 +enchanted', 'status A2 +enchanted']);
+  });
+  it('troop:6901 x6 per Undead enemy; Curse/Silence rolls only on an Undead target', () => {
+    const r = castSpell({ key: 'troop:6901', enemies: enemies({ 0: { troopTypes: ['Undead'] }, 1: { troopTypes: ['Undead'] } }) });
+    expect(r.summary.order[0]).toBe('dmg E11 25');
+    let curse = 0, silence = 0;
+    for (let seed = 1; seed <= 40; seed++) {
+      const o = castSpell({ key: 'troop:6901', seed, enemies: enemies({ 1: { troopTypes: ['Undead'] } }) }).summary.order;
+      if (o.includes('status E11 +curse')) curse++; if (o.includes('status E11 +silence')) silence++;
+    }
+    expect(curse).toBeGreaterThan(5); expect(curse).toBeLessThan(35); expect(silence).toBeGreaterThan(5); expect(silence).toBeLessThan(35);
+    for (let seed = 1; seed <= 10; seed++) expect(castSpell({ key: 'troop:6901', seed }).summary.order).toEqual(['dmg E11 13']);
+  });
+  it('troop:7601 x2 per Centaur ally (caster counts), then Barrier and Enchant', () => {
+    expect(castSpell({ key: 'troop:7601', allies: A({ troopTypes: ['Centaur'] }) }).summary.order).toEqual(['buff A1 hp+15 max+15', 'status A1 +barrier', 'status A1 +enchanted']);
+  });
+  it('troop:6484 x4 per Fey ally; Disease on a random enemy about half the time', () => {
+    let hits = 0;
+    for (let seed = 1; seed <= 40; seed++) if (castSpell({ key: 'troop:6484', seed }).summary.order.some(x => x.endsWith('+disease'))) hits++;
+    expect(hits).toBeGreaterThan(8); expect(hits).toBeLessThan(32);
+  });
+  it('troop:6384 x6 per Wildfolk ally; steal 1 Magic from each enemy hit, then Burn all', () => {
+    const r = castSpell({ key: 'troop:6384', allies: A({ troopTypes: ['Wildfolk'] }) });
+    expect(r.summary.order.slice(0, 3)).toEqual(['dmg E11 26 (splash)', 'dmg E10 13 (splash)', 'dmg E12 13 (splash)']);
+    expect(r.summary.units.C).toBe('mag+3');
+  });
+});
+
+describe('L5 sa-R3 B04', () => {
+  const A = (o: object) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red] }];
+  const st = (id: string) => [{ id, turns: 99 }];
+  const bleedMag = (u: { statuses: { id: string }[] }) => (u.statuses.find(s => s.id === 'bleed') as { magnitude?: number } | undefined)?.magnitude;
+  it('troop:6899 steals at most the enemy Attack (CountMaxWithMagic) into Armor; Barrier only Wildfolk allies', () => {
+    const r = castSpell({ key: 'troop:6899', enemies: enemies({ 1: { attack: 6 } }), allies: A({ troopTypes: ['Wildfolk'] }) });
+    expect(r.summary.order).toEqual(['buff E11 attack-6', 'buff C armor+6', 'status C +barrier', 'status A1 +barrier']);
+  });
+  it('troop:6934 boosted by the first enemy Attack [3:1] (not mine); 2 Bleed stacks on it only when I am Enraged', () => {
+    const r = castSpell({ key: 'troop:6934', caster: { attack: 90 }, enemies: enemies({ 0: { attack: 30 } }) });
+    expect(r.summary.order).toEqual(['dmg E10 24']); // 14 + floor(30 x 0.34)
+    const rage = castSpell({ key: 'troop:6934', caster: { statuses: st('rage') } });
+    expect(rage.summary.order).toEqual(['dmg E10 19', 'status E10 +bleed']); expect(bleedMag(rage.f.enemies[0])).toBe(2);
+  });
+  it('troop:7668 boosted by target Attack [4:1]; 2 Bleed stacks only on a Red target', () => {
+    const red = castSpell({ key: 'troop:7668', target: 10 });
+    expect(red.summary.order).toEqual(['dmg E10 17', 'status E10 +bleed']); expect(bleedMag(red.f.enemies[0])).toBe(2);
+  });
+  it('troop:6290 boosted by the target enemy Attack only [2:1]', () => {
+    expect(castSpell({ key: 'troop:6290', enemies: enemies({ 1: { attack: 40 } }) }).summary.order).toEqual(['dmg E11 31', 'status E11 +frozen']);
+  });
+  it('weapon:1221 Armor boosted by half the summed Attack of all enemies', () => {
+    expect(castSpell({ key: 'weapon:1221' }).summary.order).toEqual(['buff A1 armor+45', 'status A1 +rage', 'status A1 +barrier']); // 11 + 68/2
+  });
+  it('weapon:1195 dispels all enemies first, then halves the target Attack', () => {
+    const r = castSpell({ key: 'weapon:1195', enemies: enemies({ 1: { attack: 31, statuses: st('barrier') } }) });
+    expect(r.summary.order.slice(0, 3).sort()).toEqual(['remove E10 -rage', 'remove E11 -barrier', 'remove E13 -rage']);
+    expect(r.summary.order.slice(3)).toEqual(['dmg E11 15', 'buff E11 attack-15']);
+  });
+  it('troop:7072 [3:1] Blue gems boost', () => {
+    const fn = boardWith(BaseColor.Blue, 30); let blue = 0;
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { const g = fn(r, c); if (g?.kind === 'color' && g.color === BaseColor.Blue) blue++; }
+    const r = castSpell({ key: 'troop:7072', board: fn });
+    expect(r.summary.order.at(-1)).toBe(`dmg E11 ${11 + Math.floor(blue * 34 / 100)}`);
+  });
+});
