@@ -148,7 +148,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8229,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因红色宝石数而增强。有 15% 的几率转化成杜尔本。 [3:1]',
     build: skill(
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      // sa-R5 L1-6827: native Damage Amount 3 (English [Magic + 3]); was base 4.
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
       transformTroop('allySelf', 'BeastmasterTorbern', { chance: 0.15 }),
     ),
   },

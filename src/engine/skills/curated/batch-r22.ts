@@ -1150,8 +1150,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // chanceBoost destroyedGems skulls [x6]（官方 Skulls destroyed 口径，「头骨」= 骷髅族）。
     build: skill(
     destroyArea('circle5', 'destroy'),
+    // sa-R5 (R001): native ConsumeConditional@LastEnemy precedes Damage@LastEnemy.
+    devour('enemyLast', { chance: 0.3, chanceBoost: boostPer({ kind: 'destroyedGems', skulls: true }, 6) }),
     dmg('enemyLast', 3, 1),
-    devour('lastTarget', { chance: 0.3, chanceBoost: boostPer({ kind: 'destroyedGems', skulls: true }, 6) }),
     ),
   },
   {

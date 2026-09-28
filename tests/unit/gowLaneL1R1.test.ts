@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error Node-only audit fixture
 import fs from 'node:fs';
-import { castSpell, sixColourBoard, registry, entitySkill } from '../helpers/gowCast';
+import { castSpell, sixColourBoard, registry, entitySkill, withCells, reviewBoard } from '../helpers/gowCast';
 import { skullGem } from '@engine/types';
 import { TROOPS } from '../../src/data/troops';
 type St = { id: string; turns: number }[];
@@ -335,5 +335,54 @@ describe('L1 R2 B07 (sa-R5)', () => {
     let et = 0;
     for (let seed = 1; seed <= 400; seed++) { const s = castSpell({ key: 'troop:7032', seed }).summary; if (s.extraTurn) et++; expect(s.gems.created.lycanthropyGem).toBe(2); }
     expect(et).toBeGreaterThan(210); expect(et).toBeLessThan(290);
+  });
+});
+
+// ---------------------------------------------------------------- B08
+describe('L1 R2 B08 (sa-R5)', () => {
+  const name = (ref: string) => TROOPS.find(t => t.referenceName === ref)!.name;
+  it('troop:7456 5 Skulls + 1 per Terror Gem (once), summon pool = raw kingdom 3091 Nightmare Circus', () => {
+    const terror = { kind: 'special', spec: { kind: 'terrorGem' } } as never;
+    const s = castSpell({ key: 'troop:7456', board: withCells(reviewBoard, { '7,7': terror, '7,6': terror, '7,5': terror }) }).summary;
+    expect(s.gems.created.skull).toBe(8);
+    const raw = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops as { ReferenceName: string; KingdomId: number }[];
+    const p = registry.prototypes.get('9166') as { segments: { kind: string; params?: { source: { randomOf?: string[] } } }[] };
+    expect([...p.segments.find(x => x.kind === 'summon')!.params!.source.randomOf!].sort()).toEqual(raw.filter(t => t.KingdomId === 3091).map(t => t.ReferenceName).sort());
+  });
+  it('troop:6827 [Magic + 3] + Red [3:1] (native Amount 3)', () => {
+    expect(castSpell({ key: 'troop:6827' }).summary.order[0]).toBe('dmg E11 16');
+  });
+  it('troop:6994 native sequential summons: Djinn, then Al-Mundhir, Ifrit, Dao as slots allow', () => {
+    expect(Object.values(castSpell({ key: 'troop:6994' }).summary.units).filter(v => v.startsWith('new ')).map(v => v.split(' ')[1])).toEqual([name('Djinn')]);
+    expect(Object.values(castSpell({ key: 'troop:6994', allies: [{}] }).summary.units).filter(v => v.startsWith('new ')).map(v => v.split(' ')[1])).toEqual([name('Djinn'), name('Al-Mundhir')]);
+  });
+  it('troop:7222 devour 10% + 1% per Yellow destroyed (9 -> 19%), real devour', () => {
+    const n = devourRate('troop:7222', 400); expect(n).toBeGreaterThan(50); expect(n).toBeLessThan(105);
+  });
+  it('troop:7155 two independent 30% devours of different random enemies', () => {
+    let any = 0, two = 0;
+    for (let seed = 1; seed <= 400; seed++) {
+      const o = castSpell({ key: 'troop:7155', seed }).summary.order.filter(x => x.includes('devoured'));
+      if (o.length) any++; if (o.length === 2) { two++; expect(o[0].split(' ')[1]).not.toBe(o[1].split(' ')[1]); }
+    }
+    expect(any).toBeGreaterThan(170); expect(any).toBeLessThan(240); expect(two).toBeGreaterThan(18); expect(two).toBeLessThan(60);
+  });
+  it('troop:7609 devour (30% + 6% per Skull destroyed) precedes the damage to the last enemy', () => {
+    const segs = (registry.prototypes.get('9492') as { segments: { kind: string }[] }).segments.map(x => x.kind);
+    expect(segs.indexOf('devour')).toBeLessThan(segs.indexOf('damage'));
+    // Damage@LastEnemy re-resolves after the devour (same literal-native reading as troop:7050): new last enemy is hit.
+    let n = 0;
+    for (let seed = 1; seed <= 400; seed++) {
+      const o = castSpell({ key: 'troop:7609', seed }).summary.order.filter(x => x.startsWith('dmg'));
+      if (o[0].includes('devoured')) { n++; expect(o[0]).toMatch(/^dmg E13 /); expect(o[1]).toBe('dmg E12 13'); } else expect(o).toEqual(['dmg E13 13']);
+    }
+    expect(n).toBeGreaterThan(135); expect(n).toBeLessThan(200);
+  });
+  it('troop:7569 devour after the damage, 10% + 2% per gem of the enemy most-used colour', () => {
+    const segs = (registry.prototypes.get('9364') as { segments: { kind: string }[] }).segments.map(x => x.kind);
+    expect(segs).toEqual(['damage', 'devour']);
+    let dev = 0;
+    for (let seed = 1; seed <= 400; seed++) { const o = castSpell({ key: 'troop:7569', seed }).summary.order; expect(o[0]).toMatch(/^dmg E11 13/); if (o.some(x => x.includes('devoured'))) dev++; }
+    expect(dev).toBeGreaterThan(40); expect(dev).toBeLessThan(200);
   });
 });

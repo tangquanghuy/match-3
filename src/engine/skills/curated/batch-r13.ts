@@ -314,7 +314,9 @@ const SPELLS: CuratedBatch['spells'] = [
       reduce('enemyChosen', 'random', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),
-      summonRandom(['Djinn', 'Al-Mundhir', 'Ifrit', 'Dao']),
+      // sa-R5 L1-6994 (R001): native four sequential Summoning steps 6157 Djinn, 7558 Al-Mundhir, 6158 Ifrit,
+      // 6993 Dao (no Randomize step); each fills the next free slot, so one free slot always yields the Djinn.
+      summonRef('Djinn'), summonRef('Al-Mundhir'), summonRef('Ifrit'), summonRef('Dao'),
     ),
   },
   {

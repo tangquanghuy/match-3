@@ -115,8 +115,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       destroyColor(BaseColor.Green),
       createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
-      dmg('enemyRandom', 0, 0, { execute: true, chance: 0.3 }),
-      dmg('enemyRandom', 0, 0, { execute: true, chance: 0.3 }),
+      // sa-R5 L1-7155: native Consume@RandomEnemy 30% + Consume@RandomPrefNotPrevEnemy 30% (real Devours, R007-3).
+      devour('enemyRandom', { chance: 0.3 }),
+      devour('enemyRandomPrefNotPrev', { chance: 0.3 }),
     ),
   },
   {
@@ -187,12 +188,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 逐摧毁计数掷签：chance 0 + chanceBoost 10×摧毁黄宝石数/100（官方 ConsumeConditional
     // UseCounterForAmount x10 实锤，r4 「几率=chance+boost」口径）
     build: skill(
+      // sa-R5 L1-7222: native CountGems Yellow 100 -> ConsumeConditional Amount 10 + counter = 10% + 1% per Yellow
+      // destroyed (English "10% chance ... boosted by Yellow Gems destroyed [1:1]"); a real Devour, not execute.
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
-      }),
+      devour('enemyChosen', { chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),
   },
   {

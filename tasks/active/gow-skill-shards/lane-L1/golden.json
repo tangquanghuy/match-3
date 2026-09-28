@@ -279,6 +279,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
  },
+ "troop:6497": {
+  "lines": {
+   "L10": "destroy 9 (Yellow x9) ; ~cascade~ ; gold+20  => A2:mana+9  cascade  eco:{\"gold\":20,\"goldMine\":20}",
+   "R10": "destroy 9 (Yellow x9) ; ~cascade~ ; gold+20  => A2:mana+9  cascade  eco:{\"gold\":20,\"goldMine\":20}",
+   "L0": "destroy 9 (Yellow x9) ; ~cascade~ ; gold+10  => A2:mana+9  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "K": "destroy 9 (Yellow x9) ; ~cascade~ ; gold+20  => A2:mana+9  cascade  eco:{\"gold\":20,\"goldMine\":20}"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
  "troop:6498": {
   "lines": {
    "L10": "move E13 front ; status E11 +charm ; summon mine troop:-1  => A14:new 炸弹机器人 hp10 atk10 arm17 mag4 | E11:+charm",
@@ -459,6 +469,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
  },
+ "troop:6827": {
+  "lines": {
+   "L10": "dmg E11 16  => E11:hp-6 arm-10",
+   "R10": "dmg E11 16  => E11:hp-6 arm-10",
+   "L0": "dmg E11 6  => E11:arm-6",
+   "K": "dmg E11 16 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
  "troop:6830": {
   "lines": {
    "L10": "convert Blue x11 -> Red x11 ; convert Brown x8 -> skull x8 ; status E10 +marked ; status E11 +marked  => E10:+marked | E11:+marked",
@@ -518,6 +538,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
+ },
+ "troop:6994": {
+  "lines": {
+   "L10": "buff E11 hp-14 ; summon mine troop:-1  => A14:new 神灯之灵 hp23 atk9 arm14 mag5 | E11:hp-14",
+   "R10": "buff E11 hp-14 ; summon mine troop:-1  => A14:new 神灯之灵 hp23 atk9 arm14 mag5 | E11:hp-14",
+   "L0": "buff E11 hp-4 ; summon mine troop:-1  => A14:new 神灯之灵 hp23 atk9 arm14 mag5 | E11:hp-4",
+   "K": "defeat E11 ; buff E11 hp-1 ; summon mine troop:-1  => A14:new 神灯之灵 hp23 atk9 arm14 mag5 | E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
  },
  "troop:7014": {
   "lines": {
@@ -649,6 +679,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:36:41.866Z"
  },
+ "troop:7155": {
+  "lines": {
+   "L10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
+   "R10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
+   "L0": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
+   "K": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 1 devoured ; defeat E12 ; buff C attack+17 ; buff C hp+1 ; ~cascade~  => E12:hp-1 DEAD | C:hp+1 atk+17  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
+ "troop:7222": {
+  "lines": {
+   "L10": "destroy 9 (Yellow x9) ; ~cascade~  => A2:mana+9  cascade",
+   "R10": "destroy 9 (Yellow x9) ; ~cascade~  => A2:mana+9  cascade",
+   "L0": "destroy 9 (Yellow x9) ; ~cascade~  => A2:mana+9  cascade",
+   "K": "destroy 9 (Yellow x9) ; ~cascade~  => A2:mana+9  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
  "troop:7273": {
   "lines": {
    "L10": "convert Yellow x9 -> web x9 ; summon mine troop:6136  => A14:new 蜘蛛群 hp20 atk8 arm12 mag7",
@@ -668,6 +718,26 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:48.572Z"
+ },
+ "troop:7358": {
+  "lines": {
+   "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; buff C hp+23 max+23 ; buff C armor+23 ; status C +reflect  => A2:mana+3 | E10:arm-1 | C:hp+23 max+23 arm+23 +reflect",
+   "R10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; buff C hp+23 max+23 ; buff C armor+23 ; status C +reflect  => A2:mana+3 | E10:arm-1 | C:hp+23 max+23 arm+23 +reflect",
+   "L0": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; buff C hp+13 max+13 ; buff C armor+13 ; status C +reflect  => A2:mana+3 | E10:arm-1 | C:hp+13 max+13 arm+13 +reflect",
+   "K": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; defeat E10 ; buff C hp+23 max+23 ; buff C armor+23 ; status C +reflect  => A2:mana+3 | E10:hp-1 DEAD | C:hp+23 max+23 arm+23 +reflect"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
+ "troop:7382": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-6 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all) ; summon mine troop:-1  => A14:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:arm-1 | E11:arm-1 | E12:arm-1 | E13:arm-1",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 炽夏骑士 hp14 atk12 arm16 mag8 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
  },
  "troop:7392": {
   "lines": {
@@ -709,6 +779,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
  },
+ "troop:7456": {
+  "lines": {
+   "L10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; summon mine troop:-1  => A14:new 火把杂技人 hp22 atk17 arm13 mag8",
+   "R10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; summon mine troop:-1  => A14:new 火把杂技人 hp22 atk17 arm13 mag8",
+   "L0": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; summon mine troop:-1  => A14:new 火把杂技人 hp22 atk17 arm13 mag8",
+   "K": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; summon mine troop:-1  => A14:new 火把杂技人 hp22 atk17 arm13 mag8"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
  "troop:7515": {
   "lines": {
    "L10": "status E11 +charm ; dmg E11 21 ; buff C hp+21 max+21 ; summon mine troop:-1  => A14:new 魅魔 hp27 atk13 arm9 mag0 | E11:hp-21 +charm | C:hp+21 max+21",
@@ -719,6 +799,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:7569": {
+  "lines": {
+   "L10": "dmg E11 13  => E11:hp-3 arm-10",
+   "R10": "dmg E11 13  => E11:hp-3 arm-10",
+   "L0": "dmg E11 3  => E11:arm-3",
+   "K": "dmg E11 13 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
+ },
  "troop:7583": {
   "lines": {
    "L10": "dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; summon mine troop:6328  => A14:new 克里斯坦纳斯 hp19 atk17 arm24 mag8 | E10:hp-12 arm-5 | E11:hp-7 arm-10 | E12:hp-5 arm-12 | E13:hp-14 arm-3",
@@ -728,6 +818,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
+ },
+ "troop:7609": {
+  "lines": {
+   "L10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 ; dmg E12 13  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 arm+3 atk+17 | E12:hp-1 arm-12",
+   "R10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 ; dmg E12 13  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 arm+3 atk+17 | E12:hp-1 arm-12",
+   "L0": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 ; dmg E12 3  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 arm+3 atk+17 | E12:arm-3",
+   "K": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; defeat E10 ; dmg E13 1 devoured ; defeat E13 ; buff C attack+17 ; buff C hp+1 ; dmg E12 13 ; defeat E12  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD | E13:hp-1 DEAD | C:hp+1 atk+17 | E12:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:42:25.119Z"
  },
  "troop:7654": {
   "lines": {
