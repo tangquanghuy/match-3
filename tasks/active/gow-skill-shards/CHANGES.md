@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 635 条改动，涉及 1087 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 637 条改动，涉及 1091 个技能 ID。
 
 ## 按时间
 
@@ -641,6 +641,8 @@
 | 2026-09-28T22:32 | sa-A | L4a-R9-1064-zh | data | 7071 | weapon:1064 CrudeClub | `src/engine/skills/curated/batch-w05.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 7071 zh '?????????' → zh '随机爆破一颗宝石。' (English 'Explode a random Gem.') |  |
 | 2026-09-28T22:32 | sa-A | L4a-R9-7402-same-target | assembler | 9052 | troop:7402 TriTerror | `src/engine/skills/curated/batch-r22.ts` | 9052 entangle enemyRandom, web enemyRandom (independent) → native CauseWeb@FromPrevious: web lastTarget (same random enemy) |  |
 | 2026-09-28T22:32 | sa-A | L4a-R9-6536-skulls | assembler | 7730 | troop:6536 Vargouille | `src/engine/skills/curated/batch-26.ts` | 7730 explodeRandomGems 4 include color → include all: Skulls are Gems (R013-5) |  |
+| 2026-09-28T22:34 | sa-A | L4a-R9-skulls-b03 | assembler | 7145, 8696, 7674 | troop:6075 Gorgotha；weapon:1440 GobmothersWand；troop:6487 PandaskaGuard | `src/engine/skills/curated/batch-01.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-07.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | colourless ExplodeGems built as randomGems include color → include all: Skulls are Gems (R013-5); 8696 override prototype updated |  |
+| 2026-09-28T22:34 | sa-A | L4a-R9-6041-from-previous | assembler | 7041 | troop:6041 Bombardier | `src/engine/skills/curated/batch-11.ts` | 7041 burning 30% on enemyChosen (Board spell, no chosen enemy) → native CauseBurning@FromPrevious: burning 30% on lastTarget (the random enemy damaged) |  |
 
 ## 按技能 ID
 
@@ -667,6 +669,7 @@
 | 7034 | 1 | B5-L4b-6034-fromtarget |
 | 7035 | 1 | L3-018 |
 | 7037 | 1 | F2-R001-order |
+| 7041 | 1 | L4a-R9-6041-from-previous |
 | 7047 | 1 | F1-6047-dispel |
 | 7050 | 1 | F3-q29 |
 | 7051 | 1 | L5-C-r4-6051 |
@@ -694,6 +697,7 @@
 | 7138 | 2 | L4b-7138-zh、L4b-6068-order |
 | 7139 | 1 | F3-q28 |
 | 7143 | 1 | R004-tests |
+| 7145 | 1 | L4a-R9-skulls-b03 |
 | 7146 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7147 | 1 | L4a-R8-random-any-gem |
 | 7149 | 1 | F2-R001-order |
@@ -899,6 +903,7 @@
 | 7668 | 1 | L3-010 |
 | 7669 | 1 | L4a-R8-6482-zh |
 | 7670 | 1 | P-F3-prehit-target-compare |
+| 7674 | 1 | L4a-R9-skulls-b03 |
 | 7685 | 1 | L1-6498-summon-dist |
 | 7692 | 1 | P-E-faction-kingdom |
 | 7693 | 1 | F2-R001-order |
@@ -1311,6 +1316,7 @@
 | 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
+| 8696 | 1 | L4a-R9-skulls-b03 |
 | 8697 | 1 | L4b-1441-cursed-gems |
 | 8698 | 1 | L5-C-cursebreaker-targets |
 | 8699 | 1 | L5-C-cursebreaker-targets |

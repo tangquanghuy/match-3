@@ -107,3 +107,8 @@
 - weapon:1064 fix(zh was '?????????'; pool + override entry)
 - troop:7402 fix(web the same random enemy, native FromPrevious)
 - troop:6536 fix(explode 4 include all)
+- troop:6075 fix(explode 3+M include all)
+- weapon:1440 fix(explode 3 include all; override prototype)
+- troop:6241 accept
+- troop:6487 fix(explode 2 include all)
+- troop:6041 fix(burning 30% on the damaged random enemy, native FromPrevious)

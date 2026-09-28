@@ -67,3 +67,24 @@ describe('L4a R9 B02', () => {
     expect(div.summary.order).toContain('dmg E11 8');
   });
 });
+
+const skullHeavy: BoardFn = (rr, c) => (rr < 7 ? skullGem() : reviewBoard(rr, c));
+describe('L4a R9 B03', () => {
+  // troop:6075 (7145) ExplodeGems 3+M / weapon:1440 (8696) ExplodeGems 3 / troop:6487 (7674) ExplodeGems 2: Skulls eligible.
+  it.each([['troop:6075'], ['weapon:1440'], ['troop:6487']] as const)('%s random explosion can centre on Skulls', (key) => {
+    const ev = castSpell({ key, board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+  // troop:6041 (7041): ExplodeGems SingleGem ; Damage@RandomEnemy 1+M ; CauseBurning@FromPrevious 30%.
+  it('troop:6041 burns only the random enemy it damaged', () => {
+    let burned = 0;
+    for (let seed = 1; seed <= 30; seed++) {
+      const o = castSpell({ key: 'troop:6041', seed }).summary.order;
+      const hit = o.find(x => x.startsWith('dmg '))!.split(' ')[1];
+      const st = o.filter(x => x.startsWith('status '));
+      for (const s of st) expect(s).toBe(`status ${hit} +burning`);
+      burned += st.length;
+    }
+    expect(burned).toBeGreaterThan(2); expect(burned).toBeLessThan(20);
+  });
+});

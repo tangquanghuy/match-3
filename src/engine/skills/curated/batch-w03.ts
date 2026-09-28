@@ -641,7 +641,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8696,
     desc: '爆破 3 颗宝石，再创造一颗许愿宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"wish"}},"count":{"base":1,"mult":0}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"all"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"wish"}},"count":{"base":1,"mult":0}}}]} as SkillPrototype),
   },
   {
     id: 8697,
