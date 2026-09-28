@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 637 条改动，涉及 1091 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 640 条改动，涉及 1094 个技能 ID。
 
 ## 按时间
 
@@ -643,6 +643,9 @@
 | 2026-09-28T22:32 | sa-A | L4a-R9-6536-skulls | assembler | 7730 | troop:6536 Vargouille | `src/engine/skills/curated/batch-26.ts` | 7730 explodeRandomGems 4 include color → include all: Skulls are Gems (R013-5) |  |
 | 2026-09-28T22:34 | sa-A | L4a-R9-skulls-b03 | assembler | 7145, 8696, 7674 | troop:6075 Gorgotha；weapon:1440 GobmothersWand；troop:6487 PandaskaGuard | `src/engine/skills/curated/batch-01.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-07.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | colourless ExplodeGems built as randomGems include color → include all: Skulls are Gems (R013-5); 8696 override prototype updated |  |
 | 2026-09-28T22:34 | sa-A | L4a-R9-6041-from-previous | assembler | 7041 | troop:6041 Bombardier | `src/engine/skills/curated/batch-11.ts` | 7041 burning 30% on enemyChosen (Board spell, no chosen enemy) → native CauseBurning@FromPrevious: burning 30% on lastTarget (the random enemy damaged) |  |
+| 2026-09-28T22:36 | sa-A | L4a-R9-6721-prefnotprev | assembler | 8091 | troop:6721 ROVER-300 | `src/engine/skills/curated/batch-36.ts` | 8091 dmg enemyRandomN n=2 (distinct, range all) → native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007-3) |  |
+| 2026-09-28T22:36 | sa-A | L4a-R9-6471-skulls | assembler | 7649 | troop:6471 TheWorldbreaker | `src/engine/skills/curated/batch-03.ts` | 7649 explode 18 include color → include all (R013-5) |  |
+| 2026-09-28T22:36 | sa-A | L4a-R9-7364-cross | assembler | 9004 | troop:7364 BoatswainBart | `src/engine/skills/curated/batch-r15.ts` | 9004 destroyChosenRow then destroyChosenCol (two steps) → native DestroyGems RowAndColumn: destroyChosenCross (one step) |  |
 
 ## 按技能 ID
 
@@ -891,6 +894,7 @@
 | 7646 | 1 | F3-q07 |
 | 7647 | 1 | L1-6469-order |
 | 7648 | 1 | D-b09-targets |
+| 7649 | 1 | L4a-R9-6471-skulls |
 | 7654 | 1 | P-prefnotprev-semantics |
 | 7655 | 1 | P-R1-count-at-native-step |
 | 7656 | 1 | P-R1-count-at-native-step |
@@ -1006,6 +1010,7 @@
 | 8083 | 1 | L7-R1-lethal-order-doomskull |
 | 8084 | 1 | L5-007 |
 | 8090 | 1 | L4a-r3-6720 |
+| 8091 | 1 | L4a-R9-6721-prefnotprev |
 | 8097 | 1 | F3-q06 |
 | 8098 | 1 | G-6728-order |
 | 8101 | 1 | L2-6731-branches |
@@ -1438,6 +1443,7 @@
 | 8995 | 1 | L4a-r3-1523 |
 | 8996 | 1 | L4b-R6-B06 |
 | 9003 | 1 | R7-tarot-extra-turn |
+| 9004 | 1 | L4a-R9-7364-cross |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |

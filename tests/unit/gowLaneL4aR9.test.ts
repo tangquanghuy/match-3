@@ -88,3 +88,29 @@ describe('L4a R9 B03', () => {
     expect(burned).toBeGreaterThan(2); expect(burned).toBeLessThan(20);
   });
 });
+
+describe('L4a R9 B04', () => {
+  // troop:6721 (8091): Damage@RandomEnemy 3+M ; Damage@RandomPrefNotPrevEnemy 3+M ; CreateGems Bomb 2.
+  it('troop:6721 hits a lone survivor twice (PrefNotPrev), two different enemies otherwise', () => {
+    const lone = castSpell({ key: 'troop:6721', board: noColour(BaseColor.Purple), enemies: [{ hp: 900, maxHp: 900, armor: 0 }] });
+    expect(lone.summary.order.filter(o => o.startsWith('dmg '))).toEqual(['dmg E10 13', 'dmg E10 13']);
+    for (let seed = 1; seed <= 8; seed++) {
+      const hits = castSpell({ key: 'troop:6721', seed, board: noColour(BaseColor.Purple) }).summary.order.filter(o => o.startsWith('dmg ')).map(o => o.split(' ')[1]);
+      expect(hits).toHaveLength(2); expect(hits[0]).not.toBe(hits[1]);
+    }
+  });
+  // troop:6471 (7649): ExplodeGems 18, Skulls eligible.
+  it('troop:6471 random explosions can centre on Skulls', () => {
+    const ev = castSpell({ key: 'troop:6471', board: skullHeavy }).events.find(e => e.type === 'gem-explode') as unknown as Cells;
+    expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
+  });
+  // troop:7364 (9004): ExplodeGems SingleGem ; DestroyGems RowAndColumn (one cross) ; CreateGems Booty 3.
+  it('troop:7364 destroys the chosen cross in one step', () => {
+    const r = castSpell({ key: 'troop:7364', board: noColour(BaseColor.Purple), cell: { row: 3, col: 3 } });
+    const destroys = r.events.filter(e => e.type === 'gem-destroy') as unknown as Cells[];
+    expect(destroys).toHaveLength(1);
+    const cells = destroys[0].cells.map(c => c.pos);
+    expect(cells.every(p => p.row === 3 || p.col === 3)).toBe(true);
+    expect(cells.length).toBeGreaterThanOrEqual(12);
+  });
+});

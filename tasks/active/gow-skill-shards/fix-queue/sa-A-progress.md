@@ -112,3 +112,8 @@
 - troop:6241 accept
 - troop:6487 fix(explode 2 include all)
 - troop:6041 fix(burning 30% on the damaged random enemy, native FromPrevious)
+- weapon:1136 accept
+- troop:6721 fix(Random + PrefNotPrev hits, not enemyRandomN)
+- troop:6471 fix(explode 18 include all)
+- troop:7364 fix(RowAndColumn one cross step)
+- troop:7573 accept (TrueRandomDamage shared roll; Summer Isle region inert regionPresent)

@@ -40,7 +40,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 1 颗宝石。对 2 名随机敌人造成 [魔法 + 3] 点伤害。再创造 2 颗炸弹宝石。',
     build: skill(
       explodeAt(CELL),
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
+      // native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007-3: a lone survivor is hit twice)
+      dmg('enemyRandom', 3, 1),
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       createSpecialGems({ kind: 'bomb' }, 2, 0),
     ),
   },
