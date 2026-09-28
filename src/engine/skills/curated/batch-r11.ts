@@ -81,7 +81,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8180,
-    desc: "摧毁所有选定颜色的宝石。所有使用此颜色的敌人都受到 [魔法 + 9]  真实伤害，耗尽所有法力值，并陷入沉默和冻结状态。",
+    desc: "摧毁所有选定颜色的宝石。所有使用此颜色的敌人都受到 [魔法 + 9] 点真实伤害，耗尽所有法力值，并陷入沉默和冻结状态。",
     // DestroyColor FromTarget + FromManaColorEnemy 四段 = 选定色动态目标 ifCond targetColor CHOSEN（R11 扩展）；耗尽=drainMana
     build: skill(
       destroyColor(CHOSEN),

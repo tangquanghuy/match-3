@@ -16,7 +16,7 @@
  */
 import type { CuratedBatch } from './index';
 import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, inflict, cleanse, reduce,
-  transform, transformToSpecial, createGems, createSpecialGems, createSkulls, createMix, destroyChosenRow, explodeChosenRow, explodeChosenCol,
+  transform, transformToSpecial, createGems, createSpecialGems, createSpecialGems2, createSkulls, destroyChosenRow, explodeChosenRow, explodeChosenCol,
   reposition, extraTurn, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
 // 龙族引用池（从 troops.json troopTypes='Dragon' 内联，与 batch-r7 同源）
@@ -117,7 +117,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       armor('allySelf', 1, 1),
       heal('allySelf', 1, 1),
-      createGems(BaseColor.Red, 1, 0, { countRange: { min: 1, max: 3 } }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Red }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-F: native CreateGemsRange RedManaPotion (was plain Red gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'burning' } }),
     ),
   },
@@ -561,9 +561,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 三段 CreateGems2Colors（蓝绿/红黄/紫棕 各 4）→ 三段 createMix；「杀死」= execute
     build: skill(
       dmg('enemyChosen', 0, 0, { execute: true }),
-      createMix([BaseColor.Blue, BaseColor.Green], 4),
-      createMix([BaseColor.Red, BaseColor.Yellow], 4),
-      createMix([BaseColor.Purple, BaseColor.Brown], 4),
+      // sa-F: native CreateGems2Colors <Colour>ManaPotion pairs = Mana Potion Gems (was plain coloured gems)
+      createSpecialGems2([{ kind: 'manaPotionGem', color: BaseColor.Blue }, { kind: 'manaPotionGem', color: BaseColor.Green }], 4),
+      createSpecialGems2([{ kind: 'manaPotionGem', color: BaseColor.Red }, { kind: 'manaPotionGem', color: BaseColor.Yellow }], 4),
+      createSpecialGems2([{ kind: 'manaPotionGem', color: BaseColor.Purple }, { kind: 'manaPotionGem', color: BaseColor.Brown }], 4),
       extraTurn(),
     ),
   },

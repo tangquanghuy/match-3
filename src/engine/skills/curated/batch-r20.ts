@@ -250,7 +250,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8469,
-    desc: '给予一名盟友 4 点魔力值而等于其法力的半数法力值。若他是一名妖仙，则给予其赐福和法印效果。',
+    desc: '给予一名盟友 4 点魔力值，以及等同其法力消耗一半的法力值。若他是一名妖仙，则给予其赐福和法印效果。',
     // 同 8421 结构，妖仙 = Fey、赐福+法印
     build: skill(
       magic('allyChosen', 4, 0),
@@ -317,7 +317,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8501,
-    desc: '获得 [魔法 + 1] 黄金。淹没自己，沉入海底并获得额外的转向。',
+    desc: '获得 [魔法 + 1] 黄金。使自身下潜，沉到队尾并获得一个额外回合。',
     // 「淹没自己」= submerged；「沉入海底」= reposition back（§12.1）
     build: skill(
       gainGold(1, 1),

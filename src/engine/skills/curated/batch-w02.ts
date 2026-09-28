@@ -219,8 +219,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '所有盟友获得 [魔法 + 2] 点护甲值。同时，敌方每一拥有屏障效果的军队，已方盟友即各得 8 点攻击力和 2 点法力值。 [x2]',
     build: skill(
       armor('allyAll', 2, 1),
-      attack('allyAll', 8, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
-      mana('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
+      // sa-F: native CountStatus barrier 800 -> IncreaseAttack [counter] ; CountSet -> CountStatus 200 -> GenerateMana [counter]
+      // = 8 Attack and 2 Mana per enemy Barrier, no base (was 8 / 2 + 2 per Barrier).
+      attack('allyAll', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
+      mana('allyAll', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
     ),
   },
   {

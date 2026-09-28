@@ -141,6 +141,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skillOnce(
       dmg('enemyChosen', 40, 1),
       // 「光荣地死去」= 自毁（spell-rules §11 追加：自毁 = sacrifice allySelf）
+      // sa-F: native has two Damage@Self 10000 steps — the first pops a Barrier, the second kills
+      sacrifice('allySelf'),
       sacrifice('allySelf'),
     ),
   },

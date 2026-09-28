@@ -40,8 +40,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 3] 点伤害。使其陷入织网和缠绕状态。获得一个额外回合。',
     build: skill(
       dmg('enemyChosen', 3),
-      inflict('web', 'enemyChosen'),
+      // sa-F: native order CauseEntangle -> CauseWeb (R001)
       inflict('entangle', 'enemyChosen'),
+      inflict('web', 'enemyChosen'),
       extraTurn(),
     ),
   },

@@ -207,10 +207,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8239,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。',
     build: skill(
       dmg('enemyChosen', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-      dmg('enemyRandom', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
+      // sa-F: native Damage@RandomPrefNotPrevEnemy (was plain random, could re-hit the chosen enemy)
+      dmg('enemyRandomPrefNotPrev', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
       mana('allyOthers', 6, 0, { ifCond: { kind: 'stormPresent' } }),
     ),
   },

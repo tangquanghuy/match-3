@@ -1191,7 +1191,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9780,
-    desc: '合成14颗绿色宝石和14颗流血宝石。然后获得额外回合。',
+    desc: '创造 14 颗绿色宝石和流血宝石（随机混合）。然后获得额外回合。',
     // EN「Create a mix of 14 Green and Bleed Gems」= 14 颗绿色/流血混合体（ZH「和14颗」为
     // 机翻膨胀，按原句 14 颗 mixAny 逐颗掷选——流血宝石 bleedGem 波A 已落地）。
     build: skill(

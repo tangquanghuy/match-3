@@ -370,7 +370,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9675,
-    desc: '混合使用10颗诅咒宝石和末日骷髅头，获得额外回合。',
+    desc: '创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。',
     build: skill(
       createSpecialGems2([{ kind: 'curseGem' }, { kind: 'doomSkull' }], 10),
       extraTurn(),

@@ -76,9 +76,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7640,
-    desc: '对 1 名敌人造成  [(魔法 / 2) + 4] – [魔法 + 8] 到 {2} 点伤害。如果敌人身亡，则获得多一回合。 ',
+    desc: '对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 8] 点伤害。如果敌人身亡，则获得一个额外回合。',
     build: skill(
-      dmg('enemyFront', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(8, 1) }, split: 2 }),
+      // sa-F: native RandomHighDamage@FromTarget (spell Target Enemy) = one chosen enemy, one hit (was front enemy, split in 2; cf. L7-7517)
+      dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(8, 1) } }),
       extraTurn({ ifTargetDied: true }),
     ),
   },

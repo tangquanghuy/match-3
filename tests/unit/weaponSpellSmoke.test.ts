@@ -290,10 +290,12 @@ describe('武器法术语义冒烟（第五轮 · K-E 原语接线）', () => {
   it('9580 灾祸之刃（tempering + 劫数 quarter mana）：fraction 恢复 + 目标色条件引爆', () => {
     const noDoom = castWeapon(9580);
     // 施放耗尽 12 法力；敌方无 Doom → quarter mana 段静默跳过
-    expect(noDoom.state.teams[PlayerSide.Left].characters[0].mana).toBe(0);
+    // sa-F: native order explodes the target colour first, so exploded-gem mana may land; check the quarter-mana step itself
+    const quarter = (h: Harness) => h.events.filter(e => e.type === 'buff' && e.stat === 'mana' && e.targetId === h.state.teams[PlayerSide.Left].characters[0].id).map(e => (e as { amount: number }).amount);
+    expect(quarter(noDoom)).toEqual([]);
     const withDoom = castWeapon(9580, { enemyTroopTypes: ['Doom'] });
     // 敌方有 Doom → floor(12 × 0.25) = 3 回蓝
-    expect(withDoom.state.teams[PlayerSide.Left].characters[0].mana).toBe(3);
+    expect(quarter(withDoom)).toEqual([3]);
   });
 
   it('8442 荒芜战锤（tempering + 劫数 drainAll）：敌方有 Doom → 清空随机敌人护甲', () => {

@@ -332,6 +332,91 @@
       "spellId": 8813,
       "reason": "sa-B r6: English Onyx Gargoyle 'Deal [Magic + 3] splash damage' (native SplashHighDamage, not light splash); old Chinese said 轻微溅射.",
       "spellDescription": "对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。"
+    },
+    "6454": {
+      "spellId": 7632,
+      "reason": "sa-F: English Hind 'Gain 2 mana back and a 25% chance for an extra turn for each Entangled enemy' (native CountSpecificStatusEffect 200 -> GenerateMana counter): the 2 Mana is per Entangled enemy, not flat.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 2] 点伤害。每有 1 名被缠绕的敌人，回复 2 点法力值，并增加 25% 获得额外回合的几率。"
+    },
+    "6897": {
+      "spellId": 8358,
+      "reason": "sa-F: English Arachnaean Watcher 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese omitted 'other'.",
+      "spellDescription": "获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]"
+    },
+    "6863": {
+      "spellId": 8282,
+      "reason": "sa-F: English Queen Beetrix 'independent 40% chances, to gain an extra turn and half my mana back' (native ExtraTurnConditional 40 / GenerateHalfMana, no Brown count step); old Chinese added 'boosted by Brown Gems'.",
+      "spellDescription": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。"
+    },
+    "7714": {
+      "spellId": 9675,
+      "reason": "sa-F: English Desert Ox 'Create a mix of 10 Cursed Gems and Doomskulls' (native CreateGems2Colors 10 Cursed>Doomskull); old Chinese said 'use' instead of create.",
+      "spellDescription": "创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。"
+    },
+    "7774": {
+      "spellId": 9780,
+      "reason": "sa-F: English Count Gobula 'Create a mix of 14 Green and Bleed Gems' (native CreateGems2Colors 14 Green>Bleed = 14 total); old Chinese read as 14 + 14.",
+      "spellDescription": "创造 14 颗绿色宝石和流血宝石（随机混合）。然后获得额外回合。"
+    },
+    "6867": {
+      "spellId": 8289,
+      "reason": "sa-F: English Solari 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese said 'other allies enemies'.",
+      "spellDescription": "对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。"
+    },
+    "6834": {
+      "spellId": 8239,
+      "reason": "sa-F: English Finesse text; old Chinese had a stray comma before the full stop.",
+      "spellDescription": "对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。"
+    },
+    "6975": {
+      "spellId": 8478,
+      "reason": "sa-F: English Metztli 'Then conjure a Darkstorm'; old Chinese had typo 在 for 再.",
+      "spellDescription": "耗掉一名敌人所有法力值。若存在风暴，则使他陷入死亡标记效果。再召唤暗风暴。"
+    },
+    "6015": {
+      "spellId": 7015,
+      "reason": "sa-F: English Spider Queen text; old Chinese had a doubled pronoun (他他).",
+      "spellDescription": "减除一名敌人 [魔法 + 1] 点护甲值，使他陷入织网状态并耗掉他所有法力值。"
+    },
+    "6789": {
+      "spellId": 8180,
+      "reason": "sa-F: English The Gray King '[Magic + 9] true damage'; old Chinese dropped the unit (double space).",
+      "spellDescription": "摧毁所有选定颜色的宝石。所有使用此颜色的敌人都受到 [魔法 + 9] 点真实伤害，耗尽所有法力值，并陷入沉默和冻结状态。"
+    },
+    "7778": {
+      "spellId": 9784,
+      "reason": "sa-F: English Blood Spore 'If they are Bleeding, then Dispel, Curse and drain 3 Mana from them' (native DispelConditional AddForBleed = remove positive statuses); old Chinese said dispel their Bleed.",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。"
+    },
+    "7311": {
+      "spellId": 8923,
+      "reason": "sa-F: English Orpheus Priestess 'Give all other Allies a quarter of their Mana' (native AllAlliesButNotSelf); old Chinese omitted 'other'.",
+      "spellDescription": "给予所有其他盟友四分之一的法力值，并净化他们。"
+    },
+    "6998": {
+      "spellId": 8501,
+      "reason": "sa-F: English Willi the Anchor 'Submerge myself, sink to the bottom and gain an extra turn' (native CauseSubmerged, TroopOrderBack, ExtraTurn); old Chinese was machine-translated (drown / extra steering).",
+      "spellDescription": "获得 [魔法 + 1] 黄金。使自身下潜，沉到队尾并获得一个额外回合。"
+    },
+    "6996": {
+      "spellId": 8523,
+      "reason": "sa-F: English The Emperor 'Give [(Magic / 2) + 1] to all Skills on the first Ally. There is a 7% chance of an extra turn for each Blue Gem' ; old Chinese was garbled machine translation.",
+      "spellDescription": "给予第一名盟友 [(魔法 / 2) + 1] 点所有技能值。棋盘上每有一颗蓝色宝石，就有 7% 的几率获得一个额外回合。 [x7]"
+    },
+    "6992": {
+      "spellId": 8498,
+      "reason": "sa-F: English The Archdeva 'Give them [(Magic x 3) + 3] Attack, Life and Armor, and fill their Mana'; old Chinese was garbled and dropped the amount.",
+      "spellDescription": "选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。"
+    },
+    "6966": {
+      "spellId": 8469,
+      "reason": "sa-F: English Spring Emissary 'Give 4 Magic to an Ally and Mana equal to half their Mana cost'; old Chinese was garbled.",
+      "spellDescription": "给予一名盟友 4 点魔力值，以及等同其法力消耗一半的法力值。若他是一名妖仙，则给予其赐福和法印效果。"
+    },
+    "6462": {
+      "spellId": 7640,
+      "reason": "sa-F: English Claw Dancer 'Deal [(Magic / 2) + 4] - [Magic + 8] damage to an enemy. If the enemy dies, gain an extra turn.'; old Chinese had a stray {2} placeholder and machine wording.",
+      "spellDescription": "对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 8] 点伤害。如果敌人身亡，则获得一个额外回合。"
     }
   }
 }

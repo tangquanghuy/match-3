@@ -30,7 +30,7 @@
  */
 import type { CuratedBatch } from './index';
 import {
-  skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
+  skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, gainLife, armor, attack, magic, mana, reduce, steal,
   cleanse, randomStat, createGems, createSpecialGems, destroyRandomSpecialGems, explodeSpecialGems, explodeRandomGems,
   explodeColor, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
   transformTroop, inflict,
@@ -104,7 +104,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人和另 1 名随机敌人造成 [魔法 + 3] 点伤害。获得一个额外回合。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1),
+      // sa-F: native Damage@RandomPrefNotPrevEnemy; EN/ZH "another random enemy"
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       extraTurn(),
     ),
   },
@@ -580,7 +581,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8498,
-    desc: '选择一个同盟。赠予他们一次攻击，一次生命值，和一件盔甲，并充满他们的法力值。此咒语只能使用一次。',
+    desc: '选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。',
     // English/native: (3 * Magic) + 3 Attack, Life and Armor; preserve one-shot and full Mana.
     build: skillOnce(
       attack('allyChosen', 3, 3),
@@ -593,10 +594,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // —— 「每个蓝色宝石都有 7% 的额外几率」= chanceBoost（§概率增强）；「所有技能」=
     // 攻/甲/魔三段并列共用 [(魔法/2)+1]（§11 R4 并列数值段口径） ——
     id: 8523,
-    desc: '给予 [(魔法 / 2) + 1] 第一名同盟所以技能。棋盘上每个蓝色宝石都有7％的额外几率旋转。 [x7]',
+    desc: '给予第一名盟友 [(魔法 / 2) + 1] 点所有技能值。棋盘上每有一颗蓝色宝石，就有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
       attack('allyFront', 1, 0.5),
       armor('allyFront', 1, 0.5),
+      // sa-F: native IncreaseAllStats = all four Skills incl. Life (R007-2 pool)
+      gainLife('allyFront', 1, 0.5),
       magic('allyFront', 1, 0.5),
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } },

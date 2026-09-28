@@ -170,11 +170,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9847,
     desc: '对一名敌人造成[魔法 + 2]点真实伤害。每有一名流血的敌人，回复2点法力值。 [x2]',
     build: skill(
-      trueDmg('enemyChosen', 2),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 2 x count only
+      // sa-F: native CountStatus bleed is step 0, before the TrueDamage -> gain first so a Bleeding target killed by the hit still counts (R001)
       mana('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'bleed' } },
       }),
+      trueDmg('enemyChosen', 2),
     ),
   },
   {
