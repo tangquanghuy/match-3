@@ -160,3 +160,24 @@ describe('L4a R1: B04 race/troop counters', () => {
     expect(o[3]).toMatch(/^explode \d+$/);
   });
 });
+describe('L4a R1: B05 row counters', () => {
+  it('troop:7684 counts Stone Blocks and Gargoyles in the destroyed row for both Attack and Armor (x6)', () => {
+    const board = withCells(reviewBoard, { '3,1': specialGem('stoneBlock'), '3,5': specialGem('gargoyleGem', 1), '6,0': specialGem('stoneBlock') });
+    const o = castSpell({ key: 'troop:7684', board }).summary.order;
+    expect(o).toContain('buff C attack+32'); // 10 + 10 + 6 x 2 (the block on row 6 is not in the row)
+    expect(o).toContain('buff C armor+32');
+  });
+  it('troop:7102 counts Green gems in the destroyed row, not on the board', () => {
+    expect(castSpell({ key: 'troop:7102' }).summary.order).toContain('dmg E10 19'); // 13 + 3 x (1 Green in row 3 + caster)
+  });
+  it('troop:7120 enemies killed by its own explosion do not boost it', () => {
+    const o = castSpell({ key: 'troop:7120', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0 })) }).summary.order;
+    expect(o).toContain('defeat E10');
+    expect(o).toContain('buff C attack+6');
+  });
+  it('weapon:1174 cleanses and heals the other allies only, boosted by Blue gems at 34%', () => {
+    const r = castSpell({ key: 'weapon:1174' });
+    expect(r.summary.order.slice(0, 3)).toEqual(['cleanse A1 -poison', 'buff A1 hp+14 max+14', 'buff A2 hp+14 max+14']);
+    expect(r.summary.units.C ?? '').not.toContain('-poison');
+  });
+});

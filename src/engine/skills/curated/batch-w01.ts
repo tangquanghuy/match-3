@@ -1248,10 +1248,11 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7601,
-    desc: '净化所有盟友。给予他们 [魔法 + 1] 点生命值， 并移除所有蓝色宝石以增强效果 [3:1]',
+    desc: '移除所有蓝色宝石。净化所有其他盟友，再给予他们 [魔法 + 1] 点生命值，数值因移除的宝石数而增强。 [3:1]',
+    // native: CountGems Blue 34 (board, step 0), Cleanse + IncreaseHealth @AllAlliesButNotSelf, RemoveColor Blue last (sa-R1)
     build: skill(
-      cleanse('allyAll'),
-      heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      cleanse('allyOthers'),
+      heal('allyOthers', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       destroyColor(BaseColor.Blue),
     ),
   },

@@ -71,7 +71,10 @@ const SPELLS: CuratedBatch['spells'] = [
       inflict('barrier', 'allySelf'),
       destroyChosenRow(),
       // 一个方括号喂双段（batch-05 7152 同款）；modifier 挂最近数值段（batch-14 8297 同款）
-      armor('allySelf', 1, 1),
+      // native: both IncreaseArmor and IncreaseHealth UseCounterForAmount (CountGems Yellow in the row) (sa-R1)
+      armor('allySelf', 1, 1, {
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
+      }),
       heal('allySelf', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
       }),

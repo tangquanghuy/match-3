@@ -243,10 +243,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「身亡的地人」机翻噪声，EN =「boosted by all Enemies previously killed」→ countEnemyDeaths ×10；
     // [M/2+1] = mult 0.5 base 1，两处方括号各辖所在子句（第二括号管三段增益）
     build: skill(
-      explodeRandomGems(1, 0.5),
+      // native CountEnemyDeaths is step 0 (before the explosion): buffs first so explosion kills do not count (sa-R1)
       attack('allySelf', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'countEnemyDeaths' } } }),
       heal('allySelf', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'countEnemyDeaths' } } }),
       armor('allySelf', 1, 0.5, { modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'countEnemyDeaths' } } }),
+      explodeRandomGems(1, 0.5),
     ),
   },
   {

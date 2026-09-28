@@ -276,7 +276,8 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: {
           mod: { kind: 'multiplier', a: 3 },
           sources: [
-            { kind: 'boardGems', color: BaseColor.Green },
+            // native CountGems Green BoardTarget Row = Green gems in the destroyed row, not the whole board (sa-R1)
+            { kind: 'destroyedGems', color: BaseColor.Green },
             { kind: 'alliesOfColor', color: BaseColor.Green },
           ],
         },
