@@ -2,10 +2,6 @@
   "sourceFingerprint": "0edc34ebe8fcfdab0ace4baafe552cb772574701d86c53b7cea97208844a5740",
   "notes": "Preserve pre-regeneration localized corrections and reviewed weapon prototypes recorded in the September 26 verification ledger; this is not original-game certification.",
   "entries": {
-    "7184": {
-      "description": "移除所有骷髅头。对前两名敌人造成 [魔法] 点伤害，伤害值因被移除的宝石数而增强。 [2:1]",
-      "prototype": {"segments":[{"kind":"gem","params":{"op":"clear","mode":"remove","target":{"kind":"skulls"}}},{"kind":"damage","target":"enemyFirstN","scaling":{"base":0,"mult":1},"n":2,"modifier":{"mod":{"kind":"ratio","a":2,"b":1},"source":{"kind":"destroyedGems","skulls":true}}}]}
-    },
     "7066": {
       "description": "对最强的敌人造成 [(魔法 / 2) + 3] 点伤害。"
     },
@@ -258,6 +254,43 @@
             "params": {
               "source": {
                 "ref": "Revenant"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "7184": {
+      "description": "移除所有骷髅头。对前两名敌人造成 [魔法] 点伤害，伤害值因被移除的宝石数而增强。 [2:1]",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "remove",
+              "target": {
+                "kind": "skulls"
+              }
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyFirstN",
+            "scaling": {
+              "base": 0,
+              "mult": 1
+            },
+            "n": 2,
+            "modifier": {
+              "mod": {
+                "kind": "ratio",
+                "a": 2,
+                "b": 1
+              },
+              "source": {
+                "kind": "destroyedGems",
+                "skulls": true
               }
             }
           }
@@ -7035,6 +7068,83 @@
         ]
       }
     },
+    "8514": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Red"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "葛洛什奈克",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Hematrax",
+                  "Shargral",
+                  "Warfang",
+                  "MorZarn",
+                  "KingOfSwords",
+                  "KragRaxBloodskull",
+                  "ImmortalAngRak",
+                  "TenOfRunes",
+                  "DaeDrak",
+                  "OrcRogue",
+                  "MouthOfZorn",
+                  "EyeOfArges",
+                  "TrkNala",
+                  "RokGarTheGuardian",
+                  "TuskRaider",
+                  "ArmoredBoarlet",
+                  "WarDrok",
+                  "BrawlmasterBurNakh",
+                  "WarWolf",
+                  "GorThrum",
+                  "ShadeOfZorn",
+                  "BorGakk",
+                  "FistOfZorn",
+                  "VorKarn",
+                  "DireBoar",
+                  "SolZara",
+                  "Gargantaur",
+                  "Drake",
+                  "OrcVeteran",
+                  "Ogryn",
+                  "FelDras",
+                  "ArmoredBoar",
+                  "KruargTheDread",
+                  "Wyvern",
+                  "GarNok",
+                  "DarkSong",
+                  "DrakeRider",
+                  "Cyclops",
+                  "Summoner",
+                  "Orc"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
     "8518": {
       "prototype": {
         "segments": [
@@ -7101,6 +7211,43 @@
           }
         ]
       }
+    },
+    "8529": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "destroy",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "ENEMY_MOST_USED"
+              }
+            }
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "BlackOoze",
+                  "Shoggorath",
+                  "OchreJelly",
+                  "Cloakmantle",
+                  "RockSquid"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "摧毁 [魔法 + 1] 颗敌人队伍使用最多的颜色宝石。召唤一名随机滴答洞穴军队。"
     },
     "8577": {
       "description": "创建 3-8 颗拥有各种翻倍量的通配宝石。",
@@ -7287,6 +7434,81 @@
           }
         ]
       }
+    },
+    "8622": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Yellow"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetRace": "Stryx",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Heronath",
+                  "Owleth",
+                  "Sylph",
+                  "Garuda",
+                  "PrinceAzquila",
+                  "Strygik",
+                  "Stormsinger",
+                  "Taloca",
+                  "WindArcher",
+                  "Ixchel",
+                  "Phoenicia",
+                  "PavosDawnwind",
+                  "Harpy",
+                  "Bladewing",
+                  "HarpyMage",
+                  "QueenXochi",
+                  "CaptainMacaw",
+                  "Finesse",
+                  "Lyriath",
+                  "Zilopochtli",
+                  "Quetzalma",
+                  "HighPriestessChazka",
+                  "Metztli",
+                  "Ostryx",
+                  "Totec",
+                  "KingOfRavens",
+                  "Stormcrow",
+                  "HarpyNightsong",
+                  "Ehecatl",
+                  "Egris",
+                  "SparrowKnight",
+                  "Kukulkan",
+                  "FisherKing",
+                  "CrestedAva",
+                  "Mayahuel",
+                  "Cinereous",
+                  "Cassoryx"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗黄色宝石。赋予所有鸟族盟友一个随机正面增益效果。再召唤一名鸟族军队。"
     },
     "8623": {
       "description": "选择一项：创造 6 颗元素之星，祝福所有盟友；或创造 7 颗暗影之星，诅咒所有敌人。",
@@ -7610,7 +7832,50 @@
             "kind": "summon",
             "params": {
               "source": {
-                "randomOfKingdom": "玉银林地"
+                "randomOf": [
+                  "KingElbormor",
+                  "Siobhan",
+                  "ElvenNoble",
+                  "Cosmo",
+                  "ImmortalSelene",
+                  "CorruptedCrystalem",
+                  "WoodRot",
+                  "Leucithrax",
+                  "GuardianSpirit",
+                  "LioraMistveil",
+                  "Mistlark",
+                  "ArcaneSabercat",
+                  "SirAiluin",
+                  "CrystalEggs",
+                  "HeraldOfKrystenax",
+                  "Amethialas",
+                  "FloraFawn",
+                  "MoonMage",
+                  "SwordMaiden",
+                  "Tannenbaum",
+                  "MoonPhoenix",
+                  "TheMagician",
+                  "Forgemistress",
+                  "StarryMage",
+                  "SapphireKnight",
+                  "WillOfNysha",
+                  "Grimcorn",
+                  "LordEhrondil",
+                  "SilverOak",
+                  "Willow",
+                  "Arcanus",
+                  "Hind",
+                  "QueenAurora",
+                  "Wisp",
+                  "Krystenax",
+                  "TheSilvermaiden",
+                  "PrincessElspeth",
+                  "Unicorn",
+                  "Enchantress",
+                  "ElvenBard",
+                  "Swordmaster",
+                  "SilverDrakon"
+                ]
               }
             }
           }
@@ -8150,13 +8415,126 @@
                   "StormOracle",
                   "ToxAndSion",
                   "StormGuard",
-                  "AsbjornTheMountain"
+                  "AsbjornTheMountain",
+                  "ImmortalGirthrok"
                 ]
               }
             }
           }
         ]
       }
+    },
+    "8771": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Blue"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetRace": "Rogue",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Satyr",
+                  "Ferit",
+                  "Tyri",
+                  "Atlanta",
+                  "Raven",
+                  "Shadow-Hunter",
+                  "Marid",
+                  "NobendBrothers",
+                  "Amira",
+                  "DragonianRogue",
+                  "Desdaemona",
+                  "DeckHand",
+                  "Pirate",
+                  "Sharkey",
+                  "LilJohnnyBronze",
+                  "BonnieRose",
+                  "Wayfinder",
+                  "Shadowblade",
+                  "CaptainSkullbeard",
+                  "Bandit",
+                  "Snow-Hunter",
+                  "ClawDancer",
+                  "SisterOfShadows",
+                  "ScurvySeadog",
+                  "KendralaBloodjewel",
+                  "CrimsonArrow",
+                  "EggThief",
+                  "SkulkFang",
+                  "Trickster",
+                  "QuickpawJack",
+                  "RedCharlotte",
+                  "Bladewing",
+                  "StreetThief",
+                  "CatBurglar",
+                  "TombRobber",
+                  "KingOfThieves",
+                  "FirstMateAxelubber",
+                  "CaptainMacaw",
+                  "BrokerOfGreed",
+                  "MotherOfDarkness",
+                  "Lucifria",
+                  "Rogueling",
+                  "RoyalAssassin",
+                  "SisterEbony",
+                  "DeepElvenRogue",
+                  "NightSpider",
+                  "WilliTheAnchor",
+                  "Freebooter",
+                  "SisterOfNightmares",
+                  "Nightarrow",
+                  "Plaguecrafter",
+                  "Deathblade",
+                  "BileBlackheart",
+                  "ConsortOfDarkness",
+                  "Shadowbeast",
+                  "CorbenHalf-Elf",
+                  "Sabellius",
+                  "RakshaSwabbie",
+                  "CaptainSaltclaw",
+                  "RattigarCutpurse",
+                  "FennecThief",
+                  "DreadCaptainGrim",
+                  "BoatswainBart",
+                  "OrcRogue",
+                  "TheRedCorsair",
+                  "TheBaneOfValor",
+                  "ImmortalSelene",
+                  "GoblinPickpocket",
+                  "Skulker",
+                  "CommodoreMaryka",
+                  "LapinaCharlatan",
+                  "LapinaPirate",
+                  "SetauriSkulk",
+                  "InfernalTrickster"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗蓝色宝石。赋予所有盗贼盟友一个随机正面增益效果。再召唤一名盗贼军队。"
     },
     "8774": {
       "prototype": {
@@ -9308,7 +9686,8 @@
                   "StormOracle",
                   "ToxAndSion",
                   "StormGuard",
-                  "AsbjornTheMountain"
+                  "AsbjornTheMountain",
+                  "ImmortalGirthrok"
                 ]
               }
             }
@@ -9387,6 +9766,417 @@
           }
         ]
       }
+    },
+    "9205": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "沃尔帕克",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Liekki",
+                  "Velosia",
+                  "DarkSpirit",
+                  "Kumiko",
+                  "WulfGheist",
+                  "SpiritcallerLila",
+                  "SpiritOfLuck",
+                  "Azaleus",
+                  "ExiledWargare",
+                  "Ragepaw",
+                  "SoulSummoner",
+                  "Aguara",
+                  "Foxglove",
+                  "KitTheSly",
+                  "Stellarix",
+                  "VulpineWatcher",
+                  "VulpineChampion",
+                  "Duelist",
+                  "SableSpiritbane",
+                  "ToddGreenwood",
+                  "Fenix",
+                  "VulpphireHunter",
+                  "TheWheelOfFortune",
+                  "FennecMage",
+                  "FennecThief",
+                  "Voidcaller",
+                  "Harper",
+                  "Vulperus",
+                  "RedFox",
+                  "VulpineMage"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗绿色宝石。赋予所有沃尔帕克盟友一个随机正面增益状态效果。再召唤一名沃尔帕克军队。"
+    },
+    "9207": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetRace": "Urska",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Barbearius",
+                  "UrskaWanderer",
+                  "Urskatyr",
+                  "CorruptedUrska",
+                  "KingMikhail",
+                  "UrskaSavage",
+                  "Doomclaw",
+                  "XiongMao",
+                  "PandaskaGuard",
+                  "CrimsonArrow",
+                  "UrskaDragoon",
+                  "Urskula",
+                  "UrskaDruid",
+                  "Berengari",
+                  "PossessedUrska",
+                  "BlackBjörn",
+                  "Defiance",
+                  "Lyrasza",
+                  "PandaskaMage",
+                  "PrinceBarislav",
+                  "Ursuvius",
+                  "SpiritOfRage",
+                  "IronVlasta",
+                  "Ursky",
+                  "Pandazerker",
+                  "Theodorevich",
+                  "Pandallista",
+                  "ShejiShi",
+                  "Bearlock",
+                  "Bieska",
+                  "Emberclaw",
+                  "SkeletalUrska",
+                  "IvarLongclaw",
+                  "VelesStormborn",
+                  "PossessedTeddy",
+                  "PoisonedUrsidae",
+                  "RangerEvgeniy"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗棕色宝石。赋予所有厄什卡盟友一个随机正面增益状态效果。再召唤一名厄什卡军队。"
+    },
+    "9208": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Blue"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "剑锋崖",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "GriffonCaptain",
+                  "SirGeoffreyTheFallen",
+                  "Raquel",
+                  "ImmortalZachariel",
+                  "SeabornKnight",
+                  "Orrissea",
+                  "TheFallenKnight",
+                  "JusticeTarot",
+                  "AldricTheFrostbound",
+                  "DragonCommander",
+                  "BrassDrake",
+                  "GuardianOfLaw",
+                  "Militiaman",
+                  "TheGuardianDragon",
+                  "MysteriousHero",
+                  "Eleanor",
+                  "KnightErrant",
+                  "RelicKnight",
+                  "GameWarden",
+                  "SpectralColossus",
+                  "UlfHarrigan",
+                  "UlfsMascot",
+                  "HauntedGuardian",
+                  "SirQuentinHadley",
+                  "KnightCaptain",
+                  "Man-at-Arms",
+                  "SirEbonheart",
+                  "CourtJester",
+                  "QueensHerald",
+                  "Vanguard",
+                  "ChampionOfAnu",
+                  "SerCygnea",
+                  "SirGwayne",
+                  "QueenYsabelle",
+                  "Innkeeper",
+                  "DragonKnight",
+                  "Warhound",
+                  "Peasant",
+                  "Tau",
+                  "ShadowDragon",
+                  "KnightCoronet",
+                  "GriffonKnight",
+                  "WolfKnight",
+                  "LanceKnight"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗蓝色宝石。赋予所有剑锋崖盟友一个随机正面增益状态效果。再召唤一名剑锋崖军队。"
+    },
+    "9210": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetRace": "Monster",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Golem",
+                  "NightTerror",
+                  "MistStalker",
+                  "Owlbear",
+                  "WarSphinx",
+                  "Chimera",
+                  "Behemoth",
+                  "CrimsonBat",
+                  "RockWorm",
+                  "Cockatrice",
+                  "Gorgon",
+                  "Hydra",
+                  "Swamplash",
+                  "Watcher",
+                  "TheGreatMaw",
+                  "SandShark",
+                  "GreenSlime",
+                  "MarshRaptor",
+                  "AnubiteWarrior",
+                  "SettiteWarrior",
+                  "Creeper",
+                  "Manticore",
+                  "EmperorKhorvash",
+                  "KruargTheDread",
+                  "Kraken",
+                  "Mimic",
+                  "GiantToadstool",
+                  "Werewolf",
+                  "Villager",
+                  "BastitePriestess",
+                  "DesertMantis",
+                  "Bogstrider",
+                  "Chupacabra",
+                  "Peryton",
+                  "Myzmer",
+                  "Troglodyte",
+                  "Scavenger",
+                  "Lamprey",
+                  "Mosasaurus",
+                  "Scylla",
+                  "Bulette",
+                  "Scorpius",
+                  "SandScuttler",
+                  "ArachnaeanWeaver",
+                  "IceWorm",
+                  "Glaycion",
+                  "Megavore",
+                  "Pyggra",
+                  "GelatinousCube",
+                  "WatchMother",
+                  "OcularenLeech",
+                  "Ocularen",
+                  "Xerodar",
+                  "Hammerclaw",
+                  "Sandrunner",
+                  "Sharptooth",
+                  "Apophisis",
+                  "Mervorax",
+                  "ChiefDargon",
+                  "Arachnataur",
+                  "Ridgeback",
+                  "Scarabi",
+                  "CrabMan",
+                  "TheWendigo",
+                  "Krampus",
+                  "Dementicore",
+                  "Trihorn",
+                  "TyranAndRex",
+                  "Lasher",
+                  "BlindGuardian",
+                  "Basilisk",
+                  "ManticoreCub",
+                  "ManticoreProtector",
+                  "Doombat",
+                  "MindEater",
+                  "IllithianColossus",
+                  "IllithianServitor",
+                  "HiveMind",
+                  "DesertWorm",
+                  "Ankhnum",
+                  "SnowyOwlbear",
+                  "Pyrohydra",
+                  "Bahir",
+                  "RockSquid",
+                  "Cloakmantle",
+                  "OchreJelly",
+                  "Shoggorath",
+                  "Wereraven",
+                  "Werebat",
+                  "Wereverine",
+                  "TheWerestag",
+                  "Nagatrap",
+                  "Wererat",
+                  "Wereshark",
+                  "Kelpie",
+                  "Sluagh",
+                  "TheFleshHorror",
+                  "VoidWisp",
+                  "Centuragon",
+                  "SulfurSlime",
+                  "HoardMimic",
+                  "LordArchimedus",
+                  "BurningOcularen",
+                  "Medusa",
+                  "ChromiteSphinx",
+                  "ClamLasher",
+                  "LavaWorm",
+                  "Stoneshell",
+                  "SeaScavenger",
+                  "Vulperus",
+                  "Cantur",
+                  "Geryon",
+                  "Grimfeather",
+                  "DeathTrapMimic",
+                  "VoidManticore",
+                  "Eyestalker",
+                  "Hornwing",
+                  "MonstrousSentinel",
+                  "Bloodfang",
+                  "Gynosphinx",
+                  "TawaritePriestess",
+                  "FellHydra",
+                  "CrystalIntellect",
+                  "Ghulemoth",
+                  "Necroshale",
+                  "CryptWorm",
+                  "ShadowBeetle",
+                  "DuskOwlbear",
+                  "BlackOoze",
+                  "OcularenEgg",
+                  "TheCragMaw",
+                  "TheSlimeDragon",
+                  "Mantichoras",
+                  "Gormungandr",
+                  "HorusiteChampion",
+                  "SekhitePriestess",
+                  "DesertOx",
+                  "ForsakenGuardian",
+                  "Voidjaw",
+                  "GloomOcularen",
+                  "GraveWorm",
+                  "ImmortalMaratus",
+                  "TwistedHag",
+                  "SirGeoffreyTheFallen",
+                  "CorruptedCycad",
+                  "CaveMole",
+                  "CannonMimic",
+                  "CaveCrawler"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗棕色宝石。赋予所有怪兽盟友一个随机正面增益状态效果。再召唤一名怪兽军队。"
     },
     "9211": {
       "description": "对首 2 位敌人造成 [魔法 + 5] 点伤害，每锻炼 1 个武器段位则 +2 点伤害值。每有一名蓝色盟友和敌人则创造 2 颗蓝色宝石。若敌方有劫数则获得一个随机正面增益状态效果。 [x2]",
@@ -10031,6 +10821,84 @@
         ]
       }
     },
+    "9305": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Blue"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "冰峰之巅",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Fionnuala",
+                  "FrostSpider",
+                  "Helilya",
+                  "Boudicca",
+                  "Muireann",
+                  "ImmortalGlaycia",
+                  "YetiCub",
+                  "Moonfeather",
+                  "FeyDragoon",
+                  "TheBestialFey",
+                  "DaughterOfTime",
+                  "Rukh",
+                  "TheHighPriestess",
+                  "KingOfRavens",
+                  "Sapphirax",
+                  "Saga",
+                  "IceOrca",
+                  "Grimmoira",
+                  "Ullor",
+                  "Cernunnos",
+                  "Frostfeather",
+                  "DaughterOfIce",
+                  "SnowPanther",
+                  "DoomOfIce",
+                  "Freya",
+                  "FrostArcher",
+                  "Skadi",
+                  "Snow-Hunter",
+                  "FrostLizard",
+                  "SnowGuardian",
+                  "Frostling",
+                  "IceGolem",
+                  "WinterWolf",
+                  "Borealis",
+                  "QueenMab",
+                  "Tassarion",
+                  "Yeti",
+                  "WinterKnight",
+                  "Jackelope",
+                  "SnowSprite"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗蓝色宝石。赋予所有冰峰之巅盟友一个随机正面增益状态效果。再召唤一名冰峰之巅军队。"
+    },
     "9349": {
       "description": "造成 [魔法 + 8] 点散射伤害，伤害值因缠绕宝石数而增强。再创造 8 颗缠绕宝石。 [x8]",
       "metadata": {
@@ -10235,6 +11103,152 @@
     "9505": {
       "description": "对首位 2 名敌人造成 [魔法 + 3] 点伤害，伤害值因恶魔传送门宝石数而增强。创造 2 颗恶魔传送门宝石。 [x3]"
     },
+    "9508": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Yellow"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetRace": "Stryx",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Heronath",
+                  "Owleth",
+                  "Sylph",
+                  "Garuda",
+                  "PrinceAzquila",
+                  "Strygik",
+                  "Stormsinger",
+                  "Taloca",
+                  "WindArcher",
+                  "Ixchel",
+                  "Phoenicia",
+                  "PavosDawnwind",
+                  "Harpy",
+                  "Bladewing",
+                  "HarpyMage",
+                  "QueenXochi",
+                  "CaptainMacaw",
+                  "Finesse",
+                  "Lyriath",
+                  "Zilopochtli",
+                  "Quetzalma",
+                  "HighPriestessChazka",
+                  "Metztli",
+                  "Ostryx",
+                  "Totec",
+                  "KingOfRavens",
+                  "Stormcrow",
+                  "HarpyNightsong",
+                  "Ehecatl",
+                  "Egris",
+                  "SparrowKnight",
+                  "Kukulkan",
+                  "FisherKing",
+                  "CrestedAva",
+                  "Mayahuel",
+                  "Cinereous",
+                  "Cassoryx"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗黄色宝石。赋予所有鸟族盟友一个随机正面增益效果。再召唤一名鸟族军队。"
+    },
+    "9509": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Purple"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "迈纳杰之罪",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "ImmortalZephaar",
+                  "MaidenOfPain",
+                  "FelineOfEnvy",
+                  "BaneOfAmbition",
+                  "TenOfWands",
+                  "ImmortalAbaddon",
+                  "TheBaneOfValor",
+                  "StingBat",
+                  "DarkHerald",
+                  "Eklipsos",
+                  "TheBaneOfMercy",
+                  "WarMachine",
+                  "AnimusOfEnvy",
+                  "Despond",
+                  "AbjectOfDespond",
+                  "MaidOfEnvy",
+                  "TheScourgeOfHonor",
+                  "IndolatorOfSloth",
+                  "GaelSpiritwhisperer",
+                  "EnvoyOfPride",
+                  "BrokerOfGreed",
+                  "Glutmaw",
+                  "QueenOfSin",
+                  "SoldierOfWrath",
+                  "SibylOfLust",
+                  "Lust",
+                  "Wrath",
+                  "Pride",
+                  "Barghast",
+                  "Gluttony",
+                  "Greed",
+                  "Envy",
+                  "Sloth"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗紫色宝石。赋予所有迈纳杰之罪盟友一个随机正面增益效果。再召唤一名迈纳杰之罪军队。"
+    },
     "9523": {
       "prototype": {
         "segments": [
@@ -10409,6 +11423,77 @@
           }
         ]
       }
+    },
+    "9577": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "地狱悬崖",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "Seditius",
+                  "TheTombkeeper",
+                  "Sanguinette",
+                  "Rockraptor",
+                  "TheDarkOracle",
+                  "Skarn",
+                  "Mudwalker",
+                  "ClayFiend",
+                  "ImmortalTerra",
+                  "Goethite",
+                  "Isban",
+                  "Groevanga",
+                  "Ctharrasque",
+                  "DragonstoneGuardian",
+                  "PetrifiedTreant",
+                  "StonePanther",
+                  "TheColossus",
+                  "Morganite",
+                  "StoneMefyt",
+                  "Craghound",
+                  "Petrahulk",
+                  "StoneZombie",
+                  "Adakite",
+                  "Chalcedony",
+                  "Tourmaline",
+                  "Xenith",
+                  "TheTower",
+                  "EternalSentinel",
+                  "Nabassu",
+                  "Czernobog",
+                  "HeraldOfTorpor",
+                  "PetrifiedGolem",
+                  "HellstoneGate"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗棕色宝石。赋予所有地狱悬崖盟友一个随机正面增益效果。再召唤一名地狱悬崖军队。"
     },
     "9579": {
       "description": "对一名敌人造成 [魔法 + 3] 点伤害。每有一个亡灵盟友，则消耗 3 点法力值。 [x3]",
@@ -10793,6 +11878,179 @@
         ]
       }
     },
+    "9628": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Brown"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "卓克祖",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "RhonaBittershield",
+                  "CaveCrawler",
+                  "CaveMole",
+                  "Mrs.Krinkle",
+                  "KhormacTheRestless",
+                  "ForsakenGuardian",
+                  "KingOfRunes",
+                  "Gormungandr",
+                  "DugallRamhorn",
+                  "IcyPortal",
+                  "GhostKingGrimhorn",
+                  "LostWarrior",
+                  "LivingRime",
+                  "Garnetaerlin",
+                  "DhrakSmith",
+                  "FrozenShieldbreaker",
+                  "BoneboundDredge",
+                  "Arcturion",
+                  "MoiraCragheart",
+                  "Kryshound",
+                  "Obsidius",
+                  "BlackfireCannon",
+                  "CursedEffigy",
+                  "DoomOfStone",
+                  "GriffStonefeather",
+                  "FallenValdis",
+                  "KingBloodhammer",
+                  "Glaycion",
+                  "IceTroll",
+                  "Gemhammer",
+                  "Bonebinder",
+                  "IceGoblin",
+                  "SlayerGhost",
+                  "DwarvenZombie",
+                  "IceWorm"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗棕色宝石。赋予所有卓克祖盟友一个随机正面增益效果。再召唤一名卓克祖军队。"
+    },
+    "9754": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetRace": "Wargare",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "WolfKnight",
+                  "Ranger",
+                  "Druid",
+                  "Gnoll",
+                  "Fenrir",
+                  "WildFang",
+                  "Amira",
+                  "SavageHunter",
+                  "Wayfinder",
+                  "Wulfgarok",
+                  "TotemGuardian",
+                  "Spiritdancer",
+                  "SirWulfric",
+                  "ScurvySeadog",
+                  "Tracker",
+                  "BaneJaw",
+                  "Moonsinger",
+                  "UlfrHuntsmaster",
+                  "QueenMoonclaw",
+                  "WargareBrute",
+                  "Persistence",
+                  "VulpineMage",
+                  "Bullygnoll",
+                  "TheLordOfSlaughter",
+                  "FrekiTheWild",
+                  "AncestorBrodir",
+                  "Harper",
+                  "Voidcaller",
+                  "FennecThief",
+                  "FennecMage",
+                  "VulpphireHunter",
+                  "Fenix",
+                  "ToddGreenwood",
+                  "SableSpiritbane",
+                  "Duelist",
+                  "VulpineChampion",
+                  "VulpineWatcher",
+                  "CourtHerald",
+                  "PhantomFox",
+                  "ShadowFox",
+                  "TheFoxfireKing",
+                  "Inari",
+                  "Spirittooth",
+                  "KitTheSly",
+                  "Timberwolf",
+                  "KeeperOfThePaths",
+                  "Aguara",
+                  "SoulSummoner",
+                  "Ragepaw",
+                  "ExiledWargare",
+                  "DragonknightAmira",
+                  "Reavnarokkr",
+                  "Woodseer",
+                  "SpiritOfLuck",
+                  "CourtWitch",
+                  "SpiritcallerLila",
+                  "WulfGheist",
+                  "Kumiko",
+                  "GorrMurktooth",
+                  "Velosia",
+                  "ImmortalKveldulf",
+                  "BokSingefur"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗绿色宝石。赋予所有狼族盟友一个随机正面增益效果。再召唤一名狼族军队。"
+    },
     "9825": {
       "description": "对一名敌人和一名随机敌人造成[魔法 + 3]点伤害，每级回火+2点。如果敌人使用蓝色法力值，则使其流血。如果敌人拥有末日效果，则先破坏其护甲。",
       "prototype": {
@@ -11129,6 +12387,86 @@
         ]
       }
     },
+    "9832": {
+      "prototype": {
+        "segments": [
+          {
+            "kind": "gem",
+            "params": {
+              "op": "clear",
+              "mode": "explode",
+              "target": {
+                "kind": "randomGems",
+                "count": {
+                  "base": 1,
+                  "mult": 1
+                },
+                "include": "color",
+                "color": "Green"
+              }
+            }
+          },
+          {
+            "kind": "randomStatus",
+            "target": "allyAll",
+            "targetKingdom": "齐埃金",
+            "pool": "positive"
+          },
+          {
+            "kind": "summon",
+            "params": {
+              "source": {
+                "randomOf": [
+                  "ImmortalTrogolin",
+                  "LordGobthe",
+                  "CountGobula",
+                  "ZargsBoomPile",
+                  "MokTheCannon-Rider",
+                  "GoblinPickpocket",
+                  "Gloomhob",
+                  "Murk,Lurk,AndDurk",
+                  "BombRider",
+                  "Slughoarder",
+                  "PriestOfNilbog",
+                  "GoblinBomber",
+                  "BrianTheClucky",
+                  "TheFool",
+                  "FaerieGobmother",
+                  "FlamingOni",
+                  "Fundingus",
+                  "Smashedmouth",
+                  "Rogueling",
+                  "Goblette",
+                  "DynamiteGoat",
+                  "Toadsqueezer",
+                  "Stringfiddler",
+                  "HighKingIrongut",
+                  "TurtleCannon",
+                  "Hellcackle",
+                  "Gorbil",
+                  "QueenGrapplepot",
+                  "PrincessFizzbang",
+                  "Scavenger",
+                  "Bugbear",
+                  "GiantToadstool",
+                  "SirSnothelm",
+                  "NobendBrothers",
+                  "GoblinRocket",
+                  "Hobgoblin",
+                  "BrianTheLucky",
+                  "GoblinKing",
+                  "BlackBeast",
+                  "BoarRider",
+                  "GoblinShaman",
+                  "Goblin"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "description": "爆破 [魔法 + 1] 颗绿色宝石。赋予所有齐埃金盟友一个随机正面增益效果。再召唤一名齐埃金军队。"
+    },
     "9835": {
       "description": "爆破 [魔法 + 1] 颗黄色宝石。赋予所有日冕盟友一个随机正面增益效果。再召唤一名日冕军队。",
       "prototype": {
@@ -11159,7 +12497,48 @@
             "kind": "summon",
             "params": {
               "source": {
-                "randomOfKingdom": "日冕"
+                "randomOf": [
+                  "Yohaulticetl",
+                  "Cassoryx",
+                  "Cinereous",
+                  "Mayahuel",
+                  "CrestedAva",
+                  "FisherKing",
+                  "Kukulkan",
+                  "SparrowKnight",
+                  "Egris",
+                  "Ehecatl",
+                  "Stormcrow",
+                  "Rubirath",
+                  "Totec",
+                  "EagleOwl",
+                  "Ostryx",
+                  "Swanmay",
+                  "TheSun",
+                  "Metztli",
+                  "HighPriestessChazka",
+                  "Quetzalma",
+                  "Zilopochtli",
+                  "Lyriath",
+                  "PavosDawnwind",
+                  "HarpyEagle",
+                  "DoomOfLight",
+                  "Phoenicia",
+                  "Ixchel",
+                  "WindArcher",
+                  "Taloca",
+                  "Stormsinger",
+                  "Strygik",
+                  "Sunbird",
+                  "PrinceAzquila",
+                  "Garuda",
+                  "Tezca",
+                  "JaguarWarrior",
+                  "Sylph",
+                  "Owleth",
+                  "Heronath",
+                  "Chupacabra"
+                ]
               }
             }
           }
@@ -11382,7 +12761,8 @@
                   "ToxicPuffer",
                   "TidalDancer",
                   "Balearic",
-                  "Ipanema"
+                  "Ipanema",
+                  "ImmortalThalassa"
                 ]
               }
             }

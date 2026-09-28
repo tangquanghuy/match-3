@@ -8,10 +8,11 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createMix, createSpecialGems, createSpecialGems2, createStorm, destroyColor, destroyRandomCols, destroyRandomGems, dmg, dmgSplash, explodeAt, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, mana, oneOf, reduce, reposition, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, targetedSkill, transform, transformToSpecial, trueDmg, CHOSEN, CELL } from '../builders';
+import { armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createMix, createSpecialGems, createSpecialGems2, createStorm, destroyColor, destroyRandomCols, destroyRandomGems, dmg, dmgSplash, explodeAt, explodeChosenCol, explodeChosenRow, explodeRandomGems, extraTurn, gainGold, heal, inflict, inflictRandom, mana, oneOf, reduce, reposition, shuffleTeam, skill, summonRandom, targetedSkill, transform, transformToSpecial, trueDmg, CHOSEN, CELL } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
+import { rawKingdomPool } from './gowKingdomPools';
 
 const SKIPPED: { id: number; reason: string }[] = [];
 
@@ -210,7 +211,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
       inflictRandom('allyAll', { targetKingdom: '卜筮之原', pool: 'positive' }),
-      summonRandomOfKingdom('卜筮之原', undefined),
+      summonRandom(rawKingdomPool(3028), undefined) /* native SummoningKingdom 3028 (zh '卜筮之原' adds faction troops) */,
     ),
   },
   {
@@ -288,7 +289,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '狂野平原', pool: 'positive' }),
-      summonRandomOfKingdom('狂野平原', undefined),
+      summonRandom(rawKingdomPool(3027), undefined) /* native SummoningKingdom 3027 (zh '狂野平原' adds faction troops) */,
     ),
   },
   {
@@ -332,7 +333,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '冰峰之巅', pool: 'positive' }),
-      summonRandomOfKingdom('冰峰之巅', undefined),
+      summonRandom(rawKingdomPool(3011), undefined) /* native SummoningKingdom 3011 (zh '冰峰之巅' adds faction troops) */,
     ),
   },
   {
@@ -357,7 +358,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
       inflictRandom('allyAll', { targetKingdom: '破碎尖塔', pool: 'positive' }),
-      summonRandomOfKingdom('破碎尖塔', undefined),
+      summonRandom(rawKingdomPool(3000), undefined), // native SummoningKingdom 3000 (raw ids; zh name adds faction troops)
     ),
   },
   {
@@ -366,7 +367,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Red),
       inflictRandom('allyAll', { targetKingdom: '葛洛什奈克', pool: 'positive' }),
-      summonRandomOfKingdom('葛洛什奈克', undefined),
+      summonRandom(rawKingdomPool(3018), undefined), // native SummoningKingdomNoError 3018 (raw ids; zh name adds Dripping Caverns 3058 etc.)
     ),
   },
   {
@@ -375,7 +376,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetKingdom: '卡拉考斯', pool: 'positive' }),
-      summonRandomOfKingdom('卡拉考斯', undefined),
+      summonRandom(rawKingdomPool(3017), undefined), // native SummoningKingdom 3017 (raw ids; zh name adds faction troops)
     ),
   },
   {
@@ -419,10 +420,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8529,
-    desc: '摧毁 [魔法 + 1] 颗敌人队伍使用对多的颜色宝石。召唤一名随机滴答洞穴军队。',
+    desc: '摧毁 [魔法 + 1] 颗敌人队伍使用最多的颜色宝石。召唤一名随机滴答洞穴军队。',
     build: skill(
       destroyRandomGems(1, 1, 'color', 'ENEMY_MOST_USED'),
-      summonRandomOfKingdom('葛洛什奈克', undefined),
+      summonRandom(rawKingdomPool(3058), undefined), // native SummoningKingdom 3058 Dripping Caverns (zh name = parent Grosh-Nak)
     ),
   },
   {
@@ -511,7 +512,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8622,
-    desc: '爆炸[魔法 + 1]枚黄色宝石。赋予所有冥河盟友一个随机状态效果。然后召唤一支猎鹰军团。',
+    desc: '爆破 [魔法 + 1] 颗黄色宝石。赋予所有鸟族盟友一个随机正面增益效果。再召唤一名鸟族军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
       inflictRandom('allyAll', { targetRace: 'Stryx', pool: 'positive' }),
@@ -618,7 +619,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8670,
     desc: '爆破 [魔法 + 1] 颗紫色宝石。赋予所有玉银林地盟友一个随机正面增益效果。再召唤一名玉银林地军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Purple"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetKingdom":"玉银林地"},{"kind":"summon","params":{"source":{"randomOfKingdom":"玉银林地"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Purple"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetKingdom":"玉银林地"},{"kind":"summon","params":{"source":{"randomOf":rawKingdomPool(3009)}}}]} as SkillPrototype),
   },
   {
     id: 8680,
@@ -707,7 +708,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetKingdom: '盖塔尔', pool: 'positive' }),
-      summonRandomOfKingdom('盖塔尔', undefined),
+      summonRandom(rawKingdomPool(3020), undefined) /* native SummoningKingdom 3020 (zh '盖塔尔' adds faction troops) */,
     ),
   },
   {
@@ -738,7 +739,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Yellow),
       inflictRandom('allyAll', { targetKingdom: '阿达纳', pool: 'positive' }),
-      summonRandomOfKingdom('阿达纳', undefined),
+      summonRandom(rawKingdomPool(3001), undefined) /* native SummoningKingdom 3001 (zh '阿达纳' adds faction troops) */,
     ),
   },
   {
@@ -829,7 +830,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '潘神之谷', pool: 'positive' }),
-      summonRandomOfKingdom('潘神之谷', undefined),
+      summonRandom(rawKingdomPool(3003), undefined) /* native SummoningKingdom 3003 (zh '潘神之谷' adds faction troops) */,
     ),
   },
   {
@@ -838,7 +839,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '剑锋崖', pool: 'positive' }),
-      summonRandomOfKingdom('剑锋崖', undefined),
+      summonRandom(rawKingdomPool(3006), undefined) /* native SummoningKingdom 3006 (zh '剑锋崖' adds faction troops) */,
     ),
   },
   {
@@ -868,11 +869,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8770,
     desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有巨人盟友一个随机正面增益效果。再召唤一名巨人军队。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Blue"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Giant"},{"kind":"summon","params":{"source":{"randomOf":["Ogre","Ettin","StoneGiant","FrostGiant","Berserker","JarlFiremantle","Elf-Eater","Cyclops","Zephyros","Gob-Chomper","SeaTroll","DragonCruncher","RockTroll","DarkTroll","GogAndGud","JotnarStormshield","Ogryn","DesertTroll","ForestTroll","FireGiant","MonsterMuncher","FlameTroll","SkrymirTheLofty","HyndlaFrostcrown","IceTroll","Igneus","HalfgrimHalf-Giant","Sledgepaw","LavaTroll","Stone-Biter","CorruptTroll","Fomorian","FrostfireTroll","CrazedTroll","OgrakShaman","Bone-Biter","IllithianColossus","Smashedmouth","StormKnight","FlameMaiden","Kharybdis","Ogress","Baldr","VidarrTheVast","IcespireShaman","DarkForestTroll","TheOnyxGiant","TheSapphireGiant","TheEmeraldGiant","TheRubyGiant","TheAmethystGiant","TheTopazGiant","TheUmbralGiant","TheGraveGiant","Ogretaur","GiantSentinel","EarthGiant","Jordrin","Kolfrysti","Jarnvisa","GhostOgre","MazeCyclops","GrimbornBloodeye","HeldrTheGrave","Polymetis","SteamTroll","ScoriaGiant-born","VenomousTroll","LavaEttin","AbominableTroll","StormOracle","ToxAndSion","StormGuard","AsbjornTheMountain"]}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":1},"include":"color","color":"Blue"}}},{"kind":"randomStatus","pool":"positive","target":"allyAll","targetRace":"Giant"},{"kind":"summon","params":{"source":{"randomOf":["Ogre","Ettin","StoneGiant","FrostGiant","Berserker","JarlFiremantle","Elf-Eater","Cyclops","Zephyros","Gob-Chomper","SeaTroll","DragonCruncher","RockTroll","DarkTroll","GogAndGud","JotnarStormshield","Ogryn","DesertTroll","ForestTroll","FireGiant","MonsterMuncher","FlameTroll","SkrymirTheLofty","HyndlaFrostcrown","IceTroll","Igneus","HalfgrimHalf-Giant","Sledgepaw","LavaTroll","Stone-Biter","CorruptTroll","Fomorian","FrostfireTroll","CrazedTroll","OgrakShaman","Bone-Biter","IllithianColossus","Smashedmouth","StormKnight","FlameMaiden","Kharybdis","Ogress","Baldr","VidarrTheVast","IcespireShaman","DarkForestTroll","TheOnyxGiant","TheSapphireGiant","TheEmeraldGiant","TheRubyGiant","TheAmethystGiant","TheTopazGiant","TheUmbralGiant","TheGraveGiant","Ogretaur","GiantSentinel","EarthGiant","Jordrin","Kolfrysti","Jarnvisa","GhostOgre","MazeCyclops","GrimbornBloodeye","HeldrTheGrave","Polymetis","SteamTroll","ScoriaGiant-born","VenomousTroll","LavaEttin","AbominableTroll","StormOracle","ToxAndSion","StormGuard","AsbjornTheMountain","ImmortalGirthrok"]}}}]} as SkillPrototype),
   },
   {
     id: 8771,
-    desc: '爆破[魔法 + 1]颗蓝色宝石。给予所有罗格盟友一个随机状态效果。然后召唤一支罗格部队。',
+    desc: '爆破 [魔法 + 1] 颗蓝色宝石。赋予所有盗贼盟友一个随机正面增益效果。再召唤一名盗贼军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetRace: 'Rogue', pool: 'positive' }),
@@ -973,7 +974,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [魔法 + 1] 颗宝石。再召唤一名黑曜石深渊军队。',
     build: skill(
       explodeRandomGems(1, 1, 'color'),
-      summonRandomOfKingdom('地狱悬崖', undefined),
+      summonRandom(rawKingdomPool(3083), undefined) /* native SummoningKingdom 3083 (zh '地狱悬崖' adds faction troops) */,
     ),
   },
   {
@@ -1081,7 +1082,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Purple),
       inflictRandom('allyAll', { targetKingdom: '迈纳杰之罪', pool: 'positive' }),
-      summonRandomOfKingdom('迈纳杰之罪', undefined),
+      summonRandom(rawKingdomPool(3037), undefined) /* native SummoningKingdom 3037 (zh '迈纳杰之罪' adds faction troops) */,
     ),
   },
   {
@@ -1133,7 +1134,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Green),
       inflictRandom('allyAll', { targetKingdom: '荆棘森林', pool: 'positive' }),
-      summonRandomOfKingdom('荆棘森林', undefined),
+      summonRandom(rawKingdomPool(3015), undefined) /* native SummoningKingdom 3015 (zh '荆棘森林' adds faction troops) */,
     ),
   },
   {
@@ -1188,7 +1189,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetKingdom: '厄什卡亚', pool: 'positive' }),
-      summonRandomOfKingdom('厄什卡亚', undefined),
+      summonRandom(rawKingdomPool(3010), undefined) /* native SummoningKingdom 3010 (zh '厄什卡亚' adds faction troops) */,
     ),
   },
   {
@@ -1352,7 +1353,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetKingdom: '诺斯', pool: 'positive' }),
-      summonRandomOfKingdom('诺斯', undefined),
+      summonRandom(rawKingdomPool(3080), undefined) /* native SummoningKingdom 3080 (zh '诺斯' adds faction troops) */,
     ),
   },
   {
@@ -1370,7 +1371,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Blue),
       inflictRandom('allyAll', { targetKingdom: '梅兰堤斯', pool: 'positive' }),
-      summonRandomOfKingdom('梅兰堤斯', undefined),
+      summonRandom(rawKingdomPool(3036), undefined) /* native SummoningKingdom 3036 (zh '梅兰堤斯' adds faction troops) */,
     ),
   },
   {
@@ -1419,7 +1420,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeRandomGems(1, 1, 'color', BaseColor.Brown),
       inflictRandom('allyAll', { targetKingdom: '聚沙之地', pool: 'positive' }),
-      summonRandomOfKingdom('聚沙之地', undefined),
+      summonRandom(rawKingdomPool(3024), undefined) /* native SummoningKingdom 3024 (zh '聚沙之地' adds faction troops) */,
     ),
   },
   {

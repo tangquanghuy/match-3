@@ -33,7 +33,7 @@ const GOBLINS = [
   'FaerieGobmother', 'GoblinBomber', 'KoboldEmissary', 'PriestOfNilbog', 'FrostfireGoblin',
   'Slughoarder', 'BombRider', 'CinderhandGoblin', 'Gloomhob',
   'KoboldThief', 'GoblinPickpocket', 'MokTheCannon-Rider', 'Skulker', 'ZargsBoomPile',
-  'CountGobula', 'LordGobthe', 'ImmortalTrogolin',
+  'CountGobula', 'LordGobthe', 'ImmortalTrogolin', 'Murk,Lurk,AndDurk', // + raw TroopType Goblin (sa-E L1)
 ];
 
 const SKIPPED: { id: number; reason: string }[] = [

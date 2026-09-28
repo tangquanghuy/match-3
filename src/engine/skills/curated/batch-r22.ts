@@ -1119,7 +1119,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「3-10 点法力值」= rangeSpec（R22 新原语）；四选一召唤 = summonRandom（官方四变体随机）。
     build: skill(
     mana('allyOthers', 0, 0, { rangeSpec: { min: flat(3), max: flat(10) } }),
-    summonRandom(['Ragnagord', 'NUTCRKR-1225', 'Tannenbaum', 'KrisKrinkle']),
+    // native Randomize A+(B-C-D-E-F): B and F both summon 6105 Ragnagord -> Ragnagord 2/5, the others 1/5 each (sa-E L1)
+      summonRandom(['Ragnagord', 'NUTCRKR-1225', 'Tannenbaum', 'KrisKrinkle', 'Ragnagord']),
     ),
   },
   {

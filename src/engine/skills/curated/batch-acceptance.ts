@@ -24,7 +24,8 @@ export const BATCH_ACCEPTANCE: CuratedBatch = {
       dmgSplash('enemyRandom', 2, 1, { splashRatio: 0.75 }),
     )) },
     { id: 7810, desc: '爆破 4 颗敌军法力颜色的宝石。有 20% 的几率吞噬敌军。', build: skill(
-      explodeRandomGems(4, 0, 'color', 'TRACKED_ENEMY'), devour('lastTarget', { chance: 0.2 }),
+      // native Target Enemy: ExplodeColor FromTarget + Consume@FromTarget = the chosen enemy (sa-E L1; was a random enemy)
+      explodeRandomGems(4, 0, 'color', 'CHOSEN_TARGET'), devour('enemyChosen', { chance: 0.2 }),
     ) },
     // sa-R5 L1-6808: native Randomize AB-CD-EF = (Damage + Submerge) | (TransformType daemon + TroopOrderBack) |
     // (Consume); the damage belongs to the first branch only (was dealt before every branch).

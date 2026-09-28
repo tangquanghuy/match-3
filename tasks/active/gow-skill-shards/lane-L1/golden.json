@@ -79,6 +79,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:29:52.740Z"
  },
+ "troop:6170": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:6183  => A14:new 炼狱之王 hp24 atk19 arm15 mag13 | A2:mana+10 | E10:arm-4  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:6183  => A14:new 炼狱之王 hp24 atk19 arm15 mag13 | A2:mana+10 | E10:arm-4  cascade",
+   "L0": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:6183  => A14:new 炼狱之王 hp24 atk19 arm15 mag13 | A2:mana+10 | E10:arm-4  cascade",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:6183  => A14:new 炼狱之王 hp24 atk19 arm15 mag13 | A2:mana+10 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
+ },
  "troop:6173": {
   "lines": {
    "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
@@ -188,6 +198,16 @@
   },
   "by": "sa-E",
   "at": "2026-09-28T11:09:02.647Z"
+ },
+ "troop:6277": {
+  "lines": {
+   "L10": "explode 41 ; skulls E10 3 ; ~cascade~  => A1:mana+4 | A2:mana+8 | E10:arm-3  cascade",
+   "R10": "explode 41 ; skulls E10 3 ; ~cascade~  => A1:mana+4 | A2:mana+8 | E10:arm-3  cascade",
+   "L0": "explode 41 ; skulls E10 3 ; ~cascade~  => A1:mana+4 | A2:mana+8 | E10:arm-3  cascade",
+   "K": "explode 41 ; skulls E10 3 ; defeat E10 ; ~cascade~  => A1:mana+4 | A2:mana+8 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "troop:6279": {
   "lines": {
@@ -318,6 +338,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
+ },
+ "troop:6381": {
+  "lines": {
+   "L10": "explode 38 ; skulls E10 3  => A2:mana+2 | A1:mana+4 | E10:arm-3",
+   "R10": "explode 38 ; skulls E10 3  => A2:mana+2 | A1:mana+4 | E10:arm-3",
+   "L0": "explode 38 ; skulls E10 3  => A2:mana+2 | A1:mana+4 | E10:arm-3",
+   "K": "explode 38 ; skulls E10 3 ; defeat E10  => A2:mana+2 | A1:mana+4 | E10:hp-1 DEAD"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "troop:6397": {
   "lines": {
@@ -509,6 +539,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
  },
+ "troop:6596": {
+  "lines": {
+   "L10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => A2:mana+3",
+   "R10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => A2:mana+3",
+   "L0": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => A2:mana+3",
+   "K": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => A2:mana+3"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T11:55:26.875Z"
+ },
+ "troop:6601": {
+  "lines": {
+   "L10": "explode 27 ; skulls E10 2  => A2:mana+4 | E10:arm-2",
+   "R10": "explode 27 ; skulls E10 2  => A2:mana+4 | E10:arm-2",
+   "L0": "explode 27 ; skulls E10 2  => A2:mana+4 | E10:arm-2",
+   "K": "explode 27 ; skulls E10 2 ; defeat E10  => A2:mana+3 | E10:hp-1 DEAD"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T11:55:26.875Z"
+ },
  "troop:6605": {
   "lines": {
    "L10": "status E11 +charm  => E11:+charm",
@@ -539,6 +589,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:53:48.435Z"
  },
+ "troop:6631": {
+  "lines": {
+   "L10": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; ~cascade~ ; status E10 +burning ; summon mine troop:-1  => A14:new 暴民 hp35 atk11 arm5 mag6 | A2:mana+2 | E10:arm-1 +burning  cascade",
+   "R10": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; ~cascade~ ; status E10 +burning ; summon mine troop:-1  => A14:new 暴民 hp35 atk11 arm5 mag6 | A2:mana+2 | E10:arm-1 +burning  cascade",
+   "L0": "destroy 1 (Green x1) ; status E13 +burning ; dmg E10 1  => E13:+burning | E10:arm-1",
+   "K": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; defeat E10 ; ~cascade~ ; status E11 +burning ; summon mine troop:-1  => A14:new 暴民 hp35 atk11 arm5 mag6 | A2:mana+2 | E10:hp-1 DEAD | E11:+burning  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T11:55:26.875Z"
+ },
  "troop:6647": {
   "lines": {
    "L10": "dmg E11 14 ; status E12 +charm  => E11:hp-4 arm-10 | E12:+charm",
@@ -568,6 +628,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
+ },
+ "troop:6656": {
+  "lines": {
+   "L10": "explode 37 ; skulls E10 3 ; move E10 back ; move E13 front  => A2:mana+4 | A1:mana+3 | E10:arm-3",
+   "R10": "explode 37 ; skulls E10 3 ; move E10 back ; move E13 front  => A2:mana+4 | A1:mana+3 | E10:arm-3",
+   "L0": "explode 6 ; move E10 back ; move E13 front",
+   "K": "explode 37 ; skulls E10 3 ; defeat E10 ; move E11 back ; move E13 front  => A2:mana+4 | A1:mana+3 | E10:hp-1 DEAD"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "troop:6657": {
   "lines": {
@@ -719,6 +789,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
  },
+ "troop:6828": {
+  "lines": {
+   "L10": "explode 38 ; skulls E10 2 ; status C +rage  => A2:mana+6 | A1:mana+3 | E10:arm-2 | C:+rage",
+   "R10": "explode 38 ; skulls E10 2 ; status C +rage  => A2:mana+6 | A1:mana+3 | E10:arm-2 | C:+rage",
+   "L0": "explode 9 ; status C +rage  => A2:mana+1 | A1:mana+1 | C:+rage",
+   "K": "explode 38 ; skulls E10 2 ; defeat E10 ; status C +rage  => A2:mana+6 | A1:mana+3 | E10:hp-1 DEAD | C:+rage"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
+ },
  "troop:6829": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -858,6 +938,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:58:11.265Z"
+ },
+ "troop:6971": {
+  "lines": {
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn skill  => A14:new 爆毒菌 hp28 atk15 arm11 mag5 | A2:mana+7 | A1:mana+5 | E10:arm-3  extra:skill  cascade",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn skill  => A14:new 爆毒菌 hp28 atk15 arm11 mag5 | A2:mana+7 | A1:mana+5 | E10:arm-3  extra:skill  cascade",
+   "L0": "explode 6 ; summon mine troop:-1 ; extra-turn skill  => A14:new 爆毒菌 hp28 atk15 arm11 mag5  extra:skill",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn skill  => A14:new 爆毒菌 hp28 atk15 arm11 mag5 | A2:mana+7 | A1:mana+5 | E10:hp-1 DEAD  extra:skill  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "troop:6994": {
   "lines": {
@@ -1289,6 +1379,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:42:25.119Z"
  },
+ "troop:7491": {
+  "lines": {
+   "L10": "destroy 8 (Purple x3, Red x3, Green x2)",
+   "R10": "destroy 8 (Purple x3, Red x3, Green x2)",
+   "L0": "destroy 8 (Purple x3, Red x3, Green x2)",
+   "K": "destroy 8 (Purple x3, Red x3, Green x2)"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T11:55:26.875Z"
+ },
  "troop:7510": {
   "lines": {
    "L10": "dmg E12 13 ; status E12 +poison ; dmg E11 13 ; status E11 +poison  => E12:hp-1 arm-12 +poison | E11:hp-3 arm-10 +poison",
@@ -1318,6 +1418,16 @@
   },
   "by": "sa-E",
   "at": "2026-09-28T11:09:05.003Z"
+ },
+ "troop:7554": {
+  "lines": {
+   "L10": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 荒芜猎犬 hp28 atk15 arm11 mag10 | E10:arm-1",
+   "R10": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 荒芜猎犬 hp28 atk15 arm11 mag10 | E10:arm-1",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 荒芜猎犬 hp28 atk15 arm11 mag10 | E10:arm-1",
+   "K": "explode 9 ; skulls E10 1 ; defeat E10 ; summon mine troop:-1  => A14:new 荒芜猎犬 hp28 atk15 arm11 mag10 | E10:hp-1 DEAD"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "troop:7569": {
   "lines": {
@@ -1509,6 +1619,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:13:09.865Z"
  },
+ "weapon:1157": {
+  "lines": {
+   "L10": "destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; transform E13 -> 幼龙  => A2:mana+1 | E13:now 幼龙",
+   "R10": "destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; transform E13 -> 幼龙  => A2:mana+1 | E13:now 幼龙",
+   "L0": "destroy 1 (Green x1) ; transform E13 -> 幼龙  => E13:now 幼龙",
+   "K": "destroy 6 (Green x2, Purple x2, Brown x1, Red x1) ; transform E13 -> 幼龙  => A2:mana+1 | E13:now 幼龙"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T11:55:26.875Z"
+ },
  "weapon:1213": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -1518,6 +1638,16 @@
   },
   "by": "sa-E",
   "at": "2026-09-28T11:17:08.834Z"
+ },
+ "weapon:1222": {
+  "lines": {
+   "L10": "explode 40 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:arm-3 | A1:mana+3  extra:match  cascade",
+   "R10": "explode 40 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:arm-3 | A1:mana+3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 奥眼能 hp22 atk19 arm9 mag11 | A2:mana+1 | E10:arm-1",
+   "K": "explode 40 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:hp-1 DEAD | A1:mana+3  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "weapon:1238": {
   "lines": {
@@ -1569,6 +1699,56 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
  },
+ "weapon:1354": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 熔浆蝎子 hp20 atk16 arm9 mag10",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1375": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 大审查官 hp22 atk17 arm13 mag8 | A1:mana+4 | A2:mana+8 | E10:arm-3  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 大审查官 hp22 atk17 arm13 mag8 | A1:mana+4 | A2:mana+8 | E10:arm-3  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 幽莱雅莉 hp26 atk21 arm17 mag8 | E10:arm-1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 大审查官 hp22 atk17 arm13 mag8 | A1:mana+4 | A2:mana+8 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1386": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 鬼牙 hp14 atk12 arm10 mag10 | A2:mana+1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1392": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 赤箭 hp16 atk19 arm12 mag10 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1393": {
+  "lines": {
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 僵尸山羊 hp26 atk15 arm7 mag10 | A2:mana+10 | E10:arm-3  cascade",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 僵尸山羊 hp26 atk15 arm7 mag10 | A2:mana+10 | E10:arm-3  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 坠落萨梯 hp16 atk13 arm20 mag0",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 僵尸山羊 hp26 atk15 arm7 mag10 | A2:mana+10 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:07:52.285Z"
+ },
  "weapon:1394": {
   "lines": {
    "L10": "dmg E13 14 ; summon mine troop:-1  => A14:new 科博法师 hp22 atk17 arm13 mag13 | E13:hp-11 arm-3",
@@ -1578,6 +1758,136 @@
   },
   "by": "sa-E",
   "at": "2026-09-28T11:09:02.647Z"
+ },
+ "weapon:1401": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 哨兵机器人 hp10 atk9 arm21 mag7 | A2:mana+1 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1406": {
+  "lines": {
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿拉丁 hp16 atk22 arm25 mag5 | A2:mana+10 | A1:mana+5 | E10:arm-3  cascade",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿拉丁 hp16 atk22 arm25 mag5 | A2:mana+10 | A1:mana+5 | E10:arm-3  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 蛇塔里法师 hp21 atk13 arm22 mag12",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿拉丁 hp16 atk22 arm25 mag5 | A2:mana+10 | A1:mana+5 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1414": {
+  "lines": {
+   "L10": "destroy 9 (Yellow x9) ; ~cascade~ ; summon mine troop:-1  => A14:new 赭石胶怪 hp26 atk17 arm9 mag0 | A2:mana+9  cascade",
+   "R10": "destroy 9 (Yellow x9) ; ~cascade~ ; summon mine troop:-1  => A14:new 赭石胶怪 hp26 atk17 arm9 mag0 | A2:mana+9  cascade",
+   "L0": "destroy 1 (Yellow x1) ; summon mine troop:-1  => A14:new 披风皮怪 hp25 atk15 arm8 mag10 | A2:mana+1",
+   "K": "destroy 11 (Green x11) ; summon mine troop:-1  => A14:new 黑色软泥 hp21 atk13 arm22 mag12"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T11:55:26.875Z"
+ },
+ "weapon:1416": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 飞天公羊 hp24 atk16 arm5 mag12",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1424": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 拾荒怪 hp25 atk11 arm9 mag9 | A2:mana+1 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1425": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿兹魁拉王子 hp19 atk15 arm21 mag8 | A1:mana+4 | A2:mana+4 | E10:arm-3  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿兹魁拉王子 hp19 atk15 arm21 mag8 | A1:mana+4 | A2:mana+4 | E10:arm-3  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 伊希切尔 hp24 atk17 arm11 mag12 | E10:arm-1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿兹魁拉王子 hp19 atk15 arm21 mag8 | A1:mana+4 | A2:mana+4 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1448": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 哥布林轰炸机 hp24 atk15 arm9 mag0",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1450": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 坚持 hp20 atk13 arm7 mag11 | A2:mana+1 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1462": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 夜箭 hp16 atk16 arm7 mag10",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:07:52.285Z"
+ },
+ "weapon:1463": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 易多拉斯王子 hp17 atk17 arm19 mag11",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:07:52.285Z"
+ },
+ "weapon:1469": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 森林巨魔 hp28 atk15 arm11 mag0",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1470": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 髅须船长 hp19 atk19 arm13 mag6 | A2:mana+1",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1484": {
+  "lines": {
+   "L10": "explode 57 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑曜石龙 hp28 atk21 arm8 mag12 | A2:mana+11 | A1:mana+8 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 57 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑曜石龙 hp28 atk21 arm8 mag12 | A2:mana+11 | A1:mana+8 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 黑曜石龙 hp28 atk21 arm8 mag12 | A1:mana+1 | A2:mana+1",
+   "K": "explode 57 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑曜石龙 hp28 atk21 arm8 mag12 | A2:mana+11 | A1:mana+8 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:23:44.032Z"
  },
  "weapon:1486": {
   "lines": {
@@ -1589,6 +1899,136 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:58:11.265Z"
  },
+ "weapon:1492": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 大审查官 hp22 atk17 arm13 mag8",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1493": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 痘痘兔 hp20 atk14 arm7 mag10",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
+ },
+ "weapon:1495": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 欧格林 hp12 atk14 arm9 mag12 | A2:mana+1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; status A14 +rage  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1496": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 矮人丧尸 hp16 atk14 arm11 mag9 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 矮人丧尸 hp16 atk14 arm11 mag9 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 高炉国王 hp30 atk17 arm13 mag10 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; buff A14 hp+4  => A14:new 矮人丧尸 hp20 atk14 arm11 mag9 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1510": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 树亲 hp14 atk12 arm16 mag7",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1512": {
+  "lines": {
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 短剑 hp16 atk22 arm25 mag5 | A2:mana+6 | E10:arm-3  cascade",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 短剑 hp16 atk22 arm25 mag5 | A2:mana+6 | E10:arm-3  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 钴蓝地龙 hp24 atk16 arm5 mag12",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 短剑 hp16 atk22 arm25 mag5 | A2:mana+6 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1533": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 哥布林轰炸机 hp24 atk15 arm9 mag0",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1535": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 梦魇马 hp15 atk14 arm5 mag0 | A1:mana+1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1551": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 森林巨魔 hp28 atk15 arm11 mag0 | A2:mana+1 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Brown set  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1555": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 赤箭 hp16 atk19 arm12 mag10 | A2:mana+1 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1558": {
+  "lines": {
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 拾荒怪 hp25 atk11 arm9 mag9 | E10:arm-1",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:11:07.326Z"
+ },
+ "weapon:1575": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 痘痘兔 hp20 atk14 arm7 mag10",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1579": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 神狮鬃 hp24 atk15 arm9 mag6 | A1:mana+1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
  "weapon:1602": {
   "lines": {
    "L10": "convert Green x1, Purple x1, skull x1, Red x1 -> dragonGem/Blue x4",
@@ -1598,5 +2038,45 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:57:25.574Z"
+ },
+ "weapon:1616": {
+  "lines": {
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿兹魁拉王子 hp19 atk15 arm21 mag8 | A2:mana+10 | E10:arm-3  cascade",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿兹魁拉王子 hp19 atk15 arm21 mag8 | A2:mana+10 | E10:arm-3  cascade",
+   "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 伊希切尔 hp24 atk17 arm11 mag12 | E10:arm-1",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 阿兹魁拉王子 hp19 atk15 arm21 mag8 | A2:mana+10 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1619": {
+  "lines": {
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 半人马长老 hp16 atk13 arm20 mag4 | A2:mana+6 | A1:mana+5 | E10:arm-3  cascade",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1  => A14:new 半人马长老 hp16 atk13 arm20 mag4 | A2:mana+6 | A1:mana+5 | E10:arm-3  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 卡塔里国王 hp30 atk15 arm17 mag19",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1  => A14:new 半人马长老 hp16 atk13 arm20 mag4 | A2:mana+6 | A1:mana+5 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1665": {
+  "lines": {
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 6 ; summon mine troop:-1  => A14:new 狐族幽灵 hp24 atk15 arm9 mag4",
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:14:27.201Z"
+ },
+ "weapon:1692": {
+  "lines": {
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L0": "explode 9 ; summon mine troop:-1  => A14:new 水神昂汀 hp30 atk16 arm23 mag9 | A2:mana+1",
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+  },
+  "by": "sa-E",
+  "at": "2026-09-28T12:19:06.870Z"
  }
 }

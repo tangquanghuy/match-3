@@ -196,3 +196,170 @@ describe('L1-E B02 troop:7111 Oneiros (8654): Nightmare x3 at 100/50/25%', () =>
     expect(d[3]).toBeGreaterThan(25); expect(d[3]).toBeLessThan(80);
   });
 });
+
+// ---------------------------------------------------------------- B03
+const fled = (ev: GameEvent[]) => ev.filter(e => e.type === 'flee') as { characterId: number }[];
+describe('L1-E B03 RunAway@Self 30%: troop:7491 Valhawk (random column), troop:6596 Glory Gnome (chosen row)', () => {
+  for (const key of ['troop:7491', 'troop:6596']) it(`${key}: caster flees ~30% over 300 seeds`, () => {
+    let n = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const f = fled(castSpell({ key, seed }).events);
+      if (f.length) { n++; expect(f).toEqual([expect.objectContaining({ characterId: 0 })]); }
+    }
+    expect(n).toBeGreaterThan(60); expect(n).toBeLessThan(120);
+  });
+  it('Glory Gnome (native Target Board, BoardTarget Row) destroys the chosen row: 8 gems in row 5', () => {
+    const r = castSpell({ key: 'troop:6596', cell: { row: 5, col: 0 } });
+    expect(r.summary.gems.destroyed).toBe(8);
+    expect(registry.prototypes.get('7818')).toMatchObject({ segments: [{ params: { target: { kind: 'chosenLine', orientation: 'row' } } }, {}] });
+  });
+});
+
+describe('L1-E B03 troop:6631 Angry Mob (7956): Randomize ABC-DEF', () => {
+  it('always destroy + burn; then exactly one of (Angry Mob summon | Magic+1 = 11 to the first enemy), ~50/50', () => {
+    let s = 0, d = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const r = castSpell({ key: 'troop:6631', seed, allies: [] });
+      const sm = summons(r.events), hit = dmgTo(r.events, 10);
+      expect(r.summary.order.filter(x => x.includes('+burning'))).toHaveLength(1);
+      if (sm.length) { s++; expect(sm).toHaveLength(1); expect(r.summary.units[`A${sm[0].characterId}`]).toContain(`new ${nameOfRef('AngryMob')} `); expect(r.summary.order.some(x => x.startsWith('dmg '))).toBe(false); }
+      else { d++; expect(hit.at(-1)).toBe(11); }
+    }
+    expect(s).toBeGreaterThan(70); expect(d).toBeGreaterThan(70);
+  });
+});
+
+describe('L1-E B03 troop:6601 Gluttony (7810): native Target Enemy -> explode the chosen enemy colour, 20% devour it', () => {
+  const devoured = (ev: GameEvent[]) => ev.filter(e => e.type === 'skill-damage' && (e as { devoured?: boolean }).devoured).map(e => (e as { targetId: number }).targetId);
+  it('devour only ever hits the chosen target, ~20% over 300 seeds', () => {
+    let n = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const v = devoured(castSpell({ key: 'troop:6601', seed, target: 12, enemies: oneHp() }).events);
+      if (v.length) { n++; expect(v).toEqual([12]); }
+    }
+    expect(n).toBeGreaterThan(35); expect(n).toBeLessThan(90);
+  });
+  it('colour comes from the chosen enemy: Purple-only E12 on a board without Purple explodes nothing; Red E10 explodes', () => {
+    expect(castSpell({ key: 'troop:6601', target: 12, board: redRich }).summary.gems.exploded).toBe(0);
+    expect(castSpell({ key: 'troop:6601', target: 10, board: redRich }).summary.gems.exploded).toBeGreaterThan(0);
+  });
+});
+
+describe('L1-E B03 SummoningKingdom <id>: pools = raw KingdomId roster (zh kingdom name also merges faction troops)', () => {
+  const cases: [string, number][] = [['gw_JellyShot', 3058], ['gw_CobaltineWand', 3030], ['gw_FireGodsHeart', 3000], ['gw_King-Chopper', 3018], ['gw_OldMagusStaff', 3017], ['gw_EmeraldBlade', 3009]];
+  // B04: the rest of the "Grant ... all <Kingdom> Allies. Then summon a <Kingdom> Troop." weapon family (+ 8460 Emperinazara).
+  cases.push(['gw_DaisysCudgel', 3003], ['gw_FlailOfGaard', 3006], ['gw_ThornOfTheGods', 3015], ['gw_RuthlessDefense', 3010], ['gw_ElementalFury', 3080],
+    ['gw_ThreeGraves', 3036], ['gw_EmeraldBaton', 3024], ['gw_WatchersBlade', 3029], ['gw_FoxFang', 3084], ['gw_KingCrusher', 3006], ['8460', 3051],
+    // B05
+    ['gw_ChampionsCleaver', 3022], ['gw_LionsReach', 3025], ['gw_ShieldOfVengeance', 3014], ['gw_Moonshard', 3011], ['gw_Bonecutter', 3020],
+    ['gw_BloodcrystalBlade', 3037], ['gw_GodsBloodRuby', 3082], ['gw_Stonecaller', 3035], ['gw_EyeOfOrion', 3028], ['gw_WildCleaver', 3027],
+    // B06
+    ['gw_IceSapphire', 3011], ['gw_TombLordsCrook', 3020], ['gw_Runegauge', 3001], ['gw_BaneOfGods', 3037], ['gw_DeadEnd', 3004], ['gw_Windfall', 3023]);
+  for (const [skill, k] of cases) it(`${skill}: kingdom ${k}`, () => {
+    expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByKingdom(k)));
+  });
+});
+
+describe('L1-E B06 AllyType status + SummoningType <race>: weapon:1393 / 1462 / 1463', () => {
+  const cases: [string, string, string][] = [['weapon:1393', 'gw_ScarabBlade', 'Undead'], ['weapon:1462', 'gw_AmethystBand', 'Elf'], ['weapon:1463', 'gw_EbonsHammer', 'Knight'],
+    // B07
+    ['weapon:1470', 'gw_KingsDagger', 'Rogue'], ['weapon:1495', 'gw_Wallhack', 'Orc'], ['weapon:1496', 'gw_Underminer', 'Dwarf'], ['weapon:1510', 'gw_EruptionOfRoses', 'Fey'],
+    ['weapon:1512', 'gw_WingsOfDestruction', 'Dragon'], ['weapon:1533', 'gw_Rockstabba', 'Goblin'], ['weapon:1535', 'gw_Gatekeeper', 'Daemon'], ['weapon:1551', 'gw_TheEnor-mace', 'Giant'],
+    ['weapon:1555', 'gw_PandaskianWand', 'Urska'], ['weapon:1558', 'gw_Stonecutter', 'Monster'],
+    // B08
+    ['weapon:1575', 'gw_LostChant', 'Wildfolk'], ['weapon:1579', 'gw_BurningPride', 'Raksha'], ['weapon:1616', 'gw_GoldenTalon', 'Stryx'], ['weapon:1619', 'gw_BrokenStar', 'Centaur'],
+    ['weapon:1665', 'gw_VulpineFangs', 'Wargare'], ['weapon:1354', 'gw_ArborealCrystal', 'Elemental'], ['weapon:1375', 'gw_FistOfHeaven', 'Divine'], ['weapon:1386', 'gw_ScaleguardProtector', 'Naga'],
+    ['weapon:1392', 'gw_UrskineCleaver', 'Urska'], ['weapon:1401', 'gw_TheEngineersDrill', 'Mech'],
+    // B09
+    ['weapon:1406', 'gw_MysticManuscript', 'Mystic'], ['weapon:1416', 'gw_TwinClaws', 'Beast'], ['weapon:1424', 'gw_Sharpfang', 'Monster'], ['weapon:1425', 'gw_StaffOfStorms', 'Stryx'],
+    ['weapon:1448', 'gw_Gobsticker', 'Goblin'], ['weapon:1450', 'gw_GlowingCore', 'Construct'], ['weapon:1469', 'gw_CrownOfHorns', 'Giant'], ['weapon:1492', 'gw_MortalChain', 'Human'],
+    ['weapon:1493', 'gw_ToothOfTheWild', 'Wildfolk'], ['weapon:1692', 'gw_OceanStar', 'Merfolk']];
+  for (const [key, skill, race] of cases) {
+    it(`${skill}: summon pool = raw TroopType ${race} in roster`, () => {
+      expect([...summonPool(skill)].sort()).toEqual(inRoster(rawByType(race)));
+    });
+    it(`${key}: only ${race} allies get the random positive status`, () => {
+      const r = castSpell({ key, allies: [{ troopTypes: [race] }, { troopTypes: [race === 'Beast' ? 'Mech' : 'Beast'] }] });
+      const got = r.summary.order.filter(x => x.startsWith('status ')).map(x => x.split(' ')[1]);
+      expect(got).toEqual(['A1']);
+    });
+  }
+});
+
+// ---------------------------------------------------------------- B10
+const newName = (r: ReturnType<typeof castSpell>) => { const s = summons(r.events)[0]; return s ? r.summary.units[`A${s.characterId}`].match(/new (\S+) /)![1] : null; };
+describe('L1-E B10 summons', () => {
+  it('weapon:1222 Jar of Eyes (7947): (Magic/2)+1 = 6 Brown exploded centres; pool = raw KingdomId 3039', () => {
+    expect([...summonPool('gw_JarOfEyes')].sort()).toEqual(inRoster(rawByKingdom(3039)));
+    expect(summons(castSpell({ key: 'weapon:1222' }).events)).toHaveLength(1);
+  });
+  it('troop:6170 Abynissia (7303): explode every gem of the chosen colour, summon raw 6183 Infernal King', () => {
+    expect(refOf(6183)).toBe('InfernalKing');
+    const r = castSpell({ key: 'troop:6170', color: BaseColor.Red, board: redRich });
+    expect(r.summary.gems.exploded).toBeGreaterThanOrEqual(22);
+    expect(newName(r)).toBe(nameOfRef('InfernalKing'));
+  });
+  it('troop:6971 Fundingus (8474): ABC-DEF = Giant Toadstool (6279) | Exploadstool (6758), always an extra turn, ~50/50', () => {
+    expect([refOf(6279), refOf(6758)]).toEqual(['GiantToadstool', 'Exploadstool']);
+    const n: Record<string, number> = {};
+    for (let seed = 1; seed <= 200; seed++) {
+      const r = castSpell({ key: 'troop:6971', seed, allies: [] });
+      expect(r.summary.extraTurn).toBe('skill');
+      const k = newName(r)!; n[k] = (n[k] ?? 0) + 1;
+    }
+    expect(n[nameOfRef('GiantToadstool')]).toBeGreaterThan(70); expect(n[nameOfRef('Exploadstool')]).toBeGreaterThan(70);
+  });
+  it('troop:7554 Houndmaster Gor (9339): Blight Hound x3 at 100/50/50% -> 1/2/3 = 25/50/25%', () => {
+    expect(refOf(7555)).toBe('BlightHound');
+    const d = countDist({ key: 'troop:7554', allies: [] }, 400);
+    expect(d[0]).toBe(0);
+    expect(d[1]).toBeGreaterThan(70); expect(d[1]).toBeLessThan(130);
+    expect(d[2]).toBeGreaterThan(160); expect(d[2]).toBeLessThan(240);
+    expect(d[3]).toBeGreaterThan(70); expect(d[3]).toBeLessThan(130);
+  });
+  it('weapon:1484 Obsidian Libram (8816): pool = raw KingdomId 3083', () => {
+    expect([...summonPool('gw_ObsidianLibram')].sort()).toEqual(inRoster(rawByKingdom(3083)));
+  });
+  it('troop:7465 Theodorevich (9181): A+(B-C-D-E-F), B and F = Ragnagord -> 40/20/20/20%', () => {
+    expect([6105, 6979, 7146, 7278].map(refOf)).toEqual(['Ragnagord', 'NUTCRKR-1225', 'Tannenbaum', 'KrisKrinkle']);
+    const n: Record<string, number> = {};
+    for (let seed = 1; seed <= 500; seed++) { const k = newName(castSpell({ key: 'troop:7465', seed, allies: [{}] }))!; n[k] = (n[k] ?? 0) + 1; }
+    expect(n[nameOfRef('Ragnagord')]).toBeGreaterThan(160); expect(n[nameOfRef('Ragnagord')]).toBeLessThan(240);
+    for (const x of ['NUTCRKR-1225', 'Tannenbaum', 'KrisKrinkle']) { expect(n[nameOfRef(x)]).toBeGreaterThan(65); expect(n[nameOfRef(x)]).toBeLessThan(140); }
+  });
+});
+
+describe('L1-E B10 identity / flee / devour', () => {
+  it('troop:6828 Werebear (8230): native Transform 20% then CauseEnraged@Self; prototype enrages first - equivalent: the Torbern keeps Enraged', () => {
+    let n = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const r = castSpell({ key: 'troop:6828', seed });
+      expect(r.summary.units.C).toContain('+rage');
+      if (transformed(r.events).length) { n++; expect(r.summary.units.C).toContain(`now ${nameOfRef('BeastmasterTorbern')}`); }
+    }
+    expect(n).toBeGreaterThan(20); expect(n).toBeLessThan(62);
+  });
+  it('troop:6381 Valraven (7536): 5 random gems exploded, caster flees ~30%', () => {
+    let n = 0;
+    for (let seed = 1; seed <= 300; seed++) if (fled(castSpell({ key: 'troop:6381', seed }).events).length) n++;
+    expect(n).toBeGreaterThan(60); expect(n).toBeLessThan(120);
+  });
+  it('troop:6656 Trickster (7992): swaps the current first and last living enemies', () => {
+    const r = castSpell({ key: 'troop:6656' });
+    expect(r.summary.order.filter(x => x.startsWith('move '))).toEqual(['move E10 back', 'move E13 front']);
+  });
+  it('troop:6277 Mimic (7423): A-B-C-D-E-F, each branch ~1/6 over 600 seeds', () => {
+    const n = { gold: 0, dmg: 0, devour: 0, explode: 0, life: 0, magic: 0 };
+    for (let seed = 1; seed <= 600; seed++) {
+      const r = castSpell({ key: 'troop:6277', seed, skullChance: 0 });
+      const o = r.summary.order;
+      if (o.some(x => x.includes('devoured'))) n.devour++;
+      else if (o.some(x => x.startsWith('dmg '))) n.dmg++;
+      else if (o.some(x => x.startsWith('explode'))) n.explode++;
+      else if (o.some(x => x.startsWith('buff C hp'))) n.life++;
+      else if (o.some(x => x.startsWith('buff C magic'))) n.magic++;
+      else if (Object.keys(r.summary.economy).length) n.gold++;
+    }
+    for (const v of Object.values(n)) { expect(v).toBeGreaterThan(65); expect(v).toBeLessThan(140); }
+  });
+});
