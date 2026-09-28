@@ -151,3 +151,71 @@ describe('L4b B04', () => {
     expect(r.summary.order.filter(x => x.startsWith('buff A2'))).toEqual([]);
   });
 });
+
+describe('L4b B05', () => {
+  const total = (order: string[], kind: string) => order.filter(x => x.startsWith('convert') && x.includes(`-> ${kind} x`)).map(x => Number(x.match(new RegExp(`-> ${kind} x(\\d+)`))![1])).reduce((a, b) => a + b, 0);
+  // weapon:1608 / 1598: +5 gems with the Immortal (CountArmyTroop 1000, CountMax 5)
+  for (const [key, name, kind] of [['weapon:1608', '永生神格拉西亚', 'freezeGem'], ['weapon:1598', '永生神天界', 'burningGem']] as const) {
+    it(`${key}: without / with ${name} -> 9 / 14 ${kind}`, () => {
+      expect(total(castSpell({ key }).summary.order, kind)).toBe(9);
+      expect(total(castSpell({ key, allies: [{ name }, {}] }).summary.order, kind)).toBe(14);
+    });
+  }
+  it('weapon:1608: native order Create Freeze then Cleanse', () => {
+    const o = castSpell({ key: 'weapon:1608' }).summary.order;
+    expect(o.findIndex(x => x.includes('freezeGem'))).toBeLessThan(o.findIndex(x => x.startsWith('cleanse')));
+  });
+  // weapon:1441: CreateGems Cursed (Drenza) ; CountGems 400 Cursed ; SplashHeavyDamage 6 + M
+  it('weapon:1441: Drenza -> 4 Cursed Gems first, then main damage 16 + 4 x 4 = 32', () => {
+    const r = castSpell({ key: 'weapon:1441', allies: [{ name: '暗黑铁匠迪恩扎' }, {}] });
+    expect(r.summary.order[0]).toMatch(/-> curseGem x4$/);
+    expect(r.summary.order[1]).toBe('dmg E11 32 (splash)');
+  });
+  it('weapon:1441: Cursed enemies do not boost; no Drenza -> 16', () => {
+    const enemies = [0, 1, 2, 3].map(() => ({ hp: 500, maxHp: 500, statuses: [{ id: 'curse', turns: 99 }] as never }));
+    expect(castSpell({ key: 'weapon:1441', enemies }).summary.order[0]).toBe('dmg E11 16 (splash)');
+  });
+  // weapon:1611: 2 Skulls with Scoprio, then 4 + 2 per Poisoned enemy
+  it('weapon:1611: Scoprio + 2 Poisoned enemies -> 2 then 8 Skulls', () => {
+    const enemies = [0, 1, 2, 3].map(i => ({ hp: 500, maxHp: 500, statuses: i < 2 ? [{ id: 'poison', turns: 99 }] as never : [] }));
+    const r = castSpell({ key: 'weapon:1611', enemies, allies: [{ name: '不朽的天蝎座' }, {}] });
+    expect(r.summary.order.map(x => x.match(/-> skull x(\d+)$/)?.[1]).filter(Boolean)).toEqual(['2', '8']);
+  });
+  // weapon:1612: 8-12 Skulls; Furnax -> 4 Yellow to Doomskulls
+  it('weapon:1612: Furnax -> 4 Yellow become Doomskulls', () => {
+    const r = castSpell({ key: 'weapon:1612', allies: [{ name: '不朽熔炉' }, {}] });
+    const n = Number(r.summary.order[0].match(/-> skull x(\d+)$/)![1]);
+    expect(n).toBeGreaterThanOrEqual(8); expect(n).toBeLessThanOrEqual(12);
+    expect(r.summary.order[1]).toBe('convert Yellow x4 -> doomSkull x4');
+  });
+  // weapon:1624: Gemini -> all gems of one of the chosen target's colours (E11 Yellow/Blue) to Purple
+  it('weapon:1624: Gemini -> chosen enemy colour converted to Purple', () => {
+    for (let seed = 1; seed <= 6; seed++) {
+      const r = castSpell({ key: 'weapon:1624', seed, allies: [{ name: '不朽的双子座' }, {}] });
+      expect(r.summary.order.at(-1)).toMatch(/^convert (Yellow x9|Blue x11) -> Purple x(9|11)$/);
+    }
+  });
+  // troop:7242 / 7275 / 6853 / 6963: race counts on both sides (+1 each; 6963 Rogue allies x3)
+  it('troop:7242: Undead and Daemon allies and enemies, each count separately', () => {
+    // caster Undead/Dwarf (1); A1 Undead+Daemon (2); enemies E10 Daemon, E11 Undead (2) -> 6 + 5 = 11
+    const enemies = [{ troopTypes: ['Daemon'] }, { troopTypes: ['Undead'] }, {}, {}].map(e => ({ hp: 500, maxHp: 500, ...e }));
+    const r = castSpell({ key: 'troop:7242', enemies, allies: [{ troopTypes: ['Undead', 'Daemon'] }, { troopTypes: ['Human'] }] });
+    expect(r.summary.gems.created.skull).toBe(11);
+  });
+  it('troop:7275: Daemon allies + enemies -> 5 + n purple dragon gems', () => {
+    const enemies = [{ troopTypes: ['Daemon'] }, {}, {}, {}].map(e => ({ hp: 500, maxHp: 500, ...e }));
+    const r = castSpell({ key: 'troop:7275', enemies, allies: [{ troopTypes: ['Daemon'] }, {}] });
+    expect(r.summary.order[0]).toMatch(/-> dragonGem\/Purple x8$/);
+  });
+  it('troop:6853: Orc allies + enemies -> 8 + n Red', () => {
+    const enemies = [{ troopTypes: ['Orc'] }, { troopTypes: ['Orc'] }, {}, {}].map(e => ({ hp: 500, maxHp: 500, ...e }));
+    expect(castSpell({ key: 'troop:6853', enemies }).summary.gems.created.Red).toBe(11);
+  });
+  it('troop:6963: 2 Rogue allies -> 9 Blue and 9 Web; Web follows the Poison target', () => {
+    const r = castSpell({ key: 'troop:6963', allies: [{ troopTypes: ['Rogue'] }, {}] });
+    expect(r.summary.gems.created.Blue).toBe(9);
+    expect(total(r.summary.order, 'web')).toBe(9);
+    const st = r.summary.order.filter(x => x.startsWith('status'));
+    expect(st[1].split(' ')[1]).toBe(st[0].split(' ')[1]);
+  });
+});

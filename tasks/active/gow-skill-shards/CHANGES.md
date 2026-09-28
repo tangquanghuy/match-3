@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 192 条改动，涉及 387 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 194 条改动，涉及 390 个技能 ID。
 
 ## 按时间
 
@@ -198,6 +198,8 @@
 | 2026-09-28T02:43 | sa-R2 | L4b-1646-prefnotprev | data | 9647 | weapon:1646 AngRaksEdge | `src/engine/skills/curated/batch-w04.ts` | Bleed on enemyRandomN 4 (distinct, fewer when <4 alive) → RandomEnemy + 3 x enemyRandomPrefNotPrev (R007-3) |  |
 | 2026-09-28T02:43 | sa-R2 | L4b-1682-order | data | 9842 | weapon:1682 MaratusGrimoire | `src/engine/skills/curated/batch-w04.ts` | damage then Red>Web → Red>Web (if Maratus) then damage (native order, R001) |  |
 | 2026-09-28T02:43 | sa-R2 | R009-7267-color | data | 8886 | troop:7267 HeraldOfKrystenax | `src/engine/skills/curated/batch-r14.ts` | dragonGem without colour → dragonGem color Green (DragonGreen) |  |
+| 2026-09-28T02:46 | sa-R2 | L4b-1441-cursed-gems | data | 8697 | weapon:1441 DarkHammer | `src/engine/skills/curated/batch-w03.ts` | damage boosted by Cursed enemies; Drenza gems created after damage → Drenza Cursed Gems first, damage boosted by board Cursed Gems x4 (native CountGems 400 Cursed) |  |
+| 2026-09-28T02:46 | sa-R2 | L4b-1608-1611-order | data | 9388, 9488 | weapon:1608 GlayciasLattice；weapon:1611 ScopriosClaw | `src/engine/skills/curated/batch-w04.ts` | 1608 cleanse before Freeze gems (and stray sourceless x10 modifier); 1611 Scoprio skulls after base skulls → native order: 1608 create 9(+5) Freeze then cleanse; 1611 Scoprio 2 skulls then 4+2/poisoned |  |
 
 ## 按技能 ID
 
@@ -452,6 +454,7 @@
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
 | 8694 | 1 | F2-7145-miss-branch |
+| 8697 | 1 | L4b-1441-cursed-gems |
 | 8713 | 1 | P-counter-per-step |
 | 8722 | 1 | L2-singlegem-cell |
 | 8751 | 1 | P-counter-per-step |
@@ -526,8 +529,10 @@
 | 9370 | 1 | P-prefnotprev-semantics |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9377 | 1 | P-prefnotprev-semantics |
+| 9388 | 1 | L4b-1608-1611-order |
 | 9483 | 1 | P-prefnotprev-semantics |
 | 9485 | 1 | P-random-stat-pool |
+| 9488 | 1 | L4b-1608-1611-order |
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
 | 9514 | 1 | P-random-stat-pool |

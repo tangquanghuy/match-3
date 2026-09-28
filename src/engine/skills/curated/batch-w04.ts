@@ -518,9 +518,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9388,
     desc: '净化所有盟友并创造 9 颗冻结宝石。若队伍里有永生神格拉西亚，则再创造 5 颗冻结宝石。 [x10]',
     build: skill(
-      cleanse('allyAll'),
+      // Native order: CreateGems 9 Freeze (+5 with Immortal Glaycia, CountMax 5) before Cleanse@AllAllies.
       createSpecialGems({ kind: 'freezeGem' }, 9, 0),
-      createSpecialGems({ kind: 'freezeGem' }, 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神格拉西亚' }, modifier: { mod: { kind: 'multiplier', a: 10 } } }),
+      createSpecialGems({ kind: 'freezeGem' }, 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神格拉西亚' } }),
+      cleanse('allyAll'),
     ),
   },
   {
@@ -543,8 +544,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9488,
     desc: '制造 4 个骷髅，数量受中毒敌人影响。如果我的队伍中有永生的 Scoprio，则再制造 2 个骷髅。 [x2]',
     build: skill(
-      createSkulls(4, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
+      // Native order: CreateGems Skull (2 with Immortal Scoprio) first, then 4 + 2 per Poisoned enemy.
       createSkulls(2, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的天蝎座' } }),
+      createSkulls(4, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
     ),
   },
   {

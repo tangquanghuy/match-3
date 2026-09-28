@@ -4,3 +4,4 @@
 - 2026-09-28T10:37:56 B02 troop:7410,troop:7524,troop:6183,weapon:1548,troop:6987,troop:7683,troop:7705,troop:6216,troop:6771,troop:6682 approve=9 fixed=1 issue=0 (1548 missing Red>Cursed)
 - 2026-09-28T10:40:29 B03 troop:6541,troop:7480,troop:7572,troop:6129,troop:6772,weapon:1488,weapon:1487,troop:6172,troop:7887,weapon:1180 approve=8 fixed=2 issue=0 (1487/1488 giant count base 0 + status all colour enemies; 6129 armor table test)
 - 2026-09-28T10:43:33 B04 weapon:1181,weapon:1182,weapon:1183,weapon:1184,weapon:1185,weapon:1193,weapon:1501,weapon:1646,weapon:1682,troop:7267 approve=7 fixed=3 issue=0 (1646 PrefNotPrev chain; 1682 native order; 7267 DragonGreen colour; doom/kingdom/troop-present table tests)
+- 2026-09-28T10:46:16 B05 weapon:1608,weapon:1598,weapon:1441,weapon:1611,weapon:1612,weapon:1624,troop:7242,troop:7275,troop:6853,troop:6963 approve=7 fixed=3 issue=0 (1441 board Cursed Gems source + order; 1608/1611 native order; immortal/race table tests)

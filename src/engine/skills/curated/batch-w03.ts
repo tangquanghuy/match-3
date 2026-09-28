@@ -615,8 +615,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8697,
     desc: '对一名敌人造成 [魔法 + 6] 点重度溅射伤害，伤害值因诅咒宝石数量而增强。若自身队伍里有暗黑铁匠迪恩扎，则创造 4 颗诅咒宝石。 [x4]',
     build: skill(
-      dmgSplash('enemyChosen', 6, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }),
+      // Native: CreateGems Cursed (4 with Dark Smith Drenza) ; CountGems 400 Cursed (board Cursed Gems x4) ; SplashHeavyDamage.
       createSpecialGems({ kind: 'curseGem' }, 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '暗黑铁匠迪恩扎' } }),
+      dmgSplash('enemyChosen', 6, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'curseGem' } } }),
     ),
   },
   {
