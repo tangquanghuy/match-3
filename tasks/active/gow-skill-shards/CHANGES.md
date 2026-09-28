@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 396 条改动，涉及 691 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 397 条改动，涉及 692 个技能 ID。
 
 ## 按时间
 
@@ -402,6 +402,7 @@
 | 2026-09-28T10:37 | sa-D | D-1000-strongest | assembler | 7066 | weapon:1000 KnightsSword | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | damage to the first enemy (enemyFront); zh 对第 1 名敌人 → native Damage@StrongestEnemy -> enemyHealthiest (Life+Armor, R005); zh 对最强的敌人 (pool + reviewed-override description) |  |
 | 2026-09-28T10:39 | sa-D | D-1109-single-hit | assembler | 7246 | weapon:1109 CrimsonInsignia | `src/engine/skills/curated/batch-w01.ts` | 13+ Red Gems: a second separate 8-damage hit → native single Damage step with AddFor10RedGems 8: one hit of [Magic+4]+8 (condBonus) |  |
 | 2026-09-28T10:42 | sa-D | D-b09-targets | assembler | 8463, 7239, 7271, 7648 | troop:6956 Baphomet；weapon:1103 OrderAndChaos；weapon:1119 ChainFlail；troop:6470 Scorpius | `src/engine/skills/curated/batch-08.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-r15.ts` | 6956 3 distinct randoms picked at once (only 2 hits with 2 enemies); 1103 only the last enemy hit (second-last missing); 1119 bonus 9 dmg could hit the chosen enemy again; 6470 lethal re-resolved the last 2 after kills → 6956 randomWaves 3 + notHit (R006-C3); 1103 enemyLastN n2 (second-last then last); 1119 enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy); 6470 lethal on lastTargets (same two enemies) |  |
+| 2026-09-28T10:44 | sa-D | D-1509-mark-target | assembler | 8952 | weapon:1509 VampiricMark | `src/engine/skills/curated/batch-w03.ts` | steal 6 Life if ANY enemy has Hunter's Mark → only if the target has Hunter's Mark (native StealLife@FromTarget AddForHuntersMark) |  |
 
 ## 按技能 ID
 
@@ -899,6 +900,7 @@
 | 8939 | 1 | R3-B02-7327 |
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8946 | 1 | R3-B09-1505 |
+| 8952 | 1 | D-1509-mark-target |
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |

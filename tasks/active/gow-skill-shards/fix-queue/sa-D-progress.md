@@ -8,3 +8,5 @@
 - B07 weapon:1032,1033,1034,1047,1048,1049,1079,1080,1082,1083 approve=10 fixed=0 issue=0 (1049 Dragon +8, 1079 Attack greater +12 tested)
 - B08 weapon:1088,1109,1121,1127,1166,1168,1169,1170,1171,1172 approve=10 fixed=1 (1109 second 8-dmg hit -> single hit +8) issue=0
 - B09 weapon:1173,troop:6012,6726,7332,6956,6866,6470,6257,weapon:1103,1119 approve=10 fixed=4 (6956 randomWaves notHit; 1103 missing second-last hit; 1119 PrefNotPrev; 6470 lethal on lastTargets) issue=0 waived tower x1
+- B10 weapon:1203,troop:6272,6581,6585,6753,weapon:1387,1509,1015,1030,1045 approve=10 fixed=1 (1509 any-enemy mark -> target mark) issue=0; dispute: 1203 English 'another random enemy' vs native plain RandomEnemy (native kept)
+- stop after 100 processed: accepted 99, issued 1 (weapon:1435 P-D-lethal-first-lasttarget), changed 11 (1435, 7575 zh, 6806, 6117, 1000, 1109, 6956, 1103, 1119, 6470, 1509)

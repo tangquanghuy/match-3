@@ -85,6 +85,19 @@ describe('L7 sa-D: conditional multipliers and counts', () => {
     expect(b.summary.units.E12).toContain('DEAD');
     expect(b.summary.units.E10).toBeUndefined();
   });
+  it('weapon:1509 steals 6 Life only when the target itself has Hunter\'s Mark', () => {
+    const M = [{ id: 'marked', turns: 99 }] as never;
+    const onTarget = castSpell({ key: 'weapon:1509', enemies: [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, statuses: M }] });
+    expect(onTarget.summary.order).toEqual(['dmg E11 12', 'dmg E11 6', 'buff C hp+6 max+6']);
+    const onOther = castSpell({ key: 'weapon:1509', enemies: [{ hp: 900, maxHp: 900, statuses: M }, { hp: 900, maxHp: 900 }] });
+    expect(onOther.summary.order).toEqual(['dmg E11 12']);
+  });
+  it('troop:6581 +15 (separate hit) when the target Attack is weaker, +15 more with Hunter\'s Mark', () => {
+    const M = [{ id: 'marked', turns: 99 }] as never;
+    const r = castSpell({ key: 'troop:6581', enemies: [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, attack: 5, statuses: M }] });
+    expect(dmgs(r)).toEqual([14, 15, 15]);
+    expect(dmgs(castSpell({ key: 'troop:6581', enemies: [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, attack: 17 }] }))).toEqual([14]);
+  });
   it('troop:7463 50% chance to repeat the damage on every enemy below the target', () => {
     let hits = 0;
     for (let seed = 1; seed <= 200; seed++) {

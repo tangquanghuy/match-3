@@ -1154,7 +1154,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害。若对方陷入猎人标记状态，则窃取其 6 点生命值。',
     build: skill(
       dmg('enemyChosen', 2, 1),
-      dmg('lastTarget', 6, 0, { drain: true, ifCond: { kind: 'anyEnemyStatus', statusId: 'marked' } }),
+      // 原生 StealLife@FromTarget [AddForHuntersMark 6]：看该目标本身是否被猎人标记（不是任一敌人；sa-D）
+      dmg('lastTarget', 6, 0, { drain: true, ifCond: { kind: 'targetStatus', statusId: 'marked' } }),
     ),
   },
   {
