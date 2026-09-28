@@ -388,3 +388,39 @@ describe('sa-H L2 B09', () => {
     within(total / SEEDS, 2.6, 'mean statuses');
   });
 });
+
+describe('sa-H L2 B10', () => {
+  it('weapon:1239 [M+8] scatter, then every ally 1 + 50% positive statuses', () => {
+    const o = orderOf({ key: 'weapon:1239' });
+    expect(o.filter(l => l.includes('(scatter)')).reduce((s, l) => s + Number(l.split(' ')[2]), 0)).toBe(18);
+  });
+  it('troop:7593 round(1.25M)+6 = 19 scatter (convention:R006-C1), random status on every enemy', () => {
+    const o = orderOf({ key: 'troop:7593' });
+    expect(o.filter(l => l.includes('(scatter)')).reduce((s, l) => s + Number(l.split(' ')[2]), 0)).toBe(19);
+    for (const w of ['E10', 'E11', 'E12', 'E13']) expect(statusesOn(o, w).length).toBe(1);
+  });
+  it('weapon:1503 Choose B: steal 6 Mana from the last enemy, then [M+3] to it', () => {
+    expect(choose({ key: 'weapon:1503' }, 1)).toEqual(['buff E13 mana-6', 'buff C mana+6', 'dmg E13 13']);
+  });
+  it('troop:7253 AB-CD-EF: steal (10 Magic | 20 Armor | 20 Life) BEFORE the [(M x 2)+4] true damage', () => {
+    const t: Record<string, number> = {};
+    const enemies = [{}, { hp: 900, maxHp: 900, armor: 30, magic: 20 }];
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:7253', seed, enemies });
+      const k = o[0].startsWith('buff E11 magic-10') ? 'magic' : o[0].startsWith('buff E11 armor-20') ? 'armor' : o[0].startsWith('dmg E11 20') ? 'life' : 'other';
+      t[k] = (t[k] ?? 0) + 1;
+      expect(o[o.length - 1]).toBe(k === 'magic' ? 'dmg E11 44' : 'dmg E11 24');
+    }
+    expect(Object.keys(t).sort()).toEqual(['armor', 'life', 'magic']);
+    for (const v of Object.values(t)) within(v / SEEDS, 1 / 3, '7253');
+  });
+  it('troop:6818 Green storm, then 1/3 Disease | Poison | Entangle on all enemies', () => {
+    const t: Record<string, number> = {};
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const o = orderOf({ key: 'troop:6818', seed }); expect(o[0]).toMatch(/^storm Green/);
+      const s = statusesOn(o, 'E11'); expect(s.length).toBe(1); t[s[0]] = (t[s[0]] ?? 0) + 1;
+    }
+    expect(Object.keys(t).sort()).toEqual(['disease', 'entangle', 'poison']);
+    for (const v of Object.values(t)) within(v / SEEDS, 1 / 3, '6818');
+  });
+});

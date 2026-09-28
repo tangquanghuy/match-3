@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 555 条改动，涉及 1004 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 556 条改动，涉及 1005 个技能 ID。
 
 ## 按时间
 
@@ -561,6 +561,7 @@
 | 2026-09-28T21:46 | sa-H | L2-H-6157-ally-colour | assembler | 7277 | troop:6157 Djinn | `src/engine/skills/curated/batch-r7.ts` | created 6 gems of the CASTER's colour → 6 gems of the chosen ally's colour (native CreateGems FromTarget) |  |
 | 2026-09-28T21:46 | sa-H | L2-H-1396-any-gem | assembler | 8517 | weapon:1396 ExperimentalElixir | `src/engine/skills/curated/batch-w03.ts` | explode 1 random coloured gem → explode 1 random gem of any kind (native ExplodeGems 1); skill issued for Amount dispute |  |
 | 2026-09-28T21:49 | sa-H | L2-H-6817-one-skill | assembler | 8216 | troop:6817 ShahbanuVespera | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | each grant split [(M/2)+1] across several Skills; zh said 2 other allies → each native IncreaseRandom gives the whole amount to one random Skill (oneSkill); zh 'repeat 2 more times for random allies' + override |  |
+| 2026-09-28T21:54 | sa-H | L2-H-7253-steal-first | assembler | 8852 | troop:7253 Sagittarian | `src/engine/skills/curated/batch-r9.ts`<br>`src/data/gowSnapshotOverrides.json` | true damage first, then steal 10 MANA \| 20 Life \| 20 Armor; zh 盔甲魔力值 → native AB-CD-EF: steal 10 Magic \| 20 Armor \| 20 Life before the true damage (R001); zh fixed + override |  |
 
 ## 按技能 ID
 
@@ -1243,6 +1244,7 @@
 | 8848 | 1 | R009-giant |
 | 8849 | 1 | R009-giant |
 | 8850 | 1 | R7-dragon-convert-extra-turn |
+| 8852 | 1 | L2-H-7253-steal-first |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8856 | 1 | L2-7282-pref-not-prev |
 | 8859 | 1 | P-random-stat-pool |

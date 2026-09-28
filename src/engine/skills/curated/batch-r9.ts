@@ -386,14 +386,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8852,
-    desc: '对一名敌人造成[(魔法 x 2) + 4]点真实伤害。然后从敌人那里偷取魔力值10，或者生命值20，或者盔甲魔力值20。',
-    // 「或者」= oneOf 掷签三选一（§9.3）；「盔甲魔力值」机翻 = 护甲（官方 StealArmor）
+    desc: '对一名敌人造成 [(魔法 x 2) + 4] 点真实伤害。然后从该敌人处窃取 10 点魔力值，或 20 点生命值，或 20 点护甲值。',
+    // 原生 AB-CD-EF：StealMagic 10 | StealArmor 20 | StealLife 20，各自在 TrueDamage [(M×2)+4] 之前（R001：
+    // 先窃取魔力会提高本次伤害）。sa-H：原为先伤害、且 A 分支窃取的是法力（英文/原生为 Magic）；ZH「盔甲魔力值」改
     build: skill(
-      trueDmg('enemyChosen', 4, 2),
       oneOf(
-        [steal('lastTarget', 'mana', 'mana', 10, 0)],
-        [dmg('lastTarget', 20, 0, { drain: true })],
-        [steal('lastTarget', 'armor', 'armor', 20, 0)],
+        [steal('enemyChosen', 'magic', 'magic', 10, 0), trueDmg('enemyChosen', 4, 2)],
+        [steal('enemyChosen', 'armor', 'armor', 20, 0), trueDmg('enemyChosen', 4, 2)],
+        [dmg('enemyChosen', 20, 0, { drain: true }), trueDmg('enemyChosen', 4, 2)],
       ),
     ),
   },

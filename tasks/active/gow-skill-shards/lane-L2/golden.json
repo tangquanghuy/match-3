@@ -419,6 +419,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:49:39.708Z"
  },
+ "troop:6818": {
+  "lines": {
+   "L10": "storm Green set ; status E10 +entangle ; status E11 +entangle ; status E12 +entangle ; status E13 +entangle  => E10:+entangle | E11:+entangle | E12:+entangle | E13:+entangle",
+   "R10": "storm Green set ; status E10 +entangle ; status E11 +entangle ; status E12 +entangle ; status E13 +entangle  => E10:+entangle | E11:+entangle | E12:+entangle | E13:+entangle",
+   "L0": "storm Green set ; status E10 +entangle ; status E11 +entangle ; status E12 +entangle ; status E13 +entangle  => E10:+entangle | E11:+entangle | E12:+entangle | E13:+entangle",
+   "K": "storm Green set ; status E10 +entangle ; status E11 +entangle ; status E12 +entangle ; status E13 +entangle  => E10:+entangle | E11:+entangle | E12:+entangle | E13:+entangle"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:54:25.394Z"
+ },
  "troop:6838": {
   "lines": {
    "L10": "buff A1 hp+105 max+105 ; explode 19 ; skulls E10 1  => A1:hp+105 max+105 mana+1 | E10:arm-1  eco:{\"goldMine\":-100}",
@@ -759,6 +769,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T09:10:46.001Z"
  },
+ "troop:7253": {
+  "lines": {
+   "L10": "buff E11 armor-10 ; buff C armor+10 ; dmg E11 24  => E11:hp-24 arm-10 | C:arm+10",
+   "R10": "buff E11 armor-10 ; buff C armor+10 ; dmg E11 24  => E11:hp-24 arm-10 | C:arm+10",
+   "L0": "buff E11 armor-10 ; buff C armor+10 ; dmg E11 4  => E11:hp-4 arm-10 | C:arm+10",
+   "K": "dmg E11 24 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:54:25.394Z"
+ },
  "troop:7258": {
   "lines": {
    "L10": "buff C hp+13 max+13  => C:hp+13 max+13",
@@ -1039,6 +1059,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:41:58.374Z"
  },
+ "troop:7593": {
+  "lines": {
+   "L10": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; status E10 +web ; status E11 +marked ; status E12 +poison ; status E13 +disease  => E10:arm-4 +web | E11:arm-4 +marked | E12:arm-8 +poison | E13:arm-3 +disease",
+   "R10": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; status E10 +web ; status E11 +marked ; status E12 +poison ; status E13 +disease  => E10:arm-4 +web | E11:arm-4 +marked | E12:arm-8 +poison | E13:arm-3 +disease",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; status E10 +frozen ; status E11 +curse ; status E12 +marked ; status E13 +web  => E10:arm-1 +frozen | E11:arm-1 +curse | E12:arm-3 +marked | E13:arm-1 +web",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:54:25.394Z"
+ },
  "troop:7605": {
   "lines": {
    "L10": "buff E10 hp-9 ; buff E10 armor-5 ; buff E11 magic-9 ; buff E11 hp-9 ; buff E12 attack-9 ; buff E12 hp-9 ; buff E13 armor-3 ; buff E13 hp-9 ; status E10 +marked ; status E11 +web ; status E12 +silence ; status E13 +lycanthropy  => E10:hp-9 arm-5 +marked | E11:hp-9 mag-9 +web | E12:hp-9 atk-9 +silence | E13:hp-9 arm-3 +lycanthropy",
@@ -1239,6 +1269,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:51:47.368Z"
  },
+ "weapon:1239": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; status C +barrier ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; status A1 +barrier ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-8 | E13:arm-3 | C:+barrier+enraged | A1:+enchanted+barrier | A2:+submerged+blessed",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; status C +barrier ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; status A1 +barrier ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-8 | E13:arm-3 | C:+barrier+enraged | A1:+enchanted+barrier | A2:+submerged+blessed",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 4 (scatter) ; dmg E13 1 (scatter) ; status C +submerged ; status A1 +enchanted ; status A2 +blessed  => E10:arm-1 | E11:arm-2 | E12:arm-4 | E13:arm-1 | C:+submerged | A1:+enchanted | A2:+blessed",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +enraged ; status A1 +barrier ; status A2 +enchanted  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+enraged | A1:+barrier | A2:+enchanted"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:54:25.394Z"
+ },
  "weapon:1296": {
   "lines": {
    "L10": "buff A1 magic+4 ; buff A2 magic+4  => A1:mag+4 | A2:mag+4",
@@ -1328,6 +1368,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:54:46.622Z"
+ },
+ "weapon:1503": {
+  "lines": {
+   "L10": "buff E13 magic-3 ; buff C magic+3 ; dmg E13 16  => E13:hp-13 arm-3 mag-3 | C:mag+3",
+   "R10": "buff E13 magic-3 ; buff C magic+3 ; dmg E13 16  => E13:hp-13 arm-3 mag-3 | C:mag+3",
+   "L0": "buff E13 magic-3 ; buff C magic+3 ; dmg E13 6  => E13:hp-3 arm-3 mag-3 | C:mag+3",
+   "K": "buff E13 magic-3 ; buff C magic+3 ; dmg E13 16 ; defeat E13  => E13:hp-1 mag-3 DEAD | C:mag+3"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:54:25.394Z"
  },
  "weapon:1508": {
   "lines": {

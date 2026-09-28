@@ -44,3 +44,8 @@
 - weapon:1621 accept (native order: hit before Faerie Fire/Entangle, English lists them first)
 - troop:6147 accept (random status chosen enemy, one Skill to random ally)
 - weapon:1237 accept (1+60%+50%+50% negative statuses, explode 4 of target colour)
+- weapon:1239 accept (scatter + 1 + 50% positive per ally)
+- troop:7593 accept (round(1.25M)+6 scatter, convention:R006-C1; random status all enemies)
+- weapon:1503 accept (Choose steal Magic|Mana then damage last enemy, native order)
+- troop:7253 fixed+accept (steal before damage per native; branch A stole Mana, now Magic; zh fixed + override 7253)
+- troop:6818 accept (Green storm + 1/3 disease|poison|entangle)
