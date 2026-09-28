@@ -115,3 +115,13 @@
 {"format":"compact","key":"troop:7840","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7845","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7042","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7251","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.889Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7616","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7617","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7618","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7619","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7620","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7621","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7429","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7622","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.892Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7775","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.892Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"1","mode":"boss"}]}

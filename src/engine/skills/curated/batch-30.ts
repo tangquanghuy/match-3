@@ -172,10 +172,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 3.25) + 6] 点伤害。引爆所有骷髅。有 10% 的几率额外进行一回合，几率随引爆骷髅数而增加。 [x4]',
     build: skill(
       dmgAll(6, 3.25),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
+      extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } } }),
       explodeSkulls(),
-      // 回收：chanceBoost 现支持概率加成；「随引爆骷髅数」= destroyedGems 不筛色——
-      // 本技能只有引爆骷髅一个清除段，计数恰为引爆骷髅数（batch-29 7352 只清骷髅口径）
-      extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems' } } }),
+      // sa-R7: 「随引爆骷髅数」= native CountGems Skull 400 before ExplodeColor -> boardSkulls x4 counted
+      // first; was destroyedGems after the explosion (also counted the collateral gems of each blast).
     ),
   },
 ];

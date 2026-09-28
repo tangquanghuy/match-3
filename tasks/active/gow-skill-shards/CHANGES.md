@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 292 条改动，涉及 526 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 293 条改动，涉及 534 个技能 ID。
 
 ## 按时间
 
@@ -298,6 +298,7 @@
 | 2026-09-28T08:28 | sa-R7 | R7-7211-gargoyle-count | assembler | 8798 | troop:7211 Tourmaline | `src/engine/skills/curated/batch-r8.ts` | drain 4 + 3 per gem on the board (boardGems any) → drain 4 + 3 per Gargoyle gem, Good + Evil (native CountGems GoodGargoyle/BadGargoyle 300) |  |
 | 2026-09-28T08:28 | sa-R7 | R7-6825-ratio | assembler | 8235 | troop:6825 Tuliao | `src/engine/skills/curated/batch-r22.ts` | 6 Mana + 4 per chosen-colour gem (x4) → 6 Mana + 1 per 4 chosen-colour gems (native CountGems Amount 25 = [4:1], R003) |  |
 | 2026-09-28T08:30 | sa-R7 | R7-tarot-extra-turn | assembler | 9283, 9337 | troop:7526 JusticeTarot；troop:7551 TheHierophant | `src/engine/skills/curated/batch-r7.ts` | 9283: extra turn only if NO Blue gems, 7% base (+boost); ZH desc said 'no Blue gem'. 9337: 7% base + 7%/Green gem, counted after creation → 7% per counted gem only, rolled before the creation (native CountGems step 0 + ExtraTurnConditional without Amount); 9283 ZH desc fixed to 'each Blue gem' |  |
+| 2026-09-28T08:34 | sa-R7 | R7-dragon-convert-extra-turn | assembler | 8850, 9515, 9516, 9517, 9518, 9519, 9520, 9521 | troop:7251 Diamantina；troop:7616 Belcerulea；troop:7617 Gladius；troop:7618 Thornaressa；troop:7619 Narcithus；troop:7620 Orrissea；troop:7621 Orchidius；troop:7622 Chrysantherax | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-30.ts` | extra-turn chance counted after converting/exploding the counted gems; 9515 boost ratio 300:10 (~0); 9521 boost = all destroyed gems x4 → native CountGems step 0: extra-turn roll placed before the gem change (R001); 9515 +3%/Blue gem; 9521 +4%/Skull on the board (boardSkulls) |  |
 
 ## 按技能 ID
 
@@ -658,6 +659,7 @@
 | 8847 | 1 | R009-giant |
 | 8848 | 1 | R009-giant |
 | 8849 | 1 | R009-giant |
+| 8850 | 1 | R7-dragon-convert-extra-turn |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8859 | 1 | P-random-stat-pool |
 | 8872 | 1 | L4b-1487-1488 |
@@ -743,6 +745,13 @@
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
 | 9514 | 1 | P-random-stat-pool |
+| 9515 | 1 | R7-dragon-convert-extra-turn |
+| 9516 | 1 | R7-dragon-convert-extra-turn |
+| 9517 | 1 | R7-dragon-convert-extra-turn |
+| 9518 | 1 | R7-dragon-convert-extra-turn |
+| 9519 | 1 | R7-dragon-convert-extra-turn |
+| 9520 | 1 | R7-dragon-convert-extra-turn |
+| 9521 | 1 | R7-dragon-convert-extra-turn |
 | 9522 | 2 | L7-7615、P-counter-per-step |
 | 9523 | 1 | L2-1620-random-bleed |
 | 9524 | 1 | L2-1620-random-bleed |

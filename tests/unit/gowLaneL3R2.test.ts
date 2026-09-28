@@ -327,3 +327,39 @@ describe('L3 R2: B07 Tarot tail + Dragon "10% extra turn, boosted by <colour> ge
     expect(order(none)).toEqual(['dmg E10 7']);
   });
 });
+
+describe('L3 R2: B08 Elemental-Dragon "10% extra turn + 3%/gem, counted before the conversion" family', () => {
+  const seeds = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+  const gem = (c: BaseColor | 'skull') => (c === 'skull' ? skullGem() : colorGem(c));
+  const only = (c: BaseColor | 'skull', n: number, other: BaseColor) => (r: number, col: number) => gem(r * 8 + col < n ? c : other);
+  const fam: [string, BaseColor | 'skull', number][] = [
+    ['troop:7251', 'skull', 3], ['troop:7616', BaseColor.Blue, 3], ['troop:7617', BaseColor.Green, 3], ['troop:7618', BaseColor.Red, 3],
+    ['troop:7619', BaseColor.Yellow, 3], ['troop:7620', BaseColor.Purple, 3], ['troop:7621', BaseColor.Brown, 3], ['troop:7622', 'skull', 4],
+  ];
+  it.each(fam)('%s: counted %s gems -> 10%% + %i%%/gem; 100%% reached even though the cast changes those gems', (key, c, per) => {
+    const other = c === BaseColor.Brown ? BaseColor.Red : BaseColor.Brown;
+    const full = Math.ceil(90 / per);
+    expect(seeds(20).every(seed => castSpell({ key, seed, board: only(c, full, other) }).summary.extraTurn === 'skill')).toBe(true);
+    const base = seeds(60).map(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill');
+    expect(base.some(Boolean) && !base.every(Boolean)).toBe(true);
+  });
+  it('troop:7251 Diamantina: damage 6 + Magic x 2 + 3 per Skull', () => {
+    const r = castSpell({ key: 'troop:7251', board: only('skull', 10, BaseColor.Red), enemies: [en([])] });
+    expect(order(r)[0]).toBe('dmg E10 56 (all)');
+  });
+  it('troop:7429 Tempurath: +3 per Hourglass gem; kill -> 4 Hourglass gems + extra turn, no kill -> neither', () => {
+    const hg = (r: number, c: number) => (r === 0 && c < 2 ? specialGem('hourglass') : colorGem(BaseColor.Red));
+    const miss = castSpell({ key: 'troop:7429', target: 10, board: hg, enemies: [en([]), en([])] });
+    expect(order(miss)).toEqual(['dmg E10 19']);
+    expect(miss.summary.extraTurn).toBeNull();
+    const kill = castSpell({ key: 'troop:7429', target: 10, board: hg, enemies: [en([], { hp: 5, maxHp: 5 }), en([])] });
+    expect(order(kill).slice(0, 2)).toEqual(['dmg E10 19', 'defeat E10']);
+    expect(order(kill)[2]).toMatch(/-> hourglass x4$/);
+    expect(kill.summary.extraTurn).toBe('skill');
+  });
+  it('troop:7775 Lord Gobthe: +3 per Bleed gem, always an extra turn (Boss clause waived R000)', () => {
+    const bg = (r: number, c: number) => (r === 0 && c < 2 ? specialGem('bleedGem') : colorGem(BaseColor.Red));
+    const r = castSpell({ key: 'troop:7775', target: 10, board: bg, enemies: [en([]), en([])] });
+    expect(order(r)).toEqual(['dmg E10 20', 'extra-turn skill']);
+  });
+});

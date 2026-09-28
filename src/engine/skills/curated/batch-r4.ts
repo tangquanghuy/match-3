@@ -353,8 +353,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2) + 6] 点伤害，伤害值因骷髅头数而增强。将 5 颗骷髅头转换成末日骷髅头。有 10% 的几率获得一个额外回合，几率因骷髅头数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } } }),
-      transformToSpecial('SKULL', 'doomSkull', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } } }),
+      transformToSpecial('SKULL', 'doomSkull', { count: 5 }),
     ),
   },
   {

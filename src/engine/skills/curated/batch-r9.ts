@@ -562,11 +562,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // FaerieFire → transformToSpecial faerieFireGem（R8 术语表：妖仙宝石=精灵火宝石）
     build: skill(
       dmg('enemyAll', 6, 2.75, { range: 'all' }),
-      transformToSpecial(BaseColor.Green, 'faerieFireGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Green } },
       }),
+      transformToSpecial(BaseColor.Green, 'faerieFireGem', { count: 5 }),
     ),
   },
   {
@@ -574,11 +575,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.75) + 6] 点伤害。将 5 颗黄色宝石转换为屏障宝石。有 10% 的几率额外增加一回合，几率随黄色宝石数量增加而增加。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.75, { range: 'all' }),
-      transformToSpecial(BaseColor.Yellow, 'barrierGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      transformToSpecial(BaseColor.Yellow, 'barrierGem', { count: 5 }),
     ),
   },
   {
@@ -586,11 +588,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.75) + 6] 点伤害。将 5 颗棕色宝石转换为眩晕宝石。有 10% 的几率额外发动一轮，棕色宝石数量越多，几率越大。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.75, { range: 'all' }),
-      transformToSpecial(BaseColor.Brown, 'stunGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Brown } },
       }),
+      transformToSpecial(BaseColor.Brown, 'stunGem', { count: 5 }),
     ),
   },
   {

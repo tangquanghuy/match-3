@@ -372,11 +372,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.75) + 6] 点伤害。将 5 颗紫色宝石转换为附魔宝石。有 10% 的几率获得额外回合，几率随紫色宝石数量增加而增加。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.75, { range: 'all' }),
-      transformToSpecial(BaseColor.Purple, 'enchantedGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),
+      transformToSpecial(BaseColor.Purple, 'enchantedGem', { count: 5 }),
     ),
   },
   {

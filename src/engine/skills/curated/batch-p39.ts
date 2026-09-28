@@ -257,8 +257,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.75) + 6] 点伤害。将 5 颗红宝石转换为燃烧宝石。有 10% 的几率额外获得一轮，红宝石数量越多，几率越大。 [x3]',
     build: skill(
       dmgAll(6, 2.75),
-      transformToSpecial(BaseColor.Red, 'burningGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      transformToSpecial(BaseColor.Red, 'burningGem', { count: 5 }),
     ),
   },
   {
