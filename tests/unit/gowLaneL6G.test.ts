@@ -84,6 +84,17 @@ describe('L6 sa-G', () => {
     const plain = castSpell({ key: 'troop:6935' }).f;
     expect(plain.state.teams[plain.opponent].characters.map(c => c.id)).toEqual([10, 11, 12, 13]);
   });
+  it('weapon:1197 triples only when the enemy Life is greater than mine', () => {
+    expect(castSpell({ key: 'weapon:1197', enemies: enemiesWith(1, { hp: 950, maxHp: 950 }) }).summary.order[1]).toBe('dmg E11 45');
+    expect(castSpell({ key: 'weapon:1197' }).summary.order[1]).toBe('dmg E11 15'); // 900 vs 900
+  });
+  it('13-or-more thresholds: 6097 Brown (all allies +5 Armor), 1112 Yellow (+4 Life and Magic)', () => {
+    const nOf = (color: BaseColor, n: number) => (r: number, c: number) => (r * 8 + c < n ? colorGem(color) : allRed());
+    expect(castSpell({ key: 'troop:6097', board: nOf(BaseColor.Brown, 13) }).summary.units.A1).toBe('arm+5');
+    expect(castSpell({ key: 'troop:6097', board: nOf(BaseColor.Brown, 12) }).summary.units.A1).toBeUndefined();
+    expect(castSpell({ key: 'weapon:1112', board: nOf(BaseColor.Yellow, 13) }).summary.units.A2).toBe('hp+4 max+4 arm+13 atk+5 mag+4');
+    expect(castSpell({ key: 'weapon:1112', board: nOf(BaseColor.Yellow, 12) }).summary.units.A2).toBe('arm+13 atk+5');
+  });
   it('troop:7201 counts all Enemy Magic once before the hit (a kill does not shrink the Armor)', () => {
     const k = castSpell({ key: 'troop:7201', enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) });
     // 4 x 11 Magic / 2 = 22 -> 4 + 10 + 22 = 36 for both

@@ -54,3 +54,8 @@
 - troop:6730 accepted: jumble; boss waived R000
 - troop:6552 accepted: all Armor off, dmg; tower waived R000 (c2, step 1)
 - troop:7194 accepted + ZH typo 在 -> 再 (override 7194)
+- weapon:1197 accepted: all Armor off, x3 iff enemy Life > mine (test)
+- troop:7083 accepted: all Armor off, dmg target and all below
+- weapon:1228 accepted: Armor off, dmg, pull to front
+- weapon:1076 accepted: all Magic off
+- troop:6258 fixed (order only): native -1 Magic before +Attack to other allies

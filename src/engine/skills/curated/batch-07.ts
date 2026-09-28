@@ -222,8 +222,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予一名盟友 [魔法 + 4] 点护甲值和 4 点攻击力。若盟友是一名矮人，则效果翻倍。',
     build: skill(
       // 矮人 = Dwarf（troopTypes 核对）
-      armor('allyChosen', 4, 1, { raceDouble: 'Dwarf' }),
+      // sa-G (R001): native IncreaseAttack before IncreaseArmor
       attack('allyChosen', 4, 0, { raceDouble: 'Dwarf' }),
+      armor('allyChosen', 4, 1, { raceDouble: 'Dwarf' }),
     ),
   },
   {
