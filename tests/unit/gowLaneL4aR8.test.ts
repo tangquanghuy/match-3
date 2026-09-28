@@ -227,3 +227,29 @@ describe('L4a R8 B08', () => {
     expect(s.units.A1 ?? '').not.toContain('mana'); // removed gems give no mana (R010)
   });
 });
+
+describe('L4a R8 B09', () => {
+  // weapon:1275 (8145): Damage@LastEnemy 4+M [MultiplyForYellowTarget 3] ; StormPurple.
+  it('weapon:1275 triples only against a Yellow last enemy', () => {
+    expect(castSpell({ key: 'weapon:1275' }).summary.order).toEqual(['dmg E13 14', 'storm Purple set']);
+    const enemies = [{}, {}, {}, { hp: 800, maxHp: 800, armor: 3, colors: [BaseColor.Yellow] }];
+    expect(castSpell({ key: 'weapon:1275', enemies }).summary.order[0]).toBe('dmg E13 42');
+  });
+  // troop:7561 (9346): Damage@FrontEnemy 3+M ; TroopOrderBack@FrontEnemy ; DestroyGems BoardTarget Column (spell Target Board = chosen).
+  it('troop:7561 destroys the chosen column after knocking the front enemy back', () => {
+    const r = castSpell({ key: 'troop:7561', cell: { row: 5, col: 6 } });
+    expect(r.summary.order.slice(0, 2)).toEqual(['dmg E10 13', 'move E10 back']);
+    const ev = r.events.find(e => e.type === 'gem-destroy') as unknown as { cells: { pos: { row: number; col: number } }[] };
+    expect(ev.cells).toHaveLength(8);
+    expect(new Set(ev.cells.map(c => c.pos.col))).toEqual(new Set([6]));
+  });
+  // troop:7652 (9567): Damage@AllEnemies 1+M [AddForAnyStorm 10] (one hit) ; TroopOrderJumble ; StormBlue.
+  it('troop:7652 adds 10 to the single all-enemy hit when a Storm exists', () => {
+    expect(castSpell({ key: 'troop:7652' }).summary.order.filter(o => o.startsWith('dmg'))).toEqual(['dmg E10 11 (all)', 'dmg E11 11 (all)', 'dmg E12 11 (all)', 'dmg E13 11 (all)']);
+    const f = setupCast({ key: 'troop:7652' }); f.engine.debugSetStorm(BaseColor.Red, f.side);
+    const s = summarize(f, f.cast());
+    expect(s.order.filter(o => o.startsWith('dmg'))).toEqual(['dmg E10 21 (all)', 'dmg E11 21 (all)', 'dmg E12 21 (all)', 'dmg E13 21 (all)']);
+    expect(s.order).toContain('shuffle theirs');
+    expect(s.order[s.order.length - 1]).toBe('storm Blue replaced');
+  });
+});

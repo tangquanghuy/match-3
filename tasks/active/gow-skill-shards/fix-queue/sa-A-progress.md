@@ -54,3 +54,8 @@
 - troop:7213 accept (waived c2 boss+ascension)
 - troop:7884 issue(L4a-R8-7884-explode-count-dispute: native 2+1+1+1 no chances vs English 2-5)
 - weapon:1125 accept
+- weapon:1275 accept
+- troop:7667 accept (waived c2 tower+ascension)
+- troop:6641 accept (waived c2 tower+ascension)
+- troop:7561 fix(chosen column, spell Target Board; zh override)
+- troop:7652 fix(+10 storm bonus on the same all-enemy hit, not a separate chosen hit)

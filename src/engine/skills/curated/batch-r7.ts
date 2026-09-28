@@ -14,7 +14,7 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, explodeRandomSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, explodeRandomSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -715,11 +715,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9346,
-    desc: '对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一个随机列。',
+    desc: '对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一列宝石。',
+    // native spell Target Board ; DestroyGems BoardTarget Column = the chosen column (not random)
     build: skill(
       dmg('enemyFront', 3, 1),
       reposition('enemyFront', 'back'),
-      destroyRandomCols(1, 0),
+      destroyChosenCol(),
     ),
   },
   {

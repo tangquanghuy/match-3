@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 545 条改动，涉及 998 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 547 条改动，涉及 1000 个技能 ID。
 
 ## 按时间
 
@@ -551,6 +551,8 @@
 | 2026-09-28T21:22 | sa-A | L4a-R8-random-any-gem | assembler | 9120, 9464 | troop:7426 Hornwing；troop:7585 DwarvenOverseer | `src/engine/skills/curated/batch-r19.ts` | 9120 DestroyGems 7 / 9464 DestroyGems 8 as include color (no Skulls) → include all (any gem, R013-5) |  |
 | 2026-09-28T21:34 | sa-A | L4a-R8-7535-ghost-chances | assembler | 9292 | troop:7535 GhostOgre | `src/engine/skills/curated/batch-r7.ts` | 9292 one explode segment countRange 1-4 (uniform) → 4 native steps: Ghost 1 always, then Ghost 1 at 60%/50%/40% independent chances |  |
 | 2026-09-28T21:34 | sa-A | L4a-R8-random-any-gem | assembler | 8134 | troop:6755 QueenXochi | `src/engine/skills/curated/batch-37.ts` | 8134 storm explode 5 include color → include all (any gem, R013-5) |  |
+| 2026-09-28T21:39 | sa-A | L4a-R8-7561-chosen-column | data | 9346 | troop:7561 WingedDonkey | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 9346 destroyRandomCols(1); zh '摧毁一个随机列' → destroyChosenCol (native spell Target Board, DestroyGems BoardTarget Column); zh '摧毁一列宝石' + snapshot override |  |
+| 2026-09-28T21:39 | sa-A | L4a-R8-7652-storm-bonus | assembler | 9567 | troop:7652 Treviamus | `src/engine/skills/curated/batch-p40.ts` | 9567 separate 10 damage to enemyChosen after the jumble when a Storm exists → one Damage@AllEnemies 1+M with condBonus +10 if any Storm (native AddForAnyStorm on the same step), then jumble, then Icestorm |  |
 
 ## 按技能 ID
 
@@ -1362,6 +1364,7 @@
 | 9338 | 1 | L5-C-7553-boss |
 | 9339 | 1 | L1-E-7554-dist |
 | 9341 | 1 | L2-7556-gold-count |
+| 9346 | 1 | L4a-R8-7561-chosen-column |
 | 9349 | 2 | B-L4b-1585-entangle-gems、B-L4b-1585-entangle-gems |
 | 9351 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9352 | 1 | L7-R1-weapon-colour-race |
@@ -1428,6 +1431,7 @@
 | 9547 | 2 | P-counter-per-step、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9550 | 2 | R7-7646-target-colour、P-R7-dead-last-target-cond |
 | 9563 | 1 | R3-B10-7650 |
+| 9567 | 1 | L4a-R8-7652-storm-bonus |
 | 9569 | 1 | L1-7654-devour |
 | 9573 | 1 | L4b-1625-1674-any |
 | 9574 | 1 | P-E-faction-kingdom |

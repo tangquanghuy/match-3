@@ -253,6 +253,11 @@
       "reason": "sa-C review round 3: English 'If they are a Boss' and native MultiplyForAscensionBoss; old Chinese said Tower.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得屏障效果。"
     },
+    "7561": {
+      "spellId": 9346,
+      "reason": "sa-A r8: English 'Destroy a Column.' with native spell Target Board (DestroyGems BoardTarget Column = chosen column); stored Chinese '摧毁一个随机列' says random.",
+      "spellDescription": "对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一列宝石。"
+    },
     "7575": {
       "spellId": 9371,
       "reason": "sa-D review round 3: English 'half that damage to all Enemies below them' (native TrueDamage@BelowTarget); old Chinese omitted 'all'.",
