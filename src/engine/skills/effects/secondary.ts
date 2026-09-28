@@ -317,6 +317,12 @@ export type Condition =
    */
   | { kind: 'kingdomOf'; side: 'ally' | 'enemy'; kingdom: string }
   /**
+   * P-A-target-kingdom: the segment's own target belongs to the kingdom (native StatusModifier
+   * MultiplyForKingdom<id> on Damage@FromTarget: "If the Enemy is from <Kingdom>"). Target-relative,
+   * symmetric to targetRace / targetColor; without a target it falls back to the chosen target.
+   */
+  | { kind: 'targetKingdom'; kingdom: string }
+  /**
    * 敌方拥有劫数（武器原语批 K-E，官方 Doomed 档武器族 76 把的
    * 「if the Enemy has a Doom / 如果敌方有劫数，则再增加 N 点」条件）。
    * 考证结论（troops.json × gowhead 官方数据）：「劫数/Doom」是**兵种属性**——
@@ -389,6 +395,16 @@ export type Condition =
 export interface CondMult {
   times: number;
   cond: Condition;
+}
+
+/**
+ * P-B-action-status-self-count: live status check that also sees the caster's Enchanted / Submerged / Blessed the
+ * engine removed when this cast began (R002 / R004 "after the holder acts"; native Count* steps of the same spell
+ * still count them).
+ */
+function hasStatusForCast(ctx: EffectContext, c: Character, statusId: string): boolean {
+  if (c.statuses.some((s) => sameStatus(s.id, statusId) && s.turns > 0)) return true;
+  return c.id === ctx.casterId && (ctx.actionEndedStatusIds ?? []).some((id) => sameStatus(id, statusId));
 }
 
 /** 条件是否成立（target 类需传目标；全局类忽略 target） */
@@ -465,7 +481,7 @@ export function conditionMet(
       const side = findSide(ctx.state, ctx.casterId);
       if (side === null) return false;
       return ctx.state.teams[side].characters.some(
-        (c) => !c.defeated && c.statuses.some((s) => sameStatus(s.id, cond.statusId) && s.turns > 0),
+        (c) => !c.defeated && hasStatusForCast(ctx, c, cond.statusId),
       );
     }
     case 'stormPresent': {
@@ -502,7 +518,7 @@ export function conditionMet(
     }
     case 'selfStatus': {
       const caster = findCharacter(ctx.state, ctx.casterId);
-      return !!caster && caster.statuses.some((st) => sameStatus(st.id, cond.statusId) && st.turns > 0);
+      return !!caster && hasStatusForCast(ctx, caster, cond.statusId);
     }
     case 'troopPresent': {
       const mySide = findSide(ctx.state, ctx.casterId);
@@ -542,6 +558,10 @@ export function conditionMet(
       return ctx.state.teams[side].characters.some(
         (c) => !c.defeated && c.kingdom === cond.kingdom,
       );
+    }
+    case 'targetKingdom': {
+      const unit = target ?? (ctx.chosenTargetId === undefined ? undefined : findCharacter(ctx.state, ctx.chosenTargetId));
+      return !!unit && unit.kingdom === cond.kingdom;
     }
     case 'targetHasDoom': {
       // 敌方拥有劫数（K-E 批，考证见 Condition 定义处）：敌方存活者存在 TroopType 'Doom'。
@@ -639,7 +659,7 @@ export function condMultiplier(
 /** 目标相对条件（需要具体目标才能判定；无目标段挂这类条件 → 整段跳过）。
  * 组合条件（anyOf/allOf）按「任一叶子是目标相对」判定——对目标过滤语义成立。 */
 const TARGET_CONDITION_KINDS: ReadonlySet<Condition['kind']> = new Set([
-  'targetRace', 'targetColor', 'targetStatus', 'targetHpDamaged', 'manaFull', 'targetHasAnyStatus',
+  'targetRace', 'targetColor', 'targetStatus', 'targetHpDamaged', 'manaFull', 'targetHasAnyStatus', 'targetKingdom',
 ]);
 
 export function isTargetCondition(cond: Condition): boolean {
@@ -821,7 +841,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       // excludeSelf (P-R3-ally-status-excl-self): native CountSpecificStatusEffect@AllAlliesButNotSelf
       return ctx.state.teams[side].characters.filter(
         (c) => !c.defeated && !(source.excludeSelf && c.id === ctx.casterId)
-          && c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
+          && hasStatusForCast(ctx, c, source.statusId),
       ).length;
     }
     case 'targetStatusCount': {

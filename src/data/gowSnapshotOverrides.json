@@ -131,6 +131,11 @@
       "reason": "sa-R7 R7-6928-zh-count: English/native create 7 Red Gems per full-Mana enemy.",
       "spellDescription": "给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 7 颗红色宝石。有 15% 的几率自毁。 [x7]"
     },
+    "6990": {
+      "spellId": 8494,
+      "reason": "sa-A r4: English 'Deal [Magic + 4] true heavy splash damage to an Enemy, boosted by Stone Blocks. Explode all Stone Blocks. Then create 3 Stone Blocks. [x6]'; stored Chinese is an unreadable machine translation.",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点真实重度溅射伤害，伤害值因石墩数而增强。爆破所有石墩。再创造 3 个石墩。 [x6]"
+    },
     "6991": {
       "spellId": 8497,
       "reason": "sa-F2 fix round A: English/native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] Gems; old Chinese said one gem.",
@@ -185,6 +190,11 @@
       "spellId": 8895,
       "reason": "sa-F1: English lists 2 Treasure Maps (native GiveTreasureMaps 2) that the Chinese snapshot dropped; native order is RandomPositiveStatusEffect then IncreaseRandom (one random Skill per ally).",
       "spellDescription": "赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。"
+    },
+    "7318": {
+      "spellId": 8930,
+      "reason": "sa-A r4: English 'Destroy a row. Deal [Magic + 2] damage to the first 2 Enemies, boosted by my Life. [3:1]' (native DestroyGems Row, CountLife@Self 34, Damage@FirstTwoEnemies); stored Chinese describes a different spell (5x5, armor/life, gargoyle gems).",
+      "spellDescription": "摧毁一行。对前两名敌人造成 [魔法 + 2] 点伤害，伤害值因自身生命值而增强。 [3:1]"
     },
     "7334": {
       "spellId": 8957,
@@ -272,6 +282,16 @@
       "spellId": 9939,
       "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
       "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
+    },
+    "7131": {
+      "spellId": 8675,
+      "reason": "sa-C r4: English Vault Guard 'Then Freeze and Death Mark them'; native CauseFrozen + CauseDeathMark both; old Chinese said 'or'.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。"
+    },
+    "6108": {
+      "spellId": 7177,
+      "reason": "sa-C r4: English Ice Witch 'If the Enemy dies, give 3 Magic to all Allies'; native IncreaseSpellPower AddForKill StatusAmount 3; old Chinese said 1.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 3 点魔力值。"
     }
   }
 }

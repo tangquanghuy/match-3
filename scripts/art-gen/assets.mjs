@@ -21,6 +21,9 @@ const ANIME_COLOR = 'Modern anime gacha game UI icon, in the polished style of c
   + 'Moderate detail only: no heavy baroque gold filigree, no rivets, no grime, no photorealism, no big glowing aura. '
   + 'Simple readable silhouette, centered, single isolated object on a fully transparent background. '
   + 'No text, no letters, no numbers, no watermark, no frame, no circular badge background.';
+// 横幅 / 背景：现代二次元游戏宣传图画法（不透明场景）
+const KEY_ART = 'Modern anime gacha game key art background, painterly cel-shaded illustration with clean shapes, vivid but harmonious colors, '
+  + 'cinematic soft lighting and atmospheric depth, wide landscape composition. No characters in close-up, no text, no letters, no logo, no watermark, no frame, no border.';
 const BANNER = (cloth) => ({
   size: '1024x1536',
   out: `src/assets/meta/kingdom/banner-${cloth.id}.webp`,
@@ -76,8 +79,9 @@ export const ASSETS = {
     out: 'src/assets/meta/kingdom/home-crown.webp',
     longest: 160,
     pad: 0.02,
-    prompt: 'A small minimal crown icon: a clean five-point crown in ivory white with pale gold edges and one small sky-blue gem. '
-      + ICON + ' ' + MODERN,
+    prompt: 'Home kingdom crown icon: a small rounded royal crown in bright polished gold with a deep crimson velvet cap inside, '
+      + 'one large ruby in front and two small sapphires on the sides, pearl tips on the points. '
+      + 'Dominant colors: bright gold and crimson red. ' + ICON + ' ' + ANIME_COLOR,
   },
   // —— 地图底部「每日行动」四枚图标（放进深色圆框，物体要紧凑、居中） ——
   // 2026-09-28 用户二次反馈：不要清一色象牙白。每枚图标一个鲜明主色，四枚放在一起要一眼分得开。
@@ -116,6 +120,32 @@ export const ASSETS = {
     prompt: 'Treasure hunt icon: a folded treasure map in warm tan parchment with a simple dotted red path and a red X, '
       + 'a round compass with a bright emerald-teal face and a bronze case resting on its corner. '
       + 'Dominant colors: emerald teal and warm tan. ' + ICON + ' ' + ANIME_COLOR,
+  },
+  // —— 商店横幅（2026-09-28）：活动商店每个活动一张、宝石商店一张；左侧留暗部放 UI 文字 ——
+  ...Object.fromEntries([
+    ['invasion', 'a fortified sandstone border fortress on a desert ridge at dusk under siege, crimson war banners, torches and distant smoke, dominant crimson and warm sand colors'],
+    ['raidBoss', 'a colossal dragon silhouette coiled on a burning mountain pass, embers in the air, dominant molten orange and deep charcoal colors'],
+    ['towerOfDoom', 'a tall dark gothic spire tower spiraling up into swirling teal storm clouds with lightning, dominant teal and deep night blue colors'],
+    ['factionAssault', 'a grand castle gate under assault with golden faction banners and siege ladders, sunset light, dominant amber gold and deep brown colors'],
+    ['worldEvent', 'ancient overgrown forest ruins decorated for a festival with glowing lanterns and treasure chests, dominant emerald green and warm lantern gold colors'],
+    ['classTrials', 'a sacred circular training arena of white stone with glowing indigo magic sigils floating above it, dominant indigo violet and silver colors'],
+  ].map(([id, scene]) => [`shop-event-${id}`, {
+    size: '1536x1024',
+    background: 'opaque',
+    out: `src/assets/meta/shop/event-${id}.webp`,
+    longest: 1280,
+    pad: 0,
+    prompt: `Wide banner illustration: ${scene}. The main subject sits in the right half; the left third is calm, darker and low-detail so UI text can be placed there. ` + KEY_ART,
+  }])),
+  'shop-gem-vault': {
+    size: '1536x1024',
+    background: 'opaque',
+    out: 'src/assets/meta/shop/gem-vault.webp',
+    longest: 1280,
+    pad: 0,
+    prompt: 'Wide banner illustration: a royal crystal armory vault, legendary swords, staves and axes displayed on elegant racks and pedestals, '
+      + 'large glowing sapphire-blue crystals growing from the floor, soft cyan light beams. The main subject sits in the right half; '
+      + 'the left third is calm, darker and low-detail so UI text can be placed there. Dominant sapphire blue and cool silver colors with small gold accents. ' + KEY_ART,
   },
 };
 

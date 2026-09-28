@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 471 条改动，涉及 771 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 494 条改动，涉及 832 个技能 ID。
 
 ## 按时间
 
@@ -467,12 +467,35 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
 | 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
+| 2026-09-28T11:07 | sa-C | L5-C-r4-7432 | data | 9126 | troop:7432 LivingRime | `src/engine/skills/curated/batch-r4.ts` | 50% Freeze enemyChosenAndBelow (target included) → 50% Freeze enemyBelowTarget (native BelowTarget, target excluded, R012 pre-kill anchor) |  |
 | 2026-09-28T11:08 | sa-E | L1-E-1394-pool | assembler | 8461 | weapon:1394 EmperinasTooth | `src/engine/skills/curated/batch-w03.ts` | summon branch pool Kobold,KoboldKnight,KoboldMagi,KoboldEmissary,KoboldThief → native SummoningKingdomNoError 3051 = raw KingdomId 3051: Kobold,KoboldKnight,KoboldMagi,KoboldThief,Emperinazara |  |
+| 2026-09-28T11:09 | sa-A | L4a-r4-1071 | data | 7184 | weapon:1071 Skullblade | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | damage first, then remove Skulls; boost had no source (always +0); zh duplicated 效果 → native order: remove Skulls, then damage first 2 boosted [2:1] by Skulls removed; zh reordered |  |
+| 2026-09-28T11:09 | sa-A | L4a-r4-7457 | data | 9174 | troop:7457 Salamandria | `src/engine/skills/curated/batch-p39.ts` | explode Burning gems first, damage boosted x5 by every gem the blasts destroyed → native order: CountGems Burning, true damage boosted x5 per Burning gem on the board, then explode them |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-1132 | data | 7296 | weapon:1132 IceDagger | `src/engine/skills/curated/batch-w01.ts` | Freeze enemyChosen → Freeze lastTarget = the LastEnemy that was damaged (native LastEnemy) |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-7131 | data | 8675 | troop:7131 VaultGuard | `src/engine/skills/curated/batch-37.ts`<br>`src/data/gowSnapshotOverrides.json` | oneOf(Freeze \| Death Mark); zh 'or' → Freeze and Death Mark (native both steps); zh override 'and' |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-6051 | data | 7051 | troop:6051 Chimera | `src/engine/skills/curated/batch-02.ts` | Poison/Burn re-pick enemyHealthiest each step → Poison/Burn lastTarget (native FromPrevious); none after a kill |  |
+| 2026-09-28T11:10 | sa-C | L5-C-r4-6377 | data | 7532 | troop:6377 Parrot | `src/engine/skills/curated/batch-r11.ts` | one 50% roll for both adjacent enemies → NextUp and NextDown each own 50% roll (native two PercentageChance steps) |  |
+| 2026-09-28T11:10 | sa-P | P-A-target-kingdom | primitive | 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329, 8330, 8331, 8332, 8333, 8334, 8335, 8336, 8337, 8338, 8339, 8340, 8341, 8342, 8343, 8344, 8345, 8346, 8347, 8348, 8349, 8350, 8351, 8352, 8353, 8354, 8642, 8807, 8875, 9111, 9593 | weapon:1318 PistolOfAdana；weapon:1319 TomeOfKarakoth；weapon:1320 ChokerOfZhulKari；weapon:1321 StaffOfTheFields；weapon:1322 DaggerOfScales；weapon:1323 BowOfThorns；weapon:1324 StaffOfWhitehelm；weapon:1325 LuteOfTheVale；weapon:1326 HammerOfKhaziel；weapon:1327 ScytheOfKhetar；weapon:1328 DaggerOfZaejin；weapon:1329 SpearOfThePride；weapon:1330 MaceOfGhulvania；weapon:1331 ShieldOfTheEdge；weapon:1332 AxeOfTheStorm；weapon:1333 DaggerOfMaugrim；weapon:1334 MaceOfGrosh-Nak；weapon:1335 StaffOfTheWild；weapon:1336 IdolOfDarkstone；weapon:1337 DaggerOfTheSands；weapon:1338 ScytheOfTheBlight；weapon:1339 ChaliceOfThePeaks；weapon:1340 PendantOfTheEmpire；weapon:1341 TorcOfTheDragon；weapon:1342 FlintlockOfBlackhawk；weapon:1343 RunestoneOfSilverglade；weapon:1344 JavelinOfSuncrest；weapon:1345 AegisOfUrskaya；weapon:1346 TridentOfMerlantis；weapon:1347 StaffOfBrightForest；weapon:1348 HammerOfShentang；weapon:1349 AxeOfDhrak-Zum；weapon:1350 ScytheOfSin；weapon:1429 StarOfNexus；weapon:1479 AegisOfHellcrag；weapon:1499 OrbOfVulpacea；weapon:1560 MydnightsTerror；troop:7665 SeabornKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json`<br>`scripts/_weapon_pools.mjs`<br>`tests/unit/gowFixP-A-target-kingdom.test.ts`<br>`tests/unit/weaponNativeStepRepair.test.ts` | condMult kingdomOf side enemy: any living enemy from the kingdom doubled the hit on any target; zh desc 造成l → new target-relative condition targetKingdom (segment target, fallback chosen target); kingdom weapons anyOf(targetKingdom, kingdomPresent), 9593 targetKingdom; zh stray l removed (pool-w01 + override description/prototype for 34 spells); generator hKingdomCond emits targetKingdom | only kingdom weapons + 9593 used kingdomOf enemy |
+| 2026-09-28T11:12 | sa-A | L4a-r4-6990-zh | data | 8494 | troop:6990 NyarMel | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | zh unreadable machine translation → zh follows English (true heavy splash, boosted by Stone Blocks, explode all, create 3); behaviour unchanged |  |
+| 2026-09-28T11:12 | sa-A | L4a-r4-7318-zh | data | 8930 | troop:7318 Mumakus | `src/engine/skills/curated/batch-r14.ts`<br>`src/data/gowSnapshotOverrides.json` | zh described another spell (5x5, armor/life, gargoyle gems) → zh follows English (destroy a row, damage first 2 boosted by my Life [3:1]); behaviour unchanged |  |
+| 2026-09-28T11:13 | sa-C | L5-C-r4-1294 | data | 8221 | weapon:1294 FrostfireJewel | `src/engine/skills/curated/batch-w02.ts` | Curse/Death Mark if ANY enemy is Frozen/Burning → only if the damaged target itself is Frozen/Burning (native FromTarget AddForFrozen/AddForBurning) |  |
+| 2026-09-28T11:13 | sa-C | L5-C-r4-1405 | data | 8508 | weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w03.ts` | 4 Bleed on the chosen enemy if ANY enemy is Poisoned → 4 Bleed on the last enemy if it is Poisoned (native LastEnemy AddForPoison x4) |  |
+| 2026-09-28T11:15 | sa-C | L5-C-r4-1132 | data | 7296, 8508 | weapon:1132 IceDagger；weapon:1405 TheNightfallBlade | `src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w03.ts` | LastEnemy status step bound to the damaged enemy (lastTarget) → LastEnemy re-resolved at the step (enemyLast), consistent with native per-step targets and troop:6674 |  |
+| 2026-09-28T11:15 | sa-C | L5-C-r4-7142 | data | 8691 | troop:7142 SkyGoat | `src/engine/skills/curated/batch-r15.ts` | three independent enemyRandom waves → RandomEnemy then 2x RandomPrefNotPrevEnemy (R007-3) |  |
+| 2026-09-28T11:16 | sa-P | P-B-action-status-self-count | primitive | 8038, 8411, 8937, 7491, 7942 | troop:6692 Mervorax；troop:6933 Ishtara；troop:7325 Tuzi；weapon:1151 EmeraldTear；troop:6624 Mershark | `src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/prototypes.ts`<br>`tests/unit/gowFixP-B-action-status-self-count.test.ts` | TurnEngine.castSkill removed the caster's Enchanted/Submerged/Blessed before the spell body; allyStatusCount/selfStatus/anyAllyStatus never saw the caster's own status → removed ids kept in ctx.actionEndedStatusIds (and castTracking.statusesAtCastStart of the caster); allyStatusCount / selfStatus / anyAllyStatus count the caster; the status is still removed | self-including allyStatusCount/anyAllyStatus/selfStatus users of submerged/blessed/enchanted: troop:6412 6417 6519 6576 6713 6823 6968 7109 7262 7405 7650 7729 7813 weapon:1156 |
 | 2026-09-28T11:16 | sa-E | L1-E-1213-dist | assembler | 7816 | weapon:1213 TomeOfSin | `src/engine/skills/curated/batch-w02.ts` | summonRandomOfKingdom zh 迈纳杰之罪 uniform 1-3 → 3 independent summons 100/50/50% (>=13 Purple) from raw KingdomId 3037 list (33; zh kingdom added 5 non-3037) |  |
 | 2026-09-28T11:16 | sa-E | L1-E-1238-pool | assembler | 7991 | weapon:1238 Riftblade | `src/engine/skills/curated/batch-w02.ts` | 5 seasonal imps → raw KingdomId 3032: + ImpOfLove |  |
 | 2026-09-28T11:16 | sa-E | L1-E-6910-wraith | assembler | 8371 | troop:6910 GaelSpiritwhisperer | `src/engine/skills/curated/batch-r4.ts` | transform into random of Wraith/IceWraith/FrostfireWraith → native Data 6206 = Wraith only |  |
 | 2026-09-28T11:16 | sa-E | L1-E-6757-target | assembler | 8137 | troop:6757 Fungomancer | `src/engine/skills/curated/batch-p37.ts`<br>`src/data/gowSnapshotOverrides.json` | transform if ANY enemy Diseased; zh desc said any enemy → target itself Diseased (TransformConditional@FromTarget AddForDisease); zh desc + snapshot override |  |
 | 2026-09-28T11:16 | sa-E | L1-E-7111-dist | assembler | 8654 | troop:7111 Oneiros | `src/engine/skills/curated/batch-r5.ts` | Nightmare uniform 1-3 → 3 independent summons 100/50/25% |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6819 | data | 8223 | troop:6819 Faemark | `src/engine/skills/curated/batch-r18.ts` | Dispel ifTargetDied after the cleanse segment (checked an ally, never fired) → Dispel all enemies gated by castEnemyDied |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6108 | data | 7177 | troop:6108 IceWitch | `src/engine/skills/curated/batch-12.ts`<br>`src/data/gowSnapshotOverrides.json` | +1 Magic to all allies on kill; zh 1 → +3 Magic (English/native StatusAmount 3); zh override |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6602 | data | 7811 | troop:6602 Barghast | `src/engine/skills/curated/batch-r4.ts` | target and ALL enemies below → target and the next enemy below only (native NextDownFromTarget) |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6708 | data | 8065 | troop:6708 HexRat | `src/engine/skills/curated/batch-37.ts` | double/Death Mark applied to every Cursed enemy in the column → only the chosen enemy is checked, doubled and Death Marked; below plain |  |
+| 2026-09-28T11:20 | sa-C | L5-C-r4-6937 | data | 8418 | troop:6937 SisterEbony | `src/engine/skills/curated/batch-r6.ts` | double if ANY enemy uses Blue → each of first/last doubled on its own Blue (MultiplyForBlueTarget); barrier still open (P-C-firstlast-army-color) |  |
+| 2026-09-28T11:21 | sa-A | L4a-r4-6758 | data | 8138 | troop:6758 Exploadstool | `src/engine/skills/curated/batch-37.ts` | if an enemy is Diseased: Poison 1-4 distinct random enemies (uniform count) → native four conditional Poison@RandomEnemy steps at 100/50/25/25%, fresh random pick each (may repeat) |  |
+| 2026-09-28T11:21 | sa-A | L4a-r4-7174 | data | 8745 | troop:7174 Mechweaver | `src/engine/skills/curated/batch-p37.ts` | destroy chosen row, then chosen column (two clears; a created Bomb could trigger between) → native DestroyGems RowAndColumn: one 15-cell cross clear |  |
+| 2026-09-28T11:21 | sa-P | P-D-lethal-first-lasttarget | primitive | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-D-lethal-first-lasttarget.test.ts` | failed chance roll of an execute segment returned before target resolution (no lastTarget); 8664 wrote true damage before the slay roll → runSegment: failed roll of a damage execute segment still resolves/tracks its targets; 8664 native order execute enemyLast -> trueDmg lastTarget | execute+chance segments followed by lastTarget/ifTargetDied steps now see the (surviving) victim: troop:6252 6460 6585 6753 7016 7145 7252 7797 |
 | 2026-09-28T11:55 | sa-E | L1-E-kingdom-summon-raw | assembler | 8399, 8513, 8514, 8515, 8529, 8670 | weapon:1364 CobaltineWand；weapon:1410 FireGodsHeart；weapon:1411 King-Chopper；weapon:1412 OldMagusStaff；weapon:1414 JellyShot；weapon:1438 EmeraldBlade | `src/engine/skills/curated/gowKingdomPools.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | summonRandomOfKingdom(<zh kingdom name>) = parent kingdom + its faction troops (1411 King-Chopper also drew Dripping Caverns only) → summonRandom(rawKingdomPool(<native Data id>)): roster troops with raw KingdomId 3030/3000/3018/3017/3058/3009 |  |
 | 2026-09-28T11:55 | sa-E | L1-E-1414-desc | data | 8529 | weapon:1414 JellyShot | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh desc typo 使用对多的颜色 → 使用最多的颜色 (curated desc + pool-w01 + reviewed override) |  |
 | 2026-09-28T11:55 | sa-E | L1-E-6596-row | assembler | 7818 | troop:6596 GloryGnome | `src/engine/skills/curated/batch-39.ts` | destroy a random row → destroy the chosen row (native Target Board, DestroyGems BoardTarget Row) |  |
@@ -502,6 +525,7 @@
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |
 | 7050 | 1 | F3-q29 |
+| 7051 | 1 | L5-C-r4-6051 |
 | 7052 | 2 | F2-R001-order、R010 |
 | 7053 | 1 | F2-R001-order |
 | 7054 | 1 | F2-R001-order |
@@ -530,6 +554,8 @@
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
+| 7177 | 1 | L5-C-r4-6108 |
+| 7184 | 1 | L4a-r4-1071 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
@@ -564,6 +590,7 @@
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
 | 7295 | 1 | F3-q35 |
+| 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
 | 7307 | 1 | F3-q27 |
 | 7308 | 1 | L4a-r3-1138 |
@@ -641,6 +668,7 @@
 | 7480 | 2 | L4b-7276-singlegem、L1-R2-consume-first |
 | 7482 | 1 | P-random-stat-pool |
 | 7489 | 1 | P-counter-per-step |
+| 7491 | 1 | P-B-action-status-self-count |
 | 7501 | 1 | L1-summon-dist |
 | 7504 | 2 | L7-6352-a、R005-test-sync |
 | 7507 | 1 | F2-6355-native-order |
@@ -650,6 +678,7 @@
 | 7521 | 1 | L2-6369-ratio |
 | 7526 | 1 | F1-items-62-75 |
 | 7529 | 1 | L1-1154-egg |
+| 7532 | 1 | L5-C-r4-6377 |
 | 7533 | 1 | L1-6378-pool |
 | 7542 | 2 | F1-6387-rebirth、P-F1-summon-after-caster-death |
 | 7548 | 1 | R004-tests |
@@ -724,6 +753,7 @@
 | 7805 | 1 | F3-t1210 |
 | 7808 | 1 | R7-6599-full-or |
 | 7810 | 1 | L1-E-6601-target |
+| 7811 | 1 | L5-C-r4-6602 |
 | 7816 | 1 | L1-E-1213-dist |
 | 7818 | 1 | L1-E-6596-row |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
@@ -736,6 +766,7 @@
 | 7933 | 1 | F2-R001-order |
 | 7936 | 1 | P-create-interleave |
 | 7941 | 1 | F2-6623-column-order |
+| 7942 | 1 | P-B-action-status-self-count |
 | 7944 | 1 | B-L4b-6626-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
@@ -753,6 +784,7 @@
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
+| 8038 | 1 | P-B-action-status-self-count |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
 | 8047 | 1 | R7-doomed-support-counters |
 | 8050 | 1 | R7-doomed-support-counters |
@@ -761,6 +793,7 @@
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8060 | 1 | P-R2-chosen-color-modifier |
 | 8062 | 1 | L5-C-1250-bleed-n |
+| 8065 | 1 | L5-C-r4-6708 |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
 | 8077 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
@@ -781,6 +814,7 @@
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
 | 8137 | 1 | L1-E-6757-target |
+| 8138 | 1 | L4a-r4-6758 |
 | 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8140 | 1 | L1-1274-amanithrax |
 | 8150 | 1 | F2-R001-order |
@@ -802,6 +836,8 @@
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
+| 8221 | 1 | L5-C-r4-1294 |
+| 8223 | 1 | L5-C-r4-6819 |
 | 8226 | 1 | L4a-r3-6822 |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8229 | 1 | L1-6827-base |
@@ -827,6 +863,39 @@
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8316 | 1 | B-L4b-6890-native-chances |
 | 8321 | 1 | L2-1317-branches |
+| 8322 | 1 | P-A-target-kingdom |
+| 8323 | 1 | P-A-target-kingdom |
+| 8324 | 1 | P-A-target-kingdom |
+| 8325 | 1 | P-A-target-kingdom |
+| 8326 | 1 | P-A-target-kingdom |
+| 8327 | 1 | P-A-target-kingdom |
+| 8328 | 1 | P-A-target-kingdom |
+| 8329 | 1 | P-A-target-kingdom |
+| 8330 | 1 | P-A-target-kingdom |
+| 8331 | 1 | P-A-target-kingdom |
+| 8332 | 1 | P-A-target-kingdom |
+| 8333 | 1 | P-A-target-kingdom |
+| 8334 | 1 | P-A-target-kingdom |
+| 8335 | 1 | P-A-target-kingdom |
+| 8336 | 1 | P-A-target-kingdom |
+| 8337 | 1 | P-A-target-kingdom |
+| 8338 | 1 | P-A-target-kingdom |
+| 8339 | 1 | P-A-target-kingdom |
+| 8340 | 1 | P-A-target-kingdom |
+| 8341 | 1 | P-A-target-kingdom |
+| 8342 | 1 | P-A-target-kingdom |
+| 8343 | 1 | P-A-target-kingdom |
+| 8344 | 1 | P-A-target-kingdom |
+| 8345 | 1 | P-A-target-kingdom |
+| 8346 | 1 | P-A-target-kingdom |
+| 8347 | 1 | P-A-target-kingdom |
+| 8348 | 1 | P-A-target-kingdom |
+| 8349 | 1 | P-A-target-kingdom |
+| 8350 | 1 | P-A-target-kingdom |
+| 8351 | 1 | P-A-target-kingdom |
+| 8352 | 1 | P-A-target-kingdom |
+| 8353 | 1 | P-A-target-kingdom |
+| 8354 | 1 | P-A-target-kingdom |
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
 | 8370 | 1 | L4a-r3-6909 |
@@ -847,10 +916,12 @@
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8408 | 1 | L1-6930-summons |
 | 8410 | 1 | P-prefnotprev-semantics |
+| 8411 | 1 | P-B-action-status-self-count |
 | 8413 | 1 | R7-6925-two-hits |
 | 8414 | 2 | F1-items-62-75、R012 |
 | 8415 | 1 | R3-B04-6934 |
 | 8417 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
+| 8418 | 1 | L5-C-r4-6937 |
 | 8420 | 1 | L4a-R1-8420-cross |
 | 8422 | 1 | P-create-interleave |
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
@@ -877,12 +948,14 @@
 | 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
 | 8492 | 1 | L2-6988-one-block |
+| 8494 | 1 | L4a-r4-6990-zh |
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |
 | 8499 | 1 | P-random-stat-pool |
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
+| 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
 | 8513 | 1 | L1-E-kingdom-summon-raw |
 | 8514 | 1 | L1-E-kingdom-summon-raw |
 | 8515 | 1 | L1-E-kingdom-summon-raw |
@@ -943,6 +1016,7 @@
 | 8639 | 1 | L7-R1-board-special-counts |
 | 8640 | 1 | P-R3-target-status-count,P-R3-ally-status-excl-self |
 | 8641 | 1 | B-L4b-1428-four-creates |
+| 8642 | 1 | P-A-target-kingdom |
 | 8644 | 1 | L7-R1-weapon-colour-race |
 | 8646 | 1 | L4a-R1-8646-counters |
 | 8650 | 1 | P-prefnotprev-semantics |
@@ -952,7 +1026,7 @@
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
-| 8664 | 1 | D-1435-doomskull |
+| 8664 | 2 | D-1435-doomskull、P-D-lethal-first-lasttarget |
 | 8665 | 1 | L2-7125-branches |
 | 8666 | 1 | R7-tarot-extra-turn |
 | 8667 | 1 | R7-tarot-extra-turn |
@@ -960,9 +1034,11 @@
 | 8670 | 1 | L1-E-kingdom-summon-raw |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
+| 8675 | 1 | L5-C-r4-7131 |
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
 | 8688 | 1 | L4a-r3-7139 |
+| 8691 | 1 | L5-C-r4-7142 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
@@ -973,6 +1049,7 @@
 | 8715 | 1 | L1-7155-devour |
 | 8722 | 1 | L2-singlegem-cell |
 | 8732 | 1 | L1-7157-devour |
+| 8745 | 1 | L4a-r4-7174 |
 | 8747 | 1 | L1-summon-dist |
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -991,7 +1068,7 @@
 | 8798 | 1 | R7-7211-gargoyle-count |
 | 8802 | 1 | F3-t7215 |
 | 8804 | 1 | L2-7217-cell |
-| 8807 | 1 | F2-R001-order |
+| 8807 | 2 | F2-R001-order、P-A-target-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8817 | 1 | L1-7222-chance |
@@ -1015,6 +1092,7 @@
 | 8871 | 1 | B-L4b-7257-countmax |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
+| 8875 | 1 | P-A-target-kingdom |
 | 8881 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 8884 | 1 | L2-7265-dragon |
 | 8886 | 1 | R009-7267-color |
@@ -1030,7 +1108,9 @@
 | 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
 | 8928 | 1 | P-R1-row-count-at-cast-start |
+| 8930 | 1 | L4a-r4-7318-zh |
 | 8933 | 1 | F2-7321-no-events |
+| 8937 | 1 | P-B-action-status-self-count |
 | 8939 | 1 | R3-B02-7327 |
 | 8941 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8946 | 1 | R3-B09-1505 |
@@ -1055,9 +1135,11 @@
 | 9066 | 1 | L1-7417-devour |
 | 9067 | 1 | L3-008 |
 | 9069 | 1 | L2-7406-branch-weights |
+| 9111 | 1 | P-A-target-kingdom |
 | 9115 | 1 | R7-tarot-extra-turn |
 | 9118 | 1 | L1-drain-devour |
 | 9119 | 1 | P-create-interleave |
+| 9126 | 1 | L5-C-r4-7432 |
 | 9132 | 1 | R009-dragon |
 | 9133 | 1 | R009-dragon |
 | 9134 | 1 | R009-dragon |
@@ -1071,6 +1153,7 @@
 | 9162 | 1 | R012 |
 | 9163 | 1 | P-create-interleave |
 | 9165 | 1 | L7-R1-random-chain-waves |
+| 9174 | 1 | L4a-r4-7457 |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
 | 9190 | 1 | L7-R1-random-chain-waves |
 | 9193 | 1 | L4a-R1-9193-random-explode |
@@ -1164,6 +1247,7 @@
 | 9579 | 1 | R7-1631-counter-only-drain |
 | 9589 | 1 | L7-R1-random-chain-waves |
 | 9591 | 1 | P-counter-per-step |
+| 9593 | 1 | P-A-target-kingdom |
 | 9594 | 1 | R011 |
 | 9597 | 1 | P-counter-per-step |
 | 9602 | 1 | F1-7674-target |

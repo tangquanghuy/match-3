@@ -938,8 +938,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 6] 点伤害，若敌人已被冻结，则诅咒敌人。若敌人陷入燃烧状态，则再使其陷入死亡标记状态。',
     build: skill(
       dmg('enemyChosen', 6, 1),
-      inflict('curse', 'enemyChosen', { ifCond: { kind: 'anyEnemyStatus', statusId: 'frozen' } }),
-      inflict('death-mark', 'lastTarget', { ifCond: { kind: 'anyEnemyStatus', statusId: 'burning' } }),
+      // native FromTarget AddForFrozen / AddForBurning: the damaged target's own status, not any enemy's
+      inflict('curse', 'lastTarget', { ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
+      inflict('death-mark', 'lastTarget', { ifCond: { kind: 'targetStatus', statusId: 'burning' } }),
     ),
   },
   {
@@ -1120,263 +1121,263 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8322,
-    desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自阿达纳，或战斗发生在阿达纳，则造成双倍伤害。 [3:1]',
+    desc: '移除所有黄色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自阿达纳，或战斗发生在阿达纳，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '阿达纳' }, { kind: 'kingdomPresent', kingdom: '阿达纳' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '阿达纳' }, { kind: 'kingdomPresent', kingdom: '阿达纳' }] } } }),
     ),
   },
   {
     id: 8323,
-    desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卡拉考斯，或战斗发生在卡拉考斯，则造成双倍伤害。 [3:1]',
+    desc: '移除所有紫色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卡拉考斯，或战斗发生在卡拉考斯，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卡拉考斯' }, { kind: 'kingdomPresent', kingdom: '卡拉考斯' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '卡拉考斯' }, { kind: 'kingdomPresent', kingdom: '卡拉考斯' }] } } }),
     ),
   },
   {
     id: 8324,
-    desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自蛛尔卡里，或战斗发生在蛛尔卡里，则造成双倍伤害。 [3:1]',
+    desc: '移除所有紫色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自蛛尔卡里，或战斗发生在蛛尔卡里，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '蛛尔卡里' }, { kind: 'kingdomPresent', kingdom: '蛛尔卡里' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '蛛尔卡里' }, { kind: 'kingdomPresent', kingdom: '蛛尔卡里' }] } } }),
     ),
   },
   {
     id: 8325,
-    desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卜筮之原，或战斗发生在卜筮之原，则造成双倍伤害。 [3:1]',
+    desc: '移除所有黄色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卜筮之原，或战斗发生在卜筮之原，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卜筮之原' }, { kind: 'kingdomPresent', kingdom: '卜筮之原' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '卜筮之原' }, { kind: 'kingdomPresent', kingdom: '卜筮之原' }] } } }),
     ),
   },
   {
     id: 8326,
-    desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自鳞雾沼泽，或战斗发生在鳞雾沼泽，则造成双倍伤害。 [3:1]',
+    desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自鳞雾沼泽，或战斗发生在鳞雾沼泽，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '鳞雾沼泽' }, { kind: 'kingdomPresent', kingdom: '鳞雾沼泽' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '鳞雾沼泽' }, { kind: 'kingdomPresent', kingdom: '鳞雾沼泽' }] } } }),
     ),
   },
   {
     id: 8327,
-    desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荆棘森林，或战斗发生在荆棘森林，则造成双倍伤害。 [3:1]',
+    desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荆棘森林，或战斗发生在荆棘森林，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '荆棘森林' }, { kind: 'kingdomPresent', kingdom: '荆棘森林' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '荆棘森林' }, { kind: 'kingdomPresent', kingdom: '荆棘森林' }] } } }),
     ),
   },
   {
     id: 8328,
-    desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自白盔国，或战斗发生在白盔国，则造成双倍伤害。 [3:1]',
+    desc: '移除所有黄色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自白盔国，或战斗发生在白盔国，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '白盔国' }, { kind: 'kingdomPresent', kingdom: '白盔国' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '白盔国' }, { kind: 'kingdomPresent', kingdom: '白盔国' }] } } }),
     ),
   },
   {
     id: 8329,
-    desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自潘神之谷，或战斗发生在潘神之谷，则造成双倍伤害。 [3:1]',
+    desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自潘神之谷，或战斗发生在潘神之谷，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '潘神之谷' }, { kind: 'kingdomPresent', kingdom: '潘神之谷' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '潘神之谷' }, { kind: 'kingdomPresent', kingdom: '潘神之谷' }] } } }),
     ),
   },
   {
     id: 8330,
-    desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卡其尔，或战斗发生在卡其尔，则造成双倍伤害。 [3:1]',
+    desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卡其尔，或战斗发生在卡其尔，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卡其尔' }, { kind: 'kingdomPresent', kingdom: '卡其尔' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '卡其尔' }, { kind: 'kingdomPresent', kingdom: '卡其尔' }] } } }),
     ),
   },
   {
     id: 8331,
-    desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自盖塔尔，或战斗发生在盖塔尔，则造成双倍伤害。 [3:1]',
+    desc: '移除所有紫色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自盖塔尔，或战斗发生在盖塔尔，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '盖塔尔' }, { kind: 'kingdomPresent', kingdom: '盖塔尔' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '盖塔尔' }, { kind: 'kingdomPresent', kingdom: '盖塔尔' }] } } }),
     ),
   },
   {
     id: 8332,
-    desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自齐埃金，或战斗发生在齐埃金，则造成双倍伤害。 [3:1]',
+    desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自齐埃金，或战斗发生在齐埃金，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '齐埃金' }, { kind: 'kingdomPresent', kingdom: '齐埃金' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '齐埃金' }, { kind: 'kingdomPresent', kingdom: '齐埃金' }] } } }),
     ),
   },
   {
     id: 8333,
-    desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荣耀之地，或战斗发生在荣耀之地，则造成双倍伤害。 [3:1]',
+    desc: '移除所有红色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荣耀之地，或战斗发生在荣耀之地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '荣耀之地' }, { kind: 'kingdomPresent', kingdom: '荣耀之地' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '荣耀之地' }, { kind: 'kingdomPresent', kingdom: '荣耀之地' }] } } }),
     ),
   },
   {
     id: 8334,
-    desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自加尔凡尼亚，或战斗发生在加尔凡尼亚，则造成双倍伤害。 [3:1]',
+    desc: '移除所有紫色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自加尔凡尼亚，或战斗发生在加尔凡尼亚，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '加尔凡尼亚' }, { kind: 'kingdomPresent', kingdom: '加尔凡尼亚' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '加尔凡尼亚' }, { kind: 'kingdomPresent', kingdom: '加尔凡尼亚' }] } } }),
     ),
   },
   {
     id: 8335,
-    desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自剑锋崖，或战斗发生在剑锋崖，则造成双倍伤害。 [3:1]',
+    desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自剑锋崖，或战斗发生在剑锋崖，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '剑锋崖' }, { kind: 'kingdomPresent', kingdom: '剑锋崖' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '剑锋崖' }, { kind: 'kingdomPresent', kingdom: '剑锋崖' }] } } }),
     ),
   },
   {
     id: 8336,
-    desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自风暴峡湾，或战斗发生在风暴峡湾，则造成双倍伤害。 [3:1]',
+    desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自风暴峡湾，或战斗发生在风暴峡湾，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '风暴峡湾' }, { kind: 'kingdomPresent', kingdom: '风暴峡湾' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '风暴峡湾' }, { kind: 'kingdomPresent', kingdom: '风暴峡湾' }] } } }),
     ),
   },
   {
     id: 8337,
-    desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自毛格瑞姆森林，或战斗发生在毛格瑞姆森林，则造成双倍伤害。 [3:1]',
+    desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自毛格瑞姆森林，或战斗发生在毛格瑞姆森林，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '毛格瑞姆森林' }, { kind: 'kingdomPresent', kingdom: '毛格瑞姆森林' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '毛格瑞姆森林' }, { kind: 'kingdomPresent', kingdom: '毛格瑞姆森林' }] } } }),
     ),
   },
   {
     id: 8338,
-    desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自葛洛什奈克，或战斗发生在葛洛什奈克，则造成双倍伤害。 [3:1]',
+    desc: '移除所有红色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自葛洛什奈克，或战斗发生在葛洛什奈克，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '葛洛什奈克' }, { kind: 'kingdomPresent', kingdom: '葛洛什奈克' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '葛洛什奈克' }, { kind: 'kingdomPresent', kingdom: '葛洛什奈克' }] } } }),
     ),
   },
   {
     id: 8339,
-    desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自狂野平原，或战斗发生在狂野平原，则造成双倍伤害。 [3:1]',
+    desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自狂野平原，或战斗发生在狂野平原，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '狂野平原' }, { kind: 'kingdomPresent', kingdom: '狂野平原' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '狂野平原' }, { kind: 'kingdomPresent', kingdom: '狂野平原' }] } } }),
     ),
   },
   {
     id: 8340,
-    desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自黑石，或战斗发生在黑石，则造成双倍伤害。 [3:1]',
+    desc: '移除所有紫色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自黑石，或战斗发生在黑石，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '黑石' }, { kind: 'kingdomPresent', kingdom: '黑石' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '黑石' }, { kind: 'kingdomPresent', kingdom: '黑石' }] } } }),
     ),
   },
   {
     id: 8341,
-    desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自聚沙之地，或战斗发生在聚沙之地，则造成双倍伤害。 [3:1]',
+    desc: '移除所有黄色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自聚沙之地，或战斗发生在聚沙之地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '聚沙之地' }, { kind: 'kingdomPresent', kingdom: '聚沙之地' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '聚沙之地' }, { kind: 'kingdomPresent', kingdom: '聚沙之地' }] } } }),
     ),
   },
   {
     id: 8342,
-    desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荒芜之地，或战斗发生在荒芜之地，则造成双倍伤害。 [3:1]',
+    desc: '移除所有红色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自荒芜之地，或战斗发生在荒芜之地，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '荒芜之地' }, { kind: 'kingdomPresent', kingdom: '荒芜之地' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '荒芜之地' }, { kind: 'kingdomPresent', kingdom: '荒芜之地' }] } } }),
     ),
   },
   {
     id: 8343,
-    desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自冰峰之巅，或战斗发生在冰峰之巅，则造成双倍伤害。 [3:1]',
+    desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自冰峰之巅，或战斗发生在冰峰之巅，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '冰峰之巅' }, { kind: 'kingdomPresent', kingdom: '冰峰之巅' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '冰峰之巅' }, { kind: 'kingdomPresent', kingdom: '冰峰之巅' }] } } }),
     ),
   },
   {
     id: 8344,
-    desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自狮心帝国，或战斗发生在狮心帝国，则造成双倍伤害。 [3:1]',
+    desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自狮心帝国，或战斗发生在狮心帝国，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '狮心帝国' }, { kind: 'kingdomPresent', kingdom: '狮心帝国' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '狮心帝国' }, { kind: 'kingdomPresent', kingdom: '狮心帝国' }] } } }),
     ),
   },
   {
     id: 8345,
-    desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自龙爪，或战斗发生在龙爪，则造成双倍伤害。 [3:1]',
+    desc: '移除所有红色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自龙爪，或战斗发生在龙爪，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '龙爪' }, { kind: 'kingdomPresent', kingdom: '龙爪' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '龙爪' }, { kind: 'kingdomPresent', kingdom: '龙爪' }] } } }),
     ),
   },
   {
     id: 8346,
-    desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自黑鹰，或战斗发生在黑鹰，则造成双倍伤害。 [3:1]',
+    desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自黑鹰，或战斗发生在黑鹰，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '黑鹰' }, { kind: 'kingdomPresent', kingdom: '黑鹰' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '黑鹰' }, { kind: 'kingdomPresent', kingdom: '黑鹰' }] } } }),
     ),
   },
   {
     id: 8347,
-    desc: '移除所有紫色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自玉银林地，或战斗发生在玉银林地，则造成双倍伤害。 [3:1]',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Purple"}}},{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"destroyedGems"}},"condMult":{"times":2,"cond":{"kind":"anyOf","of":[{"kind":"kingdomOf","side":"enemy","kingdom":"玉银林地"},{"kind":"kingdomPresent","kingdom":"玉银林地"}]}}}]} as SkillPrototype),
+    desc: '移除所有紫色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自玉银林地，或战斗发生在玉银林地，则造成双倍伤害。 [3:1]',
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"color","color":"Purple"}}},{"kind":"damage","target":"enemyChosen","scaling":{"base":5,"mult":1},"modifier":{"mod":{"kind":"ratio","a":3,"b":1},"source":{"kind":"destroyedGems"}},"condMult":{"times":2,"cond":{"kind":"anyOf","of":[{"kind":"targetKingdom","kingdom":"玉银林地"},{"kind":"kingdomPresent","kingdom":"玉银林地"}]}}}]} as SkillPrototype),
   },
   {
     id: 8348,
-    desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自日冕，或战斗发生在日冕，则造成双倍伤害。 [3:1]',
+    desc: '移除所有黄色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自日冕，或战斗发生在日冕，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '日冕' }, { kind: 'kingdomPresent', kingdom: '日冕' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '日冕' }, { kind: 'kingdomPresent', kingdom: '日冕' }] } } }),
     ),
   },
   {
     id: 8349,
-    desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自厄什卡亚，或战斗发生在厄什卡亚，则造成双倍伤害。 [3:1]',
+    desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自厄什卡亚，或战斗发生在厄什卡亚，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '厄什卡亚' }, { kind: 'kingdomPresent', kingdom: '厄什卡亚' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '厄什卡亚' }, { kind: 'kingdomPresent', kingdom: '厄什卡亚' }] } } }),
     ),
   },
   {
     id: 8350,
-    desc: '移除所有蓝色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自梅兰堤斯，或战斗发生在梅兰堤斯，则造成双倍伤害。 [3:1]',
+    desc: '移除所有蓝色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自梅兰堤斯，或战斗发生在梅兰堤斯，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '梅兰堤斯' }, { kind: 'kingdomPresent', kingdom: '梅兰堤斯' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '梅兰堤斯' }, { kind: 'kingdomPresent', kingdom: '梅兰堤斯' }] } } }),
     ),
   },
   {
     id: 8351,
-    desc: '移除所有绿色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自皓彩森林，或战斗发生在皓彩森林，则造成双倍伤害。 [3:1]',
+    desc: '移除所有绿色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自皓彩森林，或战斗发生在皓彩森林，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '皓彩森林' }, { kind: 'kingdomPresent', kingdom: '皓彩森林' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '皓彩森林' }, { kind: 'kingdomPresent', kingdom: '皓彩森林' }] } } }),
     ),
   },
   {
     id: 8352,
-    desc: '移除所有黄色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自圣唐，或战斗发生在圣唐，则造成双倍伤害。 [3:1]',
+    desc: '移除所有黄色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自圣唐，或战斗发生在圣唐，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '圣唐' }, { kind: 'kingdomPresent', kingdom: '圣唐' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '圣唐' }, { kind: 'kingdomPresent', kingdom: '圣唐' }] } } }),
     ),
   },
   {
     id: 8353,
-    desc: '移除所有棕色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卓克祖，或战斗发生在卓克祖，则造成双倍伤害。 [3:1]',
+    desc: '移除所有棕色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自卓克祖，或战斗发生在卓克祖，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '卓克祖' }, { kind: 'kingdomPresent', kingdom: '卓克祖' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '卓克祖' }, { kind: 'kingdomPresent', kingdom: '卓克祖' }] } } }),
     ),
   },
   {
     id: 8354,
-    desc: '移除所有红色宝石。对一名敌人造成l [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自迈纳杰之罪，或战斗发生在迈纳杰之罪，则造成双倍伤害。 [3:1]',
+    desc: '移除所有红色宝石。对一名敌人造成 [魔法 + 5] 点伤害，伤害值因被移除的宝石数而增强。若敌人来自迈纳杰之罪，或战斗发生在迈纳杰之罪，则造成双倍伤害。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'kingdomOf', side: 'enemy', kingdom: '迈纳杰之罪' }, { kind: 'kingdomPresent', kingdom: '迈纳杰之罪' }] } } }),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems' } }, condMult: { times: 2, cond: { kind: 'anyOf', of: [{ kind: 'targetKingdom', kingdom: '迈纳杰之罪' }, { kind: 'kingdomPresent', kingdom: '迈纳杰之罪' }] } } }),
     ),
   },
   {

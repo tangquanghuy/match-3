@@ -6,3 +6,8 @@
 - B05 weapon:1523,troop:6188,troop:6793,troop:6822,troop:7821,troop:7543,troop:7024,troop:7134,troop:7044,troop:7086 approve=10 fixed=8 issue=0 (1523 Bombs in exploded 3x3; 6188/7821 chosen gem; 6793/7086 both stats boosted; 7543 Elemental Star count; 7044 single 2+Bombs explosion; 6822 native status order)
 - B06 troop:7488,troop:7018,weapon:1404,troop:6010,troop:7320,weapon:1036,weapon:1037,weapon:1038,weapon:1039,weapon:1040 (+weapon:1044) approve=10 fixed=8 issue=1 (1036-1040/1044 boost had no source; 7018 no base armor; 7488 order; issue 1404 counter accumulation dispute)
 - B07 weapon:1138 + kingdom family weapon:1318-1350,1429,1479,1499,1560 approve=1 fixed=1 issue=37 (1138 chosen enemy colour + boost source; kingdom weapons issued P-A-target-kingdom: kingdomOf any-enemy vs target kingdom; zh stray 'l' noted)
+
+# sa-A L4a progress (review round 4)
+- R4B01 troop:6059,weapon:1071,troop:6090,troop:7348,weapon:1408,troop:6961,troop:6461,weapon:1658,troop:6336,troop:7457 approve=10 fixed=2 issue=0 (1071 remove Skulls before damage + boost source + zh; 7457 count Burning on board, damage, then explode)
+- R4B02 troop:6990,troop:7612,troop:7318,troop:6875,troop:6973,troop:6907,weapon:1150,troop:6633,troop:6638,troop:7179 approve=10 fixed=2 issue=0 (6990/7318 zh only via snapshot overrides; 6990 Stone Block board test)
+- R4B03 troop:6316,troop:7682,troop:6787,troop:7239,troop:6758,troop:6372,troop:7692,troop:7174,troop:6066,troop:7206 approve=10 fixed=2 issue=0 (6758 native 100/50/25/25% Poison@RandomEnemy; 7174 RowAndColumn one cross; 6787 R000 waived c2 boss/ascension)

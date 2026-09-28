@@ -28,7 +28,7 @@ import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_GEMS, INVASION, TRIBUTE, KIN
 import { eventMetricOf, eventShopOf } from '../systems/events';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { cssUrlVar, dailyArt, kingdomArt } from '../shell/artAssets';
+import { cssUrlVar, dailyArt, kingdomArt, resultArt } from '../shell/artAssets';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { bannerUnlocked } from '../systems/banners';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
@@ -161,6 +161,13 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
   });
 }
 
+/** 弹层翻页器：‹ 第 n / T 页 ›（只有 1 页时不渲染） */
+function pagerHtml(attr: string, page: number, pages: number): string {
+  if (pages <= 1) return '';
+  return `<button type="button" ${attr}="prev" aria-label="上一页"${page <= 0 ? ' disabled' : ''}>&lsaquo;</button>`
+    + `<span role="status"><b>${page + 1}</b> / ${pages}</span>`
+    + `<button type="button" ${attr}="next" aria-label="下一页"${page >= pages - 1 ? ' disabled' : ''}>&rsaquo;</button>`;
+}
 /** 地图底部每日行动牌：彩绘徽章 + 标题/状态两行 + 右侧状态角标（进贡另带 12 小时进度条） */
 function dailyButtonHtml(id: string, art: string, title: string, bar = false): string {
   return `<button class="dq" id="${id}" data-dq="${art}" type="button">
@@ -314,73 +321,6 @@ const MAP_CSS = `
     display: flex; flex-direction: column; gap: 8px;
     z-index: 7;
   }
-  .kingdom-list-veil { justify-content: flex-start; }
-  .kingdom-drawer {
-    position: relative;
-    width: 420px;
-    height: 100%;
-    display: flex; flex-direction: column;
-    background: linear-gradient(160deg, #1b1722, #0e0d14 62%);
-    border-right: 1px solid rgba(216, 194, 144, .42);
-    box-shadow: 24px 0 80px #000c;
-    padding: 18px 16px 16px;
-    gap: 10px;
-  }
-  .kingdom-drawer header { display: flex; align-items: baseline; justify-content: space-between; }
-  .kingdom-drawer header h2 { font: 22px var(--display); letter-spacing: 4px; color: #f4e2b4; }
-  .kingdom-drawer input {
-    width: 100%;
-    padding: 9px 12px;
-    background: rgba(8, 8, 14, .8);
-    border: 1px solid #67563e;
-    border-radius: 4px;
-    color: #f2ead8;
-    font: 13px var(--body);
-  }
-  .kingdom-drawer input:focus { outline: none; border-color: #e1c891; box-shadow: 0 0 0 2px #e8cc8644; }
-  .kl-sorts { display: flex; gap: 6px; }
-  .kl-sorts button {
-    flex: 1;
-    padding: 6px 4px;
-    background: linear-gradient(180deg, #221d2b, #14121b);
-    border: 1px solid #67563e;
-    border-radius: 4px;
-    color: #c4b6a3;
-    font: 11px var(--body);
-  }
-  .kl-sorts button.on { border-color: #e1c891; color: #ffeebb; background: linear-gradient(180deg, #2e2636, #1a1724); }
-  .kl-rows { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
-  .kl-row {
-    display: grid;
-    grid-template-columns: 30px 1fr auto;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: linear-gradient(#20202c, #16161f);
-    border: 1px solid rgba(186, 164, 139, .18);
-    border-radius: 6px;
-    text-align: left;
-    color: #f2ead8;
-    box-shadow: 0 3px 9px rgba(0, 0, 0, .28);
-  }
-  .kl-row:hover { border-color: #a1895c; transform: translateY(-1px); }
-  .kl-row.locked { color: #9a917f; }
-  .kl-row .kl-crest { width: 26px; height: 30px; display: block; overflow: hidden; }
-  .kl-row .kl-crest img, .kl-row .kl-crest svg { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .kl-row.locked .kl-crest { filter: grayscale(1) brightness(.6); }
-  .kl-row b { display: block; font: 600 13px var(--body); }
-  .kl-row small { display: block; font-size: 11px; color: #91887a; }
-  .kl-row .kl-tag {
-    padding: 2px 7px 3px;
-    border: 1px solid #67563e;
-    border-radius: 999px;
-    font: 11px var(--body);
-    color: #c4b6a3;
-    white-space: nowrap;
-  }
-  .kl-row .kl-tag.gold { border-color: #e1c891; color: #ffeebb; }
-  .kl-row .kl-tag.over { border-color: #c45454; color: #ffd9d2; }
-  .kl-empty { padding: 18px 8px; color: #91887a; font: 12px var(--body); text-align: center; }
 
   /* M-9：一键收贡的二次确认（改前无确认地一次性收全服，包括刚攒 1 小时、结了就亏的） */
   .tribute-sheet {
@@ -653,7 +593,6 @@ const MAP_CSS = `
     .stage.map-responsive .kingdom-info h2 { font-size: 29px; }
     .stage.map-responsive .kv-grid { margin: 16px 0; }
     .stage.map-responsive .entry-cards { margin-top: 16px; }
-    .stage.map-responsive .kingdom-drawer { width: min(420px, 100vw); }
     .stage.map-responsive .tribute-sheet,
     .stage.map-responsive .money-tip { width: min(520px, calc(100vw - 24px)); }
   }
@@ -733,7 +672,6 @@ const MAP_CSS = `
     .stage.map-responsive .kingdom-lock-level b { font-size: 19px; }
     .stage.map-responsive .sheet-close { width: 36px; height: 36px; }
     .stage.map-responsive .kingdom-list-veil { align-items: stretch; }
-    .stage.map-responsive .kingdom-drawer { width: 100%; height: 100%; padding: 14px 12px 12px; border-right: 0; }
     .stage.map-responsive .tribute-sheet,
     .stage.map-responsive .money-tip { max-height: calc(100dvh - 12px); overflow-y: auto; padding: 20px 16px 16px; border-width: 1px 0 0; }
     .stage.map-responsive .tribute-sheet .tb-acts { display: grid; grid-template-columns: 1fr 2fr; }
@@ -752,6 +690,8 @@ export class MapScreen implements Screen {
   /** 王国抽屉（M-6）的排序与搜索词 */
   private listSort: 'progress' | 'tribute' | 'name' = 'progress';
   private listQuery = '';
+  private listPage = 0;
+  private bonusPage = 0;
   private labelJob = 0;
   private ctx!: ShellCtx;
   private fog: MapFog | null = null;
@@ -908,19 +848,23 @@ export class MapScreen implements Screen {
       </div>
 
       <div class="modal-veil kingdom-list-veil" id="kingdomListVeil" hidden>
-        <aside class="kingdom-drawer" role="dialog" aria-modal="true" aria-label="王国列表">
-          <header>
-            <div><h2>42 王国</h2></div>
+        <section class="kingdom-drawer ko-sheet" role="dialog" aria-modal="true" aria-labelledby="koTitle">
+          <header class="ko-head">
+            <h2 id="koTitle">王国总览</h2>
+            <div class="ko-stats" id="koStats"></div>
             <button class="sheet-close" id="kingdomListClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
           </header>
-          <input id="kingdomSearch" type="search" placeholder="搜索王国名 / 英文名…" autocomplete="off" spellcheck="false">
-          <div class="kl-sorts" role="group" aria-label="排序">
-            <button type="button" class="on" data-sort="progress">按推进度</button>
-            <button type="button" data-sort="tribute">按进贡</button>
-            <button type="button" data-sort="name">按名称</button>
+          <div class="ko-tools">
+            <input id="kingdomSearch" type="search" placeholder="搜索王国" aria-label="搜索王国" autocomplete="off" spellcheck="false">
+            <div class="kl-sorts" role="group" aria-label="排序">
+              <button type="button" class="on" data-sort="progress">推进</button>
+              <button type="button" data-sort="tribute">进贡</button>
+              <button type="button" data-sort="name">名称</button>
+            </div>
           </div>
-          <div class="kl-rows" id="kingdomListRows"></div>
-        </aside>
+          <div class="kl-rows ko-grid" id="kingdomListRows"></div>
+          <footer class="ko-foot"><span class="ko-fog" id="koFog"></span><nav class="ko-pager" id="koPager" aria-label="王国翻页"></nav></footer>
+        </section>
       </div>
 
       <div class="modal-veil tribute-veil" id="tributeVeil" hidden>
@@ -939,11 +883,16 @@ export class MapScreen implements Screen {
       </div>
 
       <div class="modal-veil tip-veil" id="kbonusVeil" hidden>
-        <section class="money-tip etched kbonus-sheet" role="dialog" aria-modal="true" aria-labelledby="kbonusTitle">
-          <h2 id="kbonusTitle">王国满级加成</h2>
-          <p class="kbonus-note">王国升到 10 级后，该王国绑定的属性对<b>全体部队与主角</b>永久 +1，任务、探索、活动与入侵都生效（竞技场统一数值，不计）。</p>
-          <ul id="kbonusRows"></ul>
-          <button class="cancel" id="kbonusClose" type="button">关闭</button>
+        <section class="kbonus-sheet" role="dialog" aria-modal="true" aria-labelledby="kbonusTitle">
+          <header class="kb-head">
+            <div><h2 id="kbonusTitle">王国加成</h2><p class="kbonus-note">王国满 10 级：<b>全体部队与主角</b>对应属性 +1</p></div>
+            <button class="sheet-close" id="kbonusClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
+          </header>
+          <div class="kb-stats" id="kbonusRows"></div>
+          <section class="kb-list" aria-labelledby="kbonusListTitle">
+            <header><b id="kbonusListTitle">王国进度</b><nav class="ko-pager" id="kbonusPager" aria-label="翻页"></nav></header>
+            <div class="kb-rows" id="kbonusList"></div>
+          </section>
         </section>
       </div>
 
@@ -1001,7 +950,23 @@ export class MapScreen implements Screen {
     this.on($('#kingdomBonusBtn'), 'click', () => this.openBonusSheet(ctx));
     this.on($('#kbonusClose'), 'click', () => ($('#kbonusVeil').hidden = true));
     this.on($('#kbonusVeil'), 'click', (e) => {
-      if (e.target === $('#kbonusVeil')) $('#kbonusVeil').hidden = true;
+      const target = e.target as HTMLElement;
+      if (target === $('#kbonusVeil')) {
+        $('#kbonusVeil').hidden = true;
+        return;
+      }
+      const dir = target.closest<HTMLButtonElement>('[data-kb-page]');
+      if (dir && !dir.disabled) {
+        this.bonusPage += dir.dataset.kbPage === 'next' ? 1 : -1;
+        this.renderBonusSheet(ctx.save());
+        document.querySelector<HTMLButtonElement>(`#kbonusPager [data-kb-page="${dir.dataset.kbPage}"]`)?.focus({ preventScroll: true });
+        return;
+      }
+      const row = target.closest<HTMLElement>('.kb-row');
+      if (row?.dataset.id) {
+        $('#kbonusVeil').hidden = true;
+        this.openKingdom(row.dataset.id);
+      }
     });
     this.on($('#entryQuest'), 'click', () => this.enterQuest(ctx));
     this.on($('#entryExplore'), 'click', () => this.enterExplore(ctx));
@@ -1083,11 +1048,12 @@ export class MapScreen implements Screen {
     }
   }
 
-  // —— M-6 王国检索抽屉（42 国在 3 步内可达） ——
+  // —— 王国总览（卡片网格 + 翻页；42 国在 3 步内可达） ——
 
   private bindKingdomList(): void {
     this.on($('#kingdomListBtn'), 'click', () => {
       this.listQuery = '';
+      this.listPage = 0;
       ($('#kingdomSearch') as HTMLInputElement).value = '';
       this.renderKingdomList();
       $('#kingdomListVeil').hidden = false;
@@ -1099,22 +1065,44 @@ export class MapScreen implements Screen {
     });
     this.on($('#kingdomSearch'), 'input', (e) => {
       this.listQuery = (e.target as HTMLInputElement).value.trim().toLowerCase();
+      this.listPage = 0;
       this.renderKingdomList();
     });
     $$('.kl-sorts button').forEach((btn) =>
       this.on(btn, 'click', () => {
         this.listSort = (btn.dataset.sort ?? 'progress') as typeof this.listSort;
+        this.listPage = 0;
         $$('.kl-sorts button').forEach((b) => b.classList.toggle('on', b === btn));
         this.renderKingdomList();
       }),
     );
+    this.on($('#koPager'), 'click', (e) => {
+      const dir = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-kl-page]');
+      if (!dir || dir.disabled) return;
+      this.listPage += dir.dataset.klPage === 'next' ? 1 : -1;
+      this.renderKingdomList();
+      document.querySelector<HTMLButtonElement>(`#koPager [data-kl-page="${dir.dataset.klPage}"]`)?.focus({ preventScroll: true });
+    });
+    this.on($('#kingdomListRows'), 'click', (e) => {
+      const row = (e.target as HTMLElement).closest<HTMLElement>('.kl-row');
+      if (!row?.dataset.id) return;
+      $('#kingdomListVeil').hidden = true;
+      this.openKingdom(row.dataset.id);
+    });
+  }
+
+  /** 每页张数：桌面 3×4、平板 2×4、手机 1×6（弹层不滚动，多出的翻页） */
+  private listPageSize(): number {
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    return w >= 1000 ? 12 : w >= 640 ? 8 : 6;
   }
 
   private renderKingdomList(): void {
     const q = this.listQuery;
-    // 迷雾中的王国不列名字（GoW 4.5：看不见下一批之后的王国），只在末尾报数
+    // 迷雾中的王国不列名字（GoW 4.5：看不见下一批之后的王国），只在页脚报数
     const known = this.nodes.filter((n) => n.fog !== 'hidden');
     const hidden = this.nodes.filter((n) => n.fog === 'hidden');
+    const open = this.nodes.filter((n) => !n.locked);
     const tributeValue = (n: NodeVm): number => (n.tributeReady ? n.tributeGold + n.tributeSouls * 5 + n.tributeGlory * 20 + 1 : 0);
     const rows = known
       .filter((n) => !q || n.view.name.toLowerCase().includes(q) || n.view.en.toLowerCase().includes(q))
@@ -1132,35 +1120,46 @@ export class MapScreen implements Screen {
         if (ap !== bp) return ap - bp;
         return a.unlockLevel - b.unlockLevel;
       });
-    const el = $('#kingdomListRows');
-    const fogRow = !q && hidden.length
-      ? `<p class="kl-empty kl-fog">迷雾中还有 ${hidden.length} 个王国</p>`
-      : '';
-    el.innerHTML = rows.length
-      ? rows
-          .map((n) => {
-            const tag = n.locked
-              ? `<span class="kl-tag">Lv.${n.unlockLevel} 开放</span>`
-              : n.tributeReady
-                ? `<span class="kl-tag ${n.tributeOverflowing ? 'over' : 'gold'}">可收进贡${n.tributeOverflowing ? ' · 已满' : ''}</span>`
-                : `<span class="kl-tag">任务 ${n.questsDone}/8</span>`;
-            const sub = n.locked
-              ? `${n.view.en} · 已探明，尚未开放`
-              : `${n.view.en} · Lv.${n.level} · 任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · HARD' : ''}${n.home ? ' · 主城' : ''}`;
-            return `<button class="kl-row${n.locked ? ' locked' : ''}" type="button" data-id="${n.view.name}">
-              <span class="kl-crest">${n.view.crest ? `<img src="${n.view.crest}" alt="">` : crestSvg(n.view)}</span>
-              <span><b>${n.view.name}</b><small>${sub}</small></span>
-              ${tag}
-            </button>`;
-          })
-          .join('') + fogRow
-      : '<p class="kl-empty">没有匹配的王国。</p>';
-    $$('.kl-row', el).forEach((row) =>
-      this.on(row, 'click', () => {
-        $('#kingdomListVeil').hidden = true;
-        this.openKingdom(row.dataset.id!);
-      }),
-    );
+
+    const home = open.find((n) => n.home);
+    const stat = (label: string, value: string, cls = ''): string => `<span class="ko-stat ${cls}"><em>${label}</em><b>${value}</b></span>`;
+    $('#koStats').innerHTML = [
+      stat('已开放', `${open.length}<i>/${this.nodes.length}</i>`),
+      stat('满级', String(open.filter((n) => n.level >= KINGDOM_MAX_LEVEL).length), 'max'),
+      stat('可收进贡', String(open.filter((n) => n.tributeReady).length), 'gold'),
+      home ? stat('主城', home.view.name, 'home') : '',
+    ].join('');
+
+    const size = this.listPageSize();
+    const pages = Math.max(1, Math.ceil(rows.length / size));
+    this.listPage = Math.max(0, Math.min(this.listPage, pages - 1));
+    const slice = rows.slice(this.listPage * size, (this.listPage + 1) * size);
+    const card = (n: NodeVm): string => {
+      const crest = n.view.crest ? `<img src="${n.view.crest}" alt="">` : crestSvg(n.view);
+      if (n.locked) {
+        return `<button class="kl-row ko-card locked" type="button" data-id="${n.view.name}">
+          <span class="kl-crest">${crest}</span>
+          <span class="ko-main"><b>${n.view.name}</b><small>已探明 · 冒险者 Lv.${n.unlockLevel} 开放</small></span>
+          <span class="ko-lock" data-icon="lock" aria-hidden="true"></span>
+        </button>`;
+      }
+      const maxed = n.level >= KINGDOM_MAX_LEVEL;
+      const tag = n.tributeOverflowing
+        ? '<span class="ko-tag over">进贡已满</span>'
+        : n.tributeReady ? '<span class="ko-tag gold">可收进贡</span>' : '';
+      return `<button class="kl-row ko-card${n.home ? ' home' : ''}${maxed ? ' maxed' : ''}" type="button" data-id="${n.view.name}">
+        <span class="kl-crest">${crest}</span>
+        <span class="ko-main"><b>${n.view.name}${n.home ? '<i class="ko-home" title="主城"></i>' : ''}</b>
+          <small>任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · HARD' : ''}</small>
+          <i class="ko-bar" aria-hidden="true"><i style="width:${Math.round((n.questsDone / 8) * 100)}%"></i></i></span>
+        <span class="ko-lv${maxed ? ' max' : ''}" title="王国等级 ${n.level}/${KINGDOM_MAX_LEVEL}"><small>Lv</small>${n.level}</span>
+        ${tag}
+      </button>`;
+    };
+    $('#kingdomListRows').innerHTML = slice.length ? slice.map(card).join('') : '<p class="kl-empty">没有匹配的王国</p>';
+    $('#koFog').textContent = !q && hidden.length ? `迷雾中还有 ${hidden.length} 个王国` : '';
+    $('#koPager').innerHTML = pagerHtml('data-kl-page', this.listPage, pages);
+    mountIcons($('#kingdomListVeil'));
   }
 
   // —— 王国宝库（一键收取全部进贡；多国同一小时进贡另给宝石/金钥匙） ——
@@ -1193,19 +1192,45 @@ export class MapScreen implements Screen {
     if (veil) veil.hidden = true;
   }
 
-  /** 满级王国加成说明（全体部队与主角） */
+  /** 王国加成：四项全体属性 + 各王国满级进度（翻页，不做长列表） */
   private openBonusSheet(ctx: ShellCtx): void {
-    const save = ctx.save();
+    this.bonusPage = 0;
+    this.renderBonusSheet(ctx.save());
+    $('#kbonusVeil').hidden = false;
+    mountIcons($('#kbonusVeil'));
+  }
+
+  private renderBonusSheet(save: MetaSave): void {
     const bonus = kingdomBonusOf(save);
     const maxed = maxedKingdoms(save);
-    const totals = (['health', 'armor', 'attack', 'magic'] as const)
-      .map((k) => `<li><span>全体${STAT_NAME[k]}</span><b>+${bonus[k]}</b></li>`)
-      .join('');
-    const list = maxed.length
-      ? maxed.map((k) => `<li><span>${k}</span><b>${STAT_NAME[kingdomBonusStat(k)]} +1</b></li>`).join('')
-      : `<li><span>还没有满 10 级的王国</span><b>在王国弹层投入黄金升级</b></li>`;
-    $('#kbonusRows').innerHTML = totals + list;
-    $('#kbonusVeil').hidden = false;
+    const stats = ['health', 'armor', 'attack', 'magic'] as const;
+    $('#kbonusRows').innerHTML = stats.map((k) => {
+      const from = maxed.filter((m) => kingdomBonusStat(m) === k).length;
+      return `<div class="kb-stat${bonus[k] > 0 ? ' on' : ''}" data-stat="${k}">
+        <img src="${resultArt(`stat-${k}`)}" alt="" draggable="false">
+        <span><em>全体${STAT_NAME[k]}</em><b>+${bonus[k]}</b><small>${from ? `${from} 国满级` : '暂无'}</small></span>
+      </div>`;
+    }).join('');
+    // 已开放王国：满级在前，其余按等级从高到低（离满级最近的排前面）
+    const open = this.nodes
+      .filter((n) => !n.locked)
+      .sort((a, b) => b.level - a.level || a.unlockLevel - b.unlockLevel);
+    const size = 6;
+    const pages = Math.max(1, Math.ceil(open.length / size));
+    this.bonusPage = Math.max(0, Math.min(this.bonusPage, pages - 1));
+    $('#kbonusListTitle').textContent = `满级进度 · ${maxed.length}/${open.length}`;
+    $('#kbonusList').innerHTML = open.slice(this.bonusPage * size, (this.bonusPage + 1) * size).map((n) => {
+      const done = n.level >= KINGDOM_MAX_LEVEL;
+      const k = kingdomBonusStat(n.view.name);
+      return `<button class="kb-row${done ? ' done' : ''}" type="button" data-id="${n.view.name}">
+        <span class="kl-crest">${n.view.crest ? `<img src="${n.view.crest}" alt="">` : crestSvg(n.view)}</span>
+        <b>${n.view.name}</b>
+        <span class="kb-track" aria-label="王国等级 ${n.level}/${KINGDOM_MAX_LEVEL}"><i style="width:${Math.round((n.level / KINGDOM_MAX_LEVEL) * 100)}%"></i></span>
+        <span class="kb-lv">${n.level}<i>/${KINGDOM_MAX_LEVEL}</i></span>
+        <span class="kb-gain"><img src="${resultArt(`stat-${k}`)}" alt="">${STAT_NAME[k]} +1</span>
+      </button>`;
+    }).join('');
+    $('#kbonusPager').innerHTML = pagerHtml('data-kb-page', this.bonusPage, pages);
   }
 
   // —— M-5 标签防重叠（逐节点纵向让位；缩放时标签跟着缩） ——
@@ -1448,8 +1473,6 @@ export class MapScreen implements Screen {
     // 王国数与满级加成：让「王国」本身在地图上有存在感
     const open = this.nodes.filter((n) => !n.locked).length;
     $('#kingdomListCopy').textContent = `王国 ${open}/${this.nodes.length}`;
-    const drawerTitle = $('.kingdom-drawer header h2');
-    if (drawerTitle) drawerTitle.textContent = `王国 ${open}/${this.nodes.length}`;
     const bonus = kingdomBonusOf(save);
     const parts = (['health', 'armor', 'attack', 'magic'] as const)
       .filter((k) => bonus[k] > 0)

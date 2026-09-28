@@ -98,12 +98,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7177,
-    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 1 点魔力值。',
+    desc: '对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 3 点魔力值。',
     build: skill(
       dmg('enemyChosen', 4),
       inflict('frozen', 'enemyChosen'),
-      // 「魔力值」= magic 属性（SOP 措辞裁定）；bare「盟友」按复数 = allyAll（见文件头备注，请复核）
-      magic('allyAll', 1, 0, { ifTargetDied: true }),
+      // English "give 3 Magic to all Allies"; native IncreaseSpellPower@AllAllies AddForKill StatusAmount 3
+      magic('allyAll', 3, 0, { ifTargetDied: true }),
     ),
   },
   {

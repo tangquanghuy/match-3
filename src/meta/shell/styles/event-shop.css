@@ -438,3 +438,188 @@
  .shop-v2 .shop-grid .shop-goods-body { padding-top:14px; gap:8px; }
  .shop-v2 .shop-grid .shop-goods-foot { min-height:66px; padding-top:10px; padding-bottom:10px; }
 }
+
+/* ==========================================================================
+   Shop v3（2026-09-28）：暖夜色底 + 活动主题色；页签带活动缩略图，
+   活动横幅（文生图 src/assets/meta/shop/event-*.webp，经 --shop-hero 注入）放活动名、说明、印记与刷新。
+   ========================================================================== */
+.event-shop-screen:has(.shop-v3) { background: #0e0c14; }
+.event-shop-panel.shop-v3 {
+  --v3-card: #1d1927;
+  --v3-foot: #14111c;
+  --v3-line: rgba(214, 190, 140, .22);
+  background:
+    radial-gradient(ellipse 60% 38% at 85% 0%, color-mix(in srgb, var(--shop-accent) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, #17131f, #0e0c14 60%);
+  color: #f3eee4;
+}
+/* 标题行：「商店」+ 活动/宝石切换 */
+.shop-v3 .shop-page-head { display: flex; align-items: center; justify-content: flex-start; gap: 28px; min-height: 48px; padding: 0 0 12px; }
+.shop-v3 .shop-page-head h1 { color: #f6e4b0; font: 26px var(--display); letter-spacing: 4px; }
+.shop-v3 .market-switch { margin: 0; border: 0; gap: 4px; padding: 3px; border-radius: 999px; background: rgba(6, 5, 10, .6); box-shadow: inset 0 0 0 1px rgba(214, 190, 140, .25); }
+.shop-v3 .market-switch a { min-height: 34px; padding: 0 16px; border: 0; border-radius: 999px; color: #b9ae9a; }
+.shop-v3 .market-switch a.active { background: linear-gradient(180deg, #4a3d63, #2d2540); color: #fff1cf; box-shadow: inset 0 1px rgba(255, 255, 255, .12); }
+
+/* 六家活动：缩略图页签 */
+@media (min-width: 701px) {
+  .shop-v3 .shop-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; padding: 0 0 12px; }
+  .shop-v3 .shop-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 2px;
+    min-height: 50px;
+    padding: 5px 12px;
+    overflow: hidden;
+    border: 1px solid rgba(214, 190, 140, .22);
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(12, 10, 18, .92) 30%, rgba(12, 10, 18, .45)), var(--tab-art, none) center / cover no-repeat, #1a1622;
+    color: #d5cbb8;
+    text-decoration: none;
+    transition: border-color .15s, transform .15s;
+  }
+  .shop-v3 .shop-tab span { color: inherit; font: 600 14px var(--body); letter-spacing: 1px; }
+  .shop-v3 .shop-tab b { display: inline-flex; align-items: center; gap: 4px; color: #d8c79c; font: 12px var(--body); }
+  .shop-v3 .shop-tab b [data-icon] { width: 13px; height: 13px; }
+  .shop-v3 .shop-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--shop-accent); opacity: .35; }
+  .shop-v3 .shop-tab:hover { border-color: rgba(240, 214, 160, .55); transform: translateY(-1px); color: #fff4df; }
+  .shop-v3 .shop-tab.active { border-color: var(--shop-accent); color: #fff4df; box-shadow: 0 0 0 1px color-mix(in srgb, var(--shop-accent) 45%, transparent), 0 6px 18px rgba(0, 0, 0, .45); background: linear-gradient(90deg, rgba(12, 10, 18, .75) 25%, rgba(12, 10, 18, .15)), var(--tab-art, none) center / cover no-repeat, #1a1622; }
+  .shop-v3 .shop-tab.active::after { opacity: 1; }
+}
+
+/* 活动横幅 */
+.shop-v3 .shop-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "title meta link" "brief meta link";
+  align-items: center;
+  gap: 4px 22px;
+  min-height: 96px;
+  padding: 14px 22px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--shop-accent) 45%, rgba(214, 190, 140, .3));
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(10, 8, 14, .96) 0%, rgba(10, 8, 14, .82) 34%, rgba(10, 8, 14, .15) 72%),
+    linear-gradient(0deg, rgba(10, 8, 14, .7), transparent 55%),
+    var(--shop-hero, none) right 30% / cover no-repeat,
+    #19141f;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+}
+.shop-v3 .shop-hero-copy { display: contents; }
+.shop-v3 .shop-hero h2 { grid-area: title; align-self: end; margin: 0; color: #fff4df; font: 28px var(--display); letter-spacing: 4px; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
+.shop-v3 .shop-hero p { grid-area: brief; align-self: start; max-width: 520px; margin: 0; color: #d8cfbf; font: 13px/1.6 var(--body); text-shadow: 0 1px 4px #000; }
+.shop-v3 .shop-hero .shop-page-meta { grid-area: meta; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin: 0; }
+.shop-v3 .shop-hero .shop-earn-link { grid-area: link; }
+.shop-v3 .shop-token-bar { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border: 1px solid color-mix(in srgb, var(--shop-accent) 55%, #6b5b3e); border-radius: 999px; background: rgba(8, 6, 12, .78); }
+.shop-v3 .shop-token-orb { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--shop-accent) 35%, #1a1520); color: #fff0d2; }
+.shop-v3 .shop-token-bar > b { color: #e9dfcb; font: 13px var(--body); }
+.shop-v3 .shop-token-bar strong { color: #ffe29a; font: 700 22px Georgia, var(--body); }
+.shop-v3 .shop-reset { color: #cfc6b4; text-shadow: 0 1px 3px #000; }
+.shop-v3 .shop-reset [data-icon] { color: #e8c98c; }
+.shop-v3 .shop-hero .shop-earn-link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 20px;
+  border: 1px solid rgba(240, 214, 160, .6);
+  border-radius: 999px;
+  background: rgba(10, 8, 14, .7);
+  color: #fff1cf;
+  font: 600 14px var(--body);
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+}
+.shop-v3 .shop-hero .shop-earn-link:hover { border-color: #ffe29a; background: rgba(40, 30, 20, .8); }
+
+/* 货架标题与分类合一行 */
+.shop-v3 .shop-catalog { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px 24px; padding: 0 0 20px; }
+.shop-v3 .shop-section-head { margin: 0; }
+.shop-v3 .shop-section-head h2 { color: #f6e4b0; font: 20px var(--display); letter-spacing: 3px; }
+.shop-v3 .shop-catalog-count { color: #a99f8c; }
+.shop-v3 .shop-categories { justify-content: flex-end; margin: 0; gap: 8px; }
+.shop-v3 .shop-categories button { min-height: 40px; border-color: rgba(214, 190, 140, .25); border-radius: 999px; background: rgba(20, 17, 28, .9); color: #cfc5b2; }
+.shop-v3 .shop-categories button:hover { border-color: rgba(240, 214, 160, .55); }
+.shop-v3 .shop-categories button[aria-pressed="true"] { border-color: #e7c985; background: linear-gradient(180deg, #f3d792, #c99c4e); color: #231a0c; }
+.shop-v3 .shop-grid { grid-column: 1 / -1; }
+
+/* 商品卡 */
+.shop-v3 .shop-grid .shop-goods { min-height: 288px; border: 1px solid var(--v3-line); border-radius: 12px; background: var(--v3-card); box-shadow: 0 8px 22px rgba(0, 0, 0, .35); transition: border-color .15s, transform .15s; }
+.shop-v3 .shop-grid .shop-goods:hover { border-color: color-mix(in srgb, var(--goods-tone) 70%, #fff 0%); transform: translateY(-2px); }
+.shop-v3 .shop-grid .shop-goods.featured { border-color: color-mix(in srgb, var(--shop-accent) 70%, #e7c985); box-shadow: 0 0 0 1px color-mix(in srgb, var(--shop-accent) 35%, transparent), 0 10px 26px rgba(0, 0, 0, .45); }
+.shop-v3 .shop-grid .shop-goods-art {
+  height: 108px;
+  min-height: 108px;
+  background:
+    radial-gradient(ellipse 55% 75% at 50% 55%, color-mix(in srgb, var(--goods-tone) 42%, transparent), transparent 72%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 10px),
+    linear-gradient(180deg, #2a2336, #1d1927);
+}
+.shop-v3 .shop-grid .shop-goods-symbol { filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .55)); }
+.shop-v3 .shop-kind { background: rgba(10, 8, 14, .82); border: 1px solid rgba(214, 190, 140, .2); color: #d9cfbd; }
+.shop-v3 .shop-grid .shop-goods-art > b { background: linear-gradient(180deg, #f3d792, #c99c4e); border-color: #f3d792; color: #231a0c; font-weight: 600; }
+.shop-v3 .shop-goods-title h3 { color: #fbf4e6; }
+.shop-v3 .shop-stock { color: #c3b9a7; }
+.shop-v3 .shop-reward-copy small { color: #c9bfae; }
+.shop-v3 .shop-reward-copy b { color: #fbf4e6; }
+.shop-v3 .shop-troop-meta { color: #c9bfae; }
+.shop-v3 .shop-atlas-link { color: #b9dcf0; }
+.shop-v3 .shop-grid .shop-goods-foot { min-height: 70px; border-top: 1px solid var(--v3-line); background: var(--v3-foot); }
+.shop-v3 .shop-price { color: #ffe29a; }
+.shop-v3 .shop-price small { color: #cdb98f; }
+.shop-v3 .shop-buy { min-height: 44px; border: 0; border-radius: 999px; background: linear-gradient(180deg, #f3d792, #c99c4e); color: #231a0c; box-shadow: inset 0 1px rgba(255, 250, 225, .6), 0 4px 10px rgba(0, 0, 0, .35); }
+.shop-v3 .shop-buy:hover:not(:disabled) { background: linear-gradient(180deg, #fbe3a8, #d8ab5c); }
+.shop-v3 .shop-buy.is-poor { border: 1px solid rgba(185, 220, 240, .5); background: transparent; color: #d5ecf7; box-shadow: none; }
+.shop-v3 .shop-buy.is-sold { border: 1px solid rgba(200, 190, 170, .25); background: rgba(255, 255, 255, .05); color: #bdb3a2; box-shadow: none; }
+.shop-v3 .shop-goods.sold-out .shop-goods-art::after { background: rgba(60, 20, 20, .9); color: #ffcabd; }
+.shop-v3 .shop-week-budget { border-color: var(--v3-line); color: #b9ae9a; }
+.shop-v3 .shop-details-link { color: #b9dcf0; }
+.shop-v3 .shop-surplus .shop-buy { border: 1px solid rgba(185, 220, 240, .5); background: transparent; color: #d5ecf7; box-shadow: none; }
+
+/* 笔记本矮屏：横幅收窄、说明隐藏，保证首行交易在底栏之上 */
+@media (min-width: 1100px) and (max-height: 800px) {
+  .shop-v3 .shop-page-head { min-height: 44px; padding-bottom: 8px; }
+  .shop-v3 .shop-tabs { padding-bottom: 8px; }
+  .shop-v3 .shop-tab { min-height: 46px; }
+  .shop-v3 .shop-hero { grid-template-areas: "title meta link"; min-height: 0; padding: 10px 20px; margin-bottom: 10px; }
+  .shop-v3 .shop-hero h2 { align-self: center; font-size: 24px; }
+  .shop-v3 .shop-hero p { display: none; }
+  .shop-v3 .shop-hero .shop-page-meta { flex-direction: row; align-items: center; gap: 16px; }
+  .shop-v3 .shop-token-bar { padding-block: 3px; }
+  .shop-v3 .shop-catalog { gap: 10px 24px; padding-bottom: 12px; }
+  .shop-v3 .shop-categories button { min-height: 36px; }
+  .shop-v3 .shop-grid .shop-goods { min-height: 270px; }
+  .shop-v3 .shop-grid .shop-goods-art { height: 86px; min-height: 86px; }
+  .shop-v3 .shop-grid .shop-goods-body { padding-top: 12px; gap: 6px; }
+  .shop-v3 .shop-grid .shop-goods-foot { min-height: 62px; padding-top: 8px; padding-bottom: 8px; }
+}
+@media (max-width: 1099px) and (min-width: 701px) {
+  .shop-v3 .shop-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* 面板是纵向 flex 滚动容器：各块保持自身高度，不被压扁 */
+.event-shop-panel.shop-v3 > * { flex: none; }
+@media (max-width: 1000px) {
+  .shop-v3 .shop-catalog { grid-template-columns: 1fr; }
+  .shop-v3 .shop-categories { justify-content: flex-start; }
+}
+@media (max-width: 700px) {
+  .shop-v3 .shop-page-head { flex-wrap: wrap; gap: 10px; }
+  .shop-v3 .shop-page-head h1 { font-size: 22px; }
+  .shop-v3 .market-switch { flex: 1; min-width: 0; }
+  .shop-v3 .market-switch a { flex: 1; justify-content: center; }
+  .shop-v3 .shop-mobile-picker { padding-bottom: 10px; color: #c9bfae; }
+  .shop-v3 .shop-mobile-picker select { border-color: rgba(214, 190, 140, .35); border-radius: 999px; background: #1a1622; color: #f3eee4; }
+  .shop-v3 .shop-hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "brief" "meta"; gap: 6px; min-height: 0; padding: 14px 16px; background: linear-gradient(180deg, rgba(10, 8, 14, .55), rgba(10, 8, 14, .92) 70%), var(--shop-hero, none) 70% 30% / cover no-repeat, #19141f; }
+  .shop-v3 .shop-hero h2 { font-size: 22px; }
+  .shop-v3 .shop-hero p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 12px; }
+  .shop-v3 .shop-hero .shop-page-meta { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 12px; }
+  .shop-v3 .shop-token-bar strong { font-size: 18px; }
+  .shop-v3 .shop-hero .shop-earn-link { position: absolute; top: 12px; right: 12px; min-height: 34px; padding: 0 12px; font-size: 12px; }
+  .shop-v3 .shop-catalog { gap: 10px; }
+  .shop-v3 .shop-section-head { display: none; }
+  .shop-v3 .shop-grid .shop-goods-art { height: 100%; min-height: 0; }
+}

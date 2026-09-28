@@ -613,6 +613,204 @@
    "mode": "tower",
    "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"RandomEnemy\",\"StatusAmount\":3,\"Amount\":4,\"PercentageChance\":30,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
    "note": ""
+  },
+  {
+   "key": "troop:7532",
+   "name": "LioraMistveil",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:7532",
+   "name": "LioraMistveil",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:7640",
+   "name": "HeldrTheGrave",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower/Ascension multiplier waived R000 tower"
+  },
+  {
+   "key": "troop:7640",
+   "name": "HeldrTheGrave",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "Tower/Ascension multiplier waived R000 tower"
+  },
+  {
+   "key": "troop:6515",
+   "name": "QueensHerald",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If the Enemy is a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Ascension multiplier waived R000 boss; 50% Ysabelle in gowLaneL1E"
+  },
+  {
+   "key": "troop:6515",
+   "name": "QueensHerald",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "Boss/Ascension multiplier waived R000 boss; 50% Ysabelle in gowLaneL1E"
+  },
+  {
+   "key": "troop:6509",
+   "name": "Morterra",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Ascension multiplier waived R000 boss; Undead pool in gowLaneL1E"
+  },
+  {
+   "key": "troop:6509",
+   "name": "Morterra",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "Boss/Ascension multiplier waived R000 boss; Undead pool in gowLaneL1E"
+  },
+  {
+   "key": "troop:6787",
+   "name": "AlgorakTheSlayer",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6582",
+   "name": "SifuYuan",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6505",
+   "name": "TED-1000",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6511",
+   "name": "Ironbark",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6586",
+   "name": "Umbraxis",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7756",
+   "name": "Ariosa",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6737",
+   "name": "PavosDawnwind",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6764",
+   "name": "Birchthorn",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7711",
+   "name": "HorusiteChampion",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6780",
+   "name": "UlfrHuntsmaster",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "re-approve 1132/1405 after LastEnemy per-step fix"
+  },
+  {
+   "key": "troop:7482",
+   "name": "TawaritePriestess",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "re-approve 1132/1405 after LastEnemy per-step fix"
+  },
+  {
+   "key": "troop:7826",
+   "name": "Velosia",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6819",
+   "name": "Faemark",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6503",
+   "name": "Freya",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
   }
  ]
 }

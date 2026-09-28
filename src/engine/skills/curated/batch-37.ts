@@ -129,12 +129,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人和其下方的所有敌人造成 [魔法 + 2] 点伤害。若敌人已陷入诅咒状态，则对其造成双倍伤害并再使其陷入死亡标记状态。',
     build: skill(
       // enemyChosenAndBelow：指定者 + 编队更靠后的全部存活敌人；名单内全额 → range 'all'（原语批 §9.10）
-      dmg('enemyChosenAndBelow', 2, 1, {
-        range: 'all',
-        condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'curse' } },
-      }),
-      // 逐目标条件：该敌人已诅咒才追加死亡标记
-      inflict('death-mark', 'enemyChosenAndBelow', { ifCond: { kind: 'targetStatus', statusId: 'curse' } }),
+      // native: FromTarget [MultiplyForCursed 2] ; BelowTarget plain ; FromTarget Death Mark [AddForCursed].
+      // Only the chosen enemy is checked, doubled and Death Marked.
+      dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'curse' } } }),
+      dmg('enemyBelowTarget', 2, 1, { range: 'all' }),
+      inflict('death-mark', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'curse' } }),
     ),
   },
   {
@@ -185,8 +184,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 [(魔法 / 2) + 1] 颗宝石。若有一名敌人陷入疾病状态，则使 1 到 4 名敌人中毒。',
     build: skill(
       explodeRandomGems(1, 0.5, 'color'),
-      // 「若有一名敌人陷入疾病状态」= anyEnemyStatus 存在判定 + 「1 到 4 名」= nRange（原语批 §9.7/9.8）
-      inflict('poison', 'enemyRandomN', { nRange: { min: 1, max: 4 }, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      // 「若有一名敌人陷入疾病状态」= anyEnemyStatus 存在判定。sa-A r4: native 「1 到 4 名」= four conditional
+      // Poison@RandomEnemy steps at 100% / 50% / 25% / 25%, each a fresh random pick (ResetTargets, may repeat);
+      // was nRange 1-4 distinct enemies, uniform.
+      inflict('poison', 'enemyRandom', { ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      inflict('poison', 'enemyRandom', { chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      inflict('poison', 'enemyRandom', { chance: 0.25, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
+      inflict('poison', 'enemyRandom', { chance: 0.25, ifCond: { kind: 'anyEnemyStatus', statusId: 'disease' } }),
     ),
   },
   {
@@ -240,13 +244,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8675,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结或死亡标记状态。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。',
+    // English "Then Freeze and Death Mark them"; native CauseFrozen + CauseDeathMark, both always (not one of).
     build: skill(
       dmg('enemyChosen', 2, 1),
-      oneOf(
-        [inflict('frozen', 'enemyChosen')],
-        [inflict('death-mark', 'enemyChosen')],
-      ),
+      inflict('frozen', 'enemyChosen'),
+      inflict('death-mark', 'enemyChosen'),
     ),
   },
   {

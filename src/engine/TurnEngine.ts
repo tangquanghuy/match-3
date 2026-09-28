@@ -2718,12 +2718,17 @@ export class TurnEngine {
     ];
     // 附魔（GoW Enchanted）：施放法术即移除（官方「直到其施放法术」）。先于效果本体
     // 执行——法术若给自身重新附魔，新实例不被同一次施法消耗。
+    // P-B-action-status-self-count: remember what was removed so the spell's own Count* steps still see it.
+    const actionEndedStatusIds: string[] = [];
     if (hasStatus(ch, ENCHANTED_STATUS_ID)) {
       ch.statuses = ch.statuses.filter((s) => s.id !== ENCHANTED_STATUS_ID);
       events.push({ type: 'status-expire', targetId: ch.id, statusId: ENCHANTED_STATUS_ID });
+      actionEndedStatusIds.push(ENCHANTED_STATUS_ID);
     }
     // 潜水／祝福（R004）：持有者行动即移除；同样先于效果本体（自身重新施加的新实例保留）。
-    events.push(...endActionStatuses(ch));
+    const actionEnded = endActionStatuses(ch);
+    for (const e of actionEnded) if (e.type === 'status-expire') actionEndedStatusIds.push(e.statusId);
+    events.push(...actionEnded);
     // 位次条件光环（leader 族）：行动开始按当前编队位次补授（首位易主在此生效）
     events.push(...this.applyPositionAuraTriggers());
     // 施法响应特质（秘法/铭刻/怨恨…）：在技能效果之前结算，
@@ -2772,7 +2777,7 @@ export class TurnEngine {
         try {
           produced = executePrototype(
             proto,
-            this.makeEffectContext(ch.id, chosenColor, chosenTargetId, chosenCell),
+            this.makeEffectContext(ch.id, chosenColor, chosenTargetId, chosenCell, actionEndedStatusIds),
           );
         } finally {
           this.spellBoardSettle = null;
@@ -2810,6 +2815,7 @@ export class TurnEngine {
     chosenColor?: BaseColor,
     chosenTargetId?: number,
     chosenCell?: CellPos,
+    actionEndedStatusIds?: string[],
   ): EffectContext {
     const ctx: EffectContext = {
       state: this.state,
@@ -2834,6 +2840,7 @@ export class TurnEngine {
     if (chosenColor !== undefined) ctx.chosenColor = chosenColor;
     if (chosenTargetId !== undefined) ctx.chosenTargetId = chosenTargetId;
     if (chosenCell !== undefined) ctx.chosenCell = chosenCell;
+    if (actionEndedStatusIds && actionEndedStatusIds.length > 0) ctx.actionEndedStatusIds = actionEndedStatusIds;
     if (this.summonResolver) ctx.resolveSummonRef = this.summonResolver;
     if (this.summonKingdomResolver) ctx.resolveKingdomSummonRefs = this.summonKingdomResolver;
     return ctx;

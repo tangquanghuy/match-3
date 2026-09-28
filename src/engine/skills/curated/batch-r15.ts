@@ -554,7 +554,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8494,
-    desc: '结果 [魔法 + 4] 给予敌人真正的重击，由石墩激活。炸毁所有石墩。 然后重建3个石墩。 [x6]',
+    desc: '对一名敌人造成 [魔法 + 4] 点真实重度溅射伤害，伤害值因石墩数而增强。爆破所有石墩。再创造 3 个石墩。 [x6]',
     // EN 实锤（zh 机翻残缺）：true heavy splash = dmgSplash + trueDamage；「由石墩激活 [x6]」=
     // boardSpecial stoneBlock（§1 特殊宝石来源）；重建 3 个 = createSpecialGems
     build: skill(
@@ -612,9 +612,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyRandom', 3, 0.7),
       inflict('stun', 'lastTarget', { chance: 0.5 }),
-      dmg('enemyRandom', 3, 0.7),
+      dmg('enemyRandomPrefNotPrev', 3, 0.7), // native RandomPrefNotPrevEnemy (R007-3)
       inflict('stun', 'lastTarget', { chance: 0.5 }),
-      dmg('enemyRandom', 3, 0.7),
+      dmg('enemyRandomPrefNotPrev', 3, 0.7),
       inflict('stun', 'lastTarget', { chance: 0.5 }),
     ),
   },

@@ -182,6 +182,12 @@ export interface EffectContext {
    */
   chosenTargetId?: number;
   /**
+   * P-B-action-status-self-count: status ids (Enchanted / Submerged / Blessed) the engine removed from the
+   * caster when the cast began (R002 / R004: they end because the holder acts). Native Count* steps and
+   * self/ally status conditions of the same spell still see them on the caster.
+   */
+  actionEndedStatusIds?: string[];
+  /**
    * 本次释放手动选定的棋盘格（玩家点选一枚宝石 / AI 策略）。作为宝石清除的起点：
    *   - clear 目标 cell='CELL'：以该格为中心（destroy 单格 / explode 3x3）
    *   - clear 目标 chosenLine：取该格所在的整行 / 整列

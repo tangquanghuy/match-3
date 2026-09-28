@@ -112,8 +112,8 @@ describe('L7 sa-D: conditional multipliers and counts', () => {
 describe('L7 sa-D: instant-kill chances', () => {
   it('weapon:1435 6% +6% per Doomskull (plain Skulls do not count); slay and damage hit the same last enemy', () => {
     const sure = castSpell({ key: 'weapon:1435', board: doom(16) }); // 6% + 96% >= 100%
-    // native order is Lethal then TrueDamage (queued P-D-lethal-first-lasttarget); for now damage first, slay the same unit
-    expect(sure.summary.order).toEqual(['dmg E13 13', 'dmg E13 790', 'defeat E13']);
+    // native order Lethal then TrueDamage (P-D-lethal-first-lasttarget fixed by sa-P r4): the slain unit takes no further hit
+    expect(sure.summary.order).toEqual(['dmg E13 803', 'defeat E13']);
     // review board has 5 plain Skulls and no Doomskull -> 6% only
     expect(killRate({ key: 'weapon:1435' }, 'E13')).toBeLessThan(0.12);
     expect(castSpell({ key: 'weapon:1435', seed: 1 }).summary.order).toEqual(['dmg E13 13']);
