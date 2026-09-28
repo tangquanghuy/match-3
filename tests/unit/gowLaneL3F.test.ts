@@ -280,3 +280,27 @@ describe('sa-F B13: ally buffs', () => {
     expect(order(r).filter(o => o.startsWith('status'))).toEqual(['status C +barrier', 'status A1 +barrier']);
   });
 });
+
+describe('sa-F B14: conditional ally buffs / storm drain', () => {
+  const without = (color: BaseColor) => (r: number, c: number) => { const g = sixColourBoard(r, c); return g && g.kind === 'color' && g.color === color ? colorGem(BaseColor.Red) : g; };
+  it('troop:6752 Harpy (8131): drains 4 Mana from all enemies only with a Storm', () => {
+    const f = setupCast({ key: 'troop:6752' });
+    f.state.teams.Left.storm = { color: BaseColor.Blue, turns: 3, troopId: 0 };
+    const drained = f.cast().filter(e => e.type === 'buff' && e.stat === 'mana').map(e => (e as { targetId: number; amount: number }));
+    expect(drained.map(d => [d.targetId, d.amount])).toEqual([[10, -4], [11, -4], [12, -4], [13, -4]]);
+    expect(order(castSpell({ key: 'troop:6752' })).filter(o => o.includes('mana'))).toEqual([]);
+  });
+  it('weapon:1122 YasminesChalice (7283): extra turn only at 13+ Green', () => {
+    expect(castSpell({ key: 'weapon:1122', board: without(BaseColor.Green) }).summary.extraTurn).toBeNull();
+    expect(castSpell({ key: 'weapon:1122', board: () => colorGem(BaseColor.Green) }).summary.extraTurn).toBe('skill');
+  });
+  it('troop:6940 DragonianSage (8421): Barrier + Enchant only on a Dragon ally', () => {
+    const dragon = castSpell({ key: 'troop:6940', allies: [{ hp: 100, maxHp: 100, manaCost: 14, troopTypes: ['Dragon'] }] });
+    expect(order(dragon)).toEqual(['buff A1 magic+2', 'buff A1 mana+7', 'status A1 +barrier', 'status A1 +enchanted']);
+    const plain = castSpell({ key: 'troop:6940', allies: [{ hp: 100, maxHp: 100, manaCost: 15, troopTypes: ['Human'] }] });
+    expect(order(plain)).toEqual(['buff A1 magic+2', 'buff A1 mana+7']);
+  });
+  it('troop:6995 TheSun (8522): no Yellow = no extra turn', () => {
+    expect(castSpell({ key: 'troop:6995', board: without(BaseColor.Yellow) }).summary.extraTurn).toBeNull();
+  });
+});

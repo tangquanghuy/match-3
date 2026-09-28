@@ -12,3 +12,4 @@
 - B11 troop:6137,troop:6213,troop:7311,troop:7531,troop:6998 approve=5 fixed=2 issue=0 (7311/6998 ZH; 7531 Liora condition tested)
 - B12 troop:7584,weapon:1123,weapon:1090,troop:6996,weapon:1395 approve=5 fixed=1 issue=0 (6996 all Skills incl. Life + ZH)
 - B13 troop:6486,troop:6992,troop:6142,troop:7269,weapon:1467 approve=5 fixed=1 issue=0 (6992 ZH; 7269 Goblin-only Barrier and 1467 good Gargoyle tested)
+- B14 troop:6995,troop:6752,troop:6921,weapon:1122,troop:6940 approve=5 fixed=0 issue=0 (storm drain, 13+ Green, Dragon-only statuses, no-Yellow tested)

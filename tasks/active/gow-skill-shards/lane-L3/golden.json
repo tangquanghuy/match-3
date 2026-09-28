@@ -509,6 +509,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T09:03:07.017Z"
  },
+ "troop:6752": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11",
+   "R10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => C:hp+1 max+1 | A1:hp+1 max+1 | A2:hp+1 max+1",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:44:04.602Z"
+ },
  "troop:6759": {
   "lines": {
    "L10": "convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; extra-turn skill ; ~cascade~  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3  extra:skill  cascade",
@@ -699,6 +709,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:24:30.780Z"
  },
+ "troop:6921": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; buff A1 mana+8 ; remove A1 -poison ; status A1 +blessed  => A1:hp+11 max+11 mana+8 +blessed -poison",
+   "R10": "buff A1 hp+11 max+11 ; buff A1 mana+8 ; remove A1 -poison ; status A1 +blessed  => A1:hp+11 max+11 mana+8 +blessed -poison",
+   "L0": "buff A1 hp+1 max+1 ; buff A1 mana+8 ; remove A1 -poison ; status A1 +blessed  => A1:hp+1 max+1 mana+8 +blessed -poison",
+   "K": "buff A1 hp+11 max+11 ; buff A1 mana+8 ; remove A1 -poison ; status A1 +blessed  => A1:hp+11 max+11 mana+8 +blessed -poison"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:44:04.602Z"
+ },
  "troop:6925": {
   "lines": {
    "L10": "dmg E12 15 ; dmg E11 15 ; extra-turn skill  => E12:hp-3 arm-12 | E11:hp-5 arm-10  extra:skill",
@@ -728,6 +748,16 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T12:52:12.441Z"
+ },
+ "troop:6940": {
+  "lines": {
+   "L10": "buff A1 magic+2 ; buff A1 mana+8  => A1:mag+2 mana+8",
+   "R10": "buff A1 magic+2 ; buff A1 mana+8  => A1:mag+2 mana+8",
+   "L0": "buff A1 magic+2 ; buff A1 mana+8  => A1:mag+2 mana+8",
+   "K": "buff A1 magic+2 ; buff A1 mana+8  => A1:mag+2 mana+8"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:44:04.602Z"
  },
  "troop:6967": {
   "lines": {
@@ -778,6 +808,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:42:22.759Z"
+ },
+ "troop:6995": {
+  "lines": {
+   "L10": "buff C hp+8 max+8 ; buff A1 hp+8 max+8 ; buff A2 hp+8 max+8 ; extra-turn skill  => C:hp+8 max+8 | A1:hp+8 max+8 | A2:hp+8 max+8  extra:skill",
+   "R10": "buff C hp+8 max+8 ; buff A1 hp+8 max+8 ; buff A2 hp+8 max+8 ; extra-turn skill  => C:hp+8 max+8 | A1:hp+8 max+8 | A2:hp+8 max+8  extra:skill",
+   "L0": "buff C hp+3 max+3 ; buff A1 hp+3 max+3 ; buff A2 hp+3 max+3 ; extra-turn skill  => C:hp+3 max+3 | A1:hp+3 max+3 | A2:hp+3 max+3  extra:skill",
+   "K": "buff C hp+8 max+8 ; buff A1 hp+8 max+8 ; buff A2 hp+8 max+8 ; extra-turn skill  => C:hp+8 max+8 | A1:hp+8 max+8 | A2:hp+8 max+8  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:44:04.602Z"
  },
  "troop:6996": {
   "lines": {
@@ -2018,6 +2058,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:38:53.219Z"
+ },
+ "weapon:1122": {
+  "lines": {
+   "L10": "buff C hp+5 max+5 ; buff A1 hp+5 max+5 ; buff A2 hp+5 max+5 ; buff C armor+5 ; buff A1 armor+5 ; buff A2 armor+5 ; extra-turn skill  => C:hp+5 max+5 arm+5 | A1:hp+5 max+5 arm+5 | A2:hp+5 max+5 arm+5  extra:skill",
+   "R10": "buff C hp+5 max+5 ; buff A1 hp+5 max+5 ; buff A2 hp+5 max+5 ; buff C armor+5 ; buff A1 armor+5 ; buff A2 armor+5 ; extra-turn skill  => C:hp+5 max+5 arm+5 | A1:hp+5 max+5 arm+5 | A2:hp+5 max+5 arm+5  extra:skill",
+   "L0": "extra-turn skill  extra:skill",
+   "K": "buff C hp+5 max+5 ; buff A1 hp+5 max+5 ; buff A2 hp+5 max+5 ; buff C armor+5 ; buff A1 armor+5 ; buff A2 armor+5 ; extra-turn skill  => C:hp+5 max+5 arm+5 | A1:hp+5 max+5 arm+5 | A2:hp+5 max+5 arm+5  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:44:04.602Z"
  },
  "weapon:1123": {
   "lines": {
