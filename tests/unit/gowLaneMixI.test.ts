@@ -47,3 +47,21 @@ describe('sa-I L7 B01', () => {
     }
   });
 });
+describe('sa-I L7 B02', () => {
+  it('weapon:1106 scatter [M+7] = 17, +8 when the enemy team has a Daemon', () => {
+    const dae = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, troopTypes: ['Daemon'] }];
+    const plain = [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900 }];
+    for (let seed = 1; seed <= 20; seed++) {
+      expect(dmgs({ key: 'weapon:1106', seed, enemies: dae }).reduce((a, b) => a + b, 0)).toBe(25);
+      expect(dmgs({ key: 'weapon:1106', seed, enemies: plain }).reduce((a, b) => a + b, 0)).toBe(17);
+    }
+  });
+  it('weapon:1005 light splash always centred on the first enemy', () => {
+    expect(dmgLines({ key: 'weapon:1005', target: 12 })).toEqual(['dmg E10 9 (splash)', 'dmg E11 2 (splash)']);
+  });
+  it.each([
+    ['weapon:1016', 14, 3], ['weapon:1031', 16, 4], ['weapon:1046', 14, 3],
+  ])('%s light splash on the chosen enemy (%i) and both neighbours (%i)', (key, main, side) => {
+    expect(dmgLines({ key, target: 12 })).toEqual([`dmg E12 ${main} (splash)`, `dmg E11 ${side} (splash)`, `dmg E13 ${side} (splash)`]);
+  });
+});

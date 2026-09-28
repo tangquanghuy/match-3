@@ -5,3 +5,8 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - troop:6932 accept (L7; 6 hits RandomEnemy + 5 PrefNotPrev, 7..15 convention:R006-C1)
 - weapon:1050 accept (L7; scatter 18 total)
 - weapon:1078 fixed+accept (L7; AddIfEnemyHasFey was Elf; zh 精灵->妖仙 in pool-w01)
+- weapon:1106 accept (L7; scatter 17, +8 with enemy Daemon)
+- weapon:1005 accept (L7; light splash on first enemy 9/2)
+- weapon:1016 accept (L7; light splash chosen 14/3)
+- weapon:1031 accept (L7; light splash chosen 16/4)
+- weapon:1046 accept (L7; light splash chosen 14/3)

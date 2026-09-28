@@ -258,3 +258,8 @@
 {"format":"compact","key":"troop:6932","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1050","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"weapon:1078","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.420Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1106","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.428Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1005","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.429Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1016","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.430Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1031","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.430Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1046","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.430Z","tests":["tests/unit/gowCastGolden.test.ts"]}
