@@ -138,3 +138,25 @@ describe('L4a R1: "if <troop> is on my team" clauses', () => {
     expect(o).toContain('dmg E11 21');
   });
 });
+describe('L4a R1: B04 race/troop counters', () => {
+  it('troop:7255 explodes one random gem (not the chosen cell); Emperor Liang gives the first two allies Barrier', () => {
+    const r = castSpell({ key: 'troop:7255', board: sparseBoard, cell: { row: 1, col: 1 } });
+    expect(r.summary.order[0]).toBe('explode 1');
+    const liang = castSpell({ key: 'troop:7255', allies: [{ name: '梁帝' }, {}] as never });
+    expect(statusTargets(liang.summary.order, 'barrier')).toEqual(['C', 'A1']);
+    expect(statusTargets(castSpell({ key: 'troop:7255' }).summary.order, 'barrier')).toEqual([]);
+  });
+  it('troop:6593 Divine enemies: +1 Doomskull each, silenced before the explosion', () => {
+    const board = withCells(reviewBoard, Object.fromEntries(['5,0', '5,2', '5,4', '5,6', '7,0', '7,6'].map(k => [k, specialGem('doomSkull')])));
+    const enemies = [{ hp: 999, maxHp: 999, troopTypes: ['Divine'] }, { hp: 999, maxHp: 999, troopTypes: ['Divine'] }, { hp: 999, maxHp: 999 }];
+    const o = castSpell({ key: 'troop:6593', board, enemies: enemies as never }).summary.order;
+    expect(statusTargets(o, 'silence')).toEqual(['E10', 'E11']);
+    expect(o.findIndex(x => x.includes('+silence'))).toBeLessThan(o.findIndex(x => x.startsWith('explode')));
+  });
+  it('weapon:1601 armor 2 + 1.5 x Magic; Immortal Terra explodes Stun gems after the armor', () => {
+    const board = withCells(reviewBoard, { '6,1': specialGem('stunGem') });
+    const o = castSpell({ key: 'weapon:1601', board, allies: [{ name: '永生神泰拉' }, {}] as never }).summary.order;
+    expect(o.slice(0, 3)).toEqual(['buff C armor+17', 'buff A1 armor+17', 'buff A2 armor+17']);
+    expect(o[3]).toMatch(/^explode \d+$/);
+  });
+});
