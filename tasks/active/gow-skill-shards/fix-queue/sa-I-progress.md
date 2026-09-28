@@ -29,3 +29,9 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - troop:6554 fixed+accept (L6; native StealMagic@TwoStrongestEnemies = Magic stat, was Mana; weakest/strongest hp+armor R005)
 - troop:6603 fixed+accept (L6; native 4x StealMagic@FromTarget AddForLess*OnTarget 3 BEFORE Damage, Magic not Mana; hit uses raised Magic)
 - L6 B02 done (leftover): accept=2 fixed=2 issue=0
+- troop:6681 fixed+accept (L6; native Jumble 0% never fires, then SecondLast->front, Front->back 75%, Last->front 50%, Second->back 25%; was random shuffleTeam)
+- weapon:1073 accept (L6; scatter 17, heal 10)
+- troop:7336 accept (L6; scatter 16, +5 Armor)
+- weapon:1128 accept (L6; scatter 17, +2 Magic)
+- troop:7207 accept (L6; steal 10 Armor then light splash 13/3 on same chosen enemy)
+- L6 B03 done: accept=5 fixed=1 issue=0

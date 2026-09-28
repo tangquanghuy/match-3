@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 636 条改动，涉及 1088 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 637 条改动，涉及 1089 个技能 ID。
 
 ## 按时间
 
@@ -642,6 +642,7 @@
 | 2026-09-28T22:39 | sa-I | L7-I-1118-target-divine | assembler | 7270 | weapon:1118 ChaosBlade | `src/engine/skills/curated/batch-w01.ts` | +5 if any enemy is Divine (enemyRacePresent) → native AddForDivine: +5 only if the target is Divine (targetRace) |  |
 | 2026-09-28T23:11 | sa-I | L6-I-6554-steal-magic | assembler | 7748 | troop:6554 Suna | `src/engine/skills/curated/batch-03.ts` | steal 8 Mana from 2 strongest → native StealMagic@TwoStrongestEnemies: steal 8 Magic stat |  |
 | 2026-09-28T23:11 | sa-I | L6-I-6603-steal-before-hit | assembler | 7812 | troop:6603 Pride | `src/engine/skills/curated/batch-r22.ts` | hit, then drain 3 Mana per beaten stat → native 4x StealMagic@FromTarget (AddForLess*OnTarget 3) before Damage: steal 3 Magic per beaten stat, then hit with raised Magic |  |
+| 2026-09-28T23:17 | sa-I | L6-I-6681-native-moves | assembler | 8027 | troop:6681 Bael | `src/engine/skills/curated/batch-r5.ts` | random full shuffleTeam enemy → native Jumble 0% + moves: SecondLast->front, Front->back 75%, Last->front 50%, Second->back 25% |  |
 
 ## 按技能 ID
 
@@ -976,6 +977,7 @@
 | 7991 | 1 | L1-E-1238-pool |
 | 8022 | 1 | L4a-R8-random-any-gem |
 | 8024 | 1 | P-prefnotprev-semantics |
+| 8027 | 1 | L6-I-6681-native-moves |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
 | 8038 | 1 | P-B-action-status-self-count |

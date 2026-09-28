@@ -180,3 +180,22 @@ describe('sa-I L6 B02', () => {
     expect(castSpell({ key: 'troop:6603', enemies: strong, caster: { attack: 5, armor: 0 } }).summary.order).toEqual(['dmg E11 13']);
   });
 });
+describe('sa-I L6 B03', () => {
+  it('troop:6681 scatter 22, then native moves (Jumble step is 0%): SecondLast->front, Front->back 75%, Last->front 50%, Second->back 25%', () => {
+    const moves = (seed: number) => castSpell({ key: 'troop:6681', seed }).summary.order.filter(s => s.startsWith('move '));
+    // expected per cast: 1 + .75 + .5 + .25 = 2.5 moves; fronts after the first .5; backs .75 + .25 = 1.0
+    let total = 0, front = 0, back = 0, secondFront = 0; const N = 400;
+    for (let seed = 1; seed <= N; seed++) {
+      const m = moves(seed);
+      expect(m[0]).toBe('move E12 front');
+      expect(m.length).toBeLessThanOrEqual(4);
+      total += m.length; front += m.slice(1).filter(s => s.endsWith(' front')).length; back += m.filter(s => s.endsWith(' back')).length;
+      if (m[1] === 'move E12 back') secondFront++;
+    }
+    expect(total / N).toBeGreaterThan(2.35); expect(total / N).toBeLessThan(2.65);
+    expect(front / N).toBeGreaterThan(0.4); expect(front / N).toBeLessThan(0.6);
+    expect(back / N).toBeGreaterThan(0.88); expect(back / N).toBeLessThan(1.12);
+    expect(secondFront / N).toBeGreaterThan(0.65); expect(secondFront / N).toBeLessThan(0.85);
+    expect(dmgs({ key: 'troop:6681' }).reduce((a, b) => a + b, 0)).toBe(22);
+  });
+});

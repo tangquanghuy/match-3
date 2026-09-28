@@ -155,7 +155,16 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8027,
     desc: '造成 [魔法 + 12] 点散射伤害，再打乱敌方队伍顺序。',
     // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
-    build: skill(dmg('enemyAll', 12, 1, { range: 'all' }), shuffleTeam('enemy')),
+    // sa-I: native TroopOrderJumble@AllEnemies has PercentageChance 0 (never fires); the "jumble" is the four
+    // explicit moves after it, each resolved on the current order: SecondLast->front, Front->back 75%,
+    // Last->front 50%, Second->back 25% (was a full random shuffleTeam).
+    build: skill(
+      dmg('enemyAll', 12, 1, { range: 'all' }),
+      reposition('enemySecondLast', 'front'),
+      reposition('enemyFront', 'back', { chance: 0.75 }),
+      reposition('enemyLast', 'front', { chance: 0.5 }),
+      reposition('enemyNth', 'back', { n: 2, chance: 0.25 }),
+    ),
   },
   {
     id: 9343,
