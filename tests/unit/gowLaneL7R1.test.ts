@@ -59,6 +59,55 @@ describe('L7 sa-R4: "boosted by <Colour> and <Race> Allies" (CountArmyColor + Co
   });
 });
 
+describe('L7 sa-R4: "[M+3] to the first 2 Enemies, boosted by <Race> Allies"', () => {
+  const rRows: [string, string, number][] = [
+    ['weapon:1540', 'Undead', 4], ['weapon:1543', 'Fey', 3], ['weapon:1572', 'Daemon', 3], ['weapon:1582', 'Monster', 3],
+    ['weapon:1586', 'Mystic', 3], ['weapon:1589', 'Rogue', 3], ['weapon:1628', 'Giant', 3],
+    ['weapon:1641', 'Elemental', 3], ['weapon:1644', 'Goblin', 3], ['weapon:1662', 'Elf', 3], ['weapon:1677', 'Construct', 3],
+    ['weapon:1689', 'Knight', 3], ['weapon:1717', 'Beast', 3],
+  ];
+  it.each(rRows)('%s: +a per %s ally on E10 and E11', (key, race, a) => {
+    const allies = [unit([Red], [race]), unit([Red], [race, 'Human']), unit([Red], ['Human'])];
+    expect(castSpell({ key, allies }).summary.order).toEqual([`dmg E10 ${13 + 2 * a} (all)`, `dmg E11 ${13 + 2 * a} (all)`]);
+  });
+});
+
+describe('L7 sa-R4: enemy race counts and race multipliers', () => {
+  it('weapon:1148 splash (50% adjacent) [M+5] x6 per Giant ally and Giant enemy', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i === 3 ? ['Giant'] : ['Human'] }));
+    const r = castSpell({ key: 'weapon:1148', allies: [unit([Red], ['Giant'])], enemies });
+    expect(r.summary.order).toEqual(['dmg E11 27 (splash)', 'dmg E10 13 (splash)', 'dmg E12 13 (splash)']); // 15 + 6 x 2
+  });
+  it('troop:6309 [M+1] x4 per enemy Construct, tripled against a Construct', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i === 1 || i === 3 ? ['Construct'] : ['Human'] }));
+    expect(castSpell({ key: 'troop:6309', enemies }).summary.order).toEqual(['dmg E11 57']); // (11 + 8) x 3
+    expect(castSpell({ key: 'troop:6309', enemies, target: 10 }).summary.order).toEqual(['dmg E10 19']);
+  });
+  it('weapon:1205 [(M/2)+2] to all enemies x8 per enemy Tower (Castle type)', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i === 2 ? ['Castle'] : ['Human'] }));
+    expect(dmgs(castSpell({ key: 'weapon:1205', enemies }))).toEqual([15, 15, 15, 15]);
+  });
+});
+
+describe('L7 sa-R4: instant-kill chance boosted by enemy race (LethalDamageConditional 4%, +4% each)', () => {
+  const rate = (key: string, race: string, n: number) => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i < n ? [race] : ['Human'] }));
+    let kills = 0;
+    for (let seed = 1; seed <= 400; seed++) {
+      const r = castSpell({ key, enemies, seed });
+      expect(dmgs(r)[0]).toBe(14);
+      if (r.summary.order.includes('defeat E11')) kills++;
+    }
+    return kills / 400;
+  };
+  it.each([['weapon:1357', 'Daemon'], ['weapon:1358', 'Elemental']])('%s: ~4%% with no %s enemy, ~20%% with four', (key, race) => {
+    expect(rate(key, race, 0)).toBeLessThan(0.09);
+    const four = rate(key, race, 4);
+    expect(four).toBeGreaterThan(0.13);
+    expect(four).toBeLessThan(0.28);
+  });
+});
+
 describe('L7 sa-R4: targets and race counts on both sides', () => {
   it('troop:6904 hits the chosen enemy and only the one directly below (NextDownFromTarget), x4 per Forest of Thorns ally', () => {
     const allies = [{ ...unit([Red]), kingdom: '荆棘森林' }, unit([Red])];
