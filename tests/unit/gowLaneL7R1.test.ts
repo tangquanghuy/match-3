@@ -43,6 +43,11 @@ describe('L7 sa-R4: "boosted by <Colour> and <Race> Allies" (CountArmyColor + Co
     ['weapon:1698', Green, 'Mystic', 14, 3],
     ['weapon:1701', Yellow, 'Mech', 14, 3],
     ['weapon:1712', Green, 'Goblin', 14, 3],
+    ['weapon:1545', Yellow, 'Stryx', 14, 3],
+    ['weapon:1530', Red, 'Dragon', 14, 3],
+    ['weapon:1542', Green, 'Centaur', 14, 3],
+    ['weapon:1554', Brown, 'Beast', 14, 3],
+    ['weapon:1557', Purple, 'Wargare', 14, 3],
   ];
   it.each(rows)('%s: colour and race counted separately (a unit with both counts twice); enemies ignored', (key, color, race, base, a) => {
     const n = other(color);
@@ -51,6 +56,20 @@ describe('L7 sa-R4: "boosted by <Colour> and <Race> Allies" (CountArmyColor + Co
     expect(dmgs(r)).toEqual([base + a * 4]);
     const none = castSpell({ key, caster: { colors: [n] }, allies: [unit([n]), unit([n])] });
     expect(dmgs(none)).toEqual([base]);
+  });
+});
+
+describe('L7 sa-R4: targets and race counts on both sides', () => {
+  it('troop:6904 hits the chosen enemy and only the one directly below (NextDownFromTarget), x4 per Forest of Thorns ally', () => {
+    const allies = [{ ...unit([Red]), kingdom: '荆棘森林' }, unit([Red])];
+    expect(castSpell({ key: 'troop:6904', allies }).summary.order).toEqual(['dmg E11 21 (all)', 'dmg E12 21 (all)']); // 13 + 4 x 2
+    expect(castSpell({ key: 'troop:6904', allies, target: 13 }).summary.order).toEqual(['dmg E13 21 (all)']);
+  });
+  it('troop:7592 scatter [M+8] x6 per Daemon and per Naga on both sides', () => {
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i === 0 ? ['Daemon', 'Naga'] : i === 1 ? ['Naga'] : ['Human'] }));
+    const r = castSpell({ key: 'troop:7592', allies: [unit([Red], ['Daemon']), unit([Red], ['Elf'])], enemies });
+    expect(sum(dmgs(r))).toBe(18 + 6 * ((2 + 1) + (1 + 2))); // caster Daemon/Naga + A1 Daemon ; E10 both + E11 Naga
   });
 });
 
