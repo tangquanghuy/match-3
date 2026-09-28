@@ -455,11 +455,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8575,
     desc: '对末位敌人造成 [魔法 + 2] 点伤害并冻结他。若敌人已被冻结，则有 20% 的几率吞噬敌人。',
-    // 「若已被冻结 20% 吞噬」= execute + chance + targetStatus 条件（8979 口径）；「他」= lastTarget
+    // sa-R5 (R001): native ConsumeConditional@LastEnemy (20% if ALREADY Frozen) -> Damage@LastEnemy -> CauseFrozen@LastEnemy.
+    // Old order froze first (the 20% always qualified) and used a plain execute instead of Devour.
     build: skill(
+      devour('enemyLast', { chance: 0.2, ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
       dmg('enemyLast', 2, 1),
       inflict('frozen', 'enemyLast'),
-      dmg('lastTarget', 0, 0, { execute: true, chance: 0.2, ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
     ),
   },
   {

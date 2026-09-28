@@ -87,6 +87,47 @@ describe('L1 R2 charm family (sa-R5)', () => {
     }
     expect([...seen].sort()).toEqual(['bless', 'magic']);
   });
+  // B02 devour family: native ConsumeConditional precedes the damage (R001). A devoured enemy takes no hit;
+  // the caster gains its stats; non-matching targets are only hit.
+  it.each([
+    { key: 'troop:6185', hit: 12, dbl: 24, yes: { troopTypes: ['Knight'] }, p: 0.5 },
+    { key: 'troop:6330', hit: 12, dbl: 24, yes: { troopTypes: ['Beast'] }, p: 0.1 },
+    { key: 'troop:6404', hit: 14, dbl: 14, yes: { colors: ['Blue'] }, p: 0.3 },
+    { key: 'troop:6459', hit: 15, dbl: 15, yes: { statuses: sub }, p: 0.5 },
+    { key: 'troop:6577', hit: 14, dbl: 14, yes: { statuses: [{ id: 'web', turns: 99 }] }, p: 0.5 },
+    { key: 'troop:6577', hit: 14, dbl: 14, yes: { statuses: [{ id: 'web', turns: 99 }, { id: 'entangle', turns: 99 }] }, p: 0.75 },
+  ])('$key devours first with p=$p, otherwise hits for $dbl', ({ key, hit, dbl, yes, p }) => {
+    let dev = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const o = castSpell({ key, seed, enemies: [{}, { hp: 900, maxHp: 900, armor: 10, attack: 20, colors: ['Red'], ...yes } as never] }).summary.order;
+      if (/^dmg E11 \d+ devoured$/.test(o[0])) { dev++; expect(o.filter(x => x.startsWith('dmg'))).toHaveLength(1); expect(o).toContain('buff C hp+900'); }
+      else expect(o[0]).toBe(`dmg E11 ${dbl}`);
+    }
+    expect(dev / 300).toBeGreaterThan(p - 0.1); expect(dev / 300).toBeLessThan(p + 0.1);
+    for (let seed = 1; seed <= 20; seed++)
+      expect(castSpell({ key, seed, enemies: [{}, { hp: 900, maxHp: 900, armor: 10, colors: ['Red'] } as never] }).summary.order).toEqual([`dmg E11 ${hit}`]);
+  });
+  // troop:7050 native ConsumeConditional@LastEnemy 20% only if ALREADY Frozen, then Damage, then Freeze.
+  it.each([
+    { frozen: true, p: 0.2 }, { frozen: false, p: 0 },
+  ])('troop:7050 devour the last enemy only if already Frozen ($frozen)', ({ frozen, p }) => {
+    let dev = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      const o = castSpell({ key: 'troop:7050', seed, enemies: [{}, {}, {}, { hp: 800, maxHp: 800, armor: 3, statuses: frozen ? [{ id: 'frozen', turns: 99 }] : [] }] }).summary.order;
+      if (/^dmg E13 \d+ devoured$/.test(o[0])) { dev++; expect(o.slice(1).filter(x => x.startsWith('dmg') || x.startsWith('status'))).toEqual(['dmg E12 12', 'status E12 +frozen']); }
+      else expect(o).toEqual(['dmg E13 12', 'status E13 +frozen']);
+    }
+    expect(dev / 300).toBeGreaterThanOrEqual(Math.max(0, p - 0.08)); expect(dev / 300).toBeLessThanOrEqual(p + 0.08);
+  });
+  // troop:6832 second hit RandomPrefNotPrevEnemy: never the chosen enemy while another is alive; lone enemy hit twice.
+  it('troop:6832 random hit avoids the chosen enemy', () => {
+    for (let seed = 1; seed <= 60; seed++) {
+      const o = castSpell({ key: 'troop:6832', seed }).summary.order.filter(x => x.startsWith('dmg') && !x.endsWith('devoured'));
+      if (o.length === 2) expect(o[1].split(' ')[1]).not.toBe('E11');
+    }
+    const lone = castSpell({ key: 'troop:6832', seed: 3, enemies: [{ hp: 900, maxHp: 900, armor: 0, colors: ['Red'] } as never], target: 10 }).summary.order;
+    expect(lone.filter(x => x.startsWith('dmg')).length).toBeGreaterThanOrEqual(1);
+  });
   // weapon:1310 independent 30% extra turn and 30% half mana (8 of 16); no Brown-gem boost (English + native).
   it('weapon:1310 independent 30% chances, half mana = 8', () => {
     let extra = 0, half = 0, both = 0;
