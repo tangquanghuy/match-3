@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 630 条改动，涉及 1082 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 632 条改动，涉及 1084 个技能 ID。
 
 ## 按时间
 
@@ -636,6 +636,8 @@
 | 2026-09-28T22:06 | sa-H | L1-H-6507-freeze-affected | assembler | 7697 | troop:6507 HyndlaFrostcrown | `src/engine/skills/curated/batch-20.ts`<br>`src/data/gowSnapshotOverrides.json` | froze all enemies; zh said all enemies → freezes target + adjacent (native FromTarget + AdjacentFromTarget); zh + override |  |
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
+| 2026-09-28T22:30 | sa-I | L7-I-7337-single-hit | assembler | 8960 | troop:7337 Militiaman | `src/engine/skills/curated/batch-r5.ts` | front enemy, damage split in 2 hits → native RandomHighDamage@FromTarget: one hit on the chosen enemy ({2} is snapshot residue) |  |
+| 2026-09-28T22:30 | sa-I | L7-I-1078-fey | assembler | 7191 | weapon:1078 DreamCatcher | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json` | +10 if enemy has an Elf; zh 精灵 → native AddIfEnemyHasFey: +10 if enemy has a Fey; zh 妖仙 |  |
 
 ## 按技能 ID
 
@@ -702,6 +704,7 @@
 | 7181 | 1 | L3-F-6111 |
 | 7184 | 2 | L4a-r4-1071、R013-5 |
 | 7185 | 2 | L5-012、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7191 | 1 | L7-I-1078-fey |
 | 7192 | 1 | P-R3-precast-compare |
 | 7194 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7204 | 1 | B5-L4b-1091-armor-target |
@@ -1408,6 +1411,7 @@
 | 8952 | 1 | D-1509-mark-target |
 | 8955 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8957 | 1 | L4a-R8-random-any-gem |
+| 8960 | 1 | L7-I-7337-single-hit |
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8963 | 1 | L4b-R6-B03-prefnotprev |
 | 8965 | 1 | P-R6-chosen-cell-counts |

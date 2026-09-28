@@ -86,7 +86,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8960,
     desc: '对一名敌人造成 [(魔法 / 2) + 1] – [魔法 + 3] -{2} 点伤害。',
-    build: skill(dmg('enemyFront', 0, 0, { rangeSpec: { min: scale(1, 0.5), max: scale(3, 1) }, split: 2 })),
+    // sa-I: native single RandomHighDamage@FromTarget = one chosen enemy, one hit; "-{2}" is snapshot residue, not a 2-way split (cf. 7640/7061)
+    build: skill(dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(1, 0.5), max: scale(3, 1) } })),
   },
   {
     id: 7774,

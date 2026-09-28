@@ -253,3 +253,8 @@
 {"format":"compact","key":"weapon:1700","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:03.830Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
 {"format":"compact","key":"weapon:1703","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:03.830Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
 {"format":"compact","key":"weapon:1715","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:03.830Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
+{"format":"compact","key":"troop:6575","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"0","mode":"tower"}]}
+{"format":"compact","key":"troop:7337","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6932","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1050","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1078","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.420Z","tests":["tests/unit/gowCastGolden.test.ts"]}

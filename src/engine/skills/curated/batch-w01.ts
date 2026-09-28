@@ -547,9 +547,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7191,
-    desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。若敌方有精灵军队，则增加额外 10 点伤害。',
+    desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。若敌方有妖仙军队，则增加额外 10 点伤害。',
     build: skill(
-      dmg('enemyAll', 4, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'enemyRacePresent', race: 'Elf' } } }),
+      // sa-I: native AddIfEnemyHasFey / EN "has a Fey" = Fey (妖仙), was Elf
+      dmg('enemyAll', 4, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'enemyRacePresent', race: 'Fey' } } }),
     ),
   },
   {
