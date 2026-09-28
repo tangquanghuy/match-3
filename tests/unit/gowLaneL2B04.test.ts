@@ -172,12 +172,13 @@ describe('L2B04 troop:7817 GreenHag spell 9861 chosen colour -> Poison Gems, Dec
    {kind:'reduce',target:'enemyRandom',stat:'random',scaling:{base:1,mult:1}}]});
   expect(t.spell.description).toBe('将指定颜色的所有宝石转化为毒宝石。然后随机减少一名敌人的[魔法 + 1]点随机技能点数。');
  });
- for(const side of SIDES)it(`real cast ${side}: all 16 chosen-colour gems -> Poison Gems; one random living enemy loses [Magic+1] from attack/armor/magic`,()=>{
+ for(const side of SIDES)it(`real cast ${side}: all 16 chosen-colour gems -> Poison Gems; one random living enemy loses [Magic+1] from attack/armor/life/magic (R007-2)`,()=>{
   const hit=new Set<number>();
   for(let s=1;s<=20;s++){const f=setup({...C,side,seed:s,enemies:[{attack:40,armor:40,magic:40},{attack:40,armor:40,magic:40},{hp:0,defeated:true},{attack:40,armor:40,magic:40}]});
    const ev=f.cast();expect(tally(transforms(ev))).toEqual({[`${BaseColor.Purple}>poisonGem`]:16});
-   const lost=f.enemies.map(e=>e.defeated?0:120-(e.attack+e.armor+e.magic));expect(lost.filter(x=>x>0)).toEqual([11]);
-   hit.add(lost.findIndex(x=>x>0));expect(f.enemies.every(e=>e.hp===(e.defeated?0:1000))).toBe(true);turnPassed(f);}
+   // R007-2 (sa-P P-random-stat-pool): Life is in the pool and is reduced directly
+   const lost=f.enemies.map(e=>e.defeated?0:1120-(e.attack+e.armor+e.magic+e.hp));expect(lost.filter(x=>x>0)).toEqual([11]);
+   hit.add(lost.findIndex(x=>x>0));turnPassed(f);}
   expect([...hit].sort()).toEqual([0,1,3]);
  });
 });

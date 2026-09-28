@@ -33,8 +33,8 @@ const created=(ev:GameEvent[])=>{const out:GemType[]=[];for(const e of ev){if(e.
  if(e.type==='gem-transform')for(const s of e.changes)out.push(s.to);}return out;};
 
 describe('L3-014 8785 per-source floor',()=>{
- // source-dispute (L3-014): kept as it.fails — runtime floors the combined count (L7 troop:6320 7470 accepted that口径).
- it.fails('2 Green allies (caster+1) and 2 Green gems -> 1 star (floor(2x.34)+floor(2x.34)=0 bonus), not 2',()=>{
+ // R007-1 ruled per-step flooring; fixed by sa-P (P-counter-per-step).
+ it('2 Green allies (caster+1) and 2 Green gems -> 1 star (floor(2x.34)+floor(2x.34)=0 bonus), not 2',()=>{
   const G=['0,0','4,4'];
   const f=setup({skill:'8785',cost:12,allies:[{colors:[BaseColor.Green]}],board:(r,c)=>colorGem(G.includes(`${r},${c}`)?BaseColor.Green:PAT[(r+c)%4])});
   f.caster.colors=[BaseColor.Green];const ev=f.cast();

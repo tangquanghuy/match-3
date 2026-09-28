@@ -598,10 +598,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9199,
     desc: '对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。使 2 名盟友下潜。',
-    // 官方 RandomAlly + RandomPrefNotPrevAlly → allyRandomN n:2（不重复近似）
+    // 官方 RandomAlly + RandomPrefNotPrevAlly → allyRandomPrefNotPrevN n:2（R007-3）
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
-      inflict('submerged', 'allyRandomN', { n: 2 }),
+      inflict('submerged', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {

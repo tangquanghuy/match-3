@@ -50,8 +50,13 @@ describe('multi-victim damage compared with repository native/English snapshot',
       const events = executePrototype({ segments: [actual] }, f.ctx);
       const hits = events.filter(e => e.type === 'skill-damage');
       expect(hits).toHaveLength(expected);
-      expect(new Set(hits.map(e => e.targetId)).size).toBe(Math.min(4, expected));
-      if (expected > 4) expect(new Set(hits.slice(0, 4).map(e => e.targetId)).size).toBe(4);
+      if ((actual as DamageSegment).randomWaves !== undefined) {
+        // R007-3: native RandomEnemy + RandomPrefNotPrevEnemy steps avoid only the previous victim.
+        expect(hits.every((h, i) => i === 0 || h.targetId !== hits[i - 1].targetId)).toBe(true);
+      } else {
+        expect(new Set(hits.map(e => e.targetId)).size).toBe(Math.min(4, expected));
+        if (expected > 4) expect(new Set(hits.slice(0, 4).map(e => e.targetId)).size).toBe(4);
+      }
       expect(hits.every(e => e.damage > 0)).toBe(true);
     });
   }
@@ -105,8 +110,9 @@ describe('multi-victim damage compared with repository native/English snapshot',
       const hits = events.filter(e => e.type === 'skill-damage');
       expect(events.some(e => e.type === 'skill-cast')).toBe(true);
       expect(hits).toHaveLength(count);
-      expect(new Set(hits.slice(0, 4).map(hit => hit.targetId)).size).toBe(4);
-      expect(new Set(hits.map(hit => hit.targetId)).size).toBe(4);
+      // R007-3: each RandomPrefNotPrevEnemy step avoids only the immediately previous victim.
+      expect(hits.every((h, i) => i === 0 || h.targetId !== hits[i - 1].targetId)).toBe(true);
+      expect(new Set(hits.map(hit => hit.targetId)).size).toBeGreaterThan(1);
     });
   }
   it('native 8410 RandomHighDamage rolls its range separately for each hit', () => {

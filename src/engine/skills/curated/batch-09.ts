@@ -55,8 +55,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「窃取攻击力并转化为生命值」= stat:'attack' + gainStat:'hp'（SOP 窃取句式表）
       // 「由绿色盟友的增强」= alliesOfColor 'Green'（法力色关联盟友数）
+      // P-steal-to-life（L7-7069）：原生 CountAttack → CountMaxWithMagic → CountArmyColor x2 →
+      // DecreaseAttack → IncreaseHealth Self：计数 = min(攻击, M+1) + 2×绿色盟友；生命与上限 + 计数
       steal('enemyFront', 'attack', 'hp', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'alliesOfColor', color: BaseColor.Green } },
+        modifierAfterCap: true, gainLifeMode: 'gain',
       }),
     ),
   },

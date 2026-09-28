@@ -144,11 +144,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9641,
     desc: '对 2 名随机敌人造成 [魔法 + 2] 点伤害，并为 2 名随机盟友带来 [魔法 + 2] 点生命值，伤害值均因恐怖宝石而增强。 [x4]',
     build: skill(
+      // R007-3: native Damage RandomEnemy + RandomPrefNotPrevEnemy, IncreaseHealth RandomAlly + RandomPrefNotPrevAlly
       dmg('enemyRandomN', 2, 1, {
-        n: 2,
+        n: 2, randomWaves: 2,
         modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'terrorGem' } },
       }),
-      heal('allyRandomN', 2, 1, {
+      heal('allyRandomPrefNotPrevN', 2, 1, {
         n: 2,
         modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'terrorGem' } },
       }),

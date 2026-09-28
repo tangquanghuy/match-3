@@ -164,7 +164,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgSplash('enemyRandomN', 2, 1, { n: 2, trueDamage: true }),
       inflict('submerged', 'allySelf'),
-      inflict('submerged', 'allyRandom'),
+      inflict('submerged', 'allyRandomPrefNotPrev'),
     ),
   },
   {

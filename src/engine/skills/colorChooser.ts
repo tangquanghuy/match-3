@@ -13,10 +13,12 @@
 import { ALL_BASE_COLORS } from '../types';
 import type { BaseColor } from '../types';
 import type { GameState } from '../GameState';
+import { colorAllowed, type ChoiceRule } from './gowChoiceRules';
 
-/** 选色器：为一次技能释放选定一个颜色；无可选颜色返回 null */
+/** 选色器：为一次技能释放选定一个颜色；无可选颜色返回 null。
+ *  rule = 原生 spell Target 限制（Not<X>OrSkullGems 等，见 gowChoiceRules.ts）；AI 选色器遵守。 */
 export interface ColorChooser {
-  choose(state: GameState, casterId: number): BaseColor | null;
+  choose(state: GameState, casterId: number, rule?: ChoiceRule): BaseColor | null;
 }
 
 /** 统计棋盘上各基础色的现存数量 */
@@ -35,12 +37,14 @@ export function countBoardColors(state: GameState): Map<BaseColor, number> {
  * 平局取 ALL_BASE_COLORS 固定序更靠前者；棋盘无任何颜色宝石 → null。
  */
 export class AiColorChooser implements ColorChooser {
-  choose(state: GameState, _casterId: number): BaseColor | null {
+  choose(state: GameState, _casterId: number, rule?: ChoiceRule): BaseColor | null {
     const counts = countBoardColors(state);
     let best: BaseColor | null = null;
     let bestN = 0;
     // 按 ALL_BASE_COLORS 固定序遍历，保证平局取更前者（严格大于才替换）
     for (const color of ALL_BASE_COLORS) {
+      // P-chooser-native-restrictions：原生 Not<X>OrSkullGems 等目标限制下不可选的颜色跳过
+      if (!colorAllowed(rule, color)) continue;
       const n = counts.get(color) ?? 0;
       if (n > bestN) {
         bestN = n;

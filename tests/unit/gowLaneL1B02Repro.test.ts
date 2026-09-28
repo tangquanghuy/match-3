@@ -67,7 +67,8 @@ function setupSeed(spell:number,cost:number,seed:number){
  engine.setTargetChooser(new FixedTargetChooser(11));return {foes,cast:()=>engine.castSkill(0)};
 }
 describe('L1-6160-create-interleave: spell 7280 two native CreateGems steps should both land before the board resolves',()=>{
- it.fails('8 Yellow and 8 Brown creations both precede the first elimination',()=>{
+ // fixed by sa-P P-create-interleave (pure board rewrites settle at the end of the spell)
+ it('8 Yellow and 8 Brown creations both precede the first elimination',()=>{
   const g=setupSeed(7280,24,42);const ev=g.cast();const i=ev.findIndex(e=>e.type==='elimination');const pre=i<0?ev:ev.slice(0,i);
   const brown=pre.flatMap(e=>e.type==='gem-transform'?e.changes.map(c=>c.to):e.type==='gem-create'?e.spawns.map(s=>s.gemType):[]).filter(t=>t.kind==='color'&&t.color===BaseColor.Brown).length;
   expect(brown).toBe(8);

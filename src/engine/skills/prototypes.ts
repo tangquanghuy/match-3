@@ -91,6 +91,11 @@ export interface DamageSegment extends SegmentOptions {
   splashChances?: number[];
   /** Source has this many separate RandomEnemy/RandomPrefNotPrevEnemy damage steps. */
   randomWaves?: number;
+  /**
+   * Random waves / enemyRandomN splash centres: default avoids only the previous pick (R007-3,
+   * native RandomPrefNotPrevEnemy); 'notHit' prefers not-yet-hit enemies (R006-C3, plain RandomEnemy chains).
+   */
+  randomPrefer?: 'notHit';
   trueDamage?: boolean;
   /** Native ManaBurn: add each victim's current Mana, never drain it. */
   manaBurn?: boolean;
@@ -185,6 +190,10 @@ export interface ReduceSegment extends SegmentOptions {
   gainStat?: BuffStat;
   /** 自身获得比例，默认 1（「获得其中半数」= 0.5） */
   gainRatio?: number;
+  /** 窃取转生命：原生获得步骤 IncreaseHealth = 'gain'（生命与上限同增） */
+  gainLifeMode?: import('./effects/buff').LifeMode;
+  /** 原生 CountMaxWithMagic 只封顶基础部分，modifier 加成在封顶后相加；施法者获得 = 计数器（8597） */
+  modifierAfterCap?: boolean;
   /** 连掷次数（仅 stat='random'，「从其 2 个随机技能值各消除 N 点」= 2；缺省 1） */
   times?: number;
   n?: number;
@@ -692,6 +701,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         randomSplashCount: randomCount,
         randomSplashChances: randomSplash ? segment.splashChances : undefined,
         randomDamageWaves: segment.target === 'enemyRandomN' && segment.range !== 'splash' ? segment.randomWaves : undefined,
+        randomPrefer: segment.randomPrefer,
         scaling: segment.scaling,
         // Target modes ending in N and enemyAll resolve several distinct victims.
         // An omitted range means full damage PER resolved victim, not "first victim only".
@@ -747,6 +757,8 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
         fraction: segment.fraction,
         gainStat: segment.gainStat,
         gainRatio: segment.gainRatio,
+        gainLifeMode: segment.gainLifeMode,
+        modifierAfterCap: segment.modifierAfterCap,
         times: segment.times,
         modifier: segment.modifier,
         raceDouble: segment.raceDouble,

@@ -78,7 +78,11 @@ for(const c of cases)describe(`troop:${c.id} ordered native whole cast`,()=>{
     expect(changes.filter(g=>g.kind==='color'&&g.color===BaseColor.Brown)).toHaveLength(8);
     expect(changes.filter(g=>g.kind==='color'&&g.color===BaseColor.Yellow)).toHaveLength(8);
     expect(events.filter(e=>e.type==='skill-damage')).toHaveLength(0);
-    expect(events.filter(e=>e.type==='extra-turn').map(e=>e.type==='extra-turn'?e.source:null)).toEqual(['match']); // deterministic board cascade, never spell-granted
+    // board cascade only, never spell-granted (sa-P P-create-interleave: both creations settle together after the spell,
+    // so whether the refill yields a 4-match extra turn is board-incidental)
+    expect(events.filter(e=>e.type==='extra-turn').every(e=>e.type==='extra-turn'&&e.source==='match')).toBe(true);
+    const firstElim=events.findIndex(e=>e.type==='elimination');const pre=firstElim<0?events:events.slice(0,firstElim);
+    expect(pre.flatMap(e=>e.type==='gem-create'?e.spawns.map(s=>s.gemType):e.type==='gem-transform'?e.changes.map(x=>x.to):[]).filter(g=>g.kind==='color'&&g.color===BaseColor.Yellow)).toHaveLength(8);
    }
   }
  });

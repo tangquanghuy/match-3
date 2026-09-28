@@ -117,7 +117,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射上海。爆破板面上半数蓝色宝石。 [2:1]',
     // 机翻事故：「溅射上海」= 溅射伤害；[2:1] = 官方 CountGems Amount 50（每 2 颗爆破 1 颗）
     build: skill(
-      dmgSplash('enemyRandomN', 8, 1, { n: 3 }),
+      // 3 x plain SplashDamage RandomEnemy (no PrefNotPrev step): R006-C3 prefer not-yet-hit
+      dmgSplash('enemyRandomN', 8, 1, { n: 3, randomPrefer: 'notHit' }),
       explodeRandomGems(0, 0, 'color', BaseColor.Blue, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
@@ -585,9 +586,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9528,
     desc: '给予 3 名盟友 2 点魔力值。板面上每有一颗红色宝石则有 7% 的几率获得一个额外回合。 [x7]',
-    // IncreaseSpellPower RandomAlly ×3（RandomPrefNotPrev）→ allyRandomN n:3
+    // IncreaseSpellPower RandomAlly + 2 x RandomPrefNotPrevAlly → allyRandomPrefNotPrevN n:3（R007-3）
     build: skill(
-      magic('allyRandomN', 2, 0, { n: 3 }),
+      magic('allyRandomPrefNotPrevN', 2, 0, { n: 3 }),
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
@@ -597,7 +598,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9529,
     desc: '给予 3 名盟友 8 点生命值。板面上每有一颗绿色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      heal('allyRandomN', 8, 0, { n: 3 }),
+      heal('allyRandomPrefNotPrevN', 8, 0, { n: 3 }),
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } },
       }),
@@ -607,7 +608,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9530,
     desc: '给予 3 名盟友 8 点护甲值。板面上每有一颗蓝色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      armor('allyRandomN', 8, 0, { n: 3 }),
+      armor('allyRandomPrefNotPrevN', 8, 0, { n: 3 }),
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
@@ -617,7 +618,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9531,
     desc: '给予 3 名盟友 4 点攻击力。板面上每有一颗黄色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      attack('allyRandomN', 4, 0, { n: 3 }),
+      attack('allyRandomPrefNotPrevN', 4, 0, { n: 3 }),
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
@@ -789,7 +790,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } },
       }),
-      inflict('barrier', 'allyRandomN', { n: 2 }),
+      inflict('barrier', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {

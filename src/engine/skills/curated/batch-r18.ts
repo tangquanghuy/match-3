@@ -577,7 +577,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       transform(BaseColor.Red, 'SKULL'),
       transform(BaseColor.Green, BaseColor.Yellow),
-      inflict('enchanted', 'allyRandomN', { n: 2 }),
+      inflict('enchanted', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {
@@ -851,7 +851,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「赋予两名随机盟友法印」
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
-      inflict('enchanted', 'allyRandomN', { n: 2 }),
+      inflict('enchanted', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {

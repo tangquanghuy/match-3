@@ -46,7 +46,8 @@ describe('Mistralus: native independent splash probabilities', () => {
     const ev = executePrototype(proto, ctx);
     const count = 1 + [0, 1, 2].filter(i => mask & (1 << i)).length;
     expect(centres(ev)).toHaveLength(count);
-    expect(centres(ev).map(e => e.targetId)).toEqual([10, 11, 12, 13].slice(0, count));
+    // R007-3: RandomPrefNotPrevEnemy avoids only the previous centre; nextInt 0 picks the first other survivor.
+    expect(centres(ev).map(e => e.targetId)).toEqual([10, 11, 10, 11].slice(0, count));
     expect(centres(ev).every(e => e.damage === 15)).toBe(true);
     expect(ev.filter((e): e is SkillDamageEvent => e.type === 'skill-damage' && e.chainIndex !== 0).every(e => e.damage === 7)).toBe(true);
     expect(chanceRng).toHaveBeenCalledTimes(3);

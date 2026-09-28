@@ -56,7 +56,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       transform(BaseColor.Purple, BaseColor.Red),
       transform(BaseColor.Brown, 'SKULL'),
-      inflict('blessed', 'allyRandomN', { n: 2 }),
+      inflict('blessed', 'allyRandomPrefNotPrevN', { n: 2 }),
     ),
   },
   {

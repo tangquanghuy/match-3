@@ -163,6 +163,8 @@ export interface DmgOpts extends SegmentOpts, NRangeOpts {
   splashChances?: number[];
   /** Native repeated random damage steps, including repeat hits when fewer enemies remain. */
   randomWaves?: number;
+  /** 'notHit': plain RandomEnemy chains prefer not-yet-hit enemies (R006-C3); default avoids only the previous (R007-3). */
+  randomPrefer?: 'notHit';
   trueDamage?: boolean;
   /** Native ManaBurn: add each victim's current Mana, never drain it. */
   manaBurn?: boolean;
@@ -199,6 +201,7 @@ export function dmg(
   if (opts.splashRatio !== undefined) seg.splashRatio = opts.splashRatio;
   if (opts.splashChances !== undefined) seg.splashChances = [...opts.splashChances];
   if (opts.randomWaves !== undefined) seg.randomWaves = opts.randomWaves;
+  if (opts.randomPrefer) seg.randomPrefer = opts.randomPrefer;
   if (opts.trueDamage) seg.trueDamage = true;
   if (opts.manaBurn) seg.manaBurn = true;
   if (opts.n !== undefined) seg.n = opts.n;
@@ -357,10 +360,13 @@ export function steal(
   gainStat: BuffStat,
   base: number,
   mult = 1,
-  opts: ReduceOpts & { gainRatio?: number } = {},
+  opts: ReduceOpts & { gainRatio?: number; gainLifeMode?: import('./effects/buff').LifeMode; modifierAfterCap?: boolean } = {},
 ): ReduceSegment {
   const seg: ReduceSegment = { kind: 'reduce', target, stat, scaling: scale(base, mult), gainStat };
   if (opts.gainRatio !== undefined && opts.gainRatio !== 1) seg.gainRatio = opts.gainRatio;
+  // P-steal-to-life: native IncreaseHealth gain step / CountMaxWithMagic cap on the base part only
+  if (opts.gainLifeMode) seg.gainLifeMode = opts.gainLifeMode;
+  if (opts.modifierAfterCap) seg.modifierAfterCap = true;
   if (opts.n !== undefined) seg.n = opts.n;
   if (opts.nRange !== undefined) seg.nRange = opts.nRange;
   if (opts.times !== undefined) seg.times = opts.times;

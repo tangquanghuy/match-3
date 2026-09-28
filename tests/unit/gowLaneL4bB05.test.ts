@@ -97,7 +97,7 @@ describe('L4b troop:6678/spell:8024 Purple->Red, Brown->Skulls, Bless 2 random a
    [{Color1:'Purple',Amount:100,Color2:'Red',Type:'ConvertGems'},{Color1:'Brown',Amount:100,Color2:'Skull',Type:'ConvertGems'},{Target:'RandomAlly',Type:'CauseBlessed'},{Target:'RandomPrefNotPrevAlly',Type:'CauseBlessed'}],
    '将紫色宝石转换成红色，和棕色宝石转换成骷髅头。赐福 2 位随机盟友。');
   expect(registry.prototypes.get('8024')).toEqual({segments:[{kind:'gem',params:{op:'transform',from:'Purple',to:'Red'}},
-   {kind:'gem',params:{op:'transform',from:'Brown',to:'SKULL'}},{kind:'status',target:'allyRandomN',statusId:'blessed',turns:3,n:2}]});
+   {kind:'gem',params:{op:'transform',from:'Brown',to:'SKULL'}},{kind:'status',target:'allyRandomPrefNotPrevN',statusId:'blessed',turns:3,n:2}]});
  });
  for(const side of sides)for(const seed of [1,42])it(`real cast side=${side} seed=${seed}: 16 Purple->Red, 16 Brown->Skull, 2 distinct living allies Blessed`,()=>{
   const f=setup({...base,side,seed,board});const ev=f.cast();const tr=transforms(ev);
@@ -114,9 +114,9 @@ describe('L4b troop:6678/spell:8024 Purple->Red, Brown->Skulls, Bless 2 random a
    expect(ap).toHaveLength(2);expect(new Set(ap.map(a=>a[0])).size).toBe(2);expect(ap.some(a=>a[0]===2)).toBe(false);ap.forEach(a=>hit.add(a[0] as number));}
   expect([...hit].sort()).toEqual([0,1,3]);
  });
- it('lone caster: RandomAlly + RandomPrefNotPrevAlly both land on the caster; one Blessed status (equivalent final state)',()=>{
+ it('lone caster: RandomAlly + RandomPrefNotPrevAlly both land on the caster (two applications, R007-3); one Blessed status',()=>{
   const f=setup({...base,board,allies:[]});const ev=f.cast();
-  expect(applied(ev).map(a=>a[0])).toEqual([0]);expect(f.caster.statuses.map(s=>s.id)).toEqual(['blessed']);
+  expect(applied(ev).map(a=>a[0])).toEqual([0,0]);expect(f.caster.statuses.map(s=>s.id)).toEqual(['blessed']);
  });
  refusal({...base,board});
 });
@@ -130,7 +130,7 @@ describe('L4b troop:6479/spell:7666 Red->Skulls, Green->Yellow, Enchant 2 random
    [{Color1:'Red',Amount:100,Color2:'Skull',Type:'ConvertGems'},{Color1:'Green',Amount:100,Color2:'Yellow',Type:'ConvertGems'},{Target:'RandomAlly',Amount:1,Type:'CauseEnchanted'},{Target:'RandomPrefNotPrevAlly',Amount:1,Type:'CauseEnchanted'}],
    '将所有红色宝石转换成骷髅头，和所有绿色宝石转换成黄色。赋予两名随机盟友法印效果。');
   expect(registry.prototypes.get('7666')).toEqual({segments:[{kind:'gem',params:{op:'transform',from:'Red',to:'SKULL'}},
-   {kind:'gem',params:{op:'transform',from:'Green',to:'Yellow'}},{kind:'status',target:'allyRandomN',statusId:'enchanted',turns:3,n:2}]});
+   {kind:'gem',params:{op:'transform',from:'Green',to:'Yellow'}},{kind:'status',target:'allyRandomPrefNotPrevN',statusId:'enchanted',turns:3,n:2}]});
  });
  for(const side of sides)for(const seed of [1,42])it(`real cast side=${side} seed=${seed}: 16 Red->Skull, 16 Green->Yellow, 2 distinct allies Enchanted`,()=>{
   const f=setup({...base,side,seed,board});const ev=f.cast();const tr=transforms(ev);
@@ -143,8 +143,9 @@ describe('L4b troop:6479/spell:7666 Red->Skulls, Green->Yellow, Enchant 2 random
   const f=setup({...base,board,allies:[{statuses:[{id:'blessed',turns:3}]}]});const ev=f.cast();
   expect(applied(ev).map(a=>a[0])).toEqual([0]);expect(f.allies[0].statuses.map(s=>s.id)).toEqual(['blessed']);
  });
- it('lone caster: Enchanted once (both native picks fall back to the caster)',()=>{
-  const f=setup({...base,board,allies:[]});expect(applied(f.cast()).map(a=>a[0])).toEqual([0]);
+ it('lone caster: both native picks fall back to the caster (two applications, R007-3); Enchanted once',()=>{
+  const f=setup({...base,board,allies:[]});expect(applied(f.cast()).map(a=>a[0])).toEqual([0,0]);
+  expect(f.caster.statuses.filter(s=>s.id==='enchanted')).toHaveLength(1);
  });
  refusal({...base,board});
 });

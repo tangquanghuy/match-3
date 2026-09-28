@@ -102,11 +102,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9139,
     desc: '窃取一名敌人 [魔法 + 1] 点攻击力，并换成生命值。打乱板面。有 25% 的几率获得一个额外回合。 [100:1]',
-    // CountAttack 100 = ratio 100:1 targetStat attack；「换成生命值」= gainStat hp；「打乱板面」= shuffleBoard（batch-37 落地）
+    // P-steal-to-life：原生 CountAttack 100 → CountMaxWithMagic 1 → DecreaseAttack → IncreaseHealth Self
+    // = 计数 min(攻击, M+1)（[100:1] 是 CountAttack 100% 的显示标签，不是额外加成）；生命与上限同增；
+    // 「打乱板面」= shuffleBoard（batch-37 落地）
     build: skill(
-      steal('enemyChosen', 'attack', 'hp', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 100, b: 1 }, source: { kind: 'targetStat', stat: 'attack' } },
-      }),
+      steal('enemyChosen', 'attack', 'hp', 1, 1, { gainLifeMode: 'gain' }),
       shuffleBoard(),
       extraTurn({ chance: 0.25 }),
     ),
@@ -124,12 +124,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9223,
     desc: '创建 9 颗紫色宝石。窃取一名敌人 [魔法 + 1] 点魔力值，移用到自身的生命值。 [100:1]',
-    // CountMagic 100 = ratio 100:1 targetStat magic；「移用到自身的生命值」= gainStat hp
+    // P-steal-to-life：原生 CountMagic 100 → CountMaxWithMagic 1 → CreateGems 9 → IncreaseHealth Self →
+    // DecreaseSpellPower = 计数 min(魔法, M+1)（[100:1] 为 CountMagic 100% 标签）；生命与上限同增
     build: skill(
       createGems(BaseColor.Purple, 9, 0),
-      steal('enemyChosen', 'magic', 'hp', 1, 1, {
-        modifier: { mod: { kind: 'ratio', a: 100, b: 1 }, source: { kind: 'targetStat', stat: 'magic' } },
-      }),
+      steal('enemyChosen', 'magic', 'hp', 1, 1, { gainLifeMode: 'gain' }),
     ),
   },
   {

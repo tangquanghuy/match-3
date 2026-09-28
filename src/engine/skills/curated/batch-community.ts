@@ -57,6 +57,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         ...dmgAll(4),
         modifier: {
           mod: { kind: 'ratio', a: 4, b: 1 },
+          pooled: true, // 「每有 4 颗红色或黄色宝石」= 单一合并计数（非原生分步 Count）
           sources: [
             { kind: 'boardGems', color: BaseColor.Red },
             { kind: 'boardGems', color: BaseColor.Yellow },
@@ -72,6 +73,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
           range: 'splash',
           modifier: {
             mod: { kind: 'ratio', a: 2, b: 1 },
+            pooled: true, // 「每有 2 颗红色或绿色宝石」= 单一合并计数
             sources: [
               { kind: 'boardGems', color: BaseColor.Red },
               { kind: 'boardGems', color: BaseColor.Green },
