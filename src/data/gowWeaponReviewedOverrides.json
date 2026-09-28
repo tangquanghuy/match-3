@@ -13455,6 +13455,612 @@
           }
         ]
       }
+    },
+    "9904": {
+      "description": "对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则每种宝石额外生成3个。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 5,
+              "mult": 1.75
+            },
+            "range": "all"
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifTargetDied": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "terrorGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "terrorGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifTargetDied": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "poisonGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "poisonGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifTargetDied": true
+          }
+        ]
+      }
+    },
+    "9903": {
+      "description": "对 3 个随机敌人造成 [魔法 + 2] 点伤害。然后生成 3 个流血宝石。如果一个敌人死亡，则再生成 3 个流血宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bleedGem"
+                }
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "anyTrackedDied"
+            }
+          }
+        ]
+      }
+    },
+    "9356": {
+      "description": "赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有蓝色盟友屏障效果并击晕所有蓝色敌人。若敌方有劫数，则将 3 颗蓝色宝石转换成巨人蓝色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "stun",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Blue"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Blue",
+              "to": "SKULL",
+              "toSpecial": {
+                "kind": "giantGem",
+                "color": "Blue"
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "9357": {
+      "description": "赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有绿色盟友屏障效果并击晕所有绿色敌人。若敌方有劫数，则将 3 颗绿色宝石转换成巨人绿色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Green"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "stun",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Green"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Green",
+              "to": "SKULL",
+              "toSpecial": {
+                "kind": "giantGem",
+                "color": "Green"
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "9358": {
+      "description": "赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有红色盟友屏障效果并击晕所有红色敌人。若敌方有劫数，则将 3 颗红色宝石转换成巨人红色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "stun",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Red"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Red",
+              "to": "SKULL",
+              "toSpecial": {
+                "kind": "giantGem",
+                "color": "Red"
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "9359": {
+      "description": "赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有黄色盟友屏障效果并击晕所有黄色敌人。若敌方有劫数，则将 3 颗黄色宝石转换成巨人黄色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "stun",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Yellow"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Yellow",
+              "to": "SKULL",
+              "toSpecial": {
+                "kind": "giantGem",
+                "color": "Yellow"
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "9360": {
+      "description": "赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有紫色盟友屏障效果并击晕所有紫色敌人。若敌方有劫数，则将 3 颗紫色宝石转换成巨人紫色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "stun",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Purple"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Purple",
+              "to": "SKULL",
+              "toSpecial": {
+                "kind": "giantGem",
+                "color": "Purple"
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "9361": {
+      "description": "赋予一名盟友 [魔法 + 2] 点护甲值，每锻炼 1 个武器段位则 +3 点。赋予所有棕色盟友屏障效果并击晕所有棕色敌人。若敌方有劫数，则将 3 颗棕色宝石转换成巨人棕色宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allyChosen",
+            "stat": "armor",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "tempering"
+              }
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "barrier",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "enemyAll",
+            "statusId": "stun",
+            "turns": 3,
+            "ifCond": {
+              "kind": "targetColor",
+              "color": "Brown"
+            }
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "transform",
+              "from": "Brown",
+              "to": "SKULL",
+              "toSpecial": {
+                "kind": "giantGem",
+                "color": "Brown"
+              },
+              "count": {
+                "base": 3,
+                "mult": 0
+              }
+            },
+            "ifCond": {
+              "kind": "targetHasDoom"
+            }
+          }
+        ]
+      }
+    },
+    "8996": {
+      "description": "对 2 名随机敌人造成 [魔法 + 2] 点真实伤害。再创造 5 颗炸弹宝石。",
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 2,
+              "mult": 1
+            },
+            "trueDamage": true
+          },
+          {
+            "kind": "gem",
+            "params": {
+              "op": "create",
+              "gem": {
+                "kind": "special",
+                "spec": {
+                  "kind": "bomb"
+                }
+              },
+              "count": {
+                "base": 5,
+                "mult": 0
+              }
+            }
+          }
+        ]
+      }
     }
   }
 }

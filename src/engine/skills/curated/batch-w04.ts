@@ -386,7 +386,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      transformToSpecial(BaseColor.Blue, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Blue, { kind: 'giantGem', color: BaseColor.Blue }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Blue
     ),
   },
   {
@@ -396,7 +396,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
-      transformToSpecial(BaseColor.Green, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Green, { kind: 'giantGem', color: BaseColor.Green }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Green
     ),
   },
   {
@@ -406,7 +406,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
-      transformToSpecial(BaseColor.Red, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Red, { kind: 'giantGem', color: BaseColor.Red }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Red
     ),
   },
   {
@@ -416,7 +416,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-      transformToSpecial(BaseColor.Yellow, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Yellow, { kind: 'giantGem', color: BaseColor.Yellow }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Yellow
     ),
   },
   {
@@ -426,7 +426,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
-      transformToSpecial(BaseColor.Purple, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Purple, { kind: 'giantGem', color: BaseColor.Purple }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Purple
     ),
   },
   {
@@ -436,7 +436,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
-      transformToSpecial(BaseColor.Brown, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Brown, { kind: 'giantGem', color: BaseColor.Brown }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Brown
     ),
   },
   {
@@ -1162,18 +1162,26 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9903,
     desc: '对 3 个随机敌人造成 [魔法 + 2] 点伤害。然后生成 3 个流血宝石。如果一个敌人死亡，则再生成 3 个流血宝石。',
     build: skill(
-      dmg('enemyRandomN', 2, 1, { n: 3 }),
+      // native Damage@RandomEnemy → 2 × Damage@RandomPrefNotPrevEnemy (R007-3: avoid only the previous hit)
+      dmg('enemyRandom', 2, 1),
+      dmg('enemyRandomPrefNotPrev', 2, 1),
+      dmg('enemyRandomPrefNotPrev', 2, 1),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0, { ifCond: { kind: 'anyTrackedDied' } }),
     ),
   },
   {
     id: 9904,
-    desc: '对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则额外生成3个流血宝石和3个恐惧宝石。',
+    desc: '对所有敌人造成[(魔法 x 1.75) + 5]点伤害。生成3个流血宝石、3个恐惧宝石、3个中毒宝石。如果敌人死亡，则每种宝石额外生成3个。',
     build: skill(
       dmg('enemyAll', 5, 1.75, { range: 'all' }),
+      // native: CreateGems 3 Bleed / Terror / Poison, each [AddForKill 3] (R001 order)
       createSpecialGems({ kind: 'bleedGem' }, 3, 0),
       createSpecialGems({ kind: 'bleedGem' }, 3, 0, { ifTargetDied: true }),
+      createSpecialGems({ kind: 'terrorGem' }, 3, 0),
+      createSpecialGems({ kind: 'terrorGem' }, 3, 0, { ifTargetDied: true }),
+      createSpecialGems({ kind: 'poisonGem' }, 3, 0),
+      createSpecialGems({ kind: 'poisonGem' }, 3, 0, { ifTargetDied: true }),
     ),
   },
   {

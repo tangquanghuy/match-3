@@ -564,7 +564,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 单方括号管两段（R4 §11）；CreateGems2Colors 双基础色 → createMix（r8 9613 先例）
     build: skill(
       trueDmg('enemyChosen', 4, 2),
-      trueDmg('enemyRandom', 4, 2),
+      // native Target=RandomPrefNotPrevEnemy: the random hit avoids the chosen target (R007-3)
+      trueDmg('enemyRandomPrefNotPrev', 4, 2),
       createMix([BaseColor.Blue, BaseColor.Green], 20),
     ),
   },

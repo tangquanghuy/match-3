@@ -349,13 +349,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7708,
     desc: '给予所有盟友 6 点攻击力。对亡灵和恶魔敌人造成 [魔法 + 6] 点伤害。创造 2 颗天使宝石。',
-    // 「对亡灵和恶魔敌人」= anyOf targetRace 析取（逐目标过滤，§条件组合）
+    // native: Damage@EnemyType daemon, then a separate Damage@EnemyType undead (R001) — an enemy that is
+    // both Daemon and Undead is hit twice; per-target race filter on enemyAll
     build: skill(
       attack('allyAll', 6, 0),
-      dmg('enemyAll', 6, 1, {
-        range: 'all',
-        ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Undead' }, { kind: 'targetRace', race: 'Daemon' }] },
-      }),
+      dmg('enemyAll', 6, 1, { range: 'all', ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      dmg('enemyAll', 6, 1, { range: 'all', ifCond: { kind: 'targetRace', race: 'Undead' } }),
       createSpecialGems({ kind: 'angelGem' }, 2),
     ),
   },
@@ -782,7 +781,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成 [魔法 + 3] 点伤害。然后创建 1-3 个恶魔传送门宝石。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      createSpecialGems({ kind: 'daemonicPortalGem' }, 0, 0, { countRange: { min: 1, max: 3 } }),
+      // native = three independent CreateGems 1 DaemonicPortal steps; a later one may land on an earlier
+      // portal (unmatchable gems stay convertible), which is where English "1-3" comes from — not a uniform roll.
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 1, 0),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 1, 0),
+      createSpecialGems({ kind: 'daemonicPortalGem' }, 1, 0),
     ),
   },
 

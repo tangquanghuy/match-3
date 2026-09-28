@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 525 条改动，涉及 966 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 535 条改动，涉及 983 个技能 ID。
 
 ## 按时间
 
@@ -531,6 +531,16 @@
 | 2026-09-28T13:43 | sa-P | P-E-faction-kingdom | primitive | 7241, 7662, 7692, 7707, 7722, 7976, 7391 | weapon:1105 BoneShield；weapon:1186 RadiantJewel；weapon:1188 GlacialCrystal；weapon:1191 TheEdgedBlade；weapon:1193 HookSword；weapon:1234 PrimalAxe；troop:6248 GrandInquisitor | `src/engine/types.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`scripts/lib/gow-skill-audit.mjs` | numeric kingdom refs never matched units carrying only the zh kingdom name (community troops, hand fixtures, old host snapshots); 7 CountArmyKingdom users in w01/w02/r18 still used the zh name → matchesKingdom derives the parent native id from the zh name when kingdomId is absent (ZH_KINGDOM_PARENT_ID; exact for non-faction troops, never matches a faction id); 7241 7662 7692 7707 7722 7976 7391 alliesOfKingdom use the native CountArmyKingdom id | all numeric kingdom filters: name-only units match their parent kingdom again; 7 skills: only differ with a faction ally |
 | 2026-09-28T13:54 | sa-P | R013-5 | primitive | 8861, 7137, 7052, 8297, 7352, 8598, 8976, 7184 | troop:7287 TheWheelOfFortune；troop:6067 Abhorath；troop:6052 Zombie；troop:6873 Ironjaw；troop:6210 AnubiteWarrior；troop:7070 SkyScorpion；troop:7348 FallenSatyr；weapon:1071 Skullblade | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r7.ts` | 'Remove all Gems' (8861, 7137) = allColors, Skulls / Doom Skulls / specials left on the board; clear target 'skulls' took only normal Skulls (Doom / Uber Doom Skulls left) → new clear target allGems (every gem incl. Skulls, skull variants, specials) + builder destroyAllGems for 8861 / 7137 (still remove mode, R010); target 'skulls' = matchJoinKey skull (normal + doomSkull + uberDoomSkull) | 8 skills; skulls target users only differ with Doom / Uber Doom Skulls on the board; golden diff 0 lines |
 | 2026-09-28T14:02 | sa-P | P-C-firstlast-army-color | primitive | 8418 | troop:6937 SisterEbony | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r6.ts` | Barrier if any alive enemy uses Purple (anyEnemyColor; default scenario: middle E12 Purple -> Barrier) → new global condition firstLastEnemyColor (first / last alive enemy at cast start, castTracking.unitsAtCastStart; native CountArmyColor@FirstLastEnemies); 8418 Barrier uses it | only 8418 (sole native CountArmyColor@FirstLastEnemies user) |
+| 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9904 | weapon:1685 SinisterReaper | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | only 3 Bleed (+3 on kill); Terror and Poison creates missing; zh said extra only Bleed+Terror → native: Bleed/Terror/Poison 3 each, each +3 AddForKill; zh extra = every gem |  |
+| 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9023 | troop:7381 DragonstoneGuardian | `src/engine/skills/curated/batch-r14.ts` | 5 gargoyleGem tier unset (Good only) → CreateGems2Colors mix: tier 1 Good / tier 2 Evil (createSpecialGems2, 8795 pattern) |  |
+| 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9466 | troop:7587 DaeDrak | `src/engine/skills/curated/batch-r15.ts` | one create with uniform countRange 1-3 → native three independent CreateGems 1 DaemonicPortal; later ones may overwrite an earlier portal (English 1-3) |  |
+| 2026-09-28T14:50 | sa-B | L4b-R6-B03-prefnotprev | data | 8803, 9903, 8963 | troop:7216 Craghound；weapon:1684 FlailOfSuffering；troop:7340 TheCattauriKing | `src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r4.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2/3 (distinct targets; lone survivor hit once) → native RandomEnemy + RandomPrefNotPrevEnemy chain (R007-3: avoid only previous; lone survivor hit every time; 3rd may return to 1st) |  |
+| 2026-09-28T14:55 | sa-B | L4b-R6-B04 | data | 9356, 9357, 9358, 9359, 9360, 9361 | weapon:1592 DoomedProtector；weapon:1593 DoomedBuckler；weapon:1594 DoomedWall；weapon:1595 DoomedBarrier；weapon:1596 DoomedShield；weapon:1597 DoomedAegis | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Doom branch converted to colourless giantGem → R009: giantGem carries its colour (Giant Blue/Green/Red/Yellow/Purple/Brown) |  |
+| 2026-09-28T14:55 | sa-B | L4b-R6-B04 | data | 7708 | troop:6516 WarCleric | `src/engine/skills/curated/batch-r15.ts` | one hit per Undead-or-Daemon enemy → native two steps: Damage Daemon enemies, then Damage Undead enemies (Daemon+Undead hit twice, R001) |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8813 | troop:7219 OnyxGargoyle | `src/engine/skills/curated/batch-r14.ts`<br>`src/data/gowSnapshotOverrides.json` | Good-only gargoyle (tier unset); zh light splash → CreateGems2ColorsRange Good/Evil tiers 1-2; zh splash (SplashHighDamage) + snapshot override |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9648 | troop:7689 ImmortalDrakkon | `src/engine/skills/curated/batch-r11.ts` | 6 Yellow -> plain Green → 6 Yellow -> Green Dragon Gems (R009) |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 9220 | troop:7487 Takshaka | `src/engine/skills/curated/batch-r9.ts` | second hit enemyRandom (could repeat the chosen target) → native RandomPrefNotPrevEnemy (avoids the chosen target) |  |
+| 2026-09-28T15:14 | sa-B | L4b-R6-B06 | data | 8996 | weapon:1524 Gearslinger | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2 → native RandomEnemy + RandomPrefNotPrevEnemy true damage (R007-3) |  |
 
 ## 按技能 ID
 
@@ -772,6 +782,7 @@
 | 7700 | 1 | B-L4b-6510-two-creates |
 | 7704 | 1 | L1-6513-sacrifice |
 | 7707 | 1 | P-E-faction-kingdom |
+| 7708 | 1 | L4b-R6-B04 |
 | 7712 | 1 | R3-B03-6519 |
 | 7720 | 1 | F3-q03 |
 | 7722 | 1 | P-E-faction-kingdom |
@@ -1173,10 +1184,12 @@
 | 8797 | 2 | L4b-7210-doomskull、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 8798 | 1 | R7-7211-gargoyle-count |
 | 8802 | 1 | F3-t7215 |
+| 8803 | 1 | L4b-R6-B03-prefnotprev |
 | 8804 | 1 | L2-7217-cell |
 | 8807 | 3 | F2-R001-order、P-A-target-kingdom、P-E-faction-kingdom |
 | 8809 | 1 | P-E-faction-kingdom |
 | 8812 | 1 | L4a-R1-8812-no-base |
+| 8813 | 1 | L4b-R6-B06 |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8816 | 1 | L1-E-kingdom-summon-raw |
 | 8817 | 1 | L1-7222-chance |
@@ -1233,6 +1246,7 @@
 | 8952 | 1 | D-1509-mark-target |
 | 8955 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8961 | 1 | F2-7338-cross-skulls |
+| 8963 | 1 | L4b-R6-B03-prefnotprev |
 | 8965 | 1 | P-R6-chosen-cell-counts |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
@@ -1245,11 +1259,13 @@
 | 8985 | 1 | P-R5-faction-kingdom |
 | 8987 | 1 | P-counter-per-step |
 | 8995 | 1 | L4a-r3-1523 |
+| 8996 | 1 | L4b-R6-B06 |
 | 9003 | 1 | R7-tarot-extra-turn |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
 | 9022 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
+| 9023 | 1 | L4b-R6-B02 |
 | 9025 | 1 | F2-7383-kill-gems |
 | 9034 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 9036 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
@@ -1298,6 +1314,7 @@
 | 9214 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9215 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9216 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
+| 9220 | 1 | L4b-R6-B06 |
 | 9221 | 1 | L4a-r3-7488 |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
@@ -1334,6 +1351,12 @@
 | 9352 | 1 | L7-R1-weapon-colour-race |
 | 9354 | 1 | P-E-faction-kingdom |
 | 9355 | 1 | L7-R1-weapon-colour-race |
+| 9356 | 1 | L4b-R6-B04 |
+| 9357 | 1 | L4b-R6-B04 |
+| 9358 | 1 | L4b-R6-B04 |
+| 9359 | 1 | L4b-R6-B04 |
+| 9360 | 1 | L4b-R6-B04 |
+| 9361 | 1 | L4b-R6-B04 |
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
 | 9370 | 1 | P-prefnotprev-semantics |
@@ -1346,6 +1369,7 @@
 | 9387 | 1 | L4a-R1-immortal-order |
 | 9388 | 1 | L4b-1608-1611-order |
 | 9465 | 1 | L4a-r3-7586 |
+| 9466 | 1 | L4b-R6-B02 |
 | 9474 | 1 | B-L4b-7595-order |
 | 9475 | 1 | B-L4b-prefnotprev |
 | 9476 | 1 | P-F2-dead-target-colour |
@@ -1413,6 +1437,7 @@
 | 9642 | 1 | L4a-r3-7685 |
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
+| 9648 | 1 | L4b-R6-B06 |
 | 9649 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9651 | 1 | P-R3-precast-compare |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
@@ -1469,6 +1494,8 @@
 | 9879 | 1 | F3-q38 |
 | 9880 | 1 | P-prefnotprev-semantics |
 | 9882 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、L7-R1-random-chain-waves |
+| 9903 | 1 | L4b-R6-B03-prefnotprev |
+| 9904 | 1 | L4b-R6-B02 |
 | 9909 | 2 | P-random-stat-pool、L2-7850-target |
 | 9911 | 1 | P-E-faction-kingdom |
 | 9914 | 1 | P-E-faction-kingdom |

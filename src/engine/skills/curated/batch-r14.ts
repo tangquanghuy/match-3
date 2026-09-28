@@ -171,16 +171,19 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 2 名随机敌人造成 [魔法 + 3] 点伤害。再创造 3 颗恶石像鬼宝石。',
     // 恶石像鬼 = gargoyleGem tier 2
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
+      // native Damage@RandomEnemy → Damage@RandomPrefNotPrevEnemy (R007-3: lone survivor is hit twice)
+      dmg('enemyRandom', 3, 1),
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       createSpecialGems({ kind: 'gargoyleGem', tier: 2 }, 3),
     ),
   },
   {
     id: 8813,
-    desc: '对一名敌人造成 [魔法 + 3] 点轻微溅射伤害。再创造 1-2 颗随机石像鬼宝石。',
+    desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。',
+    // native SplashHighDamage (English "splash", not light); CreateGems2ColorsRange GoodGargoyle/BadGargoyle 1-2
     build: skill(
       dmgSplash('enemyChosen', 3),
-      createSpecialGems({ kind: 'gargoyleGem' }, 1, 0, { countRange: { min: 1, max: 2 } }),
+      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 0, 0, { countRange: { min: 1, max: 2 } }),
     ),
   },
   {
@@ -299,10 +302,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9023,
     desc: '对所有敌人造成[魔法 + 2] 点伤害。创造 5 颗混合善恶的石像鬼宝石。',
-    // CreateGems2Colors 善恶混合 → 通用石像鬼（tier 缺省由引擎处理，8795 同款注明）
+    // native CreateGems2Colors 5 GoodGargoyle>BadGargoyle（tier 1=善 / 2=恶，8795 同款；tier 缺省只会是善）
     build: skill(
       dmg('enemyAll', 2, 1, { range: 'all' }),
-      createSpecialGems({ kind: 'gargoyleGem' }, 5),
+      createSpecialGems2([{ kind: 'gargoyleGem', tier: 1 }, { kind: 'gargoyleGem', tier: 2 }], 5),
     ),
   },
   {
