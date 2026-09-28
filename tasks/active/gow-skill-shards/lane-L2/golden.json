@@ -9,6 +9,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T09:04:11.605Z"
  },
+ "troop:6157": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2",
+   "R10": "buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2",
+   "L0": "buff A1 hp+1 max+1 ; buff A1 magic+2  => A1:hp+1 max+1 mag+2",
+   "K": "buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:46:28.926Z"
+ },
  "troop:6159": {
   "lines": {
    "L10": "dmg E11 15 ; status E11 +curse  => E11:hp-5 arm-10 +curse",
@@ -238,6 +248,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T05:40:50.994Z"
+ },
+ "troop:6625": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2  => C:hp+11 max+11 | A2:mana+3 | A1:mana+1 | E10:arm-2",
+   "R10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2  => C:hp+11 max+11 | A2:mana+3 | A1:mana+1 | E10:arm-2",
+   "L0": "buff C hp+1 max+1 ; explode 24 ; skulls E10 2  => C:hp+1 max+1 | A2:mana+3 | A1:mana+1 | E10:arm-2",
+   "K": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; defeat E10  => C:hp+11 max+11 | A2:mana+3 | A1:mana+1 | E10:hp-1 DEAD"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:46:28.926Z"
  },
  "troop:6630": {
   "lines": {
@@ -748,6 +768,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T09:10:46.001Z"
+ },
+ "troop:7283": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11",
+   "R10": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11",
+   "L0": "buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1  => C:hp+1 max+1 | A1:hp+1 max+1 | A2:hp+1 max+1",
+   "K": "buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11  => C:hp+11 max+11 | A1:hp+11 max+11 | A2:hp+11 max+11"
+  },
+  "by": "sa-H",
+  "at": "2026-09-28T21:46:28.926Z"
  },
  "troop:7284": {
   "lines": {

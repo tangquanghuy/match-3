@@ -286,3 +286,32 @@ describe('sa-H L2 B06', () => {
     within(heal / SEEDS, 1 / 3, 'heal'); within(dmg / SEEDS, 1 / 3, 'dmg'); within(other / SEEDS, 1 / 3, 'gargoyle');
   });
 });
+
+describe('sa-H L2 B07', () => {
+  it('troop:6157 AB-CD: heal chosen ally, then 6 gems of THAT ally colour | +2 Magic to it', () => {
+    let create = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const s = castSpell({ key: 'troop:6157', seed, colors: [BaseColor.Yellow] }).summary; // caster Yellow, chosen A1 Blue
+      expect(s.order[0]).toBe('buff A1 hp+11 max+11');
+      if (s.order.includes('buff A1 magic+2')) continue;
+      create++; expect(s.gems.created).toEqual({ Blue: 6 });
+    }
+    within(create / SEEDS, 0.5, 'create');
+  });
+  it('troop:7283 Choose B: other allies gain floor(manaCost / 2) Mana', () => {
+    const b = choose({ key: 'troop:7283', allies: [{ manaCost: 13 }, { manaCost: 16 }] }, 1);
+    expect(b).toEqual(['buff A1 mana+6', 'buff A2 mana+8']);
+  });
+  it('troop:6625 +4 Attack only with 13+ Blue gems; explode chosen row | column 1/2', () => {
+    const blue = (() => ({ kind: 'color', color: BaseColor.Blue })) as never;
+    expect(orderOf({ key: 'troop:6625' }).some(l => l.startsWith('buff C attack'))).toBe(false);
+    expect(orderOf({ key: 'troop:6625', board: blue })).toContain('buff C attack+4');
+    let rows = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const f = setupCast({ key: 'troop:6625', seed, cell: { row: 0, col: 7 } }); const ev = f.cast();
+      const ex = ev.find(e => e.type === 'gem-explode') as { cells: { pos: { row: number; col: number } }[] };
+      if (new Set(ex.cells.map(c => c.pos.col)).size === 8) rows++;
+    }
+    within(rows / SEEDS, 0.5, 'row');
+  });
+});

@@ -396,7 +396,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8517,
     desc: '获得 [魔法 + 1] 点生命值。再创造 7 颗红色宝石或获得一个额外回合，或爆破一颗随机宝石。',
-    build: skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'color')])),
+    build: skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'all')])), // sa-H: ExplodeGems 1 = any gem
   },
   {
     id: 8518,

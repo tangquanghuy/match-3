@@ -29,3 +29,8 @@
 - troop:7582 accept (Choose; [(0.75M)+1] round, convention:R006-C1)
 - troop:7713 accept (Choose heal+barrier | 10 gems of chosen ally colour + enchant)
 - troop:7740 accept (AB-CD-EF 1/3; Good+Bad gargoyle = gargoyleGem kind)
+- weapon:1396 explode->any gem, ISSUE L2-H-1396-missing-amount (native branch B/C IncreaseHealth lacks Amount: M+0 vs English M+1)
+- troop:6157 fixed+accept (created gems now chosen ally colour, was caster)
+- troop:7283 accept (Choose; half = floor(manaCost/2))
+- troop:6625 accept (13+ Blue threshold, chosen row|col 1/2)
+- troop:6809 ISSUE P-H-random-status-n (branch C random status only on first ally; queued primitive)

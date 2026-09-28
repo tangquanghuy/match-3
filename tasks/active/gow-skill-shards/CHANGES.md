@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 552 条改动，涉及 1001 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 554 条改动，涉及 1003 个技能 ID。
 
 ## 按时间
 
@@ -558,6 +558,8 @@
 | 2026-09-28T21:37 | sa-H | L2-H-6247-any-gem | assembler | 7390 | troop:6247 Remnant | `src/engine/skills/curated/batch-01.ts` | explode 2 random coloured gems (skulls/specials excluded) → explode 2 random gems of any kind (native ExplodeGems 2, same as signed 6204/6251/6875/7044) |  |
 | 2026-09-28T21:41 | sa-H | L2-H-6981-chosen-line | assembler | 8484 | troop:6981 Rhinotaur | `src/engine/skills/curated/batch-r20.ts` | explode a RANDOM row or column → explode the chosen gem's row or column (spell Target Board + BoardTarget Row/Column), 1/2 each |  |
 | 2026-09-28T21:41 | sa-H | L2-H-1418-one-colour | assembler | 8578 | weapon:1418 CelestialFlask | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json`<br>`scripts/curated-pools/pool-w01.json` | 3 potions from a 5-colour mixed pool; zh said 3 kinds of potion → A+(B-C-D-E-F): extra turn, then 3 potions of one colour (1/5 each); zh fixed in pool + weapon override |  |
+| 2026-09-28T21:46 | sa-H | L2-H-6157-ally-colour | assembler | 7277 | troop:6157 Djinn | `src/engine/skills/curated/batch-r7.ts` | created 6 gems of the CASTER's colour → 6 gems of the chosen ally's colour (native CreateGems FromTarget) |  |
+| 2026-09-28T21:46 | sa-H | L2-H-1396-any-gem | assembler | 8517 | weapon:1396 ExperimentalElixir | `src/engine/skills/curated/batch-w03.ts` | explode 1 random coloured gem → explode 1 random gem of any kind (native ExplodeGems 1); skill issued for Amount dispute |  |
 
 ## 按技能 ID
 
@@ -648,6 +650,7 @@
 | 7269 | 1 | L4a-r3-1117 |
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
+| 7277 | 1 | L2-H-6157-ally-colour |
 | 7280 | 1 | P-create-interleave |
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
@@ -1083,6 +1086,7 @@
 | 8513 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
+| 8517 | 1 | L2-H-1396-any-gem |
 | 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8529 | 2 | L1-E-kingdom-summon-raw、L1-E-1414-desc |
