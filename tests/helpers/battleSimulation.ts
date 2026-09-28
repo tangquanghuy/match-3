@@ -17,6 +17,7 @@ import { chooseEnemySwap } from '@engine/ai';
 import { chooseAiAction, hasBigMatchSwap } from '@engine/aiPolicy';
 import { MatchState, PlayerSide } from '@engine/types';
 import type { BattleAction } from '@engine/types';
+import { BATTLE_SKULL_CHANCE } from '@engine/comboBias';
 import type { GameEvent } from '@engine/events';
 import { TROOPS, knownTroopTypes, troopToSummonTemplate } from '../../src/data/troops';
 import { assignBattleRequest, loadStandaloneRequest, mapRequestToTeams } from '@session/index';
@@ -66,6 +67,8 @@ export interface SimStats {
   /** 决策点棋盘上骷髅（含末日骷髅族）占比均值 */
   skullBoardShare: number;
   actionsPerBattle: number;
+  /** 每场回合数：只算换手（行动后轮到对方），额外回合不计——玩家连着动不会觉得磨叽 */
+  turnsPerBattle: number;
   castsPerBattle: { left: number; right: number };
   /** 未分胜负（触顶）的对局数 */
   unfinished: number;
@@ -157,7 +160,7 @@ function runBattle(cfg: SimConfig, seed: number, index: number): BattleTrace {
   const rng = new SeededRNG(seed);
   let nextId = 100000;
   const idGen = () => nextId++;
-  const skullChance = cfg.skullChance ?? 0.16;
+  const skullChance = cfg.skullChance ?? BATTLE_SKULL_CHANCE;
   const board = new BoardGenerator(rng, idGen, skullChance, cfg.setupBias).generate();
   const state = createGameState(board, playerTeam, enemyTeam);
   const engine = new TurnEngine(state, rng, idGen, registry);
@@ -288,6 +291,7 @@ export function simulate(cfg: SimConfig, seeds: readonly number[]): SimStats {
     swapStreak5BattleShare: round(traces.filter((t) => t.longestSwapStreak >= 5).length / traces.length),
     skullBoardShare: round(sum((t) => t.skullShareSum) / decisionPoints),
     actionsPerBattle: round(actions / traces.length, 1),
+    turnsPerBattle: round((actions - sum((t) => t.extraTurns)) / traces.length, 1),
     castsPerBattle: {
       left: round(sum((t) => t.casts.left) / traces.length, 2),
       right: round(sum((t) => t.casts.right) / traces.length, 2),

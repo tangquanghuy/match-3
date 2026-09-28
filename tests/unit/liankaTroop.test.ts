@@ -23,7 +23,7 @@ import { grantTroop, getRecord } from '../../src/meta/systems/troopProgress';
 const codes = ['lianka_unquenched', 'lianka_obsidian_robes', 'lianka_eclipse_flame'];
 function character(id: number, overrides: Partial<Character> = {}): Character {
   return { id, name: `C${id}`, maxHp: 100, hp: 100, attack: 5, armor: 0, magic: 10,
-    colors: [BaseColor.Red, BaseColor.Yellow], manaCost: 17, mana: 17,
+    colors: [BaseColor.Red, BaseColor.Yellow], manaCost: 15, mana: 15,
     skillId: String(LIANKA_SPELL_ID), statuses: [], defeated: false, ...overrides };
 }
 function boardWith(red = 0, yellow = 0): BoardModel {
@@ -52,7 +52,7 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
     expect(getTroopByRef('Lianka')).toBe(troop);
     expect(TROOPS.filter(t => t.id === LIANKA_ID)).toHaveLength(1);
     expect(TROOPS.filter(t => t.spell.id === LIANKA_SPELL_ID)).toHaveLength(1);
-    expect(troop).toMatchObject({ name: 'Lianka', rarity: 'Epic', rarityIdx: 4, manaCost: 17,
+    expect(troop).toMatchObject({ name: 'Lianka', rarity: 'Epic', rarityIdx: 4, manaCost: 15,
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE],
       manaColors: [BaseColor.Red, BaseColor.Yellow], spell: { name: '日轮坠灭' } });
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('史诗');
@@ -70,7 +70,7 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
     expect(troopToSnapshot(troop, record, 'lianka').traitIds).toEqual([]);
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, 'lianka')).toMatchObject({
-      traitIds: codes, skillId: String(LIANKA_SPELL_ID), portraitUrl: troop.artUrl, manaCost: 17,
+      traitIds: codes, skillId: String(LIANKA_SPELL_ID), portraitUrl: troop.artUrl, manaCost: 15,
     });
   });
 
@@ -84,7 +84,7 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
       expect(enemies.map(e => e.hp)).toEqual([100 - damage, 100 - damage, 100 - damage, 100 - damage]);
       expect(events.filter(e => e.type === 'skill-damage')).toHaveLength(4);
       expect(enemies.every(e => e.statuses.length === 0)).toBe(true);
-      expect(caster.mana).toBe(17);
+      expect(caster.mana).toBe(15);
       expect(JSON.stringify(board)).toBe(before);
     });
 

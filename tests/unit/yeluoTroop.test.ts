@@ -25,7 +25,7 @@ describe('YeLuo / 猩红谢幕 / 赤月留痕 integration', () => {
     expect(getTroopByRef('YeLuo')).toBe(troop);
     expect(TROOPS.filter(t=>t.id===YELUO_ID)).toHaveLength(1);
     expect(TROOPS.filter(t=>t.spell.id===YELUO_SPELL_ID)).toHaveLength(1);
-    expect(troop).toMatchObject({ name:'叶落', rarity:'Epic', rarityIdx:4, manaCost:16,
+    expect(troop).toMatchObject({ name:'叶落', rarity:'Epic', rarityIdx:4, manaCost:14,
       kingdom:COMMUNITY_KINGDOM, troopTypes:[COMMUNITY_RACE], manaColors:[BaseColor.Red,BaseColor.Green], spell:{name:'猩红谢幕'} });
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
     expect(troopArt(troop)).toBe(troop.artUrl);
@@ -37,7 +37,7 @@ describe('YeLuo / 猩红谢幕 / 赤月留痕 integration', () => {
     const record=getRecord(save,YELUO_ID)!;
     expect(troopToSnapshot(troop,record,'yeluo').traitIds).toEqual([]);
     record.traits=[true,true,true];
-    expect(troopToSnapshot(troop,record,'yeluo')).toMatchObject({traitIds:codes,skillId:String(YELUO_SPELL_ID),portraitUrl:troop.artUrl,manaCost:16});
+    expect(troopToSnapshot(troop,record,'yeluo')).toMatchObject({traitIds:codes,skillId:String(YELUO_SPELL_ID),portraitUrl:troop.artUrl,manaCost:14});
   });
   it.each([[0,0,15],[1,0,15],[1,1,16],[3,2,17],[16,16,31],[32,32,47]])(
     'combines %i red and %i green before flooring, primary damage %i', (red,green,amount)=>{

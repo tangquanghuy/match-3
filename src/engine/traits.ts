@@ -2164,7 +2164,8 @@ function dispelPositive(char: Character): GameEvent[] {
   const removed = char.statuses.filter((s) => POSITIVE_STATUS_IDS.has(s.id)).map((s) => s.id);
   if (removed.length === 0) return [];
   char.statuses = char.statuses.filter((s) => !POSITIVE_STATUS_IDS.has(s.id));
-  const event: GameEvent = { type: 'status-cleanse', targetId: char.id, statusIds: removed };
+  // kind:'dispel' 让表现层区分驱散与净化（光效/音效不同，且只撤被驱散的持续层）
+  const event: GameEvent = { type: 'status-cleanse', targetId: char.id, statusIds: removed, kind: 'dispel' };
   return [event];
 }
 

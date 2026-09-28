@@ -336,7 +336,7 @@ describe('定向驱散单一状态（dispelStatus）', () => {
       right: [{ statuses: [{ id: 'bleed', turns: 3 }, { id: 'poison', turns: 3 }] }],
     });
     const events = executePrototype(skill(dispelStatus('bleed', 'enemyFront')), ctx);
-    expect(events).toEqual([{ type: 'status-expire', targetId: 4, statusId: 'bleed' }]);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-expire', targetId: 4, statusId: 'bleed' })]);
     const statuses = rightTeam(state).characters[0].statuses.map((s) => s.id);
     expect(statuses).toEqual(['poison']);
   });
@@ -347,7 +347,7 @@ describe('定向驱散单一状态（dispelStatus）', () => {
 
     const shielded = setup({ right: [{ statuses: [{ id: 'barrier', turns: 3 }] }] });
     const events = executePrototype(skill(dispelStatus('barrier', 'enemyFront')), shielded.ctx);
-    expect(events).toEqual([{ type: 'status-expire', targetId: 4, statusId: 'barrier' }]);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-expire', targetId: 4, statusId: 'barrier' })]);
     expect(rightTeam(shielded.state).characters[0].statuses).toEqual([]);
   });
 });

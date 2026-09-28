@@ -1191,13 +1191,15 @@
  },
  "troop:6888": {
   "lines": {
-   "L10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+3  extra:match  cascade",
-   "R10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+3  extra:match  cascade",
-   "L0": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+3  extra:match  cascade",
-   "K": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+3  extra:match  cascade"
+   "L10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade",
+   "R10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade",
+   "L0": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade",
+   "K": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade"
   },
   "by": "sa-B",
-  "at": "2026-09-28T13:10:31.361Z"
+  "at": "2026-09-28T13:10:31.361Z",
+  "relockedAt": "2026-09-28T16:16:35.603Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:6890": {
   "lines": {
@@ -1401,13 +1403,15 @@
  },
  "troop:7094": {
   "lines": {
-   "L10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+4 | E11:arm-1  extra:match  cascade",
-   "R10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+4 | E11:arm-1  extra:match  cascade",
-   "L0": "dmg E10 22 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-22 | A1:mana+5 | A2:mana+4 | E11:arm-1  extra:match  cascade",
-   "K": "dmg E10 32 ; defeat E10 ; move E11 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; defeat E12 ; extra-turn match  => E10:hp-1 DEAD | A1:mana+5 | A2:mana+4 | E12:hp-1 DEAD  extra:match  cascade"
+   "L10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade",
+   "R10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade",
+   "L0": "dmg E10 22 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-22 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade",
+   "K": "dmg E10 32 ; defeat E10 ; move E11 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; defeat E12 ; extra-turn match  => E10:hp-1 DEAD | A1:mana+5 | A2:mana+7 | E12:hp-1 DEAD  extra:match  cascade"
   },
   "by": "sa-R2",
-  "at": "2026-09-28T02:58:29.642Z"
+  "at": "2026-09-28T02:58:29.642Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7106": {
   "lines": {
@@ -1571,13 +1575,15 @@
  },
  "troop:7225": {
   "lines": {
-   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade"
+   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade",
+   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade",
+   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade",
+   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade"
   },
   "by": "sa-R2",
-  "at": "2026-09-28T02:59:53.056Z"
+  "at": "2026-09-28T02:59:53.056Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7232": {
   "lines": {
@@ -1731,13 +1737,15 @@
  },
  "troop:7277": {
   "lines": {
-   "L10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+6 | A1:mana+3  extra:match  cascade",
-   "R10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+6 | A1:mana+3  extra:match  cascade",
-   "L0": "dmg E12 22 (splash) ; dmg E11 16 (splash) ; dmg E13 16 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-11 arm-12 | E11:hp-6 arm-10 | E13:hp-13 arm-3 | A2:mana+6 | A1:mana+3  extra:match  cascade",
+   "L10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade",
+   "R10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade",
+   "L0": "dmg E12 22 (splash) ; dmg E11 16 (splash) ; dmg E13 16 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-11 arm-12 | E11:hp-6 arm-10 | E13:hp-13 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade",
    "K": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | A2:mana+3 | A1:mana+3 | E10:hp-1 DEAD  cascade"
   },
   "by": "sa-R2",
-  "at": "2026-09-28T02:58:29.642Z"
+  "at": "2026-09-28T02:58:29.642Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7290": {
   "lines": {
@@ -1901,13 +1909,15 @@
  },
  "troop:7389": {
   "lines": {
-   "L10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+6 | E10:arm-1  extra:match  cascade",
-   "R10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+6 | E10:arm-1  extra:match  cascade",
-   "L0": "dmg E11 4 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:arm-4 | A1:mana+5 | A2:mana+6 | E10:arm-1  extra:match  cascade",
-   "K": "dmg E11 14 ; defeat E11 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn match  => E11:hp-1 DEAD | A1:mana+5 | A2:mana+6 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade",
+   "R10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade",
+   "L0": "dmg E11 4 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:arm-4 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade",
+   "K": "dmg E11 14 ; defeat E11 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn match  => E11:hp-1 DEAD | A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade"
   },
   "by": "sa-B",
-  "at": "2026-09-28T14:25:51.195Z"
+  "at": "2026-09-28T14:25:51.195Z",
+  "relockedAt": "2026-09-28T16:16:35.603Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7390": {
   "lines": {
@@ -2691,13 +2701,15 @@
  },
  "troop:7754": {
   "lines": {
-   "L10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+9 | A2:mana+3  extra:match  cascade",
-   "R10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+9 | A2:mana+3  extra:match  cascade",
-   "L0": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+9 | A2:mana+3  extra:match  cascade",
-   "K": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+9 | A2:mana+3  extra:match  cascade"
+   "L10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade",
+   "R10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade",
+   "L0": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade",
+   "K": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade"
   },
   "by": "sa-R2",
-  "at": "2026-09-28T02:59:53.056Z"
+  "at": "2026-09-28T02:59:53.056Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7757": {
   "lines": {
@@ -2731,13 +2743,15 @@
  },
  "troop:7768": {
   "lines": {
-   "L10": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:hp-13 arm-5 | E11:hp-8 arm-10 | E12:hp-6 arm-12 | E13:hp-15 arm-3 | A2:mana+6  cascade",
-   "R10": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:hp-13 arm-5 | E11:hp-8 arm-10 | E12:hp-6 arm-12 | E13:hp-15 arm-3 | A2:mana+6  cascade",
-   "L0": "dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all) ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:arm-3 | E11:arm-3 | E12:arm-3 | E13:arm-3 | A2:mana+6  cascade",
+   "L10": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:hp-13 arm-5 | E11:hp-8 arm-10 | E12:hp-6 arm-12 | E13:hp-15 arm-3 | A2:mana+9  cascade",
+   "R10": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:hp-13 arm-5 | E11:hp-8 arm-10 | E12:hp-6 arm-12 | E13:hp-15 arm-3 | A2:mana+9  cascade",
+   "L0": "dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all) ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:arm-3 | E11:arm-3 | E12:arm-3 | E13:arm-3 | A2:mana+9  cascade",
    "K": "dmg E10 18 (all) ; dmg E11 18 (all) ; dmg E12 18 (all) ; dmg E13 18 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x4, Blue x3, Yellow x3, Green x4, Brown x2 -> Red x6, Green x10 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | A2:mana+3  cascade"
   },
   "by": "sa-B",
-  "at": "2026-09-28T10:33:07.128Z"
+  "at": "2026-09-28T10:33:07.128Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7769": {
   "lines": {

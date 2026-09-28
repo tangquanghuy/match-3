@@ -8,6 +8,7 @@ import {
   CLASSES,
   classById,
   classXpToNext,
+  classUnlockText,
   tierUnlocked,
   type ClassDef,
   type TalentDef,
@@ -162,7 +163,7 @@ export class HeroScreen implements Screen {
                   </span>
                   <span class="career-wins-badge" id="careerWins" hidden>0 / 250 胜</span>
                 </div>
-                <p id="careerHint">通关王国任务链解锁职业</p>
+                <p id="careerHint">从职业圣殿装备已解锁职业</p>
               </div>
             </div>
             <div class="class-head-track">
@@ -174,7 +175,7 @@ export class HeroScreen implements Screen {
           <section class="weapon-slab" id="weaponSlab" aria-label="已装备武器"></section>
           <section class="class-vault" id="classes">
             <div class="section-title">
-              <div><h3>职业圣殿</h3><small>通关对应王国任务链 8 关解锁</small></div>
+              <div><h3>职业圣殿</h3><small>破碎尖塔初始职业 · 其余按王国主线 4／8 关与困难／非常困难解锁</small></div>
               <div class="class-vault-actions">
                 <span id="classUnlockCount">0 / 38 已解锁</span>
                 <button class="ghost class-expand talent-expand" id="openTree" type="button" aria-haspopup="dialog">
@@ -392,7 +393,7 @@ export class HeroScreen implements Screen {
       $('#nextReward').textContent = nextTier ? `冠军 Lv.${nextTier} 解锁第 ${CHAMPION_TIERS.indexOf(nextTier) + 1} 档天赋` : '天赋已全部解锁';
     } else {
       winsEl.hidden = true;
-      $('#careerHint').textContent = '通关王国任务链解锁职业';
+      $('#careerHint').textContent = '从职业圣殿装备已解锁职业';
       $('#classXpText').textContent = '0';
       ($('#classXpFill') as HTMLElement).style.width = '0%';
       $('#nextReward').textContent = '—';
@@ -775,7 +776,7 @@ export class HeroScreen implements Screen {
         ? `冠军 Lv.${level} · ${wins} 胜 · 装备中`
         : unlocked
           ? `冠军 Lv.${level} · ${wins} 胜`
-          : `${c.kingdom} 8 关`;
+          : classUnlockText(c.id);
       return `<button class="class-btn${equipped ? ' on' : ''}${unlocked ? '' : ' lock'}" data-id="${c.id}" data-kind="${CLASS_ICON[c.id] ?? 'helmet'}" type="button" title="${c.nameEn}"${compact ? ' data-preview="true"' : ''}>
         <span data-icon="${CLASS_ICON[c.id] ?? 'helmet'}"></span>
         <b>${c.name}</b>
@@ -806,7 +807,7 @@ export class HeroScreen implements Screen {
     const save = this.ctx.save();
     const def = classById(classId);
     if (!save.hero.unlockedClasses.includes(classId)) {
-      toast(`${def?.name ?? classId}未解锁 · 通关 ${def?.kingdom ?? ''} 任务链 8 关。`);
+      toast(`${def?.name ?? classId}未解锁 · ${classUnlockText(classId)}。`);
       return;
     }
     if (save.hero.classId === classId) {

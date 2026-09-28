@@ -2,7 +2,7 @@ import type { Team, Character, StatGains } from './types';
 import type { GameEvent } from './events';
 import type { SeededRNG } from './rng';
 import {
-  canAttack, isFrozen, isEntangled, isEnraged, isCharmed,
+  canAttack, isEnraged, isCharmed,
   applyStatus, consumeBarrier, RAGE_STATUS_IDS,
   hasStatus, REFLECT_STATUS_ID, endActionStatuses,
 } from './skills/effects/status';
@@ -97,8 +97,8 @@ export class CombatResolver {
 
     // 队首攻击者缠绕（攻击力归零）→ 攻击落空、不造成伤害，只发"挣扎"事件（需求：只有队首能攻击）
     if (!canAttack(attacker)) {
-      const reason = isFrozen(attacker) ? 'frozen' : isEntangled(attacker) ? 'entangle' : 'stun';
-      events.push({ type: 'attack-struggle', attackerId: attacker.id, reason });
+      // canAttack 只被缠绕否决（冰冻/击晕不限制攻击），原因如实标 entangle
+      events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'entangle' });
       return { events };
     }
 
@@ -106,7 +106,7 @@ export class CombatResolver {
     // 因此受击类触发（狂暴）与命中类触发（毒液）都不生效。
     const dodgeChance = passivesOf(target).dodgeChance;
     if (dodgeChance > 0 && rng !== undefined && rng.next() < dodgeChance) {
-      events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'dodge' });
+      events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'dodge', targetId: target.id });
       return { events };
     }
 
@@ -125,7 +125,7 @@ export class CombatResolver {
     if (damage > 0) {
       const barrier = consumeBarrier(target);
       if (barrier.consumed) {
-        events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'barrier' });
+        events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'barrier', targetId: target.id });
         events.push(...barrier.events);
         // Official status guide: Barrier absorbs ordinary skull damage, but
         // does not protect against the skull attack's independent lethal roll.
@@ -329,7 +329,7 @@ export class CombatResolver {
       const consumed = attacker.statuses.filter((s) => RAGE_STATUS_IDS.has(s.id));
       attacker.statuses = attacker.statuses.filter((s) => !RAGE_STATUS_IDS.has(s.id));
       for (const status of consumed) {
-        events.push({ type: 'status-expire', targetId: attacker.id, statusId: status.id });
+        events.push({ type: 'status-expire', targetId: attacker.id, statusId: status.id, reason: 'consumed' });
       }
     }
 

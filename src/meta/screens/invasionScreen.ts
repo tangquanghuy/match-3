@@ -19,6 +19,7 @@ import { bottomNavHtml, toastHtml, topbarHtml, toast, $$ } from '../shell/chrome
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 import { troopImg } from './teamScreen';
+import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 
 const TIER_CN: Record<string, string> = { minion: '普通', elite: '精英', boss: '首领' };
 function leagueEmblem(index: number): string {
@@ -121,8 +122,10 @@ export class InvasionScreen implements Screen {
           .join('');
         return `
           <article data-difficulty="${m.difficulty}" data-vp-multiplier="${m.frenzyMultiplier}" class="inv-rival${m.frenzy ? ' frenzy' : ''}${m.frenzyMultiplier === 2 ? ' frenzy-double' : ''}${recommended ? ' recommended' : ''}">
-            <div class="inv-rival-head">
+            <div class="inv-rival-head${m.bannerKingdom ? ' has-banner' : ''}">
+              ${m.bannerKingdom ? `<span class="inv-rival-banner" title="${m.bannerKingdom}旗帜">${bannerArtHtml(m.bannerKingdom, { size: 58 })}</span>` : ''}
               <h3 class="inv-rival-name">${m.name}</h3>
+              ${m.bannerKingdom ? `<span class="inv-rival-boosts" aria-label="${m.bannerKingdom}旗帜加成"><small>${m.bannerKingdom}</small><span class="kb-boosts">${bannerBoostChips(m.bannerKingdom)}</span></span>` : ''}
               <span class="inv-rival-nums"><span>属性分 ${m.rating}</span>${m.frenzy ? `<span class="inv-frenzy-badge" title="基础属性提升 ${Math.round(((m.defense[0]?.statMultiplier ?? 1) - 1) * 100)}%，更强的敌方阵容"><i aria-hidden="true">◆</i>血怒 <b>VP ×${m.frenzyMultiplier}</b></span>` : ''}</span>
             </div>
             <div class="inv-rival-defense" aria-label="防守队阵容">${defense}</div>
@@ -175,6 +178,7 @@ export class InvasionScreen implements Screen {
         : `<section class="inv-secondary-body"><header><h2>对战规则</h2></header>${rules}</section>`;
 
     return `
+      <style>${BANNER_ART_CSS}</style>
       ${topbarHtml()}
       <div class="screen inv-screen${secondary ? ' inv-screen-secondary' : ''}">
         <section class="panel inv-panel inv-battle-hub">

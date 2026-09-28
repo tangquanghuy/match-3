@@ -52,6 +52,6 @@ describe('GoW special skull statuses', () => {
 
     expect(enemy.hp).toBe(42);
     expect(attacker.statuses).toEqual([]);
-    expect(out.events).toContainEqual({ type: 'status-expire', targetId: attacker.id, statusId: 'rage' });
+    expect(out.events).toContainEqual(expect.objectContaining({ type: 'status-expire', targetId: attacker.id, statusId: 'rage' }));
   });
 });

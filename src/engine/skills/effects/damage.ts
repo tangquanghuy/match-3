@@ -158,7 +158,13 @@ export function damageOne(
   // 屏障：整发吸收后消失。放在扣护甲之前，且只被「确实会造成伤害」的一发消耗，
   // 因此不发 skill-damage——这一发等于没打中，受击触发链也不应启动。
   const barrier = consumeBarrier(target);
-  if (barrier.consumed) return barrier.events;
+  if (barrier.consumed) {
+    // 演出元数据：表现层据此照常打出弹道，在目标身上播格挡（不改变任何结算）
+    for (const e of barrier.events) {
+      if (e.type === 'status-expire') e.absorbedFrom = { casterId, range };
+    }
+    return barrier.events;
+  }
 
   let remaining = amount;
   if (!trueDamage) {
@@ -277,7 +283,11 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
             * race * condMultiplier(globalMult ? undefined : params.condMult, ctx, victim);
           // Shares already drawn: a submerged troop dodges its share; it is not
           // redistributed to other troops (which would increase damage).
-          if (params.wholeTeamDamage && hasStatus(victim, 'submerged')) return;
+          if (params.wholeTeamDamage && hasStatus(victim, 'submerged')) {
+            // 演出元数据：排在伤害之后，不打断群攻批次
+            if (!victim.defeated) tails.push({ type: 'status-blocked', targetId: victim.id, statusId: 'submerged', reason: 'submerged' });
+            return;
+          }
           for (const event of hit(victim, share, 'scatter')) {
             if (event.type === 'skill-damage') hits.push(event);
             else tails.push(event);
@@ -411,7 +421,10 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         const damageEvents: SkillDamageEvent[] = [];
         const tailEvents: GameEvent[] = [];
         for (const victim of targets) {
-          if (params.wholeTeamDamage && hasStatus(victim, 'submerged')) continue;
+          if (params.wholeTeamDamage && hasStatus(victim, 'submerged')) {
+            if (!victim.defeated) tailEvents.push({ type: 'status-blocked', targetId: victim.id, statusId: 'submerged', reason: 'submerged' });
+            continue;
+          }
           const produced = hit(victim, doubled(victim), range);
           for (const event of produced) {
             if (event.type === 'skill-damage') damageEvents.push(event);

@@ -1,4 +1,5 @@
 ﻿import manifest from '../assets/audio/narrator/manifest.json';
+import subtitles from '../assets/audio/narrator/subtitles.zh-CN.json';
 
 /** Only finalized takes are exposed to the browser; archived takes are never bundled. */
 const urls = import.meta.glob('../assets/audio/narrator/*.mp3', {
@@ -10,9 +11,14 @@ export interface NarrationClip {
   pool: string;
   url: string;
   duration: number;
+  /** Translated from the selected recording, never from the event alone. */
+  subtitleZh?: string;
+  transcriptEn?: string;
 }
 
 export const NARRATION_CLIPS: readonly NarrationClip[] = manifest.filter((m) => m.enabled).map((m) => ({
   id: m.id, pool: m.pool, duration: m.duration,
+  subtitleZh: (subtitles as Record<string, { zh: string; en: string }>)[m.id]?.zh,
+  transcriptEn: (subtitles as Record<string, { zh: string; en: string }>)[m.id]?.en,
   url: urls[`../assets/audio/narrator/${m.id}.mp3`],
 }));

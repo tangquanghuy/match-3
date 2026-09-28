@@ -22,6 +22,10 @@ export function invasionPoolLeague(league: number, difficulty: InvasionDifficult
 export function invasionDefenseLevel(league: number, difficulty: InvasionDifficulty): number {
   return PVP_LEVEL_BASES[Math.min(9, Math.max(0, Math.floor(league)))]! + INVASION_DIFFICULTIES.indexOf(difficulty) * 2;
 }
+/**
+ * NPC 自动挂旗：每面官方旗帜按「本队各部队法力色的加成之和」打分（惩罚色计负），
+ * 取最高分——即最能覆盖自己部队颜色的一面；同分按种子稳定挑选。
+ */
 function draftBanner(troops: readonly number[], seed: number): string {
   const score = (boosts: (typeof BANNERS)[string]['boosts']) => troops.reduce((sum, id) =>
     sum + getTroopById(id)!.manaColors.reduce((n, c) => n + (boosts[c] ?? 0), 0), 0);
@@ -44,7 +48,8 @@ export function buildTieredDefense(seed: number, league: number, difficulty: Inv
   const draftSeed = fnv1a32(`invasion-draft:${seed}:${league}:${difficulty}:${ordinal}`);
   const template = buildAdaptiveDefense(draftSeed, invasionPoolLeague(league, difficulty), level, INVASION_DRAFT_POLICIES[difficulty]);
   return { ...template, level, sourceRow: null,
-    bannerKingdom: difficulty === 'hard' ? draftBanner(template.troops, draftSeed) : null,
+    // 所有难度都挂旗帜：自动选「对本队法力色覆盖加成最高」的一面（见 draftBanner）
+    bannerKingdom: draftBanner(template.troops, draftSeed),
     provenance: '本地稀有度加权随机编队' };
 }
 

@@ -4,6 +4,10 @@ import { AnimConfig } from './AnimationConfig';
 import { scaledMs } from './battleSpeed';
 import { battleCardDimensions, battleCardOverlayMetrics } from './battleCardLayout';
 import { statusBadge, statusBadgeIcon } from './statusBadges';
+import {
+  STATUS_ACCENT_KEYS, isPositiveStatus, statusAccentKey, statusBadgeCorner, statusLiveLines,
+} from './statusPresentation';
+import { statusRecoveryChance } from '@engine/skills/effects/status';
 import { traitCardGlyphs } from './traitBadges';
 import frostBorderUrl from '../assets/fx/frost_border_overlay.png';
 import frostVeinsUrl from '../assets/fx/frost_veins_overlay.png';
@@ -97,8 +101,8 @@ const SKIN_CLASS: Record<BaseColor, string> = {
 /** 每张卡的构图镜像变体（按队内序号轮换） */
 const VARIANTS = ['', 'v2', 'v3', 'v4'];
 
-/** 六色宝石色值（与棋盘宝石呼应，鲜明可辨） */
-const COLOR_HEX: Record<BaseColor, string> = {
+/** 六色宝石色值（与棋盘宝石呼应，鲜明可辨；详情窗属性绶带复用） */
+export const COLOR_HEX: Record<BaseColor, string> = {
   [BaseColor.Red]: '#e8555e',
   [BaseColor.Green]: '#57c06b',
   [BaseColor.Blue]: '#4f9fe0',
@@ -221,6 +225,9 @@ function ensureStyles(): void {
   stylesInjected = true;
   const css = `
   .gcol{position:absolute;display:flex;flex-direction:column;gap:${CARD_GAP}px;pointer-events:none}
+  /* 阵亡留下的空位：只描一圈极淡的边，保住队列格局 */
+  .gcol .gslot-empty{flex:none;box-sizing:border-box;border-radius:8px;
+    border:1px solid rgba(216,194,144,.1);background:rgba(8,7,6,.22)}
   /* ?????????????????????????????? */
   .gcol .turn-frame{--turn-color:126,200,236;position:absolute;top:-7px;bottom:-7px;width:28px;
     pointer-events:none;opacity:0;transform:scaleY(.18);transform-origin:center;
@@ -502,6 +509,29 @@ function ensureStyles(): void {
     box-shadow:inset 0 0 0 1px rgba(176,122,224,.6),inset 0 0 18px rgba(42,20,64,.44)}
   .gcard.status-accent-terror .status-accent-layer::before{background:radial-gradient(ellipse at 50% 16%,rgba(176,122,224,.22),transparent 52%);animation:statusTerrorDread 2.6s ease-in-out infinite}
   .gcard.status-accent-terror .status-accent-layer::after{background:linear-gradient(180deg,transparent 60%,rgba(28,18,48,.5))}
+  /* 中毒：底部绿色毒雾缓升 */
+  .gcard.status-accent-poison .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(120,233,95,.55),inset 0 0 14px rgba(40,110,30,.3)}
+  .gcard.status-accent-poison .status-accent-layer::before{background:radial-gradient(ellipse at 30% 100%,rgba(120,233,95,.3),transparent 50%),radial-gradient(ellipse at 72% 104%,rgba(120,233,95,.24),transparent 46%);animation:statusPoisonRise 3s ease-in-out infinite}
+  /* 燃烧：底部橙焰晕闪烁 */
+  .gcard.status-accent-burning .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(255,122,53,.62),inset 0 0 16px rgba(160,50,10,.34)}
+  .gcard.status-accent-burning .status-accent-layer::before{background:linear-gradient(0deg,rgba(255,122,53,.34) 0%,rgba(255,180,80,.12) 22%,transparent 42%);animation:statusBurnFlicker .9s ease-in-out infinite}
+  /* 附魔：紫色符光沿边流转 */
+  .gcard.status-accent-enchanted .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(224,140,255,.66),inset 0 0 14px rgba(120,40,170,.3)}
+  .gcard.status-accent-enchanted .status-accent-layer::before{inset:10%;border:1px dotted rgba(236,190,255,.6);border-radius:50%;animation:statusRuneSpin 7s linear infinite}
+  /* 赐福：顶部金色圣光 */
+  .gcard.status-accent-blessed .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(255,213,106,.72),inset 0 0 16px rgba(170,130,30,.3)}
+  .gcard.status-accent-blessed .status-accent-layer::before{background:radial-gradient(ellipse at 50% -6%,rgba(255,236,160,.42),transparent 50%);animation:statusBlessGlow 2.4s ease-in-out infinite}
+  /* 反射：镜面斜光快扫 */
+  .gcard.status-accent-reflect .status-accent-layer{opacity:1;
+    box-shadow:inset 0 0 0 1px rgba(158,207,255,.7),inset 0 0 12px rgba(60,110,170,.28)}
+  .gcard.status-accent-reflect .status-accent-layer::before{background:linear-gradient(120deg,transparent 38%,rgba(230,244,255,.34) 48%,transparent 56%);animation:statusBarrierSweep 1.8s ease-in-out infinite}
+  @keyframes statusPoisonRise{0%,100%{transform:translateY(4%);opacity:.5}50%{transform:translateY(-3%);opacity:1}}
+  @keyframes statusBurnFlicker{0%,100%{opacity:.6}40%{opacity:1}70%{opacity:.75}}
+  @keyframes statusBlessGlow{0%,100%{opacity:.55}50%{opacity:1}}
   @keyframes statusDeathMarkPulse{0%,100%{opacity:.68}50%{opacity:1}}
   @keyframes statusRuneSpin{to{transform:rotate(372deg)}}
   @keyframes statusDiseaseDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(2%, -2%)}}
@@ -523,7 +553,10 @@ function ensureStyles(): void {
     .gcard.status-accent-wolf .status-accent-layer::before,.gcard.status-accent-web .status-accent-layer::before,
     .gcard.status-accent-bleed .status-accent-layer::before,.gcard.status-accent-barrier .status-accent-layer::before,
     .gcard.status-accent-submerged .status-accent-layer::before,.gcard.status-accent-marked .status-accent-layer::before,
-    .gcard.status-accent-faerie-fire .status-accent-layer::before,.gcard.status-accent-terror .status-accent-layer::before{animation:none}}
+    .gcard.status-accent-faerie-fire .status-accent-layer::before,.gcard.status-accent-terror .status-accent-layer::before,
+    .gcard.status-accent-poison .status-accent-layer::before,.gcard.status-accent-burning .status-accent-layer::before,
+    .gcard.status-accent-enchanted .status-accent-layer::before,.gcard.status-accent-blessed .status-accent-layer::before,
+    .gcard.status-accent-reflect .status-accent-layer::before{animation:none}}
 
 
   /* 立绘层裁切到圆角；卡本身不裁切，便于宝石出框悬挂 */
@@ -630,16 +663,20 @@ function ensureStyles(): void {
     0%,100%{transform:scale(1)}
     50%{transform:scale(1.12)}
   }
-  /* 宝石内的当前法力数字：不占新位置，居中压在宝石上；与攻击/生命/魔力同一套衬线数字，
-     四向暗描边保证落在任何宝石颜色上都读得清。跟随卡面「显示法力」（法力流抵达才涨），
-     不跟引擎值。空=压暗，充能中=暖白，满=暖金（随满充辉光），沉默且满=灰紫。 */
-  .gcard .gem .gem-mana{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
+  /* 宝石上的法力「当前/上限」（GoW 法力球同款读法 6/12）：不占新位置，压在宝石书签上；
+     当前值是主体，/上限 缩小一档。放得下时在书签内居中，放不下（小屏 12/12）时从书签左缘
+     向右延伸，不裁切。与攻击/生命/魔力同一套衬线数字，四向暗描边保证落在任何宝石颜色上都读得清。
+     跟随卡面「显示法力」（法力流抵达才涨），不跟引擎值。空=压暗，充能中=暖白，满=暖金，沉默且满=灰紫。 */
+  .gcard .gem .gem-mana{position:absolute;left:0;top:0;bottom:0;z-index:1;min-width:100%;width:max-content;
+    display:flex;align-items:center;justify-content:center;white-space:nowrap;
     pointer-events:none;font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;
-    font-size:${Math.max(9, Math.round(gemSize() * 0.44))}px;font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+    font-size:${Math.max(10, Math.round(gemSize() * 0.4))}px;font-variant-numeric:tabular-nums;letter-spacing:-.03em;
     color:#f3ead6;
     text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92),
       0 1px 3px rgba(0,0,0,.9);transition:color .2s ease}
-  .gcard .gem .gem-mana.is-zero{color:rgba(243,234,214,.38)}
+  .gcard .gem .gem-mana .max{font-size:${Math.max(8, Math.round(gemSize() * 0.29))}px;font-weight:700;opacity:.86;
+    margin-left:.04em}
+  .gcard .gem .gem-mana.is-zero{color:rgba(243,234,214,.62)}
   .gcard.mana-full .gem .gem-mana{color:#ffe6a8;
     text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92),
       0 0 6px rgba(232,200,121,.7)}
@@ -719,6 +756,37 @@ function ensureStyles(): void {
   .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
+  /* 增益 / 减益形状区分（不只靠颜色）：增益=圆顶盾形 + 左上 ▲；减益=方形 + 右上 ◣（沿用既有三角） */
+  .gcard .status-badge.sb-pos{border-radius:50% 50% ${os(5)}px ${os(5)}px / 42% 42% ${os(5)}px ${os(5)}px;
+    background:linear-gradient(180deg,rgba(40,34,18,.9),rgba(11,10,9,.84))}
+  .gcard .status-badge.sb-pos::after{right:auto;left:50%;top:-1px;transform:translateX(-50%);
+    border-left:${Math.max(3, os(3))}px solid transparent;border-right:${Math.max(3, os(3))}px solid transparent;
+    border-top:0;border-bottom:${Math.max(3, os(4))}px solid color-mix(in srgb,var(--sb) 78%,#ffffff)}
+  .gcard .status-badge.sb-neg{border-style:solid;border-width:1px 1px 2px 1px}
+
+  /* 状态「中招」徽印（announceStatus）：素材 src/assets/fx/status-emblems，位于立绘之上、飘字之下 */
+  .gcard .status-emblem{position:absolute;left:50%;top:42%;width:62%;max-width:150px;aspect-ratio:1;object-fit:contain;
+    z-index:11;pointer-events:none;opacity:0;will-change:transform,opacity;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.7)) drop-shadow(0 0 10px color-mix(in srgb,var(--em) 70%,transparent))}
+  .gcard .status-emblem-flash{position:absolute;inset:0;border-radius:8px;z-index:10;pointer-events:none;opacity:0;
+    background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--em) 55%,#fff) 0%,color-mix(in srgb,var(--em) 42%,transparent) 26%,transparent 60%)}
+  .gcard .status-emblem-ring{position:absolute;left:50%;top:42%;width:78%;aspect-ratio:1;border-radius:50%;z-index:10;pointer-events:none;opacity:0;
+    border:2px solid color-mix(in srgb,var(--em) 80%,#fff);box-shadow:0 0 12px var(--em),inset 0 0 10px color-mix(in srgb,var(--em) 60%,transparent)}
+
+  /* 状态演出提示层（statusCue / stunStars，代码绘制，有限动画） */
+  .gcard .status-cue{position:absolute;inset:-3px;border-radius:11px;pointer-events:none;z-index:31}
+  .gcard .status-cue-pulse{border:2px solid var(--cue);box-shadow:0 0 12px 1px var(--cue),inset 0 0 12px color-mix(in srgb,var(--cue) 45%,transparent)}
+  .gcard .status-cue-burst{background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--cue) 70%,#fff) 0%,color-mix(in srgb,var(--cue) 38%,transparent) 30%,transparent 62%)}
+  .gcard .status-cue-shatter{border:2px dashed var(--cue);box-shadow:0 0 10px var(--cue)}
+  .gcard .status-cue-shatter .cue-shard{position:absolute;left:50%;top:44%;width:7px;height:11px;
+    background:linear-gradient(135deg,#fff,var(--cue));clip-path:polygon(50% 0,100% 60%,40% 100%,0 40%);
+    box-shadow:0 0 6px var(--cue)}
+  .gcard .status-cue-ripple{border:0}
+  .gcard .status-cue-ripple span{position:absolute;left:50%;bottom:6%;width:78%;height:22%;border-radius:50%;
+    border:2px solid var(--cue);box-shadow:0 0 8px var(--cue);transform-origin:50% 50%}
+  .gcard .status-cue-stars{position:absolute;left:50%;top:10%;width:0;height:0;z-index:31;pointer-events:none}
+  .gcard .status-cue-stars span{position:absolute;left:-6px;top:-8px;font-size:${ofs(13)}px;line-height:1;color:#ffe36a;
+    text-shadow:0 0 5px rgba(255,210,70,.95),0 1px 2px rgba(0,0,0,.9)}
 
   /* 特质恢复为贴左边框的三枚竖排图标。 */
   .gcard .trait-row{position:absolute;z-index:6;left:var(--trait-inset);top:43%;transform:translateY(-50%);
@@ -823,7 +891,7 @@ export class CharacterCard {
         <div class="stat stat-atk" aria-label="攻击 0">${SWORD_SVG}<span class="v atk">0</span></div>
       </div>
       <div class="ov c-br"></div>
-      <div class="gem">${gemSvg(gemColors)}<span class="gem-mana is-zero" aria-hidden="true">0</span></div>
+      <div class="gem" role="img">${gemSvg(gemColors)}<span class="gem-mana is-zero" aria-hidden="true">0</span></div>
       <div class="cast-flag" aria-hidden="true">!</div>
       <div class="magic" title="魔力（法术强度）">${MAGIC_SVG}<span class="v magic-v">0</span></div>
       <div class="status-strip" aria-label="状态"></div>
@@ -1015,17 +1083,22 @@ export class CharacterCard {
     if ((this.statusCollapsed || visuallyDense) && all.length > 0) {
       this.statusStripEl.innerHTML = `<span class="status-more" role="img" aria-label="${all.length} 个状态">+${all.length}</span>`;
     } else {
+      const recovery = statusRecoveryChance(this.char);
       this.statusStripEl.innerHTML = all
       .map((s) => {
         const b = statusBadge(s.id);
-        const turns = s.turns > 0 ? `<span class="sb-turns">${s.turns}</span>` : '';
-        // data-status-id / data-magnitude：状态点击说明浮层读取实例实际数值
-        const mag = s.magnitude !== undefined ? ` data-magnitude="${s.magnitude}"` : '';
-        // B-8：去掉原生 title。此前 title（名字+回合）与自绘浮层（机制+当前数值）
-        // 双轨并存且内容不一致，桌面 hover 拿到的恰是差的那一份。名字改走
-        // data-status-label，statusTooltip 从它取标题——单一事实源。
+        // 角标只给有意义的数：出血层数 / 仍倒计时的辅助状态回合。官方无时限状态不显示
+        //（它们的 turns 从不递减，显示出来是个永远不动的误导数字）。
+        const corner = statusBadgeCorner(s);
+        const cornerHtml = corner ? `<span class="sb-turns">${corner}</span>` : '';
+        const positive = isPositiveStatus(s.id);
+        // 说明浮层读 data-live（实例实际数值行，单一口径见 statusPresentation.statusLiveLines）
+        const live = statusLiveLines(s, recovery).join(' · ');
+        // B-8：去掉原生 title。名字走 data-status-label，statusTooltip 从它取标题——单一事实源。
         // 徽记不再是独立按钮（点它=点卡片）；说明浮层只在鼠标悬停时出现。
-        return `<span class="status-badge" data-status-id="${s.id}" data-status-label="${escAttr(b.label)}" data-turns="${s.turns}"${mag} role="img" aria-label="${escAttr(b.label)}${s.turns ? ' · 剩余 ' + s.turns + ' 回合' : ''}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${turns}</span>`;
+        // 增益/减益不只靠颜色区分：增益为圆顶盾形 + 左上 ▲ 标，减益为方形 + 右上 ◣ 标（无障碍名同样注明）。
+        const aria = `${positive ? '增益' : '减益'}：${b.label}${live ? ' · ' + live : ''}`;
+        return `<span class="status-badge ${positive ? 'sb-pos' : 'sb-neg'}" data-status-id="${escAttr(s.id)}" data-status-label="${escAttr(b.label)}" data-live="${escAttr(live)}" role="img" aria-label="${escAttr(aria)}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${cornerHtml}</span>`;
       })
       .join('');
     }
@@ -1040,11 +1113,30 @@ export class CharacterCard {
     this.recordShown();
   }
 
-  /** 状态图标出现动效（供 status-apply 事件驱动，需求 6.2） */
-  applyStatusBadge(): void {
+  /**
+   * 状态图标出现动效（供 status-apply 事件驱动，需求 6.2）。
+   * 新挂：该徽记弹入；刷新/叠层：只给**该**徽记一次脉冲（此前总是动最后一枚，可能是别的状态）。
+   * 折叠态（+N）下动汇总块。
+   */
+  applyStatusBadge(statusId?: string, refreshed = false): void {
     this.renderStatuses();
-    const last = this.statusStripEl.lastElementChild as HTMLElement | null;
-    last?.animate(
+    const target = (statusId
+      ? Array.from(this.statusStripEl.querySelectorAll<HTMLElement>('.status-badge'))
+        .find((el) => el.dataset.statusId === statusId)
+      : undefined) ?? (this.statusStripEl.lastElementChild as HTMLElement | null);
+    if (!target) return;
+    if (refreshed) {
+      target.animate(
+        [
+          { transform: 'scale(1)', filter: 'brightness(1)' },
+          { transform: 'scale(1.3)', filter: 'brightness(1.8)', offset: 0.35 },
+          { transform: 'scale(1)', filter: 'brightness(1)' },
+        ],
+        { duration: 360, easing: 'ease-out' },
+      );
+      return;
+    }
+    target.animate(
       [
         { transform: 'scale(0.2)', opacity: 0 },
         { transform: 'scale(1.25)', opacity: 1, offset: 0.6 },
@@ -1109,20 +1201,13 @@ export class CharacterCard {
     const full = reqSum > 0 && curSum >= reqSum;
     this.el.classList.toggle('mana-full', full);
 
-    // 宝石内只放当前法力；N/M 全量进度留在悬停浮层与详情窗。
-    this.gemManaEl.textContent = String(Math.max(0, curSum));
-    this.gemManaEl.classList.toggle('is-zero', curSum <= 0);
-    const silenced = this.el.classList.contains('silenced');
+    // 宝石上写「当前/上限」（GoW 法力球读法）；数字只来自引擎整数，直接拼 HTML 安全。
+    const cur = Math.max(0, curSum);
+    const manaHtml = `<span class="cur">${cur}</span><span class="max">/${reqSum}</span>`;
+    if (this.gemManaEl.innerHTML !== manaHtml) this.gemManaEl.innerHTML = manaHtml;
+    this.gemManaEl.classList.toggle('is-zero', cur <= 0);
     this.castFlagEl.textContent = '×';
-    const stateLine = full
-      ? silenced
-        ? '沉默中，无法施放技能'
-        : '法力值已满，可以释放技能'
-      : `还差 ${Math.max(0, reqSum - curSum)} 点法力值`;
-    this.gemEl.dataset.tooltipKind = 'mana';
-    this.gemEl.dataset.manaTitle = `法力值 ${curSum}/${reqSum}`;
-    this.gemEl.dataset.manaDesc = stateLine;
-    this.gemEl.dataset.manaColors = this.gemColors.map((color) => COLOR_LABEL[color]).join(' / ');
+    this.gemEl.setAttribute('aria-label', `法力值 ${cur}/${reqSum}（${this.gemColors.map((color) => COLOR_LABEL[color]).join(' / ')}）`);
     this.recordShown();
   }
 
@@ -1225,24 +1310,214 @@ export class CharacterCard {
    * 状态 id 统一转成 CSS class，未知状态安全忽略，不影响状态栏本身。
    */
   setStatusAccent(statusId: string, on: boolean): void {
-    const rawKey = statusId.toLowerCase().replace(/_/g, '-');
-    const key = rawKey === 'wolf-form' || rawKey === 'lycanthropy' ? 'wolf' : rawKey;
-    const supported = new Set([
-      'death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf',
-      // UX 审查 P1#5 + 状态核对批：织网此前零演出；下列状态同样只有徽记无持续层
-      'web', 'bleed', 'barrier', 'submerged', 'marked', 'faerie-fire', 'terror',
-    ]);
-    if (!supported.has(key)) return;
+    // 别名收敛（enraged→rage、cursed→curse、charmed→charm…）与支持表同源 statusPresentation
+    const key = statusAccentKey(statusId);
+    if (!key) return;
+    // 关闭时若别名实例仍在身上（rage 与 enraged 同时存在），保留光晕
+    if (!on && this.char.statuses.some((s) => statusAccentKey(s.id) === key)) return;
     this.el.classList.toggle(`status-accent-${key}`, on);
   }
 
   clearStatusAccents(): void {
-    for (const key of [
-      'death-mark', 'curse', 'disease', 'mana-burn', 'charm', 'rage', 'wolf',
-      'web', 'bleed', 'barrier', 'submerged', 'marked', 'faerie-fire', 'terror',
-    ]) {
-      this.el.classList.remove(`status-accent-${key}`);
+    for (const key of STATUS_ACCENT_KEYS) this.el.classList.remove(`status-accent-${key}`);
+  }
+
+  /**
+   * 按角色当前 statuses 重建全部持续光晕与控制态卡面（变身清空状态、驱散/净化后校正用）。
+   * 冰冻/沉默/缠绕是卡面 class；击晕的序列帧持续层由 App 管理，不在此处。
+   */
+  syncStatusVisuals(): void {
+    this.clearStatusAccents();
+    const ids = this.char.statuses.map((s) => s.id);
+    for (const id of ids) this.setStatusAccent(id, true);
+    this.setFrozen(ids.includes('frozen'));
+    this.setSilenced(ids.includes('silence'));
+    this.setEntangled(ids.includes('entangle'));
+    this.renderStatuses();
+  }
+
+  /**
+   * 状态演出提示：卡面光圈（代码绘制，四种形态）+ 飘字。
+   *   pulse   细光环收放（免疫 / 赐福抵挡）
+   *   shatter 光环 + 六枚碎片外飞（驱散 / 屏障被打碎 / 冰冻吞回合）
+   *   ripple  底部两圈水纹外扩（潜水闪避 / 恐惧后退）
+   *   burst   中心径向辉光一闪（挣脱 / 净化 / 死亡标记）
+   * 全部有限 WAAPI；减少动态效果时退化为静态淡入淡出。
+   */
+  statusCue(cue: { text: string; color: string; ring: 'pulse' | 'shatter' | 'ripple' | 'burst' }): void {
+    const reduced = CharacterCard.reducedMotion();
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.className = `status-cue status-cue-${cue.ring}`;
+    layer.style.setProperty('--cue', cue.color);
+    this.el.appendChild(layer);
+    const done = () => layer.remove();
+    const fade = (el: HTMLElement, frames: Keyframe[], duration: number, delay = 0) =>
+      el.animate(reduced ? [{ opacity: 0 }, { opacity: 0.9, offset: 0.3 }, { opacity: 0 }] : frames,
+        { duration, delay, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' });
+    if (cue.ring === 'pulse') {
+      fade(layer, [
+        { opacity: 0, transform: 'scale(1.08)' },
+        { opacity: 1, transform: 'scale(.98)', offset: 0.35 },
+        { opacity: 0, transform: 'scale(1.04)' },
+      ], 460).onfinish = done;
+    } else if (cue.ring === 'burst') {
+      fade(layer, [
+        { opacity: 0, transform: 'scale(.4)' },
+        { opacity: 1, transform: 'scale(1)', offset: 0.3 },
+        { opacity: 0, transform: 'scale(1.25)' },
+      ], 520).onfinish = done;
+    } else if (cue.ring === 'ripple') {
+      const rings = [0, 1].map(() => {
+        const r = document.createElement('span');
+        layer.appendChild(r);
+        return r;
+      });
+      rings.forEach((r, i) => fade(r, [
+        { opacity: 0.9, transform: 'translateX(-50%) scale(.3,.3)' },
+        { opacity: 0, transform: 'translateX(-50%) scale(1.3,1)' },
+      ], 560, i * 140));
+      window.setTimeout(done, 560 + 140 + 40);
+    } else {
+      fade(layer, [
+        { opacity: 0, transform: 'scale(.96)' },
+        { opacity: 1, transform: 'scale(1)', offset: 0.15 },
+        { opacity: 0, transform: 'scale(1.05)' },
+      ], 480);
+      for (let i = 0; i < 6; i++) {
+        const shard = document.createElement('span');
+        shard.className = 'cue-shard';
+        const angle = (Math.PI * 2 * i) / 6 + 0.4;
+        const dx = Math.cos(angle) * 34;
+        const dy = Math.sin(angle) * 40;
+        layer.appendChild(shard);
+        fade(shard, [
+          { opacity: 1, transform: `translate(-50%,-50%) rotate(${i * 60}deg) scale(1)` },
+          { opacity: 0, transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${i * 60 + 90}deg) scale(.4)` },
+        ], 480);
+      }
+      window.setTimeout(done, 520);
     }
+    if (cue.text) this.floatText(cue.text, cue.color, 900);
+  }
+
+  /**
+   * 状态「中招」演出：徽印在卡面中央弹出（主题色闪光 + 冲击环），停一拍后缩小飞入徽记栏，
+   * 到位时对应徽记才弹出。时长按 1× 编写（卡内 WAAPI，随战斗倍速统一加速）。
+   *   0–220ms 弹入 · 220–380ms 停驻 · 380–640ms 飞入徽记（order 每级再延后 110ms）
+   * 减少动态效果：中央淡入淡出，徽记直接出现。
+   * @param emblemUrl 徽印图（null=没有可用图，退化为只弹徽记）
+   * @param order 同一张卡本批第几个新状态（错开播放，避免几枚徽印叠在一起）
+   */
+  announceStatus(statusId: string, emblemUrl: string | null, color: string, order = 0): void {
+    this.renderStatuses();
+    const badge = Array.from(this.statusStripEl.querySelectorAll<HTMLElement>('.status-badge'))
+      .find((el) => el.dataset.statusId === statusId)
+      ?? this.statusStripEl.querySelector<HTMLElement>('.status-more');
+    if (!emblemUrl) {
+      this.applyStatusBadge(statusId);
+      return;
+    }
+    const reduced = CharacterCard.reducedMotion();
+    const delay = order * 110;
+
+    // 主题色径向闪光 + 冲击环（在徽印之下）
+    const flash = document.createElement('div');
+    flash.className = 'status-emblem-flash';
+    flash.setAttribute('aria-hidden', 'true');
+    flash.style.setProperty('--em', color);
+    const ring = document.createElement('div');
+    ring.className = 'status-emblem-ring';
+    ring.setAttribute('aria-hidden', 'true');
+    ring.style.setProperty('--em', color);
+    const img = document.createElement('img');
+    img.className = 'status-emblem';
+    img.src = emblemUrl;
+    img.alt = '';
+    img.draggable = false;
+    img.setAttribute('aria-hidden', 'true');
+    img.style.setProperty('--em', color);
+    this.el.append(flash, ring, img);
+
+    // 徽记先藏起来，徽印到位再弹（否则角落里先冒出一枚，徽印飞过去就没意义了）
+    if (badge && !reduced) badge.style.opacity = '0';
+    const revealBadge = () => {
+      if (!badge?.isConnected) return;
+      badge.style.opacity = '';
+      badge.animate(
+        [
+          { transform: 'scale(1.6)', filter: 'brightness(2.2)' },
+          { transform: 'scale(.9)', filter: 'brightness(1.3)', offset: 0.55 },
+          { transform: 'scale(1)', filter: 'brightness(1)' },
+        ],
+        { duration: 260, easing: 'cubic-bezier(.2,.8,.25,1)' },
+      );
+    };
+
+    if (reduced) {
+      const a = img.animate([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }],
+        { duration: 520, delay, fill: 'both' });
+      flash.animate([{ opacity: 0 }, { opacity: 0.7, offset: 0.25 }, { opacity: 0 }], { duration: 520, delay, fill: 'both' })
+        .onfinish = () => flash.remove();
+      ring.remove();
+      a.onfinish = () => img.remove();
+      return;
+    }
+
+    // 飞行终点：徽记中心相对徽印中心的位移（屏幕像素 → 卡片本地坐标，扣掉舞台缩放）
+    const cardRect = this.el.getBoundingClientRect();
+    const local = cardRect.width > 0 ? this.el.offsetWidth / cardRect.width : 1;
+    const imgRect = img.getBoundingClientRect();
+    let dx = 0; let dy = 0; let endScale = 0.3;
+    if (badge) {
+      const b = badge.getBoundingClientRect();
+      dx = (b.left + b.width / 2 - (imgRect.left + imgRect.width / 2)) * local;
+      dy = (b.top + b.height / 2 - (imgRect.top + imgRect.height / 2)) * local;
+      endScale = imgRect.width > 0 ? Math.max(0.12, (b.width / imgRect.width) * 1.1) : 0.3;
+    }
+    const total = 640;
+    const at = (ms: number) => ms / total;
+    img.animate(
+      [
+        { opacity: 0, transform: 'translate(-50%,-50%) scale(.3) rotate(-10deg)' },
+        { opacity: 1, transform: 'translate(-50%,-50%) scale(1.12) rotate(2deg)', offset: at(150) },
+        { opacity: 1, transform: 'translate(-50%,-50%) scale(1) rotate(0deg)', offset: at(220) },
+        { opacity: 1, transform: 'translate(-50%,-50%) scale(1.04) rotate(0deg)', offset: at(380), easing: 'cubic-bezier(.5,0,.75,.4)' },
+        { opacity: 0.9, transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(${endScale}) rotate(0deg)` },
+      ],
+      { duration: total, delay, fill: 'both' },
+    ).onfinish = () => { img.remove(); revealBadge(); };
+    flash.animate(
+      [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)', offset: 0.3 }, { opacity: 0, transform: 'scale(1.15)' }],
+      { duration: 420, delay, easing: 'ease-out', fill: 'both' },
+    ).onfinish = () => flash.remove();
+    ring.animate(
+      [{ opacity: 0.95, transform: 'translate(-50%,-50%) scale(.35)' }, { opacity: 0, transform: 'translate(-50%,-50%) scale(1.45)' }],
+      { duration: 460, delay: delay + 60, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' },
+    ).onfinish = () => ring.remove();
+  }
+
+  /** 击晕施加：头顶一圈金星转一周后散开（无专属帧素材，代码绘制）。 */
+  stunStars(): void {
+    const reduced = CharacterCard.reducedMotion();
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.className = 'status-cue-stars';
+    this.el.appendChild(layer);
+    for (let i = 0; i < 5; i++) {
+      const star = document.createElement('span');
+      star.textContent = '★';
+      layer.appendChild(star);
+      const a0 = (360 / 5) * i;
+      star.animate(reduced
+        ? [{ opacity: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0 }]
+        : [
+          { opacity: 0, transform: `rotate(${a0}deg) translateX(8px) rotate(${-a0}deg) scale(.4)` },
+          { opacity: 1, transform: `rotate(${a0 + 180}deg) translateX(26px) rotate(${-a0 - 180}deg) scale(1)`, offset: 0.55 },
+          { opacity: 0, transform: `rotate(${a0 + 300}deg) translateX(34px) rotate(${-a0 - 300}deg) scale(.7)` },
+        ], { duration: 620, easing: 'ease-out', fill: 'both' });
+    }
+    window.setTimeout(() => layer.remove(), 680);
   }
 
   /**
@@ -1399,9 +1674,12 @@ export class CharacterCard {
   floatText(text: string, color: string, durationMs = 780): void {
     const el = document.createElement('div');
     el.textContent = text;
-    const fontSize = text.includes('\n') ? Math.max(...text.split('\n').map(line => line.length)) > 10 ? 12 : 15 : 22;
+    // 字号随最长行收缩，宽度铺满卡面：此前固定 22px 且盒宽只有半张卡，
+    // 「赐福抵挡」这类短词也会被折成两行并溢出卡外（伤害数字不受影响，仍是 22px）。
+    const longest = Math.max(...text.split('\n').map(line => line.length));
+    const fontSize = longest >= 10 ? 12 : longest >= 7 ? 14 : longest >= 4 ? 17 : 22;
     el.style.cssText =
-      `position:absolute;left:50%;top:34%;z-index:12;pointer-events:none;transform:translateX(-50%);` +
+      `position:absolute;left:50%;top:34%;width:100%;z-index:12;pointer-events:none;transform:translateX(-50%);` +
       `font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:${ofs(fontSize)}px;white-space:pre-line;line-height:1.15;text-align:center;` +
       `color:${color};text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 6px ${color}`;
     this.el.appendChild(el);
@@ -1415,6 +1693,29 @@ export class CharacterCard {
     ).onfinish = () => el.remove();
   }
 
+  /**
+   * 施法蓄力（双方）：施法者色外发光在 chargeMs 内由弱渐强、卡面微微收紧，
+   * 蓄满瞬间向前一顶（发射）再回落，让玩家看清「谁在放技能」。
+   * 有限 WAAPI 动画，按 1× 编写、随战斗倍速统一加速。
+   */
+  castCharge(color: string, chargeMs = 600): void {
+    const glow = (a: number) => `drop-shadow(0 0 ${Math.round(4 + 14 * a)}px ${color}) brightness(${(1 + 0.35 * a).toFixed(2)})`;
+    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const t = (s: string) => (reduced ? 'none' : s);
+    const total = chargeMs + 260;
+    const at = (ms: number) => Math.min(1, ms / total);
+    this.el.animate(
+      [
+        { filter: glow(0), transform: 'none' },
+        { filter: glow(0.35), transform: t('scale(0.99)'), offset: at(chargeMs * 0.5) },
+        { filter: glow(0.85), transform: t('scale(0.97)'), offset: at(chargeMs) },
+        { filter: glow(1), transform: t('scale(1.06)'), offset: at(chargeMs + 70) },
+        { filter: glow(0), transform: 'none' },
+      ],
+      { duration: total, easing: 'linear' },
+    );
+  }
+
   /** 命中一击：卡面短促红闪 + 轻微抖动（技能伤害反馈） */
   hitFlash(): void {
     this.el.animate(
@@ -1425,6 +1726,107 @@ export class CharacterCard {
       ],
       { duration: 260, easing: 'ease-out' },
     );
+  }
+
+  private static reducedMotion(): boolean {
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  /**
+   * 屏障格挡：卡面外沿亮起一圈冰蓝护盾（外扩淡出）+ 卡面冷色闪一下，微微被顶一下但不后仰。
+   * @param dir 来袭方向（+1 从左往右打 / -1 从右往左打），决定被顶的方向
+   */
+  blockFlash(dir = 1): void {
+    const ring = document.createElement('div');
+    ring.setAttribute('aria-hidden', 'true');
+    ring.style.cssText = [
+      'position:absolute', 'inset:-4px', 'border-radius:11px', 'pointer-events:none', 'z-index:30',
+      'border:2px solid rgba(170,226,255,.95)',
+      'box-shadow:0 0 14px 2px rgba(120,200,255,.75),inset 0 0 18px rgba(140,210,255,.55)',
+      'background:radial-gradient(ellipse at center,rgba(170,226,255,.18),rgba(170,226,255,0) 70%)',
+    ].join(';');
+    this.el.appendChild(ring);
+    const reduced = CharacterCard.reducedMotion();
+    ring.animate(
+      [
+        { opacity: 0, transform: 'scale(.94)' },
+        { opacity: 1, transform: 'scale(1.02)', offset: 0.18 },
+        { opacity: 0, transform: reduced ? 'scale(1.02)' : 'scale(1.1)' },
+      ],
+      { duration: 420, easing: 'ease-out' },
+    ).onfinish = () => ring.remove();
+    this.el.animate(
+      [
+        { filter: 'brightness(1)', transform: 'translateX(0)' },
+        { filter: 'brightness(1.45) saturate(.7) drop-shadow(0 0 8px rgba(140,210,255,.8))',
+          transform: reduced ? 'translateX(0)' : `translateX(${dir * 5}px)`, offset: 0.22 },
+        { filter: 'brightness(1)', transform: 'translateX(0)' },
+      ],
+      { duration: 300, easing: 'ease-out' },
+    );
+  }
+
+  /** 闪避：卡片向后一闪让开再回位，半透明一下 */
+  dodgeStep(dir = 1): void {
+    if (CharacterCard.reducedMotion()) {
+      this.el.animate([{ opacity: 1 }, { opacity: 0.55, offset: 0.3 }, { opacity: 1 }], { duration: 320 });
+      return;
+    }
+    this.el.animate(
+      [
+        { transform: 'translateX(0)', opacity: 1 },
+        { transform: `translateX(${dir * 22}px) translateY(-6px)`, opacity: 0.55, offset: 0.3 },
+        { transform: 'translateX(0)', opacity: 1 },
+      ],
+      { duration: 360, easing: 'cubic-bezier(.2,.8,.3,1)' },
+    );
+  }
+
+  /**
+   * 兵种转化：卡面沿竖轴「翻」到侧面（同时提亮），翻到最窄时换脸，再翻回正面略微回弹；
+   * 外沿一圈流光外扩。纯 WAAPI，随战斗倍速加速；减少动态效果时只做亮度闪。
+   * @param onMid 翻到侧面那一刻调用（在此换立绘）
+   */
+  transformFlip(onMid: () => void): void {
+    const reduced = CharacterCard.reducedMotion();
+    const ring = document.createElement('div');
+    ring.setAttribute('aria-hidden', 'true');
+    ring.style.cssText = [
+      'position:absolute', 'inset:-3px', 'border-radius:10px', 'pointer-events:none', 'z-index:30',
+      'border:2px solid rgba(240,217,164,.9)',
+      'box-shadow:0 0 16px 2px rgba(214,170,255,.6),inset 0 0 14px rgba(240,217,164,.4)',
+    ].join(';');
+    if (reduced) {
+      onMid();
+      this.el.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(1.8)', offset: 0.3 }, { filter: 'brightness(1)' }], { duration: 360 });
+      return;
+    }
+    const half = 170;
+    const out = this.el.animate(
+      [
+        { transform: 'perspective(600px) rotateY(0deg)', filter: 'brightness(1)' },
+        { transform: 'perspective(600px) rotateY(88deg) scale(.96)', filter: 'brightness(2.1) saturate(.4)' },
+      ],
+      { duration: half, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' },
+    );
+    out.onfinish = () => {
+      onMid();
+      this.el.appendChild(ring);
+      ring.animate(
+        [{ opacity: 0.9, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.12)' }],
+        { duration: 420, easing: 'ease-out' },
+      ).onfinish = () => ring.remove();
+      const back = this.el.animate(
+        [
+          { transform: 'perspective(600px) rotateY(-88deg) scale(.96)', filter: 'brightness(2.1) saturate(.4)' },
+          { transform: 'perspective(600px) rotateY(8deg) scale(1.03)', filter: 'brightness(1.25)', offset: 0.7 },
+          { transform: 'perspective(600px) rotateY(0deg) scale(1)', filter: 'brightness(1)' },
+        ],
+        { duration: half + 90, easing: 'cubic-bezier(.2,.7,.3,1)' },
+      );
+      back.onfinish = () => out.cancel();
+      back.oncancel = () => out.cancel();
+    };
   }
 
   /**
@@ -1578,8 +1980,17 @@ export class TeamView {
     card.setInputEnabled(this.inputEnabled);
   }
 
+  /**
+   * 阵亡/逃跑后补在队尾的空位（与卡同尺寸的占位块）。空位计入槽数，所以减员后卡片
+   * 不会放大成三人卡；只有召唤入场时才回收空位（见 addCharacterCard）。
+   */
+  private emptySlots(): HTMLElement[] {
+    return [...(this.el?.children ?? [])].filter((el): el is HTMLElement =>
+      el instanceof HTMLElement && el.classList.contains('gslot-empty'));
+  }
+
   private layoutMetrics(): { slots: 3 | 4; width: number; height: number } {
-    const slots: 3 | 4 = this.cards.size >= 4 ? 4 : 3;
+    const slots: 3 | 4 = this.cards.size + this.emptySlots().length >= 4 ? 4 : 3;
     return { slots, ...battleCardDimensions(slots, BOARD_PX, CARD_GAP) };
   }
 
@@ -1588,6 +1999,10 @@ export class TeamView {
     const metrics = this.layoutMetrics();
     this.el.style.width = `${metrics.width}px`;
     for (const card of this.cards.values()) card.resize(metrics.width, metrics.height);
+    for (const slot of this.emptySlots()) {
+      slot.style.width = `${metrics.width}px`;
+      slot.style.height = `${metrics.height}px`;
+    }
     if (!this.mounted) return;
     const left = this.side === PlayerSide.Left
       ? this.rightAnchor - metrics.width
@@ -1633,7 +2048,20 @@ export class TeamView {
       variant: VARIANTS[this.cards.size % VARIANTS.length],
     });
     this.bindCard(card, char.id);
-    this.el.appendChild(card.el);
+    // 召唤入场回收一个空位：引擎把召唤物排在存活部队末尾，画面同样插到最后一张存活卡之后，
+    // 队首/顺序与引擎一致；有空位被回收时其余卡片滑动补位。
+    const empty = this.emptySlots();
+    if (empty.length > 0) {
+      this.slideReorder(() => {
+        empty[empty.length - 1]!.remove();
+        const living = this.cardEls();
+        const last = living[living.length - 1];
+        if (last) last.after(card.el);
+        else this.el.insertBefore(card.el, this.emptySlots()[0] ?? null);
+      });
+    } else {
+      this.el.appendChild(card.el);
+    }
     this.cards.set(char.id, card);
     this.applyLayout();
     card.el.animate(
@@ -1647,30 +2075,46 @@ export class TeamView {
     return card;
   }
 
-  /** Remove a defeated card from flow so survivors reflow and queued replacements append last. */
+  /** 阵亡/逃跑退场：后排递进补位，队尾留同尺寸空位（召唤入场时回收空位）。 */
   removeCharacterCard(charId: number): boolean {
     return this.removeCharacterCards([charId]) > 0;
   }
 
-  /** Snapshot all departure positions before changing flow, then reflow just once. */
+  /** Snapshot all departure positions, close ranks with empty slots appended at the tail, then lay out once. */
   removeCharacterCards(charIds: readonly number[]): number {
     const departing = [...new Set(charIds)].flatMap(id => {
       const card = this.cards.get(id);
       return card ? [{ id, card, top: card.el.offsetTop, left: card.el.offsetLeft,
         width: card.el.offsetWidth, height: card.el.offsetHeight }] : [];
     });
-    for (const { id, card, top, left, width, height } of departing) {
-      this.cards.delete(id);
-      card.destroy();
-      card.el.style.position = 'absolute';
-      card.el.style.left = `${left}px`;
-      card.el.style.top = `${top}px`;
-      card.el.style.width = `${width}px`;
-      card.el.style.height = `${height}px`;
-      card.el.style.zIndex = '24';
-      card.el.style.pointerEvents = 'none';
-    }
-    if (departing.length) this.applyLayout();
+    const mutate = (): void => {
+      for (const { id, card, top, left, width, height } of departing) {
+        this.cards.delete(id);
+        card.destroy();
+        // 后排递进顶到前面（与引擎出编队一致）；空位补在队尾，槽数不变，卡片不放大
+        const parent = card.el.parentNode;
+        if (parent) {
+          const slot = document.createElement('div');
+          slot.className = 'gslot-empty';
+          slot.setAttribute('aria-hidden', 'true');
+          slot.style.width = `${width}px`;
+          slot.style.height = `${height}px`;
+          parent.appendChild(slot);
+        }
+        // 退场卡脱离文档流，在原位淡出
+        card.el.style.position = 'absolute';
+        card.el.style.left = `${left}px`;
+        card.el.style.top = `${top}px`;
+        card.el.style.width = `${width}px`;
+        card.el.style.height = `${height}px`;
+        card.el.style.zIndex = '24';
+        card.el.style.pointerEvents = 'none';
+      }
+      if (departing.length) this.applyLayout();
+    };
+    // 幸存者滑动补位（FLIP），不是瞬移
+    if (departing.length && this.el) this.slideReorder(mutate);
+    else mutate();
     for (const { card } of departing) {
       const departure = card.el.animate(
         [

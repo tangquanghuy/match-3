@@ -150,7 +150,7 @@ describe('恐怖状态：施加 / 免疫 / 自动解除', () => {
   it('免疫特质拦截施加', () => {
     const char = makeChar(1, { passive: { ...neutralPassives(), statusImmunities: [TERROR_STATUS_ID] } });
     const events = applyStatus(char, { id: TERROR_STATUS_ID, turns: 4 });
-    expect(events).toHaveLength(0);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     expect(hasStatus(char, TERROR_STATUS_ID)).toBe(false);
   });
 

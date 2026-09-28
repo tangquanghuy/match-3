@@ -167,14 +167,33 @@ export function screenShake(target: Container, chain: number): gsap.core.Timelin
 }
 
 /**
+ * 施法蓄力震颤：作用于 wrapper，细密抖动、幅度随蓄力线性增大（末帧最强），释放时由 impactShake 接力。
+ * durationMs 按 1× 编写（wrapper 下的有限 WAAPI 动画随战斗倍速统一加速）；减少动态效果时跳过。
+ */
+export function chargeTremor(el: HTMLElement, durationMs: number, baseTransform = '', maxPx = 2.4): void {
+  if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const pre = baseTransform ? baseTransform + ' ' : '';
+  const steps = Math.max(8, Math.round(durationMs / 32));
+  const frames: Keyframe[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const k = i / steps;
+    const a = i === 0 ? 0 : maxPx * (0.15 + 0.85 * k);
+    const sx = i % 2 === 0 ? 1 : -1;
+    const sy = i % 3 === 0 ? 1 : -1;
+    frames.push({ transform: `${pre}translate(${(sx * a).toFixed(2)}px, ${(sy * a * 0.6).toFixed(2)}px)` });
+  }
+  el.animate(frames, { duration: durationMs, easing: 'linear' });
+}
+
+/**
  * 命中整屏震动（攻击撞击专用）：作用于 DOM 容器（wrapper），
  * 让棋盘与角色卡一起晃动，比仅震棋盘更有打击实感。含位移 + 轻微旋转踢动。
  * 通过 Web Animations API 叠加在 wrapper 现有的缩放(transform)之上，互不破坏。
  */
-export function impactShake(el: HTMLElement, baseTransform = ''): void {
+export function impactShake(el: HTMLElement, baseTransform = '', strength = 1): void {
   const cfg = AnimConfig.impactShake;
-  const a = cfg.amplitude;
-  const r = cfg.rotation;
+  const a = cfg.amplitude * strength;
+  const r = cfg.rotation * strength;
   const pre = baseTransform ? baseTransform + ' ' : '';
   // 衰减式抖动序列：首帧最猛，逐步收敛归位
   const frames = [

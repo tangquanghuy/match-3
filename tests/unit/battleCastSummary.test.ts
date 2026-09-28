@@ -28,11 +28,13 @@ describe('施法效果摘要（B-4 第③段）', () => {
     expect(lines).toEqual(['战象 −12 生命', '死亡陷阱模仿怪 −4 生命']);
   });
 
-  it('状态/增益/召唤/阵亡各出一行，状态带剩余回合', () => {
+  it('状态/增益/召唤/阵亡各出一行；官方状态不写回合数，出血写层数', () => {
     const lines = summarizeCastEvents(
       [
         { type: 'buff', targetId: 1, stat: 'hp', amount: 14 },
+        // 屏障是官方无时限状态：turns=2 不代表剩余回合，不该写进摘要
         { type: 'status-apply', targetId: 1, statusId: 'barrier', turns: 2 },
+        { type: 'status-apply', targetId: 2, statusId: 'bleed', turns: 3, stacks: 2 },
         { type: 'summon', player: PlayerSide.Left, slot: 3, troopId: 6353, characterId: 4, destination: 'field' },
         { type: 'defeat', characterId: 2 },
       ],
@@ -40,10 +42,34 @@ describe('施法效果摘要（B-4 第③段）', () => {
     );
     expect(lines).toEqual([
       '奥契丝 +14 生命',
-      '奥契丝 获得 屏障（2 回合）',
+      '奥契丝 获得 屏障',
+      '战象 获得 出血（2 层）',
       '召唤 匪徒',
       '战象 阵亡',
     ]);
+  });
+
+  it('被免疫/赐福挡下的施加照实写进摘要', () => {
+    expect(summarizeCastEvents(
+      [
+        { type: 'status-blocked', targetId: 2, statusId: 'poison', reason: 'immune' },
+        { type: 'status-blocked', targetId: 1, statusId: 'burning', reason: 'blessed' },
+        // 潜水闪避/冰冻吞额外回合不是「本次施法的状态结果」，不进摘要
+        { type: 'status-blocked', targetId: 1, statusId: 'submerged', reason: 'submerged' },
+      ],
+      { nameOf },
+    )).toEqual(['战象 免疫 中毒', '奥契丝 赐福抵挡 燃烧']);
+  });
+
+  it('驱散与净化在摘要里用词不同', () => {
+    expect(summarizeCastEvents(
+      [{ type: 'status-cleanse', targetId: 1, statusIds: ['barrier', 'reflect'], kind: 'dispel' }],
+      { nameOf },
+    )).toEqual(['奥契丝 被驱散 屏障、反射']);
+    expect(summarizeCastEvents(
+      [{ type: 'status-cleanse', targetId: 1, statusIds: ['poison'] }],
+      { nameOf },
+    )).toEqual(['奥契丝 解除 中毒']);
   });
 
   it('不属于本次施法的事件被排除：特质被动 buff 与回合结算 DoT', () => {

@@ -9,7 +9,7 @@ export function isBoardPlaybackEvent(event: GameEvent): boolean {
 }
 export function isCardPlaybackEvent(event: GameEvent): boolean {
   return ['skill-damage', 'skull-damage', 'buff', 'status-apply', 'status-tick',
-    'status-expire', 'status-cleanse'].includes(event.type);
+    'status-expire', 'status-cleanse', 'status-blocked'].includes(event.type);
 }
 export function computeImpactWindows(events: GameEvent[], _clear: ClearEventBatches): Map<number, number> {
   const windows = new Map<number, number>();

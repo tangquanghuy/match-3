@@ -1234,5 +1234,47 @@
     "channels": 1,
     "importedDate": "2026-09-26",
     "notes": []
+  },
+  {
+    "id": "encourage_ally_202609282004_01",
+    "pool": "encourage.ally",
+    "enabled": true,
+    "file": "src/assets/audio/narrator/encourage_ally_202609282004_01.mp3",
+    "sourceFilename": "Wayne-June-(Darkest-Dungeon)-2026-09-28-20-04-Continue-the-onslaught!-Destroy.-Them.-All.mp3",
+    "sha256": "d46f13c5317cac926139dca9768a42f68e73361f391dbcfb2f7887a106ee66e3",
+    "bytes": 89024,
+    "duration": 5.564,
+    "sampleRate": 44100,
+    "channels": 1,
+    "importedDate": "2026-09-28",
+    "notes": []
+  },
+  {
+    "id": "encourage_ally_202609282005_02",
+    "pool": "encourage.ally",
+    "enabled": true,
+    "file": "src/assets/audio/narrator/encourage_ally_202609282005_02.mp3",
+    "sourceFilename": "Wayne-June-(Darkest-Dungeon)-2026-09-28-20-05-Press-this-advantage,-give-them-no-quarter!.mp3",
+    "sha256": "7d6d640f9c65432f06c45bf6471f1c2dfbf61ba316476ca90566448ad7ce07f5",
+    "bytes": 51408,
+    "duration": 3.213,
+    "sampleRate": 44100,
+    "channels": 1,
+    "importedDate": "2026-09-28",
+    "notes": []
+  },
+  {
+    "id": "encourage_ally_202609282006_03",
+    "pool": "encourage.ally",
+    "enabled": true,
+    "file": "src/assets/audio/narrator/encourage_ally_202609282006_03.mp3",
+    "sourceFilename": "Wayne-June-(Darkest-Dungeon)-2026-09-28-20-06-Their-formation-is-broken—maintain-the-offensive.mp3",
+    "sha256": "067f6a04843d4e24d5f472e92827b6779c019022bab8934864f78ead435bfb40",
+    "bytes": 62274,
+    "duration": 3.892,
+    "sampleRate": 44100,
+    "channels": 1,
+    "importedDate": "2026-09-28",
+    "notes": []
   }
 ]

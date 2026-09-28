@@ -5,7 +5,8 @@ import { BoardGenerator } from '@engine/boardGen';
 import { MatchResolver } from '@engine/MatchResolver';
 import { SeededRNG } from '@engine/rng';
 import {
-  BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS, bestSwapTier, comboStreakFade, extraTurnStreakOf, hasBigHolePattern,
+  BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS, SETUP_SHARE_ONE_PLUS, SETUP_SHARE_TWO_PLUS, bestSwapTier, bigSwapCount,
+  comboStreakFade, extraTurnStreakOf, hasBigHolePattern, setupBucketFor,
 } from '@engine/comboBias';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { ActionLogEntry, GemType } from '@engine/types';
@@ -100,11 +101,15 @@ describe('连消倾向：开启时的行为', () => {
     for (let col = 0; col < BoardModel.COLS; col++) board.set({ row: col % 3, col }, null);
   };
 
-  it('新回合（本次行动没打出大消）的补充明显更常留下 4+ 交换', () => {
+  it('新回合（本次行动没打出大消）的补充适度提高 4+ 交换的机会', () => {
     const probe = fillerBoard();
     scattered(probe);
     expect(hasBigHolePattern(probe)).toBe(false);
-    expect(bigSwapShareAfterRefill(scattered, BATTLE_COMBO_BIAS)).toBeGreaterThan(bigSwapShareAfterRefill(scattered, 0) + 0.25);
+    const plain = bigSwapShareAfterRefill(scattered, 0);
+    const biased = bigSwapShareAfterRefill(scattered, BATTLE_COMBO_BIAS);
+    expect(biased).toBeGreaterThan(plain);
+    // 适度：不到旧的「强度 10」那种大量送 4/5 连
+    expect(biased).toBeLessThan(bigSwapShareAfterRefill(scattered, 10));
   });
 
   it('连段护栏：本次行动已打出大消（下一个决策点还是行动方）时反向打散', () => {
@@ -133,18 +138,35 @@ describe('连消倾向：开启时的行为', () => {
     expect(cut([[0, 0], [0, 1], [0, 2], [2, 5], [3, 5], [4, 5]])).toBe(false);
   });
 
-  it('开局倾向：合规开局更常带 4+ 交换，且仍无预成匹配、有合法交换', () => {
-    let plain = 0; let biased = 0;
-    const trials = 120;
+  it('开局倾向：约 60% 的开局有 ≥2 处 4+ 交换、约 80% 有 ≥1 处，且仍无预成匹配', () => {
+    const trials = 300;
+    let twoPlus = 0; let onePlus = 0; let plainTwoPlus = 0; let plainOnePlus = 0;
     for (let seed = 1; seed <= trials; seed++) {
       let id = 1;
-      const a = new BoardGenerator(new SeededRNG(seed), () => id++, 0.16).generate();
-      const b = new BoardGenerator(new SeededRNG(seed), () => id++, 0.16, BATTLE_SETUP_BIAS).generate();
+      const a = new BoardGenerator(new SeededRNG(seed * 7919), () => id++, 0.16).generate();
+      const b = new BoardGenerator(new SeededRNG(seed * 7919), () => id++, 0.16, BATTLE_SETUP_BIAS).generate();
       expect(new MatchResolver().findMatches(b)).toEqual([]);
-      if (bestSwapTier(a) > 0) plain++;
-      if (bestSwapTier(b) > 0) biased++;
+      const nb = bigSwapCount(b); const na = bigSwapCount(a);
+      if (nb >= 2) twoPlus++;
+      if (nb >= 1) onePlus++;
+      if (na >= 2) plainTwoPlus++;
+      if (na >= 1) plainOnePlus++;
     }
-    expect(biased).toBeGreaterThan(plain * 1.8);
+    expect(twoPlus / trials).toBeGreaterThan(SETUP_SHARE_TWO_PLUS - 0.08);
+    expect(twoPlus / trials).toBeLessThan(SETUP_SHARE_TWO_PLUS + 0.08);
+    expect(onePlus / trials).toBeGreaterThan(SETUP_SHARE_ONE_PLUS - 0.07);
+    expect(onePlus / trials).toBeLessThan(SETUP_SHARE_ONE_PLUS + 0.07);
+    // 比改动前的自然开局明显多
+    expect(twoPlus).toBeGreaterThan(plainTwoPlus * 2);
+    expect(onePlus).toBeGreaterThan(plainOnePlus * 1.3);
+  });
+
+  it('开局档位按目标占比切分', () => {
+    expect(setupBucketFor(0)).toBe(2);
+    expect(setupBucketFor(SETUP_SHARE_TWO_PLUS - 0.001)).toBe(2);
+    expect(setupBucketFor(SETUP_SHARE_TWO_PLUS)).toBe(1);
+    expect(setupBucketFor(SETUP_SHARE_ONE_PLUS)).toBe(0);
+    expect(setupBucketFor(0.999)).toBe(0);
   });
 
   it('bestSwapTier：4 连 = 1，5 连 = 2，找完不改棋盘', () => {

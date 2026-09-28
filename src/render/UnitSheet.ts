@@ -1,22 +1,29 @@
 /**
- * 部队详情窗（战斗内，非模态）。
+ * 部队详情窗（战斗内，非模态）——三张图鉴样式的卡叠成一摞。
  *
- * 取代原「长按详情面板 + 施法确认层」：点任意战斗卡打开，版式对齐图鉴「部队详情」——
- * 左栏完整 2:3 立绘卡（稀有度边框 / 法力宝石 / 魔力 / 名字 / 种族行 / 攻击·护甲·生命），
- * 卡下「释放技能」按钮 +「快速释放」复选框（仅我方）；右栏技能全文（按当前魔力求值）、
- * 目标说明、当前状态、全部特质。
+ * 点任意战斗卡打开：棋盘区压暗，三张同尺寸的卡收拢叠放——当前页居中压在最上面，另两张从左右两侧
+ * 露出一截；点露出的那张就把它换到最前（与原当前页交换位置），再点空白处 / Esc / ✕ 关闭。
+ *   - 立绘卡（默认当前页）：图鉴部队卡同款，左上法力「当前/上限」、右上魔力、名字与种族 · 王国、
+ *     攻击·护甲·生命一行，底部一排状态图标（悬停看说明）；
+ *   - 技能卡：图鉴法术卷轴（暗色抬头 + 羊皮纸正文，按当前魔力求值、附目标说明）；
+ *   - 特质卡：图鉴「天赋特质」3 个槽位，已解锁 / 未解锁 / 未开槽与图鉴一致。
+ * 我方卡摞下是图鉴主按钮「释放技能」与「快速释放」复选框；敌方只列法力。
  *
- * 只盖棋盘（含上方 HUD 通道），两侧队伍列保持可见可点：点另一张卡切换内容、再点同一张关闭。
- * 挂在战斗 wrapper 内，随舞台一起缩放。不暂停战斗；数值跟随卡面显示值实时刷新（App 轮询）。
- * 图鉴的 meta 样式不在独立战斗页加载，这里用 `usw-` 前缀的战斗域样式复刻同一套观感。
+ * 只盖棋盘（含上方 HUD 通道），两侧队伍列保持可见可点：点另一张战斗卡切换角色。挂在战斗 wrapper 内
+ * 随舞台缩放；不暂停战斗，数值跟随卡面显示值实时刷新（App 轮询）。图鉴 meta 样式不在独立战斗页加载，
+ * 这里用 `usw-` 前缀按图鉴规则复刻。
  */
 import type { BaseColor } from '@engine/types';
 import { renderSpell } from '../meta/shell/spellText';
 import { STATUS_DESCRIPTIONS } from '../data/statusDescriptions';
 import { statusBadge, statusBadgeIcon } from './statusBadges';
+import { isPositiveStatus, statusBadgeCorner, statusLiveLines } from './statusPresentation';
+import { statusRecoveryChance } from '@engine/skills/effects/status';
+import type { StatusInstance } from '@engine/types';
 import { traitCardGlyphs } from './traitBadges';
 import { CARD_STAT_ICONS, manaGemSvg } from './TeamView';
 import type { CardShownStats } from './TeamView';
+import type { TraitSlot } from './CharacterDetailPanel';
 
 /** 施放按钮的状态（优先级见 resolveCastAvailability） */
 export type CastKind = 'ready' | 'short' | 'silenced' | 'enemyTurn' | 'resolving' | 'auto' | 'defeated' | 'used' | 'over';
@@ -28,7 +35,7 @@ export interface CastAvailability {
 }
 
 export interface CastAvailabilityInput {
-  /** 自动战斗接管中（lane B 的 App.autoBattleEnabled） */
+  /** 自动战斗接管中（App.autoBattleEnabled） */
   autoBattle: boolean;
   defeated: boolean;
   /** 对局已结束 */
@@ -87,6 +94,12 @@ export interface UnitSheetData {
   shown: CardShownStats;
   /** 种族 · 王国 · 稀有度；空串则不显示 */
   typeLine: string;
+  /** 种族（中文）；空串不显示 */
+  race: string;
+  /** 王国；空串不显示 */
+  kingdom: string;
+  /** 稀有度名；空串不显示 */
+  rarityLabel: string;
   /** 稀有度档位 0..5；未知为 null（金色默认边框） */
   rarity: number | null;
   rarityColor: string | null;
@@ -97,7 +110,8 @@ export interface UnitSheetData {
   skillTag: string;
   /** 目标说明（「目标：全体敌人」「释放后点选 1 名敌人」）；空串不显示 */
   targetNote: string;
-  traits: { code: string; name: string; description: string; implemented: boolean }[];
+  /** 图鉴同款 3 个特质槽 */
+  traitSlots: TraitSlot[];
   traitNames?: Record<string, string>;
   /** 我方：施放按钮状态 */
   cast?: CastAvailability;
@@ -118,234 +132,337 @@ export interface UnitSheetHandlers {
   onClose(): void;
 }
 
+/** 卡摞里的三页 */
+export type SheetPane = 'spell' | 'portrait' | 'traits';
+/** 三个叠放位：中间 = 当前页（最上层），左右 = 露出一截 */
+export type PanePos = 'left' | 'center' | 'right';
+
+/** 初始排布：技能在左、立绘居中、特质在右 */
+export const DEFAULT_PANE_POS: Readonly<Record<SheetPane, PanePos>> = { spell: 'left', portrait: 'center', traits: 'right' };
+
+/**
+ * 点露出的那张 → 它与当前页交换位置（纯函数）。点当前页本身不变。
+ * 返回新排布（不修改入参）。
+ */
+export function bringPaneToFront(layout: Readonly<Record<SheetPane, PanePos>>, pane: SheetPane): Record<SheetPane, PanePos> {
+  const next = { ...layout };
+  const from = next[pane];
+  if (from === 'center') return next;
+  const current = (Object.keys(next) as SheetPane[]).find((p) => next[p] === 'center');
+  next[pane] = 'center';
+  if (current) next[current] = from;
+  return next;
+}
+
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/** 状态实时数值行（每回合 N 点 · 剩余 N 回合） */
-export function statusLiveLine(s: { turns: number; magnitude?: number }): string {
-  const live: string[] = [];
-  if (s.magnitude !== undefined) live.push(`每回合 ${s.magnitude} 点`);
-  if (s.turns > 0) live.push(`剩余 ${s.turns} 回合`);
-  return live.join(' · ');
+/**
+ * 状态实时数值行（出血层数与每回合伤害 / 仍倒计时的剩余回合 / 累积自愈几率）。
+ * 口径与战斗卡徽记同源（statusPresentation），不再直接把 magnitude 当「每回合伤害」——
+ * 出血的 magnitude 是层数，中毒/燃烧的 magnitude 是历史遗留数据，引擎并不使用。
+ */
+export function statusLiveLine(s: { id: string; turns: number; magnitude?: number }, recoveryChance: number | null = null): string {
+  return statusLiveLines(s, recoveryChance).join(' · ');
 }
+
+/** 图鉴字体栈（troop.css 的 --display / --body） */
+const DISPLAY = '"Palatino Linotype","STZhongsong","SimSun",serif';
+const BODY = '"Segoe UI","Microsoft YaHei",sans-serif';
+const NOISE = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 .42  0 0 0 0 .34  0 0 0 0 .22  0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+/** 图鉴立绘卡底部的金色饰件（与战斗卡同一轮廓） */
+const ORNAMENT_SVG = `<svg viewBox="0 0 72 24" aria-hidden="true"><defs><linearGradient id="uswOrn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f6c37"/><stop offset=".48" stop-color="#f0d99c"/><stop offset="1" stop-color="#9d763e"/></linearGradient></defs><path class="orn-dark" d="M1 12h14l10-7 8 5 3-8 3 8 8-5 10 7h14-14l-9 5-9-2-3 7-3-7-9 2-9-5H1z"/><path class="orn-gold" d="M1 12h14l10-7 8 5 3-8 3 8 8-5 10 7h14M10 14h14l9-3m29 3H48l-9-3"/><path class="orn-core" d="M36 5l5 7-5 7-5-7z"/></svg>`;
+
+/** 图鉴特质行尾的锁 / 勾 */
+const LOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+const CHECK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/**
+ * 外层、卡摞（三张同尺寸的卡叠放：data-pos=center 在最上层居中，left/right 缩小、压暗、从两侧露出 --sp），
+ * 立绘卡（图鉴 .character-card）与卡摞下的按钮。尺寸按图鉴 354px 宽的立绘卡等比换算到 --cw。
+ */
+const CSS_STACK = `
+  .usw{position:absolute;z-index:1100;box-sizing:border-box;display:none;flex-direction:column;align-items:center;justify-content:center;
+    --pad:16px;--gap:10px;--cw:294px;--ch:441px;--sp:120px;--bh:44px;--chk:26px;--close:32px;
+    gap:var(--gap);padding:calc(var(--pad) + var(--close)) var(--pad) var(--pad);border-radius:10px;color:#f2ead8;font-family:${BODY};
+    background:radial-gradient(ellipse 75% 70% at 50% 48%,rgba(14,14,24,.55),rgba(8,9,16,.86))}
+  .usw.open{display:flex}
+  .usw *{box-sizing:border-box}
+  .usw [hidden]{display:none !important}
+  .usw-close{position:absolute;top:calc(var(--pad) * .5);right:calc(var(--pad) * .5);z-index:9;width:var(--close);height:var(--close);
+    padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;
+    color:#d8c191;border:1px solid #8e7347;background:linear-gradient(#302838,#1b1823);box-shadow:inset 0 1px #f0dab71f,0 3px 8px #0006;
+    font:max(12px,calc(var(--close) * .42))/1 ${BODY}}
+  .usw-close:hover{filter:brightness(1.17)}
+  .usw-close:focus-visible,.usw-cast:focus-visible,.usw-quick input:focus-visible,.usw-pane:focus-visible,.usw-pane-body:focus-visible{
+    outline:2px solid #a6dff9;outline-offset:3px}
+
+  .usw-stack{position:relative;flex:none;width:calc(var(--cw) + var(--sp) * 2);height:calc(var(--ch) + var(--cw) * .04);max-width:100%}
+  .usw-pane{position:absolute;left:50%;top:0;width:var(--cw);height:var(--ch);margin-left:calc(var(--cw) * -.5);
+    transform-origin:50% 60%;transition:transform .32s cubic-bezier(.2,.8,.25,1),filter .32s ease;will-change:transform}
+  .usw-pane[data-pos="center"]{z-index:3;transform:none;filter:none}
+  .usw-pane[data-pos="left"]{z-index:1;transform:translateX(calc(var(--sp) * -1)) scale(.9) rotate(-4deg);filter:brightness(.52) saturate(.8);cursor:pointer}
+  .usw-pane[data-pos="right"]{z-index:2;transform:translateX(var(--sp)) scale(.9) rotate(4deg);filter:brightness(.52) saturate(.8);cursor:pointer}
+  .usw-pane:not([data-pos="center"]):hover{filter:brightness(.72) saturate(.9)}
+  .usw-pane:not([data-pos="center"]) *{pointer-events:none}
+  .usw-pane:not([data-pos="center"]) .usw-pane-body{overflow:hidden}
+
+  /* —— 立绘卡（图鉴 .character-card）—— */
+  .usw-card{position:absolute;inset:0;border-radius:11px;overflow:hidden;isolation:isolate;background:#101019;
+    border:1px solid rgba(38,31,22,.96);box-shadow:0 0 0 1px rgba(8,7,6,.72),0 16px 38px #0009}
+  .usw-card[data-rc]{box-shadow:0 0 0 1px rgba(8,7,6,.72),0 0 0 2px color-mix(in srgb,var(--rc) 40%,transparent),0 16px 38px #0009}
+  .usw-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block;border-radius:10px}
+  .usw-card.no-art .usw-portrait{visibility:hidden}
+  .usw-card.no-art{background:radial-gradient(120% 90% at 50% 20%,#3a3140 0%,#17141d 60%,#0d0b12 100%)}
+  .usw-shade{position:absolute;inset:0;border-radius:10px;pointer-events:none;
+    background:linear-gradient(180deg,#11101815 40%,#0b0b1355 58%,#0b0b13e6 79%,#0b0b13 93%)}
+  .usw-frame{position:absolute;inset:0;z-index:5;border-radius:11px;pointer-events:none;padding:1px;
+    background:linear-gradient(135deg,rgba(244,226,174,.76) 0%,rgba(151,121,69,.46) 34%,rgba(224,197,132,.7) 68%,rgba(119,92,51,.5) 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  .usw-card::after{content:"";position:absolute;inset:calc(var(--cw) * .02);z-index:5;border-radius:8px;pointer-events:none;opacity:.55;
+    --cl:calc(var(--cw) * .08);
+    background:
+      linear-gradient(90deg,rgba(239,217,158,.82),transparent) left top/var(--cl) 1px no-repeat,
+      linear-gradient(180deg,rgba(239,217,158,.82),transparent) left top/1px var(--cl) no-repeat,
+      linear-gradient(270deg,rgba(239,217,158,.82),transparent) right top/var(--cl) 1px no-repeat,
+      linear-gradient(180deg,rgba(239,217,158,.82),transparent) right top/1px var(--cl) no-repeat,
+      linear-gradient(90deg,rgba(239,217,158,.7),transparent) left bottom/var(--cl) 1px no-repeat,
+      linear-gradient(0deg,rgba(239,217,158,.7),transparent) left bottom/1px var(--cl) no-repeat,
+      linear-gradient(270deg,rgba(239,217,158,.7),transparent) right bottom/var(--cl) 1px no-repeat,
+      linear-gradient(0deg,rgba(239,217,158,.7),transparent) right bottom/1px var(--cl) no-repeat}
+  .usw-card.defeated .usw-portrait{filter:grayscale(.85) brightness(.5)}
+
+  .usw-gem{position:absolute;top:0;left:0;z-index:6;width:calc(var(--cw) * .18);height:calc(var(--cw) * .18);padding:calc(var(--cw) * .022);
+    background:linear-gradient(135deg,rgba(20,18,15,.92),rgba(11,10,9,.82));border:1px solid rgba(216,194,144,.4);
+    border-top-color:rgba(216,194,144,.5);border-left-color:rgba(216,194,144,.5);border-radius:11px 0 14px 0;box-shadow:1px 1px 4px rgba(0,0,0,.5)}
+  .usw-gem::before{content:"";position:absolute;left:100%;top:-1px;width:calc(var(--cw) * .05);height:1px;
+    background:linear-gradient(90deg,rgba(225,202,145,.72),transparent)}
+  .usw-gem::after{content:"";position:absolute;left:-1px;top:100%;width:1px;height:calc(var(--cw) * .05);
+    background:linear-gradient(180deg,rgba(225,202,145,.72),transparent)}
+  .usw-gem svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1px 2px rgba(0,0,0,.85))}
+  .usw svg .seat{fill:rgba(11,10,9,.25)}
+  .usw svg .dim{opacity:.72}
+  .usw svg .facets{fill:none;stroke:rgba(255,255,255,.22);stroke-width:5}
+  .usw-gem-mana{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;white-space:nowrap;pointer-events:none;
+    font:800 max(11px,calc(var(--cw) * .072))/1 "Playfair Display",Georgia,serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em;color:#f3ead6;
+    text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92),0 1px 3px rgba(0,0,0,.9)}
+  .usw-gem-mana small{font-size:.72em;font-weight:700;opacity:.86;margin-left:.04em}
+  .usw-card.full .usw-gem{border-color:#c9a35c;box-shadow:1px 1px 4px rgba(0,0,0,.5),0 0 7px rgba(232,200,121,.45)}
+  .usw-card.full .usw-gem svg{filter:drop-shadow(0 0 4px rgba(232,200,121,.9))}
+  .usw-card.full .usw-gem-mana{color:#ffe6a8}
+
+  .usw-magic{position:absolute;top:0;right:0;z-index:6;display:flex;align-items:center;gap:calc(var(--cw) * .017);
+    height:calc(var(--cw) * .1);padding:0 calc(var(--cw) * .034) 0 calc(var(--cw) * .028);
+    background:linear-gradient(225deg,rgba(38,26,54,.94),rgba(16,11,22,.86));border:1px solid rgba(178,140,224,.42);
+    border-top-color:rgba(200,166,240,.6);border-right-color:rgba(200,166,240,.6);border-radius:0 11px 0 14px;box-shadow:-1px 1px 4px rgba(0,0,0,.5)}
+  .usw-magic svg{width:max(12px,calc(var(--cw) * .051));height:max(12px,calc(var(--cw) * .051));filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
+  .usw-magic b{font:800 max(11px,calc(var(--cw) * .051))/1 Georgia,serif;color:#f1e9ff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
+
+  .usw-name{position:absolute;z-index:6;left:0;right:0;bottom:calc(var(--ch) * .236);text-align:center;padding:0 6%}
+  .usw-name h2{margin:calc(var(--cw) * .02) 0;color:#fff2d6;letter-spacing:.14em;text-indent:.14em;text-shadow:0 3px 7px #000;overflow-wrap:anywhere;
+    font:max(15px,calc(var(--cw) * .1))/1.15 ${DISPLAY}}
+  .usw-name span{display:block;color:#c1b9a9;font-size:max(11px,calc(var(--cw) * .031));letter-spacing:.3em;text-indent:.3em}
+  .usw-stats{position:absolute;z-index:6;left:calc(var(--cw) * .068);right:calc(var(--cw) * .068);bottom:calc(var(--ch) * .109);
+    display:flex;justify-content:space-around;padding:calc(var(--cw) * .031) 0;
+    border-top:1px solid #b59c6266;border-bottom:1px solid #b59c6233;background:linear-gradient(90deg,transparent,#06070b77,transparent)}
+  .usw-stats>div{display:flex;align-items:center;gap:calc(var(--cw) * .023)}
+  .usw-stats svg{flex:none;width:max(12px,calc(var(--cw) * .062));height:max(12px,calc(var(--cw) * .068))}
+  .usw-stats b{font:bold max(13px,calc(var(--cw) * .082))/1 Georgia,serif;font-variant-numeric:tabular-nums}
+  .usw-stats b i{font-style:normal;font-weight:400;font-size:.5em;opacity:.7;margin-left:1px}
+  .usw-stats .st-atk{color:#d6c397}.usw-stats .st-atk b{color:#fff1d4}
+  .usw-stats .st-armor{color:#c5c8ce}.usw-stats .st-armor b{color:#e4e6ea}
+  .usw-stats .st-hp{color:#c45454}.usw-stats .st-hp b{color:#e07070}
+
+  /* 底部状态图标（原图鉴等级行的位置）：只放图标 + 剩余回合，悬停 title 看说明 */
+  .usw-statusbar{position:absolute;z-index:6;left:calc(var(--cw) * .065);right:calc(var(--cw) * .065);bottom:calc(var(--ch) * .03);
+    height:calc(var(--cw) * .1);display:flex;align-items:center;justify-content:center;gap:calc(var(--cw) * .025)}
+  .usw-sb{position:relative;flex:none;width:calc(var(--cw) * .085);height:calc(var(--cw) * .085);min-width:18px;min-height:18px;
+    display:grid;place-items:center;border-radius:50%;background:rgba(10,9,14,.78);
+    border:1px solid color-mix(in srgb,var(--sc,#d8c290) 70%,transparent);box-shadow:0 0 5px color-mix(in srgb,var(--sc,#d8c290) 45%,transparent)}
+  /* 增益/减益形状区分（不只靠颜色）：增益圆形留白更亮，减益切角方形 */
+  .usw-sb-neg{border-radius:14%;clip-path:polygon(0 0,100% 0,100% 74%,74% 100%,0 100%)}
+  .usw-sb-pos{border-width:2px}
+  .usw-sb svg,.usw-sb img{width:74%;height:74%;object-fit:contain;display:block}
+  .usw-sb .status-icon-fallback{font:700 max(10px,calc(var(--cw) * .036))/1 ${BODY};color:#e6e3dc}
+  .usw-sb b{position:absolute;right:-4px;bottom:-4px;min-width:max(12px,calc(var(--cw) * .045));height:max(12px,calc(var(--cw) * .045));
+    padding:0 2px;display:grid;place-items:center;border-radius:999px;background:#15121a;border:1px solid #8e7347;
+    font:700 max(9px,calc(var(--cw) * .03))/1 Georgia,serif;color:#f2e4c9}
+  .usw-ornament{position:absolute;z-index:8;left:50%;bottom:calc(var(--cw) * -.034);width:calc(var(--cw) * .305);height:calc(var(--cw) * .085);
+    transform:translateX(-50%);pointer-events:none}
+  .usw-ornament svg{display:block;width:100%;height:100%;overflow:visible}
+  .usw-ornament .orn-dark{fill:#0b0b13}
+  .usw-ornament .orn-gold{fill:none;stroke:url(#uswOrn);stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+  .usw-ornament .orn-core{fill:#1a140c;stroke:url(#uswOrn);stroke-width:1.1}
+`;
+
+/**
+ * 技能页 = 图鉴法术卷轴（.spell：暗色抬头 + 金边徽章 + 羊皮纸正文 + 底部公式线）；
+ * 特质页 = 图鉴天赋特质（.trait-heading + 3 条 .trait，已解锁打勾、未解锁上锁并压暗）；
+ * 卡摞下 = 图鉴主按钮（.primary）/ 禁用时次级按钮观感 / 复选框。
+ */
+const CSS_PANES = `
+  .usw-page{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;border-radius:11px;
+    border:1px solid #87714b;background:#11101a;box-shadow:0 0 0 1px rgba(8,7,6,.72),0 16px 38px #0009}
+  .usw-pane-head{flex:none;display:flex;align-items:center;gap:calc(var(--cw) * .037);min-height:calc(var(--cw) * .2);
+    padding:calc(var(--cw) * .025) calc(var(--cw) * .053);background:linear-gradient(100deg,#24202c,#15131e 70%);border-bottom:1px solid #a38b56}
+  .usw-pane[data-pos="right"] .usw-pane-head{flex-direction:row-reverse;text-align:right}
+  .usw-pane-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8a6f4288 transparent}
+
+  .usw-spell-mark{position:relative;flex:none;width:max(28px,calc(var(--cw) * .144));height:max(28px,calc(var(--cw) * .144))}
+  .usw-spell-mark::before{content:"";position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(circle at 40% 30%,#fff3c1,#9e7438 54%,#3c2714);box-shadow:0 2px 5px #0008}
+  .usw-spell-mark svg{position:absolute;inset:13%;width:74%;height:74%;filter:drop-shadow(0 2px 2px #0008)}
+  .usw-spell-mark b{position:absolute;right:-4px;bottom:-2px;z-index:2;min-width:max(16px,calc(var(--cw) * .059));height:max(16px,calc(var(--cw) * .059));
+    padding:0 2px;display:grid;place-items:center;border-radius:50%;color:#f7e7c4;background:#1c2434;border:1px solid #dfc986;
+    font:700 max(11px,calc(var(--cw) * .032))/1 Georgia,serif;text-shadow:0 1px #000}
+  .usw-head-title{min-width:0}
+  .usw-head-title small{display:block;color:#9a8566;font:max(11px,calc(var(--cw) * .026)) Georgia,serif;letter-spacing:.3em}
+  .usw-head-title h3{margin:calc(var(--cw) * .01) 0 0;color:#e9d39d;letter-spacing:.14em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font:700 max(14px,calc(var(--cw) * .075))/1.2 ${DISPLAY}}
+  .usw-spell-body{display:flex;flex-direction:column;padding:calc(var(--cw) * .048) calc(var(--cw) * .064) calc(var(--cw) * .04);
+    color:#3a2e20;background-color:#e2d3b2;background-image:${NOISE};background-blend-mode:multiply;
+    box-shadow:inset 0 0 0 1px rgba(74,56,28,.16),inset 0 1px 0 rgba(255,246,220,.22),inset 0 0 18px rgba(62,44,20,.08)}
+  .usw-ink{display:flex;align-items:center;gap:9px;color:#6c5030;font:max(11px,calc(var(--cw) * .028)) Georgia,serif;letter-spacing:.2em}
+  .usw-ink i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#765b36)}
+  .usw-ink i:last-child{transform:scaleX(-1)}
+  .usw-copy{margin:calc(var(--cw) * .042) 0 0;color:#32281c;letter-spacing:.02em;overflow-wrap:anywhere;
+    font:max(12px,calc(var(--cw) * .052))/1.85 "Microsoft YaHei",${DISPLAY}}
+  .usw-copy b,.usw-copy .spell-stat{color:#6f1f2a;font-weight:700;font-variant-numeric:tabular-nums;background:none;border:0;padding:0}
+  .usw-copy.empty{color:#6c5a44;font-style:italic}
+  .usw-formula{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-top:auto;padding-top:calc(var(--cw) * .03);
+    border-top:1px solid #80664366;color:#312a20;font-size:max(11px,calc(var(--cw) * .036))}
+  .usw-formula span{color:#78592f;letter-spacing:.08em}
+  .usw-formula strong{font-weight:600;color:#312a20;letter-spacing:0}
+  .usw-formula .usw-spell-magic{margin-left:auto;color:#6e2530}
+  .usw-formula .usw-spell-magic b{font-family:Georgia,serif}
+
+  .usw-trait-head{justify-content:space-between}
+  .usw-trait-head h3{margin:0;color:#dec99c;letter-spacing:.2em;white-space:nowrap;font:max(14px,calc(var(--cw) * .07))/1.2 ${DISPLAY}}
+  .usw-trait-head span{flex:none;color:#8b8291;font-size:max(11px,calc(var(--cw) * .03));white-space:nowrap}
+  .usw-trait-body{padding:calc(var(--cw) * .04);display:grid;align-content:start;gap:calc(var(--cw) * .032);background:linear-gradient(180deg,#15131c,#0f0e15)}
+  .usw-trait{position:relative;display:flex;align-items:center;gap:calc(var(--cw) * .042);min-height:calc(var(--ch) * .2);
+    padding:calc(var(--cw) * .035) calc(var(--cw) * .032) calc(var(--cw) * .035) calc(var(--cw) * .045);
+    border:1px solid #67563e;background:linear-gradient(100deg,#2a2431,#1a1722 68%);box-shadow:inset 0 1px #d7bb7517,0 3px 8px #0003}
+  .usw-trait::after{content:"";position:absolute;left:5px;right:5px;bottom:4px;height:1px;background:linear-gradient(90deg,transparent,#8e714355,transparent)}
+  .usw-trait-glyph{flex:none;width:max(20px,calc(var(--cw) * .118));height:max(20px,calc(var(--cw) * .118));display:grid;place-items:center;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(0,0,0,.65))}
+  .usw-trait-glyph svg,.usw-trait-glyph img{width:100%;height:100%;object-fit:contain;display:block}
+  .usw-trait-glyph.empty::before{content:"";width:40%;height:40%;border:1px solid #655946;transform:rotate(45deg)}
+  .usw-trait-copy{flex:1;min-width:0}
+  .usw-trait h4{margin:0;color:#e4d3b6;letter-spacing:.1em;font:max(12px,calc(var(--cw) * .054))/1.25 ${DISPLAY}}
+  .usw-trait p{margin:calc(var(--cw) * .012) 0 0;color:#aca1aa;font-size:max(11px,calc(var(--cw) * .037));line-height:1.4;overflow-wrap:anywhere}
+  .usw-trait p b{color:#d6c7a9;font-weight:400}
+  .usw-trait-mark{flex:none;align-self:flex-start;width:max(14px,calc(var(--cw) * .055));height:max(14px,calc(var(--cw) * .055));color:#9eba92}
+  .usw-trait-mark svg{width:100%;height:100%;display:block}
+  .usw-trait.locked{background:linear-gradient(100deg,#1b1921,#15131c);border-color:#413a34}
+  .usw-trait.locked .usw-trait-glyph{opacity:.38}
+  .usw-trait.locked h4{color:#a39891}
+  .usw-trait.locked p{color:#7c7480}
+  .usw-trait.locked .usw-trait-mark{color:#756e76}
+  .usw-trait-tag{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid #6e5a3c;vertical-align:1px;letter-spacing:0;
+    font:max(11px,calc(var(--cw) * .028))/1.5 ${BODY};color:#9e885f}
+
+  .usw-actions{flex:none;width:var(--cw);display:flex;flex-direction:column;align-items:stretch;gap:calc(var(--gap) * .6)}
+  .usw-cast{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:var(--bh);padding:0 24px;cursor:pointer;
+    color:#f2e5bc;font:max(14px,calc(var(--bh) * .37)) ${DISPLAY};letter-spacing:.14em;text-indent:.14em;
+    background:linear-gradient(#477454,#294b38 49%,#213b2d 50%,#2f4e37);border:1px solid #baa674;border-radius:0;
+    box-shadow:inset 0 0 0 3px #1d302944,inset 0 1px #d1eab94d,0 3px 7px #0004;transition:filter .15s}
+  .usw-cast::before,.usw-cast::after{content:"";position:absolute;top:50%;width:6px;height:6px;margin-top:-4px;
+    background:linear-gradient(140deg,#f6df9f,#94703b);border:1px solid #ddc080;transform:rotate(45deg)}
+  .usw-cast::before{left:10px}
+  .usw-cast::after{right:10px}
+  .usw-cast:hover:not(:disabled){filter:brightness(1.17)}
+  .usw-cast:active:not(:disabled){transform:translateY(1px)}
+  .usw-cast:disabled{cursor:default;color:#a99d88;background:linear-gradient(#302838,#1b1823);border-color:#6e5a3c;
+    box-shadow:inset 0 1px #f0dab71f;letter-spacing:.08em;text-indent:.08em}
+  .usw-cast:disabled::before,.usw-cast:disabled::after{background:#4a4050;border-color:#6e5a3c}
+  .usw-cast[data-kind="silenced"]:disabled{color:#bfb0d4}
+  .usw-cast[data-kind="short"]:disabled{color:#b4c3dc}
+  .usw-quick{display:flex;align-items:center;justify-content:center;gap:8px;min-height:var(--chk);cursor:pointer;user-select:none;
+    color:#c5bba7;font:max(11px,calc(var(--chk) * .46)) ${BODY};letter-spacing:.06em}
+  .usw-quick input{appearance:none;-webkit-appearance:none;flex:none;display:grid;place-items:center;margin:0;cursor:pointer;
+    width:max(14px,calc(var(--chk) * .56));height:max(14px,calc(var(--chk) * .56));
+    border:1px solid #8e7347;background:linear-gradient(#302838,#1b1823);box-shadow:inset 0 1px #f0dab71f}
+  .usw-quick input:checked{border-color:#baa674;background:linear-gradient(#477454,#2f4e37)}
+  .usw-quick input:checked::after{content:"";width:40%;height:40%;background:#f2e5bc;transform:rotate(45deg)}
+  .usw-quick small{color:#847b87;font-size:max(11px,calc(var(--chk) * .4));white-space:nowrap}
+  .usw-foe-mana{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:var(--bh);
+    color:#d8c191;border:1px solid #8e7347;background:linear-gradient(#302838,#1b1823);box-shadow:inset 0 1px #f0dab71f;
+    font:max(12px,calc(var(--bh) * .34)) ${DISPLAY};letter-spacing:.12em}
+  .usw-foe-mana svg{width:max(14px,calc(var(--bh) * .44));height:max(14px,calc(var(--bh) * .44))}
+  .usw-foe-mana b{font:bold max(13px,calc(var(--bh) * .4))/1 Georgia,serif;color:#f2e4c9;letter-spacing:0}
+  .usw-foe-mana b i{font-style:normal;font-weight:400;color:#8b8291;font-size:.8em}
+
+  /* 紧凑（手机横屏）：去次要信息、收字距 */
+  .usw.compact .usw-quick small,.usw.compact .usw-head-title small,.usw.compact .usw-stats b i{display:none}
+  .usw.compact .usw-head-title h3,.usw.compact .usw-trait-head h3{letter-spacing:.04em}
+  .usw.compact .usw-name span{letter-spacing:.1em;text-indent:.1em}
+  .usw.compact .usw-trait{min-height:0}
+  @media (prefers-reduced-motion:reduce){.usw-pane,.usw-cast{transition:none}}
+`;
 
 let stylesInjected = false;
 function ensureStyles(): void {
   if (stylesInjected) return;
   stylesInjected = true;
-  const noise = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 .42  0 0 0 0 .34  0 0 0 0 .22  0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
-  const css = `
-  .usw{position:absolute;z-index:1100;box-sizing:border-box;display:none;flex-direction:column;overflow:hidden;
-    --k:1;--pad:16px;--cw:300px;
-    color:#e8dcc4;font-family:"Oswald","PingFang SC","Microsoft YaHei",sans-serif;
-    background:
-      radial-gradient(120% 70% at 30% 0%,rgba(163,139,86,.07),transparent 60%),
-      linear-gradient(160deg,#18151f 0%,#0e0d14 100%);
-    border:1px solid rgba(163,139,86,.62);border-radius:10px;
-    box-shadow:0 0 0 1px rgba(8,7,6,.7),0 18px 46px rgba(0,0,0,.62),inset 0 1px 0 rgba(240,218,170,.08)}
-  .usw.open{display:flex}
-  .usw *{box-sizing:border-box}
-  .usw-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;
-    height:max(28px,calc(36px * var(--k)));padding:0 calc(var(--pad) * .5) 0 var(--pad);
-    border-bottom:1px solid rgba(163,139,86,.28);
-    background:linear-gradient(90deg,rgba(163,139,86,.1),transparent 60%)}
-  .usw-bar-title{font-size:max(11px,calc(13px * var(--k)));letter-spacing:.24em;color:#cdb785;white-space:nowrap}
-  .usw-bar-title i{font-style:normal;color:#8f8474;letter-spacing:.12em;margin-left:.6em}
-  .usw-close{flex:none;width:max(28px,calc(34px * var(--k)));height:max(28px,calc(34px * var(--k)));padding:0;
-    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
-    border:1px solid rgba(216,194,144,.34);border-radius:6px;background:rgba(20,18,15,.82);
-    color:#d8c290;font:600 max(12px,calc(15px * var(--k)))/1 "Oswald",sans-serif}
-  .usw-close:hover{color:#fff3d2;border-color:#c9a35c}
-  .usw-close:focus-visible,.usw-cast:focus-visible,.usw-quick input:focus-visible,.usw-info:focus-visible{
-    outline:2px solid rgba(240,222,170,.9);outline-offset:2px}
-  .usw-body{flex:1;min-height:0;display:flex;gap:var(--pad);padding:var(--pad)}
-  .usw-left{flex:none;width:var(--cw);display:flex;flex-direction:column;gap:calc(var(--pad) * .6)}
-  .usw-info{flex:1;min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;
-    display:flex;flex-direction:column;gap:calc(var(--pad) * .9);padding-right:4px;
-    scrollbar-width:thin;scrollbar-color:#8a6f4288 transparent}
-
-  /* —— 立绘卡（图鉴部队卡同款：稀有度边框 + 暗金内框 + 书签宝石 + 魔力角标 + 名字/种族 + 属性行）—— */
-  .usw-card{position:relative;flex:none;width:var(--cw);height:calc(var(--cw) * 1.5);border-radius:11px;
-    overflow:hidden;isolation:isolate;background:#101019;
-    border:3px solid var(--rc,#ccb675);
-    box-shadow:0 0 0 2px #111016,0 0 0 3px color-mix(in srgb,var(--rc,#ccb675) 70%,transparent),0 14px 30px rgba(0,0,0,.6)}
-  .usw-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 0;
-    display:block;border-radius:8px}
-  .usw-card.no-art .usw-portrait{visibility:hidden}
-  .usw-card.no-art{background:radial-gradient(120% 90% at 50% 20%,#3a3140 0%,#17141d 60%,#0d0b12 100%)}
-  .usw-shade{position:absolute;inset:0;border-radius:8px;pointer-events:none;
-    background:linear-gradient(180deg,rgba(17,16,24,.08) 40%,rgba(11,11,19,.36) 58%,rgba(11,11,19,.9) 79%,#0b0b13 95%)}
-  .usw-card::after{content:"";position:absolute;inset:calc(var(--cw) * .02);z-index:5;border-radius:7px;pointer-events:none;opacity:.55;
-    background:
-      linear-gradient(90deg,rgba(239,217,158,.82),transparent) left top/calc(var(--cw) * .08) 1px no-repeat,
-      linear-gradient(180deg,rgba(239,217,158,.82),transparent) left top/1px calc(var(--cw) * .08) no-repeat,
-      linear-gradient(270deg,rgba(239,217,158,.82),transparent) right top/calc(var(--cw) * .08) 1px no-repeat,
-      linear-gradient(180deg,rgba(239,217,158,.82),transparent) right top/1px calc(var(--cw) * .08) no-repeat,
-      linear-gradient(90deg,rgba(239,217,158,.7),transparent) left bottom/calc(var(--cw) * .07) 1px no-repeat,
-      linear-gradient(0deg,rgba(239,217,158,.7),transparent) left bottom/1px calc(var(--cw) * .07) no-repeat,
-      linear-gradient(270deg,rgba(239,217,158,.7),transparent) right bottom/calc(var(--cw) * .07) 1px no-repeat,
-      linear-gradient(0deg,rgba(239,217,158,.7),transparent) right bottom/1px calc(var(--cw) * .07) no-repeat}
-  .usw-gem{position:absolute;top:0;left:0;z-index:6;width:calc(var(--cw) * .18);height:calc(var(--cw) * .18);
-    padding:calc(var(--cw) * .022);
-    background:linear-gradient(135deg,rgba(20,18,15,.92),rgba(11,10,9,.82));
-    border:1px solid rgba(216,194,144,.4);border-top-color:rgba(216,194,144,.5);border-left-color:rgba(216,194,144,.5);
-    border-radius:8px 0 12px 0;box-shadow:1px 1px 4px rgba(0,0,0,.5)}
-  .usw-gem svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1px 2px rgba(0,0,0,.85))}
-  .usw svg .seat{fill:rgba(11,10,9,.25)}
-  .usw svg .dim{opacity:.72}
-  .usw svg .facets{fill:none;stroke:rgba(255,255,255,.22);stroke-width:5}
-  .usw-card.full .usw-gem{border-color:#c9a35c;box-shadow:1px 1px 4px rgba(0,0,0,.5),0 0 7px rgba(232,200,121,.45)}
-  .usw-card.full .usw-gem svg{filter:drop-shadow(0 0 4px rgba(232,200,121,.9))}
-  .usw-gem-count{position:absolute;left:calc(100% - calc(var(--cw) * .05));top:calc(100% - calc(var(--cw) * .055));
-    z-index:2;display:inline-flex;align-items:baseline;gap:1px;white-space:nowrap;
-    padding:max(1px,calc(var(--cw) * .006)) max(4px,calc(var(--cw) * .02));border-radius:999px;
-    background:linear-gradient(#f3d98e,#a47b31);border:1px solid #f5dda0;box-shadow:0 2px 6px rgba(0,0,0,.6);
-    color:#35251b;font:800 max(11px,calc(var(--cw) * .05))/1.15 "Playfair Display",Georgia,serif;
-    font-variant-numeric:tabular-nums}
-  .usw-gem-count i{font-style:normal;font-weight:700;font-size:.78em;opacity:.78}
-  .usw-magic{position:absolute;top:0;right:0;z-index:6;display:flex;align-items:center;gap:calc(var(--cw) * .018);
-    height:calc(var(--cw) * .1);padding:0 calc(var(--cw) * .034) 0 calc(var(--cw) * .028);
-    background:linear-gradient(225deg,rgba(38,26,54,.94),rgba(16,11,22,.86));
-    border:1px solid rgba(178,140,224,.42);border-top-color:rgba(200,166,240,.6);border-right-color:rgba(200,166,240,.6);
-    border-radius:0 8px 0 12px;box-shadow:-1px 1px 4px rgba(0,0,0,.5),inset 0 0 6px rgba(140,90,200,.22)}
-  .usw-magic svg{width:max(12px,calc(var(--cw) * .05));height:max(12px,calc(var(--cw) * .05));
-    filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
-  .usw-magic b{font:800 max(11px,calc(var(--cw) * .06))/1 "Playfair Display",Georgia,serif;color:#f1e9ff;
-    text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
-  .usw-name{position:absolute;left:0;right:0;bottom:calc(var(--cw) * .25);z-index:6;text-align:center;padding:0 6%}
-  .usw-name h2{margin:0 0 calc(var(--cw) * .014);color:#fff4dc;
-    font:600 max(13px,calc(var(--cw) * .092))/1.12 "Playfair Display","Noto Serif SC","Songti SC",Georgia,serif;
-    text-shadow:0 3px 7px #000;overflow-wrap:anywhere}
-  .usw-type{display:block;color:#ddd2c3;font-size:max(11px,calc(var(--cw) * .036));line-height:1.25;
-    text-shadow:0 1px 3px #000}
-  .usw-stats{position:absolute;left:6%;right:6%;bottom:calc(var(--cw) * .07);z-index:6;display:flex;justify-content:space-around;
-    padding:calc(var(--cw) * .025) 0;border-top:1px solid rgba(181,156,98,.4);border-bottom:1px solid rgba(181,156,98,.2);
-    background:linear-gradient(90deg,transparent,rgba(6,7,11,.47),transparent)}
-  .usw-stats>div{display:flex;align-items:center;gap:calc(var(--cw) * .018)}
-  .usw-stats svg{width:max(11px,calc(var(--cw) * .058));height:max(11px,calc(var(--cw) * .058));flex:none}
-  .usw-stats b{font:800 max(11px,calc(var(--cw) * .07))/1 "Playfair Display",Georgia,serif;font-variant-numeric:tabular-nums}
-  .usw-stats b i{font-style:normal;font-weight:700;font-size:.62em;opacity:.7;margin-left:1px}
-  .usw-stats .st-atk{color:#d6c397}.usw-stats .st-atk b{color:#fff1d4}
-  .usw-stats .st-armor{color:#c5c8ce}.usw-stats .st-armor b{color:#e4e6ea}
-  .usw-stats .st-hp{color:#c45454}.usw-stats .st-hp b{color:#e07070}
-  .usw-stats .ic{fill:currentColor}
-  .usw-card.defeated .usw-portrait{filter:grayscale(.8) brightness(.5)}
-
-  /* —— 卡下操作区 —— */
-  .usw-cast{width:100%;min-height:max(32px,calc(42px * var(--k)));padding:0 8px;cursor:pointer;
-    display:inline-flex;align-items:center;justify-content:center;
-    font:600 max(13px,calc(16px * var(--k)))/1.1 "Oswald","PingFang SC","Microsoft YaHei",sans-serif;
-    letter-spacing:.14em;text-indent:.14em;border-radius:7px;
-    color:#1a1206;background:linear-gradient(180deg,#e8cf94 0%,#c9a35c 100%);
-    border:1px solid #8a6b30;box-shadow:0 3px 9px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.32);
-    transition:filter .12s,transform .12s}
-  .usw-cast:hover:not(:disabled){filter:brightness(1.07)}
-  .usw-cast:active:not(:disabled){transform:translateY(1px)}
-  .usw-cast:disabled{cursor:default;color:#a39880;background:linear-gradient(180deg,#26222c,#1b1820);
-    border-color:rgba(142,115,71,.45);box-shadow:inset 0 1px 0 rgba(240,218,183,.06);letter-spacing:.08em;text-indent:.08em}
-  .usw-cast[data-kind="silenced"]:disabled{color:#c6b3dc;border-color:rgba(150,120,190,.55)}
-  .usw-cast[data-kind="short"]:disabled{color:#b6c9ea}
-  .usw-quick{display:flex;align-items:center;gap:6px;min-height:max(22px,calc(26px * var(--k)));cursor:pointer;user-select:none;
-    font-size:max(11px,calc(13px * var(--k)));color:#cdbf9f}
-  .usw-quick input{flex:none;width:max(14px,calc(16px * var(--k)));height:max(14px,calc(16px * var(--k)));margin:0;
-    accent-color:#c9a35c;cursor:pointer}
-  .usw-quick small{font-size:max(11px,calc(11px * var(--k)));color:#8a7f6c;margin-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .usw.compact .usw-quick small{display:none}
-  .usw-foe-mana{display:flex;align-items:center;justify-content:center;gap:8px;min-height:max(32px,calc(42px * var(--k)));
-    border:1px solid rgba(142,115,71,.4);border-radius:7px;background:rgba(20,18,26,.7);
-    font-size:max(11px,calc(14px * var(--k)));color:#cdbf9f;letter-spacing:.08em}
-  .usw-foe-mana svg{width:max(14px,calc(20px * var(--k)));height:max(14px,calc(20px * var(--k)))}
-  .usw-foe-mana b{font:800 max(12px,calc(16px * var(--k)))/1 "Playfair Display",Georgia,serif;color:#f3ead6;font-variant-numeric:tabular-nums}
-  .usw-foe-mana b i{font-style:normal;opacity:.6;font-size:.8em}
-
-  /* —— 技能（图鉴法术块：暗色抬头 + 羊皮纸正文）—— */
-  .usw-spell{flex:none;border:1px solid #87714b;background:#11101a;box-shadow:0 8px 20px rgba(0,0,0,.3)}
-  .usw-spell-head{display:flex;align-items:center;gap:max(12px,calc(var(--pad) * .9));
-    min-height:max(40px,calc(58px * var(--k)));padding:calc(var(--pad) * .4) var(--pad);
-    background:linear-gradient(100deg,#24202c,#15131e 70%);border-bottom:1px solid #a38b56}
-  .usw-spell-mark{position:relative;flex:none;width:max(28px,calc(44px * var(--k)));height:max(28px,calc(44px * var(--k)))}
-  .usw-spell-mark::before{content:"";position:absolute;inset:0;border-radius:50%;
-    background:radial-gradient(circle at 40% 30%,#fff3c1,#9e7438 54%,#3c2714);box-shadow:0 2px 5px rgba(0,0,0,.55)}
-  .usw-spell-mark svg{position:absolute;inset:14%;width:72%;height:72%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}
-  .usw-spell-mark b{position:absolute;right:-5px;bottom:-3px;z-index:2;min-width:max(16px,calc(20px * var(--k)));
-    height:max(16px,calc(20px * var(--k)));padding:0 3px;display:grid;place-items:center;border-radius:999px;
-    color:#f7e7c4;background:#1c2434;border:1px solid #dfc986;
-    font:700 max(11px,calc(11px * var(--k)))/1 Georgia,serif;text-shadow:0 1px #000}
-  .usw-spell-title{min-width:0}
-  .usw-spell-title small{display:block;color:#9a8566;font-size:max(11px,calc(11px * var(--k)));letter-spacing:.2em}
-  .usw-spell-title h3{margin:1px 0 0;color:#e9d39d;
-    font:600 max(14px,calc(22px * var(--k)))/1.2 "Playfair Display","Noto Serif SC","Songti SC",Georgia,serif;overflow-wrap:anywhere}
-  .usw-spell-body{padding:calc(var(--pad) * .75) var(--pad) calc(var(--pad) * .7);color:#3a2e20;
-    background-color:#c8baa2;background-image:${noise};background-blend-mode:multiply;
-    box-shadow:inset 0 0 0 1px rgba(74,56,28,.16),inset 0 1px 0 rgba(255,246,220,.22),inset 0 0 18px rgba(62,44,20,.08)}
-  .usw-ink{display:flex;align-items:center;gap:9px;color:#6c5030;font-size:max(11px,calc(11px * var(--k)));letter-spacing:.16em}
-  .usw-ink i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#765b36)}
-  .usw-ink i:last-child{transform:scaleX(-1)}
-  .usw-copy{margin:calc(var(--pad) * .55) 0 0;color:#32281c;font-size:max(11px,calc(15px * var(--k)));line-height:1.65;overflow-wrap:anywhere}
-  .usw-copy b{color:#6f1f2a;font-weight:700;font-variant-numeric:tabular-nums}
-  .usw-copy.empty{color:#6c5a44;font-style:italic}
-  .usw-target{display:flex;align-items:baseline;gap:8px;margin:calc(var(--pad) * .6) 0 0;padding-top:calc(var(--pad) * .5);
-    border-top:1px solid rgba(128,102,67,.4);font-size:max(11px,calc(13px * var(--k)));line-height:1.45;color:#312a20}
-  .usw-target span{flex:none;color:#78592f;letter-spacing:.12em}
-
-  /* —— 当前状态 / 特质（图鉴特质列表）—— */
-  .usw-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 calc(var(--pad) * .5);
-    color:#ecdbb7;font:600 max(13px,calc(19px * var(--k)))/1.2 "Playfair Display","Noto Serif SC","Songti SC",Georgia,serif}
-  .usw-heading span{font:400 max(11px,calc(12px * var(--k)))/1.2 "Oswald","Microsoft YaHei",sans-serif;color:#bcb8b5}
-  .usw-list{display:grid;gap:calc(var(--pad) * .45)}
-  .usw-row{display:grid;grid-template-columns:max(22px,calc(36px * var(--k))) minmax(0,1fr);align-items:center;
-    gap:calc(var(--pad) * .65);padding:calc(var(--pad) * .5) calc(var(--pad) * .7);
-    border:1px solid #53524c;background:#1d1e25;box-shadow:inset 2px 0 rgba(121,116,89,.4)}
-  .usw-row-ic{width:max(22px,calc(36px * var(--k)));height:max(22px,calc(36px * var(--k)));display:grid;place-items:center;
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(0,0,0,.65))}
-  .usw-row-ic svg,.usw-row-ic img{width:100%;height:100%;object-fit:contain;display:block}
-  .usw-row-ic .status-icon-fallback{font:700 max(11px,calc(14px * var(--k)))/1 "Oswald",sans-serif;color:#cfd2d6}
-  .usw-row h4{margin:0;color:#eee3d4;font:600 max(12px,calc(16px * var(--k)))/1.25 "Playfair Display","Noto Serif SC","Songti SC",Georgia,serif}
-  .usw-row h4 em{font:400 max(11px,calc(12px * var(--k)))/1.2 "Oswald","Microsoft YaHei",sans-serif;font-style:normal;
-    color:var(--sc,#d8c290);margin-left:8px;white-space:nowrap}
-  .usw-row p{margin:3px 0 0;color:#c8c5c7;font-size:max(11px,calc(13px * var(--k)));line-height:1.45;overflow-wrap:anywhere}
-  .usw-status{border-color:color-mix(in srgb,var(--sc,#d8c290) 45%,#3e3d39);
-    box-shadow:inset 2px 0 color-mix(in srgb,var(--sc,#d8c290) 70%,transparent)}
-  .usw-status .usw-row-ic{filter:drop-shadow(0 0 3px color-mix(in srgb,var(--sc,#d8c290) 60%,transparent))}
-  .usw-trait.off{opacity:.55}
-  .usw-trait.off h4{color:#b8ada0}
-  .usw-trait-tag{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid rgba(201,163,92,.5);border-radius:3px;
-    font:400 max(11px,calc(11px * var(--k)))/1.5 "Oswald","Microsoft YaHei",sans-serif;color:#c9a35c;vertical-align:1px}
-  .usw-empty{margin:0;color:#8a7c5c;font-size:max(11px,calc(12px * var(--k)));font-style:italic}
-  @media (prefers-reduced-motion:reduce){.usw-cast{transition:none}}
-  `;
   const style = document.createElement('style');
   style.id = 'usw-styles';
-  style.textContent = css;
+  style.textContent = CSS_STACK + CSS_PANES;
   document.head.appendChild(style);
 }
 
-/** 详情窗版式：按窗宽取比例系数与左栏卡宽，保证 2:3 立绘卡 + 按钮 + 复选框竖向放得下 */
-export function unitSheetMetrics(width: number, height: number): {
-  k: number; pad: number; cardW: number; compact: boolean;
-} {
-  const k = Math.max(0.3, Math.min(1.2, width / 768));
-  const pad = Math.max(8, Math.round(16 * k));
-  const bar = Math.max(28, 36 * k);
-  const button = Math.max(32, 42 * k);
-  const check = Math.max(22, 26 * k);
-  const gap = pad * 0.6;
-  const usableH = height - bar - pad * 2 - button - check - gap * 2;
-  // 窄屏把宽度多留给右栏文字（右栏可滚动），宽屏让立绘卡更舒展
-  const share = width < 520 ? 0.4 : 0.44;
-  const cardW = Math.floor(Math.max(80, Math.min(width * share, (usableH / 1.5))));
-  return { k: Math.round(k * 1000) / 1000, pad, cardW, compact: width < 520 };
+/** 两侧露出的卡相对卡宽的偏移（translateX），缩放 0.9 后每侧约露出 0.29 × 卡宽 */
+export const PANE_SPREAD = 0.34;
+
+/** 详情窗版式（wrapper 逻辑像素） */
+export interface UnitSheetMetrics {
+  pad: number;
+  gap: number;
+  compact: boolean;
+  /** 三张卡同尺寸（2:3） */
+  cardW: number;
+  cardH: number;
+  /** 两侧卡的水平偏移 */
+  spread: number;
+  buttonH: number;
+  checkH: number;
+  closeSize: number;
 }
 
 /**
+ * 卡宽取「竖向放得下 2:3 卡 + 饰件 + 按钮 + 复选框」与「横向放得下卡摞（卡宽 + 两侧偏移）」的较小者。
+ */
+export function unitSheetMetrics(width: number, height: number): UnitSheetMetrics {
+  const k = Math.max(0.3, Math.min(1.2, width / 768));
+  const compact = width < 520;
+  const pad = Math.max(8, Math.round(16 * k));
+  const gap = Math.max(5, Math.round(10 * k));
+  const buttonH = Math.round(Math.max(30, 46 * k));
+  const checkH = Math.round(Math.max(20, 26 * k));
+  const closeSize = Math.round(Math.max(24, 32 * k));
+  const usableH = height - pad * 2 - closeSize - buttonH - checkH - gap * 2;
+  const innerW = width - pad * 2;
+  const cardW = Math.max(80, Math.floor(Math.min(usableH / 1.54, innerW / (1 + PANE_SPREAD * 2))));
+  return {
+    pad, gap, compact, cardW, cardH: Math.round(cardW * 1.5), spread: Math.round(cardW * PANE_SPREAD), buttonH, checkH, closeSize,
+  };
+}
+
+const PANE_LABEL: Record<SheetPane, string> = { spell: '技能', portrait: '部队', traits: '天赋特质' };
+
+/**
  * 部队详情窗 DOM 组件。一个实例常驻 wrapper，open() 切换内容、update() 就地刷新数值。
- * 非模态：不拦截窗外的任何输入。
+ * 非模态：不拦截窗外（两侧队伍列）的任何输入。
  */
 export class UnitSheet {
   private root: HTMLElement;
   private current: UnitSheetData | null = null;
   private keyHandler: ((e: KeyboardEvent) => void) | null = null;
+  private outsideHandler: ((e: PointerEvent) => void) | null = null;
+  /** 当前卡摞排布（换角色时回到默认：立绘在最前） */
+  private layout: Record<SheetPane, PanePos> = { ...DEFAULT_PANE_POS };
   /** 结构签名：状态/特质/技能文本变化时整块重绘，数值只做就地更新 */
   private statusSig = '';
   private copySig = '';
@@ -361,12 +478,23 @@ export class UnitSheet {
     parent.appendChild(this.root);
     this.root.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      if (target.closest('.usw-close')) {
+      const pane = target.closest<HTMLElement>('.usw-pane');
+      if (target.closest('.usw-close') || target === this.root || target.classList.contains('usw-stack')) {
+        // ✕ 或卡摞外的空白处（压暗的棋盘区）关闭
         this.handlers.onClose();
+      } else if (pane && pane.dataset.pos !== 'center') {
+        this.bringToFront(pane.dataset.pane as SheetPane);
       } else if (target.closest('.usw-cast')) {
         const button = target.closest('.usw-cast') as HTMLButtonElement;
         if (!button.disabled && this.current) this.handlers.onCast(this.current.charId);
       }
+    });
+    this.root.addEventListener('keydown', (e) => {
+      const pane = (e.target as HTMLElement).closest<HTMLElement>('.usw-pane');
+      if (!pane || pane !== e.target || pane.dataset.pos === 'center') return;
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      this.bringToFront(pane.dataset.pane as SheetPane);
     });
     this.root.addEventListener('change', (e) => {
       const input = e.target as HTMLInputElement;
@@ -374,15 +502,17 @@ export class UnitSheet {
     });
   }
 
-  /** 覆盖区域（wrapper 布局坐标）：棋盘 + 上方 HUD 通道 */
+  /** 覆盖区域（wrapper 布局坐标）：棋盘（宽屏另含上方 HUD 通道） */
   setBounds(b: UnitSheetBounds): void {
     const m = unitSheetMetrics(b.width, b.height);
     Object.assign(this.root.style, {
       left: `${b.left}px`, top: `${b.top}px`, width: `${b.width}px`, height: `${b.height}px`,
     });
-    this.root.style.setProperty('--k', String(m.k));
-    this.root.style.setProperty('--pad', `${m.pad}px`);
-    this.root.style.setProperty('--cw', `${m.cardW}px`);
+    const px: [string, number][] = [
+      ['--pad', m.pad], ['--gap', m.gap], ['--cw', m.cardW], ['--ch', m.cardH], ['--sp', m.spread],
+      ['--bh', m.buttonH], ['--chk', m.checkH], ['--close', m.closeSize],
+    ];
+    for (const [name, value] of px) this.root.style.setProperty(name, `${value}px`);
     this.root.classList.toggle('compact', m.compact);
   }
 
@@ -395,35 +525,79 @@ export class UnitSheet {
     return this.isOpen() && this.current ? this.current.charId : null;
   }
 
-  /** 打开或切换到某个角色（整窗重绘） */
+  /** 当前在最前的一页 */
+  get frontPane(): SheetPane {
+    return (Object.keys(this.layout) as SheetPane[]).find((p) => this.layout[p] === 'center') ?? 'portrait';
+  }
+
+  /** 把某一页换到最前（与原当前页交换位置） */
+  bringToFront(pane: SheetPane): void {
+    if (this.layout[pane] === 'center') return;
+    this.layout = bringPaneToFront(this.layout, pane);
+    this.applyLayout();
+    this.root.querySelector<HTMLElement>(`.usw-pane[data-pane="${pane}"]`)?.focus({ preventScroll: true });
+  }
+
+  private applyLayout(): void {
+    for (const el of this.root.querySelectorAll<HTMLElement>('.usw-pane')) {
+      const pane = el.dataset.pane as SheetPane;
+      const pos = this.layout[pane];
+      el.dataset.pos = pos;
+      const front = pos === 'center';
+      el.tabIndex = front ? -1 : 0;
+      if (front) {
+        el.removeAttribute('role');
+        el.setAttribute('aria-label', PANE_LABEL[pane]);
+      } else {
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', `查看${PANE_LABEL[pane]}`);
+      }
+    }
+  }
+
+  /** 打开或切换到某个角色（整窗重绘；换角色时卡摞回到立绘在最前） */
   open(data: UnitSheetData, opts: { focus?: boolean } = {}): void {
     const wasOpen = this.isOpen();
     const switching = wasOpen && this.current?.charId !== data.charId;
+    if (!wasOpen || switching) this.layout = { ...DEFAULT_PANE_POS };
     this.current = data;
     this.renderAll(data);
+    const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!wasOpen) {
       this.root.classList.add('open');
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        this.root.animate(
-          [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }],
-          { duration: 160, easing: 'cubic-bezier(.2,.8,.25,1)' },
-        );
-      }
+      if (motion) this.playEnter();
       this.keyHandler = (e: KeyboardEvent) => {
         if (e.key !== 'Escape' || !this.isOpen()) return;
         e.stopPropagation();
         this.handlers.onClose();
       };
       window.addEventListener('keydown', this.keyHandler);
-    } else if (switching) {
-      const body = this.root.querySelector('.usw-body');
-      body?.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 140, easing: 'ease-out' });
+      // 点详情窗以外的任何地方都关闭（棋盘区的压暗层由 root 自己的 click 处理）。
+      // 战斗卡片除外：点卡由 App 的点卡逻辑负责「同一张收起 / 另一张切换」。
+      this.outsideHandler = (e: PointerEvent) => {
+        if (!this.isOpen()) return;
+        const target = e.target as Element | null;
+        if (!target || this.root.contains(target) || target.closest('.gcard')) return;
+        this.handlers.onClose();
+      };
+      document.addEventListener('pointerdown', this.outsideHandler, true);
+    } else if (switching && motion) {
+      this.root.querySelector('.usw-stack')?.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' });
     }
     if (opts.focus) {
       const target = this.root.querySelector<HTMLElement>('.usw-cast:not(:disabled)')
         ?? this.root.querySelector<HTMLElement>('.usw-close');
       target?.focus({ preventScroll: true });
     }
+  }
+
+  /** 入场：压暗淡入，卡摞从收拢状态展开 */
+  private playEnter(): void {
+    this.root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
+    this.root.querySelector('.usw-stack')?.animate(
+      [{ opacity: 0, transform: 'translateY(10px) scale(.96)' }, { opacity: 1, transform: 'none' }],
+      { duration: 220, easing: 'cubic-bezier(.2,.8,.25,1)' },
+    );
   }
 
   /** 同一角色的实时刷新：只改变化的部分，不打断滚动与焦点 */
@@ -449,6 +623,8 @@ export class UnitSheet {
     this.root.classList.remove('open');
     if (this.keyHandler) window.removeEventListener('keydown', this.keyHandler);
     this.keyHandler = null;
+    if (this.outsideHandler) document.removeEventListener('pointerdown', this.outsideHandler, true);
+    this.outsideHandler = null;
     const id = this.current?.charId;
     this.current = null;
     // 焦点在窗内时交还给对应的卡片（键盘用户不丢位置）
@@ -465,8 +641,9 @@ export class UnitSheet {
   // —— 渲染 ——
 
   private headerSigOf(d: UnitSheetData): string {
-    return [d.charId, d.ally, d.name, d.portrait, d.typeLine, d.rarity, d.skillName, d.skillTag,
-      d.colors.join(','), d.traits.map((t) => `${t.code}:${t.implemented}`).join(',')].join('|');
+    return [d.charId, d.ally, d.name, d.portrait, d.typeLine, d.race, d.kingdom, d.rarityLabel, d.rarity, d.rarityColor,
+      d.skillName, d.skillTag, d.colors.join(','),
+      d.traitSlots.map((t) => `${t.code}:${t.unlocked}:${t.implemented}`).join(',')].join('|');
   }
 
   private renderAll(d: UnitSheetData): void {
@@ -474,46 +651,57 @@ export class UnitSheet {
     this.root.setAttribute('aria-labelledby', nameId);
     this.root.dataset.side = d.ally ? 'ally' : 'enemy';
     this.root.dataset.charId = String(d.charId);
-    const rarityStyle = d.rarityColor ? ` style="--rc:${d.rarityColor}"` : '';
+    const nameSub = [d.race, d.kingdom, d.rarityLabel].filter(Boolean).join(' · ');
+    const rarityAttr = d.rarityColor ? ` data-rc style="--rc:${esc(d.rarityColor)}"` : '';
+    const unlocked = d.traitSlots.filter((t) => t.unlocked).length;
     this.root.innerHTML = `
-      <header class="usw-bar">
-        <span class="usw-bar-title">部队详情<i>${d.ally ? '我方' : '敌方'}</i></span>
-        <button class="usw-close" type="button" aria-label="关闭详情">✕</button>
-      </header>
-      <div class="usw-body">
-        <div class="usw-left">
-          <article class="usw-card"${rarityStyle}${d.rarity !== null ? ` data-rarity="${d.rarity}"` : ''}>
+      <button class="usw-close" type="button" aria-label="关闭详情">✕</button>
+      <div class="usw-stack">
+        <section class="usw-pane" data-pane="spell">
+          <div class="usw-page">
+            <header class="usw-pane-head">
+              <div class="usw-spell-mark" aria-hidden="true">${manaGemSvg(d.colors, 1)}<b>${d.shown.manaCost}</b></div>
+              <div class="usw-head-title"><small>法力 ${d.shown.manaCost}</small><h3>${esc(d.skillName || '技能')}</h3></div>
+            </header>
+            <div class="usw-pane-body usw-spell-body" tabindex="0" aria-label="技能说明">
+              <div class="usw-ink"><i></i><span>${esc(d.skillTag)}</span><i></i></div>
+              <p class="usw-copy"></p>
+              <div class="usw-formula">
+                <span class="usw-target" hidden><span>目标</span> <strong></strong></span>
+                <span class="usw-spell-magic">魔力 <b></b></span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="usw-pane" data-pane="portrait">
+          <article class="usw-card"${rarityAttr}${d.rarity !== null ? ` data-rarity="${d.rarity}"` : ''}>
             <img class="usw-portrait" alt="" draggable="false">
             <div class="usw-shade" aria-hidden="true"></div>
+            <div class="usw-frame" aria-hidden="true"></div>
             <div class="usw-gem" role="img"></div>
             <div class="usw-magic" role="img">${CARD_STAT_ICONS.magic}<b></b></div>
-            <div class="usw-name"><h2 id="${nameId}">${esc(d.name)}</h2>${d.typeLine ? `<span class="usw-type">${esc(d.typeLine)}</span>` : ''}</div>
+            <div class="usw-name"><h2 id="${nameId}">${esc(d.name)}</h2>${nameSub ? `<span>${esc(nameSub)}</span>` : ''}</div>
             <div class="usw-stats">
               <div class="st-atk" role="img">${CARD_STAT_ICONS.sword}<b></b></div>
               <div class="st-armor" role="img">${CARD_STAT_ICONS.shield}<b></b></div>
               <div class="st-hp" role="img">${CARD_STAT_ICONS.heart}<b></b></div>
             </div>
+            <div class="usw-statusbar" aria-label="当前状态"></div>
           </article>
-          ${d.ally
-            ? `<button class="usw-cast" type="button" data-testid="unit-sheet-cast">释放技能</button>
-               <label class="usw-quick"><input type="checkbox" class="usw-quick-box" data-testid="unit-sheet-quick"><span>快速释放</span><small>点满法力角色直接施放</small></label>`
-            : `<div class="usw-foe-mana" role="status"></div>`}
-        </div>
-        <div class="usw-info" tabindex="0" aria-label="技能与特质">
-          <article class="usw-spell">
-            <header class="usw-spell-head">
-              <div class="usw-spell-mark" aria-hidden="true">${manaGemSvg(d.colors, 1)}<b>${d.shown.manaCost}</b></div>
-              <div class="usw-spell-title"><small>技能 · 法力 ${d.shown.manaCost}</small><h3>${esc(d.skillName || '技能')}</h3></div>
-            </header>
-            <div class="usw-spell-body">
-              <div class="usw-ink"><i></i><span>${esc(d.skillTag)}</span><i></i></div>
-              <p class="usw-copy"></p>
-              <p class="usw-target" hidden><span>目标</span><strong></strong></p>
-            </div>
-          </article>
-          <section class="usw-statuses" hidden></section>
-          <section class="usw-traits">${this.traitsHtml(d)}</section>
-        </div>
+          <div class="usw-ornament">${ORNAMENT_SVG}</div>
+        </section>
+        <section class="usw-pane" data-pane="traits">
+          <div class="usw-page">
+            <header class="usw-pane-head usw-trait-head"><h3>天赋特质</h3><span>${unlocked} / ${d.traitSlots.length} 已解锁</span></header>
+            <div class="usw-pane-body usw-trait-body" tabindex="0" aria-label="天赋特质">${this.traitsHtml(d)}</div>
+          </div>
+        </section>
+      </div>
+      <div class="usw-actions">
+        ${d.ally
+          ? `<button class="usw-cast" type="button" data-testid="unit-sheet-cast">释放技能</button>
+             <label class="usw-quick"><input type="checkbox" class="usw-quick-box" data-testid="unit-sheet-quick"><span>快速释放</span><small>点满法力角色直接施放</small></label>`
+          : `<div class="usw-foe-mana" role="status"></div>`}
       </div>`;
     const card = this.root.querySelector('.usw-card') as HTMLElement;
     const img = this.root.querySelector('.usw-portrait') as HTMLImageElement;
@@ -524,6 +712,7 @@ export class UnitSheet {
       img.src = d.portrait;
       if (img.complete && img.naturalWidth > 0) card.classList.remove('no-art');
     }
+    this.applyLayout();
     this.headerSig = this.headerSigOf(d);
     this.copySig = '';
     this.statusSig = '';
@@ -537,14 +726,14 @@ export class UnitSheet {
     const s = d.shown;
     const card = this.root.querySelector('.usw-card') as HTMLElement | null;
     if (!card) return;
-    const full = s.manaCost > 0 && s.mana >= s.manaCost;
-    card.classList.toggle('full', full);
+    card.classList.toggle('full', s.manaCost > 0 && s.mana >= s.manaCost);
     card.classList.toggle('defeated', s.defeated);
+    const ratio = s.manaCost > 0 ? Math.min(1, s.mana / s.manaCost) : 0;
+    const manaSig = `${s.mana}/${s.manaCost}`;
     const gem = card.querySelector('.usw-gem') as HTMLElement;
-    const gemSig = `${s.mana}/${s.manaCost}`;
-    if (gem.dataset.sig !== gemSig) {
-      gem.dataset.sig = gemSig;
-      gem.innerHTML = `${manaGemSvg(d.colors, s.manaCost > 0 ? s.mana / s.manaCost : 0)}<b class="usw-gem-count">${s.mana}<i>/${s.manaCost}</i></b>`;
+    if (gem.dataset.sig !== manaSig) {
+      gem.dataset.sig = manaSig;
+      gem.innerHTML = `${manaGemSvg(d.colors, ratio)}<span class="usw-gem-mana" aria-hidden="true">${s.mana}<small>/${s.manaCost}</small></span>`;
       gem.setAttribute('aria-label', `法力 ${s.mana}/${s.manaCost}`);
     }
     const setStat = (sel: string, html: string, label: string) => {
@@ -557,14 +746,13 @@ export class UnitSheet {
     setStat('.st-atk', String(s.attack), `攻击 ${s.attack}`);
     setStat('.st-armor', String(s.armor), `护甲 ${s.armor}`);
     setStat('.st-hp', `${s.hp}<i>/${s.maxHp}</i>`, `生命 ${s.hp}/${s.maxHp}`);
+    const magic = this.root.querySelector('.usw-spell-magic b') as HTMLElement | null;
+    if (magic && magic.textContent !== String(s.magic)) magic.textContent = String(s.magic);
     const foe = this.root.querySelector('.usw-foe-mana') as HTMLElement | null;
-    if (foe) {
-      const html = `${manaGemSvg(d.colors, s.manaCost > 0 ? s.mana / s.manaCost : 0)}<span>法力</span><b>${s.mana}<i> / ${s.manaCost}</i></b>`;
-      if (foe.dataset.sig !== gemSig) {
-        foe.dataset.sig = gemSig;
-        foe.innerHTML = html;
-        foe.setAttribute('aria-label', `法力 ${s.mana}/${s.manaCost}`);
-      }
+    if (foe && foe.dataset.sig !== manaSig) {
+      foe.dataset.sig = manaSig;
+      foe.innerHTML = `${manaGemSvg(d.colors, ratio)}<span>法力</span><b>${s.mana}<i> / ${s.manaCost}</i></b>`;
+      foe.setAttribute('aria-label', `法力 ${s.mana}/${s.manaCost}`);
     }
   }
 
@@ -600,41 +788,41 @@ export class UnitSheet {
     }
   }
 
+  /** 立绘卡底部的状态图标：图标 + 剩余回合角标，说明放在悬停 title 里，不展开大段文字 */
   private patchStatuses(d: UnitSheetData): void {
     const list = d.shown.statuses;
     const sig = list.map((s) => `${s.id}:${s.turns}:${s.magnitude ?? ''}`).join(',');
     if (sig === this.statusSig) return;
     this.statusSig = sig;
-    const el = this.root.querySelector('.usw-statuses') as HTMLElement | null;
-    if (!el) return;
-    el.hidden = list.length === 0;
-    if (!list.length) {
-      el.innerHTML = '';
-      return;
-    }
-    el.innerHTML = `<h3 class="usw-heading">当前状态<span>${list.length} 个</span></h3>
-      <div class="usw-list">${list.map((s) => {
-        const badge = statusBadge(s.id);
-        const live = statusLiveLine(s);
-        const desc = STATUS_DESCRIPTIONS[badge.label] ?? '效果未知。';
-        return `<div class="usw-row usw-status" style="--sc:${badge.color}">
-          <span class="usw-row-ic" aria-hidden="true">${statusBadgeIcon(s.id)}</span>
-          <div><h4>${esc(badge.label)}${live ? `<em>${esc(live)}</em>` : ''}</h4><p>${esc(desc)}</p></div>
-        </div>`;
-      }).join('')}</div>`;
+    const bar = this.root.querySelector('.usw-statusbar') as HTMLElement | null;
+    if (!bar) return;
+    const recovery = statusRecoveryChance({ statuses: list as StatusInstance[] });
+    bar.innerHTML = list.map((s) => {
+      const badge = statusBadge(s.id);
+      const live = statusLiveLine(s, recovery);
+      const desc = STATUS_DESCRIPTIONS[badge.label] ?? '';
+      const positive = isPositiveStatus(s.id);
+      const tip = [`${positive ? '增益' : '减益'}：${badge.label}`, live, desc].filter(Boolean).join('\n');
+      const corner = statusBadgeCorner(s);
+      return `<span class="usw-sb ${positive ? 'usw-sb-pos' : 'usw-sb-neg'}" style="--sc:${badge.color}" role="img" title="${esc(tip)}" aria-label="${esc([`${positive ? '增益' : '减益'}：${badge.label}`, live].filter(Boolean).join('，'))}">`
+        + `${statusBadgeIcon(s.id)}${corner ? `<b>${corner}</b>` : ''}</span>`;
+    }).join('');
   }
 
+  /** 图鉴同款 3 个特质槽：已解锁打勾；未解锁 / 未开槽上锁并压暗 */
   private traitsHtml(d: UnitSheetData): string {
-    if (!d.traits.length) {
-      return `<h3 class="usw-heading">特质</h3><p class="usw-empty">无特质</p>`;
-    }
-    const glyphs = traitCardGlyphs(d.traits.map((t) => t.code), d.traitNames, d.name, 2);
-    const on = d.traits.filter((t) => t.implemented).length;
-    return `<h3 class="usw-heading">特质<span>${on} / ${d.traits.length} 生效</span></h3>
-      <div class="usw-list">${d.traits.map((t, i) => `<div class="usw-row usw-trait${t.implemented ? '' : ' off'}">
-          <span class="usw-row-ic" aria-hidden="true">${glyphs[i]?.svg ?? ''}</span>
-          <div><h4>${esc(t.name)}${t.implemented ? '' : '<span class="usw-trait-tag">本场不生效</span>'}</h4>
-          <p>${esc(t.description || '暂无描述。')}</p></div>
-        </div>`).join('')}</div>`;
+    const real = d.traitSlots.filter((t) => t.code);
+    const glyphs = traitCardGlyphs(real.map((t) => t.code), d.traitNames, d.name, 2);
+    let gi = 0;
+    return d.traitSlots.map((t) => {
+      const glyph = t.code ? glyphs[gi++]?.svg ?? '' : '';
+      const off = t.unlocked && t.code && !t.implemented ? '<span class="usw-trait-tag">本场不生效</span>' : '';
+      const text = esc(t.description || '暂无描述。').replace(/(\d+(?:\.\d+)?%?)/g, '<b>$1</b>');
+      return `<article class="usw-trait${t.unlocked ? '' : ' locked'}">
+        <span class="usw-trait-glyph${glyph ? '' : ' empty'}" aria-hidden="true">${glyph}</span>
+        <div class="usw-trait-copy"><h4>${esc(t.name)}${off}</h4><p>${text}</p></div>
+        <span class="usw-trait-mark" role="img" aria-label="${t.unlocked ? '已解锁' : '尚未解锁'}">${t.unlocked ? CHECK_SVG : LOCK_SVG}</span>
+      </article>`;
+    }).join('');
   }
 }

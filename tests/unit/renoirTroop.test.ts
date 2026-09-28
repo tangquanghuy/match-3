@@ -20,7 +20,7 @@ const codes = ['waterlink', 'spellarmor', 'renoir_butterfly_dance'];
 const proto = SKILL_LIBRARY[RENOIR_SPELL_ID];
 function setup(unlocked = false) {
   const f = damageFixture();
-  Object.assign(f.caster, { manaCost: 18, mana: 18, skillId: String(RENOIR_SPELL_ID),
+  Object.assign(f.caster, { manaCost: 14, mana: 14, skillId: String(RENOIR_SPELL_ID),
     colors: [BaseColor.Blue, BaseColor.Yellow, BaseColor.Purple], traitIds: unlocked ? codes : [] });
   const allies = [damageCharacter(1, { colors: [BaseColor.Green] }),
     damageCharacter(2, { colors: [BaseColor.Green] }), f.caster, damageCharacter(3, { colors: [BaseColor.Green] })];
@@ -36,7 +36,7 @@ describe('RenoirSideF / 镜月蝶影 / 蝶舞 integration', () => {
     expect(getTroopByRef('RenoirSideF')).toBe(troop);
     expect(TROOPS.filter(t => t.id === RENOIR_ID)).toHaveLength(1);
     expect(TROOPS.filter(t => t.spell.id === RENOIR_SPELL_ID)).toHaveLength(1);
-    expect(troop).toMatchObject({ rarity: 'Epic', rarityIdx: 4, manaCost: 18,
+    expect(troop).toMatchObject({ rarity: 'Epic', rarityIdx: 4, manaCost: 14,
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE],
       manaColors: [BaseColor.Blue, BaseColor.Yellow, BaseColor.Purple], spell: { name: '镜月蝶影' } });
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
@@ -51,7 +51,7 @@ describe('RenoirSideF / 镜月蝶影 / 蝶舞 integration', () => {
     expect(troopToSnapshot(troop, record, 'renoir').traitIds).toEqual([]);
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, 'renoir')).toMatchObject({ traitIds: codes,
-      skillId: String(RENOIR_SPELL_ID), manaCost: 18, portraitUrl: troop.artUrl });
+      skillId: String(RENOIR_SPELL_ID), manaCost: 14, portraitUrl: troop.artUrl });
   });
   it.each([0, 10, 99])('at magic %i grants a fixed 8 attack to all allies and reflect only to the first two', magic => {
     const { ctx, allies, caster, enemies } = setup(); caster.magic = magic;

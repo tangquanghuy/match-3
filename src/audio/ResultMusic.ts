@@ -9,6 +9,17 @@
  * 音量 = 主音量 × 音乐音量（与 BackgroundMusic 同一偏好口径），实时订阅偏好变更；
  * 页面隐藏时挂起 AudioContext，回到前台续播。调度采用前瞻式：每 60ms 把未来 0.4s
  * 内的音符交给音频线程，循环段无缝衔接。
+ *
+ * 音色按管弦乐队分组：
+ * - 弦乐：每个音 4~6 把失谐锯齿"合奏"（确定性随机的失谐 / 起音错位），共享颤音 LFO 组给每把琴
+ *   独立的慢颤音；缓起弓（80~250ms）、长释放；声部总线上挂琴体共鸣峰（~300Hz / 1.2~2.5kHz）。
+ * - 铜管：按真实泛音表生成的 PeriodicWave（圆号柔暗、小号明亮、长号居中），滤波器开口包络
+ *   模拟起音的"爆破"，嘴唇滑入音高，长音才加颤音；每个音 2~3 名演奏者。
+ * - 木管：长笛（正弦 + 三角泛音 + 带通气声）、双簧管（鼻音泛音 + 共鸣峰）。
+ * - 打击：定音鼓（音高下滑 + 非谐分音 + 槌击噪声；滚奏为一组连续击打自动化）、镲、吊镲滚奏、大鼓。
+ * - 3.3s 立体声音乐厅混响（早期反射 + 随时间变暗的扩散尾音），按乐队座位分配声像。
+ * 性能：噪声 / 混响脉冲 / 波表按 AudioContext 缓存复用；颤音 LFO 按会话共享；同声部同时发声过多时
+ * 自动减少每音的合奏人数；所有振荡器在释放后 stop。
  */
 import { getPlayerPreferences, subscribePlayerPreferences } from '../preferences/playerPreferences';
 import {
@@ -28,11 +39,12 @@ const LOOKAHEAD_SECONDS = 0.4;
 const TICK_MS = 60;
 
 // ---------------------------------------------------------------------------
-// 共享素材：噪声与混响脉冲（每个 AudioContext 生成一次，确定性 LCG）
+// 共享素材：噪声、混响脉冲、泛音波表（每个 AudioContext 生成一次，确定性 LCG）
 // ---------------------------------------------------------------------------
 
 const noiseCache = new WeakMap<BaseAudioContext, AudioBuffer>();
 const impulseCache = new WeakMap<BaseAudioContext, AudioBuffer>();
+const waveCache = new WeakMap<BaseAudioContext, Map<WaveName, PeriodicWave>>();
 
 function lcg(seed: number): () => number {
   let s = seed >>> 0;
@@ -40,6 +52,11 @@ function lcg(seed: number): () => number {
     s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
     return s / 4294967296;
   };
+}
+
+/** 每个音符的确定性随机种子（同一时刻同一音高永远得到同一组失谐 / 错位） */
+function seedOf(t: number, f: number): number {
+  return (Math.round(t * 1000) * 2654435761 + Math.round(f * 16)) >>> 0;
 }
 
 function noiseBuffer(ctx: BaseAudioContext): AudioBuffer {
@@ -53,33 +70,97 @@ function noiseBuffer(ctx: BaseAudioContext): AudioBuffer {
   return buf;
 }
 
-/** 2.6s 立体声大厅混响：指数衰减噪声 + 12ms 预延迟，左右声道独立噪声得到宽度。 */
+const HALL_SECONDS = 3.3;
+const HALL_RT60 = 3.0;
+
+/**
+ * 立体声音乐厅混响脉冲：18ms 预延迟 → 左右不同的早期反射（前 90ms 的离散回声）→
+ * 渐起的扩散尾音（RT60 ≈ 3s），尾音经随时间下降截止频率的一阶低通，高频比低频衰减得快。
+ * 能量归一到与旧 2.6s 混响相当，保持湿声电平不变。
+ */
 function impulseBuffer(ctx: BaseAudioContext): AudioBuffer {
   let buf = impulseCache.get(ctx);
   if (buf) return buf;
-  const seconds = 2.6;
-  const length = Math.floor(ctx.sampleRate * seconds);
-  const pre = Math.floor(ctx.sampleRate * 0.012);
-  buf = ctx.createBuffer(2, length, ctx.sampleRate);
+  const sr = ctx.sampleRate;
+  const length = Math.floor(sr * HALL_SECONDS);
+  const pre = Math.floor(sr * 0.018);
+  buf = ctx.createBuffer(2, length, sr);
+  const targetEnergy = 0.016 * 2.6 * sr;
   for (let ch = 0; ch < 2; ch++) {
     const rnd = lcg(0xa11 + ch * 7919);
     const data = buf.getChannelData(ch);
+    // 扩散尾音
+    let y = 0;
+    let a = 0;
     for (let i = pre; i < length; i++) {
-      const decay = Math.pow(1 - (i - pre) / (length - pre), 3.2);
-      data[i] = (rnd() * 2 - 1) * decay * 0.6;
+      const t = (i - pre) / sr;
+      if ((i - pre) % 64 === 0) {
+        const cutoff = 11000 * Math.pow(0.22, t / 2.2) + 900;
+        a = 1 - Math.exp(-2 * Math.PI * cutoff / sr);
+      }
+      y += a * ((rnd() * 2 - 1) - y);
+      const build = Math.min(1, t / 0.07);
+      const decay = Math.pow(10, -3 * t / HALL_RT60);
+      const fade = i > length - sr * 0.2 ? (length - i) / (sr * 0.2) : 1;
+      data[i] = y * build * decay * fade;
     }
+    // 早期反射：左右声道各 9 个离散回声
+    for (let k = 0; k < 9; k++) {
+      const at = pre + Math.floor(sr * (0.006 + 0.085 * (k + rnd()) / 9));
+      const gain = (0.9 - k * 0.07) * (rnd() < 0.5 ? -1 : 1);
+      if (at < length) data[at] = (data[at] ?? 0) + gain;
+      if (at + 1 < length) data[at + 1] = (data[at + 1] ?? 0) + gain * 0.5;
+    }
+    let energy = 0;
+    for (let i = 0; i < length; i++) energy += data[i]! * data[i]!;
+    const scale = Math.sqrt(targetEnergy / Math.max(energy, 1e-9));
+    for (let i = 0; i < length; i++) data[i]! *= scale;
   }
   impulseCache.set(ctx, buf);
   return buf;
+}
+
+type WaveName = 'horn' | 'trumpet' | 'trombone' | 'flute' | 'oboe' | 'harp';
+
+/** 各乐器的谐波振幅表（第 1 项为基音） */
+const SPECTRA: Record<WaveName, readonly number[]> = {
+  // 圆号：锯齿 + 脉冲混合后的柔和谱，高次谐波迅速下降
+  horn: [1, 0.6, 0.42, 0.28, 0.18, 0.12, 0.08, 0.05, 0.035, 0.022, 0.014, 0.009],
+  // 小号：高次谐波丰富（明亮、有穿透力）
+  trumpet: [1, 0.92, 0.85, 0.72, 0.6, 0.48, 0.38, 0.3, 0.23, 0.17, 0.13, 0.1, 0.075, 0.055, 0.04, 0.03, 0.022, 0.016],
+  trombone: [1, 0.85, 0.68, 0.52, 0.4, 0.3, 0.22, 0.16, 0.11, 0.08, 0.055, 0.04, 0.028],
+  // 长笛：正弦 + 三角波（奇次 1/n²）+ 少量二次泛音
+  flute: [1, 0.14, 0.05, 0.025, 0.01],
+  // 双簧管：二、三次谐波强于基音，带鼻音
+  oboe: [0.55, 1, 0.9, 0.42, 0.55, 0.32, 0.22, 0.2, 0.12, 0.08, 0.05, 0.03],
+  harp: [1, 0.42, 0.2, 0.1, 0.06, 0.035, 0.02],
+};
+
+function wave(ctx: BaseAudioContext, name: WaveName): PeriodicWave {
+  let map = waveCache.get(ctx);
+  if (!map) {
+    map = new Map();
+    waveCache.set(ctx, map);
+  }
+  let w = map.get(name);
+  if (w) return w;
+  const amps = SPECTRA[name];
+  const real = new Float32Array(amps.length + 1);
+  const imag = new Float32Array(amps.length + 1);
+  amps.forEach((a, i) => { imag[i + 1] = a; });
+  w = ctx.createPeriodicWave(real, imag);
+  map.set(name, w);
+  return w;
 }
 
 // ---------------------------------------------------------------------------
 // 音色积木
 // ---------------------------------------------------------------------------
 
-function osc(ctx: BaseAudioContext, type: OscillatorType, freq: number, t: number, stop: number, detune = 0): OscillatorNode {
+function osc(ctx: BaseAudioContext, type: OscillatorType | PeriodicWave, freq: number, t: number, stop: number, detune = 0): OscillatorNode {
   const node = ctx.createOscillator();
-  node.type = type;
+  if (typeof type === 'string') node.type = type as OscillatorType;
+  else node.setPeriodicWave(type);
   node.frequency.setValueAtTime(freq, t);
   if (detune) node.detune.setValueAtTime(detune, t);
   node.start(t);
@@ -109,145 +190,345 @@ function pluckEnv(p: AudioParam, t: number, attack: number, peak: number, tau: n
   p.setTargetAtTime(0, t + attack, tau);
 }
 
-function lowpass(ctx: BaseAudioContext, freq: number, q: number, dest: AudioNode): BiquadFilterNode {
+function filter(ctx: BaseAudioContext, type: BiquadFilterType, freq: number, q: number, dest: AudioNode, gainDb = 0): BiquadFilterNode {
   const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
+  f.type = type;
   f.frequency.value = Math.min(freq, ctx.sampleRate * 0.45);
   f.Q.value = q;
+  if (gainDb) f.gain.value = gainDb;
   f.connect(dest);
   return f;
 }
 
-/** 延迟起效的颤音（音分），挂在一组振荡器的 detune 上。 */
+function lowpass(ctx: BaseAudioContext, freq: number, q: number, dest: AudioNode): BiquadFilterNode {
+  return filter(ctx, 'lowpass', freq, q, dest);
+}
+
+/** 延迟起效的颤音（音分），挂在一组振荡器的 detune 上（铜管 / 木管按音使用）。 */
 function vibrato(ctx: BaseAudioContext, oscs: OscillatorNode[], t: number, stop: number, rate: number, cents: number, onset = 0.35): void {
   const lfo = osc(ctx, 'sine', rate, t, stop);
   const depth = ctx.createGain();
   depth.gain.setValueAtTime(0, t);
+  depth.gain.setValueAtTime(0, t + onset);
   depth.gain.linearRampToValueAtTime(cents, t + onset + 0.3);
   lfo.connect(depth);
   for (const o of oscs) depth.connect(o.detune);
 }
 
-function noiseSource(ctx: BaseAudioContext, t: number, stop: number): AudioBufferSourceNode {
+function noiseSource(ctx: BaseAudioContext, t: number, stop: number, offset = 0): AudioBufferSourceNode {
   const src = ctx.createBufferSource();
   src.buffer = noiseBuffer(ctx);
   src.loop = true;
-  src.start(t);
+  src.start(t, offset % 2.9);
   src.stop(stop);
   return src;
 }
 
-type Voice = (ctx: BaseAudioContext, out: AudioNode, t: number, dur: number, f: number, vel: number) => void;
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+/**
+ * 会话级共享颤音组：8 路"快颤音（4.6~6Hz）+ 慢音高漂移（0.1~0.4Hz）"，
+ * 弦乐每把琴挂到其中一路，得到彼此独立的颤音而不必每音新建 LFO；音符结束时摘除连接。
+ */
+class VibratoBank {
+  private readonly taps: GainNode[] = [];
+  private readonly lfos: OscillatorNode[] = [];
+
+  constructor(ctx: BaseAudioContext, start: number) {
+    const rnd = lcg(0x71b3);
+    for (let i = 0; i < 8; i++) {
+      const sum = ctx.createGain();
+      const fast = osc(ctx, 'sine', 4.6 + i * 0.18 + rnd() * 0.12, start + rnd() * 0.2, start + 1e6);
+      const fastDepth = ctx.createGain();
+      fastDepth.gain.value = 5 + rnd() * 3;
+      fast.connect(fastDepth).connect(sum);
+      const slow = osc(ctx, 'sine', 0.1 + rnd() * 0.3, start + rnd() * 3, start + 1e6);
+      const slowDepth = ctx.createGain();
+      slowDepth.gain.value = 2 + rnd() * 2.5;
+      slow.connect(slowDepth).connect(sum);
+      this.taps.push(sum);
+      this.lfos.push(fast, slow);
+    }
+  }
+
+  attach(o: OscillatorNode, index: number): () => void {
+    const tap = this.taps[index % this.taps.length]!;
+    tap.connect(o.detune);
+    return () => {
+      try { tap.disconnect(o.detune); } catch { /* 已断开 */ }
+    };
+  }
+
+  stop(at: number): void {
+    for (const lfo of this.lfos) {
+      try { lfo.stop(at); } catch { /* 已停止 */ }
+    }
+  }
+}
+
+/** 一次发声所需的上下文：输出声部总线、共享颤音组、该声部当前同时发声数 */
+interface Play {
+  ctx: BaseAudioContext;
+  out: AudioNode;
+  bank: VibratoBank;
+  crowd: number;
+}
+
+type Voice = (p: Play, t: number, dur: number, f: number, vel: number) => void;
+
+/** 合奏人数随同声部同时发声数递减，控制振荡器总量。 */
+function ensemble(base: number, crowd: number, min = 2): number {
+  if (crowd <= 2) return base;
+  if (crowd <= 5) return Math.max(min, base - 1);
+  if (crowd <= 8) return Math.max(min, base - 2);
+  return min;
+}
+
+// ---- 弦乐 -----------------------------------------------------------------
+
+interface BowSpec {
+  players: number;
+  /** 失谐范围（音分） */
+  spread: number;
+  /** 基准起弓时间（秒），随力度缩短 */
+  attack: number;
+  release: number;
+  /** 每音低通截止 = 基频 × bright（再按力度缩放） */
+  bright: number;
+  maxCut: number;
+  level: number;
+}
+
+type Register = 'violins' | 'violas' | 'cellos' | 'basses';
+
+const BOW: Record<Register, BowSpec> = {
+  violins: { players: 6, spread: 13, attack: 0.12, release: 0.75, bright: 7, maxCut: 9000, level: 0.1 },
+  violas: { players: 5, spread: 11, attack: 0.15, release: 0.8, bright: 6, maxCut: 6000, level: 0.1 },
+  cellos: { players: 5, spread: 9, attack: 0.17, release: 0.85, bright: 6, maxCut: 4200, level: 0.11 },
+  basses: { players: 3, spread: 7, attack: 0.19, release: 0.7, bright: 6, maxCut: 2400, level: 0.13 },
+};
+
+/** 通用弦乐按音区分派声部与座位声像（从观众席看：小提琴左、中提琴居中偏右、大提琴右、低音提琴更右） */
+function registerOf(f: number): { reg: Register; pan: number } {
+  if (f < 65) return { reg: 'basses', pan: 0.52 };
+  if (f < 180) return { reg: 'cellos', pan: 0.32 };
+  if (f < 330) return { reg: 'violas', pan: 0.1 };
+  return { reg: 'violins', pan: -0.42 };
+}
+
+/** 弓奏合奏：n 把失谐锯齿 → 每音低通（起弓时滤波器随弓速打开）→ 包络；可选颤弓（两组不同速率的振幅调制）。 */
+function bowed(p: Play, t: number, dur: number, f: number, vel: number, spec: BowSpec, opts: { pan?: number; tremolo?: boolean } = {}): void {
+  const { ctx } = p;
+  const rnd = lcg(seedOf(t, f));
+  const n = ensemble(opts.tremolo ? Math.min(3, spec.players) : spec.players, p.crowd);
+  const stop = t + dur + spec.release * 2;
+  let dest = p.out;
+  if (opts.pan !== undefined) {
+    const pan = ctx.createStereoPanner();
+    pan.pan.value = opts.pan;
+    pan.connect(p.out);
+    dest = pan;
+  }
+  const g = amp(ctx, dest);
+  const cut = Math.min(spec.maxCut, f * spec.bright * (0.55 + 0.7 * vel));
+  const attack = clamp(spec.attack * (1.3 - 0.6 * vel), 0.06, Math.max(0.06, dur * 0.6));
+  const lp = lowpass(ctx, cut, 0.6, g);
+  lp.frequency.setValueAtTime(cut * 0.45, t);
+  lp.frequency.linearRampToValueAtTime(cut, t + attack * 1.4);
+
+  const inputs: AudioNode[] = [];
+  if (opts.tremolo) {
+    for (let k = 0; k < 2; k++) {
+      const group = ctx.createGain();
+      group.gain.value = 0.62;
+      group.connect(lp);
+      const lfo = osc(ctx, 'triangle', 11.4 + k * 2.1 + rnd() * 0.8, t, stop);
+      const depth = ctx.createGain();
+      depth.gain.value = 0.38;
+      lfo.connect(depth).connect(group.gain);
+      inputs.push(group);
+    }
+  } else {
+    inputs.push(lp);
+  }
+
+  const detach: (() => void)[] = [];
+  const voices: OscillatorNode[] = [];
+  const half = Math.max(1, (n - 1) / 2);
+  for (let i = 0; i < n; i++) {
+    const detune = ((i - (n - 1) / 2) / half) * spec.spread + (rnd() - 0.5) * spec.spread * 0.6;
+    const o = osc(ctx, 'sawtooth', f, t + rnd() * 0.03, stop, detune);
+    detach.push(p.bank.attach(o, Math.floor(rnd() * 64)));
+    o.connect(inputs[i % inputs.length]!);
+    voices.push(o);
+  }
+  voices[0]!.onended = () => { for (const off of detach) off(); };
+  sustainEnv(g.gain, t, attack, vel * spec.level / Math.sqrt(n), dur, spec.release, 0.9);
+}
+
+// ---- 铜管 -----------------------------------------------------------------
+
+interface BrassSpec {
+  wave: WaveName;
+  players: number;
+  spread: number;
+  attack: number;
+  /** 延音截止 = 基频 × cut；起音开口峰值 = 延音截止 × blat */
+  cut: number;
+  blat: number;
+  level: number;
+  release: number;
+  /** 嘴唇滑入音高（音分） */
+  scoop: number;
+  vibRate: number;
+  vibCents: number;
+  /** 长于该秒数的音才加颤音 */
+  vibMin: number;
+}
+
+const BRASS: Record<'horn' | 'trumpet' | 'trombone', BrassSpec> = {
+  horn: { wave: 'horn', players: 3, spread: 6, attack: 0.055, cut: 2.2, blat: 1.5, level: 0.17, release: 0.35, scoop: 15, vibRate: 4.8, vibCents: 4, vibMin: 1.1 },
+  trumpet: { wave: 'trumpet', players: 2, spread: 5, attack: 0.024, cut: 3.4, blat: 2.4, level: 0.13, release: 0.22, scoop: 22, vibRate: 5.8, vibCents: 9, vibMin: 0.8 },
+  trombone: { wave: 'trombone', players: 2, spread: 6, attack: 0.045, cut: 2.6, blat: 1.9, level: 0.15, release: 0.3, scoop: 14, vibRate: 5, vibCents: 3, vibMin: 1.4 },
+};
+
+function brass(p: Play, t: number, dur: number, f: number, vel: number, spec: BrassSpec): void {
+  const { ctx } = p;
+  const rnd = lcg(seedOf(t, f));
+  const n = ensemble(spec.players, p.crowd, 1);
+  const stop = t + dur + spec.release * 3;
+  const nyq = ctx.sampleRate * 0.45;
+  const base = Math.min(nyq, f * spec.cut * (0.55 + 0.9 * vel));
+  const open = Math.min(nyq, base * spec.blat * (0.6 + 0.6 * vel));
+  const g = amp(ctx, p.out);
+  const lp = lowpass(ctx, base, 0.9, g);
+  lp.frequency.setValueAtTime(f * 1.2, t);
+  lp.frequency.linearRampToValueAtTime(open, t + spec.attack + 0.03);
+  lp.frequency.setTargetAtTime(base, t + spec.attack + 0.03, 0.14);
+  lp.frequency.setTargetAtTime(f * 1.3, t + dur, spec.release / 2);
+  const players: OscillatorNode[] = [];
+  for (let i = 0; i < n; i++) {
+    const detune = (i - (n - 1) / 2) * spec.spread + (rnd() - 0.5) * 3;
+    const start = t + (i === 0 ? 0 : rnd() * 0.018);
+    const o = osc(ctx, wave(ctx, spec.wave), f, start, stop);
+    o.detune.setValueAtTime(detune - spec.scoop, start);
+    o.detune.linearRampToValueAtTime(detune, start + 0.06);
+    o.connect(lp);
+    players.push(o);
+  }
+  sustainEnv(g.gain, t, spec.attack, vel * spec.level / Math.sqrt(n), dur, spec.release, 0.8);
+  if (dur >= spec.vibMin) vibrato(ctx, players, t, stop, spec.vibRate, spec.vibCents, 0.4);
+}
+
+// ---- 打击 -----------------------------------------------------------------
+
+/** 定音鼓鼓体：基音（击打后略下滑）+ 1.5 / 2 倍非谐分音（衰减更快） */
+function timpaniBody(p: Play, t: number, stop: number, f: number): { body: GainNode; partials: GainNode } {
+  const { ctx } = p;
+  const body = amp(ctx, p.out);
+  const o = osc(ctx, 'sine', f * 1.035, t, stop);
+  o.frequency.exponentialRampToValueAtTime(f, t + 0.12);
+  o.connect(body);
+  const partials = amp(ctx, p.out);
+  const a = osc(ctx, 'sine', f * 1.51, t, stop);
+  const b = osc(ctx, 'sine', f * 1.99, t, stop);
+  a.connect(partials);
+  b.connect(partials);
+  return { body, partials };
+}
+
+// ---------------------------------------------------------------------------
+// 声部表
+// ---------------------------------------------------------------------------
 
 const VOICES: Record<Instrument, Voice> = {
-  /** 号角：双锯齿失谐 + 滤波器"开口"包络（铜管的亮起） */
-  brass(ctx, out, t, dur, f, vel) {
+  violins(p, t, dur, f, vel) { bowed(p, t, dur, f, vel, BOW.violins); },
+  violins2(p, t, dur, f, vel) { bowed(p, t, dur, f, vel, BOW.violins); },
+  violas(p, t, dur, f, vel) { bowed(p, t, dur, f, vel, BOW.violas); },
+  cellos(p, t, dur, f, vel) { bowed(p, t, dur, f, vel, BOW.cellos); },
+  basses(p, t, dur, f, vel) { bowed(p, t, dur, f, vel, BOW.basses); },
+  /** 通用弦乐长音：按音区挑声部与座位 */
+  strings(p, t, dur, f, vel) {
+    const { reg, pan } = registerOf(f);
+    bowed(p, t, dur, f, vel, BOW[reg], { pan });
+  },
+  /** 通用弦乐颤弓 */
+  tremolo(p, t, dur, f, vel) {
+    const { reg, pan } = registerOf(f);
+    bowed(p, t, dur, f, vel, BOW[reg], { pan, tremolo: true });
+  },
+  /** 低音提琴 / 大提琴拨奏：锯齿 + 三角，滤波器从亮迅速变暗 */
+  pizz(p, t, _dur, f, vel) {
+    const { ctx } = p;
+    const tau = f < 80 ? 0.42 : 0.3;
+    const stop = t + tau * 6;
+    const g = amp(ctx, p.out);
+    const lp = lowpass(ctx, f * 8, 0.8, g);
+    lp.frequency.setValueAtTime(Math.min(f * 9, 5000), t);
+    lp.frequency.setTargetAtTime(f * 2.2, t + 0.005, 0.07);
+    osc(ctx, 'sawtooth', f, t, stop, -4).connect(lp);
+    osc(ctx, 'triangle', f, t + 0.012, stop, 5).connect(lp);
+    pluckEnv(g.gain, t, 0.006, vel * 0.34, tau);
+  },
+  horn(p, t, dur, f, vel) { brass(p, t, dur, f, vel, BRASS.horn); },
+  trumpet(p, t, dur, f, vel) { brass(p, t, dur, f, vel, BRASS.trumpet); },
+  trombone(p, t, dur, f, vel) { brass(p, t, dur, f, vel, BRASS.trombone); },
+  /** 长笛：柔和波表 + 延迟颤音 + 带通气声（起音"吐音"更明显） */
+  flute(p, t, dur, f, vel) {
+    const { ctx } = p;
+    const stop = t + dur + 0.5;
+    const g = amp(ctx, p.out);
+    const o = osc(ctx, wave(ctx, 'flute'), f, t, stop);
+    o.connect(g);
+    sustainEnv(g.gain, t, 0.07, vel * 0.15, dur, 0.18, 0.88);
+    if (dur > 0.5) vibrato(ctx, [o], t, stop, 5.1, 9, 0.25);
+    const breath = amp(ctx, p.out);
+    const bp = filter(ctx, 'bandpass', f * 2, 1.4, breath);
+    noiseSource(ctx, t, stop, lcg(seedOf(t, f))() * 3).connect(bp);
+    breath.gain.setValueAtTime(0, t);
+    breath.gain.linearRampToValueAtTime(vel * 0.05, t + 0.02);
+    breath.gain.setTargetAtTime(vel * 0.012, t + 0.02, 0.05);
+    breath.gain.setTargetAtTime(0, t + dur, 0.06);
+  },
+  /** 双簧管：鼻音波表 + 明显颤音（共鸣峰在声部总线上） */
+  lead(p, t, dur, f, vel) {
+    const { ctx } = p;
     const stop = t + dur + 0.6;
-    const g = amp(ctx, out);
-    const lp = lowpass(ctx, f * 1.1, 0.7, g);
-    lp.frequency.setValueAtTime(f * 1.1, t);
-    lp.frequency.linearRampToValueAtTime(Math.min(f * 8, 10000), t + 0.07);
-    lp.frequency.setTargetAtTime(Math.min(f * 4.2, 7000), t + 0.07, 0.25);
-    lp.frequency.setTargetAtTime(f * 1.5, t + dur, 0.12);
-    const a = osc(ctx, 'sawtooth', f, t, stop, -6);
-    const b = osc(ctx, 'sawtooth', f, t, stop, 6);
-    a.connect(lp);
-    b.connect(lp);
-    sustainEnv(g.gain, t, 0.03, vel * 0.13, dur, 0.28, 0.78);
-    if (dur > 0.7) vibrato(ctx, [a, b], t, stop, 5.3, 7);
+    const g = amp(ctx, p.out);
+    const lp = lowpass(ctx, Math.min(f * 7, 7000), 0.7, g);
+    const o = osc(ctx, wave(ctx, 'oboe'), f, t, stop);
+    o.connect(lp);
+    sustainEnv(g.gain, t, 0.06, vel * 0.13, dur, 0.24, 0.85);
+    vibrato(ctx, [o], t, stop, 5.2, 8, 0.3);
   },
-  /** 圆号：更柔的锯齿 + 三角，低开口 */
-  horn(ctx, out, t, dur, f, vel) {
-    const stop = t + dur + 0.7;
-    const g = amp(ctx, out);
-    const lp = lowpass(ctx, f * 3, 0.6, g);
-    lp.frequency.setValueAtTime(f * 1.4, t);
-    lp.frequency.linearRampToValueAtTime(f * 3.2, t + 0.12);
-    lp.frequency.setTargetAtTime(f * 2.3, t + 0.12, 0.3);
-    const a = osc(ctx, 'sawtooth', f, t, stop, -4);
-    const b = osc(ctx, 'triangle', f, t, stop, 3);
-    a.connect(lp);
-    b.connect(lp);
-    sustainEnv(g.gain, t, 0.06, vel * 0.16, dur, 0.35, 0.85);
-    if (dur > 0.6) vibrato(ctx, [a, b], t, stop, 5, 6);
-  },
-  /** 弦乐铺底：双锯齿宽失谐 + 缓起音 */
-  strings(ctx, out, t, dur, f, vel) {
-    const stop = t + dur + 1.2;
-    const g = amp(ctx, out);
-    const lp = lowpass(ctx, Math.min(2600, f * 5), 0.4, g);
-    const a = osc(ctx, 'sawtooth', f, t, stop, -11);
-    const b = osc(ctx, 'sawtooth', f, t, stop, 9);
-    a.connect(lp);
-    b.connect(lp);
-    sustainEnv(g.gain, t, Math.min(0.45, dur * 0.4), vel * 0.065, dur, 0.8, 0.9);
-    vibrato(ctx, [a, b], t, stop, 4.6, 5, 0.2);
-  },
-  /** 竖琴/拨弦：三角 + 八度正弦泛音，自然衰减 */
-  harp(ctx, out, t, dur, f, vel) {
-    const tau = f < 220 ? 0.65 : 0.45;
+  /** 竖琴：谐波递减波表，拨弦瞬间亮、随后变暗，低音区余音更长 */
+  harp(p, t, dur, f, vel) {
+    const { ctx } = p;
+    const tau = f < 200 ? 0.9 : f < 500 ? 0.6 : 0.4;
     const stop = t + Math.max(dur, tau * 5);
-    const g = amp(ctx, out);
-    const lp = lowpass(ctx, 3600, 0.3, g);
-    osc(ctx, 'triangle', f, t, stop).connect(lp);
-    const over = ctx.createGain();
-    over.gain.value = 0.25;
-    over.connect(lp);
-    osc(ctx, 'sine', f * 2, t, stop).connect(over);
-    pluckEnv(g.gain, t, 0.004, vel * 0.26, tau);
+    const g = amp(ctx, p.out);
+    const lp = lowpass(ctx, f * 3, 0.5, g);
+    lp.frequency.setValueAtTime(Math.min(f * 10, 9000), t);
+    lp.frequency.setTargetAtTime(Math.min(f * 3, 6000), t, 0.12);
+    osc(ctx, wave(ctx, 'harp'), f, t, stop).connect(lp);
+    pluckEnv(g.gain, t, 0.003, vel * 0.3, tau);
   },
-  /** 低音：三角 + 八度正弦（小音箱上也听得见） */
-  bass(ctx, out, t, dur, f, vel) {
-    const stop = t + dur + 0.6;
-    const g = amp(ctx, out);
-    const lp = lowpass(ctx, 700, 0.5, g);
-    osc(ctx, 'triangle', f, t, stop).connect(lp);
-    const over = ctx.createGain();
-    over.gain.value = 0.3;
-    over.connect(lp);
-    osc(ctx, 'sine', f * 2, t, stop).connect(over);
-    sustainEnv(g.gain, t, 0.02, vel * 0.34, dur, 0.22, 0.7);
-  },
-  /** 定音鼓：正弦下滑 + 低通噪声槌击 */
-  timpani(ctx, out, t, _dur, f, vel) {
-    const stop = t + 2.4;
-    const body = amp(ctx, out);
-    const o = osc(ctx, 'sine', f * 1.4, t, stop);
-    o.frequency.exponentialRampToValueAtTime(f, t + 0.05);
-    o.connect(body);
-    pluckEnv(body.gain, t, 0.004, vel * 0.6, 0.45);
-    const hit = amp(ctx, out);
-    const lp = lowpass(ctx, 380, 0.7, hit);
-    noiseSource(ctx, t, t + 0.4).connect(lp);
-    pluckEnv(hit.gain, t, 0.002, vel * 0.35, 0.05);
-  },
-  /** 吊镲：高通噪声长衰减 */
-  cymbal(ctx, out, t, _dur, _f, vel) {
-    const g = amp(ctx, out);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 6000;
-    hp.connect(g);
-    noiseSource(ctx, t, t + 3.6).connect(hp);
-    pluckEnv(g.gain, t, 0.002, vel * 0.16, 0.8);
-  },
-  /** 反向镲：噪声渐强，落拍处截断 */
-  swell(ctx, out, t, dur, _f, vel) {
-    const g = amp(ctx, out);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.setValueAtTime(2000, t);
-    hp.frequency.exponentialRampToValueAtTime(7000, t + dur);
-    hp.connect(g);
-    noiseSource(ctx, t, t + dur + 0.3).connect(hp);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(Math.max(vel * 0.14, 0.0002), t + dur);
-    g.gain.setTargetAtTime(0, t + dur, 0.03);
+  /** 钟琴：正弦基音 + 2.76 倍金属分音 */
+  glock(p, t, _dur, f, vel) {
+    const { ctx } = p;
+    const stop = t + 2.2;
+    const g = amp(ctx, p.out);
+    osc(ctx, 'sine', f, t, stop).connect(g);
+    pluckEnv(g.gain, t, 0.002, vel * 0.12, 0.55);
+    const over = amp(ctx, p.out);
+    osc(ctx, 'sine', Math.min(f * 2.76, ctx.sampleRate * 0.45), t, t + 0.8).connect(over);
+    pluckEnv(over.gain, t, 0.002, vel * 0.04, 0.12);
   },
   /** 远钟：简易 FM（调制比 3.5）+ 二倍泛音 */
-  bell(ctx, out, t, _dur, f, vel) {
+  bell(p, t, _dur, f, vel) {
+    const { ctx } = p;
     const stop = t + 5;
-    const g = amp(ctx, out);
+    const g = amp(ctx, p.out);
     const carrier = osc(ctx, 'sine', f, t, stop);
     const mod = osc(ctx, 'sine', f * 3.5, t, stop);
     const index = ctx.createGain();
@@ -257,51 +538,127 @@ const VOICES: Record<Instrument, Voice> = {
     index.connect(carrier.frequency);
     carrier.connect(g);
     pluckEnv(g.gain, t, 0.002, vel * 0.22, 1.3);
-    const partial = amp(ctx, out);
+    const partial = amp(ctx, p.out);
     osc(ctx, 'sine', f * 2, t, stop).connect(partial);
     pluckEnv(partial.gain, t, 0.002, vel * 0.08, 0.7);
   },
-  /** 独奏（双簧管式）：共振低通锯齿 + 三角，明显颤音 */
-  lead(ctx, out, t, dur, f, vel) {
-    const stop = t + dur + 0.8;
-    const g = amp(ctx, out);
-    const lp = lowpass(ctx, f * 3.2, 4, g);
-    const a = osc(ctx, 'sawtooth', f, t, stop);
-    a.connect(lp);
-    const body = ctx.createGain();
-    body.gain.value = 0.5;
-    body.connect(g);
-    const b = osc(ctx, 'triangle', f, t, stop);
-    b.connect(body);
-    sustainEnv(g.gain, t, 0.09, vel * 0.11, dur, 0.4, 0.85);
-    vibrato(ctx, [a, b], t, stop, 5.4, 9, 0.25);
+  /** 定音鼓单击：鼓体 + 低通噪声槌击 */
+  timpani(p, t, _dur, f, vel) {
+    const { ctx } = p;
+    const stop = t + 3;
+    const { body, partials } = timpaniBody(p, t, stop, f);
+    pluckEnv(body.gain, t, 0.004, vel * 0.55, 0.7);
+    pluckEnv(partials.gain, t, 0.003, vel * 0.16, 0.25);
+    const mallet = amp(ctx, p.out);
+    const lp = lowpass(ctx, 1200, 0.7, mallet);
+    noiseSource(ctx, t, t + 0.3, lcg(seedOf(t, f))() * 3).connect(lp);
+    pluckEnv(mallet.gain, t, 0.002, vel * 0.3, 0.035);
   },
-  /** 星光：高音正弦铃点 */
-  shimmer(ctx, out, t, dur, f, vel) {
-    const stop = t + Math.max(dur, 2);
-    const g = amp(ctx, out);
-    osc(ctx, 'sine', f, t, stop).connect(g);
-    const over = ctx.createGain();
-    over.gain.value = 0.3;
-    over.connect(g);
-    osc(ctx, 'sine', f * 2, t, stop, 4).connect(over);
-    pluckEnv(g.gain, t, 0.003, vel * 0.12, 0.4);
+  /** 定音鼓滚奏：每秒约 13 次轻击（自动化实现，不逐击建节点），力度从 pp 渐强到 vel */
+  timpaniRoll(p, t, dur, f, vel) {
+    const { ctx } = p;
+    const rnd = lcg(seedOf(t, f));
+    const stop = t + dur + 3;
+    const { body, partials } = timpaniBody(p, t, stop, f);
+    const mallet = amp(ctx, p.out);
+    const lp = lowpass(ctx, 900, 0.6, mallet);
+    noiseSource(ctx, t, t + dur + 0.2, rnd() * 3).connect(lp);
+    const rate = 13;
+    const strokes = Math.max(1, Math.floor(dur * rate));
+    for (const g of [body, partials, mallet]) g.gain.setValueAtTime(0, t);
+    for (let k = 0; k < strokes; k++) {
+      const ts = Math.max(t, t + k / rate + (rnd() - 0.5) * 0.012);
+      const x = strokes > 1 ? k / (strokes - 1) : 1;
+      const level = vel * (0.1 + 0.9 * x * x) * (0.9 + rnd() * 0.2);
+      body.gain.setTargetAtTime(level * 0.4, ts, 0.004);
+      body.gain.setTargetAtTime(level * 0.3, ts + 0.012, 0.05);
+      partials.gain.setTargetAtTime(level * 0.1, ts, 0.004);
+      partials.gain.setTargetAtTime(level * 0.06, ts + 0.012, 0.04);
+      mallet.gain.setTargetAtTime(level * 0.16, ts, 0.003);
+      mallet.gain.setTargetAtTime(0, ts + 0.01, 0.02);
+    }
+    const end = t + dur;
+    body.gain.setTargetAtTime(0, end, 0.5);
+    partials.gain.setTargetAtTime(0, end, 0.2);
+  },
+  /** 镲击：高通噪声（先快后慢两段衰减）+ 非谐方波金属分音 */
+  cymbal(p, t, _dur, _f, vel) {
+    const { ctx } = p;
+    const stop = t + 4.5;
+    const g = amp(ctx, p.out);
+    const peak = filter(ctx, 'peaking', 8000, 0.8, g, 5);
+    const hp = filter(ctx, 'highpass', 3200, 0.7, peak);
+    noiseSource(ctx, t, stop, lcg(seedOf(t, 1))() * 3).connect(hp);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vel * 0.2, t + 0.003);
+    g.gain.setTargetAtTime(vel * 0.07, t + 0.003, 0.09);
+    g.gain.setTargetAtTime(0, t + 0.25, 1.3);
+    const metal = amp(ctx, p.out);
+    const mhp = filter(ctx, 'highpass', 5000, 0.7, metal);
+    for (const r of [1, 1.483, 1.932]) osc(ctx, 'square', 431 * r, t, t + 2.5).connect(mhp);
+    pluckEnv(metal.gain, t, 0.002, vel * 0.025, 0.6);
+  },
+  /** 吊镲软槌滚奏：带通噪声渐强、频带上移，17Hz 颗粒感，落拍处收住（通常接镲击） */
+  swell(p, t, dur, _f, vel) {
+    const { ctx } = p;
+    const stop = t + dur + 1.2;
+    const g = amp(ctx, p.out);
+    const bp = filter(ctx, 'bandpass', 3500, 0.6, g);
+    bp.frequency.setValueAtTime(3500, t);
+    bp.frequency.exponentialRampToValueAtTime(7500, t + dur);
+    const ripple = ctx.createGain();
+    ripple.gain.value = 0.8;
+    ripple.connect(bp);
+    const lfo = osc(ctx, 'sine', 17, t, stop);
+    const depth = ctx.createGain();
+    depth.gain.value = 0.2;
+    lfo.connect(depth).connect(ripple.gain);
+    noiseSource(ctx, t, stop, lcg(seedOf(t, 2))() * 3).connect(ripple);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(vel * 0.13, 0.0002), t + dur);
+    g.gain.setTargetAtTime(0, t + dur, 0.25);
+  },
+  /** 大鼓：下滑正弦 + 低通噪声"闷击" */
+  bassDrum(p, t, _dur, _f, vel) {
+    const { ctx } = p;
+    const stop = t + 2;
+    const g = amp(ctx, p.out);
+    const o = osc(ctx, 'sine', 88, t, stop);
+    o.frequency.exponentialRampToValueAtTime(48, t + 0.14);
+    o.connect(g);
+    pluckEnv(g.gain, t, 0.006, vel * 0.7, 0.4);
+    const thump = amp(ctx, p.out);
+    const lp = lowpass(ctx, 260, 0.7, thump);
+    noiseSource(ctx, t, t + 0.3, lcg(seedOf(t, 3))() * 3).connect(lp);
+    pluckEnv(thump.gain, t, 0.003, vel * 0.3, 0.05);
   },
 };
 
-/** 各声部电平 / 声像 / 混响送量 */
-const MIX: Record<Instrument, { level: number; pan: number; send: number }> = {
-  brass: { level: 1, pan: 0, send: 0.22 },
-  horn: { level: 1, pan: 0.12, send: 0.32 },
-  strings: { level: 1, pan: -0.18, send: 0.45 },
-  harp: { level: 1, pan: 0.28, send: 0.4 },
-  bass: { level: 1, pan: 0, send: 0.06 },
-  timpani: { level: 1, pan: -0.08, send: 0.2 },
-  cymbal: { level: 0.9, pan: 0.18, send: 0.28 },
-  swell: { level: 0.9, pan: 0.18, send: 0.3 },
+type Eq = readonly [BiquadFilterType, number, number, number?];
+
+/** 各声部电平 / 声像（乐队座位）/ 混响送量（越靠后越湿）/ 声部总线上的共鸣峰 */
+const MIX: Record<Instrument, { level: number; pan: number; send: number; body?: readonly Eq[] }> = {
+  violins: { level: 1, pan: -0.5, send: 0.34, body: [['highpass', 190, 0.7], ['peaking', 300, 1.3, 3], ['peaking', 2300, 1.4, 3.5], ['lowpass', 7500, 0.5]] },
+  violins2: { level: 1, pan: -0.26, send: 0.34, body: [['highpass', 190, 0.7], ['peaking', 300, 1.3, 3], ['peaking', 2100, 1.4, 3], ['lowpass', 7000, 0.5]] },
+  violas: { level: 1, pan: 0.1, send: 0.36, body: [['highpass', 120, 0.7], ['peaking', 340, 1.2, 3.5], ['peaking', 1700, 1.4, 3], ['lowpass', 5200, 0.5]] },
+  cellos: { level: 1, pan: 0.32, send: 0.34, body: [['highpass', 55, 0.7], ['peaking', 260, 1.1, 3], ['peaking', 1300, 1.3, 2.5], ['lowpass', 4200, 0.5]] },
+  basses: { level: 1, pan: 0.52, send: 0.28, body: [['peaking', 110, 1, 2], ['peaking', 700, 1.2, 2], ['lowpass', 2200, 0.5]] },
+  pizz: { level: 1, pan: 0.46, send: 0.32, body: [['peaking', 140, 1, 2.5], ['lowpass', 2600, 0.5]] },
+  strings: { level: 1, pan: 0, send: 0.38, body: [['highpass', 60, 0.7], ['peaking', 300, 1.2, 3], ['peaking', 2000, 1.3, 3], ['lowpass', 6500, 0.5]] },
+  tremolo: { level: 1, pan: 0, send: 0.38, body: [['highpass', 60, 0.7], ['peaking', 300, 1.2, 3], ['peaking', 2000, 1.3, 3], ['lowpass', 6500, 0.5]] },
+  horn: { level: 1, pan: -0.2, send: 0.5, body: [['peaking', 520, 1, 4], ['lowpass', 2800, 0.6]] },
+  trumpet: { level: 1, pan: 0.06, send: 0.38, body: [['peaking', 1250, 1.1, 3], ['peaking', 2600, 1.6, 2], ['lowpass', 8500, 0.5]] },
+  trombone: { level: 1, pan: 0.24, send: 0.42, body: [['peaking', 620, 1, 3], ['lowpass', 3600, 0.6]] },
+  flute: { level: 1, pan: -0.1, send: 0.4, body: [['highpass', 240, 0.7]] },
+  lead: { level: 1, pan: 0.06, send: 0.38, body: [['highpass', 200, 0.7], ['peaking', 1150, 2, 4], ['peaking', 2900, 2.2, 2.5]] },
+  harp: { level: 1, pan: -0.62, send: 0.42 },
+  glock: { level: 1, pan: 0.2, send: 0.5 },
   bell: { level: 1, pan: -0.22, send: 0.55 },
-  lead: { level: 1, pan: 0.06, send: 0.38 },
-  shimmer: { level: 1, pan: 0.3, send: 0.5 },
+  timpani: { level: 1, pan: -0.1, send: 0.42 },
+  timpaniRoll: { level: 1, pan: -0.1, send: 0.42 },
+  cymbal: { level: 0.9, pan: 0.3, send: 0.4 },
+  swell: { level: 0.9, pan: 0.3, send: 0.4 },
+  bassDrum: { level: 1, pan: 0.18, send: 0.42 },
 };
 
 // ---------------------------------------------------------------------------
@@ -334,8 +691,11 @@ interface SessionOptions {
 
 class Session {
   readonly out: GainNode;
-  private readonly reverb: ConvolverNode;
+  private readonly reverbIn: AudioNode;
   private readonly layers: Record<LayerName, Layer>;
+  private readonly bank: VibratoBank;
+  /** 各声部正在发声的音符结束时刻（复音限流用） */
+  private readonly active = new Map<Instrument, number[]>();
   private tracks: Track[] = [];
   stopping = false;
 
@@ -351,9 +711,12 @@ class Session {
     this.out.gain.setValueAtTime(0, start);
     this.out.gain.linearRampToValueAtTime(score.gain, start + 0.03);
     this.out.connect(dest);
-    this.reverb = ctx.createConvolver();
-    this.reverb.buffer = impulseBuffer(ctx);
-    this.reverb.connect(this.out);
+    const reverb = ctx.createConvolver();
+    reverb.buffer = impulseBuffer(ctx);
+    reverb.connect(this.out);
+    // 混响前切掉低频，避免大厅尾音发闷
+    this.reverbIn = filter(ctx, 'highpass', 170, 0.7, reverb);
+    this.bank = new VibratoBank(ctx, start);
     this.layers = { bed: this.layer(), sting: this.layer() };
 
     let loopStart = start + options.loopDelay;
@@ -375,7 +738,7 @@ class Session {
     const dry = this.ctx.createGain();
     dry.connect(this.out);
     const wet = this.ctx.createGain();
-    wet.connect(this.reverb);
+    wet.connect(this.reverbIn);
     return { dry, wet, channels: new Map() };
   }
 
@@ -388,7 +751,17 @@ class Session {
     input.gain.value = mix.level;
     const pan = this.ctx.createStereoPanner();
     pan.pan.value = mix.pan;
-    input.connect(pan);
+    let tail: AudioNode = input;
+    for (const [type, freq, q, gain] of mix.body ?? []) {
+      const f = this.ctx.createBiquadFilter();
+      f.type = type;
+      f.frequency.value = Math.min(freq, this.ctx.sampleRate * 0.45);
+      f.Q.value = q;
+      if (gain) f.gain.value = gain;
+      tail.connect(f);
+      tail = f;
+    }
+    tail.connect(pan);
     pan.connect(layer.dry);
     const send = this.ctx.createGain();
     send.gain.value = mix.send;
@@ -396,6 +769,15 @@ class Session {
     send.connect(layer.wet);
     layer.channels.set(inst, input);
     return input;
+  }
+
+  /** 该声部在 [t, end) 开始时仍在发声的音符数，并登记本音。 */
+  private crowd(inst: Instrument, t: number, end: number): number {
+    const list = (this.active.get(inst) ?? []).filter((e) => e > t);
+    const count = list.length;
+    list.push(end);
+    this.active.set(inst, list);
+    return count;
   }
 
   /** 叠加一段号角；床层在号角期间压低到 30%。 */
@@ -430,7 +812,15 @@ class Session {
         track.index++;
         // 主线程被卡住时丢弃过期音符，不在恢复瞬间一次性堆叠
         if (t < now - 0.08) continue;
-        VOICES[ev.inst](this.ctx, this.channel(track.layer, ev.inst), Math.max(t, now), ev.dur * spb, hzOf(ev.midi), ev.vel);
+        const at = Math.max(t, now);
+        const dur = ev.dur * spb;
+        const play: Play = {
+          ctx: this.ctx,
+          out: this.channel(track.layer, ev.inst),
+          bank: this.bank,
+          crowd: this.crowd(ev.inst, at, at + dur),
+        };
+        VOICES[ev.inst](play, at, dur, hzOf(ev.midi), ev.vel);
       }
     }
     this.tracks = this.tracks.filter((track) => !track.done);
@@ -442,6 +832,7 @@ class Session {
     const now = this.ctx.currentTime;
     this.out.gain.cancelScheduledValues(now);
     this.out.gain.setTargetAtTime(0, now, Math.max(0.02, seconds / 4));
+    this.bank.stop(now + seconds + 3);
   }
 }
 
@@ -612,12 +1003,13 @@ export const resultMusic = new ResultMusic();
 
 /**
  * 离线渲染（验收/试听用）：把指定曲目渲染成 AudioBuffer。
- * `levelUpAt` 给定时在该秒叠加升级号角。
+ * `levelUpAt` 给定时在该秒叠加升级号角；`scheduleSeconds` 只排布该秒之前起奏的音符，
+ * 其后留给余音与混响自然衰减。
  */
 export async function renderResultTheme(
   theme: ResultTheme,
   seconds: number,
-  options: { sampleRate?: number; levelUpAt?: number } = {},
+  options: { sampleRate?: number; levelUpAt?: number; scheduleSeconds?: number } = {},
 ): Promise<AudioBuffer> {
   const sampleRate = options.sampleRate ?? 44100;
   const ctx = new OfflineAudioContext(2, Math.ceil(sampleRate * seconds), sampleRate);
@@ -625,6 +1017,6 @@ export async function renderResultTheme(
   bus.gain.value = 1;
   const session = new Session(ctx, bus, theme, 0, { intro: true, loopDelay: 0 });
   if (options.levelUpAt !== undefined) session.addSting(LEVEL_UP_STING, options.levelUpAt);
-  session.pump(seconds);
+  session.pump(Math.min(seconds, options.scheduleSeconds ?? seconds));
   return ctx.startRendering();
 }

@@ -4,6 +4,12 @@ import type { TraitDefinition } from '../engine/traits';
 /** 自定义单位特质独立维护，避免被官方图鉴生成脚本覆盖。 */
 export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
+    code: 'ping_evernight',
+    name: '永夜',
+    description: '我的回合开始时，召唤暗风暴。',
+    turnStartStorm: { referenceName: 'Darkstorm', displayName: '暗风暴', colors: [BaseColor.Purple] },
+  },
+  {
     code: 'counterflame',
     name: '逆焰之力',
     description: '在配对红色宝石时，自身获得 2 点攻击力和 1 点护甲值。',
@@ -62,5 +68,11 @@ export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
     name: '蝶舞',
     description: '在配对 4 或更多宝石时，给予所有盟友 2 点攻击力。',
     onBigMatchTypeAura: { troopType: 'all', gains: { attack: 2 } },
+  },
+  {
+    code: 'guanli_hidden_scale_surge',
+    name: '潜鳞惊澜',
+    description: '配对 4 颗或更多宝石时，爆破 2 颗随机宝石。',
+    onBigMatchExplodeGem: { kind: 'random', count: 2, minSize: 4 },
   },
 ];

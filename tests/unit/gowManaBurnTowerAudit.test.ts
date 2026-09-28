@@ -151,7 +151,7 @@ describe('Curse and Stun immunity boundaries shared by ManaBurn spells', () => {
       const f = damageFixture(); const t = f.enemies[1]; t.traitIds = [trait]; attachPassives(t);
       if (blessed) t.statuses = [{ id: 'blessed', turns: 3 }];
       const ev = applyStatus(t, { id: 'curse', turns: 3 });
-      if (trait === 'invulnerable') { expect(ev).toEqual([]); expect(t.statuses.some(s => s.id === 'blessed')).toBe(blessed); }
+      if (trait === 'invulnerable') { expect(ev).toEqual([expect.objectContaining({ type: 'status-blocked' })]); expect(t.statuses.some(s => s.id === 'blessed')).toBe(blessed); }
       else { expect(t.statuses.some(s => s.id === 'blessed')).toBe(false); expect(t.statuses.some(s => s.id === 'curse')).toBe(!blessed); }
     });
   for (const stunned of [false, true]) it('Stun suppresses ordinary Fireproof, stunned=' + stunned, () => {

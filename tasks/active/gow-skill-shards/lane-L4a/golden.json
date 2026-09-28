@@ -221,13 +221,15 @@
  },
  "troop:6236": {
   "lines": {
-   "L10": "explode 46 ; skulls E10 3 ; ~cascade~ ; dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; souls+15  => A1:mana+7 | A2:mana+6 | E10:hp-9 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3  cascade  eco:{\"souls\":15}",
-   "R10": "explode 46 ; skulls E10 3 ; ~cascade~ ; dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; souls+15  => A1:mana+7 | A2:mana+6 | E10:hp-9 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3  cascade  eco:{\"souls\":15}",
+   "L10": "explode 46 ; skulls E10 3 ; ~cascade~ ; dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; souls+15  => A1:mana+10 | A2:mana+6 | E10:hp-9 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3  cascade  eco:{\"souls\":15}",
+   "R10": "explode 46 ; skulls E10 3 ; ~cascade~ ; dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; souls+15  => A1:mana+10 | A2:mana+6 | E10:hp-9 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3  cascade  eco:{\"souls\":15}",
    "L0": "explode 22 ; skulls E10 2 ; dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; souls+15  => A1:mana+2 | A2:mana+2 | E10:hp-8 arm-5 | E11:hp-1 arm-10 | E12:arm-11 | E13:hp-8 arm-3  eco:{\"souls\":15}",
-   "K": "explode 46 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E11 ; defeat E12 ; defeat E13 ; souls+15  => A1:mana+7 | A2:mana+6 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"souls\":15}"
+   "K": "explode 46 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E11 ; defeat E12 ; defeat E13 ; souls+15  => A1:mana+10 | A2:mana+6 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"souls\":15}"
   },
   "by": "sa-R1",
-  "at": "2026-09-28T02:43:33.892Z"
+  "at": "2026-09-28T02:43:33.892Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:6240": {
   "lines": {
@@ -951,13 +953,15 @@
  },
  "troop:7058": {
   "lines": {
-   "L10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+4  extra:match  cascade",
-   "R10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+4  extra:match  cascade",
+   "L10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+8  extra:match  cascade",
+   "R10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+8  extra:match  cascade",
    "L0": "dmg E10 31 (scatter) ; dmg E11 30 (scatter) ; dmg E12 33 (scatter) ; dmg E13 26 (scatter) ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-31 | E11:hp-30 | E12:hp-33 | E13:hp-26 | A2:mana+3  cascade",
    "K": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
   "by": "coord",
-  "at": "2026-09-28T05:09:31.283Z"
+  "at": "2026-09-28T05:09:31.283Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7086": {
   "lines": {
@@ -1551,13 +1555,15 @@
  },
  "troop:7787": {
   "lines": {
-   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+6 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+6 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:arm-3  extra:match  cascade",
    "L0": "explode 9  => A1:mana+1 | A2:mana+1",
-   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+6 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade"
   },
   "by": "sa-R1",
-  "at": "2026-09-28T02:41:45.901Z"
+  "at": "2026-09-28T02:41:45.901Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7821": {
   "lines": {
@@ -1851,13 +1857,15 @@
  },
  "weapon:1433": {
   "lines": {
-   "L10": "explode 46 ; skulls E10 3 ; ~cascade~  => A2:mana+6 | E10:arm-3  cascade",
-   "R10": "explode 46 ; skulls E10 3 ; ~cascade~  => A2:mana+6 | E10:arm-3  cascade",
-   "L0": "explode 46 ; skulls E10 3 ; ~cascade~  => A2:mana+6 | E10:arm-3  cascade",
-   "K": "explode 46 ; skulls E10 3 ; defeat E10 ; ~cascade~  => A2:mana+6 | E10:hp-1 DEAD  cascade"
+   "L10": "explode 46 ; skulls E10 3 ; ~cascade~  => A2:mana+6 | E10:arm-3 | A1:mana+2  cascade",
+   "R10": "explode 46 ; skulls E10 3 ; ~cascade~  => A2:mana+6 | E10:arm-3 | A1:mana+2  cascade",
+   "L0": "explode 46 ; skulls E10 3 ; ~cascade~  => A2:mana+6 | E10:arm-3 | A1:mana+2  cascade",
+   "K": "explode 46 ; skulls E10 3 ; defeat E10 ; ~cascade~  => A2:mana+6 | E10:hp-1 DEAD | A1:mana+2  cascade"
   },
   "by": "sa-R1",
-  "at": "2026-09-28T02:36:51.061Z"
+  "at": "2026-09-28T02:36:51.061Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "weapon:1472": {
   "lines": {

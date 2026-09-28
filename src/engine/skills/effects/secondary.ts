@@ -264,6 +264,10 @@ export type Condition =
    * CountGems Color1=Lycanthropy 实锤）筛指定种类的特殊宝石——给出时优先按特殊宝石计数。
    */
   | { kind: 'boardAtLeast'; color?: BaseColor; special?: SpecialGemKind; n: number }
+  /** Ordinary colour gems at spell start; subsequent creation/destruction does not change this gate. */
+  | { kind: 'castStartBoardAtLeast'; color: BaseColor; n: number }
+  /** Count actually destroyed gems of this colour, excluding refill cascades. */
+  | { kind: 'destroyedColorAtLeast'; color: BaseColor | 'CHOSEN'; n: number }
   | { kind: 'enemyRacePresent'; race: string }
   | { kind: 'allyRacePresent'; race: string }
   /** 任一存活敌人带有该状态即真（「若有(一名)敌人陷入X状态」，全局条件整段判定） */
@@ -461,6 +465,12 @@ export function conditionMet(
       const caster = findCharacter(ctx.state, ctx.casterId);
       return !!caster && caster.hp < caster.maxHp;
     }
+    case 'destroyedColorAtLeast': {
+      const color = cond.color === 'CHOSEN' ? ctx.chosenColor : cond.color;
+      return color !== undefined && resolveModifierCount({ kind: 'destroyedGems', color }, ctx) >= cond.n;
+    }
+    case 'castStartBoardAtLeast':
+      return resolveModifierCount({ kind: 'castStartBoardGems', color: cond.color }, ctx) >= cond.n;
     case 'boardAtLeast': {
       // special（batch-r28，8567 狼化宝石在场）：筛指定种类特殊宝石，优先于基色/骷髅口径
       let n = 0;

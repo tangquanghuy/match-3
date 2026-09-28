@@ -2,7 +2,7 @@ import { INVASION_RANKS } from '../data/invasionRanks';
 import { EVENT_MILESTONES, EVENT_DEFENSE_REWARD, EVENT_WEEKLY_PLAY_REWARD_CAP, EVENT_SHARED_GOALS, type EventTypeId } from '../data/events';
 import { HUNT_EXPECTED_GEMS, HUNT_CELLS } from '../systems/treasureHunt';
 /** 经济预算与抽卡共用运行参数。输出为情景估计，不按玩家收入修改概率。 */
-import { DAILY_FIRST_WIN_GEMS, KINGDOM_FIRST_CLEAR_GEMS, GEM_CHEST, GEM_CHEST_WEIGHTS, GACHA_PITY_MIN_IDX } from '../data/economy';
+import { DAILY_FIRST_WIN_GEMS, KINGDOM_FIRST_CLEAR_GEMS, GEM_CHEST, GEM_CHEST_BASE, GEM_CHEST_WEIGHTS, GACHA_PITY_MIN_IDX } from '../data/economy';
 import { GACHA_RULES } from '../data/gachaRules';
 import { TROOPS } from '../../data/troops';
 import { KINGDOM_ORDER, KINGDOM_STAGE_COUNTS, type KingdomStageMode } from '../data/kingdoms';
@@ -186,7 +186,10 @@ export interface ForecastInput {
 export function forecastTarget(input: ForecastInput) {
   const { rarity, selected = true, selectedCount = selected ? 9 : 0, batchSize = 10 } = input;
   const weights = input.weights ?? GEM_CHEST_WEIGHTS;
-  const total = weights.reduce((a,b)=>a+b,0);
+  const troopTotal = weights.reduce((a,b)=>a+b,0);
+  // 默认权重只覆盖部队档（占全部开箱 80%），剩余是材料抽：不命中目标、不满足保底
+  const total = input.weights ? troopTotal : GEM_CHEST_BASE;
+  const extraWeight = total - troopTotal;
   const pool = TROOPS.filter(t=>t.rarityIdx===rarity).length;
   if (!pool || weights.length !== 6 || total <= 0 || weights.some(n=>!Number.isFinite(n)||n<0)
     || !Number.isInteger(selectedCount) || selectedCount<0 || selectedCount>GACHA_RULES.slotsPerRarity
@@ -199,8 +202,10 @@ export function forecastTarget(input: ForecastInput) {
   for(let i=0;i<batchSize;i++) {
     let nextLow=0, nextHigh=0;
     for(const [seen,mass] of [[false,low],[true,high]] as const) {
-      weights.forEach((w,r)=>{
-        const finalR = batchSize===10 && i===9 && !seen && r<GACHA_PITY_MIN_IDX ? GACHA_PITY_MIN_IDX : r;
+      [...weights, extraWeight].forEach((w,r)=>{
+        const extra = r===weights.length;
+        const isLow = extra || r<GACHA_PITY_MIN_IDX;
+        const finalR = batchSize===10 && i===9 && !seen && isLow ? GACHA_PITY_MIN_IDX : extra ? -1 : r;
         const p = mass*w/total*(finalR===rarity ? 1-conditional : 1);
         if(seen || finalR>=GACHA_PITY_MIN_IDX) nextHigh+=p; else nextLow+=p;
       });

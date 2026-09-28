@@ -140,7 +140,7 @@ test('宿主下发快照后走完 ready → start → started → result → ack
   const types = await messageTypes(page);
   expect(types.indexOf('battle:ready')).toBeLessThan(types.indexOf('battle:started'));
 
-  // 队伍来自宿主 request（2v2），而不是本地 fixture（3v3）
+  // 队伍来自宿主 request（2v2），而不是本地 fixture（4v4）
   await expect(frame.locator('.gcard.ally')).toHaveCount(2);
   await expect(frame.locator('.gcard.enemy')).toHaveCount(2);
   const battleId = await page.evaluate(() => {

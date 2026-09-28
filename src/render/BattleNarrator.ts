@@ -29,6 +29,7 @@ export const NARRATION_RULES: Readonly<Record<string, Rule>> = {
   curse: rule(.30, 40000, 44), death_mark: rule(.60, 35000, 65),
   transform: rule(.75, 30000, 80), transform_self: rule(.75, 30000, 80),
   devour: rule(.85, 30000, 85), treasure: rule(1, 0, 95),
+  encourage: rule(.45, 45000, 78),
   victory: rule(1, 0, 100), defeat: rule(1, 0, 100), retreat: rule(1, 0, 100),
 };
 export const NARRATION_GLOBAL_COOLDOWN = 14000;
@@ -112,6 +113,7 @@ export class BattleNarrator {
     if (!this.alive || this.finished) return null;
     const candidates: Candidate[] = [];
     const add = (pool: string, index: number, targetId?: number) => candidates.push({ pool, index, targetId });
+    const defeatedEnemies: number[] = [];
     let caster: number | undefined;
     let chainMax = 0;
     // Aggregate repeated hits on the same victim within a cast, but never double-count targets.
@@ -246,6 +248,8 @@ export class BattleNarrator {
         case 'flee': {
           const target = this.characters.get(ev.characterId);
           if (!target) break;
+          if (ev.type === 'defeat' && target.side === PlayerSide.Right && !target.departed && !target.treasure)
+            defeatedEnemies.push(index);
           target.departed = true;
           if (ev.type === 'defeat') target.hp = 0;
           if (target.side === PlayerSide.Right && target.treasure)
@@ -283,6 +287,14 @@ export class BattleNarrator {
         add(`spell_heavy.${sideKey(total.side)}`, total.last);
     }
     if (finalState) this.sync(finalState);
+    // Encourage only a real advantage: an enemy fell, enemies still remain, and our
+    // living formation is not outnumbered. Never turn a mutual wipe/final kill into a rally.
+    const living = (side: PlayerSide) => [...this.characters.values()]
+      .filter(ch => ch.side === side && ch.hp > 0 && !ch.departed).length;
+    if (!this.finished && defeatedEnemies.length && living(PlayerSide.Right) > 0
+      && living(PlayerSide.Left) >= living(PlayerSide.Right)) {
+      add('encourage.ally', defeatedEnemies[defeatedEnemies.length - 1]);
+    }
     // Stable ordering, highest chain stage rather than first weak cascade; one lottery only.
     candidates.sort((a, b) => this.ruleFor(b.pool).priority - this.ruleFor(a.pool).priority || a.index - b.index);
     const chosen = candidates.find((c) => this.clips.some((clip) => clip.pool === c.pool));

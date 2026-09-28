@@ -30,7 +30,7 @@ import { grantTroop, getRecord } from '../../src/meta/systems/troopProgress';
 function character(id: number, overrides: Partial<Character> = {}): Character {
   return {
     id, name: `C${id}`, maxHp: 50, hp: 45, attack: 5, armor: 0, magic: 4,
-    colors: [BaseColor.Blue], manaCost: 19, mana: 19, skillId: 'none',
+    colors: [BaseColor.Blue], manaCost: 15, mana: 15, skillId: 'none',
     statuses: [], defeated: false, ...overrides,
   };
 }
@@ -49,7 +49,7 @@ describe('白鹭依晞 · 时空裂隙', () => {
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('传说');
     expect(troop.role).toBe('Warlock');
     expect(troop.manaColors).toEqual([BaseColor.Blue, BaseColor.Purple]);
-    expect(troop.manaCost).toBe(19);
+    expect(troop.manaCost).toBe(15);
   });
 
   it('三项已有特质能进入战斗快照，立绘与图鉴同源', () => {
@@ -125,7 +125,7 @@ describe('Douglas · 时空裂隙', () => {
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('史诗');
     expect(troop.role).toBe('Mage');
     expect(troop.manaColors).toEqual([BaseColor.Green, BaseColor.Blue, BaseColor.Purple]);
-    expect(troop.manaCost).toBe(26);
+    expect(troop.manaCost).toBe(19);
     expect(troop.spell.name).toBe('拿铁涟漪');
     expect(troop.artUrl).toContain('douglas.png');
     expect(troopArt(troop)).toBe(troop.artUrl);
@@ -146,7 +146,7 @@ describe('Douglas · 时空裂隙', () => {
     expect(snapshot.skillId).toBe(String(DOUGLAS_SPELL_ID));
     expect(snapshot.portraitUrl).toBe(troopArt(troop));
     expect(snapshot.manaColors).toEqual(troop.manaColors);
-    expect(snapshot.manaCost).toBe(26);
+    expect(snapshot.manaCost).toBe(19);
   });
 
   it('拿铁涟漪先对所有敌人造成魔法+3伤害，再随机爆破3颗宝石', () => {
@@ -199,7 +199,7 @@ describe('ciallo - community troop', () => {
     expect(troop.rarityIdx).toBe(4);
     expect(troop.role).toBe('Warmaster');
     expect(troop.manaColors).toEqual([BaseColor.Blue, BaseColor.Yellow]);
-    expect(troop.manaCost).toBe(17);
+    expect(troop.manaCost).toBe(15);
     expect(troop.spell.name).toBe('双龙助阵');
     expect(troop.artUrl).toContain('ciallo.png');
     expect(troopArt(troop)).toBe(troop.artUrl);
@@ -223,7 +223,7 @@ describe('ciallo - community troop', () => {
     expect(snapshot.skillId).toBe(String(CIALLO_SPELL_ID));
     expect(snapshot.portraitUrl).toBe(troopArt(troop));
     expect(snapshot.manaColors).toEqual(troop.manaColors);
-    expect(snapshot.manaCost).toBe(17);
+    expect(snapshot.manaCost).toBe(15);
   });
 
   it('buffs the front ally by magic + 2, creates six skulls, then webs the front enemy', () => {
@@ -285,7 +285,7 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
     expect(rarityNameByIndex(5)).toBe('神话');
     expect(troop.role).toBe('Warmaster');
     expect(troop.manaColors).toEqual([BaseColor.Green, BaseColor.Blue, BaseColor.Red]);
-    expect(troop.manaCost).toBe(23);
+    expect(troop.manaCost).toBe(21);
     expect(troopArt(troop)).toBe(troop.artUrl);
     expect(troop.artUrl).toContain('chikorita.png');
 
@@ -298,7 +298,7 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
     expect(snapshot.skillId).toBe(String(CHIKORITA_SPELL_ID));
     expect(snapshot.portraitUrl).toBe(troop.artUrl);
     expect(snapshot.manaColors).toEqual(troop.manaColors);
-    expect(snapshot.manaCost).toBe(23);
+    expect(snapshot.manaCost).toBe(21);
     expect(snapshot.traitIds).toEqual(['firelink', 'armored', 'counterflame']);
     expect(metaKnownTraitIds()).toContain('counterflame');
   });

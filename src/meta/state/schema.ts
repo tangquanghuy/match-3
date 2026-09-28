@@ -12,6 +12,7 @@ import { emptyGachaWishlist, type GachaWishlist, type GachaAudit } from '../data
 
 import { STARTING_CURRENCIES, STARTING_KINGDOM } from '../data/economy';
 import { STARTER_WEAPON_ID } from '../data/weapons';
+import { STARTER_CLASS_ID } from '../data/classes';
 import type { EventTypeId } from '../data/events';
 
 export const META_SAVE_VERSION = 3;
@@ -348,11 +349,12 @@ function newHero(): HeroState {
   return {
     level: 1,
     xp: 0,
-    classId: null,
-    classLevels: {},
+    // 破碎尖塔／督军默认解锁并装备（用户裁定 2026-09-29）：开局就有职业基底与天赋树入口
+    classId: STARTER_CLASS_ID,
+    classLevels: { [STARTER_CLASS_ID]: 1 },
     classXp: {},
     classWins: {},
-    unlockedClasses: [],
+    unlockedClasses: [STARTER_CLASS_ID],
     unlockedWeapons: [STARTER_WEAPON_ID],
     equippedWeapon: STARTER_WEAPON_ID,
     talentPicks: {},

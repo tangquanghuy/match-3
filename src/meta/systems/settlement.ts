@@ -41,7 +41,7 @@ import { earn, earnMaterials } from './wallet';
 import { grantTroop } from './troopProgress';
 import { activeTeam } from './teamRules';
 import { addClassWin, addClassXp, addHeroXp } from './hero';
-import { classByKingdom } from '../data/classes';
+import { tryUnlockClassOnExplore, tryUnlockClassOnQuest } from './classUnlock';
 import { xpBonusPct } from './talents';
 import type { EncounterEnemy, EncounterPlan } from './encounter';
 import {
@@ -304,6 +304,8 @@ export function applySettlement(
     }
   }
 
+  let classUnlocked: string | null = null;
+
   // 探索可重复刷；仅实际首次胜利领取该档奖励，记录与钱包一起持久化。
   if (victory && ctx.plan.source.kind === 'explore' && KINGDOM_ORDER.includes(ctx.plan.kingdom)) {
     const tier = ctx.plan.source.tier;
@@ -317,12 +319,13 @@ export function applySettlement(
         const node = mode === 'hard' ? tier : tier - HARD_NODE_COUNT;
         earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS[mode] },
           `${ctx.plan.kingdom} · ${mode === 'hard' ? '困难' : '非常困难'} ${node} · 仅一次`);
+        // 困难／非常困难批次的职业：该难度 3 关全通才解锁
+        classUnlocked = tryUnlockClassOnExplore(save, ctx.plan.kingdom) ?? classUnlocked;
       }
     }
   }
 
   let questProgress: { from: number; to: number } | null = null;
-  let classUnlocked: string | null = null;
   const troopRewards: { troopId: number; note: string }[] = [];
   if (victory && ctx.plan.source.kind === 'quest') {
     const node = ctx.plan.source.node;
@@ -353,14 +356,8 @@ export function applySettlement(
           troopRewards.push({ troopId: rewardId, note: `${ctx.plan.kingdom} 任务 ${node}/8 首通` });
         }
       }
-      if (node === QUESTS_PER_KINGDOM) {
-        // 全链通关 → 解锁该王国绑定职业（M5）
-        const cls = classByKingdom(ctx.plan.kingdom);
-        if (cls && !save.hero.unlockedClasses.includes(cls.id)) {
-          save.hero.unlockedClasses.push(cls.id);
-          classUnlocked = cls.id;
-        }
-      }
+      // 职业解锁（用户裁定 2026-09-29 分五批）：主线批次按第 4 / 第 8 关解锁
+      classUnlocked = tryUnlockClassOnQuest(save, ctx.plan.kingdom, node) ?? classUnlocked;
     }
   }
 

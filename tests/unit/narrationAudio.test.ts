@@ -15,10 +15,11 @@ function setup() {
   })};
   let enabled = true;
   const speaking = vi.fn();
+  const caption = vi.fn();
   const fetcher = vi.fn(async () => ({ok: true, arrayBuffer: async () => new ArrayBuffer(1)}));
   vi.stubGlobal('fetch', fetcher);
-  const audio = new NarrationAudio(ctx as unknown as AudioContext, {} as AudioNode, () => enabled, speaking);
-  return {audio, ctx, sources, speaking, fetcher, mute: () => { enabled = false; }};
+  const audio = new NarrationAudio(ctx as unknown as AudioContext, {} as AudioNode, () => enabled, speaking, caption);
+  return {audio, ctx, sources, speaking, caption, fetcher, mute: () => { enabled = false; }};
 }
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
@@ -97,6 +98,47 @@ describe('narration audio', () => {
     for (let i = 0; i < 18; i++) x.audio.preload({...clip, id: `clip-${i}`});
     await flush(); expect(x.fetcher).toHaveBeenCalledTimes(18);
     x.audio.preload({...clip, id: 'clip-0'}); await flush(); expect(x.fetcher).toHaveBeenCalledTimes(19);
+    x.audio.dispose();
+  });
+});
+
+
+describe('captions follow actual audio, not selection or guessed duration', () => {
+  it('preload is silent; caption starts after source.start and clears at natural end', async () => {
+    const x = setup();
+    x.audio.preload(clip); await flush();
+    expect(x.caption).not.toHaveBeenCalled();
+    x.audio.play(clip);
+    expect(x.caption.mock.calls.filter(([value]) => value !== null)).toHaveLength(0);
+    await flush();
+    expect(x.caption).toHaveBeenLastCalledWith(clip);
+    expect(x.sources[0].start.mock.invocationCallOrder[0]).toBeLessThan(x.caption.mock.invocationCallOrder.at(-1)!);
+    vi.advanceTimersByTime(clip.duration * 1000 + 500);
+    expect(x.caption).toHaveBeenLastCalledWith(clip);
+    x.sources[0].onended?.();
+    expect(x.caption).toHaveBeenLastCalledWith(null);
+    x.audio.dispose();
+  });
+  it('interruption replaces captions; a stale completion cannot hide the current line', async () => {
+    const x = setup(); x.audio.play(clip); await flush();
+    const ended = x.sources[0].onended;
+    x.audio.play(other, true); await flush();
+    expect(x.caption).toHaveBeenLastCalledWith(other);
+    ended?.();
+    expect(x.caption).toHaveBeenLastCalledWith(other);
+    x.audio.stop(); expect(x.caption).toHaveBeenLastCalledWith(null);
+    x.audio.dispose();
+  });
+  it('failed download or failed start never displays a phantom subtitle', async () => {
+    const x = setup(); x.fetcher.mockRejectedValueOnce(new Error('network'));
+    x.audio.play(clip); await flush();
+    expect(x.caption.mock.calls.every(([value]) => value === null)).toBe(true);
+    const create = x.ctx.createBufferSource.getMockImplementation()!;
+    x.ctx.createBufferSource.mockImplementation(() => {
+      const node = create(); node.start.mockImplementation(() => { throw new Error('start'); }); return node;
+    });
+    x.audio.play(other); await flush();
+    expect(x.caption.mock.calls.every(([value]) => value === null)).toBe(true);
     x.audio.dispose();
   });
 });

@@ -376,12 +376,11 @@ describe('结果重试（需求 3.5）', () => {
 });
 
 describe('StandaloneHostBridge（需求 2.5、3.7）', () => {
-  it('直接返回本地配置，可按调试人数裁剪', async () => {
+  it('直接返回本地配置（固定 4v4）', async () => {
     const bridge = new StandaloneHostBridge({
       knownSkillIds: knownSkillIds(),
       knownTraitIds: new Set(implementedTraitIds()),
       knownTroopTypes: new Set(['Knight', 'Elf', 'Daemon']),
-      teamSize: 3,
     });
     const request = await bridge.waitForBattle();
     expect(request.playerTeam).toHaveLength(4);

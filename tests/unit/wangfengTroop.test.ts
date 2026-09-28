@@ -37,7 +37,7 @@ describe('WangFeng / 禁典开扉', () => {
       troopTypes: [COMMUNITY_RACE],
       role: 'Generator',
       manaColors: [BaseColor.Purple, BaseColor.Brown],
-      manaCost: 18,
+      manaCost: 16,
       spell: { name: '禁典开扉' },
     });
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('史诗');
@@ -63,7 +63,7 @@ describe('WangFeng / 禁典开扉', () => {
       name: 'WangFeng',
       traitIds: TRAITS,
       skillId: String(WANGFENG_SPELL_ID),
-      manaCost: 18,
+      manaCost: 16,
       portraitUrl: troop.artUrl,
     });
   });
@@ -72,8 +72,8 @@ describe('WangFeng / 禁典开扉', () => {
     const f = damageFixture();
     Object.assign(f.caster, {
       skillId: String(WANGFENG_SPELL_ID),
-      manaCost: 18,
-      mana: 18,
+      manaCost: 16,
+      mana: 16,
       colors: [BaseColor.Purple, BaseColor.Brown],
     });
     const original = [
@@ -119,8 +119,8 @@ describe('WangFeng / 禁典开扉', () => {
     const f = damageFixture();
     Object.assign(f.caster, {
       skillId: String(WANGFENG_SPELL_ID),
-      manaCost: 18,
-      mana: 18,
+      manaCost: 16,
+      mana: 16,
       colors: [BaseColor.Purple, BaseColor.Brown],
     });
     f.state.teams[PlayerSide.Left].characters.push(

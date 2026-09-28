@@ -31,7 +31,7 @@ function character(id: number, overrides: Partial<Character> = {}): Character {
     armor: 6,
     magic: 0,
     colors: [BaseColor.Green],
-    manaCost: 16,
+    manaCost: 14,
     mana: 0,
     skillId: 'none',
     statuses: [],
@@ -65,7 +65,7 @@ describe('銀蒔蘿 / 花露秘酿', () => {
       troopTypes: [COMMUNITY_RACE, 'Elf'],
       role: 'Support',
       manaColors: [BaseColor.Green, BaseColor.Purple],
-      manaCost: 16,
+      manaCost: 14,
       spell: { name: '花露秘酿' },
     });
     expect(troop.spell.description).toBe(
@@ -90,7 +90,7 @@ describe('銀蒔蘿 / 花露秘酿', () => {
       name: '銀蒔蘿',
       traitIds: TRAITS,
       skillId: String(YINSHILUO_SPELL_ID),
-      manaCost: 16,
+      manaCost: 14,
       portraitUrl: troop.artUrl,
     });
   });

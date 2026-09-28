@@ -1079,6 +1079,16 @@
 
 .inv-battle-hub .inv-rival-nums { flex-wrap: wrap; gap: 3px 10px; }
 
+/* 对手旗帜：右上角小旗 + 名字下一行加成色签 */
+.inv-battle-hub .inv-rival-head.has-banner { position: relative; padding-right: 42px; }
+.inv-rival-banner { position: absolute; top: -12px; right: 0; line-height: 0; }
+.inv-rival-banner .kbanner { filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .55)); }
+.inv-rival-boosts { display: flex; align-items: center; gap: 6px; margin: 1px 0 3px; min-width: 0; }
+.inv-rival-boosts > small { color: #b9a47a; font: 10px Georgia, serif; letter-spacing: .08em; white-space: nowrap; }
+.inv-rival-boosts .kb-boosts { gap: 4px; flex-wrap: nowrap; }
+.inv-rival-boosts .kb-boost { padding: 0 5px 0 3px; font-size: 10px; }
+.inv-rival-boosts .kb-boost svg { width: 10px; height: 12px; }
+
 /* Permanent VP rank progression — self-contained, paginated, no endless ladder. */
 .inv-rank-emblem:before, .inv-rank-emblem:after { display: none; }
 .inv-rank-emblem img { display: block; width: 100%; height: 100%; object-fit: contain; }

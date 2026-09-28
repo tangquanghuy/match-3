@@ -1,8 +1,8 @@
 import type { CuratedBatch } from './index';
 import { BaseColor } from '../../types';
-import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, COMMUNITY_TROOPS } from '../../../data/communityTroops';
+import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_SPELL_ID, PING_SPELL_ID, ZHUWANG_SPELL_ID, COMMUNITY_TROOPS } from '../../../data/communityTroops';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
-import { dispelStatus, sacrifice, devour, attack, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, skill, summonRef, transform } from '../builders';
+import { CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, skill, summonRef, transform } from '../builders';
 
 export const BATCH_COMMUNITY: CuratedBatch = {
   batch: 'community',
@@ -139,6 +139,50 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         transform(BaseColor.Red, BaseColor.Purple),
         transform(BaseColor.Yellow, BaseColor.Brown),
         summonRef('WallOfTentacles', 6648, { position: 'front' }),
+      ),
+    },
+    {
+      id: GUANLI_OBSERVER_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === GUANLI_OBSERVER_SPELL_ID)!.spell.description,
+      build: skill(
+        createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Blue }, 1),
+        createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Purple }, 1),
+        explodeRandomGems(4),
+      ),
+    },
+    {
+      id: HONGDIE_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === HONGDIE_SPELL_ID)!.spell.description,
+      build: skill(
+        dmg('enemyLastN', 3, 1, { n: 2 }),
+        // Keep the original targets: deaths must not redirect silence/drain to earlier enemies.
+        inflict('silence', 'lastTargets'),
+        reduce('lastTargets', 'mana', 3, 0),
+      ),
+    },
+    {
+      id: PING_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === PING_SPELL_ID)!.spell.description,
+      build: skill(
+        destroyColor(CHOSEN),
+        dmg('enemyAll', 4, 1, { ifCond: { kind: 'targetColor', color: CHOSEN } }),
+        reduce('lastTargets', 'mana', 4, 0),
+        extraTurn({ ifCond: { kind: 'destroyedColorAtLeast', color: CHOSEN, n: 10 } }),
+      ),
+    },
+    {
+      id: ZHUWANG_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === ZHUWANG_SPELL_ID)!.spell.description,
+      build: skill(
+        createGems(BaseColor.Red, 6, 0),
+        // Only transformation rolls 25%; the chosen ally always gains attack afterward.
+        transformTroop('allyChosenOther', 'ArmoredBoarlet', { troopId: 6935, chance: 0.25 }),
+        attack('allyChosenOther', 3, 1),
+        transformTroop('enemyRandom', 'ArmoredBoarlet', {
+          troopId: 6935,
+          ifCond: { kind: 'castStartBoardAtLeast', color: BaseColor.Red, n: 13 },
+          chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'attack' }, max: 50 },
+        }),
       ),
     },
   ],

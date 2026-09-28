@@ -20,7 +20,7 @@ const codes = ['stonelink', 'arcane', 'cursedaura'];
 const proto = SKILL_LIBRARY[SU_SPELL_ID];
 function setup(unlocked = false) {
   const f = damageFixture();
-  Object.assign(f.caster, { magic: 10, manaCost: 16, mana: 16, skillId: String(SU_SPELL_ID),
+  Object.assign(f.caster, { magic: 10, manaCost: 12, mana: 12, skillId: String(SU_SPELL_ID),
     colors: [BaseColor.Purple, BaseColor.Brown], traitIds: unlocked ? codes : [] });
   const allies = [damageCharacter(1, { colors: [BaseColor.Green] }), f.caster,
     damageCharacter(2, { colors: [BaseColor.Green] }), damageCharacter(3, { colors: [BaseColor.Green] })];
@@ -39,7 +39,7 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(getTroopByRef('Su')).toBe(troop);
     expect(TROOPS.filter(t => t.id === SU_ID)).toHaveLength(1);
     expect(TROOPS.filter(t => t.spell.id === SU_SPELL_ID)).toHaveLength(1);
-    expect(troop).toMatchObject({ name: '苏', rarity: 'UltraRare', rarityIdx: 3, manaCost: 16,
+    expect(troop).toMatchObject({ name: '苏', rarity: 'UltraRare', rarityIdx: 3, manaCost: 12,
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE],
       manaColors: [BaseColor.Purple, BaseColor.Brown], spell: { name: '狂乱献礼' } });
     expect(troop.spell.description).toBe('有 35% 的几率献祭除自身外的末位盟友。对一名敌人造成 [魔法 + 5] 点伤害。若成功献祭，则造成双倍伤害，并在击杀目标后吞噬另一名随机敌人。');
@@ -55,7 +55,7 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(troopToSnapshot(troop, record, 'su').traitIds).toEqual([]);
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, 'su')).toMatchObject({ traitIds: codes,
-      skillId: String(SU_SPELL_ID), manaCost: 16, portraitUrl: troop.artUrl });
+      skillId: String(SU_SPELL_ID), manaCost: 12, portraitUrl: troop.artUrl });
   });
   it.each([0, 0.349999, 0.35, 0.999])('uses a strict 35%% sacrifice threshold at %s', roll => {
     const f = setup(); rig(f, roll);

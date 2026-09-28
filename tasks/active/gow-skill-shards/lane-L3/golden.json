@@ -374,10 +374,12 @@
    "L10": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+4 | E10:arm-3  cascade",
    "R10": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+4 | E10:arm-3  cascade",
    "L0": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+4 | E10:arm-3  cascade",
-   "K": "buff E11 mana-5 ; explode 39 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => E11:mana-5 | A2:mana+8 | A1:mana+3 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "buff E11 mana-5 ; explode 39 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => E11:mana-5 | A2:mana+11 | A1:mana+3 | E10:hp-1 DEAD  extra:match  cascade"
   },
   "by": "sa-R7",
-  "at": "2026-09-28T05:59:17.597Z"
+  "at": "2026-09-28T05:59:17.597Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:6906": {
   "lines": {

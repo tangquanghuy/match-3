@@ -38,7 +38,7 @@ describe('R008 charm = auto-recovering negative status (R004)', () => {
   it('Blessed blocks charm like any other negative status', () => {
     const c = damageCharacter(10, {});
     applyStatus(c, { id: 'blessed', turns: 1 });
-    expect(applyStatus(c, { id: 'charm', turns: 1 })).toEqual([]);
+    expect(applyStatus(c, { id: 'charm', turns: 1 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     expect(isCharmed(c)).toBe(false);
   });
 });

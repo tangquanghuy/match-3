@@ -39,6 +39,11 @@ export interface ManaGainEvent {
   player: PlayerSide;
   /** 本次来自 Mana Surge（3 消概率翻倍 / 5+ 必翻倍）。缺省 = 普通入账。 */
   surge?: boolean;
+  /**
+   * 疾病使本次入账减半（纯演出元数据）：amount 已是减半后的实际值，
+   * 表现层据此标注「疾病 减半」——否则玩家看到消了 4 颗只加 2 点会以为是 bug。
+   */
+  halved?: boolean;
 }
 
 export interface SkullDamageEvent {
@@ -65,6 +70,8 @@ export interface AttackStruggleEvent {
   attackerId: number;
   /** 攻击未造成伤害的原因（供表现层可选区分）。barrier 为屏障整发吸收。 */
   reason: 'frozen' | 'entangle' | 'stun' | 'dodge' | 'barrier';
+  /** 被打的目标（dodge / barrier 时给出：攻击确实打过去了，表现层要播冲撞 + 格挡/闪避） */
+  targetId?: number;
 }
 
 export interface SkillCastEvent {
@@ -96,6 +103,8 @@ export interface SkillDamageEvent {
    */
   originCell?: CellPos;
   skullBurst?: { normal: number; doom: number; uber: number };
+  /** 反射状态弹回的法术伤害：casterId 是反射方（表现层不当作一次主动施法）。 */
+  reflected?: boolean;
   damage: number;
   resultingHp: number;
   resultingArmor: number;
@@ -153,7 +162,37 @@ export interface StatusApplyEvent {
   targetId: number;
   statusId: string;
   turns: number;
+  /** 施加后的层数（仅出血等有层数语义的状态；纯演出元数据）。 */
+  stacks?: number;
+  /** 目标此前已有同 id 状态：本次是刷新/叠层而非新挂（表现层只脉冲既有徽记）。 */
+  refreshed?: boolean;
 }
+
+/**
+ * 状态被拦截/机制被状态抵消（纯演出元数据，不改变任何结算）：
+ *   - immune：特质免疫挡下施加；blessed：赐福挡下负面状态；
+ *   - submerged：下潮躲开覆盖整队的法术伤害；
+ *   - extra-turn：冰冻吞掉本应获得的匹配额外回合（targetId=被冻结的相关单位）；
+ *   - mana：沉默使该单位跳过本次充能（法力流向下一个吃该色的队友）。
+ */
+export interface StatusBlockedEvent {
+  type: 'status-blocked';
+  targetId: number;
+  statusId: string;
+  reason: 'immune' | 'blessed' | 'submerged' | 'extra-turn' | 'mana';
+}
+
+/** 状态移除原因（纯演出元数据；缺省视为 expired）。 */
+export type StatusExpireReason =
+  | 'expired'    // 旧式倒计时归零
+  | 'recovered'  // 累积自愈掷中（挣脱）
+  | 'consumed'   // 屏障/反射/狂怒被一次伤害消耗
+  | 'cast'       // 附魔：施法移除
+  | 'action'     // 潜水/赐福：持有者行动后移除
+  | 'stripped'   // 诅咒剥离正面状态 / 诅咒×赐福互消
+  | 'cleansed'   // 赐福施加时净化负面
+  | 'dispelled'  // 技能定向驱散
+  | 'transform'; // 变身清空
 
 /** 状态回合结算（需求 9.2）。DoT 类携带本次伤害量。 */
 export interface StatusTickEvent {
@@ -171,6 +210,13 @@ export interface StatusExpireEvent {
   type: 'status-expire';
   targetId: number;
   statusId: string;
+  /**
+   * 屏障被一发法术伤害打掉时的来源（纯演出元数据）：表现层据此从施法者打一发弹道到目标、
+   * 在目标身上播格挡。骷髅普攻打掉屏障走 attack-struggle(reason='barrier')，不带这个字段。
+   */
+  absorbedFrom?: { casterId: number; range: string };
+  /** 移除原因（演出元数据，缺省=expired）。 */
+  reason?: StatusExpireReason;
 }
 
 /** Skill-driven removal of negative/all status effects from one target. */
@@ -178,6 +224,8 @@ export interface StatusCleanseEvent {
   type: 'status-cleanse';
   targetId: number;
   statusIds: string[];
+  /** cleanse=净化负面（缺省）；dispel=驱散正面。表现层据此选光效/音效。 */
+  kind?: 'cleanse' | 'dispel';
 }
 
 /** 召唤新角色入队伍空位（需求 10.3, 10.4）。 */
@@ -351,6 +399,7 @@ export type GameEvent =
   | StatusTickEvent
   | StatusExpireEvent
   | StatusCleanseEvent
+  | StatusBlockedEvent
   | SummonEvent
   | DefeatEvent
   | FleeEvent

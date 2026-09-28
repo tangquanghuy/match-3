@@ -225,7 +225,7 @@ describe('B · applyEnemyDeathTriggers 纯函数层', () => {
     attachPassives(warded);
     const events = applyEnemyDeathTriggers([holder], [warded], { applyStatus });
     expect(hasStatus(warded, 'death-mark')).toBe(false);
-    expect(events).toEqual([]);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
   });
 
   it('无持有者 / 持有者已阵亡：零事件零副作用', () => {

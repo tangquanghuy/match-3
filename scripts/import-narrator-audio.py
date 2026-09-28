@@ -163,6 +163,9 @@ for f in files:
 previous_path = dest / "manifest.json"
 if previous_path.exists():
     previous = json.loads(previous_path.read_text(encoding="utf-8"))
+    # Later batches belong to their own importer; retain them unchanged.
+    imported_sources = {m['sourceFilename'] for m in manifest}
+    manifest.extend(m for m in previous if m['sourceFilename'] not in imported_sources)
     current_names = {m["file"] for m in manifest}
     by_source = {m["sourceFilename"]: m for m in manifest}
     for old in previous:

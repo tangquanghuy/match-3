@@ -64,12 +64,15 @@ describe('新手十连', () => {
       expect(gemMultiCost(s)).toBe(NOVICE_SUMMON_COST);
       const r = openGemChest(s, seed, 10);
       if (!r.ok) throw new Error(r.message);
-      expect(r.cards).toHaveLength(10);
+      // 前 9 抽可能出材料（宝石箱 20%），最后一张恒为异界来客
+      const items = Object.values({ ...r.materials.ingots, ...r.materials.traitstones }).reduce((a, n) => a + n!, 0);
+      expect(r.cards.length + items).toBe(10);
       expect(r.spent.gems).toBe(NOVICE_SUMMON_COST);
-      const last = getTroopById(r.cards[9]!.troopId)!;
+      const lastCard = r.cards[r.cards.length - 1]!;
+      const last = getTroopById(lastCard.troopId)!;
       expect(last.kingdom).toBe(COMMUNITY_KINGDOM);
       expect(last.rarityIdx).toBeGreaterThanOrEqual(3);
-      expect(r.cards[9]!.noviceGuaranteed).toBe(true);
+      expect(lastCard.noviceGuaranteed).toBe(true);
       expect(s.onboarding.noviceSummonUsed).toBe(true);
       expect(gemMultiCost(s)).toBe(GEM_CHEST.multiCost);
     }

@@ -94,7 +94,12 @@ describe('MockGateway', () => {
     const ownedBefore = Object.keys(save.collection).length;
     const drawn = await gw.openChest('gem', 10);
     expect(drawn.result.ok).toBe(true);
-    if (drawn.result.ok) expect(drawn.result.cards).toHaveLength(10);
+    // 宝石箱 20% 出材料：部队卡 + 材料项 == 10（一抽一项）
+    if (drawn.result.ok && 'materials' in drawn.result) {
+      const m = drawn.result.materials;
+      const items = Object.values({ ...m.ingots, ...m.traitstones }).reduce((a, n) => a + n!, 0);
+      expect(drawn.result.cards.length + items).toBe(10);
+    }
     expect(Object.keys(gwSave(gw).collection).length).toBeGreaterThanOrEqual(ownedBefore);
     expect(gwSave(gw).gachaLog).toHaveLength(1);
 
@@ -197,7 +202,9 @@ describe('MockGateway', () => {
     await gw.load();
     const fresh = await gw.resetToNewGame();
     expect(fresh.save.hero.level).toBe(1);
-    expect(fresh.save.hero.classId).toBeNull();
+    // 起始职业（破碎尖塔／督军）默认解锁并装备，重置后仍在；演示进度（其它职业）清空
+    expect(fresh.save.hero.classId).toBe('warrior');
+    expect(fresh.save.hero.unlockedClasses).toEqual(['warrior']);
     expect(Object.keys(fresh.save.kingdoms)).toHaveLength(0);
   });
 

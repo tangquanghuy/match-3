@@ -290,13 +290,13 @@ export class MockGateway implements MetaGateway {
   // —— 宝箱 ——
 
   /** 开箱：count 为原子批量（gem/glory 只接 1|10，gold 接 1~10），见 types.openChest */
-  async openChest(kind: 'gem' | 'gold' | 'glory', count = 1) {
+  async openChest(kind: 'gem' | 'gold' | 'glory', count = 1, opts: { buyMissingKeys?: boolean } = {}) {
     const before = this.materialSnapshot();
     const seed = this.nextSeed();
     const result =
       kind === 'gem' ? openGemChest(this.save, seed, count)
       : kind === 'glory' ? openGloryChest(this.save, seed, count)
-      : openGoldChest(this.save, seed, count);
+      : openGoldChest(this.save, seed, count, opts);
     if (result.ok) {
       this.markMaterialGains(before);
       this.persist();
