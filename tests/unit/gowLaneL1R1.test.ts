@@ -423,3 +423,60 @@ describe('L1 R2 B09 (sa-R5)', () => {
     const n = devourRate('troop:7157', 400); expect(n).toBeGreaterThan(55); expect(n).toBeLessThan(110);
   });
 });
+
+// ---------------------------------------------------------------- B10
+describe('L1 R2 B10 (sa-R5)', () => {
+  const raw = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops as { ReferenceName: string; KingdomId: number; TroopType: string; TroopType2: string }[];
+  const roster = new Set(TROOPS.map(t => t.referenceName));
+  const pools = (skill: string) => (registry.prototypes.get(skill) as { segments: { kind: string; chance?: number; params?: { source: { randomOf?: string[] } } }[] }).segments
+    .filter(s => s.kind === 'summon').map(s => ({ chance: s.chance ?? 1, pool: [...(s.params?.source.randomOf ?? [])].sort() }));
+  const kingdom = (k: number) => raw.filter(t => t.KingdomId === k).map(t => t.ReferenceName).filter(r => roster.has(r)).sort();
+  const ofType = (ty: string) => [...new Set(raw.filter(t => [t.TroopType, t.TroopType2].includes(ty)).map(t => t.ReferenceName).filter(r => roster.has(r)))].sort();
+  it('summon pools follow raw kingdom / type data', () => {
+    expect(pools('8071')).toEqual([{ chance: 1, pool: kingdom(3066) }]);
+    expect(pools('8193')).toEqual([{ chance: 1, pool: kingdom(3016) }, { chance: 0.5, pool: kingdom(3016) }]);
+    const d = ofType('Daemon'); expect(pools('9756')).toEqual([{ chance: 1, pool: d }, { chance: 0.5, pool: d }, { chance: 0.5, pool: d }]);
+  });
+  it.each([
+    { key: 'troop:7799', kinds: ['devour', 'damage'] }, { key: 'troop:6920', kinds: ['devour', 'damage', 'gem'] },
+    { key: 'troop:6968', kinds: ['devour', 'devour', 'damage', 'damage'] },
+  ])('$key native Consume first, real Devour', ({ key, kinds }) => {
+    const segs = (registry.prototypes.get(entitySkill(key).skill) as { segments: { kind: string; execute?: boolean }[] }).segments;
+    expect(segs.map(s => s.kind)).toEqual(kinds); expect(segs.some(s => s.execute)).toBe(false);
+  });
+  it.each([{ terror: true, lo: 160, hi: 240 }, { terror: false, lo: -1, hi: 1 }])('troop:7799 50% devour only if Terrified ($terror)', ({ terror, lo, hi }) => {
+    const n = devourRate('troop:7799', 400, { enemies: [{}, { hp: 900, maxHp: 900, statuses: terror ? [{ id: 'terror', turns: 99 }] as never : [] }] });
+    expect(n).toBeGreaterThan(lo); expect(n).toBeLessThan(hi);
+  });
+  it('troop:6920 a devour counts as the enemy dying: 9 Red Gems', () => {
+    for (let seed = 1; seed <= 200; seed++) {
+      const s = castSpell({ key: 'troop:6920', seed }).summary;
+      if (s.order[0].includes('devoured')) { expect(s.gems.created.Red).toBe(9); return; }
+    }
+    throw new Error('no devour in 200 seeds');
+  });
+  it('troop:6968 devoured front enemy -> damage goes to the new front enemy (FirstLastEnemies after the Consumes)', () => {
+    const sub = [{ id: 'submerged', turns: 99 }] as never;
+    let seen = false;
+    for (let seed = 1; seed <= 300 && !seen; seed++) {
+      const o = castSpell({ key: 'troop:6968', seed, allies: [{ statuses: sub }, { statuses: sub }] }).summary.order.filter(x => x.startsWith('dmg'));
+      if (o[0].startsWith('dmg E10') && o[0].includes('devoured') && !o[1].includes('devoured')) { expect(o.slice(1)).toEqual(['dmg E11 14', 'dmg E13 14']); seen = true; }
+    }
+    expect(seen).toBe(true);
+  });
+  it('troop:6786 1 or 2 independent Mist of Scales troops (50%)', () => {
+    let two = 0, differ = false;
+    for (let seed = 1; seed <= 300; seed++) {
+      const r = castSpell({ key: 'troop:6786', seed, allies: [] });
+      const n = Object.values(r.summary.units).filter(v => v.startsWith('new ')).map(v => v.split(' ')[1]);
+      expect(n.length).toBeGreaterThanOrEqual(1); if (n.length === 2) { two++; differ ||= n[0] !== n[1]; }
+    }
+    expect(two).toBeGreaterThan(115); expect(two).toBeLessThan(185); expect(differ).toBe(true);
+  });
+  it.each([{ had: true, others: true }, { had: false, others: false }])('weapon:1486 other allies get Reflect only if I already had it ($had)', ({ had, others }) => {
+    const r = castSpell({ key: 'weapon:1486', caster: { statuses: had ? [{ id: 'reflect', turns: 99 }] as never : [] } });
+    expect(r.summary.order[0]).toBe('buff C armor+11');
+    expect(r.f.allies.every(a => a.statuses.some(s => s.id === 'reflect'))).toBe(others);
+    expect(r.f.caster.statuses.some(s => s.id === 'reflect')).toBe(true);
+  });
+});

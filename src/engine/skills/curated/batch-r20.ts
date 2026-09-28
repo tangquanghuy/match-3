@@ -208,15 +208,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [(魔法 x 2) + 7] 点伤害，有 10% 的几率吞噬敌人，几率因红色宝石和陷入燃烧状态的敌人而增强。若敌人身亡，则创造 9 颗红色宝石。 [x4]',
     // 「几率因红宝石+燃烧敌人增强 [x4]」= chanceBoost 双来源各 ×4（9755 口径）；「若敌人身亡创造」= ifTargetDied
     build: skill(
-      dmg('enemyChosen', 7, 2),
-      dmg('enemyChosen', 0, 0, {
-        execute: true,
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (a real Devour) precedes the Damage.
+      devour('enemyChosen', {
         chance: 0.1,
         chanceBoost: {
           mod: { kind: 'multiplier', a: 4 },
           sources: [{ kind: 'boardGems', color: BaseColor.Red }, { kind: 'enemyStatusCount', statusId: 'burning' }],
         },
       }),
+      dmg('enemyChosen', 7, 2),
       createGems(BaseColor.Red, 9, 0, { ifTargetDied: true }),
     ),
   },
@@ -265,24 +265,17 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「首位和末位」= enemyFront/enemyLast 两段；「几率 +3%/名下潜者 [x3]」= chance 0.1 + chanceBoost
     // allyStatusCount/enemyStatusCount submerged 双来源各 ×3（官方两步 ConsumeConditional 独立掷签）
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional@FrontEnemy, ConsumeConditional@LastEnemy (real Devours),
+      // then Damage@FirstLastEnemies on whoever is first/last after the devours.
+      ...(['enemyFront', 'enemyLast'] as const).map(t => devour(t, {
+        chance: 0.1,
+        chanceBoost: {
+          mod: { kind: 'multiplier', a: 3 },
+          sources: [{ kind: 'allyStatusCount', statusId: 'submerged' }, { kind: 'enemyStatusCount', statusId: 'submerged' }],
+        },
+      })),
       dmg('enemyFront', 4, 1),
       dmg('enemyLast', 4, 1),
-      dmg('enemyFront', 0, 0, {
-        execute: true,
-        chance: 0.1,
-        chanceBoost: {
-          mod: { kind: 'multiplier', a: 3 },
-          sources: [{ kind: 'allyStatusCount', statusId: 'submerged' }, { kind: 'enemyStatusCount', statusId: 'submerged' }],
-        },
-      }),
-      dmg('enemyLast', 0, 0, {
-        execute: true,
-        chance: 0.1,
-        chanceBoost: {
-          mod: { kind: 'multiplier', a: 3 },
-          sources: [{ kind: 'allyStatusCount', statusId: 'submerged' }, { kind: 'enemyStatusCount', statusId: 'submerged' }],
-        },
-      }),
     ),
   },
   {

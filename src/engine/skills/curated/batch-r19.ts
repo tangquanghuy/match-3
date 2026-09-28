@@ -1127,13 +1127,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对敌人造成[魔法 + 4]点伤害，受恐惧敌人和恐惧宝石的影响而提升伤害。如果敌人处于恐惧状态，则有50%的几率将其吞噬。 [x4]',
     // 双来源各 ×4（enemyStatusCount terror + boardSpecial terrorGem，r16 9875 口径）
     build: skill(
+      // sa-R5 L1-devour-first (R001): native ConsumeConditional (50% if Terrified, a real Devour) precedes the Damage.
+      devour('enemyChosen', { chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'terror' } }),
       dmg('enemyChosen', 4, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 4 },
           sources: [{ kind: 'enemyStatusCount', statusId: 'terror' }, { kind: 'boardSpecial', gem: 'terrorGem' }],
         },
       }),
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'terror' } }),
     ),
   },
   {

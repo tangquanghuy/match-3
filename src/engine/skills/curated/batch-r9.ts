@@ -154,7 +154,9 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } },
       }),
-      summonRandom(K3016, undefined, { countRange: { min: 1, max: 2 } }),
+      // sa-R5 L1-6786: native SummoningKingdomNoError 3016 + 50% (two independent random troops, not one troop x1-2).
+      summonRandom(K3016),
+      { ...summonRandom(K3016), chance: 0.5 },
     ),
   },
   {

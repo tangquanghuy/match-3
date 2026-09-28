@@ -449,6 +449,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:57:25.574Z"
  },
+ "troop:6713": {
+  "lines": {
+   "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
+   "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; summon mine troop:-1  => A14:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2",
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 骸骨魔像 hp13 atk19 arm19 mag3 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
+ },
  "troop:6716": {
   "lines": {
    "L10": "status E11 +curse ; status E11 +stun  => E11:+curse+stun",
@@ -488,6 +498,26 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
+ },
+ "troop:6786": {
+  "lines": {
+   "L10": "dmg E11 14 ; summon mine troop:-1  => A14:new 太攀 hp19 atk19 arm13 mag0 | E11:hp-4 arm-10",
+   "R10": "dmg E11 14 ; summon mine troop:-1  => A14:new 太攀 hp19 atk19 arm13 mag0 | E11:hp-4 arm-10",
+   "L0": "dmg E11 4 ; summon mine troop:-1  => A14:new 太攀 hp19 atk19 arm13 mag0 | E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11 ; summon mine troop:-1  => A14:new 太攀 hp19 atk19 arm13 mag0 | E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
+ },
+ "troop:6798": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
  },
  "troop:6801": {
   "lines": {
@@ -579,6 +609,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6920": {
+  "lines": {
+   "L10": "dmg E11 27  => E11:hp-17 arm-10",
+   "R10": "dmg E11 27  => E11:hp-17 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 27 ; defeat E11 ; convert Purple x4, Blue x2, Yellow x1, Green x1, Brown x1 -> Red x9 ; ~cascade~  => E11:hp-1 DEAD  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
+ },
  "troop:6930": {
   "lines": {
    "L10": "buff C hp+20 max+20 ; buff A1 hp+20 max+20 ; buff A2 hp+20 max+20 ; buff C armor+20 ; buff A1 armor+20 ; buff A2 armor+20 ; summon mine troop:-1  => A14:new 检测机器 hp23 atk9 arm14 mag5 | C:hp+20 max+20 arm+20 | A1:hp+20 max+20 arm+20 | A2:hp+20 max+20 arm+20",
@@ -598,6 +638,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
+ },
+ "troop:6968": {
+  "lines": {
+   "L10": "dmg E10 14 ; dmg E13 14  => E10:hp-9 arm-5 | E13:hp-11 arm-3",
+   "R10": "dmg E10 14 ; dmg E13 14  => E10:hp-9 arm-5 | E13:hp-11 arm-3",
+   "L0": "dmg E10 4 ; dmg E13 4  => E10:arm-4 | E13:hp-1 arm-3",
+   "K": "dmg E10 14 ; defeat E10 ; dmg E13 14 ; defeat E13  => E10:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
  },
  "troop:6994": {
   "lines": {
@@ -638,6 +688,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:36:41.866Z"
+ },
+ "troop:7033": {
+  "lines": {
+   "L10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
+   "R10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
+   "L0": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
+   "K": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
  },
  "troop:7048": {
   "lines": {
@@ -939,6 +999,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
  },
+ "troop:7763": {
+  "lines": {
+   "L10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; summon mine troop:-1  => A14:new 别克萨 hp16 atk22 arm25 mag5 | E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3",
+   "R10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; summon mine troop:-1  => A14:new 别克萨 hp16 atk22 arm25 mag5 | E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter) ; summon mine troop:-1  => A14:new 梦魇马 hp15 atk14 arm5 mag0 | E10:arm-1 | E11:arm-3 | E12:arm-4 | E13:arm-2",
+   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; summon mine troop:-1  => A3:new 酷燃达拉 hp19 atk16 arm34 mag9 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
+ },
  "troop:7767": {
   "lines": {
    "L10": "dmg E11 52  => E11:hp-42 arm-10",
@@ -958,6 +1028,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
+ },
+ "troop:7799": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
  },
  "troop:7803": {
   "lines": {
@@ -1008,6 +1088,16 @@
   },
   "by": "sa-F1",
   "at": "2026-09-28T00:19:26.339Z"
+ },
+ "weapon:1486": {
+  "lines": {
+   "L10": "buff C armor+11 ; status C +reflect  => C:arm+11 +reflect",
+   "R10": "buff C armor+11 ; status C +reflect  => C:arm+11 +reflect",
+   "L0": "buff C armor+1 ; status C +reflect  => C:arm+1 +reflect",
+   "K": "buff C armor+11 ; status C +reflect  => C:arm+11 +reflect"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:58:11.265Z"
  },
  "weapon:1602": {
   "lines": {

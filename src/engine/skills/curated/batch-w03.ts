@@ -965,9 +965,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8842,
     desc: '获得 [魔法 + 1] 点护甲值和反射效果。若自身已有反射效果，则赋予所有盟友反射效果。',
     build: skill(
-      inflict('reflect', 'allySelf'),
+      // sa-R5 L1-1486 (R001): native CountSpecificStatusEffect mirror@Self -> IncreaseArmor -> Reflect@AllAlliesButNotSelf
+      // only if I ALREADY had Reflect -> CauseMirror@Self. Old order gave myself Reflect first, so the condition always held.
       armor('allySelf', 1, 1),
-      inflict('reflect', 'allyAll', { ifCond: { kind: 'selfStatus', statusId: 'reflect' } }),
+      inflict('reflect', 'allyOthers', { ifCond: { kind: 'selfStatus', statusId: 'reflect' } }),
+      inflict('reflect', 'allySelf'),
     ),
   },
   {
