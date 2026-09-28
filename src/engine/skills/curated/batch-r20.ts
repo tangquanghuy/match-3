@@ -517,13 +517,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '耗掉一名敌人 6 点法力值。对其造成 [魔法 + 2] 点伤害。每耗掉一个法力值则有 2% 的几率吞噬敌人。 [x2]',
     // 「每耗 1 法力 +2% 吞噬」= chance 0 + chanceBoost drainedMana ×2（9118 口径）；「对其」= lastTarget
     build: skill(
+      // sa-R5 L1-7059: native DecreaseMana 6 -> ConsumeConditional (2%/drained Mana, CountMax 12) -> Damage.
+      // Devour (caster gains stats), not a plain execute, and it precedes the damage (R001).
       reduce('enemyChosen', 'mana', 6, 0),
+      devour('lastTarget', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'drainedMana' } } }),
       dmg('lastTarget', 2, 1),
-      dmg('lastTarget', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'drainedMana' } },
-      }),
     ),
   },
   {

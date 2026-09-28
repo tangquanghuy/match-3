@@ -4,3 +4,4 @@
 - B03 troop:7654,6830,6655,7031,7433,7680,6110,6538,7273,6801 approve=10 fixed=2 (7654 devour not execute, 7680 Wyrmrun pool 3064) issue=0
 - B04 troop:6747,7357,weapon:1274,7173,7014,weapon:1602,weapon:1647,6397,7414,6685 approve=6 fixed=2 (7014 order+dist, 1274 explode/pool partial) issue=4 (7357,1274 P-R5-faction-kingdom; 7173 P-R5-named-ally-count; 1647 P-R5-special-gem-color)
 - B05 troop:7583,6732,6594,6409,7064,7392,7719,6300,7066,6425 approve=10 fixed=5 (7064/7066 Gnome not Goblin, 7719 random targets + independent summons, 6425 75/25, 6594 PrefNotPrev) issue=0
+- B06 weapon:1295,troop:7063,7065,6135,6161,6650,7116,6201,7059,7424 approve=9 fixed=8 (7063/7065 Gnome + 7065 armor boost, 6135 allyAll range all + Red boost, 6201 dispel+chosen ally, 6161/6650 consume-first, 7059/7424 devour not execute) issue=1 (7116 R012-pending)

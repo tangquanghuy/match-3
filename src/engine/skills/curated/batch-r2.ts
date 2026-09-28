@@ -37,7 +37,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7343,
     desc: '献祭一名盟友。对所有敌人造成 12 点散射伤害，并因献祭军队的攻击力而增强。有 30% 的几率召唤阿伯拉瑟。 [1:1]',
     build: skill(
-      sacrifice('allyOthers'),
+      // sa-R5 L1-6201: native CountAttack/Dispel/Damage 10000 all FromTarget = the chosen ally; Dispel first so a
+      // Barrier (or Reflect) cannot stop the sacrifice.
+      ...['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].map(id => dispelStatus(id, 'allyChosen')),
+      sacrifice('allyChosen'),
       dmg('enemyAll', 12, 0, { range: 'all', modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'sacrificedStat', stat: 'attack' } } }),
       { ...summonRef('Abhorath'), chance: 0.3 },
     ),

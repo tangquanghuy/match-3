@@ -92,8 +92,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7237,
     desc: '对所有盟友造成 1 点真实伤害，然后创造 7 颗红色宝石和 7 颗棕色宝石，创造的宝石数因兽人盟友数而增强。召唤一名随机兽人。 [1:1]',
     build: skill(
-      trueDmg('allyAll', 1, 0),
-      createGems(BaseColor.Red, 7, 0),
+      // sa-R5 L1-6135: TrueDamage@AllAllies hits every ally (allyAll defaults to single range = caster only);
+      // UseCounterForAmount on BOTH CreateGems steps (Orc count [1:1] boosts Red and Brown).
+      trueDmg('allyAll', 1, 0, { range: 'all' }),
+      createGems(BaseColor.Red, 7, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'alliesOfRace', race: 'Orc' } } }),
       // 「创造的宝石数因兽人盟友数而增强」：modifier 挂最近创造段（batch-15 8614 口径）
       createGems(BaseColor.Brown, 7, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'alliesOfRace', race: 'Orc' } } }),
       summonRandom(ORCS),

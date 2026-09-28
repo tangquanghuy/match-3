@@ -39,6 +39,26 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:51:39.740Z"
  },
+ "troop:6135": {
+  "lines": {
+   "L10": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
+   "R10": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
+   "L0": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
+   "K": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
+ },
+ "troop:6161": {
+  "lines": {
+   "L10": "dmg E12 12  => E12:arm-12",
+   "R10": "dmg E12 12  => E12:arm-12",
+   "L0": "dmg E12 2  => E12:arm-2",
+   "K": "dmg E12 12 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
+ },
  "troop:6173": {
   "lines": {
    "L10": "buff C hp+5 max+5 ; dmg E11 14  => C:hp+5 max+5 | E11:hp-4 arm-10",
@@ -68,6 +88,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
+ },
+ "troop:6201": {
+  "lines": {
+   "L10": "dmg A1 500 ; defeat A1 ; dmg E10 8 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | A1:hp-500 DEAD | E10:hp-3 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3",
+   "R10": "dmg A1 500 ; defeat A1 ; dmg E10 8 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | A1:hp-500 DEAD | E10:hp-3 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3",
+   "L0": "dmg A1 500 ; defeat A1 ; dmg E10 8 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; summon mine troop:-1  => A14:new 阿伯拉瑟 hp28 atk19 arm11 mag10 | A1:hp-500 DEAD | E10:hp-3 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3",
+   "K": "dmg A1 500 ; defeat A1 ; dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 9 (scatter) ; dmg E13 5 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => A1:hp-500 DEAD | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
  },
  "troop:6212": {
   "lines": {
@@ -299,6 +329,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6650": {
+  "lines": {
+   "L10": "dmg E11 14 ; extra-turn skill  => E11:hp-4 arm-10  extra:skill",
+   "R10": "dmg E11 14 ; extra-turn skill  => E11:hp-4 arm-10  extra:skill",
+   "L0": "dmg E11 4 ; extra-turn skill  => E11:arm-4  extra:skill",
+   "K": "dmg E11 14 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
+ },
  "troop:6655": {
   "lines": {
    "L10": "convert Red x9 -> Purple x9 ; convert Yellow x9 -> skull x9 ; summon mine troop:-1  => A14:new 绿魔像 hp13 atk15 arm20 mag9",
@@ -469,6 +509,26 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
  },
+ "troop:7059": {
+  "lines": {
+   "L10": "buff E11 mana-6 ; dmg E11 12  => E11:hp-2 arm-10 mana-6",
+   "R10": "buff E11 mana-6 ; dmg E11 12  => E11:hp-2 arm-10 mana-6",
+   "L0": "buff E11 mana-6 ; dmg E11 2  => E11:arm-2 mana-6",
+   "K": "buff E11 mana-5 ; dmg E11 12 ; defeat E11  => E11:hp-1 mana-5 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
+ },
+ "troop:7063": {
+  "lines": {
+   "L10": "explode 43 ; skulls E10 3 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:arm-3  cascade",
+   "R10": "explode 43 ; skulls E10 3 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:arm-3  cascade",
+   "L0": "explode 43 ; skulls E10 3 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:arm-3  cascade",
+   "K": "explode 43 ; skulls E10 3 ; defeat E10 ; ~cascade~  => A2:mana+5 | A1:mana+4 | E10:hp-1 DEAD  cascade"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
+ },
  "troop:7064": {
   "lines": {
    "L10": "convert Green x2, Purple x2, Brown x1, Red x1 -> skull x6 ; flee C  => C:FLED",
@@ -478,6 +538,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T06:01:52.428Z"
+ },
+ "troop:7065": {
+  "lines": {
+   "L10": "buff C armor+15 ; buff C attack+15  => C:arm+15 atk+15",
+   "R10": "buff C armor+15 ; buff C attack+15  => C:arm+15 atk+15",
+   "L0": "buff C armor+5 ; buff C attack+5  => C:arm+5 atk+5",
+   "K": "buff C armor+15 ; buff C attack+15  => C:arm+15 atk+15"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
  },
  "troop:7066": {
   "lines": {
@@ -528,6 +598,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:57:25.574Z"
+ },
+ "troop:7424": {
+  "lines": {
+   "L10": "buff E11 mana-6 ; buff C mana+6  => E11:mana-6",
+   "R10": "buff E11 mana-6 ; buff C mana+6  => E11:mana-6",
+   "L0": "buff E11 mana-6 ; buff C mana+6  => E11:mana-6",
+   "K": "buff E11 mana-5 ; buff C mana+5  => E11:mana-5"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
  },
  "troop:7433": {
   "lines": {
@@ -618,6 +698,16 @@
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
+ },
+ "weapon:1295": {
+  "lines": {
+   "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13 | E10:hp-7 arm-5 | E11:hp-2 arm-10",
+   "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13 | E10:hp-7 arm-5 | E11:hp-2 arm-10",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13 | E10:arm-2 | E11:arm-2",
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; defeat E10 ; defeat E11 ; summon mine troop:-1  => A14:new 月凤凰 hp22 atk17 arm13 mag13 | E10:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "sa-R5",
+  "at": "2026-09-28T08:29:52.740Z"
  },
  "weapon:1310": {
   "lines": {

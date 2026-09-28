@@ -494,12 +494,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取一名敌人 6 点法力值。每耗掉一点法力值，则有 5% 的几率吞噬对方。 [x5]',
     // 几率 = 5% × 实耗法力（chance 0 + chanceBoost drainedMana，drainedMana 辖窃取法力族 §1）
     build: skill(
+      // sa-R5 L1-9118: native ConsumeConditional = Devour (caster gains stats), not a plain execute.
       steal('enemyChosen', 'mana', 'mana', 6, 0),
-      dmg('lastTarget', 0, 0, {
-        execute: true,
-        chance: 0,
-        chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'drainedMana' } },
-      }),
+      devour('lastTarget', { chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 5 }, source: { kind: 'drainedMana' } } }),
     ),
   },
   {

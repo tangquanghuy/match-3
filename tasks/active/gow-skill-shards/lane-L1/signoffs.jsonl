@@ -78,3 +78,13 @@
 {"format":"compact","key":"troop:6300","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7066","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6425","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T06:01:52.529Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1295","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.855Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7063","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.856Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7065","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.856Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6135","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6161","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6650","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6201","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7059","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7424","decision":"accept","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:52.857Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7116","decision":"issue","reviewer":"sa-R5","reviewedAt":"2026-09-28T08:29:53.024Z","issue":"R012-pending","note":"8659: AboveTarget damage after the chosen enemy is killed (K scenario: no second hit); resolve per R012 anchor position"}

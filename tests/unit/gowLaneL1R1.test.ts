@@ -1,7 +1,9 @@
 // sa-R5 lane L1 review round 2: native Charm skills (R008: Charm = temporary negative status) and summon
 // distributions the four standard scenarios cannot show.
 import { describe, it, expect } from 'vitest';
-import { castSpell, sixColourBoard } from '../helpers/gowCast';
+// @ts-expect-error Node-only audit fixture
+import fs from 'node:fs';
+import { castSpell, sixColourBoard, registry, entitySkill } from '../helpers/gowCast';
 import { skullGem } from '@engine/types';
 import { TROOPS } from '../../src/data/troops';
 type St = { id: string; turns: number }[];
@@ -221,4 +223,64 @@ describe('L1 R2 charm family (sa-R5)', () => {
     expect(half).toBeGreaterThan(85); expect(half).toBeLessThan(155);
     expect(both).toBeGreaterThan(15); expect(both).toBeLessThan(60);
   });
+});
+
+// ---------------------------------------------------------------- B06
+const devourRate = (key: string, n: number, opts: Parameters<typeof castSpell>[0] = {}) => {
+  let dev = 0;
+  for (let seed = 1; seed <= n; seed++) {
+    const s = castSpell({ key, seed, ...opts }).summary;
+    const i = s.order.findIndex(x => x.includes('devoured'));
+    if (i >= 0) { dev++; expect(s.order.filter(x => x.startsWith('dmg')).length).toBe(1); }
+  }
+  return dev;
+};
+describe('L1 R2 B06 (sa-R5)', () => {
+  it('weapon:1295 summon pool = every roster troop whose raw TroopType/TroopType2 is Beast', () => {
+    const raw = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops as { ReferenceName: string; TroopType: string; TroopType2: string }[];
+    const roster = new Set(TROOPS.map(t => t.referenceName));
+    const want = raw.filter(t => [t.TroopType, t.TroopType2].map(x => String(x ?? '').toLowerCase()).includes('beast')).map(t => t.ReferenceName).filter(r => roster.has(r));
+    const p = registry.prototypes.get('gw_BeastlyClaw') as { segments: { kind: string; params?: { source: { randomOf?: string[] } } }[] };
+    expect([...p.segments.find(s => s.kind === 'summon')!.params!.source.randomOf!].sort()).toEqual([...new Set(want)].sort());
+  });
+  it.each([{ t: ['Beast'], dmg: 16 }, { t: ['Human'], dmg: 12 }])('weapon:1295 first two enemies take 12 + 4 per Beast ally ($t)', ({ t, dmg }) => {
+    expect(castSpell({ key: 'weapon:1295', allies: [{ troopTypes: t }] }).summary.order.slice(0, 2)).toEqual([`dmg E10 ${dmg} (all)`, `dmg E11 ${dmg} (all)`]);
+  });
+  // troop:7063 / 7065 native CountArmyType gnome (caster is a Gnome and counts itself).
+  it('troop:7063 / 7065 count Gnome allies, not Goblins', () => {
+    for (const key of ['troop:7063', 'troop:7065']) {
+      const segs = (registry.prototypes.get(entitySkill(key).skill) as { segments: { modifier?: { source: { race?: string } }; params?: { modifier?: { source: { race?: string } } } }[] }).segments;
+      const races = segs.flatMap(s => [s.modifier?.source.race, s.params?.modifier?.source.race]).filter(Boolean);
+      expect(new Set(races)).toEqual(new Set(['Gnome']));
+    }
+  });
+  it.each([{ t: ['Gnome'], v: 19 }, { t: ['Goblin'], v: 15 }])('troop:7065 armor AND attack +[Magic+1] +4 per Gnome ($t ally)', ({ t, v }) => {
+    expect(castSpell({ key: 'troop:7065', allies: [{ troopTypes: t }] }).summary.order.slice(0, 2)).toEqual([`buff C armor+${v}`, `buff C attack+${v}`]);
+  });
+  // troop:6135 TrueDamage 1 to ALL allies; Orc count [1:1] boosts both Red and Brown.
+  it.each([{ orcs: 0, n: 8 }, { orcs: 2, n: 10 }])('troop:6135 with $orcs Orc allies: every ally loses 1, Red = Brown = $n', ({ orcs, n }) => {
+    const allies = [0, 1].map(i => ({ troopTypes: [i < orcs ? 'Orc' : 'Human'] }));
+    const s = castSpell({ key: 'troop:6135', allies }).summary;
+    expect(s.order.slice(0, 3)).toEqual(['dmg C 1 (all)', 'dmg A1 1 (all)', 'dmg A2 1 (all)']);
+    expect(s.gems.created.Red).toBe(n); expect(s.gems.created.Brown).toBe(n);
+  });
+  // troop:6201 Dispel + 10000 damage on the chosen ally: a Barrier cannot save it; scatter 12 + its Attack.
+  it('troop:6201 chosen ally with Barrier is still sacrificed; scatter = 12 + its Attack', () => {
+    const r = castSpell({ key: 'troop:6201', target: 2, allies: [{}, { attack: 20, statuses: [{ id: 'barrier', turns: 99 }] as never }] });
+    expect(r.f.allies[1].defeated).toBe(true); expect(r.f.allies[0].defeated).toBe(false);
+    const scatter = r.summary.order.filter(x => x.endsWith('(scatter)')).reduce((a, x) => a + Number(x.split(' ')[2]), 0);
+    expect(scatter).toBe(32);
+  });
+  // Devour family: native Consume first, then Damage only if not devoured.
+  it('troop:6161 25% devour of a random enemy, else Magic+2 to that enemy', () => {
+    const n = devourRate('troop:6161', 400); expect(n).toBeGreaterThan(70); expect(n).toBeLessThan(130);
+  });
+  it('troop:6650 devour chance = my Attack (%)', () => {
+    const n = devourRate('troop:6650', 400, { caster: { attack: 50 } }); expect(n).toBeGreaterThan(165); expect(n).toBeLessThan(235);
+  });
+  it.each([{ key: 'troop:7059', mana: 20, lo: 25, hi: 75 }, { key: 'troop:7059', mana: 3, lo: 8, hi: 45 }, { key: 'troop:7424', mana: 20, lo: 90, hi: 150 }])(
+    '$key devour chance per drained Mana (enemy mana $mana), real devour', ({ key, mana, lo, hi }) => {
+      const n = devourRate(key, 400, { enemies: [{}, { hp: 900, maxHp: 900, armor: 10, mana }] });
+      expect(n).toBeGreaterThan(lo); expect(n).toBeLessThan(hi);
+    });
 });

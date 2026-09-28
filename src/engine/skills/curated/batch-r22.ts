@@ -228,8 +228,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Devour 家族回收；尾缀 [1:1] 无来源子句可绑（7xxx 无步骤数据），按孤儿尾缀先例
     // 不挂载不硬凑（r15 7032 / r17 7430 同口径）。
     build: skill(
-    dmg('enemyRandom', 2, 1),
-    devour('lastTarget', { chance: 0.25 }),
+    // sa-R5 (R001): native CountAttack@RandomEnemy -> Consume@FromPrevious 25% -> Damage@FromPrevious.
+    devour('enemyRandom', { chance: 0.25 }),
+    dmg('lastTarget', 2, 1),
     ),
   },
   {
@@ -615,8 +616,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // Devour 家族回收：「几率=自身攻击力」= chance 0 + chanceBoost selfStat attack（§11 追加
     // 口径）；尾缀 [1:1] = 几率加成比率的序列化。
     build: skill(
+    // sa-R5 (R001): native ConsumeConditional (chance = my Attack) precedes Damage@FromTarget.
+    devour('enemyChosen', { chance: 0, chanceBoost: boostPer({ kind: 'selfStat', stat: 'attack' }, 1) }),
     dmg('enemyChosen', 4, 1),
-    devour('lastTarget', { chance: 0, chanceBoost: boostPer({ kind: 'selfStat', stat: 'attack' }, 1) }),
     extraTurn(),
     ),
   },
