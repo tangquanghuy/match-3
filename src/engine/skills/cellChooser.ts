@@ -68,6 +68,10 @@ export class FixedCellChooser {
  */
 export function prototypeNeedsCell(proto: { segments: readonly unknown[] }): boolean {
   for (const seg of proto.segments as ReadonlyArray<Record<string, unknown>>) {
+    // P-R6-chosen-diagonal-transform: a Target Board spell whose cell step sits inside a random branch (8762
+    // Randomize AB-CD) still picks the cell before the cast
+    if (seg.kind === 'oneOf' && Array.isArray(seg.options)
+      && (seg.options as unknown[][]).some((opt) => prototypeNeedsCell({ segments: opt }))) return true;
     if (seg.kind !== 'gem') continue;
     const params = seg.params as { op?: string; target?: Record<string, unknown>; from?: unknown } | undefined;
     if (params?.op === 'clear') {
@@ -79,6 +83,7 @@ export function prototypeNeedsCell(proto: { segments: readonly unknown[] }): boo
       if (target.kind === 'chosenCross') return true;
     }
     if (params?.op === 'transform' && params.from === 'CELL') return true;
+    if (params?.op === 'transform' && (params as { diagonalAnchor?: string }).diagonalAnchor === 'chosenCell') return true;
   }
   return false;
 }

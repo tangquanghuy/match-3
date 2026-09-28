@@ -89,15 +89,16 @@ describe('GoW weapon native-step repair regressions', () => {
     expect(events.some(e => e.type === 'gem-explode')).toBe(true);
   });
 
-  it('8762 converts exactly one complete diagonal and scatters damage once', () => {
-    const { ctx, events } = cast(8762);
+  it('8762 converts exactly one complete diagonal through the chosen cell and scatters damage once', () => {
+    // P-R6-chosen-diagonal-transform: Target Board spell, diagonal through the chosen cell (3,3): 8 (row=col) or 7 (row+col=6)
+    const { ctx, events } = cast(8762, c => { c.chosenCell = { row: 3, col: 3 }; });
     const transformed = events.filter(e => e.type === 'gem-transform');
     expect(transformed).toHaveLength(1);
     if (transformed[0].type !== 'gem-transform') throw new Error('missing transform');
-    expect(transformed[0].changes).toHaveLength(8);
+    expect([7, 8]).toContain(transformed[0].changes.length);
     expect(transformed[0].changes.every(c => c.to.kind === 'special' && c.to.spec.kind === 'burningGem')).toBe(true);
     const changed = transformed[0].changes.map(c => c.pos);
-    expect(changed.every(c => c.row === c.col) || changed.every(c => c.row + c.col === 7)).toBe(true);
+    expect(changed.every(c => c.row === c.col) || changed.every(c => c.row + c.col === 6)).toBe(true);
     expect(ctx.state.board.get({ row: 0, col: 3 })?.type.kind).toBe('color');
   });
 

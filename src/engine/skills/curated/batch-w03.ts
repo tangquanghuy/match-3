@@ -803,7 +803,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8762,
     desc: '将所有向上或向下斜方宝石转换成燃烧宝石。造成 [魔法 + 8] 点散射伤害。',
-    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"left"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}],[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"right"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}]]}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"left","diagonalAnchor":"chosenCell"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}],[{"kind":"gem","params":{"op":"transform","from":"ANY","to":"Red","toSpecial":"burningGem","diagonal":"right","diagonalAnchor":"chosenCell"}},{"kind":"damage","target":"enemyAll","scaling":{"base":8,"mult":1},"range":"scatter"}]]}]} as SkillPrototype),
   },
   {
     id: 8763,

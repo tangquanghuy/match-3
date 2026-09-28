@@ -95,3 +95,7 @@
   - accepted (L3): troop:7646 weapon:1144 troop:6386
   - re-review (situational: only when the hit kills the tracked target): troop:7313 (8925) troop:6857 (8276) troop:7005 (8533) troop:6912 (8373)
   - note: damage.ts splash (l.342 / 396) and gems.ts l.103 set lastTarget without unit; they keep the old behaviour
+- 2026-09-28T21:20:00Z P-R6-chosen-diagonal-transform fixed: gems.ts transform diagonalAnchor 'chosenCell' (left = row-col, right = row+col of the chosen cell; no cell -> no-op); cellChooser.ts prototypeNeedsCell recurses into oneOf options and flags diagonalAnchor; 8762 (weapon:1461) curated + override synced; gowFixP-R6-chosen-diagonal-transform.test.ts; golden diff 0 lines (default cell 3,3 = centre diagonals)
+  - accepted (L2): weapon:1461
+  - re-review (unsigned, behaviour changed): weapon:1385 (8448, native Target Board Randomize ABC-DEF ExplodeGems Row|Column) and troop:6625 (7943) now pick a cell and explode the chosen row / column (before: oneOf hid the cell step, no chosenCell, the explode was skipped)
+  - weaponNativeStepRepair.test.ts 8762 case now sets chosenCell (3,3) and accepts either diagonal through it (7 or 8 cells); full vitest 402 files green

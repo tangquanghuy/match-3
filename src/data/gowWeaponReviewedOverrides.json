@@ -8003,7 +8003,8 @@
                     "from": "ANY",
                     "to": "Red",
                     "toSpecial": "burningGem",
-                    "diagonal": "left"
+                    "diagonal": "left",
+                    "diagonalAnchor": "chosenCell"
                   }
                 },
                 {
@@ -8024,7 +8025,8 @@
                     "from": "ANY",
                     "to": "Red",
                     "toSpecial": "burningGem",
-                    "diagonal": "right"
+                    "diagonal": "right",
+                    "diagonalAnchor": "chosenCell"
                   }
                 },
                 {

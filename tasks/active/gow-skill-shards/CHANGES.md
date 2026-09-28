@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 493 条改动，涉及 828 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 494 条改动，涉及 831 个技能 ID。
 
 ## 按时间
 
@@ -499,6 +499,7 @@
 | 2026-09-28T11:47 | sa-P | P-R5-summon-id-reuse | primitive | 7602, 7643 | troop:6428 Xathenos；troop:6465 Hyena | `src/engine/teamRoster.ts`<br>`src/engine/GameState.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/summon.ts` | summon id = max living id + 1: killing the highest-id unit made the next summon reuse its id, lastTarget resolved to the summon and later ifTargetDied summons skipped → monotonic allocateCharId (GameState.charIdHighWater records removed ids); dead ids never reused | every summon (ids after a kill now > highest removed id) |
 | 2026-09-28T11:55 | sa-P | P-R5-named-ally-count | primitive | 8744, 8658 | troop:7173 Uvhash-Ka；troop:7115 AbjectOfDespond | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r11.ts` | troopPresent boolean: 3 extra Doomskulls / 3 more Magic if any Eldritch Minion / Despond ally → modifier source alliesNamed {name, atCastStart}: 3 per matching ally (native CountArmyTroop step 0 counter) |  |
 | 2026-09-28T12:00 | sa-P | P-R7-dead-last-target-cond | primitive | 9550, 7410, 7541 | troop:7646 ShadowWraith；weapon:1144 SpiderTotem；troop:6386 Warhawk | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts` | lastTargetColor/Race/Status false once the hit killed the target (unit spliced, findCharacter undefined) → castTracking.lastTarget.unit keeps the picked Character; colour/race/status conditions read it after death | lastTargetColor/Race/Status users: 8925 8276 8533 8373 9550 7410 7541 |
+| 2026-09-28T12:10 | sa-P | P-R6-chosen-diagonal-transform | primitive | 8762, 8448, 7943 | weapon:1461 SlashingEmbers；weapon:1385 MinosCleaver；troop:6625 Hammerclaw | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/cellChooser.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | transform diagonal fixed to the board's main diagonals; prototypeNeedsCell ignored oneOf branches (8448 / 7943 chosen row/col explode had no cell and exploded nothing) → transform diagonalAnchor 'chosenCell' (row-col / row+col of the chosen cell); prototypeNeedsCell recurses into oneOf options | Target Board spells whose cell step is inside a random oneOf branch: 8762 8448 7943 |
 
 ## 按技能 ID
 
@@ -766,6 +767,7 @@
 | 7936 | 1 | P-create-interleave |
 | 7941 | 1 | F2-6623-column-order |
 | 7942 | 1 | P-B-action-status-self-count |
+| 7943 | 1 | P-R6-chosen-diagonal-transform |
 | 7944 | 1 | B-L4b-6626-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
@@ -930,6 +932,7 @@
 | 8438 | 1 | F1-6931-dispel |
 | 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
+| 8448 | 1 | P-R6-chosen-diagonal-transform |
 | 8454 | 1 | P-R1-dual-storm |
 | 8458 | 1 | L2-6958-order |
 | 8461 | 1 | L1-E-1394-pool |
@@ -1051,6 +1054,7 @@
 | 8755 | 1 | F2-R001-order |
 | 8758 | 1 | P-R1-count-at-native-step |
 | 8761 | 1 | R7-1460-burning-gems |
+| 8762 | 1 | P-R6-chosen-diagonal-transform |
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |
