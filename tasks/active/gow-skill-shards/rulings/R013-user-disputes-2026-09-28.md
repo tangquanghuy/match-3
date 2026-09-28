@@ -9,4 +9,4 @@
    - 按颜色移除骷髅（如僵尸 troop:6052 RemoveColor Skull）同时清掉末日骷髅等骷髅变种。
    - 移除（remove）仍遵守 R010：不给法力、不触发特殊效果；摧毁（destroy）照常触发。
 
-待定：troop:7000（Baihu）计数先后，见用户答复后补 R014。
+troop:7000（Baihu）计数先后见 R014。

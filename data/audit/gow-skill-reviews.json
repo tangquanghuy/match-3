@@ -101494,11 +101494,13 @@
     {
       "format": "compact",
       "key": "troop:7000",
-      "decision": "issue",
-      "reviewer": "sa-B",
-      "reviewedAt": "2026-09-28T10:29:19.475Z",
-      "issue": "L4b-7000-countset-order",
-      "note": "source-dispute: native 0:CountSet 1 ; 1:CountGems* 50 Yellow ; 2:CreateGems 3 Yellow ; 3:Damage* 3+M. Native counts Yellow BEFORE the 3 are created (R001) -> 13 + floor(9 x 50%) = 17 (or 18 if CountSet 1 seeds the counter); runtime creates first -> 13 + floor(12/2) = 19. CountSet with Amount 1 and CountGems with UseCounterForAmount occur only in this skill; semantics undocumented. zh fixed (changelog B-L4b-7000-zh)."
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-28T15:44:44.606Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R014 user ruling: Yellow counted before CreateGems, CountSet 1 not added; test gowFixR014"
     },
     {
       "format": "compact",

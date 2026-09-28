@@ -59,6 +59,8 @@ export type ModifierSource =
   | { kind: 'boardSkulls' }
   /** Skull-family gems captured before the spell's first segment (native CountGems ordering). */
   | { kind: 'castStartBoardSkulls' }
+  /** Colour gems captured before the spell's first segment (R014, native CountGems <Color> before CreateGems). */
+  | { kind: 'castStartBoardGems'; color: BaseColor }
   /** 当前棋盘上指定种类的特殊宝石数（「因炸弹宝石数而增强」） */
   | { kind: 'boardSpecial'; gem: SpecialGemKind; tier?: number; color?: BaseColor }
   /** 施法者自身属性（hp=当前生命；missingHp=已损失生命） */
@@ -810,6 +812,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       return n;
     }
     case 'castStartBoardSkulls': return ctx.castTracking?.skullsAtCastStart ?? 0;
+    case 'castStartBoardGems': return ctx.castTracking?.colorGemsAtCastStart?.[source.color] ?? 0;
     case 'boardSkulls': {
       let n = 0;
       ctx.state.board.forEach((gem) => {

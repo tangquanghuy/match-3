@@ -947,8 +947,14 @@ function ensureCastTracking(ctx: EffectContext): CastTracking {
     ctx.state.board.forEach((gem) => {
       if (gem && isSameMatchType(gem.type, skullGem())) skullsAtCastStart += 1;
     });
+    // R014: colour-gem counts before any segment (native CountGems <Color> ahead of CreateGems, e.g. 8503)
+    const colorGemsAtCastStart: Partial<Record<BaseColor, number>> = {};
+    ctx.state.board.forEach((gem) => {
+      if (gem && gem.type.kind === 'color') colorGemsAtCastStart[gem.type.color] = (colorGemsAtCastStart[gem.type.color] ?? 0) + 1;
+    });
     ctx.castTracking = {
       skullsAtCastStart,
+      colorGemsAtCastStart,
       chosenColumnAtCastStart,
       chosenRowAtCastStart,
       destroyed: [],

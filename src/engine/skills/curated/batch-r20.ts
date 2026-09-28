@@ -329,10 +329,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8503,
     desc: '创造 3 颗黄色宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因黄色宝石数而增强。赋予自己法印效果。 [2:1]',
-    // 「迷惑自己」机翻，EN/ST = Enchant myself → 法印（R10 口径）；[2:1] = CountGems Yellow 50 → boardGems
+    // 「迷惑自己」机翻，EN/ST = Enchant myself → 法印（R10 口径）；[2:1] = CountGems Yellow 50
+    // R014（用户裁定）：原生 CountSet 1 → CountGems Yellow → CreateGems 3 Yellow → Damage——黄宝石在创造前计数，
+    // 新造的 3 颗不计；CountSet 的 1 不加进计数 → castStartBoardGems
     build: skill(
       createGems(BaseColor.Yellow, 3),
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'castStartBoardGems', color: BaseColor.Yellow } } }),
       inflict('enchanted', 'allySelf'),
     ),
   },

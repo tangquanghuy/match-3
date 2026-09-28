@@ -34,6 +34,8 @@ export interface CastTracking {
   mostUsedManaColors?: Partial<Record<PlayerSide, BaseColor | null>>;
   /** Skull-family gems before any spell segment; native CountGems(Skull) precedes gem creation. */
   skullsAtCastStart?: number;
+  /** Colour-gem counts before any spell segment (R014: native CountGems <Color> precedes CreateGems). */
+  colorGemsAtCastStart?: Partial<Record<BaseColor, number>>;
   /** Selected-column gems before any spell segment, for native CountGems -> Explode -> Create. */
   chosenColumnAtCastStart?: GemType[];
   /** Selected-row gems before any spell segment (P-R1-row-count-at-cast-start, native CountGems BoardTarget Row). */
