@@ -209,6 +209,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T08:53:48.435Z"
  },
+ "troop:6268": {
+  "lines": {
+   "L10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:arm-4 | E11:arm-5 | E12:arm-7 | E13:arm-3 | C:mag+3 | A1:mag+3 | A2:mag+3",
+   "R10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:arm-4 | E11:arm-5 | E12:arm-7 | E13:arm-3 | C:mag+3 | A1:mag+3 | A2:mag+3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 3 (scatter) ; dmg E12 3 (scatter) ; dmg E13 2 (scatter) ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:arm-1 | E11:arm-3 | E12:arm-3 | E13:arm-2 | C:mag+3 | A1:mag+3 | A2:mag+3",
+   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:mag+3 | A1:mag+3 | A2:mag+3"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:29:36.579Z"
+ },
  "troop:6275": {
   "lines": {
    "L10": "dmg E12 15 (all) ; dmg E13 15 (all) ; convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8  => E12:hp-3 arm-12 | E13:hp-12 arm-3",

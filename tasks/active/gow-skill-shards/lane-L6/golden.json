@@ -199,6 +199,16 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:26:09.800Z"
  },
+ "troop:6379": {
+  "lines": {
+   "L10": "dmg E11 12 ; move E11 back  => E11:hp-12",
+   "R10": "dmg E11 12 ; move E11 back  => E11:hp-12",
+   "L0": "dmg E11 2 ; move E11 back  => E11:hp-2",
+   "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:29:32.078Z"
+ },
  "troop:6499": {
   "lines": {
    "L10": "buff A1 attack+11 ; buff A1 magic+2  => A1:atk+11 mag+2",
@@ -418,6 +428,16 @@
   },
   "by": "sa-G",
   "at": "2026-09-28T21:41:31.005Z"
+ },
+ "troop:6859": {
+  "lines": {
+   "L10": "buff E10 magic-3 ; buff C magic+3 ; buff E11 magic-3 ; buff C magic+3 ; buff E12 magic-3 ; buff C magic+3 ; buff E13 magic-3 ; buff C magic+3 ; dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all)  => E10:hp-18 arm-5 mag-3 | C:mag+12 | E11:hp-13 arm-10 mag-3 | E12:hp-11 arm-12 mag-3 | E13:hp-20 arm-3 mag-3",
+   "R10": "buff E10 magic-3 ; buff C magic+3 ; buff E11 magic-3 ; buff C magic+3 ; buff E12 magic-3 ; buff C magic+3 ; buff E13 magic-3 ; buff C magic+3 ; dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all)  => E10:hp-18 arm-5 mag-3 | C:mag+12 | E11:hp-13 arm-10 mag-3 | E12:hp-11 arm-12 mag-3 | E13:hp-20 arm-3 mag-3",
+   "L0": "buff E10 magic-3 ; buff C magic+3 ; buff E11 magic-3 ; buff C magic+3 ; buff E12 magic-3 ; buff C magic+3 ; buff E13 magic-3 ; buff C magic+3 ; dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all)  => E10:hp-8 arm-5 mag-3 | C:mag+12 | E11:hp-3 arm-10 mag-3 | E12:hp-1 arm-12 mag-3 | E13:hp-10 arm-3 mag-3",
+   "K": "buff E10 magic-3 ; buff C magic+3 ; buff E11 magic-3 ; buff C magic+3 ; buff E12 magic-3 ; buff C magic+3 ; buff E13 magic-3 ; buff C magic+3 ; dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 mag-3 DEAD | C:mag+12 | E11:hp-1 mag-3 DEAD | E12:hp-1 mag-3 DEAD | E13:hp-1 mag-3 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:29:32.078Z"
  },
  "troop:6881": {
   "lines": {
@@ -1109,6 +1129,16 @@
   "by": "sa-F3",
   "at": "2026-09-28T00:29:05.629Z"
  },
+ "weapon:1360": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-14",
+   "R10": "dmg E11 14  => E11:hp-14",
+   "L0": "dmg E11 4  => E11:hp-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:29:32.078Z"
+ },
  "weapon:1419": {
   "lines": {
    "L10": "buff C hp+11 max+11 ; buff A1 magic+2  => C:hp+11 max+11 | A1:mag+2",
@@ -1118,6 +1148,16 @@
   },
   "by": "sa-G",
   "at": "2026-09-28T21:51:47.599Z"
+ },
+ "weapon:1430": {
+  "lines": {
+   "L10": "dmg E10 7 (scatter) ; dmg E11 6 (scatter) ; dmg E12 9 (scatter) ; dmg E13 4 (scatter) ; move E13 front  => E10:hp-7 | E11:hp-6 | E12:hp-9 | E13:hp-4",
+   "R10": "dmg E10 7 (scatter) ; dmg E11 6 (scatter) ; dmg E12 9 (scatter) ; dmg E13 4 (scatter) ; move E13 front  => E10:hp-7 | E11:hp-6 | E12:hp-9 | E13:hp-4",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; move E13 front  => E10:hp-1 | E11:hp-1 | E12:hp-3 | E13:hp-1",
+   "K": "dmg E10 7 (scatter) ; dmg E11 6 (scatter) ; dmg E12 9 (scatter) ; dmg E13 4 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-I",
+  "at": "2026-09-28T23:29:32.078Z"
  },
  "weapon:1517": {
   "lines": {

@@ -35,3 +35,10 @@ Lanes in order: L7, L6, L1, L3, L4b, L2. Tests: tests/unit/gowLaneMixI.test.ts
 - weapon:1128 accept (L6; scatter 17, +2 Magic)
 - troop:7207 accept (L6; steal 10 Armor then light splash 13/3 on same chosen enemy)
 - L6 B03 done: accept=5 fixed=1 issue=0
+- troop:6859 accept (L6; steal 3 Magic all first, then [M+1] = 23 all)
+- weapon:1360 accept (L6; true 14, AddForUndead 1000 armor wipe on the target only)
+- troop:6379 accept (L6; true 12 chosen, then knock to last)
+- weapon:1430 accept (L6; true scatter 26, then last enemy to front)
+- L6 exhausted (14 pending: 14 accept, 0 issue); next L1
+- troop:6268 fixed+accept (L1; AB-CD branch A = transform random enemy into Wraith 6206 BEFORE scatter; was scatter then 1 of 3 wraith variants)
+- L6 B04 + L1 B01 done: accept=5 fixed=1 issue=0

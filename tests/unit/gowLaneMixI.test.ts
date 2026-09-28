@@ -199,3 +199,31 @@ describe('sa-I L6 B03', () => {
     expect(dmgs({ key: 'troop:6681' }).reduce((a, b) => a + b, 0)).toBe(22);
   });
 });
+describe('sa-I L6 B04 + L1', () => {
+  it('troop:6859 steals 3 Magic from each enemy first, so the hit is [22 + 1] = 23 on all', () => {
+    expect(dmgs({ key: 'troop:6859' })).toEqual([23, 23, 23, 23]);
+  });
+  it('weapon:1360 true 14; all Armor removed only when the target is Undead', () => {
+    const e = (types: string[]) => [{ hp: 900, maxHp: 900 }, { hp: 900, maxHp: 900, armor: 40, troopTypes: types }];
+    expect(castSpell({ key: 'weapon:1360', enemies: e(['Undead']) }).summary.units.E11).toMatch(/arm-40/);
+    expect(castSpell({ key: 'weapon:1360', enemies: e(['Beast']) }).summary.units.E11).not.toMatch(/arm-/);
+  });
+  it('weapon:1430 true scatter [2M+6] = 26 total, then the last enemy moves to the front', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const o = castSpell({ key: 'weapon:1430', seed }).summary.order;
+      expect(dmgs({ key: 'weapon:1430', seed }).reduce((a, b) => a + b, 0)).toBe(26);
+      expect(o.at(-1)).toBe('move E13 front');
+    }
+  });
+  it('troop:6268 AB-CD: [transform a random enemy into Wraith, then scatter 19] OR [scatter 19, then +3 Magic all allies]', () => {
+    let a = 0, b = 0;
+    for (let seed = 1; seed <= 80; seed++) {
+      const o = castSpell({ key: 'troop:6268', seed }).summary.order;
+      const d = dmgs({ key: 'troop:6268', seed });
+      expect(d.reduce((x, y) => x + y, 0)).toBe(19);
+      if (o[0].startsWith('transform ')) { a++; expect(o[0]).toMatch(/-> 怨灵$/); expect(o.some(s => s.includes('magic+'))).toBe(false); }
+      else { b++; expect(o[0]).toMatch(/^dmg /); expect(o.filter(s => s.includes('magic+3'))).toHaveLength(3); expect(o.some(s => s.startsWith('transform'))).toBe(false); }
+    }
+    expect(a).toBeGreaterThan(20); expect(b).toBeGreaterThan(20);
+  });
+});
