@@ -533,6 +533,11 @@
       "spellId": 9939,
       "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
       "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
+    },
+    "7861": {
+      "spellId": 9935,
+      "reason": "sa-A r9: English 'Explode a row.' (native ExplodeGems BoardTarget Row); stored Chinese '引爆一排敌人' said a row of enemies.",
+      "spellDescription": "对 3 个随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害。若在中央尖塔内使用，则造成双倍伤害。爆破一行宝石。"
     }
   }
 }

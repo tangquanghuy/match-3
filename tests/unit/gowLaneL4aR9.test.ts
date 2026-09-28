@@ -337,3 +337,22 @@ describe('L4a R9 B13', () => {
     expect(ev.cells.some(c => c.gemType.kind === 'skull')).toBe(true);
   });
 });
+
+describe('L4a R9 B14', () => {
+  // troop:7574 (9370): TrueSplashHeavyDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (0.6M+2) ; DestroyGems RowAndColumn.
+  // troop:7861 (9935): TrueSplashHighDamage@RandomEnemy + 2 x @RandomPrefNotPrevEnemy (0.67M+2) ; ExplodeGems Row.
+  it.each([['troop:7574', 8], ['troop:7861', 9]] as const)('%s hits a lone survivor three times; never the same enemy twice in a row', (key, dmg) => {
+    const lone = castSpell({ key, board: noColour(BaseColor.Purple), enemies: [{ hp: 900, maxHp: 900, armor: 0 }] });
+    expect(lone.summary.order.filter(o => o.startsWith('dmg '))).toEqual([`dmg E10 ${dmg} (splash)`, `dmg E10 ${dmg} (splash)`, `dmg E10 ${dmg} (splash)`]);
+    for (let seed = 1; seed <= 8; seed++) {
+      const hits = castSpell({ key, seed, board: noColour(BaseColor.Purple) }).summary.order.filter(o => o.startsWith(`dmg `) && o.endsWith(` ${dmg} (splash)`)).map(o => o.split(' ')[1]);
+      expect(hits).toHaveLength(3);
+      expect(hits[0]).not.toBe(hits[1]); expect(hits[1]).not.toBe(hits[2]);
+    }
+  });
+  it('troop:7574 destroys the chosen row and column in one step (15 cells)', () => {
+    const ev = castSpell({ key: 'troop:7574', board: noColour(BaseColor.Purple) }).events.filter(e => e.type === 'gem-destroy') as unknown as Cells[];
+    expect(ev).toHaveLength(1);
+    expect(ev[0].cells).toHaveLength(15);
+  });
+});

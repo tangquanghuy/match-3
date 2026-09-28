@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 662 条改动，涉及 1122 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 664 条改动，涉及 1122 个技能 ID。
 
 ## 按时间
 
@@ -668,6 +668,8 @@
 | 2026-09-28T23:24 | sa-A | L4a-R9-1681-trogolin-count | assembler | 9840 | weapon:1681 TrogolinsFlameKnife | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | 9840 true dmg with sourceless x4 modifier; explode 4 Wish if troopPresent Trogolin; zh '不朽巨龟 ... 引爆4颗' → native CountArmyTroop 7800 x400: explode 4 Wish per Immortal Trogolin ally (alliesNamed); inert dmg modifier removed; zh '不朽的穴居人 ... 爆破 4 颗'; override description + prototype |  |
 | 2026-09-28T23:32 | sa-A | L4a-R9-6640-from-target | assembler | 7969 | troop:6640 WindArcher | `src/engine/skills/curated/batch-07.ts`<br>`src/data/gowSnapshotOverrides.json` | 7969 destroy 5 of CASTER colour; zh '与此军队法力颜色相同' → native DestroyColor FromTarget: destroy 5 of the damaged enemy's colour (LAST_TARGET); zh '该敌方军队法力颜色' + snapshot override |  |
 | 2026-09-28T23:32 | sa-A | L4a-R9-6202-skulls | assembler | 7344 | troop:6202 Marilith | `src/engine/skills/curated/batch-12.ts` | 7344 destroy M+3 include color → include all (R013-5) |  |
+| 2026-09-28T23:36 | sa-A | L4a-R9-9370-prefnotprev-cross | assembler | 9370 | troop:7574 ImmortalTerra | `src/engine/skills/curated/batch-r11.ts` | 9370 enemyRandomN n3; destroy chosen row then chosen col → native Random + 2 x RandomPrefNotPrev heavy true splash (R007-3); RowAndColumn one cross step (15 cells) |  |
+| 2026-09-28T23:36 | sa-A | L4a-R9-9935-prefnotprev-zh | assembler | 9935 | troop:7861 ImmortalTauraeus | `src/engine/skills/curated/batch-r11.ts`<br>`src/data/gowSnapshotOverrides.json` | 9935 enemyRandomN n3; zh '引爆一排敌人' → native Random + 2 x RandomPrefNotPrev true splash (R007-3); zh '爆破一行宝石' + snapshot override |  |
 
 ## 按技能 ID
 
@@ -1600,7 +1602,7 @@
 | 9361 | 1 | L4b-R6-B04 |
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
-| 9370 | 1 | P-prefnotprev-semantics |
+| 9370 | 2 | P-prefnotprev-semantics、L4a-R9-9370-prefnotprev-cross |
 | 9371 | 3 | R012、P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count、D-7575-zh |
 | 9372 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9374 | 1 | L5-C-7900-waves |
@@ -1770,7 +1772,7 @@
 | 9918 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
 | 9933 | 1 | P-prefnotprev-semantics |
 | 9934 | 1 | L5-C-1695-lycanthropy |
-| 9935 | 1 | P-prefnotprev-semantics |
+| 9935 | 2 | P-prefnotprev-semantics、L4a-R9-9935-prefnotprev-zh |
 | 9936 | 1 | F3-q02 |
 | 9937 | 1 | P-prefnotprev-semantics |
 | 9939 | 1 | B-L4b-7832-entangle-count |

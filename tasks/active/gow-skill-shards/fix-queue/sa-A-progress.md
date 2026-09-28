@@ -161,3 +161,7 @@
 - weapon:1422 accept
 - troop:6202 fix(destroy M+3 include all)
 - troop:7580 accept (scatter 2.5M+8; Aidania region x2 inert regionPresent)
+- troop:7574 fix(Random + 2 PrefNotPrev hits, not enemyRandomN; RowAndColumn one cross step; Southwild region inert)
+- troop:7224 accept (RemoveColor FromTarget = LAST_TARGET)
+- troop:7861 fix(Random + 2 PrefNotPrev hits; zh 'a row of enemies' -> gems + override; Central Spire region inert)
+- L4a lane exhausted (next returns empty)

@@ -1849,6 +1849,16 @@
   "by": "sa-A",
   "at": "2026-09-28T22:53:17.184Z"
  },
+ "troop:7224": {
+  "lines": {
+   "L10": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-13 | E10:hp-6 | E12:hp-6 | A2:mana+3  cascade",
+   "R10": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-13 | E10:hp-6 | E12:hp-6 | A2:mana+3  cascade",
+   "L0": "dmg E11 3 (splash) ; dmg E10 1 (splash) ; dmg E12 1 (splash) ; destroy 11 (Blue x11) ; ~cascade~  => E11:hp-3 | E10:hp-1 | E12:hp-1 | A2:mana+3  cascade",
+   "K": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; destroy 13 (Green x13)  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T23:36:48.929Z"
+ },
  "troop:7228": {
   "lines": {
    "L10": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; ~cascade~ ; convert Green x2, Purple x1 -> bomb x3  => A2:mana+1 | E10:arm-1  cascade",
@@ -2349,6 +2359,16 @@
   "by": "sa-A",
   "at": "2026-09-28T22:36:25.428Z"
  },
+ "troop:7574": {
+  "lines": {
+   "L10": "dmg E12 8 (splash) ; dmg E11 6 (splash) ; dmg E13 6 (splash) ; dmg E11 8 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; dmg E13 8 (splash) ; dmg E12 6 (splash) ; destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1  => E12:hp-20 | E11:hp-14 | E13:hp-14 | E10:hp-6 arm-1 | A1:mana+4 | A2:mana+3",
+   "R10": "dmg E12 8 (splash) ; dmg E11 6 (splash) ; dmg E13 6 (splash) ; dmg E11 8 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; dmg E13 8 (splash) ; dmg E12 6 (splash) ; destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1  => E12:hp-20 | E11:hp-14 | E13:hp-14 | E10:hp-6 arm-1 | A1:mana+4 | A2:mana+3",
+   "L0": "dmg E12 2 (splash) ; dmg E11 1 (splash) ; dmg E13 1 (splash) ; dmg E11 2 (splash) ; dmg E10 1 (splash) ; dmg E12 1 (splash) ; dmg E13 2 (splash) ; dmg E12 1 (splash) ; destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1  => E12:hp-4 | E11:hp-3 | E13:hp-3 | E10:hp-1 arm-1 | A1:mana+4 | A2:mana+3",
+   "K": "dmg E12 8 (splash) ; dmg E11 6 (splash) ; dmg E13 6 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; dmg E10 8 (splash) ; defeat E10 ; destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1)  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | E10:hp-1 DEAD | A1:mana+4 | A2:mana+3"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T23:36:48.929Z"
+ },
  "troop:7576": {
   "lines": {
    "L10": "explode 33 ; skulls E10 2 ; dmg E12 8 (splash) ; dmg E11 2 (splash) ; dmg E13 2 (splash) ; dmg E11 8 (splash) ; dmg E10 2 (splash) ; dmg E12 2 (splash) ; dmg E10 8 (splash) ; dmg E11 2 (splash) ; dmg E12 8 (splash) ; dmg E11 2 (splash) ; dmg E13 2 (splash)  => A1:mana+2 | A2:mana+2 | E10:hp-10 arm-2 | E12:hp-18 | E11:hp-14 | E13:hp-4",
@@ -2658,6 +2678,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T03:07:00.542Z"
+ },
+ "troop:7861": {
+  "lines": {
+   "L10": "dmg E12 9 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; dmg E11 9 (splash) ; dmg E10 4 (splash) ; dmg E12 4 (splash) ; dmg E13 9 (splash) ; dmg E12 4 (splash) ; explode 24 ; skulls E10 2  => E12:hp-17 | E11:hp-13 | E13:hp-13 | E10:hp-4 arm-2 | A1:mana+2 | A2:mana+1",
+   "R10": "dmg E12 9 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; dmg E11 9 (splash) ; dmg E10 4 (splash) ; dmg E12 4 (splash) ; dmg E13 9 (splash) ; dmg E12 4 (splash) ; explode 24 ; skulls E10 2  => E12:hp-17 | E11:hp-13 | E13:hp-13 | E10:hp-4 arm-2 | A1:mana+2 | A2:mana+1",
+   "L0": "dmg E12 2 (splash) ; dmg E11 1 (splash) ; dmg E13 1 (splash) ; dmg E11 2 (splash) ; dmg E10 1 (splash) ; dmg E12 1 (splash) ; dmg E13 2 (splash) ; dmg E12 1 (splash) ; explode 24 ; skulls E10 2  => E12:hp-4 | E11:hp-3 | E13:hp-3 | E10:hp-1 arm-2 | A1:mana+2 | A2:mana+1",
+   "K": "dmg E12 9 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; dmg E10 9 (splash) ; defeat E10 ; explode 24  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | E10:hp-1 DEAD | A1:mana+2 | A2:mana+1"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T23:36:48.929Z"
  },
  "troop:7874": {
   "lines": {
