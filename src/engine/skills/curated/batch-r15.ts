@@ -184,8 +184,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // them."（zh「两名随机」为误译，判读以英文原句为准）——enemyFirstN 目标确定，
     // 后段同目标集（n:2）无跨段绑定问题
     build: skill(
-      dmg('enemyFirstN', 2, 1, { n: 2 }),
+      // 原生序 StealMagic@FirstTwo → Damage@FirstTwo → CauseSilence@FirstTwo（R001；每步按原生目标重取前 2 名）
       steal('enemyFirstN', 'magic', 'magic', 2, 0, { n: 2 }),
+      dmg('enemyFirstN', 2, 1, { n: 2 }),
       inflict('silence', 'enemyFirstN', { n: 2 }),
     ),
   },
@@ -250,10 +251,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人和一个随机敌人造成 [魔法 + 2] 点伤害。如果敌人已陷入沉默状态，则造成的双倍伤害。再使敌人陷入沉默状态。',
     // 两段独立目标（8239 先例）；条件倍率 = condMult targetStatus silence（逐目标判定）
     build: skill(
+      // 原生序 Damage@FromTarget → Silence@FromTarget → Delay → Damage@RandomPrefNotPrevEnemy → Silence@FromPrevious（R001）
       dmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'silence' } } }),
-      dmg('enemyRandom', 2, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'silence' } } }),
       inflict('silence', 'enemyChosen'),
-      inflict('silence', 'enemyRandom'),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'silence' } } }),
+      inflict('silence', 'lastTarget'),
     ),
   },
   {

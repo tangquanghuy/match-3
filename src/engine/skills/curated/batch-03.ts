@@ -170,9 +170,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8112,
     desc: '对 2 个随机敌人造成 [魔法 + 3] 点伤害，再击晕他们并使他们陷入中毒状态。',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
-      inflict('stun', 'enemyRandomN', { n: 2 }),
-      inflict('poison', 'enemyRandomN', { n: 2 }),
+      // 原生 2 ×（Damage@Random / RandomPrefNotPrev → Stun@FromPrevious → Poison@FromPrevious）（R001）
+      dmg('enemyRandom', 3, 1),
+      inflict('stun', 'lastTarget'),
+      inflict('poison', 'lastTarget'),
+      dmg('enemyRandomPrefNotPrev', 3, 1),
+      inflict('stun', 'lastTarget'),
+      inflict('poison', 'lastTarget'),
     ),
   },
   {

@@ -201,8 +201,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7805,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害，并窃取其半数攻击力。 [2:1]',
     build: skill(
+      // sa-F3：原生 CountAttack 50 → StealAttack → Damage；无来源的 [2:1] 修饰让窃取量恒为 0
+      steal('enemyChosen', 'attack', 'attack', 0, 0, { fraction: 0.5 }),
       dmg('enemyChosen', 4, 1),
-      steal('lastTarget', 'attack', 'attack', 0, 0, { halve: true, modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
     ),
   },
   {
@@ -708,7 +709,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8130,
     desc: '对第一位敌人造成 [魔法 + 7] 点伤害，伤害值因末日骷髅头数而增强。如果敌人是元素军队，则造成双倍伤害。将其打回末位。 [x3]',
     build: skill(
-      dmg('enemyFront', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } }, condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } } }),
+      // sa-F3：原生 CountGems Doomskull → 只数末日骷髅（boardSkulls 会把普通骷髅也算进去）
+      dmg('enemyFront', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'doomSkull' } }, condMult: { times: 2, cond: { kind: 'targetRace', race: 'Elemental' } } }),
       reposition('lastTarget', 'back'),
     ),
   },

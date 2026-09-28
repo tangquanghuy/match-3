@@ -739,6 +739,32 @@
     "7282": {
       "description": "对 1 名敌人造成 [魔法 + 1] 点伤害。如果敌人已下潜则造成三倍伤害。"
     },
+    "7287": {
+      "description": "将一名敌人拉到首位。减除所有敌人 [魔法 + 1] 点护甲值。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "reposition",
+            "target": "enemyChosen",
+            "to": "front"
+          }
+        ]
+      }
+    },
     "7292": {
       "description": "对所有敌人造成 [魔法 + 7] 点散射伤害。获得 2 点魔力值。",
       "prototype": {
@@ -767,6 +793,37 @@
         "fidelity": "full",
         "missingFeatures": [],
         "skippedClauses": []
+      }
+    },
+    "7295": {
+      "description": "将一名军队拉到首位。对其造成 [魔法 + 6] 点伤害并将其击晕。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 6,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "lastTarget",
+            "statusId": "stun",
+            "turns": 3
+          },
+          {
+            "kind": "reposition",
+            "target": "enemyChosen",
+            "to": "front"
+          }
+        ]
       }
     },
     "7299": {
@@ -835,6 +892,71 @@
             "statusId": "burning",
             "turns": 3,
             "magnitude": 3
+          }
+        ]
+      }
+    },
+    "7307": {
+      "description": "获得 [魔法 + 1] 点护甲，并移至队伍首位。赋予所有其他盟友屏障效果。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "armor",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyOthers",
+            "statusId": "barrier",
+            "turns": 3
+          },
+          {
+            "kind": "reposition",
+            "target": "allySelf",
+            "to": "front"
+          }
+        ]
+      }
+    },
+    "7317": {
+      "description": "使最强和最弱的敌人陷入死亡标记状态，并对所有敌人造成 [魔法 + 1] 点伤害。",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyAll",
+            "scaling": {
+              "base": 1,
+              "mult": 1
+            },
+            "range": "all"
+          },
+          {
+            "kind": "status",
+            "target": "enemyWeakest",
+            "statusId": "death-mark",
+            "turns": 3
+          },
+          {
+            "kind": "status",
+            "target": "enemyHealthiest",
+            "statusId": "death-mark",
+            "turns": 3
           }
         ]
       }
@@ -2042,6 +2164,37 @@
         "skippedClauses": []
       }
     },
+    "7805": {
+      "description": "对一名敌人造成 [魔法 + 4] 点伤害，并窃取其半数攻击力。 [2:1]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "reduce",
+            "target": "enemyChosen",
+            "stat": "attack",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "gainStat": "attack",
+            "fraction": 0.5
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 4,
+              "mult": 1
+            }
+          }
+        ]
+      }
+    },
     "7815": {
       "description": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因敌人所需的法力值而增强。若敌人是神祗，则再造成 10 点伤害。如果敌人使用黄色法力值，则再添 10 点伤害。 [1:1]",
       "metadata": {
@@ -3160,7 +3313,46 @@
       }
     },
     "8130": {
-      "description": "对第一位敌人造成 [魔法 + 7] 点伤害，伤害值因末日骷髅头数而增强。如果敌人是元素军队，则造成双倍伤害。将其打回末位。 [x3]"
+      "description": "对第一位敌人造成 [魔法 + 7] 点伤害，伤害值因末日骷髅头数而增强。如果敌人是元素军队，则造成双倍伤害。将其打回末位。 [x3]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyFront",
+            "scaling": {
+              "base": 7,
+              "mult": 1
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "boardSpecial",
+                "gem": "doomSkull"
+              }
+            },
+            "condMult": {
+              "times": 2,
+              "cond": {
+                "kind": "targetRace",
+                "race": "Elemental"
+              }
+            }
+          },
+          {
+            "kind": "reposition",
+            "target": "lastTarget",
+            "to": "back"
+          }
+        ]
+      }
     },
     "8145": {
       "description": "对最后一名敌人造成 [魔法 + 4] 点伤害。若敌人使用黄色法力值，则造成 3 倍伤害。召唤暗风暴。"
@@ -5708,6 +5900,77 @@
         ]
       }
     },
+    "9936": {
+      "description": "对一名敌人造成 [魔法 + 3] 点溅射伤害，并使自身狂暴。如果我方队伍中有不朽的陶拉乌斯，则所有友方单位获得 5 点攻击力、生命值和护甲值。 [x5]",
+      "metadata": {
+        "fidelity": "full",
+        "missingFeatures": [],
+        "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.5
+          },
+          {
+            "kind": "status",
+            "target": "allySelf",
+            "statusId": "rage",
+            "turns": 3
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "attack",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的陶拉乌斯"
+            }
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "hp",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的陶拉乌斯"
+            },
+            "lifeMode": "gain"
+          },
+          {
+            "kind": "buff",
+            "target": "allyAll",
+            "stat": "armor",
+            "scaling": {
+              "base": 5,
+              "mult": 0
+            },
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的陶拉乌斯"
+            }
+          }
+        ]
+      }
+    },
     "9976": {
       "description": "给予所有神秘盟友 [魔法 + 1] 点攻击力和生命值，然后祝福这些盟友。"
     },
@@ -5938,6 +6201,58 @@
         "fidelity": "full",
         "missingFeatures": [],
         "skippedClauses": []
+      },
+      "prototype": {
+        "segments": [
+          {
+            "kind": "damage",
+            "target": "enemyRandom",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "reposition",
+            "target": "lastTarget",
+            "to": "back"
+          },
+          {
+            "kind": "damage",
+            "target": "enemyRandomPrefNotPrev",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            }
+          },
+          {
+            "kind": "reposition",
+            "target": "lastTarget",
+            "to": "back"
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "submerged",
+            "turns": 3,
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的塔拉萨"
+            }
+          },
+          {
+            "kind": "status",
+            "target": "allyAll",
+            "statusId": "enchanted",
+            "turns": 3,
+            "ifCond": {
+              "kind": "troopPresent",
+              "side": "ally",
+              "name": "不朽的塔拉萨"
+            }
+          }
+        ]
       }
     },
     "10065": {

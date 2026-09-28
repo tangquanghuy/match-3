@@ -40,9 +40,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7139,
     desc: '对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 9] 伤害，并使其陷入猎人标记状态。获得 +5 点魔力值。',
     build: skill(
+      // 原生序 RandomHighDamage → IncreaseSpellPower@Self → CauseHuntersMark@FromTarget（R001）
       dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(9, 1) } }),
-      inflict('marked', 'enemyChosen'),
       magic('allySelf', 5, 0),
+      inflict('marked', 'enemyChosen'),
     ),
   },
   {

@@ -76,7 +76,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「其」= lastTarget（9723 同款）；「因敌方的野兽数而增强 [x4]」= enemiesOfRace（K-E 批）。
     build: skill(
       ...dispelPositives('enemyChosen'),
-      dmg('lastTarget', 3, 1, { modifier: enemiesOfRaceBoost('Beast', 4) }),
+      // 驱散段按 ifCond 过滤后可能不产目标（lastTarget 未设）→ 伤害直接取选定敌人
+      dmg('enemyChosen', 3, 1, { modifier: enemiesOfRaceBoost('Beast', 4) }),
     ),
   },
   {

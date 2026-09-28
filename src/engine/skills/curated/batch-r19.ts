@@ -726,12 +726,13 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取首 2 位敌人 [(魔法 x 1.25) + 2] 点生命值，数量因鬼魂宝石数量而增强。再使他们陷入诅咒和冻结状态。 [x8]',
     // 「窃取生命」= steal hp→hp（7302 口径）；[x8] = CountGems Ghost x800 → boardSpecial ghost
     build: skill(
+      // 原生序 CauseCursed@FirstTwo → CauseFrozen@FirstTwo → StealLife@FirstTwo（R001：诅咒先移除屏障等正面状态）
+      inflict('curse', 'enemyFirstN', { n: 2 }),
+      inflict('frozen', 'enemyFirstN', { n: 2 }),
       dmg('enemyFirstN', 2, 1.25, {
         n: 2, drain: true,
         modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'boardSpecial', gem: 'ghost' } },
       }),
-      inflict('curse', 'enemyFirstN', { n: 2 }),
-      inflict('frozen', 'enemyFirstN', { n: 2 }),
     ),
   },
   {
@@ -983,8 +984,9 @@ const SPELLS: CuratedBatch['spells'] = [
         modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'boardSpecial', gem: 'curseGem' } },
       }),
       reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifTargetDied: true }),
-      inflict('blessed', 'allySelf', { ifTargetDied: true }),
-      inflict('enchanted', 'allySelf', { ifTargetDied: true }),
+      // 前一段 enemyAll 会改写 lastTarget → 祝福/附魔按「本次施法有敌人阵亡」判定（只有选定敌人受伤害）
+      inflict('blessed', 'allySelf', { ifCond: { kind: 'castEnemyDied' } }),
+      inflict('enchanted', 'allySelf', { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
@@ -1011,12 +1013,16 @@ const SPELLS: CuratedBatch['spells'] = [
           sources: [{ kind: 'boardGems', color: BaseColor.Yellow }, { kind: 'boardGems', color: BaseColor.Brown }],
         },
       }),
+      // sa-F3：原生 IncreaseAllStats = 四项技能（攻/甲/生命/魔，R007-2 四项定义）；自身增益段会改写
+      // lastTarget → 击杀追加 20 改判 castEnemyDied（只有选定敌人受伤害）
       attack('allySelf', 10, 0),
       armor('allySelf', 10, 0),
+      heal('allySelf', 10, 0),
       magic('allySelf', 10, 0),
-      attack('allySelf', 20, 0, { ifTargetDied: true }),
-      armor('allySelf', 20, 0, { ifTargetDied: true }),
-      magic('allySelf', 20, 0, { ifTargetDied: true }),
+      attack('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      armor('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      heal('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      magic('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

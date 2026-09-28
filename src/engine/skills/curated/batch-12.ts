@@ -303,9 +303,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 回收：condMult 现支持 targetColor 条件倍率（按目标 manaColors 含该色判定）；
       // 「魔力值」= magic 属性（SOP 措辞裁定）
-      trueDmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
+      // 原生序 StealMagic → TrueDamage（R001：先窃取，伤害按窃取后的魔法计算）
       // 「窃取其 2 点魔力值」= steal 同属性回填（batch-01 8278 同款）
       steal('enemyChosen', 'magic', 'magic', 2, 0),
+      trueDmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Blue } } }),
     ),
   },
   {

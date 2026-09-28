@@ -143,8 +143,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成  [魔法 + 4] 点伤害。若敌人受诅咒，则造成双倍伤害，并再诅咒敌人。',
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: { times: 2, cond: { kind: 'targetStatus', statusId: 'curse' } } }),
-      // 「再诅咒敌人」= 已受诅咒才追加（与条件同域，ifCond 静默跳过语义）
-      inflict('curse', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'curse' } }),
+      // 原生 CauseCursed@FromTarget 无条件（EN "Then Curse them"）
+      inflict('curse', 'enemyChosen'),
     ),
   },
   {

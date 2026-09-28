@@ -64,8 +64,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 10063,
     desc: '对 2 名随机敌人造成 [魔法 + 3] 点伤害，并将他们击至末位。若队伍中有不朽的塔拉萨，使所有盟友陷入下潜并获得法印。',
     build: skill(
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
-      reposition('lastTargets', 'back'),
+      // 原生序 Damage@RandomEnemy → OrderBack@FromPrevious → Damage@RandomPrefNotPrevEnemy → OrderBack@FromPrevious（R001）
+      dmg('enemyRandom', 3, 1),
+      reposition('lastTarget', 'back'),
+      dmg('enemyRandomPrefNotPrev', 3, 1),
+      reposition('lastTarget', 'back'),
       inflict('submerged', 'allyAll', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的塔拉萨' } }),
       inflict('enchanted', 'allyAll', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的塔拉萨' } }),
     ),

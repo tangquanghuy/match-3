@@ -81,7 +81,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最虚弱的敌人造成 [魔法 + 3] 点真实伤害，并使其陷入中毒状态。如果该敌人身亡，则获得 3 点魔力值。',
     build: skill(
       trueDmg('enemyWeakest', 3),
-      inflict('poison', 'enemyWeakest'),
+      // 原生 CausePoison@FromPrevious：只毒同一目标（已阵亡则无目标）
+      inflict('poison', 'lastTarget'),
       // 「魔力值」= magic 属性（SOP 措辞裁定，batch-05 7049 同款）；死亡条件只辖本段
       magic('allySelf', 3, 0, { ifTargetDied: true }),
     ),
@@ -118,10 +119,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7050,
     desc: '净化自身。对 1 名敌人造成 [魔法 + 2] 点伤害。如果敌人身亡者获得 4 点攻击力。',
     build: skill(
-      cleanse('allySelf'),
+      // 原生序 Damage → Delay → Cleanse@Self → IncreaseAttack [AddForKill 4]（R001）；
+      // 净化自身会改写 lastTarget → 击杀判定用 castEnemyDied（只有选定敌人受伤害）
       dmg('enemyChosen', 2),
-      // 「身亡者」=「身亡，则」笔误（batch-07 8041 处理笔误同款）；死亡条件可挂增益段
-      attack('allySelf', 4, 0, { ifTargetDied: true }),
+      cleanse('allySelf'),
+      attack('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

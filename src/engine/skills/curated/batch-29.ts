@@ -180,13 +180,13 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「最强敌人」= enemyHealthiest（spell-rules.md §0）；「受所有敌方魔法加成 [2:1]」=
       // enemyStatSum magic（SOP 来源计数表「因所有敌人的护甲值」同族）
+      // 原生序 4 × CauseBleed@TwoStrongest → Damage@TwoStrongest（R001：先按伤害前的强弱选目标施加流血）
+      // 回收（第四遍）：「对他们施加4层流血效果」= inflict stacks（SOP「状态叠层」节，4 层 → magnitude 4）
+      inflict('bleed', 'enemyHealthiestN', { stacks: 4, n: 2 }),
       dmg('enemyHealthiestN', 4, 1.5, {
         n: 2,
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'enemyStatSum', stat: 'magic' } },
       }),
-      // 回收（第四遍）：「对他们施加4层流血效果」= inflict stacks（SOP「状态叠层」节，4 层 → magnitude 4）；
-      // 「他们」= 最强的两名敌人，enemyHealthiestN 确定性目标跨段复用（batch-06 7063 先例）
-      inflict('bleed', 'enemyHealthiestN', { stacks: 4, n: 2 }),
     ),
   },
   {

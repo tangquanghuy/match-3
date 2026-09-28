@@ -1194,8 +1194,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // = anyTrackedDied 跨段累积判定；「恐惧」= terror（波A 状态本体，batch-17 缺口收口）。
     build: skill(
     dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
-    dmg('enemyRandomN', 3, 1, { n: 3, modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
-    inflict('terror', 'enemyAll', { ifCond: { kind: 'anyTrackedDied' } }),
+    // 原生 3 × Damage@RandomPrefNotPrevEnemy（R007-3：只避开上一个目标）
+    ...[0, 1, 2].map(() => dmg('enemyRandomPrefNotPrev', 3, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardGems', color: BaseColor.Purple } } })),
+    inflict('terror', 'enemyAll', { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
 ];

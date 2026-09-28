@@ -545,7 +545,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // [x2] = CountGems ElementalStar 200 → boardSpecial elementalStar ×2（8125 天使宝石同族）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
-      magic('allySelf', 2, 0, {
+      // sa-F3: native IncreaseSpellPower UseCounter (no Amount) = 2 x count only（8638 同款）
+      magic('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardSpecial', gem: 'elementalStar' } },
       }),
     ),

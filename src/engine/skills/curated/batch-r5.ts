@@ -64,13 +64,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7061,
     desc: '对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 8] 到 {2} 点伤害，伤害值因自身减损的生命值而增强。自身承受 2 点伤害并获得 4 点攻击力。 [2:1]',
     build: skill(
-      dmg('enemyFront', 0, 0, {
+      // sa-F3：EN/原生 RandomHighDamage@FromTarget = 选定敌人单体（zh「到 {2}」为快照残渣，不是分摊 2 名）；
+      // IncreaseAttack@Self 4 为定值
+      dmg('enemyChosen', 0, 0, {
         rangeSpec: { min: scale(4, 0.5), max: scale(8, 1) },
-        split: 2,
         modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'selfStat', stat: 'missingHp' } },
       }),
       dmg('allySelf', 2, 0),
-      attack('allySelf', 4),
+      attack('allySelf', 4, 0),
     ),
   },
   {

@@ -3,7 +3,7 @@
  * 加上状态宝石族（波A）清尾）。核对者：窗口 G，20 条。裁定依据 spell-rules §11。
  * 原批次 skipped 对应条目已同步剪除。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack, mana, magic, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, inflictRandom, transformTroopRandom, gainMaps, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, magic, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, dispelStatus, inflictRandom, transformTroopRandom, gainMaps, CELL, explodeAt } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -85,7 +85,10 @@ const SPELLS: CuratedBatch['spells'] = [
       heal('allyOthers', 1),
       armor('allyOthers', 5, 0),
       attack('allyOthers', 3, 0),
-      mana('allyOthers', 2, 0),
+      // 原生 IncreaseSpellPower = 魔法（Magic），不是法力
+      magic('allyOthers', 2, 0),
+      // 原生 Dispel@Self → LethalDamage@Self：先驱散自身正面状态（屏障不再挡住献祭）
+      ...['barrier', 'submerged', 'blessed', 'enchanted', 'reflect', 'enraged', 'rage'].map((id) => dispelStatus(id, 'allySelf', { ifCond: { kind: 'selfStatus', statusId: id } })),
       sacrifice('allySelf'),
     ),
   },

@@ -339,9 +339,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7791,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。若敌人生命值受损，则获得狂怒效果并再造成 10 点伤害。',
     build: skill(
-      dmg('enemyChosen', 4, 1),
-      inflict('rage', 'lastTarget', { ifCond: { kind: 'targetHpDamaged' } }),
-      dmg('lastTarget', 10, 0, { ifCond: { kind: 'targetHpDamaged' } }),
+      // 原生：Damage [AddForDamaged 10]（命中前判受损，同一击）→ 击杀则狂怒自身 → 命中后目标受损则狂怒自身。
+      // 命中后「目标受损」无全局条件叶子 → primitive-queue P-F3-lasttarget-damaged。
+      dmg('enemyChosen', 4, 1, { condBonus: { n: 10, cond: { kind: 'targetHpDamaged' } } }),
+      inflict('rage', 'allySelf', { ifTargetDied: true }),
     ),
   },
   {
@@ -829,11 +830,13 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9942,
     desc: '对敌人造成[魔法 + 4]点伤害，有15%的几率将其击杀，每有一颗蛛网宝石，击杀几率提高3%。 [x3]',
     build: skill(
-      dmg('enemyChosen', 4, 1, {
+      // 原生序：LethalDamageConditional 15%（+3%/蛛网宝石）→ Damage [Magic + 4]
+      dmg('enemyChosen', 0, 0, {
         execute: true,
         chance: 0.15,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'web' } },
       }),
+      dmg('enemyChosen', 4, 1),
     ),
   },
   {

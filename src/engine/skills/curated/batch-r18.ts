@@ -698,10 +698,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7720,
     desc: "对一名敌人造成 [魔法 + 3] 点伤害并消除其所有正面增益效果。获得 4 点魔力值和法印效果。",
-    // 「其所有正面增益」= lastTarget 驱散族（dispel 段更新跨段追踪）
+    // 原生步骤序 Dispel → Damage → IncreaseSpellPower → CauseEnchanted（R001：先驱散屏障再伤害）
     build: skill(
+      ...dispelPositives('enemyChosen'),
       dmg('enemyChosen', 3, 1),
-      ...dispelPositives('lastTarget'),
       magic('allySelf', 4, 0),
       inflict('enchanted', 'allySelf'),
     ),
@@ -774,8 +774,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。窃取 4 点攻击力并将之转换成魔力值。 [1:1]",
     // 「窃取攻击并转换成魔法」= steal armor→magic；[1:1] = 转换比率序列化（r15 7032 口径）
     build: skill(
-      dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
+      // sa-F3：原生序 CountAttack → DecreaseAttack → IncreaseSpellPower → Damage（R001：伤害吃到偷来的魔法）
       steal('enemyChosen', 'attack', 'magic', 4, 0),
+      dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
     ),
   },
   {
