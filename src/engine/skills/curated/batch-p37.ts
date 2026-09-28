@@ -288,10 +288,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8651,
-    desc: '造成 [魔法 + 8] 点散射伤害，伤害值因通配宝石和紫色盟友数而增强。若有敌人身亡，则创建 4 颗 x2 通配宝石。 [x4]',
+    desc: '造成 [魔法 + 8] 点散射伤害，伤害值因通配宝石和紫色敌人数而增强。若有敌人身亡，则创建 4 颗 x2 通配宝石。 [x4]',
     // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
     build: skill(
-      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'boardSpecial', gem: 'wildcard' }, { kind: 'alliesOfColor', color: BaseColor.Purple }] } }),
+      dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'boardSpecial', gem: 'wildcard' }, { kind: 'enemiesOfColor', color: BaseColor.Purple }] } }), // sa-R2 L4b-7108: CountArmyColor@AllEnemies (Purple enemies)
       createSpecialGems({ kind: 'wildcard', tier: 2 }, 4, 0, { ifTargetDied: true }),
     ),
   },

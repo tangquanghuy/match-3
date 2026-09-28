@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
+import { CHOSEN, armor, attack, chooseSkill, cleanse, createGems, createGemsMixAny, createSkulls, createSpecialGems, destroyRandomCols, destroyRandomRows, dmg, dmgSplash, drainMana, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, extraTurn, heal, inflict, inflictRandom, mana, randomStat, reduce, reposition, scale, shuffleTeam, skill, summonRandom, summonRandomOfKingdom, transform, transformToSpecial, trueDmg } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -66,7 +66,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9161,
     desc: '将所有红色宝石转换成诅咒宝石，并将所有紫色宝石转换成末日骷髅头。打乱敌方队伍。',
     build: skill(
-      transformToSpecial(BaseColor.Red, 'doomSkull'),
+      // Native ConvertGems 100 Red>Cursed ; ConvertGems 100 Purple>Doomskull (sa-R2 L4b-1548-steps).
+      transformToSpecial(BaseColor.Red, 'curseGem'),
+      transformToSpecial(BaseColor.Purple, 'doomSkull'),
       shuffleTeam('enemy'),
     ),
   },
@@ -517,9 +519,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9388,
     desc: '净化所有盟友并创造 9 颗冻结宝石。若队伍里有永生神格拉西亚，则再创造 5 颗冻结宝石。 [x10]',
     build: skill(
-      cleanse('allyAll'),
+      // Native order: CreateGems 9 Freeze (+5 with Immortal Glaycia, CountMax 5) before Cleanse@AllAllies.
       createSpecialGems({ kind: 'freezeGem' }, 9, 0),
-      createSpecialGems({ kind: 'freezeGem' }, 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神格拉西亚' }, modifier: { mod: { kind: 'multiplier', a: 10 } } }),
+      createSpecialGems({ kind: 'freezeGem' }, 5, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '永生神格拉西亚' } }),
+      cleanse('allyAll'),
     ),
   },
   {
@@ -543,8 +546,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9488,
     desc: '制造 4 个骷髅，数量受中毒敌人影响。如果我的队伍中有永生的 Scoprio，则再制造 2 个骷髅。 [x2]',
     build: skill(
-      createSkulls(4, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
+      // Native order: CreateGems Skull (2 with Immortal Scoprio) first, then 4 + 2 per Poisoned enemy.
       createSkulls(2, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的天蝎座' } }),
+      createSkulls(4, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'poison' } } }),
     ),
   },
   {
@@ -672,7 +676,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9573,
     desc: '将所选颜色的所有宝石转换为腐烂宝石。',
     build: skill(
-      transformToSpecial('ANY', 'decayGem'),
+      // Native ConvertGems 100 FromTarget>Decay: only the chosen colour (sa-R2 L4b-1625-any).
+      transformToSpecial(CHOSEN, 'decayGem'),
     ),
   },
   {
@@ -840,7 +845,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9647,
     desc: '对4名随机敌人造成流血效果。然后制造9颗激怒宝石。如果我的队伍中有不朽的安格拉克，则再制造4颗。 [x4]',
     build: skill(
-      inflict('bleed', 'enemyRandomN', { n: 4 }),
+      // Native CauseBleed@RandomEnemy + 3 x CauseBleed@RandomPrefNotPrevEnemy (R007-3: avoid only the previous pick).
+      inflict('bleed', 'enemyRandom'),
+      inflict('bleed', 'enemyRandomPrefNotPrev'),
+      inflict('bleed', 'enemyRandomPrefNotPrev'),
+      inflict('bleed', 'enemyRandomPrefNotPrev'),
       createSpecialGems({ kind: 'enrageGem' }, 9, 0),
       createSpecialGems({ kind: 'enrageGem' }, 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的安格拉克' } }),
     ),
@@ -1065,7 +1074,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9831,
     desc: '将指定颜色的所有宝石转化为流血宝石。灼烧并流血所有该颜色的敌人。',
     build: skill(
-      transformToSpecial('ANY', 'bleedGem'),
+      // Native ConvertGems 100 FromTarget>Bleed: only the chosen colour (sa-R2 L4b-1674-any).
+      transformToSpecial(CHOSEN, 'bleedGem'),
       inflict('burning', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
       inflict('bleed', 'enemyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
     ),
@@ -1123,8 +1133,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9842,
     desc: '对所有敌人造成[魔法 + 2]点伤害，被蛛网束缚的敌人伤害加成。如果我方队伍中有不朽玛拉图斯，则将所有红色宝石转化为蛛网宝石。 [x3]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'web' } } }),
+      // Native order: ConvertGems Red>Web (if Immortal Maratus) before the Webbed count and Damage.
       transformToSpecial(BaseColor.Red, 'web', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的马拉图斯' } }),
+      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'web' } } }),
     ),
   },
   {

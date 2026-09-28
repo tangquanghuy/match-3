@@ -84,7 +84,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 5 颗末日骷髅头，数量因恶石像鬼而增强。 [x3]',
     // CountGems BadGargoyle 300 = ×3；「恶石像鬼」按引擎石像鬼宝石善恶合并一口（gargoyleGem，r11 9547 超集口径并注明）
     build: skill(
-      createSkulls(5, 0, {
+      // sa-R2 L4b-7210: native CreateGems Doomskull (was plain Skulls). Evil-only count needs P-R2-gargoyle-tier.
+      createSpecialGems({ kind: 'doomSkull' }, 5, 0, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'gargoyleGem' } },
       }),
     ),

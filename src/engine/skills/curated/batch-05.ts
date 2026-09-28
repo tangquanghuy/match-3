@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 人工核对组装 · 批次 05（池：scripts/curated-pools/pool-05.json）
  * 核对者：agent 批次05
  *
@@ -219,7 +219,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 转化段先行（batch-04 口径）；modifier 挂最近数值段（batch-04 7027 同款）
       transform(BaseColor.Green, BaseColor.Red),
-      attack('allySelf', 1),
+      // sa-R2 L4b-6152: native IncreaseAttack and IncreaseHealth both UseCounterForAmount.
+      attack('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } } }),
       heal('allySelf', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'transformedGems' } } }),
     ),
   },

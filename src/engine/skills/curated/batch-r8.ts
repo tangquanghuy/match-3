@@ -208,7 +208,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。再将 5 颗红色宝石转换成蓝色巨人宝石。',
     build: skill(
       dmg('enemyChosen', 4),
-      transform(BaseColor.Red, BaseColor.Blue, { count: 5 }),
+      // R009: Convert 5 Red > GiantBlue = Blue giantGem special.
+      transformToSpecial(BaseColor.Red, { kind: 'giantGem', color: BaseColor.Blue }, { count: 5 }),
     ),
   },
   {
@@ -216,7 +217,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。再将 5 颗棕色宝石转换成绿色巨人宝石。',
     build: skill(
       dmg('enemyChosen', 4),
-      transform(BaseColor.Brown, BaseColor.Green, { count: 5 }),
+      // R009: Convert 5 Brown > GiantGreen = Green giantGem special.
+      transformToSpecial(BaseColor.Brown, { kind: 'giantGem', color: BaseColor.Green }, { count: 5 }),
     ),
   },
   {
@@ -228,11 +230,14 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
-      transform(BaseColor.Blue, BaseColor.Blue, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Blue gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
+      // R009: Convert 5 Blue > GiantBlue = Blue giantGem special.
+      transformToSpecial(BaseColor.Blue, { kind: 'giantGem', color: BaseColor.Blue }, { count: 5 }),
     ),
   },
   {
@@ -243,11 +248,14 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Green } },
       }),
-      transform(BaseColor.Green, BaseColor.Green, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Green gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Green } },
       }),
+      // R009: Convert 5 Green > GiantGreen = Green giantGem special.
+      transformToSpecial(BaseColor.Green, { kind: 'giantGem', color: BaseColor.Green }, { count: 5 }),
     ),
   },
   {
@@ -258,11 +266,14 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
-      transform(BaseColor.Red, BaseColor.Red, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Red gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
+      // R009: Convert 5 Red > GiantRed = Red giantGem special.
+      transformToSpecial(BaseColor.Red, { kind: 'giantGem', color: BaseColor.Red }, { count: 5 }),
     ),
   },
   {
@@ -273,11 +284,14 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
-      transform(BaseColor.Yellow, BaseColor.Yellow, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Yellow gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      // R009: Convert 5 Yellow > GiantYellow = Yellow giantGem special.
+      transformToSpecial(BaseColor.Yellow, { kind: 'giantGem', color: BaseColor.Yellow }, { count: 5 }),
     ),
   },
   {
@@ -288,11 +302,14 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),
-      transform(BaseColor.Purple, BaseColor.Purple, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Purple gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),
+      // R009: Convert 5 Purple > GiantPurple = Purple giantGem special.
+      transformToSpecial(BaseColor.Purple, { kind: 'giantGem', color: BaseColor.Purple }, { count: 5 }),
     ),
   },
   {
@@ -303,11 +320,14 @@ const SPELLS: CuratedBatch['spells'] = [
         range: 'all',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } },
       }),
-      transform(BaseColor.Brown, BaseColor.Brown, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Brown gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } },
       }),
+      // R009: Convert 5 Brown > GiantBrown = Brown giantGem special.
+      transformToSpecial(BaseColor.Brown, { kind: 'giantGem', color: BaseColor.Brown }, { count: 5 }),
     ),
   },
   {
@@ -316,7 +336,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // Color1=Skull + DragonRed（ZH 色名「红色」）
     build: skill(
       createSkulls(8),
-      createGems(BaseColor.Red, 8),
+      // R009: CreateGems 8 DragonRed = Red dragonGem special.
+      createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 8),
     ),
   },
   {
@@ -333,7 +354,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害。再将 4 颗棕色宝石转换成蓝龙宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3),
-      transform(BaseColor.Brown, BaseColor.Blue, { count: 4 }),
+      // R009: Convert 4 Brown > DragonBlue = Blue dragonGem special.
+      transformToSpecial(BaseColor.Brown, { kind: 'dragonGem', color: BaseColor.Blue }, { count: 4 }),
     ),
   },
   {
@@ -349,11 +371,14 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方 Damage 段无 UseCounterForAmount → 尾标 [x3] 只归几率子句 chanceBoost
     build: skill(
       dmg('enemyAll', 6, 2.5, { range: 'all' }),
-      transform(BaseColor.Blue, BaseColor.Blue, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Blue gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
+      // R009: Convert 5 Blue > DragonBlue = Blue dragonGem special.
+      transformToSpecial(BaseColor.Blue, { kind: 'dragonGem', color: BaseColor.Blue }, { count: 5 }),
     ),
   },
   {
@@ -361,11 +386,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.5) + 6] 点伤害。将 5 颗绿色宝石转换成绿色龙宝石。有 10% 的几率获得一个额外回合，几率因绿色宝石数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.5, { range: 'all' }),
-      transform(BaseColor.Green, BaseColor.Green, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Green gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Green } },
       }),
+      // R009: Convert 5 Green > DragonGreen = Green dragonGem special.
+      transformToSpecial(BaseColor.Green, { kind: 'dragonGem', color: BaseColor.Green }, { count: 5 }),
     ),
   },
   {
@@ -373,11 +401,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.5) + 6] 点伤害。将 5 颗红色宝石转换成红色龙宝石。有 10% 的几率获得一个额外回合，几率因红色宝石数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.5, { range: 'all' }),
-      transform(BaseColor.Red, BaseColor.Red, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Red gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Red } },
       }),
+      // R009: Convert 5 Red > DragonRed = Red dragonGem special.
+      transformToSpecial(BaseColor.Red, { kind: 'dragonGem', color: BaseColor.Red }, { count: 5 }),
     ),
   },
   {
@@ -385,11 +416,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.5) + 6] 点伤害。将 5 颗黄色宝石转换成黄色龙宝石。有 10% 的几率获得一个额外回合，几率因黄色宝石数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.5, { range: 'all' }),
-      transform(BaseColor.Yellow, BaseColor.Yellow, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Yellow gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Yellow } },
       }),
+      // R009: Convert 5 Yellow > DragonYellow = Yellow dragonGem special.
+      transformToSpecial(BaseColor.Yellow, { kind: 'dragonGem', color: BaseColor.Yellow }, { count: 5 }),
     ),
   },
   {
@@ -397,11 +431,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.5) + 6] 点伤害。将 5 颗紫色宝石转换成紫色龙宝石。有 10% 的几率获得一个额外回合，几率因紫色宝石数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.5, { range: 'all' }),
-      transform(BaseColor.Purple, BaseColor.Purple, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Purple gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),
+      // R009: Convert 5 Purple > DragonPurple = Purple dragonGem special.
+      transformToSpecial(BaseColor.Purple, { kind: 'dragonGem', color: BaseColor.Purple }, { count: 5 }),
     ),
   },
   {
@@ -409,11 +446,14 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.5) + 6] 点伤害。将 5 颗棕色宝石转换成棕色龙宝石。有 10% 的几率获得一个额外回合，几率因棕色宝石数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.5, { range: 'all' }),
-      transform(BaseColor.Brown, BaseColor.Brown, { count: 5 }),
+      // Native CountGems (step 0) precedes the conversion: roll the chance before the Brown gems turn special
+      // (boardGems counts plain colour gems only). The extra-turn flag itself has no board effect.
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Brown } },
       }),
+      // R009: Convert 5 Brown > DragonBrown = Brown dragonGem special.
+      transformToSpecial(BaseColor.Brown, { kind: 'dragonGem', color: BaseColor.Brown }, { count: 5 }),
     ),
   },
   {

@@ -267,11 +267,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 盟友数」双来源各 ×2（官方 CountGems Brown/CountArmyColor x200，r17 7650 口径）；
     // 「将其拉到首位」= reposition lastTarget 跨段绑定（§12.3，官方 TroopOrderFront）。
     build: skill(
-      dmgSplash('enemyLastN', 4, 1, {
-        n: 2,
+      // sa-R2 L4b-7277: native SecondLastEnemy is one main target (enemyLastN 2 hit both as mains); CountArmyColor Data 5 = Brown allies.
+      dmgSplash('enemySecondLast', 4, 1, {
         modifier: {
           mod: { kind: 'multiplier', a: 2 },
-          sources: [{ kind: 'boardGems', color: BaseColor.Brown }, { kind: 'teamSize', side: 'ally' }],
+          sources: [{ kind: 'boardGems', color: BaseColor.Brown }, { kind: 'alliesOfColor', color: BaseColor.Brown }],
         },
       }),
       reposition('lastTarget', 'front'),

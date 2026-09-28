@@ -616,8 +616,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8697,
     desc: '对一名敌人造成 [魔法 + 6] 点重度溅射伤害，伤害值因诅咒宝石数量而增强。若自身队伍里有暗黑铁匠迪恩扎，则创造 4 颗诅咒宝石。 [x4]',
     build: skill(
-      dmgSplash('enemyChosen', 6, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }),
+      // Native: CreateGems Cursed (4 with Dark Smith Drenza) ; CountGems 400 Cursed (board Cursed Gems x4) ; SplashHeavyDamage.
       createSpecialGems({ kind: 'curseGem' }, 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '暗黑铁匠迪恩扎' } }),
+      dmgSplash('enemyChosen', 6, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSpecial', gem: 'curseGem' } } }),
     ),
   },
   {
@@ -983,18 +984,22 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8872,
     desc: '每有一名蓝色敌人则创造 1 颗蓝色巨人宝石。再对所有蓝色敌人造成 [魔法 + 1] 点伤害，并使他们陷入冻结状态。 [1:1]',
     build: skill(
-      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 1, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
+      // Native CreateGems GiantBlue has no base amount: exactly 1 per Blue enemy (sa-R2 L4b-1487-1488-base).
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      inflict('frozen', 'lastTarget'),
+      // Native CauseFrozen@EnemyColor: every Blue enemy (lastTarget held only one of them).
+      inflict('frozen', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
     ),
   },
   {
     id: 8873,
     desc: '每有一名红色敌人则创造 1 颗红色巨人宝石。再对所有红色敌人造成 [魔法 + 1] 点伤害，并使他们陷入燃烧状态。 [1:1]',
     build: skill(
-      createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 1, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
+      // Native CreateGems GiantRed has no base amount: exactly 1 per Red enemy (sa-R2 L4b-1487-1488-base).
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
       dmg('enemyAll', 1, 1, { range: 'all', ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
-      inflict('burning', 'lastTarget'),
+      // Native CauseBurning@EnemyColor: every Red enemy (lastTarget held only one of them).
+      inflict('burning', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
     ),
   },
   {
