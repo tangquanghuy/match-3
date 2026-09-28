@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createSpecialGems, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSkulls, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
