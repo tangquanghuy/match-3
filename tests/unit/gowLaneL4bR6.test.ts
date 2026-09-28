@@ -2,6 +2,7 @@
 // Real TurnEngine.castSkill through tests/helpers/gowCast.ts; each row has its own entity and expected values.
 import { describe, it, expect } from 'vitest';
 import { castSpell, DEFAULT_ENEMIES } from '../helpers/gowCast';
+import { BaseColor } from '@engine/types';
 
 const dmgs = (o: string[]) => o.filter(x => x.startsWith('dmg'));
 type Cell = { kind: string; color?: string; spec?: { kind: string; tier?: number; color?: string } } | undefined;
@@ -107,5 +108,48 @@ describe('L4b R6 B03', () => {
     const w = cells(castSpell({ key: 'troop:7340' }).f).filter(t => t?.spec?.kind === 'wildcard');
     expect(w.length).toBeGreaterThan(0);
     expect(w.every(t => t?.spec?.tier === 3)).toBe(true);
+  });
+});
+
+describe('L4b R6 B04', () => {
+  it('troop:6516: +6 Attack all allies; [Magic + 6] = 16 to Daemon, then again to Undead (Daemon+Undead hit twice); 2 Angel Gems', () => {
+    const team = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: [['Daemon'], ['Human'], ['Undead'], ['Daemon', 'Undead']][i] }));
+    const s = castSpell({ key: 'troop:6516', enemies: team }).summary;
+    expect(dmgs(s.order)).toEqual(['dmg E10 16 (all)', 'dmg E13 16 (all)', 'dmg E12 16 (all)', 'dmg E13 16 (all)']);
+    expect(s.gems.created.angelGem).toBe(2);
+    expect(dmgs(castSpell({ key: 'troop:6516' }).summary.order)).toEqual([]);
+  });
+  it('troop:6745: 28 Armor, 56 with 13+ Skulls (R003)', () => {
+    const skulls = (r: number, c: number) => (r * 8 + c < 13 ? { kind: 'skull' } : { kind: 'color', color: [BaseColor.Green, BaseColor.Yellow, BaseColor.Purple][(r + c) % 3] }) as never;
+    expect(castSpell({ key: 'troop:6745' }).summary.order[0]).toBe('buff C armor+28');
+    expect(castSpell({ key: 'troop:6745', board: skulls }).summary.order[0]).toBe('buff C armor+56');
+  });
+  it('troop:7339: 17 damage, move to front, 3 x2 Wildcards', () => {
+    const { f, summary } = castSpell({ key: 'troop:7339' });
+    expect(summary.order.slice(0, 2)).toEqual(['dmg E11 17', 'move C front']);
+    const w = cells(f).filter(t => t?.spec?.kind === 'wildcard');
+    expect(w).toHaveLength(3);
+    expect(w.every(t => t?.spec?.tier === 2)).toBe(true);
+  });
+  const doomTeam = DEFAULT_ENEMIES.map((e, i) => ({ ...e, troopTypes: i === 3 ? ['Doom'] : ['Human'] }));
+  const shields: [string, BaseColor][] = [['weapon:1592', BaseColor.Blue], ['weapon:1593', BaseColor.Green], ['weapon:1594', BaseColor.Red],
+    ['weapon:1595', BaseColor.Yellow], ['weapon:1596', BaseColor.Purple], ['weapon:1597', BaseColor.Brown]];
+  for (const [key, col] of shields) {
+    it(`${key}: 12 Armor to chosen ally; 3 ${col} -> Giant ${col} only if the enemy team has a Doom`, () => {
+      const plain = castSpell({ key });
+      expect(plain.summary.order[0]).toBe('buff A1 armor+12');
+      expect(cells(plain.f).some(t => t?.spec?.kind === 'giantGem')).toBe(false);
+      const doom = castSpell({ key, enemies: doomTeam });
+      const g = doom.summary.order.find(x => x.includes('giantGem'));
+      expect(g).toBe(`convert ${col} x3 -> giantGem/${col} x3`);
+    });
+  }
+});
+
+describe('L4b R6 B04 order equivalence (R001)', () => {
+  it('troop:7333: native Attack-then-Armor vs runtime Armor-then-Attack is unobservable: both +11, independent stats; 4 Brown -> Entangle', () => {
+    const s = castSpell({ key: 'troop:7333' }).summary;
+    expect([...s.order.slice(0, 2)].sort()).toEqual(['buff C armor+11', 'buff C attack+11']);
+    expect(s.order[2]).toBe('convert Brown x4 -> entangleGem x4');
   });
 });

@@ -386,7 +386,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
-      transformToSpecial(BaseColor.Blue, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Blue, { kind: 'giantGem', color: BaseColor.Blue }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Blue
     ),
   },
   {
@@ -396,7 +396,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
-      transformToSpecial(BaseColor.Green, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Green, { kind: 'giantGem', color: BaseColor.Green }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Green
     ),
   },
   {
@@ -406,7 +406,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
-      transformToSpecial(BaseColor.Red, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Red, { kind: 'giantGem', color: BaseColor.Red }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Red
     ),
   },
   {
@@ -416,7 +416,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-      transformToSpecial(BaseColor.Yellow, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Yellow, { kind: 'giantGem', color: BaseColor.Yellow }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Yellow
     ),
   },
   {
@@ -426,7 +426,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
-      transformToSpecial(BaseColor.Purple, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Purple, { kind: 'giantGem', color: BaseColor.Purple }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Purple
     ),
   },
   {
@@ -436,7 +436,7 @@ const SPELLS: CuratedBatch['spells'] = [
       armor('allyChosen', 2, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'tempering' } } }),
       inflict('barrier', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
       inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
-      transformToSpecial(BaseColor.Brown, 'giantGem', { count: 3, ifCond: { kind: 'targetHasDoom' } }),
+      transformToSpecial(BaseColor.Brown, { kind: 'giantGem', color: BaseColor.Brown }, { count: 3, ifCond: { kind: 'targetHasDoom' } }), // R009 Giant Brown
     ),
   },
   {

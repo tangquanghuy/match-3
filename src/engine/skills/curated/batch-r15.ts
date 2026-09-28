@@ -349,13 +349,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7708,
     desc: '给予所有盟友 6 点攻击力。对亡灵和恶魔敌人造成 [魔法 + 6] 点伤害。创造 2 颗天使宝石。',
-    // 「对亡灵和恶魔敌人」= anyOf targetRace 析取（逐目标过滤，§条件组合）
+    // native: Damage@EnemyType daemon, then a separate Damage@EnemyType undead (R001) — an enemy that is
+    // both Daemon and Undead is hit twice; per-target race filter on enemyAll
     build: skill(
       attack('allyAll', 6, 0),
-      dmg('enemyAll', 6, 1, {
-        range: 'all',
-        ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Undead' }, { kind: 'targetRace', race: 'Daemon' }] },
-      }),
+      dmg('enemyAll', 6, 1, { range: 'all', ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      dmg('enemyAll', 6, 1, { range: 'all', ifCond: { kind: 'targetRace', race: 'Undead' } }),
       createSpecialGems({ kind: 'angelGem' }, 2),
     ),
   },

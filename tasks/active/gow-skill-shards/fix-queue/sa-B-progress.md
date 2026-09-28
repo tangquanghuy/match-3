@@ -22,3 +22,4 @@
 - 2026-09-28T22:31:00 R6-B01 troop:7084,7106,7350,7389,7390,7477,7745,7788,weapon:1054,troop:7309 approve=9 fixed=0 issue=1 (7309 Spirit gem colour source-dispute same as 7308; 7389/7477 boss, 7390/7745/7788 tower waived R000) checkpoint f1ff67a
 - 2026-09-28T22:46:04 R6-B02 weapon:1061,1513,1514,1697,troop:6675,7419,7822,7587,weapon:1685,troop:7381 approve=10 fixed=3 issue=0 (1685 Terror+Poison creates missing + zh; 7381 Good/Evil gargoyle tiers; 7587 native 3x single portal create; 6675 boss, 7419/7822 tower waived R000)
 - 2026-09-28T22:51:32 R6-B03 troop:7466,7522,7849,7506,7216,weapon:1684,troop:7340,6449,weapon:1051,troop:6031 approve=10 fixed=3 issue=0 (7216/1684/7340 enemyRandomN -> native RandomPrefNotPrev chain R007-3; 7506 tower waived R000)
+- 2026-09-28T22:56:12 R6-B04 troop:7339,weapon:1592,1593,1594,1595,1596,1597,troop:6745,6516,7333 approve=10 fixed=7 issue=0 (1592-1597 Doom branch Giant gem colour R009; 6516 native Daemon then Undead damage steps)

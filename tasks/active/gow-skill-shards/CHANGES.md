@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 529 条改动，涉及 972 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 531 条改动，涉及 979 个技能 ID。
 
 ## 按时间
 
@@ -535,6 +535,8 @@
 | 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9023 | troop:7381 DragonstoneGuardian | `src/engine/skills/curated/batch-r14.ts` | 5 gargoyleGem tier unset (Good only) → CreateGems2Colors mix: tier 1 Good / tier 2 Evil (createSpecialGems2, 8795 pattern) |  |
 | 2026-09-28T14:43 | sa-B | L4b-R6-B02 | data | 9466 | troop:7587 DaeDrak | `src/engine/skills/curated/batch-r15.ts` | one create with uniform countRange 1-3 → native three independent CreateGems 1 DaemonicPortal; later ones may overwrite an earlier portal (English 1-3) |  |
 | 2026-09-28T14:50 | sa-B | L4b-R6-B03-prefnotprev | data | 8803, 9903, 8963 | troop:7216 Craghound；weapon:1684 FlailOfSuffering；troop:7340 TheCattauriKing | `src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-w04.ts`<br>`src/engine/skills/curated/batch-r4.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN n=2/3 (distinct targets; lone survivor hit once) → native RandomEnemy + RandomPrefNotPrevEnemy chain (R007-3: avoid only previous; lone survivor hit every time; 3rd may return to 1st) |  |
+| 2026-09-28T14:55 | sa-B | L4b-R6-B04 | data | 9356, 9357, 9358, 9359, 9360, 9361 | weapon:1592 DoomedProtector；weapon:1593 DoomedBuckler；weapon:1594 DoomedWall；weapon:1595 DoomedBarrier；weapon:1596 DoomedShield；weapon:1597 DoomedAegis | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Doom branch converted to colourless giantGem → R009: giantGem carries its colour (Giant Blue/Green/Red/Yellow/Purple/Brown) |  |
+| 2026-09-28T14:55 | sa-B | L4b-R6-B04 | data | 7708 | troop:6516 WarCleric | `src/engine/skills/curated/batch-r15.ts` | one hit per Undead-or-Daemon enemy → native two steps: Damage Daemon enemies, then Damage Undead enemies (Daemon+Undead hit twice, R001) |  |
 
 ## 按技能 ID
 
@@ -776,6 +778,7 @@
 | 7700 | 1 | B-L4b-6510-two-creates |
 | 7704 | 1 | L1-6513-sacrifice |
 | 7707 | 1 | P-E-faction-kingdom |
+| 7708 | 1 | L4b-R6-B04 |
 | 7712 | 1 | R3-B03-6519 |
 | 7720 | 1 | F3-q03 |
 | 7722 | 1 | P-E-faction-kingdom |
@@ -1341,6 +1344,12 @@
 | 9352 | 1 | L7-R1-weapon-colour-race |
 | 9354 | 1 | P-E-faction-kingdom |
 | 9355 | 1 | L7-R1-weapon-colour-race |
+| 9356 | 1 | L4b-R6-B04 |
+| 9357 | 1 | L4b-R6-B04 |
+| 9358 | 1 | L4b-R6-B04 |
+| 9359 | 1 | L4b-R6-B04 |
+| 9360 | 1 | L4b-R6-B04 |
+| 9361 | 1 | L4b-R6-B04 |
 | 9363 | 1 | F2-R001-order |
 | 9367 | 1 | P-prefnotprev-semantics |
 | 9370 | 1 | P-prefnotprev-semantics |
