@@ -39,3 +39,8 @@
 - troop:7485 accepted: +6 Attack then Life; boss waived R000
 - troop:7474 accepted: +5 Attack/Life/Armor native order; tower waived R000 (ZH stray space only, left)
 - troop:6537 accepted: +6 Life; boss waived R000
+- weapon:1099 accepted: Magic dmg all + 2 Life all allies
+- troop:6547 accepted: two weakest (Life+Armor, R005: E12, E10), +10 Life then Attack
+- weapon:1100 accepted: Magic dmg all + 1 Magic all allies
+- weapon:1065 accepted: dmg + steal 2 Attack from the target
+- troop:6839 accepted: on kill steal 4 Magic from all remaining enemies; boss waived R000
