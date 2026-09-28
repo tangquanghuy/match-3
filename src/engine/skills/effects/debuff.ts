@@ -25,14 +25,17 @@ import { hasTroopType, evaluateWithModifier, DEFAULT_RACE_DOUBLE, condMultiplier
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { isImmuneToManaDrain } from './status';
 import { applyBuffGain } from './buff';
-import type { BuffStat } from './buff';
+import type { BuffStat, LifeMode } from './buff';
 
 /** 可削减的属性（mana 的削减 = 耗蓝；hp 的削减 = 直接扣血，不走护甲/屏障伤害管线）。
- *  'random'（R12 批）：官方 DecreaseRandom——执行时 rng 在攻/甲/魔三围中掷选其一削减。 */
+ *  'random'（R12 批）：官方 DecreaseRandom / StealRandom——执行时 rng 在四项技能中掷选其一削减。 */
 export type ReduceStat = 'attack' | 'armor' | 'magic' | 'mana' | 'hp' | 'random';
 
-/** 随机削减的可掷属性（官方 DecreaseRandom 语义：三围，不含 hp/mana） */
-const RANDOM_REDUCE_STATS: readonly Exclude<ReduceStat, 'mana' | 'hp' | 'random'>[] = ['attack', 'armor', 'magic'];
+/**
+ * 随机削减的可掷属性（R007-2，rulings/R007-counters-random-pools.md）：四项技能
+ * Attack、Armor、Life、Magic 等概率（与 buff.ts RANDOM_STATS 同序）。Life 直接减当前生命。
+ */
+const RANDOM_REDUCE_STATS: readonly Exclude<ReduceStat, 'mana' | 'random'>[] = ['attack', 'armor', 'hp', 'magic'];
 
 export interface ReduceParams {
   /** 目标列表（由 targeting 产出，敌我皆可） */
@@ -80,12 +83,12 @@ export interface ReduceParams {
 }
 
 /** 施法者获得窃取所得（走 buffOne 口径：上限夹取、织网拦截、治疗修正） */
-function gainToCaster(ctx: EffectContext, stat: BuffStat, amount: number): GameEvent[] {
+function gainToCaster(ctx: EffectContext, stat: BuffStat, amount: number, lifeMode?: LifeMode): GameEvent[] {
   const caster = findCharacter(ctx.state, ctx.casterId);
   if (!caster || amount <= 0) return [];
-  const applied = applyBuffGain(caster, stat, amount);
+  const applied = applyBuffGain(caster, stat, amount, lifeMode);
   if (applied === 0) return [];
-  return [{ type: 'buff', targetId: caster.id, stat, amount: applied }];
+  return [{ type: 'buff', targetId: caster.id, stat, amount: applied, ...(stat === 'hp' && lifeMode === 'gain' ? { maxHpGain: applied } : {}) }];
 }
 
 /**
@@ -123,7 +126,7 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
         // 免疫目标整体跳过——不削减、不回事件、窃取者也不进账。
         if (stat === 'mana' && isImmuneToManaDrain(target)) continue;
         for (let step = 0; step < steps; step++) {
-          // 官方 DecreaseRandom：每步独立掷签攻/甲/魔其一（可能重复掷中同一属性）
+          // 官方 DecreaseRandom：每步独立掷签四项技能其一（R007-2；可能重复掷中同一属性）
           const statNow: 'attack' | 'armor' | 'magic' | 'mana' | 'hp' =
             stat === 'random' ? RANDOM_REDUCE_STATS[ctx.rng.nextInt(RANDOM_REDUCE_STATS.length)] : stat;
           let cAmount: number;
@@ -167,7 +170,8 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
               // stat='random' 时 gainStat 仅是窃取标记：施法者获得掷中的那项属性
               const gainAs: BuffStat = stat === 'random' ? statNow : gainStat;
               const gain = Math.floor(removed * gainRatio);
-              events.push(...gainToCaster(ctx, gainAs, gain));
+              // StealRandom 掷中 Life：施法者按 IncreaseHealth 增长（生命与上限同增，R007-2）
+              events.push(...gainToCaster(ctx, gainAs, gain, stat === 'random' && gainAs === 'hp' ? 'gain' : undefined));
             }
           }
         }

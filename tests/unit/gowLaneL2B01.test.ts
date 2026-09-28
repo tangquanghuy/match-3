@@ -187,10 +187,11 @@ describe('L2B01 troop:6775 CorruptMagus spell 8165 Curse + 2x DecreaseRandom (po
    {kind:'reduce',target:'lastTarget',stat:'random',scaling:{base:1,mult:1},times:2}]});
   expect(t.spell.description).toBe('诅咒一名敌人，并从其 2 个随机技能值消除 [魔法 + 1] 点。');
  });
- for(const side of SIDES)it(`real cast ${side}: chosen enemy Cursed and loses 2 x [Magic+1] over attack/armor/magic; others untouched`,()=>{
+ for(const side of SIDES)it(`real cast ${side}: chosen enemy Cursed and loses 2 x [Magic+1] over attack/armor/life/magic (R007-2); others untouched`,()=>{
   const f=setup({...C,side,enemies:[{},{},{attack:40,armor:40,magic:40},{}]});f.cast();
   const e=f.enemies[2];expect(has(e,'curse')).toBe(true);
-  expect(120-(e.attack+e.armor+e.magic)).toBe(22);expect(e.hp).toBe(1000);
+  // R007-2 (sa-P P-random-stat-pool): Life is in the pool and is reduced directly
+  expect(1120-(e.attack+e.armor+e.magic+e.hp)).toBe(22);
   expect(f.enemies.filter((_,i)=>i!==2).every(x=>!has(x,'curse')&&x.attack===17&&x.magic===11)).toBe(true);turnPassed(f);
  });
 });
