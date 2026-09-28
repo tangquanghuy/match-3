@@ -95,12 +95,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8090,
     desc: '摧毁一行。窃取第一位敌人 [魔法 + 1] 点生命值，数量因被摧毁的骷髅头数而增强。 [x2]',
-    // StealLife = 伤害吸血（drain）；骷髅计数同 8039 → destroyedGems 无色
+    // StealLife = 伤害吸血（drain）；sa-A r3: native CountGems Skull 200 Row → destroyed Skulls only (8039 fixed the same way)
     build: skill(
       destroyChosenRow(),
       dmg('enemyFront', 1, 1, {
         drain: true,
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },
@@ -138,11 +138,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8168,
     desc: '爆破一颗宝石。创造 4 颗红色宝石，数量因被摧毁的骷髅头数量而增强。 [x3]',
-    // 「被摧毁的骷髅头数量」= destroyedGems 无色（8039/8090 同批口径）
+    // sa-A r3: native CountGems Skull 300 Block3x3 → destroyed Skulls only (was every destroyed gem)
     build: skill(
       explodeAt(CELL),
       createGems(BaseColor.Red, 4, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },
@@ -958,12 +958,12 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9949,
     desc: '摧毁一排。对随机一名敌人造成[魔法 + 2]点伤害。然后生成3颗棕色宝石，宝石数量受摧毁的骷髅数量加成。 [x3]',
-    // 「受摧毁的骷髅数量加成」= destroyedGems 无色（R8 9639 先例，前段整排摧毁含骷髅）
+    // sa-A r3: native CountGems Skull 300 BoardTarget Row → only Skulls in the destroyed row count (destroyedGems skulls)
     build: skill(
       destroyChosenRow(),
       dmg('enemyRandom', 2, 1),
       createGems(BaseColor.Brown, 3, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', skulls: true } },
       }),
     ),
   },

@@ -19,8 +19,8 @@
  * - 挽救候选复核后仍维持 SKIP 的 50 条记录保留在原批次文件（不重复计数），复核结论见批尾注记。
  */
 import type { CuratedBatch } from './index';
-import { explodeChosenCol, destroyChosenCross } from '../builders';
-import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, destroyRandomCols, explodeColor, explodeRandomGems, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
+import { explodeChosenCol, destroyChosenCross, destroyChosenCol } from '../builders';
+import { skill, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, dispelStatus, randomStat, inflict, inflictRandom, createGems, createSkulls, createMix, createStorm, destroyColor, destroyRandomGems, destroyRandomRows, explodeColor, explodeRandomGems, transform, transformToSpecial, reposition, shuffleBoard, shuffleTeam, extraTurn, oneOf, summonRef, summonRandom, sacrifice, gainGold, gainSouls, gainMaps, escape, CHOSEN, CELL, explodeAt } from '../builders';
 import type { SegmentOpts } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
@@ -402,8 +402,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "摧毁一组行跟列。获得 [魔法 + 1] 黄金，黄金数量因摧毁的红色宝石数而增强。 [x10]",
     // 「一组行跟列」= 随机一行 + 随机一列（r17 7433 随机行同款）；[x10] = destroyedGems Red ×10
     build: skill(
-      destroyRandomRows(1),
-      destroyRandomCols(1),
+      // sa-A r3: native Target Board + BoardTarget RowAndColumn = the chosen cell's row and column (was random row + random col)
+      destroyChosenCross(),
       gainGold(1, 1, {
     modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'destroyedGems', color: BaseColor.Red } },
   }),
@@ -1188,13 +1188,14 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8106,
     desc: "摧毁一列。对最后一名敌人造成 [魔法 + 3] 点伤害，伤害值因被摧毁的黄色宝石数而增强。再将敌人拉到首位。 [x4]",
-    // 「摧毁一列」= 随机一列；[x4] = 官方 CountGems 400 = destroyedGems Yellow ×4；「拉到首位」= reposition front
+    // sa-A r3: native Target Board + DestroyGems BoardTarget Column = chosen column (not random);
+    // [x4] = CountGems 400 = destroyedGems Yellow ×4; TroopOrderFront@LastEnemy resolves at its own step (dead → new last)
     build: skill(
-      destroyRandomCols(1),
+      destroyChosenCol(),
       dmg('enemyLast', 3, 1, {
     modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
   }),
-      reposition('lastTarget', 'front'),
+      reposition('enemyLast', 'front'),
     ),
   },
   {

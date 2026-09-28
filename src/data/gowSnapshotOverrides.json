@@ -156,6 +156,11 @@
       "reason": "L4b-7138-zh: stored Chinese snapshot typo 发力颜色 for 法力颜色 (\"one of their Mana Colors\"). Display correction only.",
       "spellDescription": "赐予一名盟友法印效果，并给予其 3 点魔力值。再创建 12 颗其法力颜色之一的宝石。"
     },
+    "7139": {
+      "spellId": 8688,
+      "reason": "sa-A r3: English Destroy a column / native DestroyGems BoardTarget Column; AllyType mystic = every Mystic ally. Old Chinese said row and one ally.",
+      "spellDescription": "摧毁一列。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有秘士盟友，则给予他们 3 点魔力值。 [x3]"
+    },
     "7229": {
       "spellId": 8824,
       "reason": "sa-R7 R7-not-board-misread: English \"for each Blue Gem on the board\"; snapshot ZH misreads as û��.",

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 418 条改动，涉及 712 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 453 条改动，涉及 747 个技能 ID。
 
 ## 按时间
 
@@ -395,7 +395,18 @@
 | 2026-09-28T09:20 | sa-P | P-R1-chosen-target-color-cond | primitive | 8467 | troop:6964 StormKnight | `src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`tests/unit/gowFixP-R1-chosen-target-color-cond.test.ts` | only lastTargetColor existed (needs a prior targeting segment), so 8467 dealt the true damage first and column skulls could miss a killed front target → global condition chosenTargetColor (cast-start colours of the chosen target); 8467 native order DestroyColumn -> IncreaseAttack -> TrueDamage | troop:6964 only |
 | 2026-09-28T09:20 | sa-P | P-R1-row-count-at-cast-start | primitive | 8928 | troop:7316 EyeOfArges | `src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/context.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-28.ts`<br>`tests/unit/gowFixP-R1-row-count-at-cast-start.test.ts` | 8928 counted Red / Brown / Skull gems on the whole board (L10 dmg 178) → castTracking.chosenRowAtCastStart + source chosenRowAtCastStart: only the chosen row, captured before the explode (26 + 8 x row count) | troop:7316 only |
 | 2026-09-28T09:25 | sa-P | P-R1-dual-storm | primitive | 8560, 8562, 8454 | troop:7036 HellclawHunter；troop:7038 HellclawWarrior；weapon:1391 IndrajitsClaw | `src/engine/types.ts`<br>`src/engine/TurnEngine.ts`<br>`src/engine/skills/effects/storm.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/builders.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`tests/unit/gowFixP-R1-dual-storm.test.ts` | storms had one colour; Hellstorm (native StormRedPurple) approximated as a Red storm → Team.storm.color2 / storm segment color2 / createStorm opts.color2: both colours get STORM_DROP_WEIGHT in refills, stormPresent matches either; 8560 8562 8454 Red + Purple | storm-change event still reports the primary colour only (UI shows a Red storm) |
+| 2026-09-28T10:15 | sa-A | L4a-r3-7874 | data | 9949 | troop:7874 MineCart | `src/engine/skills/curated/batch-r9.ts` | Brown count boosted x3 by every destroyed gem in the row (27 on review board) → boosted x3 by destroyed Skulls only (native CountGems Skull 300 Row) |  |
+| 2026-09-28T10:15 | sa-A | L4a-r3-6224 | data | 7366 | troop:6224 LionPrince | `src/engine/skills/curated/batch-12.ts` | enemyFirstN 2 resolved once → native Damage@FrontEnemy then Damage@SecondEnemy resolved per step (front dies -> new second) |  |
+| 2026-09-28T10:15 | sa-A | L4a-r3-6736 | data | 8106 | troop:6736 HarpyEagle | `src/engine/skills/curated/batch-r18.ts` | random column; pull lastTarget (dead -> no move) → chosen column (Target Board); TroopOrderFront@LastEnemy resolved at its step |  |
+| 2026-09-28T10:15 | sa-A | L4a-r3-7685 | data | 9642 | troop:7685 LapinaLancer | `src/engine/skills/curated/batch-18.ts` | enemyRandomN 2 (lone enemy hit once) → Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007.3 lone enemy hit twice) |  |
 | 2026-09-28T10:19 | sa-D | D-1435-doomskull | assembler | 8664 | weapon:1435 BlackheartsHorn | `src/engine/skills/curated/batch-w03.ts` | slay chance boosted by all Skulls on the board (boardSkulls) → boosted by Doomskulls only (native CountGems Doomskull 600); order Lethal->TrueDamage still pending P-D-lethal-first-lasttarget |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6777 | data | 8167 | troop:6777 GorThrum | `src/engine/skills/curated/batch-21.ts` | explode 2 + 2 x Yellow random colour gems → native ExplodeGems UseCounter no Amount: 2 x Yellow destroyed, no base, any gem |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6361 | data | 7513 | troop:6361 MerchantPrince | `src/engine/skills/curated/batch-r18.ts` | random row + random column → chosen row and column (Target Board, BoardTarget RowAndColumn) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6422 | data | 7595 | troop:6422 SummerKnight | `src/engine/skills/curated/batch-30.ts` | Armor [(M/2)+1] unboosted, only Attack boosted by Red → Armor and Attack both boosted x2 per Red destroyed (both UseCounterForAmount) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-7139 | data | 8688 | troop:7139 Ostryx | `src/engine/skills/curated/batch-27.ts`<br>`src/data/gowSnapshotOverrides.json` | destroy chosen row; 3 Magic to one weakest Mystic; zh row → destroy chosen column; 3 Magic to every Mystic ally (AllyType mystic); zh column |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6233 | data | 7379 | troop:6233 Dragotaur | `src/engine/skills/curated/batch-19.ts` | Dragon Attack [Magic] unboosted, only Armor boosted → Attack and Armor both boosted x2 per Yellow (both UseCounterForAmount) |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6909 | data | 8370 | troop:6909 HeraldOfWoe | `src/engine/skills/curated/batch-21.ts` | Attack unboosted, only Armor boosted x5 Brown → Attack and Armor both boosted x5 per Brown |  |
+| 2026-09-28T10:19 | sa-A | L4a-r3-6954 | data | 8481 | troop:6954 TombKnight | `src/engine/skills/curated/batch-22.ts` | Armor unboosted, only Attack boosted → native IncreaseAttack then IncreaseArmor, both boosted x2 per Yellow |  |
 | 2026-09-28T10:20 | sa-B | B-L4b-prefnotprev | data | 9677, 10045, 9475 | troop:7716 ForsakenGuardian；weapon:1713 VolcanicStaff；troop:7596 StingBat | `src/engine/skills/curated/batch-38.ts`<br>`src/engine/skills/curated/batch-w05.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | enemyRandomN (N distinct targets; lone enemy hit once); 7596 portals only if the first target died → native RandomEnemy + RandomPrefNotPrevEnemy chain (R007-3); 7596 portals on any kill this cast (castEnemyDied) |  |
 | 2026-09-28T10:20 | sa-B | B-L4b-7595-order | data | 9474 | troop:7595 DoomedGuardian | `src/engine/skills/curated/batch-r19.ts` | create 2 Portals, then Yellow->Spirit → native order (R001): Yellow->Spirit, then create 2 Portals |  |
 | 2026-09-28T10:20 | sa-B | B-L4b-1613-zh | data | 9505 | weapon:1613 BlackflameSpear | `src/engine/skills/curated/batch-w04.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: boosted by 噩梦传送门宝石 → zh: boosted by 恶魔传送门宝石 (Daemonic Portal Gems, EN + native CountGems DaemonicPortal) |  |
@@ -403,20 +414,43 @@
 | 2026-09-28T10:24 | sa-B | B-L4b-6104-blue | data | 7169 | troop:6104 Sylvasi | `src/engine/skills/curated/batch-05.ts`<br>`scripts/curated-pools/pool-05.json`<br>`src/data/gowSnapshotOverrides.json` | converts Yellow->Purple (zh 黄色) → EN + native ConvertGems 100 Blue>Purple: converts Blue->Purple, zh 蓝色 |  |
 | 2026-09-28T10:24 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/engine/skills/curated/batch-w04.ts` | scatter boosted x8 per Entangled enemy → native CountGems 800 Entangle: boosted x8 per Entangle Gem on the board |  |
 | 2026-09-28T10:25 | sa-D | D-6806-count20 | assembler | 8209 | troop:6806 Night-Slayer | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | damage boosted by target Life ratio 20:1 (5%): 59 vs E11 900 Life; zh did not say whose Life → native CountLife@FromTarget 20 = 20% = [5:1] (R003-2): 194; zh 因其生命值 |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-6303 | data | 7453 | troop:6303 RockSpirit | `src/engine/skills/curated/batch-13.ts` | chosen row then chosen column as two destroys (second includes refills) → one 15-cell RowAndColumn cross (native single DestroyGems step) |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-1117 | data | 7269 | weapon:1117 WardensGauntlets | `src/engine/skills/curated/batch-w01.ts` | row then column; boosted by every Green gem on the board → one 15-cell cross; boosted x3 per Green destroyed in it (native CountGems Green RowAndColumn) |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-6720 | data | 8090 | troop:6720 CorpseMare | `src/engine/skills/curated/batch-r9.ts` | boosted x2 by every destroyed gem in the row → boosted x2 by destroyed Skulls only (CountGems Skull 200 Row) |  |
+| 2026-09-28T10:25 | sa-A | L4a-r3-7539 | data | 9297 | troop:7539 FeyDragoon | `src/engine/skills/curated/batch-r7.ts` | boosted 1:1 by every gem cleared by the Freeze-gem explosions → boosted 1:1 by the number of Freeze gems (CountGems Freeze 100) |  |
 | 2026-09-28T10:29 | sa-B | B-L4b-7000-zh | data | 8503 | troop:7000 Baihu | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | zh garbled: 结果…伤害一名敌人，由黄色宝石激活。迷惑自己 → zh: 对一名敌人造成…伤害值因黄色宝石数而增强。赋予自己法印效果 (EN Enchant myself) |  |
 | 2026-09-28T10:30 | sa-D | D-6117-beast-triple | assembler | 7209 | troop:6117 Scarlett | `src/engine/skills/curated/batch-05.ts`<br>`scripts/curated-pools/pool-05.json`<br>`src/data/gowSnapshotOverrides.json` | x2 against Beasts (raceDouble default 2); zh 双倍 → x3 (native MultiplyForBeast StatusAmount 3, English triple); zh 三倍 |  |
+| 2026-09-28T10:31 | sa-A | L4a-r3-7304 | data | 8916 | troop:7304 KingOfRavens | `src/engine/skills/curated/batch-r14.ts` | boosted by Spirit gems left on the board after exploding them (always 0) → boosted x6 per Spirit gem cleared by the spell (native CountGems Spirit at step 0) |  |
+| 2026-09-28T10:31 | sa-A | L4a-r3-7586 | data | 9465 | troop:7586 Astaroth | `src/engine/skills/curated/batch-r15.ts` | damage (portal count) then explode → R001: explode 1 per Portal first, then damage x2 per Portal left |  |
+| 2026-09-28T10:31 | sa-A | L4a-r3-6778 | data | 8168 | troop:6778 WarWolf | `src/engine/skills/curated/batch-r9.ts` | Red count boosted x3 by every exploded gem → boosted x3 by exploded Skulls only (CountGems Skull Block3x3) |  |
 | 2026-09-28T10:33 | sa-B | B-L4b-7257-countmax | data | 8871 | troop:7257 Carmina | `src/engine/skills/curated/batch-r21.ts`<br>`scripts/curated-pools/pool-10.json`<br>`src/data/gowSnapshotOverrides.json` | 4+4+4 creates then 3 conditional +1 creates; zh truncated → native CountMax 1 counter: one create per kind of 4 + (1 if any enemy Death Marked); zh completed |  |
 | 2026-09-28T10:33 | sa-B | B-L4b-7768-mix-boost | data | 9774 | troop:7768 ChampionOfRot | `src/engine/skills/curated/batch-33.ts`<br>`scripts/curated-pools/pool-29.json`<br>`src/data/gowSnapshotOverrides.json` | damage boosted by Diseased+Poisoned enemies, mix fixed 16 → EN + native: damage unboosted, mix of 16 + Poisoned + Diseased enemies; zh fixed |  |
 | 2026-09-28T10:37 | sa-D | D-1000-strongest | assembler | 7066 | weapon:1000 KnightsSword | `src/engine/skills/curated/batch-w01.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | damage to the first enemy (enemyFront); zh 对第 1 名敌人 → native Damage@StrongestEnemy -> enemyHealthiest (Life+Armor, R005); zh 对最强的敌人 (pool + reviewed-override description) |  |
 | 2026-09-28T10:38 | sa-B | B-L4b-6261-life-boost | data | 7404 | troop:6261 Justice | `src/engine/skills/curated/batch-30.ts` | only Attack boosted by Frozen enemies [x4] → EN + native (both steps UseCounterForAmount): Life and Attack both boosted |  |
 | 2026-09-28T10:38 | sa-B | B-L4b-7832-entangle-count | data | 9939 | troop:7832 Wisterina | `src/engine/skills/curated/batch-r2.ts`<br>`scripts/curated-pools/pool-25.json`<br>`src/data/gowSnapshotOverrides.json` | x2 damage only on Entangled targets (condMult); zh 'extra damage on entangled' → native CountSpecificStatusEffect 200: +2 per Entangled enemy to every enemy; zh fixed |  |
 | 2026-09-28T10:39 | sa-D | D-1109-single-hit | assembler | 7246 | weapon:1109 CrimsonInsignia | `src/engine/skills/curated/batch-w01.ts` | 13+ Red Gems: a second separate 8-damage hit → native single Damage step with AddFor10RedGems 8: one hit of [Magic+4]+8 (condBonus) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-1523 | data | 8995 | weapon:1523 Sparkhammer | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | boosted by Bombs left on the board after the explosion → boosted x2 per Bomb cleared by the chosen-gem explosion (CountGems Bomb Block3x3) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-6188 | data | 7329 | troop:6188 WinterKnight | `src/engine/skills/curated/batch-r15.ts` | explode a random colour gem → explode the chosen Mana Gem (Target ManaGemsOnly, SingleGem) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-6793 | data | 8184 | troop:6793 WildKnight | `src/engine/skills/curated/batch-26.ts` | Life [Magic+1] unboosted, only Attack boosted → Attack then Life, both boosted x3 per Green |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-6822 | data | 8226 | troop:6822 Merknight | `src/engine/skills/curated/batch-27.ts` | Submerged then Barrier → native order Barrier then Submerged |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7821 | data | 9865 | troop:7821 StormOracle | `src/engine/skills/curated/batch-r7.ts` | explode a random gem → explode the chosen gem (Target Board, SingleGem) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7543 | data | 9318 | troop:7543 Emberclaw | `src/engine/skills/curated/batch-r8.ts` | boosted x5 by every colour gem on the board → boosted x5 per Elemental Star on the board before the explosion |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7044 | data | 8569 | troop:7044 Researcher | `src/engine/skills/curated/batch-p38.ts` | explode 2, then explode 1 per Bomb left → one explosion of 2 + 1 per Bomb (single native ExplodeGems) |  |
+| 2026-09-28T10:40 | sa-A | L4a-r3-7086 | data | 8614 | troop:7086 TerraWyrm | `src/engine/skills/curated/batch-15.ts` | Attack unboosted; explode 3 colour gems → Attack and Armor both +floor(Skulls/2); explode 3 random gems of any kind |  |
 | 2026-09-28T10:42 | sa-D | D-b09-targets | assembler | 8463, 7239, 7271, 7648 | troop:6956 Baphomet；weapon:1103 OrderAndChaos；weapon:1119 ChainFlail；troop:6470 Scorpius | `src/engine/skills/curated/batch-08.ts`<br>`src/engine/skills/curated/batch-w01.ts`<br>`src/engine/skills/curated/batch-r15.ts` | 6956 3 distinct randoms picked at once (only 2 hits with 2 enemies); 1103 only the last enemy hit (second-last missing); 1119 bonus 9 dmg could hit the chosen enemy again; 6470 lethal re-resolved the last 2 after kills → 6956 randomWaves 3 + notHit (R006-C3); 1103 enemyLastN n2 (second-last then last); 1119 enemyRandomPrefNotPrev (native RandomPrefNotPrevEnemy); 6470 lethal on lastTargets (same two enemies) |  |
 | 2026-09-28T10:42 | sa-B | B-L4b-1167-fromprevious | data | 7586 | weapon:1167 PearlOfWisdom | `src/engine/skills/curated/batch-w01.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 1 Magic to the caster → native IncreaseSpellPower@FromPrevious: 1 Magic to the Submerged random ally |  |
 | 2026-09-28T10:42 | sa-B | B-L4b-7092-singlegem | data | 8627 | troop:7092 Shayle | `src/engine/skills/curated/batch-r14.ts` | random Mana Gem -> Elemental Star → native BoardTarget SingleGem: the chosen cell -> Elemental Star (L4b-7276 convention) |  |
 | 2026-09-28T10:44 | sa-D | D-1509-mark-target | assembler | 8952 | weapon:1509 VampiricMark | `src/engine/skills/curated/batch-w03.ts` | steal 6 Life if ANY enemy has Hunter's Mark → only if the target has Hunter's Mark (native StealLife@FromTarget AddForHuntersMark) |  |
 | 2026-09-28T10:45 | sa-B | B-L4b-6890-native-chances | data | 8316 | troop:6890 TheLordOfSlaughter | `src/engine/skills/curated/batch-p39.ts` | 1-2 distinct random enemies (50/50) Bleed, then 1-2 Death Mark → native: Bleed@Random, DeathMark@Random, then each again at 25% (fresh random target) |  |
 | 2026-09-28T10:45 | sa-B | B-L4b-7082-native-create | data | 8610 | troop:7082 ArchproxyYvendra | `src/engine/skills/curated/batch-36.ts` | no Yellow create; Web/Poison re-pick strongest → native step 0 CreateGems 2 Yellow before Yellow->Uber Doomskull; Web/Poison FromPrevious (lastTarget) |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-7488 | data | 9221 | troop:7488 Unagh | `src/engine/skills/curated/batch-38.ts` | Life then Attack → native order Attack then Life |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-7018 | data | 8525 | troop:7018 RockSquid | `src/engine/skills/curated/batch-r11.ts` | Armor 2 + 2 x removed → Armor 2 x removed (native IncreaseArmor has no Amount) |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1036 | data | 7102 | weapon:1036 Shadowbringer | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Purple gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1037 | data | 7103 | weapon:1037 GhostsBane | `src/engine/skills/curated/batch-w01.ts` | [2:1] boost had no source (always 0) → boosted 50% of Blue gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1038 | data | 7116 | weapon:1038 FrozenSoul | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Red gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1039 | data | 7104 | weapon:1039 LionsClaw | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Brown gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1040 | data | 7105 | weapon:1040 HolyAvenger | `src/engine/skills/curated/batch-w01.ts` | [3:1] boost had no source (always 0) → boosted 34% of Yellow gems removed |  |
+| 2026-09-28T10:46 | sa-A | L4a-r3-1044 | data | 7109 | weapon:1044 EagleEye | `src/engine/skills/curated/batch-w01.ts` | [2:1] boost had no source (always 0) → boosted 50% of Green gems removed |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-6510-two-creates | data | 7700 | troop:6510 PharaohHound | `src/engine/skills/curated/batch-13.ts`<br>`scripts/curated-pools/pool-13.json`<br>`src/data/gowSnapshotOverrides.json` | mix of 8 Purple/Red → EN + native: 8 Purple, then 8 Red; zh fixed |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-6080-nine | data | 7150 | troop:6080 JarlFiremantle | `src/engine/skills/curated/batch-02.ts`<br>`scripts/curated-pools/pool-02.json`<br>`src/data/gowSnapshotOverrides.json` | 10 Red + 10 Yellow (zh 10) → EN + native: 9 Red + 9 Yellow; zh fixed |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-6626-order | data | 7944 | troop:6626 SeaWitch | `src/engine/skills/curated/batch-33.ts` | Submerge then Enrage → native order (R001): Enrage, Submerge, heal |  |
@@ -424,6 +458,7 @@
 | 2026-09-28T10:52 | sa-B | B-L4b-1417-wildcard-tiers | data | 8577 | weapon:1417 WildOrb | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 3 untiered Wildcards → native: 3 x2 + x3/x4 at 50% + x2/x3/x4 at 25% (3-8 various multipliers) |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1371-target-status | data | 8432 | weapon:1371 EldraziWand | `src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | creates if ANY enemy is Cursed/Webbed → native CreateGems@FromTarget AddForCursed/AddForWeb: the chosen enemy's status at cast start |  |
 | 2026-09-28T10:52 | sa-B | B-L4b-1585-entangle-gems | data | 9349 | weapon:1585 BlackwoodsStaff | `src/data/gowWeaponReviewedOverrides.json` | no reviewed override (regeneration would restore the Entangled-enemy source) → override prototype synced with curated batch-w04 (boardSpecial entangleGem) |  |
+| 2026-09-28T10:53 | sa-A | L4a-r3-1138 | data | 7308 | weapon:1138 DragonOak | `src/engine/skills/curated/batch-w01.ts` | removed the weapon's own colour (CASTER); [2:1] boost had no source → removes one of the chosen enemy's mana colours (RemoveColor FromTarget); boosted 50% of gems removed |  |
 
 ## 按技能 ID
 
@@ -458,6 +493,12 @@
 | 7066 | 1 | D-1000-strongest |
 | 7092 | 1 | L4b-7276-singlegem |
 | 7094 | 1 | F2-1028-missing-magic |
+| 7102 | 1 | L4a-r3-1036 |
+| 7103 | 1 | L4a-r3-1037 |
+| 7104 | 1 | L4a-r3-1039 |
+| 7105 | 1 | L4a-r3-1040 |
+| 7109 | 1 | L4a-r3-1044 |
+| 7116 | 1 | L4a-r3-1038 |
 | 7124 | 1 | F2-1058-boost-source |
 | 7133 | 1 | L4a-R1-7133-no-base |
 | 7138 | 2 | L4b-7138-zh、L4b-6068-order |
@@ -496,6 +537,7 @@
 | 7260 | 1 | F1-items-62-75 |
 | 7265 | 1 | L3-008 |
 | 7266 | 1 | L4b-6152-attack |
+| 7269 | 1 | L4a-r3-1117 |
 | 7271 | 1 | D-b09-targets |
 | 7272 | 1 | F2-1120-column-skulls |
 | 7280 | 1 | P-create-interleave |
@@ -505,6 +547,7 @@
 | 7295 | 1 | F3-q35 |
 | 7297 | 1 | F3-q20 |
 | 7307 | 1 | F3-q27 |
+| 7308 | 1 | L4a-r3-1138 |
 | 7310 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7312 | 1 | F1-steal-before-damage |
 | 7314 | 1 | L2-wrong-enemy-branches |
@@ -515,6 +558,7 @@
 | 7322 | 1 | L2-6181-create |
 | 7323 | 2 | P-random-stat-pool、F1-items-62-75 |
 | 7326 | 1 | L1-R2-consume-first |
+| 7329 | 1 | L4a-r3-6188 |
 | 7333 | 1 | R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7334 | 1 | L7-6193 |
 | 7338 | 2 | L5-006、R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -533,10 +577,12 @@
 | 7360 | 1 | F2-R001-order |
 | 7361 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7364 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7366 | 1 | L4a-r3-6224 |
 | 7368 | 1 | F3-q23 |
 | 7369 | 1 | F1-items-62-75 |
 | 7371 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7378 | 1 | L2-6237-one-colour |
+| 7379 | 1 | L4a-r3-6233 |
 | 7380 | 1 | R3-B11-1143 |
 | 7383 | 1 | F2-R001-order |
 | 7386 | 1 | L2-wrong-enemy-branches |
@@ -562,6 +608,7 @@
 | 7442 | 1 | R3-B01-6296 |
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
+| 7453 | 1 | L4a-r3-6303 |
 | 7454 | 4 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step、P-R3-precast-compare |
 | 7455 | 1 | L1-6305-repeat |
 | 7457 | 1 | R7-not-board-misread |
@@ -578,6 +625,7 @@
 | 7501 | 1 | L1-summon-dist |
 | 7504 | 2 | L7-6352-a、R005-test-sync |
 | 7507 | 1 | F2-6355-native-order |
+| 7513 | 1 | L4a-r3-6361 |
 | 7518 | 1 | P-prefnotprev-semantics |
 | 7520 | 1 | R3-B07-6368 |
 | 7521 | 1 | L2-6369-ratio |
@@ -598,6 +646,7 @@
 | 7576 | 1 | F2-R001-order |
 | 7577 | 1 | F2-1159-boost-source |
 | 7586 | 1 | B-L4b-1167-fromprevious |
+| 7595 | 1 | L4a-r3-6422 |
 | 7596 | 3 | P-random-stat-pool、F1-remove-order、P-F1-remove-gems |
 | 7598 | 1 | L1-6425-dist |
 | 7599 | 1 | F2-R001-order |
@@ -696,9 +745,11 @@
 | 8081 | 1 | R7-doomed-support-counters |
 | 8083 | 1 | L7-R1-lethal-order-doomskull |
 | 8084 | 1 | L5-007 |
+| 8090 | 1 | L4a-r3-6720 |
 | 8097 | 1 | F3-q06 |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
+| 8106 | 1 | L4a-r3-6736 |
 | 8108 | 1 | L2-wrong-enemy-branches |
 | 8112 | 1 | F3-q33 |
 | 8113 | 1 | P-counter-per-step |
@@ -711,7 +762,10 @@
 | 8160 | 1 | P-prefnotprev-semantics |
 | 8165 | 1 | P-random-stat-pool |
 | 8166 | 1 | P-random-stat-pool |
+| 8167 | 1 | L4a-r3-6777 |
+| 8168 | 1 | L4a-r3-6778 |
 | 8169 | 1 | P-create-interleave |
+| 8184 | 1 | L4a-r3-6793 |
 | 8193 | 1 | L1-6786-summons |
 | 8203 | 2 | P-counter-per-step、P-counter-per-step |
 | 8204 | 1 | P-counter-per-step |
@@ -721,6 +775,7 @@
 | 8215 | 1 | L4a-R1-8215-fromprevious |
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
+| 8226 | 1 | L4a-r3-6822 |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8229 | 1 | L1-6827-base |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
@@ -747,6 +802,7 @@
 | 8321 | 1 | L2-1317-branches |
 | 8357 | 1 | L1-1351-pool |
 | 8365 | 2 | L7-R1-6904-nextdown、P-R4-nextdown-default-range |
+| 8370 | 1 | L4a-r3-6909 |
 | 8373 | 1 | R3-B03-6912 |
 | 8377 | 1 | L2-6916-one-skill |
 | 8382 | 1 | L1-devour-first |
@@ -786,6 +842,7 @@
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
 | 8475 | 1 | L2-6972-order |
+| 8481 | 1 | L4a-r3-6954 |
 | 8485 | 1 | P-R3-next-up-target |
 | 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
@@ -796,6 +853,7 @@
 | 8500 | 2 | P-random-stat-pool、L1-6994-summons |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 1 | B-L4b-7000-zh |
+| 8525 | 1 | L4a-r3-7018 |
 | 8528 | 1 | F2-R001-order |
 | 8535 | 1 | R3-B02-7007 |
 | 8540 | 1 | L7-R1-random-chain-waves |
@@ -807,6 +865,7 @@
 | 8560 | 2 | P-counter-per-step、P-R1-dual-storm |
 | 8562 | 3 | P-counter-per-step、L4a-R1-8562-attack-boost、P-R1-dual-storm |
 | 8563 | 2 | P-counter-per-step、L7-R1-board-special-counts |
+| 8569 | 1 | L4a-r3-7044 |
 | 8570 | 1 | L7-7045 |
 | 8574 | 1 | L1-devour-first |
 | 8575 | 1 | L1-7050-order |
@@ -832,6 +891,7 @@
 | 8606 | 1 | R7-guardian-potions |
 | 8609 | 1 | L1-devour-first |
 | 8610 | 1 | B-L4b-7082-native-create |
+| 8614 | 1 | L4a-r3-7086 |
 | 8618 | 1 | L2-1420-branches |
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
@@ -867,6 +927,7 @@
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
 | 8684 | 1 | P-random-stat-pool |
 | 8686 | 1 | P-random-stat-pool |
+| 8688 | 1 | L4a-r3-7139 |
 | 8692 | 1 | R3-B08-7143 |
 | 8694 | 1 | F2-7145-miss-branch |
 | 8697 | 1 | L4b-1441-cursed-gems |
@@ -927,6 +988,7 @@
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
+| 8916 | 1 | L4a-r3-7304 |
 | 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
 | 8928 | 1 | P-R1-row-count-at-cast-start |
@@ -943,6 +1005,7 @@
 | 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
 | 8987 | 1 | P-counter-per-step |
+| 8995 | 1 | L4a-r3-1523 |
 | 9003 | 1 | R7-tarot-extra-turn |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
@@ -982,6 +1045,7 @@
 | 9214 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9215 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
 | 9216 | 2 | L2-1563-create-base、P-R1-count-at-native-step |
+| 9221 | 1 | L4a-r3-7488 |
 | 9222 | 1 | R3-B12-6999 |
 | 9223 | 1 | P-steal-to-life |
 | 9237 | 1 | P-R1-count-at-native-step |
@@ -996,9 +1060,11 @@
 | 9282 | 1 | F3-q37 |
 | 9283 | 1 | R7-tarot-extra-turn |
 | 9291 | 1 | P-R3-precast-compare |
+| 9297 | 1 | L4a-r3-7539 |
 | 9303 | 1 | L7-R1-weapon-colour-race |
 | 9306 | 1 | L7-R1-weapon-colour-race |
 | 9313 | 1 | L2-7523-one-colour |
+| 9318 | 1 | L4a-r3-7543 |
 | 9337 | 1 | R7-tarot-extra-turn |
 | 9341 | 1 | L2-7556-gold-count |
 | 9349 | 2 | B-L4b-1585-entangle-gems、B-L4b-1585-entangle-gems |
@@ -1014,6 +1080,7 @@
 | 9385 | 1 | R012 |
 | 9387 | 1 | L4a-R1-immortal-order |
 | 9388 | 1 | L4b-1608-1611-order |
+| 9465 | 1 | L4a-r3-7586 |
 | 9474 | 1 | B-L4b-7595-order |
 | 9475 | 1 | B-L4b-prefnotprev |
 | 9476 | 1 | P-F2-dead-target-colour |
@@ -1069,6 +1136,7 @@
 | 9639 | 1 | L4a-R1-9639-block-gargoyle |
 | 9640 | 1 | P-random-stat-pool |
 | 9641 | 1 | P-prefnotprev-semantics |
+| 9642 | 1 | L4a-r3-7685 |
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
 | 9649 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
@@ -1111,6 +1179,7 @@
 | 9859 | 1 | L7-R1-random-chain-waves |
 | 9861 | 1 | P-random-stat-pool |
 | 9862 | 1 | R012 |
+| 9865 | 1 | L4a-r3-7821 |
 | 9869 | 1 | F1-7825-count |
 | 9873 | 1 | L2-7829-heavy-splash |
 | 9874 | 2 | F2-7830-heal-mult、P-prefnotprev-semantics |
@@ -1128,6 +1197,7 @@
 | 9939 | 1 | B-L4b-7832-entangle-count |
 | 9942 | 1 | F3-q08 |
 | 9944 | 1 | L7-R1-random-chain-waves |
+| 9949 | 1 | L4a-r3-7874 |
 | 9952 | 1 | L4a-R1-cross-8039-9952 |
 | 9957 | 1 | L3-007 |
 | 9958 | 1 | L4a-R1-9958-count-order |

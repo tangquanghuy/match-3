@@ -297,9 +297,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「爆破一颗宝石」→ 点选一格（无「随机」字样）
       explodeAt(CELL),
-      // 一个方括号喂双段（batch-03 8372 同款）；modifier 挂最近数值段（batch-14 8297 / batch-15 头注口径）
-      heal('allySelf', 1),
+      // sa-A r3: native IncreaseAttack then IncreaseHealth, both [Magic + 1] with UseCounterForAmount (Green x3)
       attack('allySelf', 1, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Green } },
+      }),
+      heal('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Green } },
       }),
       inflict('barrier', 'allySelf'),

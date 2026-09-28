@@ -119,7 +119,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「敌人队伍使用对多」机翻实锤 = MostUsedManaEnemy → ColorSpec ENEMY_MOST_USED（R11，行动日志聚合）；「每移除一颗…2 点 [x2]」= destroyedGems ×2
     build: skill(
       destroyRandomGems(1, 1, 'color', 'ENEMY_MOST_USED'),
-      armor('allySelf', 2, 0, {
+      // sa-A r3: native IncreaseArmor has no Amount: Armor = 2 x removed only (CountGems x2 capped by CountMaxWithMagic 2 + 2 x Magic)
+      armor('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems' } },
       }),
     ),

@@ -230,9 +230,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeColor(BaseColor.Purple),
       explodeSpecialGems('spiritGem'),
+      // sa-A r3: native CountGems Spirit 600 is step 0 (before the explosions) = every Spirit gem this spell clears
+      // (boardSpecial after the explosions was always 0)
       dmg('enemyLastN', 3, 1, {
         n: 2,
-        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardSpecial', gem: 'spiritGem' } },
+        modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'destroyedGems', special: 'spiritGem' } },
       }),
     ),
   },

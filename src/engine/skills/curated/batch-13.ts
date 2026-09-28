@@ -16,7 +16,7 @@
  */
 import { skill, dmg, dmgSplash, heal, armor, attack, magic,
   cleanse, randomStat, inflict, createGems, createMix, transform,
-  destroyColor, destroyRandomGems, destroyChosenRow, destroyChosenCol,
+  destroyColor, destroyRandomGems, destroyChosenRow, destroyChosenCross,
   explodeChosenRow, summonRef, extraTurn, transformToSpecial, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
@@ -77,9 +77,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7453,
     desc: '摧毁一组行跟列。对所有敌人造成 [魔法 + 4] 点散射伤害，并因被摧毁的棕色宝石数而增强。 [x4]',
     build: skill(
-      // 「一组行跟列」= 选定行 + 选定列（batch-01 7016「摧毁 1 行」同口径）
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // sa-A r3: native DestroyGems BoardTarget RowAndColumn is one step (15 cells, chosen cell's cross), was row then col
+      destroyChosenCross(),
       // 「对所有敌人…散射」= range all（SOP 措辞裁定）；清除段在前，destroyedGems 才数得到
       dmg('enemyAll', 4, 1, {
         range: 'all',

@@ -686,7 +686,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破所有冻结宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因爆破的宝石数而增强。 [1:1]',
     build: skill(
       explodeSpecialGems('freezeGem'),
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems' } } }),
+      // sa-A r3: native CountGems Freeze 100 (step 0) counts Freeze gems, not every gem cleared by the 3x3 explosions
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems', special: 'freezeGem' } } }),
     ),
   },
   {
@@ -836,7 +837,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9865,
     desc: '引爆一颗宝石。造成[魔法 + 8]点散射伤害，被摧毁的黄色宝石数量越多，伤害越高。 [x8]',
     build: skill(
-      explodeRandomGems(1, 0, 'all'),
+      // sa-A r3: native Target Board + ExplodeGems SingleGem = the chosen gem (was a random gem); Yellow counted in its 3x3
+      explodeAt(CELL),
       // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
       dmg('enemyAll', 8, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }),
     ),

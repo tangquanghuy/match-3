@@ -8,7 +8,7 @@
  * src/data/weapon-skill-meta.json）。组装规则锚定 scripts/spell-rules.md 与
  * 既有部队批次先例；生成器 scripts/_weapon_pools.mjs gen。
  */
-import { armor, attack, cleanse, createGems, createMix, createSkulls, createStorm, destroyAt, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CASTER, CELL } from '../builders';
+import { armor, attack, cleanse, createGems, createMix, createSkulls, createStorm, destroyAt, destroyChosenCol, destroyChosenCross, destroyColor, destroyRandomGems, destroySkulls, devour, dmg, dmgSplash, drainMana, explodeRandomGems, extraTurn, flat, gainGold, gainMaps, gainSouls, heal, inflict, magic, mana, oneOf, reduce, reposition, scale, skill, steal, stealRandomStat, summonRandom, summonRef, targetedSkill, transformTroop, trueDmg, CHOSEN, CELL } from '../builders';
 import { BaseColor } from '../../types';
 import type { SkillPrototype } from '../prototypes';
 import type { CuratedBatch } from './index';
@@ -264,7 +264,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一名敌人造成 [魔法 + 3] 点伤害，并移除所有紫色宝石以增强伤害效果。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Purple),
-      dmg('enemyLast', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      dmg('enemyLast', 3, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }), // sa-A r3: boost had no source; native CountGems Purple before RemoveColor
     ),
   },
   {
@@ -272,7 +272,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最健康的敌人造成 [魔法 + 4] 点伤害，并移除所有蓝色宝石以增强伤害效果。 [2:1]',
     build: skill(
       destroyColor(BaseColor.Blue),
-      dmg('enemyHealthiest', 4, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
+      dmg('enemyHealthiest', 4, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } } }), // sa-A r3: boost had no source; native CountGems Blue before RemoveColor
     ),
   },
   {
@@ -280,7 +280,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最虚弱的敌人造成 [魔法 + 2] 点伤害，并移除所有棕色宝石以增强伤害效果。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Brown),
-      dmg('enemyWeakest', 2, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      dmg('enemyWeakest', 2, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } } }), // sa-A r3: boost had no source; native CountGems Brown before RemoveColor
     ),
   },
   {
@@ -288,7 +288,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对第一名敌人造成 [魔法 + 4] 点伤害，并移除所有黄色宝石以增强伤害效果。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Yellow),
-      dmg('enemyFront', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      dmg('enemyFront', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } } }), // sa-A r3: boost had no source; native CountGems Yellow before RemoveColor
     ),
   },
   {
@@ -315,7 +315,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 2] 点伤害，并移除所有绿色宝石以增强伤害效果。 [2:1]',
     build: skill(
       destroyColor(BaseColor.Green),
-      dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
+      dmg('enemyChosen', 2, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }), // sa-A r3: boost had no source; native CountGems Green before RemoveColor
     ),
   },
   {
@@ -363,7 +363,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 个敌人造成 [魔法 + 4] 点伤害，并移除所有红色宝石以增强伤害效果。 [3:1]',
     build: skill(
       destroyColor(BaseColor.Red),
-      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 } } }),
+      dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Red } } }), // sa-A r3: boost had no source; native CountGems Red before RemoveColor
     ),
   },
   {
@@ -811,9 +811,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7269,
     desc: '摧毁一组行跟列。对所有敌人造成 [魔法 + 3] 点散射伤害，并因被摧毁的绿色宝石数而增强。 [x3]',
     build: skill(
-      destroyChosenRow(),
-      destroyChosenCol(),
-      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
+      // sa-A r3: native RowAndColumn = one 15-cell cross; CountGems Green counts that cross (was whole-board Green)
+      destroyChosenCross(),
+      dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
     ),
   },
   {
@@ -979,8 +979,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7308,
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害，移除所有该军队法力颜色的宝石来强化此效果。 [2:1]',
     build: skill(
-      destroyColor(CASTER),
-      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 } } }),
+      // sa-A r3: native RemoveColor FromTarget = one of the chosen enemy's mana colours (was the weapon's own colour);
+      // CountGems FromTarget 50 = [2:1] of the gems removed (boost had no source)
+      destroyColor('CHOSEN_TARGET'),
+      dmg('enemyChosen', 5, 1, { modifier: { mod: { kind: 'ratio', a: 2, b: 1 }, source: { kind: 'destroyedGems' } } }),
     ),
   },
   {

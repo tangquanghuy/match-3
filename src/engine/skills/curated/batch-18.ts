@@ -59,8 +59,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一行。对 2 名随机敌人造成 [魔法 + 3] 点伤害，伤害值因摧毁的绿色宝石数量而增强。 [x3]',
     build: skill(
       destroyChosenRow(),
-      dmg('enemyRandomN', 3, 1, {
-        n: 2,
+      // sa-A r3: native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007.3: a lone survivor is hit twice)
+      dmg('enemyRandom', 3, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Green } },
+      }),
+      dmg('enemyRandomPrefNotPrev', 3, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'destroyedGems', color: BaseColor.Green } },
       }),
     ),

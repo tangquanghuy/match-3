@@ -216,9 +216,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁 1 列。为所有龙族盟友增加 [魔法] 点攻击力和护甲值，所增加的点数因摧毁的黄色宝石数而增强。 [x2]',
     build: skill(
       destroyChosenCol(),
-      // 一个方括号喂攻/甲两段（batch-05 7152 同款）；「所有龙族盟友」= targetRace（SOP 措辞裁定）
-      attack('allyAll', 0, 1, { targetRace: 'Dragon' }),
-      // modifier 挂最近数值段 = 护甲段（batch-05 7334 同款）
+      // 「所有龙族盟友」= targetRace；sa-A r3: native IncreaseAttack + IncreaseArmor (AllyType dragon) both UseCounterForAmount
+      attack('allyAll', 0, 1, {
+        targetRace: 'Dragon',
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
+      }),
       armor('allyAll', 0, 1, {
         targetRace: 'Dragon',
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Yellow } },
