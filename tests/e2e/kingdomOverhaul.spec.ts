@@ -21,7 +21,8 @@ async function openMap(page: Page): Promise<void> {
 /** 经网关导出 → 把所有王国的进贡锚点拨回 hours 小时前 → 导入，再刷新让各屏读到新存档 */
 async function rewindTribute(page: Page, hours: number): Promise<void> {
   await page.evaluate(async (h) => {
-    const { metaGateway } = await import(/* @vite-ignore */ '/src/meta/gateway/index.ts');
+    const load = (path: string) => import(/* @vite-ignore */ path);
+    const { metaGateway } = await load('/src/meta/gateway/index.ts');
     const gw = metaGateway() as { exportSaveJson(): string; importSaveJson(t: string): Promise<unknown> };
     const save = JSON.parse(gw.exportSaveJson()) as { kingdoms: Record<string, { lastTributeAt: number }> };
     for (const k of Object.values(save.kingdoms)) k.lastTributeAt = Date.now() - h * 3_600_000;
@@ -31,7 +32,8 @@ async function rewindTribute(page: Page, hours: number): Promise<void> {
 }
 
 const savedTeam = (page: Page) => page.evaluate(async () => {
-  const { metaGateway } = await import(/* @vite-ignore */ '/src/meta/gateway/index.ts');
+  const load = (path: string) => import(/* @vite-ignore */ path);
+  const { metaGateway } = await load('/src/meta/gateway/index.ts');
   const save = JSON.parse((metaGateway() as { exportSaveJson(): string }).exportSaveJson()) as SaveLike;
   return save.teams[0]!.members.map((m) => (m.kind === 'hero' ? 'hero' : m.troopId));
 });
@@ -40,8 +42,9 @@ test('地图迷雾：只渲染已开放与已探明王国，探明王国是锁�
   await page.setViewportSize({ width: 1600, height: 900 });
   await openMap(page);
   const fog = await page.evaluate(async () => {
-    const { metaGateway } = await import(/* @vite-ignore */ '/src/meta/gateway/index.ts');
-    const { kingdomsUnlockedAt, ALL_KINGDOMS_UNLOCK_LEVEL } = await import(/* @vite-ignore */ '/src/meta/data/kingdoms.ts');
+    const load = (path: string) => import(/* @vite-ignore */ path);
+    const { metaGateway } = await load('/src/meta/gateway/index.ts');
+    const { kingdomsUnlockedAt, ALL_KINGDOMS_UNLOCK_LEVEL } = await load('/src/meta/data/kingdoms.ts');
     const save = JSON.parse((metaGateway() as { exportSaveJson(): string }).exportSaveJson()) as SaveLike;
     const nodes = [...document.querySelectorAll<HTMLElement>('.knode')];
     return {
@@ -69,8 +72,9 @@ test('宝库：攒满 12 小时后一键收取多国进贡并入账', async ({ p
   await expect(page.locator('.map-shell')).toBeVisible({ timeout: 15_000 });
 
   const before = await page.evaluate(async () => {
-    const { metaGateway } = await import(/* @vite-ignore */ '/src/meta/gateway/index.ts');
-    const { tributeTreasury } = await import(/* @vite-ignore */ '/src/meta/systems/tribute.ts');
+    const load = (path: string) => import(/* @vite-ignore */ path);
+    const { metaGateway } = await load('/src/meta/gateway/index.ts');
+    const { tributeTreasury } = await load('/src/meta/systems/tribute.ts');
     const gw = metaGateway() as { exportSaveJson(): string };
     const save = JSON.parse(gw.exportSaveJson());
     const t = tributeTreasury(save, Date.now()) as { readyCount: number; totals: { gold: number; souls: number } };
@@ -88,7 +92,8 @@ test('宝库：攒满 12 小时后一键收取多国进贡并入账', async ({ p
   await expect(page.locator('#tributeConfirm')).toHaveClass(/is-done/);
 
   const after = await page.evaluate(async () => {
-    const { metaGateway } = await import(/* @vite-ignore */ '/src/meta/gateway/index.ts');
+    const load = (path: string) => import(/* @vite-ignore */ path);
+    const { metaGateway } = await load('/src/meta/gateway/index.ts');
     const save = JSON.parse((metaGateway() as { exportSaveJson(): string }).exportSaveJson()) as SaveLike;
     const advanced = Object.values(save.kingdoms).filter((k) => Date.now() - k.lastTributeAt < 11 * 3_600_000).length;
     return { gold: save.currencies.gold, souls: save.currencies.souls, advanced };
