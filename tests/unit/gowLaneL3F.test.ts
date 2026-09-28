@@ -325,3 +325,24 @@ describe('sa-F B15: Fey buffs / Mana Potion mix', () => {
     });
   });
 });
+
+describe('sa-F B16: ranged damage on the chosen enemy / kill mana', () => {
+  it('troop:6462 ClawDancer (7640): one hit of [(Magic / 2) + 4]-[Magic + 8] on the chosen enemy; extra turn on its kill', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const r = castSpell({ key: 'troop:6462', seed, target: 11, enemies: [en({ hp: 500, maxHp: 500 }), en({ hp: 500, maxHp: 500 })] });
+      const hits = order(r).filter(o => o.startsWith('dmg'));
+      expect(hits).toHaveLength(1);
+      const [, who, n] = hits[0].split(' ');
+      expect(who).toBe('E11');
+      expect(Number(n)).toBeGreaterThanOrEqual(9);
+      expect(Number(n)).toBeLessThanOrEqual(18);
+      expect(r.summary.extraTurn).toBeNull();
+    }
+    expect(castSpell({ key: 'troop:6462', target: 11, enemies: [en(), en({ hp: 1, maxHp: 1 })] }).summary.extraTurn).toBe('skill');
+  });
+  it('troop:6636 Rhynaggor (7962): 12 Mana when a splashed neighbour dies too', () => {
+    const r = castSpell({ key: 'troop:6636', target: 11, enemies: [en({ hp: 1, maxHp: 1 }), en({ hp: 500, maxHp: 500 }), en({ hp: 500, maxHp: 500 })] });
+    expect(order(r)).toContain('defeat E10');
+    expect(order(r)).toContain('buff C mana+12');
+  });
+});

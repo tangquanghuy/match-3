@@ -14,3 +14,5 @@
 - B13 troop:6486,troop:6992,troop:6142,troop:7269,weapon:1467 approve=5 fixed=1 issue=0 (6992 ZH; 7269 Goblin-only Barrier and 1467 good Gargoyle tested)
 - B14 troop:6995,troop:6752,troop:6921,weapon:1122,troop:6940 approve=5 fixed=0 issue=0 (storm drain, 13+ Green, Dragon-only statuses, no-Yellow tested)
 - B15 troop:6966,troop:7481,troop:7736,troop:6187,troop:6191 approve=5 fixed=2 issue=0 (6966 ZH; 7736 Mana Potion Gems not plain gems)
+- B16 troop:6462,troop:6046,troop:6636,troop:7802,troop:6870 approve=5 fixed=2 issue=0 (6462 chosen enemy one hit, no split + ZH; 6636 mana on any kill incl. splash). Follow-up for another lane: spell 8960 (batch-r5) has the same front+split:2 pattern and {2} ZH placeholder.
+  - note: tests/unit/weaponSpellSmoke.test.ts 9580 case updated (B09 native order explodes first, so exploded-gem mana lands; now asserts the quarter-mana step itself)

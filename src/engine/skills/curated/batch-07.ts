@@ -176,7 +176,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgSplash('enemyChosen', 4),
       // 「严重的溅射」同为溅射链；死亡条件可挂增益段（spell-rules.md §4）
-      mana('allySelf', 12, 0, { ifTargetDied: true }),
+      // sa-F: EN 'If an enemy dies' + native AddForKill = any enemy killed by the cast, splash included (7802 castEnemyDied precedent)
+      mana('allySelf', 12, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {

@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 565 条改动，涉及 1018 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 567 条改动，涉及 1020 个技能 ID。
 
 ## 按时间
 
@@ -571,6 +571,8 @@
 | 2026-09-28T21:42 | sa-F | L3-F-6992 | data | 8498 | troop:6992 TheArchdeva | `src/engine/skills/curated/batch-r15.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH garbled, amount missing → ZH matches English; behaviour unchanged |  |
 | 2026-09-28T21:46 | sa-F | L3-F-6966 | data | 8469 | troop:6966 SpringEmissary | `src/engine/skills/curated/batch-r20.ts`<br>`src/data/gowSnapshotOverrides.json` | ZH garbled (而等于其法力的半数) → ZH: half their Mana cost; behaviour unchanged |  |
 | 2026-09-28T21:46 | sa-F | L3-F-7736 | assembler | 9613 | troop:7736 MaelstromDagoNath | `src/engine/skills/curated/batch-r8.ts` | 12 plain coloured gems (three createMix pairs) → 12 Mana Potion Gems: native CreateGems2Colors Blue/Green, Red/Yellow, Purple/Brown ManaPotion, 4 each |  |
+| 2026-09-28T21:50 | sa-F | L3-F-6462 | assembler | 7640 | troop:6462 ClawDancer | `src/engine/skills/curated/batch-r5.ts`<br>`src/data/gowSnapshotOverrides.json` | range damage on the front enemy split into 2 hits (hit E10 and E11); ZH {2} placeholder → one range hit on the chosen enemy (native RandomHighDamage@FromTarget, L7-7517 precedent); ZH fixed |  |
+| 2026-09-28T21:50 | sa-F | L3-F-6636 | assembler | 7962 | troop:6636 Rhynaggor | `src/engine/skills/curated/batch-07.ts` | 12 Mana only if the splash centre died → 12 Mana if any enemy died to the cast (EN 'If an enemy dies', AddForKill; castEnemyDied as 7802) |  |
 
 ## 按技能 ID
 
@@ -794,6 +796,7 @@
 | 7633 | 1 | F1-steal-before-damage |
 | 7635 | 1 | F2-6457-dispel-self |
 | 7637 | 1 | L1-R2-consume-first |
+| 7640 | 1 | L3-F-6462 |
 | 7643 | 1 | P-R5-summon-id-reuse |
 | 7644 | 2 | P-counter-per-step、P-counter-per-step |
 | 7645 | 1 | F2-6467-life-armor |
@@ -869,6 +872,7 @@
 | 7947 | 1 | L1-1351-pool |
 | 7952 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7960 | 1 | P-R3-precast-compare |
+| 7962 | 1 | L3-F-6636 |
 | 7963 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |
 | 7964 | 1 | L4a-R1-7230-7964-count |
 | 7973 | 4 | L3-015、L3-016、R7-doomed-count-order、P-R1-count-at-native-step |

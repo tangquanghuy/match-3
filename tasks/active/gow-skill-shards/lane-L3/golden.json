@@ -29,6 +29,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:13:41.008Z"
  },
+ "troop:6046": {
+  "lines": {
+   "L10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 12 ; extra-turn skill  => E10:hp-7 arm-5  extra:skill",
+   "R10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 12 ; extra-turn skill  => E10:hp-7 arm-5  extra:skill",
+   "L0": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 2 ; extra-turn skill  => E10:arm-2  extra:skill",
+   "K": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; dmg E10 12 ; defeat E10 ; extra-turn skill  => E10:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:50:55.573Z"
+ },
  "troop:6072": {
   "lines": {
    "L10": "buff E11 mana-8 ; dmg E11 21  => E11:hp-21 mana-8",
@@ -349,6 +359,16 @@
   "by": "sa-F",
   "at": "2026-09-28T16:28:20.991Z"
  },
+ "troop:6462": {
+  "lines": {
+   "L10": "dmg E11 15  => E11:hp-5 arm-10",
+   "R10": "dmg E11 15  => E11:hp-5 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 15 ; defeat E11 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:50:55.573Z"
+ },
  "troop:6466": {
   "lines": {
    "L10": "move E11 front ; dmg E11 322  => E11:hp-312 arm-10",
@@ -468,6 +488,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:59:04.419Z"
+ },
+ "troop:6636": {
+  "lines": {
+   "L10": "dmg E11 14 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash)  => E11:hp-4 arm-10 | E10:hp-5 arm-5 | E12:arm-10",
+   "R10": "dmg E11 14 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash)  => E11:hp-4 arm-10 | E10:hp-5 arm-5 | E12:arm-10",
+   "L0": "dmg E11 4 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash)  => E11:arm-4 | E10:arm-3 | E12:arm-3",
+   "K": "dmg E11 14 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; buff C mana+12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:50:55.573Z"
  },
  "troop:6648": {
   "lines": {
@@ -658,6 +688,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T21:16:43.565Z"
+ },
+ "troop:6870": {
+  "lines": {
+   "L10": "dmg E12 14 (splash) ; dmg E11 7 (splash) ; dmg E13 7 (splash) ; dmg E13 14 (splash) ; dmg E12 7 (splash) ; dmg E11 14 (splash) ; dmg E10 7 (splash) ; dmg E12 7 (splash) ; jumble board ; extra-turn skill  => E12:hp-16 arm-12 | E11:hp-11 arm-10 | E13:hp-18 arm-3 | E10:hp-2 arm-5  extra:skill",
+   "R10": "dmg E12 14 (splash) ; dmg E11 7 (splash) ; dmg E13 7 (splash) ; dmg E13 14 (splash) ; dmg E12 7 (splash) ; dmg E11 14 (splash) ; dmg E10 7 (splash) ; dmg E12 7 (splash) ; jumble board ; extra-turn skill  => E12:hp-16 arm-12 | E11:hp-11 arm-10 | E13:hp-18 arm-3 | E10:hp-2 arm-5  extra:skill",
+   "L0": "dmg E12 4 (splash) ; dmg E11 2 (splash) ; dmg E13 2 (splash) ; dmg E13 4 (splash) ; dmg E12 2 (splash) ; dmg E11 4 (splash) ; dmg E10 2 (splash) ; dmg E12 2 (splash) ; jumble board ; extra-turn skill  => E12:arm-8 | E11:arm-6 | E13:hp-3 arm-3 | E10:arm-2  extra:skill",
+   "K": "dmg E12 14 (splash) ; dmg E11 7 (splash) ; dmg E13 7 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; dmg E10 14 (splash) ; defeat E10 ; jumble board ; extra-turn skill  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | E10:hp-1 DEAD  extra:skill"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:50:55.573Z"
  },
  "troop:6871": {
   "lines": {
@@ -1918,6 +1958,16 @@
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:59:09.403Z"
+ },
+ "troop:7802": {
+  "lines": {
+   "L10": "dmg E11 20 (splash) ; dmg E10 15 (splash) ; dmg E12 15 (splash) ; dmg E12 20 (splash) ; dmg E11 15 (splash) ; dmg E13 15 (splash)  => E11:hp-25 arm-10 | E10:hp-10 arm-5 | E12:hp-23 arm-12 | E13:hp-12 arm-3",
+   "R10": "dmg E11 20 (splash) ; dmg E10 15 (splash) ; dmg E12 15 (splash) ; dmg E12 20 (splash) ; dmg E11 15 (splash) ; dmg E13 15 (splash)  => E11:hp-25 arm-10 | E10:hp-10 arm-5 | E12:hp-23 arm-12 | E13:hp-12 arm-3",
+   "L0": "dmg E11 5 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash) ; dmg E12 5 (splash) ; dmg E11 3 (splash) ; dmg E13 3 (splash)  => E11:arm-8 | E10:arm-3 | E12:arm-8 | E13:arm-3",
+   "K": "dmg E11 20 (splash) ; dmg E10 15 (splash) ; dmg E12 15 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; dmg E13 20 (splash) ; defeat E13 ; buff C mana+24  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-F",
+  "at": "2026-09-28T21:50:55.573Z"
  },
  "troop:7804": {
   "lines": {
