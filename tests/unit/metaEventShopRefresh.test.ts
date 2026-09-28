@@ -10,7 +10,7 @@ import { buyEventGoods, ensureEventWeek, eventShopOf } from '../../src/meta/syst
 const at = (day: number, hour = 0) => new Date(2026, 8, day, hour).getTime();
 const NOW = at(24, 12);
 const WEEK = weekStartOf(NOW);
-const fresh = () => newSave({now:NOW,starterTroopIds:[6000,6097,6457]});
+const fresh = () => { const s = newSave({now:NOW,starterTroopIds:[6000,6097,6457]}); s.hero.level = 20; return s; };
 const shopAt = (save: ReturnType<typeof fresh>, now: number, type = 'invasion' as const) => eventShopOf(save,weekStartOf(now),type,now);
 const purchase = (save: ReturnType<typeof fresh>, id: string, now: number) => buyEventGoods(save,id,weekStartOf(now),'invasion',now);
 

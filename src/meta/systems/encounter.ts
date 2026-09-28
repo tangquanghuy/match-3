@@ -40,7 +40,7 @@ export type EncounterSource =
   | { kind: 'quest'; node: number }
   | { kind: 'explore'; tier: number }
   /** 每周活动战斗（素材批 2026-09-19）：weekStart 锚定活动周实例，typeId 定主题 */
-  | { kind: 'event'; weekStart: number; typeId: string; choice?: string; matchingTroops?: number; bossStartHp?: number };
+  | { kind: 'event'; weekStart: number; typeId: string; choice?: string; matchingTroops?: number; bossStartHp?: number; topTier?: boolean };
 
 export interface EncounterPlan {
   kingdom: string;

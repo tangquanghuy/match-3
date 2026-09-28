@@ -21,8 +21,10 @@ import { STARTER_WEAPON_ID } from '../data/weapons';
 import { STARTING_KINGDOM } from '../data/economy';
 import { HOUR_MS } from './clock';
 
-/** 演示档 hero 等级锚点（约等于打赢十几场的进度） */
-const DEMO_HERO_LEVEL = 12;
+/** 演示档 hero 等级锚点（约 35 场胜利的进度；恰好开放每周活动） */
+const DEMO_HERO_LEVEL = 20;
+/** 演示档职业等级锚点（与主角等级解耦，保持原演示口径） */
+const DEMO_CLASS_LEVEL = 12;
 /** 每个王国演示入册的前 N 名部队 */
 const CARDS_PER_KINGDOM = 2;
 
@@ -44,8 +46,8 @@ export function buildDemoSave(now: number): MetaSave {
   for (const id of starters) levelUp(save, id, 9);
   if (starters[0] !== undefined) ascend(save, starters[0]);
 
-  // —— 主角：12 级（按「每胜 60 经验」的真实节奏喂到锚点级；经验有结转） ——
-  for (let guard = 0; guard < 500 && save.hero.level < DEMO_HERO_LEVEL; guard++) {
+  // —— 主角：20 级（按「每胜 60 经验」的真实节奏喂到锚点级；经验有结转） ——
+  for (let guard = 0; guard < 2000 && save.hero.level < DEMO_HERO_LEVEL; guard++) {
     addHeroXp(save, 60);
   }
 
@@ -74,7 +76,7 @@ export function buildDemoSave(now: number): MetaSave {
   const demoClass = completed.map((k) => CLASSES.find((c) => c.kingdom === k)).find(Boolean);
   if (demoClass) {
     equipClass(save, demoClass.id);
-    for (let guard = 0; guard < 500 && (save.hero.classLevels[demoClass.id] ?? 0) < DEMO_HERO_LEVEL; guard++) {
+    for (let guard = 0; guard < 500 && (save.hero.classLevels[demoClass.id] ?? 0) < DEMO_CLASS_LEVEL; guard++) {
       addClassXp(save, demoClass.id, 25);
     }
     // 演示档点上前两档天赋（天赋树 UI 有东西可看；走正式系统函数保校验同源）

@@ -21,6 +21,7 @@ const WEEK = weekStartOf(new Date(2026, 8, 21, 12).getTime());
 const fresh = () => {
   const save = newSave({ now: WEEK, starterTroopIds: [6000, 6097, 6457], currencies: { gold: 1000, gems: 0 } });
   save.dailyFirstWinAt = WEEK; // 本套只核算活动，不混入每日首胜50。
+  save.hero.level = 20; // 活动 20 级解锁
   return save;
 };
 let seed = 12000;

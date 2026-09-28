@@ -22,10 +22,10 @@ import {
   kingdomTroopPool,
 } from '../data/kingdoms';
 import { BANNERS } from '../data/banners';
-import { EVENT_MILESTONES, EVENT_TYPES, type EventTypeId } from '../data/events';
+import { EVENT_MILESTONES, EVENT_TYPES, EVENT_UNLOCK_HERO_LEVEL, type EventTypeId } from '../data/events';
 import { anyWeaponById } from '../data/weaponCatalog';
 import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_GEMS, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
-import { eventMetricOf, eventShopOf } from '../systems/events';
+import { eventMetricOf, eventShopOf, eventsUnlocked } from '../systems/events';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, dailyArt, kingdomArt, resultArt } from '../shell/artAssets';
@@ -1317,7 +1317,11 @@ export class MapScreen implements Screen {
       : eventStatus.claimableActivities > 0
         ? `${eventStatus.claimableActivities} 个奖励待领`
         : `${eventStatus.affordableShops} 家可兑换`;
-    if (eventStatus.actionableActivities > 0) {
+    if (!eventsUnlocked(save)) {
+      eventsButton.classList.add('is-lock');
+      $('#railEventsCopy').textContent = `Lv.${EVENT_UNLOCK_HERO_LEVEL} 解锁`;
+      eventsButton.setAttribute('aria-label', `活动中心，主角 ${EVENT_UNLOCK_HERO_LEVEL} 级解锁`);
+    } else if (eventStatus.actionableActivities > 0) {
       eventsButton.classList.add('has-actions');
       $('#railEventsBadge').hidden = false;
       $('#railEventsBadgeCount').textContent = String(eventStatus.actionableActivities);

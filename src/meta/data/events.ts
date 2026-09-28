@@ -63,7 +63,7 @@ export const EVENT_TYPES: readonly EventTypeDef[] = [
     howto: [
       '入侵势力共布下 3 条防线，逐条推进：第 1/2/3 条防线的敌人一节比一节强。',
       '战胜推进到下一条防线；攻破第 3 条防线 = 守土成功，额外领取守土大赏，防线重整再来（难度缓升）。',
-      '战败则防线被打回第 1 条，重新推进。',
+      '战败则防线被打回第 1 条，重新推进；已守土的难度不回退。',
     ],
     fightLabel: '迎 击',
   },
@@ -73,6 +73,7 @@ export const EVENT_TYPES: readonly EventTypeDef[] = [
     brief: '首领压阵的高难战斗，钢锭的主要产出周。',
     howto: [
       '每阶固定首领与护卫；首领生命跨战斗保留，战败也保留净生命损耗；以半血或以下开战时攻击提高30%。',
+      '按伤害计分，战败也得分：打空一条血池约 400 分。',
       '血池见底 = 讨伐成功，领取丰厚战利品并刷新更强（血更厚）的下一只首领。',
       '钢锭的主要产地：里程碑与商店都有钢锭出售。',
     ],
@@ -152,6 +153,34 @@ export function eventTypeOfWeek(weekStart: number): EventTypeDef {
  * 塔的 towerOfDoom=6 仅保留旧存档诊断计数，实际奖励以本周新高楼层结算，
  * 25层合计最多50荣耀和5符卷；其余活动无额外重复性素材奖励。
  */
+/** 活动整体解锁等级（主角）：未达等级时活动页与活动商店显示独立拦截页，网关拒绝出战与兑换。 */
+export const EVENT_UNLOCK_HERO_LEVEL = 20;
+
+/**
+ * 活动难度曲线（设计值；2026-09-28 实测后重定）。
+ *  - 普通段：从解锁等级起，每推进一阶段敌人 +3 级，共 10 阶段（Lv.20~47），不看玩家强度——
+ *    养成越好打得越深，不惩罚升级；
+ *  - 最高档：第 10 阶段起进入，从 Lv.50 开始按本档战绩浮动（胜 +3 / 败 -3，不低于 50）；
+ *  - 末日之塔为固定 25 层（每层 +1.5，顶层 Lv.56），首领突袭按阶层推进（每阶 +3，血池按等级定额）。
+ */
+export const EVENT_DIFFICULTY = {
+  base: EVENT_UNLOCK_HERO_LEVEL,
+  step: 3,
+  topStages: 10,
+  topBase: 50,
+  topStep: 3,
+  towerStep: 1.5,
+  /** 首领血池 = 敌人等级 × 本系数 × 1.08^(阶层-1) */
+  raidPoolPerLevel: 14,
+  raidPoolGrowth: 1.08,
+} as const;
+
+/**
+ * 首领突袭按伤害计分（胜败都算）：打空一整条血池折合 400 分，单场仍受单场积分上限约束。
+ * 血池首领单场几乎不可能被一场打死，按胜场计分会让突袭里程碑形同虚设。
+ */
+export const EVENT_RAID_POOL_POINTS = 400;
+
 /** 守土成功每次奖励，与经济模型共用。 */
 export const EVENT_DEFENSE_REWARD = { glory: 40, gems: 20 } as const;
 

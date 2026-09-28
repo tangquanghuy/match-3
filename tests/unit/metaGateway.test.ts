@@ -44,7 +44,7 @@ describe('buildDemoSave 演示档', () => {
     const save = buildDemoSave(1_700_000_000_000);
     expect(save.currencies.gems).toBeGreaterThan(150);
     expect(Object.keys(save.collection).length).toBeGreaterThan(40);
-    expect(save.hero.level).toBe(12);
+    expect(save.hero.level).toBe(20);
     // 破碎尖塔 = 推进序第 1 王国，绑定官方职业「督军」（HeroClassCode warrior）
     expect(save.hero.unlockedClasses).toContain('warrior');
     expect(save.hero.classId).toBe('warrior');
@@ -63,11 +63,11 @@ describe('MockGateway', () => {
     const gw = new MockGateway(storage);
     const first = await gw.load();
     expect(first.fresh).toBe(true);
-    expect(first.save.hero.level).toBe(12);
+    expect(first.save.hero.level).toBe(20);
     const snapshot = first.save; // save 引用
     const second = await new MockGateway(storage).load();
     expect(second.fresh).toBe(false);
-    expect(second.save.hero.level).toBe(12);
+    expect(second.save.hero.level).toBe(20);
     expect(second.save.createdAt).toBe(snapshot.createdAt);
     // 回归：hydrateSave 曾漏掉 classLevels/unlockedClasses，刷新后职业进度回退
     expect(second.save.hero.classLevels['warrior']).toBe(12);
@@ -185,7 +185,7 @@ describe('MockGateway', () => {
     const json = gw.exportSaveJson();
     const other = new MockGateway(memoryStorage());
     const imported = await other.importSaveJson(json);
-    expect(imported.save.hero.level).toBe(12);
+    expect(imported.save.hero.level).toBe(20);
 
     const removed = await gw.deleteTeam(0);
     expect(isFailure(removed.result)).toBe(true);

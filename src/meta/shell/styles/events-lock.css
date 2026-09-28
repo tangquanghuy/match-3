@@ -1,0 +1,34 @@
+/* 每周活动未解锁拦截页（活动中心 / 活动商店共用） */
+.evlock-screen { display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 24px; }
+.evlock { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 1fr); width: min(1080px, 100%); min-height: 420px; overflow: hidden; border: 1px solid rgba(217, 179, 106, .34); border-radius: 14px; background: linear-gradient(160deg, #1d1e26 0%, #15161c 100%); box-shadow: 0 24px 60px rgba(0, 0, 0, .45); }
+.evlock-art { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 2px; margin: 0; padding: 0; list-style: none; background: #0d0e12; }
+.evlock-art li { position: relative; display: flex; align-items: flex-end; min-height: 150px; background: #22232c var(--tile-art) center / cover no-repeat; filter: grayscale(.55) brightness(.62); }
+.evlock-art li::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(10, 10, 14, .85)); }
+.evlock-art span { position: relative; z-index: 1; margin: 0 0 10px 12px; padding-left: 8px; border-left: 3px solid var(--ev-accent, #d9b36a); color: #e9e3d4; font-size: 14px; font-weight: 700; letter-spacing: .04em; }
+.evlock-body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 40px 36px; text-align: center; border-left: 1px solid rgba(217, 179, 106, .2); }
+.evlock-seal { display: grid; place-items: center; width: 64px; height: 64px; border: 1px solid rgba(217, 179, 106, .55); border-radius: 50%; background: radial-gradient(circle at 50% 35%, #3a3326, #1b1a1f 70%); color: #e8c77f; font-size: 28px; }
+.evlock-seal svg { width: 28px; height: 28px; }
+.evlock #evlockTitle { margin: 0; color: #f3ecdc; font-size: 30px; letter-spacing: .08em; }
+.evlock-need { margin: 0; color: #cfc6b2; font-size: 17px; }
+.evlock-need b { color: #f0cf85; font-size: 22px; }
+.evlock-meter { width: min(280px, 100%); height: 8px; overflow: hidden; border-radius: 99px; background: #2b2c35; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+.evlock-meter i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #b8893f, #f0cf85); }
+.evlock-now { display: flex; gap: 12px; margin: 0; color: #a9a597; font-size: 14px; }
+.evlock-now span { color: #d7cfbc; }
+.evlock-cta { display: inline-flex; align-items: center; justify-content: center; min-width: 180px; min-height: 46px; margin-top: 8px; padding: 0 24px; border: 1px solid #d9b36a; border-radius: 8px; background: #25221b; color: #f3dc9f; font-size: 16px; font-weight: 700; text-decoration: none; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); }
+.evlock-cta:hover, .evlock-cta:focus-visible { background: #332d20; color: #fff1c8; }
+.evlock-cta:focus-visible { outline: 2px solid #f0cf85; outline-offset: 3px; }
+.event-shop-panel .evlock { margin: 12px auto 0; }
+
+@media (max-width: 899px) {
+  .evlock { grid-template-columns: 1fr; min-height: 0; }
+  .evlock-art li { min-height: 96px; }
+  .evlock-body { padding: 28px 20px 32px; border-left: 0; border-top: 1px solid rgba(217, 179, 106, .2); }
+}
+@media (max-width: 479px) {
+  .evlock-screen { align-items: flex-start; padding: 12px; }
+  .evlock-art { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .evlock-art li { min-height: 72px; }
+  .evlock-art span { margin: 0 0 7px 8px; font-size: 12px; }
+  .evlock #evlockTitle { font-size: 24px; }
+}

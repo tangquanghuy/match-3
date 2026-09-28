@@ -8,7 +8,7 @@ import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
 import { weekStartOf } from '../../src/meta/gateway/clock';
 import { EventsScreen } from '../../src/meta/screens/eventsScreen';
 import type { ShellCtx } from '../../src/meta/shell/screen';
-import { EVENT_MILESTONES, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, eventThemeOf, WEEK_MS } from '../../src/meta/data/events';
+import { EVENT_MILESTONES, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, EVENT_UNLOCK_HERO_LEVEL, EVENT_DIFFICULTY, eventThemeOf, WEEK_MS } from '../../src/meta/data/events';
 import {
   currentEventTheme,
   ensureEventWeek,
@@ -24,6 +24,11 @@ import {
   factionMatchCount,
   trialMultiplier,
   EVENT_STATE_KEYS,
+  raidPoolOf,
+  raidPointsFor,
+  eventStageLevel,
+  towerFloorLevel,
+  eventBattleReady,
 } from '../../src/meta/systems/events';
 import { EVENT_SHOP } from '../../src/meta/data/events';
 import { buildBattleRequest } from '../../src/meta/systems/battleBridge';
@@ -33,7 +38,6 @@ import type { BridgeOutcome } from '../../src/meta/systems/battleBridge';
 import { applySettlement } from '../../src/meta/systems/settlement';
 import { parseStoneKey } from '../../src/meta/data/materials';
 import { getTroopById } from '../../src/data/troops';
-import { troopStatsAtLevel } from '../../src/data/leveling';
 
 const OGRE = 6000;
 const WEEK = 1_700_000_000_000 - (1_700_000_000_000 % WEEK_MS); // 对齐周一零点的任意锚点
@@ -41,6 +45,7 @@ const TYPE = 'invasion' as const;
 
 const saveWithTeam = () => {
   const s = newSave({ now: 0, starterTroopIds: [OGRE, 6097, 6457], currencies: { gold: 1000 } });
+  s.hero.level = EVENT_UNLOCK_HERO_LEVEL; // 活动 20 级解锁
   return s;
 };
 
@@ -185,7 +190,8 @@ describe('活动实例与出敌（systems/events）', () => {
     }
     ensureEventWeek(s, WEEK, TYPE).eventData[EVENT_STATE_KEYS.invLine] = 3;
     const line3 = planEventEncounter(s, WEEK, 999, TYPE);
-    expect(line3.enemies[0]!.level).toBe(line1.enemies[0]!.level + 10);
+    expect(line1.enemies[0]!.level).toBe(EVENT_UNLOCK_HERO_LEVEL);
+    expect(line3.enemies[0]!.level).toBe(line1.enemies[0]!.level + 6);
   });
 
   it('eventPointsOf：基础固定100，强攻120，降低随机敌人带来的收益波动', () => {
@@ -530,14 +536,11 @@ describe('六种玩法机制（玩法差异化批）', () => {
     const max1 = ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossMax]!;
     expect(max1).toBeGreaterThan(0);
     expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1);
-    const damageOf = (pl: ReturnType<typeof planEventEncounter>, hps: number[]): number =>
-      pl.enemies.reduce((sum, e, i) => {
-        const realMax = troopStatsAtLevel(getTroopById(e.troopId)!, e.level).health;
-        return sum + Math.max(0, realMax - (hps[i] ?? realMax));
-      }, 0);
-    const d1 = damageOf(plan1, [200, 200, 300]);
-    const r = eventBattleProgress(s, plan1, fakeResult(s, plan1, true, { enemyHps: [200, 200, 300] }), true);
-    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1 - d1);
+    // 血池按阶层定额（与抽到的首领无关）；首领是第 0 位，打掉 30 点
+    expect(max1).toBe(raidPoolOf(1));
+    expect(plan1.enemies[0]!.tier).toBe('boss');
+    const r = eventBattleProgress(s, plan1, fakeResult(s, plan1, true, { enemyHps: [max1 - 30, 200, 300] }), true);
+    expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp]).toBe(max1 - 30);
     expect(r.lines.some((l) => l.label.startsWith('首领伤害'))).toBe(true);
     ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossHp] = 1; // 残血（一场伤害必≥1，稳定触发讨伐成功）
     const gloryBefore = s.currencies.glory;
@@ -549,6 +552,58 @@ describe('六种玩法机制（玩法差异化批）', () => {
     expect(s.currencies.glory).toBe(gloryBefore + 50);
     planEventEncounter(s, week, 779, 'raidBoss');
     expect(ensureEventWeek(s, week, 'raidBoss').eventData[EVENT_STATE_KEYS.bossMax]).toBeGreaterThan(max1);
+  });
+
+  it('难度曲线：Lv.20 起每阶段 +3，第 10 阶段进入最高档，胜 +3 / 败 -3 且不低于 50', () => {
+    expect([0, 1, 9].map(eventStageLevel)).toEqual([20, 23, 47]);
+    expect(towerFloorLevel(1)).toBe(20);
+    expect(towerFloorLevel(25)).toBe(56);
+    const s = saveWithTeam();
+    const w = ensureEventWeek(s, WEEK, 'worldEvent');
+    w.eventData.worldWins = 9;
+    const normal = planEventEncounter(s, WEEK, 1, 'worldEvent');
+    expect(normal.enemies[0]!.level).toBe(47);
+    expect(normal.source).not.toHaveProperty('topTier');
+    w.eventData.worldWins = EVENT_DIFFICULTY.topStages;
+    const top = planEventEncounter(s, WEEK, 2, 'worldEvent');
+    expect(top.enemies[0]!.level).toBe(50);
+    expect(top.source).toMatchObject({ topTier: true });
+    eventBattleProgress(s, top, fakeResult(s, top, true), true);
+    expect(w.eventData[EVENT_STATE_KEYS.topLevel]).toBe(53);
+    expect(planEventEncounter(s, WEEK, 3, 'worldEvent').enemies[0]!.level).toBe(53);
+    const again = planEventEncounter(s, WEEK, 4, 'worldEvent');
+    eventBattleProgress(s, again, fakeResult(s, again, false), false);
+    eventBattleProgress(s, again, fakeResult(s, again, false), false);
+    expect(w.eventData[EVENT_STATE_KEYS.topLevel]).toBe(50);
+  });
+
+  it('首领突袭按伤害计分：败场也得分，但不计胜场', () => {
+    expect(raidPointsFor(0, 280)).toBe(0);
+    expect(raidPointsFor(70, 280)).toBe(100);
+    expect(raidPointsFor(280, 280)).toBe(120);
+    expect(raidPointsFor(1, 1000)).toBe(10);
+    const s = saveWithTeam();
+    const plan = planEventEncounter(s, WEEK, 777, 'raidBoss');
+    const max = ensureEventWeek(s, WEEK, 'raidBoss').eventData[EVENT_STATE_KEYS.bossMax]!;
+    const res = fakeResult(s, plan, false, { enemyHps: [max - 70, 200, 300] });
+    applySettlement(s, res, { plan, enemyByExternalId: new Map(), todayStart: 0 });
+    const week = ensureEventWeek(s, WEEK, 'raidBoss');
+    expect(week.points).toBe(raidPointsFor(70, max));
+    expect(week.wins).toBe(0);
+    expect(week.tokens).toBeGreaterThan(0);
+    expect(week.eventData[EVENT_STATE_KEYS.bossHp]).toBe(max - 70);
+  });
+
+  it('20 级前活动锁定：出战与兑换都被拒绝', () => {
+    const s = saveWithTeam();
+    s.hero.level = EVENT_UNLOCK_HERO_LEVEL - 1;
+    expect(eventBattleReady(s, 'worldEvent', true)).toContain(`${EVENT_UNLOCK_HERO_LEVEL} 级`);
+    ensureEventWeek(s, WEEK, TYPE).tokens = 100;
+    const goods = EVENT_SHOP[TYPE].find((g) => g.stock === null)!;
+    expect(buyEventGoods(s, goods.id, WEEK, TYPE)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    expect(ensureEventWeek(s, WEEK, TYPE).tokens).toBe(100);
+    s.hero.level = EVENT_UNLOCK_HERO_LEVEL;
+    expect(eventBattleReady(s, 'worldEvent', true)).toBeNull();
   });
 
   it('末日之塔：开爬/通过推进/状态冻结/败北收尾', () => {

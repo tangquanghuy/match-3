@@ -49,6 +49,8 @@ import {
   eventBattleProgress,
   eventMilestonesReached,
   eventPointsOf,
+  raidBattleDamage,
+  raidPointsFor,
   eventTokensFor,
   trialMultiplier,
   EVENT_TRIAL_POINTS_CAP,
@@ -203,8 +205,12 @@ export function applySettlement(
     const source = ctx.plan.source;
     const typeId = source.typeId as EventTypeId;
     const week = ensureEventWeek(save, source.weekStart, typeId);
-    if (victory) {
-      let points = eventPointsOf(ctx.plan);
+    // 首领突袭按伤害计分，胜败都算（血池首领通常要多场才能打空）
+    const raidPoints = typeId === 'raidBoss'
+      ? raidPointsFor(raidBattleDamage(save, ctx.plan, result), week.eventData[EVENT_STATE_KEYS.bossMax] ?? 0)
+      : 0;
+    if (victory || raidPoints > 0) {
+      let points = typeId === 'raidBoss' ? raidPoints : eventPointsOf(ctx.plan);
       if (typeId === 'classTrials') {
         // 连胜试炼：连续胜利积分 ×1.3/×1.6/×2.0（封顶 ×2），败场清零
         const streak = (week.eventData[EVENT_STATE_KEYS.trialStreak] ?? 0) + 1;
@@ -213,7 +219,7 @@ export function applySettlement(
         points = Math.min(EVENT_TRIAL_POINTS_CAP, Math.round(points * trialMultiplier(streak) * (ordeal ? 1.25 : 1)));
       }
       week.points += points;
-      week.wins += 1;
+      if (victory) week.wins += 1;
       const tokensGain = Math.min(eventTokensFor(points), Math.max(0, EVENT_WEEKLY_RULES.tokenCap - week.tokensEarned));
       week.tokens += tokensGain;
       week.tokensEarned += tokensGain;

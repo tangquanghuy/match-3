@@ -23,10 +23,11 @@ test('英雄总览：关键四维、职业层级与立绘信息分区清晰', as
   await expect(page.locator('#careerWins')).toContainText('34 / 250 胜');
   await expect(page.locator('#nextReward')).toContainText('冠军 Lv.20');
   await expect(page.locator('.hero-stat')).toHaveCount(4);
-  await expect(page.locator('.hero-stat').nth(0)).toHaveAttribute('aria-label', /攻击 10/);
-  await expect(page.locator('.hero-stat').nth(1)).toHaveAttribute('aria-label', /护甲 15/);
-  await expect(page.locator('.hero-stat').nth(2)).toHaveAttribute('aria-label', /生命 36/);
-  await expect(page.locator('.hero-stat').nth(3)).toHaveAttribute('aria-label', /魔力 17/);
+  // 演示档主角 Lv.20（活动解锁等级）
+  await expect(page.locator('.hero-stat').nth(0)).toHaveAttribute('aria-label', /攻击 16/);
+  await expect(page.locator('.hero-stat').nth(1)).toHaveAttribute('aria-label', /护甲 24/);
+  await expect(page.locator('.hero-stat').nth(2)).toHaveAttribute('aria-label', /生命 62/);
+  await expect(page.locator('.hero-stat').nth(3)).toHaveAttribute('aria-label', /魔力 27/);
   await expect(page.locator('#playerName')).toHaveText('影织者');
   await expect(page.locator('.hero-art img')).toHaveAttribute('alt', '影织者');
   await expect(page.locator('.hero-metrics')).not.toContainText(/影织者|法露特/);

@@ -11,7 +11,8 @@ import { RARITY_NAMES } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import { troopImg } from './teamScreen';
 import { eventShopPeriodOf } from '../systems/eventShopClock';
-import { eventShopOf, type EventShopRow } from '../systems/events';
+import { eventShopOf, eventsUnlocked, type EventShopRow } from '../systems/events';
+import { eventsLockPanelHtml } from './eventsLock';
 import { bottomNavHtml, shopNavHtml, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
@@ -206,6 +207,17 @@ export class EventShopScreen implements Screen {
     const now = Date.now();
     const weekStart = weekStartOf(now);
     const save = ctx.save();
+    if (!eventsUnlocked(save)) {
+      this.displayedPeriod = eventShopPeriodOf(now).start;
+      this.displayedWeek = weekStart;
+      return `${topbarHtml()}
+      <div class="screen event-shop-screen">
+        <section class="panel event-shop-panel shop-v2 shop-v3 shop-locked">
+          <header class="shop-page-head"><h1>商店</h1>${shopNavHtml('events')}</header>
+          ${eventsLockPanelHtml(save, 'h2')}
+        </section>
+      </div>${bottomNavHtml('商店')}${toastHtml()}`;
+    }
     const shop = eventShopOf(save, weekStart, typeId, now);
     this.displayedPeriod = shop.period.start;
     this.displayedWeek = weekStart;

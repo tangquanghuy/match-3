@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 /**
  * 王国改版回归：迷雾（只渲染已开放 + 已探明）、宝库一键收取、编队拖拽自动保存、升级页「新王国开放」。
- * 全部走真实网关与真实存档（演示档 Lv.12）。
+ * 全部走真实网关与真实存档（演示档 Lv.20）。
  */
 
 type SaveLike = {

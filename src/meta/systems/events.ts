@@ -21,7 +21,7 @@ import { weekStartOf } from '../gateway/clock';
 import { SeededRNG } from '../../engine/rng';
 import type { EventWeekState, MetaSave } from '../state/schema';
 import { getTroopById, TROOPS } from '../../data/troops';
-import { enemyLevel, enemyStatsAtLevel } from '../data/enemyDifficulty';
+import { enemyLevel } from '../data/enemyDifficulty';
 import type { EventGoods, EventMilestone, EventTheme, EventTypeId } from '../data/events';
 import {
   EVENT_MILESTONES, EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS, EVENT_CHOICES,
@@ -30,6 +30,9 @@ import {
   EVENT_TOKEN_DIVISOR,
   EVENT_TOKEN_MIN_PER_WIN,
   EVENT_WEEKLY_PLAY_REWARD_CAP,
+  EVENT_UNLOCK_HERO_LEVEL,
+  EVENT_DIFFICULTY,
+  EVENT_RAID_POOL_POINTS,
   eventThemeOf,
 } from '../data/events';
 import { kingdomTroopPool, KINGDOM_ORDER } from '../data/kingdoms';
@@ -65,7 +68,43 @@ export const EVENT_STATE_KEYS = {
   supplies: 'supplies', // 世界事件：累计物资
   trialStreak: 'trialStreak', // 职业试炼：当前连胜
   assaultWins: 'assaultWins', // 阵营突袭：本周进攻胜场
+  topLevel: 'topLevel', // 最高档：当前浮动敌人等级
 } as const;
+
+/** 主角是否已达活动解锁等级 */
+export function eventsUnlocked(save: MetaSave): boolean {
+  return save.hero.level >= EVENT_UNLOCK_HERO_LEVEL;
+}
+
+export const EVENT_LOCKED_MESSAGE = `活动需要主角 ${EVENT_UNLOCK_HERO_LEVEL} 级解锁`;
+
+/** 普通段第 stage 阶段（0 起）的敌人等级 */
+export function eventStageLevel(stage: number): number {
+  const s = Math.min(Math.max(Math.floor(stage), 0), EVENT_DIFFICULTY.topStages - 1);
+  return EVENT_DIFFICULTY.base + s * EVENT_DIFFICULTY.step;
+}
+
+/** 阶段 → 敌人等级：普通段固定曲线；最高档读本周浮动等级 */
+function curveLevel(week: EventWeekState, stage: number): { level: number; top: boolean } {
+  if (stage < EVENT_DIFFICULTY.topStages) return { level: eventStageLevel(stage), top: false };
+  return { level: Math.max(EVENT_DIFFICULTY.topBase, week.eventData[EVENT_STATE_KEYS.topLevel] ?? EVENT_DIFFICULTY.topBase), top: true };
+}
+
+/** 末日之塔第 floor 层（1 起）的敌人等级 */
+export function towerFloorLevel(floor: number): number {
+  const f = Math.min(Math.max(Math.floor(floor), 1), EVENT_WEEKLY_RULES.towerFloors);
+  return EVENT_DIFFICULTY.base + Math.round((f - 1) * EVENT_DIFFICULTY.towerStep);
+}
+
+/** 首领突袭第 tier 阶（1 起）的敌人等级与血池 */
+export function raidTierLevel(tier: number): number {
+  return enemyLevel(EVENT_DIFFICULTY.base + (Math.max(Math.floor(tier), 1) - 1) * EVENT_DIFFICULTY.step);
+}
+export function raidPoolOf(tier: number): number {
+  const t = Math.max(Math.floor(tier), 1);
+  const pool = raidTierLevel(t) * EVENT_DIFFICULTY.raidPoolPerLevel * Math.pow(EVENT_DIFFICULTY.raidPoolGrowth, t - 1);
+  return Math.min(STAT_LIMITS.hp.max, Math.round(pool));
+}
 
 /** 确保指定活动的本周实例存在（lazy 建档/周切重置，六活动互不借用进度）。 */
 export function ensureEventWeek(save: MetaSave, weekStart: number, typeId: EventTypeId): EventWeekState {
@@ -107,10 +146,6 @@ export function currentEventTheme(weekStart: number, typeId: EventTypeId): Event
 // 出敌（按活动类型各自的规则）
 // ---------------------------------------------------------------------------
 
-const RAID_POOL_BATTLES = 6; // 首领基础生命的 6 倍，不代表固定战斗场数
-const RAID_POOL_GROWTH = 1.15; // 每阶层血池成长，最终受战斗生命上限9999约束
-const TOWER_LEVEL_CAP = EVENT_WEEKLY_RULES.towerFloors - 1; // 楼层成长封顶（25层）
-
 /** 活动各类型敌人的层级表（防线/楼层/首领各有专属编排） */
 function eventTierPlan(typeId: EventTypeId, arg: { line: number; floor: number }): EnemyTier[] {
   switch (typeId) {
@@ -140,8 +175,8 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
   const choice = EVENT_CHOICES[typeId].find(c => c.id === requestedChoice)?.id ?? EVENT_CHOICES[typeId][0]!.id;
   const tier = Math.max(week.eventData[EVENT_STATE_KEYS.bossTier] ?? 1, 1);
   const rng = new SeededRNG(typeId === 'raidBoss' ? fnv1a32(`raid-${weekStart}-${tier}`) : seed);
-  const baseLevel = 5; // 独立活动曲线，王国仅决定兵种风格
   let matchingTroops = 0;
+  let topTier = false;
   for (const m of activeTeam(save)?.members ?? []) {
     const troop = m.kind === 'troop' ? getTroopById(m.troopId) : null;
     if (troop && theme.bonusRace && troop.troopTypes.includes(theme.bonusRace)) matchingTroops++;
@@ -153,26 +188,24 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
   let tiers: readonly EnemyTier[];
   switch (typeId) {
     case 'invasion': {
-      // 防线波次：每条防线 +5；完整守土后 +15，不循环降级，越推越硬
+      // 防线波次：每条防线算一个阶段，守土一次 = 推进 3 阶段；失守打回本轮第 1 条防线
       const line = Math.min(Math.max(week.eventData[EVENT_STATE_KEYS.invLine] ?? 1, 1), 3);
       kingdom = theme.kingdom!;
-      level = baseLevel + (line - 1) * 5 + (week.eventData.invRepelled ?? 0) * 15 + (choice === 'charge' ? 3 : 0);
+      const curve = curveLevel(week, (line - 1) + (week.eventData.invRepelled ?? 0) * 3);
+      topTier = curve.top;
+      level = curve.level + (choice === 'charge' ? 3 : 0);
       tiers = eventTierPlan(typeId, { line, floor: 0 });
       break;
     }
     case 'raidBoss': {
-      // 首领血池：无首领（首次/已讨伐）则按阶层生成新血池
+      // 首领血池：无首领（首次/已讨伐）则按阶层定额生成新血池（与抽到的首领无关）
       kingdom = randomKingdom();
-      level = enemyLevel(baseLevel + 3 + (tier - 1) * 5);
+      level = raidTierLevel(tier);
       tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
       const enemies = pickEnemies(kingdom, level, tiers, rng);
       if ((week.eventData[EVENT_STATE_KEYS.bossHp] ?? 0) <= 0) {
-        const baseBossHp = enemies.filter(e => e.tier === 'boss').reduce((sum, e) => {
-          const troop = getTroopById(e.troopId);
-          return sum + (troop ? enemyStatsAtLevel(troop, e.level).health : 0);
-        }, 0);
         week.eventData[EVENT_STATE_KEYS.bossTier] = tier;
-        week.eventData[EVENT_STATE_KEYS.bossMax] = Math.min(STAT_LIMITS.hp.max, Math.round(baseBossHp * RAID_POOL_BATTLES * Math.pow(RAID_POOL_GROWTH, tier - 1)));
+        week.eventData[EVENT_STATE_KEYS.bossMax] = raidPoolOf(tier);
         week.eventData[EVENT_STATE_KEYS.bossHp] = week.eventData[EVENT_STATE_KEYS.bossMax]!;
       }
       return {
@@ -191,30 +224,40 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
       }
       const floor = Math.max(week.eventData[EVENT_STATE_KEYS.floor] ?? 1, 1);
       kingdom = KINGDOM_ORDER[(fnv1a32(`tower-${weekStart >>> 0}`) + (floor - 1) * 5) % KINGDOM_ORDER.length]!;
-      level = baseLevel + Math.min(floor - 1, TOWER_LEVEL_CAP) * 5;
+      level = towerFloorLevel(floor);
       tiers = eventTierPlan(typeId, { line: 0, floor });
       break;
     }
-    case 'factionAssault':
+    case 'factionAssault': {
       kingdom = theme.kingdom!;
-      level = 20 + Math.floor((week.eventData.assaultWins ?? 0) / 3) * 10 + (choice === 'siege' ? 4 : 0);
-      tiers = (week.eventData.assaultWins ?? 0) % 3 === 2 ? ['boss', 'elite', 'minion'] : ['elite', 'minion', 'minion'];
+      const wins = week.eventData.assaultWins ?? 0;
+      const curve = curveLevel(week, wins);
+      topTier = curve.top;
+      level = curve.level + (choice === 'siege' ? 4 : 0);
+      tiers = wins % 3 === 2 ? ['boss', 'elite', 'minion'] : ['elite', 'minion', 'minion'];
       break;
-    case 'worldEvent':
+    }
+    case 'worldEvent': {
       kingdom = randomKingdom();
-      level = baseLevel + (week.eventData.worldWins ?? 0) * 5 + (choice === 'escort' ? 5 : 0);
+      const curve = curveLevel(week, week.eventData.worldWins ?? 0);
+      topTier = curve.top;
+      level = curve.level + (choice === 'escort' ? 5 : 0);
       tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
       break;
-    case 'classTrials':
+    }
+    case 'classTrials': {
       kingdom = randomKingdom();
-      level = baseLevel + (week.eventData.trialWins ?? 0) * 5 + (choice === 'ordeal' ? 5 : 0);
+      const curve = curveLevel(week, week.eventData.trialWins ?? 0);
+      topTier = curve.top;
+      level = curve.level + (choice === 'ordeal' ? 5 : 0);
       tiers = eventTierPlan(typeId, { line: 0, floor: 0 });
       break;
+    }
   }
   if (kingdomTroopPool(kingdom).length === 0) kingdom = KINGDOM_ORDER[0]!;
   return {
     kingdom,
-    source: { kind: 'event', weekStart, typeId, choice, matchingTroops },
+    source: { kind: 'event', weekStart, typeId, choice, matchingTroops, ...(topTier ? { topTier: true } : {}) },
     seed: seed >>> 0,
     enemies: pickEnemies(kingdom, level, tiers, rng),
   };
@@ -222,6 +265,7 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
 
 /** 职业试炼要求主角编入出战队（屏层提前提示；计划层硬校验） */
 export function eventBattleReady(save: MetaSave, typeId: EventTypeId, hasHeroInTeam: boolean): string | null {
+  if (!eventsUnlocked(save)) return EVENT_LOCKED_MESSAGE;
   if (typeId === 'classTrials' && !hasHeroInTeam) return '职业试炼需要主角编入出战队伍';
   if (typeId === 'classTrials' && (!save.hero.classId || !save.hero.unlockedClasses.includes(save.hero.classId) || classLevelOf(save, save.hero.classId) < 1)) return '请先为主角装备职业，再进入职业试炼';
   const tower = save.eventWeeks.towerOfDoom;
@@ -338,6 +382,24 @@ function enemyExternalId(enemy: { troopId: number }, index: number): string {
   return `e${index}-${enemy.troopId}`;
 }
 
+/** 突袭本场对首领造成的伤害（结算前读：血池仍是本场开战时的状态） */
+export function raidBattleDamage(save: MetaSave, plan: EncounterPlan, result: BattleResult): number {
+  const source = plan.source;
+  if (source.kind !== 'event' || source.typeId !== 'raidBoss') return 0;
+  const week = ensureEventWeek(save, source.weekStart, 'raidBoss');
+  const bossIndex = plan.enemies.findIndex(e => e.tier === 'boss');
+  const boss = plan.enemies[bossIndex];
+  const resultBoss = boss && result.combatants.find(c => c.side === 'enemy' && c.externalId === enemyExternalId(boss, bossIndex));
+  const startHp = source.bossStartHp ?? week.eventData.bossHp ?? 0;
+  return resultBoss ? Math.max(0, startHp - resultBoss.hp) : 0;
+}
+
+/** 突袭单场积分：按本场伤害占血池的比例折算（打空一条血池 ≈ 400 分），有伤害至少 10 分 */
+export function raidPointsFor(damage: number, poolMax: number): number {
+  if (damage <= 0 || poolMax <= 0) return 0;
+  return Math.min(EVENT_POINTS_CAP, Math.max(10, Math.round((damage / poolMax) * EVENT_RAID_POOL_POINTS)));
+}
+
 /** 每场活动战斗后的玩法状态推进。胜负都调用（血池败场也计伤害、败场防线/塔收尾） */
 export function eventBattleProgress(
   save: MetaSave,
@@ -351,6 +413,14 @@ export function eventBattleProgress(
   const theme = currentEventTheme(source.weekStart, typeId);
   const week = ensureEventWeek(save, source.weekStart, typeId);
   const lines: EventProgressLine[] = [];
+
+  // 最高档浮动：本场处于最高档时，胜 +3 / 败 -3（不低于起点）
+  if (source.topTier) {
+    const current = Math.max(EVENT_DIFFICULTY.topBase, week.eventData[EVENT_STATE_KEYS.topLevel] ?? EVENT_DIFFICULTY.topBase);
+    const next = Math.max(EVENT_DIFFICULTY.topBase, current + (victory ? EVENT_DIFFICULTY.topStep : -EVENT_DIFFICULTY.topStep));
+    week.eventData[EVENT_STATE_KEYS.topLevel] = next;
+    if (next !== current) lines.push({ label: `最高档 Lv.${next}`, deltas: {}, note: victory ? '下一场敌人更强' : '难度回落' });
+  }
 
   switch (theme.type.id) {
     case 'invasion': {
@@ -381,11 +451,7 @@ export function eventBattleProgress(
 
     case 'raidBoss': {
       // 血池：胜/败都按打掉的 HP 累计
-      const bossIndex = plan.enemies.findIndex(e => e.tier === 'boss');
-      const boss = plan.enemies[bossIndex];
-      const resultBoss = boss && result.combatants.find(c => c.side === 'enemy' && c.externalId === enemyExternalId(boss, bossIndex));
-      const startHp = source.bossStartHp ?? week.eventData.bossHp ?? 0;
-      const damage = resultBoss ? Math.max(0, startHp - resultBoss.hp) : 0;
+      const damage = raidBattleDamage(save, plan, result);
       week.eventData.bossHp = Math.max(0, (week.eventData.bossHp ?? 0) - damage);
       const hpLeft = week.eventData[EVENT_STATE_KEYS.bossHp] ?? 0;
       const hpMax = week.eventData[EVENT_STATE_KEYS.bossMax] ?? 0;
@@ -698,6 +764,7 @@ export function buyEventGoods(save: MetaSave, goodsId: string, weekStart: number
   if (expectedPeriodStart !== undefined && expectedPeriodStart !== eventShopPeriodOf(now).start) {
     return fail('INVALID', '货品已刷新，请确认新货架后兑换');
   }
+  if (!eventsUnlocked(save)) return fail('PREREQ_LOCKED', EVENT_LOCKED_MESSAGE);
   const shop = eventShopOf(save, weekStart, typeId, now);
   const row = shop.rows.find((r) => r.goods.id === goodsId);
   if (!row) return fail('INVALID', '该商品不在此活动货架');

@@ -16,8 +16,9 @@ import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import { raceName } from '../data/races';
 import {
   ensureEventWeek,
-  eventPageState, eventWeeklySummary, eventBattleReady, currentEventTheme,
+  eventPageState, eventWeeklySummary, eventBattleReady, currentEventTheme, eventsUnlocked,
 } from '../systems/events';
+import { eventsLockPanelHtml } from './eventsLock';
 import { bottomNavHtml, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { EventWeekState, MetaSave } from '../state/schema';
@@ -70,6 +71,9 @@ export class EventsScreen implements Screen {
   html(ctx: ShellCtx, param?: string): string {
     const now = Date.now();
     const weekStart = weekStartOf(now);
+    if (!eventsUnlocked(ctx.save())) {
+      return `${topbarHtml()}<div class="screen ev-screen evlock-screen">${eventsLockPanelHtml(ctx.save())}</div>${bottomNavHtml('')}${toastHtml()}`;
+    }
     const [eventParam, subpage] = param?.split('/') ?? [];
     const typeId = parseTypeId(eventParam);
     if (!typeId) return this.overviewHtml(ctx, weekStart);
