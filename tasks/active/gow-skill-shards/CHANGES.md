@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 631 条改动，涉及 1082 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 632 条改动，涉及 1082 个技能 ID。
 
 ## 按时间
 
@@ -637,6 +637,7 @@
 | 2026-09-28T22:08 | sa-H | L1-H-7376-prefnotprev | assembler | 9016 | troop:7376 MorthanisDarkness | `src/engine/skills/curated/batch-04.ts` | 4 distinct random enemies (enemyRandomN) → RandomEnemy + 3 x RandomPrefNotPrevEnemy Life steals (R007-3; repeats allowed, never twice in a row) |  |
 | 2026-09-28T22:12 | sa-H | L1-H-6908-four-branches | assembler | 8369 | troop:6908 BookOfSecrets | `src/engine/skills/curated/batch-r7.ts`<br>`src/data/gowSnapshotOverrides.json` | 3 branches 1/3; status branch hit enemies AND allies; zh said enemies and allies → native A-B-C-D 1/4 each: Daemon \| positive all allies \| negative all enemies \| [M+2] front; zh 或 + override |  |
 | 2026-09-28T22:34 | sa-P | P-G-ifTargetDied-after-self | primitive | 7165, 7294, 7484, 9731 | troop:6095 Tau；weapon:1130 RunicBlade；troop:6334 JaguarWarrior；troop:7746 Cascabel | `src/engine/skills/effects/context.ts`<br>`src/engine/skills/prototypes.ts`<br>`src/engine/skills/effects/secondary.ts`<br>`src/engine/skills/effects/damage.ts`<br>`src/engine/skills/effects/gems.ts`<br>`tests/unit/gowFixP-G-ifTargetDied-after-self.test.ts` | ifTargetDied / lastTargetSurvived read castTracking.lastTarget; any later self / ally / enemyAll step rewrote it, so chained kill-gated steps after a self step never fired → castTracking.killTarget (lastTarget of the last non-kill-gated targeting segment; runSegment restores it after an ifTargetDied segment) + lastEnemyTarget; killCheckTarget judges killTarget, or the last enemy-side target when killTarget is a surviving ally-side unit (an ally killed by the previous step, 8056 devour, is still judged itself) | every ifTargetDied / lastTargetSurvived user (~70 spells); golden diff 0 lines |
+| 2026-09-28T22:41 | sa-P | P-G-ifTargetDied-after-self | assembler | 7165, 7050, 7484, 8104, 8223, 9661, 9716, 8304, 7314, 7294, 9731, 7156, 8228 | troop:6095 Tau；troop:6050 RexWarrior；troop:6334 JaguarWarrior；troop:6734 Stone-Biter；troop:6819 Faemark；troop:7700 Gormungandr；troop:7724 TheSandstoneSentinel；troop:6881 EldritchGuardian；troop:6175 WildFang；weapon:1130 RunicBlade；troop:7746 Cascabel；troop:6086 Raven；troop:6826 Umenath | `src/engine/skills/curated/batch-05.ts`<br>`src/engine/skills/curated/batch-11.ts`<br>`src/engine/skills/curated/batch-r15.ts`<br>`src/engine/skills/curated/batch-r17.ts`<br>`src/engine/skills/curated/batch-r18.ts`<br>`src/engine/skills/curated/batch-r19.ts`<br>`src/engine/skills/curated/batch-r20.ts`<br>`src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-w01.ts` | kill bonuses after a self / ally / enemyAll step gated by ifCond castEnemyDied (workaround for P-G) → back to ifTargetDied (native AddForKill on the damaged target); same behaviour for these single-target hits, golden diff 0 | 13 spells: 7165 7050 7484 8104 8223 9661 9716 8304 7314 7294 9731 7156 8228 |
 
 ## 按技能 ID
 
@@ -664,7 +665,7 @@
 | 7035 | 1 | L3-018 |
 | 7037 | 1 | F2-R001-order |
 | 7047 | 1 | F1-6047-dispel |
-| 7050 | 1 | F3-q29 |
+| 7050 | 2 | F3-q29、P-G-ifTargetDied-after-self |
 | 7051 | 1 | L5-C-r4-6051 |
 | 7052 | 3 | F2-R001-order、R010、R013-5 |
 | 7053 | 1 | F2-R001-order |
@@ -693,10 +694,10 @@
 | 7147 | 1 | L4a-R8-random-any-gem |
 | 7149 | 1 | F2-R001-order |
 | 7150 | 1 | B-L4b-6080-nine |
-| 7156 | 1 | F1-onkill-order |
+| 7156 | 2 | F1-onkill-order、P-G-ifTargetDied-after-self |
 | 7159 | 1 | L4a-R1-7159-cross |
 | 7162 | 1 | L4b-7138-onecolour |
-| 7165 | 2 | G-kill-all-skills、P-G-ifTargetDied-after-self |
+| 7165 | 3 | G-kill-all-skills、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 7169 | 2 | L4b-7276-singlegem、B-L4b-6104-blue |
 | 7174 | 1 | B5-L4b-1067-singlegem |
 | 7177 | 1 | L5-C-r4-6108 |
@@ -741,7 +742,7 @@
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |
-| 7294 | 2 | G-kill-all-skills、P-G-ifTargetDied-after-self |
+| 7294 | 3 | G-kill-all-skills、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 7295 | 1 | F3-q35 |
 | 7296 | 2 | L5-C-r4-1132、L5-C-r4-1132 |
 | 7297 | 1 | F3-q20 |
@@ -750,7 +751,7 @@
 | 7308 | 1 | L4a-r3-1138 |
 | 7310 | 2 | P-random-stat-pool、F1-steal-before-damage |
 | 7312 | 1 | F1-steal-before-damage |
-| 7314 | 1 | L2-wrong-enemy-branches |
+| 7314 | 2 | L2-wrong-enemy-branches、P-G-ifTargetDied-after-self |
 | 7316 | 1 | L1-charm-instant |
 | 7317 | 1 | F3-q05 |
 | 7318 | 1 | R3-B01-1141 |
@@ -829,7 +830,7 @@
 | 7478 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7480 | 2 | L4b-7276-singlegem、L1-R2-consume-first |
 | 7482 | 1 | P-random-stat-pool |
-| 7484 | 2 | G-6334-kill-order、P-G-ifTargetDied-after-self |
+| 7484 | 3 | G-6334-kill-order、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 7489 | 1 | P-counter-per-step |
 | 7491 | 1 | P-B-action-status-self-count |
 | 7501 | 1 | L1-summon-dist |
@@ -999,7 +1000,7 @@
 | 8098 | 1 | G-6728-order |
 | 8101 | 1 | L2-6731-branches |
 | 8103 | 1 | P-counter-per-step |
-| 8104 | 1 | G-kill-all-skills |
+| 8104 | 2 | G-kill-all-skills、P-G-ifTargetDied-after-self |
 | 8106 | 1 | L4a-r3-6736 |
 | 8108 | 1 | L2-wrong-enemy-branches |
 | 8111 | 1 | P-E-faction-kingdom |
@@ -1043,9 +1044,9 @@
 | 8218 | 2 | P-counter-per-step、L2-6814-branch-weights |
 | 8219 | 1 | P-counter-per-step |
 | 8221 | 1 | L5-C-r4-1294 |
-| 8223 | 1 | L5-C-r4-6819 |
+| 8223 | 2 | L5-C-r4-6819、P-G-ifTargetDied-after-self |
 | 8226 | 1 | L4a-r3-6822 |
-| 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
+| 8228 | 4 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step、P-G-ifTargetDied-after-self |
 | 8229 | 1 | L1-6827-base |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
 | 8235 | 1 | R7-6825-ratio |
@@ -1076,7 +1077,7 @@
 | 8297 | 2 | L4a-R1-8297-life-boost、R013-5 |
 | 8299 | 1 | F2-1313-order-life |
 | 8302 | 1 | F1-steal-before-damage |
-| 8304 | 1 | G-6881-kill-double |
+| 8304 | 2 | G-6881-kill-double、P-G-ifTargetDied-after-self |
 | 8307 | 1 | L2-wrong-enemy-branches |
 | 8313 | 1 | P-E-faction-kingdom |
 | 8316 | 1 | B-L4b-6890-native-chances |
@@ -1625,7 +1626,7 @@
 | 9651 | 1 | P-R3-precast-compare |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
 | 9660 | 1 | R7-7691-count150-floor |
-| 9661 | 2 | F3-q19、R011 |
+| 9661 | 3 | F3-q19、R011、P-G-ifTargetDied-after-self |
 | 9665 | 1 | L4a-R8-7704-zh-column |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |
@@ -1636,12 +1637,12 @@
 | 9689 | 1 | P-E-faction-kingdom |
 | 9692 | 1 | P-E-faction-kingdom |
 | 9711 | 1 | L1-7719-random |
-| 9716 | 1 | F3-t7724 |
+| 9716 | 2 | F3-t7724、P-G-ifTargetDied-after-self |
 | 9719 | 1 | P-prefnotprev-semantics |
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |
 | 9722 | 1 | R3-B02-1657 |
 | 9723 | 1 | F2-7728-no-damage |
-| 9731 | 2 | L2-H-7746-kill-gate、P-G-ifTargetDied-after-self |
+| 9731 | 3 | L2-H-7746-kill-gate、P-G-ifTargetDied-after-self、P-G-ifTargetDied-after-self |
 | 9733 | 1 | P-counter-per-step |
 | 9739 | 1 | P-counter-per-step |
 | 9749 | 1 | P-E-faction-kingdom |

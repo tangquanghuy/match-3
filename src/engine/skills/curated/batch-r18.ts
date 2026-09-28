@@ -1180,10 +1180,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
       // sa-G: ifTargetDied only held for the first self buff -> castEnemyDied (7314 precedent, P-G-ifTargetDied-after-self)
-      attack('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      armor('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      magic('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 7, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 7, 0, { ifTargetDied: true }),
+      armor('allySelf', 7, 0, { ifTargetDied: true }),
+      magic('allySelf', 7, 0, { ifTargetDied: true }),
+      heal('allySelf', 7, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -1393,10 +1394,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若敌人身亡则净化所有盟友并消除所有敌人正面增益」= ifTargetDied（单目标精确判定）+ 驱散族
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       cleanse('allyAll', undefined, { ifTargetDied: true }),
       // native DispelConditional AddForKill: after the cleanse segment the "last target" is an ally, so
       // ifTargetDied no longer sees the enemy; castEnemyDied = the (only) damaged enemy died this cast.
-      ...dispelPositives('enemyAll', { kind: 'castEnemyDied' }),
+      ...dispelPositives('enemyAll', undefined, { ifTargetDied: true }),
     ),
   },
   {

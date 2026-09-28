@@ -260,10 +260,11 @@ const SPELLS: CuratedBatch['spells'] = [
     oneOf([dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })], [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })]),
     // native IncreaseAllStats AddForKill = all four Skills +8. ifTargetDied only held for the first of the four (each
     // self buff rewrites lastTarget, so Armor/Magic/Life never applied) -> castEnemyDied (9703 precedent)
-    attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-    armor('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-    magic('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-    heal('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+    attack('allySelf', 8, 0, { ifTargetDied: true }),
+    armor('allySelf', 8, 0, { ifTargetDied: true }),
+    magic('allySelf', 8, 0, { ifTargetDied: true }),
+    heal('allySelf', 8, 0, { ifTargetDied: true }),
     ),
   },
   {

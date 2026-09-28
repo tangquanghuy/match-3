@@ -920,10 +920,11 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 6, 1),
       // sa-G: all four Skills +10 on kill; ifTargetDied only held for the first -> castEnemyDied (7314 precedent)
-      attack('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      armor('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      magic('allySelf', 10, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 10, 0, { ifTargetDied: true }),
+      armor('allySelf', 10, 0, { ifTargetDied: true }),
+      heal('allySelf', 10, 0, { ifTargetDied: true }),
+      magic('allySelf', 10, 0, { ifTargetDied: true }),
     ),
   },
   {

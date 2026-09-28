@@ -225,8 +225,9 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 5, 1),
       // sa-G (R001): native IncreaseAttack AddForKill 8 -> Heal AddForKill 100; the Attack never applied after the
       // self heal rewrote lastTarget -> castEnemyDied (7314 precedent), native order
-      attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 0, 0, { full: true, ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 8, 0, { ifTargetDied: true }),
+      heal('allySelf', 0, 0, { full: true, ifTargetDied: true }),
     ),
   },
   {

@@ -32,8 +32,9 @@ const SPELLS: CuratedBatch['spells'] = [
       // sa-F1: native order ExtraTurnConditional (s2) then GenerateMana (s3); the self mana step re-points lastTarget
       // to the caster, so with mana first the extra turn never fired.
       dmg('enemyChosen', 3, 1),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       extraTurn({ ifTargetDied: true }),
-      mana('allySelf', 9, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      mana('allySelf', 9, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -187,9 +188,10 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
       }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       attack('allySelf', 10, 0, { ifTargetDied: true }),
       // sa-F2 fix round A: after the self-buff segment ifTargetDied looked at the caster -> skulls never created
-      createSkulls(12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      createSkulls(12, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -401,9 +403,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 永不触发；改用本次施放击杀计数 castEnemyDied（唯一伤害段就是对所选敌人的这一击）
     build: skill(
       trueDmg('enemyChosen', 1, 1),
-      inflictRandom('enemyAll', { ifCond: { kind: 'castEnemyDied' } }),
-      inflictRandom('enemyAll', { ifCond: { kind: 'castEnemyDied' }, chance: 0.5 }),
-      inflictRandom('enemyAll', { ifCond: { kind: 'castEnemyDied' }, chance: 0.5 }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      inflictRandom('enemyAll', { ifTargetDied: true }),
+      inflictRandom('enemyAll', { ifTargetDied: true, chance: 0.5 }),
+      inflictRandom('enemyAll', { ifTargetDied: true, chance: 0.5 }),
     ),
   },
   {

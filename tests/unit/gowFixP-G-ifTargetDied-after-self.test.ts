@@ -53,6 +53,35 @@ describe('P-G-ifTargetDied-after-self', () => {
     const { f } = castSpell({ key: 'troop:6095', enemies: hp1, caster });
     expect([f.caster.attack, f.caster.armor, f.caster.magic]).toEqual([14, 14, 14]);
   });
+  // curated sweep: castEnemyDied workarounds switched back to ifTargetDied (native AddForKill on the damaged target)
+  it.each([
+    ['troop:6095', { attack: 14, armor: 14, magic: 14 }],
+    ['weapon:1130', { attack: 20, armor: 20, magic: 20 }],
+    ['troop:6734', { attack: 17, armor: 17, magic: 17 }],
+    ['troop:7724', { attack: 40, armor: 40, magic: 40 }],
+    ['troop:6881', { armor: 34 }],
+    ['troop:6334', { attack: 18 }],
+    ['troop:6050', { attack: 14 }],
+  ] as const)('%s kill -> every kill bonus applies', (key, want) => {
+    const { f } = castSpell({ key, enemies: hp1, caster, target: 11 });
+    for (const [stat, v] of Object.entries(want)) expect(f.caster[stat as 'attack']).toBe(v);
+  });
+  it.each(['troop:6095', 'weapon:1130', 'troop:6734', 'troop:6334'])('%s no kill -> no bonus', (key) => {
+    const { f } = castSpell({ key, caster, target: 11 });
+    expect(f.caster.attack).toBe(10);
+  });
+  it('troop:7700 (9661) kill -> other enemies lose all Armor, caster Blessed and Enchanted', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, statuses: [], ...(i === 1 ? { hp: 1, maxHp: 1, armor: 0 } : {}) }));
+    const { f } = castSpell({ key: 'troop:7700', target: 11, enemies, caster });
+    expect(f.enemies.filter((e) => !e.defeated).map((e) => e.armor)).toEqual([0, 0, 0]);
+    expect(f.caster.statuses.map((s) => s.id).sort()).toEqual(['blessed', 'enchanted']);
+  });
+  it('troop:6819 (8223) kill -> allies cleansed and enemy positives dispelled', () => {
+    const enemies = DEFAULT_ENEMIES.map((e, i) => (i === 1 ? { ...e, hp: 1, maxHp: 1, armor: 0 } : e));
+    const { f } = castSpell({ key: 'troop:6819', target: 11, enemies });
+    expect(f.enemies.filter((e) => !e.defeated).flatMap((e) => e.statuses.map((s) => s.id))).not.toContain('rage');
+    expect(f.allies[0].statuses.map((s) => s.id)).not.toContain('poison');
+  });
   it('real skill troop:7746 (9731): kill -> the 100% random status lands on every other enemy', () => {
     const enemies = DEFAULT_ENEMIES.map((e, i) => ({ ...e, statuses: [], ...(i === 1 ? { hp: 1, maxHp: 1, armor: 0 } : {}) }));
     const { f } = castSpell({ key: 'troop:7746', target: 11, enemies });
