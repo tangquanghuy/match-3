@@ -211,8 +211,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9115,
     desc: '创造 2 颗沙漏宝石。板面上每有一颗黄色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: native CountGems Yellow 700 is step 0 and ExtraTurnConditional has no base Amount:
+      // chance = 7% x Yellow gems counted before the creation (was 7% base + boost, counted after).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
       createSpecialGems({ kind: 'hourglass' }, 2),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
@@ -258,8 +260,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.75) + 6] 点伤害。将 5 颗红宝石转换为燃烧宝石。有 10% 的几率额外获得一轮，红宝石数量越多，几率越大。 [x3]',
     build: skill(
       dmgAll(6, 2.75),
-      transformToSpecial(BaseColor.Red, 'burningGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      transformToSpecial(BaseColor.Red, 'burningGem', { count: 5 }),
     ),
   },
   {

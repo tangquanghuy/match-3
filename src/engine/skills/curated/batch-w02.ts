@@ -280,8 +280,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '耗尽一名敌人最高 12 点法力值，并造成 [魔法 + 4] 点伤害。创造与所耗尽法力值数等数的宝石，创建的宝石色与敌人法力颜色相同。 [1:1]',
     build: skill(
       reduce('enemyChosen', 'mana', 12, 0),
-      dmg('enemyChosen', 4, 1),
+      // sa-R7 (R001): native DecreaseMana -> CreateGems FromTarget -> Damage (create precedes the hit, so a
+      // target killed by the damage still gives its colour)
       createGems('LAST_TARGET', 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'drainedMana' } } }),
+      dmg('enemyChosen', 4, 1),
     ),
   },
   {
@@ -357,12 +359,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7952,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将红色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名蓝色敌人则获得 3 点法力值。 [x3]',
     build: skill(
+      // sa-R7 (R001): native CountArmyColor is step 0, before the Damage; the counted segment runs first so an
+      // enemy of that colour killed by the hit still counts (self Mana gain is independent of the damage).
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
       dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Red, 'doomSkull'),
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
-      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Blue } } }),
     ),
   },
   {
@@ -386,12 +390,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7963,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将绿色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名棕色敌人则获得 3 点法力值。 [x3]',
     build: skill(
+      // sa-R7 (R001): native CountArmyColor is step 0, before the Damage; the counted segment runs first so an
+      // enemy of that colour killed by the hit still counts (self Mana gain is independent of the damage).
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Brown } } }),
       dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Green, 'doomSkull'),
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
-      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Brown } } }),
     ),
   },
   {
@@ -423,12 +429,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7973,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将蓝色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名红色敌人则获得 3 点法力值。 [x3]',
     build: skill(
+      // sa-R7 (R001): native CountArmyColor is step 0, before the Damage; the counted segment runs first so an
+      // enemy of that colour killed by the hit still counts (self Mana gain is independent of the damage).
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
       dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Blue, 'doomSkull'),
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
-      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Red } } }),
     ),
   },
   {
@@ -450,7 +458,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7982,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名紫色敌人则给予所有盟友 2 点魔力值。 [x4]',
-    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"condBonus":{"n":4,"cond":{"kind":"targetHasDoom"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfColor","color":"Purple"}}}]} as SkillPrototype),
+    // sa-R7: native CountArmyColor 200 -> IncreaseSpellPower [counter] = 2 Magic per Purple enemy (no base);
+    // CountSet -> CountArmyType doom 400 -> GenerateMana 5 [counter] = 5 + 4 per Doom enemy (was +4 once, Magic 2 + 4 per enemy).
+    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"enemiesOfColor","color":"Purple"}}},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfRace","race":"Doom"}}}]} as SkillPrototype),
   },
   {
     id: 7986,
@@ -489,7 +499,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8047,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名棕色敌人则给予所有盟友 2 点魔力值。 [x4]',
-    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"condBonus":{"n":4,"cond":{"kind":"targetHasDoom"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfColor","color":"Brown"}}}]} as SkillPrototype),
+    // sa-R7: native CountArmyColor 200 -> IncreaseSpellPower [counter] = 2 Magic per Brown enemy (no base);
+    // CountSet -> CountArmyType doom 400 -> GenerateMana 5 [counter] = 5 + 4 per Doom enemy (was +4 once, Magic 2 + 4 per enemy).
+    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"enemiesOfColor","color":"Brown"}}},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfRace","race":"Doom"}}}]} as SkillPrototype),
   },
   {
     id: 8048,
@@ -510,7 +522,9 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8050,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名黄色敌人则给予所有盟友 2 点魔力值。 [x4]',
-    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"condBonus":{"n":4,"cond":{"kind":"targetHasDoom"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfColor","color":"Yellow"}}}]} as SkillPrototype),
+    // sa-R7: native CountArmyColor 200 -> IncreaseSpellPower [counter] = 2 Magic per Yellow enemy (no base);
+    // CountSet -> CountArmyType doom 400 -> GenerateMana 5 [counter] = 5 + 4 per Doom enemy (was +4 once, Magic 2 + 4 per enemy).
+    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"enemiesOfColor","color":"Yellow"}}},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfRace","race":"Doom"}}}]} as SkillPrototype),
   },
   {
     id: 8051,
@@ -534,12 +548,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8053,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将棕色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名绿色敌人则获得 3 点法力值。 [x3]',
     build: skill(
+      // sa-R7 (R001): native CountArmyColor is step 0, before the Damage; the counted segment runs first so an
+      // enemy of that colour killed by the hit still counts (self Mana gain is independent of the damage).
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green } } }),
       dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Brown, 'doomSkull'),
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
-      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Green } } }),
     ),
   },
   {
@@ -605,40 +621,50 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8077,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将紫色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名黄色敌人则获得 3 点法力值。 [x3]',
     build: skill(
+      // sa-R7 (R001): native CountArmyColor is step 0, before the Damage; the counted segment runs first so an
+      // enemy of that colour killed by the hit still counts (self Mana gain is independent of the damage).
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow } } }),
       dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Purple, 'doomSkull'),
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
-      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Yellow } } }),
     ),
   },
   {
     id: 8078,
     desc: '对所有敌人造成 [魔法 + 3] 点伤害，每锻炼 1 个武器段位则 +1 点伤害值。将黄色宝石转换成末日骷髅头。如果敌方有劫数，则再创造 5 颗。每有一名紫色敌人则获得 3 点法力值。 [x3]',
     build: skill(
+      // sa-R7 (R001): native CountArmyColor is step 0, before the Damage; the counted segment runs first so an
+      // enemy of that colour killed by the hit still counts (self Mana gain is independent of the damage).
+      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple } } }),
       dmg('enemyAll', 3, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'tempering' } } }),
       transformToSpecial(BaseColor.Yellow, 'doomSkull'),
       // L3-016: native CreateGems Color1 Doomskull StatusAmount 5 AddIfEnemyHasDoom
       createSpecialGems({ kind: 'doomSkull' }, 5, 0, { ifCond: { kind: 'targetHasDoom' } }),
-      // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 3 x count only
-      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemiesOfColor', color: BaseColor.Purple } } }),
     ),
   },
   {
     id: 8079,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名蓝色敌人则给予所有盟友 2 点魔力值。 [x4]',
-    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"condBonus":{"n":4,"cond":{"kind":"targetHasDoom"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfColor","color":"Blue"}}}]} as SkillPrototype),
+    // sa-R7: native CountArmyColor 200 -> IncreaseSpellPower [counter] = 2 Magic per Blue enemy (no base);
+    // CountSet -> CountArmyType doom 400 -> GenerateMana 5 [counter] = 5 + 4 per Doom enemy (was +4 once, Magic 2 + 4 per enemy).
+    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"enemiesOfColor","color":"Blue"}}},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfRace","race":"Doom"}}}]} as SkillPrototype),
   },
   {
     id: 8080,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名绿色敌人则给予所有盟友 2 点魔力值。 [x4]',
-    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"condBonus":{"n":4,"cond":{"kind":"targetHasDoom"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfColor","color":"Green"}}}]} as SkillPrototype),
+    // sa-R7: native CountArmyColor 200 -> IncreaseSpellPower [counter] = 2 Magic per Green enemy (no base);
+    // CountSet -> CountArmyType doom 400 -> GenerateMana 5 [counter] = 5 + 4 per Doom enemy (was +4 once, Magic 2 + 4 per enemy).
+    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"enemiesOfColor","color":"Green"}}},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfRace","race":"Doom"}}}]} as SkillPrototype),
   },
   {
     id: 8081,
     desc: '给予所有盟友 [魔法 + 1] 点生命值，每锻炼 1 个武器段位则 +2 点生命值。给予所有其他盟友 5 点法力值。如果敌方有劫数，则再给予 4 点法力值。每有一名红色敌人则给予所有盟友 2 点魔力值。 [x4]',
-    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"condBonus":{"n":4,"cond":{"kind":"targetHasDoom"}}},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":2,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfColor","color":"Red"}}}]} as SkillPrototype),
+    // sa-R7: native CountArmyColor 200 -> IncreaseSpellPower [counter] = 2 Magic per Red enemy (no base);
+    // CountSet -> CountArmyType doom 400 -> GenerateMana 5 [counter] = 5 + 4 per Doom enemy (was +4 once, Magic 2 + 4 per enemy).
+    build: ({"segments":[{"kind":"buff","target":"allyAll","stat":"hp","scaling":{"base":1,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"tempering"}},"lifeMode":"gain"},{"kind":"buff","target":"allyAll","stat":"magic","scaling":{"base":0,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":2},"source":{"kind":"enemiesOfColor","color":"Red"}}},{"kind":"buff","target":"allyOthers","stat":"mana","scaling":{"base":5,"mult":0},"modifier":{"mod":{"kind":"multiplier","a":4},"source":{"kind":"enemiesOfRace","race":"Doom"}}}]} as SkillPrototype),
   },
   {
     id: 8083,

@@ -2299,6 +2299,25 @@
       "prototype": {
         "segments": [
           {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Blue"
+              }
+            }
+          },
+          {
             "kind": "damage",
             "target": "enemyAll",
             "scaling": {
@@ -2343,7 +2362,16 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          },
+          }
+        ]
+      }
+    },
+    "7955": {
+      "description": "给予一名盟友 [魔法 + 1] 点护甲值。若盟友使用红色法力值，则效果翻倍。若敌方有魔头，则爆破所有红色宝石。"
+    },
+    "7963": {
+      "prototype": {
+        "segments": [
           {
             "kind": "buff",
             "target": "allySelf",
@@ -2359,19 +2387,10 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Blue"
+                "color": "Brown"
               }
             }
-          }
-        ]
-      }
-    },
-    "7955": {
-      "description": "给予一名盟友 [魔法 + 1] 点护甲值。若盟友使用红色法力值，则效果翻倍。若敌方有魔头，则爆破所有红色宝石。"
-    },
-    "7963": {
-      "prototype": {
-        "segments": [
+          },
           {
             "kind": "damage",
             "target": "enemyAll",
@@ -2417,7 +2436,13 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          },
+          }
+        ]
+      }
+    },
+    "7973": {
+      "prototype": {
+        "segments": [
           {
             "kind": "buff",
             "target": "allySelf",
@@ -2433,16 +2458,10 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Brown"
+                "color": "Red"
               }
             }
-          }
-        ]
-      }
-    },
-    "7973": {
-      "prototype": {
-        "segments": [
+          },
           {
             "kind": "damage",
             "target": "enemyAll",
@@ -2488,25 +2507,6 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          },
-          {
-            "kind": "buff",
-            "target": "allySelf",
-            "stat": "mana",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "modifier": {
-              "mod": {
-                "kind": "multiplier",
-                "a": 3
-              },
-              "source": {
-                "kind": "enemiesOfColor",
-                "color": "Red"
-              }
-            }
           }
         ]
       }
@@ -2536,25 +2536,29 @@
           },
           {
             "kind": "buff",
-            "target": "allyOthers",
-            "stat": "mana",
+            "target": "allyAll",
+            "stat": "magic",
             "scaling": {
-              "base": 5,
+              "base": 0,
               "mult": 0
             },
-            "condBonus": {
-              "n": 4,
-              "cond": {
-                "kind": "targetHasDoom"
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Purple"
               }
             }
           },
           {
             "kind": "buff",
-            "target": "allyAll",
-            "stat": "magic",
+            "target": "allyOthers",
+            "stat": "mana",
             "scaling": {
-              "base": 2,
+              "base": 5,
               "mult": 0
             },
             "modifier": {
@@ -2563,8 +2567,8 @@
                 "a": 4
               },
               "source": {
-                "kind": "enemiesOfColor",
-                "color": "Purple"
+                "kind": "enemiesOfRace",
+                "race": "Doom"
               }
             }
           }
@@ -2678,25 +2682,29 @@
           },
           {
             "kind": "buff",
-            "target": "allyOthers",
-            "stat": "mana",
+            "target": "allyAll",
+            "stat": "magic",
             "scaling": {
-              "base": 5,
+              "base": 0,
               "mult": 0
             },
-            "condBonus": {
-              "n": 4,
-              "cond": {
-                "kind": "targetHasDoom"
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Brown"
               }
             }
           },
           {
             "kind": "buff",
-            "target": "allyAll",
-            "stat": "magic",
+            "target": "allyOthers",
+            "stat": "mana",
             "scaling": {
-              "base": 2,
+              "base": 5,
               "mult": 0
             },
             "modifier": {
@@ -2705,8 +2713,8 @@
                 "a": 4
               },
               "source": {
-                "kind": "enemiesOfColor",
-                "color": "Brown"
+                "kind": "enemiesOfRace",
+                "race": "Doom"
               }
             }
           }
@@ -2743,25 +2751,29 @@
           },
           {
             "kind": "buff",
-            "target": "allyOthers",
-            "stat": "mana",
+            "target": "allyAll",
+            "stat": "magic",
             "scaling": {
-              "base": 5,
+              "base": 0,
               "mult": 0
             },
-            "condBonus": {
-              "n": 4,
-              "cond": {
-                "kind": "targetHasDoom"
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Yellow"
               }
             }
           },
           {
             "kind": "buff",
-            "target": "allyAll",
-            "stat": "magic",
+            "target": "allyOthers",
+            "stat": "mana",
             "scaling": {
-              "base": 2,
+              "base": 5,
               "mult": 0
             },
             "modifier": {
@@ -2770,8 +2782,8 @@
                 "a": 4
               },
               "source": {
-                "kind": "enemiesOfColor",
-                "color": "Yellow"
+                "kind": "enemiesOfRace",
+                "race": "Doom"
               }
             }
           }
@@ -2789,6 +2801,25 @@
     "8053": {
       "prototype": {
         "segments": [
+          {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Green"
+              }
+            }
+          },
           {
             "kind": "damage",
             "target": "enemyAll",
@@ -2833,25 +2864,6 @@
             },
             "ifCond": {
               "kind": "targetHasDoom"
-            }
-          },
-          {
-            "kind": "buff",
-            "target": "allySelf",
-            "stat": "mana",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "modifier": {
-              "mod": {
-                "kind": "multiplier",
-                "a": 3
-              },
-              "source": {
-                "kind": "enemiesOfColor",
-                "color": "Green"
-              }
             }
           }
         ]
@@ -2981,6 +2993,25 @@
       "prototype": {
         "segments": [
           {
+            "kind": "buff",
+            "target": "allySelf",
+            "stat": "mana",
+            "scaling": {
+              "base": 0,
+              "mult": 0
+            },
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 3
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Yellow"
+              }
+            }
+          },
+          {
             "kind": "damage",
             "target": "enemyAll",
             "scaling": {
@@ -3025,7 +3056,13 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          },
+          }
+        ]
+      }
+    },
+    "8078": {
+      "prototype": {
+        "segments": [
           {
             "kind": "buff",
             "target": "allySelf",
@@ -3041,16 +3078,10 @@
               },
               "source": {
                 "kind": "enemiesOfColor",
-                "color": "Yellow"
+                "color": "Purple"
               }
             }
-          }
-        ]
-      }
-    },
-    "8078": {
-      "prototype": {
-        "segments": [
+          },
           {
             "kind": "damage",
             "target": "enemyAll",
@@ -3096,25 +3127,6 @@
             "ifCond": {
               "kind": "targetHasDoom"
             }
-          },
-          {
-            "kind": "buff",
-            "target": "allySelf",
-            "stat": "mana",
-            "scaling": {
-              "base": 0,
-              "mult": 0
-            },
-            "modifier": {
-              "mod": {
-                "kind": "multiplier",
-                "a": 3
-              },
-              "source": {
-                "kind": "enemiesOfColor",
-                "color": "Purple"
-              }
-            }
           }
         ]
       }
@@ -3144,25 +3156,29 @@
           },
           {
             "kind": "buff",
-            "target": "allyOthers",
-            "stat": "mana",
+            "target": "allyAll",
+            "stat": "magic",
             "scaling": {
-              "base": 5,
+              "base": 0,
               "mult": 0
             },
-            "condBonus": {
-              "n": 4,
-              "cond": {
-                "kind": "targetHasDoom"
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Blue"
               }
             }
           },
           {
             "kind": "buff",
-            "target": "allyAll",
-            "stat": "magic",
+            "target": "allyOthers",
+            "stat": "mana",
             "scaling": {
-              "base": 2,
+              "base": 5,
               "mult": 0
             },
             "modifier": {
@@ -3171,8 +3187,8 @@
                 "a": 4
               },
               "source": {
-                "kind": "enemiesOfColor",
-                "color": "Blue"
+                "kind": "enemiesOfRace",
+                "race": "Doom"
               }
             }
           }
@@ -3209,25 +3225,29 @@
           },
           {
             "kind": "buff",
-            "target": "allyOthers",
-            "stat": "mana",
+            "target": "allyAll",
+            "stat": "magic",
             "scaling": {
-              "base": 5,
+              "base": 0,
               "mult": 0
             },
-            "condBonus": {
-              "n": 4,
-              "cond": {
-                "kind": "targetHasDoom"
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Green"
               }
             }
           },
           {
             "kind": "buff",
-            "target": "allyAll",
-            "stat": "magic",
+            "target": "allyOthers",
+            "stat": "mana",
             "scaling": {
-              "base": 2,
+              "base": 5,
               "mult": 0
             },
             "modifier": {
@@ -3236,8 +3256,8 @@
                 "a": 4
               },
               "source": {
-                "kind": "enemiesOfColor",
-                "color": "Green"
+                "kind": "enemiesOfRace",
+                "race": "Doom"
               }
             }
           }
@@ -3274,25 +3294,29 @@
           },
           {
             "kind": "buff",
-            "target": "allyOthers",
-            "stat": "mana",
+            "target": "allyAll",
+            "stat": "magic",
             "scaling": {
-              "base": 5,
+              "base": 0,
               "mult": 0
             },
-            "condBonus": {
-              "n": 4,
-              "cond": {
-                "kind": "targetHasDoom"
+            "modifier": {
+              "mod": {
+                "kind": "multiplier",
+                "a": 2
+              },
+              "source": {
+                "kind": "enemiesOfColor",
+                "color": "Red"
               }
             }
           },
           {
             "kind": "buff",
-            "target": "allyAll",
-            "stat": "magic",
+            "target": "allyOthers",
+            "stat": "mana",
             "scaling": {
-              "base": 2,
+              "base": 5,
               "mult": 0
             },
             "modifier": {
@@ -3301,8 +3325,8 @@
                 "a": 4
               },
               "source": {
-                "kind": "enemiesOfColor",
-                "color": "Red"
+                "kind": "enemiesOfRace",
+                "race": "Doom"
               }
             }
           }
@@ -6433,7 +6457,7 @@
             "target": "lastTarget",
             "stat": "mana",
             "scaling": {
-              "base": 3,
+              "base": 0,
               "mult": 0
             },
             "modifier": {

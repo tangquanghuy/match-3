@@ -106,7 +106,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '死亡标记一名随机敌人。制作1-3瓶蓝色法力药水。如果任何一名敌人被冻结，有 50% 的几率可获得一个额外回合。',
     build: skill(
       inflict('death-mark', 'enemyRandom'),
-      createGems(BaseColor.Blue, 1, 0, { countRange: { min: 1, max: 3 } }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Blue }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-R7: native CreateGemsRange BlueManaPotion (was plain Blue gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'frozen' } }),
     ),
   },
@@ -127,7 +127,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       cleanse('allyChosen'),
       heal('allyChosen', 1, 1),
-      createGems(BaseColor.Yellow, 1, 0, { countRange: { min: 1, max: 3 } }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Yellow }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-R7: native CreateGemsRange YellowManaPotion (was plain Yellow gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'death-mark' } }),
     ),
   },
@@ -136,7 +136,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '将蓝色宝石转变成头骨。制作1-3瓶棕色法力药水。如果有任何敌人被打昏，有 50% 的几率可获得一个额外回合。',
     build: skill(
       transform(BaseColor.Blue, 'SKULL'),
-      createGems(BaseColor.Brown, 1, 0, { countRange: { min: 1, max: 3 } }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Brown }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-R7: native CreateGemsRange BrownManaPotion (was plain Brown gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'stun' } }),
     ),
   },
@@ -144,8 +144,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8606,
     desc: '对1-3名随机敌人下毒。制作1-3瓶绿色法力药水。如果有任何敌人被网勾住，有 50% 的几率可获得一个额外回合。',
     build: skill(
-      inflict('poison', 'enemyRandomN', { nRange: { min: 1, max: 3 } }),
-      createGems(BaseColor.Green, 1, 0, { countRange: { min: 1, max: 3 } }),
+      // sa-R7: native CausePoison@RandomEnemy, then 2 x CausePoison@RandomPrefNotPrevEnemy PercentageChance 50
+      // (independent): 1/2/3 targets at 25/50/25%, each avoiding only the previous (was uniform 1-3 distinct).
+      inflict('poison', 'enemyRandom'),
+      inflict('poison', 'enemyRandomPrefNotPrev', { chance: 0.5 }),
+      inflict('poison', 'enemyRandomPrefNotPrev', { chance: 0.5 }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Green }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-R7: native CreateGemsRange GreenManaPotion (was plain Green gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'web' } }),
     ),
   },
@@ -180,7 +184,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyAll', 4, 1, { range: 'all' }),
       reduce('enemyAll', 'mana', 4, 0, {
-        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems' } },
+        // sa-R7: native CountGems GoodGargoyle 300 + BadGargoyle 300 = gargoyle gems (both tiers) x3;
+        // was boardGems{} (every gem on the board).
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSpecial', gem: 'gargoyleGem' } },
       }),
     ),
   },

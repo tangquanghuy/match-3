@@ -183,8 +183,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 2 名随机敌人造成 [魔法 + 2] 点伤害，伤害值因绿色盟友而加强。获得一个额外回合。 [x3]',
     build: skill(
       // 「因绿色盟友而加强」= alliesOfColor 'Green'（batch-09 头注口径：法力色关联盟友数）
-      dmg('enemyRandomN', 2, 1, {
-        n: 2,
+      // sa-R7 (R007-3): native Damage@RandomEnemy then Damage@RandomPrefNotPrevEnemy = two hits; with one enemy
+      // left both hit it (enemyRandomN n:2 hit a lone enemy only once).
+      dmg('enemyRandom', 2, 1, {
+        modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Green } },
+      }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, {
         modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesOfColor', color: BaseColor.Green } },
       }),
       extraTurn(),

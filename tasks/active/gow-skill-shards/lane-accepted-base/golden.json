@@ -2219,16 +2219,6 @@
   "by": "coord (accepted before golden)",
   "at": "2026-09-27T23:48:12.361Z"
  },
- "weapon:1226": {
-  "lines": {
-   "L10": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; convert Red x9 -> doomSkull x9 ; buff C mana+3  => E10:hp-8 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3",
-   "R10": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; convert Red x9 -> doomSkull x9 ; buff C mana+3  => E10:hp-8 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3",
-   "L0": "dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all) ; convert Red x9 -> doomSkull x9 ; buff C mana+3  => E10:arm-3 | E11:arm-3 | E12:arm-3 | E13:arm-3",
-   "K": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x9 -> doomSkull x9  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
-  },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
- },
  "weapon:1232": {
   "lines": {
    "L10": "dmg E11 17  => E11:hp-7 arm-10",

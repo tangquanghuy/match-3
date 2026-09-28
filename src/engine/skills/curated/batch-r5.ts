@@ -168,7 +168,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       shuffleBoard(),
       shuffleTeam('enemy'),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      // sa-R7: ExtraTurnConditional has no base Amount -> 7% x Brown gems only (was 7% base + boost).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
     ),
   },
   {
@@ -216,27 +217,26 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7457,
-    desc: '对一名随机敌人造成 [魔法 + 3] 点真实伤害。板面上没有一颗紫色宝石，则有 6% 的几率重新获得消耗的法力值。 [x6]',
+    desc: '对一名随机敌人造成 [魔法 + 3] 点真实伤害。板面上每有一颗紫色宝石，则有 6% 的几率重新获得消耗的法力值。 [x6]',
     build: skill(
       trueDmg('enemyRandom', 3),
+      // sa-R7: EN "For each Purple Gem ... 6% chance" / native CountGems Purple 600 + GenerateFullManaConditional
+      // (no Amount): chance = 6% x Purple gems. Was "only if there are no Purple gems" + 6% base (misread ZH).
       mana('allySelf', 0, 0, {
-        chance: 0.06,
-        ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', color: BaseColor.Purple, n: 1 } },
+        chanceBoost: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
         modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'selfStat', stat: 'manaCost' } },
       }),
     ),
   },
   {
     id: 8824,
-    desc: '给予一名盟友 4 点护甲值。板面上没有一颗蓝色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '给予一名盟友 4 点护甲值。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     // 修正（2026-09-18 官方复核）：官方 IncreaseArmor@FromTarget = 指定的一名盟友，非自身
     build: skill(
       armor('allyChosen', 4, 0),
-      extraTurn({
-        chance: 0.07,
-        ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 1 } },
-        chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-      }),
+      // sa-R7: EN "7% chance for each Blue Gem" / native ExtraTurnConditional without Amount: 7% x Blue gems.
+      // Was "only if there are no Blue gems" + 7% base (misread ZH).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
     ),
   },
 ];

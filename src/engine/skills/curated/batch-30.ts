@@ -144,8 +144,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '摧毁一列。每摧毁一颗紫色宝石则耗掉首位敌人 4 点法力值。获得屏障效果。 [x4]',
     build: skill(
       destroyChosenCol(),
-      // 「每摧毁一颗X宝石则耗掉 N 点法力值」：常数 N 为基础、[x4] 每来源叠加（batch-21 8167 同款）
-      reduce('enemyFront', 'mana', 4, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }),
+      // sa-R7: native DecreaseMana UseCounterForAmount without Amount = 4 x Purple gems in the column only
+      // (CountGems 400 before DestroyGems); was base 4 + 4 x count (L3-015 pattern).
+      reduce('enemyFront', 'mana', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems', color: BaseColor.Purple } } }),
       inflict('barrier', 'allySelf'),
     ),
   },
@@ -178,10 +179,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 3.25) + 6] 点伤害。引爆所有骷髅。有 10% 的几率额外进行一回合，几率随引爆骷髅数而增加。 [x4]',
     build: skill(
       dmgAll(6, 3.25),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
+      extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'boardSkulls' } } }),
       explodeSkulls(),
-      // 回收：chanceBoost 现支持概率加成；「随引爆骷髅数」= destroyedGems 不筛色——
-      // 本技能只有引爆骷髅一个清除段，计数恰为引爆骷髅数（batch-29 7352 只清骷髅口径）
-      extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'destroyedGems' } } }),
+      // sa-R7: 「随引爆骷髅数」= native CountGems Skull 400 before ExplodeColor -> boardSkulls x4 counted
+      // first; was destroyedGems after the explosion (also counted the collateral gems of each blast).
     ),
   },
 ];

@@ -239,8 +239,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8917,
     desc: '创造一颗灵力宝石。板面上每有一颗黄色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
-      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 1),
+      // sa-R7: native CountGems Yellow 700 is step 0 -> chance counted before the Spirit gem replaces a gem (R001).
       extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      createSpecialGems({ kind: 'spiritGem', color: BaseColor.Purple }, 1),
     ),
   },
   {
@@ -375,11 +376,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2.75) + 6] 点伤害。将 5 颗紫色宝石转换为附魔宝石。有 10% 的几率获得额外回合，几率随紫色宝石数量增加而增加。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2.75, { range: 'all' }),
-      transformToSpecial(BaseColor.Purple, 'enchantedGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Purple } },
       }),
+      transformToSpecial(BaseColor.Purple, 'enchantedGem', { count: 5 }),
     ),
   },
   {

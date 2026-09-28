@@ -578,10 +578,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7808,
-    desc: '对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值和法力值满值的敌军数而增强。 [x4]',
+    desc: '对最强大的两名敌人造成 [魔法 + 2] 点伤害，伤害值因生命值满值或法力值满值的敌军数而增强。 [x4]',
     // 「生命值和法力值满值的敌军数」= enemyFull{hp,mana}（R22 新来源，官方 CountEnemiesFullMana 族）。
     build: skill(
-    dmg('enemyHealthiestN', 2, 1, { n: 2, modifier: boostPer({ kind: 'enemyFull', hp: true, mana: true }, 4) }),
+    // sa-R7: native CountEnemiesFullHealth 400 + CountEnemiesFullMana 400 = two separate counts, each x4
+    // (English "full Life or full Mana"); was one count of enemies with both full.
+    dmg('enemyHealthiestN', 2, 1, { n: 2, modifier: { mod: { kind: 'multiplier', a: 4 }, sources: [{ kind: 'enemyFull', hp: true }, { kind: 'enemyFull', mana: true }] } }),
     ),
   },
   {
@@ -781,7 +783,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 随 R22 收口；「法印」= enchanted（R10 落地）。
     build: skill(
     inflict('enchanted', 'allyAll', { ifCond: { kind: 'targetColor', color: 'CHOSEN' } }),
-    mana('allyAll', 6, 0, { ifCond: { kind: 'targetColor', color: 'CHOSEN' }, modifier: boostPer({ kind: 'boardGems', color: 'CHOSEN' }, 4) }),
+    // sa-R7: native CountGems FromTarget Amount 25 = [4:1] (floor(n x 25%), R003); was boostPer(..., 4) = x4.
+    mana('allyAll', 6, 0, { ifCond: { kind: 'targetColor', color: 'CHOSEN' }, modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'boardGems', color: 'CHOSEN' } } }),
     ),
   },
   {
@@ -889,7 +892,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8406,
-    desc: '给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 8 颗红色宝石。有 15% 的几率自毁。 [x7]',
+    desc: '给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 7 颗红色宝石。有 15% 的几率自毁。 [x7]',
     // 「每有一名法力值满值的敌人 [x7]」= enemyFull mana 来源 ×7（官方 CountEnemiesFullMana 700
     // 实锤，ZH「8 颗」为机取出入、按原句口径）；quarter 法力 + 15% 自毁（sacrifice，§11 追加）。
     build: skill(

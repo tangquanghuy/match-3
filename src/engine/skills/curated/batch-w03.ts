@@ -102,8 +102,9 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8439,
     desc: '给予一位盟友 [魔法 + 1] 点生命值，数值因棕色宝石而增强。再给予其四分之一的法力值。 [x2]',
     build: skill(
-      heal('allyAll', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
-      mana('allyAll', 0, 0, { fraction: 0.25 }),
+      // sa-R7: native spell Target Ally, both steps FromTarget = the one chosen ally (was allyAll).
+      heal('allyChosen', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
+      mana('allyChosen', 0, 0, { fraction: 0.25 }),
     ),
   },
   {
@@ -774,8 +775,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '赋予自身屏障效果。再给予所有盟友 [魔法 + 4] 点护甲值，数量因燃烧宝石数而增强。若自身陷入燃烧状态，则获得一个额外回合。 [1:1]',
     build: skill(
       inflict('barrier', 'allySelf'),
-      armor('allyAll', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'enemyStatusCount', statusId: 'burning' } } }),
+      // sa-R7: native CountSpecificStatusEffect burning@Self -> CauseBarrier -> ExtraTurnConditional -> CountSet ->
+      // CountGems Burning 100 -> IncreaseArmor: boosted by Burning GEMS on the board (was burning enemies).
       extraTurn({ ifCond: { kind: 'selfStatus', statusId: 'burning' } }),
+      armor('allyAll', 4, 1, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSpecial', gem: 'burningGem' } } }),
     ),
   },
   {

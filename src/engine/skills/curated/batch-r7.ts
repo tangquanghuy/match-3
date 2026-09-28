@@ -195,8 +195,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7415,
     desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人使用黄色法力值，则造成双倍伤害。如果敌人是恶魔，则获得一个额外回合。',
     build: skill(
+      // sa-R7: native CountArmyType@FromTarget daemon (step 0) -> TrueDamage -> ExtraTurnConditional: the chosen
+      // enemy itself must be a Daemon (was any Daemon enemy), judged before the hit so a killed Daemon still counts.
+      extraTurn({ ifCond: { kind: 'chosenTargetRace', race: 'Daemon' } }),
       trueDmg('enemyChosen', 2, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-      extraTurn({ ifCond: { kind: 'enemyRacePresent', race: 'Daemon' } }),
     ),
   },
   {
@@ -635,14 +637,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9283,
-    desc: '创造 1 颗鬼魂宝石。板面上没有一颗蓝色宝石则有 7% 的几率获得一个额外回合。 [x7]',
+    desc: '创造 1 颗鬼魂宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: EN "7% chance for each Blue Gem" / native CountGems Blue 700 (step 0) + ExtraTurnConditional
+      // (no base Amount): chance = 7% x Blue gems, counted before the creation. Was "only if there are
+      // no Blue gems" + 7% base (misread ZH).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       createSpecialGems({ kind: 'ghost' }, 1),
-      extraTurn({
-        chance: 0.07,
-        ifCond: { kind: 'not', cond: { kind: 'boardAtLeast', color: BaseColor.Blue, n: 1 } },
-        chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
-      }),
     ),
   },
   {
@@ -707,8 +708,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9337,
     desc: '创造 2 颗缠绕宝石。板面上每有一颗绿色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: native CountGems Green 700 is step 0 and ExtraTurnConditional has no base Amount:
+      // chance = 7% x Green gems counted before the creation (was 7% base + boost, counted after).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
       createSpecialGems({ kind: 'entangleGem' }, 2),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Green } } }),
     ),
   },
   {
@@ -742,8 +745,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对随机敌人造成 [魔法 + 3] 点伤害。如果他们使用紫色法力值，则恢复我一半的法力值。',
     build: skill(
       dmg('enemyRandom', 3, 1),
-      // 「他们使用紫色法力值」按 anyEnemyColor 超集口径（任一存活敌人带该色即真，spell-rules §13.3）
-      mana('allySelf', 0, 0, { halve: true, ifCond: { kind: 'anyEnemyColor', color: BaseColor.Purple } }),
+      // sa-R7: native CountArmyColor@RandomEnemy Purple -> Damage@FromPrevious -> GenerateHalfManaConditional:
+      // 「他们」= the random enemy that was hit (was anyEnemyColor: any Purple enemy on the team).
+      mana('allySelf', 0, 0, { halve: true, ifCond: { kind: 'lastTargetColor', color: BaseColor.Purple } }),
     ),
   },
   {

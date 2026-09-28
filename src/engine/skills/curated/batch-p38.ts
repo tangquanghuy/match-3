@@ -61,10 +61,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8139,
-    desc: '对所有敌人造成 [魔法 + 2] 点伤害. 创造 14 颗宝石，所创造的宝石混合棕色宝石和绿色宝石，伤害值因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]',
+    desc: '对所有敌人造成 [魔法 + 2] 点伤害。创造 14 颗绿色和棕色的混合宝石，数量因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]',
     build: skill(
-      dmg('enemyAll', 2, 1, { range: 'all', modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'enemyStatusCount', statusId: 'poison' }, { kind: 'enemyStatusCount', statusId: 'disease' }] } }),
-      createMix([BaseColor.Brown, BaseColor.Green], 14),
+      // sa-R7: native counters (CountSpecificStatusEffect disease/poison, steps 0-1) feed CreateGems2Colors, not the
+      // Damage (no UseCounterForAmount); counted before the hit, so the mix is created first (a kill still counts;
+      // creating gems does not change the damage). Was: damage boosted, mix fixed at 14.
+      createMix([BaseColor.Brown, BaseColor.Green], 14, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, sources: [{ kind: 'enemyStatusCount', statusId: 'poison' }, { kind: 'enemyStatusCount', statusId: 'disease' }] } }),
+      dmg('enemyAll', 2, 1, { range: 'all' }),
       extraTurn(),
     ),
   },
@@ -140,7 +143,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '诅咒 2 名随机敌人。板面上每有一颗红色宝石则有 7% 几率获得一个额外回合。 [x7]',
     build: skill(
       inflict('curse', 'enemyRandomN', { n: 2 }),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
+      // sa-R7: ExtraTurnConditional has no base Amount -> chance = 7% x Red gems only (was 7% base + boost).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Red } } }),
     ),
   },
   {

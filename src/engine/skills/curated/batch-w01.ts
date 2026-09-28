@@ -1036,8 +1036,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmg('enemyChosen', 4, 1),
       drainMana('lastTarget'),
+      // sa-R7: native CountSpecificStatusEffect web@FromTarget (step 0) -> ... -> ExtraTurnConditional -> CauseWeb:
+      // "already Webbed" = the target itself, judged before this spell's Web (was any enemy, after the Web = always).
+      extraTurn({ ifCond: { kind: 'lastTargetStatus', statusId: 'web' } }),
       inflict('web', 'lastTarget'),
-      extraTurn({ ifCond: { kind: 'anyEnemyStatus', statusId: 'web' } }),
     ),
   },
   {

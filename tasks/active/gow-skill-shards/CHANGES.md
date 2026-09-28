@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 276 条改动，涉及 501 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 302 条改动，涉及 550 个技能 ID。
 
 ## 按时间
 
@@ -282,6 +282,32 @@
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-no-base-7804-8423 | data | 7804, 8423 | weapon:1209 SkyHero；troop:6942 BoneboundDredge | `src/engine/skills/curated/batch-w02.ts`<br>`src/engine/skills/curated/batch-p39.ts` | base 4 Red / 2 Doomskulls plus the per-gem amount → per-gem amount only (native CreateGems without Amount) |  |
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7159-cross | data | 7159 | troop:6089 Elwyn | `src/engine/skills/curated/batch-19.ts` | row then column (16 cells) → destroyChosenCross (15 cells) |  |
 | 2026-09-28T03:06 | sa-R1 | L4a-R1-7388-chosen-row | data | 7388 | troop:6245 ArmoredBoar | `src/engine/skills/curated/batch-r22.ts` | random row → chosen row (Board-target spell, BoardTarget Row) |  |
+| 2026-09-28T05:41 | sa-R7 | R7-doomed-count-order | assembler | 7952, 7963, 7973, 8053, 8077, 8078 | weapon:1226 DoomedBlade；weapon:1229 DoomedClub；weapon:1233 DoomedCrossbow；weapon:1248 DoomedGlaive；weapon:1257 DoomedAxe；weapon:1258 DoomedScythe | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | damage, convert, create, then Gain 3 Mana per <colour> enemy counted after the damage (a counted enemy killed by the hit no longer counted) → native CountArmyColor is step 0: the self-mana segment runs first (R001; self mana gain independent of the damage), so killed enemies still count |  |
+| 2026-09-28T05:41 | sa-R7 | R7-doomed-support-counters | assembler | 7982, 8047, 8050, 8079, 8080, 8081 | weapon:1236 DoomedCauldron；weapon:1242 DoomedRunestones；weapon:1245 DoomedStatue；weapon:1259 DoomedMask；weapon:1260 DoomedPotions；weapon:1261 DoomedHelm | `src/engine/skills/curated/batch-w02.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | Magic = 2 + 4 x <colour> enemies; other allies Mana 5 (+4 once if any Doom enemy); order hp, mana, magic → native: Magic = 2 x <colour> enemies (CountArmyColor 200 + counter, no base); Mana = 5 + 4 x Doom enemies (CountArmyType doom 400); order hp, magic, mana |  |
+| 2026-09-28T05:41 | sa-R7 | R7-6925-two-hits | assembler | 8413 | troop:6925 Rogueling | `src/engine/skills/curated/batch-14.ts` | enemyRandomN n:2 (a lone enemy is hit once) → native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy: two hits, a lone enemy is hit twice (R007-3) |  |
+| 2026-09-28T05:41 | sa-R7 | R7-7646-target-colour | assembler | 9550 | troop:7646 ShadowWraith | `src/engine/skills/curated/batch-r7.ts` | half mana if any enemy uses Purple (anyEnemyColor) → half mana if the random enemy that was hit uses Purple (lastTargetColor; native CountArmyColor@RandomEnemy -> Damage@FromPrevious) |  |
+| 2026-09-28T05:48 | sa-R7 | R7-1631-counter-only-drain | assembler | 9579 | weapon:1631 DarkEngraver | `src/engine/skills/curated/batch-w04.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | drain 3 + 3 x Undead allies → native DecreaseMana UseCounterForAmount, no Amount: drain 3 x Undead allies only (L3-015 pattern) |  |
+| 2026-09-28T05:48 | sa-R7 | R7-1667-drain-order | assembler | 9811 | weapon:1667 MonsterasHammer | `src/engine/skills/curated/batch-w04.ts` | splash damage, then drain all Mana if Immortal Monstera → native order (R001): DecreaseMana@FromTarget [Immortal Monstera] then SplashHighDamage |  |
+| 2026-09-28T05:56 | sa-R7 | R7-6269-chosen-daemon | assembler | 7415 | troop:6269 Desdaemona | `src/engine/skills/curated/batch-r7.ts` | extra turn if any enemy is a Daemon (enemyRacePresent), judged after the hit → native CountArmyType@FromTarget daemon (step 0): extra turn if the chosen enemy is a Daemon, judged before the hit (chosenTargetRace; a killed Daemon still counts) |  |
+| 2026-09-28T05:56 | sa-R7 | R7-7691-count150-floor | assembler | 9660 | troop:7691 BlackmaneMontu | `src/engine/skills/curated/batch-r9.ts` | damage + 1.5 x target Attack (fractional, 17 -> 25.5 -> rounded 26) → R003: CountAttack 150 = floor(attack x 150 / 100) (17 -> 25), ratio 2:3 |  |
+| 2026-09-28T05:56 | sa-R7 | R7-6259-chosen-ally | assembler | 7402 | troop:6259 QueenYsabelle | `src/engine/skills/curated/batch-r28.ts` | damage = a random ally's Attack (randomAllyStat), buffs to that random ally → native spell Target=Ally: damage = the chosen ally's pre-buff Attack (chosenStat), Attack/Armor buffs to the chosen ally |  |
+| 2026-09-28T05:58 | sa-R7 | R7-1219-create-before-hit | assembler | 7866 | weapon:1219 SymbolOfAnu | `src/engine/skills/curated/batch-w02.ts` | drain, damage, then create gems of the target colour (after a kill) → native order (R001): DecreaseMana -> CreateGems FromTarget -> Damage |  |
+| 2026-09-28T08:22 | sa-R7 | R7-6599-full-or | assembler | 7808 | troop:6599 Envy | `src/engine/skills/curated/batch-r22.ts` | one count of enemies with both full Life and full Mana, x4 → native CountEnemiesFullHealth 400 + CountEnemiesFullMana 400: two separate counts (full Life or full Mana), x4 each; ZH desc 或 |  |
+| 2026-09-28T08:22 | sa-R7 | R7-6928-zh-count | data | 8406 | troop:6928 Detect-o-bot | `src/engine/skills/curated/batch-r22.ts` | ZH desc: 8 Red gems per full-Mana enemy → ZH desc: 7 (English/native CountEnemiesFullMana 700; runtime already x7) |  |
+| 2026-09-28T08:28 | sa-R7 | R7-tarot-extra-turn | assembler | 8667, 8974, 9003, 9115, 8917 | troop:7088 TheDevil；troop:7346 DeathTarot；troop:7363 TheHangedMan；troop:7421 TheHermit；troop:7305 TheHighPriestess | `src/engine/skills/curated/batch-p38.ts`<br>`src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts` | extra-turn chance 7% base + 7% per gem (8667/8974/9003/9115); counted after the gem creation (8974/9003/9115/8917) → native ExtraTurnConditional UseCounterForAmount, no Amount: 7% per gem only; CountGems step 0 so extra-turn roll placed before the creation (R001) |  |
+| 2026-09-28T08:28 | sa-R7 | R7-7211-gargoyle-count | assembler | 8798 | troop:7211 Tourmaline | `src/engine/skills/curated/batch-r8.ts` | drain 4 + 3 per gem on the board (boardGems any) → drain 4 + 3 per Gargoyle gem, Good + Evil (native CountGems GoodGargoyle/BadGargoyle 300) |  |
+| 2026-09-28T08:28 | sa-R7 | R7-6825-ratio | assembler | 8235 | troop:6825 Tuliao | `src/engine/skills/curated/batch-r22.ts` | 6 Mana + 4 per chosen-colour gem (x4) → 6 Mana + 1 per 4 chosen-colour gems (native CountGems Amount 25 = [4:1], R003) |  |
+| 2026-09-28T08:30 | sa-R7 | R7-tarot-extra-turn | assembler | 9283, 9337 | troop:7526 JusticeTarot；troop:7551 TheHierophant | `src/engine/skills/curated/batch-r7.ts` | 9283: extra turn only if NO Blue gems, 7% base (+boost); ZH desc said 'no Blue gem'. 9337: 7% base + 7%/Green gem, counted after creation → 7% per counted gem only, rolled before the creation (native CountGems step 0 + ExtraTurnConditional without Amount); 9283 ZH desc fixed to 'each Blue gem' |  |
+| 2026-09-28T08:34 | sa-R7 | R7-dragon-convert-extra-turn | assembler | 8850, 9515, 9516, 9517, 9518, 9519, 9520, 9521 | troop:7251 Diamantina；troop:7616 Belcerulea；troop:7617 Gladius；troop:7618 Thornaressa；troop:7619 Narcithus；troop:7620 Orrissea；troop:7621 Orchidius；troop:7622 Chrysantherax | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r16.ts`<br>`src/engine/skills/curated/batch-r9.ts`<br>`src/engine/skills/curated/batch-p39.ts`<br>`src/engine/skills/curated/batch-r14.ts`<br>`src/engine/skills/curated/batch-30.ts` | extra-turn chance counted after converting/exploding the counted gems; 9515 boost ratio 300:10 (~0); 9521 boost = all destroyed gems x4 → native CountGems step 0: extra-turn roll placed before the gem change (R001); 9515 +3%/Blue gem; 9521 +4%/Skull on the board (boardSkulls) |  |
+| 2026-09-28T08:43 | sa-R7 | R7-not-board-misread | assembler | 8824, 7457 | troop:7229 AceOfRunes；troop:6307 Shadowblade | `src/engine/skills/curated/batch-r5.ts` | extra turn / full mana only if there are NO Blue/Purple gems, fixed 7%/6% base (+boost); ZH desc 'no gem' → EN 'for each X Gem' + native Conditional without Amount: 7%/6% per gem only; ZH desc fixed |  |
+| 2026-09-28T08:43 | sa-R7 | R7-7061-no-base | assembler | 8589 | troop:7061 DarkKnight | `src/engine/skills/curated/batch-30.ts` | drain 4 + 4 per Purple gem destroyed → drain 4 per Purple gem in the column only (native DecreaseMana UseCounterForAmount, no Amount) |  |
+| 2026-09-28T08:47 | sa-R7 | R7-tarot-extra-turn | assembler | 8970, 8666 | troop:7552 TwoOfSwords；troop:7126 TheFool | `src/engine/skills/curated/batch-r4.ts`<br>`src/engine/skills/curated/batch-r5.ts` | extra-turn chance 7% base + 7% per gem → 7% per gem only (native ExtraTurnConditional UseCounterForAmount, no Amount) |  |
+| 2026-09-28T08:53 | sa-R7 | R7-b11-defs | assembler | 8595, 8439, 8861 | troop:7067 TheStar；weapon:1376 AnkhOfNefertani；troop:7287 TheWheelOfFortune | `src/engine/skills/curated/batch-27.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/engine/skills/curated/batch-r19.ts` | 8595 gave Mana; 8439 healed + quarter mana to all allies; 8861 extra-turn chance counted on the refilled board after Remove all Gems → 8595 gives Magic (IncreaseSpellPower); 8439 chosen ally only (FromTarget); 8861 chance counted before the removal (CountGems step 0) |  |
+| 2026-09-28T08:57 | sa-R7 | R7-6205-steal-order | assembler | 7347 | troop:6205 MorthanisWill | `src/engine/skills/curated/batch-r15.ts` | steal Armor -> my Magic; true damage before the mana drain (a killed target was never drained) → StealArmor -> my Armor; native order steal, drain all + gain half, then TrueDamage 4 (R001) |  |
+| 2026-09-28T08:57 | sa-R7 | R7-7800-prefnotprev | assembler | 9839 | troop:7800 ImmortalTrogolin | `src/engine/skills/curated/batch-r11.ts` | enemyRandomN n:3 (three distinct enemies; lone enemy hit once) → RandomEnemy + 2 x RandomPrefNotPrevEnemy (R007-3): each hit avoids only the previous; lone enemy hit three times |  |
+| 2026-09-28T09:02 | sa-R7 | R7-guardian-potions | assembler | 8601, 8606, 8603, 8605 | troop:7073 JakalTheGuardian；troop:7078 AransiTheGuardian；troop:7075 UrielleTheGuardian；troop:7077 RokGarTheGuardian | `src/engine/skills/curated/batch-r8.ts` | 'Create 1-3 <colour> Mana Potions' created plain colour gems; 8606 poison uniform 1-3 distinct targets → manaPotionGem of that colour (native CreateGemsRange <Colour>ManaPotion, same as 8604); 8606 RandomEnemy + 2 x 50% RandomPrefNotPrevEnemy |  |
+| 2026-09-28T09:02 | sa-R7 | R7-1460-burning-gems | assembler | 8761 | weapon:1460 TheMoltenWard | `src/engine/skills/curated/batch-w03.ts` | Armor boosted by the number of Burning enemies → boosted by Burning gems on the board (native CountSet + CountGems Burning 100); extra-turn step before the armor (native order) |  |
+| 2026-09-28T09:07 | sa-R7 | R7-b14-status-counts | assembler | 8139, 8488, 7410 | troop:6759 KingGobtruffle；troop:6984 TheScourgeOfHonor；weapon:1144 SpiderTotem | `src/engine/skills/curated/batch-p38.ts`<br>`src/engine/skills/curated/batch-p37.ts`<br>`src/engine/skills/curated/batch-w01.ts` | 8139 damage boosted by Poisoned/Diseased enemies, mix fixed 14 (ZH too); 8488 mana counted after the true damage (killed enemies lost); 7410 extra turn if any enemy Webbed after this spell's Web (always) → 8139 mix 14 + poisoned + diseased, created before the unboosted damage; 8488 mana gain before the damage; 7410 extra turn iff the target was Webbed before this spell's Web |  |
 
 ## 按技能 ID
 
@@ -364,6 +390,7 @@
 | 7339 | 1 | F1-items-62-75 |
 | 7340 | 1 | P-random-stat-pool |
 | 7345 | 1 | F2-6203-no-cleanse |
+| 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7349 | 2 | F1-remove-order、P-F1-remove-gems |
 | 7353 | 1 | L7-6211 |
@@ -384,7 +411,10 @@
 | 7395 | 1 | L3-011 |
 | 7396 | 1 | F3-q25 |
 | 7399 | 1 | P-chooser-native-restrictions |
+| 7402 | 1 | R7-6259-chosen-ally |
 | 7408 | 1 | F2-6265-dispel-last |
+| 7410 | 1 | R7-b14-status-counts |
+| 7415 | 1 | R7-6269-chosen-daemon |
 | 7418 | 1 | L7-R1-random-chain-waves |
 | 7431 | 1 | L3-002 |
 | 7434 | 1 | F2-R001-order |
@@ -395,6 +425,7 @@
 | 7443 | 1 | F2-R001-order |
 | 7444 | 2 | L5-010、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 7454 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
+| 7457 | 1 | R7-not-board-misread |
 | 7460 | 1 | P-F1-oneof-chosen-target |
 | 7470 | 1 | P-counter-per-step |
 | 7473 | 1 | F1-items-62-75 |
@@ -459,7 +490,9 @@
 | 7797 | 1 | L4a-R1-7797-order |
 | 7804 | 1 | L4a-R1-no-base-7804-8423 |
 | 7805 | 1 | F3-t1210 |
+| 7808 | 1 | R7-6599-full-or |
 | 7864 | 1 | L7-R1-attack-armor-life-pooled |
+| 7866 | 1 | R7-1219-create-before-hit |
 | 7928 | 1 | L4a-R1-7928-allnegative |
 | 7929 | 1 | R3-B04-1221 |
 | 7930 | 1 | P-counter-per-step |
@@ -470,24 +503,30 @@
 | 7941 | 1 | F2-6623-column-order |
 | 7945 | 1 | P-prefnotprev-semantics |
 | 7947 | 1 | L1-1351-pool |
-| 7952 | 2 | L3-015、L3-016 |
-| 7963 | 2 | L3-015、L3-016 |
+| 7952 | 3 | L3-015、L3-016、R7-doomed-count-order |
+| 7963 | 3 | L3-015、L3-016、R7-doomed-count-order |
 | 7964 | 1 | L4a-R1-7230-7964-count |
-| 7973 | 2 | L3-015、L3-016 |
+| 7973 | 3 | L3-015、L3-016、R7-doomed-count-order |
 | 7975 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 7978 | 1 | L5-013 |
+| 7982 | 1 | R7-doomed-support-counters |
 | 7983 | 1 | P-counter-per-step |
 | 8024 | 1 | P-prefnotprev-semantics |
 | 8032 | 1 | F2-R001-order |
 | 8035 | 1 | F2-R001-order |
 | 8039 | 1 | L4a-R1-cross-8039-9952 |
+| 8047 | 1 | R7-doomed-support-counters |
+| 8050 | 1 | R7-doomed-support-counters |
 | 8052 | 1 | R3-B03-1247 |
-| 8053 | 2 | L3-015、L3-016 |
+| 8053 | 3 | L3-015、L3-016、R7-doomed-count-order |
 | 8055 | 1 | L7-R1-random-chain-waves |
 | 8073 | 1 | L7-R1-random-chain-waves |
 | 8076 | 1 | R3-B01-1256 |
-| 8077 | 2 | L3-015、L3-016 |
-| 8078 | 2 | L3-015、L3-016 |
+| 8077 | 3 | L3-015、L3-016、R7-doomed-count-order |
+| 8078 | 3 | L3-015、L3-016、R7-doomed-count-order |
+| 8079 | 1 | R7-doomed-support-counters |
+| 8080 | 1 | R7-doomed-support-counters |
+| 8081 | 1 | R7-doomed-support-counters |
 | 8083 | 1 | L7-R1-lethal-order-doomskull |
 | 8084 | 1 | L5-007 |
 | 8097 | 1 | F3-q06 |
@@ -496,7 +535,7 @@
 | 8113 | 1 | P-counter-per-step |
 | 8130 | 1 | F3-t1272 |
 | 8133 | 1 | F2-6754-no-explode |
-| 8139 | 1 | P-counter-per-step |
+| 8139 | 2 | P-counter-per-step、R7-b14-status-counts |
 | 8150 | 1 | F2-R001-order |
 | 8155 | 1 | R3-B07-1279 |
 | 8160 | 1 | P-prefnotprev-semantics |
@@ -511,6 +550,7 @@
 | 8219 | 1 | P-counter-per-step |
 | 8228 | 3 | P-counter-per-step、F2-6826-kill-skulls、P-counter-per-step |
 | 8234 | 2 | L4b-6824-random-ally、P-chooser-native-restrictions |
+| 8235 | 1 | R7-6825-ratio |
 | 8236 | 1 | R3-B11-6831 |
 | 8238 | 3 | P-counter-per-step、L7-R1-attack-armor-life-pooled、P-counter-per-step |
 | 8241 | 1 | R3-B11-6831 |
@@ -534,8 +574,10 @@
 | 8393 | 2 | L5-013、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8403 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 8404 | 3 | L5-001、L5-002、L5-003 |
+| 8406 | 1 | R7-6928-zh-count |
 | 8407 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8410 | 1 | P-prefnotprev-semantics |
+| 8413 | 1 | R7-6925-two-hits |
 | 8414 | 1 | F1-items-62-75 |
 | 8415 | 1 | R3-B04-6934 |
 | 8420 | 1 | L4a-R1-8420-cross |
@@ -543,12 +585,14 @@
 | 8423 | 1 | L4a-R1-no-base-7804-8423 |
 | 8436 | 1 | R3-B01-1374 |
 | 8438 | 1 | F1-6931-dispel |
+| 8439 | 1 | R7-b11-defs |
 | 8440 | 2 | P-random-stat-pool、F1-1377-target |
 | 8458 | 1 | L2-6958-order |
 | 8467 | 1 | L4a-R1-8467-target-count |
 | 8468 | 1 | F2-R001-order |
 | 8472 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 8473 | 1 | P-F1-remove-gems |
+| 8488 | 1 | R7-b14-status-counts |
 | 8491 | 1 | P-chooser-native-restrictions |
 | 8495 | 1 | R3-B08-6985 |
 | 8497 | 1 | F2-6991-explode-mult |
@@ -566,10 +610,16 @@
 | 8570 | 1 | L7-7045 |
 | 8580 | 1 | L3-015 |
 | 8586 | 1 | F2-R001-order |
+| 8589 | 1 | R7-7061-no-base |
+| 8595 | 1 | R7-b11-defs |
 | 8596 | 1 | L4b-7068-potion-colour |
 | 8597 | 1 | P-steal-to-life |
 | 8598 | 3 | L3-007、L3-008、L3-009 |
 | 8599 | 1 | L4b-7071-base |
+| 8601 | 1 | R7-guardian-potions |
+| 8603 | 1 | R7-guardian-potions |
+| 8605 | 1 | R7-guardian-potions |
+| 8606 | 1 | R7-guardian-potions |
 | 8624 | 2 | P-counter-per-step、L7-R1-teamsize-source |
 | 8625 | 1 | F1-items-54-60 |
 | 8626 | 2 | P-counter-per-step、L7-R1-teamsize-source |
@@ -592,6 +642,8 @@
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
+| 8666 | 1 | R7-tarot-extra-turn |
+| 8667 | 1 | R7-tarot-extra-turn |
 | 8668 | 2 | L5-007、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8672 | 1 | R3-B06-7128 |
 | 8674 | 2 | P-counter-per-step、L7-R1-board-special-counts |
@@ -605,6 +657,7 @@
 | 8751 | 2 | P-counter-per-step、P-counter-per-step |
 | 8752 | 2 | L5-008、R004 (L5-004,L5-005,L5-014,L4b-6340) |
 | 8755 | 1 | F2-R001-order |
+| 8761 | 1 | R7-1460-burning-gems |
 | 8767 | 1 | L7-R1-weapon-colour-race |
 | 8776 | 1 | R3-B03-1474 |
 | 8782 | 1 | L4b-7195-order |
@@ -613,11 +666,13 @@
 | 8788 | 1 | L7-7201 |
 | 8795 | 1 | L3-003 |
 | 8797 | 1 | L4b-7210-doomskull |
+| 8798 | 1 | R7-7211-gargoyle-count |
 | 8802 | 1 | F3-t7215 |
 | 8807 | 1 | F2-R001-order |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8815 | 1 | L7-R1-board-special-counts |
 | 8820 | 1 | P-counter-per-step |
+| 8824 | 1 | R7-not-board-misread |
 | 8830 | 1 | R009-giant-dragon-L4b |
 | 8832 | 1 | R009-giant-dragon-L4b |
 | 8841 | 1 | L4a-R1-8841-random-explode |
@@ -627,8 +682,10 @@
 | 8847 | 1 | R009-giant |
 | 8848 | 1 | R009-giant |
 | 8849 | 1 | R009-giant |
+| 8850 | 1 | R7-dragon-convert-extra-turn |
 | 8854 | 1 | P-prefnotprev-semantics |
 | 8859 | 1 | P-random-stat-pool |
+| 8861 | 1 | R7-b11-defs |
 | 8872 | 1 | L4b-1487-1488 |
 | 8873 | 1 | L4b-1487-1488 |
 | 8881 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
@@ -641,6 +698,7 @@
 | 8895 | 1 | F1-items-62-75 |
 | 8901 | 2 | L4b-7276-singlegem、P-chooser-native-restrictions |
 | 8902 | 1 | L4b-7277-7094 |
+| 8917 | 1 | R7-tarot-extra-turn |
 | 8924 | 1 | F2-R001-order |
 | 8933 | 1 | F2-7321-no-events |
 | 8939 | 1 | R3-B02-7327 |
@@ -649,10 +707,12 @@
 | 8961 | 1 | F2-7338-cross-skulls |
 | 8967 | 1 | P-random-stat-pool |
 | 8969 | 1 | L7-7344 |
-| 8970 | 1 | P-prefnotprev-semantics |
+| 8970 | 2 | P-prefnotprev-semantics、R7-tarot-extra-turn |
 | 8972 | 1 | R3-B05-1528 |
+| 8974 | 1 | R7-tarot-extra-turn |
 | 8979 | 1 | F1-onkill-order |
 | 8987 | 1 | P-counter-per-step |
+| 9003 | 1 | R7-tarot-extra-turn |
 | 9008 | 1 | R009-giant-dragon-L4b |
 | 9013 | 1 | L7-R1-random-chain-waves |
 | 9015 | 2 | L5-001、L5-002 |
@@ -660,6 +720,7 @@
 | 9051 | 1 | L3-008 |
 | 9064 | 1 | P-counter-per-step |
 | 9067 | 1 | L3-008 |
+| 9115 | 1 | R7-tarot-extra-turn |
 | 9119 | 1 | P-create-interleave |
 | 9132 | 1 | R009-dragon |
 | 9133 | 1 | R009-dragon |
@@ -685,8 +746,10 @@
 | 9280 | 2 | P-prefnotprev-semantics、R3-B12-7262 |
 | 9281 | 1 | L7-7517 |
 | 9282 | 1 | F3-q37 |
+| 9283 | 1 | R7-tarot-extra-turn |
 | 9303 | 1 | L7-R1-weapon-colour-race |
 | 9306 | 1 | L7-R1-weapon-colour-race |
+| 9337 | 1 | R7-tarot-extra-turn |
 | 9352 | 1 | L7-R1-weapon-colour-race |
 | 9355 | 1 | L7-R1-weapon-colour-race |
 | 9363 | 1 | F2-R001-order |
@@ -706,6 +769,13 @@
 | 9512 | 1 | P-counter-per-step |
 | 9513 | 1 | L3-007 |
 | 9514 | 1 | P-random-stat-pool |
+| 9515 | 1 | R7-dragon-convert-extra-turn |
+| 9516 | 1 | R7-dragon-convert-extra-turn |
+| 9517 | 1 | R7-dragon-convert-extra-turn |
+| 9518 | 1 | R7-dragon-convert-extra-turn |
+| 9519 | 1 | R7-dragon-convert-extra-turn |
+| 9520 | 1 | R7-dragon-convert-extra-turn |
+| 9521 | 1 | R7-dragon-convert-extra-turn |
 | 9522 | 2 | L7-7615、P-counter-per-step |
 | 9523 | 1 | L2-1620-random-bleed |
 | 9524 | 1 | L2-1620-random-bleed |
@@ -718,9 +788,11 @@
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |
 | 9547 | 1 | P-counter-per-step |
+| 9550 | 1 | R7-7646-target-colour |
 | 9563 | 1 | R3-B10-7650 |
 | 9573 | 1 | L4b-1625-1674-any |
 | 9578 | 1 | L7-R1-weapon-colour-race |
+| 9579 | 1 | R7-1631-counter-only-drain |
 | 9589 | 1 | L7-R1-random-chain-waves |
 | 9591 | 1 | P-counter-per-step |
 | 9597 | 1 | P-counter-per-step |
@@ -736,6 +808,7 @@
 | 9646 | 1 | R3-B10-7688 |
 | 9647 | 1 | L4b-1646-prefnotprev |
 | 9659 | 2 | P-prefnotprev-semantics、L4a-R1-9659-prefnotprev |
+| 9660 | 1 | R7-7691-count150-floor |
 | 9661 | 1 | F3-q19 |
 | 9666 | 1 | P-chooser-native-restrictions |
 | 9673 | 1 | P-counter-per-step |
@@ -752,8 +825,10 @@
 | 9776 | 1 | P-prefnotprev-semantics |
 | 9784 | 1 | L3-007 |
 | 9809 | 1 | L4a-R1-immortal-order |
+| 9811 | 1 | R7-1667-drain-order |
 | 9816 | 1 | L3-012 |
 | 9831 | 1 | L4b-1625-1674-any |
+| 9839 | 1 | R7-7800-prefnotprev |
 | 9842 | 1 | L4b-1682-order |
 | 9844 | 1 | F1-items-62-75 |
 | 9847 | 1 | L3-015 |

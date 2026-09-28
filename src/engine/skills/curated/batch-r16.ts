@@ -160,11 +160,13 @@ const SPELLS: CuratedBatch['spells'] = [
     // CountGems Blue 300 供 ExtraTurnConditional：几率 = 10% + 每 300 颗 +10 个百分点（ratio 300:10，官方步骤精确口径，[x3] 即该计数词）；灵石 = spiritGem（波B 落地）
     build: skill(
       dmg('enemyAll', 6, 2.75, { range: 'all' }),
-      transformToSpecial(BaseColor.Blue, 'spiritGem', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({
         chance: 0.1,
-        chanceBoost: { mod: { kind: 'ratio', a: 300, b: 10 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
+        // sa-R7: CountGems Blue 300 = +3 percentage points per Blue gem ([x3], R003); was ratio 300:10.
+        chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
       }),
+      transformToSpecial(BaseColor.Blue, 'spiritGem', { count: 5 }),
     ),
   },
   {

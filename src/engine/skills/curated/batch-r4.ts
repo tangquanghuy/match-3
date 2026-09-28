@@ -355,8 +355,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [(魔法 x 2) + 6] 点伤害，伤害值因骷髅头数而增强。将 5 颗骷髅头转换成末日骷髅头。有 10% 的几率获得一个额外回合，几率因骷髅头数而增强。 [x3]',
     build: skill(
       dmg('enemyAll', 6, 2, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } } }),
-      transformToSpecial('SKULL', 'doomSkull', { count: 5 }),
+      // sa-R7: native CountGems is step 0 -> extra-turn chance counted before the gem change (R001).
       extraTurn({ chance: 0.1, chanceBoost: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'boardSkulls' } } }),
+      transformToSpecial('SKULL', 'doomSkull', { count: 5 }),
     ),
   },
   {
@@ -395,23 +396,29 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '为 2 名盟友提供 3 点护甲。棋盘上每有一颗黄色宝石，就有 7% 的几率获得额外回合。 [x7]',
     build: skill(
       armor('allyRandomPrefNotPrevN', 3, 0, { n: 2 }),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
+      // sa-R7: ExtraTurnConditional has no base Amount -> 7% x Yellow gems only (was 7% base + boost).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } }),
     ),
   },
   {
     id: 8974,
     desc: '创造 2 颗死亡印记宝石。板面上每有一颗紫色宝石，则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: native CountGems Purple 700 is step 0 and ExtraTurnConditional has no base Amount:
+      // chance = 7% x Purple gems counted before the creation (was 7% base + boost, counted after).
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
       createSpecialGems({ kind: 'deathMarkGem' }, 2),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Purple } } }),
     ),
   },
   {
     id: 9003,
     desc: '创造 2 颗赃物宝石。板面上每有一颗蓝色宝石则有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
+      // sa-R7: native CountGems Blue 700 is step 0 and ExtraTurnConditional has no base Amount:
+      // chance = 7% x Blue gems counted before the creation (was 7% base + boost, counted after).
+      // Native CreateGems Booty Amount 1 vs English "2 Booty Gems": kept 2, issue L3-7363-booty-count.
+      extraTurn({ chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
       createSpecialGems({ kind: 'bootyGem' }, 2),
-      extraTurn({ chance: 0.07, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } }),
     ),
   },
   {

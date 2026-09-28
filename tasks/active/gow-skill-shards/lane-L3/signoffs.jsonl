@@ -41,3 +41,149 @@
 {"format":"compact","key":"troop:7443","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:31:29.858Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7444","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:31:29.859Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7445","decision":"accept","reviewer":"sa-R2","reviewedAt":"2026-09-28T02:31:29.859Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1229","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.569Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1233","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.570Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1248","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1257","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1258","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6925","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1236","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.571Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1242","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1245","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1226","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1259","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1260","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1261","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:06.572Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7646","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:45:18.042Z","issue":"P-R7-dead-last-target-cond","note":"fixed target colour gate (lastTargetColor, was anyEnemyColor); remaining: a Purple target killed by the hit must still refund half mana (native CountArmyColor@RandomEnemy before Damage), lastTarget conditions go false after the kill; repro it.fails in tests/unit/gowLaneL3R2.test.ts"}
+{"format":"compact","key":"weapon:1606","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.040Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1599","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.042Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1667","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.042Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1656","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.042Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1475","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6391","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6508","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6648","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1631","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1623","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:49:20.204Z","issue":"L3-005","note":"GenerateHalfManaConditional@AllAlliesButNotSelf (Immortal Selene): odd manaCost ally gets floor(cost/2) (13 -> 6); rounding unsourced, not in R006. Damage 2+M+4 x Purple gems and troopPresent gate verified."}
+{"format":"compact","key":"troop:6396","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.352Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6269","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.353Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7437","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.354Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7691","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.354Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6466","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.354Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6114","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.355Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6598","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.355Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7804","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.516Z","issue":"L3-005","note":"GenerateHalfManaConditional@AllAllies [AddForKill]: odd-cost ally gets floor(cost/2) (11 -> 5); rounding unsourced, not in R006. Centaur x2 damage and kill gate verified."}
+{"format":"compact","key":"troop:7319","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.614Z","issue":"L3-013","note":"GenerateRandomMana 8 (3-8) to other allies: one roll shared by all recipients vs per-ally roll unsourced. Other steps verified (7319 CountAttack 34 floor; 6259 fixed to chosen ally pre-buff Attack)."}
+{"format":"compact","key":"troop:6259","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:57:15.616Z","issue":"L3-013","note":"GenerateRandomMana 8 (3-8) to other allies: one roll shared by all recipients vs per-ally roll unsourced. Other steps verified (7319 CountAttack 34 floor; 6259 fixed to chosen ally pre-buff Attack)."}
+{"format":"compact","key":"troop:6317","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.720Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6424","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.721Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6710","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.721Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6792","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6852","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7060","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7085","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7502","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.722Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1219","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.723Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6878","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T05:59:17.723Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6906","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.006Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6199","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.007Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7608","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.007Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1362","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7657","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6072","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6599","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6862","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.008Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7062","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.158Z","issue":"R012-pending","note":"8590 Damage@AboveTarget after the chosen target may be killed by the first hit; K scenario drops the AboveTarget hit. Wait for R012."}
+{"format":"compact","key":"troop:6928","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:22:50.244Z","issue":"L3-005","note":"8406 GenerateQuarterMana to other allies: floor(manaCost/4) rounding unsourced (L3-005). Rest verified: x7 Red gems per full-Mana enemy (test), 15% self destruct; ZH desc fixed 8->7."}
+{"format":"compact","key":"troop:7088","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.614Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7107","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.615Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6825","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7244","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7527","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7211","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7305","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.616Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7346","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7421","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.617Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7363","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:28:35.795Z","issue":"L3-7363-booty-count","note":"9003 native CreateGems Booty Amount 1 vs English 'Create 2 Booty Gems' (ZH 2); runtime creates 2. Which wins? Rest verified: extra-turn 7% x Blue gems counted before creation (fixed, test)."}
+{"format":"compact","key":"troop:7526","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.811Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7551","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7841","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7843","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7844","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.812Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7839","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7842","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7840","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7845","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7042","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:31:32.813Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7251","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.889Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7616","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7617","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7618","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7619","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7620","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7621","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7429","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7622","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.892Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7775","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:35:11.892Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"1","mode":"boss"}]}
+{"format":"compact","key":"troop:6861","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.889Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7103","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.890Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"1","mode":"tower"}]}
+{"format":"compact","key":"troop:7035","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7061","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.890Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7720","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7052","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7193","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7264","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7168","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7229","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.891Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6307","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:44:13.892Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7701","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.800Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7816","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.801Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7552","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.801Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7630","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.801Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7233","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.801Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7633","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7743","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7631","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7096","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7662","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7126","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:47:28.802Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7772","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.843Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7868","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.844Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7629","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.844Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7067","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.844Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7189","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7387","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7413","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7628","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:50.845Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1376","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:51.024Z","issue":"L3-005","note":"8439 GenerateQuarterMana@FromTarget: floor(manaCost/4) rounding unsourced (L3-005). Rest verified after fix: chosen ally only, Life 1 + Magic + 2/Brown gem (test)."}
+{"format":"compact","key":"troop:7287","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:53:51.115Z","issue":"L3-remove-all-skulls","note":"8861 native RemoveGems 100 (EN 'Remove all Gems') assembled as destroyAllColors, which leaves Skulls on the board (L10: 5 skulls kept); same for 7137. Does 'all Gems' include Skulls? Extra-turn count moved before the removal (fixed, test)."}
+{"format":"compact","key":"troop:6978","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.515Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7462","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6600","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6473","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6205","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6322","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.516Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1212","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.517Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6314","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:04.517Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6691","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:07.014Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"1","mode":"boss"}]}
+{"format":"compact","key":"troop:7800","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T08:59:09.498Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"Broken Lands x2 = condMult regionPresent (not exercisable in castSpell); 3 PrefNotPrev hits + wish x2 tested"}
+{"format":"compact","key":"weapon:1214","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.564Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1460","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7073","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7076","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7078","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7075","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.566Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7077","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.567Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7172","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:04.567Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6718","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:07.113Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"1","mode":"tower"}]}
+{"format":"compact","key":"troop:7365","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:03:07.115Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"1","mode":"tower"}]}
+{"format":"compact","key":"troop:6759","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.320Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7359","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.321Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6984","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.321Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7109","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.321Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1559","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.321Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7613","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.321Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7812","decision":"accept","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.322Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1144","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.502Z","issue":"P-R7-dead-last-target-cond","note":"extra turn from the target's status counted at step 0; a Webbed/Marked target killed by the hit loses it (lastTargetStatus on a defeated unit). 1144 fixed: target itself, before this spell's Web. Rest verified (tests)."}
+{"format":"compact","key":"troop:6386","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.503Z","issue":"P-R7-dead-last-target-cond","note":"extra turn from the target's status counted at step 0; a Webbed/Marked target killed by the hit loses it (lastTargetStatus on a defeated unit). 1144 fixed: target itself, before this spell's Web. Rest verified (tests)."}
+{"format":"compact","key":"troop:7405","decision":"issue","reviewer":"sa-R7","reviewedAt":"2026-09-28T09:07:29.604Z","issue":"L3-013","note":"9055 GenerateRandomMana 10 to other allies: one roll shared vs per-ally (L3-013). Blessed allies x4 damage boost verified by trace."}
