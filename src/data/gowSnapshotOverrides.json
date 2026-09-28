@@ -76,6 +76,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
     },
+    "6482": {
+      "spellId": 7669,
+      "reason": "sa-A r8: English 'Destroy 8 Gems of a chosen color. Deal [Magic + 5] true damage to each enemy of that color.'; stored Chinese says 珠宝 (jewels) and drops 'true' damage.",
+      "spellDescription": "摧毁 8 颗选定颜色的宝石。对每一个使用该颜色的敌人造成 [魔法 + 5] 点真实伤害。"
+    },
     "6510": {
       "spellId": 7700,
       "reason": "English Pharaoh Hound + native: CreateGems 8 Purple ; CreateGems 8 Red (16 gems), not a mix of 8.",

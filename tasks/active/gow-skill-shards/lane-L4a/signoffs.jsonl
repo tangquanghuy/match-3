@@ -385,3 +385,8 @@
 {"format":"compact","key":"troop:6291","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:44:53.335Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6040","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:44:53.336Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6084","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:44:53.336Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6485","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.669Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6482","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.670Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6709","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.670Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6923","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.671Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6312","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T21:46:58.671Z","tests":["tests/unit/gowCastGolden.test.ts"]}

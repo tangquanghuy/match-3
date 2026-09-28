@@ -69,3 +69,8 @@
 - troop:6291 accept
 - troop:6040 accept
 - troop:6084 accept
+- troop:6485 accept
+- troop:6482 fix(zh gems + true damage, snapshot override)
+- troop:6709 accept (native Curse/Stun/Bleed order)
+- troop:6923 accept
+- troop:6312 fix(destroy 1+M include all)

@@ -593,7 +593,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7669,
-    desc: "摧毁 8 颗选定颜色的珠宝。对每一个使用其颜色的敌人造成 [魔法 + 5] 点伤害。",
+    desc: "摧毁 8 颗选定颜色的宝石。对每一个使用该颜色的敌人造成 [魔法 + 5] 点真实伤害。",
     // 【挽救】「摧毁 8 颗选定颜色宝石」= destroyRandomGems 限色 CHOSEN；「对每一个使用其颜色的敌人」= enemyAll + trueDamage + CHOSEN_COLOR（r11 8180 动态色口径）
     build: skill(
       destroyRandomGems(8, 0, 'color', CHOSEN),

@@ -301,3 +301,38 @@ describe('L4a R8 B11', () => {
     expect(r.summary.economy.gold).toBe(5);
   });
 });
+
+describe('L4a R8 B12', () => {
+  // troop:6485 (7672): DestroyColor chosen all ; IncreaseHealth@FromManaColor 1+M ; IncreaseSpellPower@FromManaColor 4.
+  it('troop:6485 buffs only allies using the chosen colour', () => {
+    const allies = [{ colors: [BaseColor.Blue] }, { colors: [BaseColor.Red] }];
+    const r = castSpell({ key: 'troop:6485', allies: allies as never, caster: { colors: [BaseColor.Green] } });
+    const buffs = r.summary.order.filter(o => o.startsWith('buff'));
+    expect(buffs.every(b => b.startsWith('buff A1 '))).toBe(true);
+    expect(buffs).toContain('buff A1 magic+4');
+  });
+  // troop:6482 (7669): DestroyColor chosen 8 ; TrueDamage@FromManaColorEnemy 5+M (E11 uses Blue).
+  it('troop:6482 true-damages only enemies using the chosen colour', () => {
+    const r = castSpell({ key: 'troop:6482' });
+    expect(r.summary.order[0]).toBe('destroy 8 (Blue x8)');
+    expect(r.summary.order.filter(o => o.startsWith('dmg'))).toEqual(['dmg E11 15 (all)']);
+  });
+  // troop:6709 (8066): DestroyGems Block5x5 (chosen) ; Curse ; Stun ; Bleed @FrontEnemy (native order).
+  it('troop:6709 destroys a 5x5 block, then Curse, Stun, Bleed on the front enemy', () => {
+    const r = castSpell({ key: 'troop:6709' });
+    expect(r.summary.order[0]).toMatch(/^destroy 25 /);
+    expect(r.summary.order.filter(o => o.startsWith('status'))).toEqual(['status E10 +curse', 'status E10 +stun', 'status E10 +bleed']);
+  });
+  // troop:6923 (8390): DestroyGems Diagonals ; Enchant RandomAlly then RandomPrefNotPrevAlly.
+  it('troop:6923 Enchants two different allies when possible', () => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const st = castSpell({ key: 'troop:6923', seed }).summary.order.filter(o => o.startsWith('status'));
+      expect(st).toHaveLength(2); expect(new Set(st).size).toBe(2);
+    }
+  });
+  // troop:6312 (7462): DestroyGems 1+M (any gem incl. Skulls) ; Entangle random enemy.
+  it('troop:6312 destroys 11 random gems, Skulls eligible', () => {
+    const r = castSpell({ key: 'troop:6312', board: skullBoard });
+    expect(r.summary.order[0]).toMatch(/^destroy 11 .*skull/);
+  });
+});

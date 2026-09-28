@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 551 条改动，涉及 1004 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 553 条改动，涉及 1006 个技能 ID。
 
 ## 按时间
 
@@ -557,6 +557,8 @@
 | 2026-09-28T21:41 | sa-A | L4a-R8-random-any-gem | assembler | 7001 | troop:6099 Warhound | `src/engine/skills/curated/batch-11.ts` | 7001 explode 2 include color → include all (any gem, R013-5) |  |
 | 2026-09-28T21:44 | sa-A | L4a-R8-random-any-gem | assembler | 8957 | troop:7334 Eleanor | `src/engine/skills/curated/batch-04.ts` | 8957 destroy 8 random include color → include all ('Destroy 8 random Gems', R013-5) |  |
 | 2026-09-28T21:44 | sa-A | L4a-R8-7019-zh | data | 8526 | troop:7019 Cloakmantle | `src/engine/skills/curated/batch-r11.ts`<br>`src/data/gowSnapshotOverrides.json` | 8526 zh '敌人队伍使用对多的颜色宝石' → zh '敌方队伍使用最多的法力颜色的宝石' + snapshot override |  |
+| 2026-09-28T21:46 | sa-A | L4a-R8-6482-zh | data | 7669 | troop:6482 Shocktopus | `src/engine/skills/curated/batch-r18.ts`<br>`src/data/gowSnapshotOverrides.json` | 7669 zh '珠宝' and plain damage → zh '宝石' + '真实伤害' + snapshot override |  |
+| 2026-09-28T21:46 | sa-A | L4a-R8-random-any-gem | assembler | 7462 | troop:6312 Bogstrider | `src/engine/skills/curated/batch-01.ts` | 7462 destroy 1+M include color → include all (R013-5) |  |
 
 ## 按技能 ID
 
@@ -727,6 +729,7 @@
 | 7457 | 1 | R7-not-board-misread |
 | 7458 | 1 | P-R3-precast-compare |
 | 7460 | 1 | P-F1-oneof-chosen-target |
+| 7462 | 1 | L4a-R8-random-any-gem |
 | 7463 | 1 | L2-board-chosen |
 | 7470 | 1 | P-counter-per-step |
 | 7471 | 1 | B5-L4b-6321-more-magic |
@@ -793,6 +796,7 @@
 | 7662 | 1 | P-E-faction-kingdom |
 | 7666 | 1 | P-prefnotprev-semantics |
 | 7668 | 1 | L3-010 |
+| 7669 | 1 | L4a-R8-6482-zh |
 | 7670 | 1 | P-F3-prehit-target-compare |
 | 7685 | 1 | L1-6498-summon-dist |
 | 7692 | 1 | P-E-faction-kingdom |

@@ -205,7 +205,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7462,
     desc: '摧毁 [魔法 + 1] 颗宝石并缠绕一名随机敌人。',
     build: skill(
-      destroyRandomGems(1, 1, 'color'),
+      destroyRandomGems(1, 1, 'all'), // native DestroyGems 1+M: any gem (R013-5)
       inflict('entangle', 'enemyRandom'),
     ),
   },

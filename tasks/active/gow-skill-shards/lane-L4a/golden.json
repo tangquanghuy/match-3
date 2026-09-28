@@ -339,6 +339,16 @@
   "by": "sa-A",
   "at": "2026-09-28T10:26:04.185Z"
  },
+ "troop:6312": {
+  "lines": {
+   "L10": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; ~cascade~ ; status E10 +entangle  => A2:mana+3 | E10:arm-1 +entangle  cascade",
+   "R10": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; ~cascade~ ; status E10 +entangle  => A2:mana+3 | E10:arm-1 +entangle  cascade",
+   "L0": "destroy 1 (Green x1) ; status E13 +entangle  => E13:+entangle",
+   "K": "destroy 11 (Green x3, Purple x4, skull x1, Red x1, Yellow x2) ; skulls E10 1 ; defeat E10 ; ~cascade~ ; status E11 +entangle  => A2:mana+3 | E10:hp-1 DEAD | E11:+entangle  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:46:58.517Z"
+ },
  "troop:6316": {
   "lines": {
    "L10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; ~cascade~ ; extra-turn match  => A2:mana+4 | E10:hp-2 arm-5  extra:match  cascade",
@@ -559,6 +569,26 @@
   "by": "sa-A",
   "at": "2026-09-28T21:12:11.254Z"
  },
+ "troop:6482": {
+  "lines": {
+   "L10": "destroy 8 (Blue x8) ; dmg E11 15 (all)  => A1:mana+8 | E11:hp-15",
+   "R10": "destroy 8 (Blue x8) ; dmg E11 15 (all)  => A1:mana+8 | E11:hp-15",
+   "L0": "destroy 8 (Blue x8) ; dmg E11 5 (all)  => A1:mana+8 | E11:hp-5",
+   "K": "destroy 8 (Blue x8)  => A1:mana+8"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:46:58.517Z"
+ },
+ "troop:6485": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 hp+11 max+11 ; buff A1 magic+4  => A1:hp+11 max+11 mag+4 mana+11  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 hp+11 max+11 ; buff A1 magic+4  => A1:hp+11 max+11 mag+4 mana+11  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 hp+1 max+1 ; buff A1 magic+4  => A1:hp+1 max+1 mag+4 mana+11  cascade",
+   "K": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 hp+11 max+11 ; buff A1 magic+4  => A1:hp+11 max+11 mag+4 mana+11  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:46:58.517Z"
+ },
  "troop:6500": {
   "lines": {
    "L10": "dmg E11 14 ; explode 24 ; skulls E10 3 ; ~cascade~  => E11:hp-4 arm-10 | A1:mana+1 | E10:arm-3  cascade",
@@ -758,6 +788,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T03:01:49.305Z"
+ },
+ "troop:6709": {
+  "lines": {
+   "L10": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; ~cascade~ ; status E10 +curse ; status E10 +stun ; status E10 +bleed  => A2:mana+4 | A1:mana+5 | E10:arm-2 +curse+stun+bleed -rage  cascade",
+   "R10": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; ~cascade~ ; status E10 +curse ; status E10 +stun ; status E10 +bleed  => A2:mana+4 | A1:mana+5 | E10:arm-2 +curse+stun+bleed -rage  cascade",
+   "L0": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; ~cascade~ ; status E10 +curse ; status E10 +stun ; status E10 +bleed  => A2:mana+4 | A1:mana+5 | E10:arm-2 +curse+stun+bleed -rage  cascade",
+   "K": "destroy 25 (Green x5, Purple x2, Red x4, Blue x5, Brown x4, skull x2, Yellow x3) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; status E11 +curse ; status E11 +stun ; status E11 +bleed  => A2:mana+4 | A1:mana+5 | E10:hp-1 DEAD | E11:+curse+stun+bleed  cascade"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:46:58.517Z"
  },
  "troop:6720": {
   "lines": {
@@ -1008,6 +1048,16 @@
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:58:52.154Z"
+ },
+ "troop:6923": {
+  "lines": {
+   "L10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +enchanted ; status A2 +enchanted  => A2:mana+7 +enchanted | E10:arm-3 | C:+enchanted",
+   "R10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +enchanted ; status A2 +enchanted  => A2:mana+7 +enchanted | E10:arm-3 | C:+enchanted",
+   "L0": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +enchanted ; status A2 +enchanted  => A2:mana+7 +enchanted | E10:arm-3 | C:+enchanted",
+   "K": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; defeat E10 ; status C +enchanted ; status A2 +enchanted  => A2:mana+7 +enchanted | E10:hp-1 DEAD | C:+enchanted"
+  },
+  "by": "sa-A",
+  "at": "2026-09-28T21:46:58.517Z"
  },
  "troop:6927": {
   "lines": {
