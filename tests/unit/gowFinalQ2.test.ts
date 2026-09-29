@@ -164,3 +164,43 @@ describe('sa-Q2 B05: pre-cast compare, dead-target colour, Dragon gem counts', (
     expect(c.units.E12).toBe('hp-12'); // true damage ignores armor 12
   });
 });
+
+describe('sa-Q2 B06: Anubite Warrior order, Mudwalker, Khaomani, Assassin Vine (R016-2), R012 statuses', () => {
+  it('troop:6210 Anubite Warrior: Fortress Gate, then 1 + skulls Armor to all allies (incl. the gate), then remove the skulls', () => {
+    const s = castSpell({ key: 'troop:6210' }).summary;
+    expect(s.order[0]).toBe('summon mine troop:6097');
+    const i = s.order.findIndex(x => x.startsWith('destroy '));
+    const buffs = s.order.map((x, k) => [x, k] as const).filter(([x]) => x.startsWith('buff '));
+    expect(buffs.map(([x]) => x)).toEqual(['buff C armor+6', 'buff A1 armor+6', 'buff A2 armor+6', 'buff A14 armor+6']);
+    expect(buffs.every(([, k]) => k < i)).toBe(true);
+    expect(s.order[i]).toBe('destroy 5 (skull x5)');
+  });
+  it('troop:7643 Mudwalker: no Decay / Gargoyle gems -> [Magic + 4]', () => {
+    expect(castSpell({ key: 'troop:7643' }).summary.order).toEqual(['dmg E11 14']);
+  });
+  it('troop:7791 Immortal Khaomani: Blessed on other allies + enemies, caster excluded, x1.5', () => {
+    const bl = [{ id: 'blessed', turns: 3 }] as never;
+    const s = castSpell({ key: 'troop:7791', caster: { statuses: bl }, allies: [{ hp: 100, maxHp: 100, statuses: bl }],
+      enemies: [{ hp: 500, maxHp: 500, statuses: bl }, { hp: 500, maxHp: 500 }] }).summary;
+    // 2 + round(7.5) = 10 base, +1.5 x 2 = 13
+    expect(s.order.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 13 (all)', 'dmg E11 13 (all)']);
+  });
+  it('troop:7797 Assassin Vine: 30% kill only if already Entangled, rolled before the hit (R016-2)', () => {
+    let kills = 0;
+    for (let seed = 1; seed <= 40; seed++) {
+      const s = castSpell({ key: 'troop:7797', seed, enemies: [{ hp: 500, maxHp: 500 }, { hp: 900, maxHp: 900, statuses: [{ id: 'entangle', turns: 3 }] as never }] }).summary;
+      if (s.units.E11?.includes('DEAD')) { kills++; expect(s.order[0]).toMatch(/^dmg E11 \d+$/); }
+    }
+    expect(kills).toBeGreaterThan(4);
+    expect(kills).toBeLessThan(22);
+    const fresh = castSpell({ key: 'troop:7797' }).summary;
+    expect(fresh.order).toEqual(['dmg E11 13', 'status E11 +entangle', 'status E11 +bleed']);
+  });
+  it('troop:7818 Twisted Hag / weapon:1605 Sagittarian Bow: statuses above / below still land after the target dies (R012)', () => {
+    const K = { enemies: [0, 1, 2, 3].map(() => ({ hp: 1, maxHp: 1, armor: 0, mana: 5 })) };
+    const hag = castSpell({ key: 'troop:7818', ...K }).summary.order;
+    expect(hag.filter(x => x.startsWith('status '))).toEqual(['status E10 +curse', 'status E12 +curse', 'status E13 +curse', 'status E10 +bleed', 'status E12 +bleed', 'status E13 +bleed']);
+    const bow = castSpell({ key: 'weapon:1605', ...K }).summary.order;
+    expect(bow).toEqual(['dmg E11 25', 'defeat E11', 'status E12 +bleed', 'status E13 +bleed']);
+  });
+});

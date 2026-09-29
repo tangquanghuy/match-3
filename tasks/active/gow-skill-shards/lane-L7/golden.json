@@ -869,6 +869,16 @@
   "by": "sa-D",
   "at": "2026-09-28T10:20:58.346Z"
  },
+ "troop:7643": {
+  "lines": {
+   "L10": "dmg E11 14  => E11:hp-4 arm-10",
+   "R10": "dmg E11 14  => E11:hp-4 arm-10",
+   "L0": "dmg E11 4  => E11:arm-4",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T04:06:01.057Z"
+ },
  "troop:7651": {
   "lines": {
    "L10": "dmg E10 29 (all) ; dmg E11 29 (all) ; buff C hp+58 max+58  => E10:hp-29 | E11:hp-29 | C:hp+58 max+58",

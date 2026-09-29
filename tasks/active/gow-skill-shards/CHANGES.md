@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 702 条改动，涉及 1166 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 703 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -708,6 +708,7 @@
 | 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
 | 2026-09-29T03:52 | sa-Q2 | R012-pending | assembler | 7566 | troop:6410 Doomclaw | `src/engine/skills/curated/batch-r22.ts` | devour enemyAboveTarget / enemyBelowTarget 25% (whole column above then below) → native Consume@NextDownFromTarget then Consume@NextUpFromTarget 25% each (one troop each), R012 cast-start anchor |  |
 | 2026-09-29T04:01 | sa-Q2 | P-R3-dragon-gem-count | data | 9532 | troop:7627 DragonknightAmira | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 对末位 2 名对人造成… → zh: 对末位 2 名敌人造成… (English: the last two Enemies); snapshot override troops[7627] |  |
+| 2026-09-29T04:05 | sa-Q2 | L1-6210-armor-base | assembler | 7352 | troop:6210 AnubiteWarrior | `src/engine/skills/curated/batch-29.ts` | summon -> remove skulls -> armor 1 + destroyedGems (armor after the board settled) → native order: summon -> armor 1 + boardSkulls [1:1] (counted before removal) -> remove skulls; base 1 kept from English (dispute) |  |
 
 ## 按技能 ID
 
@@ -852,7 +853,7 @@
 | 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7349 | 2 | F1-remove-order、P-F1-remove-gems |
-| 7352 | 1 | R013-5 |
+| 7352 | 2 | R013-5、L1-6210-armor-base |
 | 7353 | 1 | L7-6211 |
 | 7354 | 1 | F1-steal-before-damage |
 | 7356 | 1 | L3-F-6214 |

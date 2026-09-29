@@ -19,3 +19,9 @@ at Magic 10, then golden approve + signoff accept (`--by sa-Q2`, test tests/unit
 - B05 troop:7597 (L4b): accept (P-F2-dead-target-colour fixed; boss/ascension c2 + step 0 waived R000)
 - B05 troop:7611, 7626 (L5): accept (P-R3-dragon-gem-count fixed)
 - B05 troop:7627 (L5): FIXED zh typo 对人 -> 敌人 (batch-r8 9532 desc + gowSnapshotOverrides troops[7627]), accept
+- B06 troop:6210 (L1): FIXED batch-29 7352 native order (armor 1 + boardSkulls before the remove), accept; dispute: native IncreaseArmor has no Amount vs English "Give 1 Armor", kept base 1
+- B06 troop:7643 (L7): accept (P-R4-gargoyle-tier-count fixed; boss c2 / step 3 waived R000)
+- B06 troop:7791 (L5): accept (P-R3-ally-status-excl-self fixed; 2 Blessed -> 13)
+- B06 troop:7797 (L5): accept per R016-2 (30% kill if already Entangled, roll before the hit)
+- B06 troop:7818, weapon:1605 (L5): accept (R012 fixed: statuses above/below land after the kill; 7818 boss c2 / step 1 waived)
+- done: 32 reviewed; accepted 31 (changed 3: 6410, 7627 zh, 6210); still issued 1 (troop:7116, P-Q2-chosen-stat-at-cast-start queued). Disputes kept: 7363 Booty 2 (English), 6210 Armor base 1 (English); R016 applied: 7797, 7308, 7309.
