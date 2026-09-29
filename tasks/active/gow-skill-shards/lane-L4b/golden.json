@@ -3299,6 +3299,56 @@
   "by": "sa-P",
   "at": "2026-09-29T03:58:33.524Z"
  },
+ "weapon:1249": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:58:53.132Z"
+ },
+ "weapon:1265": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:58:53.132Z"
+ },
+ "weapon:1267": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:58:53.132Z"
+ },
+ "weapon:1269": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:58:53.132Z"
+ },
+ "weapon:1271": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:58:53.132Z"
+ },
  "weapon:1280": {
   "lines": {
    "L10": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Yellow x9 -> doomSkull x9  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
