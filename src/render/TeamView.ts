@@ -9,10 +9,10 @@ import {
 } from './statusPresentation';
 import { statusRecoveryChance } from '@engine/skills/effects/status';
 import { traitCardGlyphs } from './traitBadges';
-import frostBorderUrl from '../assets/fx/frost_border_overlay.png';
-import frostVeinsUrl from '../assets/fx/frost_veins_overlay.png';
-import silenceSealUrl from '../assets/fx/silence_seal_overlay.png';
-import entangleVinesUrl from '../assets/fx/entangle_vines_overlay.png';
+import frostBorderUrl from '@assets/fx/frost_border_overlay.webp';
+import frostVeinsUrl from '@assets/fx/frost_veins_overlay.webp';
+import silenceSealUrl from '@assets/fx/silence_seal_overlay.webp';
+import entangleVinesUrl from '@assets/fx/entangle_vines_overlay.webp';
 
 /**
  * 方向 G · 胶片机能（Cinematic-Mecha）角色卡 —— DOM 实现。
@@ -764,7 +764,7 @@ function ensureStyles(): void {
     border-top:0;border-bottom:${Math.max(3, os(4))}px solid color-mix(in srgb,var(--sb) 78%,#ffffff)}
   .gcard .status-badge.sb-neg{border-style:solid;border-width:1px 1px 2px 1px}
 
-  /* 状态「中招」徽印（announceStatus）：素材 src/assets/fx/status-emblems，位于立绘之上、飘字之下 */
+  /* 状态「中招」徽印（announceStatus）：素材 game-assets/bundled/fx/status-emblems，位于立绘之上、飘字之下 */
   .gcard .status-emblem{position:absolute;left:50%;top:42%;width:62%;max-width:150px;aspect-ratio:1;object-fit:contain;
     z-index:11;pointer-events:none;opacity:0;will-change:transform,opacity;
     filter:drop-shadow(0 2px 4px rgba(0,0,0,.7)) drop-shadow(0 0 10px color-mix(in srgb,var(--em) 70%,transparent))}

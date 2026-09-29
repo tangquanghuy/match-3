@@ -51,7 +51,7 @@ describe('WangFeng / 禁典开扉', () => {
       expect(metaKnownTraitIds()).toContain(code);
     }
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('wangfeng.png');
+    expect(troop.artUrl).toContain('wangfeng.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
 
     const save = newSave({ now: 0, starterTroopIds: [] });

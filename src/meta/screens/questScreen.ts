@@ -136,7 +136,7 @@ function curvePath(pts: PinPt[], reached = pts.length): string {
 
 function portraitUrl(troopId: number): string | null {
   const troop = getTroopById(troopId);
-  return troop?.portrait ? `/meta/assets/portraits/${troop.portrait}.webp` : null;
+  return troop?.portrait ? `/static/portraits/${troop.portrait}.webp` : null;
 }
 
 function lineupOf(kingdom: string, mode: KingdomStageMode, node: number): EncounterEnemy[] {

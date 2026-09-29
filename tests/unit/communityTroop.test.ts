@@ -127,7 +127,7 @@ describe('Douglas · 时空裂隙', () => {
     expect(troop.manaColors).toEqual([BaseColor.Green, BaseColor.Blue, BaseColor.Purple]);
     expect(troop.manaCost).toBe(19);
     expect(troop.spell.name).toBe('拿铁涟漪');
-    expect(troop.artUrl).toContain('douglas.png');
+    expect(troop.artUrl).toContain('douglas.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
   });
 
@@ -201,7 +201,7 @@ describe('ciallo - community troop', () => {
     expect(troop.manaColors).toEqual([BaseColor.Blue, BaseColor.Yellow]);
     expect(troop.manaCost).toBe(15);
     expect(troop.spell.name).toBe('双龙助阵');
-    expect(troop.artUrl).toContain('ciallo.png');
+    expect(troop.artUrl).toContain('ciallo.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
   });
 
@@ -287,7 +287,7 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
     expect(troop.manaColors).toEqual([BaseColor.Green, BaseColor.Blue, BaseColor.Red]);
     expect(troop.manaCost).toBe(21);
     expect(troopArt(troop)).toBe(troop.artUrl);
-    expect(troop.artUrl).toContain('chikorita.png');
+    expect(troop.artUrl).toContain('chikorita.webp');
 
     const save = newSave({ now: 0, starterTroopIds: [] });
     grantTroop(save, CHIKORITA_ID);

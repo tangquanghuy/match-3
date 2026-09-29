@@ -13,10 +13,17 @@ artifacts
 # —— 2026-09-19 基线提交时明确的排除项（保持既有实践：大体积二进制资产不进版本库）——
 # 本地临时/调试目录
 tmp/
-# 官方原始抓取数据（457MB：1828 张立绘 + 双语 json dump）；public/meta/assets/portraits 是它的目录联接
+# GoW 官方原始抓取数据（立绘 + 双语 json dump；只作参考，游戏不直接使用）
 data/raw/
-# 运行时美术资产（131MB：地图瓦片/fx 序列帧/世界地图/718 张武器卡面 + portraits 联接）
-# 历史实践即如此（PARALLEL-WORK 台账原文：718 张卡面「本地不进 git」）
+# 游戏资源（见 game-assets/README.md）：bundled 进 git；静态产物与原图体积大，只放本机
+game-assets/public/
+game-assets/source/portraits/
+game-assets/source/crests/
+game-assets/source/community/
+game-assets/source/static/
+game-assets/source/bundled/
+game-assets/source/_unused/
+# 旧的静态资源目录（已迁到 game-assets/public，合并后可删）
 public/
 # 用户视觉小样（333MB，用户领地，只读参考）
 design/meta-mockups/

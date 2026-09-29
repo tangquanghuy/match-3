@@ -1,7 +1,7 @@
 // 战斗状态「中招」徽印素材（状态施加瞬间在卡面中央放大出现、再飞入徽记栏）。
 // 一个规范键一张（别名 enraged/cursed/charmed/lycanthropy… 由 statusPresentation.canonicalStatusKey 收敛）。
 // 生成：node scripts/art-gen/generate.mjs status-emblem-<key>；处理：python scripts/art-gen/process.py status-emblem-<key>
-// 输出 src/assets/fx/status-emblems/<key>.webp（进版本库）。
+// 输出 game-assets/bundled/fx/status-emblems/<key>.webp（进版本库）。
 //
 // 风格口径沿用 2026-09-28 用户定调的「现代二次元游戏图标、要有颜色」（assets.mjs ANIME_COLOR），
 // 额外要求细深色描边：徽印叠在立绘上，浅色立绘上也要读得出来（审查问题：screen 混合在亮底上不可见）。
@@ -44,7 +44,7 @@ export const STATUS_EMBLEM_ASSETS = Object.fromEntries(Object.entries(SUBJECTS).
   `status-emblem-${key}`,
   {
     size: '1024x1024',
-    out: `src/assets/fx/status-emblems/${key}.webp`,
+    out: `game-assets/bundled/fx/status-emblems/${key}.webp`,
     longest: 256,
     pad: 0.03,
     prompt: `Status effect emblem: ${subject}. ` + EMBLEM,

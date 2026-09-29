@@ -120,10 +120,10 @@
 .inv-zone-legend i.down { background: #d04f5f; }
 
 .inv-locked { position: relative; display: block; padding: 0 !important; overflow: auto !important; background: radial-gradient(ellipse at 19% 42%, rgba(105,76,37,.18), transparent 34%), #0b0b13; }
-.inv-locked:before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .08; background: url('/meta/assets/world-map.webp') center 46% / cover no-repeat; filter: saturate(.7) contrast(1.1); }
+.inv-locked:before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .08; background: url('/static/map/world-map-faint.webp') center 46% / cover no-repeat; filter: saturate(.7) contrast(1.1); }
 .inv-lock-layout { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(390px, .9fr) minmax(500px, 1.1fr); grid-template-rows: minmax(330px, 1fr) auto; gap: 22px 62px; min-height: 100%; padding: 42px 76px 34px; box-sizing: border-box; }
 .inv-lock-hero { position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; min-width: 0; min-height: 0; padding: 16px 28px; overflow: hidden; text-align: center; }
-.inv-lock-hero:before { content: ""; position: absolute; inset: 0 5% 0; z-index: -1; border: 1px solid rgba(216,189,120,.13); background: linear-gradient(90deg, rgba(7,10,19,.8), rgba(7,10,19,.18) 50%, rgba(7,10,19,.8)), url('/meta/assets/world-map.webp') center 42% / cover no-repeat; opacity: .65; clip-path: inset(0 round 8px); }
+.inv-lock-hero:before { content: ""; position: absolute; inset: 0 5% 0; z-index: -1; border: 1px solid rgba(216,189,120,.13); background: linear-gradient(90deg, rgba(7,10,19,.8), rgba(7,10,19,.18) 50%, rgba(7,10,19,.8)), url('/static/map/world-map-faint.webp') center 42% / cover no-repeat; opacity: .65; clip-path: inset(0 round 8px); }
 .inv-lock-hero:after { content: ""; position: absolute; left: 16%; right: 16%; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(216,189,120,.55), transparent); }
 .inv-lock-sigil { position: relative; display: grid; place-items: center; width: 224px; height: 224px; margin-bottom: 1px; }
 .inv-lock-sigil:before, .inv-lock-sigil:after { content: ""; position: absolute; border: 1px solid rgba(216,189,120,.28); border-radius: 50%; transform: rotate(-20deg); }
@@ -454,7 +454,7 @@
 
 /* Ranked invasion: the first view is a three-opponent decision, not a standings report. */
 .inv-battle-hub { padding: 28px 38px 20px !important; overflow: auto !important; background: #101219; }
-.inv-battle-hub:before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .11; background: linear-gradient(90deg, #101219 5%, transparent 52%, #101219 95%), url('/meta/assets/world-map.webp') center 48% / cover no-repeat; }
+.inv-battle-hub:before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .11; background: linear-gradient(90deg, #101219 5%, transparent 52%, #101219 95%), url('/static/map/world-map-faint.webp') center 48% / cover no-repeat; }
 .inv-battle-hub > * { position: relative; z-index: 1; }
 .inv-hub-head { display: grid; grid-template-columns: minmax(310px, 1fr) auto auto; align-items: center; gap: 34px; min-height: 117px; border-bottom: 1px solid rgba(222,194,141,.22); padding: 0 6px 19px; }
 .inv-rank-emblem { position: relative; flex: none; display: grid; place-items: center; width: 92px; height: 102px; color: var(--rank-color); filter: drop-shadow(0 8px 10px #0008); }

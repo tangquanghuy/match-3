@@ -59,7 +59,7 @@ function weekCountdown(now: number, resetAt: number): string {
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
-/** 活动主视觉（与活动商店同一套横幅，素材在 src/assets/meta/shop/） */
+/** 活动主视觉（与活动商店同一套横幅，素材在 game-assets/bundled/meta/shop/） */
 function eventArt(typeId: EventTypeId): string {
   return shopArt(`event-${typeId}`);
 }

@@ -42,8 +42,8 @@ function setup(id: number, unlocked = false, seed = 10014) {
 
 describe('管理组重点观察对象与虹蝶：图鉴及战斗接入', () => {
   it.each([
-    [GUANLI_OBSERVER_ID, '管理组重点观察对象', 'GuanliObserver', 'Legendary', 5, 26, GUANLI_OBSERVER_SPELL_ID, '灵泉凝露', 'guanli-observer.png', ['waterheart', 'manashield', SURGE]],
-    [HONGDIE_ID, '虹蝶', 'HongDie', 'UltraRare', 3, 13, HONGDIE_SPELL_ID, '夜蝶迷踪', 'hongdie.png', ['magiclink', 'alert', 'arcane']],
+    [GUANLI_OBSERVER_ID, '管理组重点观察对象', 'GuanliObserver', 'Legendary', 5, 26, GUANLI_OBSERVER_SPELL_ID, '灵泉凝露', 'guanli-observer.webp', ['waterheart', 'manashield', SURGE]],
+    [HONGDIE_ID, '虹蝶', 'HongDie', 'UltraRare', 3, 13, HONGDIE_SPELL_ID, '夜蝶迷踪', 'hongdie.webp', ['magiclink', 'alert', 'arcane']],
   ] as const)('%s has a unique identity, portrait, traits, collection and spell', (id, name, ref, rarity, rarityIdx, cost, spellId, spellName, portrait, traits) => {
     const troop = getTroopById(id)!;
     expect(getTroopByRef(ref)).toBe(troop);

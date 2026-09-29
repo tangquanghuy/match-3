@@ -9,23 +9,23 @@ export type MusicCatalog = Partial<Record<MusicScene, string | readonly MusicTra
 // Keep saved sliders and narration ducking independent of this mix adjustment.
 export const MUSIC_TRACKS: MusicCatalog = {
   meta: [
-    { url: new URL('../assets/audio/bgm/menu-01.mp3', import.meta.url).href, gain: 0.825 },
-    { url: new URL('../assets/audio/bgm/menu-02.mp3', import.meta.url).href, gain: 0.825 },
-    { url: new URL('../assets/audio/bgm/map.mp3', import.meta.url).href, gain: 0.75 },
-    { url: new URL('../assets/audio/bgm/preparation.mp3', import.meta.url).href, gain: 0.75 },
-    { url: new URL('../assets/audio/bgm/events.mp3', import.meta.url).href, gain: 0.72 },
+    { url: new URL('@assets/audio/bgm/menu-01.mp3', import.meta.url).href, gain: 0.825 },
+    { url: new URL('@assets/audio/bgm/menu-02.mp3', import.meta.url).href, gain: 0.825 },
+    { url: new URL('@assets/audio/bgm/map.mp3', import.meta.url).href, gain: 0.75 },
+    { url: new URL('@assets/audio/bgm/preparation.mp3', import.meta.url).href, gain: 0.75 },
+    { url: new URL('@assets/audio/bgm/events.mp3', import.meta.url).href, gain: 0.72 },
   ],
   battle: [
-    { url: new URL('../assets/audio/bgm/battle-01.mp3', import.meta.url).href, gain: 0.975 },
-    { url: new URL('../assets/audio/bgm/battle-02.mp3', import.meta.url).href, gain: 0.975 },
+    { url: new URL('@assets/audio/bgm/battle-01.mp3', import.meta.url).href, gain: 0.975 },
+    { url: new URL('@assets/audio/bgm/battle-02.mp3', import.meta.url).href, gain: 0.975 },
   ],
   elite: [
-    { url: new URL('../assets/audio/bgm/elite-01.mp3', import.meta.url).href, gain: 0.9 },
-    { url: new URL('../assets/audio/bgm/elite-02.mp3', import.meta.url).href, gain: 0.9 },
+    { url: new URL('@assets/audio/bgm/elite-01.mp3', import.meta.url).href, gain: 0.9 },
+    { url: new URL('@assets/audio/bgm/elite-02.mp3', import.meta.url).href, gain: 0.9 },
   ],
   boss: [
-    { url: new URL('../assets/audio/bgm/boss-01.mp3', import.meta.url).href, gain: 0.825 },
-    { url: new URL('../assets/audio/bgm/boss-02.mp3', import.meta.url).href, gain: 0.825 },
+    { url: new URL('@assets/audio/bgm/boss-01.mp3', import.meta.url).href, gain: 0.825 },
+    { url: new URL('@assets/audio/bgm/boss-02.mp3', import.meta.url).href, gain: 0.825 },
   ],
 };
 

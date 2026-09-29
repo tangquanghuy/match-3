@@ -7,6 +7,7 @@ export default defineConfig({
       '@engine': fileURLToPath(new URL('./src/engine', import.meta.url)),
       '@render': fileURLToPath(new URL('./src/render', import.meta.url)),
       '@session': fileURLToPath(new URL('./src/session', import.meta.url)),
+      '@assets': fileURLToPath(new URL('./game-assets/bundled', import.meta.url)),
     },
   },
   test: {

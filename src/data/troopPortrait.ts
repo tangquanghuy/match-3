@@ -15,6 +15,6 @@ export function resolveTroopPortrait(name: string, identity: { troopId?: number;
     ?? candidates.find(t => String(t.spell.id) === identity.skillId)
     ?? candidates[0];
   if (troop?.artUrl) return troop.artUrl;
-  if (troop?.portrait) return `/meta/assets/portraits/${troop.portrait}.webp`;
+  if (troop?.portrait) return `/static/portraits/${troop.portrait}.webp`;
   return `https://rpg.bolt.qzz.io/${encodeURIComponent('封面')}/${encodeURIComponent(name)}.webp`;
 }

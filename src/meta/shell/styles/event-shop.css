@@ -441,7 +441,7 @@
 
 /* ==========================================================================
    Shop v3（2026-09-28）：暖夜色底 + 活动主题色；页签带活动缩略图，
-   活动横幅（文生图 src/assets/meta/shop/event-*.webp，经 --shop-hero 注入）放活动名、说明、印记与刷新。
+   活动横幅（文生图 game-assets/bundled/meta/shop/event-*.webp，经 --shop-hero 注入）放活动名、说明、印记与刷新。
    ========================================================================== */
 .event-shop-screen:has(.shop-v3) { background: #0e0c14; }
 .event-shop-panel.shop-v3 {

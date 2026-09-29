@@ -57,7 +57,7 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
       manaColors: [BaseColor.Red, BaseColor.Yellow], spell: { name: '日轮坠灭' } });
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('史诗');
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('lianka.png');
+    expect(troop.artUrl).toContain('lianka.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
     expect(troop.traits.map(t => t.code)).toEqual(codes);
     for (const code of codes) {

@@ -18,11 +18,11 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 const pct = (n: number): string => `${Math.round(n * 100)}%`;
 
 export const CURRENCY_ICON = {
-  gold: new URL('../../assets/chrome/gold.png', import.meta.url).href,
-  souls: new URL('../../assets/chrome/soul.png', import.meta.url).href,
-  glory: new URL('../../assets/chrome/glory.png', import.meta.url).href,
-  gems: new URL('../../assets/chrome/gem.png', import.meta.url).href,
-  goldKeys: new URL('../../assets/chrome/key.png', import.meta.url).href,
+  gold: new URL('@assets/chrome/gold.png', import.meta.url).href,
+  souls: new URL('@assets/chrome/soul.png', import.meta.url).href,
+  glory: new URL('@assets/chrome/glory.png', import.meta.url).href,
+  gems: new URL('@assets/chrome/gem.png', import.meta.url).href,
+  goldKeys: new URL('@assets/chrome/key.png', import.meta.url).href,
 } as const;
 
 export type CurrencyKey = keyof typeof CURRENCY_ICON;

@@ -9,13 +9,13 @@
 export type FxTex = 'rays' | 'ring' | 'flare' | 'veil' | 'gather' | 'stardust' | 'plumes';
 
 const TEX_SRC: Record<FxTex, string> = {
-  rays: '/meta/assets/fx/summon/fx-rays.webp',
-  ring: '/meta/assets/fx/summon/fx-ring.webp',
-  flare: '/meta/assets/fx/summon/fx-flare.webp',
-  veil: '/meta/assets/fx/summon/fx-veil.webp',
-  gather: '/meta/assets/fx/summon/fx-gather.webp',
-  stardust: '/meta/assets/fx/summon/fx-stardust.webp',
-  plumes: '/meta/assets/fx/summon/fx-plumes.webp',
+  rays: '/static/fx/summon/fx-rays.webp',
+  ring: '/static/fx/summon/fx-ring.webp',
+  flare: '/static/fx/summon/fx-flare.webp',
+  veil: '/static/fx/summon/fx-veil.webp',
+  gather: '/static/fx/summon/fx-gather.webp',
+  stardust: '/static/fx/summon/fx-stardust.webp',
+  plumes: '/static/fx/summon/fx-plumes.webp',
 };
 
 const imageCache = new Map<string, Promise<HTMLImageElement>>();

@@ -71,7 +71,7 @@ export interface WeaponDef {
   skill: SkillPrototype | null;
   /** 是否可装备（= 有编译原型）。图鉴展示全部 718，装备池只收这一档 */
   equippable: boolean;
-  /** 卡面文件名（`public/gowhead-icons/{imageFile}`；718/718 零缺失） */
+  /** 卡面文件名（`public/static/weapons/{imageFile}`；718/718 零缺失） */
   imageFile: string;
   /** 官方精通要求（低档武器 2~10，活动/任务武器 100+） */
   masteryRequirement: number;

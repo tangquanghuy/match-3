@@ -14,6 +14,7 @@ export default defineConfig({
       '@engine': root('../src/engine'),
       '@render': root('../src/render'),
       '@session': root('../src/session'),
+      '@assets': root('../game-assets/bundled'),
     },
   },
   // 静态资源归客户端构建（../dist），Worker 包里只要代码

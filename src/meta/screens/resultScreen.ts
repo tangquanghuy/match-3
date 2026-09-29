@@ -43,16 +43,16 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 
 /** 部队稀有度的唯一玩家口径（普通→神话），与图鉴/编队/宝箱共用六档。 */
 export const RESULT_RARITY_NAMES = RARITY_NAMES;
-const GENERIC_BATTLE_ART = '/meta/assets/world-map-mosaic-v2.webp';
+const GENERIC_BATTLE_ART = '/static/map/world-map.webp';
 
 /** 收益条的彩绘货币图标（与顶栏同源的 chrome 素材） */
 const CURRENCY_ART = {
-  souls: new URL('../../assets/chrome/soul.png', import.meta.url).href,
-  gold: new URL('../../assets/chrome/gold.png', import.meta.url).href,
-  gems: new URL('../../assets/chrome/gem.png', import.meta.url).href,
+  souls: new URL('@assets/chrome/soul.png', import.meta.url).href,
+  gold: new URL('@assets/chrome/gold.png', import.meta.url).href,
+  gems: new URL('@assets/chrome/gem.png', import.meta.url).href,
 } as const;
 
-/** 结算/升级页彩绘素材（src/assets/meta/result/，透明底 WebP，随构建打包） */
+/** 结算/升级页彩绘素材（game-assets/bundled/meta/result/，透明底 WebP，随构建打包） */
 const art = (name: string): string => resultArt(name);
 /** 页面 CSS 里用到的底板图：以 CSS 变量挂到根节点（?raw 注入的 CSS 不改写 url） */
 const RESULT_CSS_ART = [
@@ -87,7 +87,7 @@ export function troopRewardView(reward: { troopId: number; note: string }): Troo
     name: troop?.name ?? `未知部队 #${reward.troopId}`,
     rarityIdx,
     rarityName: RESULT_RARITY_NAMES[rarityIdx] ?? RESULT_RARITY_NAMES[0],
-    art: troop ? troopArt(troop) : '/meta/assets/troops/troop-veteran.png',
+    art: troop ? troopArt(troop) : '/static/troops/troop-veteran.webp',
     note: reward.note,
   };
 }

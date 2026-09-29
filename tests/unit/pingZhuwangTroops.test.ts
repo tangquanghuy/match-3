@@ -33,8 +33,8 @@ function pigFixture(red = 0, roll = 0.9) {
 
 describe('苹与zhuwang真实接入', () => {
   it.each([
-    [PING_ID, PING_SPELL_ID, 'Ping', '苹', 'Legendary', 5, 22, '夜色流转', 'ping.png', ['firelink', 'ping_evernight', 'nightsong']],
-    [ZHUWANG_ID, ZHUWANG_SPELL_ID, 'Zhuwang', 'zhuwang', 'UltraRare', 3, 15, '猪猪变身术', 'zhuwang.png', ['stonelink', 'frenzy', 'armored']],
+    [PING_ID, PING_SPELL_ID, 'Ping', '苹', 'Legendary', 5, 22, '夜色流转', 'ping.webp', ['firelink', 'ping_evernight', 'nightsong']],
+    [ZHUWANG_ID, ZHUWANG_SPELL_ID, 'Zhuwang', 'zhuwang', 'UltraRare', 3, 15, '猪猪变身术', 'zhuwang.webp', ['stonelink', 'frenzy', 'armored']],
   ] as const)('%s catalogue, collection, portrait and traits', (id, spellId, ref, name, rarity, rarityIdx, cost, spellName, art, traits) => {
     const troop = getTroopById(id)!;
     expect(getTroopByRef(ref)).toBe(troop);

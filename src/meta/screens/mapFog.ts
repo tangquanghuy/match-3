@@ -1,7 +1,7 @@
 /**
  * 世界地图迷雾层（GoW 4.5：只看得见已开放与「下一批」王国，其余大陆藏在云雾里）。
  *
- * 实现：地图世界层里一张 1/4 分辨率的 canvas，先铺文生图云雾纹理（src/assets/meta/kingdom/map-fog.webp）
+ * 实现：地图世界层里一张 1/4 分辨率的 canvas，先铺文生图云雾纹理（game-assets/bundled/meta/kingdom/map-fog.webp）
  * 与一层夜色压暗，再用 destination-out 的径向渐变在王国处「擦」出洞：
  *   - 已开放：大洞、完全清晰；
  *   - 已探明（未来 3 级内开放）：小洞、半透明，能看见剪影与门槛；

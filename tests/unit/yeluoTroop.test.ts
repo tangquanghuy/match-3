@@ -29,7 +29,7 @@ describe('YeLuo / 猩红谢幕 / 赤月留痕 integration', () => {
       kingdom:COMMUNITY_KINGDOM, troopTypes:[COMMUNITY_RACE], manaColors:[BaseColor.Red,BaseColor.Green], spell:{name:'猩红谢幕'} });
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
     expect(troopArt(troop)).toBe(troop.artUrl);
-    expect(troop.artUrl).toContain('yeluo.png');
+    expect(troop.artUrl).toContain('yeluo.webp');
     expect(troop.traits.map(t=>t.code)).toEqual(codes);
     codes.forEach(code=>{ expect(getTrait(code)).toBeDefined(); expect(metaKnownTraitIds()).toContain(code); });
     const save = newSave({now:0,starterTroopIds:[]});

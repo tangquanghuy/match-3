@@ -21,7 +21,8 @@
     "paths": {
       "@engine/*": ["src/engine/*"],
       "@render/*": ["src/render/*"],
-      "@session/*": ["src/session/*"]
+      "@session/*": ["src/session/*"],
+      "@assets/*": ["game-assets/bundled/*"]
     }
   },
   "include": ["src", "tests"]

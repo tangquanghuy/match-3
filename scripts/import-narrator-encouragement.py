@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib, json, shutil, subprocess
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path.home() / 'Downloads'
-DEST = ROOT / 'src/assets/audio/narrator'
+DEST = ROOT / 'game-assets/bundled/audio/narrator'
 TAKES = [
  ('2026-09-28-20-04', 'Continue-the-onslaught!', 'encourage_ally_202609282004_01'),
  ('2026-09-28-20-05', 'Press-this-advantage,', 'encourage_ally_202609282005_02'),

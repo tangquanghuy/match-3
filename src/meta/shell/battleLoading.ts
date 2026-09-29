@@ -10,7 +10,7 @@ import { loadGemTextures } from '@render/gemTextures';
 import type { BattleRequest, CombatantSnapshot } from '@session/index';
 import { tutorialArt } from './artAssets';
 
-const FX_STRIPS = Object.values(import.meta.glob('../../assets/fx/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>);
+const FX_STRIPS = Object.values(import.meta.glob('@assets/fx/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>);
 
 const MIN_VISIBLE_MS = 700;
 const ITEM_TIMEOUT_MS = 15_000;

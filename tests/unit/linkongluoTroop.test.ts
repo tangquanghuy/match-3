@@ -58,7 +58,7 @@ describe('霖空洛 / 绯翼突袭', () => {
       expect(metaKnownTraitIds()).toContain(trait);
     }
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('linkongluo.png');
+    expect(troop.artUrl).toContain('linkongluo.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
     const save = newSave({ now: 0, starterTroopIds: [] });
     grantTroop(save, LINKONGLUO_ID);

@@ -44,7 +44,7 @@ for (const viewport of [{ width: 1600, height: 900 }, { width: 390, height: 844 
 
 test('点击遮罩退出，预览中的图片继续沿原卡兜底链加载', async ({ page }) => {
   await page.route('https://fonts.googleapis.com/**', (route) => route.abort());
-  await page.route('**/meta/assets/portraits/**', (route) => route.abort());
+  await page.route('**/static/portraits/**', (route) => route.abort());
   await page.route('https://rpg.bolt.qzz.io/**', (route) => route.abort());
   await page.goto('/game.html#troop/6000');
   const original = page.locator('#portraitArt');

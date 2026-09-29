@@ -728,7 +728,7 @@ export class MapScreen implements Screen {
         <div class="map-frame">
           <div class="map-viewport" id="mapViewport">
             <div class="map-world" id="mapWorld">
-              <img class="map-art" src="/meta/assets/world-map-mosaic-v2.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
+              <img class="map-art" src="/static/map/world-map.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
               <canvas class="map-fog" id="mapFog" aria-hidden="true"></canvas>
               <div class="map-nodes" id="nodes"></div>
             </div>

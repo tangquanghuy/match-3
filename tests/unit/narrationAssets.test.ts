@@ -4,8 +4,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 // @ts-expect-error node types are not installed in this browser project
 import { createHash } from 'node:crypto';
 
-import manifest from '../../src/assets/audio/narrator/manifest.json';
-import subtitles from '../../src/assets/audio/narrator/subtitles.zh-CN.json';
+import manifest from '../../game-assets/bundled/audio/narrator/manifest.json';
+import subtitles from '../../game-assets/bundled/audio/narrator/subtitles.zh-CN.json';
 import { NARRATION_CLIPS } from '../../src/render/NarrationCatalog';
 
 const root = new URL('../../', import.meta.url);
@@ -23,9 +23,9 @@ describe('finalized narrator assets', () => {
       const bytes = readFileSync(new URL(m.file, root));
       expect(createHash('sha256').update(bytes).digest('hex'), m.file).toBe(m.sha256);
       expect(bytes.length).toBe(m.bytes);
-      expect(m.file.startsWith(m.enabled ? 'src/assets/audio/narrator/' : 'assets/audio/narrator/archive/')).toBe(true);
+      expect(m.file.startsWith(m.enabled ? 'game-assets/bundled/audio/narrator/' : 'game-assets/source/audio/narrator/archive/')).toBe(true);
     }
-    const bundled = readdirSync(new URL('src/assets/audio/narrator', root)).filter((f: string) => f.endsWith('.mp3'));
+    const bundled = readdirSync(new URL('game-assets/bundled/audio/narrator', root)).filter((f: string) => f.endsWith('.mp3'));
     expect(bundled.sort()).toEqual(manifest.filter(m => m.enabled).map(m => m.id + '.mp3').sort());
   });
 });

@@ -35,7 +35,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=Path, default=Path.home() / 'Downloads')
     args = parser.parse_args()
-    target = ROOT / 'src/assets/audio/bgm'
+    target = ROOT / 'game-assets/bundled/audio/bgm'
     target.mkdir(parents=True, exist_ok=True)
     records = []
     for filename, track_id in TRACKS:

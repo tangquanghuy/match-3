@@ -9,8 +9,8 @@
  *
  * 处理：playwright 无头 chromium 解码（系统无 ImageMagick；ffmpeg 的全局 colorkey
  * 会把幽灵宝石本体一起抠掉，故用洪泛填充只清除与格边框连通的白色背景）→
- * 软边处理 → 内容裁切 → 居中缩放到 256×256（与 src/assets/gems/*.png 一致，
- * 即美术需求单的 128 逻辑像素 @2x）→ 输出 `src/assets/gems/special/<kind>.png`。
+ * 软边处理 → 内容裁切 → 居中缩放到 256×256（与 game-assets/bundled/gems/*.png 一致，
+ * 即美术需求单的 128 逻辑像素 @2x）→ 输出 `game-assets/bundled/gems/special/<kind>.png`。
  *
  * 用法：node scripts/split_special_gems.mjs
  */
@@ -25,7 +25,7 @@ const { chromium } = require('playwright');
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const INPUT = resolve(root, 'assets/Gemini_Generated_Image_bn9tk0bn9tk0bn9t.PNG');
-const OUT_DIR = resolve(root, 'src/assets/gems/special');
+const OUT_DIR = resolve(root, 'game-assets/bundled/gems/special');
 
 /** (row, col) → 文件名；(2,3) 为空格不产出 */
 const CELLS = [

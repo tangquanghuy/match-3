@@ -20,7 +20,7 @@ describe('weekly VP ranks and claims', () => {
   it('30 ascending thresholds, 30 distinct assets and a bounded weekly gem budget', () => {
     expect(INVASION_RANKS).toHaveLength(30);
     expect(INVASION_RANK_GEMS_TOTAL).toBe(6000);
-    expect(new Set(INVASION_RANKS.map(r => readFileSync(`public${r.icon}`, 'utf8'))).size).toBe(30);
+    expect(new Set(INVASION_RANKS.map(r => readFileSync(`game-assets/public${r.icon}`, 'utf8'))).size).toBe(30);
     for (const [i, rank] of INVASION_RANKS.entries()) {
       expect(rank.gems).toBeGreaterThanOrEqual(50); expect(rank.gems).toBeLessThanOrEqual(375);
       expect(invasionRankAt(rank.vp)).toEqual(rank);

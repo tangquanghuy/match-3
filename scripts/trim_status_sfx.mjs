@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * 状态施加音裁剪脚本（窗口 I · 2026-09-17）。
- * 输入：assets/音效/<中文名>.wav（用户 AI 生成，尾部普遍有长静音）。
- * 输出：src/assets/audio/status/status_<键>.wav（AudioManager glob 自动接线）。
+ * 输入：game-assets/source/audio/status-sfx-raw/<中文名>.wav（用户 AI 生成，尾部普遍有长静音）。
+ * 输出：game-assets/bundled/audio/status/status_<键>.wav（AudioManager glob 自动接线）。
  *
  * 处理链（ffmpeg，逐文件）：
  *   1. 双端静音裁剪（阈值 -45dB；保留头 0.03s / 尾 0.09s 自然呼吸）

@@ -20,11 +20,11 @@ import { prepareTexture, SpriteFx, type Sprite } from './summonFx';
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
 const FX = {
-  circle: { src: '/meta/assets/fx/gacha_circle_strip.png', n: 18, w: 463, h: 360, ms: 900 },
-  epic: { src: '/meta/assets/fx/gacha_epic_burst_strip.png', n: 16, w: 207, h: 320, ms: 540 },
-  legendBurst: { src: '/meta/assets/fx/gacha_legend_burst_strip.png', n: 11, w: 349, h: 400, ms: 480 },
-  aura: { src: '/meta/assets/fx/gacha_legend_aura_strip.png', n: 13, w: 290, h: 359, ms: 1400 },
-  flash: { src: '/meta/assets/fx/gacha_legend_flash_strip.png', n: 5, w: 480, h: 480, ms: 1200 },
+  circle: { src: '/static/fx/gacha/gacha_circle_strip.webp', n: 18, w: 463, h: 360, ms: 900 },
+  epic: { src: '/static/fx/gacha/gacha_epic_burst_strip.webp', n: 16, w: 207, h: 320, ms: 540 },
+  legendBurst: { src: '/static/fx/gacha/gacha_legend_burst_strip.webp', n: 11, w: 349, h: 400, ms: 480 },
+  aura: { src: '/static/fx/gacha/gacha_legend_aura_strip.webp', n: 13, w: 290, h: 359, ms: 1400 },
+  flash: { src: '/static/fx/gacha/gacha_legend_flash_strip.webp', n: 5, w: 480, h: 480, ms: 1200 },
 } as const;
 
 interface FxSpec { src: string; n: number; w: number; h: number; ms: number }
@@ -227,7 +227,7 @@ export class ChestsScreen implements Screen {
     void ctx;
     this.page = chestPageOf(param);
     const keysPage = this.page === 'keys';
-    const heroArt = keysPage ? '/meta/assets/chests/key-glory-pool.webp' : '/meta/assets/chests/gem-pool.webp';
+    const heroArt = keysPage ? '/static/chests/key-glory-pool.webp' : '/static/chests/gem-pool.webp';
     const pageLabel = keysPage ? '金钥匙与荣耀' : '宝石召唤';
     // 金钥匙按钮的费用位：钥匙 +（不足时）黄金补差，两段按余额显隐
     const goldCost = (keys: number): string =>
@@ -448,7 +448,7 @@ export class ChestsScreen implements Screen {
     $('#summonTitle').textContent = '馈赠';
     $('#summonPool').textContent = '成长馈赠';
     const sceneArt = $('#summonSceneArt') as HTMLImageElement | null;
-    if (sceneArt) sceneArt.src = '/meta/assets/chests/gem-pool.webp';
+    if (sceneArt) sceneArt.src = '/static/chests/gem-pool.webp';
     $('#summonCounter').textContent = `0 / ${rewards.length}`;
     const extra = $('#summonExtra');
     if (extra) {
@@ -798,7 +798,7 @@ export class ChestsScreen implements Screen {
     modal.className = `summon-modal is-opening${dealt > 1 ? ' batch-10' : ''}`;
     $('#summonPool').textContent = POOL_CN[pool].title;
     const sceneArt = $('#summonSceneArt') as HTMLImageElement | null;
-    if (sceneArt) sceneArt.src = pool === 'gem' ? '/meta/assets/chests/gem-pool.webp' : '/meta/assets/chests/key-glory-pool.webp';
+    if (sceneArt) sceneArt.src = pool === 'gem' ? '/static/chests/gem-pool.webp' : '/static/chests/key-glory-pool.webp';
     $('#summonCounter').textContent = `0 / ${dealt}`;
     const extra = $('#summonExtra');
     if (extra) {
@@ -1403,9 +1403,9 @@ export class ChestsScreen implements Screen {
   private ensureSfx(): Record<string, HTMLAudioElement> {
     if (!this.sfx) {
       this.sfx = {
-        start: new Audio('/meta/assets/sfx/summon-start.wav'),
-        rare: new Audio('/meta/assets/sfx/reveal-epic.wav'),
-        legend: new Audio('/meta/assets/sfx/reveal-legend.wav'),
+        start: new Audio('/static/sfx/summon-start.wav'),
+        rare: new Audio('/static/sfx/reveal-epic.wav'),
+        legend: new Audio('/static/sfx/reveal-legend.wav'),
       };
     }
     const p = getPlayerPreferences();

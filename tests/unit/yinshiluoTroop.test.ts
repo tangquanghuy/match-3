@@ -78,7 +78,7 @@ describe('銀蒔蘿 / 花露秘酿', () => {
       expect(metaKnownTraitIds()).toContain(code);
     }
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('yinshiluo.png');
+    expect(troop.artUrl).toContain('yinshiluo.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
 
     const save = newSave({ now: 0, starterTroopIds: [] });
