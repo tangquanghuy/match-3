@@ -200,7 +200,7 @@ test('连升两级逐页呈现，每页消耗一个精通点；无待分配点�
   await expect.poll(() => navigated(page)).toBe('#map');
 });
 
-test('胜利播放合成凯旋曲，升级叠加号角，离开结算淡出并交还氛围音乐', async ({ page }) => {
+test('胜利播放凯旋曲，升级叠加号角，离开结算淡出并交还氛围音乐', async ({ page }) => {
   await mountLevelUp(page, 1, [['Blue', 'Red']]);
   const music = () => page.evaluate(async () => {
     const path = performance.getEntriesByType('resource').map(entry => entry.name)

@@ -10,7 +10,7 @@
  *    底栏四维（本级提升项绿色高亮）。选定精通后才能继续；多级连升逐页呈现。
  *    该级若有新王国开放（kingdomsUnlockedBetween），在精通提示上方给出徽记 + 王国名。
  *
- * 音乐：挂载即压住氛围 BGM（backgroundMusic 'result' 静音槽），由 resultMusic 实时合成
+ * 音乐：挂载即压住氛围 BGM（backgroundMusic 'result' 静音槽），由 resultMusic 单次播放
  * 胜利 / 战败曲；升级页叠加升级号角；离开时淡出并交还氛围 BGM。
  */
 import { backgroundMusic } from '../../audio/BackgroundMusic';

@@ -1,16 +1,19 @@
 /**
- * 结算音乐：Web Audio 实时合成的胜利 / 战败 BGM 与升级号角，零素材依赖。
+ * 结算音乐：胜利 / 战败曲为录制成品（单次播放，不循环），升级号角为 Web Audio 实时合成。
  *
  * 生命周期与 BackgroundMusic 的 'result' 静音槽对接：
  *   ResultScreen.mount → backgroundMusic.setDucking('result', true) + resultMusic.play(theme)
  *   升级页                → resultMusic.levelUp()
  *   ResultScreen.dispose  → resultMusic.stop() + backgroundMusic.finishResult()
  *
- * 音量 = 主音量 × 音乐音量（与 BackgroundMusic 同一偏好口径），实时订阅偏好变更；
- * 页面隐藏时挂起 AudioContext，回到前台续播。调度采用前瞻式：每 60ms 把未来 0.4s
- * 内的音符交给音频线程，循环段无缝衔接。
+ * 胜利 / 战败曲：game-assets/bundled/audio/result/*.mp3，由 scripts/build_result_music.mjs 从
+ * source/audio/result-music-raw/ 生成（尾部混响余音 + 淡出、-17 LUFS）。播完即止，结算页停留更久时保持安静。
  *
- * 音色按管弦乐队分组：
+ * 音量 = 主音量 × 音乐音量（与 BackgroundMusic 同一偏好口径），实时订阅偏好变更；
+ * 页面隐藏时挂起 AudioContext，回到前台续播。号角调度采用前瞻式：每 60ms 把未来 0.4s
+ * 内的音符交给音频线程。
+ *
+ * 号角音色按管弦乐队分组：
  * - 弦乐：每个音 4~6 把失谐锯齿"合奏"（确定性随机的失谐 / 起音错位），共享颤音 LFO 组给每把琴
  *   独立的慢颤音；缓起弓（80~250ms）、长释放；声部总线上挂琴体共鸣峰（~300Hz / 1.2~2.5kHz）。
  * - 铜管：按真实泛音表生成的 PeriodicWave（圆号柔暗、小号明亮、长号居中），滤波器开口包络
@@ -21,19 +24,30 @@
  * 性能：噪声 / 混响脉冲 / 波表按 AudioContext 缓存复用；颤音 LFO 按会话共享；同声部同时发声过多时
  * 自动减少每音的合奏人数；所有振荡器在释放后 stop。
  */
+import victoryUrl from '@assets/audio/result/victory.mp3?url';
+import defeatUrl from '@assets/audio/result/defeat.mp3?url';
 import { getPlayerPreferences, subscribePlayerPreferences } from '../preferences/playerPreferences';
 import {
   hzOf,
   LEVEL_UP_STING,
   phraseSeconds,
-  RESULT_SCORES,
   type Instrument,
   type NoteEvent,
   type Phrase,
-  type ResultTheme,
 } from './resultScores';
 
-export type { ResultTheme } from './resultScores';
+export type ResultTheme = 'victory' | 'defeat';
+
+/** 结算曲成品：已归一到 -17 LUFS，gain 与 BackgroundMusic 的场景增益同一口径 */
+const RESULT_TRACKS: Readonly<Record<ResultTheme, { url: string; gain: number }>> = {
+  victory: { url: victoryUrl, gain: 0.9 },
+  defeat: { url: defeatUrl, gain: 0.9 },
+};
+
+/** 升级号角输出增益 */
+const STING_GAIN = 0.9;
+/** 号角期间结算曲压到的比例 */
+const STING_DUCK = 0.3;
 
 const LOOKAHEAD_SECONDS = 0.4;
 const TICK_MS = 60;
@@ -662,89 +676,50 @@ const MIX: Record<Instrument, { level: number; pan: number; send: number; body?:
 };
 
 // ---------------------------------------------------------------------------
-// 会话：一首曲目的一次播放（开场 + 循环 + 叠加号角）
+// 号角会话：一段或多段合成号角的一次播放
 // ---------------------------------------------------------------------------
-
-type LayerName = 'bed' | 'sting';
-
-interface Layer {
-  dry: GainNode;
-  wet: GainNode;
-  channels: Map<Instrument, AudioNode>;
-}
 
 interface Track {
   phrase: Phrase;
   base: number;
   index: number;
-  loop: boolean;
-  layer: LayerName;
   done: boolean;
 }
 
-interface SessionOptions {
-  /** false = 跳过号角开场直接进循环 */
-  intro: boolean;
-  /** 循环段额外推迟（秒）；升级号角先行时用 */
-  loopDelay: number;
-}
-
-class Session {
+class StingSession {
   readonly out: GainNode;
-  private readonly reverbIn: AudioNode;
-  private readonly layers: Record<LayerName, Layer>;
+  private readonly dry: GainNode;
+  private readonly wet: GainNode;
+  private readonly channels = new Map<Instrument, AudioNode>();
   private readonly bank: VibratoBank;
   /** 各声部正在发声的音符结束时刻（复音限流用） */
   private readonly active = new Map<Instrument, number[]>();
   private tracks: Track[] = [];
   stopping = false;
 
-  constructor(
-    private readonly ctx: BaseAudioContext,
-    dest: AudioNode,
-    readonly theme: ResultTheme,
-    start: number,
-    options: SessionOptions,
-  ) {
-    const score = RESULT_SCORES[theme];
+  constructor(private readonly ctx: BaseAudioContext, dest: AudioNode, start: number) {
     this.out = ctx.createGain();
     this.out.gain.setValueAtTime(0, start);
-    this.out.gain.linearRampToValueAtTime(score.gain, start + 0.03);
+    this.out.gain.linearRampToValueAtTime(STING_GAIN, start + 0.03);
     this.out.connect(dest);
     const reverb = ctx.createConvolver();
     reverb.buffer = impulseBuffer(ctx);
     reverb.connect(this.out);
+    this.dry = ctx.createGain();
+    this.dry.connect(this.out);
+    this.wet = ctx.createGain();
     // 混响前切掉低频，避免大厅尾音发闷
-    this.reverbIn = filter(ctx, 'highpass', 170, 0.7, reverb);
+    this.wet.connect(filter(ctx, 'highpass', 170, 0.7, reverb));
     this.bank = new VibratoBank(ctx, start);
-    this.layers = { bed: this.layer(), sting: this.layer() };
-
-    let loopStart = start + options.loopDelay;
-    if (options.intro) {
-      this.tracks.push({ phrase: score.intro, base: start, index: 0, loop: false, layer: 'bed', done: false });
-      loopStart += phraseSeconds(score.intro);
-    } else {
-      // 直接进循环：床层渐入，避免硬切
-      const bed = this.layers.bed;
-      for (const g of [bed.dry, bed.wet]) {
-        g.gain.setValueAtTime(0, loopStart);
-        g.gain.linearRampToValueAtTime(1, loopStart + 1.6);
-      }
-    }
-    this.tracks.push({ phrase: score.loop, base: loopStart, index: 0, loop: true, layer: 'bed', done: false });
   }
 
-  private layer(): Layer {
-    const dry = this.ctx.createGain();
-    dry.connect(this.out);
-    const wet = this.ctx.createGain();
-    wet.connect(this.reverbIn);
-    return { dry, wet, channels: new Map() };
+  /** 全部音符都已交给音频线程 */
+  get idle(): boolean {
+    return this.tracks.length === 0;
   }
 
-  private channel(name: LayerName, inst: Instrument): AudioNode {
-    const layer = this.layers[name];
-    const existing = layer.channels.get(inst);
+  private channel(inst: Instrument): AudioNode {
+    const existing = this.channels.get(inst);
     if (existing) return existing;
     const mix = MIX[inst];
     const input = this.ctx.createGain();
@@ -762,12 +737,12 @@ class Session {
       tail = f;
     }
     tail.connect(pan);
-    pan.connect(layer.dry);
+    pan.connect(this.dry);
     const send = this.ctx.createGain();
     send.gain.value = mix.send;
     pan.connect(send);
-    send.connect(layer.wet);
-    layer.channels.set(inst, input);
+    send.connect(this.wet);
+    this.channels.set(inst, input);
     return input;
   }
 
@@ -780,16 +755,9 @@ class Session {
     return count;
   }
 
-  /** 叠加一段号角；床层在号角期间压低到 30%。 */
+  /** 叠加一段号角。 */
   addSting(phrase: Phrase, start: number): void {
-    const seconds = phraseSeconds(phrase);
-    const bed = this.layers.bed;
-    for (const g of [bed.dry, bed.wet]) {
-      g.gain.cancelScheduledValues(start);
-      g.gain.setTargetAtTime(0.3, start, 0.08);
-      g.gain.setTargetAtTime(1, start + seconds + 0.4, 0.6);
-    }
-    this.tracks.push({ phrase, base: start, index: 0, loop: false, layer: 'sting', done: false });
+    this.tracks.push({ phrase, base: start, index: 0, done: false });
   }
 
   /** 把 [now, until) 内的音符交给音频线程。 */
@@ -800,12 +768,7 @@ class Session {
       const spb = 60 / track.phrase.bpm;
       const events = track.phrase.events;
       while (!track.done) {
-        if (track.index >= events.length) {
-          if (!track.loop || events.length === 0) { track.done = true; break; }
-          track.index = 0;
-          track.base += track.phrase.beats * spb;
-          continue;
-        }
+        if (track.index >= events.length) { track.done = true; break; }
         const ev: NoteEvent = events[track.index]!;
         const t = track.base + ev.at * spb;
         if (t >= until) break;
@@ -816,7 +779,7 @@ class Session {
         const dur = ev.dur * spb;
         const play: Play = {
           ctx: this.ctx,
-          out: this.channel(track.layer, ev.inst),
+          out: this.channel(ev.inst),
           bank: this.bank,
           crowd: this.crowd(ev.inst, at, at + dur),
         };
@@ -836,18 +799,33 @@ class Session {
   }
 }
 
-/** 预设值：总线压缩，保证多声部叠加不削波 */
-function outputChain(ctx: BaseAudioContext): { bus: GainNode } {
-  const bus = ctx.createGain();
+/**
+ * 输出链：master（偏好音量）→ 扬声器。合成号角先过总线压缩保证多声部叠加不削波；
+ * 录制成品已做过母带，直接进 master。
+ */
+function outputChain(ctx: BaseAudioContext): { master: GainNode; synth: AudioNode } {
+  const master = ctx.createGain();
+  master.connect(ctx.destination);
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = -14;
   comp.knee.value = 12;
   comp.ratio.value = 3;
   comp.attack.value = 0.01;
   comp.release.value = 0.25;
-  bus.connect(comp);
-  comp.connect(ctx.destination);
-  return { bus };
+  comp.connect(master);
+  return { master, synth: comp };
+}
+
+/** 一次结算曲播放；source 为 null 表示仍在加载 */
+interface ThemePlayback {
+  theme: ResultTheme;
+  /** 曲目电平与淡出 */
+  out: GainNode;
+  /** 号角压低 */
+  duck: GainNode;
+  source: AudioBufferSourceNode | null;
+  stopping: boolean;
+  ended: boolean;
 }
 
 function preferenceVolume(): number {
@@ -861,52 +839,91 @@ function preferenceVolume(): number {
 
 export class ResultMusic {
   private ctx: AudioContext | null = null;
-  private bus: GainNode | null = null;
-  private session: Session | null = null;
+  private master: GainNode | null = null;
+  private synth: AudioNode | null = null;
+  private playback: ThemePlayback | null = null;
+  private sting: StingSession | null = null;
+  /** 解码后的结算曲（按 URL 缓存；失败的请求不缓存，下次重试） */
+  private readonly buffers = new Map<string, Promise<AudioBuffer | null>>();
   private timer: ReturnType<typeof setInterval> | null = null;
   private lifecycle: AbortController | null = null;
   private unsubscribe: (() => void) | null = null;
-  /** 静音期间请求的曲目；取消静音后从循环段接上 */
-  private wanted: ResultTheme | null = null;
 
-  /** 当前正在播放（未淡出）的曲目 */
+  /** 当前正在播放（含加载中；未淡出、未播完）的结算曲 */
   get theme(): ResultTheme | null {
-    return this.session && !this.session.stopping ? this.session.theme : null;
+    const p = this.playback;
+    return p && !p.stopping && !p.ended ? p.theme : null;
   }
 
+  /**
+   * 播放一次结算曲，播完即止；同曲正在播放时不重启。
+   * 静音时照常排播（master 为 0），中途取消静音能从当前位置听到。
+   */
   play(theme: ResultTheme): void {
-    this.wanted = theme;
     this.watch();
     if (this.theme === theme) return;
-    if (preferenceVolume() <= 0) return;
-    this.start(theme, { intro: true, loopDelay: 0 });
+    const ctx = this.ensureContext();
+    if (!ctx || !this.master) return;
+    this.releasePlayback(0.5);
+    const out = ctx.createGain();
+    out.gain.value = RESULT_TRACKS[theme].gain;
+    out.connect(this.master);
+    const duck = ctx.createGain();
+    duck.connect(out);
+    const playback: ThemePlayback = { theme, out, duck, source: null, stopping: false, ended: false };
+    this.playback = playback;
+    void this.load(ctx, RESULT_TRACKS[theme].url).then((buffer) => {
+      if (playback.stopping || this.ctx !== ctx) return;
+      if (!buffer) {
+        playback.ended = true;
+        this.finishPlayback(playback);
+        return;
+      }
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(duck);
+      source.onended = () => {
+        playback.ended = true;
+        source.disconnect();
+        this.finishPlayback(playback);
+      };
+      source.start(ctx.currentTime + 0.02);
+      playback.source = source;
+    });
   }
 
-  /** 升级：叠加号角；战败曲目下改为号角后接凯旋循环（升级是正向时刻）。 */
+  /** 升级：叠加合成号角；凯旋曲在号角期间压低，战败曲淡出让位（升级是正向时刻）。 */
   levelUp(): void {
-    this.wanted = 'victory';
     this.watch();
-    if (preferenceVolume() <= 0) return;
     const ctx = this.ensureContext();
-    if (!ctx) return;
+    if (!ctx || !this.synth) return;
     const at = ctx.currentTime + 0.05;
-    if (this.theme === 'victory') {
-      this.session!.addSting(LEVEL_UP_STING, at);
-    } else {
-      this.start('victory', { intro: false, loopDelay: phraseSeconds(LEVEL_UP_STING) + 0.3 });
-      this.session?.addSting(LEVEL_UP_STING, at);
+    const current = this.theme;
+    if (current === 'victory') {
+      const g = this.playback!.duck.gain;
+      g.cancelScheduledValues(at);
+      g.setTargetAtTime(STING_DUCK, at, 0.08);
+      g.setTargetAtTime(1, at + phraseSeconds(LEVEL_UP_STING) + 0.4, 0.6);
+    } else if (current === 'defeat') {
+      this.releasePlayback(0.6);
     }
+    if (!this.sting) this.sting = new StingSession(ctx, this.synth, at);
+    this.sting.addSting(LEVEL_UP_STING, at);
     this.pump();
+    this.ensureTimer();
   }
 
   stop(fadeSeconds = 0.8): void {
-    this.wanted = null;
-    this.release(fadeSeconds);
+    this.releasePlayback(fadeSeconds);
+    const sting = this.sting;
+    this.sting = null;
+    if (sting) {
+      sting.fadeOut(fadeSeconds);
+      setTimeout(() => sting.out.disconnect(), fadeSeconds * 1000 + 400);
+    }
     this.stopTimer();
     // 淡出后让音频线程休眠；下次 play 时 ensureContext 会恢复（页面已有过用户手势）
-    setTimeout(() => {
-      if (!this.session && this.ctx?.state === 'running') void this.ctx.suspend().catch(() => undefined);
-    }, fadeSeconds * 1000 + 600);
+    setTimeout(() => this.sleepIfIdle(), fadeSeconds * 1000 + 600);
   }
 
   /** 测试/热更新用：释放全部资源 */
@@ -918,24 +935,56 @@ export class ResultMusic {
     this.unsubscribe = null;
     void this.ctx?.close().catch(() => undefined);
     this.ctx = null;
-    this.bus = null;
+    this.master = null;
+    this.synth = null;
+    this.buffers.clear();
   }
 
-  private start(theme: ResultTheme, options: SessionOptions): void {
-    const ctx = this.ensureContext();
-    if (!ctx || !this.bus) return;
-    this.release(0.5);
-    this.session = new Session(ctx, this.bus, theme, ctx.currentTime + 0.08, options);
-    this.pump();
-    this.ensureTimer();
+  private load(ctx: AudioContext, url: string): Promise<AudioBuffer | null> {
+    let pending = this.buffers.get(url);
+    if (!pending) {
+      pending = fetch(url)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.arrayBuffer();
+        })
+        .then((data) => ctx.decodeAudioData(data))
+        .catch(() => {
+          this.buffers.delete(url);
+          return null;
+        });
+      this.buffers.set(url, pending);
+    }
+    return pending;
   }
 
-  private release(fadeSeconds: number): void {
-    const old = this.session;
+  /** 播完（或加载失败）后回收节点 */
+  private finishPlayback(playback: ThemePlayback): void {
+    playback.out.disconnect();
+    if (this.playback === playback) this.playback = null;
+    this.sleepIfIdle();
+  }
+
+  private releasePlayback(fadeSeconds: number): void {
+    const old = this.playback;
     if (!old) return;
-    this.session = null;
-    old.fadeOut(fadeSeconds);
+    this.playback = null;
+    old.stopping = true;
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    old.out.gain.cancelScheduledValues(now);
+    old.out.gain.setTargetAtTime(0, now, Math.max(0.02, fadeSeconds / 4));
+    try { old.source?.stop(now + fadeSeconds + 0.3); } catch { /* 已停止 */ }
     setTimeout(() => old.out.disconnect(), fadeSeconds * 1000 + 400);
+  }
+
+  private get active(): boolean {
+    return this.playback !== null || this.sting !== null;
+  }
+
+  private sleepIfIdle(): void {
+    if (!this.active && this.ctx?.state === 'running') void this.ctx.suspend().catch(() => undefined);
   }
 
   private ensureContext(): AudioContext | null {
@@ -951,8 +1000,10 @@ export class ResultMusic {
     } catch {
       return null;
     }
-    this.bus = outputChain(this.ctx).bus;
-    this.bus.gain.value = preferenceVolume();
+    const chain = outputChain(this.ctx);
+    this.master = chain.master;
+    this.synth = chain.synth;
+    this.master.gain.value = preferenceVolume();
     if (this.ctx.state === 'suspended') void this.ctx.resume().catch(() => undefined);
     return this.ctx;
   }
@@ -963,28 +1014,28 @@ export class ResultMusic {
     this.lifecycle = new AbortController();
     const options = { signal: this.lifecycle.signal };
     const unlock = () => {
-      if (this.ctx?.state === 'suspended' && !document.hidden && this.session) void this.ctx.resume().catch(() => undefined);
+      if (this.ctx?.state === 'suspended' && !document.hidden && this.active) void this.ctx.resume().catch(() => undefined);
     };
     window.addEventListener('pointerdown', unlock, options);
     window.addEventListener('keydown', unlock, options);
     document.addEventListener('visibilitychange', () => {
       if (!this.ctx) return;
       if (document.hidden) void this.ctx.suspend().catch(() => undefined);
-      else if (this.session) void this.ctx.resume().catch(() => undefined);
+      else if (this.active) void this.ctx.resume().catch(() => undefined);
     }, options);
     window.addEventListener('pagehide', () => { void this.ctx?.suspend().catch(() => undefined); }, options);
     this.unsubscribe = subscribePlayerPreferences(() => this.syncVolume());
   }
 
   private syncVolume(): void {
-    const volume = preferenceVolume();
-    if (this.bus && this.ctx) this.bus.gain.setTargetAtTime(volume, this.ctx.currentTime, 0.1);
-    if (volume > 0 && this.wanted && !this.theme) this.start(this.wanted, { intro: false, loopDelay: 0 });
+    if (this.master && this.ctx) this.master.gain.setTargetAtTime(preferenceVolume(), this.ctx.currentTime, 0.1);
   }
 
+  /** 号角音符全部交给音频线程后停掉调度定时器 */
   private pump(): void {
-    if (!this.ctx || !this.session) return;
-    this.session.pump(this.ctx.currentTime + LOOKAHEAD_SECONDS);
+    if (!this.ctx || !this.sting) return;
+    this.sting.pump(this.ctx.currentTime + LOOKAHEAD_SECONDS);
+    if (this.sting.idle) this.stopTimer();
   }
 
   private ensureTimer(): void {
@@ -1000,23 +1051,3 @@ export class ResultMusic {
 }
 
 export const resultMusic = new ResultMusic();
-
-/**
- * 离线渲染（验收/试听用）：把指定曲目渲染成 AudioBuffer。
- * `levelUpAt` 给定时在该秒叠加升级号角；`scheduleSeconds` 只排布该秒之前起奏的音符，
- * 其后留给余音与混响自然衰减。
- */
-export async function renderResultTheme(
-  theme: ResultTheme,
-  seconds: number,
-  options: { sampleRate?: number; levelUpAt?: number; scheduleSeconds?: number } = {},
-): Promise<AudioBuffer> {
-  const sampleRate = options.sampleRate ?? 44100;
-  const ctx = new OfflineAudioContext(2, Math.ceil(sampleRate * seconds), sampleRate);
-  const { bus } = outputChain(ctx);
-  bus.gain.value = 1;
-  const session = new Session(ctx, bus, theme, 0, { intro: true, loopDelay: 0 });
-  if (options.levelUpAt !== undefined) session.addSting(LEVEL_UP_STING, options.levelUpAt);
-  session.pump(Math.min(seconds, options.scheduleSeconds ?? seconds));
-  return ctx.startRendering();
-}
