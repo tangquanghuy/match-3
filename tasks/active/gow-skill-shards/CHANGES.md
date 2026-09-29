@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 710 条改动，涉及 1168 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 713 条改动，涉及 1169 个技能 ID。
 
 ## 按时间
 
@@ -709,9 +709,12 @@
 | 2026-09-29T03:50 | sa-P | P-A-chosen-target-status-precast | primitive | 8276, 8521 | troop:6857 Blightwing；weapon:1413 FleurDeLeon | `src/engine/skills/effects/secondary.ts` | no condition read the chosen target's status before a targeting segment (lastTargetStatus needs castTracking.lastTarget) → global condition chosenTargetStatus {statusId}: chosen target's status live while alive, cast-start snapshot once it left the roster | new condition only; users: 8276 8521 |
 | 2026-09-29T03:50 | sa-P | P-A-chosen-target-status-precast | assembler | 8276, 8521 | troop:6857 Blightwing；weapon:1413 FleurDeLeon | `src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8276 dmg then explode Green/Red ifCond lastTargetStatus; 8521 dmgSplash then explode 4 ifCond lastTargetStatus stun → native order (R001): 8276 explode Red (chosenTargetStatus burning) -> explode Green (disease) -> dmg; 8521 explode 4 (chosenTargetStatus stun) -> heavy splash; override 8521 synced |  |
 | 2026-09-29T03:50 | sa-P | P-A-random-skulls-variants | primitive | 8504 | troop:7001 HoundOfYaoGuai | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts` | randomGems include 'skull' picked plain Skulls only → include 'skull' pool = matchJoinKey skull (plain + Doom + Uber Doom Skulls, R013-5) | explodeRandomSkulls users: 8504 troop:7001, 7136 |
+| 2026-09-29T03:52 | sa-Q2 | R012-pending | assembler | 7566 | troop:6410 Doomclaw | `src/engine/skills/curated/batch-r22.ts` | devour enemyAboveTarget / enemyBelowTarget 25% (whole column above then below) → native Consume@NextDownFromTarget then Consume@NextUpFromTarget 25% each (one troop each), R012 cast-start anchor |  |
 | 2026-09-29T03:53 | sa-J | sa-J-6160-zh | data | 7280 | troop:6160 TheGreatMaw | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 创造 8 颗黄色宝石和棕色宝石 (could read as 8 total) → zh: 创造 8 颗黄色宝石和 8 颗棕色宝石 (EN Create 8 Yellow and 8 Brown Gems) | display text only |
+| 2026-09-29T04:01 | sa-Q2 | P-R3-dragon-gem-count | data | 9532 | troop:7627 DragonknightAmira | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 对末位 2 名对人造成… → zh: 对末位 2 名敌人造成… (English: the last two Enemies); snapshot override troops[7627] |  |
 | 2026-09-29T04:04 | sa-J | sa-J-7068-zh | data | 8596 | troop:7068 FountainOfStars | `src/engine/skills/curated/batch-r21.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 将5有绿宝石都转化为紫色药水…净化所有精灵同盟 (garbled, read as all Green) → zh: 将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。 | display text only |
 | 2026-09-29T04:04 | sa-J | sa-J-7132-devour | assembler | 8681 | troop:7132 Centuragon | `src/engine/skills/curated/batch-r20.ts` | dmg enemyRandom execute chance 10% + 10%/Wildcard (kill only, no stat gain) → devour enemyRandom chance 10% + 10%/Wildcard (native ConsumeConditional = Devour, caster gains stats) |  |
+| 2026-09-29T04:05 | sa-Q2 | L1-6210-armor-base | assembler | 7352 | troop:6210 AnubiteWarrior | `src/engine/skills/curated/batch-29.ts` | summon -> remove skulls -> armor 1 + destroyedGems (armor after the board settled) → native order: summon -> armor 1 + boardSkulls [1:1] (counted before removal) -> remove skulls; base 1 kept from English (dispute) |  |
 | 2026-09-29T04:13 | sa-J | sa-J-7724-zh | data | 9716 | troop:7724 TheSandstoneSentinel | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 如果敌人死亡，则获得伤害值增加三倍 (damage tripled) → zh: 如果敌人死亡，则获得的数值变为三倍 (EN triple the amount gained) | display text only |
 | 2026-09-29T04:21 | sa-J | sa-J-1481-zh | data | 8809 | weapon:1481 WatchfulBlade | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 数值因地域悬崖盟友数而增强 (typo, not the Hellcrag kingdom name) → zh: 数值因地狱悬崖盟友数而增强 (EN boosted by Hellcrag Allies); reviewed-override description 8809 keeps it on regeneration (the _weapon_pools alias 地域悬崖->地狱悬崖 already existed) | display text only |
 | 2026-09-29T04:29 | sa-Q1 | P-random-stat-pool | assembler | 7323 | troop:6182 HeraldOfChaos | `src/engine/skills/curated/batch-r12.ts` | destroy row first, damage + DecreaseRandom boosted by destroyedGems Blue → native order: damage + DecreaseRandom boosted by chosenRowAtCastStart Blue x2, destroy row last |  |
@@ -860,7 +863,7 @@
 | 7347 | 1 | R7-6205-steal-order |
 | 7348 | 2 | P-F1-oneof-chosen-target、P-F1-oneof-chosen-target |
 | 7349 | 2 | F1-remove-order、P-F1-remove-gems |
-| 7352 | 1 | R013-5 |
+| 7352 | 2 | R013-5、L1-6210-armor-base |
 | 7353 | 1 | L7-6211 |
 | 7354 | 1 | F1-steal-before-damage |
 | 7356 | 1 | L3-F-6214 |
@@ -950,6 +953,7 @@
 | 7560 | 1 | P-random-stat-pool |
 | 7561 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 7563 | 2 | R3-B11-1156、R012 |
+| 7566 | 1 | R012-pending |
 | 7567 | 1 | R015-random-gems-include-skulls |
 | 7568 | 3 | P-counter-per-step、L4a-R1-7568-random-gem、P-R1-count-at-native-step |
 | 7574 | 1 | L2-6416-branch-weights |
@@ -1736,7 +1740,7 @@
 | 9529 | 1 | P-prefnotprev-semantics |
 | 9530 | 1 | P-prefnotprev-semantics |
 | 9531 | 1 | P-prefnotprev-semantics |
-| 9532 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
+| 9532 | 2 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count、P-R3-dragon-gem-count |
 | 9534 | 2 | L3-007、F1-items-62-75 |
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |

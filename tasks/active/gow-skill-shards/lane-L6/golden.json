@@ -209,6 +209,16 @@
   "by": "sa-I",
   "at": "2026-09-28T23:29:32.078Z"
  },
+ "troop:6483": {
+  "lines": {
+   "L10": "souls+10 ; dmg E11 13  => E11:hp-3 arm-10  eco:{\"souls\":10}",
+   "R10": "souls+10 ; dmg E11 13  => E11:hp-3 arm-10  eco:{\"souls\":10}",
+   "L0": "souls+10 ; dmg E11 3  => E11:arm-3  eco:{\"souls\":10}",
+   "K": "souls+10 ; dmg E11 13 ; defeat E11  => E11:hp-1 DEAD  eco:{\"souls\":10}"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:55:47.533Z"
+ },
  "troop:6499": {
   "lines": {
    "L10": "buff A1 attack+11 ; buff A1 magic+2  => A1:atk+11 mag+2",

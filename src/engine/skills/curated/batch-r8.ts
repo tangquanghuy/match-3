@@ -552,7 +552,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9532,
-    desc: '对末位 2 名对人造成 [魔法 + 2] 点真实伤害，伤害值因红龙宝石数而增强。 赋予自身屏障效果。 [x6]',
+    desc: '对末位 2 名敌人造成 [魔法 + 2] 点真实伤害，伤害值因红龙宝石数而增强。赋予自身屏障效果。 [x6]',
     build: skill(
       trueDmg('enemyLastN', 2, 1, {
         n: 2,
