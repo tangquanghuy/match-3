@@ -2,6 +2,7 @@
 
 | 项目文件 | 原始文件 | 作者 | 来源 | 许可证 | 用途 |
 |---|---|---|---|---|---|
+| `combat/dot_tick_1.wav` | `flame.ogg` (full 0.45s; 10ms fade-in, 60ms fade-out, -4.5dB, mono 44.1k; original in `game-assets/source/audio/dot-tick-burn/oga_catching_fire_flame.ogg`) | `themightyglider` | OpenGameArt "Catching Fire", https://opengameart.org/content/catching-fire | CC0 1.0 | DoT 结算扣血 · 灼烧嘶声 |
 | `skills/skill_hit_water.wav` | `572006__eminyildirim__water-magic-impact (1).wav` (crop 0.00-1.60s, 80ms fade-out) | Emin Yildirim (`eminyildirim`) | Freesound #572006, Water Magic Impact | CC BY 4.0 | 蓝色主属性角色的技能命中 |
 | `skills/skill_hit_red_single.wav` | `442827__qubodup__fireball.wav` (full source) | `qubodup` | Freesound #442827, fireball | Pending local license verification | Red single-target skill impact |
 | `skills/skill_hit_purple_single.wav` | `275608__discoversound__fire-spell-01.wav` (crop 0.30-1.90s, 100ms fade-out) | `discoversound` | Freesound #275608, fire-spell-01 | Pending local license verification | Purple single-target skill impact |

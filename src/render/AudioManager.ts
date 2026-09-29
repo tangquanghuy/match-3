@@ -4,6 +4,7 @@ import { NarrationAudio } from './NarrationAudio';
 import { narrationSubtitles } from './NarrationSubtitles';
 import type { NarrationClip } from './NarrationCatalog';
 import skullHitUrl from '@assets/audio/combat/skull_hit.wav?url';
+import dotTickUrl from '@assets/audio/combat/dot_tick_1.wav?url';
 import gemExplosionUrl from '@assets/audio/gems/gem_explode.wav?url';
 import gemChain1Url from '@assets/audio/gems/chains/gem_chain_1.wav?url';
 import gemChain2Url from '@assets/audio/gems/chains/gem_chain_2.wav?url';
@@ -47,7 +48,7 @@ export const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
  * 三条音量总线（主/音效/音乐），首次用户交互后初始化以规避自动播放策略（需求 26.5）。
  */
 export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit' | 'manaSurge' | 'barrierBlock' | 'troopTransform'
-  // 轻量数值反馈：属性上升 / 下降、DoT 结算扣血（合成，同类短时节流，批量结算只响一声）
+  // 轻量数值反馈：属性上升 / 下降（合成）、DoT 结算扣血（采样），同类短时节流，批量结算只响一声
   | 'statUp' | 'statDown' | 'dotTick';
 
 /** 施法方：敌方蓄力音更低更暗（合成见 src/audio/castSfx.ts） */
@@ -66,9 +67,10 @@ const COLORED_SINGLE_HIT_URLS: Record<ColoredSingleHit, string> = {
 const GEM_CHAIN_URLS = [gemChain1Url, gemChain2Url, gemChain3Url, gemChain4Url, gemChain5Url] as const;
 const GEM_CHAIN_PREVIEW_GAP_MS = 850;
 
+
 /** 战斗音效采样全集：进战斗前由 battleAssets 全部下载并解码进 audioBank */
 export const BATTLE_SFX_URLS: readonly string[] = [...new Set([
-  skullHitUrl, gemExplosionUrl, ...GEM_CHAIN_URLS,
+  skullHitUrl, dotTickUrl, gemExplosionUrl, ...GEM_CHAIN_URLS,
   summonNecromancyUrl, earthSkillCastUrl, waterSkillHitUrl,
   poisonSpellUrl, healingSpellUrl, armorIronHitUrl, frozenSkillUrl, burningTreeUrl, splashChainHitUrl,
   ...Object.values(COLORED_SINGLE_HIT_URLS),
@@ -337,7 +339,7 @@ export class AudioManager {
    * 轻量数值反馈音（合成，音量明显低于命中/施法音，不抢主演出）：
    *   - statUp：两声上行的清亮短音（像「叮」地涨了一格）
    *   - statDown：一声下滑的柔和短音（被削减）
-   *   - dotTick：闷一点的低频小顿击 + 极短噪声（持续伤害结算扣血）
+   *   - dotTick：采样灼烧嘶声（CC0，非人声；持续伤害结算扣血）
    */
   private lightCue(kind: 'statUp' | 'statDown' | 'dotTick'): void {
     if (!this.ctx || !this.sfxBus) return;
@@ -366,23 +368,9 @@ export class AudioManager {
     } else if (kind === 'statDown') {
       tone(520, 330, t, 0.16, 'triangle', 0.1);
     } else {
-      tone(190, 105, t, 0.12, 'sine', 0.22);
-      const len = Math.floor(ctx.sampleRate * 0.04);
-      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
-      const noise = ctx.createBufferSource();
-      noise.buffer = buf;
-      const lp = ctx.createBiquadFilter();
-      lp.type = 'lowpass';
-      lp.frequency.value = 900;
-      const ng = ctx.createGain();
-      ng.gain.setValueAtTime(0.08, t);
-      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
-      noise.connect(lp);
-      lp.connect(ng);
-      ng.connect(this.sfxBus);
-      noise.start(t);
+      // 采样灼烧嘶声（OpenGameArt「Catching Fire」CC0），播放速率轻微随机，连续几跳不会听出是同一声
+      const source = this.startSample(dotTickUrl, 0.55);
+      if (source) source.playbackRate.value = 0.94 + Math.random() * 0.12;
     }
   }
 
