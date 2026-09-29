@@ -460,9 +460,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「狂怒」= enraged（R10 别名口径）[x10]；「上方和下方的军队」= enemyAboveTarget/
     // enemyBelowTarget（R13）；EN「separate 25% chances」= 两段吞噬各自独立掷签。
     build: skill(
+    // sa-Q2: native Consume@NextDownFromTarget then Consume@NextUpFromTarget (one troop each, not the whole
+    // column; R001 order), anchored on the cast-start slot when the target was killed (R012).
     dmg('enemyChosen', 8, 1, { modifier: boostPer({ kind: 'allyStatusCount', statusId: 'enraged' }, 10) }),
-    devour('enemyAboveTarget', { chance: 0.25 }),
-    devour('enemyBelowTarget', { chance: 0.25 }),
+    devour('enemyNextDown', { chance: 0.25 }),
+    devour('enemyNextUp', { chance: 0.25 }),
     ),
   },
   {

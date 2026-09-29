@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 700 条改动，涉及 1165 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 701 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -706,6 +706,7 @@
 | 2026-09-28T23:37 | sa-I | L3-I-6526-steal-first | assembler | 7719 | troop:6526 IceWraith | `src/engine/skills/curated/batch-07.ts` | hit, Freeze, then steal 5 Mana if Frozen (always true) → native StealMana [AddForFrozen 5] first: steal only if already Frozen, then hit and Freeze |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-1445-random-true | data | 8701 | weapon:1445 CursebreakerJavelin | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | normal damage to the first + last enemy, Tempering on one hit only; zh 首位和末位敌人 → native TrueDamage RandomEnemy -> RandomPrefNotPrevEnemy, Tempering on both; zh 2 名随机敌人 真实伤害; override entry |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
+| 2026-09-29T03:52 | sa-Q2 | R012-pending | assembler | 7566 | troop:6410 Doomclaw | `src/engine/skills/curated/batch-r22.ts` | devour enemyAboveTarget / enemyBelowTarget 25% (whole column above then below) → native Consume@NextDownFromTarget then Consume@NextUpFromTarget 25% each (one troop each), R012 cast-start anchor |  |
 
 ## 按技能 ID
 
@@ -940,6 +941,7 @@
 | 7560 | 1 | P-random-stat-pool |
 | 7561 | 3 | L5-001、R004 (L5-004,L5-005,L5-014,L4b-6340)、R004-tests |
 | 7563 | 2 | R3-B11-1156、R012 |
+| 7566 | 1 | R012-pending |
 | 7567 | 1 | R015-random-gems-include-skulls |
 | 7568 | 3 | P-counter-per-step、L4a-R1-7568-random-gem、P-R1-count-at-native-step |
 | 7574 | 1 | L2-6416-branch-weights |

@@ -9,6 +9,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6047": {
+  "lines": {
+   "L10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17",
+   "R10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17",
+   "L0": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17",
+   "K": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:53:54.301Z"
+ },
  "troop:6076": {
   "lines": {
    "L10": "buff C hp+13 max+13 ; destroy 11 (Blue x11) ; ~cascade~ ; summon mine troop:-1 ; extra-turn skill  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | C:hp+13 max+13  extra:skill  cascade",
@@ -319,6 +329,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:41:21.302Z"
  },
+ "troop:6326": {
+  "lines": {
+   "L10": "convert Purple x3, skull x1, Red x1, Yellow x2, Brown x2, Green x2 -> Blue x11 ; dmg A1 500 ; defeat A1 ; summon mine troop:-1 ; ~cascade~  => A14:new 海卫长魅拉 hp28 atk15 arm11 mag10 | A1:hp-500 DEAD  cascade",
+   "R10": "convert Purple x3, skull x1, Red x1, Yellow x2, Brown x2, Green x2 -> Blue x11 ; dmg A1 500 ; defeat A1 ; summon mine troop:-1 ; ~cascade~  => A14:new 海卫长魅拉 hp28 atk15 arm11 mag10 | A1:hp-500 DEAD  cascade",
+   "L0": "convert Purple x3, skull x1, Red x1, Yellow x2, Brown x2, Green x2 -> Blue x11 ; dmg A1 500 ; defeat A1 ; summon mine troop:-1 ; ~cascade~  => A14:new 海卫长魅拉 hp28 atk15 arm11 mag10 | A1:hp-500 DEAD  cascade",
+   "K": "convert Purple x3, skull x1, Red x1, Yellow x2, Brown x2, Green x2 -> Blue x11 ; dmg A1 500 ; defeat A1 ; summon mine troop:-1 ; ~cascade~  => A14:new 海卫长魅拉 hp28 atk15 arm11 mag10 | A1:hp-500 DEAD  cascade"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:53:54.301Z"
+ },
  "troop:6328": {
   "lines": {
    "L10": "dmg E10 19 (all) ; dmg E11 19 (all) ; dmg E12 19 (all) ; dmg E13 19 (all) ; destroy 11 (Blue x11) ; ~cascade~ ; summon mine troop:6321  => A14:new 银天龙 hp21 atk9 arm10 mag7 | E10:hp-14 arm-5 | E11:hp-9 arm-10 | E12:hp-7 arm-12 | E13:hp-16 arm-3  cascade",
@@ -458,6 +478,16 @@
   },
   "by": "sa-P",
   "at": "2026-09-28T11:46:23.561Z"
+ },
+ "troop:6410": {
+  "lines": {
+   "L10": "dmg E11 18  => E11:hp-8 arm-10",
+   "R10": "dmg E11 18  => E11:hp-8 arm-10",
+   "L0": "dmg E11 8  => E11:arm-8",
+   "K": "dmg E11 18 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:54:02.195Z"
  },
  "troop:6425": {
   "lines": {
