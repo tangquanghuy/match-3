@@ -13,7 +13,7 @@
  *  - 战斗必须先 plan 取票（登记 pendingBattle）再 settle，一票一结，
  *    结算所需上下文全部取自票据而不是客户端。
  */
-import { RULESET_VERSION, type BattleResult } from '@session/contract';
+import { BATTLE_SCHEMA_VERSION, RULESET_VERSION, type BattleResult } from '@session/contract';
 import { fail, type MetaFailure } from '../types';
 import type { MetaSave, PendingBattle } from '../state/schema';
 import { newSave } from '../state/schema';
@@ -77,6 +77,7 @@ import {
   type CommandArgs,
   type CommandResult,
   type CommandType,
+  type ForfeitResult,
   type MetaCommand,
 } from './protocol';
 
@@ -377,6 +378,8 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
     // —— 战斗：结算 ——
     case 'settleBattle':
       return withMaterials(settle(save, (command.args as CommandArgs<'settleBattle'>).result, now, weekStart, todayStart));
+    case 'forfeitPendingBattle':
+      return withMaterials(forfeit(save, now, weekStart, todayStart));
 
     // —— 馈赠 ——
     case 'claimGift':
@@ -479,6 +482,39 @@ function issueEncounter(
     mirror: null,
     opponents: [],
   };
+}
+
+/**
+ * 防「刷新重来」：开打后没交结果就丢票 = 认输。
+ * 有代价的战斗（竞技场败场、入侵掉 VP、活动/登塔收尾）按败北走正常结算；
+ * 任务/探索无门票也无败北惩罚，直接作废（不发战败保底，避免刷保底）。
+ */
+function forfeit(save: MetaSave, now: number, weekStart: number, todayStart: number): ForfeitResult | MetaFailure {
+  const pending = save.pendingBattle;
+  if (!pending) return { ok: true, outcome: 'none', settlement: null };
+  if (pending.mode === 'encounter' && pending.plan.source.kind !== 'event') {
+    save.pendingBattle = null;
+    return { ok: true, outcome: 'discarded', settlement: null };
+  }
+  const surrender: BattleResult = {
+    schemaVersion: BATTLE_SCHEMA_VERSION,
+    // 活动结算按 battleId 去重，与出战请求保持一致
+    battleId: pending.mode === 'encounter' ? `meta-${pending.plan.seed}` : pending.requestId,
+    requestId: pending.requestId,
+    rulesetVersion: RULESET_VERSION,
+    seed: 0,
+    winner: 'enemy',
+    endReason: 'surrender',
+    turns: 0,
+    combatants: [],
+    defeatedExternalIds: [],
+    summonedCount: 0,
+    actionLogDigest: 'forfeit',
+    eventSummary: [],
+  };
+  const settlement = settle(save, surrender, now, weekStart, todayStart);
+  if (!settlement.ok) return settlement;
+  return { ok: true, outcome: 'defeat', settlement };
 }
 
 /** 结算只认当前票：requestId / 规则版本对不上一律拒绝，结算后票作废 */

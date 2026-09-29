@@ -163,6 +163,50 @@ describe('MockGateway', () => {
     expect(gwSave(gw).arena.activeDraft).toBeNull();
   });
 
+  it('防刷新重来：竞技场开打后刷新 = 判负；未结算就开下一场也判负', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    await gw.load();
+    await gw.dev!.importSaveJson(JSON.stringify({ ...gwSave(gw), currencies: { ...gwSave(gw).currencies, gold: 99_999 } }));
+    await gw.enterArena();
+    for (let round = 0; round < 4; round++) await gw.pickDraftCard(currentDraftChoices(gwSave(gw))!.options[0]!.troopId);
+    await gw.arrangeDraftTeam(gwSave(gw).arena.activeDraft!.picked);
+    await gw.startDraftBattles();
+
+    // 开打 → 刷新页面
+    const first = await gw.planArenaBattle();
+    if (!first.ok) throw new Error(first.message);
+    const reloaded = new MockGateway(storage);
+    const { save } = await reloaded.load();
+    expect(save.arena.activeDraft).toMatchObject({ wins: 0, losses: 1 });
+    expect(save.pendingBattle).toBeNull();
+    // 刷新前那一场的胜利结果交不上来
+    expect((await reloaded.settleBattle(fakeResult({ ...ticketIds(first), winner: 'player' }))).result.ok).toBe(false);
+
+    // 不交结果直接开下一场：上一场判负（第二败 → 本届收官）
+    const second = await reloaded.planArenaBattle();
+    if (!second.ok) throw new Error(second.message);
+    const third = await reloaded.planArenaBattle();
+    expect(third.ok).toBe(false);
+    expect(reloaded.current().arena.activeDraft).toBeNull();
+  });
+
+  it('防刷新重来：入侵开打后刷新 = 败北（计场次、不给胜利 VP）', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    await gw.load();
+    await gw.dev!.importSaveJson(JSON.stringify({ ...gwSave(gw), hero: { ...gwSave(gw).hero, level: 30 } }));
+    await gw.syncInvasionSeason();
+    const mirror = (await import('../../src/meta/systems/invasion')).invasionCandidates(gwSave(gw), gw.now(), weekStartOf(gw.now()))[0]!;
+    const ticket = await gw.planInvasionBattle(mirror.id);
+    if (!ticket.ok) throw new Error(ticket.message);
+    const battles = gwSave(gw).invasion.battles;
+    const { save } = await new MockGateway(storage).load();
+    expect(save.invasion.battles).toBe(battles + 1);
+    expect(save.invasion.progressionVp).toBe(gwSave(gw).invasion.progressionVp);
+    expect(save.pendingBattle).toBeNull();
+  });
+
   it('游戏时区固定 UTC+8：日界/周界与运行环境时区无关', () => {
     // 2026-09-28（周一）00:00 北京时间 = 2026-09-27T16:00Z
     const mondayCst = Date.UTC(2026, 8, 27, 16);
@@ -211,13 +255,17 @@ describe('MockGateway', () => {
     expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(6);
     expect(gwSave(gw).pendingBattle).toBeNull();
 
-    // 出战票随存档持久化：刷新页面后仍可结算
+    // 战斗中刷新页面：任务票直接作废（不推进、不发保底），旧结果交不上来
     const again = await gw.planQuestBattle(kingdom, 7);
     if (!again.ok) throw new Error(again.message);
+    const goldBefore = gwSave(gw).currencies.gold;
     const reloaded = new MockGateway(storage);
-    await reloaded.load();
+    const after = (await reloaded.load()).save;
+    expect(after.pendingBattle).toBeNull();
+    expect(after.kingdoms[kingdom]?.questsDone).toBe(6);
+    expect(after.currencies.gold).toBe(goldBefore);
     const late = await reloaded.settleBattle(fakeResult({ ...ticketIds(again), winner: 'player' }));
-    expect(late.result.ok).toBe(true);
+    expect(late.result.ok).toBe(false);
   });
 
   it('设置：导入导出往返一致；至少保留一支预设队', async () => {

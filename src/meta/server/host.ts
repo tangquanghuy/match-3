@@ -17,7 +17,7 @@ import { MetaSaveError } from '../state/save';
 import { buildPatch, diffRecords, recordsToSave, saveToRecords, type RecordChanges, type SaveRecords } from '../state/records';
 import { createFreshSave, runCommand, type FreshSaveKind } from './core';
 import type { ServerEnv } from './env';
-import { isCriticalCommand, type CommandReply, type CommandType, type LoadReply, type MetaCommand } from './protocol';
+import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type MetaCommand } from './protocol';
 
 /** 一批原子写入：把存储从 fromRevision 推到 toRevision（null = 首次建档） */
 export interface RecordBatch {
@@ -61,11 +61,18 @@ export class MetaHost {
     private readonly options: MetaHostOptions,
   ) {}
 
-  /** 整份快照（仅登录/重同步时下发）。首次调用会载入或建档。 */
+  /**
+   * 整份快照（登录/刷新页面/重同步时下发）。首次调用会载入或建档。
+   * 防刷新重来：此时还挂着未结算的出战票 = 玩家在战斗中刷新了，先判负/作废再下发。
+   */
   load(): Promise<LoadReply> {
     return this.serial(async () => {
-      const save = await this.ensureLoaded();
-      const reply: LoadReply = { save, fresh: this.createdFresh, warning: this.loadWarning, serverNow: this.env.now() };
+      await this.ensureLoaded();
+      if (this.save?.pendingBattle) {
+        this.commit({ type: 'forfeitPendingBattle', args: {} } as MetaCommand);
+        await this.flushNow();
+      }
+      const reply: LoadReply = { save: this.save!, fresh: this.createdFresh, warning: this.loadWarning, serverNow: this.env.now() };
       this.createdFresh = false;
       this.loadWarning = null;
       return reply;
@@ -74,22 +81,22 @@ export class MetaHost {
 
   execute<K extends CommandType>(command: MetaCommand<K>): Promise<CommandReply<K>> {
     return this.serial(async () => {
-      const current = await this.ensureLoaded();
-      const outcome = runCommand(current, command, this.env);
-      if (!outcome.commit) return { result: outcome.result, patch: null, serverNow: this.env.now() };
+      const start = await this.ensureLoaded();
+      const startRecords = this.records;
+      // 未结算就开新战斗（多标签页 / 跳过结算）：旧票先判负/作废，与刷新同口径
+      const forfeited = PLAN_COMMANDS.has(command.type) && start.pendingBattle
+        ? this.commit({ type: 'forfeitPendingBattle', args: {} } as MetaCommand)
+        : false;
+      const outcome = runCommand(this.save!, command, this.env);
+      const committed = outcome.commit ? this.apply(outcome.save) : false;
+      if (!committed && !forfeited) return { result: outcome.result, patch: null, serverNow: this.env.now() };
 
-      const next = saveToRecords(outcome.save);
-      const changes = diffRecords(this.records, next);
-      this.save = outcome.save;
-      this.records = next;
-      this.markDirty(changes);
-
-      if (isCriticalCommand(command.type) || (this.options.flushDelayMs ?? 0) <= 0) await this.flushNow();
+      if (forfeited || isCriticalCommand(command.type) || (this.options.flushDelayMs ?? 0) <= 0) await this.flushNow();
       else this.scheduleFlush();
 
       return {
         result: outcome.result,
-        patch: buildPatch(current.revision, outcome.save.revision, changes),
+        patch: buildPatch(start.revision, this.save!.revision, diffRecords(startRecords, this.records)),
         serverNow: this.env.now(),
       };
     });
@@ -140,6 +147,21 @@ export class MetaHost {
     this.createdFresh = true;
     await this.flushNow();
     return created;
+  }
+
+  /** 执行并（成功时）提交一条内部命令；返回是否提交 */
+  private commit(command: MetaCommand): boolean {
+    const outcome = runCommand(this.save!, command, this.env);
+    return outcome.commit ? this.apply(outcome.save) : false;
+  }
+
+  /** 把新存档设为已提交状态并标脏 */
+  private apply(next: MetaSave): true {
+    const records = saveToRecords(next);
+    this.markDirty(diffRecords(this.records, records));
+    this.save = next;
+    this.records = records;
+    return true;
   }
 
   private markDirty(changes: RecordChanges): void {

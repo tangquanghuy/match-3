@@ -83,6 +83,18 @@ export type BattleSettlement =
   | { ok: true; kind: 'arena'; settled: ArenaSettleResult }
   | { ok: true; kind: 'invasion'; settled: InvasionSettleResult; mirror: InvasionMirror };
 
+export interface ForfeitResult {
+  ok: true;
+  /** none = 没有票；discarded = 任务/探索票作废；defeat = 按败北结算 */
+  outcome: 'none' | 'discarded' | 'defeat';
+  settlement: BattleSettlement | null;
+}
+
+/** 出战票类命令（开新票前会先把未结算的旧票判负/作废） */
+export const PLAN_COMMANDS: ReadonlySet<string> = new Set([
+  'planQuestBattle', 'planTutorialBattle', 'planExploreBattle', 'planEventBattle', 'planArenaBattle', 'planInvasionBattle',
+]);
+
 export type CollectionModifierAction =
   | { kind: 'unlock-kingdom'; kingdom: string }
   | { kind: 'restore-real' }
@@ -162,6 +174,11 @@ export interface CommandTable {
   planArenaBattle: { args: object; result: BattleTicket | MetaFailure };
   planInvasionBattle: { args: { mirrorId: string }; result: BattleTicket | MetaFailure };
   settleBattle: { args: { result: BattleResult }; result: BattleSettlement | MetaFailure };
+  /**
+   * 放弃当前出战票：竞技场/入侵/活动按败北结算，任务/探索直接作废。
+   * 宿主在「刷新页面（load）」和「未结算就开新战斗」时自动执行，客户端也可主动发（认输）。
+   */
+  forfeitPendingBattle: { args: object; result: ForfeitResult };
 
   // —— 馈赠 ——
   claimGift: { args: { id: string }; result: GiftClaimResult };
@@ -220,6 +237,7 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'resetToNewGame',
   'openChest',
   'settleBattle',
+  'forfeitPendingBattle',
   'collectKingdomTribute',
   'collectAllTribute',
   'claimGift',
