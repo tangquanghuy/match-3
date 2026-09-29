@@ -2529,6 +2529,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:22:49.913Z"
  },
+ "weapon:1365": {
+  "lines": {
+   "L10": "buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2 ; destroy 11 (Blue x11) ; ~cascade~  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2 | A1:mana+11 | A2:mana+3  cascade",
+   "R10": "buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2 ; destroy 11 (Blue x11) ; ~cascade~  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2 | A1:mana+11 | A2:mana+3  cascade",
+   "L0": "buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2 ; destroy 1 (Blue x1)  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2 | A1:mana+1",
+   "K": "buff E10 mana-2 ; buff E11 mana-2 ; buff E12 mana-2 ; buff E13 mana-2 ; destroy 11 (Blue x11) ; ~cascade~  => E10:mana-2 | E11:mana-2 | E12:mana-2 | E13:mana-2 | A1:mana+11 | A2:mana+3  cascade"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:21:47.602Z"
+ },
  "weapon:1376": {
   "lines": {
    "L10": "buff A1 hp+27 max+27 ; buff A1 mana+4  => A1:hp+27 max+27 mana+4",

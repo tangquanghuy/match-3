@@ -3489,6 +3489,16 @@
   "by": "sa-B",
   "at": "2026-09-28T10:24:17.522Z"
  },
+ "weapon:1481": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:21:49.736Z"
+ },
  "weapon:1485": {
   "lines": {
    "L10": "dmg E11 14 ; convert Yellow x8 -> uberDoomSkull x8  => E11:hp-4 arm-10",

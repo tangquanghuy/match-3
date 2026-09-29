@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 704 条改动，涉及 1166 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 705 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -710,6 +710,7 @@
 | 2026-09-29T04:04 | sa-J | sa-J-7068-zh | data | 8596 | troop:7068 FountainOfStars | `src/engine/skills/curated/batch-r21.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 将5有绿宝石都转化为紫色药水…净化所有精灵同盟 (garbled, read as all Green) → zh: 将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。 | display text only |
 | 2026-09-29T04:04 | sa-J | sa-J-7132-devour | assembler | 8681 | troop:7132 Centuragon | `src/engine/skills/curated/batch-r20.ts` | dmg enemyRandom execute chance 10% + 10%/Wildcard (kill only, no stat gain) → devour enemyRandom chance 10% + 10%/Wildcard (native ConsumeConditional = Devour, caster gains stats) |  |
 | 2026-09-29T04:13 | sa-J | sa-J-7724-zh | data | 9716 | troop:7724 TheSandstoneSentinel | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 如果敌人死亡，则获得伤害值增加三倍 (damage tripled) → zh: 如果敌人死亡，则获得的数值变为三倍 (EN triple the amount gained) | display text only |
+| 2026-09-29T04:21 | sa-J | sa-J-1481-zh | data | 8809 | weapon:1481 WatchfulBlade | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 数值因地域悬崖盟友数而增强 (typo, not the Hellcrag kingdom name) → zh: 数值因地狱悬崖盟友数而增强 (EN boosted by Hellcrag Allies); reviewed-override description 8809 keeps it on regeneration (the _weapon_pools alias 地域悬崖->地狱悬崖 already existed) | display text only |
 
 ## 按技能 ID
 
@@ -1480,7 +1481,7 @@
 | 8803 | 1 | L4b-R6-B03-prefnotprev |
 | 8804 | 1 | L2-7217-cell |
 | 8807 | 3 | F2-R001-order、P-A-target-kingdom、P-E-faction-kingdom |
-| 8809 | 1 | P-E-faction-kingdom |
+| 8809 | 2 | P-E-faction-kingdom、sa-J-1481-zh |
 | 8812 | 1 | L4a-R1-8812-no-base |
 | 8813 | 1 | L4b-R6-B06 |
 | 8814 | 1 | L4a-R9-7220-gargoyle-mix |

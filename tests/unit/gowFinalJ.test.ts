@@ -8,6 +8,7 @@ import { FixedBranchChooser } from '@engine/skills/branchChooser';
 import { castSpell, reviewBoard, setupCast, summarize, type BoardFn } from '../helpers/gowCast';
 import { spellDescription } from '../../src/data/combatText';
 import troops from '../../src/data/troops.json';
+import weapons from '../../src/data/weapons.json';
 
 /** Chinese spell text the game shows for a troop (built data + snapshot overrides). */
 const zhOf = (troopId: number, spellId: number) => spellDescription(spellId, troops.find(t => t.id === troopId)!.spell.description);
@@ -220,5 +221,16 @@ describe('sa-J B12', () => {
     const moves = new Set<number>();
     for (let seed = 1; seed <= 20; seed++) moves.add(order('weapon:1254', { seed }).filter(x => / back$/.test(x)).length);
     expect([...moves].sort()).toEqual([1, 2]);
+  });
+});
+
+describe('sa-J B13', () => {
+  // weapon:1481 WatchfulBlade (8809): Hellcrag = 地狱悬崖 in both clauses (old text had the typo 地域悬崖).
+  it('weapon:1481 counts Hellcrag allies for damage and gems; the Chinese names Hellcrag correctly', () => {
+    const hell = [{ hp: 500, maxHp: 700, kingdomId: 3082 }] as Record<string, unknown>[];
+    const o = order('weapon:1481', { allies: hell });
+    expect(o[0]).toBe('dmg E11 23');
+    const w = weapons.find(x => x.id === 1481)!;
+    expect(w.spell.description).toBe('对一名敌人造成 [魔法 + 7] 点伤害，数值因地狱悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]');
   });
 });
