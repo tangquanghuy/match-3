@@ -643,8 +643,8 @@ export function explodeRandomGems(base: number, mult = 0, include: 'color' | 'al
 }
 
 /**
- * 随机爆破 N 颗普通骷髅（R22 批，7136「随机爆破 10 颗骷髅头」/ 8504「炸毁三个骷髅头」）：
- * include 'skull' 限定普通骷髅（末日族属特殊宝石，不入池），爆破仍辐射一圈。
+ * 随机爆破 N 颗骷髅（R22 批，7136「随机爆破 10 颗骷髅头」/ 8504「炸毁三个骷髅头」）：
+ * include 'skull' = matchJoinKey 'skull'（普通骷髅 + 末日 / 至尊末日骷髅，R013-5，P-A-random-skulls-variants），爆破仍辐射一圈。
  */
 export function explodeRandomSkulls(base: number, mult = 0, opts?: SegmentOpts): GemSegment {
   return explodeRandomGems(base, mult, 'skull', undefined, opts);

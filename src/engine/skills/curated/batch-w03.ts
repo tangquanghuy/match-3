@@ -423,7 +423,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8521,
     desc: '对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}},"ifCond":{"kind":"lastTargetStatus","statusId":"stun"}}]} as SkillPrototype),
+    // P-A-chosen-target-status-precast: native ExplodeGems 4 [AddForStun@FromTarget] -> SplashHeavyDamage (R001)
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}},"ifCond":{"kind":"chosenTargetStatus","statusId":"stun"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75}]} as SkillPrototype),
   },
   {
     id: 8529,

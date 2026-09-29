@@ -645,8 +645,9 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
         if (target.special !== undefined && !(gem.type.kind === 'special' && gem.type.spec.kind === target.special
           && (target.specialTier === undefined || (gem.type.spec.tier ?? 1) === target.specialTier))) return;
         if (target.include === 'color' && gem.type.kind !== 'color') return;
-        // include 'skull'（R22 批，7136/8504）：仅普通骷髅（末日族属 special kind，不在池内）
-        if (target.include === 'skull' && gem.type.kind !== 'skull') return;
+        // include 'skull'（7136/8504 native ExplodeColor Skull N）：P-A-random-skulls-variants / R013-5 —
+        // skull variants (Doom / Uber Doom Skull) are Skulls too: pool = matchJoinKey 'skull'
+        if (target.include === 'skull' && !isSameMatchType(gem.type, skullGem())) return;
         if (colorFilters !== null) {
           if (!colorFilters.some((t) => isSameMatchType(gem.type, t))) return;
         } else if (singleFilter && !isSameMatchType(gem.type, singleFilter)) return;
