@@ -115,7 +115,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8160,
-    desc: '对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射上海。爆破板面上半数蓝色宝石。 [2:1]',
+    desc: '对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射伤害。爆破板面上半数蓝色宝石。 [2:1]',
     // 机翻事故：「溅射上海」= 溅射伤害；[2:1] = 官方 CountGems Amount 50（每 2 颗爆破 1 颗）
     build: skill(
       // 3 x plain SplashDamage RandomEnemy (no PrefNotPrev step): R006-C3 prefer not-yet-hit
@@ -186,7 +186,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8282,
-    desc: '创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。',
+    desc: '创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。',
     // TrueScatterDamage Target=AllEnemies → trueDmg enemyAll range all（8639 口径）；
     // 官方步骤无棕色宝石计数步（ZH「几率因棕色宝石数」无 [xN] 且官方无 UseCounter）→ 不挂 chanceBoost
     build: skill(
@@ -255,7 +255,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8416,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害。若自身有狂怒效果，并将之击回末位。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害。若自身有狂怒效果，则将之击回末位。',
     // TroopOrderBackConditional → selfStatus rage 条件击退（§11 R4 selfStatus 条件）
     build: skill(
       dmg('enemyChosen', 2, 1),
@@ -340,10 +340,10 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8831,
     desc: '给予一名盟友 [魔法 + 1] 点随机技能值，并重复一次。再召唤一名随机聚沙之地军队。',
-    // IncreaseRandom = randomStat（「随机技能值」口径）；王国 3024 召唤
+    // IncreaseRandom ×2 = 每步全额给一项随机技能（oneSkill，R007-2；sa-H：原为拆分到多项）；王国 3024 召唤
     build: skill(
-      randomStat('allyChosen', 1, 1),
-      randomStat('allyChosen', 1, 1),
+      randomStat('allyChosen', 1, 1, { oneSkill: true }),
+      randomStat('allyChosen', 1, 1, { oneSkill: true }),
       summonRandom(K3024),
     ),
   },
@@ -386,14 +386,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8852,
-    desc: '对一名敌人造成[(魔法 x 2) + 4]点真实伤害。然后从敌人那里偷取魔力值10，或者生命值20，或者盔甲魔力值20。',
-    // 「或者」= oneOf 掷签三选一（§9.3）；「盔甲魔力值」机翻 = 护甲（官方 StealArmor）
+    desc: '对一名敌人造成 [(魔法 x 2) + 4] 点真实伤害。然后从该敌人处窃取 10 点魔力值，或 20 点生命值，或 20 点护甲值。',
+    // 原生 AB-CD-EF：StealMagic 10 | StealArmor 20 | StealLife 20，各自在 TrueDamage [(M×2)+4] 之前（R001：
+    // 先窃取魔力会提高本次伤害）。sa-H：原为先伤害、且 A 分支窃取的是法力（英文/原生为 Magic）；ZH「盔甲魔力值」改
     build: skill(
-      trueDmg('enemyChosen', 4, 2),
       oneOf(
-        [steal('lastTarget', 'mana', 'mana', 10, 0)],
-        [dmg('lastTarget', 20, 0, { drain: true })],
-        [steal('lastTarget', 'armor', 'armor', 20, 0)],
+        [steal('enemyChosen', 'magic', 'magic', 10, 0), trueDmg('enemyChosen', 4, 2)],
+        [steal('enemyChosen', 'armor', 'armor', 20, 0), trueDmg('enemyChosen', 4, 2)],
+        [dmg('enemyChosen', 20, 0, { drain: true }), trueDmg('enemyChosen', 4, 2)],
       ),
     ),
   },
@@ -887,7 +887,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方 TroopOrderBack SecondEnemy + FrontEnemy：先推首位后（新）首位顶上再推，两段等效
     build: skill(
       dmg('enemyFirstN', 2, 1, { n: 2 }),
-      reposition('enemyFront', 'back'),
+      // sa-G (R001): native TroopOrderBack@SecondEnemy then @FrontEnemy -> ends [.., 2nd, 1st] (front twice ended [.., 1st, 2nd])
+      reposition('enemyNth', 'back', { n: 2 }),
       reposition('enemyFront', 'back'),
     ),
   },
@@ -955,9 +956,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9906,
     desc: '引爆3颗随机颜色的宝石。',
-    // ExplodeColor ×6（六色各 3）实为「引爆 3 颗（非骷髅）宝石」机翻展开 → explodeRandomGems color
+    // 原生 Randomize A-B-C-D-E-F：六步 ExplodeColor <色> 3 择一（各 1/6）= 英文「随机一种颜色的 3 颗宝石」
+    // （sa-H：原为不限色随机 3 颗，混色）
     build: skill(
-      explodeRandomGems(3, 0, 'color'),
+      oneOf(...([BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple, BaseColor.Brown] as const)
+        .map(c => [explodeRandomGems(3, 0, 'color', c)])),
     ),
   },
   {

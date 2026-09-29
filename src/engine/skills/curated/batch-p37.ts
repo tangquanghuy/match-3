@@ -207,20 +207,25 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8239,
-    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害，。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。',
+    desc: '对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。',
     build: skill(
       dmg('enemyChosen', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
-      dmg('enemyRandom', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
+      // sa-F: native Damage@RandomPrefNotPrevEnemy (was plain random, could re-hit the chosen enemy)
+      dmg('enemyRandomPrefNotPrev', 3, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Yellow } } }),
       mana('allyOthers', 6, 0, { ifCond: { kind: 'stormPresent' } }),
     ),
   },
   {
     id: 8361,
-    desc: '对第一名敌人造成 [魔法 + 1] 点伤害。若对方使用紫色法力值，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。',
+    desc: '对第一名敌人造成 [魔法 + 1] 点真实伤害。若对方使用紫色法力值，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。',
+    // sa-C r9 native: TrueDamage FrontEnemy [MultiplyForPurpleTarget 2] (was normal damage, zh lacked 真实),
+    // then Hunter's Mark if Daemon, if Beast, Bleed if Daemon, if Beast (a Daemon Beast gets 2 Bleeds).
     build: skill(
-      dmg('enemyFront', 1, 1, { condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
-      inflict('marked', 'enemyFront', { ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Daemon' }, { kind: 'targetRace', race: 'Beast' }] } }),
-      inflict('bleed', 'enemyFront', { ifCond: { kind: 'anyOf', of: [{ kind: 'targetRace', race: 'Daemon' }, { kind: 'targetRace', race: 'Beast' }] } }),
+      dmg('enemyFront', 1, 1, { trueDamage: true, condMult: { times: 2, cond: { kind: 'targetColor', color: BaseColor.Purple } } }),
+      inflict('marked', 'enemyFront', { ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      inflict('marked', 'enemyFront', { ifCond: { kind: 'targetRace', race: 'Beast' } }),
+      inflict('bleed', 'enemyFront', { ifCond: { kind: 'targetRace', race: 'Daemon' } }),
+      inflict('bleed', 'enemyFront', { ifCond: { kind: 'targetRace', race: 'Beast' } }),
     ),
   },
   {

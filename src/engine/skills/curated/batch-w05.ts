@@ -12,7 +12,8 @@ const SKIPPED: { id: number; reason: string }[] = [];
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7071,
-    desc: '?????????',
+    // English 'Explode a random Gem.' (native ExplodeGems 1, any gem incl. Skulls); stored zh was '?????????'
+    desc: '随机爆破一颗宝石。',
     build: skill(
       explodeRandomGems(1, 0),
     ),

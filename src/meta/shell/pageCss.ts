@@ -18,6 +18,7 @@ import marketCss from './styles/market.css?raw';
 import huntCss from './styles/hunt.css?raw';
 import eventsLockCss from './styles/events-lock.css?raw';
 import eventsCss from './styles/events.css?raw';
+import eventsModesCss from './styles/events-modes.css?raw';
 import giftsCss from './styles/gifts.css?raw';
 
 interface PageCssSpec {
@@ -30,7 +31,7 @@ const PAGE_CSS: Record<string, PageCssSpec> = {
   troop: { css: troopCss, position: 'first' },
   arena: { css: arenaCss, position: 'last' },
   result: { css: resultCss, position: 'last' },
-  events: { css: eventsCss + eventsLockCss, position: 'last' },
+  events: { css: eventsCss + eventsModesCss + eventsLockCss, position: 'last' },
   invasion: { css: liveCss, position: 'last' },
   bag: { css: bagCss, position: 'last' },
   shop: { css: eventShopCss + marketCss + eventsLockCss, position: 'last' },

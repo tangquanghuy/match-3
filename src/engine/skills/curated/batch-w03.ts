@@ -54,10 +54,11 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8409,
     desc: '对一名敌人造成 [魔法 + 6] 点伤害。若有机械盟友，则先消除敌人 30 点护甲值。召唤一个电风暴。',
+    // native order: DecreaseArmor 30 [AddIfIHaveMech] first, then Damage ; StormRedYellow = two-colour Electrostorm
     build: skill(
-      dmg('enemyChosen', 6, 1),
       reduce('enemyChosen', 'armor', 30, 0, { ifCond: { kind: 'allyRacePresent', race: 'Mech' } }),
-      createStorm(BaseColor.Yellow),
+      dmg('enemyChosen', 6, 1),
+      createStorm(BaseColor.Red, { color2: BaseColor.Yellow }),
     ),
   },
   {
@@ -352,7 +353,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8512,
-    desc: '结果 [魔法 + 3] 给予一名敌人重击。摧毁8枚宝石的法力颜色之一。',
+    desc: '对一名敌人造成 [魔法 + 3] 点溅射伤害。爆破 8 颗该敌人法力颜色之一的宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3, 1, { range: 'splash' }),
       explodeRandomGems(8, 0, 'color', 'LAST_TARGET'),
@@ -396,7 +397,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8517,
     desc: '获得 [魔法 + 1] 点生命值。再创造 7 颗红色宝石或获得一个额外回合，或爆破一颗随机宝石。',
-    build: skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'color')])),
+    build: skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'all')])), // sa-H: ExplodeGems 1 = any gem
   },
   {
     id: 8518,
@@ -421,8 +422,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8521,
-    desc: '结果 [魔法 + 3] 给予一名敌人超级重击。如果敌人被打昏，炸毁四枚宝石。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"color"}},"ifCond":{"kind":"anyEnemyStatus","statusId":"stun"}}]} as SkillPrototype),
+    desc: '对一名敌人造成 [魔法 + 3] 点重度溅射伤害。若该敌人被击晕，则爆破 4 颗宝石。',
+    // P-A-chosen-target-status-precast: native ExplodeGems 4 [AddForStun@FromTarget] -> SplashHeavyDamage (R001)
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}},"ifCond":{"kind":"chosenTargetStatus","statusId":"stun"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"range":"splash","splashRatio":0.75}]} as SkillPrototype),
   },
   {
     id: 8529,
@@ -464,10 +466,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8578,
-    desc: '制造 3 种药水，蓝色、绿色、红色、黄色或紫色。可获得额外的回合。',
+    desc: '制造 3 瓶同一种颜色的药水（蓝色、绿色、红色、黄色或紫色随机其一）。获得额外的回合。',
+    // 原生 A+(B-C-D-E-F)：ExtraTurn 必发在前，再五色 CreateGems <色>ManaPotion 3 择一（各 1/5）
+    // （sa-H：原为五色混合池；旧 ZH「3 种药水」误）
     build: skill(
-      createGemsMixAny([{ kind: 'manaPotionGem', color: BaseColor.Blue }, { kind: 'manaPotionGem', color: BaseColor.Green }, { kind: 'manaPotionGem', color: BaseColor.Red }, { kind: 'manaPotionGem', color: BaseColor.Yellow }, { kind: 'manaPotionGem', color: BaseColor.Purple }], 3, 0),
       extraTurn(),
+      oneOf(...([BaseColor.Blue, BaseColor.Green, BaseColor.Red, BaseColor.Yellow, BaseColor.Purple] as const)
+        .map(c => [createSpecialGems({ kind: 'manaPotionGem', color: c }, 3)])),
     ),
   },
   {
@@ -637,7 +642,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8696,
     desc: '爆破 3 颗宝石，再创造一颗许愿宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"wish"}},"count":{"base":1,"mult":0}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"all"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"wish"}},"count":{"base":1,"mult":0}}}]} as SkillPrototype),
   },
   {
     id: 8697,
@@ -681,10 +686,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8701,
-    desc: '对首位和末位敌人造成 [魔法 + 8] 点伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有黄色盟友并诅咒所有黄色敌人。',
+    desc: '对 2 名随机敌人造成 [魔法 + 8] 点真实伤害，每锻炼 1 个武器段位则 +4 点伤害值。赐福所有黄色盟友并诅咒所有黄色敌人。',
+    // sa-C r9 native: TrueDamage RandomEnemy -> TrueDamage RandomPrefNotPrevEnemy, both [AddForTempering 4];
+    // was normal damage to the first + last enemy with Tempering on one hit only (zh said 首位和末位).
     build: skill(
-      dmg('enemyLast', 8, 1),
-      dmg('enemyFront', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      trueDmg('enemyRandom', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
+      trueDmg('enemyRandomPrefNotPrev', 8, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
       inflict('blessed', 'allyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
       inflict('curse', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     ),
@@ -736,8 +743,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8721,
-    desc: '选择一宝石，摧毁其行和列。再创造 6 颗炸弹宝石，并造成 [魔法 + 6] 点散射伤害。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"chosenCross"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"bomb"}},"count":{"base":6,"mult":0}}},{"kind":"damage","target":"enemyAll","scaling":{"base":6,"mult":1},"range":"scatter"}]} as SkillPrototype),
+    desc: '选择一颗宝石，摧毁其所在的列。再创造 6 颗炸弹宝石，并造成 [魔法 + 6] 点散射伤害。',
+    // native DestroyGems BoardTarget Column (English 'destroy its column'): column only, not row + column
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"destroy","target":{"kind":"chosenLine","orientation":"col"}}},{"kind":"gem","params":{"op":"create","gem":{"kind":"special","spec":{"kind":"bomb"}},"count":{"base":6,"mult":0}}},{"kind":"damage","target":"enemyAll","scaling":{"base":6,"mult":1},"range":"scatter"}]} as SkillPrototype),
   },
   {
     id: 8725,
@@ -897,7 +905,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8774,
     desc: '造成 [魔法 + 7] 点散射伤害。若自身队伍中有泽菲罗斯，则爆破 5 颗宝石。 [x5]',
-    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":7,"mult":1},"range":"scatter","modifier":{"mod":{"kind":"multiplier","a":5}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":5,"mult":0},"include":"color"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"泽菲罗斯"}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyAll","scaling":{"base":7,"mult":1},"range":"scatter","modifier":{"mod":{"kind":"multiplier","a":5}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":5,"mult":0},"include":"all"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"泽菲罗斯"}}]} as SkillPrototype),
   },
   {
     id: 8775,
@@ -955,7 +963,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8809,
-    desc: '对一名敌人造成 [魔法 + 7] 点伤害，数值因地域悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]',
+    desc: '对一名敌人造成 [魔法 + 7] 点伤害，数值因地狱悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]',
     build: skill(
       dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3082 } } }),
       createMix([BaseColor.Red, BaseColor.Brown], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfKingdom', kingdom: 3082 } } }),
@@ -979,7 +987,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8816,
     desc: '爆破 [魔法 + 1] 颗宝石。再召唤一名黑曜石深渊军队。',
     build: skill(
-      explodeRandomGems(1, 1, 'color'),
+      explodeRandomGems(1, 1, 'all'),
       summonRandom(rawKingdomPool(3083), undefined) /* native SummoningKingdom 3083 (zh '地狱悬崖' adds faction troops) */,
     ),
   },
@@ -1315,7 +1323,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9018,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害，伤害值因赃物宝石数而增强。再爆破 4 颗宝石。 [x5]',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":5},"source":{"kind":"boardSpecial","gem":"bootyGem"}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"color"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":1},"modifier":{"mod":{"kind":"multiplier","a":5},"source":{"kind":"boardSpecial","gem":"bootyGem"}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":4,"mult":0},"include":"all"}}}]} as SkillPrototype),
   },
   {
     id: 9019,

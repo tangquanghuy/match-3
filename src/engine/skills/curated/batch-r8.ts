@@ -16,7 +16,7 @@
  */
 import type { CuratedBatch } from './index';
 import { chooseSkill, skill, dmg, dmgSplash, trueDmg, heal, armor, attack, inflict, cleanse, reduce,
-  transform, transformToSpecial, createGems, createSpecialGems, createSkulls, createMix, destroyChosenRow, explodeChosenRow, explodeChosenCol,
+  transform, transformToSpecial, createSpecialGems, createSpecialGems2, createSkulls, destroyChosenRow, explodeChosenRow, explodeChosenCol,
   reposition, extraTurn, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
 // 龙族引用池（从 troops.json troopTypes='Dragon' 内联，与 batch-r7 同源）
@@ -117,7 +117,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       armor('allySelf', 1, 1),
       heal('allySelf', 1, 1),
-      createGems(BaseColor.Red, 1, 0, { countRange: { min: 1, max: 3 } }),
+      createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Red }, 1, 0, { countRange: { min: 1, max: 3 } }), // sa-F: native CreateGemsRange RedManaPotion (was plain Red gems)
       extraTurn({ chance: 0.5, ifCond: { kind: 'anyEnemyStatus', statusId: 'burning' } }),
     ),
   },
@@ -467,56 +467,62 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9168,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗蓝色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗蓝色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Blue, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantBlue = Blue giantGem special, not plain Blue
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Blue }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9169,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗绿色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗绿色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Green, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantGreen = Green giantGem special, not plain Green
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Green }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9170,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗红色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗红色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Red, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantRed = Red giantGem special, not plain Red
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Red }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9171,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗黄色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗黄色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Yellow, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantYellow = Yellow giantGem special, not plain Yellow
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Yellow }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9172,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗紫色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗紫色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Purple, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantPurple = Purple giantGem special, not plain Purple
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Purple }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
     id: 9173,
-    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若敌人被诅咒，则创造 8 颗棕色巨人宝石。',
+    desc: '爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗棕色巨人宝石。',
     build: skill(
       explodeChosenCol(),
       heal('allySelf', 1, 1.5),
-      createGems(BaseColor.Brown, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
+      // R009: native CreateGems GiantBrown = Brown giantGem special, not plain Brown
+      createSpecialGems({ kind: 'giantGem', color: BaseColor.Brown }, 8, 0, { ifCond: { kind: 'anyEnemyStatus', statusId: 'curse' } }),
     ),
   },
   {
@@ -546,7 +552,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9532,
-    desc: '对末位 2 名对人造成 [魔法 + 2] 点真实伤害，伤害值因红龙宝石数而增强。 赋予自身屏障效果。 [x6]',
+    desc: '对末位 2 名敌人造成 [魔法 + 2] 点真实伤害，伤害值因红龙宝石数而增强。赋予自身屏障效果。 [x6]',
     build: skill(
       trueDmg('enemyLastN', 2, 1, {
         n: 2,
@@ -561,9 +567,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 三段 CreateGems2Colors（蓝绿/红黄/紫棕 各 4）→ 三段 createMix；「杀死」= execute
     build: skill(
       dmg('enemyChosen', 0, 0, { execute: true }),
-      createMix([BaseColor.Blue, BaseColor.Green], 4),
-      createMix([BaseColor.Red, BaseColor.Yellow], 4),
-      createMix([BaseColor.Purple, BaseColor.Brown], 4),
+      // sa-F: native CreateGems2Colors <Colour>ManaPotion pairs = Mana Potion Gems (was plain coloured gems)
+      createSpecialGems2([{ kind: 'manaPotionGem', color: BaseColor.Blue }, { kind: 'manaPotionGem', color: BaseColor.Green }], 4),
+      createSpecialGems2([{ kind: 'manaPotionGem', color: BaseColor.Red }, { kind: 'manaPotionGem', color: BaseColor.Yellow }], 4),
+      createSpecialGems2([{ kind: 'manaPotionGem', color: BaseColor.Purple }, { kind: 'manaPotionGem', color: BaseColor.Brown }], 4),
       extraTurn(),
     ),
   },

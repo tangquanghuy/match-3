@@ -61,7 +61,7 @@ import {
   skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, reduce, steal,
   drainMana, inflict, createGems, createSkulls, createSpecialGems, createGemsMixAny, transform,
   destroyChosenRow, destroyRandomCols, destroyArea, destroyChosenCross, explodeRandomGems,
-  explodeRandomGemsAny, explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
+  explodeRandomSkulls, summonRef, summonRandom, extraTurn, sacrifice,
   devour, summonCopy, swapPositions, transformSelfFrom, boostPer, gainSouls, stealGold, gainGold, scale, flat,
   oneOf, chooseSkill, randomStat, reposition, skillOnce, stealRandomStat, CELL, explodeAt, dispelStatus,
 } from '../builders';
@@ -210,13 +210,15 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「等同于其攻击力」= 单目标段 targetStat attack ×1（lastTarget 即该敌人）；
     // 「因造成的伤害而增强 [3:1]」= lastDamage 来源（R22 新来源）ratio 3:1。
     build: skill(
+    // sa-G (R001): native CountAttack@FromTarget 34 -> IncreaseHealth@AllAllies -> CountSet -> CountAttack 100 -> Damage.
+    // The Life boost reads the chosen enemy's Attack x34% before the hit (was lastDamage after it: 0 through a Barrier).
+    heal('allyAll', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'chosenStat', stat: 'attack' } } }),
     dmg('enemyChosen', 0, 0, { modifier: boostPer({ kind: 'targetStat', stat: 'attack' }, 1) }),
-    heal('allyAll', 1, 1, { modifier: { mod: { kind: 'ratio', a: 3, b: 1 }, source: { kind: 'lastDamage' } } }),
     ),
   },
   {
     id: 7280,
-    desc: '吞噬一名敌人。创造 8 颗黄色宝石和棕色宝石。只能施放一次。',
+    desc: '吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。',
     // Devour 家族回收（无几率词 = 必发）；EN「Create 8 Yellow and 8 Brown Gems」= 黄棕各 8 颗；
     // 「只能施放一次」= skillOnce（§12.5）。
     build: skillOnce(
@@ -258,10 +260,11 @@ const SPELLS: CuratedBatch['spells'] = [
     oneOf([dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })], [dmg('enemyRandom', 5, 1, { condMult: { times: 3, cond: { kind: 'targetColor', color: BaseColor.Yellow } } })]),
     // native IncreaseAllStats AddForKill = all four Skills +8. ifTargetDied only held for the first of the four (each
     // self buff rewrites lastTarget, so Armor/Magic/Life never applied) -> castEnemyDied (9703 precedent)
-    attack('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-    armor('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-    magic('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
-    heal('allySelf', 8, 0, { ifCond: { kind: 'castEnemyDied' } }),
+    // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+    attack('allySelf', 8, 0, { ifTargetDied: true }),
+    armor('allySelf', 8, 0, { ifTargetDied: true }),
+    magic('allySelf', 8, 0, { ifTargetDied: true }),
+    heal('allySelf', 8, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -457,9 +460,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「狂怒」= enraged（R10 别名口径）[x10]；「上方和下方的军队」= enemyAboveTarget/
     // enemyBelowTarget（R13）；EN「separate 25% chances」= 两段吞噬各自独立掷签。
     build: skill(
+    // sa-Q2: native Consume@NextDownFromTarget then Consume@NextUpFromTarget (one troop each, not the whole
+    // column; R001 order), anchored on the cast-start slot when the target was killed (R012).
     dmg('enemyChosen', 8, 1, { modifier: boostPer({ kind: 'allyStatusCount', statusId: 'enraged' }, 10) }),
-    devour('enemyAboveTarget', { chance: 0.25 }),
-    devour('enemyBelowTarget', { chance: 0.25 }),
+    devour('enemyNextDown', { chance: 0.25 }),
+    devour('enemyNextUp', { chance: 0.25 }),
     ),
   },
   {
@@ -489,9 +494,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「打回末位」= reposition（§12.1）；「新的第一名」= 重定位后 enemyFront 执行时刻重解析；
     // 13+ 棕宝石 = boardAtLeast 全局条件辖吞噬段（Devour 家族回收）。
     build: skill(
+    // sa-I (R001): native ConsumeConditional@FrontEnemy [AddFor10BrownGems 50] runs BEFORE Damage@FrontEnemy
+    // (R003: threshold 13). A successful devour removes the new front enemy, so the hit lands on the next one.
     reposition('enemyFront', 'back'),
+    devour('enemyFront', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     dmg('enemyFront', 3, 1),
-    devour('lastTarget', { chance: 0.5, ifCond: { kind: 'boardAtLeast', color: BaseColor.Brown, n: 13 } }),
     ),
   },
   {
@@ -590,10 +597,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7812,
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。自身每高于敌方一个技能即可窃取敌方 3 点魔力值。',
     // 「每高于敌方一个技能」= casterStatBeatsCount 四围比较计数（R22 新来源，randomStat 四维口径）
-    // ×3 驱动窃取法力。
+    // sa-I: native 4 x StealMagic@FromTarget 3 [AddForLess<Magic|Attack|Life|Armor>OnTarget] BEFORE Damage (R001);
+    // steals Magic (was drain Mana after the hit). The four comparisons are independent of the Magic moved, so one
+    // count taken before the steal equals the native per-step checks; the hit then uses the raised Magic.
     build: skill(
-    dmg('enemyChosen', 3, 1),
-    reduce('lastTarget', 'mana', 0, 0, { modifier: boostPer({ kind: 'casterStatBeatsCount' }, 3) }),
+    steal('enemyChosen', 'magic', 'magic', 0, 0, { modifier: boostPer({ kind: 'casterStatBeatsCount' }, 3) }),
+    dmg('lastTarget', 3, 1),
     ),
   },
   {
@@ -823,19 +832,21 @@ const SPELLS: CuratedBatch['spells'] = [
     // summonCopy enemyFront（官方 SummoningTarget FrontEnemy 35%，R22 新原语）。
     build: skill(
     heal('allyAll', 1, 1, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
-    mana('allyAll', 2, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+    // sa-H：原生 IncreaseSpellPower 2 / 英文 2 Magic = 魔法属性（原为 mana）
+    magic('allyAll', 2, 0, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
     summonCopy('enemyFront', { chance: 0.35 }),
     ),
   },
   {
     id: 8276,
     desc: '对一名敌人造成 [魔法 + 1] 点伤害。若敌人已陷入疾病状态，则爆破 3 颗绿色宝石。若敌人陷入燃烧状态，则爆破 3 颗红色宝石。',
-    // 条件化爆破 = lastTargetStatus 全局条件（R22 新条件，修复「目标相对条件辖无目标宝石段
-    // 整段跳过」缺口，r16/r17 口径收口）。
+    // P-A-chosen-target-status-precast: native order (R001) ExplodeColor Red [AddForBurning@FromTarget] ->
+    // ExplodeColor Green [AddForDisease@FromTarget] -> Damage@FromTarget; chosenTargetStatus reads the chosen enemy
+    // before any targeting segment.
     build: skill(
+    explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'chosenTargetStatus', statusId: 'burning' } }),
+    explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'chosenTargetStatus', statusId: 'disease' } }),
     dmg('enemyChosen', 1, 1),
-    explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'lastTargetStatus', statusId: 'disease' } }),
-    explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'lastTargetStatus', statusId: 'burning' } }),
     ),
   },
   {
@@ -918,10 +929,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8429,
     desc: '爆破 [魔法 + 1] 颗绿色或紫色宝石。再使第一位敌人陷入诅咒和织网状态。',
-    // 官方步骤（Skittering Charge）：ExplodeColor Green ×1 与 ExplodeColor Purple ×1 两步骤
-    // 均发（非二选一），各按 [M+1] 缩放；双色并集池 = explodeRandomGemsAny（R22 新原语）。
+    // 原生 Randomize ABC-DEF：A = ExplodeColor Green [M+1] → Curse → Web；D = ExplodeColor Purple [M+1] → Curse → Web
+    // （二选一各 1/2；两分支状态段相同，提到 oneOf 之后，顺序不变）。sa-H：原为双色并集池同时爆破。
     build: skill(
-    explodeRandomGemsAny([BaseColor.Green, BaseColor.Purple], 1, 1),
+    oneOf(
+      [explodeRandomGems(1, 1, 'color', BaseColor.Green)],
+      [explodeRandomGems(1, 1, 'color', BaseColor.Purple)],
+    ),
     inflict('curse', 'enemyFront'),
     inflict('web', 'enemyFront'),
     ),
@@ -942,7 +956,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8504,
-    desc: '炸毁三个骷髅头。获得一次攻击。',
+    desc: '爆破 3 颗骷髅。获得 [(魔法 / 2) + 1] 点攻击力。',
     // EN「Explode 3 Skulls. Gain [(Magic / 2) + 1] Attack.」= 定量骷髅爆破（R22 新原语）
     // + 半魔法缩放攻击（ZH「一次攻击」为机翻）。无方括号 → 常数缩放 scale(1, 0.5)。
     build: skill(
@@ -1099,8 +1113,9 @@ const SPELLS: CuratedBatch['spells'] = [
     // （R22 原语，7000 同款 explode 版）；缠绕+织网双施加。
     build: skill(
     destroyArea('row3', 'explode', CELL),
+    // native CauseEntangle@RandomEnemy ; CauseWeb@FromPrevious: the same random enemy gets both
     inflict('entangle', 'enemyRandom'),
-    inflict('web', 'enemyRandom'),
+    inflict('web', 'lastTarget'),
     ),
   },
   {
@@ -1191,7 +1206,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9780,
-    desc: '合成14颗绿色宝石和14颗流血宝石。然后获得额外回合。',
+    desc: '创造 14 颗绿色宝石和流血宝石（随机混合）。然后获得额外回合。',
     // EN「Create a mix of 14 Green and Bleed Gems」= 14 颗绿色/流血混合体（ZH「和14颗」为
     // 机翻膨胀，按原句 14 颗 mixAny 逐颗掷选——流血宝石 bleedGem 波A 已落地）。
     build: skill(

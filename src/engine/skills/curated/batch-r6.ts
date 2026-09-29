@@ -76,10 +76,15 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7985,
     desc: '对一名敌人造成 [魔法 + 15] 点严重的溅射伤害，并击晕所有受到伤害的敌人。若自身攻击力较高，则造成双倍伤害。召唤 1-3 个美猴王。',
+    // sa-H：原生 SplashHeavyDamage MultiplyForLessAttackOnTarget ×2（原漏）；Stun@FromTarget + Stun@AdjacentFromTarget
+    // （原为 enemyAll + 已受伤过滤，会击晕之前受过伤的非相邻敌人）；Summoning 6413 100% + 50% + 50%（原为 1-3 均匀）
     build: skill(
-      dmgSplash('enemyChosen', 15),
-      inflict('stun', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
-      summonRef('MonkeyDisciple', undefined, { countRange: { min: 1, max: 3 } }),
+      dmgSplash('enemyChosen', 15, 1, { condMult: { times: 2, cond: { kind: 'casterStatBeatsTarget', stat: 'attack' } } }),
+      inflict('stun', 'enemyChosen'),
+      inflict('stun', 'enemyChosenAndAdjacent'),
+      summonRef('MonkeyDisciple'),
+      summonRef('MonkeyDisciple', undefined, { chance: 0.5 }),
+      summonRef('MonkeyDisciple', undefined, { chance: 0.5 }),
     ),
   },
   {

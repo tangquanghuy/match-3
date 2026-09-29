@@ -104,7 +104,7 @@ const KWS:KW[]=[
   zh:"对一名敌人造成 [魔法 + 7] 点伤害，伤害值因齐埃金盟友数而增强。每有一名齐埃金盟友则创建 6 颗混合绿色和棕色的宝石。 [x6]"},
  {id:1481,ref:'WatchfulBlade',spell:8809,cost:14,colors:[BaseColor.Green,BaseColor.Purple],kid:3082,kingdom:'地狱悬崖',enName:"Hellcrag",mix:[BaseColor.Red,BaseColor.Brown],protoMix:[BaseColor.Red,BaseColor.Brown],c0:false,
   desc:"Deal [Magic + 7] damage to an Enemy boosted by Hellcrag Allies. Then create a mix of 6 Red and Brown Gems for each Hellcrag Ally. [x6]",
-  zh:"对一名敌人造成 [魔法 + 7] 点伤害，数值因地域悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]"},
+  zh:"对一名敌人造成 [魔法 + 7] 点伤害，数值因地狱悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]"},
 ];
 const ALL=[BaseColor.Blue,BaseColor.Green,BaseColor.Red,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown];
 for(const w of KWS)describe(`L4b weapon:${w.id}/spell:${w.spell} [Magic+7] +6 per ${w.enName} ally to an enemy, then a mix of 6 ${w.mix.join('/')} per ${w.enName} ally`,()=>{

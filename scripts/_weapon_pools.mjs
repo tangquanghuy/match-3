@@ -301,7 +301,7 @@ class Compiler {
       7285: { imports: ['skill', 'dmg', 'inflict'],
         build: "skill(dmg('enemyAll', 2, 0.5, { range: 'all' }), inflict('burning', 'enemyRandom'), inflict('disease', 'enemyRandomOther'))" },
       7567: { imports: ['skill', 'destroyRandomGems', 'transformTroop'],
-        build: "skill(destroyRandomGems(1, 0.5, 'color'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true }))" },
+        build: "skill(destroyRandomGems(1, 0.5, 'all'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true }))" },
       7753: { imports: ['skill', 'dispelStatus', 'dmg', 'reduce'],
         build: "skill(...['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].map(id => dispelStatus(id, 'enemyAll')), dmg('enemyChosen', 5, 1), reduce('lastTarget', 'attack', 0, 0, { halve: true }))" },
       7129: { imports: ['skill', 'createSkulls', 'summonRef'],
@@ -309,15 +309,15 @@ class Compiler {
       7192: { imports: ['skill', 'dmg'],
         build: "skill(dmg('enemyChosen', 4, 1, { condBonus: { n: 12, cond: { kind: 'targetStatBeatsCaster', stat: 'attack' } } }))" },
       7187: { imports: ['skill', 'createGems', 'cleanse', 'heal'], build: "skill(createGems(BaseColor.Red, 7, 0), cleanse('allyAll'), heal('allyRandom', 1, 1))" },
-      8517: { imports: ['skill', 'oneOf', 'heal', 'createGems', 'extraTurn', 'explodeRandomGems'], build: "skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'color')]))" },
+      8517: { imports: ['skill', 'oneOf', 'heal', 'createGems', 'extraTurn', 'explodeRandomGems'], build: "skill(oneOf([heal('allySelf', 1, 1), createGems(BaseColor.Red, 7, 0)], [heal('allySelf', 1, 1), extraTurn()], [heal('allySelf', 1, 1), explodeRandomGems(1, 0, 'all')]))" },
       8843: { imports: ['skill', 'createSpecialGems', 'extraTurn'], build: "skill(createSpecialGems({ kind: 'dragonGem', color: BaseColor.Blue }, 2, 0), createSpecialGems({ kind: 'dragonGem', color: BaseColor.Green }, 2, 0), createSpecialGems({ kind: 'dragonGem', color: BaseColor.Red }, 2, 0), createSpecialGems({ kind: 'dragonGem', color: BaseColor.Brown }, 2, 0), extraTurn())" },
       8947: { imports: ['skill', 'createSpecialGems', 'extraTurn'], build: "skill(createSpecialGems({ kind: 'web' }, 6, 0), extraTurn())" },
-      8254: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
-      8255: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
-      8256: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
-      8257: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
-      8258: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
-      8259: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8254: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8255: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8256: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8257: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8258: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
+      8259: { imports: ['skill', 'dmgSplash', 'inflict', 'cleanse', 'explodeRandomGems'], build: "skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } }))" },
       9985: { imports: ['skill', 'inflict', 'reduce'],
         build: "skill(inflict('silence', 'enemyChosen', { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的拜布利奥斯' } }), reduce('enemyChosen', 'attack', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }), reduce('lastTarget', 'magic', 4, 0, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'enemyStatusCount', statusId: 'curse' } } }))" },
     }[sp.spellId];
@@ -1860,7 +1860,7 @@ class Compiler {
       if (state.tag) state.tagUsed = true;
       this.use('explodeRandomGems', 'destroyRandomGems');
       const fn = m[2] === '爆破' ? 'explodeRandomGems' : 'destroyRandomGems';
-      state.segments.push(`${fn}(${n}, 0, 'color', undefined, { modifier: ${jsonMod(mods)} })`);
+      state.segments.push(`${fn}(${n}, 0, 'all', undefined, { modifier: ${jsonMod(mods)} })`);
       return '';
     }
     // 「每有一名X色敌人则创造 N 颗混合X色和骷髅头的宝石」（7655-7660 Doomed 族）＝
@@ -2159,10 +2159,10 @@ class Compiler {
     }
     m = /^(?:随机)?(爆破|摧毁|引爆|爆炸)\s*(?:一颗|1 颗|1枚|一枚)宝石$/.exec(c);
     if (m) {
-      // 裸单颗宝石操作 = 随机一颗（R4 §11 追加）；「宝石」不含骷髅 → include:'color'
+      // 裸单颗宝石操作 = 随机一颗（R4 §11 追加）；native colourless ExplodeGems / DestroyGems include Skulls → include:'all'（R015）
       this.use('explodeRandomGems', 'destroyRandomGems');
       const fn = m[1] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
-      state.segments.push(`${fn}(1, 0, 'color', undefined)`);
+      state.segments.push(`${fn}(1, 0, 'all', undefined)`);
       return '';
     }
     // 「随机摧毁 N 颗宝石，摧毁数因X而增强」（7447 黄金计数、9720 屏障盟友计数）＝destroy + modifier rider
@@ -2187,14 +2187,14 @@ class Compiler {
       if (state.tag) state.tagUsed = true;
       this.use('explodeRandomGems', 'destroyRandomGems');
       const fn = m[1] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
-      state.segments.push(`${fn}(${m[2]}, 0, 'color', undefined, { modifier: ${jsonMod(mods)} })`);
+      state.segments.push(`${fn}(${m[2]}, 0, 'all', undefined, { modifier: ${jsonMod(mods)} })`);
       return '';
     }
     m = /^(?:随机)?(爆破|摧毁|引爆|爆炸)\s*(\d+)\s*[颗枚]的?宝石$/.exec(c);
     if (m) {
       this.use('explodeRandomGems', 'destroyRandomGems');
       const fn = m[1] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
-      state.segments.push(`${fn}(${m[2]}, 0, 'color', undefined)`);
+      state.segments.push(`${fn}(${m[2]}, 0, 'all', undefined)`);
       return '';
     }
     m = /^(?:随机)?(爆破|摧毁|引爆|爆炸)\s*(\d+)\s*[颗枚]选定颜色(?:的)?宝石$/.exec(c)
@@ -2242,7 +2242,7 @@ class Compiler {
       if (!f || f.rangeSpec) return `宝石数量公式无法解析「${m[2]}」`;
       this.use('explodeRandomGems', 'destroyRandomGems');
       const fn = m[1] === '摧毁' ? 'destroyRandomGems' : 'explodeRandomGems';
-      state.segments.push(`${fn}(${f.base}, ${f.mult}, 'color')`);
+      state.segments.push(`${fn}(${f.base}, ${f.mult}, 'all')`);
       return '';
     }
     // 行列

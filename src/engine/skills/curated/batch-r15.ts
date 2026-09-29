@@ -30,12 +30,12 @@
  */
 import type { CuratedBatch } from './index';
 import {
-  skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
+  skill, skillOnce, targetedSkill, dmg, dmgSplash, trueDmg, heal, gainLife, armor, attack, magic, mana, reduce, steal,
   cleanse, randomStat, createGems, createSpecialGems, destroyRandomSpecialGems, explodeSpecialGems, explodeRandomGems,
-  explodeColor, destroyRandomGems, destroyChosenRow, destroyChosenCol, destroyArea, transform, transformToSpecial,
+  explodeColor, destroyRandomGems, destroyArea, transform, transformToSpecial,
   transformTroop, inflict,
   inflictRandom, shuffleBoard, extraTurn, oneOf, reposition, summonRandom, summonRef,
-  transformTroopRandom, CHOSEN, CELL, explodeAt,
+  transformTroopRandom, CHOSEN, CELL, explodeAt, destroyChosenCross,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -82,7 +82,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // sa-F2 fix round A (R001): native Damage ; DestroyGems 6 ; DecreaseAllStats@FrontEnemy 1
       dmg('enemyFront', 3, 1),
-      destroyRandomGems(6, 0, 'color'),
+      destroyRandomGems(6, 0, 'all'),
       reduce('enemyFront', 'attack', 1, 0),
       reduce('enemyFront', 'armor', 1, 0),
       reduce('enemyFront', 'magic', 1, 0),
@@ -104,7 +104,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人和另 1 名随机敌人造成 [魔法 + 3] 点伤害。获得一个额外回合。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      dmg('enemyRandom', 3, 1),
+      // sa-F: native Damage@RandomPrefNotPrevEnemy; EN/ZH "another random enemy"
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       extraTurn(),
     ),
   },
@@ -222,8 +223,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 5] 点伤害。如果敌人身亡，则恢复自身原有生命值，并获得 8 点攻击力。',
     build: skill(
       dmg('enemyChosen', 5, 1),
-      heal('allySelf', 0, 0, { full: true, ifTargetDied: true }),
+      // sa-G (R001): native IncreaseAttack AddForKill 8 -> Heal AddForKill 100; the Attack never applied after the
+      // self heal rewrote lastTarget -> castEnemyDied (7314 precedent), native order
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       attack('allySelf', 8, 0, { ifTargetDied: true }),
+      heal('allySelf', 0, 0, { full: true, ifTargetDied: true }),
     ),
   },
   {
@@ -240,11 +244,13 @@ const SPELLS: CuratedBatch['spells'] = [
     //（randomStatEffect 逐受益者判族，buff.ts randomStat 分支实装） ——
     id: 7545,
     desc: "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。",
+    // 原生 Randomize AB-CD-EF：AB = ExplodeColor Green + ExtraTurn；CD = IncreaseRandom@RandomAlly ×2 Goblin + ExtraTurn；
+    // EF = ExplodeColor Green + ExtraTurn → 爆破绿色 2/3、随机属性 1/3，额外回合在后（sa-H：原 1/2 且额外回合在前）
     build: skill(
-      extraTurn(),
       oneOf(
-        explodeColor(BaseColor.Green),
-        randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }),
+        [explodeColor(BaseColor.Green), extraTurn()],
+        [randomStat('allyRandom', 1, 1, { oneSkill: true, raceDouble: 'Goblin' }), extraTurn()],
+        [explodeColor(BaseColor.Green), extraTurn()],
       ),
     ),
   },
@@ -407,13 +413,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8063,
     desc: '对 2 名随机敌人造成 [魔法 + 1] 点伤害。并使二者各陷入一个随机负面状态。',
-    // 官方步骤 Damage+RandomStatusEffect@FromPrevious ×2（第二步 RandomPrefNotPrevEnemy，
-    // 8499 先例按独立随机敌组装）；「随机状态」= inflictRandom（§11 阵营分池，敌方=负面池），
-    // 跨段绑定 lastTarget
+    // 官方步骤 Damage@RandomEnemy+RandomStatusEffect@FromPrevious，再 Damage@RandomPrefNotPrevEnemy
+    // +RandomStatusEffect@FromPrevious（R007-3：第二击只避开上一目标，仅剩一人时可重复）；
+    // 「随机状态」= inflictRandom（敌方=负面池），跨段绑定 lastTarget
     build: skill(
       dmg('enemyRandom', 1, 1),
       inflictRandom('lastTarget'),
-      dmg('enemyRandom', 1, 1),
+      dmg('enemyRandomPrefNotPrev', 1, 1),
       inflictRandom('lastTarget'),
     ),
   },
@@ -428,15 +434,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     // —— 「或」三选一 = oneOf（§9.3）；「随机增益状态效果」= inflictRandom 盟友正面池
-    //（§11 补充：赋予盟友 = 正面池）。⚠️ randomStatus 段不支持 n（§11.3 引擎缺口）——
-    // 「前 2 位」第三支暂以单目标近似并注明（8572 同口径） ——
+    //（§11 补充：赋予盟友 = 正面池）。官方 RandomPositiveStatusEffect@FirstTwoAllies：
+    // 前 2 位各掷一个（P-H-random-status-n：randomStatus 段支持 n） ——
     id: 8212,
     desc: '给予前 2 位盟友 [魔法 + 1] 点生命值，或 [魔法 + 1] 点攻击力，或赋予一个随机增益状态效果。',
     build: skill(
       oneOf(
         heal('allyFirstN', 1, 1, { n: 2 }),
         attack('allyFirstN', 1, 1, { n: 2 }),
-        inflictRandom('allyFirstN'),
+        inflictRandom('allyFirstN', { n: 2 }),
       ),
     ),
   },
@@ -505,11 +511,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // 官方步骤 ×3 组（Damage RandomEnemy + TroopOrderBack FromPrevious）：逐敌独立掷签
     //（RandomPrefNotPrevEnemy 按 8499 先例取独立随机敌）+ 各自击回末位（reposition lastTarget）
     build: skill(
+      // sa-G (R007-3): native hits 2 and 3 are RandomPrefNotPrevEnemy (was plain random: E11 hit twice in a row)
       dmg('enemyRandom', 5, 2),
       reposition('lastTarget', 'back'),
-      dmg('enemyRandom', 5, 2),
+      dmg('enemyRandomPrefNotPrev', 5, 2),
       reposition('lastTarget', 'back'),
-      dmg('enemyRandom', 5, 2),
+      dmg('enemyRandomPrefNotPrev', 5, 2),
       reposition('lastTarget', 'back'),
     ),
   },
@@ -580,7 +587,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8498,
-    desc: '选择一个同盟。赠予他们一次攻击，一次生命值，和一件盔甲，并充满他们的法力值。此咒语只能使用一次。',
+    desc: '选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。',
     // English/native: (3 * Magic) + 3 Attack, Life and Armor; preserve one-shot and full Mana.
     build: skillOnce(
       attack('allyChosen', 3, 3),
@@ -593,10 +600,12 @@ const SPELLS: CuratedBatch['spells'] = [
     // —— 「每个蓝色宝石都有 7% 的额外几率」= chanceBoost（§概率增强）；「所有技能」=
     // 攻/甲/魔三段并列共用 [(魔法/2)+1]（§11 R4 并列数值段口径） ——
     id: 8523,
-    desc: '给予 [(魔法 / 2) + 1] 第一名同盟所以技能。棋盘上每个蓝色宝石都有7％的额外几率旋转。 [x7]',
+    desc: '给予第一名盟友 [(魔法 / 2) + 1] 点所有技能值。棋盘上每有一颗蓝色宝石，就有 7% 的几率获得一个额外回合。 [x7]',
     build: skill(
       attack('allyFront', 1, 0.5),
       armor('allyFront', 1, 0.5),
+      // sa-F: native IncreaseAllStats = all four Skills incl. Life (R007-2 pool)
+      gainLife('allyFront', 1, 0.5),
       magic('allyFront', 1, 0.5),
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } },
@@ -690,8 +699,8 @@ const SPELLS: CuratedBatch['spells'] = [
     // 赃物宝石 = bootyGem（§10.3）
     build: skill(
       explodeAt(CELL),
-      destroyChosenRow(),
-      destroyChosenCol(),
+      // native DestroyGems BoardTarget RowAndColumn is one step (the chosen cell's cross), not row then column
+      destroyChosenCross(),
       createSpecialGems({ kind: 'bootyGem' }, 3),
     ),
   },

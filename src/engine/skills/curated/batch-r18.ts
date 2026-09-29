@@ -593,7 +593,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7669,
-    desc: "摧毁 8 颗选定颜色的珠宝。对每一个使用其颜色的敌人造成 [魔法 + 5] 点伤害。",
+    desc: "摧毁 8 颗选定颜色的宝石。对每一个使用该颜色的敌人造成 [魔法 + 5] 点真实伤害。",
     // 【挽救】「摧毁 8 颗选定颜色宝石」= destroyRandomGems 限色 CHOSEN；「对每一个使用其颜色的敌人」= enemyAll + trueDamage + CHOSEN_COLOR（r11 8180 动态色口径）
     build: skill(
       destroyRandomGems(8, 0, 'color', CHOSEN),
@@ -1091,9 +1091,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: "给予一名盟友 [魔法 + 1] 点生命值，再赋予其法印和赐福效果。",
     // 「赋予法印和赐福」= enchanted + blessed（R10 批）
     build: skill(
+      // sa-C r9 native order: IncreaseHealth -> CauseBlessed -> CauseEnchanted
       heal('allyChosen', 1, 1),
-      inflict('enchanted', 'allyChosen'),
       inflict('blessed', 'allyChosen'),
+      inflict('enchanted', 'allyChosen'),
     ),
   },
   {
@@ -1175,10 +1176,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8104,
-    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。所有技能值增加 7 点。",
+    desc: "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人身亡，所有技能值增加 7 点。",
     // 「所有技能值 +7」= 攻/甲/魔/血四段（官方 IncreaseAllStats）；「若敌人身亡」= ifTargetDied（EN 原句条件，ZH 机翻脱落）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: CASTLE_ASC3 }),
+      // sa-G: ifTargetDied only held for the first self buff -> castEnemyDied (7314 precedent, P-G-ifTargetDied-after-self)
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       attack('allySelf', 7, 0, { ifTargetDied: true }),
       armor('allySelf', 7, 0, { ifTargetDied: true }),
       magic('allySelf', 7, 0, { ifTargetDied: true }),
@@ -1374,14 +1377,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8216,
-    desc: "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。为另外 2 名盟友重复相同操作。",
-    // 【挽救】「其法力颜色」= LAST_TARGET（randomStat buff 段更新跨段追踪）；「为另外 2 名盟友重复」= 官方三组步骤逐组组装（RandomAlly 独立掷签，8479 先例口径）
+    desc: "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。然后对随机盟友再重复 2 次。",
+    // 【挽救】「其法力颜色」= LAST_TARGET（randomStat buff 段更新跨段追踪）；「再重复 2 次」= 官方三组步骤逐组组装（RandomAlly 独立掷签，可重复）
+    // sa-H：原生 IncreaseRandom = 全额给一项随机技能（oneSkill，同 R007-2），原为拆分到多项；ZH「另外 2 名盟友」误，改并加 override 6817
     build: skill(
-      randomStat('allyChosen', 1, 0.5),
+      randomStat('allyChosen', 1, 0.5, { oneSkill: true }),
       createGems('LAST_TARGET', 9),
-      randomStat('allyRandom', 1, 0.5),
+      randomStat('allyRandom', 1, 0.5, { oneSkill: true }),
       createGems('LAST_TARGET', 9),
-      randomStat('allyRandom', 1, 0.5),
+      randomStat('allyRandom', 1, 0.5, { oneSkill: true }),
       createGems('LAST_TARGET', 9),
     ),
   },
@@ -1391,10 +1395,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若敌人身亡则净化所有盟友并消除所有敌人正面增益」= ifTargetDied（单目标精确判定）+ 驱散族
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       cleanse('allyAll', undefined, { ifTargetDied: true }),
       // native DispelConditional AddForKill: after the cleanse segment the "last target" is an ally, so
       // ifTargetDied no longer sees the enemy; castEnemyDied = the (only) damaged enemy died this cast.
-      ...dispelPositives('enemyAll', { kind: 'castEnemyDied' }),
+      ...dispelPositives('enemyAll', undefined, { ifTargetDied: true }),
     ),
   },
   {

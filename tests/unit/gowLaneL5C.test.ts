@@ -324,3 +324,264 @@ describe('L5 sa-C round 6 B09', () => {
     }
   });
 });
+describe('L5 sa-C round 9 B10', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('weapon:1670-1673 Doomed blades: each Bleeds only its own mana colour (chosen and random hit)', () => {
+    const cases: [string, BaseColor][] = [['weapon:1670', BaseColor.Red], ['weapon:1671', BaseColor.Yellow], ['weapon:1672', BaseColor.Purple], ['weapon:1673', BaseColor.Brown]];
+    for (const [key, color] of cases) {
+      const all = enemies({ 0: { colors: [color] }, 1: { colors: [color] }, 2: { colors: [color] }, 3: { colors: [color] } });
+      const o = order({ key, enemies: all });
+      expect(dmgs(o).map(x => x.n)).toEqual([13, 13]);
+      expect(o.filter(x => x.includes('+bleed'))).toHaveLength(2);
+      const other = color === BaseColor.Red ? BaseColor.Blue : BaseColor.Red;
+      const none = enemies({ 0: { colors: [other] }, 1: { colors: [other] }, 2: { colors: [other] }, 3: { colors: [other] } });
+      expect(order({ key, enemies: none }).filter(x => x.includes('+bleed'))).toEqual([]);
+    }
+  });
+  it('troop:6571 strips every enemy armor before the (2M+7) hit, then Submerges itself', () => {
+    const o = order({ key: 'troop:6571' });
+    expect(o.slice(4)).toEqual(['dmg E11 27', 'status C +submerged']);
+    expect(o.slice(0, 4).every(x => /^buff E1\d armor-/.test(x))).toBe(true);
+  });
+});
+describe('L5 sa-C round 9 B11', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6785 armor to the chosen ally, Barrier every ally below it (not the chosen, not above)', () => {
+    expect(order({ key: 'troop:6785', target: 0 })).toEqual(['buff C armor+18', 'status A1 +barrier', 'status A2 +barrier']);
+    expect(order({ key: 'troop:6785', target: 2 })).toEqual(['buff A2 armor+18']);
+  });
+  it('troop:7203 Barriers only Daemon allies', () => {
+    expect(order({ key: 'troop:7203', allies: allies({ 1: { troopTypes: ['Daemon'] } }) })).toEqual(['buff C armor+11', 'status C +barrier', 'status A2 +barrier']);
+    expect(order({ key: 'troop:7203', caster: { troopTypes: ['Construct'] } })).toEqual(['buff C armor+11']);
+  });
+  it('weapon:1527 Barriers only Whitehelm allies after armor to all', () => {
+    expect(order({ key: 'weapon:1527', allies: allies({ 0: { kingdomId: 3014 } }) })).toEqual(['buff C armor+15', 'buff A1 armor+15', 'buff A2 armor+15', 'status A1 +barrier']);
+  });
+  it('troop:7191 other allies Barriered only with a Storm', () => {
+    const f = setupCast({ key: 'troop:7191' }); f.engine.debugSetStorm(BaseColor.Red, f.side);
+    expect(summarize(f, f.cast()).order).toEqual(['buff C armor+17', 'status C +barrier', 'status A1 +barrier', 'status A2 +barrier']);
+  });
+  it('troop:6980 knocks a random enemy (any, the last included) to the back', () => {
+    const who = new Set<string>();
+    for (const seed of seeds) { const o = order({ key: 'troop:6980', seed }); expect(o.slice(0, 2)).toEqual(['buff C armor+11', 'status C +barrier']); const m = o.find(x => x.startsWith('move ')); if (m) who.add(m.split(' ')[1]); }
+    expect(who.size).toBeGreaterThanOrEqual(3);
+  });
+});
+describe('L5 sa-C round 9 B12', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:7703 Barrier + Enchant the chosen ally AND the caster, in native order', () => {
+    expect(order({ key: 'troop:7703' })).toEqual(['buff A1 armor+12', 'buff C armor+12', 'status A1 +barrier', 'status A1 +enchanted', 'status C +barrier', 'status C +enchanted']);
+  });
+  it('troop:7706 armor picks the weakest (Life+Armor), then Life and Barrier on that same ally', () => {
+    // A1 400 is weakest; after +11 armor A2 (405) would be weaker, but FromPrevious keeps A1
+    const o = order({ key: 'troop:7706', allies: allies({ 0: { hp: 400, maxHp: 700, armor: 0 }, 1: { hp: 405, maxHp: 700, armor: 0 } }) });
+    expect(o).toEqual(['buff A1 armor+11', 'buff A1 hp+11 max+11', 'status A1 +barrier']);
+  });
+  it('troop:7666 Bless and Barrier only an Elemental ally', () => {
+    expect(order({ key: 'troop:7666', allies: allies({ 0: { troopTypes: ['Elemental'] } }) })).toEqual(['buff A1 armor+11', 'buff A1 hp+11 max+11', 'remove A1 -poison', 'status A1 +blessed', 'status A1 +barrier']); // Blessed cleanses on apply (status.ts)
+    expect(order({ key: 'troop:7666' })).toEqual(['buff A1 armor+11', 'buff A1 hp+11 max+11']);
+  });
+  it('troop:6695 (M/2)+1 Attack and Armor, then Barrier', () => {
+    expect(order({ key: 'troop:6695' })).toEqual(['buff A1 attack+6', 'buff A1 armor+6', 'status A1 +barrier']);
+  });
+  it('troop:6335 native order Attack -> Life -> Cleanse; +3 Magic only for a Red ally', () => {
+    expect(order({ key: 'troop:6335' })).toEqual(['buff A1 attack+11', 'buff A1 hp+11 max+11', 'cleanse A1 -poison']);
+    expect(order({ key: 'troop:6335', allies: allies({ 0: { colors: [BaseColor.Red] } }) })).toEqual(['buff A1 attack+11', 'buff A1 hp+11 max+11', 'cleanse A1 -poison', 'buff A1 magic+3']);
+  });
+});
+describe('L5 sa-C round 9 B13', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6450 Life + Barrier on self, then a flat 8 damage', () => {
+    expect(order({ key: 'troop:6450' })).toEqual(['buff C hp+15 max+15', 'status C +barrier', 'dmg E11 8']);
+    expect(order({ key: 'troop:6450', magic: 0 })).toEqual(['buff C hp+5 max+5', 'status C +barrier', 'dmg E11 8']);
+  });
+  it('troop:6690 native order Life -> Blessed -> Enchanted on the chosen ally', () => {
+    expect(order({ key: 'troop:6690' })).toEqual(['buff A1 hp+11 max+11', 'remove A1 -poison', 'status A1 +blessed', 'status A1 +enchanted']);
+  });
+  it('troop:7323 Life to the first 2 allies, Disease on the last 2 enemies', () => {
+    expect(order({ key: 'troop:7323' })).toEqual(['buff C hp+11 max+11', 'buff A1 hp+11 max+11', 'status E12 +disease', 'status E13 +disease']);
+  });
+  it('weapon:1149 Cleanse and Enchant all OTHER allies (caster keeps its Poison, not Enchanted)', () => {
+    expect(order({ key: 'weapon:1149' })).toEqual(['buff C hp+14 max+14', 'cleanse A1 -poison', 'status A1 +enchanted', 'status A2 +enchanted']);
+  });
+  it('troop:7797 the kill roll only fires on an ALREADY Entangled target (checked before its own Entangle), ~30%', () => {
+    for (const seed of seeds) expect(order({ key: 'troop:7797', seed })).toEqual(['dmg E11 13', 'status E11 +entangle', 'status E11 +bleed']);
+    let kills = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const o = order({ key: 'troop:7797', seed, enemies: enemies({ 1: { statuses: st('entangle') } }) });
+      if (o.includes('defeat E11')) { kills++; expect(o).toEqual(['dmg E11 910', 'defeat E11']); } // execute = lethal hit; later steps skip the dead target
+      else expect(o).toEqual(['dmg E11 13', 'status E11 +entangle', 'status E11 +bleed']);
+    }
+    expect(kills).toBeGreaterThan(40); expect(kills).toBeLessThan(80);
+  });
+});
+describe('L5 sa-C round 9 B14', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  const sum = (o: string[]) => dmgs(o).reduce((a, x) => a + x.n, 0);
+  it('weapon:1446 scatter total 16 + 2M; Bless Purple allies, Curse Purple enemies only', () => {
+    const o = order({ key: 'weapon:1446', caster: { colors: [BaseColor.Blue] }, allies: allies({ 1: { colors: [BaseColor.Purple] } }) });
+    expect(sum(o)).toBe(36);
+    expect(o.filter(x => x.startsWith('status'))).toEqual(['status A2 +blessed', 'status E12 +curse']);
+  });
+  it('troop:6150 scatter 9 + M; one 75% roll Burns all enemies or none', () => {
+    let all = 0;
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6150', seed }); expect(sum(o)).toBe(19);
+      const b = o.filter(x => x.includes('+burning')).length; expect([0, 4]).toContain(b); if (b === 4) all++;
+    }
+    expect(all).toBeGreaterThan(22); expect(all).toBeLessThan(38);
+  });
+  it('troop:6158 scatter 8 + M, Burn exactly one random enemy', () => {
+    for (const seed of seeds.slice(0, 10)) { const o = order({ key: 'troop:6158', seed }); expect(sum(o)).toBe(18); expect(o.filter(x => x.includes('+burning'))).toHaveLength(1); }
+  });
+  it('troop:7718 Burn a random enemy, then 50% another (prefers a different one)', () => {
+    const n: Record<number, number> = {};
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:7718', seed }); expect(sum(o)).toBe(16);
+      const b = o.filter(x => x.includes('+burning')); if (b.length === 2) expect(b[0]).not.toBe(b[1]);
+      n[b.length] = (n[b.length] ?? 0) + 1;
+    }
+    expect(n[1]).toBeGreaterThan(10); expect(n[2]).toBeGreaterThan(10);
+  });
+  it('troop:7013 scatter 8 + M; one 75% roll Enchants all allies or none', () => {
+    let all = 0;
+    for (const seed of seeds) { const o = order({ key: 'troop:7013', seed }); expect(sum(o)).toBe(18); const e = o.filter(x => x.includes('+enchanted')).length; expect([0, 3]).toContain(e); if (e === 3) all++; }
+    expect(all).toBeGreaterThan(22); expect(all).toBeLessThan(38);
+  });
+});
+describe('L5 sa-C round 9 B15', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  const sum = (o: string[]) => dmgs(o).reduce((a, x) => a + x.n, 0);
+  it('troop:6194 scatter M+3, Entangle all; +8 Magic once when any enemy dies (not only when all die)', () => {
+    let kills = 0;
+    for (const seed of seeds) {
+      const one = order({ key: 'troop:6194', seed, enemies: enemies({ 0: { hp: 1, armor: 0 } }) });
+      expect(sum(one)).toBe(13);
+      const killed = one.includes('defeat E10'); if (killed) kills++;
+      expect(one.filter(x => x.startsWith('buff C magic'))).toEqual(killed ? ['buff C magic+8'] : []);
+    }
+    expect(kills).toBeGreaterThan(0);
+    const none = order({ key: 'troop:6194' });
+    expect(none.some(x => x.startsWith('buff C'))).toBe(false);
+  });
+  it('troop:6983 Stun the target and both adjacent enemies even on armor-only hits (native FromTarget + AdjacentFromTarget)', () => {
+    const o = order({ key: 'troop:6983' });
+    expect(o.filter(x => x.startsWith('status'))).toEqual(['status E11 +stun', 'status E10 +stun', 'status E12 +stun']);
+    expect(order({ key: 'troop:6983', magic: 0 }).filter(x => x.startsWith('status'))).toEqual(['status E11 +stun', 'status E10 +stun', 'status E12 +stun']);
+    expect(o[o.length - 1]).toBe('shuffle theirs');
+  });
+  it('weapon:1447 Bless only Brown allies, Curse only Brown enemies', () => {
+    const o = order({ key: 'weapon:1447', allies: allies({ 1: { colors: [BaseColor.Brown] } }) });
+    expect(o.filter(x => x.startsWith('status'))).toEqual(['status C +blessed', 'status A2 +blessed', 'status E13 +curse']);
+  });
+  it('troop:6816 burn the first splash group, freeze the second (two independent RandomEnemy picks)', () => {
+    for (const seed of seeds.slice(0, 10)) {
+      const o = order({ key: 'troop:6816', seed });
+      expect(dmgs(o).filter(x => x.n === 15)).toHaveLength(2);
+      expect(dmgs(o).every(x => x.n === 15 || x.n === 7)).toBe(true);
+      const burnIdx = o.findIndex(x => x.includes('+burning')), freezeIdx = o.findIndex(x => x.includes('+frozen'));
+      expect(burnIdx).toBeLessThan(freezeIdx);
+    }
+  });
+  it('weapon:1153 Enrage only the front ally', () => {
+    expect(order({ key: 'weapon:1153' }).filter(x => x.startsWith('status'))).toEqual(['status C +rage']);
+  });
+});
+describe('L5 sa-C round 9 B16', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  const sts = (o: string[]) => o.filter(x => x.startsWith('status'));
+  it('troop:7141 Poison the target and both adjacent enemies even on armor-only hits', () => {
+    expect(sts(order({ key: 'troop:7141' }))).toEqual(['status E11 +poison', 'status E10 +poison', 'status E12 +poison']);
+    expect(sts(order({ key: 'troop:7141', magic: 0 }))).toEqual(['status E11 +poison', 'status E10 +poison', 'status E12 +poison']);
+  });
+  it('troop:6702 Poison then Bleed the whole splash group', () => {
+    expect(sts(order({ key: 'troop:6702', magic: 0 }))).toEqual(['status E11 +poison', 'status E10 +poison', 'status E12 +poison', 'status E11 +bleed', 'status E10 +bleed', 'status E12 +bleed']);
+  });
+  it('troop:6402 Submerge self after the splash, also on a kill', () => {
+    expect(sts(order({ key: 'troop:6402', enemies: enemies({ 1: { hp: 1, armor: 0 } }) }))).toEqual(['status C +submerged']);
+  });
+  it('weapon:1278 second splash on the enemy below the target, R012 anchor position when the target dies', () => {
+    const o = order({ key: 'weapon:1278', enemies: enemies({ 1: { hp: 1, armor: 0 } }) });
+    // dead E11 leaves the line, so E10 is now adjacent to E12 for the second splash
+    expect(dmgs(o).map(x => `${x.who} ${x.n}`)).toEqual(['E11 11', 'E10 5', 'E12 5', 'E12 11', 'E10 5', 'E13 5']);
+    expect(sts(o)).toEqual(['status E12 +stun', 'status E12 +bleed']);
+    const both = order({ key: 'weapon:1278', enemies: enemies({ 1: { hp: 1, armor: 0 }, 2: { hp: 1, armor: 0 } }) });
+    expect(dmgs(both).map(x => x.who)).toEqual(['E11', 'E10', 'E12', 'E13', 'E10']);
+    expect(sts(both)).toEqual(['status E13 +stun', 'status E13 +bleed']);
+  });
+  it('weapon:1252 Steal from and Death Mark the last 2 enemies, then Bless self', () => {
+    const o = order({ key: 'weapon:1252' });
+    expect(sts(o)).toEqual(['status E12 +death-mark', 'status E13 +death-mark', 'status C +blessed']);
+  });
+});
+describe('L5 sa-C round 9 B17', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:7422 Steal M+1 Life and Web the target; no Web on a kill', () => {
+    expect(order({ key: 'troop:7422' })).toEqual(['dmg E11 11', 'buff C hp+11 max+11', 'status E11 +web']);
+    expect(order({ key: 'troop:7422', enemies: enemies({ 1: { hp: 5, armor: 0 } }) })).toEqual(['dmg E11 11', 'defeat E11', 'buff C hp+5 max+5']);
+  });
+  it('troop:7314 true damage doubled on a Purple enemy, then Curse', () => {
+    expect(order({ key: 'troop:7314' })).toEqual(['dmg E11 12', 'status E11 +curse']);
+    expect(order({ key: 'troop:7314', enemies: enemies({ 1: { colors: [BaseColor.Purple] } }) })).toEqual(['dmg E11 24', 'status E11 +curse']);
+  });
+  it('weapon:1286 triple true damage on a Hunter\'s Marked enemy (checked before its own Mark)', () => {
+    expect(order({ key: 'weapon:1286' })).toEqual(['dmg E11 13', 'status E11 +marked']);
+    expect(order({ key: 'weapon:1286', enemies: enemies({ 1: { statuses: st('marked') } }) })[0]).toBe('dmg E11 39');
+  });
+  it('troop:6900 true damage to the front enemy (x2 Purple); Mark + Bleed only Daemons/Beasts', () => {
+    const r = castSpell({ key: 'troop:6900' });
+    expect(r.summary.order).toEqual(['dmg E10 11']);
+    expect(order({ key: 'troop:6900', enemies: enemies({ 0: { colors: [BaseColor.Purple] } }) })).toEqual(['dmg E10 22']);
+    expect(order({ key: 'troop:6900', enemies: enemies({ 0: { troopTypes: ['Beast'] } }) })).toEqual(['dmg E10 11', 'status E10 +marked', 'status E10 +bleed']);
+    expect(order({ key: 'troop:6900', enemies: enemies({ 0: { troopTypes: ['Daemon'] } }) })).toEqual(['dmg E10 11', 'status E10 +marked', 'status E10 +bleed']);
+    expect(bleeds(castSpell({ key: 'troop:6900', enemies: enemies({ 0: { troopTypes: ['Daemon', 'Beast'] } }) }), 10)).toBe(2); // native Bleed step per race
+  });
+  it('troop:7252 kill roll only on an ALREADY Poisoned target (~50%); otherwise 3 Bleed then Poison', () => {
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:7252', seed });
+      expect(o.includes('defeat E11')).toBe(false);
+      expect(o[0]).toBe('dmg E11 23'); expect(o[o.length - 1]).toBe('status E11 +poison');
+    }
+    expect(bleeds(castSpell({ key: 'troop:7252' }), 11)).toBe(3);
+    let kills = 0;
+    for (const seed of seeds) if (order({ key: 'troop:7252', seed, enemies: enemies({ 1: { statuses: st('poison') } }) }).includes('defeat E11')) kills++;
+    expect(kills).toBeGreaterThan(10); expect(kills).toBeLessThan(30);
+  });
+});
+describe('L5 sa-C round 9 B18', () => {
+  const order = (o: Parameters<typeof castSpell>[0]) => castSpell(o).summary.order;
+  it('troop:6570 true damage, knock to last, Submerge self; no move on a kill', () => {
+    expect(order({ key: 'troop:6570' })).toEqual(['dmg E11 11', 'move E11 back', 'status C +submerged']);
+    expect(order({ key: 'troop:6570', enemies: enemies({ 1: { hp: 5 } }) })).toEqual(['dmg E11 11', 'defeat E11', 'status C +submerged']);
+  });
+  it('weapon:1445 two random TRUE hits (never the same enemy twice in a row), +4 per Tempering on both; Yellow Bless/Curse', () => {
+    for (const seed of seeds) {
+      const o = order({ key: 'weapon:1445', seed });
+      const d = dmgs(o);
+      expect(d.map(x => x.n)).toEqual([18, 18]); expect(d[0].who).not.toBe(d[1].who);
+      expect(o.filter(x => x.startsWith('status'))).toEqual(['status C +blessed', 'status A2 +blessed', 'status E11 +curse']);
+    }
+    const f = castSpell({ key: 'weapon:1445', seed: 1 });
+    for (const e of f.f.enemies) expect(e.armor).toBe(DEFAULT_ENEMIES[e.id - 10].armor); // true damage ignores armor
+    const one = order({ key: 'weapon:1445', enemies: [DEFAULT_ENEMIES[1]] });
+    expect(dmgs(one).map(x => x.who)).toEqual(['E10', 'E10']); // PrefNotPrev reuses the only enemy
+  });
+  it('troop:6882 50% second-last hit resolved BEFORE the last-enemy hit', () => {
+    let both = 0;
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6882', seed, enemies: enemies({ 3: { hp: 5 } }) });
+      const d = dmgs(o).map(x => x.who);
+      if (d.length === 2) { both++; expect(d).toEqual(['E12', 'E13']); } else expect(d).toEqual(['E13']);
+    }
+    expect(both).toBeGreaterThan(10); expect(both).toBeLessThan(30);
+  });
+  it('troop:6627 two true splashes (second prefers another centre); Submerge self + a random OTHER ally', () => {
+    for (const seed of seeds) {
+      const o = order({ key: 'troop:6627', seed });
+      const sub = o.filter(x => x.includes('+submerged'));
+      expect(sub[0]).toBe('status C +submerged'); expect(sub).toHaveLength(2); expect(sub[1]).not.toBe('status C +submerged');
+    }
+    const one = order({ key: 'troop:6627', enemies: [DEFAULT_ENEMIES[1]] });
+    expect(dmgs(one).map(x => `${x.who} ${x.n}`)).toEqual(['E10 12', 'E10 12']);
+  });
+});

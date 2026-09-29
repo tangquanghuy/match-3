@@ -156,25 +156,27 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9817,
     desc: '对一名敌人造成[魔法 + 3]点伤害。使其纠缠并流血。如果敌人已被纠缠，则有30%的几率将其击杀。',
+    // sa-C r9 native: LethalDamageConditional [AddForEntangle] runs FIRST (only an already Entangled
+    // target), then Damage -> Entangle -> Bleed. Chance: English/zh 30%, native StatusAmount 25
+    // (source dispute L5-C-7797-chance, English kept).
     build: skill(
+      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.3, ifCond: { kind: 'targetStatus', statusId: 'entangle' } }),
       dmg('enemyChosen', 3),
       inflict('entangle', 'enemyChosen'),
       // bleed 在状态白名单（tests STATUS_WHITELIST，batch-01 8531 先例）
       inflict('bleed', 'enemyChosen'),
-      // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节）；「击杀」= 即杀 execute
-      // + 概率只辖本子句（batch-03 7789 先例，原跳过理由过时）
-      dmg('enemyChosen', 0, 0, { execute: true, chance: 0.3, ifCond: { kind: 'targetStatus', statusId: 'entangle' } }),
     ),
   },
   {
     id: 9847,
     desc: '对一名敌人造成[魔法 + 2]点真实伤害。每有一名流血的敌人，回复2点法力值。 [x2]',
     build: skill(
-      trueDmg('enemyChosen', 2),
       // L3-015: native GenerateMana UseCounterForAmount (no Amount) = 2 x count only
+      // sa-F: native CountStatus bleed is step 0, before the TrueDamage -> gain first so a Bleeding target killed by the hit still counts (R001)
       mana('allySelf', 0, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'bleed' } },
       }),
+      trueDmg('enemyChosen', 2),
     ),
   },
   {

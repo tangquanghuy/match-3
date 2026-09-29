@@ -293,7 +293,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9300,
     desc: '创造 16 颗混合鬼魂宝石和冻结宝石。再爆破一颗宝石。',
-    build: ({"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"mixAny","entries":[{"kind":"ghost"},{"kind":"freezeGem"}]},"count":{"base":16,"mult":0}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"cell","cell":"CELL"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"create","gem":{"kind":"mixAny","entries":[{"kind":"ghost"},{"kind":"freezeGem"}]},"count":{"base":16,"mult":0}}},{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":1,"mult":0},"include":"all"}}}]} as SkillPrototype),
   },
   {
     id: 9301,
@@ -476,7 +476,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9380,
     desc: '对一名敌人造成 [(魔法 x 2) + 3] 点伤害，伤害值因拥有屏障效果的盟友数而增强。若队伍里有永生神路西法，则爆破 3 颗宝石。 [x6]',
-    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"color"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"永生神路西法"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":2},"modifier":{"mod":{"kind":"multiplier","a":6},"source":{"kind":"allyStatusCount","statusId":"barrier"}}}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"gem","params":{"op":"clear","mode":"explode","target":{"kind":"randomGems","count":{"base":3,"mult":0},"include":"all"}},"ifCond":{"kind":"troopPresent","side":"ally","name":"永生神路西法"}},{"kind":"damage","target":"enemyChosen","scaling":{"base":3,"mult":2},"modifier":{"mod":{"kind":"multiplier","a":6},"source":{"kind":"allyStatusCount","statusId":"barrier"}}}]} as SkillPrototype),
   },
   {
     id: 9381,
@@ -748,54 +748,60 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9580,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用蓝色法力值，则引爆 3 颗蓝色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Blue, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Blue, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Blue } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 9581,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用绿色法力值，则引爆 3 颗绿色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Green } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 9582,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用红色法力值，则引爆 3 颗红色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Red } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 9583,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果敌人使用黄色法力值，则引爆 3 颗黄色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Yellow, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Yellow, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Yellow } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 9584,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用紫色法力值，则引爆 3 颗紫色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Purple, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Purple, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Purple } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
     id: 9585,
     desc: '对敌人造成 [魔法 + 3] 点伤害，每级回火 +4 点。如果他们使用棕色法力值，则引爆 3 颗棕色宝石。如果敌人有毁灭之力，则恢复我四分之一的法力值。',
     build: skill(
-      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
-      explodeRandomGems(3, 0, 'color', BaseColor.Brown, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }),
+      // sa-F: native order ExplodeColor -> GenerateQuarterManaConditional -> Damage (R001)
+      explodeRandomGems(3, 0, 'color', BaseColor.Brown, { ifCond: { kind: 'chosenTargetColor', color: BaseColor.Brown } }),
       mana('allySelf', 0, 0, { fraction: 0.25, ifCond: { kind: 'targetHasDoom' } }),
+      dmg('enemyChosen', 3, 1, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }),
     ),
   },
   {
@@ -943,7 +949,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9720,
     desc: '引爆5颗宝石，因盟友受到屏障而增强。若我方队伍中有不朽者扎卡利尔，则获得额外回合。 [1:1]',
     build: skill(
-      explodeRandomGems(5, 0, 'color', undefined, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } } }),
+      explodeRandomGems(5, 0, 'all', undefined, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'allyStatusCount', statusId: 'barrier' } } }),
       extraTurn({ ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的扎卡利尔' } }),
     ),
   },
@@ -1117,11 +1123,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9840,
-    desc: '对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽巨龟，则引爆4颗许愿宝石。 [x4]',
+    desc: '对一名敌人造成[魔法 + 2]点真实伤害，并使其燃烧。如果我方队伍中有不朽的穴居人，则爆破 4 颗许愿宝石。 [x4]',
     build: skill(
-      trueDmg('enemyChosen', 2, 1, { trueDamage: true, modifier: { mod: { kind: 'multiplier', a: 4 } } }),
+      trueDmg('enemyChosen', 2, 1, { trueDamage: true }),
       inflict('burning', 'lastTarget'),
-      explodeRandomSpecialGems('wish', 4, 0, { ifCond: { kind: 'troopPresent', side: 'ally', name: '不朽的穴居人' } }),
+      // native CountArmyTroop 7800 @AllAllies x400 -> ExplodeColor Wish UseCounterForAmount = 4 per Immortal Trogolin ally
+      explodeRandomSpecialGems('wish', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'alliesNamed', name: '不朽的穴居人' } } }),
     ),
   },
   {

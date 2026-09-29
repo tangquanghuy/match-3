@@ -1,4 +1,4 @@
-﻿// @ts-expect-error node types are not installed in this project
+// @ts-expect-error node types are not installed in this project
 import fs from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { SKILL_LIBRARY, registerSkillLibrary } from '@engine/skills/library';
@@ -23,7 +23,8 @@ describe('multi-step splash source review', () => {
       ['CauseStun', 'FromTarget'], ['CauseStun', 'NextDownFromTarget'],
       ['CauseBleed', 'FromTarget'], ['CauseBleed', 'NextDownFromTarget'],
     ]);
-    expect(prototypeChosenTargetMode(weaponLibrary.get('8154')!)).toBe('enemyChosenAndNextDown');
+    // sa-C r9: two native splash steps (FromTarget, NextDownFromTarget) -> the player picks one enemy
+    expect(prototypeChosenTargetMode(weaponLibrary.get('8154')!)).toBe('enemyChosen');
     const { ctx, enemies } = damageFixture();
     const events = executePrototype(weaponLibrary.get('8154')!, ctx);
     expect(centres(events)).toEqual([11, 12]);

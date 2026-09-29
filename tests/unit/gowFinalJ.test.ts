@@ -1,0 +1,237 @@
+/**
+ * sa-J final wrap-up round: checks for final-queue.json unreviewed / not-eligible keys that the
+ * standard golden scenarios (L10 R10 L0 K) do not show on their own.
+ */
+import { describe, expect, it } from 'vitest';
+import { BaseColor, specialGem } from '@engine/types';
+import { FixedBranchChooser } from '@engine/skills/branchChooser';
+import { castSpell, reviewBoard, setupCast, summarize, type BoardFn } from '../helpers/gowCast';
+import { spellDescription } from '../../src/data/combatText';
+import troops from '../../src/data/troops.json';
+import weapons from '../../src/data/weapons.json';
+
+/** Chinese spell text the game shows for a troop (built data + snapshot overrides). */
+const zhOf = (troopId: number, spellId: number) => spellDescription(spellId, troops.find(t => t.id === troopId)!.spell.description);
+const order = (key: string, o: Record<string, unknown> = {}) => castSpell({ key, ...o }).summary.order;
+
+describe('sa-J B01', () => {
+  // troop:6017 StarGazer (7017): CountGems Blue ; RemoveColor Blue ; IncreaseAttack UseCounter -> Magic + removed.
+  it('troop:6017 gives Magic + removed Blue gems as attack', () => {
+    const o = order('troop:6017');
+    expect(o[0]).toBe('destroy 11 (Blue x11)');
+    expect(o).toContain('buff A1 attack+21');
+  });
+  // troop:6018 Pegasus (7018): quarter mana goes to all other allies, not self.
+  it('troop:6018 gives quarter mana to other allies only', () => {
+    const o = order('troop:6018');
+    expect(o.filter(x => /^buff \w+ mana\+/.test(x))).toEqual(['buff A1 mana+4', 'buff A2 mana+4']);
+  });
+});
+
+describe('sa-J B02', () => {
+  // troop:6062 Valkyrie (7062): native Target NotBlueOrSkullGems ; ConvertGems FromTarget -> Blue ; GiveSouls 1+M.
+  it('troop:6062 turns a chosen non-Blue colour into Blue and gives 1+M souls', () => {
+    const o = order('troop:6062', { color: BaseColor.Red });
+    expect(o[0]).toMatch(/^convert Red x\d+ -> Blue x\d+$/);
+    expect(o).toContain('souls+11');
+  });
+  // troop:6160 TheGreatMaw (7280): CreateGems Yellow 8 ; CreateGems Brown 8 (8 each, not 8 in total).
+  it('troop:6160 creates 8 Yellow and 8 Brown gems and the Chinese text says 8 each', () => {
+    const o = order('troop:6160');
+    expect(o.some(x => /-> Yellow x8$/.test(x))).toBe(true);
+    expect(o.some(x => /-> Brown x8$/.test(x))).toBe(true);
+    expect(zhOf(6160, 7280)).toBe('吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。');
+  });
+});
+
+describe('sa-J B03', () => {
+  // troop:6178 Quasit (7319): DecreaseRandom 1+M on the chosen enemy = one random Skill, full amount.
+  it('troop:6178 removes 1+M from a single random Skill of the chosen enemy', () => {
+    const stats = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const hits = order('troop:6178', { seed }).filter(x => x.startsWith('buff '));
+      expect(hits).toHaveLength(1);
+      // armor bottoms out at E11's 10 Armor
+      const m = /^buff E11 (hp|attack|magic)-11$|^buff E11 (armor)-10$/.exec(hits[0]);
+      expect(m).not.toBeNull();
+      stats.add(m![1] ?? m![2]);
+    }
+    expect([...stats].sort()).toEqual(['armor', 'attack', 'hp', 'magic']);
+  });
+  // troop:6192 Borealis (7333): Damage@WeakestEnemy = lowest Life + Armor (R005) -> E12 (300 + 12).
+  it('troop:6192 freezes all and hits the weakest enemy', () => {
+    const o = order('troop:6192');
+    expect(o.filter(x => x.endsWith('+frozen'))).toHaveLength(4);
+    expect(o).toContain('dmg E12 28');
+  });
+});
+
+describe('sa-J B04', () => {
+  // troop:6352 HighPaladin (7504): CountArmor Self [2:1] ; Damage@TwoStrongestEnemies (Life + Armor, R005).
+  it('troop:6352 adds floor(my Armor / 2) and hits the two strongest enemies', () => {
+    const o = order('troop:6352', { caster: { armor: 21 } });
+    expect(o).toEqual(['dmg E11 21 (all)', 'dmg E13 21 (all)']);
+  });
+  // troop:6487 PandaskaGuard (7674): with E10 dead from the explosion skulls, the first enemy is E11 (R012).
+  it('troop:6487 hits first and last living enemies', () => {
+    const o = order('troop:6487', { enemies: [{ hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300 }] });
+    expect(o.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 12', 'dmg E12 12']);
+  });
+});
+
+describe('sa-J B05', () => {
+  // troop:6536 Vargouille (7730): StealLife 8 AddForDivine on the stunned target only when it is Divine.
+  it('troop:6536 steals 8 Life only from a Divine target', () => {
+    const divine = [{ hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300, troopTypes: ['Divine'] }] as Record<string, unknown>[];
+    const hit = order('troop:6536', { enemies: divine });
+    expect(hit).toContain('status E11 +stun');
+    expect(hit.some(x => /^dmg E11 8\b/.test(x))).toBe(true);
+    const plain = order('troop:6536', { enemies: [{ hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300 }] });
+    expect(plain.some(x => x.startsWith('dmg E11'))).toBe(false);
+  });
+});
+
+describe('sa-J B06', () => {
+  // troop:6775 CorruptMagus (8165): CauseCursed ; DecreaseRandom 1+M ; DecreaseRandom 1+M = two independent rolls (R007-2).
+  it('troop:6775 curses then makes two independent random-Skill reductions on the same enemy', () => {
+    for (let seed = 1; seed <= 15; seed++) {
+      const o = order('troop:6775', { seed });
+      expect(o[0]).toBe('status E11 +curse');
+      expect(o.slice(1).every(x => /^buff E11 (hp|attack|armor|magic)-\d+$/.test(x))).toBe(true);
+    }
+  });
+  // troop:7016 TheArchduke (8547): chance to destroy = Magic %. Native runs LethalDamageConditional before Damage;
+  // the end state is the same either way (target dead + Lemure, or plain damage), which these two cases pin.
+  it('troop:7016 destroys at 100 Magic and summons, and only damages at 0 Magic', () => {
+    const hi = order('troop:7016', { magic: 100 });
+    expect(hi[0]).toBe('dmg E11 157');
+    expect(hi).toContain('defeat E11');
+    expect(hi.some(x => x.startsWith('summon mine'))).toBe(true);
+    expect(order('troop:7016', { magic: 0 })).toEqual(['dmg E11 7']);
+  });
+  // troop:7029 SkyMage (8556): Enchant only if the ally is from Shentang (kingdom 3030).
+  it('troop:7029 enchants a Shentang ally', () => {
+    expect(order('troop:7029', { allies: [{ hp: 500, maxHp: 700, kingdomId: 3030 } as Record<string, unknown>] }))
+      .toEqual(['buff A1 hp+11 max+11', 'buff A1 magic+2', 'status A1 +enchanted']);
+  });
+});
+
+describe('sa-J B07', () => {
+  // troop:7068 FountainOfStars (8596): 5 Green -> Purple potions, all Brown -> Skulls, cleanse Fey allies only.
+  it('troop:7068 converts exactly 5 Green gems and the Chinese text is readable', () => {
+    const o = order('troop:7068');
+    expect(o[0]).toBe('convert Green x5 -> manaPotionGem/Purple x5');
+    expect(o[1]).toMatch(/^convert Brown x\d+ -> skull x\d+$/);
+    expect(o).not.toContain('cleanse A1 -poison');
+    expect(zhOf(7068, 8596)).toBe('将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。');
+  });
+  // troop:7132 Centuragon (8681): ConsumeConditional@RandomEnemy 10% + 10% per Wildcard = a real Devour.
+  it('troop:7132 devours (gains stats) when 9+ Wildcards make the chance 100%', () => {
+    const wild: BoardFn = (r, c) => (r === 7 && c < 5 ? specialGem('wildcard', 2) : r === 6 && c < 4 ? specialGem('wildcard', 3) : reviewBoard(r, c));
+    const o = order('troop:7132', { board: wild });
+    expect(o.some(x => / devoured$/.test(x))).toBe(true);
+    expect(o.some(x => /^buff C hp\+\d+/.test(x))).toBe(true);
+    expect(order('troop:7132').some(x => x.includes('devoured'))).toBe(false);
+  });
+});
+
+describe('sa-J B08', () => {
+  // troop:7198 NaturebornHunter (8785): ExtraTurnConditional AddIfEnemyHasBeast.
+  it('troop:7198 grants a spell extra turn only when an enemy is a Beast', () => {
+    const beast = castSpell({ key: 'troop:7198', board: (r, c) => reviewBoard(r, c), enemies: [{ hp: 300, maxHp: 300, troopTypes: ['Beast'] } as Record<string, unknown>] });
+    const plain = castSpell({ key: 'troop:7198', enemies: [{ hp: 300, maxHp: 300 }] });
+    const spellExtra = (o: string[]) => o.filter(x => x.startsWith('extra-turn') && !x.endsWith('match'));
+    expect(spellExtra(beast.summary.order)).toHaveLength(1);
+    expect(spellExtra(plain.summary.order)).toHaveLength(0);
+  });
+  // troop:7182 TheGemini (8752): Curse and 3 Bleed stacks land on the 2 weakest before the Life steal (native order).
+  it('troop:7182 curses and bleeds the two weakest before stealing Life', () => {
+    const o = order('troop:7182');
+    const firstDmg = o.findIndex(x => x.startsWith('dmg '));
+    expect(o.slice(0, firstDmg).filter(x => /\+(curse|bleed)$/.test(x))).toHaveLength(4);
+    expect(o.slice(firstDmg, firstDmg + 2)).toEqual(['dmg E12 11 (all)', 'dmg E10 11 (all)']);
+  });
+});
+
+describe('sa-J B09', () => {
+  // troop:7285 FennecThief (8859) branch B: StealRandomStat@RandomEnemy 1+M - the caster gains the rolled Skill.
+  it('troop:7285 branch B steals one random Skill from a random enemy', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const f = setupCast({ key: 'troop:7285', seed });
+      f.engine.setBranchChooser(new FixedBranchChooser(1));
+      const o = summarize(f, f.cast()).order;
+      const lost = o.find(x => /^buff E1\d \w+-\d+$/.test(x));
+      expect(lost).toBeDefined();
+      const stat = /^buff E1\d (\w+)-/.exec(lost!)![1];
+      seen.add(stat);
+      expect(o.some(x => new RegExp(`^buff C ${stat}\\+`).test(x))).toBe(true);
+    }
+    expect(seen.size).toBeGreaterThan(2);
+  });
+  // troop:7313 RelicKnight (8925): Spirit gems (purple, R016-7) only if the chosen ally is a Knight.
+  it('troop:7313 creates 3 Spirit gems only for a Knight ally', () => {
+    expect(order('troop:7313', { allies: [{ hp: 500, maxHp: 700, troopTypes: ['Knight'] } as Record<string, unknown>] }).at(-1)).toMatch(/-> spiritGem\/Purple x3$/);
+    expect(order('troop:7313').some(x => x.includes('spiritGem'))).toBe(false);
+  });
+});
+
+describe('sa-J B10', () => {
+  // troop:7724 TheSandstoneSentinel (9716): IncreaseAllStats 10 + 20 AddForKill = the gain is tripled on a kill.
+  it('troop:7724 triples the stat gain (not the damage) when the target dies', () => {
+    const kill = order('troop:7724', { enemies: [{ hp: 5, maxHp: 5 }, { hp: 5, maxHp: 5, armor: 0 }] });
+    // Life gain now also raises max Life (native IncreaseAllStats): 'buff C hp+10 max+10'
+    expect(kill.filter(x => /^buff C (attack|armor|hp|magic)\+(10|20)( max\+(10|20))?$/.test(x))).toHaveLength(8);
+    expect(order('troop:7724').filter(x => x.startsWith('buff C '))).toHaveLength(4);
+    expect(zhOf(7724, 9716)).toContain('如果敌人死亡，则获得的数值变为三倍');
+  });
+  // troop:7796 Jellymaid (9816): second ally = RandomPrefNotPrevAlly (R007-3).
+  it('troop:7796 cleanses and submerges two different allies', () => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const subs = order('troop:7796', { seed }).filter(x => x.endsWith('+submerged'));
+      expect(subs).toHaveLength(2);
+      expect(new Set(subs).size).toBe(2);
+    }
+  });
+});
+
+describe('sa-J B11', () => {
+  // weapon:1186 RadiantJewel (7662): CountArmyKingdom 3003 x6 boosts damage and is the Green/Yellow mix count.
+  it("weapon:1186 adds 6 damage and 6 mixed gems per Pan's Vale ally", () => {
+    const pan = [{ hp: 500, maxHp: 700, kingdomId: 3003 }, { hp: 650, maxHp: 650, kingdomId: 3003 }] as Record<string, unknown>[];
+    const o = order('weapon:1186', { allies: pan });
+    expect(o[0]).toBe('dmg E11 29');
+    expect(o[1]).toMatch(/-> (Green|Yellow) x\d+, (Green|Yellow) x\d+$/);
+    const made = [...o[1].matchAll(/(?:Green|Yellow) x(\d+)/g)].slice(-2).reduce((s, m) => s + Number(m[1]), 0);
+    expect(made).toBe(12);
+    expect(order('weapon:1186')).toEqual(['dmg E11 17']);
+  });
+});
+
+describe('sa-J B12', () => {
+  // weapon:1297-1302 Doomed* (8254-8259): ExplodeGems 4 + 3 AddIfEnemyHasDoom (an enemy troop of type Doom).
+  it.each(['weapon:1297', 'weapon:1298', 'weapon:1299', 'weapon:1300', 'weapon:1301', 'weapon:1302'])('%s explodes 3 more gems when the enemy team has a Doom', key => {
+    const explodes = (o: string[]) => o.filter(x => x.startsWith('explode ')).length;
+    const plain = order(key);
+    const doom = order(key, { enemies: [{ hp: 600, maxHp: 600, armor: 5 }, { hp: 900, maxHp: 900, armor: 10, troopTypes: ['Doom'] }] as Record<string, unknown>[] });
+    expect(explodes(plain)).toBe(1);
+    expect(explodes(doom)).toBe(2);
+  });
+  // weapon:1254 DancingDaggers (8074): first enemy to the back, then a 50% chance for the new first enemy.
+  it('weapon:1254 knocks the first enemy back and sometimes the next first one', () => {
+    const moves = new Set<number>();
+    for (let seed = 1; seed <= 20; seed++) moves.add(order('weapon:1254', { seed }).filter(x => / back$/.test(x)).length);
+    expect([...moves].sort()).toEqual([1, 2]);
+  });
+});
+
+describe('sa-J B13', () => {
+  // weapon:1481 WatchfulBlade (8809): Hellcrag = 地狱悬崖 in both clauses (old text had the typo 地域悬崖).
+  it('weapon:1481 counts Hellcrag allies for damage and gems; the Chinese names Hellcrag correctly', () => {
+    const hell = [{ hp: 500, maxHp: 700, kingdomId: 3082 }] as Record<string, unknown>[];
+    const o = order('weapon:1481', { allies: hell });
+    expect(o[0]).toBe('dmg E11 23');
+    const w = weapons.find(x => x.id === 1481)!;
+    expect(w.spell.description).toBe('对一名敌人造成 [魔法 + 7] 点伤害，数值因地狱悬崖盟友数而增强。每有一名地狱悬崖盟友，则创造 6 颗混合红色和棕色的宝石。 [x6]');
+  });
+});

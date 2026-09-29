@@ -134,6 +134,7 @@ export class CommandGateway implements MetaGateway {
   // —— 每周活动 ——
 
   abandonTowerRun() { return this.cmd('abandonTowerRun', {}); }
+  eventAction(typeId: EventTypeId, action: string) { return this.cmd('eventAction', { typeId, action }); }
   buyEventGoods(goodsId: string, typeId: EventTypeId, expectedPeriodStart?: number) {
     return this.cmd('buyEventGoods', expectedPeriodStart === undefined ? { goodsId, typeId } : { goodsId, typeId, expectedPeriodStart });
   }

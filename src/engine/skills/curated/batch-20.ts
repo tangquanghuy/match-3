@@ -188,14 +188,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7632,
-    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。获得 2 点法力值。每个被缠绕的敌人可增加 25% 获得额外回合的几率。',
+    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害。每有 1 名被缠绕的敌人，回复 2 点法力值，并增加 25% 获得额外回合的几率。',
+    // sa-F: native CountStatus entangle 200 -> GenerateMana [counter] -> CountStatus 2500 -> Damage -> ExtraTurnConditional
+    // [counter]: mana is 2 per Entangled enemy (no base) and both counts are taken before the damage (R001).
     build: skill(
-      dmg('enemyChosen', 2),
-      mana('allySelf', 2, 0),
+      mana('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'entangle' } } }),
       // 回收：chanceBoost 现支持几率随来源增强——每个被缠绕敌人 +25 个百分点
       extraTurn({
         chanceBoost: { mod: { kind: 'multiplier', a: 25 }, source: { kind: 'enemyStatusCount', statusId: 'entangle' } },
       }),
+      dmg('enemyChosen', 2),
     ),
   },
   {
@@ -221,11 +223,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7697,
-    desc: '对一名敌人造成 [魔法 + 7] 点溅射伤害。冻结所有敌人。召唤一名随机巨人。',
+    desc: '对一名敌人造成 [魔法 + 7] 点溅射伤害，并冻结所有受到伤害的敌人。召唤一名随机巨人。',
     build: skill(
       // 「对 1 名敌人…溅射」= 溅射链（SOP 措辞裁定）
       dmgSplash('enemyChosen', 7),
-      inflict('frozen', 'enemyAll'),
+      // sa-H：原生 Frozen@FromTarget + Frozen@AdjacentFromTarget（英文 all affected Enemies），原为冻结全体；ZH 同改 + override 6507
+      inflict('frozen', 'enemyChosen'),
+      inflict('frozen', 'enemyChosenAndAdjacent'),
       // 巨人 = troopTypes 含 Giant 全集（SOP §6 程序核实）
       summonRandom(GIANTS),
     ),
@@ -261,7 +265,7 @@ const SPELLS: CuratedBatch['spells'] = [
       inflict('web', 'enemyAll'),
       trueDmg('enemyLastN', 5, 1, { n: 2 }),
       // 「若有一名敌人身亡」= §4 死亡条件家族（batch-12 7225/7273/7335 同款），挂最近产目标段
-      explodeRandomGems(15, 0, 'color', undefined, { ifTargetDied: true }),
+      explodeRandomGems(15, 0, 'all', undefined, { ifTargetDied: true }),
     ),
   },
   {
@@ -280,7 +284,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '随机爆破 2 颗宝石。随机冻结一名敌人。获得一个额外回合。',
     build: skill(
       // 「宝石」不含骷髅 → include:'color'（batch-01 头注口径）
-      explodeRandomGems(2, 0, 'color'),
+      explodeRandomGems(2, 0, 'all'),
       inflict('frozen', 'enemyRandom'),
       extraTurn(),
     ),

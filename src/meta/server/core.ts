@@ -40,6 +40,7 @@ import {
   buyEventGoods,
   applyEventBattleModifiers,
   abandonTowerRun,
+  eventAction,
 } from '../systems/events';
 import {
   planInvasionBattle,
@@ -339,16 +340,14 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       ensureEventWeek(save, weekStart, typeId);
       const theme = currentEventTheme(weekStart, typeId);
       const hasHero = activeTeam(save)?.members.some((m) => m.kind === 'hero') ?? false;
-      const notReady = eventBattleReady(save, theme.type.id, hasHero);
+      const notReady = eventBattleReady(save, theme.type.id, hasHero, choice, weekStart);
       if (notReady) return done(fail('INVALID', notReady));
-      if (typeId === 'towerOfDoom' && choice === 'rest') {
-        const floor = save.eventWeeks.towerOfDoom?.eventData.floor ?? 1;
-        if (floor <= 1 || floor % 5 !== 1) return done(fail('INVALID', '营地休整仅在首领后的第6/11/16/21层开放'));
-      }
-      const outcome = buildBattleRequest(save, planEventEncounter(save, weekStart, env.seed(), typeId, choice));
+      const plan = planEventEncounter(save, weekStart, env.seed(), typeId, choice);
+      if (!plan || 'ok' in plan) return done(plan ?? fail('INVALID', '当前无法出战'));
+      const outcome = buildBattleRequest(save, plan);
       if (!outcome.ok) return done(outcome);
       applyEventBattleModifiers(save, outcome);
-      if (outcome.request.playerTeam.length === 0) return done(fail('INVALID', '本轮已无存活成员，请放弃本轮重新登塔'));
+      if (outcome.request.playerTeam.length === 0) return done(fail('INVALID', '本轮已无可出战的成员'));
       return done(issueEncounter(save, outcome, 'event', now));
     }
     case 'planArenaBattle': {
@@ -390,6 +389,10 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
     // —— 每周活动 ——
     case 'abandonTowerRun':
       return withMaterials(abandonTowerRun(save, weekStart));
+    case 'eventAction': {
+      const { typeId, action } = command.args as CommandArgs<'eventAction'>;
+      return withMaterials(eventAction(save, weekStart, typeId, action, env.seed()));
+    }
     case 'buyEventGoods': {
       const { goodsId, typeId, expectedPeriodStart } = command.args as CommandArgs<'buyEventGoods'>;
       return withMaterials(buyEventGoods(save, goodsId, weekStart, typeId, now, expectedPeriodStart));

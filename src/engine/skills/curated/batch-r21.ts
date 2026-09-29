@@ -458,15 +458,17 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「爆破 3x3 阵型」= destroyArea square3 explode（r12 口径）；「每爆破一颗骷髅头则屏障随机
     // 盟友」= perDestroyed skull（Wave4 已落——7463 同款计数驱动施加，骷髅筛为 perDestroyed
     // 专属通道，与 destroyedGems 无骷髅筛的来源缺口无关）。
+    // sa-Q1 (R001): native order CountGems Skull -> IncreaseArmor -> ExplodeGems Block3x3 -> barrier per count.
+    // Dispute kept: native counts Skulls in Block5x5 but explodes Block3x3; runtime counts Skulls destroyed in the 3x3 (English).
     build: skill(
-    destroyArea('square3', 'explode'),
     armor('allySelf', 4, 1.5),
+    destroyArea('square3', 'explode'),
     inflict('barrier', 'allyRandom', { perDestroyed: { color: 'skull' } }),
     ),
   },
   {
     id: 8596,
-    desc: '将5有绿宝石都转化为紫色药水，并且所有棕色宝石都变为骷髅头。净化所有精灵同盟。',
+    desc: '将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。',
     // 【挽救】ZH 机翻病句（「将5有绿宝石」）按官方 EN 全句判读：Convert 5 Green Gems to
     // Purple Potions = transformToSpecial 绿→manaPotionGem 定量 5（转换端点无 color 通道，r14 口径
     // 按 kind 落）；「棕色宝石都变为骷髅头」= transform；「净化所有精灵(Fey)同盟」= cleanse +

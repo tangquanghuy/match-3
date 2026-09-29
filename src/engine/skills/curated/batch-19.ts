@@ -110,7 +110,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7181,
     desc: '将选定的法力宝石转换成骷髅头。如果板面上有 13 或更多颗紫色宝石，则获得 6 点法力值。',
     build: skill(
-      transform(CHOSEN, 'SKULL'),
+      // sa-F: native Target ManaGemsOnly + CreateGems 1 Skull BoardTarget SingleGem = the one selected gem (was every gem of its colour)
+      { kind: 'gem', params: { op: 'transform', from: 'CELL', to: 'SKULL', count: { base: 1, mult: 0 } } },
       // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节）；boardAtLeast 为全局
       // 条件、增益段整段判定（SOP 节内示例同款）
       mana('allySelf', 6, 0, { ifCond: { kind: 'boardAtLeast', color: BaseColor.Purple, n: 13 } }),
@@ -133,7 +134,7 @@ const SPELLS: CuratedBatch['spells'] = [
       extraTurn({ ifCond: { kind: 'boardAtLeast', color: BaseColor.Red, n: 13 } }),
       // 「承受 2 点伤害」= 对自身造成 2 点伤害（SOP §0「自身」= allySelf，常数 mult=0）
       dmg('allySelf', 2, 0),
-      destroyRandomGems(4, 1, 'color'),
+      destroyRandomGems(4, 1, 'all'),
     ),
   },
   {

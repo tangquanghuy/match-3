@@ -78,7 +78,7 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       reduce('enemyChosen', 'mana', 10, 0),
       // 「每耗掉 1 点法力值则爆破 1 颗宝石」= 基数 0 + [1:1] drainedMana（batch-25 7206 同款）
-      explodeRandomGems(0, 0, 'color', undefined, {
+      explodeRandomGems(0, 0, 'all', undefined, {
         modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'drainedMana' } },
       }),
     ),
@@ -109,7 +109,10 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 回收：condBonus 现支持「+N 点」条件加成（SOP「通用条件触发 / 条件加成」节），
       // targetHpDamaged 为目标相对条件、逐目标判定（batch-02 7012 同款）
-      trueDmg('enemyRandomN', 3, 1, { n: 3, condBonus: { n: 10, cond: { kind: 'targetHpDamaged' } } }),
+      // sa-I: native TrueDamage@RandomEnemy + 2x @RandomPrefNotPrevEnemy, each [AddForDamaged 10] checked at its own hit
+      // (was 3 distinct random enemies in one segment; PrefNotPrev may return to the first enemy, now wounded).
+      ...(['enemyRandom', 'enemyRandomPrefNotPrev', 'enemyRandomPrefNotPrev'] as const).map(t =>
+        trueDmg(t, 3, 1, { condBonus: { n: 10, cond: { kind: 'targetHpDamaged' } } })),
       // 尔福小宠 = UlfsMascot（troops.json 7007，§6 命令核实）
       summonRef('UlfsMascot', 7007),
     ),
@@ -183,14 +186,12 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[(魔法 x 2) + 3]点真实伤害。对敌人造成中毒和流血3次叠加。如果他们已经中毒，有 50% 的几率杀死他们。',
     build: skill(
       trueDmg('enemyChosen', 3, 2),
-      // 回收（第四遍）：「中毒和流血3次叠加」按邻接解析 = 普通中毒 + 3 层流血
-      //（双子座 8752「诅咒和叠加 3 倍的出血状态」同构句式；中毒非叠层状态）；
-      // 「对敌人」= 裸敌人回指 enemyChosen（batch-18 9775 / batch-03 7789 先例）
-      inflict('poison', 'enemyChosen'),
-      inflict('bleed', 'enemyChosen', { stacks: 3 }),
-      // 「如果他们已经中毒，有 50% 的几率杀死他们」= execute + chance + ifCond targetStatus
-      //（batch-18 9817 / batch-03 7789 先例）；「他们」= 同一指定敌人
+      // sa-C r9 native order: TrueDamage -> LethalDamageConditional [AddForPoison 50] (checks Poison
+      // BEFORE this spell's own Poison) -> 3x CauseBleed -> CausePoison. Was Poison first, so the
+      // kill roll always saw the spell's own Poison.
       dmg('enemyChosen', 0, 0, { execute: true, chance: 0.5, ifCond: { kind: 'targetStatus', statusId: 'poison' } }),
+      inflict('bleed', 'enemyChosen', { stacks: 3 }),
+      inflict('poison', 'enemyChosen'),
     ),
   },
 ];

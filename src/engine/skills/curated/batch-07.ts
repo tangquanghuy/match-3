@@ -19,7 +19,7 @@
  * - 「狂怒/妖火/赐福」不在状态白名单；「末日骷髅头」为特殊宝石（厄运家族）。
  */
 import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
-  inflict, explodeRandomGems, destroyRandomGems, transform, transformToSpecial, CASTER } from '../builders';
+  inflict, explodeRandomGems, destroyRandomGems, transform, transformToSpecial } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -44,7 +44,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7674,
     desc: '爆破 2 颗宝石。对第一名和最后一名敌人造成 [魔法 + 2] 点伤害。',
     build: skill(
-      explodeRandomGems(2, 0, 'color'),
+      // native ExplodeGems 2 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(2, 0, 'all'),
       // 「第一名和最后一名敌人」= enemyFront + enemyLast 两段共用同一缩放（文件头备注）
       dmg('enemyFront', 2),
       dmg('enemyLast', 2),
@@ -63,11 +64,11 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7719,
     desc: '对一名敌人造成 [魔法 + 4] 点伤害并将之冻结。若敌人已被冻结，则窃取 5 点法力值。',
     build: skill(
+      // sa-I (R001): native StealMana [AddForFrozen 5] is step 0, BEFORE Damage and CauseFrozen, so only an
+      // already-Frozen enemy loses Mana (was checked after this cast froze it: always stole).
+      steal('enemyChosen', 'mana', 'mana', 5, 0, { ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
       dmg('enemyChosen', 4),
       inflict('frozen', 'enemyChosen'),
-      // 回收：ifCond 现支持条件触发（SOP「通用条件触发 / 条件加成」节）；
-      // 「窃取法力值」= steal mana→mana（batch-08 先例，SOP ifCond 示例的 reduce 为简化写法）
-      steal('enemyChosen', 'mana', 'mana', 5, 0, { ifCond: { kind: 'targetStatus', statusId: 'frozen' } }),
     ),
   },
   {
@@ -176,16 +177,18 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgSplash('enemyChosen', 4),
       // 「严重的溅射」同为溅射链；死亡条件可挂增益段（spell-rules.md §4）
-      mana('allySelf', 12, 0, { ifTargetDied: true }),
+      // sa-F: EN 'If an enemy dies' + native AddForKill = any enemy killed by the cast, splash included (7802 castEnemyDied precedent)
+      mana('allySelf', 12, 0, { ifCond: { kind: 'castEnemyDied' } }),
     ),
   },
   {
     id: 7969,
-    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁与此军队法力颜色相同的 5 颗宝石。',
+    desc: '对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁 5 颗该敌方军队法力颜色的宝石。',
     build: skill(
       trueDmg('enemyChosen', 2),
       // 「此军队法力颜色」= CASTER 占位符；限定色 N 颗 = randomGems 从该色池随机取
-      destroyRandomGems(5, 0, 'color', CASTER),
+      // native DestroyColor Color1=FromTarget: "the troop" is the damaged enemy, not the caster
+      destroyRandomGems(5, 0, 'color', 'LAST_TARGET'),
     ),
   },
   {
@@ -222,8 +225,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予一名盟友 [魔法 + 4] 点护甲值和 4 点攻击力。若盟友是一名矮人，则效果翻倍。',
     build: skill(
       // 矮人 = Dwarf（troopTypes 核对）
-      armor('allyChosen', 4, 1, { raceDouble: 'Dwarf' }),
+      // sa-G (R001): native IncreaseAttack before IncreaseArmor
       attack('allyChosen', 4, 0, { raceDouble: 'Dwarf' }),
+      armor('allyChosen', 4, 1, { raceDouble: 'Dwarf' }),
     ),
   },
   {

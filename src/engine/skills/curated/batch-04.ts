@@ -128,7 +128,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '创造 10 颗棕色宝石。再爆破 [魔法 + 1] 颗宝石。',
     build: skill(
       createGems(BaseColor.Brown, 10, 0),
-      explodeRandomGems(1, 1, 'color'),
+      explodeRandomGems(1, 1, 'all'),
     ),
   },
   {
@@ -144,14 +144,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点轻微溅射伤害，并摧毁 3 颗随机宝石。',
     build: skill(
       dmgSplash('enemyChosen', 3),
-      destroyRandomGems(3, 0, 'color'),
+      // native DestroyGems 3 (colourless): any gem incl. Skulls (R013-5)
+      destroyRandomGems(3, 0, 'all'),
     ),
   },
   {
     id: 8957,
     desc: '随机摧毁 8 颗宝石。使首位盟友获得屏障。',
     build: skill(
-      destroyRandomGems(8, 0, 'color'),
+      destroyRandomGems(8, 0, 'all'), // English 'Destroy 8 random Gems' (native DestroyColor 8, no colour): any gem (R013-5)
       inflict('barrier', 'allyFront'),
     ),
   },
@@ -167,8 +168,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9016,
     desc: '窃取 4 名随机敌人 [魔法 + 2] 点生命值，并召唤莫桑尼的意志。',
+    // 原生 StealLife@RandomEnemy + 3 × StealLife@RandomPrefNotPrevEnemy：每步只避开上一目标，可回到更早目标
+    // （R007-3；sa-H：原为 4 名不重复随机敌人）
     build: skill(
-      dmg('enemyRandomN', 2, 1, { n: 4, drain: true }),
+      dmg('enemyRandom', 2, 1, { drain: true }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { drain: true }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { drain: true }),
+      dmg('enemyRandomPrefNotPrev', 2, 1, { drain: true }),
       summonRef('MorthanisWill', 6205),
     ),
   },
@@ -176,7 +182,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9020,
     desc: '摧毁 8 颗宝石。再对一名敌人造成 [魔法 + 2] 点伤害。',
     build: skill(
-      destroyRandomGems(8, 0, 'color'),
+      destroyRandomGems(8, 0, 'all'), // native DestroyGems 8: any gem (R013-5)
       dmg('enemyChosen', 2),
     ),
   },
@@ -207,9 +213,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 9667,
     desc: '为最弱的盟友赋予[魔法 + 1]点生命值和护甲。然后为他们设置屏障。',
     build: skill(
-      heal('allyWeakest', 1),
+      // sa-C r9 native: IncreaseArmor@WeakestAlly -> IncreaseHealth@FromPrevious -> CauseBarrier@FromPrevious
       armor('allyWeakest', 1),
-      inflict('barrier', 'allyWeakest'),
+      heal('lastTarget', 1),
+      inflict('barrier', 'lastTarget'),
     ),
   },
   {

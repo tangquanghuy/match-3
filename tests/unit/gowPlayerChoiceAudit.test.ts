@@ -341,11 +341,12 @@ describe('eight further native Choose:ABC-DEF repairs (scoped, not whole-skill a
    }
   }
  });
- for (const branch of [0, 1]) for (const yellow of [0, 1]) it(`9185 branch ${branch}: exactly 7% per yellow gem (count ${yellow}), no flat 7%`, () => {
+ // R017 (user ruling): 9185 counts Blue gems per English/zh
+ for (const branch of [0, 1]) for (const yellow of [0, 1]) it(`9185 branch ${branch}: exactly 7% per blue gem (count ${yellow}), no flat 7%`, () => {
   const f = fixture(9185, branch);
   for (let row=0; row<8; row++) for (let col=0; col<8; col++)
    f.board.set({row,col}, {id:row*8+col+1,type:{kind:'color',color:BaseColor.Red}});
-  if (yellow) f.board.set({row:7,col:7},{id:64,type:{kind:'color',color:BaseColor.Yellow}});
+  if (yellow) f.board.set({row:7,col:7},{id:64,type:{kind:'color',color:BaseColor.Blue}});
   vi.spyOn(f.ctx.rng,'next').mockReturnValue(0);
   const ev = executePrototype(f.proto,f.ctx);
   expect(ev.filter(e => e.type === 'extra-turn')).toHaveLength(yellow);

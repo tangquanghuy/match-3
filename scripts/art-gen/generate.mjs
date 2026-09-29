@@ -3,8 +3,9 @@
 // 用法：node scripts/art-gen/generate.mjs [id ...] [--force]
 //   原图写到 artifacts/art-gen/raw/<id>.png（大体积原图不进版本库），已存在的默认跳过（断点续跑）；
 //   再跑 python scripts/art-gen/process.py 裁边压缩成 webp，写入 src/assets/meta/**（进版本库）。
+// ART_MANIFEST 可切换素材清单（默认 assets.mjs；活动玩法重做用 eventAssets.mjs）。
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { ASSETS } from './assets.mjs';
+const { ASSETS } = await import(`./${process.env.ART_MANIFEST ?? 'assets.mjs'}`);
 
 const base = process.env.VSA_BASE ?? 'https://verysadai.com/v1';
 const key = process.env.VSA_KEY;

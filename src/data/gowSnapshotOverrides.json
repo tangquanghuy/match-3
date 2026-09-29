@@ -11,6 +11,21 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对 1 名敌人造成 [魔法 + 3] 点伤害。如果该敌人身亡，自身一项随机属性获得 6 点。"
     },
+    "6015": {
+      "spellId": 7015,
+      "reason": "sa-F: English Spider Queen text; old Chinese had a doubled pronoun (他他).",
+      "spellDescription": "减除一名敌人 [魔法 + 1] 点护甲值，使他陷入织网状态并耗掉他所有法力值。"
+    },
+    "6034": {
+      "spellId": 7034,
+      "reason": "sa-B r5: English Siren 'create 9 Gems of one of their Mana Colors' (native CreateGems Color1 FromTarget = the damaged enemy); old Chinese said 'this troop's mana colour'.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗该敌人某一种法力颜色的宝石。"
+    },
+    "6057": {
+      "spellId": 7057,
+      "reason": "sa-I: English Wolf Knight deals true damage to an Enemy (FromTarget); old Chinese omitted the target.",
+      "spellDescription": "对一名敌人造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。"
+    },
     "6080": {
       "spellId": 7150,
       "reason": "English Jarl Firemantle + native: CreateGems 9 Red ; CreateGems 9 Yellow. Chinese snapshot said 10.",
@@ -25,6 +40,11 @@
       "spellId": 7169,
       "reason": "English Sylvasi transforms all Blue Gems to Purple; native ConvertGems 100 Blue>Purple. Chinese snapshot said Yellow.",
       "spellDescription": "窃取 1 名敌人 [魔法] 点攻击力，并将所有蓝色宝石转换成紫色以增强效果。 [3:1]"
+    },
+    "6108": {
+      "spellId": 7177,
+      "reason": "sa-C r4: English Ice Witch 'If the Enemy dies, give 3 Magic to all Allies'; native IncreaseSpellPower AddForKill StatusAmount 3; old Chinese said 1.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 3 点魔力值。"
     },
     "6117": {
       "spellId": 7209,
@@ -41,10 +61,25 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对 1 名敌人造成一项随机状态效果。一名随机盟友的一项随机属性获得 [魔法 + 1] 点。"
     },
+    "6150": {
+      "spellId": 7264,
+      "reason": "sa-C r9: English Dimetraxia 'There's a 75% chance to Burn all Enemies'; native CauseBurning@AllEnemies PercentageChance 75; old Chinese said 'everyone' (所有人).",
+      "spellDescription": "对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有敌人。"
+    },
+    "6160": {
+      "spellId": 7280,
+      "reason": "sa-J final: English The Great Maw 'Create 8 Yellow and 8 Brown Gems' (native CreateGems Yellow 8 ; CreateGems Brown 8); old Chinese '8 颗黄色宝石和棕色宝石' could read as 8 in total.",
+      "spellDescription": "吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。"
+    },
     "6163": {
       "spellId": 7289,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "创造 5 颗绿色宝石，然后将所有绿色宝石转换为紫色。自身一项随机属性获得 [魔法 + 2] 点。"
+    },
+    "7068": {
+      "spellId": 8596,
+      "reason": "sa-J final: English Fountain of Stars 'Convert 5 Green Gems to Purple Potions, and all Brown Gems to Skulls. Cleanse all Fey Allies.'; old Chinese '将5有绿宝石都转化' was garbled (read as all Green) and used 精灵同盟 instead of the project's 妖仙 for Fey.",
+      "spellDescription": "将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。"
     },
     "6181": {
       "spellId": 7322,
@@ -66,6 +101,11 @@
       "reason": "sa-R7 R7-not-board-misread: English \"for each Purple Gem on the board\"; snapshot ZH misreads as û��.",
       "spellDescription": "对一名随机敌人造成 [魔法 + 3] 点真实伤害。板面上每有一颗紫色宝石，则有 6% 的几率重新获得消耗的法力值。 [x6]"
     },
+    "6359": {
+      "spellId": 7511,
+      "reason": "sa-B r5: English Orc Veteran 'Deal [(Magic / 2) + 6] - [Magic + 13] damage to an Enemy. If the Enemy's Attack is weaker, create 8 Red Gems'; old Chinese had a stray '到 {2}' and said 'if my Attack is higher'.",
+      "spellDescription": "对一名敌人造成 [(魔法 / 2) + 6] – [魔法 + 13] 点伤害。如果该敌人的攻击力比我低，则创造 8 颗红色宝石。"
+    },
     "6383": {
       "spellId": 7538,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
@@ -75,6 +115,26 @@
       "spellId": 7545,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "获得额外的一回合。爆破所有绿色宝石或使一名随机盟友的一项随机属性获得 [魔法 + 1] 点（若盟友为哥布林则增加两倍）。"
+    },
+    "6454": {
+      "spellId": 7632,
+      "reason": "sa-F: English Hind 'Gain 2 mana back and a 25% chance for an extra turn for each Entangled enemy' (native CountSpecificStatusEffect 200 -> GenerateMana counter): the 2 Mana is per Entangled enemy, not flat.",
+      "spellDescription": "对 1 名敌人造成 [魔法 + 2] 点伤害。每有 1 名被缠绕的敌人，回复 2 点法力值，并增加 25% 获得额外回合的几率。"
+    },
+    "6462": {
+      "spellId": 7640,
+      "reason": "sa-F: English Claw Dancer 'Deal [(Magic / 2) + 4] - [Magic + 8] damage to an enemy. If the enemy dies, gain an extra turn.'; old Chinese had a stray {2} placeholder and machine wording.",
+      "spellDescription": "对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 8] 点伤害。如果敌人身亡，则获得一个额外回合。"
+    },
+    "6482": {
+      "spellId": 7669,
+      "reason": "sa-A r8: English 'Destroy 8 Gems of a chosen color. Deal [Magic + 5] true damage to each enemy of that color.'; stored Chinese says 珠宝 (jewels) and drops 'true' damage.",
+      "spellDescription": "摧毁 8 颗选定颜色的宝石。对每一个使用该颜色的敌人造成 [魔法 + 5] 点真实伤害。"
+    },
+    "6507": {
+      "spellId": 7697,
+      "reason": "sa-H r8: English Hyndla Frostcrown 'Freeze all affected Enemies' (native Frozen FromTarget + AdjacentFromTarget); old Chinese said freeze all enemies.",
+      "spellDescription": "对一名敌人造成 [魔法 + 7] 点溅射伤害，并冻结所有受到伤害的敌人。召唤一名随机巨人。"
     },
     "6510": {
       "spellId": 7700,
@@ -96,10 +156,25 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因自身的护甲值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。自身一项随机属性获得 3 点。 [3:1]"
     },
+    "6639": {
+      "spellId": 7968,
+      "reason": "sa-A r9: English 'Give all allies 4 Magic, with a 50% chance for each of the following'; stored Chinese says 4 mana (魔力值) and 'one of the following' (其一).",
+      "spellDescription": "给予所有盟友 4 点魔法，并各有 50% 的几率触发以下效果：对所有敌人造成 [魔法 + 1] 点伤害；爆破 8 颗随机宝石；给予所有盟友 [魔法 + 1] 点生命值。"
+    },
+    "6640": {
+      "spellId": 7969,
+      "reason": "sa-A r9: English 'Destroy 5 Gems of the troop's Mana Color' with native DestroyColor FromTarget = the targeted enemy; stored Chinese '此军队' read as the caster.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点真实伤害。摧毁 5 颗该敌方军队法力颜色的宝石。"
+    },
     "6652": {
       "spellId": 7987,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "窃取一名敌人 [魔法 + 1] 点护甲值，再将窃取的护甲值转换为第一位盟友的一项随机属性。 [100:1]"
+    },
+    "6734": {
+      "spellId": 8104,
+      "reason": "sa-G L6: English Stone-Biter 'If the Enemy dies, gain 7 to all Skills' (native IncreaseAllStats AddForKill 7); old Chinese dropped the kill condition.",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。如果敌人身亡，所有技能值增加 7 点。"
     },
     "6751": {
       "spellId": 8129,
@@ -116,20 +191,90 @@
       "reason": "sa-R7 R7-b14-status-counts: gem count (not damage) is boosted by Poisoned/Diseased enemies per English/native.",
       "spellDescription": "对所有敌人造成 [魔法 + 2] 点伤害。创造 14 颗绿色和棕色的混合宝石，数量因陷入中毒和疾病状态的敌人而增强。获得一个额外的回合。 [1:1]"
     },
+    "6770": {
+      "spellId": 8160,
+      "reason": "sa-A r9: English 'light splash damage'; stored Chinese typo '溅射上海' (Shanghai) for '溅射伤害'.",
+      "spellDescription": "对 3 名随机敌人造成 [魔法 + 8] 点轻微溅射伤害。爆破板面上半数蓝色宝石。 [2:1]"
+    },
+    "6789": {
+      "spellId": 8180,
+      "reason": "sa-F: English The Gray King '[Magic + 9] true damage'; old Chinese dropped the unit (double space).",
+      "spellDescription": "摧毁所有选定颜色的宝石。所有使用此颜色的敌人都受到 [魔法 + 9] 点真实伤害，耗尽所有法力值，并陷入沉默和冻结状态。"
+    },
     "6806": {
       "spellId": 8209,
       "reason": "sa-D review round 3: English 'boosted by their Life' (native CountLife@FromTarget); old Chinese did not say whose Life.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因其生命值而增强。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。 [5:1]"
+    },
+    "6817": {
+      "spellId": 8216,
+      "reason": "sa-H r8: English Shahbanu Vespera 'Then repeat 2 more times for random Allies' (native RandomAlly x2, may repeat); old Chinese said 2 OTHER allies.",
+      "spellDescription": "给予一名盟友 [(魔法 / 2) + 1] 点随机技能值。创造 9 颗其法力颜色的宝石。然后对随机盟友再重复 2 次。"
     },
     "6824": {
       "spellId": 8234,
       "reason": "L4b-6824-zh: English \"Barrier and Submerge a random Ally\" / native CauseBarrier RandomAlly then CauseSubmerged FromPrevious; stored Chinese says 一名盟友 (reads as a chosen ally) and reverses the order.",
       "spellDescription": "将选定颜色的宝石转换成棕色。赋予一名随机盟友屏障效果并使其下潜。"
     },
+    "6834": {
+      "spellId": 8239,
+      "reason": "sa-F: English Finesse text; old Chinese had a stray comma before the full stop.",
+      "spellDescription": "对一名敌人和一名随机敌人造成 [魔法 + 3] 点伤害。若敌人使用黄色法力值则造成双倍伤害。若存在任一风暴则给予所有其他盟友 6 点法力值。"
+    },
+    "6863": {
+      "spellId": 8282,
+      "reason": "sa-F: English Queen Beetrix 'independent 40% chances, to gain an extra turn and half my mana back' (native ExtraTurnConditional 40 / GenerateHalfMana, no Brown count step); old Chinese added 'boosted by Brown Gems'.",
+      "spellDescription": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。"
+    },
+    "6867": {
+      "spellId": 8289,
+      "reason": "sa-F: English Solari 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese said 'other allies enemies'.",
+      "spellDescription": "对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。"
+    },
+    "6882": {
+      "spellId": 8305,
+      "reason": "sa-C r9: English Swamp Rat '50% chance to deal [Magic + 1] true damage to the second last Enemy'; native TrueDamage@SecondLastEnemy PercentageChance 50; old Chinese said the 3rd enemy (第 3 位).",
+      "spellDescription": "对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对倒数第二名敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。"
+    },
+    "6897": {
+      "spellId": 8358,
+      "reason": "sa-F: English Arachnaean Watcher 'Give all other Allies one quarter of their Mana' (native GenerateQuarterMana AllAlliesButNotSelf); old Chinese omitted 'other'.",
+      "spellDescription": "获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]"
+    },
+    "6900": {
+      "spellId": 8361,
+      "reason": "sa-C r9: English Freki the Wild 'Deal [Magic + 1] true damage to the first Enemy'; native TrueDamage@FrontEnemy; old Chinese omitted true (真实).",
+      "spellDescription": "对第一名敌人造成 [魔法 + 1] 点真实伤害。若对方使用紫色法力值，则造成双倍伤害。如果对方是恶魔或野兽，则使对方陷入猎人标记和出血状态。"
+    },
+    "6908": {
+      "spellId": 8369,
+      "reason": "sa-H r8: English Book of Secrets 'Cause a random status effect on all Enemies or Allies' (native A-B-C-D: allies positive OR enemies negative, separate branches); old Chinese said enemies AND allies.",
+      "spellDescription": "召唤一名随机恶魔，或使所有敌人或所有盟友获得一个随机状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。"
+    },
+    "6914": {
+      "spellId": 8375,
+      "reason": "sa-G L6: English Illithian Colossus shifts the stolen Magic to both Life and Armor (native IncreaseArmor@Self + IncreaseHealth@Self); old Chinese said Life and Attack.",
+      "spellDescription": "窃取敌人 [魔法 + 1] 点魔力值，并将之转换成生命值和护甲值。 [100:1]"
+    },
     "6928": {
       "spellId": 8406,
       "reason": "sa-R7 R7-6928-zh-count: English/native create 7 Red Gems per full-Mana enemy.",
       "spellDescription": "给予所有其他盟友四分之一的法力值。每有一名法力值满值的敌人，则创造 7 颗红色宝石。有 15% 的几率自毁。 [x7]"
+    },
+    "6935": {
+      "spellId": 8416,
+      "reason": "sa-G L6: grammar - English 'If I am Enraged, knock them to the back'; old Chinese joined the condition with 并 (and) instead of 则 (then).",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。若自身有狂怒效果，则将之击回末位。"
+    },
+    "6966": {
+      "spellId": 8469,
+      "reason": "sa-F: English Spring Emissary 'Give 4 Magic to an Ally and Mana equal to half their Mana cost'; old Chinese was garbled.",
+      "spellDescription": "给予一名盟友 4 点魔力值，以及等同其法力消耗一半的法力值。若他是一名妖仙，则给予其赐福和法印效果。"
+    },
+    "6975": {
+      "spellId": 8478,
+      "reason": "sa-F: English Metztli 'Then conjure a Darkstorm'; old Chinese had typo 在 for 再.",
+      "spellDescription": "耗掉一名敌人所有法力值。若存在风暴，则使他陷入死亡标记效果。再召唤暗风暴。"
     },
     "6990": {
       "spellId": 8494,
@@ -141,10 +286,40 @@
       "reason": "sa-F2 fix round A: English/native ExplodeGems Amount 1 SpellPowerMultiplier 0.5 = [(Magic / 2) + 1] Gems; old Chinese said one gem.",
       "spellDescription": "创造 12 个厄运头骨。然后爆破 [(魔法 / 2) + 1] 颗宝石。"
     },
+    "6992": {
+      "spellId": 8498,
+      "reason": "sa-F: English The Archdeva 'Give them [(Magic x 3) + 3] Attack, Life and Armor, and fill their Mana'; old Chinese was garbled and dropped the amount.",
+      "spellDescription": "选择一名盟友。给予其 [(魔法 x 3) + 3] 点攻击力、生命值和护甲值，并充满其法力值。只能施放一次。"
+    },
+    "6993": {
+      "spellId": 8499,
+      "reason": "sa-H r8: English Dao 'Destroy 8 Gems of one of their Mana Colors. Then repeat 2 more times for random Enemies.'; old Chinese mistranslated (8 kinds of gems / usable twice on any enemy).",
+      "spellDescription": "消除一名敌人 [(魔法 / 2) + 1] 点随机技能值，并摧毁 8 颗该敌人某一种法力颜色的宝石。然后对随机敌人再重复 2 次。"
+    },
+    "6996": {
+      "spellId": 8523,
+      "reason": "sa-F: English The Emperor 'Give [(Magic / 2) + 1] to all Skills on the first Ally. There is a 7% chance of an extra turn for each Blue Gem' ; old Chinese was garbled machine translation.",
+      "spellDescription": "给予第一名盟友 [(魔法 / 2) + 1] 点所有技能值。棋盘上每有一颗蓝色宝石，就有 7% 的几率获得一个额外回合。 [x7]"
+    },
+    "6998": {
+      "spellId": 8501,
+      "reason": "sa-F: English Willi the Anchor 'Submerge myself, sink to the bottom and gain an extra turn' (native CauseSubmerged, TroopOrderBack, ExtraTurn); old Chinese was machine-translated (drown / extra steering).",
+      "spellDescription": "获得 [魔法 + 1] 黄金。使自身下潜，沉到队尾并获得一个额外回合。"
+    },
     "7000": {
       "spellId": 8503,
       "reason": "English Baihu: Create 3 Yellow Gems, damage boosted by Yellow Gems, Enchant myself (native CauseEnchanted@Self). Chinese snapshot was garbled machine translation ('迷惑自己' = confuse).",
       "spellDescription": "创造 3 颗黄色宝石。对一名敌人造成 [魔法 + 3] 点伤害，伤害值因黄色宝石数而增强。赋予自己法印效果。 [2:1]"
+    },
+    "7001": {
+      "spellId": 8504,
+      "reason": "sa-A r9: English 'Explode 3 Skulls. Gain [(Magic / 2) + 1] Attack.'; stored Chinese '获得一次攻击' is a mistranslation (gain an attack) and drops the amount.",
+      "spellDescription": "爆破 3 颗骷髅。获得 [(魔法 / 2) + 1] 点攻击力。"
+    },
+    "7019": {
+      "spellId": 8526,
+      "reason": "sa-A r8: English 'Destroy [Magic + 1] Gems of the most used Enemy Mana Color.'; stored Chinese '使用对多的颜色' is a typo (对多 -> 最多) and drops 'mana'.",
+      "spellDescription": "摧毁 [魔法 + 1] 颗敌方队伍使用最多的法力颜色的宝石。使最强的敌人陷入织网状态。"
     },
     "7067": {
       "spellId": 8595,
@@ -161,6 +336,16 @@
       "reason": "English: 2 random Enemies, boosted by Blue Allies and Enemies; stored zh said random allies (review round 1, sa-R4).",
       "spellDescription": "对 2 名随机敌人造成 [(魔法 / 2) + 3] 点轻微散射伤害，伤害值因蓝色盟友和蓝色敌人数而增强。 [x3]"
     },
+    "7131": {
+      "spellId": 8675,
+      "reason": "sa-C r4: English Vault Guard 'Then Freeze and Death Mark them'; native CauseFrozen + CauseDeathMark both; old Chinese said 'or'.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。"
+    },
+    "7136": {
+      "spellId": 8685,
+      "reason": "sa-A r8: English 'Destroy a Column.' (native DestroyGems BoardTarget Column); stored Chinese '摧毁一行' says row.",
+      "spellDescription": "摧毁一列。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。"
+    },
     "7138": {
       "spellId": 8687,
       "reason": "L4b-7138-zh: stored Chinese snapshot typo 发力颜色 for 法力颜色 (\"one of their Mana Colors\"). Display correction only.",
@@ -171,10 +356,40 @@
       "reason": "sa-A r3: English Destroy a column / native DestroyGems BoardTarget Column; AllyType mystic = every Mystic ally. Old Chinese said row and one ally.",
       "spellDescription": "摧毁一列。给予所有盟友 [魔法 + 1] 点护甲值，数值因被摧毁的黄色宝石而增强。若有秘士盟友，则给予他们 3 点魔力值。 [x3]"
     },
+    "7150": {
+      "spellId": 8718,
+      "reason": "sa-A r9: English '... Enchant all Fey Allies.'; stored Chinese '施魔法于所有的精灵同盟' (cast magic on Elf allies) mistranslates Enchant and Fey.",
+      "spellDescription": "给予所有盟友 [魔法 + 3] 点生命值和 5 点魔法。然后发起一场烈火风暴，并赋予所有仙灵盟友法印效果。"
+    },
+    "7181": {
+      "spellId": 8751,
+      "reason": "sa-G L6: ZH typo 二增强 -> 而增强 (EN boosted by my Attack, Life and Armor)",
+      "spellDescription": "对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害，伤害值因自身的攻击力、生命值和护甲值而增强。再将首位敌人打回末位。 [10:1]"
+    },
+    "7186": {
+      "spellId": 8756,
+      "reason": "sa-H r8: English Crypt Hound 'Drain 7 Mana from an Enemy' (native DecreaseMana FromTarget, spell Target Enemy); old Chinese said an ally.",
+      "spellDescription": "耗掉一名敌人 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。"
+    },
+    "7194": {
+      "spellId": 8781,
+      "reason": "sa-G L6: English 'Then deal ... damage to all Enemies'; old Chinese typo 在 for 再.",
+      "spellDescription": "消除首位敌人全部护甲值。再对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害。"
+    },
+    "7219": {
+      "spellId": 8813,
+      "reason": "sa-B r6: English Onyx Gargoyle 'Deal [Magic + 3] splash damage' (native SplashHighDamage, not light splash); old Chinese said 轻微溅射.",
+      "spellDescription": "对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。"
+    },
     "7229": {
       "spellId": 8824,
       "reason": "sa-R7 R7-not-board-misread: English \"for each Blue Gem on the board\"; snapshot ZH misreads as û��.",
       "spellDescription": "给予一名盟友 4 点护甲值。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合。 [x7]"
+    },
+    "7253": {
+      "spellId": 8852,
+      "reason": "sa-H r8: English Sagittarian 'steal either: 10 Magic, OR 20 Life, OR 20 Armor'; old Chinese said 盔甲魔力值 (armor magic).",
+      "spellDescription": "对一名敌人造成 [(魔法 x 2) + 4] 点真实伤害。然后从该敌人处窃取 10 点魔力值，或 20 点生命值，或 20 点护甲值。"
     },
     "7257": {
       "spellId": 8871,
@@ -190,6 +405,11 @@
       "spellId": 8895,
       "reason": "sa-F1: English lists 2 Treasure Maps (native GiveTreasureMaps 2) that the Chinese snapshot dropped; native order is RandomPositiveStatusEffect then IncreaseRandom (one random Skill per ally).",
       "spellDescription": "赋予所有盟友一个随机正面状态效果，并使其一项随机属性获得 [魔法 + 1] 点。获得 50 黄金、20 个灵魂和 2 张藏宝图。"
+    },
+    "7311": {
+      "spellId": 8923,
+      "reason": "sa-F: English Orpheus Priestess 'Give all other Allies a quarter of their Mana' (native AllAlliesButNotSelf); old Chinese omitted 'other'.",
+      "spellDescription": "给予所有其他盟友四分之一的法力值，并净化他们。"
     },
     "7318": {
       "spellId": 8930,
@@ -238,6 +458,36 @@
         "powerofstars": "星辰之力"
       }
     },
+    "7447": {
+      "spellId": 9168,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗蓝色巨人宝石。"
+    },
+    "7448": {
+      "spellId": 9169,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗绿色巨人宝石。"
+    },
+    "7449": {
+      "spellId": 9170,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗红色巨人宝石。"
+    },
+    "7450": {
+      "spellId": 9171,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗黄色巨人宝石。"
+    },
+    "7451": {
+      "spellId": 9172,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗紫色巨人宝石。"
+    },
+    "7452": {
+      "spellId": 9173,
+      "reason": "sa-A r9: English 'If any Enemy is Cursed'; stored Chinese '若敌人被诅咒' reads as a single enemy.",
+      "spellDescription": "爆破一列。获得 [(魔法 x 1.5) + 1] 点生命值。若有任一敌人被诅咒，则创造 8 颗棕色巨人宝石。"
+    },
     "7506": {
       "spellId": 9251,
       "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。创造 1-3 颗 x3 通配宝石。",
@@ -253,25 +503,66 @@
       "reason": "sa-C review round 3: English 'If they are a Boss' and native MultiplyForAscensionBoss; old Chinese said Tower.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。获得屏障效果。"
     },
+    "7561": {
+      "spellId": 9346,
+      "reason": "sa-A r8: English 'Destroy a Column.' with native spell Target Board (DestroyGems BoardTarget Column = chosen column); stored Chinese '摧毁一个随机列' says random.",
+      "spellDescription": "对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一列宝石。"
+    },
     "7575": {
       "spellId": 9371,
       "reason": "sa-D review round 3: English 'half that damage to all Enemies below them' (native TrueDamage@BelowTarget); old Chinese omitted 'all'.",
       "spellDescription": "对一名敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，并对其下方所有敌人造成该伤害的一半，伤害值因蓝龙宝石而增强。若在星星湾使用，则伤害翻倍。 [x2]"
+    },
+    "7627": {
+      "spellId": 9532,
+      "reason": "Chinese typo: “对人” should be “敌人” (English: the last two Enemies); sa-Q2.",
+      "spellDescription": "对末位 2 名敌人造成 [魔法 + 2] 点真实伤害，伤害值因红龙宝石数而增强。赋予自身屏障效果。 [x6]"
     },
     "7679": {
       "spellId": 9614,
       "spellDescription": "对所有敌人造成 [魔法 + 6] 点伤害，伤害值因精灵射击敌人而增强。然后将 3 个骷髅转换为 x2 通配宝石。 [x6]",
       "reason": "Preserved curated display text against older Chinese snapshot; original-language clauses require independent review."
     },
+    "7704": {
+      "spellId": 9665,
+      "reason": "sa-A r8: English 'Destroy a random Column.' (board column); stored Chinese '摧毁一根随机柱子' reads as a physical pillar.",
+      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。随机摧毁一列宝石。"
+    },
+    "7714": {
+      "spellId": 9675,
+      "reason": "sa-F: English Desert Ox 'Create a mix of 10 Cursed Gems and Doomskulls' (native CreateGems2Colors 10 Cursed>Doomskull); old Chinese said 'use' instead of create.",
+      "spellDescription": "创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。"
+    },
+    "7724": {
+      "spellId": 9716,
+      "reason": "sa-J final: English The Sandstone Sentinel 'If the Enemy dies, triple the amount gained' (native IncreaseAllStats 10 + StatusAmount 20 AddForKill); old Chinese said the damage is tripled (获得伤害值增加三倍).",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色和棕色宝石数量而增强。所有技能获得 10 点。如果敌人死亡，则获得的数值变为三倍。 [x2]"
+    },
     "7725": {
       "spellId": 9725,
       "manaCost": 9,
-      "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11"
+      "reason": "English ManaCost and native Cost agree; Chinese entity snapshot has 11. sa-A r9: stored Chinese drops the clause 'Deal [(Magic / 2) + 4] damage to first Enemy.'",
+      "spellDescription": "爆破 2-4 颗宝石。对第一名敌人造成 [(魔法 / 2) + 4] 点伤害。"
+    },
+    "7737": {
+      "spellId": 9640,
+      "reason": "sa-H r8: English Court Witch 'Eliminate [Magic + 2] Attack from an Enemy' / '[Magic + 2] from a random Skill Point on an Enemy' (one enemy, amount [M+2]); old Chinese read [M+2] as a number of enemies.",
+      "spellDescription": "&& 消除一名敌人 [魔法 + 2] 点攻击力，并诅咒该敌人。 && 消除一名敌人一项随机技能 [魔法 + 2] 点，并对其施加死亡标记。"
     },
     "7768": {
       "spellId": 9774,
       "reason": "English Champion of Rot: the mix of 16 Green and Red Gems (not the damage) is boosted by Diseased and Poisoned Enemies; native CreateGems2Colors UseCounterForAmount.",
       "spellDescription": "对所有敌人造成[(魔法 x 1.5) + 3]点伤害。创造16颗绿色和红色混合宝石，数量因患病和中毒的敌人数而增强。 [1:1]"
+    },
+    "7774": {
+      "spellId": 9780,
+      "reason": "sa-F: English Count Gobula 'Create a mix of 14 Green and Bleed Gems' (native CreateGems2Colors 14 Green>Bleed = 14 total); old Chinese read as 14 + 14.",
+      "spellDescription": "创造 14 颗绿色宝石和流血宝石（随机混合）。然后获得额外回合。"
+    },
+    "7778": {
+      "spellId": 9784,
+      "reason": "sa-F: English Blood Spore 'If they are Bleeding, then Dispel, Curse and drain 3 Mana from them' (native DispelConditional AddForBleed = remove positive statuses); old Chinese said dispel their Bleed.",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。"
     },
     "7830": {
       "spellId": 9874,
@@ -283,30 +574,10 @@
       "reason": "English Wisterina: damage boosted by Entangled Enemies [x2] (native CountSpecificStatusEffect 200 entangle), not extra damage per entangled target.",
       "spellDescription": "对所有敌人造成[魔法 + 2]点伤害，伤害值因被纠缠的敌人数而增强。然后将所有棕色宝石转化为纠缠宝石。 [x2]"
     },
-    "7131": {
-      "spellId": 8675,
-      "reason": "sa-C r4: English Vault Guard 'Then Freeze and Death Mark them'; native CauseFrozen + CauseDeathMark both; old Chinese said 'or'.",
-      "spellDescription": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。"
-    },
-    "6108": {
-      "spellId": 7177,
-      "reason": "sa-C r4: English Ice Witch 'If the Enemy dies, give 3 Magic to all Allies'; native IncreaseSpellPower AddForKill StatusAmount 3; old Chinese said 1.",
-      "spellDescription": "对 1 名敌人造成 [魔法 + 4] 点伤害。冻结敌人。如果该敌人身亡，盟友可获得 3 点魔力值。"
-    },
-    "6359": {
-      "spellId": 7511,
-      "reason": "sa-B r5: English Orc Veteran 'Deal [(Magic / 2) + 6] - [Magic + 13] damage to an Enemy. If the Enemy's Attack is weaker, create 8 Red Gems'; old Chinese had a stray '到 {2}' and said 'if my Attack is higher'.",
-      "spellDescription": "对一名敌人造成 [(魔法 / 2) + 6] – [魔法 + 13] 点伤害。如果该敌人的攻击力比我低，则创造 8 颗红色宝石。"
-    },
-    "6034": {
-      "spellId": 7034,
-      "reason": "sa-B r5: English Siren 'create 9 Gems of one of their Mana Colors' (native CreateGems Color1 FromTarget = the damaged enemy); old Chinese said 'this troop's mana colour'.",
-      "spellDescription": "对 1 名敌人造成 [魔法 + 1] 点伤害，并创造 9 颗该敌人某一种法力颜色的宝石。"
-    },
-    "7219": {
-      "spellId": 8813,
-      "reason": "sa-B r6: English Onyx Gargoyle 'Deal [Magic + 3] splash damage' (native SplashHighDamage, not light splash); old Chinese said 轻微溅射.",
-      "spellDescription": "对一名敌人造成 [魔法 + 3] 点溅射伤害。再创造 1-2 颗随机石像鬼宝石。"
+    "7861": {
+      "spellId": 9935,
+      "reason": "sa-A r9: English 'Explode a row.' (native ExplodeGems BoardTarget Row); stored Chinese '引爆一排敌人' said a row of enemies.",
+      "spellDescription": "对 3 个随机敌人造成 [(魔法 x 0.67) + 2] 点真实溅射伤害。若在中央尖塔内使用，则造成双倍伤害。爆破一行宝石。"
     }
   }
 }

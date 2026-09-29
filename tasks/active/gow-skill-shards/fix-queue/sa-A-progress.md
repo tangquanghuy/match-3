@@ -11,3 +11,157 @@
 - R4B01 troop:6059,weapon:1071,troop:6090,troop:7348,weapon:1408,troop:6961,troop:6461,weapon:1658,troop:6336,troop:7457 approve=10 fixed=2 issue=0 (1071 remove Skulls before damage + boost source + zh; 7457 count Burning on board, damage, then explode)
 - R4B02 troop:6990,troop:7612,troop:7318,troop:6875,troop:6973,troop:6907,weapon:1150,troop:6633,troop:6638,troop:7179 approve=10 fixed=2 issue=0 (6990/7318 zh only via snapshot overrides; 6990 Stone Block board test)
 - R4B03 troop:6316,troop:7682,troop:6787,troop:7239,troop:6758,troop:6372,troop:7692,troop:7174,troop:6066,troop:7206 approve=10 fixed=2 issue=0 (6758 native 100/50/25/25% Poison@RandomEnemy; 7174 RowAndColumn one cross; 6787 R000 waived c2 boss/ascension)
+
+# sa-A L4a progress (review round 8, branch gow/r7-L4a, tests tests/unit/gowLaneL4aR8.test.ts)
+- troop:7343 accept
+- weapon:1578 fix(explode 1 random gem, native Target None, not chosen cell)
+- troop:7528 accept
+- troop:7594 accept (R000 waived c2 tower+ascension; storm-present -5 Magic test)
+- troop:6476 accept
+- troop:6077 fix(DestroyGems 12 include all: Skulls are Gems, R013-5)
+- weapon:1055 fix(kill explode 1 include all + override entry)
+- troop:6342 accept
+- weapon:1160 accept
+- troop:6347 accept
+- NOTE dispute: 18 already-accepted skills use randomGems include:'color' for native colourless DestroyGems/ExplodeGems (e.g. troop:6064,6146,6555,6607,6622,6758,6878,6991,7206,7359, weapon:1150,1157,1274,1472,1484); sa-A now fixes new ones to include:'all' (R013-5). Coordinator: rule on requeue.
+- weapon:1165 accept
+- troop:6343 accept
+- weapon:1161 accept
+- troop:6346 accept
+- weapon:1164 accept
+- troop:6344 accept
+- weapon:1162 accept
+- troop:6376 accept (Bonestorm = dropKind skull)
+- troop:6345 accept
+- weapon:1163 accept
+- troop:7460 accept (R000 waived c2 tower+ascension)
+- troop:7704 fix(zh column not pillar, snapshot override; waived c2 tower+ascension; DISPUTE native step0 UseCounterForAmount without Count step, English Magic+2 kept)
+- troop:7426 fix(DestroyGems 7 include all; waived c2 boss+ascension)
+- troop:7585 fix(DestroyGems 8 include all; waived c2 tower+ascension)
+- troop:6533 accept (waived c2 tower+ascension)
+- troop:6234 accept
+- troop:6500 accept (waived c2 tower+ascension)
+- troop:6591 accept (waived c2 tower+ascension)
+- troop:6597 accept
+- troop:6768 accept (waived c2 tower+ascension)
+- troop:7166 accept
+- troop:7391 accept (waived c2 boss+ascension)
+- troop:7434 accept (waived c2 boss+ascension)
+- troop:7715 accept (waived c2 boss+ascension)
+- troop:7761 accept (waived c2 tower+ascension)
+- troop:7535 fix(4 native Ghost explode steps, 60/50/40% chances, not uniform 1-4)
+- troop:6755 fix(storm explode 5 include all)
+- troop:7213 accept (waived c2 boss+ascension)
+- troop:7884 issue(L4a-R8-7884-explode-count-dispute: native 2+1+1+1 no chances vs English 2-5)
+- weapon:1125 accept
+- weapon:1275 accept
+- troop:7667 accept (waived c2 tower+ascension)
+- troop:6641 accept (waived c2 tower+ascension)
+- troop:7561 fix(chosen column, spell Target Board; zh override)
+- troop:7652 fix(+10 storm bonus on the same all-enemy hit, not a separate chosen hit)
+- weapon:1370 fix(native order armor-before-damage R001; Electrostorm = Red+Yellow dual storm; override entry)
+- troop:7536 accept
+- troop:6979 accept
+- troop:6099 fix(explode 2 include all)
+- weapon:1052 accept
+- troop:7334 fix(destroy 8 random include all)
+- troop:7019 fix(zh most-used mana colour, snapshot override)
+- troop:6291 accept
+- troop:6040 accept
+- troop:6084 accept
+- troop:6485 accept
+- troop:6482 fix(zh gems + true damage, snapshot override)
+- troop:6709 accept (native Curse/Stun/Bleed order)
+- troop:6923 accept
+- troop:6312 fix(destroy 1+M include all)
+- troop:7228 fix(destroy 1+M include all)
+- troop:6042 accept
+- weapon:1452 fix(chosen column only, not cross; zh pool + override)
+- troop:6544 accept
+- troop:6676 fix(destroy 8 include all)
+- troop:7378 fix(destroy 8 include all)
+- troop:6774 accept
+- troop:7470 fix(native order: enemy to front, then self)
+- troop:6421 fix(destroy 7 include all)
+- troop:6254 accept
+- troop:6139 accept
+- troop:6802 accept
+- troop:6746 accept (native order: block before heavy splash)
+- troop:7136 fix(chosen column not row; zh override)
+- troop:7879 accept
+- weapon:1056 accept
+- troop:6707 fix(same 2 enemies get Disease then Poison, native FromPrevious chain)
+- troop:6021 accept
+- troop:6019 accept
+- troop:6540 accept
+- R8 summary: 80 reviewed; accepted 79, issued 1 (troop:7884), fixed 24 (12 of them randomGems include color->all). Primitive queue: none new.
+- R8 OPEN for coordinator: (a) include:'color' vs 'all' for colourless random DestroyGems/ExplodeGems (sa-A applies R013-5 "Skulls are Gems"; ~18 older accepts + ~15 unreviewed still use 'color'); (b) troop:7704 native UseCounterForAmount without a Count step (English Magic+2 kept); (c) troop:7884 native 2+1+1+1 vs English 2-5.
+# sa-A L4a progress (review round 9, branch gow/r9-L4a, tests tests/unit/gowLaneL4aR9.test.ts)
+- troop:7114 accept
+- weapon:1276 accept
+- troop:6857 issue(P-A-chosen-target-status-precast: native explode Red/Green before damage on chosen target status)
+- weapon:1098 accept
+- troop:7404 fix(explode 1+M Purple only, was any gem)
+- troop:7001 issue(P-A-random-skulls-variants: random Skull pool excludes Doom Skulls, R013-5) + zh fix (snapshot override)
+- troop:7380 accept
+- weapon:1064 fix(zh was '?????????'; pool + override entry)
+- troop:7402 fix(web the same random enemy, native FromPrevious)
+- troop:6536 fix(explode 4 include all)
+- troop:6075 fix(explode 3+M include all)
+- weapon:1440 fix(explode 3 include all; override prototype)
+- troop:6241 accept
+- troop:6487 fix(explode 2 include all)
+- troop:6041 fix(burning 30% on the damaged random enemy, native FromPrevious)
+- weapon:1136 accept
+- troop:6721 fix(Random + PrefNotPrev hits, not enemyRandomN)
+- troop:6471 fix(explode 18 include all)
+- troop:7364 fix(RowAndColumn one cross step)
+- troop:7573 accept (TrueRandomDamage shared roll; Summer Isle region inert regionPresent)
+- troop:7725 fix(zh missing damage clause; snapshot override)
+- troop:6943 fix(cross centred on chosen cell, not board centre; NOTE dead duplicate 8424 entry in batch-r9.ts)
+- troop:7447 fix(R009 Blue giantGem; zh 'any enemy' + override)
+- troop:7448 fix(R009 Green giantGem; zh + override)
+- troop:7449 fix(R009 Red giantGem; zh + override)
+- troop:7450 fix(R009 Yellow giantGem; zh + override)
+- troop:7451 fix(R009 Purple giantGem; zh + override)
+- troop:7452 fix(R009 Brown giantGem; zh + override)
+- weapon:1114 fix(explode 3 include all)
+- troop:7006 accept (native order: Construct explode, then two splashes)
+- weapon:1413 issue(P-A-chosen-target-status-precast: native explode before damage) + fix(target-stun not any-enemy, include all, zh pool + override)
+- troop:6141 accept
+- troop:6891 fix(explode 4 include all)
+- weapon:1227 accept (R000 waived c3 + step1 boss)
+- weapon:1152 accept (StormRandom = 6-colour oneOf, precedent)
+- troop:6705 accept
+- troop:7623 fix(native buff order attack/armor/health; Central Spire region inert)
+- troop:6632 accept
+- troop:7150 fix(Enchant Fey allies, was +5 Magic to Elf; zh + override)
+- troop:6938 accept (RemoveColor via gowRemoveRules; Green 0% step no-op)
+- troop:6639 fix(+4 Magic not mana; three independent 50% steps; zh + override)
+- troop:7220 fix(Good/Bad Gargoyle tier mix)
+- troop:7156 accept
+- troop:6153 fix(native order magic-on-kill before destroy; destroy 10 include all)
+- troop:7254 fix(destroy 3 include all)
+- weapon:1057 accept
+- troop:6770 fix(zh '溅射上海' typo; override) accept convention:R006-C3
+- weapon:1297 fix(explode include all; override + generator)
+- weapon:1298 fix(explode include all; override + generator)
+- weapon:1299 fix(explode include all; override + generator)- weapon:1300 fix(explode include all; override + generator)
+- weapon:1301 fix(explode include all; override + generator)
+- weapon:1302 fix(explode include all; override + generator)
+- troop:6366 fix(Random + PrefNotPrev splash hits, not enemyRandomN; explode 5 include all)
+- weapon:1409 fix(zh machine text; pool + override)
+- troop:7167 fix(explode 1 include all)
+- troop:6088 accept (StealLife = drain dmg; ExplodeColor Angel = all Angel Gems)
+- troop:6337 accept (Lightstorm; +5 Attack AddForKill)
+- troop:6739 accept (knock back, explode (M/2)+1 of target colour)
+- weapon:1681 fix(4 Wish per Trogolin ally via alliesNamed; inert dmg modifier removed; zh name + override)
+- weapon:1538 accept
+- troop:6640 fix(DestroyColor FromTarget = target colour, not caster; zh + override)
+- weapon:1422 accept
+- troop:6202 fix(destroy M+3 include all)
+- troop:7580 accept (scatter 2.5M+8; Aidania region x2 inert regionPresent)
+- troop:7574 fix(Random + 2 PrefNotPrev hits, not enemyRandomN; RowAndColumn one cross step; Southwild region inert)
+- troop:7224 accept (RemoveColor FromTarget = LAST_TARGET)
+- troop:7861 fix(Random + 2 PrefNotPrev hits; zh 'a row of enemies' -> gems + override; Central Spire region inert)
+- L4a lane exhausted (next returns empty)

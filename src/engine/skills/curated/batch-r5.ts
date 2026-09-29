@@ -76,16 +76,18 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7640,
-    desc: '对 1 名敌人造成  [(魔法 / 2) + 4] – [魔法 + 8] 到 {2} 点伤害。如果敌人身亡，则获得多一回合。 ',
+    desc: '对 1 名敌人造成 [(魔法 / 2) + 4] – [魔法 + 8] 点伤害。如果敌人身亡，则获得一个额外回合。',
     build: skill(
-      dmg('enemyFront', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(8, 1) }, split: 2 }),
+      // sa-F: native RandomHighDamage@FromTarget (spell Target Enemy) = one chosen enemy, one hit (was front enemy, split in 2; cf. L7-7517)
+      dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(4, 0.5), max: scale(8, 1) } }),
       extraTurn({ ifTargetDied: true }),
     ),
   },
   {
     id: 8960,
     desc: '对一名敌人造成 [(魔法 / 2) + 1] – [魔法 + 3] -{2} 点伤害。',
-    build: skill(dmg('enemyFront', 0, 0, { rangeSpec: { min: scale(1, 0.5), max: scale(3, 1) }, split: 2 })),
+    // sa-I: native single RandomHighDamage@FromTarget = one chosen enemy, one hit; "-{2}" is snapshot residue, not a 2-way split (cf. 7640/7061)
+    build: skill(dmg('enemyChosen', 0, 0, { rangeSpec: { min: scale(1, 0.5), max: scale(3, 1) } })),
   },
   {
     id: 7774,
@@ -144,15 +146,25 @@ const SPELLS: CuratedBatch['spells'] = [
       destroyChosenCol(),
       dmg('enemyLast', 3),
       inflict('stun', 'enemyLast'),
-      reposition('allySelf', 'front'),
+      // native order: TroopOrderFront@LastEnemy, then TroopOrderFront@Self
       reposition('enemyLast', 'front'),
+      reposition('allySelf', 'front'),
     ),
   },
   {
     id: 8027,
     desc: '造成 [魔法 + 12] 点散射伤害，再打乱敌方队伍顺序。',
     // 裸散射重裁（2026-09-18）：官方 ScatterDamage@AllEnemies = 全体散射
-    build: skill(dmg('enemyAll', 12, 1, { range: 'all' }), shuffleTeam('enemy')),
+    // sa-I: native TroopOrderJumble@AllEnemies has PercentageChance 0 (never fires); the "jumble" is the four
+    // explicit moves after it, each resolved on the current order: SecondLast->front, Front->back 75%,
+    // Last->front 50%, Second->back 25% (was a full random shuffleTeam).
+    build: skill(
+      dmg('enemyAll', 12, 1, { range: 'all' }),
+      reposition('enemySecondLast', 'front'),
+      reposition('enemyFront', 'back', { chance: 0.75 }),
+      reposition('enemyLast', 'front', { chance: 0.5 }),
+      reposition('enemyNth', 'back', { n: 2, chance: 0.25 }),
+    ),
   },
   {
     id: 9343,

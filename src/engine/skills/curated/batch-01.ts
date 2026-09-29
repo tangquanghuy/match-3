@@ -79,7 +79,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7145,
     desc: '随机爆破 [魔法 + 3] 颗宝石并净化自身。',
     build: skill(
-      explodeRandomGems(3, 1, 'color'),
+      // native ExplodeGems 3+M (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(3, 1, 'all'),
       cleanse('allySelf'),
     ),
   },
@@ -181,7 +182,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7390,
     desc: "随机爆破两颗宝石，自身一项随机属性获得 [魔法 + 1] 点。",
     build: skill(
-      explodeRandomGems(2, 0, 'color'),
+      // 原生 ExplodeGems 2（无色限定）= 任意 2 颗随机宝石，与已签收同族（6204/6251/6875/7044）一致用 'all'（sa-H：原 'color'）
+      explodeRandomGems(2, 0, 'all'),
       randomStat('allySelf', 1, 1, { oneSkill: true }),
     ),
   },
@@ -189,9 +191,10 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7401,
     desc: '给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔力值。',
     build: skill(
-      attack('allyOthers', 1),
+      // sa-G (R001): native DecreaseSpellPower@AllAlliesButNotSelf 1 before IncreaseAttack
       // 「魔力值」= magic 属性（SOP 措辞裁定；与 7465 同口径）
       reduce('allyOthers', 'magic', 1, 0),
+      attack('allyOthers', 1),
     ),
   },
   {
@@ -205,7 +208,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7462,
     desc: '摧毁 [魔法 + 1] 颗宝石并缠绕一名随机敌人。',
     build: skill(
-      destroyRandomGems(1, 1, 'color'),
+      destroyRandomGems(1, 1, 'all'), // native DestroyGems 1+M: any gem (R013-5)
       inflict('entangle', 'enemyRandom'),
     ),
   },

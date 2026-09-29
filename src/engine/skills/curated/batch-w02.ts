@@ -219,8 +219,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '所有盟友获得 [魔法 + 2] 点护甲值。同时，敌方每一拥有屏障效果的军队，已方盟友即各得 8 点攻击力和 2 点法力值。 [x2]',
     build: skill(
       armor('allyAll', 2, 1),
-      attack('allyAll', 8, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
-      mana('allyAll', 2, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
+      // sa-F: native CountStatus barrier 800 -> IncreaseAttack [counter] ; CountSet -> CountStatus 200 -> GenerateMana [counter]
+      // = 8 Attack and 2 Mana per enemy Barrier, no base (was 8 / 2 + 2 per Barrier).
+      attack('allyAll', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 8 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
+      mana('allyAll', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'enemyStatusCount', statusId: 'barrier' } } }),
     ),
   },
   {
@@ -599,7 +601,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取最后两名敌人 [魔法 + 1] 点生命值并使其陷入死亡标记状态。再赐福自身。',
     build: skill(
       dmg('enemyLastN', 1, 1, { n: 2, drain: true }),
-      inflict('death-mark', 'enemyLastN'),
+      // sa-C r9: native CauseDeathMark LastTwoEnemies; n was missing (defaulted to the last enemy only).
+      inflict('death-mark', 'enemyLastN', { n: 2 }),
       inflict('blessed', 'allySelf'),
     ),
   },
@@ -778,7 +781,7 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyAll', 10, 1, { range: 'all', modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: ['火蘑菇', '食松露大王', '爆毒菌', '霉菌法师', '蘑菇人'], atCastStart: true } } }),
       // sa-R5 L1-1274-amanithrax: native ExplodeGems UseCounterForAmount = 3 per Amanithrax ally only (0 allies -> none);
       // SummoningKingdomNoError 3053 = raw Amanithrax roster (Deathcap 7865 is not in the roster). P-R5-faction-kingdom: native CountArmyKingdom 3053// counts only that raw roster (by zh troop name), not every ally of the zh parent kingdom 齐埃金 (Zaejin).
-      explodeRandomGems(0, 0, 'color', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: ['火蘑菇', '食松露大王', '爆毒菌', '霉菌法师', '蘑菇人'], atCastStart: true } } }),
+      explodeRandomGems(0, 0, 'all', undefined, { modifier: { mod: { kind: 'multiplier', a: 3 }, source: { kind: 'alliesNamed', name: ['火蘑菇', '食松露大王', '爆毒菌', '霉菌法师', '蘑菇人'], atCastStart: true } } }),
       summonRandom(['Lifecap', 'KingGobtruffle', 'Exploadstool', 'Fungomancer', 'MushroomMan']),
     ),
   },
@@ -807,9 +810,15 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8154,
     desc: '对一名敌人和其下方的敌人造成 [魔法 + 1] 点溅射伤害。使目标敌人陷入击晕和出血状态。',
     build: skill(
-      dmgSplash('enemyChosenAndNextDown', 1, 1, { range: 'splash' }),
-      inflict('stun', 'lastTargets'),
-      inflict('bleed', 'lastTargets'),
+      // sa-C r9: native order Splash FromTarget -> Splash NextDownFromTarget -> Stun both -> Bleed both.
+      // NextDown resolved per step (R012: next living enemy below the target's slot), so a first
+      // splash that kills the enemy below moves the second splash on to the next one.
+      dmgSplash('enemyChosen', 1, 1, { range: 'splash' }),
+      dmgSplash('enemyNextDown', 1, 1, { range: 'splash' }),
+      inflict('stun', 'enemyChosen'),
+      inflict('stun', 'enemyNextDown'),
+      inflict('bleed', 'enemyChosen'),
+      inflict('bleed', 'enemyNextDown'),
     ),
   },
   {
@@ -872,7 +881,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8186,
-    desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，若敌人陷入猎人标记状态，则造成 3 倍伤害。再使其陷入陷入猎人标记状态。',
+    desc: '对一名敌人造成 [魔法 + 3] 点真实伤害，若敌人陷入猎人标记状态，则造成 3 倍伤害。再使其陷入猎人标记状态。',
     build: skill(
       trueDmg('enemyChosen', 3, 1, { trueDamage: true, condMult: { times: 3, cond: { kind: 'targetStatus', statusId: 'marked' } } }),
       inflict('marked', 'lastTarget'),
@@ -955,37 +964,37 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8253,
     desc: '耗掉所有敌人 5 点法力值，或给予所有其他盟友 [(魔法 / 3) + 1] 点魔力值，或创造 12 颗紫色宝石。',
-    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"reduce","target":"enemyAll","stat":"mana","scaling":{"base":5,"mult":0}}],[{"kind":"buff","target":"allyOthers","stat":"magic","scaling":{"base":1,"mult":0.3333}}],[{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Purple"},"count":{"base":12,"mult":0}}}]]}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"oneOf","options":[[{"kind":"reduce","target":"enemyAll","stat":"mana","scaling":{"base":5,"mult":0}}],[{"kind":"buff","target":"allyOthers","stat":"magic","scaling":{"base":1,"mult":0.34}}],[{"kind":"gem","params":{"op":"create","gem":{"kind":"color","color":"Purple"},"count":{"base":12,"mult":0}}}]]}]} as SkillPrototype),
   },
   {
     id: 8254,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有蓝色敌人并净化所有蓝色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Blue } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8255,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有绿色敌人并净化所有绿色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Green } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8256,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有红色敌人并净化所有红色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Red } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8257,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有黄色敌人并净化所有黄色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Yellow } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8258,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有紫色敌人并净化所有紫色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Purple } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8259,
     desc: '对一名敌人造成 [魔法 + 5] 点重度溅射伤害，每锻炼 1 个武器段位则 +4 点伤害值。击晕所有棕色敌人并净化所有棕色盟友。爆破 4 颗宝石，如果敌方有劫数，则再爆破 3 颗宝石。',
-    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'color', undefined), explodeRandomGems(3, 0, 'color', undefined, { ifCond: { kind: 'targetHasDoom' } })),
+    build: skill(dmgSplash('enemyChosen', 5, 1, { range: 'splash', modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'tempering' } } }), inflict('stun', 'enemyAll', { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), cleanse('allyAll', undefined, { ifCond: { kind: 'targetColor', color: BaseColor.Brown } }), explodeRandomGems(4, 0, 'all'), explodeRandomGems(3, 0, 'all', undefined, { ifCond: { kind: 'targetHasDoom' } })),
   },
   {
     id: 8260,

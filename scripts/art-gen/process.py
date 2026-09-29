@@ -4,6 +4,7 @@
 用法：python scripts/art-gen/process.py [id ...]
 """
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -11,8 +12,9 @@ from pathlib import Path
 from PIL import Image
 
 RAW = Path('artifacts/art-gen/raw')
+MANIFEST = os.environ.get('ART_MANIFEST', 'assets.mjs')
 manifest = json.loads(subprocess.check_output(
-    ['node', '-e', "import('./scripts/art-gen/assets.mjs').then(m => process.stdout.write(JSON.stringify(m.ASSETS)))"],
+    ['node', '-e', f"import('./scripts/art-gen/{MANIFEST}').then(m => process.stdout.write(JSON.stringify(m.ASSETS)))"],
     shell=False,
 ))
 ids = sys.argv[1:] or list(manifest)

@@ -214,8 +214,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9665,
-    desc: '对一名敌人造成[魔法 + 2]点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。摧毁一根随机柱子。',
-    // MultiplyForAscensionCastle；「摧毁一根随机柱子」= destroyRandomCols(1)
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。随机摧毁一列宝石。',
+    // MultiplyForAscensionCastle；「随机摧毁一列宝石」(Destroy a random Column) = destroyRandomCols(1)
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
       destroyRandomCols(1),

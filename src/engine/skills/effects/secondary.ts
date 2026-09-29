@@ -19,7 +19,7 @@ import { BoardModel } from '../../BoardModel';
 import { goldForSide } from '../../battleGold';
 import type { SecondaryModifier } from '../scaling';
 import type { EffectContext } from './context';
-import { findCharacter, findSide, effectCasterSide } from './context';
+import { findCharacter, findSide, effectCasterSide, killCheckTarget } from './context';
 import { mostUsedManaColorForCast } from './manaColor';
 
 /** Status-id aliases that name one GoW status (L4b-7200-rage-alias): Enrage is applied as 'rage' by most
@@ -372,6 +372,10 @@ export type Condition =
   /** P-R1-chosen-target-color-cond: the chosen target's mana colour at cast start (native CountArmyColor@FromTarget
    *  at step 0), usable before any targeting segment and after the target died. */
   | { kind: 'chosenTargetColor'; color: BaseColor }
+  /** P-A-chosen-target-status-precast: the chosen target (native FromTarget) holds the status, read live while it is
+   *  alive, falling back to the cast-start snapshot once it left the roster; usable before any targeting segment
+   *  (8276 ExplodeColor [AddForBurning] before Damage, 8521 ExplodeGems [AddForStun] before SplashHeavyDamage). */
+  | { kind: 'chosenTargetStatus'; statusId: string }
   | { kind: 'lastTargetRace'; race: string }
   /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力值」） */
   | { kind: 'lastTargetColor'; color: BaseColor }
@@ -445,6 +449,13 @@ export function conditionMet(
       if (id === undefined) return false;
       const colors = ctx.castTracking?.colorsAtCastStart?.[id] ?? findCharacter(ctx.state, id)?.colors ?? [];
       return colors.includes(cond.color);
+    }
+    case 'chosenTargetStatus': {
+      const id = ctx.chosenTargetId;
+      if (id === undefined) return false;
+      const live = findCharacter(ctx.state, id);
+      if (live && !live.defeated) return hasStatusForCast(ctx, live, cond.statusId);
+      return (ctx.castTracking?.statusesAtCastStart?.[id] ?? []).some((s) => sameStatus(s, cond.statusId));
     }
     case 'targetColor': {
       if (!target) return false;
@@ -614,7 +625,8 @@ export function conditionMet(
     case 'targetStatBeatsCaster': {
       // R22 批 lastTarget 族（全局条件）：统一取跨段追踪主目标判定。
       // targetStatBeatsCaster falls back to the chosen target before the first targeting segment (P-R3-precast-compare).
-      const last = ctx.castTracking?.lastTarget;
+      // lastTargetSurvived = negation of ifTargetDied: same tracked victim (P-G-ifTargetDied-after-self).
+      const last = cond.kind === 'lastTargetSurvived' ? killCheckTarget(ctx) : ctx.castTracking?.lastTarget;
       const lastId = last?.id ?? (cond.kind === 'targetStatBeatsCaster' ? ctx.chosenTargetId : undefined);
       // P-R7-dead-last-target-cond: a target the hit killed has left the roster; colour / race / status conditions
       // read the tracked unit object (its state at death), matching native step-0 Count* before the Damage step.
@@ -914,7 +926,10 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     case 'chosenStat': {
       // R22 批：本次释放手动选定目标的当前属性（8659「等同于其攻击力…再同等伤害」）
       if (ctx.chosenTargetId === undefined) return 0;
-      const ch = findCharacter(ctx.state, ctx.chosenTargetId);
+      // P-Q2-chosen-stat-at-cast-start: native Count*@FromTarget runs at step 0, so once an earlier hit killed the
+      // chosen enemy (it left the roster) the value comes from the cast-start snapshot (8659 Despond: AboveTarget hit)
+      const ch = findCharacter(ctx.state, ctx.chosenTargetId)
+        ?? Object.values(tracking?.unitsAtCastStart ?? {}).flat().find((c) => c.id === ctx.chosenTargetId);
       return ch ? statOf(ch, source.stat) : 0;
     }
     case 'lastDamage':

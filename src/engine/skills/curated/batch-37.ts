@@ -30,6 +30,7 @@ import { skill, dmg, dmgAll, trueDmg, heal, armor, magic, mana, inflict, reduce,
   createGems, createSpecialGems, transform, transformToSpecial, dispelStatus, createStorm,
   oneOf, explodeRandomGems, explodeSpecialGems, destroySpecialGems, targetedSkill } from '../builders';
 import { BaseColor } from '../../types';
+import { POSITIVE_STATUS_IDS } from '../effects/status';
 import type { CuratedBatch } from './index';
 
 const SKIPPED: { id: number; reason: string }[] = [];
@@ -175,15 +176,15 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 3] 点伤害。若存在一种风暴，则爆破 5 颗宝石。',
     build: skill(
       dmgAll(3, 1),
-      // 「宝石」不含骷髅 → include 'color'（batch-34 8823 口径）
-      explodeRandomGems(5, 0, 'color', undefined, { ifCond: { kind: 'stormPresent' } }),
+      // native ExplodeGems [AddForAnyStorm 5]: any gem, Skulls included (R013-5)
+      explodeRandomGems(5, 0, 'all', undefined, { ifCond: { kind: 'stormPresent' } }),
     ),
   },
   {
     id: 8138,
     desc: '爆破 [(魔法 / 2) + 1] 颗宝石。若有一名敌人陷入疾病状态，则使 1 到 4 名敌人中毒。',
     build: skill(
-      explodeRandomGems(1, 0.5, 'color'),
+      explodeRandomGems(1, 0.5, 'all'),
       // 「若有一名敌人陷入疾病状态」= anyEnemyStatus 存在判定。sa-A r4: native 「1 到 4 名」= four conditional
       // Poison@RandomEnemy steps at 100% / 50% / 25% / 25%, each a fresh random pick (ResetTargets, may repeat);
       // was nRange 1-4 distinct enemies, uniform.
@@ -226,7 +227,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8317,
     desc: '爆破 4 颗宝石并召唤一个骸骨风暴。',
     build: skill(
-      explodeRandomGems(4, 0, 'color'),
+      // native ExplodeGems 4 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(4, 0, 'all'),
       createStorm(BaseColor.Brown, { dropKind: 'skull' }),
     ),
   },
@@ -254,13 +256,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8718,
-    desc: '给所有同盟[魔法 + 3]点生命值和5点魔法。然后发起一场烈火风暴并施魔法于所有的精灵同盟。',
+    desc: '给予所有盟友 [魔法 + 3] 点生命值和 5 点魔法。然后发起一场烈火风暴，并赋予所有仙灵盟友法印效果。',
     build: skill(
       heal('allyAll', 3, 1),
       magic('allyAll', 5, 0),
       createStorm(BaseColor.Red),
-      // 精灵 = Elf（troops.json troopTypes）；「施魔法」共享前句常数 5（batch-35 原判可表达）
-      magic('allyAll', 5, 0, { targetRace: 'Elf' }),
+      // native CauseEnchanted@AllyType fey: Enchant all Fey allies (was +5 Magic to Elf allies)
+      inflict('enchanted', 'allyAll', { targetRace: 'Fey' }),
     ),
   },
   {
@@ -288,10 +290,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8756,
-    desc: '耗掉一名盟友 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。',
+    desc: '耗掉一名敌人 7 点法力值，再使所有敌人陷入死亡标记，或沉默，或诅咒状态。',
     build: skill(
-      // 「一名盟友」= allyChosen（措辞表己方同构）
-      reduce('allyChosen', 'mana', 7, 0),
+      // 英文 Drain 7 Mana from an Enemy / 原生 DecreaseMana@FromTarget（施法目标 Enemy）：选定敌人；三分支共用，先耗蓝再上状态（sa-H：原 allyChosen 误）
+      reduce('enemyChosen', 'mana', 7, 0),
       oneOf(
         [inflict('death-mark', 'enemyAll')],
         [inflict('silence', 'enemyAll')],
@@ -341,14 +343,15 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9784,
-    desc: '对一名敌人造成[魔法 + 4]点伤害。如果该敌人处于流血状态，则驱散其流血效果，施加诅咒并吸取其3点法力值。',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。',
     build: skill(
-      dmg('enemyChosen', 4, 1),
-      // 条件子句辖三段：该敌人处于流血才生效（ifCond targetStatus 逐目标过滤，静态同目标合法）
-      dispelStatus('bleed', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
+      // sa-F: native order DispelConditional -> Curse -> DecreaseMana 3 (all AddForBleed) -> Damage (R001).
+      // Dispel = remove the target's positive statuses (Bleed is negative and stays).
+      ...POSITIVE_STATUS_IDS.map(statusId => dispelStatus(statusId, 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } })),
       inflict('curse', 'enemyChosen', { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
       // L3-007: 「吸取其 3 点法力值」native DecreaseMana (drain) — no refill to the caster
       reduce('enemyChosen', 'mana', 3, 0, { ifCond: { kind: 'targetStatus', statusId: 'bleed' } }),
+      dmg('enemyChosen', 4, 1),
     ),
   },
 ];

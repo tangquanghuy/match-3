@@ -78,12 +78,13 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 堡垒大门 = FortressGate（troops.json 程序核实，SOP §6）
       summonRef('FortressGate', 6097),
-      // 「移除所有骷髅头以增强」句式：清除段前置（batch-04 7002 同款）
-      destroySkulls(),
-      // 清除段只清骷髅 → destroyedGems 不带色筛选恰等于被摧毁的骷髅数（batch-14 8297 同款）
+      // sa-Q2 (R001): native CountGems Skull -> Summon -> IncreaseArmor@AllAllies -> RemoveColor Skull; the
+      // skulls are counted before the removal and the armor lands before the board settles. Base 1 kept from
+      // English "Give 1 Armor ... boosted by Gems removed" (native IncreaseArmor has no Amount; dispute, R016 guidance).
       armor('allyAll', 1, 0, {
-        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'destroyedGems' } },
+        modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'boardSkulls' } },
       }),
+      destroySkulls(), // compiled as remove (gowRemoveRules, R010 / R013-5)
     ),
   },
   {

@@ -29,7 +29,7 @@
  * 9364/9369/9492/9812/9959）移出本批 SKIPPED，避免覆盖率报告对同一 id 重复记弃。
  */
 import type { CuratedBatch } from './index';
-import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllGems, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllGems, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt, gainLife } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
 
@@ -221,7 +221,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。耗掉对方 5 点法力值。',
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
-      reduce('lastTarget', 'magic', 5, 0),
+      // sa-F: native DecreaseMana 5 (was draining Magic)
+      reduce('lastTarget', 'mana', 5, 0),
     ),
   },
   {
@@ -304,7 +305,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8923,
-    desc: '赋予所有盟友四分之一的法力值，并净化他们。',
+    desc: '给予所有其他盟友四分之一的法力值，并净化他们。',
     // EN/ST = AllAlliesButNotSelf → allyOthers；「四分之一」= mana fraction（Wave4/R12）
     build: skill(
       mana('allyOthers', 0, 0, { fraction: 0.25 }),
@@ -509,7 +510,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点伤害。如果敌人是个魔头，则基于我已晋升的稀有度造成 3 到 5 倍伤害。摧毁 7 颗随机宝石。',
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
-      destroyRandomGems(7, 0, 'color'),
+      destroyRandomGems(7, 0, 'all'), // native DestroyGems 7: any gem (R013-5)
     ),
   },
   {
@@ -844,7 +845,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 2] 点伤害。如果敌人是个高塔，则基于我已晋升的稀有度造成 3 到 5 倍伤害。摧毁 8 颗宝石。',
     build: skill(
       dmg('enemyChosen', 2, 1, { condMult: CASTLE_ASC3 }),
-      destroyRandomGems(8, 0, 'color'),
+      destroyRandomGems(8, 0, 'all'), // native DestroyGems 8: any gem (R013-5)
     ),
   },
   {
@@ -989,10 +990,11 @@ const SPELLS: CuratedBatch['spells'] = [
       dmg('enemyChosen', 4, 2, {
         modifier: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'boardSpecial', gem: 'curseGem' } },
       }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       reduce('enemyAll', 'armor', 0, 0, { drainAll: true, ifTargetDied: true }),
       // 前一段 enemyAll 会改写 lastTarget → 祝福/附魔按「本次施法有敌人阵亡」判定（只有选定敌人受伤害）
-      inflict('blessed', 'allySelf', { ifCond: { kind: 'castEnemyDied' } }),
-      inflict('enchanted', 'allySelf', { ifCond: { kind: 'castEnemyDied' } }),
+      inflict('blessed', 'allySelf', { ifTargetDied: true }),
+      inflict('enchanted', 'allySelf', { ifTargetDied: true }),
     ),
   },
   {
@@ -1009,7 +1011,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9716,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色和棕色宝石数量而增强。所有技能获得 10 点。如果敌人死亡，则获得伤害值增加三倍。 [x2]',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色和棕色宝石数量而增强。所有技能获得 10 点。如果敌人死亡，则获得的数值变为三倍。 [x2]',
     // 双来源各 ×2（r17 7650 口径）；「所有技能」= 攻/甲/魔三围（r15 7065 口径）；「死亡则三倍」=
     // 官方 IncreaseAllStats Amount 10 + StatusAmount 20 AddForKill 实锤 = 基础 10 + 追加 20
     build: skill(
@@ -1023,12 +1025,13 @@ const SPELLS: CuratedBatch['spells'] = [
       // lastTarget → 击杀追加 20 改判 castEnemyDied（只有选定敌人受伤害）
       attack('allySelf', 10, 0),
       armor('allySelf', 10, 0),
-      heal('allySelf', 10, 0),
+      gainLife('allySelf', 10, 0), // native IncreaseAllStats: Life grows current + max
       magic('allySelf', 10, 0),
-      attack('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      armor('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      heal('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
-      magic('allySelf', 20, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 20, 0, { ifTargetDied: true }),
+      armor('allySelf', 20, 0, { ifTargetDied: true }),
+      gainLife('allySelf', 20, 0, { ifTargetDied: true }),
+      magic('allySelf', 20, 0, { ifTargetDied: true }),
     ),
   },
   {

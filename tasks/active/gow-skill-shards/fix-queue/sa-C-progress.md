@@ -12,3 +12,58 @@
 
 # sa-C lane L5 review round 6 (branch gow/r6-L5)
 - B09 troop:6517,6301,6208,6235,7023,7589,6460,6821,weapon:1668,1669 approve=10 fixed=3 (1668/1669 Doomed blades: Doom armor break before each hit, Tempering + own-colour Bleed on both hits, RandomPrefNotPrev - family 9825-9830 via doomedBlade(); 7589 2 Magic not Mana) issue=0 waived=6517 c2 tower, 7589 c2 boss
+
+# sa-C lane L5 review round 9 (branch gow/r9-L5, base gow-review-base-12)
+- weapon:1670 accept (doomedBlade Red 9827)
+- weapon:1671 accept (doomedBlade Yellow 9828)
+- weapon:1672 accept (doomedBlade Purple 9829)
+- weapon:1673 accept (doomedBlade Brown 9830)
+- troop:6571 accept (7775 armor strip all -> 2M+7 -> Submerge self)
+- B10 weapon:1670,1671,1672,1673,troop:6571 approve=5 fixed=0 issue=0
+- troop:6785 accept (8175 armor chosen ally, Barrier all below)
+- troop:7203 accept (8790 Barrier Daemons only)
+- weapon:1527 accept (8971 Barrier Whitehelm 3014 only)
+- troop:7191 accept (8772 others Barrier with any Storm)
+- troop:6980 accept (8483 RandomEnemy back)
+- B11 troop:6785,7203,weapon:1527,troop:7191,6980 approve=5 fixed=0 issue=0
+- troop:7703 fixed (9664 Barrier+Enchant the chosen ally, not the caster twice)
+- troop:7706 fixed (9667 armor@WeakestAlly first, Life/Barrier FromPrevious)
+- troop:7666 accept (9594 Bless+Barrier Elemental only; Blessed cleanses on apply)
+- troop:6695 accept (8041)
+- troop:6335 fixed (7485 native order Attack -> Life -> Cleanse -> Red Magic)
+- B12 troop:7703,7706,7666,6695,6335 approve=5 fixed=3 issue=0
+- troop:6450 accept (7628)
+- troop:6690 fixed (8036 native order Health -> Blessed -> Enchanted)
+- troop:7323 accept (8935)
+- weapon:1149 fixed (7446 Cleanse/Enchant allyOthers not allyAll; override entry added)
+- troop:7797 fixed+issue L5-C-7797-chance (9817 kill roll first on already Entangled only; DISPUTE English 30% vs native 25, 30 kept)
+- B13 troop:6450,6690,7323,weapon:1149,troop:7797 approve=4 fixed=3 issue=1
+- weapon:1446 accept (8702 scatter + Tempering, Bless Purple allies, Curse Purple enemies)
+- troop:6150 fixed zh (7264 '所有人' -> '所有敌人' + snapshot override; one 75% roll)
+- troop:6158 accept (7278)
+- troop:7718 fixed (9710 RandomEnemy burn + RandomPrefNotPrev burn 50%)
+- troop:7013 accept (8545 one 75% roll)
+- B14 weapon:1446,troop:6150,6158,7718,7013 approve=5 fixed=2 issue=0
+- troop:6194 fixed (7335 +8 Magic on ANY enemy kill: anyEnemyDied, was ifTargetDied on enemyAll)
+- troop:6983 fixed (8486 Stun target + adjacent via lastDamaged, was Life-damaged only)
+- weapon:1447 accept (8703 Bless Brown allies, Curse Brown enemies)
+- troop:6816 accept (8220 lastDamaged burn/freeze groups)
+- weapon:1153 accept (7527 Enrage front ally)
+- B15 troop:6194,6983,weapon:1447,troop:6816,weapon:1153 approve=5 fixed=2 issue=0
+- troop:7141 fixed (8690 Poison target + adjacent via lastDamaged, was Life-damaged only)
+- troop:6702 accept (8058)
+- troop:6402 accept (7557 Submerge self)
+- weapon:1278 fixed (8154 native two splashes; NextDown per step R012, Stun/Bleed chosen + NextDown)
+- weapon:1252 fixed (8072 Death Mark LastTwo n=2 + override)
+- B16 troop:7141,6702,6402,weapon:1278,1252 approve=5 fixed=3 issue=0
+- troop:7422 accept (9116 steal + Web)
+- troop:7314 accept (8926 true x2 Purple, Curse)
+- weapon:1286 fixed zh (8186 doubled 陷入 removed; x3 on already Marked)
+- troop:6900 fixed (8361 true damage + zh 真实 override; native 4 race steps, Daemon Beast = 2 Bleed)
+- troop:7252 fixed (8851 kill roll before own Poison; native order 3 Bleed -> Poison)
+- B17 troop:7422,7314,weapon:1286,troop:6900,7252 approve=5 fixed=3 issue=0
+- troop:6570 accept (7774)
+- weapon:1445 fixed (8701 was first+last normal dmg: now 2 random TRUE hits RandomPrefNotPrev, Tempering both; zh + override)
+- troop:6882 fixed (8305 native order 50% SecondLast -> Last; zh 倒数第二名 + snapshot override)
+- troop:6627 accept (7945 two true splashes, Submerge self + other ally)
+- B18 troop:6570,weapon:1445,troop:6882,troop:6627 approve=4 fixed=2 issue=0

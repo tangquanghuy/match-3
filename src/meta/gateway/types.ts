@@ -17,7 +17,7 @@ import type { ChestLootResult, GachaDrawResult } from '../systems/gacha';
 import type { LevelUpResult, AscendResult, UnlockTraitResult, DecomposeResult } from '../systems/troopProgress';
 import type { SetTeamResult } from '../systems/teamRules';
 import type { HuntMoveOk } from '../systems/treasureHunt';
-import type { EventBuyResult } from '../systems/events';
+import type { EventActionResult, EventBuyResult } from '../systems/events';
 import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { MetaSave, TreasureHuntState } from '../state/schema';
@@ -182,6 +182,8 @@ export interface MetaGateway {
   // —— 每周活动 ——
   /** 主动放弃登塔（按败北同口径收尾发奖） */
   abandonTowerRun(): Promise<GatewayUpdate<Ok<{ floorReached: number; glory: number; scrolls: number }> | MetaFailure>>;
+  /** 活动玩法的非战斗动作（爬塔选路/营地/商人/奇遇/遗物、庆典棋盘掷骰等）。失败不改存档 */
+  eventAction(typeId: EventTypeId, action: string): Promise<GatewayUpdate<EventActionResult | MetaFailure>>;
   /** 活动商店购买；expectedPeriodStart = 屏层看到的货架期（换期时拒绝，防买错） */
   buyEventGoods(goodsId: string, typeId: EventTypeId, expectedPeriodStart?: number): Promise<GatewayUpdate<EventBuyResult | MetaFailure>>;
 

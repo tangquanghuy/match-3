@@ -14,11 +14,9 @@
  * 自我转化（「转化为X」主语缺省）= transformTroop('allySelf', …)，与诺斯费拉图/暗魄狼/
  * 蝙蝠群/狼人/村民的变身链一致（batch-r4 147 行同款）。
  */
-import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomCols, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CASTER, CELL, explodeAt, dispelStatus, targetedSkill } from '../builders';
+import { skill, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, cleanse, inflict, inflictRandom, reduce, steal, createGems, createSkulls, createSpecialGems, transform, transformToSpecial, destroyAllGems, destroyChosenRow, destroyChosenCross, destroyChosenCol, destroyRandomRows, destroyRandomGems, explodeChosenRow, explodeChosenCol, explodeRandomGems, explodeSpecialGems, explodeRandomSpecialGems, oneOf, summonRef, summonRandom, extraTurn, reposition, shuffleTeam, shuffleBoard, skillOnce, escape, sacrifice, transformTroop, transformTroopRandom, scale, flat, CELL, explodeAt, dispelStatus, targetedSkill, CHOSEN_TARGET } from '../builders';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
 import { BaseColor } from '../../types';
-import type { SpecialGemKind } from '../../types';
-import type { GemSegment } from '../prototypes';
 import type { CuratedBatch } from './index';
 import { rawKingdomPool } from './gowKingdomPools';
 
@@ -28,31 +26,12 @@ const DRAGON_REFS = ["Sheggra","Venoxia","ShadowDragon","Emperina","Celestasia",
 /** native SummoningKingdomNoError 3051 (raw KingdomId: incl. Emperinazara, not KoboldEmissary 3012) - sa-E L1 */
 const KOBOLD_REFS = rawKingdomPool(3051);
 
-/** 「爆破 N-M 颗(特殊)宝石」：clear 随机宝石支持 countRange（effects/gems.ts 原语，
- *  组装器暂无包装构造函数）→ 直接落段。 */
-function explodeRandomGemsRange(min: number, max: number, special?: SpecialGemKind): GemSegment {
-  return {
-    kind: 'gem',
-    params: {
-      op: 'clear',
-      mode: 'explode',
-      target: {
-        kind: 'randomGems',
-        count: flat(min),
-        include: 'all',
-        ...(special !== undefined ? { special } : {}),
-        countRange: { min, max },
-      },
-    },
-  };
-}
-
 const SKIPPED: { id: number; reason: string }[] = [];
 
 const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7057,
-    desc: '造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。',
+    desc: '对一名敌人造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。',
     build: skill(trueDmg('enemyChosen', 1, 1, { condBonus: { n: 6, cond: { kind: 'targetHpDamaged' } } })),
   },
   {
@@ -112,7 +91,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '给予一名盟友 [魔法 + 1] 点生命值，并获得下列其一：创造 6 颗具有该军队法力颜色的宝石，或给予其 2 点魔力值。',
     build: skill(
       heal('allyChosen', 1, 1),
-      oneOf([createGems(CASTER, 6)], [magic('lastTarget', 2, 0)]),
+      // 原生 CreateGems Color1 FromTarget = 所选盟友的法力色（sa-H：原为施法者颜色 CASTER）
+      oneOf([createGems(CHOSEN_TARGET, 6)], [magic('lastTarget', 2, 0)]),
     ),
   },
   {
@@ -162,6 +142,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skillOnce(
       dmg('enemyChosen', 40, 1),
       // 「光荣地死去」= 自毁（spell-rules §11 追加：自毁 = sacrifice allySelf）
+      // sa-F: native has two Damage@Self 10000 steps — the first pops a Barrier, the second kills
+      sacrifice('allySelf'),
       sacrifice('allySelf'),
     ),
   },
@@ -425,23 +407,26 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8305,
-    desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对第 3 位敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
+    desc: '对末位敌人造成 [魔法 + 1] 点真实伤害，有 50% 的几率也对倒数第二名敌人造成 [魔法 + 1] 点真实伤害。再使自身下潜。',
     // Native SecondLastEnemy: the penultimate survivor only; the 50% chance
     // applies solely to this second hit, not to the guaranteed last-enemy hit.
     build: skill(
-      trueDmg('enemyLast', 1, 1),
+      // sa-C r9: native order SecondLastEnemy (50%) -> LastEnemy; zh 第 3 位 -> 倒数第二名 (English second last).
       trueDmg('enemySecondLast', 1, 1, { chance: 0.5 }),
+      trueDmg('enemyLast', 1, 1),
       inflict('submerged', 'allySelf'),
     ),
   },
   {
     id: 8369,
-    desc: '召唤一名随机恶魔，或使所有敌人和盟友陷入一个随机的状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。',
+    desc: '召唤一名随机恶魔，或使所有敌人或所有盟友获得一个随机状态效果，或对第一名敌人造成 [魔法 + 2] 点伤害。',
+    // 原生 Randomize A-B-C-D 四选一（各 1/4）：召唤恶魔 | RandomPositiveStatusEffect@AllAllies |
+    // RandomStatusEffect@AllEnemies | Damage@FrontEnemy。sa-H：原为三选一且敌我同时上状态；ZH「敌人和盟友」改「或」+ override 6908
     build: skill(
       oneOf(
         [summonRandom(DAEMON_REFS)],
-        // 随机状态按阵营分池：敌方负面 / 盟友正面（spell-rules §11 补充）
-        [inflictRandom('enemyAll'), inflictRandom('allyAll')],
+        [inflictRandom('allyAll', { pool: 'positive' })],
+        [inflictRandom('enemyAll')],
         [dmg('enemyFront', 2, 1)],
       ),
     ),
@@ -487,8 +472,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点严重的溅射伤害。击晕所有受到伤害的敌人。再打乱敌方队伍队形。',
     build: skill(
       dmgSplash('enemyChosen', 4, 1),
-      // 「击晕所有受到伤害的敌人」= enemyAll + targetHpDamaged（batch-r6 7985 同款）
-      inflict('stun', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
+      // sa-C r9: native CauseStun FromTarget + AdjacentFromTarget = the whole splash group
+      // (armor-only hits included); was enemyAll + targetHpDamaged, which skipped armor-only hits.
+      inflict('stun', 'lastDamaged'),
       shuffleTeam('enemy'),
     ),
   },
@@ -542,8 +528,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点溅射伤害。再使所有受伤害的敌人陷入中毒状态。',
     build: skill(
       dmgSplash('enemyChosen', 4, 1),
-      // 「所有受伤害的敌人」= enemyAll + targetHpDamaged（batch-r6 7985 同款）
-      inflict('poison', 'enemyAll', { ifCond: { kind: 'targetHpDamaged' } }),
+      // sa-C r9: native CausePoison FromTarget + AdjacentFromTarget = the whole splash group
+      // (armor-only hits included); was enemyAll + targetHpDamaged.
+      inflict('poison', 'lastDamaged'),
     ),
   },
   {
@@ -570,7 +557,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8751,
-    desc: '对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害，伤害值因自身的攻击力、生命值和护甲值二增强。再将首位敌人打回末位。 [10:1]',
+    desc: '对所有敌人造成 [(魔法 x 0.75) + 1] 点伤害，伤害值因自身的攻击力、生命值和护甲值而增强。再将首位敌人打回末位。 [10:1]',
     build: skill(
       dmg('enemyAll', 1, 0.75, {
         range: 'all',
@@ -673,7 +660,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 3] 点伤害。爆破 1-4 颗鬼魂宝石。',
     build: skill(
       dmg('enemyChosen', 3, 1),
-      explodeRandomGemsRange(1, 4, 'ghost'),
+      // native: ExplodeColor Ghost 1 ; then three more single Ghost explosions at 60% / 50% / 40% (independent rolls)
+      explodeRandomSpecialGems('ghost', 1),
+      explodeRandomSpecialGems('ghost', 1, 0, { chance: 0.6 }),
+      explodeRandomSpecialGems('ghost', 1, 0, { chance: 0.5 }),
+      explodeRandomSpecialGems('ghost', 1, 0, { chance: 0.4 }),
     ),
   },
   {
@@ -732,11 +723,12 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9346,
-    desc: '对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一个随机列。',
+    desc: '对首位敌人造成 [魔法 + 3] 点伤害，再将他打回末位。摧毁一列宝石。',
+    // native spell Target Board ; DestroyGems BoardTarget Column = the chosen column (not random)
     build: skill(
       dmg('enemyFront', 3, 1),
       reposition('enemyFront', 'back'),
-      destroyRandomCols(1, 0),
+      destroyChosenCol(),
     ),
   },
   {
@@ -769,7 +761,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9725,
-    desc: '爆破 2-4 颗宝石。',
+    desc: '爆破 2-4 颗宝石。对第一名敌人造成 [(魔法 / 2) + 4] 点伤害。',
     build: skill(explodeRandomGems(2), { ...explodeRandomGems(1), chance: 0.5 }, { ...explodeRandomGems(1), chance: 0.25 }, dmg('enemyFront', 4, 0.5)),
   },
   {

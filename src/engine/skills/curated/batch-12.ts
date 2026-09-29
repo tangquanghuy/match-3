@@ -19,7 +19,7 @@
  * - 7225/7273/7335「如果(有)敌人身亡」= spell-rules.md §4 死亡条件家族
  *   （「如敌人身亡，则…」同款），按 §4 挂最近产目标段（enemyAll）判定。
  */
-import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt } from '../builders';
+import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack, magic, steal, cleanse, createGems, createSkulls, transform, destroyChosenCol, destroyChosenRow, destroyColor, destroyRandomGems, inflict, summonRef, summonRandom, extraTurn, CHOSEN, CELL, explodeAt, anyEnemyDied } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
@@ -219,9 +219,10 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 3] 点散射伤害。摧毁 10 颗随机宝石。如果敌人身亡，则获得 8 点魔力值。',
     build: skill(
       dmgAll(3),
-      // 「宝石」不含骷髅（batch-01 头注口径）→ include:'color'
-      destroyRandomGems(10, 0, 'color'),
+      // native order: ScatterDamage, IncreaseSpellPower [AddForKill 8], then DestroyGems 10 (R001);
+      // colourless DestroyGems = any gem incl. Skulls (R013-5)
       magic('allySelf', 8, 0, { ifTargetDied: true }),
+      destroyRandomGems(10, 0, 'all'),
     ),
   },
   {
@@ -253,7 +254,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       dmgAll(3),
       inflict('entangle', 'enemyAll'),
-      magic('allySelf', 8, 0, { ifTargetDied: true }),
+      // sa-C r9: native AddForKill = any enemy killed by this cast; ifTargetDied only saw the last target.
+      magic('allySelf', 8, 0, { ifCond: anyEnemyDied() }),
     ),
   },
   {
@@ -261,7 +263,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 6 点真实伤害。摧毁 [魔法 + 3] 颗随机宝石。获得 6 点攻击力。',
     build: skill(
       dmgAll(6, 0, true),
-      destroyRandomGems(3, 1, 'color'),
+      destroyRandomGems(3, 1, 'all'), // R013-5: Skulls are Gems
       attack('allySelf', 6, 0),
     ),
   },

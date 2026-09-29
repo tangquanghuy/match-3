@@ -32,8 +32,9 @@ const SPELLS: CuratedBatch['spells'] = [
       // sa-F1: native order ExtraTurnConditional (s2) then GenerateMana (s3); the self mana step re-points lastTarget
       // to the caster, so with mana first the extra turn never fired.
       dmg('enemyChosen', 3, 1),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       extraTurn({ ifTargetDied: true }),
-      mana('allySelf', 9, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      mana('allySelf', 9, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -187,9 +188,10 @@ const SPELLS: CuratedBatch['spells'] = [
           ],
         },
       }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       attack('allySelf', 10, 0, { ifTargetDied: true }),
       // sa-F2 fix round A: after the self-buff segment ifTargetDied looked at the caster -> skulls never created
-      createSkulls(12, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      createSkulls(12, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -206,15 +208,16 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8375,
-    desc: '窃取敌人 [魔法 + 1] 点魔力值，并将之转换成生命值和攻击力。 [100:1]',
+    desc: '窃取敌人 [魔法 + 1] 点魔力值，并将之转换成生命值和护甲值。 [100:1]',
     // [100:1] = CountMagic → ratio 100:1 targetStat magic（r16 9223 同族）；
-    // 转移端点按 EN/ST = Life+Armor（ZH「攻击力」机翻噪声）；两段同挂 lastReduce 驱动
+    // 转移端点按 EN/ST = Life+Armor（sa-G：ZH「攻击力」改为「护甲值」）；两段同挂 lastReduce 驱动
     build: skill(
       reduce('enemyChosen', 'magic', 1, 1, {
         modifier: { mod: { kind: 'ratio', a: 100, b: 1 }, source: { kind: 'targetStat', stat: 'magic' } },
       }),
-      heal('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
+      // sa-G (R001): native IncreaseArmor@Self before IncreaseHealth@Self
       armor('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
+      heal('allySelf', 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'lastReduce' } } }),
     ),
   },
   {
@@ -347,9 +350,9 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9640,
-    desc: '&& 消除 [魔法 + 2] 个敌人的攻击，并诅咒他们。 && 消除 [魔法 + 2] 个敌人身上的随机技能点，并给他们施加死亡标记。',
+    desc: '&& 消除一名敌人 [魔法 + 2] 点攻击力，并诅咒该敌人。 && 消除一名敌人一项随机技能 [魔法 + 2] 点，并对其施加死亡标记。',
     // '&&' 为合法子句切分符（§13.1）；EN 原句 = Eliminate [M+2] Attack / from a random Skill Point
-    // （ZH「个敌人」机翻噪声）；随机技能点 = reduce stat 'random'（DecreaseRandom，R12 原语）
+    // （sa-H：旧 ZH「[魔法 + 2] 个敌人」误读为敌人数，已改并加 gowSnapshotOverrides 7737）；随机技能点 = reduce stat 'random'（DecreaseRandom，R12 原语）
     build: skill(chooseSkill(["削减一名敌人［魔法＋2］攻击并诅咒","削减一名敌人［魔法＋2］随机属性并施加死亡标记"], [reduce('enemyChosen', 'attack', 2, 1), inflict('curse', 'lastTarget')], [reduce('enemyChosen', 'random', 2, 1), inflict('death-mark', 'lastTarget')])),
   },
   {
@@ -370,7 +373,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9675,
-    desc: '混合使用10颗诅咒宝石和末日骷髅头，获得额外回合。',
+    desc: '创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。',
     build: skill(
       createSpecialGems2([{ kind: 'curseGem' }, { kind: 'doomSkull' }], 10),
       extraTurn(),
@@ -396,8 +399,11 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成[魔法 + 1]真实伤害。若该敌人死亡，则对所有其他敌人造成1-3个负面状态效果。',
     // 官方三步 RandomStatusEffectConditional（100%+50%+50%）全挂 AddForKill → ifTargetDied；
     // 目标身亡后 enemyAll 天然排除死者（=「所有其他敌人」）
+    // sa-H：ifTargetDied 看「最近产目标段」的主目标——第 1 个随机状态段解析 enemyAll 后，第 2/3 段看的是存活敌人，
+    // 永不触发；改用本次施放击杀计数 castEnemyDied（唯一伤害段就是对所选敌人的这一击）
     build: skill(
       trueDmg('enemyChosen', 1, 1),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       inflictRandom('enemyAll', { ifTargetDied: true }),
       inflictRandom('enemyAll', { ifTargetDied: true, chance: 0.5 }),
       inflictRandom('enemyAll', { ifTargetDied: true, chance: 0.5 }),

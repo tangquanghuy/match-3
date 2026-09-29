@@ -17,7 +17,7 @@ import type { LevelUpResult, AscendResult, UnlockTraitResult, DecomposeResult } 
 import type { SetTeamResult } from '../systems/teamRules';
 import type { InvasionMirror, InvasionSettleResult } from '../systems/invasion';
 import type { HuntMoveOk } from '../systems/treasureHunt';
-import type { EventBuyResult } from '../systems/events';
+import type { EventActionResult, EventBuyResult } from '../systems/events';
 import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { EncounterEnemy, EncounterSource } from '../systems/encounter';
@@ -189,6 +189,8 @@ export interface CommandTable {
     args: object;
     result: Ok<{ floorReached: number; glory: number; scrolls: number }> | MetaFailure;
   };
+  /** 活动玩法的非战斗动作（爬塔选路/营地/商人/奇遇/遗物、庆典棋盘掷骰等） */
+  eventAction: { args: { typeId: EventTypeId; action: string }; result: EventActionResult | MetaFailure };
   buyEventGoods: {
     args: { goodsId: string; typeId: EventTypeId; expectedPeriodStart?: number };
     result: EventBuyResult | MetaFailure;
@@ -243,6 +245,7 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'claimGift',
   'claimAllGifts',
   'buyEventGoods',
+  'eventAction',
   'abandonTowerRun',
   'forfeitDraft',
   'enterArena',

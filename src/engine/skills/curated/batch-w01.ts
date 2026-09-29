@@ -402,7 +402,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对最后一名敌人造成 [魔法 + 6] 点伤害。如果该敌人身亡，则随机爆破 1 颗宝石。',
     build: skill(
       dmg('enemyLast', 6, 1),
-      explodeRandomGems(1, 0, 'color', undefined, { ifTargetDied: true }),
+      explodeRandomGems(1, 0, 'all', undefined, { ifTargetDied: true }), // native ExplodeGems [AddForKill 1]: any gem
     ),
   },
   {
@@ -496,7 +496,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '窃取第一名敌人 [魔法 + 3] 点生命值，并耗尽该敌人的法力值。',
     build: skill(
       dmg('enemyFront', 3, 1, { drain: true }),
-      drainMana('enemyChosen'),
+      // sa-I: native DecreaseMana@FrontEnemy 100 (was the chosen enemy; this weapon has no chosen target)
+      drainMana('enemyFront'),
     ),
   },
   {
@@ -547,9 +548,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7191,
-    desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。若敌方有精灵军队，则增加额外 10 点伤害。',
+    desc: '对所有敌人造成 [魔法 + 4] 点散射伤害。若敌方有妖仙军队，则增加额外 10 点伤害。',
     build: skill(
-      dmg('enemyAll', 4, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'enemyRacePresent', race: 'Elf' } } }),
+      // sa-I: native AddIfEnemyHasFey / EN "has a Fey" = Fey (妖仙), was Elf
+      dmg('enemyAll', 4, 1, { range: 'all', condBonus: { n: 10, cond: { kind: 'enemyRacePresent', race: 'Fey' } } }),
     ),
   },
   {
@@ -665,8 +667,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7221,
-    desc: '对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 1 点魔力值。',
-    build: ({"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
+    desc: '对最后 1 名敌人造成 [魔法 + 4] 点伤害，并窃取 2 点魔力值。',
+    build: ({"segments":[{"kind":"damage","target":"enemyLast","scaling":{"base":4,"mult":1}},{"kind":"reduce","target":"lastTarget","stat":"magic","scaling":{"base":2,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
   },
   {
     id: 7222,
@@ -791,7 +793,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7251,
     desc: '随机爆破 3 颗宝石。对所有敌人造成 [魔法 + 5] 点散射伤害。',
     build: skill(
-      explodeRandomGems(3, 0, 'color', undefined),
+      // native ExplodeGems 3 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(3, 0, 'all'),
       dmg('enemyAll', 5, 1, { range: 'all' }),
     ),
   },
@@ -823,7 +826,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7270,
     desc: '对 1 名敌人造成 [魔法 + 2] 点真实伤害。如果敌人是神祇军队，则额外造成 5 点真实伤害。',
     build: skill(
-      trueDmg('enemyChosen', 2, 1, { trueDamage: true, condBonus: { n: 5, cond: { kind: 'enemyRacePresent', race: 'Divine' } } }),
+      // sa-I: native AddForDivine / EN "If the Enemy is Divine" = the target itself, was any enemy Divine
+      trueDmg('enemyChosen', 2, 1, { trueDamage: true, condBonus: { n: 5, cond: { kind: 'targetRace', race: 'Divine' } } }),
     ),
   },
   {
@@ -919,6 +923,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 6] 点伤害。如果敌人身亡，所有技能值增加 10 点。',
     build: skill(
       dmg('enemyChosen', 6, 1),
+      // sa-G: all four Skills +10 on kill; ifTargetDied only held for the first -> castEnemyDied (7314 precedent)
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       attack('allySelf', 10, 0, { ifTargetDied: true }),
       armor('allySelf', 10, 0, { ifTargetDied: true }),
       heal('allySelf', 10, 0, { ifTargetDied: true }),
@@ -946,7 +952,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7299,
     desc: '对 1 名敌人和另 1 名随机敌人造成 [魔法 + 2] 点伤害。从敌人身上窃取 1 点魔力值。',
-    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},{"kind":"damage","target":"enemyRandom","scaling":{"base":2,"mult":1}},{"kind":"reduce","target":"enemyChosen","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
+    build: ({"segments":[{"kind":"damage","target":"enemyChosen","scaling":{"base":2,"mult":1}},{"kind":"damage","target":"enemyRandomPrefNotPrev","scaling":{"base":2,"mult":1}},{"kind":"reduce","target":"enemyChosen","stat":"magic","scaling":{"base":1,"mult":0},"gainStat":"magic"}]} as SkillPrototype),
   },
   {
     id: 7304,
@@ -1080,8 +1086,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '获得 [魔法 + 4] 点生命值。净化和赋予所有其他的盟友法印效果。',
     build: skill(
       heal('allySelf', 4, 1),
-      cleanse('allyAll'),
-      inflict('enchanted', 'allyAll'),
+      // sa-C r9: native Cleanse / CauseEnchanted @AllAlliesButNotSelf (「所有其他的盟友」)
+      cleanse('allyOthers'),
+      inflict('enchanted', 'allyOthers'),
     ),
   },
   {
@@ -1089,7 +1096,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对 1 名敌人造成 [魔法 + 1] 点伤害。随机摧毁 5 颗宝石，摧毁数因收集到的黄金数量而增强。 [4:1]',
     build: skill(
       dmg('enemyChosen', 1, 1),
-      destroyRandomGems(5, 0, 'color', undefined, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
+      destroyRandomGems(5, 0, 'all', undefined, { modifier: { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'battleGold' } } }),
     ),
   },
   {
@@ -1145,7 +1152,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7567,
     desc: '摧毁 [(魔法 / 2) + 1] 颗宝石。对最后一名敌人转化成一只为法力值满额的幼龙。',
-    build: skill(destroyRandomGems(1, 0.5, 'color'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true })),
+    build: skill(destroyRandomGems(1, 0.5, 'all'), transformTroop('enemyLast', 'BabyDragon', { fullMana: true })),
   },
   {
     id: 7568,

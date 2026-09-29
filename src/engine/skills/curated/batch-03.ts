@@ -16,7 +16,7 @@
  *   列表做 summonRandom（排除「女巫猎人」——猎人不是女巫）。
  */
 import { skill, dmg, dmgAll, dmgSplash, trueDmg, heal, armor, attack,
-  cleanse, reduce, steal, createGems, transform, destroyChosenRow,
+  cleanse, reduce, steal, createGems, transform, destroyChosenRow, destroyChosenCol,
   explodeChosenCol, destroyRandomGems, explodeRandomGems, explodeColor,
   inflict, summonRandom } from '../builders';
 import { BaseColor } from '../../types';
@@ -83,8 +83,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7649,
     desc: '爆破 18 颗板面上的宝石。对所有敌人造成 [魔法 + 5] 点伤害。',
     build: skill(
-      // 无颜色/选定字样 → 随机色宝石（文件头备注）
-      explodeRandomGems(18, 0, 'color'),
+      // native ExplodeGems 18 (colourless): any gem incl. Skulls (R013-5)
+      explodeRandomGems(18, 0, 'all'),
       dmgAll(5),
     ),
   },
@@ -111,7 +111,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       // 「窃取生命」= 伤害 + drain；「窃取魔力值」= steal 同属性（文件头备注）
       dmg('enemyWeakestN', 3, 1, { n: 2, drain: true }),
-      steal('enemyHealthiestN', 'mana', 'mana', 8, 0, { n: 2 }),
+      // sa-I: native StealMagic@TwoStrongestEnemies 8 / EN "steal 8 Magic" = Magic stat (was Mana)
+      steal('enemyHealthiestN', 'magic', 'magic', 8, 0, { n: 2 }),
     ),
   },
   {
@@ -143,7 +144,7 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7931,
     desc: '爆破 4 颗宝石。窃取第一名敌人 [魔法 + 1] 点攻击力。',
     build: skill(
-      explodeRandomGems(4, 0, 'color'),
+      explodeRandomGems(4, 0, 'all'),
       // native StealAttack Amount 1 SpellPowerMultiplier 1 = [Magic + 1] (sa-F2 fix round A)
       steal('enemyFront', 'attack', 'attack', 1, 1),
     ),
@@ -152,8 +153,8 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8022,
     desc: '摧毁 8 颗宝石。对第一位敌人造成 [魔法 + 3] 点伤害。',
     build: skill(
-      // batch-04 9020 同款句式 → 随机宝石
-      destroyRandomGems(8, 0, 'color'),
+      // native DestroyGems 8: 8 random gems, Skulls included (R013-5)
+      destroyRandomGems(8, 0, 'all'),
       dmg('enemyFront', 3),
     ),
   },
@@ -218,9 +219,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8685,
-    desc: '摧毁一行。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。',
+    desc: '摧毁一列。对末位敌人造成 [魔法 + 2] 点真实伤害，再使自身下潜。',
+    // native DestroyGems BoardTarget Column (English 'Destroy a Column'), spell Target Board = chosen column
     build: skill(
-      destroyChosenRow(),
+      destroyChosenCol(),
       trueDmg('enemyLast', 2),
       inflict('submerged', 'allySelf'),
     ),
@@ -230,8 +232,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对一名敌人造成 [魔法 + 4] 点真实伤害，再召唤一名随机女巫。',
     build: skill(
       trueDmg('enemyChosen', 4),
-      // 「女巫」非种族，按名称族列表（文件头备注；排除「女巫猎人」）
-      summonRandom(['Hag', 'FrostfireWitch', 'HornedHag', 'LightbornEnchantress', 'CourtWitch', 'DarkWitch', 'DuskWitch']),
+      // sa-I: native Randomize AB-CD-EF = TrueDamage + Summoning 6147 Hag | 6292 NightHag | 7140 HornedHag
+      // (equal thirds; was a 7-name 「女巫」 pool)
+      summonRandom(['Hag', 'NightHag', 'HornedHag']),
     ),
   },
   {

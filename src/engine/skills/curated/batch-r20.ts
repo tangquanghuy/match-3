@@ -27,7 +27,7 @@ import {
   skill, dmg, trueDmg, heal, armor, attack, magic, mana, reduce, steal,
   inflict, createGems, createSkulls, createSpecialGems, transform, transformToSpecial,
   destroyColor, destroySpecialGems, destroyRandomRows, destroyArea,
-  explodeColor, explodeRandomRows, explodeRandomCols, explodeRandomGems,
+  explodeColor, explodeChosenRow, explodeChosenCol, explodeRandomGems,
   oneOf, reposition, summonRef, extraTurn, gainGold, gainSouls, CHOSEN, dispelStatus, devour,
 } from '../builders';
 import type { SegmentOpts } from '../builders';
@@ -175,10 +175,13 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「若敌人身亡则数值翻倍」= AddForKill 12 实锤 → 基础 12 + 追加 12 段同挂 ifTargetDied（9716 口径）
     build: skill(
       dmg('enemyChosen', 4, 1, { condMult: BOSS_ASC3 }),
-      heal('allySelf', 12, 0),
+      // sa-G (R001): native IncreaseArmor@Self 12 [AddForKill 12] -> IncreaseHealth@Self 12 [AddForKill 12]; the kill
+      // halves never applied (ifTargetDied re-read lastTarget = caster) -> castEnemyDied (7314 precedent)
       armor('allySelf', 12, 0),
-      heal('allySelf', 12, 0, { ifTargetDied: true }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       armor('allySelf', 12, 0, { ifTargetDied: true }),
+      heal('allySelf', 12, 0),
+      heal('allySelf', 12, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -250,7 +253,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8469,
-    desc: '给予一名盟友 4 点魔力值而等于其法力的半数法力值。若他是一名妖仙，则给予其赐福和法印效果。',
+    desc: '给予一名盟友 4 点魔力值，以及等同其法力消耗一半的法力值。若他是一名妖仙，则给予其赐福和法印效果。',
     // 同 8421 结构，妖仙 = Fey、赐福+法印
     build: skill(
       magic('allyChosen', 4, 0),
@@ -306,18 +309,19 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8484,
     desc: '爆破 1 行或 1 列。再将末位敌人拉到首位。',
-    // 「行或列」= oneOf（官方两变体步骤，击退段公共抽出，9663 口径）
+    // 「行或列」= oneOf（官方 AB-CD 两变体，击退段公共抽出）；施法目标 Board + BoardTarget Row/Column
+    // = 玩家所选宝石所在行/列（sa-H：原为随机行/列；同 weapon:1385、7281）
     build: skill(
       oneOf(
-        [explodeRandomRows(1)],
-        [explodeRandomCols(1)],
+        [explodeChosenRow()],
+        [explodeChosenCol()],
       ),
       reposition('enemyLast', 'front'),
     ),
   },
   {
     id: 8501,
-    desc: '获得 [魔法 + 1] 黄金。淹没自己，沉入海底并获得额外的转向。',
+    desc: '获得 [魔法 + 1] 黄金。使自身下潜，沉到队尾并获得一个额外回合。',
     // 「淹没自己」= submerged；「沉入海底」= reposition back（§12.1）
     build: skill(
       gainGold(1, 1),
@@ -573,9 +577,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '有 10% 的几率吞噬一名随机敌人，每有一颗通配宝石则几率增加 +10%。再将所有骷髅头转换成 x2 通配宝石。 [x10]',
     // [x10] = CountGems WildCard 1000（三 tier 合并按 kind 计数）→ chanceBoost boardSpecial wildcard ×10；
     // 「骷髅→x2 通配」= transformToSpecial（引擎 wildcard tier 缺省 ?? 2 等价官方 WildCard2，9614 口径）
+    // sa-J final: native ConsumeConditional@RandomEnemy = a real Devour (caster gains the target's stats), not execute.
     build: skill(
-      dmg('enemyRandom', 0, 0, {
-        execute: true,
+      devour('enemyRandom', {
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'boardSpecial', gem: 'wildcard' } },
       }),

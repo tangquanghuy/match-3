@@ -48,12 +48,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7015,
-    desc: '减除一名敌人 [魔法 + 1] 点护甲值，使他他陷入织网状态并耗掉他所有法力值。',
+    desc: '减除一名敌人 [魔法 + 1] 点护甲值，使他陷入织网状态并耗掉他所有法力值。',
     build: skill(
-      reduce('enemyChosen', 'armor', 1),
-      inflict('web', 'enemyChosen'),
+      // sa-F: native order DecreaseMana 100 -> DecreaseArmor -> CauseWeb (R001)
       // 「耗掉他所有法力值」= 清空语义
       drainMana('enemyChosen'),
+      reduce('enemyChosen', 'armor', 1),
+      inflict('web', 'enemyChosen'),
     ),
   },
   {
@@ -149,8 +150,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '对所有敌人造成 [魔法 + 5] 点伤害。摧毁 12 个随机的宝石。',
     build: skill(
       dmgAll(5),
-      // 「宝石」不含骷髅 → include:'color'
-      destroyRandomGems(12, 0, 'color'),
+      // native DestroyGems 12: any gem, Skulls included (R013-5: Skulls are Gems)
+      destroyRandomGems(12, 0, 'all'),
     ),
   },
   {

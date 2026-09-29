@@ -253,3 +253,29 @@
 {"format":"compact","key":"weapon:1700","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:03.830Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
 {"format":"compact","key":"weapon:1703","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:03.830Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
 {"format":"compact","key":"weapon:1715","decision":"accept","reviewer":"sa-Q","reviewedAt":"2026-09-28T14:42:03.830Z","tests":["tests/unit/gowFixP-E-faction-kingdom.test.ts"],"note":"re-review after P-E-faction-kingdom"}
+{"format":"compact","key":"troop:6575","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.418Z","tests":["tests/unit/gowCastGolden.test.ts"],"waived":[{"part":"clause","id":"c2","mode":"tower"},{"part":"step","id":"0","mode":"tower"}]}
+{"format":"compact","key":"troop:7337","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6932","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1050","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.419Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1078","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:30:43.420Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1106","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.428Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1005","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.429Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1016","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.430Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1031","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.430Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1046","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:32:38.430Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1097","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:35:10.621Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6116","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:35:10.622Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1561","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:35:10.623Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1273","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:35:10.623Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6057","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:35:10.623Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1026","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:38:14.440Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1027","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:38:14.441Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1041","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:38:14.441Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1042","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:38:14.441Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1115","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:38:14.442Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1118","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:39:29.043Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6883","decision":"accept","reviewer":"sa-I","reviewedAt":"2026-09-28T22:39:29.044Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6352","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:56:20.893Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7089","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:04:29.587Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7643","decision":"accept","reviewer":"sa-Q2","reviewedAt":"2026-09-29T04:06:01.153Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"re-check after P-R4-gargoyle-tier-count: Decay / Good / Bad Gargoyle floored separately (gowFixP-boardSpecial-filters); boss/ascension waived R000; final sa-Q2","waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"3","mode":"boss"}]}
+{"format":"compact","key":"troop:7643","decision":"accept","reviewer":"sa-Q2","reviewedAt":"2026-09-29T04:06:01.346Z","tests":["tests/unit/gowFinalQ2.test.ts"],"note":"re-check after P-R4-gargoyle-tier-count: Decay / Good / Bad Gargoyle floored separately (gowFixP-boardSpecial-filters); boss/ascension waived R000; final sa-Q2","waived":[{"part":"clause","id":"c2","mode":"boss"},{"part":"step","id":"3","mode":"boss"}]}

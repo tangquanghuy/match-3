@@ -30,6 +30,15 @@
    "note": "Waived per R000: 'If they are a Tower, deal 3x - 5x damage, based on my Ascensions' (Tower target + ascension scaling not implemented; existing Castle condMult placeholder untouched)."
   },
   {
+   "key": "troop:6776",
+   "name": "Ahrimas",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "P-random-stat-pool fixed (R007-2); 2 x DecreaseRandom [M+4] independent rolls; Tower x3-x5 clause waived R000; final sa-Q1"
+  },
+  {
    "key": "troop:6569",
    "name": "SirMordayne",
    "part": "clause",
@@ -46,6 +55,24 @@
    "mode": "tower",
    "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
    "note": ""
+  },
+  {
+   "key": "troop:7597",
+   "name": "TheBaneOfValor",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "re-check after P-F2-dead-target-colour: kill -> 1 gem of the dead enemy's colour -> Daemonic Portal; boss/ascension clause waived R000; final sa-Q2"
+  },
+  {
+   "key": "troop:7597",
+   "name": "TheBaneOfValor",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":0}",
+   "note": "re-check after P-F2-dead-target-colour: kill -> 1 gem of the dead enemy's colour -> Daemonic Portal; boss/ascension clause waived R000; final sa-Q2"
   },
   {
    "key": "troop:6803",
@@ -84,6 +111,15 @@
    "note": ""
   },
   {
+   "key": "troop:7851",
+   "name": "Seditius",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "P-R1-gargoyle-tier-filter fixed (explode 3 Bad Gargoyles only); [M+4] + 2 x Red; Boss clause waived R000; final sa-Q1"
+  },
+  {
    "key": "weapon:1196",
    "name": "WallOfOblivion",
    "part": "clause",
@@ -100,6 +136,24 @@
    "mode": "boss",
    "text": "If enemy is a Boss, Freeze all enemies and Barrier all allies.",
    "note": ""
+  },
+  {
+   "key": "troop:7818",
+   "name": "TwistedHag",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R012 fixed: Curse/Bleed Above+Below land after the target dies; Poison gems x3; boss/ascension waived R000; final sa-Q2"
+  },
+  {
+   "key": "troop:7818",
+   "name": "TwistedHag",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":400}",
+   "note": "R012 fixed: Curse/Bleed Above+Below land after the target dies; Poison gems x3; boss/ascension waived R000; final sa-Q2"
   },
   {
    "key": "troop:6637",
@@ -190,6 +244,24 @@
    "mode": "tower",
    "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
    "note": ""
+  },
+  {
+   "key": "troop:7643",
+   "name": "Mudwalker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "re-check after P-R4-gargoyle-tier-count: Decay / Good / Bad Gargoyle floored separately (gowFixP-boardSpecial-filters); boss/ascension waived R000; final sa-Q2"
+  },
+  {
+   "key": "troop:7643",
+   "name": "Mudwalker",
+   "part": "step",
+   "id": "3",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "re-check after P-R4-gargoyle-tier-count: Decay / Good / Bad Gargoyle floored separately (gowFixP-boardSpecial-filters); boss/ascension waived R000; final sa-Q2"
   },
   {
    "key": "troop:7748",
@@ -777,15 +849,6 @@
    "note": ""
   },
   {
-   "key": "troop:6819",
-   "name": "Faemark",
-   "part": "clause",
-   "id": "c2",
-   "mode": "boss",
-   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
-   "note": ""
-  },
-  {
    "key": "troop:6503",
    "name": "Freya",
    "part": "clause",
@@ -1116,6 +1179,663 @@
    "id": "c2",
    "mode": "boss",
    "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6886",
+   "name": "ManticoreProtector",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-F B03; 6886 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:6886",
+   "name": "ManticoreProtector",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "sa-F B03; 6886 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:7291",
+   "name": "SableSpiritbane",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-F B04; 7291 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:7291",
+   "name": "SableSpiritbane",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "sa-F B04; 7291 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:6543",
+   "name": "KendralaBloodjewel",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-F B05; 6543/6531 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:6543",
+   "name": "KendralaBloodjewel",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "sa-F B05; 6543/6531 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:6531",
+   "name": "Hellcackle",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-F B05; 6543/6531 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:6531",
+   "name": "Hellcackle",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "sa-F B05; 6543/6531 Boss/Ascension multiplier waived R000 boss"
+  },
+  {
+   "key": "troop:7675",
+   "name": "MokTheCannon-Rider",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"
+  },
+  {
+   "key": "troop:7675",
+   "name": "MokTheCannon-Rider",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"
+  },
+  {
+   "key": "troop:6680",
+   "name": "Sharptooth",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"
+  },
+  {
+   "key": "troop:6680",
+   "name": "Sharptooth",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-F B06; 7675/6680 Tower/Ascension multiplier waived R000 tower"
+  },
+  {
+   "key": "troop:7594",
+   "name": "CrestedAva",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7594",
+   "name": "CrestedAva",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:7460",
+   "name": "Jordrin",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7460",
+   "name": "Jordrin",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7704",
+   "name": "HanXin",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7704",
+   "name": "HanXin",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7426",
+   "name": "Hornwing",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7426",
+   "name": "Hornwing",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7585",
+   "name": "DwarvenOverseer",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:7585",
+   "name": "DwarvenOverseer",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:6533",
+   "name": "Herne",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:6533",
+   "name": "Herne",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "c2 Tower/Boss x Ascension waived R000; 7704 native step0 UseCounterForAmount with no Count step: English Magic+2 kept"
+  },
+  {
+   "key": "troop:6500",
+   "name": "Stone-Shaker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:6500",
+   "name": "Stone-Shaker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:6591",
+   "name": "ZhakBoomgrizzle",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:6591",
+   "name": "ZhakBoomgrizzle",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:6768",
+   "name": "Thaumaris",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:6768",
+   "name": "Thaumaris",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7391",
+   "name": "TritonGuardMera",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7391",
+   "name": "TritonGuardMera",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7434",
+   "name": "SplinteredGolem",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7434",
+   "name": "SplinteredGolem",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7715",
+   "name": "DenwenTheWanderer",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7715",
+   "name": "DenwenTheWanderer",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7761",
+   "name": "WulfGheist",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7761",
+   "name": "WulfGheist",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "Boss/Tower x Ascension clause waived R000 where present"
+  },
+  {
+   "key": "troop:7213",
+   "name": "Adakite",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my ascensions.",
+   "note": "7213 Boss x Ascension waived R000"
+  },
+  {
+   "key": "troop:7213",
+   "name": "Adakite",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my ascensions.",
+   "note": "7213 Boss x Ascension waived R000"
+  },
+  {
+   "key": "troop:7884",
+   "name": "BokSingefur",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R016-1: 'Explode 2-5 Gems' = one uniform 2-5 random explosion (not native 2+1+1+1); Boss clause waived R000; final sa-Q1"
+  },
+  {
+   "key": "troop:7667",
+   "name": "TempestBallista",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "7667/6641 Tower x Ascension waived R000"
+  },
+  {
+   "key": "troop:7667",
+   "name": "TempestBallista",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "7667/6641 Tower x Ascension waived R000"
+  },
+  {
+   "key": "troop:6641",
+   "name": "Ixchel",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "7667/6641 Tower x Ascension waived R000"
+  },
+  {
+   "key": "troop:6641",
+   "name": "Ixchel",
+   "part": "clause",
+   "id": "c2",
+   "mode": "ascension",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "7667/6641 Tower x Ascension waived R000"
+  },
+  {
+   "key": "troop:7557",
+   "name": "TheRedCorsair",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; 7557 maps x4 + 1 map; 7647 souls 1:1 + 5 souls"
+  },
+  {
+   "key": "troop:7557",
+   "name": "TheRedCorsair",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\",\"Delay\":600}",
+   "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; 7557 maps x4 + 1 map; 7647 souls 1:1 + 5 souls"
+  },
+  {
+   "key": "troop:7647",
+   "name": "Abraxas",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; 7557 maps x4 + 1 map; 7647 souls 1:1 + 5 souls"
+  },
+  {
+   "key": "troop:7647",
+   "name": "Abraxas",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; 7557 maps x4 + 1 map; 7647 souls 1:1 + 5 souls"
+  },
+  {
+   "key": "troop:6634",
+   "name": "KartekTheClimber",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If the Enemy is a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; -10 Armor all enemies"
+  },
+  {
+   "key": "troop:6634",
+   "name": "KartekTheClimber",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: Tower/Ascension multiplier waived R000 tower; -10 Armor all enemies"
+  },
+  {
+   "key": "troop:6539",
+   "name": "SirWulfric",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If the Enemy is a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: tower/ascension waived R000; 6539/7498 all allies +8 Armor; 6545 +4 Attack"
+  },
+  {
+   "key": "troop:6539",
+   "name": "SirWulfric",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: tower/ascension waived R000; 6539/7498 all allies +8 Armor; 6545 +4 Attack"
+  },
+  {
+   "key": "troop:7498",
+   "name": "Goethite",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: tower/ascension waived R000; 6539/7498 all allies +8 Armor; 6545 +4 Attack"
+  },
+  {
+   "key": "troop:7498",
+   "name": "Goethite",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: tower/ascension waived R000; 6539/7498 all allies +8 Armor; 6545 +4 Attack"
+  },
+  {
+   "key": "troop:6545",
+   "name": "VorKarn",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: tower/ascension waived R000; 6539/7498 all allies +8 Armor; 6545 +4 Attack"
+  },
+  {
+   "key": "troop:6545",
+   "name": "VorKarn",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: tower/ascension waived R000; 6539/7498 all allies +8 Armor; 6545 +4 Attack"
+  },
+  {
+   "key": "troop:7485",
+   "name": "AnointedChampion",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: Boss/Ascension waived R000; 7485 +6 Attack then Life; 6537 +6 Life"
+  },
+  {
+   "key": "troop:7485",
+   "name": "AnointedChampion",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: Boss/Ascension waived R000; 7485 +6 Attack then Life; 6537 +6 Life"
+  },
+  {
+   "key": "troop:6537",
+   "name": "Carmella",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: Boss/Ascension waived R000; 7485 +6 Attack then Life; 6537 +6 Life"
+  },
+  {
+   "key": "troop:6537",
+   "name": "Carmella",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: Boss/Ascension waived R000; 7485 +6 Attack then Life; 6537 +6 Life"
+  },
+  {
+   "key": "troop:7474",
+   "name": "ShejiShi",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: tower waived R000; +5 Attack, Life, Armor native order"
+  },
+  {
+   "key": "troop:7474",
+   "name": "ShejiShi",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: tower waived R000; +5 Attack, Life, Armor native order"
+  },
+  {
+   "key": "troop:6839",
+   "name": "EnvoyOfPride",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: boss waived R000; on kill steal 4 Magic from each remaining enemy"
+  },
+  {
+   "key": "troop:6839",
+   "name": "EnvoyOfPride",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":1}",
+   "note": "sa-G r8: boss waived R000; on kill steal 4 Magic from each remaining enemy"
+  },
+  {
+   "key": "troop:6730",
+   "name": "MortlachStoutbeard",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: boss waived R000; jumble enemies"
+  },
+  {
+   "key": "troop:6730",
+   "name": "MortlachStoutbeard",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":1,\"ResetTargets\":true}",
+   "note": "sa-G r8: boss waived R000; jumble enemies"
+  },
+  {
+   "key": "troop:6552",
+   "name": "OldManOakroot",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If the Enemy is a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "sa-G r8: tower waived R000; remove all Armor then dmg"
+  },
+  {
+   "key": "troop:6552",
+   "name": "OldManOakroot",
+   "part": "step",
+   "id": "1",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":2,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
+   "note": "sa-G r8: tower waived R000; remove all Armor then dmg"
+  },
+  {
+   "key": "weapon:1227",
+   "name": "VolcanicShield",
+   "part": "clause",
+   "id": "c3",
+   "mode": "boss",
+   "text": "If the Enemy has a Boss, explode all Red Gems.",
+   "note": "R000 waived c3/step1 boss (AddIfEnemyHasBoss explode Red)"
+  },
+  {
+   "key": "weapon:1227",
+   "name": "VolcanicShield",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"Target\":\"AllEnemies\",\"StatusAmount\":100,\"Color1\":\"Red\",\"StatusModifier\":\"AddIfEnemyHasBoss\",\"Type\":\"ExplodeColor\"}",
+   "note": "R000 waived c3/step1 boss (AddIfEnemyHasBoss explode Red)"
+  },
+  {
+   "key": "troop:6575",
+   "name": "Cloudstalker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": ""
+  },
+  {
+   "key": "troop:6575",
+   "name": "Cloudstalker",
+   "part": "step",
+   "id": "0",
+   "mode": "tower",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":16,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"RandomHighDamage\"}",
    "note": ""
   }
  ]

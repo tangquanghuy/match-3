@@ -37,7 +37,7 @@ import type { CuratedBatch } from './index';
 import {
   skill, dmg, dmgSplash, heal, armor, attack, mana, reduce, steal, stealRandomStat,
   createGems, transform, destroyChosenRow, destroyColor, destroyRandomGems, destroyArea,
-  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold, targetedSkill,
+  inflict, oneOf, extraTurn, createStorm, summonRandom, transformToSpecial, gainGold, targetedSkill, CELL,
 } from '../builders';
 import { BaseColor } from '../../types';
 
@@ -89,14 +89,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7323,
     desc: '摧毁一行。对第一名敌人造成 [魔法 + 1] 点伤害，并减除 [魔法 + 1] 点随机技能值，减除数量因被摧毁的蓝色宝石而增强。 [x2]',
     // sa-F1: native s1 Damage also has UseCounterForAmount (Blue gems in the row x2), so both steps are boosted.
-    // Native counts before the row is destroyed and destroys last; no "chosen row at cast start" source exists,
-    // so the destroy stays first and destroyedGems Blue carries the count.
+    // Native (R001): CountGems Blue Row 200 -> Damage -> DecreaseRandom -> DestroyGems Row (last).
+    // sa-Q1: Blue gems of the chosen row counted at cast start (P-R1-row-count-at-cast-start), destroy moved last.
     build: skill(
-      destroyChosenRow(),
-      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } } }),
+      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'chosenRowAtCastStart', color: BaseColor.Blue } } }),
       reduce('enemyFront', 'random', 1, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'chosenRowAtCastStart', color: BaseColor.Blue } },
       }),
+      destroyChosenRow(),
     ),
   },
   {
@@ -104,8 +104,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '减除全部敌人 [魔法 + 2] 点随机技能值。使他们陷入中毒和疾病状态。',
     build: skill(
       reduce('enemyAll', 'random', 2, 1),
-      inflict('poison', 'enemyAll'),
+      // 原生顺序 CauseDisease → CausePoison（R001，sa-H）
       inflict('disease', 'enemyAll'),
+      inflict('poison', 'enemyAll'),
     ),
   },
   {
@@ -196,7 +197,7 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     // —— 比例法力 mana fraction（官方 GenerateQuarterMana） ——
     id: 8289,
-    desc: '对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予其他盟友敌人 4 分之一的法力值。',
+    desc: '对一名敌人造成 [魔法 + 3] 点伤害。若对方是不死族，则使对方陷入诅咒和死亡标记状态。再给予所有其他盟友 4 分之一的法力值。',
     // 「若对方是不死族」= targetRace Undead 目标相对条件；「其他盟友」= allyOthers（官方 AllAlliesButNotSelf）
     build: skill(
       dmg('enemyChosen', 3, 1),
@@ -219,12 +220,13 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8358,
-    desc: '获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有盟友 4 分之一的法力值。 [x6]',
+    desc: '获得 [魔法 + 1] 点生命值，数值因陷入织网状态的敌人而增强。给予所有其他盟友 4 分之一的法力值。 [x6]',
     build: skill(
       heal('allySelf', 1, 1, {
         modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'enemyStatusCount', statusId: 'web' } },
       }),
-      mana('allyAll', 0, 0, { fraction: 0.25 }),
+      // sa-F: native GenerateQuarterMana@AllAlliesButNotSelf (was allyAll incl. the caster)
+      mana('allyOthers', 0, 0, { fraction: 0.25 }),
     ),
   },
   {
@@ -232,7 +234,8 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '以 3x3 交叉队列方式爆破宝石。获得 [魔法 + 1] 点护甲值和屏障效果。',
     // 官方 ExplodeGems Block1x3 + Block3x1 = 横竖各 3 格的十字（5 格）；形状即目标集不辐射
     build: skill(
-      destroyArea('cross3', 'explode'),
+      // spell Target Board: the cross is centred on the chosen gem (was the fixed board centre)
+      destroyArea('cross3', 'explode', CELL),
       armor('allySelf', 1, 1),
       inflict('barrier', 'allySelf'),
     ),

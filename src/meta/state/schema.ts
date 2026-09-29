@@ -185,10 +185,8 @@ export interface EventWeekState {
   /** 本周累计购买记录；兼容旧档迁移，现行限购由 eventShops 独立记录。 */
   bought: Record<string, number>;
   /**
-   * 六种活动的玩法状态（键约定见 systems/events.ts EVENT_STATE_KEYS）：
-   * invasion 防线 invLine/invRepelled；raidBoss 血池 bossTier/bossHp/bossMax/bossesSlain；
-   * towerOfDoom 楼层 floor/floorBest/runActive；worldEvent 物资 supplies；
-   * classTrials 连胜 trialStreak；factionAssault 进攻次数 assaultWins。
+   * 平台账本的数值键：revision、gemPaid<i>、sharedClaim<i>、settled:<battleId>，
+   * 以及末日之塔的 floorBest / towerPaidFloors（馈赠与周奖励补差用）。玩法状态在 `mode`。
    */
   eventData: Record<string, number>;
   /**
@@ -197,6 +195,13 @@ export interface EventWeekState {
    * 的唯一依据是四个成员各自还剩多少血，只报「存活 3 人」等于没报）。
    */
   runTeam: { externalId: string; hp: number; maxHp: number; defeated: boolean }[] | null;
+  /**
+   * 玩法状态机（2026-09-29 活动玩法重做）：每个活动一份结构化 JSON（爬塔地图/遗物、
+   * 首领阶段与疲劳、入侵兵线、阵营地块、庆典棋盘、试炼星级）。形态由
+   * `systems/eventModes/<活动>.ts` 各自定义并在 ensureEventWeek 时校验——
+   * 结构不合法即丢弃重建，不影响积分/代币/里程碑等平台账本。
+   */
+  mode?: unknown;
 }
 
 export interface KingdomState {

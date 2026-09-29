@@ -3,12 +3,10 @@
  * 加上状态宝石族（波A）清尾）。核对者：窗口 G，20 条。裁定依据 spell-rules §11。
  * 原批次 skipped 对应条目已同步剪除。
  */
-import { skill, dmg, dmgSplash, heal, armor, attack, magic, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, dispelStatus, inflictRandom, transformTroopRandom, gainMaps } from '../builders';
+import { skill, dmg, dmgSplash, heal, armor, attack, magic, inflict, randomStat, createGems, createSkulls, createSpecialGems, transformToSpecial, explodeRandomGems, oneOf, summonRef, summonRandom, sacrifice, dispelStatus, inflictRandom, transformTroop, gainMaps } from '../builders';
 import { BaseColor } from '../../types';
 import type { CuratedBatch } from './index';
 
-// 兵种族引用池（生成器从 troops.json 内联）
-const WRAITH_REFS = ["Wraith","IceWraith","FrostfireWraith"];
 // sa-R5: raw kingdom 3029 Zhul'Kari (data/raw/troops.gow.en.json KingdomId), all 45 on the roster.
 const ZHULKARI_REFS = ["ErendrielDarkweave","KnightOfCups","TheWebbedPrince","DarkWitch","ImmortalMaratus","Scrollweaver","Belcerulea","DuskOwlbear","ShadowBeetle","Mandragora","SplinteredGolem","DarkAlchemist","LeapingSpider","TheSilkenQueen","TheSpiderThrone","SilkenFang","SeekraDarkwood","BoundMage","AceOfCups","Mechweaver","ArchproxyYvendra","AransiTheGuardian","Devourer","NightSpider","ArachnaeanWatcher","Malcandessa","Arachnataur","Tarantella","ArachnaeanWeaver","TheWidowQueen","TombSpider","Spinnerette","Cocoon","Shadowblade","SpiderKnight","TalRae","SpiderSwarm","Dokkalfar","GiantSpider","Tyri","Webspinner","SpiderQueen","NightTerror","DarkMaiden","Reaver"];
 
@@ -49,11 +47,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 7413,
     desc: '对所有敌人造成 [魔法 + 9] 点散射伤害，并获得下列其一：将一名随机敌人转化为怨灵，或所有盟友获得 3 点魔力值。',
+    // sa-I: native Randomize AB-CD: [TransformEnemy@RandomEnemy Data 6206 (Wraith), ScatterDamage 9]
+    // OR [ScatterDamage 9, IncreaseSpellPower@AllAllies 3]. Branch A transforms BEFORE the scatter (R001) and
+    // only into Wraith 6206 (was scatter first, then a random one of three Wraith variants).
     build: skill(
-      dmg('enemyAll', 9, 1, { range: 'all' }),
       oneOf(
-        [transformTroopRandom('enemyRandom', WRAITH_REFS)],
-        [magic('allyAll', 3, 0)],
+        [transformTroop('enemyRandom', 'Wraith', { troopId: 6206 }), dmg('enemyAll', 9, 1, { range: 'all' })],
+        [dmg('enemyAll', 9, 1, { range: 'all' }), magic('allyAll', 3, 0)],
       ),
     ),
   },

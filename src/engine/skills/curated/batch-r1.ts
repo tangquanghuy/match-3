@@ -9,7 +9,7 @@
  *   - 燃烧宝石（burningGem，波A）、几率子句（chance）、伤害区间（rangeSpec）原语均已落地，
  *     相关放弃理由作废。
  */
-import { skill, dmg, reduce, steal, attack, armor, mana, inflict, createGems,
+import { skill, dmg, reduce, steal, attack, armor, magic, inflict, createGems,
   createSpecialGems, transformToSpecial, destroyChosenCol, destroyColor, oneOf,
   extraTurn, randomStat, scale, CHOSEN } from '../builders';
 import { BaseColor } from '../../types';
@@ -65,7 +65,9 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       destroyChosenCol(),
       dmg('enemyAll', 7, 1, { range: 'all' }),
-      oneOf([extraTurn()], [mana('allySelf', 12, 0)]),
+      // 原生 C-D-E-F = ExtraTurn | IncreaseSpellPower 12 | ExtraTurn | IncreaseSpellPower 12（各 1/2）；
+      // 英文 gain 12 Magic = 魔法属性，非法力（sa-H：原为 mana）
+      oneOf([extraTurn()], [magic('allySelf', 12, 0)]),
     ),
   },
   {
@@ -134,7 +136,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '造成[魔法 + 6]点散射伤害。然后燃烧1-2名随机敌人。',
     build: skill(
       dmg('enemyAll', 6, 1, { range: 'all' }),
-      inflict('burning', 'enemyRandomN', { nRange: { min: 1, max: 2 } }),
+      // sa-C r9 native: CauseBurning@RandomEnemy ; CauseBurning@RandomPrefNotPrevEnemy PercentageChance 50
+      inflict('burning', 'enemyRandom'),
+      inflict('burning', 'enemyRandomPrefNotPrev', { chance: 0.5 }),
     ),
   },
   {

@@ -87,19 +87,20 @@ describe('L2B01 troop:7468 Judgement spell 9185 Choose:ABC-DEF lightning + extra
    {Target:'Self',UseCounterForAmount:true,Type:'ExtraTurnConditional'},
    {Color1:'Yellow',Amount:700,Type:'CountGems'},{Color1:'LightningYellow',Amount:1,Type:'CreateGems'},
    {Target:'Self',UseCounterForAmount:true,Type:'ExtraTurnConditional'}]);
-  const et={kind:'extraTurn',chance:0,chanceBoost:{mod:{kind:'multiplier',a:7},source:{kind:'boardGems',color:'Yellow'}}};
+  // R017 (user ruling): Blue per English/zh, not the native CountGems Yellow
+  const et={kind:'extraTurn',chance:0,chanceBoost:{mod:{kind:'multiplier',a:7},source:{kind:'boardGems',color:'Blue'}}};
   const g=(k:string)=>({kind:'gem',params:{op:'create',gem:{kind:'special',spec:{kind:k}},count:{base:1,mult:0}}});
   expect(proto).toEqual({segments:[{kind:'choose',labels:['蓝闪电宝石与额外回合','黄闪电宝石与额外回合'],options:[[g('lightningRow'),et],[g('lightningCol'),et]]}]});
   expect(t.spell.description).toBe('&&创造一颗蓝色闪电宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合 && 创造一颗黄色闪电宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合 [x7]');
  });
  for(const side of SIDES)for(const [branch,kind,other] of [[0,'lightningRow','lightningCol'],[1,'lightningCol','lightningRow']] as const)
- it(`real cast ${side} branch ${branch}: exactly one ${kind}; 16 Yellow on board -> 112% -> extra turn`,()=>{
+ it(`real cast ${side} branch ${branch}: exactly one ${kind}; 16 Blue on board -> 112% -> extra turn`,()=>{
   const f=setup({...C,side,branch,paint:diag(DIAG)});const ev=f.cast();
   expect(created(ev,kind)).toBe(1);expect(created(ev,other)).toBe(0);
   expect(f.caster.mana).toBe(0);expect(f.state.activePlayer).toBe(side);
  });
- for(const branch of [0,1])it(`branch ${branch}: 0 Yellow (Blue-heavy board) -> 0% -> turn passes (runtime counts Yellow as native)`,()=>{
-  const f=setup({...C,branch,paint:diag([BaseColor.Blue,BaseColor.Red,BaseColor.Purple,BaseColor.Brown])});f.cast();turnPassed(f);
+ for(const branch of [0,1])it(`branch ${branch}: 0 Blue (Yellow-heavy board) -> 0% -> turn passes (R017 counts Blue)`,()=>{
+  const f=setup({...C,branch,paint:diag([BaseColor.Yellow,BaseColor.Red,BaseColor.Purple,BaseColor.Brown])});f.cast();turnPassed(f);
  });
  it('low mana / silence / cancelled choice leave the board and mana untouched',()=>blocked({...C,paint:diag(DIAG)}));
 });

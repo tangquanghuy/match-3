@@ -53,7 +53,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '减除第一位敌人 [(魔法 / 2) + 1] 点攻击力。则爆破 2 颗随机宝石。',
     build: skill(
       reduce('enemyFront', 'attack', 1, 0.5),
-      explodeRandomGems(2, 0, 'color'),
+      explodeRandomGems(2, 0, 'all'), // native ExplodeGems 2: any gem (R013-5)
     ),
   },
   {
@@ -102,8 +102,8 @@ const SPELLS: CuratedBatch['spells'] = [
     build: skill(
       explodeAt(CELL),
       dmg('enemyRandom', 1),
-      // 「燃烧敌人」=「燃烧(一名)敌人」→ enemyChosen（batch-04 7006 同口径，见文件头备注）
-      inflict('burning', 'enemyChosen', { chance: 0.3 }),
+      // native CauseBurning@FromPrevious 30%: the random enemy just damaged (spell Target Board has no chosen enemy)
+      inflict('burning', 'lastTarget', { chance: 0.3 }),
     ),
   },
   {
@@ -123,7 +123,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // 净化自身会改写 lastTarget → 击杀判定用 castEnemyDied（只有选定敌人受伤害）
       dmg('enemyChosen', 2),
       cleanse('allySelf'),
-      attack('allySelf', 4, 0, { ifCond: { kind: 'castEnemyDied' } }),
+      // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
+      attack('allySelf', 4, 0, { ifTargetDied: true }),
     ),
   },
   {
@@ -152,8 +153,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '为一名盟友赋予 [魔法 + 1] 点生命和攻击力。如果盟友是金牛座，则效果加倍。',
     build: skill(
       // 金牛座 = Tauros（troopTypes 核对）；raceDouble 逐受益者判定，数值段逐段挂
-      heal('allyChosen', 1, 1, { raceDouble: 'Tauros' }),
+      // sa-G (R001): native IncreaseAttack before IncreaseHealth
       attack('allyChosen', 1, 1, { raceDouble: 'Tauros' }),
+      heal('allyChosen', 1, 1, { raceDouble: 'Tauros' }),
     ),
   },
   {

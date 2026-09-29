@@ -40,7 +40,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '爆破 1 颗宝石。对 2 名随机敌人造成 [魔法 + 3] 点伤害。再创造 2 颗炸弹宝石。',
     build: skill(
       explodeAt(CELL),
-      dmg('enemyRandomN', 3, 1, { n: 2 }),
+      // native Damage@RandomEnemy + Damage@RandomPrefNotPrevEnemy (R007-3: a lone survivor is hit twice)
+      dmg('enemyRandom', 3, 1),
+      dmg('enemyRandomPrefNotPrev', 3, 1),
       createSpecialGems({ kind: 'bomb' }, 2, 0),
     ),
   },
@@ -145,8 +147,8 @@ const SPELLS: CuratedBatch['spells'] = [
       // 未写转为何属性 → 同属性回填（batch-01 7141「窃取所有敌人的护甲值」口径）
       steal('enemyAll', 'armor', 'armor', 1, 1),
       createSpecialGems({ kind: 'bomb' }, 10, 0),
-      // 「宝石」不含骷髅 → include 'color'（batch-34 8823 口径）
-      explodeRandomGems(1, 0, 'color'),
+      // R013-5: Skulls are Gems → colourless random pick uses include 'all'
+      explodeRandomGems(1, 0, 'all'),
     ),
   },
   {
