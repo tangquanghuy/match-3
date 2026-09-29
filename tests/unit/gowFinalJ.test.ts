@@ -132,3 +132,21 @@ describe('sa-J B07', () => {
     expect(order('troop:7132').some(x => x.includes('devoured'))).toBe(false);
   });
 });
+
+describe('sa-J B08', () => {
+  // troop:7198 NaturebornHunter (8785): ExtraTurnConditional AddIfEnemyHasBeast.
+  it('troop:7198 grants a spell extra turn only when an enemy is a Beast', () => {
+    const beast = castSpell({ key: 'troop:7198', board: (r, c) => reviewBoard(r, c), enemies: [{ hp: 300, maxHp: 300, troopTypes: ['Beast'] } as Record<string, unknown>] });
+    const plain = castSpell({ key: 'troop:7198', enemies: [{ hp: 300, maxHp: 300 }] });
+    const spellExtra = (o: string[]) => o.filter(x => x.startsWith('extra-turn') && !x.endsWith('match'));
+    expect(spellExtra(beast.summary.order)).toHaveLength(1);
+    expect(spellExtra(plain.summary.order)).toHaveLength(0);
+  });
+  // troop:7182 TheGemini (8752): Curse and 3 Bleed stacks land on the 2 weakest before the Life steal (native order).
+  it('troop:7182 curses and bleeds the two weakest before stealing Life', () => {
+    const o = order('troop:7182');
+    const firstDmg = o.findIndex(x => x.startsWith('dmg '));
+    expect(o.slice(0, firstDmg).filter(x => /\+(curse|bleed)$/.test(x))).toHaveLength(4);
+    expect(o.slice(firstDmg, firstDmg + 2)).toEqual(['dmg E12 11 (all)', 'dmg E10 11 (all)']);
+  });
+});

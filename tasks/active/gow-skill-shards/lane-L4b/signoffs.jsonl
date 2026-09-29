@@ -422,3 +422,4 @@
 {"format":"compact","key":"troop:6340","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:56:18.684Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6760","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:58:49.049Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7068","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:04:25.093Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7237","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:08:07.081Z","tests":["tests/unit/gowCastGolden.test.ts"]}

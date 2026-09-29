@@ -1896,8 +1896,8 @@
    "L0": "dmg E11 3 (splash) ; destroy 3 (Green x1, Purple x1, skull x1) ; skulls E10 1  => E11:arm-3 | E10:arm-1",
    "K": "dmg E11 13 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; destroy 3 (Green x1, Purple x1, skull x1) ; skulls E13 1 ; defeat E13  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T22:53:17.184Z"
+  "by": "sa-J",
+  "at": "2026-09-29T04:08:09.497Z"
  },
  "troop:7255": {
   "lines": {

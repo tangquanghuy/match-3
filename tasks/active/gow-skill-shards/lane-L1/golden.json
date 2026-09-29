@@ -1449,6 +1449,16 @@
   "by": "sa-I",
   "at": "2026-09-28T23:32:56.290Z"
  },
+ "troop:7144": {
+  "lines": {
+   "L10": "destroy 9 (Purple x9) ; buff C armor+20 ; status C +reflect  => C:arm+20 +reflect",
+   "R10": "destroy 9 (Purple x9) ; buff C armor+20 ; status C +reflect  => C:arm+20 +reflect",
+   "L0": "destroy 9 (Purple x9) ; buff C armor+10 ; status C +reflect  => C:arm+10 +reflect",
+   "K": "destroy 9 (Purple x9) ; buff C armor+20 ; status C +reflect  => C:arm+20 +reflect"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:08:00.092Z"
+ },
  "troop:7155": {
   "lines": {
    "L10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",

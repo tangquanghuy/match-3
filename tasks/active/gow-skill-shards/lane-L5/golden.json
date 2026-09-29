@@ -1419,6 +1419,16 @@
   "by": "sa-C",
   "at": "2026-09-28T11:14:02.847Z"
  },
+ "troop:7182": {
+  "lines": {
+   "L10": "status E12 +curse ; remove E10 -rage ; status E10 +curse ; status E12 +bleed ; status E10 +bleed ; dmg E12 11 (all) ; dmg E10 11 (all) ; buff C hp+22 max+22  => E12:hp-11 +curse+bleed | E10:hp-11 +curse+bleed -rage | C:hp+22 max+22",
+   "R10": "status E12 +curse ; remove E10 -rage ; status E10 +curse ; status E12 +bleed ; status E10 +bleed ; dmg E12 11 (all) ; dmg E10 11 (all) ; buff C hp+22 max+22  => E12:hp-11 +curse+bleed | E10:hp-11 +curse+bleed -rage | C:hp+22 max+22",
+   "L0": "status E12 +curse ; remove E10 -rage ; status E10 +curse ; status E12 +bleed ; status E10 +bleed ; dmg E12 1 (all) ; dmg E10 1 (all) ; buff C hp+2 max+2  => E12:hp-1 +curse+bleed | E10:hp-1 +curse+bleed -rage | C:hp+2 max+2",
+   "K": "status E12 +curse ; status E11 +curse ; status E13 +bleed ; status E12 +bleed ; dmg E10 11 (all) ; dmg E12 11 (all) ; defeat E10 ; defeat E12 ; buff C hp+2 max+2  => E12:hp-1 +curse+bleed DEAD | E11:+curse | E13:+bleed | E10:hp-1 DEAD | C:hp+2 max+2"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:08:02.308Z"
+ },
  "troop:7190": {
   "lines": {
    "L10": "dmg E11 12  => E11:hp-2 arm-10",
