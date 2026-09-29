@@ -205,3 +205,20 @@ describe('sa-J B11', () => {
     expect(order('weapon:1186')).toEqual(['dmg E11 17']);
   });
 });
+
+describe('sa-J B12', () => {
+  // weapon:1297-1302 Doomed* (8254-8259): ExplodeGems 4 + 3 AddIfEnemyHasDoom (an enemy troop of type Doom).
+  it.each(['weapon:1297', 'weapon:1298', 'weapon:1299', 'weapon:1300', 'weapon:1301', 'weapon:1302'])('%s explodes 3 more gems when the enemy team has a Doom', key => {
+    const explodes = (o: string[]) => o.filter(x => x.startsWith('explode ')).length;
+    const plain = order(key);
+    const doom = order(key, { enemies: [{ hp: 600, maxHp: 600, armor: 5 }, { hp: 900, maxHp: 900, armor: 10, troopTypes: ['Doom'] }] as Record<string, unknown>[] });
+    expect(explodes(plain)).toBe(1);
+    expect(explodes(doom)).toBe(2);
+  });
+  // weapon:1254 DancingDaggers (8074): first enemy to the back, then a 50% chance for the new first enemy.
+  it('weapon:1254 knocks the first enemy back and sometimes the next first one', () => {
+    const moves = new Set<number>();
+    for (let seed = 1; seed <= 20; seed++) moves.add(order('weapon:1254', { seed }).filter(x => / back$/.test(x)).length);
+    expect([...moves].sort()).toEqual([1, 2]);
+  });
+});
