@@ -30,6 +30,15 @@
    "note": "Waived per R000: 'If they are a Tower, deal 3x - 5x damage, based on my Ascensions' (Tower target + ascension scaling not implemented; existing Castle condMult placeholder untouched)."
   },
   {
+   "key": "troop:6776",
+   "name": "Ahrimas",
+   "part": "clause",
+   "id": "c2",
+   "mode": "tower",
+   "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "P-random-stat-pool fixed (R007-2); 2 x DecreaseRandom [M+4] independent rolls; Tower x3-x5 clause waived R000; final sa-Q1"
+  },
+  {
    "key": "troop:6569",
    "name": "SirMordayne",
    "part": "clause",
@@ -46,6 +55,24 @@
    "mode": "tower",
    "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionCastle\",\"Type\":\"Damage\"}",
    "note": ""
+  },
+  {
+   "key": "troop:7597",
+   "name": "TheBaneOfValor",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "re-check after P-F2-dead-target-colour: kill -> 1 gem of the dead enemy's colour -> Daemonic Portal; boss/ascension clause waived R000; final sa-Q2"
+  },
+  {
+   "key": "troop:7597",
+   "name": "TheBaneOfValor",
+   "part": "step",
+   "id": "0",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":0}",
+   "note": "re-check after P-F2-dead-target-colour: kill -> 1 gem of the dead enemy's colour -> Daemonic Portal; boss/ascension clause waived R000; final sa-Q2"
   },
   {
    "key": "troop:6803",
@@ -84,6 +111,15 @@
    "note": ""
   },
   {
+   "key": "troop:7851",
+   "name": "Seditius",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "P-R1-gargoyle-tier-filter fixed (explode 3 Bad Gargoyles only); [M+4] + 2 x Red; Boss clause waived R000; final sa-Q1"
+  },
+  {
    "key": "weapon:1196",
    "name": "WallOfOblivion",
    "part": "clause",
@@ -100,6 +136,24 @@
    "mode": "boss",
    "text": "If enemy is a Boss, Freeze all enemies and Barrier all allies.",
    "note": ""
+  },
+  {
+   "key": "troop:7818",
+   "name": "TwistedHag",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R012 fixed: Curse/Bleed Above+Below land after the target dies; Poison gems x3; boss/ascension waived R000; final sa-Q2"
+  },
+  {
+   "key": "troop:7818",
+   "name": "TwistedHag",
+   "part": "step",
+   "id": "1",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\",\"Delay\":400}",
+   "note": "R012 fixed: Curse/Bleed Above+Below land after the target dies; Poison gems x3; boss/ascension waived R000; final sa-Q2"
   },
   {
    "key": "troop:6637",
@@ -190,6 +244,24 @@
    "mode": "tower",
    "text": "If they are a Tower, deal 3x - 5x damage, based on my Ascensions.",
    "note": ""
+  },
+  {
+   "key": "troop:7643",
+   "name": "Mudwalker",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "re-check after P-R4-gargoyle-tier-count: Decay / Good / Bad Gargoyle floored separately (gowFixP-boardSpecial-filters); boss/ascension waived R000; final sa-Q2"
+  },
+  {
+   "key": "troop:7643",
+   "name": "Mudwalker",
+   "part": "step",
+   "id": "3",
+   "mode": "boss",
+   "text": "{\"SpellPowerMultiplier\":1,\"Target\":\"FromTarget\",\"StatusAmount\":3,\"UseCounterForAmount\":true,\"Amount\":4,\"Primarypower\":true,\"StatusModifier\":\"MultiplyForAscensionBoss\",\"Type\":\"Damage\"}",
+   "note": "re-check after P-R4-gargoyle-tier-count: Decay / Good / Bad Gargoyle floored separately (gowFixP-boardSpecial-filters); boss/ascension waived R000; final sa-Q2"
   },
   {
    "key": "troop:7748",
@@ -1468,6 +1540,15 @@
    "mode": "ascension",
    "text": "If they are a Boss, deal 3x - 5x damage, based on my ascensions.",
    "note": "7213 Boss x Ascension waived R000"
+  },
+  {
+   "key": "troop:7884",
+   "name": "BokSingefur",
+   "part": "clause",
+   "id": "c2",
+   "mode": "boss",
+   "text": "If they are a Boss, deal 3x - 5x damage, based on my Ascensions.",
+   "note": "R016-1: 'Explode 2-5 Gems' = one uniform 2-5 random explosion (not native 2+1+1+1); Boss clause waived R000; final sa-Q1"
   },
   {
    "key": "troop:7667",

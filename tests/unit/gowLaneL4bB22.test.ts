@@ -202,10 +202,10 @@ describe('L4b troop:6093/spell:7163 Transform all Skulls to a chosen colour, gai
 describe('L4b troop:7068/spell:8596 5 Green -> Purple Mana Potions, Brown -> Skulls, Cleanse Fey allies',()=>{
  const base={skill:'8596',cost:25,colors:[BaseColor.Blue,BaseColor.Red,BaseColor.Yellow],allies:[{troopTypes:['Fey'],statuses:[{id:'poison',turns:3}]},{troopTypes:['Human'],statuses:[{id:'poison',turns:3}]}]};
  const board=pattern([BaseColor.Green,BaseColor.Brown,BaseColor.Blue,BaseColor.Yellow]);
- it('source/native/prototype binding; display text recorded as-is (garbled, see issues L4b-7068-zh)',()=>{
+ it('source/native/prototype binding; display text (zh fixed by sa-J r10, gowSnapshotOverrides)',()=>{
   troopBinding(7068,8596,25,base.colors,'Convert 5 Green Gems to Purple Potions, and all Brown Gems to Skulls. Cleanse all Fey Allies.',
    [{Color1:'Green',Amount:5,Color2:'PurpleManaPotion',Type:'ConvertGems'},{Color1:'Brown',Amount:100,Color2:'Skull',Type:'ConvertGems'},{Target:'AllyType',Amount:1,Type:'Cleanse',Data:'fey'}],
-   '将5有绿宝石都转化为紫色药水，并且所有棕色宝石都变为骷髅头。净化所有精灵同盟。');
+   '将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。');
   expect(registry.prototypes.get('8596')).toEqual({segments:[{kind:'gem',params:{op:'transform',from:'Green',to:'SKULL',toSpecial:{kind:'manaPotionGem',color:'Purple'},count:{base:5,mult:0}}},
    {kind:'gem',params:{op:'transform',from:'Brown',to:'SKULL'}},{kind:'cleanse',target:'allyAll',targetRace:'Fey'}]});
  });
