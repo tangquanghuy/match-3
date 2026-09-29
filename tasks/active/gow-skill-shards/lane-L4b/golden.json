@@ -3656,8 +3656,8 @@
    "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 4 (scatter) ; dmg E13 1 (scatter) ; convert Blue x1, Red x2, Brown x2, Yellow x1, skull x2 -> entangleGem x8  => E10:arm-1 | E11:arm-2 | E12:arm-4 | E13:arm-1",
    "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, skull x2, Blue x2, Yellow x2 -> entangleGem x8 ; ~cascade~ ; trigger entangleGem ; trigger entangleGem ; trigger entangleGem  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T10:24:17.522Z"
+  "by": "sa-J",
+  "at": "2026-09-29T04:23:37.110Z"
  },
  "weapon:1592": {
   "lines": {
