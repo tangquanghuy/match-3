@@ -29,7 +29,7 @@ import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 import { activeTeam } from '../systems/teamRules';
 import type { ViewCtx } from './eventViews/shared';
-import { towerViewHtml } from './eventViews/towerView';
+import { mountTowerBoard, towerViewHtml } from './eventViews/towerView';
 import { raidViewHtml } from './eventViews/raidView';
 import { invasionViewHtml } from './eventViews/invasionView';
 import { factionViewHtml } from './eventViews/factionView';
@@ -293,9 +293,8 @@ export class EventsScreen implements Screen {
     const board = root.querySelector<HTMLElement>('.ev-board');
     if (!typeId || !board) return;
 
-    // 爬塔地图：滚到当前可走的那一层
-    const scroller = board.querySelector<HTMLElement>('[data-scroll-y]');
-    if (scroller) scroller.scrollTop = Number(scroller.dataset.scrollY) || 0;
+    // 爬塔地图：滚动记忆 / 拖拽平移 / 图例与遗物图鉴开关（客户端行为，见 towerView）
+    if (typeId === 'towerOfDoom') mountTowerBoard(board, (t, e, f) => this.on(t, e, f));
 
     this.on(board, 'click', (event) => {
       const el = (event.target as HTMLElement).closest<HTMLElement>('[data-act],[data-fight],[data-select]');

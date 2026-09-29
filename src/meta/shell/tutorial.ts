@@ -1,9 +1,8 @@
 /**
- * 新手引导：试炼战（含一次释放技能的提示）→ 回到王国 → 领取馈赠 → 新手十连 → 自由行动。
+ * 新手引导：试炼战 → 回到王国 → 领取馈赠 → 新手十连 → 自由行动。
  *
  * 页面引导：全屏压暗，只放行当前目标（聚光框）与对话框；其余点击、按键与越界路由一律拦下。
- * 结算页不加任何遮挡（升级二选一必须能操作），回到地图后再继续引导。
- * 战斗内提示：不压暗、不拦截，只在「第一次有部队攒满法力」时圈出该部队并提示点击释放。
+ * 战斗内与结算页不加任何遮挡（升级二选一必须能操作），回到地图后再继续引导。
  * 步骤状态存在 save.onboarding.step（核心在对应操作成功时推进），这里只负责展示与拦截。
  */
 import type { OnboardingStep } from '../state/schema';
@@ -69,12 +68,9 @@ function guideCardHtml(): string {
 
 export class TutorialGuide {
   private layer: HTMLElement | null = null;
-  private battleHint: HTMLElement | null = null;
   private view: GuideView | null = null;
   private lastStep: OnboardingStep = 'done';
   private route: [string, string | undefined] = ['map', undefined];
-  /** 战斗内释放技能提示：已看到可释放部队 → 已释放（该部队不再可释放）即完成 */
-  private castHint: 'waiting' | 'showing' | 'done' = 'waiting';
 
   constructor(private readonly ctx: ShellCtx, private readonly battleRoot: HTMLElement) {
     for (const type of ['click', 'pointerdown', 'mousedown', 'touchstart', 'dblclick', 'contextmenu'] as const) {
@@ -146,7 +142,6 @@ export class TutorialGuide {
   private tick(): void {
     // 步骤在屏内被推进（例如新手十连成交后）：立即按新步骤重排或撤掉遮罩
     if (this.lastStep !== 'done' && this.ctx.save().onboarding.step !== this.lastStep) { this.sync(...this.route); return; }
-    this.tickBattle();
     this.place();
   }
 
@@ -164,39 +159,9 @@ export class TutorialGuide {
     positionBubble(bubble, rect, hole);
   }
 
-  /** 战斗内：第一次有我方部队可释放技能时圈出它并提示点击 */
-  private tickBattle(): void {
-    const inBattle = !this.battleRoot.hidden;
-    if (!inBattle || this.lastStep !== 'battle' || this.castHint === 'done') {
-      this.battleHint?.remove();
-      this.battleHint = null;
-      if (!inBattle && this.castHint === 'showing') this.castHint = 'waiting';
-      return;
-    }
-    const card = this.battleRoot.querySelector<HTMLElement>('.gcard.ally.castable:not(.silenced)');
-    if (!card) {
-      if (this.castHint === 'showing') this.castHint = 'done'; // 已释放（法力清空）
-      this.battleHint?.remove();
-      this.battleHint = null;
-      return;
-    }
-    this.castHint = 'showing';
-    if (!this.battleHint) {
-      this.battleHint = document.createElement('div');
-      this.battleHint.className = 'tut-layer tut-battle has-hole';
-      this.battleHint.innerHTML = `<div class="tut-hole" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <section class="tut-bubble" aria-live="polite">${guideCardHtml()}</section>`;
-      this.battleHint.querySelector('h2')!.textContent = '法力已满';
-      this.battleHint.querySelector('p')!.textContent = '点击发光的部队，释放它的技能。';
-      this.paintSteps(this.battleHint);
-      document.body.appendChild(this.battleHint);
-    }
-    positionBubble(this.battleHint.querySelector<HTMLElement>('.tut-bubble')!, card.getBoundingClientRect(), this.battleHint.querySelector<HTMLElement>('.tut-hole')!);
-  }
-
   private allowed(node: EventTarget | Element | null): boolean {
     if (!(node instanceof Element)) return false;
-    if (node.closest('.tut-layer:not(.tut-battle) .tut-bubble')) return true;
+    if (node.closest('.tut-layer .tut-bubble')) return true;
     return !!this.view?.target && !!node.closest(this.view.target);
   }
 

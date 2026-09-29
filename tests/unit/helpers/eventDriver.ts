@@ -21,7 +21,7 @@ export function towerNextBattle(save: MetaSave, week: number): string {
     if (!state.run) { expectOk(eventAction(save, week, 'towerOfDoom', 'start', ++seed)); continue; }
     const run = state.run;
     if (run.pending) {
-      const tries = ['pick:0', 'claim', 'camp:rest', 'event:1', 'event:0', 'leave', 'skip'];
+      const tries = ['pick:0', 'claim', 'camp:rest', 'event:1', 'event:0', 'event:2', 'leave', 'skip'];
       if (!tries.some((a) => eventAction(save, week, 'towerOfDoom', a, ++seed).ok)) throw new Error(`无法处理 ${run.pending.kind}`);
       continue;
     }

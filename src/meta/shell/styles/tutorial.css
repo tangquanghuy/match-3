@@ -2,11 +2,6 @@
 .tut-layer { position: fixed; inset: 0; z-index: 900; pointer-events: none; background: rgba(5, 6, 10, .76); }
 .tut-layer.has-hole { background: transparent; }
 .tut-layer[hidden] { display: none; }
-/* 战斗内提示：不压暗、不拦截任何点击 */
-.tut-layer.tut-battle { z-index: 950; }
-.tut-layer.tut-battle .tut-hole { box-shadow: none; }
-.tut-layer.tut-battle .tut-bubble { pointer-events: none; width: min(400px, calc(100vw - 24px)); }
-.tut-layer.tut-battle .tut-guide { width: 104px; }
 
 /* 聚光框：细金边 + 四角括角 + 呼吸光 */
 .tut-hole { position: fixed; display: none; border-radius: 14px; box-shadow: 0 0 0 200vmax rgba(5, 6, 10, .76); transition: left .25s, top .25s, width .25s, height .25s; }

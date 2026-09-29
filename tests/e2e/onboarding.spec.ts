@@ -43,7 +43,7 @@ test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被�
   await page.getByText('自动', { exact: true }).click();
   await expect(page).toHaveURL(/#result/, { timeout: 180_000 });
   // 结算页（含升级二选一）不加任何遮挡
-  await expect(page.locator('.tut-layer:not(.tut-battle)')).toHaveCount(0);
+  await expect(page.locator('.tut-layer')).toHaveCount(0);
   for (let i = 0; i < 10 && /#result/.test(page.url()); i++) {
     const card = page.locator('#luChoices [data-mastery-color]').first();
     if (await card.isVisible().catch(() => false)) await card.click();
@@ -78,7 +78,7 @@ test('馈赠：部队卡奖励领取后弹出获得展示', async ({ page }) => 
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.goto('/game.html#gifts/invasion');
-  await expect(page.locator('.gift-card').first()).toContainText('完成第一次入侵');
+  await expect(page.locator('.gift-card').first()).toContainText('完成入侵');
   // 打完第一场入侵：用存档模拟累计场数
   await page.evaluate(() => {
     const k = 'gems.meta.save'; const s = JSON.parse(localStorage.getItem(k)!);
