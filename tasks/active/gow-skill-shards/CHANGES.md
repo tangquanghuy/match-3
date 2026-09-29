@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 703 条改动，涉及 1166 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 704 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -709,6 +709,7 @@
 | 2026-09-29T03:53 | sa-J | sa-J-6160-zh | data | 7280 | troop:6160 TheGreatMaw | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 创造 8 颗黄色宝石和棕色宝石 (could read as 8 total) → zh: 创造 8 颗黄色宝石和 8 颗棕色宝石 (EN Create 8 Yellow and 8 Brown Gems) | display text only |
 | 2026-09-29T04:04 | sa-J | sa-J-7068-zh | data | 8596 | troop:7068 FountainOfStars | `src/engine/skills/curated/batch-r21.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 将5有绿宝石都转化为紫色药水…净化所有精灵同盟 (garbled, read as all Green) → zh: 将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。 | display text only |
 | 2026-09-29T04:04 | sa-J | sa-J-7132-devour | assembler | 8681 | troop:7132 Centuragon | `src/engine/skills/curated/batch-r20.ts` | dmg enemyRandom execute chance 10% + 10%/Wildcard (kill only, no stat gain) → devour enemyRandom chance 10% + 10%/Wildcard (native ConsumeConditional = Devour, caster gains stats) |  |
+| 2026-09-29T04:13 | sa-J | sa-J-7724-zh | data | 9716 | troop:7724 TheSandstoneSentinel | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 如果敌人死亡，则获得伤害值增加三倍 (damage tripled) → zh: 如果敌人死亡，则获得的数值变为三倍 (EN triple the amount gained) | display text only |
 
 ## 按技能 ID
 
@@ -1788,7 +1789,7 @@
 | 9692 | 1 | P-E-faction-kingdom |
 | 9710 | 1 | L5-C-r9-7718 |
 | 9711 | 1 | L1-7719-random |
-| 9716 | 2 | F3-t7724、P-G-ifTargetDied-after-self |
+| 9716 | 3 | F3-t7724、P-G-ifTargetDied-after-self、sa-J-7724-zh |
 | 9719 | 1 | P-prefnotprev-semantics |
 | 9720 | 1 | R015-random-gems-include-skulls |
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |

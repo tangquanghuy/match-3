@@ -2279,6 +2279,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:36:51.061Z"
  },
+ "troop:7505": {
+  "lines": {
+   "L10": "destroy 24 (Purple x3, Red x3, Green x3, Yellow x6, Blue x5, Brown x3, skull x1) ; skulls E10 1  => A2:mana+6 | A1:mana+5 | E10:arm-1",
+   "R10": "destroy 24 (Purple x3, Red x3, Green x3, Yellow x6, Blue x5, Brown x3, skull x1) ; skulls E10 1  => A2:mana+6 | A1:mana+5 | E10:arm-1",
+   "L0": "destroy 24 (Purple x3, Red x3, Green x3, Yellow x6, Blue x5, Brown x3, skull x1) ; skulls E10 1  => A2:mana+6 | A1:mana+5 | E10:arm-1",
+   "K": "destroy 24 (Purple x3, Red x3, Green x3, Yellow x6, Blue x5, Brown x3, skull x1) ; skulls E10 1 ; defeat E10  => A2:mana+6 | A1:mana+5 | E10:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:13:56.798Z"
+ },
  "troop:7528": {
   "lines": {
    "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; convert Green x1, Purple x1 -> ghost x2 ; destroy 8 (skull x1, Red x1, Purple x1, Yellow x2, Brown x1, Green x1, ghost x1) ; skulls E10 1 ; ~cascade~  => E10:hp-7 arm-5 | E11:hp-1 arm-10 | A2:mana+3  cascade",

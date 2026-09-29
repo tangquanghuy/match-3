@@ -174,3 +174,21 @@ describe('sa-J B09', () => {
     expect(order('troop:7313').some(x => x.includes('spiritGem'))).toBe(false);
   });
 });
+
+describe('sa-J B10', () => {
+  // troop:7724 TheSandstoneSentinel (9716): IncreaseAllStats 10 + 20 AddForKill = the gain is tripled on a kill.
+  it('troop:7724 triples the stat gain (not the damage) when the target dies', () => {
+    const kill = order('troop:7724', { enemies: [{ hp: 5, maxHp: 5 }, { hp: 5, maxHp: 5, armor: 0 }] });
+    expect(kill.filter(x => /^buff C (attack|armor|hp|magic)\+(10|20)$/.test(x))).toHaveLength(8);
+    expect(order('troop:7724').filter(x => x.startsWith('buff C '))).toHaveLength(4);
+    expect(zhOf(7724, 9716)).toContain('如果敌人死亡，则获得的数值变为三倍');
+  });
+  // troop:7796 Jellymaid (9816): second ally = RandomPrefNotPrevAlly (R007-3).
+  it('troop:7796 cleanses and submerges two different allies', () => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const subs = order('troop:7796', { seed }).filter(x => x.endsWith('+submerged'));
+      expect(subs).toHaveLength(2);
+      expect(new Set(subs).size).toBe(2);
+    }
+  });
+});

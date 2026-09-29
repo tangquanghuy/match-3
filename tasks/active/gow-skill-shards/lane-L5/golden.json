@@ -1619,6 +1619,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:51:48.356Z"
  },
+ "troop:7472": {
+  "lines": {
+   "L10": "dmg E11 13 ; status E11 +bleed ; gold+100  => E11:hp-3 arm-10 +bleed  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "R10": "dmg E11 13 ; status E11 +bleed ; gold+100  => E11:hp-3 arm-10 +bleed  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "L0": "dmg E11 3 ; status E11 +bleed ; gold+100  => E11:arm-3 +bleed  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "K": "dmg E11 13 ; defeat E11 ; gold+100  => E11:hp-1 DEAD  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:13:52.480Z"
+ },
  "troop:7482": {
   "lines": {
    "L10": "dmg E11 12 ; status A1 +submerged ; status C +submerged  => E11:hp-2 arm-10 | A1:+submerged | C:+submerged",

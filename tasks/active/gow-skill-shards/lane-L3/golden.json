@@ -1669,6 +1669,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:46:47.023Z"
  },
+ "troop:7493": {
+  "lines": {
+   "L10": "convert Green x1 -> angelGem x1 ; extra-turn skill  extra:skill",
+   "R10": "convert Green x1 -> angelGem x1 ; extra-turn skill  extra:skill",
+   "L0": "convert Green x1 -> angelGem x1 ; extra-turn skill  extra:skill",
+   "K": "convert Green x1 -> angelGem x1 ; extra-turn skill  extra:skill"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:13:54.624Z"
+ },
  "troop:7502": {
   "lines": {
    "L10": "buff E11 mana-8 ; convert Green x1, Purple x1, skull x1, Red x1 -> freezeGem x4  => E11:mana-8",
@@ -2058,6 +2068,16 @@
   },
   "by": "sa-F",
   "at": "2026-09-28T16:28:20.991Z"
+ },
+ "troop:7796": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; status A1 +submerged ; buff A1 mana+8 ; cleanse C -poison ; status C +submerged ; buff C mana+6  => A1:mana+8 +submerged -poison | C:+submerged -poison",
+   "R10": "cleanse A1 -poison ; status A1 +submerged ; buff A1 mana+8 ; cleanse C -poison ; status C +submerged ; buff C mana+6  => A1:mana+8 +submerged -poison | C:+submerged -poison",
+   "L0": "cleanse A1 -poison ; status A1 +submerged ; buff A1 mana+8 ; cleanse C -poison ; status C +submerged ; buff C mana+6  => A1:mana+8 +submerged -poison | C:+submerged -poison",
+   "K": "cleanse A1 -poison ; status A1 +submerged ; buff A1 mana+8 ; cleanse C -poison ; status C +submerged ; buff C mana+6  => A1:mana+8 +submerged -poison | C:+submerged -poison"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:13:54.624Z"
  },
  "troop:7800": {
   "lines": {

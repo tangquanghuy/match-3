@@ -528,6 +528,11 @@
       "reason": "sa-F: English Desert Ox 'Create a mix of 10 Cursed Gems and Doomskulls' (native CreateGems2Colors 10 Cursed>Doomskull); old Chinese said 'use' instead of create.",
       "spellDescription": "创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。"
     },
+    "7724": {
+      "spellId": 9716,
+      "reason": "sa-J final: English The Sandstone Sentinel 'If the Enemy dies, triple the amount gained' (native IncreaseAllStats 10 + StatusAmount 20 AddForKill); old Chinese said the damage is tripled (获得伤害值增加三倍).",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色和棕色宝石数量而增强。所有技能获得 10 点。如果敌人死亡，则获得的数值变为三倍。 [x2]"
+    },
     "7725": {
       "spellId": 9725,
       "manaCost": 9,
