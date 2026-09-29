@@ -89,3 +89,29 @@ describe('sa-Q1 B02: count at native step, disputes kept (6621 / 6864), random p
     expect(red.order).toEqual(['dmg E11 12']);
   });
 });
+
+describe('sa-Q1 B03: dual storm, Mithrilion order, row count, army count at cast start', () => {
+  it('troop:7036 / troop:7038 Hellclaw: Red + Purple counted per source, Hellstorm = Red + Purple storm', () => {
+    const a = castSpell({ key: 'troop:7036' });
+    expect(a.summary.order[0]).toBe('dmg E11 30'); // 2 + 10 + board Red + Purple
+    expect(a.f.state.teams[a.f.side].storm?.color2).toBe('Purple');
+    const b = castSpell({ key: 'troop:7038' });
+    expect(b.summary.order.slice(0, 2)).toEqual(['buff C attack+29', 'buff C hp+29 max+29']);
+    expect(b.f.state.teams[b.f.side].storm?.color2).toBe('Purple');
+  });
+  it('troop:7057 Mithrilion: Armor first (native order), explode the 3x3, one random Barrier per Skull destroyed', () => {
+    const s = castSpell({ key: 'troop:7057' }).summary;
+    expect(s.order[0]).toBe('buff C armor+19');
+    expect(s.order[1]).toBe('explode 9');
+    expect(s.order.filter(x => x.endsWith('+barrier')).length).toBe(1); // 1 Skull in the default 3x3
+  });
+  it('troop:7316 Eye of Arges: Red / Brown / Skull of the exploded row counted before the explode, x8', () => {
+    const s = castSpell({ key: 'troop:7316' }).summary;
+    expect(s.order[0]).toBe('explode 24');
+    expect(has(s.order, 'dmg E11 50')).toBe(true); // 6 + 20 + 8 x 3
+  });
+  it('troop:7492 Amatiel: Undead / Daemon enemies counted at cast start (x10 each), damage to all', () => {
+    const s = castSpell({ key: 'troop:7492', enemies: [tough({ troopTypes: ['Undead'] }), tough({ troopTypes: ['Daemon'] }), tough(), tough()] }).summary;
+    expect(s.order.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 31 (all)', 'dmg E11 31 (all)', 'dmg E12 31 (all)', 'dmg E13 31 (all)']);
+  });
+});

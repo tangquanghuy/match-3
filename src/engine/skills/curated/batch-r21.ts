@@ -458,9 +458,11 @@ const SPELLS: CuratedBatch['spells'] = [
     // 「爆破 3x3 阵型」= destroyArea square3 explode（r12 口径）；「每爆破一颗骷髅头则屏障随机
     // 盟友」= perDestroyed skull（Wave4 已落——7463 同款计数驱动施加，骷髅筛为 perDestroyed
     // 专属通道，与 destroyedGems 无骷髅筛的来源缺口无关）。
+    // sa-Q1 (R001): native order CountGems Skull -> IncreaseArmor -> ExplodeGems Block3x3 -> barrier per count.
+    // Dispute kept: native counts Skulls in Block5x5 but explodes Block3x3; runtime counts Skulls destroyed in the 3x3 (English).
     build: skill(
-    destroyArea('square3', 'explode'),
     armor('allySelf', 4, 1.5),
+    destroyArea('square3', 'explode'),
     inflict('barrier', 'allyRandom', { perDestroyed: { color: 'skull' } }),
     ),
   },

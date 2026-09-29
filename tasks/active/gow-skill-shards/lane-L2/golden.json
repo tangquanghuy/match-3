@@ -769,6 +769,16 @@
   "by": "sa-P",
   "at": "2026-09-28T23:12:38.829Z"
  },
+ "troop:7057": {
+  "lines": {
+   "L10": "buff C armor+19 ; explode 9 ; skulls E10 1 ; status A1 +barrier  => C:arm+19 | E10:arm-1 | A1:+barrier",
+   "R10": "buff C armor+19 ; explode 9 ; skulls E10 1 ; status A1 +barrier  => C:arm+19 | E10:arm-1 | A1:+barrier",
+   "L0": "buff C armor+4 ; explode 9 ; skulls E10 1 ; status A1 +barrier  => C:arm+4 | E10:arm-1 | A1:+barrier",
+   "K": "buff C armor+19 ; explode 9 ; skulls E10 1 ; defeat E10 ; status A1 +barrier  => C:arm+19 | E10:hp-1 DEAD | A1:+barrier"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:35:17.428Z"
+ },
  "troop:7090": {
   "lines": {
    "L10": "buff C armor+33 ; status E12 +burning ; status E11 +burning  => C:arm+33 | E12:+burning | E11:+burning",

@@ -12,3 +12,7 @@ Scope: final-queue.json cat "issue", lanes L2 + L4a (32 keys; skip troop:6857 we
 - B02 troop:6776 (L2): accept (P-random-stat-pool fixed; Tower clause c2 waived R000)
 - B02 troop:6864 (L2): accept; dispute: native InflictEffectOnRandomTroops may repeat vs English distinct, kept distinct 1-4 enemies
 - B02 troop:6964 (L4a): accept (P-R1-chosen-target-color-cond fixed)
+- B03 troop:7036, troop:7038 (L4a): accept (P-R1-dual-storm fixed)
+- B03 troop:7057 (L2): FIXED batch-r21 8585 native order (armor before the explode), accept; dispute: native counts Skulls in Block5x5 but explodes Block3x3, kept barrier per Skull destroyed in the 3x3
+- B03 troop:7316 (L4a): accept (P-R1-row-count-at-cast-start fixed)
+- B03 troop:7492 (L4a): accept (P-R1-count-at-native-step fixed)

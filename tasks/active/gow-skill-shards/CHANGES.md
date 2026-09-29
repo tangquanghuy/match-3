@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 701 条改动，涉及 1165 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 702 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -707,6 +707,7 @@
 | 2026-09-28T23:38 | sa-C | L5-C-r9-1445-random-true | data | 8701 | weapon:1445 CursebreakerJavelin | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | normal damage to the first + last enemy, Tempering on one hit only; zh 首位和末位敌人 → native TrueDamage RandomEnemy -> RandomPrefNotPrevEnemy, Tempering on both; zh 2 名随机敌人 真实伤害; override entry |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
 | 2026-09-29T04:29 | sa-Q1 | P-random-stat-pool | assembler | 7323 | troop:6182 HeraldOfChaos | `src/engine/skills/curated/batch-r12.ts` | destroy row first, damage + DecreaseRandom boosted by destroyedGems Blue → native order: damage + DecreaseRandom boosted by chosenRowAtCastStart Blue x2, destroy row last |  |
+| 2026-09-29T04:35 | sa-Q1 | F1-7057-block5x5-count | assembler | 8585 | troop:7057 Mithrilion | `src/engine/skills/curated/batch-r21.ts` | explode 3x3 -> armor -> barrier per Skull destroyed → native order: armor -> explode 3x3 -> barrier per Skull destroyed (5x5 count dispute kept English 3x3) |  |
 
 ## 按技能 ID
 
@@ -1355,6 +1356,7 @@
 | 8578 | 1 | L2-H-1418-one-colour |
 | 8580 | 1 | L3-015 |
 | 8582 | 1 | L1-devour-first |
+| 8585 | 1 | F1-7057-block5x5-count |
 | 8586 | 1 | F2-R001-order |
 | 8587 | 1 | L1-drain-devour |
 | 8589 | 1 | R7-7061-no-base |
