@@ -1,0 +1,1854 @@
+[
+ {
+  "key": "troop:6005",
+  "name": "炼金术士",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6006",
+  "name": "蒸汽炮塔",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6017",
+  "name": "观星者",
+  "lane": "L4a",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6018",
+  "name": "神马珀伽索斯",
+  "lane": "L3",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6027",
+  "name": "树精",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6028",
+  "name": "女祭司",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6034",
+  "name": "女海妖",
+  "lane": "L4b",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6047",
+  "name": "黑野兽",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "P-F1-harness-status-leak",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "fixed (native Dispel before devour; gowLaneL1FixsaF1 green) but golden replay is order-dependent: leaked A1 Barrier from earlier casts blocks the devour; re-app"
+ },
+ {
+  "key": "troop:6062",
+  "name": "瓦尔基里",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6075",
+  "name": "高戈塔",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6076",
+  "name": "哥布林国王",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"
+ },
+ {
+  "key": "troop:6134",
+  "name": "暗歌",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Daemon/Orc steals split to native two steps (tested); DecreaseRandom pool still lacks Life"
+ },
+ {
+  "key": "troop:6153",
+  "name": "秋之小鬼",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6160",
+  "name": "饕餮",
+  "lane": "L1",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6171",
+  "name": "葛拉莉",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"
+ },
+ {
+  "key": "troop:6178",
+  "name": "夸赛魔",
+  "lane": "L2",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "source-evidence:official-shared-rule",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6182",
+  "name": "混沌预示",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "damage boost added (native UseCounter); destroy stays first (no chosen-row count source); DecreaseRandom pool lacks Life"
+ },
+ {
+  "key": "troop:6192",
+  "name": "玻里亚力斯",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6200",
+  "name": "死亡之神",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6207",
+  "name": "灵之狐",
+  "lane": "L3",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "RemoveColor treated as destroy: removed gems grant mana (primitive-queue/sa-F1.jsonl); 6207 step order fixed to native"
+ },
+ {
+  "key": "troop:6209",
+  "name": "蜘蛛骑士",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6210",
+  "name": "安努拜勇士",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "L1-6210-armor-base",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: English 'Give 1 Armor to all Allies, boosted by Gems removed [1:1]' vs native IncreaseArmor@AllAllies with UseCounterForAmount and NO Amount (ot"
+ },
+ {
+  "key": "troop:6325",
+  "name": "独角兽",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6326",
+  "name": "埃斯佩思公主",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "P-F1-harness-status-leak",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "behaviour matches native in a fresh process; golden replay sees a leaked A1 Barrier and the kill is absorbed; re-approve after harness fix"
+ },
+ {
+  "key": "troop:6328",
+  "name": "克里斯坦纳斯",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"
+ },
+ {
+  "key": "troop:6340",
+  "name": "石大锤",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6352",
+  "name": "高等圣骑士",
+  "lane": "L7",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6366",
+  "name": "炼狱魔头",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6387",
+  "name": "太阳鸟",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "P-F1-summon-after-caster-death",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "self-kill added; rebirth approximated by in-place full revive (keeps statuses), native summons a fresh Sunbird"
+ },
+ {
+  "key": "troop:6398",
+  "name": "远古魔像",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-F2-precount-explode",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "dispel/damage now one random enemy (fixed); remaining: native damage precedes ExplodeGems but boost counts Blue gems that explosion destroys - needs precount pr"
+ },
+ {
+  "key": "troop:6410",
+  "name": "末日之爪",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "R012-pending",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "7566: Consume NextDownFromTarget / NextUpFromTarget 25% after the Damage may kill the target; also prototype uses enemyAboveTarget/enemyBelowTarget (all above/b"
+ },
+ {
+  "key": "troop:6423",
+  "name": "猫精",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "RemoveColor treated as destroy: removed gems grant mana; step order fixed to native"
+ },
+ {
+  "key": "troop:6471",
+  "name": "世界毁灭者",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": "7573: TrueRandomDamage one shared roll; MultiplyForRegion4009 Summer Isle via inert regionPresent"
+ },
+ {
+  "key": "troop:6479",
+  "name": "圣伊斯巴拉",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6483",
+  "name": "魂塞拉",
+  "lane": "L6",
+  "cat": "issue",
+  "issue": "P-F3-prehit-target-compare",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "native compares target Life before souls and damage; engine condition needs a tracked target so souls follow damage and compare post-hit Life"
+ },
+ {
+  "key": "troop:6487",
+  "name": "熊猫族守卫",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6506",
+  "name": "高尚的斯克里米尔",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6512",
+  "name": "陵墓蜘蛛",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6536",
+  "name": "飞头蛮",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6574",
+  "name": "蚊群",
+  "lane": "L3",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6587",
+  "name": "厄什卡骑兵",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-F3-lasttarget-damaged",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "fixed +10 same-hit bonus and Enrage-on-kill; post-hit 'enemy damaged -> Enrage myself' needs a global last-target-damaged condition (primitive)"
+ },
+ {
+  "key": "troop:6593",
+  "name": "坠天使瓦蒂斯",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-count-at-native-step",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "order fixed (Silence before Doomskulls); remaining: Divine count must be taken before Damage@AllEnemies kills"
+ },
+ {
+  "key": "troop:6621",
+  "name": "秘法魔像",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "L2-6621-attack-counter",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "native IncreaseAttack (step 3) has UseCounterForAmount=true after CountGems Block3x3 Yellow, i.e. Attack = [M+1] + Yellow count; English 'Gain [Magic + 1] Attac"
+ },
+ {
+  "key": "troop:6678",
+  "name": "麒麟",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6704",
+  "name": "萨满赛套法师",
+  "lane": "L4b",
+  "cat": "issue",
+  "issue": "P-R2-chosen-color-modifier",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "chosen colour never requested: modifier-only boardGems CHOSEN not detected by prototypeNeedsColor; 0 Red created"
+ },
+ {
+  "key": "troop:6760",
+  "name": "街头小偷",
+  "lane": "L4b",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range",
+   "dimension:base-formula-rounding"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6775",
+  "name": "腐败占星家",
+  "lane": "L2",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:6776",
+  "name": "阿尼玛斯",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "order/values match native (2x DecreaseRandom [Magic+4], Tower clause R000); DecreaseRandom pool still lacks Life"
+ },
+ {
+  "key": "troop:6857",
+  "name": "疾病飞鸟",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-A-chosen-target-status-precast",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "native order ExplodeColor Red [AddForBurning] -> ExplodeColor Green [AddForDisease] -> Damage@FromTarget; curated runs damage first (needs tracked target for la"
+ },
+ {
+  "key": "troop:6864",
+  "name": "思霜德纳特",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "L2-6864-random-repeat",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: native CountRange 1..4 -> InflictEffectOnRandomTroops frozen (the engine models this step as independent picks with repeats: perCount/perDestroy"
+ },
+ {
+  "key": "troop:6891",
+  "name": "不死地龙",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:6936",
+  "name": "皇家刺客",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-target-status-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "per-status bonus must count statuses on the target (one step each); curated counts enemies with the status / adds once"
+ },
+ {
+  "key": "troop:6964",
+  "name": "风暴骑士",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-chosen-target-color-cond",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "fixed target-only Blue count; remaining: native order Destroy/Attack before TrueDamage needs chosenTargetColor condition"
+ },
+ {
+  "key": "troop:6970",
+  "name": "阿尔戈斯",
+  "lane": "L3",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "RemoveColor treated as destroy: removed gems grant mana (primitive-queue/sa-F1.jsonl); 6207 step order fixed to native"
+ },
+ {
+  "key": "troop:6982",
+  "name": "机械牛怪",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-next-up-target",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Adjacent Silence rolls share one segment chance; native has independent 30% on FromTarget/NextUp/NextDown; needs single next-up target mode"
+ },
+ {
+  "key": "troop:7001",
+  "name": "刑天猎犬",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-A-random-skulls-variants",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "native ExplodeColor Skull 3: random pool should include Doom Skull variants (R013-5); explodeRandomSkulls picks plain Skulls only. zh fixed (snapshot override)."
+ },
+ {
+  "key": "troop:7016",
+  "name": "大公爵",
+  "lane": "L1",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7029",
+  "name": "天空法师",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7036",
+  "name": "地狱爪猎人",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-dual-storm",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Hellstorm = StormRedPurple; engine sets a Red storm. Damage 2 + M + Red + Purple gems verified (30)"
+ },
+ {
+  "key": "troop:7038",
+  "name": "地狱爪战士",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-dual-storm",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Attack boost fixed; Hellstorm = StormRedPurple, engine sets Red storm"
+ },
+ {
+  "key": "troop:7043",
+  "name": "格里莫拉",
+  "lane": "L3",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range",
+   "dimension:base-formula-rounding"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:7057",
+  "name": "米提利昂",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "F1-7057-block5x5-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: native counts Skulls in Block5x5 (CountGems BoardTarget Block5x5) but explodes Block3x3; runtime barriers per skull destroyed in the 3x3; no 5x5"
+ },
+ {
+  "key": "troop:7062",
+  "name": "丽南希德",
+  "lane": "L3",
+  "cat": "issue",
+  "issue": "R012-pending",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "8590 Damage@AboveTarget after the chosen target may be killed by the first hit; K scenario drops the AboveTarget hit. Wait for R012."
+ },
+ {
+  "key": "troop:7068",
+  "name": "星辰之泉",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7069",
+  "name": "洞穴的守望者",
+  "lane": "L6",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7089",
+  "name": "自然生看守者",
+  "lane": "L7",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7116",
+  "name": "沮丧",
+  "lane": "L1",
+  "cat": "issue",
+  "issue": "R012-pending",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "8659: AboveTarget damage after the chosen enemy is killed (K scenario: no second hit); resolve per R012 anchor position"
+ },
+ {
+  "key": "troop:7132",
+  "name": "人马龙",
+  "lane": "L1",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7135",
+  "name": "小咕咕布莱恩",
+  "lane": "L2",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range",
+   "dimension:base-formula-rounding"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:7144",
+  "name": "鬼影巨人",
+  "lane": "L1",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7182",
+  "name": "双子座",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7198",
+  "name": "自然生猎户",
+  "lane": "L3",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7210",
+  "name": "西尼思",
+  "lane": "L4b",
+  "cat": "issue",
+  "issue": "P-R2-gargoyle-tier",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests",
+   "changed-after-signoff"
+  ],
+  "note": "curated fixed to Doomskull (was plain Skulls); evil-only gargoyle count needs tier filter on boardSpecial"
+ },
+ {
+  "key": "troop:7237",
+  "name": "熔岩虫",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7254",
+  "name": "石壳",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:7276",
+  "name": "末日石像鬼",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7285",
+  "name": "狐狸小偷",
+  "lane": "L2",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range",
+   "dimension:base-formula-rounding"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:7308",
+  "name": "池荣",
+  "lane": "L4b",
+  "cat": "issue",
+  "issue": "L4b-7308-spirit-colour",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: native CreateGems 8 Spirit has no colour; runtime creates spiritGem/Purple (project placeholder noted in batch-r19 8920, not original evidence)."
+ },
+ {
+  "key": "troop:7309",
+  "name": "灵牙",
+  "lane": "L4b",
+  "cat": "issue",
+  "issue": "L4b-7308-spirit-colour",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute (same as troop:7308): native CreateGems 3 Spirit has no colour; runtime spiritGem/Purple is a project placeholder. Lead: official news thread t/7"
+ },
+ {
+  "key": "troop:7313",
+  "name": "古物骑士",
+  "lane": "L3",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7316",
+  "name": "独眼巨人",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-row-count-at-cast-start",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "boost reads whole board; native counts Red/Brown/Skull in the exploded row only"
+ },
+ {
+  "key": "troop:7363",
+  "name": "倒吊人",
+  "lane": "L3",
+  "cat": "issue",
+  "issue": "L3-7363-booty-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "9003 native CreateGems Booty Amount 1 vs English 'Create 2 Booty Gems' (ZH 2); runtime creates 2. Which wins? Rest verified: extra-turn 7% x Blue gems counted b"
+ },
+ {
+  "key": "troop:7439",
+  "name": "摩羯座",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7468",
+  "name": "审判",
+  "lane": "L2",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7472",
+  "name": "兽人盗贼",
+  "lane": "L5",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range",
+   "dimension:base-formula-rounding"
+  ],
+  "note": ""
+ },
+ {
+  "key": "troop:7492",
+  "name": "阿米泰尔",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-count-at-native-step",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Undead/Daemon enemies counted at step 0; engine counts after the Angel-gem explosion (skulls can kill)"
+ },
+ {
+  "key": "troop:7493",
+  "name": "节制",
+  "lane": "L3",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7505",
+  "name": "獾亲",
+  "lane": "L4a",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7533",
+  "name": "火生圣骑士",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-precast-compare",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Barrier-if-my-Armor-higher is compared after the hit (post-damage target armor); native compares before damage"
+ },
+ {
+  "key": "troop:7597",
+  "name": "勇气的祸害",
+  "lane": "L4b",
+  "cat": "issue",
+  "issue": "P-F2-dead-target-colour",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "on kill, dead target removed from team so its mana colour is unresolved; portal gem never converted (boss clause R000 waived)"
+ },
+ {
+  "key": "troop:7611",
+  "name": "巴哈马塔",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-dragon-gem-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "boost counts all Blue/Purple gems instead of Dragon<Color> gems (boardSpecial has no colour filter); barrier/enchant self OK"
+ },
+ {
+  "key": "troop:7625",
+  "name": "曼提科拉斯",
+  "lane": "L3",
+  "cat": "issue",
+  "issue": "P-F1-harness-status-leak",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "fixed (native dmg->drain pairs; gowLaneL3FixsaF1 green) but gowCastGolden replay leaks Poison onto default enemies from earlier casts, doubling the drain; re-ap"
+ },
+ {
+  "key": "troop:7626",
+  "name": "龙领主卢瑟",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-dragon-gem-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "boost counts all Blue/Purple gems instead of Dragon<Color> gems (boardSpecial has no colour filter); barrier/enchant self OK"
+ },
+ {
+  "key": "troop:7627",
+  "name": "龙骑士阿米拉",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-dragon-gem-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "x6 boost counts all Red gems instead of Red Dragon gems; LastTwo true damage and Barrier self OK"
+ },
+ {
+  "key": "troop:7643",
+  "name": "泥行者",
+  "lane": "L7",
+  "cat": "issue",
+  "issue": "P-R4-gargoyle-tier-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Good/Bad Gargoyle are separate native Count steps at 34% (R007-1 per-step floor); boardSpecial has no tier filter so they are pooled; primitive queued"
+ },
+ {
+  "key": "troop:7724",
+  "name": "砂岩哨兵",
+  "lane": "L6",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "confirmed-differences"
+  ],
+  "note": "P-G sweep: castEnemyDied -> ifTargetDied (native AddForKill on the damaged target); golden replay unchanged"
+ },
+ {
+  "key": "troop:7739",
+  "name": "科斯莫",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "R011-pending",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "3 x RandomPositiveStatusEffect AllAllies (1 + 50% + 50%): an ally whose earlier roll is Blessed loses the later positive statuses (Blessed currently blocks posi"
+ },
+ {
+  "key": "troop:7791",
+  "name": "不朽的考马尼",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-ally-status-excl-self",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Blessed count must exclude the caster (AllAlliesButNotSelf); rest verified (0.75x round, x1.5, true dmg all); region doubling not exercisable"
+ },
+ {
+  "key": "troop:7796",
+  "name": "Jellymaid",
+  "lane": "L3",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7797",
+  "name": "刺客藤蔓",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "L5-C-7797-chance",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: English/zh 30% kill chance vs native LethalDamageConditional StatusAmount 25 (AddForEntangle); curated order fixed to native (roll first, only a"
+ },
+ {
+  "key": "troop:7817",
+  "name": "绿巫婆",
+  "lane": "L2",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "troop:7818",
+  "name": "扭曲的巫婆",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-below-dead-target",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "K: target killed -> Curse/Bleed Above/BelowTarget skipped; rest verified (Poison gems x3, curse+bleed above/below; boss/ascension clause R000)"
+ },
+ {
+  "key": "troop:7850",
+  "name": "黑女巫",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "L2-7850-web-allies",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: native step 0 CountSpecificStatusEffect web Target=AllAllies (x2) + step 1 cursed AllEnemies; English 'boosted by Cursed and Webbed Enemies'. Ru"
+ },
+ {
+  "key": "troop:7851",
+  "name": "塞迪提乌斯",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-gargoyle-tier-filter",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "damage 4 + M + 2 x Red verified (32); explode 3 Bad Gargoyles also hits Good ones (no tier filter)"
+ },
+ {
+  "key": "troop:7884",
+  "name": "博克·辛格弗",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "L4a-R8-7884-explode-count-dispute",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source dispute: native 9959 = ExplodeGems 2 ; 1 ; 1 ; 1 with no PercentageChance (always 5 gems in 4 blasts), English 'Explode 2-5 Gems'; runtime = one uniform "
+ },
+ {
+  "key": "weapon:1013",
+  "name": "积尘巨著",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:target-count-range",
+   "dimension:base-formula-rounding"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1102",
+  "name": "熊图腾",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "boost fixed (Green 34%); remaining: RemoveColor must not give mana/skulls"
+ },
+ {
+  "key": "weapon:1104",
+  "name": "萨瑟诺斯之眼",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"
+ },
+ {
+  "key": "weapon:1105",
+  "name": "骸骨之墙",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1107",
+  "name": "疯狂法杖",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "order fixed to native (StealRandom before damage); StealRandom pool still lacks Life (R007-2, queued)"
+ },
+ {
+  "key": "weapon:1114",
+  "name": "轰隆",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1142",
+  "name": "龙火炮 8000",
+  "lane": "L5",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "weapon:1158",
+  "name": "符文篆刻者",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-count-at-native-step",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "fixed count-only any-gem explode; remaining: Brown enemy killed by the splash must still count (native Count at step 0)"
+ },
+ {
+  "key": "weapon:1174",
+  "name": "提泰妮娅之扇",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "targets/boost/zh fixed; remaining: RemoveColor must not give mana (engine destroy gives A1 mana+11)"
+ },
+ {
+  "key": "weapon:1186",
+  "name": "灿烂珠宝",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "weapon:1188",
+  "name": "寒冰晶石",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1191",
+  "name": "锋利剑刃",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1230",
+  "name": "尖塔之斧",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-F1-remove-gems",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "boost fixed (Brown 34%); remaining: RemoveColor must not give mana/skulls"
+ },
+ {
+  "key": "weapon:1234",
+  "name": "混沌斧",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1240",
+  "name": "玫瑰弓",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1243",
+  "name": "带刺狼牙棒",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1246",
+  "name": "水晶刺",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1249",
+  "name": "利齿爪",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1254",
+  "name": "舞动匕首",
+  "lane": "L3",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:base-formula-rounding",
+   "dimension:status-duration-immunity"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1255",
+  "name": "夏日皎阳",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "R011-pending",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "2 x RandomPositiveStatusEffectConditional AllAllies on kill: an ally whose first roll is Blessed loses the second positive status (Blessed currently blocks posi"
+ },
+ {
+  "key": "weapon:1265",
+  "name": "射钻枪",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1267",
+  "name": "怨灵锁",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1269",
+  "name": "绿羽法杖",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1271",
+  "name": "炽夏护盾",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1282",
+  "name": "克拉克新发明",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1284",
+  "name": "狼牙锤",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1288",
+  "name": "美杜莎之卷",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1290",
+  "name": "猫爪",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1292",
+  "name": "橡木皇冠",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1297",
+  "name": "劫数榔头",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1298",
+  "name": "劫数铁锤",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1299",
+  "name": "劫数大槌",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1300",
+  "name": "劫数槌",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1301",
+  "name": "劫数羊角锤",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1302",
+  "name": "劫数花槌",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1303",
+  "name": "罪恶镰刀",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1304",
+  "name": "刺骨之风",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1305",
+  "name": "镰魂刀",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1306",
+  "name": "守卫者之锤",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1312",
+  "name": "他界法杖",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1314",
+  "name": "琥珀长枪",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1353",
+  "name": "亚兰之花",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1355",
+  "name": "克里斯钩",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1365",
+  "name": "石块记忆",
+  "lane": "L3",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "explicit-accept-decision",
+   "dimension:identity-cost-colors",
+   "dimension:status-duration-immunity",
+   "dimension:gems-types-selection-resolution"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1372",
+  "name": "尖叫鬼卷",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1377",
+  "name": "妮菲塔丽圣甲虫",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "P-random-stat-pool",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "target fixed to chosen enemy (was lastTarget = no-op); DecreaseRandom pool still lacks Life (R007-2, queued)"
+ },
+ {
+  "key": "weapon:1389",
+  "name": "龙族传说",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1390",
+  "name": "巨大的砍肉刀",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1391",
+  "name": "因陀罗之爪",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-R1-dual-storm",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "true damage 2 + M + 2 x (Red + Purple) verified (48); Hellstorm = StormRedPurple, engine sets Red storm"
+ },
+ {
+  "key": "weapon:1396",
+  "name": "试用灵药",
+  "lane": "L2",
+  "cat": "issue",
+  "issue": "L2-H-1396-missing-amount",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "source-dispute: native steps 2 and 4 (IncreaseHealth in branches B/C) have SPM 1 but no Amount (=Magic+0?) while step 0 and English say [Magic + 1]; runtime hea"
+ },
+ {
+  "key": "weapon:1400",
+  "name": "海盗印戒",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1403",
+  "name": "抽你！",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1413",
+  "name": "利昂花",
+  "lane": "L4a",
+  "cat": "issue",
+  "issue": "P-A-chosen-target-status-precast",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests",
+   "changed-after-signoff"
+  ],
+  "note": "native ExplodeGems 4 [AddForStun@FromTarget] runs before the heavy splash; curated can only read the target status after the damage (lastTargetStatus). Conditio"
+ },
+ {
+  "key": "weapon:1423",
+  "name": "汲取之斧",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1427",
+  "name": "元素长枪",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-target-status-count",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "per-status bonus must count statuses on the target (one step each); curated counts enemies with the status / adds once"
+ },
+ {
+  "key": "weapon:1432",
+  "name": "火山锤",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1437",
+  "name": "乱砍一通",
+  "lane": "none",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-source-or-runtime"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1440",
+  "name": "食教母魔法棒",
+  "lane": "L4a",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1481",
+  "name": "邪眼之刃",
+  "lane": "L4b",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "weapon:1498",
+  "name": "狐族护盾",
+  "lane": "L2",
+  "cat": "unreviewed",
+  "issue": "",
+  "failures": [],
+  "note": ""
+ },
+ {
+  "key": "weapon:1585",
+  "name": "黑木法杖",
+  "lane": "L4b",
+  "cat": "not-eligible",
+  "issue": "",
+  "failures": [
+   "changed-after-signoff"
+  ],
+  "note": ""
+ },
+ {
+  "key": "weapon:1605",
+  "name": "萨克塔利安长弓",
+  "lane": "L5",
+  "cat": "issue",
+  "issue": "P-R3-below-dead-target",
+  "failures": [
+   "explicit-accept-decision",
+   "real-cast-tests"
+  ],
+  "note": "Bleed@BelowTarget skipped when the chosen target died from the preceding hit (K scenario); rest verified: 2.5x Magic, Bleed below, Immortal Sagittarian bleeds a"
+ }
+]
