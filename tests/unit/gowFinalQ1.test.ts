@@ -195,3 +195,37 @@ describe('sa-Q1 B05: StealRandom weapons, Runeforger cast-start count, RemoveCol
     expect(el.order[0]).toBe('dmg E11 34');
   });
 });
+
+describe('sa-Q1 B06: kill-gated positives (R011), Scarab, Indrajit dual storm, Elixir (R016-3)', () => {
+  it('weapon:1255 Summer\'s Wonder: no kill -> no statuses; kill -> 2 positives per ally, a Blessed ally still gets them (R011)', () => {
+    expect(castSpell({ key: 'weapon:1255' }).summary.order.every(x => x.includes('(scatter)'))).toBe(true);
+    const bl = [{ id: 'blessed', turns: 3 }] as never;
+    let got = 0;
+    for (let seed = 1; seed <= 8; seed++) {
+      const s = castSpell({ key: 'weapon:1255', seed, allies: [{ hp: 100, maxHp: 100, statuses: bl }], enemies: [frail(), frail()] }).summary;
+      got += s.order.filter(x => x.startsWith('status A1 +') && !x.endsWith('+blessed')).length;
+    }
+    expect(got).toBeGreaterThan(4);
+  });
+  it('weapon:1377 Scarab of Nefertani: DecreaseRandom [M+1] then Curse, Death Mark, Disease on the chosen enemy', () => {
+    const s = castSpell({ key: 'weapon:1377', target: 11 }).summary;
+    expect(s.order[0]).toMatch(/^buff E11 (attack|armor|hp|magic)-11$/);
+    expect(s.order.slice(1)).toEqual(['status E11 +curse', 'status E11 +death-mark', 'status E11 +disease']);
+  });
+  it('weapon:1391 Indrajit\'s Claw: true damage 2 + M + 2 x (Red + Purple) to the last enemy, Red + Purple Hellstorm', () => {
+    const r = castSpell({ key: 'weapon:1391' });
+    expect(r.summary.order[0]).toMatch(/^dmg E1\d 48$/);
+    expect(r.f.state.teams[r.f.side].storm?.color2).toBe('Purple');
+  });
+  it('weapon:1396 Experimental Elixir: every branch heals [M+1] (R016-3), then Red gems / extra turn / one explosion', () => {
+    const kinds = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const s = castSpell({ key: 'weapon:1396', seed }).summary;
+      expect(s.order[0]).toBe('buff C hp+11 max+11');
+      if (s.extraTurn) kinds.add('turn');
+      else if (s.gems.created.Red === 7) kinds.add('create');
+      else if (has(s.order, 'explode')) kinds.add('explode');
+    }
+    expect([...kinds].sort()).toEqual(['create', 'explode', 'turn']);
+  });
+});

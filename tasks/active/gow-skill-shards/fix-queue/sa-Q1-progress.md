@@ -24,3 +24,8 @@ Scope: final-queue.json cat "issue", lanes L2 + L4a (32 keys; skip troop:6857 we
 - B05 weapon:1104, weapon:1107 (L2): accept (P-random-stat-pool fixed)
 - B05 weapon:1158 (L4a): accept (P-R1-count-at-native-step fixed; zh already says any random gem in pool-w01 / batch-w01, ledger text stale)
 - B05 weapon:1174, weapon:1230 (L4a): accept (P-F1-remove-gems fixed; 1174 zh already fixed in pool-w01)
+- B06 weapon:1255 (L2): accept (R011 fixed)
+- B06 weapon:1377 (L2): accept (P-random-stat-pool fixed)
+- B06 weapon:1391 (L4a): accept (P-R1-dual-storm fixed)
+- B06 weapon:1396 (L2): accept per R016-3
+- done: 29 reviewed (skipped troop:6857 weapon:1413 troop:7001 = sa-P); accepted 29; changed 2 (6182 / 7323 row count + order, 7057 / 8585 order); still issued 0; primitive-queue/sa-Q1.jsonl not needed. Disputes kept: 6621 Attack [M+1] (English), 6864 distinct frozen targets (English), 7057 3x3 skull count (English), 7850 webbed enemies (English); R016 applied: 7884, 1396.

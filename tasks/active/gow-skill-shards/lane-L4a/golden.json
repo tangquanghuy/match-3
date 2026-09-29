@@ -3329,6 +3329,16 @@
   "by": "sa-A",
   "at": "2026-09-28T21:41:33.345Z"
  },
+ "weapon:1391": {
+  "lines": {
+   "L10": "dmg E13 48 ; storm Red set  => E13:hp-48",
+   "R10": "dmg E13 48 ; storm Red set  => E13:hp-48",
+   "L0": "dmg E13 38 ; storm Red set  => E13:hp-38",
+   "K": "dmg E13 48 ; defeat E13 ; storm Red set  => E13:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:42:43.644Z"
+ },
  "weapon:1404": {
   "lines": {
    "L10": "destroy 9 (Purple x9) ; convert Green x5, Brown x2, Blue x1, Red x1 -> Yellow x9 ; buff A1 hp+32 max+32  => A1:hp+32 max+32",

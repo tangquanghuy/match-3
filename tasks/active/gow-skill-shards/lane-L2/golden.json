@@ -1459,6 +1459,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:54:25.394Z"
  },
+ "weapon:1255": {
+  "lines": {
+   "L10": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
+   "R10": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
+   "L0": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter)  => E10:hp-2 | E11:hp-3 | E12:hp-4 | E13:hp-3",
+   "K": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +barrier ; status C +enraged ; status A1 +barrier ; remove A1 -poison ; status A1 +blessed ; status A2 +barrier ; status A2 +blessed  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+barrier+enraged | A1:+barrier+blessed -poison | A2:+barrier+blessed"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:42:38.237Z"
+ },
  "weapon:1296": {
   "lines": {
    "L10": "buff A1 magic+4 ; buff A2 magic+4  => A1:mag+4 | A2:mag+4",
@@ -1489,6 +1499,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T05:54:41.954Z"
  },
+ "weapon:1377": {
+  "lines": {
+   "L10": "buff E11 hp-11 ; status E11 +curse ; status E11 +death-mark ; status E11 +disease  => E11:hp-11 +curse+death-mark+disease",
+   "R10": "buff E11 hp-11 ; status E11 +curse ; status E11 +death-mark ; status E11 +disease  => E11:hp-11 +curse+death-mark+disease",
+   "L0": "buff E11 hp-1 ; status E11 +curse ; status E11 +death-mark ; status E11 +disease  => E11:hp-1 +curse+death-mark+disease",
+   "K": "defeat E11 ; buff E11 hp-1  => E11:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:42:40.965Z"
+ },
  "weapon:1385": {
   "lines": {
    "L10": "explode 24 ; skulls E10 2 ; dmg E10 14 ; shuffle theirs  => A2:mana+1 | A1:mana+1 | E10:hp-11 arm-5",
@@ -1498,6 +1518,16 @@
   },
   "by": "sa-H",
   "at": "2026-09-28T21:37:14.109Z"
+ },
+ "weapon:1396": {
+  "lines": {
+   "L10": "buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill",
+   "R10": "buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill",
+   "L0": "buff C hp+1 max+1 ; extra-turn skill  => C:hp+1 max+1  extra:skill",
+   "K": "buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:42:46.383Z"
  },
  "weapon:1397": {
   "lines": {
