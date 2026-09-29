@@ -1,6 +1,7 @@
 import { audioControlsHtml, bindAudioControls } from '../../preferences/audioControls';
 /**
- * 设置屏（存档导出/导入/重置 + 开发者选项）。
+ * 设置屏（游戏设置 + 账号与存档 + 重置；本地后端额外显示开发者工具：修改器、导出/导入、演示档）。
+ * 线上（remote）只保留玩家有意义的项：没有导出/导入、没有界面语言（只做了简体中文）。
  *
  * UX 阶段 A 在这一屏记了 4 条 P0（`16-settings.md`），根因是「破坏性操作比只读操作更显眼、
  * 而唯一的风险警告被面板裁掉」。本轮重做的三条原则：
@@ -29,96 +30,15 @@ import {
  * 全局修法（`.panel` 改 flex 列）属 L 的组件基类工作，已在台账登记为需求。
  */
 const SETTINGS_CSS = `
-  .settings-screen { padding: 20px 40px 96px; overflow-y: auto; }
-  .settings-screen .settings-layout { display: flex; flex-direction: column; gap: 14px; }
-  /* S-1 兜底：面板改 flex 列，head 与 inner 共享高度，内容不再被裁 */
-  .settings-screen .panel { height: auto; display: flex; flex-direction: column; overflow: visible; }
-  .settings-screen .panel-inner { height: auto; flex: 1 1 auto; min-height: 0; overflow: visible; }
-  .settings-screen .settings-body { display: flex; flex-direction: column; gap: 12px; padding-bottom: 6px; }
-  .settings-screen .settings-note { font: 12px var(--body); line-height: 1.7; color: #c4b6a3; }
-  .settings-screen .settings-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .settings-screen textarea#saveText {
-    width: 100%; min-height: 120px;
-    background: rgba(8, 8, 14, .82);
-    border: 1px solid #67563e;
-    border-radius: 4px;
-    color: #c4b6a3;
-    font: 12px ui-monospace, monospace;
-    padding: 10px;
-    resize: vertical;
-  }
-
-  /* S-4：危险区与危险按钮必须一眼可辨（改前两个「重置」与「导出」逐像素相同） */
-  .panel.danger-zone { box-shadow: 0 0 0 1px rgba(122, 58, 52, .96), 0 0 0 2px rgba(196, 84, 84, .38), 0 18px 40px #0008; }
-  .danger-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 18px;
-    background: linear-gradient(180deg, #2b1a1a, #1a1012);
-    border: 1px solid #c45454;
-    border-radius: 4px;
-    color: #ffd9d2;
-    font: 600 13px var(--body);
-  }
-  .danger-btn:hover:not(:disabled) { background: linear-gradient(180deg, #3a2020, #221416); border-color: #e07070; }
-  .danger-btn [data-icon] { width: 16px; height: 16px; color: #e7a79c; }
-  .danger-btn.armed { border-width: 2px; color: #fff; background: linear-gradient(180deg, #5a2422, #33161a); }
-  .warn-line {
-    display: flex; gap: 8px; align-items: flex-start;
-    padding: 9px 12px;
-    background: rgba(122, 58, 52, .18);
-    border-left: 3px solid #c45454;
-    border-radius: 3px;
-    font: 12px var(--body); line-height: 1.6; color: #e7c3bc;
-  }
-
-  /* S-2/S-3：导入前预览 + 留在页面上的结果卡 */
-  .import-preview, .settings-result {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 12px 14px;
-    background: linear-gradient(#20202c, #16161f);
-    border: 1px solid rgba(186, 164, 139, .18);
-    border-radius: 6px;
-    font: 12px var(--body); color: #c4b6a3;
-  }
-  .import-preview .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .import-preview .cmp > div { display: flex; flex-direction: column; gap: 4px; }
-  .import-preview .cmp small { letter-spacing: 2px; color: #91887a; font-size: 10px; }
-  .import-preview .cmp b { font: 13px var(--body); color: #f2ead8; }
-  .import-preview .acts { display: flex; gap: 10px; justify-content: flex-end; }
-  .settings-result.ok { border-color: #4f7d5f; color: #bfe3cd; }
-  .settings-result.bad { border-color: #c45454; color: #f0c9c2; }
-  .settings-result b { color: #f2ead8; }
-
-  .settings-screen .check-row { display: flex; align-items: center; gap: 10px; font: 13px var(--body); color: #c4b6a3; }
-  /* 原生白色方块不属于暗金体系（S-6）：换成暗底金框自绘勾选 */
-  .settings-screen .check-row input[type="checkbox"] {
-    appearance: none;
-    width: 18px; height: 18px;
-    background: rgba(8, 8, 14, .82);
-    border: 1px solid #67563e;
-    border-radius: 3px;
-    display: grid; place-items: center;
-    cursor: pointer;
-  }
-  .settings-screen .check-row input[type="checkbox"]:checked { border-color: #e1c891; }
-  .settings-screen .check-row input[type="checkbox"]:checked:after {
-    content: "";
-    width: 9px; height: 5px;
-    border-left: 2px solid #f4e2b4;
-    border-bottom: 2px solid #f4e2b4;
-    transform: rotate(-45deg) translateY(-1px);
-  }
-  .settings-screen .check-row input[type="checkbox"]:focus-visible { outline: none; box-shadow: 0 0 0 2px #e8cc86; }
-  .settings-screen .dev-tag {
-    padding: 1px 7px 2px; border: 1px solid #67563e; border-radius: 999px;
-    font: 10px var(--body); letter-spacing: 1px; color: #91887a;
-  }
-
-  /* UX phase B: commercial layout and native responsive stage. */
+  /* ---------- 页面骨架 ---------- */
   .settings-screen {
-    --settings-edge: rgba(196, 166, 105, .54);
-    --settings-rule: rgba(196, 166, 105, .18);
-    padding: 12px 36px 16px;
+    --s-edge: rgba(196, 166, 105, .5);
+    --s-rule: rgba(196, 166, 105, .14);
+    --s-text: #c9beac;
+    --s-strong: #f0e4cb;
+    --s-muted: #938b7e;
+    --s-gold: #e6cf98;
+    padding: 14px 36px 24px;
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-gutter: stable;
@@ -127,141 +47,93 @@ const SETTINGS_CSS = `
       radial-gradient(circle at 82% 72%, rgba(60, 76, 91, .12), transparent 35%),
       #0b0c13;
   }
-  .settings-screen .settings-shell { width: min(1180px, 100%); margin: 0 auto; }
+  .settings-screen .settings-shell { width: min(1120px, 100%); margin: 0 auto; }
   .settings-screen .settings-page-head {
-    min-height: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 3px 3px 10px;
-    border-bottom: 1px solid var(--settings-rule);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 4px 2px 12px;
+    border-bottom: 1px solid var(--s-rule);
   }
-  .settings-screen .settings-page-head h1 {
-    margin: 0;
-    color: #f0d9a4;
-    font: 29px var(--display);
-    letter-spacing: 2px;
-  }
-  .settings-screen .settings-head-actions { display: flex; align-items: center; gap: 12px; }
-  .settings-screen .settings-local-state {
-    min-height: 42px;
-    display: grid;
-    grid-template-columns: 28px auto;
-    align-items: center;
-    gap: 9px;
-    padding: 5px 12px 5px 9px;
-    color: #aeb8af;
-    border: 1px solid rgba(90, 130, 104, .42);
-    background: rgba(38, 72, 52, .18);
-  }
-  .settings-screen .settings-local-state [data-icon] { grid-row: 1 / 3; width: 28px; height: 28px; color: #82bf91; }
-  .settings-screen .settings-local-state b { font-size: 12px; color: #d7e6d9; }
-  .settings-screen .settings-local-state small { color: #829087; font: 9px var(--body); letter-spacing: 0; }
-  .settings-screen #settingsBack { min-height: 42px; white-space: nowrap; }
+  .settings-screen .settings-page-head h1 { margin: 0; color: #f0d9a4; font: 28px var(--display); letter-spacing: 3px; }
+
   .settings-screen .settings-layout {
     display: grid;
-    grid-template-columns: minmax(420px, .9fr) minmax(0, 1.2fr);
-    grid-template-areas:
-      "preferences save"
-      "modifier save"
-      "danger save";
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
     align-items: start;
-    gap: 16px;
-    margin-top: 12px;
+    gap: 18px;
+    margin-top: 16px;
   }
-  .settings-screen .settings-save-panel { grid-area: save; align-self: start; }
-  .settings-screen .settings-preferences-panel { grid-area: preferences; }
-  .settings-screen .settings-modifier-panel { grid-area: modifier; }
-  .settings-screen .danger-zone { grid-area: danger; }
-  .settings-screen .settings-side { display: grid; gap: 14px; }
+  .settings-screen .settings-side { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+  /* ---------- 面板 ---------- */
   .settings-screen .panel {
     height: auto;
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     overflow: hidden;
     border-radius: 6px;
     background: linear-gradient(155deg, rgba(22, 22, 31, .98), rgba(11, 12, 19, .98));
-    box-shadow: 0 0 0 1px #161319, 0 0 0 2px var(--settings-edge), 0 14px 32px #0007;
+    box-shadow: 0 0 0 1px #161319, 0 0 0 2px var(--s-edge), 0 14px 32px #0007;
   }
-  .settings-screen .panel:after { inset: 6px; border-radius: 3px; opacity: .38; }
+  .settings-screen .panel:after { inset: 6px; border-radius: 3px; opacity: .32; }
   .settings-screen .panel > .panel-head {
-    min-height: 54px;
-    align-items: center;
+    min-height: 52px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
     margin: 0;
-    padding: 15px 20px 13px;
-    border-bottom: 1px solid var(--settings-rule);
-    background: linear-gradient(90deg, rgba(216, 194, 144, .055), transparent 68%);
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--s-rule);
+    background: linear-gradient(90deg, rgba(216, 194, 144, .06), transparent 70%);
   }
-  .settings-screen .panel-head h2,
-  .settings-screen .settings-subhead h2 {
-    margin: 0;
-    color: #ead5a5;
-    font: 21px var(--display);
-    letter-spacing: 1px;
-  }
+  .settings-screen .panel-head h2 { margin: 0; color: #ead5a5; font: 20px var(--display); letter-spacing: 2px; }
   .settings-screen .panel-inner { height: auto; flex: 1 1 auto; min-height: 0; overflow: visible; }
-  .settings-screen .settings-body { display: flex; flex-direction: column; gap: 13px; padding: 16px 20px 20px; }
-  .settings-screen .settings-note { color: #bdb4a7; font: 13px var(--body); line-height: 1.65; }
-  .settings-screen .settings-note b { color: #eee0c1; }
-  .settings-screen .settings-row { display: flex; gap: 9px; flex-wrap: wrap; }
-  .settings-screen .settings-row button,
-  .settings-screen .import-preview button {
-    min-height: 41px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 8px 14px;
-    border-radius: 3px;
-    letter-spacing: 0;
-  }
-  .settings-screen #downloadBtn {
-    color: #f1dfb4;
-    border-color: #9d8150;
-    background: linear-gradient(180deg, #332a27, #201b22);
-  }
-  .settings-screen .settings-subhead {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 4px;
-    padding: 15px 0 0;
-    border-top: 1px solid var(--settings-rule);
-  }
-  .settings-screen textarea#saveText {
-    width: 100%; min-height: 132px;
-    padding: 12px 13px;
-    resize: vertical;
-    color: #c9c3b8;
-    background: rgba(5, 6, 10, .8);
-    border: 1px solid #5f513c;
-    border-radius: 3px;
-    font: 11px/1.55 ui-monospace, Consolas, monospace;
-    outline: none;
-  }
-  .settings-screen textarea#saveText:focus { border-color: #c1a46a; box-shadow: 0 0 0 2px rgba(193, 164, 106, .16); }
-  .settings-screen textarea#saveText::placeholder { color: #777268; }
+  .settings-screen .settings-body { display: flex; flex-direction: column; gap: 14px; padding: 16px 20px 20px; }
+  .settings-screen .settings-note { margin: 0; color: var(--s-muted); font: 12px/1.65 var(--body); }
+  .settings-screen .settings-note b { color: var(--s-strong); }
 
-  .settings-screen .settings-side .panel > .panel-head { min-height: 50px; padding-block: 11px; }
-  .settings-screen .settings-side .settings-body { padding-block: 15px 17px; }
+  /* 设置分组：小标题 + 行列表 */
+  .settings-screen .settings-preferences-panel .settings-body { gap: 0; padding: 4px 20px 12px; }
+  .settings-screen .settings-group { display: flex; flex-direction: column; }
+  .settings-screen .settings-group + .settings-group { margin-top: 6px; }
+  .settings-screen .settings-group > h3 {
+    margin: 0;
+    padding: 14px 0 6px;
+    color: var(--s-muted);
+    font: 600 11px var(--body);
+    letter-spacing: 3px;
+  }
+  .settings-screen .settings-group > :not(h3) { border-top: 1px solid var(--s-rule); }
+
+  /* ---------- 行：文字左、控件右 ---------- */
   .settings-screen .check-row {
-    min-height: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    color: #c4b9aa;
+    min-height: 52px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 8px 0;
+    color: var(--s-text);
     font: 13px var(--body);
     cursor: pointer;
   }
-  .settings-screen .setting-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-  .settings-screen .setting-copy b { color: #eee2ca; font-size: 14px; font-weight: 600; }
-  .settings-screen .setting-copy small { color: #9b958c; font: 11px/1.5 var(--body); letter-spacing: 0; }
-  .settings-screen .setting-title-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .settings-screen .setting-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .settings-screen .setting-copy b { color: var(--s-strong); font-size: 14px; font-weight: 600; }
+  .settings-screen .setting-copy small { color: var(--s-muted); font: 11px/1.5 var(--body); letter-spacing: 0; }
 
-  .settings-screen .check-row input[type="checkbox"] {
+  /* 音量行：名称 | 滑条 | 数值 | 开关——开关与下方开关行对齐在同一列 */
+  .settings-screen .settings-group .audio-channel {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) 42px 42px;
+    align-items: center;
+    column-gap: 14px;
+    row-gap: 2px;
+    padding: 10px 0;
+    border-bottom: 0;
+  }
+  .settings-screen .settings-group .audio-channel .audio-label { display: contents; }
+  .settings-screen .settings-group .audio-channel .setting-copy { grid-column: 1; grid-row: 1; }
+  .settings-screen .settings-group .audio-channel input[type=range] { grid-column: 2; grid-row: 1; }
+  .settings-screen .settings-group .audio-channel output { grid-column: 3; grid-row: 1; }
+  .settings-screen .settings-group .audio-channel .audio-label input[type=checkbox] { grid-column: 4; grid-row: 1; width: 42px !important; flex: none !important; }
+  .settings-screen .settings-group .audio-channel small { grid-column: 1 / -1; grid-row: 2; opacity: 1; color: var(--s-muted); font: 11px/1.5 var(--body); }
+  .settings-screen .settings-group .audio-channel output { color: var(--s-gold); font: 600 12px var(--body); text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* 开关 */
+  .settings-screen input[type="checkbox"] {
     appearance: none;
     position: relative;
     flex: 0 0 42px;
@@ -273,208 +145,175 @@ const SETTINGS_CSS = `
     cursor: pointer;
     transition: border-color .16s, background .16s;
   }
-  .settings-screen .check-row input[type="checkbox"]:after {
+  .settings-screen input[type="checkbox"]:after {
     content: "";
-    position: absolute;
-    top: 3px; left: 3px;
+    position: absolute; top: 3px; left: 3px;
     width: 16px; height: 16px;
-    border: 0;
     border-radius: 50%;
     background: #8d887e;
     box-shadow: 0 1px 3px #0009;
-    transform: none;
     transition: transform .16s, background .16s;
   }
-  .settings-screen .check-row input[type="checkbox"]:checked { border-color: #77a981; background: #254432; }
-  .settings-screen .check-row input[type="checkbox"]:checked:after {
-    width: 16px; height: 16px;
-    border: 0;
-    background: #d6ebda;
-    transform: translateX(18px);
+  .settings-screen input[type="checkbox"]:checked { border-color: #77a981; background: #254432; }
+  .settings-screen input[type="checkbox"]:checked:after,
+  .settings-screen .settings-group .audio-channel .audio-label input[type=checkbox]:checked:after { background: #d6ebda; transform: translateX(18px); }
+  .settings-screen input[type="checkbox"]:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; }
+
+  /* 滑条 */
+  .settings-screen input[type="range"] { appearance: none; width: 100%; min-width: 0; height: 24px; margin: 0; background: transparent; cursor: pointer; }
+  .settings-screen input[type="range"]::-webkit-slider-runnable-track { height: 5px; border: 1px solid #5e574d; border-radius: 3px; background: linear-gradient(90deg, #8e7544, #c8ad70); }
+  .settings-screen input[type="range"]::-webkit-slider-thumb {
+    appearance: none; width: 17px; height: 17px; margin-top: -7px;
+    border: 2px solid #e8d5a5; border-radius: 50%; background: #342c2d; box-shadow: 0 2px 5px #000a;
   }
-  .settings-screen .check-row input[type="checkbox"]:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; box-shadow: none; }
+  .settings-screen input[type="range"]::-moz-range-track { height: 5px; border: 1px solid #5e574d; border-radius: 3px; background: #a58b55; }
+  .settings-screen input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px solid #e8d5a5; border-radius: 50%; background: #342c2d; }
+  .settings-screen input[type="range"]:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; }
+  .settings-screen input[type="range"]:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .4; }
+
+  /* ---------- 按钮：一套尺寸，三种语气 ---------- */
+  .settings-screen .s-btn {
+    min-height: 40px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 0 16px;
+    color: #ecdcb6;
+    background: linear-gradient(180deg, #2a2420, #1b171b);
+    border: 1px solid #7d6743;
+    border-radius: 4px;
+    font: 600 13px var(--body);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color .14s, color .14s, background .14s;
+  }
+  .settings-screen .s-btn:hover:not(:disabled) { color: #fff3d6; border-color: #c9a864; background: linear-gradient(180deg, #342b24, #211b1f); }
+  .settings-screen .s-btn:focus-visible { outline: 2px solid #a6dff9; outline-offset: 2px; }
+  .settings-screen .s-btn [data-icon] { width: 16px; height: 16px; color: currentColor; opacity: .85; }
+  .settings-screen .s-btn.ghost { color: var(--s-text); background: transparent; border-color: rgba(196, 166, 105, .32); }
+  .settings-screen .s-btn.ghost:hover:not(:disabled) { color: var(--s-strong); border-color: #b99a5e; background: rgba(196, 166, 105, .06); }
+  .settings-screen .s-btn.danger-btn { color: #f4d0ca; background: linear-gradient(180deg, #321d1e, #211316); border-color: #9e4845; }
+  .settings-screen .s-btn.danger-btn:hover:not(:disabled) { color: #fff; border-color: #dc716a; background: linear-gradient(180deg, #452422, #2b171a); }
+  .settings-screen .s-btn.danger-btn.armed { color: #fff; border-color: #ef8a82; background: linear-gradient(180deg, #6a2a26, #3b181c); box-shadow: 0 0 0 2px rgba(239, 138, 130, .22); }
+  .settings-screen .settings-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* ---------- 账号与存档 ---------- */
+  .settings-screen .account-card {
+    display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(90, 130, 104, .4);
+    border-radius: 5px;
+    background: rgba(38, 72, 52, .16);
+  }
+  .settings-screen .account-card.local { border-color: rgba(196, 166, 105, .3); background: rgba(196, 166, 105, .05); }
+  .settings-screen .account-card > [data-icon] { width: 30px; height: 30px; color: #82bf91; justify-self: center; }
+  .settings-screen .account-card.local > [data-icon] { color: #c8ad70; }
+  .settings-screen .account-card b { display: block; color: var(--s-strong); font: 600 14px var(--body); }
+  .settings-screen .account-card small { display: block; margin-top: 2px; color: var(--s-muted); font: 11px/1.5 var(--body); }
+  .settings-screen .save-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0; }
+  .settings-screen .save-stats > div {
+    min-width: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 9px 4px 8px;
+    border: 1px solid var(--s-rule);
+    border-radius: 4px;
+    background: rgba(8, 8, 14, .5);
+  }
+  .settings-screen .save-stats dt { color: var(--s-muted); font: 11px var(--body); letter-spacing: 1px; }
+  .settings-screen .save-stats dd { margin: 0; color: var(--s-gold); font: 600 15px var(--body); font-variant-numeric: tabular-nums; }
+
+  /* ---------- 危险操作 ---------- */
+  .settings-screen .panel.danger-zone {
+    background: linear-gradient(155deg, rgba(32, 19, 22, .98), rgba(15, 11, 16, .98));
+    box-shadow: 0 0 0 1px rgba(71, 27, 27, .96), 0 0 0 2px rgba(170, 72, 66, .55), 0 14px 32px #0008;
+  }
+  .settings-screen .panel.danger-zone > .panel-head { border-bottom-color: rgba(196, 84, 84, .2); background: rgba(122, 58, 52, .08); }
+  .settings-screen .panel.danger-zone .panel-head h2 { color: #f1c6be; }
+  .settings-screen .warn-line {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 10px 12px;
+    color: #e5c2bc;
+    background: rgba(122, 58, 52, .16);
+    border-left: 3px solid #c45454;
+    border-radius: 2px;
+    font: 12px/1.6 var(--body);
+  }
+  .settings-screen .warn-line [data-icon] { flex: none; width: 16px; height: 16px; margin-top: 2px; color: #d99086; }
+
+  /* ---------- 开发者工具（仅本地） ---------- */
+  .settings-screen .settings-dev {
+    margin-top: 26px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(196, 166, 105, .24);
+  }
+  .settings-screen .settings-dev-head { display: flex; align-items: center; gap: 10px; margin: 0 2px 14px; }
+  .settings-screen .settings-dev-head h2 { margin: 0; color: #b8ab92; font: 18px var(--display); letter-spacing: 2px; }
+  .settings-screen .settings-dev-head .settings-note { margin-left: auto; }
   .settings-screen .dev-tag {
-    min-height: 20px;
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 7px;
+    display: inline-flex; align-items: center;
+    padding: 2px 8px;
     color: #a39b8d;
     border: 1px solid #67563e;
     border-radius: 999px;
     font: 10px var(--body);
-    letter-spacing: 0;
+    letter-spacing: 1px;
   }
-
-  .settings-screen .settings-preferences-panel .settings-body {
-    gap: 0;
-    padding: 7px 20px 9px;
-  }
-  .settings-screen .settings-preferences-panel .check-row,
-  .settings-screen .preference-row {
-    min-height: 47px;
-    border-bottom: 1px solid rgba(196, 166, 105, .12);
-  }
-  .settings-screen .settings-preferences-panel > .settings-body > .check-row:last-child,
-  .settings-screen .preference-row:last-child { border-bottom: 0; }
-  .settings-screen .preference-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    color: #c4b9aa;
-    font: 13px var(--body);
-  }
-  .settings-screen .volume-row {
-    min-height: 60px;
-    display: grid;
-    grid-template-columns: minmax(110px, .8fr) minmax(130px, 1fr) 45px;
-    gap: 10px;
-  }
-  .settings-screen .volume-row output {
-    color: #ebd49f;
-    font: 600 12px var(--body);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .settings-screen input[type="range"] {
-    appearance: none;
-    width: 100%;
-    height: 24px;
-    margin: 0;
-    background: transparent;
-    cursor: pointer;
-  }
-  .settings-screen input[type="range"]::-webkit-slider-runnable-track {
-    height: 5px;
-    border: 1px solid #5e574d;
-    border-radius: 2px;
-    background: linear-gradient(90deg, #8e7544, #c8ad70);
-  }
-  .settings-screen input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 17px;
-    height: 17px;
-    margin-top: -7px;
-    border: 2px solid #e8d5a5;
-    border-radius: 50%;
-    background: #342c2d;
-    box-shadow: 0 2px 5px #000a;
-  }
-  .settings-screen input[type="range"]::-moz-range-track {
-    height: 5px;
-    border: 1px solid #5e574d;
-    border-radius: 2px;
-    background: #a58b55;
-  }
-  .settings-screen input[type="range"]::-moz-range-thumb {
-    width: 15px;
-    height: 15px;
-    border: 2px solid #e8d5a5;
-    border-radius: 50%;
-    background: #342c2d;
-  }
-  .settings-screen input[type="range"]:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; }
-  .settings-screen input[type="range"]:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .42; }
-  .settings-screen .language-select {
-    min-width: 138px;
-    height: 34px;
-    padding: 0 28px 0 10px;
-    color: #d8cdb9;
-    border: 1px solid #665b4c;
-    border-radius: 3px;
-    background: #171721;
-    font: 12px var(--body);
-  }
-  .settings-screen .language-select:disabled { opacity: 1; cursor: default; }
-  .settings-screen .settings-dev-options { border-top: 1px solid rgba(196, 166, 105, .12); }
+  .settings-screen .settings-dev-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 18px; }
+  .settings-screen .settings-dev .panel { box-shadow: 0 0 0 1px #161319, 0 0 0 2px rgba(150, 140, 120, .32), 0 10px 24px #0006; }
+  .settings-screen .settings-dev .panel-head h2 { font-size: 17px; color: #d6c7a6; }
+  .settings-screen .settings-dev-options { border-top: 1px solid var(--s-rule); }
   .settings-screen .settings-dev-options summary {
-    min-height: 39px;
-    display: flex;
-    align-items: center;
-    color: #a99c86;
-    font: 12px var(--body);
-    cursor: pointer;
+    min-height: 40px; display: flex; align-items: center;
+    color: var(--s-muted); font: 12px var(--body); letter-spacing: 1px; cursor: pointer;
   }
   .settings-screen .settings-dev-options summary:hover { color: #e6d3a9; }
   .settings-screen .settings-dev-options summary:focus-visible { outline: 2px solid #a6dff9; outline-offset: -2px; }
-  .settings-screen .settings-dev-options .check-row { min-height: 50px; }
-  .settings-screen .settings-dev-options .check-row:last-child { border-bottom: 0; }
-  .settings-screen .modifier-status { margin: 0; }
   .settings-screen .modifier-kingdom {
-    min-width: 180px;
-    height: 36px;
+    min-width: 0; flex: 1 1 180px;
+    height: 40px;
     padding: 0 28px 0 10px;
     color: #d8cdb9;
     border: 1px solid #665b4c;
-    border-radius: 3px;
+    border-radius: 4px;
     background: #171721;
     font: 13px var(--body);
   }
-
-  .settings-screen .panel.danger-zone {
-    background: linear-gradient(155deg, rgba(34, 20, 23, .98), rgba(15, 11, 16, .98));
-    box-shadow: 0 0 0 1px rgba(71, 27, 27, .96), 0 0 0 2px rgba(190, 79, 72, .58), 0 16px 36px #0008;
-  }
-  .settings-screen .panel.danger-zone > .panel-head { border-bottom-color: rgba(196, 84, 84, .22); background: rgba(122, 58, 52, .08); }
-  .settings-screen .panel.danger-zone .panel-head h2 { color: #f1c6be; }
-  .settings-screen .danger-btn {
-    min-height: 41px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 9px 14px;
-    color: #f4d0ca;
-    background: linear-gradient(180deg, #321d1e, #211316);
-    border: 1px solid #b65350;
-    border-radius: 3px;
-    font: 600 12px var(--body);
-    line-height: 1.35;
-    text-align: center;
-  }
-  .settings-screen .danger-btn:hover:not(:disabled) { background: linear-gradient(180deg, #452422, #2b171a); border-color: #dc716a; }
-  .settings-screen .danger-btn [data-icon] { width: 16px; height: 16px; color: #e7a79c; }
-  .settings-screen .danger-btn.armed { border-width: 2px; color: #fff; background: linear-gradient(180deg, #682a26, #3b181c); }
-  .settings-screen .danger-zone .settings-row { display: grid; grid-template-columns: 1fr; }
-  .settings-screen .danger-zone .settings-body { gap: 9px; padding: 12px 20px 14px; }
-  .settings-screen .danger-zone .settings-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .settings-screen .danger-zone .settings-note { font-size: 12px; line-height: 1.5; }
-  .settings-screen .warn-line {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
+  .settings-screen .settings-subhead { margin: 4px 0 0; padding-top: 14px; border-top: 1px solid var(--s-rule); color: #d6c7a6; font: 15px var(--display); letter-spacing: 2px; }
+  .settings-screen textarea#saveText {
+    width: 100%; min-height: 110px;
     padding: 10px 12px;
-    color: #e5c2bc;
-    background: rgba(122, 58, 52, .17);
-    border-left: 3px solid #c45454;
-    border-radius: 2px;
-    font: 11px/1.6 var(--body);
+    resize: vertical;
+    color: #c9c3b8;
+    background: rgba(5, 6, 10, .8);
+    border: 1px solid #4f4535;
+    border-radius: 4px;
+    font: 11px/1.55 ui-monospace, Consolas, monospace;
+    outline: none;
   }
-  .settings-screen .danger-zone .warn-line { padding: 9px 10px; font-size: 12px; line-height: 1.55; }
-  .settings-screen .warn-line [data-icon] { width: 17px; height: 17px; margin-top: 1px; color: #d99086; }
+  .settings-screen textarea#saveText:focus { border-color: #c1a46a; box-shadow: 0 0 0 2px rgba(193, 164, 106, .16); }
+  .settings-screen textarea#saveText::placeholder { color: #6f6a60; }
 
+  /* 结果卡与导入预览 */
   .settings-screen .import-preview,
   .settings-screen .settings-result {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 13px 14px;
-    color: #c4b6a3;
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 12px 14px;
+    color: var(--s-text);
     background: #12131b;
     border: 1px solid rgba(186, 164, 139, .24);
     border-radius: 4px;
-    font: 11px/1.55 var(--body);
+    font: 12px/1.55 var(--body);
   }
-  .settings-screen .import-preview .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .settings-screen .import-preview .cmp { display: grid; grid-template-columns: 1fr 1fr; }
   .settings-screen .import-preview .cmp > div { min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 3px 14px 3px 0; }
-  .settings-screen .import-preview .cmp > div + div { padding: 3px 0 3px 14px; border-left: 1px solid var(--settings-rule); }
-  .settings-screen .import-preview .cmp small { color: #938878; font-size: 9px; letter-spacing: 1px; }
-  .settings-screen .import-preview .cmp b { color: #f0e4ce; font: 12px/1.55 var(--body); overflow-wrap: anywhere; }
-  .settings-screen .import-preview .acts { display: flex; justify-content: flex-end; gap: 9px; }
+  .settings-screen .import-preview .cmp > div + div { padding: 3px 0 3px 14px; border-left: 1px solid var(--s-rule); }
+  .settings-screen .import-preview .cmp small { color: var(--s-muted); font-size: 10px; letter-spacing: 1px; }
+  .settings-screen .import-preview .cmp b { color: var(--s-strong); font: 12px/1.55 var(--body); overflow-wrap: anywhere; }
+  .settings-screen .import-preview .acts { display: flex; justify-content: flex-end; gap: 10px; }
   .settings-screen .settings-result.ok { border-color: #4f7d5f; color: #bfe3cd; background: rgba(36, 72, 48, .2); }
   .settings-screen .settings-result.bad { border-color: #b9504e; color: #f0c9c2; background: rgba(90, 35, 37, .2); }
   .settings-screen .settings-result b { color: #f2ead8; }
 
+  /* ---------- 响应式 ---------- */
   @media (max-width: 1399px) {
     #stage.settings-responsive { width: 100vw !important; height: 100dvh !important; transform: none !important; }
     #stage.settings-responsive .topbar { height: 72px; gap: 12px; padding: 0 16px; }
@@ -498,13 +337,12 @@ const SETTINGS_CSS = `
     #stage.settings-responsive .bottom-bar nav { position: static; width: 100%; transform: none; gap: 0; }
     #stage.settings-responsive .bottom-bar nav button { flex: 1; width: auto; min-width: 0; gap: 6px; font-size: 13px; letter-spacing: 0; }
     #stage.settings-responsive .bottom-bar nav button > [data-icon] { width: 21px; height: 21px; }
-    #stage.settings-responsive .settings-screen { inset: 72px 0 62px; padding: 15px 18px 28px; }
-    #stage.settings-responsive .settings-layout {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "preferences" "modifier" "save" "danger";
-    }
-    #stage.settings-responsive .settings-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    #stage.settings-responsive .danger-zone { grid-column: 1 / -1; }
+    #stage.settings-responsive .settings-screen { inset: 72px 0 62px; padding: 14px 18px 28px; }
+  }
+
+  @media (max-width: 900px) {
+    #stage.settings-responsive .settings-layout,
+    #stage.settings-responsive .settings-dev-grid { grid-template-columns: minmax(0, 1fr); }
   }
 
   @media (max-width: 640px) {
@@ -524,46 +362,26 @@ const SETTINGS_CSS = `
     #stage.settings-responsive .bottom-bar nav button { flex-direction: column; gap: 1px; font-size: 10px; }
     #stage.settings-responsive .bottom-bar nav button > [data-icon] { width: 19px; height: 19px; }
     #stage.settings-responsive .settings-screen { inset: 59px 0 57px; padding: 10px 10px 24px; scrollbar-gutter: auto; }
-    #stage.settings-responsive .settings-page-head { min-height: 54px; gap: 10px; padding: 2px 1px 10px; }
-    #stage.settings-responsive .settings-page-head h1 { font-size: 24px; letter-spacing: 1px; }
-    #stage.settings-responsive .settings-local-state { display: none; }
-    #stage.settings-responsive #settingsBack { min-height: 38px; padding: 7px 10px; font-size: 11px; }
+    #stage.settings-responsive .settings-page-head h1 { font-size: 24px; letter-spacing: 2px; }
     #stage.settings-responsive .settings-layout { gap: 12px; margin-top: 12px; }
-    #stage.settings-responsive .settings-side { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-    #stage.settings-responsive .danger-zone { grid-column: auto; }
-    #stage.settings-responsive .panel > .panel-head { min-height: 50px; padding: 11px 15px; }
-    #stage.settings-responsive .panel-head h2,
-    #stage.settings-responsive .settings-subhead h2 { font-size: 19px; }
-    #stage.settings-responsive .settings-body { gap: 12px; padding: 14px 15px 16px; }
-    #stage.settings-responsive .settings-note { font-size: 12px; line-height: 1.65; }
-    #stage.settings-responsive .settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-    #stage.settings-responsive .settings-row button { width: 100%; min-width: 0; min-height: 43px; padding: 7px 9px; font-size: 11px; white-space: normal; }
-    #stage.settings-responsive #downloadBtn,
-    #stage.settings-responsive #pickFileBtn,
-    #stage.settings-responsive #validateBtn,
-    #stage.settings-responsive #collectionKingdom,
-    #stage.settings-responsive #unlockKingdomBtn { grid-column: 1 / -1; }
-    #stage.settings-responsive textarea#saveText { min-height: 126px; font-size: 10px; }
-    #stage.settings-responsive .settings-subhead { padding-top: 13px; }
-    #stage.settings-responsive .warn-line { padding: 9px 10px; font-size: 10px; }
-    #stage.settings-responsive .check-row { min-height: 51px; gap: 12px; }
-    #stage.settings-responsive .settings-preferences-panel .settings-body { padding-inline: 15px; }
-    #stage.settings-responsive .volume-row {
-      min-height: 66px;
-      grid-template-columns: minmax(94px, .8fr) minmax(92px, 1fr) 41px;
-      gap: 8px;
-    }
+    #stage.settings-responsive .settings-side { gap: 12px; }
+    #stage.settings-responsive .panel > .panel-head { min-height: 46px; padding: 10px 15px; }
+    #stage.settings-responsive .panel-head h2 { font-size: 18px; }
+    #stage.settings-responsive .settings-body { padding: 14px 15px 16px; }
+    #stage.settings-responsive .settings-preferences-panel .settings-body { padding: 2px 15px 10px; }
+    #stage.settings-responsive .settings-group .audio-channel { grid-template-columns: 64px minmax(0, 1fr) 38px 42px; column-gap: 10px; }
     #stage.settings-responsive .setting-copy b { font-size: 13px; }
-    #stage.settings-responsive .setting-copy small { font-size: 11px; }
-    #stage.settings-responsive .import-preview,
-    #stage.settings-responsive .settings-result { padding: 11px; }
+    #stage.settings-responsive .account-card { grid-template-columns: 32px minmax(0, 1fr); }
+    #stage.settings-responsive .account-card > .s-btn { grid-column: 1 / -1; }
+    #stage.settings-responsive .save-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #stage.settings-responsive .settings-row { display: grid; grid-template-columns: minmax(0, 1fr); }
+    #stage.settings-responsive .settings-row .s-btn { width: 100%; white-space: normal; }
+    #stage.settings-responsive .settings-dev-head { flex-wrap: wrap; }
+    #stage.settings-responsive .settings-dev-head .settings-note { margin-left: 0; }
     #stage.settings-responsive .import-preview .cmp { grid-template-columns: minmax(0, 1fr); gap: 9px; }
     #stage.settings-responsive .import-preview .cmp > div,
     #stage.settings-responsive .import-preview .cmp > div + div { padding: 0; border-left: 0; }
-    #stage.settings-responsive .import-preview .cmp > div + div { padding-top: 9px; border-top: 1px solid var(--settings-rule); }
-    #stage.settings-responsive .import-preview .acts { display: grid; grid-template-columns: 82px minmax(0, 1fr); }
-    #stage.settings-responsive .import-preview .acts button { width: 100%; min-width: 0; white-space: normal; }
-    #stage.settings-responsive .danger-zone .settings-row { grid-template-columns: minmax(0, 1fr); }
+    #stage.settings-responsive .import-preview .cmp > div + div { padding-top: 9px; border-top: 1px solid var(--s-rule); }
     #stage.settings-responsive .toast { bottom: 68px; max-width: calc(100% - 24px); }
   }
 `;
@@ -629,107 +447,137 @@ export class SettingsScreen implements Screen {
     // 开发者工具（导入/演示档/修改器/调试）只有本地后端提供；远端后端整块不渲染
     const dev = ctx.gateway.dev !== null;
     const remote = ctx.gateway.backend === 'remote';
+    const stats = `<dl class="save-stats" aria-label="当前进度">
+      <div><dt>等级</dt><dd>${cur.level}</dd></div>
+      <div><dt>收藏</dt><dd>${fmt(cur.collection)}</dd></div>
+      <div><dt>黄金</dt><dd>${fmt(cur.gold)}</dd></div>
+      <div><dt>宝石</dt><dd>${fmt(cur.gems)}</dd></div>
+      <div><dt>王国</dt><dd>${cur.kingdoms}</dd></div>
+    </dl>`;
+    const account = remote
+      ? `<div class="account-card">
+          <span data-icon="check"></span>
+          <div><b>云端存档 · 已绑定 Discord</b><small>进度自动保存在服务器，换设备登录同一账号即可继续。</small></div>
+          <button class="s-btn ghost" id="logoutBtn" type="button"><span data-icon="lock"></span>退出登录</button>
+        </div>`
+      : `<div class="account-card local">
+          <span data-icon="chest"></span>
+          <div><b>本机存档 · 自动保存</b><small>进度保存在这台设备的浏览器里，清理浏览器数据会一并清掉。</small></div>
+        </div>`;
     return `
       <style id="settingsScreenCss">${SETTINGS_CSS}</style>
       ${topbarHtml()}
       <main class="screen settings-screen">
         <div class="settings-shell">
           <header class="settings-page-head">
-            <div><h1>偏好与存档</h1></div>
-            <div class="settings-head-actions">
-              <span class="settings-local-state"><span data-icon="check"></span>${remote ? '<b>云端存档</b><small>已绑定 Discord 账号</small>' : '<b>本机自动保存</b><small>当前进度已启用</small>'}</span>
-              <button class="secondary" id="settingsBack" type="button"><span data-icon="arrow"></span>返回地图</button>
-            </div>
+            <h1>设置</h1>
+            <button class="s-btn ghost" id="settingsBack" type="button"><span data-icon="arrow"></span>返回地图</button>
           </header>
 
           <div class="settings-layout">
             <section class="panel settings-preferences-panel">
-              <div class="panel-head"><div><h2>游戏设置</h2></div></div>
+              <div class="panel-head"><h2>游戏设置</h2></div>
               <div class="panel-inner settings-body">
-                ${audioControlsHtml()}
-                <label class="check-row">
-                  <span class="setting-copy"><b>减弱动效</b></span>
-                  <input type="checkbox" id="reducedMotion" aria-label="减弱动效"${preferences.reducedMotion ? ' checked' : ''}>
-                </label>
-                <div class="preference-row">
-                  <span class="setting-copy"><b>界面语言</b></span>
-                  <select class="language-select" aria-label="界面语言" disabled><option>简体中文</option></select>
+                <div class="settings-group">
+                  <h3>声音</h3>
+                  ${audioControlsHtml()}
                 </div>
-                <label class="check-row">
-                  <span class="setting-copy"><b>快速释放</b><small>点击法力值已满的角色直接释放技能；长按查看详情</small></span>
-                  <input type="checkbox" id="skipCastConfirm" aria-label="快速释放"${skipCastConfirm() ? ' checked' : ''}>
-                </label>
-                ${dev ? `<details class="settings-dev-options">
-                  <summary>开发者选项</summary>
+                <div class="settings-group">
+                  <h3>战斗与显示</h3>
                   <label class="check-row">
-                    <span class="setting-copy"><span class="setting-title-row"><b>战斗调试钩子</b><span class="dev-tag">开发者选项</span></span><small>只记录调试输出，不改变玩法数值</small></span>
-                    <input type="checkbox" id="battleDebug" aria-label="战斗调试钩子">
+                    <span class="setting-copy"><b>快速释放</b><small>点击法力值已满的角色直接释放技能；长按查看详情</small></span>
+                    <input type="checkbox" id="skipCastConfirm" aria-label="快速释放"${skipCastConfirm() ? ' checked' : ''}>
                   </label>
-                </details>` : ''}
+                  <label class="check-row">
+                    <span class="setting-copy"><b>减弱动效</b><small>减少翻牌、转场与循环动画</small></span>
+                    <input type="checkbox" id="reducedMotion" aria-label="减弱动效"${preferences.reducedMotion ? ' checked' : ''}>
+                  </label>
+                  ${dev ? `<details class="settings-dev-options">
+                    <summary>开发者选项</summary>
+                    <label class="check-row">
+                      <span class="setting-copy"><b>战斗调试钩子</b><small>只记录调试输出，不改变玩法数值</small></span>
+                      <input type="checkbox" id="battleDebug" aria-label="战斗调试钩子">
+                    </label>
+                  </details>` : ''}
+                </div>
               </div>
             </section>
 
-            ${dev ? `<section class="panel settings-modifier-panel">
-              <div class="panel-head"><div><h2>收集修改器</h2></div></div>
-              <div class="panel-inner settings-body">
-                <p class="settings-note modifier-status">${modifierStatus}</p>
-                <div class="settings-row">
-                  <select id="collectionKingdom" class="modifier-kingdom" aria-label="要解锁的王国">${kingdomOptions}</select>
-                  <button class="secondary" id="unlockKingdomBtn" type="button">解锁该王国全部部队</button>
-                  <button class="secondary" id="restoreRealBtn" type="button">还原真实收集</button>
-                  <button class="secondary" id="restoreInitialBtn" type="button">还原初始收集</button>
+            <div class="settings-side">
+              <section class="panel settings-save-panel">
+                <div class="panel-head"><h2>账号与存档</h2></div>
+                <div class="panel-inner settings-body">
+                  ${account}
+                  ${stats}
+                  ${notice}
                 </div>
-                <p class="settings-note">初始收集是新档的三张破碎尖塔普通卡。修改期间新开出来的卡会记进真实收集；在修改状态下升级的等级，还原后回到打开修改器之前。</p>
-              </div>
-            </section>` : ''}
+              </section>
 
-            <section class="panel settings-save-panel">
-              <div class="panel-head"><div><h2>存档管理</h2></div></div>
-              <div class="panel-inner settings-body">
-                <p class="settings-note">
-                  ${remote
-                    ? `进度保存在服务器，绑定你的 Discord 账号（当前：<b>${digestLine(cur)}</b>）。换设备登录同一账号即可继续。`
-                    : `进度保存在这台设备的浏览器里（当前：<b>${digestLine(cur)}</b>）。<br>
-                  清理浏览器数据会一并清掉存档；换设备或重装前，请先导出一份。`}
-                </p>
-                ${notice}
-                ${remote ? '<div class="settings-row"><button class="secondary" id="logoutBtn" type="button"><span data-icon="lock"></span>退出登录</button></div>' : ''}
-                <div class="settings-row">
-                  <button class="secondary" id="downloadBtn" type="button"><span data-icon="chevrons"></span>导出存档文件（.json）</button>
-                  <button class="secondary" id="copyBtn" type="button"><span data-icon="book"></span>复制存档文本</button>
-                  <button class="secondary" id="exportBtn" type="button">显示在文本框</button>
+              <section class="panel danger-zone">
+                <div class="panel-head"><h2>危险操作</h2></div>
+                <div class="panel-inner settings-body">
+                  <div class="warn-line">
+                    <span data-icon="lock"></span>
+                    <span>${remote
+                      ? '重置会<b>清空服务器上的全部进度</b>，从新手引导重新开始，不可撤销。'
+                      : '重置会<b>立刻删除当前全部进度</b>，不可撤销。需要留档，请先在下方开发者工具里导出。'}</span>
+                  </div>
+                  <div class="settings-row">
+                    <button class="s-btn danger-btn" id="resetNew" type="button"><span data-icon="skull"></span><span id="resetNewLabel">重置为全新档</span></button>
+                    ${dev ? '<button class="s-btn danger-btn" id="resetDemo" type="button"><span data-icon="skull"></span><span id="resetDemoLabel">重置为演示档</span></button>' : ''}
+                  </div>
+                  <p class="settings-note">首次点击只会进入待确认状态，5 秒内再点一次才会执行。</p>
                 </div>
-                <textarea id="saveText" spellcheck="false" placeholder="导出的存档 JSON 会显示在这里；也可粘贴存档文本，再读取并校验。"></textarea>
-
-                ${dev ? `<div class="settings-subhead"><div><h2>导入存档</h2></div></div>
-                <div class="warn-line"><span data-icon="lock"></span><span>导入会<b>覆盖现在的进度</b>且不可撤销。先读取并校验，确认预览无误再覆盖。</span></div>
-                <div class="settings-row">
-                  <button class="secondary" id="pickFileBtn" type="button"><span data-icon="chest"></span>选择存档文件…</button>
-                  <button class="secondary" id="validateBtn" type="button">读取并校验文本框内容</button>
-                  <input type="file" id="saveFile" accept="application/json,.json" hidden>
-                </div>
-                <div id="importPreview"></div>` : ''}
-              </div>
-            </section>
-
-            <section class="panel danger-zone">
-              <div class="panel-head"><div><h2>危险操作</h2></div></div>
-              <div class="panel-inner settings-body">
-                <div class="warn-line">
-                  <span data-icon="lock"></span>
-                  <span>重置会<b>立刻删除当前全部进度</b>，不可撤销。需要留档，请先导出。</span>
-                </div>
-                <div class="settings-row">
-                  <button class="danger-btn" id="resetNew" type="button"><span data-icon="skull"></span><span id="resetNewLabel">重置为全新档</span></button>
-                  ${dev ? '<button class="danger-btn" id="resetDemo" type="button"><span data-icon="skull"></span><span id="resetDemoLabel">重置为演示档</span></button>' : ''}
-                </div>
-                <p class="settings-note">首次点击只会进入待确认状态，5 秒后自动取消。</p>
-              </div>
-            </section>
+              </section>
+            </div>
           </div>
+
+          ${dev ? `<section class="settings-dev" aria-label="开发者工具">
+            <div class="settings-dev-head">
+              <h2>开发者工具</h2><span class="dev-tag">仅本地</span>
+              <p class="settings-note">线上版本不显示这一区。</p>
+            </div>
+            <div class="settings-dev-grid">
+              <section class="panel settings-modifier-panel">
+                <div class="panel-head"><h2>收集修改器</h2></div>
+                <div class="panel-inner settings-body">
+                  <p class="settings-note modifier-status">${modifierStatus}</p>
+                  <div class="settings-row">
+                    <select id="collectionKingdom" class="modifier-kingdom" aria-label="要解锁的王国">${kingdomOptions}</select>
+                    <button class="s-btn" id="unlockKingdomBtn" type="button">解锁该王国全部部队</button>
+                  </div>
+                  <div class="settings-row">
+                    <button class="s-btn ghost" id="restoreRealBtn" type="button">还原真实收集</button>
+                    <button class="s-btn ghost" id="restoreInitialBtn" type="button">还原初始收集</button>
+                  </div>
+                  <p class="settings-note">初始收集是新档的三张破碎尖塔普通卡。修改期间新开出来的卡会记进真实收集；在修改状态下升级的等级，还原后回到打开修改器之前。</p>
+                </div>
+              </section>
+
+              <section class="panel settings-transfer-panel">
+                <div class="panel-head"><h2>导出 / 导入存档</h2></div>
+                <div class="panel-inner settings-body">
+                  <div class="settings-row">
+                    <button class="s-btn" id="downloadBtn" type="button"><span data-icon="chevrons"></span>导出文件（.json）</button>
+                    <button class="s-btn ghost" id="copyBtn" type="button"><span data-icon="book"></span>复制文本</button>
+                    <button class="s-btn ghost" id="exportBtn" type="button">显示在文本框</button>
+                  </div>
+                  <textarea id="saveText" spellcheck="false" placeholder="导出的存档 JSON 会显示在这里；也可粘贴存档文本，再读取并校验。"></textarea>
+                  <h3 class="settings-subhead">导入</h3>
+                  <div class="warn-line"><span data-icon="lock"></span><span>导入会<b>覆盖现在的进度</b>且不可撤销。先读取并校验，确认预览无误再覆盖。</span></div>
+                  <div class="settings-row">
+                    <button class="s-btn" id="pickFileBtn" type="button"><span data-icon="chest"></span>选择存档文件…</button>
+                    <button class="s-btn ghost" id="validateBtn" type="button">校验文本框内容</button>
+                    <input type="file" id="saveFile" accept="application/json,.json" hidden>
+                  </div>
+                  <div id="importPreview"></div>
+                </div>
+              </section>
+            </div>
+          </section>` : ''}
         </div>
       </main>
-      ${bottomNavHtml('', '进度保存在本机浏览器')}
+      ${bottomNavHtml('', remote ? '进度已保存到云端' : '进度保存在本机浏览器')}
       ${toastHtml()}`;
   }
 
@@ -1047,8 +895,8 @@ export class SettingsScreen implements Screen {
       el.innerHTML = html;
       return;
     }
-    // 结果卡还没渲染过 → 插到存档面板正文开头
-    const body = $('.settings-screen .settings-body');
+    // 结果卡还没渲染过 → 放进导出/导入面板（本地）或账号与存档面板末尾
+    const body = $('.settings-transfer-panel .settings-body') ?? $('.settings-save-panel .settings-body');
     if (!body) {
       toast(html.replace(/<[^>]+>/g, ''));
       return;
@@ -1057,7 +905,7 @@ export class SettingsScreen implements Screen {
     div.id = 'settingsResult';
     div.className = `settings-result ${kind}`;
     div.innerHTML = html;
-    body.insertBefore(div, body.children[1] ?? null);
+    body.appendChild(div);
   }
 
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {

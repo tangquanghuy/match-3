@@ -55,8 +55,8 @@ test('玩家音效与减弱动效偏好持久化，并被宝箱音效和翻牌�
   const motion = page.locator('#reducedMotion');
   await expect(soundToggle).toBeChecked();
   await expect(volume).toHaveValue('70');
-  await expect(page.locator('.language-select')).toBeDisabled();
-  await expect(page.locator('.language-select')).toHaveValue('简体中文');
+  // 只做了简体中文，不再展示无意义的界面语言选择
+  await expect(page.locator('.language-select')).toHaveCount(0);
 
   await soundToggle.uncheck();
   await motion.check();
