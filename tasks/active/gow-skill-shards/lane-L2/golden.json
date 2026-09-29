@@ -329,6 +329,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:57:21.692Z"
  },
+ "troop:6621": {
+  "lines": {
+   "L10": "explode 9 ; skulls E10 1 ; status E11 +stun ; buff C attack+11  => A2:mana+1 | E10:arm-1 | E11:+stun | C:atk+11",
+   "R10": "explode 9 ; skulls E10 1 ; status E11 +stun ; buff C attack+11  => A2:mana+1 | E10:arm-1 | E11:+stun | C:atk+11",
+   "L0": "explode 9 ; skulls E10 1 ; status E11 +stun ; buff C attack+1  => A2:mana+1 | E10:arm-1 | E11:+stun | C:atk+1",
+   "K": "explode 9 ; skulls E10 1 ; defeat E10 ; status E12 +stun ; buff C attack+11  => A2:mana+1 | E10:hp-1 DEAD | E12:+stun | C:atk+11"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:32:27.532Z"
+ },
  "troop:6625": {
   "lines": {
    "L10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2  => C:hp+11 max+11 | A2:mana+3 | A1:mana+1 | E10:arm-2",
@@ -428,6 +438,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T09:04:11.605Z"
+ },
+ "troop:6776": {
+  "lines": {
+   "L10": "dmg E11 14 ; buff E11 hp-14  => E11:hp-18 arm-10",
+   "R10": "dmg E11 14 ; buff E11 hp-14  => E11:hp-18 arm-10",
+   "L0": "dmg E11 4 ; buff E11 hp-4 ; buff E11 armor-4  => E11:hp-4 arm-8",
+   "K": "dmg E11 14 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:32:30.004Z"
  },
  "troop:6782": {
   "lines": {
@@ -538,6 +558,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T09:04:11.605Z"
+ },
+ "troop:6864": {
+  "lines": {
+   "L10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; status E11 +frozen ; status E13 +frozen ; status E12 +frozen  => E10:hp-6 arm-5 | E11:hp-1 arm-10 +frozen | E12:arm-11 +frozen | E13:hp-8 arm-3 +frozen",
+   "R10": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; status E11 +frozen ; status E13 +frozen ; status E12 +frozen  => E10:hp-6 arm-5 | E11:hp-1 arm-10 +frozen | E12:arm-11 +frozen | E13:hp-8 arm-3 +frozen",
+   "L0": "dmg E10 1 (all) ; dmg E11 1 (all) ; dmg E12 1 (all) ; dmg E13 1 (all) ; status E11 +frozen ; status E13 +frozen ; status E12 +frozen  => E10:arm-1 | E11:arm-1 +frozen | E12:arm-1 +frozen | E13:arm-1 +frozen",
+   "K": "dmg E10 11 (all) ; dmg E11 11 (all) ; dmg E12 11 (all) ; dmg E13 11 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:32:32.493Z"
  },
  "troop:6877": {
   "lines": {
