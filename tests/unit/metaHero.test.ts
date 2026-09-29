@@ -21,12 +21,19 @@ import {
   equipClass,
   equippedWeaponOf,
   equipWeapon,
+  heroLevelGain,
   heroStatsAt,
   heroStatsOf,
   heroXpToNext,
   pickTalent,
   newSave,
+  planExploreEncounter,
   planQuestEncounter,
+  CLASS_KINGDOM_ORDER,
+  classUnlockRule,
+  eligibleClassIds,
+  migrateSave,
+  STARTER_CLASS_ID,
   setTeamPreset,
   STARTER_WEAPON_ID,
   STARTER_WEAPON_IDS,
@@ -77,15 +84,52 @@ function mkResult(winner: 'player' | 'enemy', defeatedExternalIds: string[] = []
   };
 }
 
-describe('主角成长曲线（设计值锚点 + 官方形状）', () => {
-  it('1 级 = 锚点 base，20 级 = 锚点 max，逐级单调不减', () => {
-    expect(heroStatsAt(1).health).toBe(20);
-    expect(heroStatsAt(20).health).toBe(62);
-    expect(heroStatsAt(20).magic).toBe(27);
-    for (let lv = 2; lv <= 30; lv++) {
-      expect(heroStatsAt(lv).health).toBeGreaterThanOrEqual(heroStatsAt(lv - 1).health);
-      expect(heroStatsAt(lv).attack).toBeGreaterThanOrEqual(heroStatsAt(lv - 1).attack);
+describe('主角成长曲线（官方口径：职业基底 + 等级属性点）', () => {
+  it('1 级只有职业基底；等级属性点全整数、逐级单调不减', () => {
+    // 督军（破碎尖塔）官方基底 攻8/甲10/血12/魔0
+    expect(heroStatsAt(1, STARTER_CLASS_ID)).toEqual({ attack: 8, armor: 10, health: 12, magic: 0 });
+    expect(heroLevelGain(1)).toEqual({ health: 0, armor: 0, attack: 0, magic: 0 });
+    for (let lv = 1; lv <= 100; lv++) {
+      const g = heroLevelGain(lv);
+      for (const v of Object.values(g)) expect(Number.isInteger(v)).toBe(true);
+      const s = heroStatsAt(lv, STARTER_CLASS_ID);
+      for (const v of Object.values(s)) expect(Number.isInteger(v)).toBe(true);
+      if (lv > 1) {
+        const prev = heroLevelGain(lv - 1);
+        for (const k of ['health', 'armor', 'attack', 'magic'] as const) {
+          expect(g[k]).toBeGreaterThanOrEqual(prev[k]);
+        }
+      }
     }
+  });
+
+  it('100 级对齐官方 200 级：四维合计 ≈ 神话卡，且远低于旧设计值', () => {
+    const total = (lv: number) => {
+      const s = heroStatsAt(lv, STARTER_CLASS_ID);
+      return s.health + s.armor + s.attack + s.magic;
+    };
+    // 官方：200 级主角 ≈ 一张神话卡的属性点（本项目 100 级 ← 官方 200 级，2:1 压缩）
+    expect(total(100)).toBe(90);
+    // 官方：本项目 25 级 ← 官方 50 级，此时约 70 点（= 神话 − 官方 50→200 的 21 点）
+    expect(total(25)).toBe(70);
+    // 20 级不再出现「62 血 24 甲」：单项与合计都落在满级传说卡（合计 80）以下
+    expect(total(20)).toBeLessThan(80);
+    expect(heroStatsAt(20, STARTER_CLASS_ID).health).toBeLessThan(30);
+    expect(heroStatsAt(20, STARTER_CLASS_ID).magic).toBeLessThan(8);
+  });
+
+  it('等级属性点配比沿用官方 50→200 的 生命8:护甲6:攻击4:魔法3', () => {
+    const g = heroLevelGain(100);
+    expect(g).toEqual({ health: 23, armor: 17, attack: 11, magic: 9 });
+  });
+
+  it('职业基底真正入面板：换职业改变四维', () => {
+    const warlord = heroStatsAt(30, STARTER_CLASS_ID);
+    const doomsayer = heroStatsAt(30, CLASSES.find((c) => c.kingdom === '末日预言者的王国')?.id
+      ?? CLASSES.find((c) => c.baseStats.health >= 20)!.id);
+    expect(doomsayer.health).toBeGreaterThan(warlord.health);
+    // 无职业时走兜底基底，不会变成「只有等级点」
+    expect(heroStatsAt(30, null).health).toBeGreaterThan(heroLevelGain(30).health);
   });
 
   it('经验表单调递增；多级一次连升、余量保留', () => {
@@ -96,13 +140,13 @@ describe('主角成长曲线（设计值锚点 + 官方形状）', () => {
     const r = addHeroXp(s, need1 + need2 + 5);
     expect(r).toEqual({ levelsGained: 2, newLevel: 3 });
     expect(s.hero.xp).toBe(5);
-    expect(heroStatsOf(s).health).toBe(heroStatsAt(3).health);
+    expect(heroStatsOf(s).health).toBe(heroStatsAt(3, s.hero.classId).health);
   });
 
   it('淬炼面板加成与战斗桥接共用单一口径', () => {
     const s = save();
     s.weaponTempering[s.hero.equippedWeapon!] = 6;
-    const base = heroStatsAt(s.hero.level);
+    const base = heroStatsAt(s.hero.level, s.hero.classId);
     expect(heroStatsOf(s)).toEqual({
       attack: base.attack + 1,
       armor: base.armor + 1,
@@ -126,11 +170,13 @@ describe('职业（官方 38 个，绑定王国任务链）', () => {
     expect(classXpToNext(1)).toBe(150);
   });
 
-  it('解锁→装备：破碎尖塔 8 关解锁督军；1 级即解锁第一档天赋选取', () => {
+  it('破碎尖塔／督军新档默认解锁并装备；1 级即解锁第一档天赋选取', () => {
     expect(classByKingdom(KINGDOM)?.id).toBe(STARTER_CLASS);
     const s = save();
-    expect(equipClass(s, STARTER_CLASS)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.hero.unlockedClasses.push(STARTER_CLASS);
+    // 用户裁定 2026-09-29：起始职业无需通关任何关卡
+    expect(classUnlockRule(STARTER_CLASS)).toEqual({ kind: 'default' });
+    expect(s.hero.unlockedClasses).toContain(STARTER_CLASS);
+    expect(s.hero.classId).toBe(STARTER_CLASS);
     expect(equipClass(s, STARTER_CLASS)).toEqual({ ok: true, classId: STARTER_CLASS });
     expect(classLevelOf(s, STARTER_CLASS)).toBe(1);
 
@@ -278,7 +324,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
     if (!outcome.ok) throw new Error(outcome.message);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
-    const base = heroStatsAt(s.hero.level);
+    const base = heroStatsAt(s.hero.level, s.hero.classId);
     expect(hero.stats.attack).toBe(base.attack + 1);
     expect(hero.stats.armor).toBe(base.armor + 1);
     expect(hero.stats.hp).toBe(base.health + 1);
@@ -301,8 +347,8 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     expect(hero.manaColors).toEqual(equippedWeaponOf(s)!.manaColors);
     // 督军采纳 Orc? 否——无字面证据保持 Human；天赋凶悍 = 攻击 +4
     expect(hero.troopTypes).toEqual(['Human']);
-    expect(hero.stats.attack).toBe(heroStatsAt(s.hero.level).attack + 4);
-    expect(hero.stats.hp).toBe(heroStatsAt(s.hero.level).health); // 破碎尖塔未满级，无王国加成
+    expect(hero.stats.attack).toBe(heroStatsAt(s.hero.level, s.hero.classId).attack + 4);
+    expect(hero.stats.hp).toBe(heroStatsAt(s.hero.level, s.hero.classId).health); // 破碎尖塔未满级，无王国加成
 
     // 武器原型注册为真实技能（非兜底空原型）
     const proto = outcome.registry.prototypes.get(STARTER_WEAPON_ID)!;
@@ -370,16 +416,87 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     expect(s.hero.classWins[STARTER_CLASS]).toBeUndefined();
   });
 
-  it('任务链 8 关通关 → 解锁该王国绑定职业（42 王国中 38 个有职业）', () => {
-    const s = save();
-    s.kingdoms[KINGDOM] = { level: 1, questsDone: 7, exploreTier: 0, lastTributeAt: 0 };
-    const plan = planQuestEncounter(KINGDOM, 8, 5);
-    const detail = applySettlement(s, mkResult('player'), {
-      plan,
-      enemyByExternalId: new Map(),
-      todayStart: 1000,
+});
+
+describe('职业解锁分五批（用户裁定 2026-09-29）', () => {
+  /** 取某批次里第一个职业（批次容量将来调整也不用改测试） */
+  const firstOf = (match: (r: ReturnType<typeof classUnlockRule>) => boolean) => {
+    const cls = CLASS_KINGDOM_ORDER.map((k) => CLASSES.find((c) => c.kingdom === k)!)
+      .find((c) => match(classUnlockRule(c.id)));
+    if (!cls) throw new Error('该批次没有职业');
+    return cls;
+  };
+  const questSettle = (s: ReturnType<typeof save>, kingdom: string, node: number) => {
+    s.kingdoms[kingdom] = { level: 1, questsDone: node - 1, exploreTier: 0, lastTributeAt: 0 };
+    return applySettlement(s, mkResult('player'), {
+      plan: planQuestEncounter(kingdom, node, 5), enemyByExternalId: new Map(), todayStart: 1000,
     });
-    expect(detail.classUnlocked).toBe(STARTER_CLASS);
-    expect(s.hero.unlockedClasses).toContain(STARTER_CLASS);
+  };
+  const exploreSettle = (s: ReturnType<typeof save>, kingdom: string, tier: number) =>
+    applySettlement(s, mkResult('player'), {
+      plan: planExploreEncounter(kingdom, tier, 5), enemyByExternalId: new Map(), todayStart: 1000,
+    });
+
+  it('五批覆盖全部 38 个职业，破碎尖塔独占 default 批', () => {
+    const counts = { default: 0, quest4: 0, quest8: 0, hard: 0, veryHard: 0 } as Record<string, number>;
+    for (const cls of CLASSES) {
+      const r = classUnlockRule(cls.id);
+      counts[r.kind === 'quest' ? `quest${r.nodes}` : r.kind] += 1;
+    }
+    expect(Object.values(counts).reduce((a, b) => a + b, 0)).toBe(38);
+    expect(counts.default).toBe(1);
+    expect(classUnlockRule(STARTER_CLASS)).toEqual({ kind: 'default' });
+    // 每批都非空，且主线批只有 4 / 8 两种门槛
+    for (const key of ['quest4', 'quest8', 'hard', 'veryHard']) expect(counts[key]).toBeGreaterThan(0);
+  });
+
+  it('主线 4 关批：第 4 关通关即解锁，第 3 关不解锁', () => {
+    const cls = firstOf((r) => r.kind === 'quest' && r.nodes === 4);
+    const early = questSettle(save(), cls.kingdom, 3);
+    expect(early.classUnlocked).toBeNull();
+
+    const s = save();
+    const detail = questSettle(s, cls.kingdom, 4);
+    expect(detail.classUnlocked).toBe(cls.id);
+    expect(s.hero.unlockedClasses).toContain(cls.id);
+  });
+
+  it('主线 8 关批：第 4 关不解锁，第 8 关才解锁', () => {
+    const cls = firstOf((r) => r.kind === 'quest' && r.nodes === 8);
+    expect(questSettle(save(), cls.kingdom, 4).classUnlocked).toBeNull();
+
+    const s = save();
+    expect(questSettle(s, cls.kingdom, 8).classUnlocked).toBe(cls.id);
+    expect(s.hero.unlockedClasses).toContain(cls.id);
+  });
+
+  it('困难批：困难 3 关全通才解锁，主线全通不解锁', () => {
+    const cls = firstOf((r) => r.kind === 'hard');
+    const s = save();
+    expect(questSettle(s, cls.kingdom, 8).classUnlocked).toBeNull();
+    expect(exploreSettle(s, cls.kingdom, 1).classUnlocked).toBeNull();
+    expect(exploreSettle(s, cls.kingdom, 2).classUnlocked).toBeNull();
+    expect(exploreSettle(s, cls.kingdom, 3).classUnlocked).toBe(cls.id);
+    expect(s.hero.unlockedClasses).toContain(cls.id);
+  });
+
+  it('非常困难批：困难全通仍不解锁，非常困难 3 关全通才解锁', () => {
+    const cls = firstOf((r) => r.kind === 'veryHard');
+    const s = save();
+    for (const tier of [1, 2, 3]) expect(exploreSettle(s, cls.kingdom, tier).classUnlocked).toBeNull();
+    for (const tier of [4, 5]) expect(exploreSettle(s, cls.kingdom, tier).classUnlocked).toBeNull();
+    expect(exploreSettle(s, cls.kingdom, 6).classUnlocked).toBe(cls.id);
+  });
+
+  it('旧档载入补发起始职业；eligibleClassIds 与结算判定同源', () => {
+    const s = save();
+    s.hero.unlockedClasses = [];
+    const revived = migrateSave(JSON.parse(JSON.stringify(s)));
+    expect(revived.hero.unlockedClasses).toContain(STARTER_CLASS);
+
+    const s2 = save();
+    const q4 = firstOf((r) => r.kind === 'quest' && r.nodes === 4);
+    s2.kingdoms[q4.kingdom] = { level: 1, questsDone: 4, exploreTier: 0, lastTributeAt: 0 };
+    expect(eligibleClassIds(s2)).toEqual(expect.arrayContaining([STARTER_CLASS, q4.id]));
   });
 });

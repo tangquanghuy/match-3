@@ -16,16 +16,16 @@ type BattleWindow = Window & {
   };
 };
 
-async function openBattle(page: Page, teamSize: 3 | 4): Promise<void> {
-  await page.addInitScript((size) => {
+/** 独立战斗固定 4v4（3v3 已废除）。 */
+async function openBattle(page: Page): Promise<void> {
+  await page.addInitScript(() => {
     window.localStorage.clear();
-    window.localStorage.setItem('debug.teamSize', String(size));
-  }, teamSize);
+  });
   await page.goto('/index.html');
-  await page.waitForFunction((count) => (
+  await page.waitForFunction(() => (
     !!(window as unknown as BattleWindow).__app
-    && document.querySelectorAll('.gcard').length === count * 2
-  ), teamSize);
+    && document.querySelectorAll('.gcard').length === 8
+  ));
 }
 
 async function addStatuses(page: Page, count: number): Promise<void> {
@@ -107,35 +107,19 @@ async function expectRestoredCard(card: Locator): Promise<void> {
   expect(layout.rejectedVisibleCount).toBe(0);
 }
 
-test('667x375 3v3 keeps the original battle-card information layout', async ({ page }) => {
-  await page.setViewportSize({ width: 667, height: 375 });
-  await openBattle(page, 3);
-
-  const cards = page.locator('.gcard');
-  await expect(cards).toHaveCount(6);
-  await expectRestoredCard(cards.first());
-
-  // 徽记说明改为鼠标悬停（点宝石=点卡片，打开详情窗）
-  await cards.first().locator('.gem').hover();
-  const manaTip = page.locator('.status-tooltip');
-  await expect(manaTip.locator('.st-title')).toContainText('法力');
-  await expect(manaTip).toContainText('关联颜色');
-
-  await addStatuses(page, 1);
-  const statusEntry = cards.first().locator('.status-more');
-  await expect(statusEntry).toHaveText('+1');
-  expect((await statusEntry.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(23.5);
-  await expectRestoredCard(cards.first());
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
-  await page.screenshot({ path: 'artifacts/ux-phase-b/shots/battle-card-restored-3v3-667x375.png' });
-});
-
 test('667x375 4v4 aggregates statuses without covering the character art', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 375 });
-  await openBattle(page, 4);
+  await openBattle(page);
 
   const cards = page.locator('.gcard');
   await expect(cards).toHaveCount(8);
+  await expectRestoredCard(cards.first());
+  // 宝石上写「当前/上限」（GoW 法力球读法），不弹说明浮层
+  await expect(cards.first().locator('.gem-mana')).toHaveText(/^\d+\/\d+$/);
+  await cards.first().locator('.gem').hover();
+  await expect(page.locator('.status-tooltip')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+
   await addStatuses(page, 3);
   const summary = cards.first().locator('.status-more');
   await expect(summary).toHaveText('+3');
@@ -147,13 +131,13 @@ test('667x375 4v4 aggregates statuses without covering the character art', async
 
 test('desktop battle cards keep magic and traits without the rejected name or mana rows', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
-  await openBattle(page, 3);
+  await openBattle(page);
 
   const cards = page.locator('.gcard');
-  await expect(cards).toHaveCount(6);
+  await expect(cards).toHaveCount(8);
   await expectRestoredCard(cards.first());
-  await expect(cards.locator('.magic')).toHaveCount(6);
-  await expect(cards.locator('.trait-row')).toHaveCount(6);
+  await expect(cards.locator('.magic')).toHaveCount(8);
+  await expect(cards.locator('.trait-row')).toHaveCount(8);
   await expect(cards.locator('.name-band,.name-flash,.mana-num')).toHaveCount(0);
   await page.screenshot({ path: 'artifacts/ux-phase-b/shots/battle-card-restored-desktop.png' });
 });
@@ -245,6 +229,11 @@ test('unit window covers only the board, keeps both columns tappable, and badges
   await expect(sheet).toHaveAttribute('data-char-id', '0');
   await page.getByRole('button', { name: '关闭详情' }).click();
   await expect(page.locator('.usw.open')).toHaveCount(0);
+  // 点详情窗以外的任意位置（这里是页面左上角空白）也能关闭
+  await tap(page, 2);
+  await expect(sheet).toHaveAttribute('data-char-id', '2');
+  await page.mouse.click(4, 4);
+  await expect(page.locator('.usw.open')).toHaveCount(0);
   expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([]);
 });
 
@@ -275,7 +264,7 @@ test('quick cast: tap casts at once with the ally cut-in; long press opens the w
   await expect(page.locator('.usw.open')).toHaveCount(0);
   expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([3]);
   // 施放瞬间卡面法力清零（宝石数字 0、撤掉可释放态），不等整段演出结束
-  await expect(page.getByTestId('card-3').locator('.gem-mana')).toHaveText('0');
+  await expect(page.getByTestId('card-3').locator('.gem-mana')).toHaveText(/^0\/\d+$/);
   await expect(page.getByTestId('card-3')).not.toHaveClass(/castable/);
   await page.waitForFunction(() => {
     const app = (window as unknown as LaneWindow).__app;
@@ -298,12 +287,12 @@ test('quick cast: tap casts at once with the ally cut-in; long press opens the w
 test('enemy skill-cast drains the gem without a portrait cut-in', async ({ page }) => {
   await openStandalone(page, false);
   await page.evaluate(() => (window as unknown as LaneWindow).__app.fillAllMana());
-  await expect(page.getByTestId('card-4').locator('.gem-mana')).toHaveText(/\d+/);
+  await expect(page.getByTestId('card-4').locator('.gem-mana')).toHaveText(/^(\d+)\/\1$/);
   await page.evaluate(() => {
     const app = (window as unknown as LaneWindow).__app;
     void app.playEventsWithTail([{ type: 'skill-cast', characterId: 4, skillId: 'probe' }]);
   });
-  await expect(page.getByTestId('card-4').locator('.gem-mana')).toHaveText('0');
+  await expect(page.getByTestId('card-4').locator('.gem-mana')).toHaveText(/^0\/\d+$/);
   await page.waitForTimeout(300);
   await expect(page.getByTestId('cast-cutin')).toHaveCount(0);
 });

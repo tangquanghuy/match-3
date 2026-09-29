@@ -145,7 +145,7 @@ describe('official status shared-rule regression', () => {
     expect(target.statuses[0].recoveryChance).toBe(15);
     const events = tickStatuses(target, { next: () => 0.12 } as SeededRNG);
     expect(target.statuses).toEqual([]);
-    expect(events).toContainEqual({ type: 'status-expire', targetId: 3, statusId: 'curse' });
+    expect(events).toContainEqual(expect.objectContaining({ type: 'status-expire', targetId: 3, statusId: 'curse' }));
   });
 
   it('Curse bypasses ordinary Devour immunity, but never Invulnerable immunity', () => {

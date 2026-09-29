@@ -25,6 +25,7 @@ export * from './systems/tribute';
 export * from './systems/kingdomOps';
 export * from './systems/gacha';
 export * from './systems/hero';
+export * from './systems/classUnlock';
 export * from './systems/manaMastery';
 export * from './systems/talents';
 export * from './systems/arena';

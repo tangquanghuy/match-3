@@ -131,7 +131,7 @@ describe('妖火状态的施加与免疫', () => {
   it('免疫特质（statusImmunities）拦截施加', () => {
     const char = makeChar(1, { passive: { ...neutralPassives(), statusImmunities: [FAERIE_FIRE_STATUS_ID] } });
     const events = applyStatus(char, { id: FAERIE_FIRE_STATUS_ID, turns: 3 });
-    expect(events).toHaveLength(0);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     expect(hasStatus(char, FAERIE_FIRE_STATUS_ID)).toBe(false);
   });
 

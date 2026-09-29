@@ -78,6 +78,7 @@ function segmentsChosenTargetMode(segments: readonly SkillPrototype['segments'][
     if (seg.kind === 'damage' && seg.range === 'splash' && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'enemyChosen') return 'enemyChosen';
     if ('target' in seg && seg.target === 'allyChosen') return 'allyChosen';
+    if ('target' in seg && seg.target === 'allyChosenOther') return 'allyChosenOther';
     if ('target' in seg && seg.target === 'enemyChosenAndNextDown') return 'enemyChosenAndNextDown';
     if ('target' in seg && seg.target === 'enemyChosenAndBelow') return 'enemyChosenAndBelow';
     if ('target' in seg && seg.target === 'enemyChosenAndAdjacent') return 'enemyChosenAndAdjacent';

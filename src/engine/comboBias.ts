@@ -6,6 +6,9 @@ import type { ActionLogEntry, CellPos } from './types';
 /**
  * 「连消倾向」（combo bias）：让 4/5 连机会与连锁更常见、又不白送的棋盘生成调参。
  *
+ * 口径（用户裁定）：开局棋盘明显多给 4/5 连；之后新落下的宝石只**轻微**提高 4/5 连概率，
+ * 不是全程大量送大消。
+ *
  * 补充（GravitySystem）与开局（BoardGenerator）共用这里的评估函数与设计值。
  * 引擎默认全部关闭（强度 0，随机数序列与旧版逐字节一致）；App 实战开启。
  * 设计值由 tests/unit/battleSimulation.test.ts 的 AI 对 AI 模拟调定（基线/调参对比见该测试）。
@@ -20,11 +23,34 @@ import type { ActionLogEntry, CellPos } from './types';
  *      4/5 连机会集中在每个回合开头，而不是让一方连着滚雪球。
  */
 
-/** 实战补充强度（TurnEngine.comboBias）。 */
-export const BATTLE_COMBO_BIAS = 10;
+/**
+ * 实战补充强度（TurnEngine.comboBias）：后续新宝石适度提高 4/5 连机会。
+ * 强度 7 = 每次补充试掷 8 份取最好的一份 + 同色成团系数 COMBO_CLUMP × 7。
+ * 节奏调参（用户：平均每场行动数 ~38 → ~30）：与 BATTLE_SKULL_CHANCE 0.2、开局 70%/90%、
+ * 新的法力涌动规则一起，AI 对 AI 模拟 300 场约 30 次行动/场（battleSimulation.test.ts）。
+ */
+export const BATTLE_COMBO_BIAS = 7;
 
-/** 实战开局强度（BoardGenerator 第 4 参）：试生成 1 + round(强度) 张合规开局，优先有 4+ 交换的那张。 */
-export const BATTLE_SETUP_BIAS = 3;
+/** 实战骷髅落率（开局与补充共用）：骷髅是主要伤害来源，0.16 → 0.2 缩短对局 */
+export const BATTLE_SKULL_CHANCE = 0.2;
+
+/**
+ * 实战开局强度（BoardGenerator 第 4 参）：> 0 时先按 SETUP_SHARE_* 抽本局开局档位
+ * （≥2 处 / 恰 1 处 / 0 处 4+ 交换），再最多试 1 + round(强度) 张合规开局，取第一张落在该档的。
+ * 改动前的自然分布：53% 的开局一处 4+ 交换都没有，只有 17% 有 ≥2 处。
+ */
+export const BATTLE_SETUP_BIAS = 30;
+
+/** 开局有 ≥2 处 4+ 交换的目标占比（原 60%，节奏调参上调到 70%）。 */
+export const SETUP_SHARE_TWO_PLUS = 0.7;
+
+/** 开局有 ≥1 处 4+ 交换的目标占比（原 80%，上调到 90%；其余 10% 为一处都没有）。 */
+export const SETUP_SHARE_ONE_PLUS = 0.9;
+
+/** 开局档位：2 = ≥2 处 4+ 交换，1 = 恰 1 处，0 = 没有。roll ∈ [0,1)。 */
+export function setupBucketFor(roll: number): 0 | 1 | 2 {
+  return roll < SETUP_SHARE_TWO_PLUS ? 2 : roll < SETUP_SHARE_ONE_PLUS ? 1 : 0;
+}
 
 /**
  * 连段护栏系数表。下标 = 下一个决策点时行动方已连续获得的额外回合数；超出表长取最后一项。
@@ -68,6 +94,27 @@ export function bestSwapTier(board: BoardModel): 0 | 1 | 2 {
     }
   }
   return best;
+}
+
+/**
+ * 棋盘上能打出 4+（4 连 / 5 连 / L / T）的不同相邻交换数，数到 cap 即停。
+ * 原地交换→检测→换回，返回时棋盘不变。
+ */
+export function bigSwapCount(board: BoardModel, cap = 2): number {
+  let count = 0;
+  for (let row = 0; row < BoardModel.ROWS; row++) {
+    for (let col = 0; col < BoardModel.COLS; col++) {
+      const a: CellPos = { row, col };
+      for (const b of [{ row, col: col + 1 }, { row: row + 1, col }]) {
+        if (!BoardModel.inBounds(b)) continue;
+        board.swap(a, b);
+        const big = resolver.findMatches(board).some((group) => bigTierOf(group) > 0);
+        board.swap(a, b);
+        if (big && ++count >= cap) return count;
+      }
+    }
+  }
+  return count;
 }
 
 /**

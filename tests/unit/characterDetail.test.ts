@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildDetailViewModel } from '../../src/render/CharacterDetailPanel';
+import { buildDetailViewModel, traitSlotsOf } from '../../src/render/CharacterDetailPanel';
 import { BaseColor } from '@engine/types';
 import type { Character } from '@engine/types';
 import type { TroopData } from '../../src/data/troops';
@@ -165,5 +165,31 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
     const snapshot = JSON.stringify(c);
     buildDetailViewModel(c, makeTroop());
     expect(JSON.stringify(c)).toBe(snapshot);
+  });
+});
+
+describe('traitSlotsOf（与图鉴「天赋特质」同一口径的 3 个槽）', () => {
+  const troopTraits = [
+    { code: 'armored', name: '重甲', description: '护甲 +5' },
+    { code: 'fast', name: '迅捷', description: '开局法力 +3' },
+    { code: 'knightbond', name: '骑士之盟', description: '骑士盟友 +1 攻击' },
+  ];
+
+  it('有兵种数据：本场带着的特质算已解锁，其余显示未解锁，顺序跟图鉴一致', () => {
+    const troop = makeTroop({ traits: troopTraits } as Partial<TroopData>);
+    const slots = traitSlotsOf(makeChar({ traitIds: ['armored'] }), troop);
+    expect(slots.map((s) => [s.code, s.unlocked])).toEqual([['armored', true], ['fast', false], ['knightbond', false]]);
+  });
+
+  it('无兵种数据：卡面展示的特质都算已解锁，不足 3 个补「未开槽」', () => {
+    const slots = traitSlotsOf(makeChar({ traitIds: ['regeneration', 'spellarmor'] }));
+    expect(slots).toHaveLength(3);
+    expect(slots.slice(0, 2).every((s) => s.unlocked)).toBe(true);
+    expect(slots[2]).toMatchObject({ code: '', name: '未开槽', unlocked: false });
+  });
+
+  it('一个特质都没有：3 个都是未开槽（不再显示「无特质」）', () => {
+    const slots = traitSlotsOf(makeChar({ traitIds: [] }));
+    expect(slots.map((s) => s.name)).toEqual(['未开槽', '未开槽', '未开槽']);
   });
 });

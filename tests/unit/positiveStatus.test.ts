@@ -67,7 +67,7 @@ describe('Blessed 赐福（净化 + 免疫一切状态）', () => {
     const ch = makeChar(1);
     applyStatus(ch, { id: 'blessed', turns: 3 });
 
-    expect(applyStatus(ch, { id: 'poison', turns: 2 })).toEqual([]);
+    expect(applyStatus(ch, { id: 'poison', turns: 2 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     // R011: Blessed blocks negatives only; positive statuses still apply.
     expect(applyStatus(ch, { id: 'barrier', turns: 2 })).toHaveLength(1);
     expect(hasStatus(ch, 'poison')).toBe(false);
@@ -140,7 +140,7 @@ describe('Enchanted 附魔（回合开始 +2 法力，施法移除）', () => {
     const events = engine.castSkill(1);
 
     expect(events).toContainEqual({ type: 'skill-cast', characterId: 1, skillId: 'none' });
-    expect(events).toContainEqual({ type: 'status-expire', targetId: 1, statusId: ENCHANTED_STATUS_ID });
+    expect(events).toContainEqual(expect.objectContaining({ type: 'status-expire', targetId: 1, statusId: ENCHANTED_STATUS_ID }));
     expect(hasStatus(caster, ENCHANTED_STATUS_ID)).toBe(false);
   });
 });
@@ -156,7 +156,7 @@ describe('Reflect 反射（所受伤害 50% 反弹，至少 1 点，受击后消
     const ch = makeChar(1);
     applyStatus(ch, { id: REFLECT_STATUS_ID, turns: 3 });
     const events = consumeReflect(ch);
-    expect(events).toEqual([{ type: 'status-expire', targetId: ch.id, statusId: REFLECT_STATUS_ID }]);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-expire', targetId: ch.id, statusId: REFLECT_STATUS_ID })]);
     expect(hasStatus(ch, REFLECT_STATUS_ID)).toBe(false);
     // 无反射时空过
     expect(consumeReflect(ch)).toEqual([]);
@@ -176,7 +176,7 @@ describe('Reflect 反射（所受伤害 50% 反弹，至少 1 点，受击后消
     expect(attacker.hp).toBe(45);
     expect(hasStatus(target, REFLECT_STATUS_ID)).toBe(false);
     expect(out.events).toContainEqual(expect.objectContaining({ type: 'skull-damage', attackerId: target.id, targetId: attacker.id, damage: 5 }));
-    expect(out.events).toContainEqual({ type: 'status-expire', targetId: target.id, statusId: REFLECT_STATUS_ID });
+    expect(out.events).toContainEqual(expect.objectContaining({ type: 'status-expire', targetId: target.id, statusId: REFLECT_STATUS_ID }));
   });
 
   it('法术伤害同样反弹（damageOne 传入施法者）', () => {
@@ -228,6 +228,6 @@ describe('Enraged 激怒（与 rage 同族，既有实现回归锚定）', () =>
 
     expect(enemy.hp).toBe(35); // 10 × 1.5
     expect(attacker.statuses).toEqual([]);
-    expect(out.events).toContainEqual({ type: 'status-expire', targetId: attacker.id, statusId: 'enraged' });
+    expect(out.events).toContainEqual(expect.objectContaining({ type: 'status-expire', targetId: attacker.id, statusId: 'enraged' }));
   });
 });

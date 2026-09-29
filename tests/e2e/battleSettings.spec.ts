@@ -189,10 +189,10 @@ test('meta battle surrender returns through settlement without advancing quest p
   await page.getByRole('button', { name: '战斗设置', exact: true }).click();
   await page.getByRole('button', { name: '放弃本局' }).click();
   await page.getByRole('button', { name: '确认放弃' }).click();
-  await expect(page.locator('.gop-title')).toHaveText('已放弃');
-  await page.locator('.gop-continue').click();
+  // 局外战斗不再弹“继续”面板，暗场过渡后直接进结算页
+  await expect(page.locator('.result-screen')).toBeVisible({ timeout: 10_000 });
   await expect(page.locator('#battle-root')).toBeHidden();
-  await expect(page.locator('.result-screen')).toBeVisible();
+  await expect(page.locator('.gop-title')).toBeHidden();
   expect(await page.evaluate(kingdom => JSON.parse(localStorage.getItem('gems.meta.save')!).kingdoms[kingdom].questsDone, kingdom)).toBe(0);
   await expect(page.locator('.battle-settings-button')).toHaveCount(0);
   await page.waitForTimeout(1000);

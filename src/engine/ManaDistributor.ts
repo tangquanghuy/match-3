@@ -1,5 +1,5 @@
 import type { Team, BaseColor } from './types';
-import type { ManaGainEvent } from './events';
+import type { ManaGainEvent, StatusBlockedEvent } from './events';
 import { PlayerSide } from './types';
 import { canGainMana, hasStatus } from './skills/effects/status';
 import { manaLinkBonus } from './traits';
@@ -24,8 +24,13 @@ export class ManaDistributor {
     player: PlayerSide,
     color: BaseColor,
     amount: number,
-  ): ManaGainEvent[] {
+  ): (ManaGainEvent | StatusBlockedEvent)[] {
     const events: ManaGainEvent[] = [];
+    /**
+     * 沉默跳过充能的演出事件（纯元数据）：统一排在全部 mana-gain **之后**返回——
+     * 夹在中间会打断表现层的法力流批次，让并行的几股法力退化成逐个飞。
+     */
+    const blocked: StatusBlockedEvent[] = [];
     let remaining = amount;
 
     for (const ch of team.characters) {
@@ -34,7 +39,14 @@ export class ManaDistributor {
 
       if (!ch.colors.includes(color)) continue; // 不吃此色，跳过（需求 12.2）
 
-      if (!canGainMana(ch)) continue; // 被沉默：跳过充能，法力流向下一个能吃该色的队友
+      if (!canGainMana(ch)) {
+        // 被沉默：跳过充能，法力流向下一个能吃该色的队友。
+        // 只在「本来吃得下」时提示——已满的沉默单位跳过属正常，不值得弹提示。
+        if (ch.manaCost - ch.mana > 0) {
+          blocked.push({ type: 'status-blocked', targetId: ch.id, statusId: 'silence', reason: 'mana' });
+        }
+        continue;
+      }
 
       const need = ch.manaCost - ch.mana;
       if (need <= 0) continue; // 已满，流向下一个（需求 12.4）
@@ -53,17 +65,20 @@ export class ManaDistributor {
       const bonus = Math.min(manaLinkBonus(ch, color), ch.manaCost - ch.mana);
       if (bonus > 0) ch.mana += bonus;
 
-      events.push({
+      const gain: ManaGainEvent = {
         type: 'mana-gain',
         color,
         amount: actualGive + bonus,
         characterId: ch.id,
         player,
-      });
+      };
+      // 演出元数据：实际入账少于本该给的量 = 被疾病砍半（表现层标注原因）
+      if (actualGive < give) gain.halved = true;
+      events.push(gain);
     }
 
     // remaining > 0 且无人可接 → 丢弃（需求 12.5）
-    return events;
+    return [...events, ...blocked];
   }
 
   /** 角色技能是否可释放：法力累积达到需求总量（需求 16.1） */

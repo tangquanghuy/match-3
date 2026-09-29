@@ -1,3 +1,7 @@
+import pingPortrait from '../assets/community/ping.png?url';
+import zhuwangPortrait from '../assets/community/zhuwang.png?url';
+import guanliObserverPortrait from '../assets/community/guanli-observer.png?url';
+import hongdiePortrait from '../assets/community/hongdie.png?url';
 import wangfengPortrait from '../assets/community/wangfeng.png?url';
 import yinshiluoPortrait from '../assets/community/yinshiluo.png?url';
 import linkongluoPortrait from '../assets/community/linkongluo.png?url';
@@ -45,6 +49,14 @@ export const YINSHILUO_ID = 10012;
 export const YINSHILUO_SPELL_ID = 20012;
 export const WANGFENG_ID = 10013;
 export const WANGFENG_SPELL_ID = 20013;
+export const GUANLI_OBSERVER_ID = 10014;
+export const GUANLI_OBSERVER_SPELL_ID = 20014;
+export const HONGDIE_ID = 10015;
+export const HONGDIE_SPELL_ID = 20015;
+export const PING_ID = 10016;
+export const PING_SPELL_ID = 20016;
+export const ZHUWANG_ID = 10017;
+export const ZHUWANG_SPELL_ID = 20017;
 
 const bailuDescription = '对一名选定敌人造成 [魔法 + 7] 点法术伤害，并使其陷入织网状态。生命值最低的盟友获得屏障。';
 const douglasDescription = '对所有敌人造成 [魔法 + 3] 点法术伤害。然后爆破 3 颗随机宝石。';
@@ -68,6 +80,12 @@ const linkongluoDescription = '对一名敌人造成 [魔法 + 6] 点伤害。�
 const yinshiluoDescription = '净化一名盟友，并给予其 [魔法 + 2] 点生命值。创造 1 颗绿色法力药水宝石和 1 颗紫色法力药水宝石。';
 
 const wangfengDescription = '将所有红色宝石转换为紫色宝石，并将所有黄色宝石转换为棕色宝石。召唤一名触手之墙，并将其推至队首。';
+
+const guanliObserverDescription = '创造 1 颗蓝色法力药水宝石和 1 颗紫色法力药水宝石。再爆破 4 颗随机宝石。';
+const hongdieDescription = '对最后两名敌人造成 [魔法 + 3] 点伤害，并使其陷入沉默状态。耗掉其各 3 点法力值。';
+
+const pingDescription = '摧毁所有选定颜色的宝石。对所有使用该颜色的敌人造成 [魔法 + 4] 点伤害，并耗掉其各 4 点法力值。若摧毁了至少 10 颗该色宝石，则获得一个额外回合。';
+const zhuwangDescription = '创造 6 颗红色宝石。选择一名其他盟友，有 25% 的几率将其转化为装甲小野猪，再给予其 [魔法 + 3] 点攻击力。若施法时棋盘上有 13 颗或更多红色宝石，则有等同于自身攻击力的几率将一名随机敌人转化为装甲小野猪，最高 50%。[1:1]';
 
 function communityTraits(codes: readonly string[]) {
   return codes.map((code) => {
@@ -93,7 +111,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 9,
     base: { attack: 4, armor: 6, health: 10, magic: 1 },
     manaColors: [BaseColor.Blue, BaseColor.Purple],
-    manaCost: 19,
+    manaCost: 15,
     spell: {
       id: BAILU_YIXI_SPELL_ID,
       name: '离岸封函',
@@ -119,7 +137,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 4, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Green, BaseColor.Blue, BaseColor.Purple],
-    manaCost: 26,
+    manaCost: 19,
     spell: {
       id: DOUGLAS_SPELL_ID,
       name: '拿铁涟漪',
@@ -145,7 +163,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 5, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Blue, BaseColor.Yellow],
-    manaCost: 17,
+    manaCost: 15,
     spell: {
       id: CIALLO_SPELL_ID,
       name: '双龙助阵',
@@ -171,7 +189,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 9,
     base: { attack: 6, armor: 4, health: 9, magic: 1 },
     manaColors: [BaseColor.Green, BaseColor.Blue, BaseColor.Red],
-    manaCost: 23,
+    manaCost: 21,
     spell: {
       id: CHIKORITA_SPELL_ID,
       name: '青草场地',
@@ -197,7 +215,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 0,
     base: { attack: 4, armor: 3, health: 8, magic: 0 },
     manaColors: [BaseColor.Yellow, BaseColor.Red],
-    manaCost: 15,
+    manaCost: 13,
     spell: {
       id: XINGAI_SPELL_ID,
       name: '法力征调',
@@ -223,7 +241,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 4, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Red, BaseColor.Yellow],
-    manaCost: 17,
+    manaCost: 15,
     spell: {
       id: LIANKA_SPELL_ID,
       name: '日轮坠灭',
@@ -249,7 +267,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 11,
     base: { attack: 4, armor: 4, health: 6, magic: 1 },
     manaColors: [BaseColor.Red, BaseColor.Green],
-    manaCost: 16,
+    manaCost: 14,
     spell: {
       id: YELUO_SPELL_ID,
       name: '猩红谢幕',
@@ -275,7 +293,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 4, armor: 3, health: 8, magic: 1 },
     manaColors: [BaseColor.Blue, BaseColor.Yellow, BaseColor.Purple],
-    manaCost: 18,
+    manaCost: 14,
     spell: {
       id: RENOIR_SPELL_ID,
       name: '镜月蝶影',
@@ -301,7 +319,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 4, armor: 3, health: 5, magic: 1 },
     manaColors: [BaseColor.Purple, BaseColor.Brown],
-    manaCost: 16,
+    manaCost: 12,
     spell: {
       id: SU_SPELL_ID,
       name: '狂乱献礼',
@@ -327,7 +345,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 0,
     base: { attack: 3, armor: 2, health: 7, magic: 0 },
     manaColors: [BaseColor.Blue, BaseColor.Purple],
-    manaCost: 13,
+    manaCost: 11,
     spell: {
       id: SHIRAKYUSU_ANNA_SPELL_ID,
       name: '静海结界',
@@ -353,7 +371,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 5, armor: 3, health: 4, magic: 1 },
     manaColors: [BaseColor.Purple, BaseColor.Red],
-    manaCost: 13,
+    manaCost: 11,
     spell: {
       id: LINKONGLUO_SPELL_ID,
       name: '绯翼突袭',
@@ -379,7 +397,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 3, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Green, BaseColor.Purple],
-    manaCost: 16,
+    manaCost: 14,
     spell: {
       id: YINSHILUO_SPELL_ID,
       name: '花露秘酿',
@@ -405,7 +423,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 4, armor: 4, health: 6, magic: 1 },
     manaColors: [BaseColor.Purple, BaseColor.Brown],
-    manaCost: 18,
+    manaCost: 16,
     spell: {
       id: WANGFENG_SPELL_ID,
       name: '禁典开扉',
@@ -415,5 +433,99 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     traits: communityTraits(['inscribed', 'darkancestry', 'songofdarkness']),
     portrait: null,
     artUrl: wangfengPortrait,
+  },
+  {
+    id: GUANLI_OBSERVER_ID,
+    name: '管理组重点观察对象',
+    referenceName: 'GuanliObserver',
+    rarity: 'Legendary',
+    rarityIdx: 5,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Generator',
+    attack: 18,
+    armor: 20,
+    health: 34,
+    magic: 8,
+    base: { attack: 4, armor: 4, health: 8, magic: 1 },
+    manaColors: [BaseColor.Green, BaseColor.Blue, BaseColor.Purple],
+    manaCost: 26,
+    spell: {
+      id: GUANLI_OBSERVER_SPELL_ID,
+      name: '灵泉凝露',
+      description: guanliObserverDescription,
+      meta: buildSkillMetadata(guanliObserverDescription),
+    },
+    traits: communityTraits(['waterheart', 'manashield', 'guanli_hidden_scale_surge']),
+    portrait: null,
+    artUrl: guanliObserverPortrait,
+  },
+  {
+    id: HONGDIE_ID,
+    name: '虹蝶',
+    referenceName: 'HongDie',
+    rarity: 'UltraRare',
+    rarityIdx: 3,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Warlock',
+    attack: 15,
+    armor: 14,
+    health: 25,
+    magic: 10,
+    base: { attack: 3, armor: 3, health: 6, magic: 1 },
+    manaColors: [BaseColor.Red, BaseColor.Blue, BaseColor.Purple],
+    manaCost: 13,
+    spell: {
+      id: HONGDIE_SPELL_ID,
+      name: '夜蝶迷踪',
+      description: hongdieDescription,
+      meta: buildSkillMetadata(hongdieDescription),
+    },
+    traits: communityTraits(['magiclink', 'alert', 'arcane']),
+    portrait: null,
+    artUrl: hongdiePortrait,
+  },
+  {
+    id: PING_ID,
+    name: '苹',
+    referenceName: 'Ping',
+    rarity: 'Legendary',
+    rarityIdx: 5,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Support',
+    attack: 18,
+    armor: 20,
+    health: 34,
+    magic: 8,
+    base: { attack: 4, armor: 4, health: 8, magic: 1 },
+    manaColors: [BaseColor.Red, BaseColor.Purple, BaseColor.Brown],
+    manaCost: 22,
+    spell: { id: PING_SPELL_ID, name: '夜色流转', description: pingDescription, meta: buildSkillMetadata(pingDescription) },
+    traits: communityTraits(['firelink', 'ping_evernight', 'nightsong']),
+    portrait: null,
+    artUrl: pingPortrait,
+  },
+  {
+    id: ZHUWANG_ID,
+    name: 'zhuwang',
+    referenceName: 'Zhuwang',
+    rarity: 'UltraRare',
+    rarityIdx: 3,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Support',
+    attack: 15,
+    armor: 13,
+    health: 26,
+    magic: 10,
+    base: { attack: 3, armor: 3, health: 6, magic: 1 },
+    manaColors: [BaseColor.Green, BaseColor.Yellow, BaseColor.Brown],
+    manaCost: 15,
+    spell: { id: ZHUWANG_SPELL_ID, name: '猪猪变身术', description: zhuwangDescription, meta: buildSkillMetadata(zhuwangDescription) },
+    traits: communityTraits(['stonelink', 'frenzy', 'armored']),
+    portrait: null,
+    artUrl: zhuwangPortrait,
   },
 ];

@@ -6,7 +6,7 @@ import { GravitySystem, STORM_DROP_WEIGHT, STORM_DOOMSKULL_DROP, STORM_UBER_DOOM
 import type { SkullDropBoost } from './GravitySystem';
 import { ManaDistributor } from './ManaDistributor';
 import { CombatResolver } from './CombatResolver';
-import { matchManaWithSurge } from './manaSurge';
+import { matchManaWithSurge, surgeNeedsRoll } from './manaSurge';
 import { ExtensionRegistry } from './registry';
 import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
@@ -104,6 +104,8 @@ export class TurnEngine {
    * 与 skullChance 同款公开字段注入模式：构造函数签名不动，宿主构造后赋值。
    */
   bannerBoosts: Partial<Record<BaseColor, number>> | null = null;
+  /** 法力涌动新增掷骰的独立随机流（见构造函数） */
+  private readonly surgeRng: SeededRNG;
   enemyBannerBoosts: Partial<Record<BaseColor, number>> | null = null;
 
   /**
@@ -290,6 +292,9 @@ export class TurnEngine {
     private registry: ExtensionRegistry = new ExtensionRegistry(),
   ) {
     this.nextGemId = nextGemId;
+    // 法力涌动新规则（4 消保底 / 连锁加成）的掷骰走独立分支流：只读主流状态派生，不消耗主流，
+    // 其余随机结果（技能目标、补充宝石、闪避…）与旧规则逐次一致。
+    this.surgeRng = new SeededRNG((rng.getState() ^ 0x6a09e667) >>> 0);
     this.gravity = new GravitySystem(rng, nextGemId);
     // 特质在战斗开始时编译一次：之后骷髅/技能/状态结算只读 Character.passive，
     // 不必把注册表传进那些纯函数（见 src/engine/traits.ts 的设计说明）。
@@ -1073,6 +1078,8 @@ export class TurnEngine {
   private runCascades(events: GameEvent[]): void {
     this.state.chainCount = 0;
     let grantedExtra = false;
+    /** 冰冻吞掉额外回合的归因单位（整轮连锁结束后才发演出事件，不打断消除批次） */
+    let frozenDeniedBy: number | undefined;
 
     for (;;) {
       const matches = this.resolver.findMatches(this.state.board);
@@ -1085,7 +1092,11 @@ export class TurnEngine {
       const destroyTriggers: { gemType: GemType; pos: CellPos; viaMatch: boolean }[] = [];
       for (const group of matches) {
         events.push(this.makeEliminationEvent(group, chain));
-        if (grantsExtraTurn(group.shape) && !this.isMatchExtraTurnFrozen(group)) grantedExtra = true;
+        if (grantsExtraTurn(group.shape)) {
+          const frozenBy = this.matchExtraTurnFrozenBy(group);
+          if (!frozenBy) grantedExtra = true;
+          else frozenDeniedBy ??= frozenBy.id;
+        }
 
         // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算。
         // ctx 只服务条件光环批新键（施加状态/5 连限定/净化/条件经济）与大连创造批
@@ -1168,17 +1179,22 @@ export class TurnEngine {
     if (grantedExtra && this.pendingExtraTurnSource === null) {
       this.pendingExtraTurnSource = 'match';
     }
+    // 只有额外回合确实丢了才提示（别的组/技能已给额外回合时不提示）
+    if (frozenDeniedBy !== undefined && !grantedExtra && this.pendingExtraTurnSource === null) {
+      events.push({ type: 'status-blocked', targetId: frozenDeniedBy, statusId: 'frozen', reason: 'extra-turn' });
+    }
   }
 
   /** 冻结只抑制关联颜色的匹配额外回合；骷髅看当前第一名存活部队。 */
-  private isMatchExtraTurnFrozen(group: MatchGroup): boolean {
+  /** 返回吞掉该组额外回合的冻结单位（演出归因用；无则 undefined）。 */
+  private matchExtraTurnFrozenBy(group: MatchGroup): Character | undefined {
     const living = this.state.teams[this.state.activePlayer].characters.filter((c) => !c.defeated);
     const settle = group.settle;
-    if (settle.kind === 'skull') return !!living[0] && hasStatus(living[0], 'frozen');
+    if (settle.kind === 'skull') return living[0] && hasStatus(living[0], 'frozen') ? living[0] : undefined;
     if (settle.kind === 'color') {
-      return living.some((c) => hasStatus(c, 'frozen') && c.colors.includes(settle.color));
+      return living.find((c) => hasStatus(c, 'frozen') && c.colors.includes(settle.color));
     }
-    return false;
+    return undefined;
   }
 
   private pendingExtraTurnSource: 'match' | 'skill' | 'destroy' | null = null;
@@ -1267,12 +1283,16 @@ export class TurnEngine {
     const settle = group.settle;
     const activeTeam = this.state.teams[this.state.activePlayer];
     if (settle.kind === 'color') {
-      // 颜色 → 产生法力：3 消可涌动翻倍、4 消永不、5+ 必翻倍，再乘通配倍率。
+      // 颜色 → 产生法力：3 消按基础几率涌动翻倍、4 消几率 ×2 且至少 35%、5+ 必翻倍，
+      // 基础几率含连锁加成（见 manaSurge.ts），再乘通配倍率。
       // jinx 抑制在 distributeGemMana；旗帜 ±N 在抑制之后平展。
       const gemCount = group.cells.length;
       const mastery = this.masteryOf(this.state.activePlayer, settle.color);
-      const roll = gemCount === 3 && mastery > 0 ? this.rng.next() : 1;
-      const { amount, surged } = matchManaWithSurge(gemCount, settle.manaMultiplier, mastery, roll);
+      const chain = Math.max(1, this.state.chainCount);
+      // 旧规则本来就掷的（精通 > 0 的 3 消）仍用主随机流；新规则新增的掷骰走 surgeRng
+      const roll = gemCount === 3 && mastery > 0 ? this.rng.next()
+        : surgeNeedsRoll(gemCount, mastery, chain) ? this.surgeRng.next() : 1;
+      const { amount, surged } = matchManaWithSurge(gemCount, settle.manaMultiplier, mastery, roll, chain);
       const gained = this.distributeGemMana(activeTeam, this.state.activePlayer, settle.color, amount);
       if (surged) {
         for (const ev of gained) {
@@ -2714,7 +2734,7 @@ export class TurnEngine {
     const actionEndedStatusIds: string[] = [];
     if (hasStatus(ch, ENCHANTED_STATUS_ID)) {
       ch.statuses = ch.statuses.filter((s) => s.id !== ENCHANTED_STATUS_ID);
-      events.push({ type: 'status-expire', targetId: ch.id, statusId: ENCHANTED_STATUS_ID });
+      events.push({ type: 'status-expire', targetId: ch.id, statusId: ENCHANTED_STATUS_ID, reason: 'cast' });
       actionEndedStatusIds.push(ENCHANTED_STATUS_ID);
     }
     // 潜水／祝福（R004）：持有者行动即移除；同样先于效果本体（自身重新施加的新实例保留）。

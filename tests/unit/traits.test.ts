@@ -193,7 +193,7 @@ describe('状态免疫特质', () => {
   it('对应状态被拒绝，其它状态照常', () => {
     const ch = makeChar(0, { traitIds: ['fireproof'] });
     attachPassives(ch);
-    expect(applyStatus(ch, { id: 'burning', turns: 3 })).toEqual([]);
+    expect(applyStatus(ch, { id: 'burning', turns: 3 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     expect(hasStatus(ch, 'burning')).toBe(false);
     expect(applyStatus(ch, { id: 'poison', turns: 3 }).length).toBeGreaterThan(0);
     expect(hasStatus(ch, 'poison')).toBe(true);
@@ -203,7 +203,7 @@ describe('状态免疫特质', () => {
     const ch = makeChar(0, { traitIds: ['impervious'] });
     attachPassives(ch);
     for (const id of ['burning', 'poison', 'frozen', 'silence', 'entangle', 'stun']) {
-      expect(applyStatus(ch, { id, turns: 2 })).toEqual([]);
+      expect(applyStatus(ch, { id, turns: 2 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
       expect(isImmuneToStatus(ch, id)).toBe(true);
     }
     expect(ch.statuses).toEqual([]);

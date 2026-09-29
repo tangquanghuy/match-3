@@ -13,6 +13,7 @@ import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
 import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
 import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, WEEK_MS, type EventTypeId } from '../data/events';
 import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
+import { STARTER_CLASS_ID } from '../data/classes';
 import { GACHA_LOG_CAP } from './schema';
 import { STARTING_KINGDOM, starterTroopIds } from '../data/economy';
 import { hydrateManaMastery } from '../systems/manaMastery';
@@ -451,7 +452,11 @@ export function hydrateSave(raw: Record<string, unknown>): MetaSave {
       }
     }
     if (Array.isArray(raw.hero.unlockedClasses)) {
-      hero.unlockedClasses = [...new Set(raw.hero.unlockedClasses.filter((c): c is string => typeof c === 'string'))];
+      // 起始职业始终保底在列（2026-09-29 起破碎尖塔默认解锁，旧档载入时补发）
+      hero.unlockedClasses = [...new Set([
+        STARTER_CLASS_ID,
+        ...raw.hero.unlockedClasses.filter((c): c is string => typeof c === 'string'),
+      ])];
     }
     if (Array.isArray(raw.hero.unlockedWeapons)) {
       hero.unlockedWeapons = [

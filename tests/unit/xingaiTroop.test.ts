@@ -21,7 +21,7 @@ import { grantTroop, getRecord } from '../../src/meta/systems/troopProgress';
 function character(id: number, mana: number, overrides: Partial<Character> = {}): Character {
   return {
     id, name: `C${id}`, maxHp: 40, hp: 40, attack: 10, armor: 5, magic: 0,
-    colors: [BaseColor.Red], manaCost: 15, mana, skillId: 'none',
+    colors: [BaseColor.Red], manaCost: 13, mana, skillId: 'none',
     statuses: [], defeated: false, ...overrides,
   };
 }
@@ -39,7 +39,7 @@ describe('好想星艾 / 法力征调', () => {
     expect(troop.rarity).toBe('UltraRare');
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('传说');
     expect(troop.manaColors).toEqual([BaseColor.Yellow, BaseColor.Red]);
-    expect(troop.manaCost).toBe(15);
+    expect(troop.manaCost).toBe(13);
     expect(troop.spell.name).toBe('法力征调');
     expect(troop.artUrl).toContain('haoxiang-xingai.png');
     expect(troopArt(troop)).toBe(troop.artUrl);
@@ -63,7 +63,7 @@ describe('好想星艾 / 法力征调', () => {
     expect(snapshot.traitIds).toEqual(codes);
     expect(snapshot.skillId).toBe(String(XINGAI_SPELL_ID));
     expect(snapshot.portraitUrl).toBe(troop.artUrl);
-    expect(snapshot.manaCost).toBe(15);
+    expect(snapshot.manaCost).toBe(13);
   });
 
   it('drains at most 6 mana from the chosen enemy, grants 4 to the lowest-mana other ally, then converts yellow to blue', () => {
@@ -120,7 +120,7 @@ describe('好想星艾 / 法力征调', () => {
     );
     let nextId = 1;
     new TurnEngine(state, new SeededRNG(10005), () => nextId++);
-    expect(caster.mana).toBe(7); // floor(15 * 50%)
+    expect(caster.mana).toBe(6); // floor(13 * 50%)
     expect(total(caster)).toBe(baseline[0]! + 2);
     expect(total(ally)).toBe(baseline[1]! + 2);
     expect(total(enemy)).toBe(baseline[2]);
@@ -129,7 +129,7 @@ describe('好想星艾 / 法力征调', () => {
       state, casterId: enemy.id, chosenTargetId: caster.id,
       rng: new SeededRNG(8), nextGemId: () => nextId++,
     });
-    expect(caster.mana).toBe(7); // manashield blocks enemy mana reduction
+    expect(caster.mana).toBe(6); // manashield blocks enemy mana reduction
   });
 
   it('does not grant mana to the caster if no other ally survives', () => {

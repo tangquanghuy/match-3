@@ -180,6 +180,8 @@ describe('战斗快照期加成', () => {
 describe('职业特质槽', () => {
   it('未装备职业时不可解锁；顺序解锁；费用走账本', () => {
     const s = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    // 新档默认装备起始职业（2026-09-29），先卸下才能验「未装备」分支
+    s.hero.classId = null;
     expect(unlockHeroTrait(s, 1)).toMatchObject({ ok: false, code: 'INVALID' });
     s.hero.unlockedClasses.push(KNIGHT);
     equipClass(s, KNIGHT);

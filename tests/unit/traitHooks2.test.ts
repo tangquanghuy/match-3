@@ -366,7 +366,7 @@ describe('manashield：对法力灼烧、法力耗尽和法力窃取免疫', () 
   it('法力灼烧状态（mana-burn）施加被免疫拦截；无特质目标正常施加', () => {
     const shielded = makeChar(4, { traitIds: ['manashield'] });
     attachPassives(shielded);
-    expect(applyStatus(shielded, { id: 'mana-burn', turns: 2 })).toEqual([]);
+    expect(applyStatus(shielded, { id: 'mana-burn', turns: 2 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     expect(shielded.statuses).toHaveLength(0);
 
     const normal = makeChar(5);

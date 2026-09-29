@@ -186,10 +186,17 @@ const STAT_ORDER: ReadonlyArray<[HeroStatKey, string]> = [
   ['attack', '攻击'], ['health', '生命'], ['armor', '护甲'], ['magic', '魔法'],
 ];
 
-/** 升到 level 时的四维与本级增量（含武器淬炼加成，增量只来自等级曲线）。 */
-export function levelUpStats(level: number, bonus: Partial<Record<HeroStatKey, number>> = {}): LevelUpStat[] {
-  const now = heroStatsAt(level);
-  const before = heroStatsAt(Math.max(1, level - 1));
+/**
+ * 升到 level 时的四维与本级增量（含武器淬炼加成，增量只来自等级属性点）。
+ * @param classId 已装备职业（提供官方基底）；缺省走无职业兜底基底
+ */
+export function levelUpStats(
+  level: number,
+  bonus: Partial<Record<HeroStatKey, number>> = {},
+  classId: string | null = null,
+): LevelUpStat[] {
+  const now = heroStatsAt(level, classId);
+  const before = heroStatsAt(Math.max(1, level - 1), classId);
   return STAT_ORDER.map(([key, label]) => ({
     key, label, value: now[key] + (bonus[key] ?? 0), gain: Math.max(0, now[key] - before[key]),
   }));
@@ -562,8 +569,9 @@ export class ResultScreen implements Screen {
   }
 
   private renderStats(level: number): void {
-    const bonus = temperingBonusOf(this.ctx.save());
-    $('#luStats').innerHTML = levelUpStats(level, bonus).map((s) =>
+    const save = this.ctx.save();
+    const bonus = temperingBonusOf(save);
+    $('#luStats').innerHTML = levelUpStats(level, bonus, save.hero.classId).map((s) =>
       `<div class="lu-stat${s.gain > 0 ? ' is-up' : ''}" data-stat="${s.key}" title="${s.label}">
         <img class="lu-stat-icon" src="${art(`stat-${s.key}`)}" alt="" draggable="false">
         <b>${s.value}</b>

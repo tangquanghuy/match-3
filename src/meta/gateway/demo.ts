@@ -15,6 +15,7 @@ import { earn, earnMaterials } from '../systems/wallet';
 import { grantTroop, levelUp, ascend } from '../systems/troopProgress';
 import { addHeroXp, addClassXp, equipClass } from '../systems/hero';
 import { pickTalent } from '../systems/talents';
+import { eligibleClassIds } from '../systems/classUnlock';
 import { setTeamPreset } from '../systems/teamRules';
 import { temperWeaponOnSave } from '../systems/forgeOps';
 import { STARTER_WEAPON_ID } from '../data/weapons';
@@ -66,14 +67,12 @@ export function buildDemoSave(now: number): MetaSave {
     };
   });
 
-  // —— 职业：8/8 全通解锁（与结算解锁规则同源：classByKingdom 映射）；首个全通王国的职业练到 12 级 ——
-  const completed = kingdoms.filter((k) => (save.kingdoms[k]?.questsDone ?? 0) >= QUESTS_PER_KINGDOM);
-  for (const cls of CLASSES) {
-    if (!completed.includes(cls.kingdom)) continue;
-    save.hero.unlockedClasses.push(cls.id);
-    save.hero.classLevels[cls.id] = 1;
+  // —— 职业：按分批门槛补发（与结算解锁同源 eligibleClassIds）；练一个到 12 级供演示 ——
+  for (const classId of eligibleClassIds(save)) {
+    if (!save.hero.unlockedClasses.includes(classId)) save.hero.unlockedClasses.push(classId);
+    save.hero.classLevels[classId] ??= 1;
   }
-  const demoClass = completed.map((k) => CLASSES.find((c) => c.kingdom === k)).find(Boolean);
+  const demoClass = save.hero.unlockedClasses.map((id) => CLASSES.find((c) => c.id === id)).find(Boolean);
   if (demoClass) {
     equipClass(save, demoClass.id);
     for (let guard = 0; guard < 500 && (save.hero.classLevels[demoClass.id] ?? 0) < DEMO_CLASS_LEVEL; guard++) {

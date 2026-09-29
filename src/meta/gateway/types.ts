@@ -14,7 +14,7 @@
 import type { BattleResult } from '@session/index';
 import type { MetaFailure } from '../types';
 import type { ArenaSettleResult, ArenaBridgeOutcome, DraftState } from '../systems/arena';
-import type { GachaDrawResult, GloryChestResult } from '../systems/gacha';
+import type { ChestLootResult, GachaDrawResult } from '../systems/gacha';
 import type { SettlementContext, SettlementDetail } from '../systems/settlement';
 import type { LevelUpResult, AscendResult, UnlockTraitResult, DecomposeResult } from '../systems/troopProgress';
 import type { SetTeamResult } from '../systems/teamRules';
@@ -146,10 +146,15 @@ export interface MetaGateway {
   /**
    * 开箱。**count 是原子批量**：整批成交或一张不动（CH-1）。
    * - 'gem'：count 只能 1|10（十连保底稀有或以上）；
-   * - 'gold'：count 1~10（钥匙只够 7 抽时可显式开 7 次）；
+   * - 'gold'：count 1~10；钥匙不足时带 buyMissingKeys 用黄金补齐，或显式只开持有钥匙数；
    * - 'glory'：count 只能 1|10，整批一次性结算。
    */
-  openChest(kind: 'gem' | 'gold' | 'glory', count?: number): Promise<GatewayUpdate<GachaDrawResult | GloryChestResult | MetaFailure>>;
+  openChest(
+    kind: 'gem' | 'gold' | 'glory',
+    count?: number,
+    /** gold 专用：钥匙不足时用黄金就地补（300/把），与开箱同一笔原子成交 */
+    opts?: { buyMissingKeys?: boolean },
+  ): Promise<GatewayUpdate<GachaDrawResult | ChestLootResult | MetaFailure>>;
 
   // —— 王国经营（M3） ——
   upgradeKingdomLevel(kingdom: string): Promise<GatewayUpdate<number | MetaFailure>>;

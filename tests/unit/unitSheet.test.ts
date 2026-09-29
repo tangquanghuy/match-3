@@ -3,6 +3,9 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_PANE_POS,
+  PANE_SPREAD,
+  bringPaneToFront,
   castButtonLabel,
   resolveCastAvailability,
   statusLiveLine,
@@ -59,29 +62,61 @@ describe('resolveCastAvailability', () => {
   });
 });
 
-describe('unitSheetMetrics', () => {
-  it('1440×900 棋盘（768 逻辑 px）：立绘卡宽约四成多，2:3 卡 + 按钮 + 复选框放得下', () => {
-    const m = unitSheetMetrics(768, 812);
-    expect(m.k).toBe(1);
+describe('unitSheetMetrics（三张同尺寸卡叠成一摞）', () => {
+  const fits = (w: number, h: number) => {
+    const m = unitSheetMetrics(w, h);
+    // 横向：卡宽 + 两侧偏移不超出覆盖区
+    expect(m.cardW + m.spread * 2).toBeLessThanOrEqual(w - m.pad * 2);
+    // 竖向：关闭钮预留 + 2:3 卡 + 按钮 + 复选框
+    expect(m.pad * 2 + m.closeSize + m.cardH + m.gap * 2 + m.buttonH + m.checkH).toBeLessThanOrEqual(h);
+    expect(m.cardH).toBe(Math.round(m.cardW * 1.5));
+    expect(m.spread).toBe(Math.round(m.cardW * PANE_SPREAD));
+    return m;
+  };
+
+  it('1440×900 棋盘（768 逻辑 px）', () => {
+    const m = fits(768, 812);
     expect(m.compact).toBe(false);
     expect(m.cardW).toBeGreaterThan(300);
-    expect(m.cardW).toBeLessThanOrEqual(Math.floor(768 * 0.44));
-    expect(36 + m.pad * 2 + m.cardW * 1.5 + 42 + 26).toBeLessThan(812);
   });
 
-  it('740×400 棋盘（344 逻辑 px）：紧凑态，右栏至少留 170px，间距不小于 8px', () => {
-    const m = unitSheetMetrics(344, 388);
+  it('960×720 控件占 HUD 通道时（602 逻辑 px 见方）也放得下', () => {
+    expect(fits(602, 602).compact).toBe(false);
+  });
+
+  it('740×400 棋盘（344 逻辑 px）：紧凑态，卡宽不小于 150px', () => {
+    const m = fits(344, 388);
     expect(m.compact).toBe(true);
     expect(m.pad).toBeGreaterThanOrEqual(8);
-    expect(344 - m.cardW - m.pad * 3).toBeGreaterThanOrEqual(170);
-    expect(28 + m.pad * 2 + m.cardW * 1.5 + 32 + 22).toBeLessThanOrEqual(388);
+    expect(m.cardW).toBeGreaterThanOrEqual(150);
+  });
+});
+
+describe('bringPaneToFront', () => {
+  it('点露出的那张与当前页交换位置；点当前页不变', () => {
+    const a = bringPaneToFront(DEFAULT_PANE_POS, 'spell');
+    expect(a).toEqual({ spell: 'center', portrait: 'left', traits: 'right' });
+    const b = bringPaneToFront(a, 'traits');
+    expect(b).toEqual({ spell: 'right', portrait: 'left', traits: 'center' });
+    expect(bringPaneToFront(b, 'traits')).toEqual(b);
+    expect(DEFAULT_PANE_POS).toEqual({ spell: 'left', portrait: 'center', traits: 'right' });
   });
 });
 
 describe('statusLiveLine', () => {
-  it('DoT 写每回合数值，限时状态写剩余回合', () => {
-    expect(statusLiveLine({ turns: 3, magnitude: 4 })).toBe('每回合 4 点 · 剩余 3 回合');
-    expect(statusLiveLine({ turns: 2 })).toBe('剩余 2 回合');
-    expect(statusLiveLine({ turns: 0 })).toBe('');
+  it('出血写层数与每回合伤害；官方无时限状态不写剩余回合', () => {
+    // bleed 的 magnitude 是层数（3 层 = 每回合 6 点），不是每回合伤害
+    expect(statusLiveLine({ id: 'bleed', turns: 3, magnitude: 3 })).toBe('3 层 · 每回合 6 点');
+    // 中毒/燃烧等官方状态 turns 不递减，显示「剩余 N 回合」会一直不动、误导玩家
+    expect(statusLiveLine({ id: 'poison', turns: 3 })).toBe('');
+    expect(statusLiveLine({ id: 'burning', turns: 3 })).toBe('');
+    // 仍按回合倒计时的辅助状态照旧写剩余回合
+    expect(statusLiveLine({ id: 'helper-buff', turns: 2 })).toBe('剩余 2 回合');
+    expect(statusLiveLine({ id: 'helper-buff', turns: 0 })).toBe('');
+  });
+  it('可自愈负面附带下回合自愈几率', () => {
+    expect(statusLiveLine({ id: 'burning', turns: 3 }, 30)).toBe('下回合自愈几率 30%');
+    // 中毒不参与累积自愈，不显示几率
+    expect(statusLiveLine({ id: 'poison', turns: 3 }, 30)).toBe('');
   });
 });

@@ -21,7 +21,7 @@ const proto = SKILL_LIBRARY[LINKONGLUO_SPELL_ID];
 function fixture(unlocked = false) {
   const f = damageFixture();
   Object.assign(f.caster, { skillId: String(LINKONGLUO_SPELL_ID),
-    manaCost: 13, mana: 0, magic: 10, traitIds: unlocked ? traits : [],
+    manaCost: 11, mana: 0, magic: 10, traitIds: unlocked ? traits : [],
     troopTypes: [COMMUNITY_RACE, 'Dragon'], colors: [BaseColor.Purple, BaseColor.Red] });
   attachPassives(f.caster);
   return f;
@@ -48,7 +48,7 @@ describe('霖空洛 / 绯翼突袭', () => {
     expect(TROOPS.filter(t => t.spell.id === LINKONGLUO_SPELL_ID)).toHaveLength(1);
     expect(troop).toMatchObject({ name: '霖空洛', rarity: 'UltraRare', rarityIdx: 3,
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE, 'Dragon'],
-      manaColors: [BaseColor.Purple, BaseColor.Red], manaCost: 13,
+      manaColors: [BaseColor.Purple, BaseColor.Red], manaCost: 11,
       spell: { name: '绯翼突袭' } });
     expect(troop.spell.description).toBe('对一名敌人造成 [魔法 + 6] 点伤害。如果敌人的生命值全满，则造成双倍伤害。创造 3 颗红色龙宝石。');
     expect(troop.spell.meta?.scalings).toContainEqual({ base: 6, mult: 1 });
@@ -66,7 +66,7 @@ describe('霖空洛 / 绯翼突袭', () => {
     expect(troopToSnapshot(troop, record, 'linkongluo').traitIds).toEqual([]);
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, 'linkongluo')).toMatchObject({
-      traitIds: traits, skillId: String(LINKONGLUO_SPELL_ID), manaCost: 13,
+      traitIds: traits, skillId: String(LINKONGLUO_SPELL_ID), manaCost: 11,
       portraitUrl: troop.artUrl,
     });
   });
@@ -99,10 +99,10 @@ describe('霖空洛 / 绯翼突袭', () => {
     expect(f.enemies[1].statuses.some(s => s.id === 'barrier')).toBe(false);
     expect(dragonGems(events)).toHaveLength(3);
   });
-  it('fast starts at floor(13 / 2), without applying when the trait is locked', () => {
+  it('fast starts at floor(11 / 2), without applying when the trait is locked', () => {
     for (const enabled of [false, true]) {
       const f = fixture(enabled); newEngine(f);
-      expect(f.caster.mana).toBe(enabled ? 6 : 0);
+      expect(f.caster.mana).toBe(enabled ? 5 : 0);
     }
   });
   it.each([0.1, 0.2])('agile uses a strict 20%% skull dodge at roll %s', roll => {

@@ -78,12 +78,29 @@ test('馈赠：部队卡奖励领取后弹出获得展示', async ({ page }) => 
   await expect(page.locator('.gift-card').nth(1)).toContainText('新兵补给');
   await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-starter-1600.png' });
   await page.locator('[data-gift-claim="starter-troop"]').click();
-  const reveal = page.locator('#giftReveal');
-  await expect(reveal.locator('.gift-reveal-card')).toHaveCount(1);
-  await expect(reveal).toContainText('传说');
+  // 借用宝箱开箱演出：一张卡背，翻开必为传说，关闭后回到馈赠页
+  await expect(page).toHaveURL(/#chests\/gems$/);
+  const modal = page.locator('#summonModal');
+  await expect(modal).toBeVisible();
+  await expect(page.locator('#summonTitle')).toHaveText('馈赠');
+  const card = page.locator('#summonCards .summon-card');
+  await expect(card).toHaveCount(1);
+  await expect(modal).toHaveClass(/is-ready/, { timeout: 15_000 });
+  await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-reveal-back-1600.png' });
+  await card.click();
+  // 传说及以上有特写，点击关闭后才算翻完
+  const slam = page.locator('#legendSlam');
+  await expect(slam).toBeVisible({ timeout: 15_000 });
+  await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-reveal-slam-1600.png' });
+  await expect(async () => {
+    if (await slam.isVisible()) await slam.click({ force: true });
+    await expect(modal).toHaveClass(/is-complete/, { timeout: 1_000 });
+  }).toPass({ timeout: 20_000 });
+  await expect(card).toContainText('传说');
   await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-reveal-1600.png' });
-  await reveal.locator('[data-gift-reveal-close]').click();
-  await expect(reveal).toHaveCount(0);
+  await page.locator('#summonAction').click();
+  await expect(page).toHaveURL(/#gifts\/starter$/);
+  await expect(page.locator('.gift-card').nth(1)).toContainText('已领取');
   await page.goto('/game.html#gifts/hero');
   await expect(page.locator('.gift-pager button')).toHaveCount(4);
   await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-hero-1600.png' });

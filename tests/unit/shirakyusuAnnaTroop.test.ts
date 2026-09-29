@@ -22,7 +22,7 @@ const codes = ['waterheart', 'waterlink', 'songofice'];
 const proto = SKILL_LIBRARY[SPELL_ID];
 function setup(unlocked = false, red = 0) {
   const f = damageFixture(red);
-  Object.assign(f.caster, { manaCost: 13, mana: 13, skillId: String(SPELL_ID),
+  Object.assign(f.caster, { manaCost: 11, mana: 11, skillId: String(SPELL_ID),
     colors: [BaseColor.Blue, BaseColor.Purple], traitIds: unlocked ? codes : [] });
   attachPassives(f.caster);
   return f;
@@ -41,7 +41,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     expect(TROOPS.filter(t => t.id === ID)).toHaveLength(1);
     expect(TROOPS.filter(t => t.spell.id === SPELL_ID)).toHaveLength(1);
     expect(troop).toMatchObject({ name: 'Shirakyusu Anna', rarity: 'UltraRare', rarityIdx: 3,
-      kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE], manaCost: 13,
+      kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE], manaCost: 11,
       manaColors: [BaseColor.Blue, BaseColor.Purple], spell: { name: '静海结界',
         description: '消除一名敌人的所有正面增益效果，并将其击晕。然后将所有红色宝石转换成蓝色宝石。' } });
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('传说');
@@ -56,7 +56,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     expect(troopToSnapshot(troop, record, 'anna').traitIds).toEqual([]);
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, 'anna')).toMatchObject({ name: 'Shirakyusu Anna', traitIds: codes,
-      skillId: String(SPELL_ID), manaCost: 13, portraitUrl: troop.artUrl });
+      skillId: String(SPELL_ID), manaCost: 11, portraitUrl: troop.artUrl });
   });
   it('dispels all positive statuses on only the chosen enemy, retaining debuffs and removing blessed before stun', () => {
     const f = setup();

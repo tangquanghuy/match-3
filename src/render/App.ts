@@ -12,7 +12,7 @@ import { TurnEngine } from '@engine/TurnEngine';
 import { BoardGenerator } from '@engine/boardGen';
 import { pickHintSwap } from '@engine/boardUtils';
 import { chooseAiAction } from '@engine/aiPolicy';
-import { BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS } from '@engine/comboBias';
+import { BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS, BATTLE_SKULL_CHANCE } from '@engine/comboBias';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
 import { TRAIT_LIBRARY, dynamicTraitCodes } from '@engine/traits';
@@ -31,7 +31,7 @@ import type { GameEvent } from '@engine/events';
 import { BoardView } from './BoardView';
 import type { GemSprite } from './GemSprite';
 import { FXLayer } from './FXLayer';
-import { impactShake } from './FXLayer';
+import { chargeTremor, impactShake } from './FXLayer';
 import { EventStreamPlayer } from './EventStreamPlayer';
 import { StormIndicator, stormChangePlan } from './StormIndicator';
 import { InputController } from './InputController';
@@ -43,21 +43,25 @@ import { ExtraTurnNotice } from './ExtraTurnNotice';
 import type { FramePlaybackClock } from './FramePlaybackClock';
 import { planExplosionBursts } from './explosionPlayback';
 import { statusFeedbackFX, statusFeedbackLabel } from './statusPlayback';
+import { statusEmblemUrl } from './statusEmblems';
+import {
+  STATUS_CUE_REPEAT_MS, STATUS_EMBLEM_MAX_PER_CARD, dotTickBreakdown, dotTickColor, statusBlockedCue, statusExpireCue, statusTickCue,
+} from './statusPresentation';
 import { statusBadge } from './statusBadges';
 import { manaMoteDelay } from './manaPlayback';
 import { TeamView, CARD_W, setTeamSize } from './TeamView';
 import { installStatusTooltips } from './statusTooltip';
 import type { CharacterCard, CardShownStats, PressSource } from './TeamView';
-import { buildDetailViewModel } from './CharacterDetailPanel';
+import { traitSlotsOf } from './CharacterDetailPanel';
 import { GameOverPanel, type GameOverStats } from './GameOverPanel';
 import { UnitSheet, resolveCastAvailability } from './UnitSheet';
 import type { CastAvailability, UnitSheetData } from './UnitSheet';
-import { CastCutIn, registerCastCutInSide } from './CastCutIn';
+import { CastCutIn, castCutInReserveSeconds, registerCastCutInSide } from './CastCutIn';
 import { RARITY_TIERS } from '../meta/data/rarity';
 import { raceNames } from '../meta/data/races';
 import { SkillBranchPicker } from './SkillBranchPicker';
 import { AiBranchChooser, FixedBranchChooser, skillChoices, selectSkillBranch } from '../engine/skills/branchChooser';
-import { gestureHintShown, markGestureHintShown, setSkipCastConfirm, skipCastConfirm } from './battlePrefs';
+import { setSkipCastConfirm, skipCastConfirm } from './battlePrefs';
 import { TargetPicker } from './TargetPicker';
 import { CellPicker } from './CellPicker';
 import type { CellAimCoords } from './CellPicker';
@@ -474,6 +478,9 @@ export class App {
    * key = `${charId}:${statusId}` → 覆盖层 DOM 节点。status-apply 挂载、status-expire/cleanse 移除。
    */
   private statusPersistLayers = new Map<string, HTMLDivElement>();
+
+  /** `${charId}:${reason}` → 上次演出时刻，用于抑制同卡同因的重复提示（见 STATUS_CUE_REPEAT_MS）。 */
+  private statusCueShownAt = new Map<string, number>();
   /** 持续层异步挂载期间的意图集合（解码未完成时若已解除则取消挂载） */
   private persistPending = new Set<string>();
   /** 部队详情窗（点任意战斗卡打开；盖棋盘、非模态，含「释放技能」与「快速释放」） */
@@ -497,14 +504,12 @@ export class App {
   /** 胜负结算面板（game-over 事件弹出，需求 15.4） */
   private gameOverPanel!: GameOverPanel;
   private branchPicker = new SkillBranchPicker();
-  /** 手势引导（B-5）：法力首次攒满时提示一次怎样打开详情窗/释放 */
-  private gestureHintDone = false;
   /**
    * 战斗结束回调：胜负判定的当下触发一次（不等玩家点“继续”），交出可回传宿主的
    * `BattleResult`，胜负见 `result.winner`。HostBridge 由此发出 `battle:result`。
    */
   onBattleFinished?: (result: BattleResult) => void;
-  /** 结算面板点“继续”后触发，供宿主接管后续流程（战利品统计/页面跳转）。 */
+  /** 设置后，战斗结束暗场过渡完即触发（不弹结算面板），供宿主接管后续流程（战利品统计/页面跳转）。 */
   onBattleDismissed?: () => void;
   /** 结果只交出一次 */
   private battleResultEmitted = false;
@@ -705,7 +710,7 @@ export class App {
     // 构建引擎
     const rng = this.rng;
     const idGen = () => this.nextId++;
-    const genBoard = new BoardGenerator(rng, idGen, 0.16, BATTLE_SETUP_BIAS).generate();
+    const genBoard = new BoardGenerator(rng, idGen, BATTLE_SKULL_CHANCE, BATTLE_SETUP_BIAS).generate();
     // Retain the pre-trigger board: constructor traits can explode/convert/refill it.
     const initialPresentationBoard = genBoard.clone();
     const state = createGameState(genBoard, playerTeam, enemyTeam);
@@ -717,7 +722,7 @@ export class App {
     this.engine.setBeastPool(TROOPS.filter(t => t.troopTypes.includes('Beast')).map(t => t.referenceName));
     // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据
     setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, battleRequest.arenaRules));
-    this.engine.skullChance = 0.16; // 骷髅为棋盘常驻成分（Gems of War 风格）
+    this.engine.skullChance = BATTLE_SKULL_CHANCE; // 骷髅为棋盘常驻成分（Gems of War 风格；节奏调参见 comboBias.ts）
     this.engine.comboBias = BATTLE_COMBO_BIAS; // 补充的连消倾向：4/5 连机会与连锁更常见（见 engine/comboBias.ts）
     // 玩家旗帜加成（meta M6）：请求带 playerBanner 时注入引擎，玩家方匹配加成色 ±N 法力
     const bannerBoosts = battleRequest.playerBanner?.boosts;
@@ -761,7 +766,7 @@ export class App {
     });
     this.applyUnitSheetBounds(true);
     // 我方施法立绘切入：舞台左下角，skill-cast 事件驱动；时间线预留按施法者阵营判定
-    this.castCutIn = new CastCutIn(this.wrapper, { width: dimW, height: dimH });
+    this.castCutIn = new CastCutIn(this.wrapper, { left: this.root.x, top: this.root.y, size: this.board.cellSize * BoardModel.COLS });
     this.unregisterCutInSide = registerCastCutInSide((id) => this.isAllyCaster(id));
     // 胜负结算面板：点"继续"后交给宿主接管后续流程（战利品统计/页面跳转）
     this.gameOverPanel = new GameOverPanel(this.wrapper, () => {
@@ -770,7 +775,6 @@ export class App {
       this.emitBattleResult();
       this.onBattleDismissed?.();
     });
-    this.gestureHintDone = gestureHintShown();
     // 选宝石/选色/选目标均为棋盘式瞄准（无弹窗）；选宝石器需初始化
     this.cellPicker = new CellPicker();
 
@@ -801,6 +805,7 @@ export class App {
     this.player.onBattleEvent = (ev, presentation) => this.onBattleEvent(ev, presentation);
     this.player.onNarrationBatch = (events) => this.narrator.prepare(events, this.engine.getState());
     this.player.onGroupAttack = (events) => this.playGroupAttack(events);
+    this.player.onCastRelease = (charId) => this.playCastRelease(charId);
     this.player.onManaFlow = (ev, origins) => this.playManaFlow(ev, origins);
     this.player.onComboPulse = (level) => this.playTurnHudCombo(level);
     this.player.onStormChange = (ev) => this.onStormChangePresentation(ev);
@@ -1791,12 +1796,12 @@ export class App {
           this.viewOf(ev.player).getCard(ev.characterId);
         if (card) {
           const becameFull = card.absorbMana(ev.color, ev.amount);
+          // 疾病减半：标注原因，否则「消了 4 颗只加 2 点」会被当成 bug
+          if (ev.halved) card.floatText(`疾病 减半\n+${ev.amount}`, '#bdc957', 820);
           if (becameFull) {
             card.pulseManaReady();
             // B-6：刚攒满立刻点亮显式可释放标记（不等回合尾的 refreshTeams）
             card.setCastable(true);
-            // B-5：我方第一次攒满法力时给一次性手势引导
-            if (ev.player === PlayerSide.Left) this.maybeShowGestureHint(ev.characterId);
           }
         }
         break;
@@ -1816,8 +1821,13 @@ export class App {
         break;
       }
       case 'attack-struggle': {
-        // 队首被控（冰冻/缠绕）攻击落空：原地小幅前冲被拉回，不造成伤害
-        this.playStruggle(ev.attackerId);
+        // 屏障/闪避：攻击确实打过去了——照常冲撞，命中瞬间播格挡或闪避；
+        // 队首被控（冰冻/缠绕/击晕）：原地小幅前冲被拉回，不造成伤害
+        if ((ev.reason === 'barrier' || ev.reason === 'dodge') && ev.targetId !== undefined) {
+          this.playDeflectedLunge(ev.attackerId, ev.targetId, ev.reason);
+        } else {
+          this.playStruggle(ev.attackerId);
+        }
         break;
       }
       case 'defeat': {
@@ -1857,7 +1867,7 @@ export class App {
       }
       case 'flee': {
         // 逃跑（DECISIONS 四项拍板③）：阵亡退场管线的轻量版——不播死亡粒子，
-        // 只清状态层后复用 removeCharacterCard 的收缩淡出退场（幸存者回流、替补入列）。
+        // 只清状态层后复用 removeCharacterCard 的收缩淡出退场（后排递进补位，队尾留空位）。
         const leftCard = this.leftTeamView.getCard(ev.characterId);
         const rightCard = this.rightTeamView.getCard(ev.characterId);
         const card = leftCard ?? rightCard;
@@ -1886,24 +1896,34 @@ export class App {
         // 否则页面被关掉战果就丢了。
         this.emitBattleResult();
         if (this.destroyed) return;
-        // B-9（UX 阶段 B）：900ms 不再是静默黑屏——棋盘定格暗场作过渡；
-        // 面板内带本场战果（回合/存活/战斗内收集），数据全在 exportResult()。
+        // B-9（UX 阶段 B）：900ms 棋盘定格暗场作过渡。
+        // 有宿主接管（局外壳）时暗场后直接进结算页，不再多一步“继续”；
+        // 独立页/iframe 没有后续页面可去，仍弹本场战果面板收尾。
         this.playGameOverTransition();
         if (this.resultTimer !== null) clearTimeout(this.resultTimer);
         this.resultTimer = setTimeout(() => {
-          if (!this.destroyed) this.gameOverPanel.open(playerWon, this.buildGameOverStats(), ev.reason === 'surrender');
+          if (this.destroyed) return;
+          if (this.onBattleDismissed) {
+            this.onBattleDismissed();
+            return;
+          }
+          this.gameOverPanel.open(playerWon, this.buildGameOverStats(), ev.reason === 'surrender');
         }, scaledMs(900));
         break;
       }
       // Skill presentation events.
       case 'skill-cast': {
-        const casterColor = this.casterColor(ev.characterId);
-        this.audio.play(casterColor === BaseColor.Brown ? 'skillCastEarth' : 'skill');
+        // 土系保留专属施法采样，叠在统一蓄力之上
+        if (this.casterColor(ev.characterId) === BaseColor.Brown) this.audio.play('skillCastEarth');
         // 施放瞬间引擎已把法力清零：卡面宝石当场排空、撤掉可释放态（双方），
         // 之后的法力获得照常播放，回合尾 refreshTeams 再与引擎对齐。
         this.cardOfChar(ev.characterId)?.drainMana();
-        // 我方施法先出左下角立绘切入（时间线已为它预留），敌方只有音效
+        // 所有技能统一「蓄力 → 发射」：此处起蓄力，预留段末尾由 onCastRelease 发射
+        this.playCastCharge(ev.characterId);
+        // 我方施法先出立绘切入；敌方施法出预告名牌
+        //（时间线已按阵营预留，见 EventStreamPlayer 的 skill-cast）
         if (this.isAllyCaster(ev.characterId)) this.playCastCutIn(ev.characterId);
+        else this.playEnemyCastCue(ev.characterId);
         break;
       }
       case 'skill-damage': {
@@ -1949,10 +1969,16 @@ export class App {
             this.playHitBurst(to.x, to.y, color);
           }
           playHitAudio();
-          card.floatText(`-${damage}`, '#ff6b6b');
+          // 反射弹回的法术伤害：标注「反射」并用反射主题色，避免被看成反射方主动放了个技能
+          card.floatText(ev.reflected ? `反射 -${damage}` : `-${damage}`, ev.reflected ? '#9ecfff' : '#ff6b6b');
           card.hitFlash();
           card.refresh();
         };
+        if (ev.reflected) {
+          const reflectorCard = this.cardOfChar(ev.casterId);
+          reflectorCard?.statusCue({ text: '', color: '#9ecfff', ring: 'pulse' });
+          this.audio.playStatusCue('reflect');
+        }
         if (from && to && ev.casterId !== ev.targetId) {
           this.playProjectile(from, to, color, impact, {
             onApproach: audioLeadMs > 0 ? playHitAudio : undefined,
@@ -2007,7 +2033,15 @@ export class App {
         const feedback = presentation?.statusFeedback;
         const show = feedback?.show ?? true;
         if (card) {
-          if (show) card.applyStatusBadge();
+          if (ev.refreshed) {
+            // 刷新/叠层：只脉冲对应徽记，不重复演「中招」
+            card.applyStatusBadge(ev.statusId, true);
+          } else {
+            // 新挂：徽印在卡面中央弹出再飞入徽记栏。一张卡一批最多演 3 枚，其余直接弹徽记（防刷屏）
+            const order = feedback?.order ?? 0;
+            const url = order < STATUS_EMBLEM_MAX_PER_CARD ? statusEmblemUrl(ev.statusId) : null;
+            card.announceStatus(ev.statusId, url, statusBadge(ev.statusId).color, order);
+          }
           // Never suppress individual accents or persistent/mechanism state.
           card.setStatusAccent(ev.statusId, true);
         }
@@ -2021,28 +2055,59 @@ export class App {
         }
         switch (ev.statusId) {
           case 'frozen': card?.setFrozen(true); break;
-          case 'stun': this.mountStatusPersist(ev.targetId, 'stun', 'stun_persist'); break;
+          case 'stun':
+            this.mountStatusPersist(ev.targetId, 'stun', 'stun_persist');
+            // 击晕专属反馈：头顶转圈金星（此前误用冰冻闪光帧）
+            if (show) card?.stunStars();
+            break;
           case 'entangle': card?.setEntangled(true); break;
           case 'silence': card?.setSilenced(true); break;
           default: break;
         }
         break;
       }
-      case 'status-cleanse': {
+      case 'status-blocked': {
+        // 免疫 / 赐福抵挡 / 潜水闪避 / 冰冻吞额外回合 / 沉默无法充能：
+        // 光圈 + 飘字 + 轻提示音。同卡同原因短时间内只演一次（沉默会随每次同色匹配重复来）
         const card = this.cardOfChar(ev.targetId);
+        if (!card) break;
+        const key = `${ev.targetId}:${ev.reason}`;
+        const now = performance.now();
+        if (now - (this.statusCueShownAt.get(key) ?? -Infinity) < STATUS_CUE_REPEAT_MS) break;
+        this.statusCueShownAt.set(key, now);
+        const cue = statusBlockedCue(ev, id => statusBadge(id).label);
+        card.statusCue(cue);
+        if (cue.sfx) this.audio.playStatusCue(cue.sfx);
+        break;
+      }
+      case 'status-cleanse': {
+        // 净化（移除负面）与驱散（移除正面）走同一事件类型，靠 kind 区分：
+        // 只撤 statusIds 里真正被移除的持续层——此前无差别清空，会把仍在身上的
+        // 屏障/下潮光晕（净化）或冰封/沉默（驱散）一起抹掉。
+        const card = this.cardOfChar(ev.targetId);
+        const dispel = ev.kind === 'dispel';
+        for (const id of ev.statusIds) {
+          card?.setStatusAccent(id, false);
+          if (id === 'frozen') card?.setFrozen(false);
+          else if (id === 'silence') card?.setSilenced(false);
+          else if (id === 'entangle') card?.setEntangled(false);
+          else this.removeStatusPersist(ev.targetId, id);
+        }
         if (card) {
           card.removeStatusBadge();
-          card.clearStatusAccents();
+          // 按引擎当前 statuses 校正（别名/多实例的边界一次性对齐）
+          card.syncStatusVisuals();
           card.refresh();
+          const cue = statusExpireCue(dispel ? 'dispelled' : 'cleansed');
+          card.statusCue(cue);
+          if (cue.sfx) this.audio.playStatusCue(cue.sfx);
           const center = this.cardCenterInOverlay(card);
-          this.audio.play('healing');
-          if (center) this.playFrameFX('heal_cleanse', center.x, center.y);
+          // 净化=治疗系光效/音效；驱散不是治疗，只用碎裂光圈 + 驱散提示音
+          if (!dispel) {
+            this.audio.play('healing');
+            if (center) this.playFrameFX('heal_cleanse', center.x, center.y);
+          }
         }
-        // 驱散：移除该角色的全部持续层 + 冰封卡面态
-        this.removeAllStatusPersist(ev.targetId);
-        card?.setFrozen(false);
-        card?.setSilenced(false);
-        card?.setEntangled(false);
         break;
       }
       case 'status-tick': {
@@ -2057,7 +2122,15 @@ export class App {
             const center = this.cardCenterInOverlay(card);
             const fx = statusFeedbackFX(ids);
             if (center && fx) this.playFrameFX(fx, center.x, center.y);
-            card.floatText(`-${damage}`, ids.includes('burning') ? '#ff9a5a' : '#7bd88f');
+            // 飘字按状态分色（出血红 / 燃烧橙 / 其余绿），多种 DoT 同回合结算时逐条列出
+            const rows = feedback?.damageRows ?? [{ statusId: ev.statusId, damage }];
+            card.floatText(dotTickBreakdown(rows, damage, id => statusBadge(id).label), dotTickColor(ids));
+          }
+          // 非伤害结算的专属演出：死亡标记秒杀、恐怖后退（此前 damage=0 完全无反馈）
+          const cue = statusTickCue(ev.statusId);
+          if (cue) {
+            card.statusCue(cue);
+            if (cue.sfx) this.audio.playStatusCue(cue.sfx);
           }
           card.refresh();
         }
@@ -2065,15 +2138,42 @@ export class App {
       }
       case 'status-expire': {
         const card = this.cardOfChar(ev.targetId);
-        if (card) {
-          card.removeStatusBadge();
-          card.setStatusAccent(ev.statusId, false);
+        const feedback = presentation?.statusFeedback;
+        const expire = () => {
+          if (card) {
+            card.removeStatusBadge();
+            card.setStatusAccent(ev.statusId, false);
+          }
+          // 状态到期：移除其持续层（序列帧）或冰封卡面态
+          if (ev.statusId === 'frozen') card?.setFrozen(false);
+          else if (ev.statusId === 'silence') card?.setSilenced(false);
+          else if (ev.statusId === 'entangle') card?.setEntangled(false);
+          else this.removeStatusPersist(ev.targetId, ev.statusId);
+          // 移除原因专属演出（挣脱 / 增益被剥离 / 净化 / 驱散 / 屏障挡住 DoT）：
+          // 每目标每种原因只演一次，由 statusPlayback 在批内标记
+          if (card && feedback?.cue) {
+            const cue = statusExpireCue(feedback.cue);
+            card.statusCue(cue);
+            if (cue.sfx) this.audio.playStatusCue(cue.sfx);
+          }
+        };
+        // 法术被屏障整发吸收：照常打出弹道，命中时播格挡，屏障随之碎掉
+        const blocked = ev.absorbedFrom;
+        if (blocked && card) {
+          const casterCard = this.cardOfChar(blocked.casterId);
+          const from = casterCard ? this.cardCenterInOverlay(casterCard) : null;
+          const to = this.cardCenterInOverlay(card);
+          const dir = this.sideOfChar(blocked.casterId) === PlayerSide.Right ? -1 : 1;
+          const impact = () => { this.playBarrierBlock(card, dir); expire(); };
+          if (from && to && blocked.casterId !== ev.targetId && blocked.range !== 'splash') {
+            this.audio.play('skill');
+            this.playProjectile(from, to, this.skillFxColor(blocked.casterId), impact);
+          } else {
+            impact();
+          }
+          break;
         }
-        // 状态到期：移除其持续层（序列帧）或冰封卡面态
-        if (ev.statusId === 'frozen') card?.setFrozen(false);
-        else if (ev.statusId === 'silence') card?.setSilenced(false);
-        else if (ev.statusId === 'entangle') card?.setEntangled(false);
-        else this.removeStatusPersist(ev.targetId, ev.statusId);
+        expire();
         break;
       }
       case 'summon': {
@@ -2107,8 +2207,15 @@ export class App {
         if (!card) break;
         const portrait = resolveTroopPortrait(ev.name, { troopId: ev.troopId });
         this.portraitById.set(ev.targetId, portrait);
-        card.reface(portrait);
-        card.floatText(ev.name, '#f0d9a4');
+        // 变身把 statuses 清空（技能路径不发 expire）：卡面持续层/控制态按新状态校正
+        this.removeAllStatusPersist(ev.targetId);
+        card.syncStatusVisuals();
+        // 轻量转化演出：卡面翻到侧面换脸再翻回，外沿一圈流光 + 上行琶音
+        this.audio.play('troopTransform');
+        card.transformFlip(() => {
+          card.reface(portrait);
+          card.floatText(ev.name, '#f0d9a4');
+        });
         break;
       }
       case 'economy-gain': {
@@ -2399,6 +2506,39 @@ export class App {
       if (target) target.recoil(dir * 1);
       this.playImpactFX(target ?? attacker, dir);
     });
+  }
+
+  /**
+   * 被屏障挡下 / 被闪避的骷髅攻击：冲撞照常（与 playAttackLunge 同距离），命中瞬间
+   * 屏障 → 护盾格挡音 + 冰蓝护盾圈 + 轻震屏；闪避 → 破空声 + 目标侧身让开。都不播斩击与后仰。
+   */
+  private playDeflectedLunge(attackerId: number, targetId: number, reason: 'barrier' | 'dodge'): void {
+    const attacker = this.cardOfChar(attackerId);
+    const target = this.cardOfChar(targetId);
+    if (!attacker) return;
+    const dir = this.sideOfChar(attackerId) === PlayerSide.Right ? -1 : 1;
+    let dist = 150;
+    if (target) {
+      const gap = Math.abs(target.el.getBoundingClientRect().left - attacker.el.getBoundingClientRect().left);
+      dist = Math.min(Math.max((gap / this.currentScale()) * 0.3, 70), 170);
+    }
+    attacker.lunge(dir * dist, () => {
+      if (reason === 'barrier') {
+        this.playBarrierBlock(target, dir);
+      } else {
+        this.audio.play('whoosh');
+        target?.dodgeStep(dir);
+        target?.floatText('闪避', '#d9d4c7');
+      }
+    });
+  }
+
+  /** 屏障格挡反馈（骷髅普攻与法术共用）：格挡音 + 护盾圈 + 轻震屏 + 「格挡」字 */
+  private playBarrierBlock(target: CharacterCard | undefined, dir: number): void {
+    this.audio.play('barrierBlock');
+    impactShake(this.wrapper, this.wrapper.style.transform, 0.35);
+    target?.blockFlash(dir);
+    target?.floatText('格挡', '#a9ddff');
   }
 
   /**
@@ -3212,13 +3352,13 @@ export class App {
         }
         const tMode = prototypeChosenTargetMode(inputProto);
         if (tMode) {
-          const view = tMode === 'allyChosen' ? this.leftTeamView : this.rightTeamView;
+          const view = (tMode === 'allyChosen' || tMode === 'allyChosenOther') ? this.leftTeamView : this.rightTeamView;
           const cards = candidatesFor(tMode, state, charId)
             .map((c) => view.getCard(c.id))
             .filter((c): c is NonNullable<typeof c> => !!c);
           const originCard = this.cardOfChar(charId);
           if (!originCard) return;
-          const friendly = tMode === 'allyChosen';
+          const friendly = (tMode === 'allyChosen' || tMode === 'allyChosenOther');
           // 只有一个合法目标：不必让玩家再点一次，直接对它施放
           const pickedId = cards.length === 1
             ? cards[0].charId
@@ -3314,22 +3454,6 @@ export class App {
   }
 
   /**
-   * B-5：手势引导（一次性）。法力第一次攒满时在该卡边上说明怎样释放：
-   * 默认点卡打开详情窗、在窗里释放；开了「快速释放」则点卡直接释放、长按看详情。
-   */
-  private maybeShowGestureHint(charId: number): void {
-    if (this.gestureHintDone) return;
-    const card = this.leftTeamView.getCard(charId);
-    if (!card) return;
-    this.gestureHintDone = true;
-    markGestureHintShown();
-    card.showHint(
-      skipCastConfirm() ? '法力值已满：点击直接释放 · 长按查看详情' : '法力值已满：点击卡片查看并释放技能',
-      { ms: 3200 },
-    );
-  }
-
-  /**
    * 技能显示文本（详情窗技能块与我方施法切入的名牌共用），与 `buildDetailViewModel` 同一取数来源，
    * 免得同一个技能在切入里叫「技能」、在详情窗叫「英灵再世」：
    * 快照/角色携带的文本 → 按名字匹配的兵种数据 → 分拣技能池（AIRP/独立模式角色）。
@@ -3370,7 +3494,7 @@ export class App {
     const pickVerb = ally ? '释放后点选' : '由对手指定';
     if (tMode) {
       const candidates = candidatesFor(tMode, state, ch.id);
-      const who = tMode === 'allyChosen' ? '盟友' : '敌人';
+      const who = (tMode === 'allyChosen' || tMode === 'allyChosenOther') ? '盟友' : '敌人';
       const reach = tMode === 'enemyChosenAndBelow' ? '（连同其下方的敌人）'
         : tMode === 'enemyChosenAndAdjacent' ? '（命中其上下相邻的敌人）'
           : tMode === 'enemyChosenAndNextDown' ? '（连同其正下方一名敌人）'
@@ -3643,9 +3767,6 @@ export class App {
         const castable =
           !ch.defeated && ManaDistributor.isSkillCastable(ch.mana, ch.manaCost);
         card.setCastable(castable);
-        // B-5：我方任一角色进入可释放态即给一次性手势引导。放在这里而不是只挂
-        // mana-gain 事件，是因为法力也能由技能/特质直接给（不走匹配吸收管线）。
-        if (castable && side === PlayerSide.Left) this.maybeShowGestureHint(ch.id);
       }
     }
     // 详情窗与卡面同步（轮询之外的即时刷新：演出结束、轮到我方时按钮立刻亮起）
@@ -3748,7 +3869,6 @@ export class App {
     const display = snapshot
       ? { spellName: snapshot.spellName, spellDescription: snapshot.spellDescription, traitNames: snapshot.traitNames }
       : undefined;
-    const vm = buildDetailViewModel(ch, troop, display);
     const rarityIdx = troop ? troop.rarityIdx : typeof ch.eventRarity === 'number' ? ch.eventRarity : null;
     const tier = rarityIdx !== null ? RARITY_TIERS[Math.max(0, Math.min(RARITY_TIERS.length - 1, Math.floor(rarityIdx)))] : null;
     const types = troop?.troopTypes ?? ch.troopTypes ?? [];
@@ -3763,13 +3883,16 @@ export class App {
       colors: [...ch.colors],
       shown,
       typeLine,
+      race: types.length ? raceNames(types) : '',
+      kingdom,
+      rarityLabel: tier?.label ?? '',
       rarity: tier ? RARITY_TIERS.indexOf(tier) : null,
       rarityColor: tier?.color ?? null,
       skillName: this.skillNameOf(ch),
       skillDescription: this.skillDescriptionOf(ch),
       skillTag: kingdom ? `${kingdom} · 部队法术` : '部队法术',
       targetNote: this.castTargetNote(ch, proto, ally),
-      traits: vm.traits,
+      traitSlots: traitSlotsOf(ch, troop, display),
       traitNames: { ...(snapshot?.traitNames ?? {}), ...(ch.traitNames ?? {}) },
       cast: ally ? this.castAvailability(ch, shown.mana) : undefined,
       quickCast: skipCastConfirm(),
@@ -3829,6 +3952,34 @@ export class App {
       skillName: ch ? this.skillNameOf(ch) : '',
       tint: this.skillFxColor(charId),
     });
+  }
+
+  /** 敌方施法预告：棋盘右上方名牌（无立绘）；蓄力光/音/震颤走统一的 playCastCharge */
+  private playEnemyCastCue(charId: number): void {
+    const ch = this.findCharacter(charId)?.ch;
+    this.castCutIn?.playEnemy({ casterName: ch?.name ?? '', skillName: ch ? this.skillNameOf(ch) : '' });
+  }
+
+  /**
+   * 统一施法蓄力（双方所有技能）：施法卡主法力色蓄力光、合成蓄力音（音高上扬 + 颤音渐急）、
+   * 整屏细密震颤渐强。时长 = 时间线预留段（我方立绘入场+停留 / 敌方预告），末尾接 playCastRelease。
+   */
+  private playCastCharge(charId: number): void {
+    const ally = this.isAllyCaster(charId);
+    const reserveMs = castCutInReserveSeconds(charId) * 1000;
+    this.cardOfChar(charId)?.castCharge(this.skillFxColor(charId), reserveMs > 0 ? reserveMs : undefined);
+    if (reserveMs <= 0) return;
+    // 音频不受倍速影响，按实际时长合成；震颤是 wrapper 下的 WAAPI，按 1× 写由倍速统一加速
+    this.audio.castCharge(scaledMs(reserveMs) / 1000, ally ? 'ally' : 'enemy');
+    chargeTremor(this.wrapper, reserveMs, this.wrapper.style.transform, ally ? 2.2 : 1.8);
+  }
+
+  /** 统一施法发射：蓄力收束成一记冲击音 + 震屏，紧接着技能效果结算 */
+  private playCastRelease(charId: number): void {
+    if (this.destroyed) return;
+    const ally = this.isAllyCaster(charId);
+    this.audio.castRelease(ally ? 'ally' : 'enemy');
+    impactShake(this.wrapper, this.wrapper.style.transform, ally ? 0.6 : 0.5);
   }
 
   private disposeUnitSheetAndCutIn(): void {

@@ -1701,13 +1701,15 @@
  },
  "troop:7446": {
   "lines": {
-   "L10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-34 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A1:mana+1 | A2:mana+4  extra:skill  cascade",
-   "R10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-34 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A1:mana+1 | A2:mana+4  extra:skill  cascade",
-   "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3 | A1:mana+1 | A2:mana+4  extra:skill  cascade",
+   "L10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-34 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A2:mana+7 | A1:mana+1  extra:skill  cascade",
+   "R10": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-34 arm-5 | E11:hp-26 arm-10 | E12:hp-24 arm-12 | E13:hp-33 arm-3 | A2:mana+7 | A1:mana+1  extra:skill  cascade",
+   "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; trigger umbralStar ; destroy 10 (skull x2, Green x3, Brown x2, Purple x1, Blue x1, Yellow x1) ; skulls E10 2  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3 | A2:mana+7 | A1:mana+1  extra:skill  cascade",
    "K": "dmg E10 36 (all) ; dmg E11 36 (all) ; dmg E12 36 (all) ; dmg E13 36 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; convert Brown x1, Green x2 -> umbralStar x3 ; extra-turn skill ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1)  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  cascade"
   },
   "by": "coord (re-lock after P-create-interleave/R007-3)",
-  "at": "2026-09-28T01:06:36.864Z"
+  "at": "2026-09-28T01:06:36.864Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "troop:7453": {
   "lines": {
@@ -2741,13 +2743,15 @@
  },
  "weapon:1434": {
   "lines": {
-   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade",
-   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade",
-   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade",
-   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn match  => E10:hp-1 +stun DEAD | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+6  extra:match  cascade"
+   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+9  extra:match  cascade",
+   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+9  extra:match  cascade",
+   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E10:arm-1 +stun | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+9  extra:match  cascade",
+   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn match  => E10:hp-1 +stun DEAD | E11:+stun | E12:+stun | E13:+stun | A1:mana+5 | A2:mana+9  extra:match  cascade"
   },
   "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "at": "2026-09-27T23:48:12.361Z",
+  "relockedAt": "2026-09-28T13:02:32.783Z",
+  "relockNote": "法力涌动规则调整（4 消保底/连锁加成）：仅连锁法力数值变化，技能行为不变"
  },
  "weapon:1436": {
   "lines": {

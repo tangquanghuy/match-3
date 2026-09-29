@@ -188,7 +188,46 @@ describe('battle narrator: encounter and lifecycle', () => {
     expect(x.sink.playNarration).not.toHaveBeenCalled();
   });
   it('every active catalog entry has a bundled URL', () => {
-    expect(NARRATION_CLIPS).toHaveLength(81);
+    expect(NARRATION_CLIPS).toHaveLength(84);
     expect(NARRATION_CLIPS.every(c => !!c.url && c.duration > 0)).toBe(true);
+  });
+});
+
+
+describe('encouragement only for a genuine ongoing advantage', () => {
+  it('a non-final enemy defeat can trigger the new pool once per action', () => {
+    const x = setup();
+    x.speak([hit({damage: 100, resultingHp: 0}), {type: 'defeat', characterId: 2}]);
+    expect(x.pool()).toBe('encourage.ally');
+    expect(x.sink.playNarration).toHaveBeenCalledTimes(1);
+  });
+  it('has a 45 percent chance and never interrupts active narration', () => {
+    const x = setup(undefined, undefined, L, .46);
+    expect(x.speak([{type: 'defeat', characterId: 2}])).toBeNull();
+    const y = setup(); y.sink.isNarrationBusy.mockReturnValue(true);
+    expect(y.speak([{type: 'defeat', characterId: 2}])).toBeNull();
+  });
+  it('respects 45-second family cooldown even if another opponent later falls', () => {
+    const x = setup([character(1), character(4)], [character(2), character(3), character(5)]);
+    x.speak([{type: 'defeat', characterId: 2}]);
+    expect(x.pool()).toBe('encourage.ally');
+    x.advance(20000);
+    expect(x.speak([{type: 'defeat', characterId: 3}])).toBeNull();
+  });
+  it('does not rally for allied losses, enemy flee, duplicate death, being outnumbered or the last kill', () => {
+    const x = setup();
+    expect(x.speak([{type: 'defeat', characterId: 1}])).toBeNull();
+    const y = setup();
+    expect(y.speak([{type: 'flee', characterId: 2, player: R, hp: 100, armor: 0}])).toBeNull();
+    const z = setup(undefined, [character(2)]);
+    expect(z.speak([{type: 'defeat', characterId: 2}])).toBeNull();
+    const outnumbered = setup(undefined, [character(2), character(3), character(4)]);
+    expect(outnumbered.speak([{type: 'defeat', characterId: 2}])).toBeNull();
+    const repeated = setup(); repeated.speak([{type: 'defeat', characterId: 2}]); repeated.advance();
+    expect(repeated.speak([{type: 'defeat', characterId: 2}])).toBeNull();
+  });
+  it('victory wins over encouragement even if a death event was queued earlier', () => {
+    const x = setup(); x.speak([{type: 'defeat', characterId: 2}, {type: 'game-over', winner: L}]);
+    expect(x.pool()).toBe('victory.overwhelming');
   });
 });

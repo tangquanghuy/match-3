@@ -11,6 +11,7 @@
 import type { GameEvent } from '@engine/events';
 import { BaseColor } from '@engine/types';
 import { statusBadge } from './statusBadges';
+import { statusCountsDown } from '@engine/skills/effects/status';
 
 /** 属性中文名（与卡面/详情面板同口径） */
 const STAT_CN: Record<string, string> = {
@@ -105,14 +106,24 @@ export function summarizeCastEvents(events: readonly GameEvent[], opts: CastSumm
       }
       case 'status-apply': {
         const label = statusBadge(ev.statusId).label;
-        const turns = ev.turns > 0 ? `（${ev.turns} 回合）` : '';
-        put(`st:${ev.targetId}:${ev.statusId}`, `${nameOf(ev.targetId)} 获得 ${label}${turns}`);
+        // 官方状态不倒计时，只有仍按回合结算的辅助状态才写回合数；出血写层数。
+        const extra = ev.stacks !== undefined ? `（${ev.stacks} 层）`
+          : statusCountsDown(ev.statusId) && ev.turns > 0 ? `（${ev.turns} 回合）` : '';
+        put(`st:${ev.targetId}:${ev.statusId}`, `${nameOf(ev.targetId)} 获得 ${label}${extra}`);
         break;
       }
       case 'status-cleanse': {
         if (ev.statusIds.length === 0) break;
         const labels = [...new Set(ev.statusIds.map((id) => statusBadge(id).label))].join('、');
-        put(`cl:${ev.targetId}`, `${nameOf(ev.targetId)} 解除 ${labels}`);
+        const verb = ev.kind === 'dispel' ? '被驱散' : '解除';
+        put(`cl:${ev.targetId}`, `${nameOf(ev.targetId)} ${verb} ${labels}`);
+        break;
+      }
+      case 'status-blocked': {
+        // 被免疫/赐福挡下的施加也要如实写进本次施法总结（否则玩家以为技能没生效）
+        const label = statusBadge(ev.statusId).label;
+        const why = ev.reason === 'blessed' ? '赐福抵挡' : ev.reason === 'immune' ? '免疫' : null;
+        if (why) put(`bk:${ev.targetId}:${ev.statusId}`, `${nameOf(ev.targetId)} ${why} ${label}`);
         break;
       }
       case 'summon': {

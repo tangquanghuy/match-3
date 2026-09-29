@@ -140,6 +140,29 @@ export function isBlessedBlockedStatus(statusId: string): boolean {
 const NON_EXPIRING_STATUS_IDS = new Set([
   'poison', 'barrier', 'enchanted', 'reflect', 'rage', 'enraged', 'submerged', 'blessed',
 ]);
+/**
+ * 该状态是否仍按 turns 倒计时（只读查询，供表现层决定是否显示「剩余 N 回合」）。
+ * 官方状态（无时限 / 累积自愈）返回 false——它们的 turns 字段不代表剩余回合。
+ */
+export function statusCountsDown(statusId: string): boolean {
+  return !NON_EXPIRING_STATUS_IDS.has(statusId) && !AUTO_RECOVER_STATUS_IDS.has(statusId);
+}
+
+/** 该状态是否参与累积自愈（负面，中毒除外）。 */
+export function isRecoverableStatus(statusId: string): boolean {
+  return AUTO_RECOVER_STATUS_IDS.has(statusId);
+}
+
+/**
+ * 下一次回合开始的累积自愈概率（%，与 tickStatuses 同口径：可自愈实例 recoveryChance 的最小值，
+ * 缺省 10%）。无可自愈负面时返回 null。只读，不改状态。
+ */
+export function statusRecoveryChance(char: Pick<Character, 'statuses'>): number | null {
+  const recoverable = char.statuses.filter((s) => s.turns > 0 && AUTO_RECOVER_STATUS_IDS.has(s.id));
+  if (recoverable.length === 0) return null;
+  return Math.min(...recoverable.map((s) => s.recoveryChance ?? RECOVERY_BASE));
+}
+
 /** 持有者行动（施法／首位骷髅伤害）即移除的正面状态（R004）。 */
 export const ACTION_ENDED_STATUS_IDS: ReadonlySet<string> = new Set(['submerged', 'blessed']);
 const RECOVERY_BASE = 10;
@@ -154,7 +177,7 @@ export function endActionStatuses(char: Character): GameEvent[] {
   const ended = char.statuses.filter((s) => ACTION_ENDED_STATUS_IDS.has(s.id));
   if (ended.length === 0) return [];
   char.statuses = char.statuses.filter((s) => !ACTION_ENDED_STATUS_IDS.has(s.id));
-  return ended.map((s): StatusExpireEvent => ({ type: 'status-expire', targetId: char.id, statusId: s.id }));
+  return ended.map((s): StatusExpireEvent => ({ type: 'status-expire', targetId: char.id, statusId: s.id, reason: 'action' }));
 }
 
 /** Compatibility export: no status currently prevents selection. Stealthy is a
@@ -278,6 +301,7 @@ export function consumeBarrier(char: Character): { consumed: boolean; events: Ga
     type: 'status-expire',
     targetId: char.id,
     statusId: BARRIER_STATUS_ID,
+    reason: 'consumed',
   };
   return { consumed: true, events: [ev] };
 }
@@ -298,6 +322,7 @@ export function consumeReflect(char: Character): GameEvent[] {
     type: 'status-expire',
     targetId: char.id,
     statusId: REFLECT_STATUS_ID,
+    reason: 'consumed',
   };
   return [ev];
 }
@@ -342,12 +367,17 @@ export function applyStatus(
   // 赐福（GoW Blessed，rulings/R011）：存续期间只免疫**负面**状态；正面状态（屏障、附魔、
   // 反射、狂怒、潜水、赐福自身）照常施加。诅咒放行——官方「诅咒落在赐福单位上时两者互相
   // 抵消」，且诅咒本就穿透普通免疫（见下方 curse 分支的互消处理）。
-  if (isBlessedBlockedStatus(status.id) && hasStatus(char, 'blessed')) return [];
-  // 免疫特质（防火/隔热/警醒/健壮/灵巧/无坚不摧…）：不施加、不发事件
+  // 拦截不改变状态，只发 status-blocked 演出元数据（表现层飘「免疫」）。
+  if (isBlessedBlockedStatus(status.id) && hasStatus(char, 'blessed')) {
+    return [{ type: 'status-blocked', targetId: char.id, statusId: status.id, reason: 'blessed' }];
+  }
+  // 免疫特质（防火/隔热/警醒/健壮/灵巧/无坚不摧…）：不施加
   // GoW Curse penetrates ordinary immunities. Invulnerable remains the one
   // exception; its trait id is retained on Character for this distinction.
   const invulnerable = char.traitIds?.includes('invulnerable') ?? false;
-  if (isImmuneToStatus(char, status.id) && (invulnerable || (!isCursed(char) && !isStunned(char) && !CURSE_STATUS_IDS.has(status.id)))) return [];
+  if (isImmuneToStatus(char, status.id) && (invulnerable || (!isCursed(char) && !isStunned(char) && !CURSE_STATUS_IDS.has(status.id)))) {
+    return [{ type: 'status-blocked', targetId: char.id, statusId: status.id, reason: 'immune' }];
+  }
 
   const cancelledByOpposite = (CURSE_STATUS_IDS.has(status.id) && char.statuses.some(s => BLESS_STATUS_IDS.has(s.id) && s.turns > 0))
     || (BLESS_STATUS_IDS.has(status.id) && isCursed(char));
@@ -359,12 +389,12 @@ export function applyStatus(
     const blessed = char.statuses.filter((s) => BLESS_STATUS_IDS.has(s.id));
     if (blessed.length > 0) {
       char.statuses = char.statuses.filter((s) => !blessed.includes(s));
-      for (const inst of blessed) events.push({ type: 'status-expire', targetId: char.id, statusId: inst.id });
+      for (const inst of blessed) events.push({ type: 'status-expire', targetId: char.id, statusId: inst.id, reason: 'stripped' });
     }
-    const positives = char.statuses.filter((s) => ['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged'].includes(s.id));
+    const positives = char.statuses.filter((s) => POSITIVE_STATUS_IDS.includes(s.id));
     if (positives.length > 0) {
       char.statuses = char.statuses.filter((s) => !positives.includes(s));
-      for (const positive of positives) events.push({ type: 'status-expire', targetId: char.id, statusId: positive.id });
+      for (const positive of positives) events.push({ type: 'status-expire', targetId: char.id, statusId: positive.id, reason: 'stripped' });
     }
   }
   // 赐福施加时净化全部负面状态（官方「cleanses the affected Troop」；诅咒同属被净化对象）。
@@ -372,7 +402,7 @@ export function applyStatus(
     const negatives = char.statuses.filter((s) => NEGATIVE_STATUS_IDS.has(s.id));
     if (negatives.length > 0) {
       char.statuses = char.statuses.filter((s) => !negatives.includes(s));
-      for (const negative of negatives) events.push({ type: 'status-expire', targetId: char.id, statusId: negative.id });
+      for (const negative of negatives) events.push({ type: 'status-expire', targetId: char.id, statusId: negative.id, reason: 'cleansed' });
     }
   }
   // Applying either member cancels the opposite status; the incoming member
@@ -411,6 +441,9 @@ export function applyStatus(
     statusId: status.id,
     turns: status.turns,
   };
+  // 演出元数据：出血层数 + 刷新/叠层标记（仅在有意义时出现，普通新挂事件形态不变）
+  if (status.id === 'bleed') ev.stacks = char.statuses.find((s) => s.id === 'bleed')?.magnitude ?? 1;
+  if (existing) ev.refreshed = true;
   return [...events, ev];
 }
 
@@ -438,7 +471,7 @@ export function tickStatuses(
       if (rng.next() * 100 < chance) {
         char.statuses = char.statuses.filter((s) => !recoverable.includes(s));
         for (const status of recoverable) {
-          events.push({ type: 'status-expire', targetId: char.id, statusId: status.id });
+          events.push({ type: 'status-expire', targetId: char.id, statusId: status.id, reason: 'recovered' });
         }
       } else {
         const next = Math.min(100, chance + (isCursed(char) ? RECOVERY_STEP_CURSED : RECOVERY_STEP));
@@ -454,7 +487,7 @@ export function tickStatuses(
     const template = lycanthropyTemplate();
     if (template) {
       for (const status of char.statuses) {
-        events.push({ type: 'status-expire', targetId: char.id, statusId: status.id });
+        events.push({ type: 'status-expire', targetId: char.id, statusId: status.id, reason: 'transform' });
       }
       applyTransformTemplate(char, template);
       events.push({ type: 'troop-transform', targetId: char.id, name: template.name });
@@ -517,6 +550,9 @@ export function tickStatuses(
     }
   }
 
+  // 已在本次结算中阵亡：不再发任何到期事件（defeat 之后不应再有该单位的状态演出）
+  if (char.defeated) return events;
+
   // 2. 递减存续并移除到期状态
   const survivors: StatusInstance[] = [];
   for (const s of char.statuses) {
@@ -531,6 +567,7 @@ export function tickStatuses(
         type: 'status-expire',
         targetId: char.id,
         statusId: s.id,
+        reason: 'expired',
       };
       events.push(exp);
     } else {
@@ -567,6 +604,8 @@ function tickTerrorRoster(characters: Character[], rng: SeededRNG, player: Playe
     } else if (!characters[i + 1].defeated) {
       characters[i] = characters[i + 1];
       characters[i + 1] = ch;
+      // 编队已改：发调位事件让侧边卡列同步滑动（否则卡面顺序与引擎队首不一致）
+      events.push({ type: 'troop-reposition', targetId: ch.id, to: 'back', index: i + 1 });
     }
   }
   return events;
@@ -828,7 +867,7 @@ export function dispelStatusEffect(params: DispelStatusParams): EffectPrimitive 
         if (target.defeated) continue;
         if (!hasStatus(target, params.statusId)) continue;
         target.statuses = target.statuses.filter((s) => s.id !== params.statusId);
-        events.push({ type: 'status-expire', targetId: target.id, statusId: params.statusId });
+        events.push({ type: 'status-expire', targetId: target.id, statusId: params.statusId, reason: 'dispelled' });
       }
       return events;
     },

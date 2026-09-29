@@ -1,5 +1,7 @@
 import { backgroundMusic } from '../audio/BackgroundMusic';
+import { playCastCharge, playCastRelease, type CastChargeVoice, type CastSide } from '../audio/castSfx';
 import { NarrationAudio } from './NarrationAudio';
+import { narrationSubtitles } from './NarrationSubtitles';
 import type { NarrationClip } from './NarrationCatalog';
 import skullHitUrl from '../assets/audio/combat/skull_hit.wav?url';
 import gemExplosionUrl from '../assets/audio/gems/gem_explode.wav?url';
@@ -22,7 +24,8 @@ import purpleSingleHitUrl from '../assets/audio/skills/skill_hit_purple_single.w
 import yellowSingleHitUrl from '../assets/audio/skills/skill_hit_yellow_single.mp3?url';
 import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav?url';
 import { applyPlayerPreferences, getPlayerPreferences, subscribePlayerPreferences } from '../preferences/playerPreferences';
-import { canonicalStatusSoundId, normalizeStatusKey, STATUS_SYNTHS } from './StatusSynth';
+import { canonicalStatusSoundId, normalizeStatusKey, STATUS_CUE_SYNTHS, STATUS_SYNTHS } from './StatusSynth';
+import type { StatusCueKind } from './StatusSynth';
 
 /**
  * 状态施加音 AI 素材自动接线（窗口 I）：扫描 src/assets/audio/status/status_*.wav，
@@ -42,7 +45,10 @@ export const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
  * Web Audio API 统一管理程序化合成音效和预解码采样资源。
  * 三条音量总线（主/音效/音乐），首次用户交互后初始化以规避自动播放策略（需求 26.5）。
  */
-export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit' | 'manaSurge';
+export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit' | 'manaSurge' | 'barrierBlock' | 'troopTransform';
+
+/** 施法方：敌方蓄力音更低更暗（合成见 src/audio/castSfx.ts） */
+export type { CastSide } from '../audio/castSfx';
 
 
 type ColoredSingleHit = 'red' | 'purple' | 'yellow' | 'green';
@@ -67,6 +73,8 @@ export class AudioManager {
   private speaking = false;
   private disposed = false;
   private skullHitBuffer: AudioBuffer | null = null;
+  /** 正在响的施法蓄力音：新蓄力或释放时先掐掉 */
+  private castChargeVoice: CastChargeVoice | null = null;
   private gemExplosionBuffer: AudioBuffer | null = null;
   private activeGemExplosionSource: AudioBufferSourceNode | null = null;
   private gemExplosionBytePromise: Promise<ArrayBuffer | null> | null = null;
@@ -109,6 +117,8 @@ export class AudioManager {
   private statusSampleBytePromises: Record<string, Promise<ArrayBuffer | null>> = {};
   private lastStatusApplyAt: Record<string, number> = {};
   private lastAnyStatusApplyAt = -Infinity;
+  private lastStatusCueAt: Partial<Record<StatusCueKind, number>> = {};
+  private lastAnyStatusCueAt = -Infinity;
   private activeStatusSampleSource: AudioBufferSourceNode | null = null;
   private activeStatusSampleGain: GainNode | null = null;
   private lastSkullHitAt = -Infinity;
@@ -162,6 +172,9 @@ export class AudioManager {
           this.speaking = speaking;
           backgroundMusic.setDucking('narration', speaking);
           this.syncPlayerPreferences();
+        }, clip => {
+          if (clip) narrationSubtitles.show(this, clip);
+          else narrationSubtitles.hide(this);
         });
       this.syncPlayerPreferences();
       this.startAudioFetches();
@@ -348,6 +361,12 @@ export class AudioManager {
       case 'manaSurge':
         this.manaSurge();
         break;
+      case 'barrierBlock':
+        this.barrierBlock();
+        break;
+      case 'troopTransform':
+        this.troopTransform();
+        break;
       case 'impact':
         // 撞击：低频下扫 thud + 短噪声层，营造厚重卡肉感
         this.thud();
@@ -391,6 +410,20 @@ export class AudioManager {
         STATUS_SYNTHS[key]?.(this.ctx, this.sfxBus, now);
         break;
     }
+  }
+
+  /**
+   * 状态演出提示音（拦截/挣脱/驱散/死亡标记触发/恐怖换位/屏障破碎…）。
+   * 与施加音分开节流：同类 0.2s 内只响一次（群体结算只一声），异类 0.06s 最小间隔防糊。
+   */
+  playStatusCue(kind: StatusCueKind): void {
+    if (!this.ctx || !this.sfxBus || !this.syncPlayerPreferences()) return;
+    const now = this.ctx.currentTime;
+    if (now - this.lastAnyStatusCueAt < 0.06) return;
+    if (now - (this.lastStatusCueAt[kind] ?? -Infinity) < 0.2) return;
+    this.lastAnyStatusCueAt = now;
+    this.lastStatusCueAt[kind] = now;
+    STATUS_CUE_SYNTHS[kind](this.ctx, this.sfxBus, now);
   }
 
   /** 播放状态采样；同一时刻只保留一个状态采样源，新的顶掉旧的（70ms 淡出防爆音）。 */
@@ -840,6 +873,99 @@ export class AudioManager {
     source.start(now);
   }
 
+  /**
+   * 屏障格挡（纯合成）：一记闷的低频顶撞 + 护盾「叮——」（三个非整数倍泛音的玻璃质感，快起慢收）
+   * + 一丝高通噪声擦过。约 0.5s，打中了但被挡住的感觉。
+   */
+  private barrierBlock(): void {
+    if (!this.ctx || !this.sfxBus) return;
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const out = ctx.createGain();
+    out.gain.value = 0.8;
+    out.connect(this.sfxBus);
+    const thump = ctx.createOscillator();
+    thump.frequency.setValueAtTime(170, t);
+    thump.frequency.exponentialRampToValueAtTime(80, t + 0.12);
+    const tg = ctx.createGain();
+    tg.gain.setValueAtTime(0, t);
+    tg.gain.linearRampToValueAtTime(0.42, t + 0.004);
+    tg.gain.setTargetAtTime(0, t + 0.004, 0.06);
+    thump.connect(tg).connect(out);
+    thump.start(t);
+    thump.stop(t + 0.4);
+    for (const [freq, peak, tau] of [[1180, 0.12, 0.16], [1830, 0.07, 0.12], [2710, 0.04, 0.08]] as const) {
+      const o = ctx.createOscillator();
+      o.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(peak, t + 0.006);
+      g.gain.setTargetAtTime(0, t + 0.006, tau);
+      o.connect(g).connect(out);
+      o.start(t);
+      o.stop(t + 0.6);
+    }
+    const len = Math.floor(ctx.sampleRate * 0.12);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const scrape = ctx.createBufferSource();
+    scrape.buffer = buf;
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 2600;
+    const sg = ctx.createGain();
+    sg.gain.value = 0.12;
+    scrape.connect(hp).connect(sg).connect(out);
+    scrape.start(t);
+  }
+
+  /**
+   * 兵种转化（纯合成）：一声向上的「呼——」气流 + 三个音的快速上行琶音（三角波，带一点失谐），
+   * 落在翻卡换脸那一刻。约 0.45s，轻、亮，不抢战斗音效。
+   */
+  private troopTransform(): void {
+    if (!this.ctx || !this.sfxBus) return;
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const out = ctx.createGain();
+    out.gain.value = 0.7;
+    out.connect(this.sfxBus);
+    const len = Math.floor(ctx.sampleRate * 0.4);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    const air = ctx.createBufferSource();
+    air.buffer = buf;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 1.4;
+    bp.frequency.setValueAtTime(500, t);
+    bp.frequency.exponentialRampToValueAtTime(2200, t + 0.3);
+    const ag = ctx.createGain();
+    ag.gain.setValueAtTime(0.0001, t);
+    ag.gain.exponentialRampToValueAtTime(0.16, t + 0.16);
+    ag.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+    air.connect(bp).connect(ag).connect(out);
+    air.start(t);
+    [523.3, 659.3, 784].forEach((freq, i) => {
+      const at = t + 0.12 + i * 0.055;
+      for (const detune of [-6, 6]) {
+        const o = ctx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.value = freq;
+        o.detune.value = detune;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, at);
+        g.gain.linearRampToValueAtTime(0.07, at + 0.01);
+        g.gain.setTargetAtTime(0, at + 0.01, 0.09);
+        o.connect(g).connect(out);
+        o.start(at);
+        o.stop(at + 0.5);
+      }
+    });
+  }
+
   /** Mana Surge：破空上扫 + 高亮过音 */
   private manaSurge(): void {
     this.whoosh();
@@ -872,6 +998,35 @@ export class AudioManager {
     g.connect(this.sfxBus);
     noise.start(t);
     noise.stop(t + 0.27);
+  }
+
+  /** 掐掉仍在响的蓄力音（30ms 淡出，避免爆音） */
+  private cutCastCharge(now: number): void {
+    const voice = this.castChargeVoice;
+    this.castChargeVoice = null;
+    if (!voice || voice.stopAt <= now) return;
+    const g = voice.out.gain;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    g.linearRampToValueAtTime(0, now + 0.03);
+  }
+
+  /**
+   * 统一施法蓄力音（双方所有技能；合成见 src/audio/castSfx.ts，现用「恒音聚能」，旧版保留可切换）。
+   * durationSec 是按当前倍速换算后的真实秒数，释放点由 castRelease 接上；
+   * 没接上（暂停/中断）时自行在末尾淡出。
+   */
+  castCharge(durationSec: number, side: CastSide): void {
+    if (!this.ctx || !this.sfxBus || !this.syncPlayerPreferences()) return;
+    this.cutCastCharge(this.ctx.currentTime);
+    this.castChargeVoice = playCastCharge(this.ctx, this.sfxBus, durationSec, side);
+  }
+
+  /** 统一施法释放音（蓄力的收尾）：先掐掉蓄力，再打出冲击 + 气浪 + 下坠音 */
+  castRelease(side: CastSide): void {
+    if (!this.ctx || !this.sfxBus || !this.syncPlayerPreferences()) return;
+    this.cutCastCharge(this.ctx.currentTime);
+    playCastRelease(this.ctx, this.sfxBus, side);
   }
 
   /** 命中击打：高频噪声爆点 + 一层短促中频 body，干脆利落 */

@@ -44,9 +44,12 @@ export function temperingBonusOf(save: MetaSave): LeveledStats {
   return bonus;
 }
 
-/** 主角战斗面板四维（不含王国加成与天赋加成——桥接时统一加）。 */
+/**
+ * 主角战斗面板四维（不含王国加成与天赋加成——桥接时统一加）。
+ * = 已装备职业的官方基底 + 等级属性点 + 武器淬炼；未装备职业时用 HERO_BASE_WITHOUT_CLASS 兜底。
+ */
 export function heroStatsOf(save: MetaSave): LeveledStats {
-  const base = heroStatsAt(save.hero.level);
+  const base = heroStatsAt(save.hero.level, save.hero.classId);
   const temper = temperingBonusOf(save);
   return {
     health: base.health + temper.health,

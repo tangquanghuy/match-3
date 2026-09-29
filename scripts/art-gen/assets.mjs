@@ -2,6 +2,8 @@
 //   out：process.py 输出的 webp 路径（相对仓库根，进版本库）；longest：最长边像素；pad：裁边留白比例。
 // 结算页一批（result/*）已在 2026-09-28 生成，原图不在本仓库，这里只登记输出位置，便于重生成。
 
+import { STATUS_EMBLEM_ASSETS } from './statusEmblems.mjs';
+import { SUMMON_FX_ASSETS } from './summonFx.mjs';
 const STYLE = 'Premium high-fantasy match-3 RPG game UI asset. Hand-painted digital illustration with crisp clean edges, '
   + 'polished antique gold filigree, dramatic soft rim lighting, rich saturated colors, highly detailed, centered, '
   + 'single isolated object on a fully transparent background. No text, no letters, no numbers, no watermark, no frame around the image.';
@@ -147,8 +149,6 @@ export const ASSETS = {
       + 'large glowing sapphire-blue crystals growing from the floor, soft cyan light beams. The main subject sits in the right half; '
       + 'the left third is calm, darker and low-detail so UI text can be placed there. Dominant sapphire blue and cool silver colors with small gold accents. ' + KEY_ART,
   },
-  // —— 馈赠页（2026-09-29）：顶部横幅 + 七个分组图标 ——
-  'gift-hall': {
   // —— 新手引导向导立绘 + 战斗加载页背景（2026-09-29） ——
   'tutor-guide': {
     size: '1024x1536',
@@ -180,6 +180,8 @@ export const ASSETS = {
       + 'glowing colorful magic gems (red, blue, green, yellow, purple) floating in the air between them, crossed banners, '
       + 'a huge glowing rune circle in the sky. The center of the image is calmer and darker so UI can overlay it. ' + KEY_ART,
   },
+  // —— 馈赠页（2026-09-29）：顶部横幅 + 七个分组图标 ——
+  'gift-hall': {
     size: '1536x1024',
     background: 'opaque',
     out: 'src/assets/meta/gift/hall.webp',
@@ -196,15 +198,19 @@ export const ASSETS = {
     ['arena', 'two slim sabres crossed behind a small round shield with a vivid orange-red face and a gold rim. Dominant orange-red and steel'],
     ['invasion', 'a horned war helmet in dark gunmetal with glowing magenta eye slits and a torn purple plume. Dominant magenta purple and gunmetal'],
     ['events', 'a small golden hourglass with glowing teal sand, surrounded by a thin ring of teal sparkles. Dominant teal and gold'],
+    ['battles', 'a bright steel longsword planted point-down into a small mound, a crimson victory banner tied to its crossguard fluttering. Dominant crimson and steel silver'],
     ['collection', 'a thick spellbook with an emerald-green leather cover, gold corner caps and a glowing card-shaped bookmark. Dominant emerald green and gold'],
   ].map(([id, subject]) => [`gift-${id}`, {
-    ['battles', 'a bright steel longsword planted point-down into a small mound, a crimson victory banner tied to its crossguard fluttering. Dominant crimson and steel silver'],
     size: '1024x1024',
     out: `src/assets/meta/gift/${id}.webp`,
     longest: 160,
     pad: 0.02,
     prompt: `Milestone category icon: ${subject}. The whole icon is compact and roughly square. ` + ICON + ' ' + ANIME_COLOR,
   }])),
+  // 战斗状态「中招」徽印（清单单源 statusEmblems.mjs）
+  ...STATUS_EMBLEM_ASSETS,
+  // 开箱演出 FX 贴图（黑底加色混合，清单单源 summonFx.mjs）
+  ...SUMMON_FX_ASSETS,
 };
 
 /** 结算页素材（2026-09-28 生成，原图在主工作树 artifacts/result-redesign/gen/raw）：只记录输出位置 */

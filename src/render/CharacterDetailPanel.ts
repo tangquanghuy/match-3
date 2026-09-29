@@ -131,3 +131,58 @@ export function buildDetailViewModel(
     traits,
   };
 }
+
+/** 图鉴同款特质槽：固定 3 槽，已解锁 / 未解锁 / 未开槽 */
+export interface TraitSlot {
+  /** 特质 code；未开槽为空串 */
+  code: string;
+  name: string;
+  description: string;
+  /** 引擎是否实现（未实现的已解锁特质标「本场不生效」） */
+  implemented: boolean;
+  /** 本场是否已解锁（在 Character.traitIds 里） */
+  unlocked: boolean;
+}
+
+const SLOT_ORDINAL = ['一', '二', '三', '四'];
+
+/**
+ * 与图鉴「天赋特质」同一口径的 3 个槽位（纯函数）：
+ * - 有兵种数据：槽位 = TroopData.traits 顺序，在本场 traitIds 里的算已解锁，其余显示未解锁；
+ * - 无兵种数据（原创/宿主角色）：槽位 = 卡面展示清单（displayTraitIds ?? traitIds），均为已解锁；
+ * - 不足的槽补「未开槽」。
+ */
+export function traitSlotsOf(
+  char: Character,
+  troop?: TroopData,
+  display?: CharacterDisplay,
+  slots = 3,
+): TraitSlot[] {
+  const owned = new Set(char.traitIds ?? []);
+  const fromTroop = !!troop && troop.traits.length > 0;
+  const defs = fromTroop
+    ? troop!.traits.slice(0, slots).map((t) => ({ code: t.code, name: t.name, description: t.description }))
+    : [...new Set(char.displayTraitIds ?? char.traitIds ?? [])].slice(0, slots).map((code) => {
+        const lib = getTrait(code);
+        return {
+          code,
+          name: lib?.name ?? display?.traitNames?.[code] ?? char.traitNames?.[code] ?? code,
+          description: lib?.description ?? '',
+        };
+      });
+  const out: TraitSlot[] = defs.map((d) => ({
+    ...d,
+    implemented: !!getTrait(d.code),
+    unlocked: fromTroop ? owned.has(d.code) : true,
+  }));
+  while (out.length < slots) {
+    out.push({
+      code: '',
+      name: '未开槽',
+      description: `该部队没有第${SLOT_ORDINAL[out.length] ?? out.length + 1}个特质。`,
+      implemented: false,
+      unlocked: false,
+    });
+  }
+  return out;
+}

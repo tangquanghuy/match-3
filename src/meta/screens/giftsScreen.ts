@@ -5,11 +5,9 @@
 import { isFailure } from '../gateway';
 import { GIFT_GROUPS, GIFT_STARTER_ID, GIFT_TOTAL_GEMS, type GiftGroupId } from '../data/gifts';
 import { giftRows, type GiftRow } from '../systems/gifts';
-import type { GachaCard } from '../systems/gacha';
 import { rarityNameByIndex } from '../data/rarity';
-import { getTroopById } from '../../data/troops';
-import { troopImg } from './teamScreen';
-import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import { queueGiftReveal } from './chestsScreen';
+import { bottomNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { cssUrlVar, giftArt } from '../shell/artAssets';
 import type { Screen, ShellCtx } from '../shell/screen';
 
@@ -119,9 +117,14 @@ export class GiftsScreen implements Screen {
     const claim = (promise: ReturnType<ShellCtx['gateway']['claimGift']>): void => {
       void promise.then(({ result }) => {
         if (isFailure(result)) { toast(result.message); return; }
+        if (result.cards.length) {
+          // 部队卡：借宝箱页开箱演出翻牌，关闭后回到当前馈赠页
+          queueGiftReveal({ cards: result.cards, gems: result.gems, returnHash: ctx.currentHash() });
+          ctx.navigate('#chests/gems');
+          return;
+        }
         ctx.refresh();
-        if (result.cards.length) setTimeout(() => this.reveal(result.gems, result.cards), 0);
-        else setTimeout(() => toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`), 0);
+        setTimeout(() => toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`), 0);
       });
     };
     this.on(root, 'click', (event) => {
@@ -135,29 +138,6 @@ export class GiftsScreen implements Screen {
     });
   }
 
-  /** 领到部队卡时弹出获得展示（宝石另记在标题里） */
-  private reveal(gems: number, cards: GachaCard[]): void {
-    document.querySelector('#giftReveal')?.remove();
-    const veil = document.createElement('div');
-    veil.className = 'gift-reveal-veil';
-    veil.id = 'giftReveal';
-    veil.innerHTML = `<section class="gift-reveal" role="dialog" aria-modal="true" aria-labelledby="giftRevealTitle">
-        <h2 id="giftRevealTitle">获得馈赠</h2>
-        ${gems > 0 ? `<p class="gift-reveal-gems"><span data-icon="crystal"></span>宝石 +${fmt(gems)}</p>` : ''}
-        <div class="gift-reveal-cards">${cards.map((card) => {
-          const troop = getTroopById(card.troopId) ?? null;
-          return `<figure class="gift-reveal-card r${card.rarityIdx}">${troopImg(troop, false, 'alt=""')}<figcaption><b>${troop?.name ?? `部队 #${card.troopId}`}</b><small>${rarityNameByIndex(card.rarityIdx)}${card.duplicate ? ' · 重复转为副本' : ''}</small></figcaption></figure>`;
-        }).join('')}</div>
-        <button class="gift-claim" type="button" data-gift-reveal-close>收下</button>
-      </section>`;
-    document.querySelector('#stage')?.appendChild(veil);
-    mountIcons(veil);
-    const close = (): void => veil.remove();
-    veil.addEventListener('click', (event) => {
-      if (event.target === veil || (event.target as HTMLElement).closest('[data-gift-reveal-close]')) close();
-    });
-    veil.querySelector<HTMLButtonElement>('[data-gift-reveal-close]')?.focus();
-  }
 
   private on(target: EventTarget, type: string, fn: EventListener): void {
     target.addEventListener(type, fn);

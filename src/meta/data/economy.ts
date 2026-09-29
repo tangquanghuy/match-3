@@ -13,6 +13,7 @@
 import { TROOP_PROGRESSION } from '../../data/leveling';
 import { TROOPS } from '../../data/troops';
 import type { KingdomStageMode } from './kingdoms';
+import type { IngotKey, TraitstoneTier } from './materials';
 
 /** 每个王国、每个关卡独立的一次性首通奖励；重复胜利不发。 */
 export const KINGDOM_FIRST_CLEAR_GEMS: Readonly<Record<KingdomStageMode, number>> = {
@@ -257,21 +258,99 @@ export const GEM_CHEST = {
 /**
  * 金宝箱：1 把金钥匙一开（金钥匙来自进贡/任务/成就/竞技场）。
  * `multiCount` = 「开启十次」一次成交的张数（**原子批量**，CH-1：不允许循环单抽后半途失败）。
+ * `keyGoldPrice`：钥匙不足时在开箱处就地用黄金补齐，每把 300 黄金（2026-09-29 用户裁定）。
  */
-export const GOLD_CHEST = { keyCost: 1, multiCount: 10 } as const;
+export const GOLD_CHEST = { keyCost: 1, multiCount: 10, keyGoldPrice: 300 } as const;
+
+/** 金宝箱 / 荣耀宝箱的单次掉落（一箱一项） */
+export type ChestLoot =
+  | { type: 'troop'; rarityIdx: number }
+  | { type: 'stone'; tier: TraitstoneTier; amount: number }
+  | { type: 'ingot'; key: IngotKey; amount: number }
+  | { type: 'currency'; key: 'gold' | 'glory' | 'souls' | 'gems'; amount: number };
+
+export interface ChestLootRow {
+  /** 公示分组：部队 / 金属锭 / 特质石 / 资源 */
+  group: 'troop' | 'ingot' | 'stone' | 'resource';
+  /** 十万分比（CHEST_LOOT_BASE = 100%；0.01% = 10） */
+  weight: number;
+  loot: ChestLoot;
+}
+
+export const CHEST_LOOT_BASE = 100_000;
 
 /**
- * 稀有度权重表（万分比，idx 0..5 = Common..Legendary）。
- * 依据：计划 §4.2「顶两档 2.0%」+ 社区实测顶档 ~1/1000 量级
- * （GoW 官方不公布概率；gem chest 顶档实测 ≈0.1%，见 TASK-META.md §7 来源）。
- * 本数据无 Mythic，顶档即 Legendary。
+ * 金宝箱掉落（2026-09-29 用户裁定，按 GoW 官方「黄金宝箱」公示结构）：
+ * 资源 62%（荣耀 23 / 黄金 23 / 灵魂 13 / 宝石 3）、特质石 25%（初级 18.75 / 高级 6.25）、部队 13%。
+ * 部队：官方只有普通 9.75% + GoW「稀有」3.25%（= 本作精良）；用户裁定放宽到本作稀有，
+ * 另给传说千分之一，把 3.25% 拆成精良 2.25 / 稀有 0.9 / 传说 0.1；史诗、神话为 0。
+ * 数量为设计值（金宝箱定位「垃圾箱」：单箱价值明显低于 300 黄金的钥匙价）。
  */
-export const GEM_CHEST_WEIGHTS = [5200, 2400, 1700, 500, 180, 20] as const;
+export const GOLD_CHEST_LOOT: readonly ChestLootRow[] = [
+  { group: 'resource', weight: 23_000, loot: { type: 'currency', key: 'glory', amount: 3 } },
+  { group: 'resource', weight: 23_000, loot: { type: 'currency', key: 'gold', amount: 150 } },
+  { group: 'resource', weight: 13_000, loot: { type: 'currency', key: 'souls', amount: 60 } },
+  { group: 'resource', weight: 3_000, loot: { type: 'currency', key: 'gems', amount: 3 } },
+  { group: 'stone', weight: 18_750, loot: { type: 'stone', tier: 'minor', amount: 2 } },
+  { group: 'stone', weight: 6_250, loot: { type: 'stone', tier: 'major', amount: 1 } },
+  { group: 'troop', weight: 9_750, loot: { type: 'troop', rarityIdx: 0 } },
+  { group: 'troop', weight: 2_250, loot: { type: 'troop', rarityIdx: 1 } },
+  { group: 'troop', weight: 900, loot: { type: 'troop', rarityIdx: 2 } },
+  { group: 'troop', weight: 100, loot: { type: 'troop', rarityIdx: 3 } },
+];
 
-/** 金宝箱权重（万分比）：官方口径金宝箱只出 Common/Rare，本作放宽到 UR（裁定池偏低稀有度） */
-export const GOLD_CHEST_WEIGHTS = [5600, 3000, 1200, 200, 0, 0] as const;
+/**
+ * 荣耀宝箱掉落（GoW 官方「荣耀宝箱」公示原样）：部队 70% / 特质石 20% / 资源 10%。
+ * 官方档名按 GoW 稀有度档位映射到本作六档（GoW 稀有=精良、罕见=稀有、史诗=传说、传奇=史诗、神话=神话）：
+ * 精良 50.4 / 稀有 15.4 / 传说 3.69 / 史诗 0.5 / 神话 0.01；
+ * 特质石 高级 15 / 符文 4.2 / 奥术 0.7 / 圣辉 0.1；资源 宝石 / 荣耀 / 黄金 / 灵魂 各 2.5（数量为设计值）。
+ */
+export const GLORY_CHEST_LOOT: readonly ChestLootRow[] = [
+  { group: 'troop', weight: 50_400, loot: { type: 'troop', rarityIdx: 1 } },
+  { group: 'troop', weight: 15_400, loot: { type: 'troop', rarityIdx: 2 } },
+  { group: 'troop', weight: 3_690, loot: { type: 'troop', rarityIdx: 3 } },
+  { group: 'troop', weight: 500, loot: { type: 'troop', rarityIdx: 4 } },
+  { group: 'troop', weight: 10, loot: { type: 'troop', rarityIdx: 5 } },
+  { group: 'stone', weight: 15_000, loot: { type: 'stone', tier: 'major', amount: 1 } },
+  { group: 'stone', weight: 4_200, loot: { type: 'stone', tier: 'runic', amount: 1 } },
+  { group: 'stone', weight: 700, loot: { type: 'stone', tier: 'arcane', amount: 1 } },
+  { group: 'stone', weight: 100, loot: { type: 'stone', tier: 'celestial', amount: 1 } },
+  { group: 'resource', weight: 2_500, loot: { type: 'currency', key: 'gems', amount: 5 } },
+  { group: 'resource', weight: 2_500, loot: { type: 'currency', key: 'glory', amount: 5 } },
+  { group: 'resource', weight: 2_500, loot: { type: 'currency', key: 'gold', amount: 300 } },
+  { group: 'resource', weight: 2_500, loot: { type: 'currency', key: 'souls', amount: 100 } },
+];
 
-/** 十连至少一张稀有或以上；仅将未达标批次的末张低档结果提升到 Rare。 */
+/** 宝石宝箱权重基数（万分比 = 100%；部队档 + 材料合计为 GEM_CHEST_BASE） */
+export const GEM_CHEST_BASE = 10_000;
+
+/**
+ * 宝石宝箱部队档权重（万分比，占全部开箱；idx 0..5 = 普通..神话）。
+ * 2026-09-29 用户裁定对齐 GoW 官方公示：部队 80%，官方档名按档位映射
+ * （GoW 罕见=本作稀有、史诗=传说、传奇=史诗、神话=神话），不出普通与精良。
+ * 神话维持本作原 0.2%（官方 0.1%，用户裁定不动），多出的 0.1% 从稀有让出（官方 67.2 → 67.1），部队仍合计 80%。
+ */
+export const GEM_CHEST_WEIGHTS: readonly number[] = Object.freeze([0, 0, 6710, 1070, 200, 20]);
+
+/**
+ * 宝石宝箱的非部队掉落（十万分比，与金/荣耀箱同一基数；合计 20% = GEM_CHEST_BASE − 部队档合计）。
+ * 金属锭 10%（超稀 8 / 史诗 1.6 / 传说 0.32 / 神话 0.08，按 GoW 罕见/史诗/传奇/神话对应本作钢锭档）、
+ * 特质石 10%（符文 9 / 奥术 0.8 / 圣辉 0.2）。数量为设计值。
+ */
+export const GEM_CHEST_EXTRA: readonly ChestLootRow[] = [
+  { group: 'ingot', weight: 8_000, loot: { type: 'ingot', key: 'ultraRare', amount: 1 } },
+  { group: 'ingot', weight: 1_600, loot: { type: 'ingot', key: 'epic', amount: 1 } },
+  { group: 'ingot', weight: 320, loot: { type: 'ingot', key: 'legendary', amount: 1 } },
+  { group: 'ingot', weight: 80, loot: { type: 'ingot', key: 'mythic', amount: 1 } },
+  { group: 'stone', weight: 9_000, loot: { type: 'stone', tier: 'runic', amount: 1 } },
+  { group: 'stone', weight: 800, loot: { type: 'stone', tier: 'arcane', amount: 1 } },
+  { group: 'stone', weight: 200, loot: { type: 'stone', tier: 'celestial', amount: 1 } },
+];
+
+/**
+ * 十连至少一张稀有或以上部队；仅将未达标批次的末张结果（材料）提升为稀有部队。
+ * 对齐官方后宝石箱部队最低即稀有，只有「前九张全是材料且第十张也是材料」时才触发（约 0.2^10）。
+ */
 export const GACHA_PITY_MIN_IDX = 2;
 
 // ---------------------------------------------------------------------------
@@ -343,14 +422,8 @@ export const EXPLORE_DROPS = {
 export const GLORY_CHEST = {
   /** 官方口径：20 荣耀 = 1 荣耀箱 */
   cost: 20,
-  /** 批量开启数量；十连按单价结算，不额外改写奖池概率。 */
+  /** 批量开启数量；十连按单价结算，不额外改写奖池概率。掉落表见 GLORY_CHEST_LOOT */
   multiCount: 10,
-  /** 出金钥匙概率 */
-  goldKeyChance: 0.1,
-  /** 出部队卡概率（低稀有度带，其余出特质石包） */
-  troopChance: 0.25,
-  /** 特质石包里的圣辉石概率 */
-  celestialChance: 0.05,
 } as const;
 
 // ---------------------------------------------------------------------------

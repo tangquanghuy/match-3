@@ -21,7 +21,7 @@ describe('R011: applyStatus on a Blessed unit', () => {
   for (const id of ['poison', 'silence', 'frozen', 'stun', 'burning', 'bleed', 'entangle', 'web', 'disease', 'charm', 'mana-burn', 'death-mark', 'marked', 'terror', 'faerie-fire']) {
     it(`negative ${id} is blocked`, () => {
       const u = blessedUnit();
-      expect(applyStatus(u, { id, turns: 3 })).toEqual([]);
+      expect(applyStatus(u, { id, turns: 3 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
       expect(hasStatus(u, id)).toBe(false);
     });
   }

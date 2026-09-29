@@ -21,7 +21,7 @@ test('all finalized narration recordings decode in Chromium', async ({page}) => 
     await ctx.close();
     return {count: durations.length, shortest: Math.min(...durations)};
   });
-  expect(result.count).toBe(81);
+  expect(result.count).toBe(84);
   expect(result.shortest).toBeGreaterThan(0);
 });
 

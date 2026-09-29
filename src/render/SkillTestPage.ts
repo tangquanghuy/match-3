@@ -842,7 +842,9 @@ export class SkillTestPage {
       case 'buff': return `buff → 角色${ev.targetId} ${ev.stat}+${ev.amount}`;
       case 'status-apply': return `status-apply → 角色${ev.targetId} ${ev.statusId} ${ev.turns}回合`;
       case 'status-tick': return `status-tick → 角色${ev.targetId} ${ev.statusId}${ev.damage ? ' 伤害' + ev.damage : ''}`;
-      case 'status-expire': return `status-expire → 角色${ev.targetId} ${ev.statusId}`;
+      case 'status-expire': return `status-expire → 角色${ev.targetId} ${ev.statusId}${ev.reason ? '（' + ev.reason + '）' : ''}`;
+      case 'status-cleanse': return `${ev.kind === 'dispel' ? '驱散' : '净化'} → 角色${ev.targetId} ${ev.statusIds.join('/')}`;
+      case 'status-blocked': return `status-blocked → 角色${ev.targetId} ${ev.statusId}（${ev.reason}）`;
       case 'gem-create': return `gem-create × ${ev.spawns.length}`;
       case 'gem-transform': return `gem-transform × ${ev.changes.length}`;
       case 'gem-destroy': return `gem-destroy × ${ev.cells.length}`;

@@ -16,6 +16,7 @@ export class NarrationAudio {
     private bus: AudioNode,
     private enabled: () => boolean,
     private onSpeaking: (speaking: boolean) => void,
+    private onClip: (clip: NarrationClip | null) => void = () => {},
   ) {}
 
   isBusy(): boolean { return this.busy; }
@@ -75,8 +76,9 @@ export class NarrationAudio {
         source.connect(this.bus);
         source.onended = () => { if (ticket === this.generation) this.stop(); };
         this.source = source;
-        this.onSpeaking(true);
         source.start();
+        this.onSpeaking(true);
+        this.onClip(clip);
       } catch { this.stop(); }
     });
     return true;
@@ -94,6 +96,7 @@ export class NarrationAudio {
     }
     this.busy = false;
     this.onSpeaking(false);
+    this.onClip(null);
     for (const resolve of this.idleWaiters) resolve();
     this.idleWaiters.clear();
   }

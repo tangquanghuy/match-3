@@ -31,6 +31,38 @@ function playback(events: GameEvent[]) {
   return { player, timeline, log };
 }
 
+describe('cascade skull attack timing', () => {
+  it('第二轮连锁凑成的骷髅：冲撞不早于该轮骷髅消除开始（不与首轮紫色消除同时出手）', () => {
+    const cells = (ids: number[], gemType: BaseColor | 'skull') =>
+      ids.map((gemId, col) => ({ gemId, pos: { row: 7, col }, gemType: gemType === 'skull' ? { kind: 'skull' as const } : colorGem(gemType) }));
+    const events: GameEvent[] = [
+      { type: 'elimination', chainCount: 1, shape: 'line3', cells: cells([1, 2, 3], BaseColor.Purple) },
+      { type: 'mana-gain', color: BaseColor.Purple, amount: 3, characterId: 0, player: PlayerSide.Left },
+      { type: 'gravity', chainCount: 1, moves: [] },
+      { type: 'refill', chainCount: 1, spawns: [] },
+      { type: 'elimination', chainCount: 2, shape: 'line3', cells: cells([4, 5, 6], 'skull') },
+      { type: 'skull-damage', attackerId: 0, targetId: 4, damage: 5, resultingHp: 10, resultingArmor: 0 },
+    ] as GameEvent[];
+    const noop = new Proxy({}, { get: () => () => {} });
+    const board = { cellSize: 88, gridPixels: 704, cellCenter: () => ({ x: 44, y: 44 }),
+      getSprite: () => undefined, removeGem: () => {} };
+    const player = new EventStreamPlayer(board as never, noop as never, {} as never, noop as never);
+    const log: { event: GameEvent; time: number }[] = [];
+    let timeline: gsap.core.Timeline;
+    player.onBattleEvent = (event) => log.push({ event, time: timeline.time() });
+    void player.play(events);
+    timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+    timeline.pause();
+    try {
+      timeline.totalTime(timeline.duration(), false);
+      const skullAt = log.find(row => row.event.type === 'skull-damage')!.time;
+      const clearStarts = (player as unknown as { clearStartTimes: Map<number, number> }).clearStartTimes;
+      expect(clearStarts.get(4)!).toBeGreaterThan(clearStarts.get(0)!);
+      expect(skullAt).toBeGreaterThanOrEqual(clearStarts.get(4)! - 1e-6);
+    } finally { player.cancel(); }
+  });
+});
+
 describe('parallel independent impacts', () => {
   it('four single-target hits occupy one hit window, not four', () => {
     const hits = [4, 5, 6, 7].map(target => damage(target));

@@ -60,13 +60,14 @@ describe('真实抽卡和神话首张追寻',()=>{
  });
  it('自然命中完成，其他神话不清零',()=>{
   const s=setup();s.gachaWishlist.pursuit.progress=50;
-  const spy=vi.spyOn(SeededRNG.prototype,'next').mockReturnValueOnce(.999).mockReturnValueOnce(0).mockReturnValueOnce(.75);
+  // .799 = 神话档（宝石箱部队档占前 80%，其后是材料抽）
+  const spy=vi.spyOn(SeededRNG.prototype,'next').mockReturnValueOnce(.799).mockReturnValueOnce(0).mockReturnValueOnce(.75);
   const r=openGemChest(s,1);if(!r.ok)throw Error(r.message);expect(r.cards[0]!.troopId).toBe(other.id);expect(s.gachaWishlist.pursuit.progress).toBe(51);
-  spy.mockReset().mockReturnValueOnce(.999).mockReturnValueOnce(0).mockReturnValueOnce(0);
+  spy.mockReset().mockReturnValueOnce(.799).mockReturnValueOnce(0).mockReturnValueOnce(0);
   const r2=openGemChest(s,2);if(!r2.ok)throw Error(r2.message);expect(r2.cards[0]!.troopId).toBe(target.id);expect(r2.cards[0]!.pursuitGuaranteed).toBe(false);expect(s.gachaWishlist.pursuit.completed).toBe(1);
  });
  it('未命中名单分支排除已选，不把空位概率偷偷分回已选',()=>{
-  const s=fresh();setWishlist(s,[target.id]);vi.spyOn(SeededRNG.prototype,'next').mockReturnValueOnce(.999).mockReturnValueOnce(.9).mockReturnValueOnce(0);
+  const s=fresh();setWishlist(s,[target.id]);vi.spyOn(SeededRNG.prototype,'next').mockReturnValueOnce(.799).mockReturnValueOnce(.9).mockReturnValueOnce(0);
   const r=openGemChest(s,1);if(!r.ok)throw Error(r.message);expect(r.cards[0]!.rarityIdx).toBe(5);expect(r.cards[0]!.troopId).not.toBe(target.id);
  });
  it('切换、移除、暂停保留进度和当轮快照；暂停抽卡不累计',()=>{

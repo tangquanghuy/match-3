@@ -51,39 +51,29 @@ function openTipFor(badge: HTMLElement): void {
   closeTip();
 
   const isTrait = badge.classList.contains('trait-badge');
-  const isMana = badge.classList.contains('gem');
   // B-8（UX 阶段 B）：标题来源改 data-*。此前从原生 title 里切字符串——
   // 而 title 与自绘浮层双轨并存、内容不一致；TeamView 已撤掉 title，这里从
   // data-status-label / data-trait-name 取，单一事实源（旧 title 留作兜底）。
-  const title = isMana
-    ? (badge.dataset.manaTitle ?? '法力值')
-    : isTrait
-      ? (badge.dataset.traitName ?? '特质')
-      : (badge.dataset.statusLabel ?? (badge.getAttribute('title') ?? '').split(' · ')[0].trim());
-  const desc = isMana
-    ? (badge.dataset.manaDesc ?? '积攒法力值后可以释放技能。')
-    : isTrait
-      ? (badge.dataset.traitDesc || '这条特质暂无描述。')
-      : (STATUS_DESCRIPTIONS[title] ?? '效果未知。');
-  const color = isMana
-    ? '#8fb8ff'
-    : isTrait
-      ? (badge.dataset.traitOff === '1' ? '#8a7c5c' : '#e0c98a')
-      : badge.style.getPropertyValue('--sb') || '#d8c290';
+  const title = isTrait
+    ? (badge.dataset.traitName ?? '特质')
+    : (badge.dataset.statusLabel ?? (badge.getAttribute('title') ?? '').split(' · ')[0].trim());
+  const desc = isTrait
+    ? (badge.dataset.traitDesc || '这条特质暂无描述。')
+    : (STATUS_DESCRIPTIONS[title] ?? '效果未知。');
+  const color = isTrait
+    ? (badge.dataset.traitOff === '1' ? '#8a7c5c' : '#e0c98a')
+    : badge.style.getPropertyValue('--sb') || '#d8c290';
 
-  // 实例实际数值行（TeamView renderStatuses 注入的 data-*）：
-  // 带 magnitude 的（DoT 类）显示每回合伤害，其余显示剩余回合。
+  // 实例实际数值行：状态侧由 TeamView renderStatuses 预先算好写进 data-live
+  //（口径单一事实源 statusPresentation.statusLiveLines：出血层数+每回合伤害、
+  // 仍倒计时的剩余回合、累积自愈几率）。此前这里自己拿 magnitude 当「每回合伤害」，
+  // 对出血是错的（magnitude 是层数），且把官方无时限状态的 turns 当剩余回合。
   // 特质用同一行位置说明「本场不生效」（未实现 code 的玩家口径）。
   const live: string[] = [];
-  if (isMana) {
-    if (badge.dataset.manaColors) live.push(`关联颜色：${badge.dataset.manaColors}`);
-  } else if (isTrait) {
+  if (isTrait) {
     if (badge.dataset.traitOff === '1') live.push('本场不生效');
-  } else {
-    const turns = badge.dataset.turns ?? '';
-    const magnitude = badge.dataset.magnitude;
-    if (magnitude !== undefined) live.push(`每回合 ${magnitude} 点`);
-    if (turns && turns !== '0') live.push(`剩余 ${turns} 回合`);
+  } else if (badge.dataset.live) {
+    live.push(badge.dataset.live);
   }
   const liveLine = live.length > 0 ? `<div class="st-live"></div>` : '';
 
@@ -96,7 +86,7 @@ function openTipFor(badge: HTMLElement): void {
   if (liveLine) {
     const el = tip.querySelector('.st-live') as HTMLElement;
     el.style.opacity = '.8';
-    el.textContent = isTrait || isMana ? live.join(' · ') : `当前：${live.join(' · ')}`;
+    el.textContent = isTrait ? live.join(' · ') : `当前：${live.join(' · ')}`;
   }
   document.body.appendChild(tip);
 
@@ -133,9 +123,9 @@ export function installStatusTooltips(): void {
   const fine = typeof window.matchMedia === 'function'
     ? window.matchMedia('(hover: hover) and (pointer: fine)')
     : null;
-  // 状态、特质和法力书签共用同一套浮层。
+  // 状态与特质共用同一套浮层。法力宝石上直接写着「当前/上限」，不再弹说明。
   const badgeOf = (target: EventTarget | null): HTMLElement | null =>
-    (target as HTMLElement | null)?.closest?.('.status-badge,.trait-badge,.gcard .gem') as HTMLElement | null;
+    (target as HTMLElement | null)?.closest?.('.status-badge,.trait-badge') as HTMLElement | null;
 
   document.addEventListener('pointerover', (e) => {
     if (!tooltipPointerAllowed(e.pointerType, fine?.matches ?? true)) return;

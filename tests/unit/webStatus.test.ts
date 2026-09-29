@@ -82,7 +82,7 @@ describe('织网 · 施加与行动限制', () => {
     const c = makeChar(1, { traitIds: ['slippery'] });
     attachPassives(c);
     const events = applyStatus(c, { id: 'web', turns: 3 });
-    expect(events).toEqual([]);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
     expect(c.statuses).toEqual([]);
   });
 });
@@ -108,7 +108,7 @@ describe('织网 · 挣脱判定（累计 10%/回合）', () => {
     const alwaysWin = stubRng(0); // next()*100 = 0 < 10
     const events = tickStatuses(c, alwaysWin);
     expect(isWebbed(c)).toBe(false);
-    expect(events).toEqual([{ type: 'status-expire', targetId: 1, statusId: 'web' }]);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-expire', targetId: 1, statusId: 'web' })]);
   });
 
   it('未传 rng（纯逻辑调用）不判定不累计，也不到期（R004）', () => {

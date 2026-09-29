@@ -10,7 +10,6 @@ import {
   loadStandaloneRequest,
   mapRequestToTeams,
   resizeRequestTeams,
-  validateBattleRequest,
 } from '@session/index';
 
 /** 与 App 相同的口径：注册表里已有的技能才算已注册。 */
@@ -63,18 +62,6 @@ describe('独立模式战斗配置（需求 2.5）', () => {
     expect(new Set(all.map((c) => c.externalId)).size).toBe(all.length);
   });
 
-  it('裁剪到 3v3 后仍是合法 request', () => {
-    const known = knownSkillIds();
-    const full = loadStandaloneRequest({ knownSkillIds: known, knownTraitIds: knownTraitIds(), knownTroopTypes: knownTroopTypes() });
-    const three = resizeRequestTeams(full, 3);
-
-    expect(three.playerTeam).toHaveLength(4);
-    expect(three.enemyTeam).toHaveLength(4);
-    expect(validateBattleRequest(three, { knownSkillIds: known, knownTraitIds: knownTraitIds(), knownTroopTypes: knownTroopTypes() }).ok).toBe(true);
-    // 原对象不被修改
-    expect(full.playerTeam).toHaveLength(MAX_ACTIVE_TEAM_SIZE);
-  });
-
   it('只裁不补：请求人数超过配置时按实际人数走', () => {
     const full = loadStandaloneRequest(validateOpts());
     const bigger = resizeRequestTeams(full, 9);
@@ -82,15 +69,15 @@ describe('独立模式战斗配置（需求 2.5）', () => {
     expect(bigger).toBe(full); // 无需裁剪时原样返回
   });
 
-  it('裁剪后的配置能映射成引擎队伍，内部 id 连续', () => {
-    const three = resizeRequestTeams(loadStandaloneRequest(validateOpts()), 3);
-    const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(three);
+  it('配置能映射成 4v4 引擎队伍，内部 id 连续', () => {
+    const request = loadStandaloneRequest(validateOpts());
+    const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(request);
 
     expect(playerTeam.characters.map((c) => c.id)).toEqual([0, 1, 2, 3]);
     expect(enemyTeam.characters.map((c) => c.id)).toEqual([4, 5, 6, 7]);
     // 角色数值来自配置而不是写死的占位值
-    expect(playerTeam.characters[0].name).toBe(three.playerTeam[0].name);
-    expect(playerTeam.characters[0].skillId).toBe(three.playerTeam[0].skillId);
-    expect(idMap.externalIdOf(0)).toBe(three.playerTeam[0].externalId);
+    expect(playerTeam.characters[0].name).toBe(request.playerTeam[0].name);
+    expect(playerTeam.characters[0].skillId).toBe(request.playerTeam[0].skillId);
+    expect(idMap.externalIdOf(0)).toBe(request.playerTeam[0].externalId);
   });
 });

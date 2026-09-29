@@ -337,6 +337,8 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
     const week = ensureEventWeek(save, WEEK, 'classTrials');
     const goods = EVENT_SHOP.classTrials.find((entry) => entry.classXp)!;
     week.tokens = goods.cost;
+    // 新档默认装备起始职业（2026-09-29），先卸下才能验「未装备职业」分支
+    save.hero.classId = null;
     expect(buyEventGoods(save, goods.id, WEEK, 'classTrials')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
     expect(week.tokens).toBe(goods.cost);
     save.hero.classId = 'nightweaver';

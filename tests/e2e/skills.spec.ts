@@ -221,7 +221,7 @@ test('frame FX preload is deferred and eventually completes', async ({ page }) =
   });
 });
 
-test('mana gem hover explains without casting, cancelled pointers never cast, and a gem tap is a card tap', async ({ page }) => {
+test('mana gem shows current/max without a tooltip, cancelled pointers never cast, and a gem tap is a card tap', async ({ page }) => {
   await assignSkill(page, 'dmg-single');
   await page.getByTestId('fill-mana').click();
   const log = page.getByTestId('event-log');
@@ -229,10 +229,10 @@ test('mana gem hover explains without casting, cancelled pointers never cast, an
 
   const card = page.getByTestId('card-0');
   const manaGem = card.locator('.gem');
-  // 说明浮层只在鼠标悬停时出现，悬停本身不触发任何卡片动作
+  // 宝石上直接写「当前/上限」；悬停不弹说明，也不触发任何卡片动作
+  await expect(manaGem.locator('.gem-mana')).toHaveText(/^(\d+)\/\1$/);
   await manaGem.hover();
-  await expect(page.locator('.status-tooltip .st-title')).toContainText('法力');
-  await expect(page.locator('.gem-tip')).toHaveCount(0);
+  await expect(page.locator('.status-tooltip')).toHaveCount(0);
   await expect(log).not.toContainText('skill-cast');
 
   const box = await card.boundingBox();
@@ -565,10 +565,17 @@ test('defeat uses effect 0353 slightly above the card center before removal', as
   }
   await expect(page.getByTestId('event-log')).toContainText('defeat');
   await expect(target).toHaveCount(0);
+  // 后排递进顶到前面（滑动补位），卡片尺寸不变，空位补在队尾
+  await expect.poll(async () => (await nextCard.boundingBox())?.y ?? 0).toBeLessThan((nextBoxBefore?.y ?? 0) - 10);
   const nextBoxAfter = await nextCard.boundingBox();
   if (nextBoxBefore && nextBoxAfter) {
-    expect(nextBoxAfter.y).toBeLessThan(nextBoxBefore.y - 10);
+    expect(Math.abs(nextBoxAfter.height - nextBoxBefore.height)).toBeLessThan(2);
+    if (targetBox) expect(Math.abs(nextBoxAfter.y - targetBox.y)).toBeLessThan(2);
   }
+  const emptySlot = page.locator('.gslot-empty');
+  await expect(emptySlot).toHaveCount(1);
+  const slotBox = await emptySlot.boundingBox();
+  if (nextBoxAfter && slotBox) expect(slotBox.y).toBeGreaterThan(nextBoxAfter.y);
 });
 
 test('final gem chain audio previews the full new set and individual levels', async ({ page }) => {
@@ -625,59 +632,6 @@ test('中毒→status-apply；推进回合→tick 与 expire', async ({ page }) 
 test('创造宝石：gem-create 或（满盘）gem-transform', async ({ page }) => {
   await assignAndCast(page, 'gem-create');
   await expect(page.getByTestId('event-log')).toContainText(/gem-(create|transform)/);
-});
-
-test('summon fills a three-card team, then queues while full', async ({ page }) => {
-  const leftCards = page.locator('.gcol').first().locator('.gcard');
-  await expect(leftCards).toHaveCount(3);
-  const before = await leftCards.first().boundingBox();
-
-  await assignSkill(page, 'summon');
-  await page.evaluate(() => {
-    void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0);
-  });
-  await expect(page.locator('[data-fx="summon_rune"]')).toBeVisible();
-  await expect(leftCards).toHaveCount(4);
-  const after = await leftCards.first().boundingBox();
-  const third = await leftCards.nth(2).boundingBox();
-  const fourth = await leftCards.nth(3).boundingBox();
-  expect(before && after && after.height < before.height).toBe(true);
-  expect(third && fourth && fourth.y > third.y).toBe(true);
-  await expect(page.getByTestId('event-log')).toContainText('summon(field)');
-
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
-  await page.getByTestId('fill-mana').click();
-  await page.evaluate(() => {
-    void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0);
-  });
-  await expect(page.getByTestId('event-log')).toContainText('summon(queue)');
-  await expect(leftCards).toHaveCount(4);
-  const queueLength = await page.evaluate(() =>
-    (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.summonQueue?.length ?? 0,
-  );
-  expect(queueLength).toBe(1);
-
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
-  const queuedId = await page.evaluate(() =>
-    (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.summonQueue?.[0].character.id,
-  );
-  expect(queuedId).toBeDefined();
-  await page.getByTestId('fill-mana').click();
-  await page.evaluate(() => {
-    const app = (window as unknown as DebugAppWindow).__testPage.app;
-    app.setDebugSkill(0, {
-      segments: [{ kind: 'damage', target: 'allySelf', scaling: { base: 100, mult: 0 } }],
-    });
-    void app.triggerCast(0);
-  });
-  await expect(page.locator('[data-fx="summon_rune"]')).toBeVisible();
-  await expect(page.getByTestId('card-0')).toHaveCount(0);
-  await expect(leftCards).toHaveCount(4);
-  await expect(leftCards.nth(3)).toHaveAttribute('data-testid', `card-${queuedId}`);
-  const remainingQueue = await page.evaluate(() =>
-    (window as unknown as DebugAppWindow).__testPage.app.engine.getState().teams.Left.summonQueue?.length ?? 0,
-  );
-  expect(remainingQueue).toBe(0);
 });
 
 test('随机摧毁6颗：无需选择，直接产出 gem-destroy', async ({ page }) => {

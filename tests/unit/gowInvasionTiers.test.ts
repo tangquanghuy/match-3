@@ -115,8 +115,10 @@ describe('invasion daily low / middle / high choice', () => {
       const plan = planInvasionBattle(save, mirror.id, 12, WEEK, WEEK);
       expect(plan.ok).toBe(true); if (!plan.ok) continue;
       expect(plan.request.enemyTeam).toEqual(mirror.defense.map((d, i) => enemyToSnapshot(getTroopById(d.troopId)!, d, i)));
+      // 三档对手都自动挂覆盖本队法力色的旗帜
+      expect(mirror.bannerKingdom).not.toBeNull();
+      expect(plan.request.enemyBanner?.boosts).toEqual(BANNERS[mirror.bannerKingdom!]!.boosts);
       if (mirror.difficulty === 'hard') {
-        expect(plan.request.enemyBanner?.boosts).toEqual(BANNERS[mirror.bannerKingdom!]!.boosts);
         expect(plan.request.enemyTeam.every(t => t.traitIds?.length === 3)).toBe(true);
         const mapped = mapRequestToTeams(plan.request);
         let id = 900000;
@@ -125,7 +127,7 @@ describe('invasion daily low / middle / high choice', () => {
         new BattleSession({ request: plan.request, idMap: mapped.idMap, engine });
         expect(engine.enemyBannerBoosts).toEqual(plan.request.enemyBanner?.boosts);
         expect(engine.enemyBannerBoosts).not.toBe(plan.request.enemyBanner?.boosts);
-      } else expect(plan.request.enemyBanner).toBeUndefined();
+      }
       const opts = { knownSkillIds: new Set([...plan.registry.skills.keys(), ...plan.registry.prototypes.keys()]), knownTraitIds: metaKnownTraitIds(), knownTroopTypes: knownTroopTypes() };
       expect(validateBattleRequest(plan.request, opts).ok).toBe(true);
       for (const bad of [{ boosts: { Red: NaN } }, { boosts: { Red: 3 } }, { boosts: { Skull: 2 } }, null]) {

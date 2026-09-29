@@ -41,7 +41,8 @@ describe('ManaDistributor 单一法力条 · 从上到下顺序吸收', () => {
     ]);
     const events = dist.distribute(team, PlayerSide.Left, BaseColor.Red, 5);
     expect(team.characters[0].mana).toBe(3);
-    expect(events[0].amount).toBe(3);
+    // 减半后仍发 mana-gain，并带 halved 供表现层标注原因
+    expect(events[0]).toMatchObject({ type: 'mana-gain', amount: 3, halved: true });
     expect(team.characters[1].mana).toBe(0);
   });
 
@@ -110,7 +111,7 @@ describe('ManaDistributor 单一法力条 · 从上到下顺序吸收', () => {
       makeChar(1, [BaseColor.Red], 3),
     ]);
     const events = dist.distribute(team, PlayerSide.Left, BaseColor.Red, 10);
-    const total = events.reduce((s, e) => s + e.amount, 0);
+    const total = events.reduce((s, e) => s + (e.type === 'mana-gain' ? e.amount : 0), 0);
     expect(total).toBe(6); // 两人各满 3，剩余 4 丢弃
   });
 

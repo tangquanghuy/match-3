@@ -36,6 +36,9 @@ type BoardPoint = { x: number; y: number };
  * 新增召唤演出路径时在此加键，勿再硬编码单个特效的时长。
  * （frameFX 时长为毫秒，GSAP 用秒。）
  */
+/** status-blocked 提示的时间线占位（光圈 + 飘字的可读窗口；按目标并行，不串行拖慢）。 */
+const STATUS_BLOCKED_HOLD_SECONDS = 0.3;
+
 const SUMMON_HOLD_SECONDS: Record<Extract<GameEvent, { type: 'summon' }>['destination'], number> = {
   field: AnimConfig.frameFX.summon_rune.duration / 1000,
   queue: 0.08,
@@ -107,6 +110,8 @@ export class EventStreamPlayer {
    * 聚合成「一次 0241 释放 + 全体同时受击」。App 播放释放/群体受击/伤害飘字。
    */
   onGroupAttack: ((events: Extract<GameEvent, { type: 'skill-damage' }>[]) => void) | null = null;
+  /** 施法蓄力结束、技能即将结算的瞬间（skill-cast 预留段末尾）：App 在此打出统一的「发射」音效与震屏 */
+  onCastRelease: ((characterId: number) => void) | null = null;
   onManaFlow: ((ev: Extract<GameEvent, { type: 'mana-gain' }>, origins: BoardPoint[]) => void) | null = null;
   /** Fired for cascade levels 2+ and once more when an extra action is awarded. */
   onComboPulse: ((level: number) => void) | null = null;
@@ -233,6 +238,11 @@ export class EventStreamPlayer {
         else this.segmentPosition = splashStarts.get(splashSlot.leader)! + splashSlot.offset;
       }
       // Exploded-skull projectiles may only originate after their associated clear starts.
+      // 骷髅普攻同理：连锁里第 N 轮才凑成的骷髅，冲撞必须等这轮骷髅开始消除，
+      // 否则会与第一轮（如紫色）消除同时出手，看起来像「没配骷髅也打人」。
+      if (window !== undefined && ev.type === 'skull-damage' && !ev.reflected) {
+        this.segmentPosition = Math.max(this.segmentPosition!, clearStart ?? windowStart);
+      }
       if (window !== undefined && ev.type === 'skill-damage' && (ev.skullBurst || ev.originCell)) {
         this.segmentPosition = Math.max(this.segmentPosition!, clearStart ?? windowStart);
       }
@@ -480,17 +490,22 @@ export class EventStreamPlayer {
           : (AnimConfig.attack.dashDuration + AnimConfig.attack.hitStop + AnimConfig.attack.returnDuration) / 1000 });
         break;
       case 'attack-struggle':
+        // 屏障/闪避：App 照常播完整冲撞（命中时格挡/闪避），预留冲撞时长；
         // 队首被控攻击落空：App 播放挣扎动画（小幅前冲被拉回），预留其时长
         tl.add(() => this.onBattleEvent?.(ev));
-        tl.to({}, { duration: 0.42 });
+        tl.to({}, { duration: (ev.reason === 'barrier' || ev.reason === 'dodge') && ev.targetId !== undefined
+          ? (AnimConfig.attack.dashDuration + AnimConfig.attack.hitStop + AnimConfig.attack.returnDuration) / 1000
+          : 0.42 });
         break;
       case 'skill-cast': {
         // Attribute-specific cast audio is selected by App at this event timestamp.
         tl.add(() => this.onBattleEvent?.(ev));
-        // 我方施法：先留出左下角立绘切入的入场+停留；退场淡出与随后的技能演出重叠。
-        // 敌方施法返回 0（只有音效，不占时间线）。
+        // 我方施法：先留出立绘切入的入场+停留；退场淡出与随后的技能演出重叠。
+        // 敌方施法：留出预告名牌的时长。
         const cutIn = castCutInReserveSeconds(ev.characterId);
         if (cutIn > 0) tl.to({}, { duration: cutIn });
+        // 预留段 = 蓄力段；末尾即「发射」，紧接着技能效果开始结算
+        tl.add(() => this.onCastRelease?.(ev.characterId));
         break;
       }
       case 'extra-turn':
@@ -533,12 +548,21 @@ export class EventStreamPlayer {
           for (const row of batch.events) this.onBattleEvent?.(row.event,
             row.feedback ? { statusFeedback: row.feedback } : undefined);
         });
-        tl.to({}, { duration: batch.duration });
+        // 法术被屏障吸收：App 照常打一发弹道再播格挡，留出飞行 + 格挡的时间
+        const blocked = batch.events.some(row => row.event.type === 'status-expire' && row.event.absorbedFrom);
+        tl.to({}, { duration: blocked
+          ? Math.max(batch.duration, (AnimConfig.projectile.maxDuration + 320) / 1000)
+          : batch.duration });
         break;
       }
       case 'status-cleanse':
         tl.add(() => this.onBattleEvent?.(ev));
         tl.to({}, { duration: AnimConfig.frameFX.heal_cleanse.duration / 1000 });
+        break;
+      case 'status-blocked':
+        // 免疫/赐福抵挡/潜水闪避/冰冻吞额外回合：卡面光圈 + 飘字（App 代码绘制），短占位
+        tl.add(() => this.onBattleEvent?.(ev));
+        tl.to({}, { duration: STATUS_BLOCKED_HOLD_SECONDS });
         break;
       case 'special-gem-trigger':
         // Feedback overlaps the clear; every marker and its finite label tail remain visible.
@@ -584,8 +608,9 @@ export class EventStreamPlayer {
         tl.to({}, { duration: 0.34 });
         break;
       case 'troop-transform':
+        // 翻卡换脸演出：翻出 170ms + 翻回 260ms
         tl.add(() => this.onBattleEvent?.(ev));
-        tl.to({}, { duration: 0.28 });
+        tl.to({}, { duration: 0.44 });
         break;
       case 'economy-gain':
         tl.add(() => this.onBattleEvent?.(ev));

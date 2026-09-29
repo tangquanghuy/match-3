@@ -1,10 +1,13 @@
-import { gemMultiCost, noviceSummonAvailable, type GachaCard } from '../systems/gacha';
+import { gemMultiCost, goldChestPrice, noviceSummonAvailable, type ChestLootResult, type GachaCard } from '../systems/gacha';
 /**
  * 宝箱 / 抽卡屏（计划 §5.7）。开箱结果来自 gacha 系统（种子化 + 十连保底稀有或以上），
  * 翻牌演出/音效沿用小样资产；概率公示从 economy 权重表派生（数值单源）。
  */
-import { GACHA_PITY_MIN_IDX, GEM_CHEST, GLORY_CHEST, GOLD_CHEST, GEM_CHEST_WEIGHTS, GOLD_CHEST_WEIGHTS } from '../data/economy';
-import { stoneName } from '../data/materials';
+import {
+  CHEST_LOOT_BASE, GACHA_PITY_MIN_IDX, GEM_CHEST, GEM_CHEST_BASE, GEM_CHEST_EXTRA, GEM_CHEST_WEIGHTS, GLORY_CHEST, GLORY_CHEST_LOOT, GOLD_CHEST, GOLD_CHEST_LOOT,
+  type ChestLootRow,
+} from '../data/economy';
+import { INGOT_NAMES, stoneName, type IngotKey, type MaterialDelta } from '../data/materials';
 import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { isFailure } from '../gateway';
@@ -12,6 +15,7 @@ import { bottomNavHtml, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chr
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopArt, troopArtFallback } from './teamScreen';
 import { getPlayerPreferences, prefersReducedMotion } from '../../preferences/playerPreferences';
+import { prepareTexture, SpriteFx, type Sprite } from './summonFx';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -23,7 +27,7 @@ const FX = {
   flash: { src: '/meta/assets/fx/gacha_legend_flash_strip.png', n: 5, w: 480, h: 480, ms: 1200 },
 } as const;
 
-type FxSpec = (typeof FX)[keyof typeof FX];
+interface FxSpec { src: string; n: number; w: number; h: number; ms: number }
 
 const stripCache = new Map<string, Promise<HTMLImageElement>>();
 
@@ -42,14 +46,55 @@ function loadStrip(src: string): Promise<HTMLImageElement> {
   return stripCache.get(src)!;
 }
 
-type FxClass = 'common' | 'rare' | 'epic' | 'legend';
+/** 演出档与六档稀有度的中文名一一对应：稀有 rare / 传说 legend / 史诗 epic / 神话 mythic。 */
+type FxClass = 'common' | 'rare' | 'legend' | 'epic' | 'mythic';
 
-/** 演出稀有度分档：神话全场 slam / 史诗紫 burst / 稀有与传说普通光 / 其余无演出。 */
+/**
+ * 演出分档：
+ * - 普通 / 精良：直接翻牌；
+ * - 稀有：短蓄力 + 光芒/冲击环贴图 + 轻震；
+ * - 传说：光流汇聚蓄力 + 原史诗爆发序列帧（金色着色、放大放慢）+ 光芒/双冲击环/闪光 + 中震 → 金色特写；
+ * - 史诗：原神话演出（传说爆发序列帧 + 光环/闪光序列帧特写）+ 光流/光羽 + 强震；
+ * - 神话：暗场长蓄力（双层光流汇聚 + 星尘）→ 全屏闪白 → 爆发 + 闪光序列帧 + 光羽 → 强化特写 + 重震。
+ * 2026-09-29 用户裁定：不使用圆形法阵 / 圆环类贴图（开箱开场法阵序列帧是原资产，保留不动）。
+ */
 function fxClassOf(rarityIdx: number): FxClass {
-  if (rarityIdx >= 5) return 'legend';
+  if (rarityIdx >= 5) return 'mythic';
   if (rarityIdx >= 4) return 'epic';
+  if (rarityIdx >= 3) return 'legend';
   if (rarityIdx >= 2) return 'rare';
   return 'common';
+}
+
+/** 需要独占舞台的档位（播放期间锁定点击、自动翻牌逐张等待） */
+const HEAVY_FX: ReadonlySet<FxClass> = new Set<FxClass>(['legend', 'epic', 'mythic']);
+
+/** 各档主色（白光贴图 / 序列帧着色） */
+const TIER_TINT: Record<Exclude<FxClass, 'common'>, string> = {
+  rare: '#b779ff',
+  legend: '#ffc93c',
+  epic: '#ff8a3a',
+  mythic: '#5fe2ff',
+};
+
+/** 震动反馈：shake = 舞台位移强度倍率；haptic = 移动端马达节奏（ms，不支持时静默）。 */
+const TIER_FEEL: Record<Exclude<FxClass, 'common'>, { shake: number; haptic: number[] }> = {
+  rare: { shake: 0.35, haptic: [18] },
+  legend: { shake: 0.7, haptic: [30, 40, 40] },
+  epic: { shake: 1, haptic: [45, 45, 70] },
+  mythic: { shake: 1.4, haptic: [80, 50, 60, 50, 140] },
+};
+
+/** 放慢放大后的爆发帧：传说用蓝色爆发帧着金，史诗/神话用传说爆发帧 */
+const BURST_LEGEND = { ...FX.epic, ms: 780 };
+const BURST_HEAVY = { ...FX.legendBurst, ms: 640 };
+
+function haptic(pattern: number | number[]): void {
+  try {
+    navigator.vibrate?.(pattern);
+  } catch {
+    /* 不支持震动的设备静默 */
+  }
 }
 
 /** 「最近获得」条容量（一次十连必须能全看见；CH-5 落存档在批次 3） */
@@ -73,6 +118,13 @@ interface OpenSpec {
 }
 
 /** 六枚开箱按钮的成交口径（数值全部来自 economy 单源） */
+/** 馈赠页领到部队卡后，借宝箱页的翻牌演出展示（奖励已入账）；关闭演出回到 returnHash */
+interface GiftReveal { cards: GachaCard[]; gems: number; returnHash: string }
+let pendingGiftReveal: GiftReveal | null = null;
+export function queueGiftReveal(reveal: GiftReveal): void {
+  pendingGiftReveal = reveal;
+}
+
 const OPEN_SPECS: Record<OpenKind, OpenSpec> = {
   'gold-1': { pool: 'gold', count: 1, cost: GOLD_CHEST.keyCost, label: '开启一次' },
   'gold-10': { pool: 'gold', count: GOLD_CHEST.multiCount, cost: GOLD_CHEST.keyCost * GOLD_CHEST.multiCount, label: '开启十次' },
@@ -109,10 +161,39 @@ interface RewardVm {
   wishLabel?: string;
 }
 
-function oddsRows(weights: readonly number[]): string {
-  return weights
-    .map((weight, index) => `<div class="odds-row"><span class="odds-swatch ${rarityClassByIndex(index)}"></span><b>${rarityNameByIndex(index)}</b><span>${(weight / weights.reduce((sum, w) => sum + w, 0) * 100).toFixed(1)}%</span></div>`)
-    .join('');
+const STONE_TIER_CN: Record<string, string> = { minor: '初级特质石', major: '高级特质石', runic: '符文特质石', arcane: '奥术特质石', celestial: '圣辉石' };
+const CURRENCY_CN: Record<string, string> = { gold: '黄金', glory: '荣耀', souls: '灵魂', gems: '宝石' };
+const LOOT_GROUP_CN: Record<ChestLootRow['group'], string> = { troop: '部队', ingot: '金属锭', stone: '特质石', resource: '资源' };
+
+/** 宝石箱公示：部队档（万分比）换算到十万分比后与材料表拼成同一张分组表；0 概率档不列 */
+function gemLootRows(): ChestLootRow[] {
+  const scale = CHEST_LOOT_BASE / GEM_CHEST_BASE;
+  const troops: ChestLootRow[] = GEM_CHEST_WEIGHTS.flatMap((w, rarityIdx) =>
+    w > 0 ? [{ group: 'troop' as const, weight: w * scale, loot: { type: 'troop' as const, rarityIdx } }] : []);
+  return [...troops, ...GEM_CHEST_EXTRA];
+}
+
+function lootPct(weight: number): string {
+  return `${Number(((weight / CHEST_LOOT_BASE) * 100).toFixed(2))}%`;
+}
+
+/** 金宝箱 / 荣耀宝箱概率公示：按分组列出，数值直接来自 economy 掉落表 */
+function lootOdds(rows: readonly ChestLootRow[]): string {
+  const groups = [...new Set(rows.map((row) => row.group))];
+  return groups.map((group) => {
+    const members = rows.filter((row) => row.group === group);
+    const sum = members.reduce((acc, row) => acc + row.weight, 0);
+    const lines = members.map(({ loot, weight }) => {
+      if (loot.type === 'troop') {
+        return `<div class="odds-row"><span class="odds-swatch ${rarityClassByIndex(loot.rarityIdx)}"></span><b>${rarityNameByIndex(loot.rarityIdx)}</b><span>${lootPct(weight)}</span></div>`;
+      }
+      const name = loot.type === 'stone' ? `${STONE_TIER_CN[loot.tier]} ×${loot.amount}`
+        : loot.type === 'ingot' ? `${INGOT_NAMES[loot.key]} ×${loot.amount}`
+        : `${CURRENCY_CN[loot.key]} ×${fmt(loot.amount)}`;
+      return `<div class="odds-row"><span class="odds-swatch odds-swatch-plain"></span><b>${name}</b><span>${lootPct(weight)}</span></div>`;
+    }).join('');
+    return `<div class="odds-group"><div class="odds-group-head"><b>${LOOT_GROUP_CN[group]}</b><span>${lootPct(sum)}</span></div>${lines}</div>`;
+  }).join('');
 }
 
 interface DrawOutcome {
@@ -129,9 +210,18 @@ export class ChestsScreen implements Screen {
   private fxTimers = new Map<HTMLElement, number>();
   private totalRewards = 0;
   private revealedCount = 0;
+  /** 独占演出（传说及以上）进行中：锁定手动翻牌 */
   private slamLocked = false;
+  /** 已结束演出的张数（全部结束才算开箱完成，避免高档演出中途被判完成） */
+  private settledCount = 0;
+  /** 「全部翻开」逐张队列：高档牌等演出（含 slam）结束后才翻下一张 */
+  private autoQueue: HTMLElement[] = [];
+  private autoRunning = false;
+  private spriteFx?: SpriteFx;
   private recent: RewardVm[] = [];
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
+  /** 馈赠借用开箱演出时：关闭演出后返回的页面（null = 普通开箱，留在宝箱页） */
+  private returnHash: string | null = null;
 
   html(ctx: ShellCtx, param?: string): string {
     void ctx;
@@ -139,42 +229,47 @@ export class ChestsScreen implements Screen {
     const keysPage = this.page === 'keys';
     const heroArt = keysPage ? '/meta/assets/chests/key-glory-pool.webp' : '/meta/assets/chests/gem-pool.webp';
     const pageLabel = keysPage ? '金钥匙与荣耀' : '宝石召唤';
+    // 金钥匙按钮的费用位：钥匙 +（不足时）黄金补差，两段按余额显隐
+    const goldCost = (keys: number): string =>
+      `<small><span class="cost-keys"><span data-icon="key"></span><b class="btn-cost">${keys}</b></span><span class="cost-gold" hidden><span data-icon="coin"></span><b class="btn-gold">0</b></span></small>`;
+    // 底栏：每个池 = 信息列（名称 / 余额 / 一句说明）+ 按钮组；宝石池右侧挂愿望单入口
     const dock = keysPage
       ? `
-            <div class="chest-col key-pool">
-              <div class="pool-head">
-                <div class="chest-name">金钥匙宝箱</div>
-                <span class="pool-balance"><span data-icon="key"></span>持有 <b id="dockKeyBalance">0</b></span>
+            <div class="dock-pool gold-pool">
+              <div class="dock-info">
+                <b class="chest-name">金钥匙宝箱</b>
+                <span class="pool-balance"><span data-icon="key"></span><b id="dockKeyBalance">0</b><i>把</i><span data-icon="coin" class="bal-coin"></span><b id="dockGoldBalance">0</b></span>
+                <p class="dock-note">资源与特质石为主 · 缺钥匙可用 ${GOLD_CHEST.keyGoldPrice} 黄金/把补</p>
               </div>
               <div class="chest-btns">
-                <button class="chest-btn" data-open="gold-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost}</b></small></button>
-                <button class="chest-btn featured" data-open="gold-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="key"></span><b class="btn-cost">${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount}</b></small></button>
+                <button class="chest-btn" data-open="gold-1" type="button"><span class="btn-label">开启一次</span>${goldCost(GOLD_CHEST.keyCost)}</button>
+                <button class="chest-btn featured" data-open="gold-10" type="button"><span class="btn-label">开启十次</span>${goldCost(GOLD_CHEST.keyCost * GOLD_CHEST.multiCount)}</button>
               </div>
-              <div class="chest-note"><span>普通至传说部队</span><b>重复进同名副本</b></div>
             </div>
             <div class="dock-divider" aria-hidden="true"><i></i><span data-icon="sparkles"></span><i></i></div>
-            <div class="chest-col glory-pool">
-              <div class="pool-head">
-                <div class="chest-name">荣耀宝箱</div>
-                <span class="pool-balance"><span data-icon="swords"></span>持有 <b id="dockGloryBalance">0</b></span>
+            <div class="dock-pool glory-pool">
+              <div class="dock-info">
+                <b class="chest-name">荣耀宝箱</b>
+                <span class="pool-balance"><span data-icon="glory"></span><b id="dockGloryBalance">0</b><span id="dockGloryKeys" class="bal-keys" hidden></span></span>
+                <p class="dock-note">部队 70% · ${GLORY_CHEST.cost} 荣耀/箱 · 优先用荣耀钥匙</p>
               </div>
               <div class="chest-btns">
-                <button class="chest-btn" data-open="glory-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost}</b></small></button>
-                <button class="chest-btn featured" data-open="glory-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="swords"></span><b class="btn-cost">${GLORY_CHEST.cost * GLORY_CHEST.multiCount}</b></small></button>
+                <button class="chest-btn" data-open="glory-1" type="button"><span class="btn-label">开启一次</span><small><span data-icon="glory"></span><b class="btn-cost">${GLORY_CHEST.cost}</b></small></button>
+                <button class="chest-btn featured" data-open="glory-10" type="button"><span class="btn-label">开启十次</span><small><span data-icon="glory"></span><b class="btn-cost">${GLORY_CHEST.cost * GLORY_CHEST.multiCount}</b></small></button>
               </div>
-              <div class="chest-note"><span>特质石为主 · 概率卡/金钥匙</span><b>${GLORY_CHEST.cost} 荣耀 / 箱</b></div>
             </div>`
       : `
-            <div class="chest-col gem-pool chest-col-wide">
-              <div class="pool-head">
-                <div class="chest-name">宝石宝箱 <button id="openWishlist" type="button">愿望单 <span id="wishlistSummary"></span></button></div>
-                <span class="pool-balance gem-balance"><span data-icon="crystal"></span>持有 <b id="dockGemBalance">0</b></span>
+            <div class="dock-pool gem-pool">
+              <div class="dock-info">
+                <b class="chest-name">宝石宝箱</b>
+                <span class="pool-balance gem-balance"><span data-icon="crystal"></span><b id="dockGemBalance">0</b></span>
+                <p class="dock-note">十连至少一张${rarityNameByIndex(GACHA_PITY_MIN_IDX)}或以上</p>
               </div>
               <div class="chest-btns">
                 <button class="chest-btn gem" data-open="gem-1" type="button"><span class="btn-label">召唤一次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.singleCost)}</b></small></button>
                 <button class="chest-btn gem featured" data-open="gem-10" type="button"><span class="btn-label">召唤十次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.multiCost)}</b></small></button>
               </div>
-              <div class="chest-note"><span>高阶部队概率提升</span><b>十连至少一张${rarityNameByIndex(GACHA_PITY_MIN_IDX)}或以上</b></div>
+              <button class="dock-wish" id="openWishlist" type="button"><b>愿望单</b><small id="wishlistSummary">去设置</small></button>
             </div>`;
     return `
       ${topbarHtml()}
@@ -201,16 +296,18 @@ export class ChestsScreen implements Screen {
 
       <div class="modal-veil" id="partialVeil" hidden>
         <section class="money-tip" role="dialog" aria-modal="true" aria-labelledby="partialTitle">
-          <h2 id="partialTitle">钥匙不够十连</h2>
+          <h2 id="partialTitle">金钥匙不足</h2>
           <ul>
-            <li><span>十连需要</span><b>${GOLD_CHEST.keyCost * GOLD_CHEST.multiCount} 把金钥匙</b></li>
+            <li><span>本次开启需要</span><b id="partialNeed">0 把金钥匙</b></li>
             <li><span>你现在持有</span><b id="partialHave">0 把</b></li>
-            <li><span>可以立刻开启</span><b id="partialCount">0 次</b></li>
+            <li><span>用黄金补齐</span><b id="partialBuy">0 把 × ${GOLD_CHEST.keyGoldPrice} = 0 黄金</b></li>
+            <li><span>黄金余额</span><b id="partialGold">0</b></li>
           </ul>
-          <div class="chest-btns" style="margin-top:18px">
-            <button class="chest-btn featured" id="partialConfirm" type="button"><span class="btn-label">开启</span><small><span data-icon="key"></span><b class="btn-cost">0</b></small></button>
+          <div class="chest-btns partial-actions">
+            <button class="chest-btn featured" id="partialBuyOpen" type="button"><span class="btn-label">补齐并开启</span><small><span data-icon="coin"></span><b class="btn-cost">0</b></small></button>
+            <button class="chest-btn" id="partialConfirm" type="button"><span class="btn-label">只开 0 次</span><small><span data-icon="key"></span><b class="btn-cost">0</b></small></button>
           </div>
-          <button class="cancel" id="partialCancel" type="button">取消 · 先攒够十连</button>
+          <button class="cancel" id="partialCancel" type="button">取消</button>
         </section>
       </div>
 
@@ -231,16 +328,23 @@ export class ChestsScreen implements Screen {
             <div class="fx-stage" id="fxStage" aria-hidden="true">
               <canvas class="fx-layer fx-circle" id="fxCircle" hidden></canvas>
             </div>
+            <div class="summon-dim" aria-hidden="true"></div>
+            <canvas class="fx-sprites fx-sprites-back" id="fxSpritesBack" aria-hidden="true"></canvas>
             <div class="summon-cards" id="summonCards"></div>
             <div class="fx-front" id="fxFront" aria-hidden="true">
               <canvas class="fx-layer fx-burst" id="fxBurst" hidden></canvas>
               <canvas class="fx-layer fx-beam" id="fxBeam" hidden></canvas>
             </div>
+            <canvas class="fx-sprites fx-sprites-top" id="fxSpritesTop" aria-hidden="true"></canvas>
             <div class="legend-slam" id="legendSlam" hidden>
+              <canvas class="fx-sprites slam-sprites" id="slamSprites" aria-hidden="true"></canvas>
+              <div class="slam-motes" aria-hidden="true">${Array.from({ length: 16 }, (_, i) => `<i style="--mx:${(i * 37 + 11) % 96 + 2}%;--md:${(2.6 + (i % 5) * 0.45).toFixed(2)}s;--mdl:${((i * 0.29) % 2.4).toFixed(2)}s;--ms:${2 + (i % 3)}px"></i>`).join('')}</div>
               <canvas class="fx-layer slam-aura" id="slamAura" hidden></canvas>
+              <div class="legend-slam-rarity" id="legendSlamRarity"></div>
               <div class="legend-slam-card" id="legendSlamCard"></div>
               <canvas class="fx-layer slam-flash" id="slamFlash" hidden></canvas>
               <div class="legend-slam-name" id="legendSlamName"></div>
+              <small class="legend-slam-hint">点击继续</small>
             </div>
             <button class="summon-action" id="summonAction" type="button">全部翻开</button>
           </div>
@@ -258,7 +362,7 @@ export class ChestsScreen implements Screen {
         <section class="odds-sheet" role="dialog" aria-modal="true">
           <header><div><h2 id="oddsTitle">${this.page === 'keys' ? '金钥匙与荣耀' : '宝石'}奖池</h2></div><button type="button" class="odds-close" data-odds-close aria-label="关闭概率">×</button></header>
           <div class="odds-content">
-            ${this.page === 'keys' ? `<section class="odds-pool"><h3>金钥匙宝箱</h3>${oddsRows(GOLD_CHEST_WEIGHTS)}<p>每把金钥匙开启一次；重复部队进入同名副本。</p></section><section class="odds-pool glory-odds"><h3>荣耀宝箱</h3><div class="glory-rate"><b>25%</b><span>部队卡</span><b>10%</b><span>金钥匙</span><b>65%</b><span>特质石 / 圣辉石</span></div><p>荣耀箱以材料为主，${GLORY_CHEST.cost} 荣耀开启一次。</p></section>` : `<section class="odds-pool"><h3>宝石宝箱</h3>${oddsRows(GEM_CHEST_WEIGHTS)}<p>十连至少获得一张${rarityNameByIndex(GACHA_PITY_MIN_IDX)}或以上部队；仅在整批未达标时提升最后一张，不降低自然抽出的高档结果。</p><p>以上为基础品质概率。愿望单只调整档内角色概率；神话追寻会替换触发抽，其额外产出未计入基础概率。<a href="#wishlist">查看愿望单、实时名单概率与追寻进度</a></p></section>`}
+            ${this.page === 'keys' ? `<section class="odds-pool"><h3>金钥匙宝箱</h3>${lootOdds(GOLD_CHEST_LOOT)}<p>1 把金钥匙开启一次；钥匙不足时可用 ${GOLD_CHEST.keyGoldPrice} 黄金补 1 把。不出史诗与神话部队。</p></section><section class="odds-pool glory-odds"><h3>荣耀宝箱</h3>${lootOdds(GLORY_CHEST_LOOT)}<p>${GLORY_CHEST.cost} 荣耀开启一次，优先消耗荣耀钥匙；重复部队进入同名副本。</p></section>` : `<section class="odds-pool"><h3>宝石宝箱</h3>${lootOdds(gemLootRows())}<p>不出普通与精良部队。十连至少获得一张${rarityNameByIndex(GACHA_PITY_MIN_IDX)}或以上部队；仅在整批未达标时把最后一张换成${rarityNameByIndex(GACHA_PITY_MIN_IDX)}部队。</p><p>以上为基础品质概率。愿望单只调整档内角色概率；神话追寻会替换触发抽，其额外产出未计入基础概率。<a href="#wishlist">查看愿望单、实时名单概率与追寻进度</a></p></section>`}
           </div>
           <footer>概率按当前权重表展示；同一批结果会完整写入最近获得记录。</footer>
         </section>
@@ -267,7 +371,7 @@ export class ChestsScreen implements Screen {
       <div class="glory-feedback" id="gloryFeedback" hidden>
         <div class="glory-feedback-veil" data-glory-close></div>
         <section class="glory-feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="gloryFeedbackTitle">
-          <h2 id="gloryFeedbackTitle">荣耀箱已开启</h2>
+          <h2 id="gloryFeedbackTitle">宝箱已开启</h2>
           <p id="gloryFeedbackCopy"></p>
           <button class="primary" type="button" data-glory-close>收下奖励</button>
         </section>
@@ -285,10 +389,16 @@ export class ChestsScreen implements Screen {
     $$('[data-open]').forEach((btn) =>
       this.on(btn, 'click', () => void this.requestOpen((btn as HTMLElement).dataset.open as OpenKind)),
     );
-    this.bind('#partialConfirm', 'click', () => {
-      const count = this.partialCount;
+    // 钥匙不足确认框：补齐（黄金+钥匙同一笔成交）/ 只开持有的钥匙数
+    this.bind('#partialBuyOpen', 'click', () => {
+      const plan = this.partialPlan;
       this.closePartial();
-      if (count > 0) void this.openSummon('gold', count);
+      if (plan) void this.openSummon('gold', plan.count, { buyMissingKeys: true });
+    });
+    this.bind('#partialConfirm', 'click', () => {
+      const plan = this.partialPlan;
+      this.closePartial();
+      if (plan && plan.keys > 0) void this.openSummon('gold', plan.keys);
     });
     this.bind('#partialCancel', 'click', () => this.closePartial());
     this.bind('#summonAction', 'click', () => this.handleActionBtn());
@@ -308,6 +418,55 @@ export class ChestsScreen implements Screen {
     $$('[data-odds-close]').forEach((el) => this.on(el, 'click', () => this.closeOdds()));
     $$('[data-glory-close]').forEach((el) => this.on(el, 'click', () => this.closeGloryFeedback()));
     Object.values(FX).forEach((spec) => void loadStrip(spec.src));
+    this.spriteFx = new SpriteFx({
+      back: $('#fxSpritesBack') as HTMLCanvasElement,
+      top: $('#fxSpritesTop') as HTMLCanvasElement,
+      slam: $('#slamSprites') as HTMLCanvasElement,
+    });
+    this.spriteFx.preload();
+    // 馈赠领到部队卡：借用开箱演出翻牌，关闭后回到馈赠页
+    const gift = pendingGiftReveal;
+    pendingGiftReveal = null;
+    this.returnHash = null;
+    if (gift) {
+      this.returnHash = gift.returnHash;
+      setTimeout(() => this.playGiftReveal(gift), 0);
+    }
+  }
+
+  /** 馈赠部队卡翻牌（奖励已由网关入账，这里只做演出） */
+  private playGiftReveal(gift: GiftReveal): void {
+    const rewards = this.rewardsOf(gift.cards);
+    if (rewards.length === 0) return;
+    this.clearSummonTimers();
+    this.slamLocked = false;
+    this.autoQueue = [];
+    this.autoRunning = false;
+    const modal = $('#summonModal');
+    modal.hidden = false;
+    modal.className = `summon-modal is-opening${rewards.length > 1 ? ' batch-10' : ''}`;
+    $('#summonTitle').textContent = '馈赠';
+    $('#summonPool').textContent = '成长馈赠';
+    const sceneArt = $('#summonSceneArt') as HTMLImageElement | null;
+    if (sceneArt) sceneArt.src = '/meta/assets/chests/gem-pool.webp';
+    $('#summonCounter').textContent = `0 / ${rewards.length}`;
+    const extra = $('#summonExtra');
+    if (extra) {
+      extra.textContent = gift.gems > 0 ? `同时获得宝石 +${fmt(gift.gems)}` : '';
+      extra.hidden = gift.gems <= 0;
+    }
+    $('#summonSkip').hidden = false;
+    $('#legendSlam').hidden = true;
+    this.renderSummonCards(rewards);
+    this.setSummonText('开启中', '开启中', true);
+    this.phase = 'opening';
+    void this.playSfx('start');
+    void this.playFx($('#fxCircle'), FX.circle, {
+      ondone: () => {
+        if (this.phase !== 'opening') return;
+        this.dealCards();
+      },
+    });
   }
 
   // —— 页面小件 ——
@@ -351,9 +510,6 @@ export class ChestsScreen implements Screen {
 
   /** 池货币余额 */
   private balanceOf(pool: ChestPool): number {
-    const wish = this.ctx.save().gachaWishlist;
-    const summary = $('#wishlistSummary');
-    if (summary) summary.textContent = wish.troopIds.length ? `· 已选 ${wish.troopIds.length}` : '';
     const c = this.ctx.save().currencies;
     return pool === 'gold' ? c.goldKeys : pool === 'glory' ? c.glory + c.gloryKeys * GLORY_CHEST.cost : c.gems;
   }
@@ -364,9 +520,17 @@ export class ChestsScreen implements Screen {
       const el = $('#' + id);
       if (el) el.textContent = value;
     };
+    const wish = this.ctx.save().gachaWishlist;
+    set('wishlistSummary', wish.troopIds.length ? `已选 ${wish.troopIds.length} 名` : '去设置');
     set('dockKeyBalance', String(c.goldKeys));
+    set('dockGoldBalance', fmt(c.gold));
     set('dockGemBalance', fmt(c.gems));
-    set('dockGloryBalance', `${fmt(c.glory)} · 钥匙 ${c.gloryKeys}`);
+    set('dockGloryBalance', fmt(c.glory));
+    const gloryKeys = $('#dockGloryKeys');
+    if (gloryKeys) {
+      gloryKeys.hidden = c.gloryKeys <= 0;
+      gloryKeys.textContent = `+ 钥匙 ${c.gloryKeys}`;
+    }
     $$('[data-open]').forEach((btn) => this.paintOpenButton(btn as HTMLButtonElement));
     // 顶栏钱包同步（外壳 bindChrome 之后 mutation 需要手动刷新）
     set('keyBalance', String(c.goldKeys));
@@ -389,43 +553,65 @@ export class ChestsScreen implements Screen {
     if (!spec) return;
     const cn = POOL_CN[spec.pool];
     const balance = this.balanceOf(spec.pool);
+    const labelEl = btn.querySelector('.btn-label');
+    const costEl = btn.querySelector('.btn-cost');
+    const setState = (state: 'ok' | 'partial' | 'short'): void => {
+      btn.disabled = state === 'short';
+      btn.classList.toggle('is-unaffordable', state === 'short');
+      btn.classList.toggle('is-partial', state === 'partial');
+    };
+
     if (spec.pool === 'glory') {
       const c = this.ctx.save().currencies;
       const keys = Math.min(c.gloryKeys, spec.count);
       const glory = (spec.count - keys) * GLORY_CHEST.cost;
-      const label = btn.querySelector('.btn-label');
-      const cost = btn.querySelector('.btn-cost');
-      if (label) label.textContent = spec.label;
-      if (cost) cost.textContent = keys ? `${keys} 钥匙${glory ? ` + ${glory} 荣耀` : ''}` : `${glory} 荣耀`;
-      btn.disabled = c.glory < glory;
-      btn.title = `优先消耗荣耀钥匙，再消耗荣耀`;
+      const affordable = c.glory >= glory;
+      if (labelEl) labelEl.textContent = affordable ? spec.label : shortLabel('glory', glory - c.glory);
+      if (costEl) costEl.textContent = keys ? `${keys} 钥匙${glory ? ` + ${glory}` : ''}` : String(glory);
+      setState(affordable ? 'ok' : 'short');
+      btn.title = affordable ? '优先消耗荣耀钥匙，再消耗荣耀' : `荣耀不足：需要 ${fmt(glory)}，现有 ${fmt(c.glory)}`;
       return;
     }
 
-    const labelEl = btn.querySelector('.btn-label');
-    const costEl = btn.querySelector('.btn-cost');
+    if (spec.pool === 'gold') {
+      // 钥匙优先；缺的钥匙显示成黄金补差，点击时弹确认（不静默花黄金）
+      const c = this.ctx.save().currencies;
+      const price = goldChestPrice(this.ctx.save(), spec.count);
+      const keysPart = btn.querySelector<HTMLElement>('.cost-keys');
+      const goldPart = btn.querySelector<HTMLElement>('.cost-gold');
+      const goldEl = btn.querySelector('.btn-gold');
+      if (costEl) costEl.textContent = String(price.boughtKeys ? price.keys : spec.cost);
+      if (keysPart) keysPart.hidden = price.boughtKeys > 0 && price.keys === 0;
+      if (goldPart) goldPart.hidden = price.boughtKeys === 0;
+      if (goldEl) goldEl.textContent = fmt(price.gold);
+      if (labelEl) labelEl.textContent = spec.label;
+      if (price.boughtKeys === 0) {
+        setState('ok');
+        btn.title = '';
+      } else if (c.gold >= price.gold || price.keys > 0) {
+        setState('partial');
+        btn.title = c.gold >= price.gold
+          ? `金钥匙差 ${price.boughtKeys} 把，可用 ${fmt(price.gold)} 黄金补齐`
+          : `金钥匙差 ${price.boughtKeys} 把，黄金不够补齐；可只开 ${price.keys} 次`;
+      } else {
+        setState('short');
+        if (labelEl) labelEl.textContent = `还差 ${fmt(price.gold - c.gold)} 黄金`;
+        btn.title = `金钥匙不足，补齐需要 ${fmt(price.gold)} 黄金，现有 ${fmt(c.gold)}`;
+      }
+      return;
+    }
+
     const paint = (label: string, cost: number, title: string): void => {
       if (labelEl) labelEl.textContent = label;
       if (costEl) costEl.textContent = fmt(cost);
       btn.title = title;
     };
     if (balance >= spec.cost) {
-      btn.disabled = false;
-      btn.classList.remove('is-unaffordable', 'is-partial');
+      setState('ok');
       paint(spec.label, spec.cost, '');
       return;
     }
-    if (kind === 'gold-10' && balance >= GOLD_CHEST.keyCost) {
-      const missing = spec.cost - balance;
-      btn.disabled = false;
-      btn.classList.remove('is-unaffordable');
-      btn.classList.add('is-partial');
-      paint(`开启 ${balance} 次`, balance, `钥匙只够 ${balance} 抽 · 还差 ${missing} 把凑十连`);
-      return;
-    }
-    btn.disabled = true;
-    btn.classList.add('is-unaffordable');
-    btn.classList.remove('is-partial');
+    setState('short');
     paint(shortLabel(spec.pool, spec.cost - balance), spec.cost, `${cn.currency}不足：需要 ${fmt(spec.cost)}，现有 ${fmt(balance)}`);
   }
 
@@ -438,23 +624,36 @@ export class ChestsScreen implements Screen {
 
   // —— 部分开启的二次确认（CH-1：不允许静默扣费，也不允许静默拦下） ——
 
-  private partialCount = 0;
+  private partialPlan: { count: number; keys: number } | null = null;
 
-  private askPartial(count: number): void {
-    this.partialCount = count;
-    const veil = $('#partialVeil');
-    $('#partialHave').textContent = `${count} 把`;
-    $('#partialCount').textContent = `${count} 次`;
-    const ok = $('#partialConfirm');
-    const label = ok.querySelector('.btn-label');
-    const cost = ok.querySelector('.btn-cost');
-    if (label) label.textContent = `开启 ${count} 次`;
-    if (cost) cost.textContent = String(count);
-    veil.hidden = false;
+  /** 金钥匙不足：列出缺口与黄金补价，给「补齐并开启」与「只开持有数」两个明确选项 */
+  private askGoldTopUp(count: number): void {
+    const save = this.ctx.save();
+    const price = goldChestPrice(save, count);
+    const gold = save.currencies.gold;
+    this.partialPlan = { count, keys: price.keys };
+    $('#partialTitle').textContent = count > 1 ? '钥匙不够十连' : '没有金钥匙了';
+    $('#partialNeed').textContent = `${count} 把金钥匙`;
+    $('#partialHave').textContent = `${price.keys} 把`;
+    $('#partialBuy').textContent = `${price.boughtKeys} 把 × ${GOLD_CHEST.keyGoldPrice} = ${fmt(price.gold)} 黄金`;
+    $('#partialGold').textContent = fmt(gold);
+
+    const buy = $('#partialBuyOpen') as HTMLButtonElement;
+    const canBuy = gold >= price.gold;
+    buy.disabled = !canBuy;
+    buy.classList.toggle('is-unaffordable', !canBuy);
+    buy.querySelector('.btn-label')!.textContent = canBuy ? `补齐并开启${count > 1 ? '十次' : '一次'}` : `黄金还差 ${fmt(price.gold - gold)}`;
+    buy.querySelector('.btn-cost')!.textContent = fmt(price.gold);
+
+    const only = $('#partialConfirm') as HTMLButtonElement;
+    only.hidden = price.keys <= 0;
+    only.querySelector('.btn-label')!.textContent = `只开 ${price.keys} 次`;
+    only.querySelector('.btn-cost')!.textContent = String(price.keys);
+    $('#partialVeil').hidden = false;
   }
 
   private closePartial(): void {
-    this.partialCount = 0;
+    this.partialPlan = null;
     const veil = $('#partialVeil');
     if (veil) veil.hidden = true;
   }
@@ -469,10 +668,12 @@ export class ChestsScreen implements Screen {
     if (drawer) drawer.hidden = true;
   }
 
-  private showGloryFeedback(summary: string): void {
+  private showGloryFeedback(summary: string, title = '宝箱已开启'): void {
     const modal = $('#gloryFeedback');
     const copy = $('#gloryFeedbackCopy');
     if (!modal || !copy) return;
+    const heading = $('#gloryFeedbackTitle');
+    if (heading) heading.textContent = title;
     copy.textContent = summary;
     modal.hidden = false;
   }
@@ -488,52 +689,38 @@ export class ChestsScreen implements Screen {
    * 拉一批开箱结果。**一次网关调用 = 一笔原子成交**（CH-1）：
    * 历史实现把金钥匙十连做成"循环 10 次单抽"，第 8 次失败就丢弃前 7 次已持久化的结果。
    */
-  private async drawRewards(pool: ChestPool, count: number): Promise<DrawOutcome | null> {
-    const gateway = this.ctx.gateway;
-    let cards: GachaCard[] = [];
-    if (pool === 'gem' || pool === 'gold') {
-      const { result } = await gateway.openChest(pool, count);
-      if (isFailure(result)) {
-        toast(result.message);
+  private async drawRewards(pool: ChestPool, count: number, opts: { buyMissingKeys?: boolean } = {}): Promise<DrawOutcome | null> {
+    const { result } = await this.ctx.gateway.openChest(pool, count, opts);
+    if (isFailure(result)) {
+      toast(result.message);
       return null;
-      }
-      cards = result.cards;
-    } else {
-      // 荣耀箱：特质石为主——有卡走翻牌演出，无卡走明确的轻量反馈面板。
-      const { result } = await gateway.openChest('glory', count);
-      if (isFailure(result)) {
-        toast(result.message);
-        return null;
-      }
-      if (!('stones' in result)) return null; // 荣耀分支恒为 GloryChestResult，防御窄化
-      const stones = Object.entries(result.stones.traitstones ?? {})
-        .map(([key, n]) => `${stoneName(key)} ×${n}`)
-        .join(' · ');
-      const parts = [
-        result.cards.length ? `部队卡 ×${result.cards.length}` : '',
-        result.goldKeys ? `金钥匙 ×${result.goldKeys}` : '',
-        stones,
-      ].filter(Boolean);
-      const summary = parts.join('，') || '本次没有额外掉落';
-      cards = result.cards;
-      const rewards = cards.map((c) => {
-        const troop = getTroopById(c.troopId) ?? null;
-        const rarityIdx = troop?.rarityIdx ?? c.rarityIdx;
-        return {
-          troop,
-          name: troop?.name ?? `部队 #${c.troopId}`,
-          art: troopArt(troop),
-          fb: troopArtFallback(troop),
-          rarityIdx,
-          fxClass: fxClassOf(rarityIdx),
-          rarity: rarityNameByIndex(rarityIdx),
-          duplicate: c.duplicate,
-          wishLabel: c.noviceGuaranteed ? ' · 异界来客保底' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
-        };
-      });
-      return { rewards, summary };
     }
-    return { rewards: cards.map((c) => {
+    // 金宝箱 / 荣耀宝箱：一箱一项掉落——有卡走翻牌演出，其余资源/特质石进可见的汇总文案
+    const summary = 'currencies' in result ? this.lootSummary(result) : this.materialSummary(result.materials);
+    return { rewards: this.rewardsOf(result.cards), summary };
+  }
+
+  /** 宝石箱的材料抽（金属锭 / 特质石）汇总；没有材料时不出文案 */
+  private materialSummary(materials: MaterialDelta): string | undefined {
+    const parts = [
+      ...Object.entries(materials.ingots ?? {}).map(([key, n]) => `${INGOT_NAMES[key as IngotKey]} ×${n}`),
+      ...Object.entries(materials.traitstones ?? {}).map(([key, n]) => `${stoneName(key)} ×${n}`),
+    ];
+    return parts.length ? `另获得 ${parts.join('，')}` : undefined;
+  }
+
+  private lootSummary(result: ChestLootResult): string {
+    const stones = Object.entries(result.stones.traitstones ?? {}).map(([key, n]) => `${stoneName(key)} ×${n}`);
+    const money = (Object.entries(result.currencies) as [keyof ChestLootResult['currencies'], number][])
+      .filter(([, n]) => n > 0)
+      .map(([key, n]) => `${CURRENCY_CN[key]} +${fmt(n)}`);
+    const parts = [result.cards.length ? `部队卡 ×${result.cards.length}` : '', ...money, ...stones].filter(Boolean);
+    const bought = result.boughtKeys ? `（已用 ${fmt(result.spent.gold ?? 0)} 黄金补 ${result.boughtKeys} 把钥匙）` : '';
+    return `${parts.join('，') || '本次没有额外掉落'}${bought}`;
+  }
+
+  private rewardsOf(cards: GachaCard[]): RewardVm[] {
+    return cards.map((c) => {
       const troop = getTroopById(c.troopId) ?? null;
       const rarityIdx = troop?.rarityIdx ?? c.rarityIdx;
       return {
@@ -545,9 +732,9 @@ export class ChestsScreen implements Screen {
         fxClass: fxClassOf(rarityIdx),
         rarity: rarityNameByIndex(rarityIdx),
         duplicate: c.duplicate,
-          wishLabel: c.noviceGuaranteed ? ' · 异界来客保底' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
+        wishLabel: c.noviceGuaranteed ? ' · 异界来客保底' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
       };
-    }) };
+    });
   }
 
   /**
@@ -560,21 +747,26 @@ export class ChestsScreen implements Screen {
     if (!$('#partialVeil').hidden) return;
     const spec = this.specOf(kind);
     if (!spec) return;
-    const balance = this.balanceOf(spec.pool);
-    if (balance >= spec.cost) return void (await this.openSummon(spec.pool, spec.count));
-    if (kind === 'gold-10' && balance >= GOLD_CHEST.keyCost) {
-      // 钥匙只够 N 抽：给明确选择（开 N 次 / 取消），不静默扣、不静默拦
-      this.askPartial(Math.floor(balance / GOLD_CHEST.keyCost));
+    if (spec.pool === 'gold') {
+      // 钥匙够：直接开；不够：弹补齐确认（补黄金 / 只开持有数），不静默花黄金、不静默拦下
+      const price = goldChestPrice(this.ctx.save(), spec.count);
+      if (price.boughtKeys === 0) return void (await this.openSummon('gold', spec.count));
+      const canBuy = this.ctx.save().currencies.gold >= price.gold;
+      if (canBuy || price.keys > 0) return void this.askGoldTopUp(spec.count);
+      toast(`金钥匙不足，补齐需要 ${fmt(price.gold)} 黄金`);
+      this.refreshBalances();
       return;
     }
+    const balance = this.balanceOf(spec.pool);
+    if (balance >= spec.cost) return void (await this.openSummon(spec.pool, spec.count));
     const cn = POOL_CN[spec.pool];
     toast(`${cn.currency}不足：需要 ${fmt(spec.cost)}，现有 ${fmt(balance)}`);
     this.refreshBalances();
   }
 
-  private async openSummon(pool: ChestPool, count: number): Promise<void> {
+  private async openSummon(pool: ChestPool, count: number, opts: { buyMissingKeys?: boolean } = {}): Promise<void> {
     if (this.phase !== 'closed') return;
-    const outcome = await this.drawRewards(pool, count);
+    const outcome = await this.drawRewards(pool, count, opts);
     // 失败分支也要刷新余额与按钮态（CH-1：旧实现失败时余额数字停在旧值）
     if (!outcome) {
       this.refreshBalances();
@@ -582,10 +774,10 @@ export class ChestsScreen implements Screen {
     }
     const rewards = outcome.rewards;
     this.loadRecent();
-    // 荣耀箱可能只出素材（无卡）：没有翻牌演出，直接刷新余额
+    // 金/荣耀箱可能只出资源与素材（无卡）：没有翻牌演出，直接刷新余额并弹汇总
     if (rewards.length === 0) {
       this.refreshBalances();
-      if (outcome.summary) this.showGloryFeedback(outcome.summary);
+      if (outcome.summary) this.showGloryFeedback(outcome.summary, `${POOL_CN[pool].title}已开启`);
       return;
     }
 
@@ -597,6 +789,8 @@ export class ChestsScreen implements Screen {
 
     this.clearSummonTimers();
     this.slamLocked = false;
+    this.autoQueue = [];
+    this.autoRunning = false;
     const dealt = rewards.length;
     const modal = $('#summonModal');
     modal.hidden = false;
@@ -628,6 +822,7 @@ export class ChestsScreen implements Screen {
   private renderSummonCards(rewards: RewardVm[]): void {
     this.totalRewards = rewards.length;
     this.revealedCount = 0;
+    this.settledCount = 0;
     const cardsEl = $('#summonCards');
     cardsEl.innerHTML = rewards
       .map((d, i) => {
@@ -706,76 +901,274 @@ export class ChestsScreen implements Screen {
     });
   }
 
-  private revealSingleCard(card: HTMLElement, isAuto: boolean): void {
+  private revealSingleCard(card: HTMLElement, isAuto: boolean, onSettled?: () => void): void {
     if (this.phase === 'closed' || this.phase === 'complete') return;
     if (this.phase === 'opening' || this.phase === 'dealing') return;
     if (card.classList.contains('is-revealed') || card.classList.contains('is-flipping')) return;
     if (!card.classList.contains('is-dealt')) return;
-    if (this.slamLocked && !isAuto) return;
+    if (!isAuto && (this.slamLocked || this.autoRunning)) return;
 
-    const rarity = card.dataset.rarity!;
+    const tier = (card.dataset.rarity ?? 'common') as FxClass;
+    const heavy = HEAVY_FX.has(tier);
+    const modal = $('#summonModal');
     card.classList.add('is-flipping');
-    $('#summonModal').classList.add('is-bursting');
+    modal.classList.add('is-bursting');
     this.phase = 'revealing';
     this.revealedCount += 1;
+    $('#summonCounter').textContent = `${this.revealedCount} / ${this.totalRewards}`;
+    if (heavy) this.slamLocked = true;
 
-    const finishFlip = (): void => {
-      card.classList.remove('is-flipping');
-      if (!this.slamLocked) $('#summonModal').classList.remove('is-bursting');
+    const reveal = (): void => card.classList.add('is-revealed');
+    const settle = (): void => {
+      card.classList.remove('is-flipping', 'is-charging');
+      if (heavy) this.slamLocked = false;
+      if (!this.slamLocked) modal.classList.remove('is-bursting');
+      this.settledCount += 1;
       this.checkSummonFinish();
+      onSettled?.();
     };
 
     if (prefersReducedMotion()) {
-      if (rarity === 'legend') void this.playSfx('legend', isAuto);
-      else if (rarity === 'epic') void this.playSfx('rare', isAuto);
-      card.classList.add('is-revealed');
-      finishFlip();
+      this.playTierSfx(tier, isAuto);
+      if (tier !== 'common') haptic(TIER_FEEL[tier].haptic);
+      reveal();
+      settle();
       return;
     }
 
-    if (rarity === 'legend') {
-      void card.offsetWidth;
-      this.placeOverCard($('#fxBurst'), card, FX.legendBurst, 2.15);
-      void this.playFx($('#fxBurst'), FX.legendBurst);
-      void this.playSfx('legend', isAuto);
-      this.later(FX.legendBurst.ms - 40, () => card.classList.add('is-revealed'));
-      if (!isAuto) {
-        this.slamLocked = true;
-        this.later(FX.legendBurst.ms + 420, () => this.showLegendSlam(card, finishFlip));
-        return;
-      }
-      this.later(FX.legendBurst.ms + 400, finishFlip);
-      return;
+    switch (tier) {
+      case 'rare': return this.revealRare(card, isAuto, reveal, settle);
+      case 'legend': return this.revealLegend(card, isAuto, reveal, settle);
+      case 'epic': return this.revealEpic(card, isAuto, reveal, settle);
+      case 'mythic': return this.revealMythic(card, isAuto, reveal, settle);
+      default:
+        reveal();
+        this.later(380, settle);
     }
+  }
 
-    if (rarity === 'epic') {
-      void card.offsetWidth;
-      this.placeOverCard($('#fxBurst'), card, FX.epic, 2.1);
-      void this.playFx($('#fxBurst'), FX.epic);
-      void this.playSfx('rare', isAuto);
-      this.later(140, () => card.classList.add('is-revealed'));
-      this.later(FX.epic.ms, finishFlip);
-      return;
-    }
+  // —— 分档演出 ——
 
-    card.classList.add('is-revealed');
-    this.later(380, finishFlip);
+  /** 稀有：短蓄力 → 翻牌瞬间紫色光芒 + 冲击环 + 星芒 + 轻震 */
+  private revealRare(card: HTMLElement, isAuto: boolean, reveal: () => void, settle: () => void): void {
+    const tint = TIER_TINT.rare;
+    const p = this.cardAnchor(card);
+    this.fx({ layer: 'top', tex: 'flare', tint, x: p.x, y: p.y, dur: 260, size: [p.h * 0.3, p.h * 0.9], rot: [0, 0.5], alpha: [0, 0.7], ease: 'in' });
+    this.charge(card, 240, () => {
+      reveal();
+      this.pop(card);
+      const { x, y, h } = this.cardAnchor(card);
+      this.fx({ layer: 'back', tex: 'rays', tint, x, y, dur: 860, size: [h * 1.1, h * 2.4], rot: [0, 0.35], alpha: [0.95, 0.55, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, dur: 560, size: [h * 0.5, h * 2.1], alpha: [1, 0.6, 0] });
+      this.fx({ layer: 'top', tex: 'flare', tint, x, y, dur: 360, size: [h * 1.3, h * 0.5], rot: [0.5, 0.9], alpha: [1, 0] });
+      this.playTierSfx('rare', isAuto);
+      this.feel('rare');
+      this.later(640, settle);
+    });
+  }
+
+  /** 传说：金色光流向卡牌汇聚 → 爆发序列帧（着金、放大放慢）+ 大光芒 + 双冲击环 + 闪光 + 中震 → 特写 */
+  private revealLegend(card: HTMLElement, isAuto: boolean, reveal: () => void, settle: () => void): void {
+    const tint = TIER_TINT.legend;
+    const p = this.cardAnchor(card);
+    this.fx({ layer: 'back', tex: 'gather', tint, x: p.x, y: p.y, dur: 520, size: [p.h * 2.6, p.h * 1.1], rot: [0, 0.5], alpha: [0, 0.9, 0.7], ease: 'in' });
+    this.fx({ layer: 'top', glow: '#ffd96a', x: p.x, y: p.y, dur: 440, size: [p.h * 0.4, p.h * 1.5], alpha: [0, 0.5], ease: 'in' });
+    this.fx({ layer: 'top', tex: 'flare', tint, x: p.x, y: p.y, dur: 440, size: [p.h * 0.3, p.h * 1.1], rot: [0, 0.6], alpha: [0, 0.85], ease: 'in' });
+    this.charge(card, 420, () => {
+      const { x, y, h } = this.cardAnchor(card);
+      const burst = $('#fxBurst');
+      this.placeOverCard(burst, card, BURST_LEGEND, 3);
+      void this.playFx(burst, BURST_LEGEND, { tint });
+      this.fx({ layer: 'top', glow: '#fff1b8', x, y, dur: 560, size: [h * 1.6, h * 5], alpha: [0.8, 0] });
+      this.fx({ layer: 'back', tex: 'rays', tint, x, y, dur: 1300, size: [h * 1.4, h * 3.8], rot: [0, 0.5], alpha: [1, 0.7, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, dur: 620, size: [h * 0.5, h * 2.6], alpha: [1, 0.5, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, delay: 150, dur: 720, size: [h * 0.4, h * 3.3], alpha: [0.8, 0.4, 0] });
+      this.fx({ layer: 'top', tex: 'flare', tint, x, y, dur: 440, size: [h * 1.9, h * 0.6], rot: [0.6, 1.1], alpha: [1, 0] });
+      this.pop(card);
+      this.feel('legend');
+      this.playTierSfx('legend', isAuto);
+      this.later(130, reveal);
+      this.later(BURST_LEGEND.ms + 200, () => this.showSlam(card, 'legend', settle));
+    });
+  }
+
+  /** 史诗：原神话演出（传说爆发序列帧 + 特写 slam）+ 橙色光流汇聚 + 强震 */
+  private revealEpic(card: HTMLElement, isAuto: boolean, reveal: () => void, settle: () => void): void {
+    const tint = TIER_TINT.epic;
+    const p = this.cardAnchor(card);
+    this.fx({ layer: 'back', tex: 'gather', tint, x: p.x, y: p.y, dur: 660, size: [p.h * 3, p.h * 1.1], rot: [0, 0.7], alpha: [0, 1, 0.8], ease: 'in' });
+    this.fx({ layer: 'back', tex: 'gather', tint: '#ffffff', x: p.x, y: p.y, delay: 120, dur: 540, size: [p.h * 2.2, p.h * 0.8], rot: [0.8, 0.2], alpha: [0, 0.5, 0.4], ease: 'in' });
+    this.fx({ layer: 'back', tex: 'veil', tint, x: p.x, y: p.y, dur: 600, size: [p.h * 1.5, p.h * 2.1], alpha: [0, 0.35], ease: 'in' });
+    this.fx({ layer: 'top', glow: '#ffb070', x: p.x, y: p.y, dur: 580, size: [p.h * 0.4, p.h * 1.7], alpha: [0, 0.55], ease: 'in' });
+    this.fx({ layer: 'top', tex: 'flare', tint, x: p.x, y: p.y, dur: 580, size: [p.h * 0.3, p.h * 1.3], rot: [0, 0.8], alpha: [0, 0.9], ease: 'in' });
+    this.charge(card, 560, () => {
+      const { x, y, h } = this.cardAnchor(card);
+      const burst = $('#fxBurst');
+      this.placeOverCard(burst, card, BURST_HEAVY, 2.7);
+      void this.playFx(burst, BURST_HEAVY);
+      this.fx({ layer: 'top', glow: '#ffe0bc', x, y, dur: 640, size: [h * 2, h * 6.5], alpha: [0.9, 0] });
+      this.fx({ layer: 'back', tex: 'veil', tint, x, y, dur: 1500, size: [h * 2.1, h * 3.4], alpha: [0.35, 0.6, 0.45, 0] });
+      this.fx({ layer: 'back', tex: 'plumes', tint, x, y, dur: 1300, size: [h * 1.6, h * 2.4], alpha: [0.8, 0.6, 0] });
+      this.fx({ layer: 'back', tex: 'rays', tint, x, y, dur: 1400, size: [h * 1.6, h * 4.2], rot: [0, 0.55], alpha: [1, 0.75, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, dur: 640, size: [h * 0.5, h * 2.9], alpha: [1, 0.5, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, delay: 160, dur: 760, size: [h * 0.4, h * 3.8], alpha: [0.85, 0.4, 0] });
+      this.fx({ layer: 'top', tex: 'flare', tint, x, y, dur: 480, size: [h * 2.2, h * 0.7], rot: [0.6, 1.2], alpha: [1, 0] });
+      this.pop(card);
+      this.feel('epic');
+      this.playTierSfx('epic', isAuto);
+      this.later(BURST_HEAVY.ms - 40, reveal);
+      this.later(BURST_HEAVY.ms + 380, () => this.showSlam(card, 'epic', settle));
+    });
+  }
+
+  /** 神话：暗场长蓄力（两层光流反向汇聚 + 星尘 + 心跳震动）→ 全屏闪白 → 爆发 + 闪光序列帧 + 光羽 → 强化 slam */
+  private revealMythic(card: HTMLElement, isAuto: boolean, reveal: () => void, settle: () => void): void {
+    const tint = TIER_TINT.mythic;
+    const modal = $('#summonModal');
+    const stage = $('#summonStage');
+    const p = this.cardAnchor(card);
+    stage.style.setProperty('--fx', `${((p.x / stage.offsetWidth) * 100).toFixed(1)}%`);
+    stage.style.setProperty('--fy', `${((p.y / stage.offsetHeight) * 100).toFixed(1)}%`);
+    modal.classList.add('is-mythic-charge');
+    void this.playSfx('start', false, 0.85);
+    haptic([20, 140, 24, 110, 30, 80, 40, 60, 60]);
+    const charge = 1200;
+    // 光流从外向内收：尺寸由大到小 + 旋转，两层反向，越接近爆发越亮
+    this.fx({ layer: 'back', tex: 'gather', tint, x: p.x, y: p.y, dur: charge, size: [p.h * 3.6, p.h * 1.2], rot: [0, 1.4], alpha: [0, 0.8, 1], ease: 'in' });
+    this.fx({ layer: 'back', tex: 'gather', tint: '#ffffff', x: p.x, y: p.y, delay: 300, dur: charge - 300, size: [p.h * 2.8, p.h * 0.9], rot: [1.2, 0], alpha: [0, 0.6, 0.8], ease: 'in' });
+    this.fx({ layer: 'back', tex: 'stardust', tint, x: p.x, y: p.y, dur: charge + 200, size: [p.h * 3.2, p.h * 2.2], alpha: [0, 0.8, 0.6], ease: 'in' });
+    this.fx({ layer: 'back', tex: 'rays', tint, x: p.x, y: p.y, dur: charge, size: [p.h * 0.8, p.h * 2.6], rot: [0, 0.7], alpha: [0, 0.2, 0.65], ease: 'in' });
+    this.fx({ layer: 'top', glow: '#8fefff', x: p.x, y: p.y, dur: charge, size: [p.h * 0.3, p.h * 1.9], alpha: [0, 0.15, 0.7], ease: 'in' });
+    this.fx({ layer: 'top', tex: 'flare', tint, x: p.x, y: p.y, dur: charge, size: [p.h * 0.2, p.h * 1.4], rot: [0, 1.6], alpha: [0, 0.35, 1], ease: 'in' });
+    this.charge(card, charge, () => {
+      modal.classList.remove('is-mythic-charge');
+      const { x, y, h } = this.cardAnchor(card);
+      this.fx({ layer: 'top', glow: '#e6fcff', x, y, dur: 950, size: [h * 3, h * 10], alpha: [1, 0.85, 0] });
+      const burst = $('#fxBurst');
+      this.placeOverCard(burst, card, BURST_HEAVY, 3);
+      void this.playFx(burst, BURST_HEAVY, { tint });
+      const beam = $('#fxBeam');
+      this.placeOverCard(beam, card, FX.flash, 2.6);
+      void this.playFx(beam, FX.flash);
+      this.fx({ layer: 'back', tex: 'veil', tint, x, y, dur: 1900, size: [h * 2.4, h * 4], alpha: [0.45, 0.75, 0.55, 0] });
+      this.fx({ layer: 'back', tex: 'plumes', tint, x, y, dur: 1700, size: [h * 1.8, h * 3], alpha: [0.9, 0.7, 0] });
+      this.fx({ layer: 'back', tex: 'stardust', tint, x, y, dur: 1800, size: [h * 2.2, h * 3.6], alpha: [0.9, 0.6, 0] });
+      this.fx({ layer: 'back', tex: 'rays', tint, x, y, dur: 1700, size: [h * 1.8, h * 5.2], rot: [0, 0.6], alpha: [1, 0.8, 0] });
+      this.fx({ layer: 'back', tex: 'rays', x, y, delay: 80, dur: 1400, size: [h * 1.2, h * 3.8], rot: [0.3, -0.2], alpha: [0.8, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, dur: 680, size: [h * 0.5, h * 3], alpha: [1, 0.5, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint, x, y, delay: 130, dur: 780, size: [h * 0.4, h * 3.8], alpha: [0.9, 0.4, 0] });
+      this.fx({ layer: 'top', tex: 'ring', tint: '#ffffff', x, y, delay: 280, dur: 900, size: [h * 0.3, h * 4.8], alpha: [0.7, 0.3, 0] });
+      this.fx({ layer: 'top', tex: 'flare', tint, x, y, dur: 620, size: [h * 2.8, h * 0.8], rot: [0.6, 1.3], alpha: [1, 0] });
+      this.pop(card);
+      this.feel('mythic');
+      this.later(280, () => this.shakeStage(0.7));
+      this.playTierSfx('mythic', isAuto);
+      this.later(BURST_HEAVY.ms - 40, reveal);
+      this.later(BURST_HEAVY.ms + 560, () => this.showSlam(card, 'mythic', settle));
+    });
+  }
+
+  private fx(sprite: Sprite): void {
+    this.spriteFx?.add(sprite);
+  }
+
+  /** 元素在舞台局部坐标系里的中心与高度（舞台会被外壳缩放，按 offsetWidth 换算回 CSS 像素） */
+  private cardAnchor(el: HTMLElement, host: HTMLElement = $('#summonStage')): { x: number; y: number; h: number } {
+    const sr = host.getBoundingClientRect();
+    const k = sr.width ? host.offsetWidth / sr.width : 1;
+    const r = el.getBoundingClientRect();
+    return { x: (r.left + r.width / 2 - sr.left) * k, y: (r.top + r.height / 2 - sr.top) * k, h: el.offsetHeight };
+  }
+
+  /** 蓄力：卡背抖动 + 稀有度色辉光渐强（CSS 只做这层简单抖动/辉光） */
+  private charge(card: HTMLElement, ms: number, then: () => void): void {
+    card.style.setProperty('--charge-ms', `${ms}ms`);
+    card.classList.add('is-charging');
+    this.later(ms, () => {
+      card.classList.remove('is-charging');
+      then();
+    });
+  }
+
+  private pop(card: HTMLElement): void {
+    card.classList.remove('is-popped');
+    void card.offsetWidth;
+    card.classList.add('is-popped');
+  }
+
+  private feel(tier: Exclude<FxClass, 'common'>): void {
+    const f = TIER_FEEL[tier];
+    this.shakeStage(f.shake);
+    haptic(f.haptic);
+  }
+
+  /** 舞台震动（WAAPI，作用在 .summon-stage；减少动态效果时跳过） */
+  private shakeStage(strength: number): void {
+    if (prefersReducedMotion()) return;
+    const el = $('#summonStage');
+    if (typeof el.animate !== 'function') return;
+    el.getAnimations().forEach((a) => {
+      if (a.id === 'summon-shake') a.cancel();
+    });
+    const a = 8 * strength;
+    const r = 0.7 * strength;
+    const anim = el.animate(
+      [
+        { transform: 'translate(0, 0) rotate(0deg)' },
+        { transform: `translate(${-a}px, ${a * 0.5}px) rotate(${-r}deg)` },
+        { transform: `translate(${a * 0.8}px, ${-a * 0.6}px) rotate(${r * 0.8}deg)` },
+        { transform: `translate(${-a * 0.5}px, ${a * 0.4}px) rotate(${-r * 0.4}deg)` },
+        { transform: `translate(${a * 0.25}px, ${-a * 0.2}px) rotate(${r * 0.2}deg)` },
+        { transform: 'translate(0, 0) rotate(0deg)' },
+      ],
+      { duration: 260 + 180 * strength, easing: 'cubic-bezier(.2,.7,.3,1)' },
+    );
+    anim.id = 'summon-shake';
+  }
+
+  private playTierSfx(tier: FxClass, isAuto: boolean): void {
+    if (tier === 'rare') void this.playSfx('rare', isAuto, 0.45);
+    else if (tier === 'legend') void this.playSfx('rare', isAuto);
+    else if (tier === 'epic' || tier === 'mythic') void this.playSfx('legend', isAuto);
   }
 
   private revealAll(): void {
     if (this.phase === 'complete' || this.phase === 'closed') return;
+    if (this.autoRunning || this.slamLocked) return;
     this.stopFx($('#fxCircle'));
     $$('.summon-card', $('#summonCards')).forEach((card) => card.classList.add('is-dealt'));
     this.phase = 'ready';
-    this.slamLocked = false;
-    const cards = $$('.summon-card:not(.is-revealed)', $('#summonCards'));
+    this.autoQueue = $$('.summon-card:not(.is-revealed):not(.is-flipping)', $('#summonCards')) as HTMLElement[];
+    this.autoRunning = true;
+    this.pumpAuto();
+  }
+
+  /** 逐张自动翻：普通/稀有 150~260ms 交错；传说及以上等演出（含 slam 点击）结束再翻下一张 */
+  private pumpAuto(): void {
+    if (this.phase === 'closed' || this.phase === 'complete') {
+      this.autoQueue = [];
+      this.autoRunning = false;
+      return;
+    }
+    let next = this.autoQueue.shift();
+    while (next && (next.classList.contains('is-revealed') || next.classList.contains('is-flipping'))) next = this.autoQueue.shift();
+    if (!next) {
+      this.autoRunning = false;
+      return;
+    }
+    const tier = (next.dataset.rarity ?? 'common') as FxClass;
     const reduced = prefersReducedMotion();
-    cards.forEach((card, i) => this.later(reduced ? 0 : i * 150, () => this.revealSingleCard(card as HTMLElement, true)));
+    if (reduced || !HEAVY_FX.has(tier)) {
+      this.revealSingleCard(next, true);
+      this.later(reduced ? 0 : tier === 'rare' ? 260 : 150, () => this.pumpAuto());
+    } else {
+      this.revealSingleCard(next, true, () => this.later(220, () => this.pumpAuto()));
+    }
   }
 
   private checkSummonFinish(): void {
     $('#summonCounter').textContent = `${this.revealedCount} / ${this.totalRewards}`;
-    if (this.revealedCount >= this.totalRewards) this.finishSummon();
+    if (this.settledCount >= this.totalRewards) this.finishSummon();
     else this.setSummonText(`已翻开 ${this.revealedCount}/${this.totalRewards}`, '全部翻开', false);
   }
 
@@ -800,6 +1193,10 @@ export class ChestsScreen implements Screen {
     this.stopSfx();
     this.phase = 'closed';
     this.slamLocked = false;
+    this.autoQueue = [];
+    this.autoRunning = false;
+    this.spriteFx?.clear();
+    $('#summonStage')?.getAnimations?.().forEach((a) => a.cancel());
     ['fxCircle', 'fxBurst', 'fxBeam', 'slamAura', 'slamFlash'].forEach((id) => this.stopFx($('#' + id)));
     const modal = $('#summonModal');
     modal.hidden = true;
@@ -811,35 +1208,84 @@ export class ChestsScreen implements Screen {
       extra.textContent = '';
     }
     this.refreshBalances();
+    if (this.returnHash) {
+      const back = this.returnHash;
+      this.returnHash = null;
+      this.ctx.navigate(back);
+    }
   }
 
-  // —— 传说 slam 演出 ——
+  // —— 史诗 / 神话 slam 特写 ——
 
-  private showLegendSlam(card: HTMLElement, done: () => void): void {
+  /** 放大特写：传说 / 史诗 / 神话共用，档位越高底衬越丰富、停留越久 */
+  private showSlam(card: HTMLElement, tier: 'legend' | 'epic' | 'mythic', done: () => void): void {
     const slam = $('#legendSlam');
-    this.stopFx($('#fxBurst'));
-    this.stopFx($('#slamAura'));
-    this.stopFx($('#slamFlash'));
+    const mythic = tier === 'mythic';
+    const legend = tier === 'legend';
+    const tint = TIER_TINT[tier];
+    ['fxBurst', 'fxBeam', 'fxCircle', 'slamAura', 'slamFlash'].forEach((id) => this.stopFx($('#' + id)));
+    this.spriteFx?.clear('slam');
+    slam.className = `legend-slam slam-${tier}`;
+    $('#legendSlamRarity').textContent = rarityNameByIndex(Number(card.dataset.rarityIdx ?? 0));
     $('#legendSlamName').textContent = card.dataset.name!;
     $('#legendSlamCard').innerHTML = `<img src="${card.dataset.art}" alt="${card.dataset.name}" onerror="this.onerror=null;this.src='${card.dataset.fb}'"><div class="card-sheen"></div>`;
     slam.hidden = false;
     void slam.offsetWidth;
+
+    const host = $('#legendSlamCard');
+    const { x, y } = this.cardAnchor(host, slam);
+    const h = host.offsetHeight;
+    // 入场闪光盖住常驻层的出现；常驻层循环到点击关闭
+    const flashGlow = mythic ? '#dffaff' : legend ? '#fff0c0' : '#ffe0b8';
+    this.fx({ layer: 'slam', glow: flashGlow, x, y, dur: mythic ? 900 : 650, size: [h * 1.2, h * (mythic ? 5 : 4)], alpha: [0.95, 0] });
+    // 常驻底衬：竖向光柱 + 缓慢上漂的星尘（两层错相，无缝循环），压住亮度，别盖过立绘
+    const veilA = mythic ? [0.5, 0.7, 0.5] : legend ? [0.3, 0.42, 0.3] : [0.4, 0.55, 0.4];
+    this.fx({ layer: 'slam', tex: 'veil', tint, x, y, dur: 4200, size: [h * 2.2, h * 2.2], alpha: veilA, loop: true, ease: 'linear' });
+    const dustPeak = mythic ? 0.8 : legend ? 0.5 : 0.65;
+    [0, 3000].forEach((delay) => this.fx({
+      layer: 'slam', tex: 'stardust', tint, x, y, delay, dur: 6000, size: [h * 2.6, h * 3.1],
+      alpha: [0, dustPeak, dustPeak, 0], loop: true, ease: 'linear',
+    }));
+    this.fx({ layer: 'slam', tex: 'ring', tint, x, y, delay: 120, dur: 760, size: [h * 0.6, h * 3.2], alpha: [0.8, 0.3, 0] });
+    if (!legend) {
+      // 史诗 / 神话：卡牌两侧光羽碎片缓缓上浮
+      [0, 2600].forEach((delay) => this.fx({
+        layer: 'slam', tex: 'plumes', tint, x, y, delay, dur: 5200, size: [h * 2.1, h * 2.4],
+        alpha: [0, mythic ? 0.75 : 0.55, 0], loop: true, ease: 'linear',
+      }));
+    }
+    if (mythic) this.fx({ layer: 'slam', tex: 'ring', tint: '#ffffff', x, y, delay: 300, dur: 900, size: [h * 0.5, h * 4.2], alpha: [0.5, 0.2, 0] });
+
     const aura = $('#slamAura');
     const flash = $('#slamFlash');
+    // 原金色光环序列帧按原样播（不着色，着色后压在立绘上会变成白糊）；神话多一层循环
     this.placeSlamLayer(aura, FX.aura, 1.52, 0, 28);
-    void this.playFx(aura, FX.aura);
-    this.placeSlamLayer(flash, FX.flash, 1.08, 122, -168);
-    this.later(280, () => {
+    const loopAura = (): void => {
       if (slam.hidden) return;
-      void this.playFx(flash, FX.flash);
+      void this.playFx(aura, FX.aura, { ondone: mythic ? loopAura : undefined });
+    };
+    loopAura();
+    this.placeSlamLayer(flash, FX.flash, 1.08, 122, -168);
+    const flashAt = mythic ? [280, 1150] : [280];
+    flashAt.forEach((ms) => this.later(ms, () => {
+      if (!slam.hidden) void this.playFx(flash, FX.flash);
+    }));
+    // 落地震动
+    this.later(mythic ? 380 : 260, () => {
+      if (slam.hidden) return;
+      this.shakeStage(mythic ? 1 : legend ? 0.4 : 0.6);
+      haptic(mythic ? [60, 40, 110] : legend ? [28] : [40]);
     });
+
+    const shownAt = performance.now();
+    const minHold = mythic ? 900 : legend ? 450 : 550;
     slam.onclick = () => {
+      if (performance.now() - shownAt < minHold) return;
       slam.hidden = true;
       slam.onclick = null;
       this.stopFx(aura);
       this.stopFx(flash);
-      this.slamLocked = false;
-      $('#summonModal').classList.remove('is-bursting');
+      this.spriteFx?.clear('slam');
       done();
     };
   }
@@ -876,7 +1322,8 @@ export class ChestsScreen implements Screen {
 
   // —— FX 播放器 ——
 
-  private async playFx(canvas: HTMLElement | null, spec: FxSpec, opts: { ondone?: () => void } = {}): Promise<void> {
+  /** 播放序列帧；tint 时按亮度着色（透明底序列帧，保留 alpha，最亮处推白） */
+  private async playFx(canvas: HTMLElement | null, spec: FxSpec, opts: { ondone?: () => void; tint?: string } = {}): Promise<void> {
     if (!canvas || !spec) return;
     if (prefersReducedMotion()) {
       this.stopFx(canvas);
@@ -888,9 +1335,10 @@ export class ChestsScreen implements Screen {
     this.stopFx(canvas, false);
     canvas.hidden = false;
     void canvas.offsetWidth;
-    let img: HTMLImageElement;
+    let img: CanvasImageSource;
     try {
-      img = await loadStrip(spec.src);
+      const raw = await loadStrip(spec.src);
+      img = opts.tint ? prepareTexture(raw, spec.src, 'alpha', opts.tint) : raw;
     } catch {
       return;
     }
@@ -938,8 +1386,14 @@ export class ChestsScreen implements Screen {
     } else {
       el.style.backgroundImage = '';
     }
-    const host = el.id === 'slamAura' || el.id === 'slamFlash' ? $('#legendSlam') : $('#fxFront');
-    if (host && el.parentElement !== host) host.appendChild(el);
+    el.classList.remove('fx-behind');
+    if (el.id === 'slamAura' || el.id === 'slamFlash') return;
+    // 挂到卡牌上的序列帧层放回原宿主，并清掉贴卡时写的内联定位（开箱法阵要回到 CSS 默认位置）
+    const host = el.id === 'fxCircle' ? $('#fxStage') : $('#fxFront');
+    if (host && el.parentElement !== host) {
+      host.appendChild(el);
+      el.style.cssText = '';
+    }
   }
 
   // —— 音效 ——
@@ -960,12 +1414,12 @@ export class ChestsScreen implements Screen {
     return this.sfx;
   }
 
-  private async playSfx(name: 'start' | 'rare' | 'legend', once = false): Promise<void> {
+  private async playSfx(name: 'start' | 'rare' | 'legend', once = false, gain = 1): Promise<void> {
     const preferences = getPlayerPreferences();
     if (!preferences.masterEnabled || preferences.masterVolume <= 0 || !preferences.soundEffectsEnabled || preferences.soundEffectsVolume <= 0) return;
     const sfx = this.ensureSfx()[name];
     if (!sfx) return;
-    sfx.volume = preferences.masterVolume * preferences.soundEffectsVolume;
+    sfx.volume = Math.min(1, preferences.masterVolume * preferences.soundEffectsVolume * gain);
     if (once && !sfx.paused) return;
     try {
       sfx.currentTime = 0;

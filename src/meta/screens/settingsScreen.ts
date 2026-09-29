@@ -979,8 +979,8 @@ export class SettingsScreen implements Screen {
     const skip = ($('#skipCastConfirm') as HTMLInputElement).checked;
     setSkipCastConfirm(skip);
     toast(skip
-      ? '之后所有战斗将跳过技能释放确认。'
-      : '已恢复技能释放确认，之后所有战斗都会先询问。');
+      ? '已开启快速释放：点击法力值已满的角色直接释放技能。'
+      : '已关闭快速释放：点击角色先打开详情，再从详情里释放。');
   }
 
   /** S-5：页内两段式确认，取代跳出舞台的原生 confirm()（两条文案只差两字、默认焦点在"确定"） */

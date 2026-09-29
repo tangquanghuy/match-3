@@ -76,13 +76,14 @@ export type TargetMode =
   | 'allyLast'
   | 'allyLastN'
   | 'allyAll'
+  | 'allyChosenOther' // Chosen living ally excluding the caster, for input and effect resolution.
   | 'allyChosen'; // 施法方手动选定的己方单体
 
 /** 手动选定类模式（需运行时由 TargetChooser 解析出具体 id） */
-export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'enemyChosenAndNextDown' | 'enemyChosenAndBelow' | 'enemyChosenAndAdjacent';
+export type ChosenTargetMode = 'enemyChosen' | 'allyChosen' | 'allyChosenOther' | 'enemyChosenAndNextDown' | 'enemyChosenAndBelow' | 'enemyChosenAndAdjacent';
 
-export function isChosenMode(mode: TargetMode): mode is 'enemyChosen' | 'allyChosen' {
-  return mode === 'enemyChosen' || mode === 'allyChosen';
+export function isChosenMode(mode: TargetMode): mode is 'enemyChosen' | 'allyChosen' | 'allyChosenOther' {
+  return mode === 'enemyChosen' || mode === 'allyChosen' || mode === 'allyChosenOther';
 }
 
 /** 列出某模式对应的候选存活角色（供玩家 UI 展示可点选项 / AI 决策）。
@@ -95,10 +96,12 @@ export function candidatesFor(
 ): Character[] {
   const casterSide = sideOf(state, casterId);
   if (casterSide === null) return [];
-  const side = mode === 'allyChosen' ? casterSide : opponentOf(casterSide);
+  const friendly = mode === 'allyChosen' || mode === 'allyChosenOther';
+  const side = friendly ? casterSide : opponentOf(casterSide);
   const alive = aliveInOrder(state.teams[side]);
   // 手动选敌：隐匿的敌人不出现在可点列表里（与 selectTargets 同一口径）
-  return mode === 'allyChosen' ? alive : targetableFrom(alive);
+  if (mode === 'allyChosenOther') return alive.filter(c => c.id !== casterId);
+  return friendly ? alive : targetableFrom(alive);
 }
 
 /** 该模式是否作用于己方 */
@@ -287,10 +290,11 @@ export function selectTargets(
 
   switch (mode) {
     case 'enemyChosen':
+    case 'allyChosenOther':
     case 'allyChosen': {
       // 手动选定：取 chosenId 指向的存活角色；未提供或已阵亡/越界则安全返回空
       if (chosenId === undefined) return [];
-      const picked = alive.find((c) => c.id === chosenId);
+      const picked = alive.find((c) => c.id === chosenId && (mode !== 'allyChosenOther' || c.id !== casterId));
       return picked ? [picked] : [];
     }
 
