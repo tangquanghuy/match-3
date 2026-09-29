@@ -1,5 +1,0 @@
-[   12689ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ :6
-[ 8400697ms] [ERROR] 初始化失败: ReferenceError: CharacterDetailPanel is not defined
-    at App.init (http://localhost:5173/src/render/App.ts?t=1783946775743:195:28) @ http://localhost:5173/src/main.ts?t=1783946775743:6
-[ 8410760ms] [ERROR] 初始化失败: ReferenceError: CharacterDetailPanel is not defined
-    at App.init (http://localhost:5173/src/render/App.ts?t=1783946785787:195:28) @ http://localhost:5173/src/main.ts?t=1783946785787:6

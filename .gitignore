@@ -35,3 +35,10 @@ design/meta-mockups-v5-backup-20260917-1359/
 design/meta-style-study/
 # UX 审查截图（126MB / 262 张，与 artifacts 同类的验收产物；报告按文件名引用，图留本地）
 design/ux-audit/shots/
+
+# 本地调试产物：Playwright MCP 截图/快照、测试运行结果、根目录临时脚本与音频
+.playwright-mcp/
+test-results/
+tmp-*
+tmp_*
+tmp-old/
