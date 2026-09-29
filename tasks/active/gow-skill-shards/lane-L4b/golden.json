@@ -1079,6 +1079,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T02:53:28.821Z"
  },
+ "troop:6760": {
+  "lines": {
+   "L10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "R10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "L0": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "K": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:58:48.944Z"
+ },
  "troop:6762": {
   "lines": {
    "L10": "convert Green x4, Purple x4, Brown x2, Red x2, Yellow x2 -> skull x14",

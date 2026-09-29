@@ -499,6 +499,16 @@
   "by": "sa-F1",
   "at": "2026-09-28T00:42:41.316Z"
  },
+ "troop:6574": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; dmg E10 7 (scatter) ; dmg E11 5 (scatter) ; dmg E12 2 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 arm-5 | E11:arm-9 | E12:arm-10 | E13:hp-4 arm-3",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; dmg E10 7 (scatter) ; dmg E11 5 (scatter) ; dmg E12 2 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 arm-5 | E11:arm-9 | E12:arm-10 | E13:hp-4 arm-3",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 4 (scatter) ; dmg E13 1 (scatter) ; dmg E10 2 (scatter) ; dmg E11 2 (scatter) ; dmg E12 2 (scatter) ; dmg E13 2 (scatter)  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:58:46.174Z"
+ },
  "troop:6598": {
   "lines": {
    "L10": "buff E10 mana-6 ; buff E11 mana-8 ; buff E12 mana-4 ; buff E13 mana-10 ; buff C hp+28 max+28  => E10:mana-6 | E11:mana-8 | E12:mana-4 | E13:mana-10 | C:hp+28 max+28",

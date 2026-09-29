@@ -76,3 +76,15 @@ describe('sa-J B04', () => {
     expect(o.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 12', 'dmg E12 12']);
   });
 });
+
+describe('sa-J B05', () => {
+  // troop:6536 Vargouille (7730): StealLife 8 AddForDivine on the stunned target only when it is Divine.
+  it('troop:6536 steals 8 Life only from a Divine target', () => {
+    const divine = [{ hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300, troopTypes: ['Divine'] }] as Record<string, unknown>[];
+    const hit = order('troop:6536', { enemies: divine });
+    expect(hit).toContain('status E11 +stun');
+    expect(hit.some(x => /^dmg E11 8\b/.test(x))).toBe(true);
+    const plain = order('troop:6536', { enemies: [{ hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300 }] });
+    expect(plain.some(x => x.startsWith('dmg E11'))).toBe(false);
+  });
+});

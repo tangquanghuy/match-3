@@ -826,8 +826,8 @@
    "L0": "explode 30 ; skulls E10 3 ; status E11 +stun  => A1:mana+3 | A2:mana+3 | E10:arm-3 | E11:+stun",
    "K": "explode 30 ; skulls E10 3 ; defeat E10 ; status E11 +stun  => A1:mana+3 | A2:mana+3 | E10:hp-1 DEAD | E11:+stun"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T22:32:42.590Z"
+  "by": "sa-J",
+  "at": "2026-09-29T03:58:43.857Z"
  },
  "troop:6540": {
   "lines": {

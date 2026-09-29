@@ -539,6 +539,16 @@
   "by": "sa-C",
   "at": "2026-09-28T11:07:38.245Z"
  },
+ "troop:6506": {
+  "lines": {
+   "L10": "cleanse A1 -poison ; status A1 +barrier ; buff A1 hp+22 max+22 ; move A1 front  => A1:hp+22 max+22 +barrier -poison",
+   "R10": "cleanse A1 -poison ; status A1 +barrier ; buff A1 hp+22 max+22 ; move A1 front  => A1:hp+22 max+22 +barrier -poison",
+   "L0": "cleanse A1 -poison ; status A1 +barrier ; buff A1 hp+2 max+2 ; move A1 front  => A1:hp+2 max+2 +barrier -poison",
+   "K": "cleanse A1 -poison ; status A1 +barrier ; buff A1 hp+22 max+22 ; move A1 front  => A1:hp+22 max+22 +barrier -poison"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:58:41.622Z"
+ },
  "troop:6511": {
   "lines": {
    "L10": "dmg E11 14 ; status E12 +entangle  => E11:hp-4 arm-10 | E12:+entangle",
@@ -548,6 +558,16 @@
   },
   "by": "sa-C",
   "at": "2026-09-28T11:07:38.245Z"
+ },
+ "troop:6512": {
+  "lines": {
+   "L10": "status E10 +web ; status E10 +marked ; status E10 +death-mark ; dmg E10 13  => E10:hp-8 arm-5 +web+marked+death-mark",
+   "R10": "status E10 +web ; status E10 +marked ; status E10 +death-mark ; dmg E10 13  => E10:hp-8 arm-5 +web+marked+death-mark",
+   "L0": "status E10 +web ; status E10 +marked ; status E10 +death-mark ; dmg E10 3  => E10:arm-3 +web+marked+death-mark",
+   "K": "status E10 +web ; status E10 +marked ; status E10 +death-mark ; dmg E10 13 ; defeat E10  => E10:hp-1 +web+marked+death-mark DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:58:41.622Z"
  },
  "troop:6517": {
   "lines": {
