@@ -226,14 +226,14 @@ export function invasionVictoryVp(mirror: Pick<InvasionMirror, 'difficulty' | 'f
 }
 
 export function refreshInvasionOpponents(save: MetaSave, now: number, weekStart: number): { ok: true } | MetaFailure {
-  if (save.hero.level < INVASION.unlockHeroLevel) return fail('PREREQ_LOCKED', '主角达到 10 级后开放入侵');
+  if (save.hero.level < INVASION.unlockHeroLevel) return fail('PREREQ_LOCKED', `主角达到 ${INVASION.unlockHeroLevel} 级后开放入侵`);
   ensureInvasionSeason(save, now, weekStart);
   save.invasion.refreshCount = (save.invasion.refreshCount + 1) % Number.MAX_SAFE_INTEGER;
   return { ok: true };
 }
 
 export function claimInvasionRank(save: MetaSave, id: string): { ok: true; gems: number } | MetaFailure {
-  if (save.hero.level < INVASION.unlockHeroLevel) return fail('PREREQ_LOCKED', '主角达到 10 级后开放入侵');
+  if (save.hero.level < INVASION.unlockHeroLevel) return fail('PREREQ_LOCKED', `主角达到 ${INVASION.unlockHeroLevel} 级后开放入侵`);
   const rank = INVASION_RANKS.find(r => r.id === id);
   if (!rank || save.invasion.progressionVp < rank.vp) return fail('PREREQ_LOCKED', '尚未达到该官阶');
   if (save.invasion.claimedRanks.includes(id)) return fail('INVALID', '该官阶奖励已领取');
@@ -368,6 +368,7 @@ export function settleInvasionBattle(
   save.stats.soulsEarned += collected.souls;
   const victory = result.winner === 'player';
   save.invasion.battles += 1;
+  save.gifts.invasionBattles += 1; // 馈赠：累计入侵场数（不随赛季清零）
   let vpDelta = 0;
   let vpBase = 0;
   let glory = 0;

@@ -473,7 +473,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     settings: { ...base.settings },
     treasureHunt,
     onboarding: hydrateOnboarding(raw.onboarding, gachaLog),
-    gifts: hydrateGifts(raw.gifts, eventWeeks),
+    gifts: hydrateGifts(raw.gifts, eventWeeks, invasion),
   };
 }
 
@@ -501,15 +501,18 @@ function hydrateOnboarding(raw: unknown, gachaLog: MetaSave['gachaLog']): MetaSa
   return { step, noviceSummonUsed: typeof raw.noviceSummonUsed === 'boolean' ? raw.noviceSummonUsed : pulledGem };
 }
 
-function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks']): MetaSave['gifts'] {
+function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks'], invasion: MetaSave['invasion']): MetaSave['gifts'] {
   const weekWins = Object.values(eventWeeks).reduce((sum, w) => sum + (w?.wins ?? 0), 0);
   const weekTower = eventWeeks.towerOfDoom?.eventData.floorBest ?? 0;
-  if (!isObject(raw)) return { claimed: [], eventWins: weekWins, towerBest: weekTower };
+  // 旧档没有累计入侵场数：本周场数或打过赛季就至少算 1 场
+  const knownInvasions = Math.max(invasion.battles, invasion.seasonsPlayed > 0 ? 1 : 0);
+  if (!isObject(raw)) return { claimed: [], eventWins: weekWins, towerBest: weekTower, invasionBattles: knownInvasions };
   const claimed = Array.isArray(raw.claimed) ? [...new Set(raw.claimed.filter((id): id is string => typeof id === 'string'))] : [];
   return {
     claimed,
     eventWins: Math.max(num(raw.eventWins, 0, 0), weekWins),
     towerBest: Math.max(num(raw.towerBest, 0, 0), weekTower),
+    invasionBattles: Math.max(num(raw.invasionBattles, 0, 0), knownInvasions),
   };
 }
 

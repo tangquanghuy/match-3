@@ -3,7 +3,7 @@
  * 左栏分组、右栏里程碑卡片（分页，不做长列表）；达成后手动领取宝石。
  */
 import { isFailure } from '../gateway';
-import { GIFT_GROUPS, GIFT_STARTER_ID, GIFT_TOTAL_GEMS, type GiftGroupId } from '../data/gifts';
+import { GIFT_GROUPS, GIFT_STARTER_ID, GIFT_TOTAL_GEMS, type GiftGroupId, type GiftMetric } from '../data/gifts';
 import { giftRows, type GiftRow } from '../systems/gifts';
 import { rarityNameByIndex } from '../data/rarity';
 import { queueGiftReveal } from './chestsScreen';
@@ -22,6 +22,41 @@ function groupOf(param: string | undefined): GiftGroupId | null {
 /** 默认分组：有可领的优先，其次第一个没领完的 */
 function defaultGroup(rows: GiftRow[]): GiftGroupId {
   return (rows.find((r) => r.status === 'ready') ?? rows.find((r) => r.status !== 'claimed') ?? rows[0]!).gift.group;
+}
+
+const LEAGUES = ['青铜', '白银', '黄金', '白金', '翡翠', '蓝宝石', '紫水晶', '黄玉', '红宝石', '钻石'];
+
+/** 卡片顶部的大号目标（一眼看出这一档要到哪） */
+function goalOf(metric: GiftMetric, target: number, id: string): string {
+  switch (metric) {
+    case 'always': return id === GIFT_STARTER_ID ? '见面礼' : '补给';
+    case 'heroLevel': return `Lv.${target}`;
+    case 'battlesWon': case 'arenaWins': case 'eventWins': return `${fmt(target)} 胜`;
+    case 'arenaBestRun': return `${target} 连胜`;
+    case 'questChains': return `${target} 国`;
+    case 'kingdomsMaxed': return `${target} 国满级`;
+    case 'invasionLeague': return LEAGUES[target] ?? `${target}`;
+    case 'invasionBattles': return `${target} 场`;
+    case 'towerBest': return `${target} 层`;
+    case 'troopsOwned': return `${target} 名`;
+  }
+}
+
+/** 目标下方的短名词（目标本身已写出数值，不再重复整句） */
+const METRIC_NOUN: Record<GiftMetric, string> = {
+  always: '', heroLevel: '主角等级', battlesWon: '累计胜场', questChains: '主线通关', kingdomsMaxed: '王国 10 级',
+  arenaWins: '竞技场胜场', arenaBestRun: '单轮连胜', invasionLeague: '入侵官阶', invasionBattles: '完成入侵',
+  eventWins: '周活动胜场', towerBest: '末日之塔', troopsOwned: '收集部队',
+};
+
+/** 分组当前进度一句话（面板标题旁） */
+function currentOf(metric: GiftMetric, value: number): string {
+  switch (metric) {
+    case 'always': return '';
+    case 'heroLevel': return `当前 Lv.${value}`;
+    case 'invasionLeague': return `当前 ${LEAGUES[value] ?? value}`;
+    default: return `当前 ${fmt(value)}`;
+  }
 }
 
 function groupIcon(id: GiftGroupId, fallback: string): string {
@@ -79,37 +114,34 @@ export class GiftsScreen implements Screen {
         <div class="gift-body">
           <nav class="gift-tabs" aria-label="馈赠分组">${tabs}</nav>
           <section class="gift-panel" aria-labelledby="giftGroupTitle">
-            <header class="gift-panel-head"><h2 id="giftGroupTitle">${def.name}</h2>${pager}</header>
+            <header class="gift-panel-head"><h2 id="giftGroupTitle">${def.name}</h2><span class="gift-now">${[...new Set(list.map((r) => r.gift.metric))].map((m) => currentOf(m, list.find((r) => r.gift.metric === m)!.value)).filter(Boolean).join(' · ')}</span>${pager}</header>
             <div class="gift-grid">${cards}</div>
           </section>
         </div>
       </div>${bottomNavHtml('')}${toastHtml()}`;
   }
 
+  /** 一张里程碑卡：目标徽标 → 奖励（宝石 + 可选部队卡背）→ 底部统一的进度 / 领取条 */
   private cardHtml(row: GiftRow): string {
     const { gift, value, status } = row;
-    const pct = Math.min(100, (Math.min(value, gift.target) / gift.target) * 100);
-    const action = status === 'ready'
+    const shown = Math.min(value, gift.target);
+    const pct = Math.min(100, (shown / gift.target) * 100);
+    const goal = goalOf(gift.metric, gift.target, gift.id);
+    const gems = gift.gems > 0
+      ? `<span class="gift-gem"><span data-icon="crystal"></span><b>${fmt(gift.gems)}</b></span>` : '';
+    const troop = gift.troop
+      ? `<span class="gift-troopcard r${gift.troop}" title="随机${rarityNameByIndex(gift.troop)}部队"><i aria-hidden="true"></i><small>${rarityNameByIndex(gift.troop)}</small></span>` : '';
+    const foot = status === 'ready'
       ? `<button class="gift-claim" type="button" data-gift-claim="${gift.id}">领取</button>`
       : status === 'claimed'
-        ? '<span class="gift-state done"><span data-icon="check"></span>已领取</span>'
-        : `<span class="gift-state">${fmt(Math.min(value, gift.target))} / ${fmt(gift.target)}</span>`;
-    const troopChip = gift.troop
-      ? `<span class="gift-troop r${gift.troop}"><span data-icon="helmet"></span>随机${rarityNameByIndex(gift.troop)}部队</span>`
-      : '';
-    const reward = gift.gems > 0
-      ? `<div class="gift-reward"><span data-icon="crystal"></span><b>${fmt(gift.gems)}</b></div>`
-      : `<div class="gift-reward troop r${gift.troop}"><span data-icon="helmet"></span><b>${rarityNameByIndex(gift.troop ?? 3)}</b></div>`;
-    const blurb = gift.id === GIFT_STARTER_ID ? '新冒险者专属，可直接用于一次新手十连'
-      : gift.metric === 'always' ? '补充一名传说部队，组建你的第一支队伍' : '';
-    return `<article class="gift-card ${status}${gift.group === 'starter' ? ' starter' : ''}">
-        ${reward}
-        <div class="gift-card-body">
-          <h3>${gift.label}</h3>
-          ${blurb ? `<p>${blurb}</p>` : `<div class="gift-bar"><i style="width:${pct}%"></i></div>`}
-          ${gift.gems > 0 ? troopChip : ''}
-        </div>
-        <div class="gift-action">${action}</div>
+        ? '<span class="gift-foot done"><span data-icon="check"></span>已领取</span>'
+        : gift.metric === 'always'
+          ? '<span class="gift-foot">待领取</span>'
+          : `<span class="gift-foot progress"><i style="width:${pct}%"></i><b>${fmt(shown)} / ${fmt(gift.target)}</b></span>`;
+    return `<article class="gift-card ${status}">
+        <header class="gift-goal" title="${gift.label}"><b>${goal}</b><small>${gift.metric === 'always' ? gift.label : METRIC_NOUN[gift.metric]}</small></header>
+        <div class="gift-prize">${gems}${troop}</div>
+        ${foot}
       </article>`;
   }
 

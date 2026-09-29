@@ -42,7 +42,8 @@ test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被�
 
   await page.getByText('自动', { exact: true }).click();
   await expect(page).toHaveURL(/#result/, { timeout: 180_000 });
-  await expect(bubble).toContainText('试炼胜利');
+  // 结算页（含升级二选一）不加任何遮挡
+  await expect(page.locator('.tut-layer:not(.tut-battle)')).toHaveCount(0);
   for (let i = 0; i < 10 && /#result/.test(page.url()); i++) {
     const card = page.locator('#luChoices [data-mastery-color]').first();
     if (await card.isVisible().catch(() => false)) await card.click();
@@ -51,13 +52,13 @@ test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被�
     await page.waitForTimeout(800);
   }
   await expect(page).toHaveURL(/#map$/);
-  await expect(bubble).toContainText('馈赠');
+  await expect(bubble).toContainText('打得漂亮');
   await expect(page.locator('.tut-layer')).toHaveClass(/has-hole/);
 
   await page.locator('#railGifts').click();
   await expect(page).toHaveURL(/#gifts/);
   await page.locator('[data-gift-claim="starter"]').click();
-  await expect(bubble).toContainText('去召唤');
+  await expect(bubble).toContainText('召唤伙伴');
   await page.locator('.tut-action').click();
   await expect(page).toHaveURL(/#chests\/gems$/);
   await expect(page.locator('[data-open="gem-10"]')).toContainText('新手十连');
@@ -65,7 +66,9 @@ test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被�
   await expect(page.locator('.tut-layer')).toHaveCount(0);
   const save = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!));
   expect(save.onboarding).toEqual({ step: 'done', noviceSummonUsed: true });
-  expect(save.gachaLog[0].troops).toHaveLength(10);
+  // 十连恒发 10 张牌（材料也占一张）；最后一张是部队
+  await expect(page.locator('#summonCards .summon-card')).toHaveCount(10);
+  expect(save.gachaLog[0].troops.length).toBeGreaterThan(0);
   await page.evaluate(() => localStorage.removeItem('gems.debug.slowLoad'));
 });
 
@@ -73,11 +76,17 @@ test('馈赠：部队卡奖励领取后弹出获得展示', async ({ page }) => 
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/game.html');
   await page.evaluate(() => localStorage.clear());
-  await page.goto('/game.html#gifts/starter');
-  await expect(page.locator('.gift-card')).toHaveCount(2);
-  await expect(page.locator('.gift-card').nth(1)).toContainText('新兵补给');
-  await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-starter-1600.png' });
-  await page.locator('[data-gift-claim="starter-troop"]').click();
+  await page.reload();
+  await page.goto('/game.html#gifts/invasion');
+  await expect(page.locator('.gift-card').first()).toContainText('完成第一次入侵');
+  // 打完第一场入侵：用存档模拟累计场数
+  await page.evaluate(() => {
+    const k = 'gems.meta.save'; const s = JSON.parse(localStorage.getItem(k)!);
+    s.gifts.invasionBattles = 1; localStorage.setItem(k, JSON.stringify(s));
+  });
+  await page.reload();
+  await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-invasion-1600.png' });
+  await page.locator('[data-gift-claim="invasion-first"]').click();
   // 借用宝箱开箱演出：一张卡背，翻开必为传说，关闭后回到馈赠页
   await expect(page).toHaveURL(/#chests\/gems$/);
   const modal = page.locator('#summonModal');
@@ -99,8 +108,8 @@ test('馈赠：部队卡奖励领取后弹出获得展示', async ({ page }) => 
   await expect(card).toContainText('传说');
   await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-reveal-1600.png' });
   await page.locator('#summonAction').click();
-  await expect(page).toHaveURL(/#gifts\/starter$/);
-  await expect(page.locator('.gift-card').nth(1)).toContainText('已领取');
+  await expect(page).toHaveURL(/#gifts\/invasion$/);
+  await expect(page.locator('.gift-card').first()).toContainText('已领取');
   await page.goto('/game.html#gifts/hero');
   await expect(page.locator('.gift-pager button')).toHaveCount(4);
   await page.screenshot({ path: 'artifacts/redesign-r3/shots/gifts-hero-1600.png' });

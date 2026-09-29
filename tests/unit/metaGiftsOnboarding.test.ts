@@ -52,7 +52,7 @@ describe('馈赠里程碑', () => {
     const save = hydrateSave(raw);
     expect(save.onboarding.step).toBe('done');
     expect(save.onboarding.noviceSummonUsed).toBe(false);
-    expect(save.gifts).toEqual({ claimed: [], eventWins: 0, towerBest: 0 });
+    expect(save.gifts).toEqual({ claimed: [], eventWins: 0, towerBest: 0, invasionBattles: 0 });
   });
 });
 

@@ -482,7 +482,7 @@ export const INVASION_VP_TABLE: ReadonlyArray<{ maxLevel: number; base: number; 
 
 export const INVASION = {
   /** 解锁门槛（主角等级，设计值；官方排位无门槛） */
-  unlockHeroLevel: 10,
+  unlockHeroLevel: 20,
   /** 每组镜像对手数（官方 30 人小组 - 玩家自己） */
   bracketSize: 29,
   /** 三选一：主屏同一时间呈现三名对手，可免费无限刷新。 */

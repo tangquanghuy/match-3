@@ -20,6 +20,7 @@ export function giftMetricValue(save: MetaSave, metric: GiftMetric): number {
     case 'arenaWins': return save.arena.seasonWins;
     case 'arenaBestRun': return save.arena.bestRun;
     case 'invasionLeague': return Math.max(save.invasion.bestLeague, save.invasion.league);
+    case 'invasionBattles': return save.gifts.invasionBattles;
     case 'eventWins': return save.gifts.eventWins;
     case 'towerBest': return Math.max(save.gifts.towerBest, save.eventWeeks.towerOfDoom?.eventData.floorBest ?? 0);
     // 修改器期间按真实收藏计

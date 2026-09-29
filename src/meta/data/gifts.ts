@@ -8,7 +8,7 @@
 export type GiftGroupId = 'starter' | 'hero' | 'battles' | 'kingdom' | 'arena' | 'invasion' | 'events' | 'collection';
 export type GiftMetric =
   | 'always' | 'heroLevel' | 'battlesWon' | 'questChains' | 'kingdomsMaxed' | 'arenaWins' | 'arenaBestRun'
-  | 'invasionLeague' | 'eventWins' | 'towerBest' | 'troopsOwned';
+  | 'invasionLeague' | 'invasionBattles' | 'eventWins' | 'towerBest' | 'troopsOwned';
 
 export interface GiftDef {
   id: string;
@@ -58,7 +58,6 @@ function ladder(group: GiftGroupId, metric: GiftMetric, prefix: string, label: (
 
 export const GIFTS: readonly GiftDef[] = [
   { id: GIFT_STARTER_ID, group: 'starter', metric: 'always', target: 1, label: '冒险者见面礼', gems: 1000 },
-  { id: 'starter-troop', group: 'starter', metric: 'always', target: 1, label: '新兵补给', gems: 0, troop: 3 },
 
   ...ladder('hero', 'heroLevel', 'hero', (n) => `主角达到 Lv.${n}`, [
     [3, 50], [5, 60], [8, 80], [10, 100, 3], [12, 100], [15, 120], [18, 120], [20, 150, 4], [25, 150], [30, 200],
@@ -86,6 +85,8 @@ export const GIFTS: readonly GiftDef[] = [
     [3, 60], [4, 80], [5, 100], [6, 200, 4],
   ]),
 
+  // 第一名传说部队：主角 20 级开放入侵后，打完第一场入侵发放
+  { id: 'invasion-first', group: 'invasion', metric: 'invasionBattles', target: 1, label: '完成第一次入侵', gems: 60, troop: 3 },
   ...ladder('invasion', 'invasionLeague', 'invasion', (n) => `入侵晋升${LEAGUES[n]}`, [
     [1, 100], [2, 120], [3, 150], [4, 200, 4], [5, 220], [6, 250], [7, 300], [8, 350], [9, 500, 5],
   ]),

@@ -36,7 +36,7 @@ import { BattleSession, mapRequestToTeams } from '../../src/session';
 
 const WEEK = 1_700_000_000_000 - (1_700_000_000_000 % WEEK_MS);
 
-const save = (heroLevel = 12): MetaSave => {
+const save = (heroLevel = 20): MetaSave => {
   const s = newSave({ now: 0, starterTroopIds: starterTroopIds(), currencies: { gold: 5000 } });
   s.hero.level = heroLevel;
   // 起始队练到 9 级，保证对局有基本强度
@@ -243,7 +243,7 @@ describe('出战斗（过会话校验）', () => {
   });
 
   it('非候选对手拒绝；门槛不足拒绝', () => {
-    const s = save(5); // 低于 10 级
+    const s = save(5); // 低于 20 级
     const now = WEEK + 3_600_000;
     ensureInvasionSeason(s, now, WEEK);
     expect(planInvasionBattle(s, 'bot-1', 1, now, WEEK)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });

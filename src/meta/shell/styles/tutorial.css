@@ -1,11 +1,16 @@
-/* 新手引导遮罩（全局，gameMain 直接引入）：向导立绘 + 对话卡 + 金色聚光框 */
+/* 新手引导（全局，gameMain 直接引入）：向导立绘 + 代码绘制的对话框 + 金色聚光框 */
 .tut-layer { position: fixed; inset: 0; z-index: 900; pointer-events: none; background: rgba(5, 6, 10, .76); }
-.tut-layer.has-hole, .tut-layer.no-dim { background: transparent; }
+.tut-layer.has-hole { background: transparent; }
+.tut-layer[hidden] { display: none; }
+/* 战斗内提示：不压暗、不拦截任何点击 */
+.tut-layer.tut-battle { z-index: 950; }
+.tut-layer.tut-battle .tut-hole { box-shadow: none; }
+.tut-layer.tut-battle .tut-bubble { pointer-events: none; width: min(400px, calc(100vw - 24px)); }
+.tut-layer.tut-battle .tut-guide { width: 104px; }
 
-/* 聚光框：四角金色括角 + 呼吸光 */
+/* 聚光框：细金边 + 四角括角 + 呼吸光 */
 .tut-hole { position: fixed; display: none; border-radius: 14px; box-shadow: 0 0 0 200vmax rgba(5, 6, 10, .76); transition: left .25s, top .25s, width .25s, height .25s; }
 .tut-layer.has-hole .tut-hole { display: block; }
-.tut-layer.no-dim .tut-hole { box-shadow: none; }
 .tut-hole::before { content: ""; position: absolute; inset: -2px; border: 2px solid rgba(255, 228, 160, .85); border-radius: inherit; box-shadow: 0 0 18px rgba(240, 207, 133, .6), inset 0 0 18px rgba(240, 207, 133, .25); animation: tut-glow 1.6s ease-in-out infinite; }
 .tut-hole i { position: absolute; width: 18px; height: 18px; border: 3px solid #fff1c8; filter: drop-shadow(0 0 6px rgba(240, 207, 133, .9)); animation: tut-corner 1.6s ease-in-out infinite; }
 .tut-hole i:nth-child(1) { top: -9px; left: -9px; border-right: 0; border-bottom: 0; border-top-left-radius: 6px; }
@@ -13,42 +18,44 @@
 .tut-hole i:nth-child(3) { bottom: -9px; left: -9px; border-right: 0; border-top: 0; border-bottom-left-radius: 6px; }
 .tut-hole i:nth-child(4) { bottom: -9px; right: -9px; border-left: 0; border-top: 0; border-bottom-right-radius: 6px; }
 
-/* 气泡 = 向导立绘（左，压在卡片上）+ 对话卡 */
-.tut-bubble { position: fixed; display: flex; align-items: flex-end; width: min(560px, calc(100vw - 24px)); color: #ece6d8; pointer-events: auto; animation: tut-in .35s ease-out both; }
-.tut-guide { position: relative; z-index: 2; flex: none; width: 170px; height: 250px; margin-right: -46px; object-fit: contain; object-position: bottom center; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); pointer-events: none; }
-/* 对话卡底图：生成的金边宝石框（game-assets/bundled/meta/tutorial/frame.webp，全局样式由 Vite 处理 url） */
-.tut-card { position: relative; flex: 1; min-width: 0; padding: 42px 34px 34px 64px; background: url('@assets/meta/tutorial/frame.webp') center / 100% 100% no-repeat; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .6)); }
-
-.tut-name { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.tut-name span { padding: 1px 8px; border-radius: 4px; background: linear-gradient(90deg, #7a2e2a, #a43d33); color: #ffe7d6; font-size: 11px; letter-spacing: .2em; }
-.tut-name b { color: #e8c67f; font-size: 14px; letter-spacing: .12em; }
-.tut-steps { display: flex; gap: 5px; margin: 0 0 0 auto; padding: 0; list-style: none; }
-.tut-steps li { width: 18px; height: 4px; border-radius: 2px; background: #3a3a48; }
+/* 对话框：立绘与卡片底边对齐，立绘压住卡片左缘 */
+.tut-bubble { position: fixed; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; width: min(560px, calc(100vw - 24px)); color: #ece6d8; pointer-events: auto; animation: tut-in .35s ease-out both; }
+.tut-guide { position: relative; z-index: 2; width: 150px; height: auto; margin-right: -34px; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); pointer-events: none; }
+.tut-card { position: relative; display: grid; gap: 8px; min-width: 0; padding: 18px 22px 20px 50px; border: 1px solid rgba(232, 198, 127, .7); border-radius: 14px;
+  background: linear-gradient(180deg, rgba(38, 44, 70, .98), rgba(19, 21, 33, .98) 60%);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, .6), inset 0 0 0 4px rgba(19, 21, 33, .98), inset 0 0 0 5px rgba(232, 198, 127, .22); }
+/* 四角小宝石：对称点缀，不压内容 */
+.tut-card::before, .tut-card::after { content: ""; position: absolute; top: -5px; width: 9px; height: 9px; transform: rotate(45deg); border: 1px solid #f3d99a; background: #3d6fd6; box-shadow: 0 0 8px rgba(90, 150, 255, .8); }
+.tut-card::before { left: 22px; }
+.tut-card::after { right: 22px; }
+.tut-name { display: flex; align-items: center; gap: 8px; min-height: 22px; }
+.tut-name b { color: #f0cf85; font-size: 15px; letter-spacing: .12em; }
+.tut-name small { padding: 1px 7px; border: 1px solid rgba(240, 207, 133, .4); border-radius: 4px; color: #cdb986; font-size: 11px; letter-spacing: .1em; }
+.tut-steps { display: flex; align-items: center; gap: 5px; margin: 0 0 0 auto; padding: 0; list-style: none; }
+.tut-steps li { width: 16px; height: 4px; border-radius: 2px; background: #3a3d52; }
 .tut-steps li.done { background: #a47a36; }
 .tut-steps li.on { width: 26px; background: #f0cf85; box-shadow: 0 0 6px rgba(240, 207, 133, .6); }
-.tut-card h2 { margin: 0 0 6px; color: #fff6df; font: 23px var(--display, serif); letter-spacing: .04em; }
-.tut-card p { margin: 0; color: #d2cbbb; font-size: 14px; line-height: 1.75; }
-.tut-action { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 50px; margin-top: 14px; overflow: hidden; border: 1px solid #fbe3a4; border-radius: 10px; background: linear-gradient(180deg, #e9bd5f, #b07d2c 60%, #8c5f1e); box-shadow: 0 6px 16px rgba(176, 125, 44, .35), inset 0 1px 0 rgba(255, 255, 255, .35); color: #fffaf0; font-size: 17px; font-weight: 700; letter-spacing: .3em; text-indent: .3em; text-shadow: 0 1px 2px rgba(60, 36, 8, .8); cursor: pointer; }
-.tut-action::after { content: ""; position: absolute; top: 0; left: -40%; width: 30%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent); animation: tut-sheen 2.6s ease-in-out infinite; }
+.tut-card h2 { margin: 0; color: #fff6df; font: 22px/1.3 var(--display, serif); letter-spacing: .04em; }
+.tut-card p { margin: 0; color: #d2cbbb; font-size: 14px; line-height: 1.7; }
+.tut-action { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; margin-top: 6px; border: 1px solid #fbe3a4; border-radius: 10px; background: linear-gradient(180deg, #e9bd5f, #b07d2c 60%, #8c5f1e); box-shadow: 0 6px 16px rgba(176, 125, 44, .35), inset 0 1px 0 rgba(255, 255, 255, .35); color: #fffaf0; font-size: 17px; font-weight: 700; letter-spacing: .3em; text-indent: .3em; text-shadow: 0 1px 2px rgba(60, 36, 8, .8); cursor: pointer; }
 .tut-action[hidden] { display: none; }
 .tut-action:hover { filter: brightness(1.08); }
 .tut-action:focus-visible { outline: 2px solid #fff1c8; outline-offset: 3px; }
 
-/* 无聚光目标时：居中大卡，向导更大 */
+/* 无聚光目标：居中大卡，立绘更大 */
 .tut-layer.is-centered .tut-bubble { width: min(680px, calc(100vw - 24px)); }
-.tut-layer.is-centered .tut-guide { width: 240px; height: 360px; margin-right: -70px; }
-.tut-layer.is-centered .tut-card { padding: 50px 44px 42px 92px; }
-.tut-layer.is-centered .tut-card h2 { font-size: 28px; }
+.tut-layer.is-centered .tut-guide { width: 220px; margin-right: -48px; }
+.tut-layer.is-centered .tut-card { gap: 10px; padding: 26px 30px 26px 66px; }
+.tut-layer.is-centered .tut-card h2 { font-size: 27px; }
 .tut-layer.is-centered .tut-card p { font-size: 15px; }
 
 @keyframes tut-glow { 50% { border-color: #fff6df; box-shadow: 0 0 28px rgba(240, 207, 133, .85), inset 0 0 22px rgba(240, 207, 133, .35); } }
 @keyframes tut-corner { 50% { transform: scale(1.18); } }
-@keyframes tut-sheen { 0%, 55% { left: -40%; } 100% { left: 120%; } }
 @keyframes tut-in { from { opacity: 0; transform: translateY(10px); } }
 @media (max-width: 599px) {
-  .tut-guide, .tut-layer.is-centered .tut-guide { width: 104px; height: 160px; margin-right: -30px; }
-  .tut-card, .tut-layer.is-centered .tut-card { padding: 42px 22px 28px 42px; }
+  .tut-guide, .tut-layer.is-centered .tut-guide { width: 96px; margin-right: -22px; }
+  .tut-card, .tut-layer.is-centered .tut-card { padding: 14px 14px 16px 30px; }
   .tut-card h2, .tut-layer.is-centered .tut-card h2 { font-size: 19px; }
   .tut-card p, .tut-layer.is-centered .tut-card p { font-size: 13px; }
 }
-@media (prefers-reduced-motion: reduce) { .tut-hole::before, .tut-hole i, .tut-action::after, .tut-bubble { animation: none; } .tut-hole { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .tut-hole::before, .tut-hole i, .tut-bubble { animation: none; } .tut-hole { transition: none; } }

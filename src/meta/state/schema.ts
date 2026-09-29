@@ -343,6 +343,8 @@ export interface GiftState {
   claimed: string[];
   eventWins: number;
   towerBest: number;
+  /** 累计入侵场数（入侵赛季每周清零 battles，这里不清） */
+  invasionBattles: number;
 }
 
 /** 寻宝棋盘。cells 为 8×8，0 铜币 … 7 金库。 */
@@ -428,7 +430,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     onboarding: options.tutorial
       ? { step: 'battle', noviceSummonUsed: false }
       : { step: 'done', noviceSummonUsed: true },
-    gifts: { claimed: [], eventWins: 0, towerBest: 0 },
+    gifts: { claimed: [], eventWins: 0, towerBest: 0, invasionBattles: 0 },
   };
   const starters = options.starterTroopIds ?? [];
   for (const id of starters) {
