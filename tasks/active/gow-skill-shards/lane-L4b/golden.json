@@ -3469,6 +3469,36 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:42:22.717Z"
  },
+ "weapon:1314": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:59:54.859Z"
+ },
+ "weapon:1353": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:59:54.859Z"
+ },
+ "weapon:1355": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:59:54.859Z"
+ },
  "weapon:1359": {
   "lines": {
    "L10": "dmg E11 17  => E11:hp-7 arm-10",
@@ -3498,6 +3528,16 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T10:52:23.142Z"
+ },
+ "weapon:1372": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:59:54.859Z"
  },
  "weapon:1373": {
   "lines": {
@@ -3568,6 +3608,16 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T13:06:33.251Z"
+ },
+ "weapon:1389": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:59:54.859Z"
  },
  "weapon:1399": {
   "lines": {
