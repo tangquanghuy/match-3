@@ -49,6 +49,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:58:52.154Z"
  },
+ "troop:6017": {
+  "lines": {
+   "L10": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 attack+21  => A1:atk+21  cascade",
+   "R10": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 attack+21  => A1:atk+21  cascade",
+   "L0": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 attack+11  => A1:atk+11  cascade",
+   "K": "destroy 11 (Blue x11) ; ~cascade~ ; buff A1 attack+21  => A1:atk+21  cascade"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:49:45.787Z"
+ },
  "troop:6019": {
   "lines": {
    "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison  => A2:mana+10 | A1:mana+4 -poison | E10:arm-3 | C:-poison  cascade",

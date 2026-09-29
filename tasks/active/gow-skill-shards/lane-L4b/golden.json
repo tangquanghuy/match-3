@@ -1,4 +1,24 @@
 {
+ "troop:6005": {
+  "lines": {
+   "L10": "convert Blue x11 -> Yellow x11 ; gold+13  eco:{\"gold\":13,\"goldMine\":13}",
+   "R10": "convert Blue x11 -> Yellow x11 ; gold+13  eco:{\"gold\":13,\"goldMine\":13}",
+   "L0": "convert Blue x11 -> Yellow x11 ; gold+3  eco:{\"gold\":3,\"goldMine\":3}",
+   "K": "convert Blue x11 -> Yellow x11 ; gold+13  eco:{\"gold\":13,\"goldMine\":13}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:49:43.557Z"
+ },
+ "troop:6006": {
+  "lines": {
+   "L10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; convert Blue x1, Red x1 -> bomb x2  => E10:arm-2 | E11:arm-3 | E12:arm-5 | E13:arm-3",
+   "R10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; convert Blue x1, Red x1 -> bomb x2  => E10:arm-2 | E11:arm-3 | E12:arm-5 | E13:arm-3",
+   "L0": "dmg E11 1 (scatter) ; dmg E12 1 (scatter) ; dmg E13 1 (scatter) ; convert Red x1, Green x1 -> bomb x2  => E11:arm-1 | E12:arm-1 | E13:arm-1",
+   "K": "dmg E10 3 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x1, Blue x1 -> bomb x2  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:49:43.557Z"
+ },
  "troop:6013": {
   "lines": {
    "L10": "convert Yellow x9 -> Blue x9 ; buff C hp+14 max+14  => C:hp+14 max+14",

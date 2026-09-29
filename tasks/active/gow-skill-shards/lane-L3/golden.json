@@ -9,6 +9,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:24:30.780Z"
  },
+ "troop:6018": {
+  "lines": {
+   "L10": "dmg E11 12 ; buff A1 mana+4 ; buff A2 mana+4  => E11:hp-2 arm-10 | A1:mana+4 | A2:mana+4",
+   "R10": "dmg E11 12 ; buff A1 mana+4 ; buff A2 mana+4  => E11:hp-2 arm-10 | A1:mana+4 | A2:mana+4",
+   "L0": "dmg E11 2 ; buff A1 mana+4 ; buff A2 mana+4  => E11:arm-2 | A1:mana+4 | A2:mana+4",
+   "K": "dmg E11 12 ; defeat E11 ; buff A1 mana+4 ; buff A2 mana+4  => E11:hp-1 DEAD | A1:mana+4 | A2:mana+4"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:49:48.001Z"
+ },
  "troop:6036": {
   "lines": {
    "L10": "convert Green x2, Purple x3, Brown x1, Red x1 -> skull x7 ; buff C armor+12 ; extra-turn skill  => C:arm+12  extra:skill",
