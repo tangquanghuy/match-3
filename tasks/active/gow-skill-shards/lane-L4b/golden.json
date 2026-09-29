@@ -679,6 +679,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T03:03:07.185Z"
  },
+ "troop:6479": {
+  "lines": {
+   "L10": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "R10": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "L0": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted",
+   "K": "convert Red x9 -> skull x9 ; convert Green x13 -> Yellow x13 ; status A1 +enchanted ; status C +enchanted  => A1:+enchanted | C:+enchanted"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:57:34.755Z"
+ },
  "troop:6480": {
   "lines": {
    "L10": "convert Yellow x4, Purple x3, Blue x3, Green x3, Brown x1 -> Red x14 ; ~cascade~  => A2:mana+6  cascade",
@@ -938,6 +948,16 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T14:45:23.971Z"
+ },
+ "troop:6678": {
+  "lines": {
+   "L10": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison",
+   "R10": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison",
+   "L0": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison",
+   "K": "convert Purple x9 -> Red x9 ; convert Brown x8 -> skull x8 ; remove A1 -poison ; status A1 +blessed ; remove C -poison ; status C +blessed  => A1:+blessed -poison | C:+blessed -poison"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:57:34.755Z"
  },
  "troop:6682": {
   "lines": {
@@ -3079,6 +3099,16 @@
   "by": "sa-B",
   "at": "2026-09-28T13:00:05.914Z"
  },
+ "weapon:1105": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:57:34.755Z"
+ },
  "weapon:1167": {
   "lines": {
    "L10": "convert Green x1, Purple x3, skull x1, Red x1, Yellow x1 -> Blue x7 ; status A1 +submerged ; buff A1 magic+1  => A1:mag+1 +submerged",
@@ -3158,6 +3188,16 @@
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:43:22.659Z"
+ },
+ "weapon:1188": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:57:34.755Z"
  },
  "weapon:1193": {
   "lines": {

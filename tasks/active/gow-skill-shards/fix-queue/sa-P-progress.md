@@ -134,3 +134,7 @@
 - 2026-09-29T12:00:00Z P-A-random-skulls-variants fixed: gems.ts randomGems include 'skull' = matchJoinKey skull (plain + Doom + Uber Doom, R013-5); builders explodeRandomSkulls comment; golden diff 0 lines (review board has no Doom Skulls)
   - accepted (L4a, golden approve): troop:7001
   - re-review (situational, only with Doom Skulls on the board): spell 7136 (explodeRandomSkulls(10))
+- 2026-09-29T12:30:00Z legacy re-review (final-queue lane none / not-eligible, 36 keys): all 36 match English + native, no curated change; test gowLegacyR10P.test.ts (kingdom counters 2 allies -> dmg 29 + 12 two-colour gems, 0 -> 17 / none; 6027 13 Brown -> floor 25% = 3 -> +13 Armor then Attack; 6479 / 6678 two different allies, lone caster -> caster); golden already locked in accepted-base, unchanged
+  - L4a (RemoveColor first): troop:6027 (Count 25% -> Remove Brown (R010) -> Armor, Attack M + counter)
+  - L4b (ConvertGems): troop:6479 (Red->Skull, Green->Yellow, Enchant RandomAlly + RandomPrefNotPrevAlly), troop:6678 (Purple->Red, Brown->Skull, Bless x2; Blessed cleanses per official status page)
+  - L4b (CountArmyKingdom 600 -> Damage 7+M -> CreateGems2Colors x6, raw KingdomId checked against English kingdom): weapon:1105 1188 1191 1234 1240 1243 1246 1249 1265 1267 1269 1271 1282 1284 1288 1290 1292 1303 1304 1305 1306 1312 1314 1353 1355 1372 1389 1390 1400 1403 1423 1432 1437

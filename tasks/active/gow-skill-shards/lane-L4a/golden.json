@@ -79,6 +79,16 @@
   "by": "sa-F2",
   "at": "2026-09-28T00:33:45.849Z"
  },
+ "troop:6027": {
+  "lines": {
+   "L10": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+12 ; buff C attack+12  => C:arm+12 atk+12  cascade",
+   "R10": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+12 ; buff C attack+12  => C:arm+12 atk+12  cascade",
+   "L0": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+2 ; buff C attack+2  => C:arm+2 atk+2  cascade",
+   "K": "destroy 8 (Brown x8) ; ~cascade~ ; buff C armor+12 ; buff C attack+12  => C:arm+12 atk+12  cascade"
+  },
+  "by": "sa-P",
+  "at": "2026-09-29T03:57:32.151Z"
+ },
  "troop:6040": {
   "lines": {
    "L10": "destroy 11 (Blue x11) ; ~cascade~ ; gold+100  => A1:mana+11 | A2:mana+3  cascade  eco:{\"gold\":100,\"goldMine\":100}",
