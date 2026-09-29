@@ -639,6 +639,16 @@
   "by": "sa-A",
   "at": "2026-09-28T21:19:48.411Z"
  },
+ "troop:6398": {
+  "lines": {
+   "L10": "dmg E12 18 ; explode 9 ; skulls E10 1  => E12:hp-18 | A2:mana+1 | E10:arm-1",
+   "R10": "dmg E12 18 ; explode 9 ; skulls E10 1  => E12:hp-18 | A2:mana+1 | E10:arm-1",
+   "L0": "dmg E12 8 ; explode 9 ; skulls E10 1  => E12:hp-8 | A2:mana+1 | E10:arm-1",
+   "K": "dmg E12 18 ; defeat E12 ; explode 9 ; skulls E10 1 ; defeat E10  => E12:hp-1 DEAD | A2:mana+1 | E10:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:29:43.741Z"
+ },
  "troop:6401": {
   "lines": {
    "L10": "destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1) ; buff A2 hp+14 max+14  => A2:hp+14 max+14 mana+2 | A1:mana+2",

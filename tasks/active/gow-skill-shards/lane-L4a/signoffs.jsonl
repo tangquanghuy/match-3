@@ -489,3 +489,4 @@
 {"format":"compact","key":"troop:7574","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T23:36:49.069Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7224","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T23:36:49.071Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7861","decision":"accept","reviewer":"sa-A","reviewedAt":"2026-09-28T23:36:49.071Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6398","decision":"accept","reviewer":"sa-Q1","reviewedAt":"2026-09-29T04:29:43.845Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"P-F2-precount-explode fixed (chosenCellBlockGems Blue x4, dispel -> true dmg -> explode last); final sa-Q1"}

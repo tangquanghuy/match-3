@@ -89,14 +89,14 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 7323,
     desc: '摧毁一行。对第一名敌人造成 [魔法 + 1] 点伤害，并减除 [魔法 + 1] 点随机技能值，减除数量因被摧毁的蓝色宝石而增强。 [x2]',
     // sa-F1: native s1 Damage also has UseCounterForAmount (Blue gems in the row x2), so both steps are boosted.
-    // Native counts before the row is destroyed and destroys last; no "chosen row at cast start" source exists,
-    // so the destroy stays first and destroyedGems Blue carries the count.
+    // Native (R001): CountGems Blue Row 200 -> Damage -> DecreaseRandom -> DestroyGems Row (last).
+    // sa-Q1: Blue gems of the chosen row counted at cast start (P-R1-row-count-at-cast-start), destroy moved last.
     build: skill(
-      destroyChosenRow(),
-      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } } }),
+      dmg('enemyFront', 1, 1, { modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'chosenRowAtCastStart', color: BaseColor.Blue } } }),
       reduce('enemyFront', 'random', 1, 1, {
-        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'destroyedGems', color: BaseColor.Blue } },
+        modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'chosenRowAtCastStart', color: BaseColor.Blue } },
       }),
+      destroyChosenRow(),
     ),
   },
   {

@@ -9,6 +9,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:51:47.368Z"
  },
+ "troop:6134": {
+  "lines": {
+   "L10": "dmg E11 16 ; buff E11 hp-4  => E11:hp-10 arm-10",
+   "R10": "dmg E11 16 ; buff E11 hp-4  => E11:hp-10 arm-10",
+   "L0": "dmg E11 6 ; buff E11 hp-4  => E11:hp-4 arm-6",
+   "K": "dmg E11 16 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:29:36.043Z"
+ },
  "troop:6140": {
   "lines": {
    "L10": "dmg E11 14  => E11:hp-4 arm-10",
@@ -59,6 +69,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:47:27.533Z"
  },
+ "troop:6171": {
+  "lines": {
+   "L10": "buff E11 hp-11 ; buff C hp+11 max+11 ; dmg E11 11  => E11:hp-12 arm-10 | C:hp+11 max+11",
+   "R10": "buff E11 hp-11 ; buff C hp+11 max+11 ; dmg E11 11  => E11:hp-12 arm-10 | C:hp+11 max+11",
+   "L0": "buff E11 hp-1 ; buff C hp+1 max+1 ; dmg E11 1  => E11:hp-1 arm-1 | C:hp+1 max+1",
+   "K": "defeat E11 ; buff E11 hp-1 ; buff C hp+1 max+1  => E11:hp-1 DEAD | C:hp+1 max+1"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:29:38.642Z"
+ },
  "troop:6175": {
   "lines": {
    "L10": "dmg E11 45  => E11:hp-35 arm-10",
@@ -88,6 +108,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T08:47:27.533Z"
+ },
+ "troop:6182": {
+  "lines": {
+   "L10": "dmg E10 15 ; buff E10 hp-15 ; destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => E10:hp-25 arm-5 | A2:mana+3 | A1:mana+2",
+   "R10": "dmg E10 15 ; buff E10 hp-15 ; destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => E10:hp-25 arm-5 | A2:mana+3 | A1:mana+2",
+   "L0": "dmg E10 5 ; buff E10 hp-5 ; destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => E10:hp-5 arm-5 | A2:mana+3 | A1:mana+2",
+   "K": "dmg E10 15 ; defeat E10 ; defeat E11 ; buff E11 hp-1 ; destroy 8 (Red x2, Blue x2, Green x1, Yellow x1, Purple x1, Brown x1)  => E10:hp-1 DEAD | E11:hp-1 DEAD | A2:mana+3 | A1:mana+2"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:29:41.186Z"
  },
  "troop:6198": {
   "lines": {
@@ -258,6 +288,16 @@
   },
   "by": "sa-R6",
   "at": "2026-09-28T06:01:50.263Z"
+ },
+ "troop:6423": {
+  "lines": {
+   "L10": "buff E13 hp-14 ; buff E13 mana-4 ; buff C mana+4 ; destroy 11 (Blue x11) ; ~cascade~  => E13:hp-14 mana-4  cascade",
+   "R10": "buff E13 hp-14 ; buff E13 mana-4 ; buff C mana+4 ; destroy 11 (Blue x11) ; ~cascade~  => E13:hp-14 mana-4  cascade",
+   "L0": "buff E13 hp-4 ; buff E13 mana-4 ; buff C mana+4 ; destroy 11 (Blue x11) ; ~cascade~  => E13:hp-4 mana-4  cascade",
+   "K": "defeat E13 ; buff E13 hp-1 ; buff E12 mana-4 ; buff C mana+4 ; destroy 11 (Blue x11) ; ~cascade~  => E13:hp-1 DEAD | E12:mana-4  cascade"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:29:46.359Z"
  },
  "troop:6458": {
   "lines": {
