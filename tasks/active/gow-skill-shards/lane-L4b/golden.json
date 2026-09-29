@@ -36,8 +36,8 @@
    "L0": "dmg E11 1 ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x1 -> Blue x9 ; ~cascade~  => E11:arm-1 | A1:mana+3  cascade",
    "K": "dmg E11 11 ; defeat E11 ; convert Brown x2, skull x2, Red x4, Yellow x1 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD  extra:match  cascade"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T13:30:58.772Z"
+  "by": "sa-J",
+  "at": "2026-09-29T03:53:09.041Z"
  },
  "troop:6037": {
   "lines": {
@@ -3906,8 +3906,8 @@
    "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 4 (scatter) ; dmg E13 1 (scatter) ; convert Blue x1, Red x2, Brown x2, Yellow x1, skull x2 -> entangleGem x8  => E10:arm-1 | E11:arm-2 | E12:arm-4 | E13:arm-1",
    "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, skull x2, Blue x2, Yellow x2 -> entangleGem x8 ; ~cascade~ ; trigger entangleGem ; trigger entangleGem ; trigger entangleGem  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T10:24:17.522Z"
+  "by": "sa-J",
+  "at": "2026-09-29T04:23:37.110Z"
  },
  "weapon:1592": {
   "lines": {
@@ -4128,5 +4128,105 @@
   },
   "by": "sa-B",
   "at": "2026-09-28T10:20:45.409Z"
+ },
+ "troop:6005": {
+  "lines": {
+   "L10": "convert Blue x11 -> Yellow x11 ; gold+13  eco:{\"gold\":13,\"goldMine\":13}",
+   "R10": "convert Blue x11 -> Yellow x11 ; gold+13  eco:{\"gold\":13,\"goldMine\":13}",
+   "L0": "convert Blue x11 -> Yellow x11 ; gold+3  eco:{\"gold\":3,\"goldMine\":3}",
+   "K": "convert Blue x11 -> Yellow x11 ; gold+13  eco:{\"gold\":13,\"goldMine\":13}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:49:43.557Z"
+ },
+ "troop:6006": {
+  "lines": {
+   "L10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; convert Blue x1, Red x1 -> bomb x2  => E10:arm-2 | E11:arm-3 | E12:arm-5 | E13:arm-3",
+   "R10": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; convert Blue x1, Red x1 -> bomb x2  => E10:arm-2 | E11:arm-3 | E12:arm-5 | E13:arm-3",
+   "L0": "dmg E11 1 (scatter) ; dmg E12 1 (scatter) ; dmg E13 1 (scatter) ; convert Red x1, Green x1 -> bomb x2  => E11:arm-1 | E12:arm-1 | E13:arm-1",
+   "K": "dmg E10 3 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x1, Blue x1 -> bomb x2  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:49:43.557Z"
+ },
+ "troop:6062": {
+  "lines": {
+   "L10": "convert Blue x11 -> Blue x11 ; souls+11  eco:{\"souls\":11}",
+   "R10": "convert Blue x11 -> Blue x11 ; souls+11  eco:{\"souls\":11}",
+   "L0": "convert Blue x11 -> Blue x11 ; souls+1  eco:{\"souls\":1}",
+   "K": "convert Blue x11 -> Blue x11 ; souls+11  eco:{\"souls\":11}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:53:09.041Z"
+ },
+ "troop:6340": {
+  "lines": {
+   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade",
+   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade",
+   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+5 max+5 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+5 max+5 | A2:mana+7  extra:match  cascade",
+   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:56:18.581Z"
+ },
+ "troop:6760": {
+  "lines": {
+   "L10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "R10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "L0": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
+   "K": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:58:48.944Z"
+ },
+ "troop:7068": {
+  "lines": {
+   "L10": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison",
+   "R10": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison",
+   "L0": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison",
+   "K": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:24.979Z"
+ },
+ "troop:7237": {
+  "lines": {
+   "L10": "dmg E13 14 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => E13:hp-11 arm-3",
+   "R10": "dmg E13 14 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => E13:hp-11 arm-3",
+   "L0": "dmg E13 4 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => E13:hp-1 arm-3",
+   "K": "dmg E13 14 ; defeat E13 ; convert Yellow x2, Purple x2, Blue x2, Green x1 -> Red x7  => E13:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:08:06.977Z"
+ },
+ "troop:7276": {
+  "lines": {
+   "L10": "convert Yellow x1 -> uberDoomSkull x1",
+   "R10": "convert Yellow x1 -> uberDoomSkull x1",
+   "L0": "convert Yellow x1 -> uberDoomSkull x1",
+   "K": "convert Yellow x1 -> uberDoomSkull x1"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:11:40.078Z"
+ },
+ "weapon:1186": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:15:50.314Z"
+ },
+ "weapon:1481": {
+  "lines": {
+   "L10": "dmg E11 17  => E11:hp-7 arm-10",
+   "R10": "dmg E11 17  => E11:hp-7 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 17 ; defeat E11  => E11:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:21:49.736Z"
  }
 }

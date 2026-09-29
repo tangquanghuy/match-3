@@ -66,10 +66,20 @@
       "reason": "sa-C r9: English Dimetraxia 'There's a 75% chance to Burn all Enemies'; native CauseBurning@AllEnemies PercentageChance 75; old Chinese said 'everyone' (所有人).",
       "spellDescription": "对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有敌人。"
     },
+    "6160": {
+      "spellId": 7280,
+      "reason": "sa-J final: English The Great Maw 'Create 8 Yellow and 8 Brown Gems' (native CreateGems Yellow 8 ; CreateGems Brown 8); old Chinese '8 颗黄色宝石和棕色宝石' could read as 8 in total.",
+      "spellDescription": "吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。"
+    },
     "6163": {
       "spellId": 7289,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "创造 5 颗绿色宝石，然后将所有绿色宝石转换为紫色。自身一项随机属性获得 [魔法 + 2] 点。"
+    },
+    "7068": {
+      "spellId": 8596,
+      "reason": "sa-J final: English Fountain of Stars 'Convert 5 Green Gems to Purple Potions, and all Brown Gems to Skulls. Cleanse all Fey Allies.'; old Chinese '将5有绿宝石都转化' was garbled (read as all Green) and used 精灵同盟 instead of the project's 妖仙 for Fey.",
+      "spellDescription": "将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。"
     },
     "6181": {
       "spellId": 7322,
@@ -517,6 +527,11 @@
       "spellId": 9675,
       "reason": "sa-F: English Desert Ox 'Create a mix of 10 Cursed Gems and Doomskulls' (native CreateGems2Colors 10 Cursed>Doomskull); old Chinese said 'use' instead of create.",
       "spellDescription": "创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。"
+    },
+    "7724": {
+      "spellId": 9716,
+      "reason": "sa-J final: English The Sandstone Sentinel 'If the Enemy dies, triple the amount gained' (native IncreaseAllStats 10 + StatusAmount 20 AddForKill); old Chinese said the damage is tripled (获得伤害值增加三倍).",
+      "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害，伤害值因黄色和棕色宝石数量而增强。所有技能获得 10 点。如果敌人死亡，则获得的数值变为三倍。 [x2]"
     },
     "7725": {
       "spellId": 9725,

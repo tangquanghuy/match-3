@@ -69,6 +69,16 @@
   "by": "sa-E",
   "at": "2026-09-28T11:17:08.834Z"
  },
+ "troop:6160": {
+  "lines": {
+   "L10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "R10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "L0": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "K": "dmg E11 1 devoured ; defeat E11 ; buff C attack+17 ; buff C hp+1 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-1 DEAD | C:hp+1 atk+17"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:53:13.847Z"
+ },
  "troop:6161": {
   "lines": {
    "L10": "dmg E12 12  => E12:arm-12",
@@ -1199,6 +1209,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T05:57:25.574Z"
  },
+ "troop:7016": {
+  "lines": {
+   "L10": "dmg E11 22  => E11:hp-12 arm-10",
+   "R10": "dmg E11 22  => E11:hp-12 arm-10",
+   "L0": "dmg E11 7  => E11:arm-7",
+   "K": "dmg E11 22 ; defeat E11 ; summon mine troop:-1  => A14:new 勒梅尔 hp20 atk12 arm11 mag8 | E11:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:00:36.172Z"
+ },
  "troop:7028": {
   "lines": {
    "L10": "dmg E11 12 ; maps+1 ; summon mine troop:-1  => A14:new 鹦鹉 hp21 atk12 arm9 mag8 | E11:hp-2 arm-10  eco:{\"maps\":1}",
@@ -1399,6 +1419,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
  },
+ "troop:7132": {
+  "lines": {
+   "L10": "convert skull x5 -> wildcard x5",
+   "R10": "convert skull x5 -> wildcard x5",
+   "L0": "convert skull x5 -> wildcard x5",
+   "K": "convert skull x5 -> wildcard x5"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:31.747Z"
+ },
  "troop:7133": {
   "lines": {
    "L10": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> curseGem x6 ; ~cascade~ ; trigger curseGem ; status E12 +curse ; trigger curseGem ; status E13 +curse  => E12:+curse | E13:+curse -rage  cascade",
@@ -1418,6 +1448,16 @@
   },
   "by": "sa-I",
   "at": "2026-09-28T23:32:56.290Z"
+ },
+ "troop:7144": {
+  "lines": {
+   "L10": "destroy 9 (Purple x9) ; buff C armor+20 ; status C +reflect  => C:arm+20 +reflect",
+   "R10": "destroy 9 (Purple x9) ; buff C armor+20 ; status C +reflect  => C:arm+20 +reflect",
+   "L0": "destroy 9 (Purple x9) ; buff C armor+10 ; status C +reflect  => C:arm+10 +reflect",
+   "K": "destroy 9 (Purple x9) ; buff C armor+20 ; status C +reflect  => C:arm+20 +reflect"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:08:00.092Z"
  },
  "troop:7155": {
   "lines": {

@@ -577,9 +577,9 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '有 10% 的几率吞噬一名随机敌人，每有一颗通配宝石则几率增加 +10%。再将所有骷髅头转换成 x2 通配宝石。 [x10]',
     // [x10] = CountGems WildCard 1000（三 tier 合并按 kind 计数）→ chanceBoost boardSpecial wildcard ×10；
     // 「骷髅→x2 通配」= transformToSpecial（引擎 wildcard tier 缺省 ?? 2 等价官方 WildCard2，9614 口径）
+    // sa-J final: native ConsumeConditional@RandomEnemy = a real Devour (caster gains the target's stats), not execute.
     build: skill(
-      dmg('enemyRandom', 0, 0, {
-        execute: true,
+      devour('enemyRandom', {
         chance: 0.1,
         chanceBoost: { mod: { kind: 'multiplier', a: 10 }, source: { kind: 'boardSpecial', gem: 'wildcard' } },
       }),
