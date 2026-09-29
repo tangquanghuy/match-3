@@ -15,3 +15,7 @@ at Magic 10, then golden approve + signoff accept (`--by sa-Q2`, test tests/unit
 - B04 troop:7210 (L4b): accept (P-R2-gargoyle-tier fixed; Bad-only count, also gowFixP-boardSpecial-filters)
 - B04 troop:7308, 7309 (L4b): accept per R016-7 (Spirit = Purple spiritGem); other steps verified
 - B04 troop:7363 (L3): accept, dispute: native Booty Amount 1 vs English/zh 2, kept 2 (English, as R016 did for 7884/7797/1396/6699/7704)
+- B05 troop:7533 (L5): accept (P-R3-precast-compare fixed; Barrier before the hit when my Armor is higher)
+- B05 troop:7597 (L4b): accept (P-F2-dead-target-colour fixed; boss/ascension c2 + step 0 waived R000)
+- B05 troop:7611, 7626 (L5): accept (P-R3-dragon-gem-count fixed)
+- B05 troop:7627 (L5): FIXED zh typo 对人 -> 敌人 (batch-r8 9532 desc + gowSnapshotOverrides troops[7627]), accept

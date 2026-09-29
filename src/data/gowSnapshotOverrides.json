@@ -503,6 +503,11 @@
       "reason": "sa-D review round 3: English 'half that damage to all Enemies below them' (native TrueDamage@BelowTarget); old Chinese omitted 'all'.",
       "spellDescription": "对一名敌人造成 [(魔法 x 1.5) + 2] 点真实伤害，并对其下方所有敌人造成该伤害的一半，伤害值因蓝龙宝石而增强。若在星星湾使用，则伤害翻倍。 [x2]"
     },
+    "7627": {
+      "spellId": 9532,
+      "reason": "Chinese typo: “对人” should be “敌人” (English: the last two Enemies); sa-Q2.",
+      "spellDescription": "对末位 2 名敌人造成 [魔法 + 2] 点真实伤害，伤害值因红龙宝石数而增强。赋予自身屏障效果。 [x6]"
+    },
     "7679": {
       "spellId": 9614,
       "spellDescription": "对所有敌人造成 [魔法 + 6] 点伤害，伤害值因精灵射击敌人而增强。然后将 3 个骷髅转换为 x2 通配宝石。 [x6]",

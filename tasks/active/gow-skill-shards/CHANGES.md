@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 701 条改动，涉及 1166 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 702 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -707,6 +707,7 @@
 | 2026-09-28T23:38 | sa-C | L5-C-r9-1445-random-true | data | 8701 | weapon:1445 CursebreakerJavelin | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | normal damage to the first + last enemy, Tempering on one hit only; zh 首位和末位敌人 → native TrueDamage RandomEnemy -> RandomPrefNotPrevEnemy, Tempering on both; zh 2 名随机敌人 真实伤害; override entry |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
 | 2026-09-29T03:52 | sa-Q2 | R012-pending | assembler | 7566 | troop:6410 Doomclaw | `src/engine/skills/curated/batch-r22.ts` | devour enemyAboveTarget / enemyBelowTarget 25% (whole column above then below) → native Consume@NextDownFromTarget then Consume@NextUpFromTarget 25% each (one troop each), R012 cast-start anchor |  |
+| 2026-09-29T04:01 | sa-Q2 | P-R3-dragon-gem-count | data | 9532 | troop:7627 DragonknightAmira | `src/engine/skills/curated/batch-r8.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 对末位 2 名对人造成… → zh: 对末位 2 名敌人造成… (English: the last two Enemies); snapshot override troops[7627] |  |
 
 ## 按技能 ID
 
@@ -1725,7 +1726,7 @@
 | 9529 | 1 | P-prefnotprev-semantics |
 | 9530 | 1 | P-prefnotprev-semantics |
 | 9531 | 1 | P-prefnotprev-semantics |
-| 9532 | 1 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count |
+| 9532 | 2 | P-R1-gargoyle-tier-filter,P-R2-gargoyle-tier,P-R4-gargoyle-tier-count,P-R3-dragon-gem-count、P-R3-dragon-gem-count |
 | 9534 | 2 | L3-007、F1-items-62-75 |
 | 9538 | 1 | L4b-7634-attack |
 | 9542 | 1 | L4a-R1-9542-order |

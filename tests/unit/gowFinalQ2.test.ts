@@ -140,3 +140,27 @@ describe('sa-Q2 B04: next-up target, gargoyle tier, Spirit gems (R016-7), Hanged
     expect(extra).toBeLessThan(6);
   });
 });
+
+describe('sa-Q2 B05: pre-cast compare, dead-target colour, Dragon gem counts', () => {
+  it('troop:7533 Fireborn Paladin: Barrier first when my Armor beats the target (pre-hit), 4+10+2x9 Red', () => {
+    const win = castSpell({ key: 'troop:7533', caster: { armor: 20 } }).summary;
+    expect(win.order).toEqual(['status C +barrier', 'dmg E11 32']);
+    const lose = castSpell({ key: 'troop:7533', caster: { armor: 5 } }).summary;
+    expect(lose.order).toEqual(['dmg E11 32']);
+  });
+  it('troop:7597 Bane of Valor: kill -> 1 gem of the dead enemy colour becomes a Daemonic Portal (P-F2-dead-target-colour)', () => {
+    const s = castSpell({ key: 'troop:7597', enemies: [{ hp: 600, maxHp: 600 }, { hp: 1, maxHp: 1, armor: 0, colors: ['Yellow'] as never }] }).summary;
+    expect(s.order).toEqual(['dmg E11 14', 'defeat E11', 'convert Yellow x1 -> daemonicPortalGem x1']);
+    expect(castSpell({ key: 'troop:7597' }).summary.gems.created).toEqual({});
+  });
+  it('troop:7611 / 7626 / 7627: plain board -> no Dragon boost, Barrier (+Enchant) self; 7627 last two, true damage', () => {
+    const a = castSpell({ key: 'troop:7611' }).summary;
+    expect(a.order).toContain('status C +enchanted');
+    expect(a.order.filter(x => x.startsWith('dmg ')).every(x => x.includes(' 12 '))).toBe(true);
+    const b = castSpell({ key: 'troop:7626' }).summary;
+    expect(b.order).toContain('status C +barrier');
+    const c = castSpell({ key: 'troop:7627' }).summary;
+    expect(c.order).toEqual(['dmg E12 12 (all)', 'dmg E13 12 (all)', 'status C +barrier']);
+    expect(c.units.E12).toBe('hp-12'); // true damage ignores armor 12
+  });
+});
