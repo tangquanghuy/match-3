@@ -51,7 +51,9 @@ export function inspectKnownDiscrepancies(kind, spellId, original, prototype, na
   // after fixing player-choice behavior; neither side can be silently certified.
   if (spellId === 9185) check('lightning-extra-turn-source-conflict',
     /for each Blue Gem on the Board/.test(text),
-    native?.SpellSteps?.filter(s => s.Type === 'CountGems').some(s => s.Color1 === 'Yellow'),
+    // R017-1 (user ruling): Blue per English wins; only flag while the runtime does not count Blue.
+    native?.SpellSteps?.filter(s => s.Type === 'CountGems').some(s => s.Color1 === 'Yellow')
+      && !JSON.stringify(prototype).includes('"color":"Blue"'),
     'English source describes Blue Gems for both extra-turn branches.',
     'Both native CountGems steps specify Yellow; runtime currently follows native steps.',
     'conditions-probabilities-branches');
@@ -64,7 +66,9 @@ export function inspectKnownDiscrepancies(kind, spellId, original, prototype, na
     'mana-economy-extra-turn');
   if (kind === 'weapon' && spellId === 8869) check('barrier-target-source-conflict',
     /Barrier all other Allies/.test(text),
-    native?.SpellSteps?.some(s => s.Type === 'CauseBarrier' && s.Target === 'AllAllies'),
+    // R017-2 (user ruling): "all other Allies" per English wins; only flag while the runtime includes the caster.
+    native?.SpellSteps?.some(s => s.Type === 'CauseBarrier' && s.Target === 'AllAllies')
+      && !JSON.stringify(prototype).includes('"allyOthers"'),
     'English source describes only other Allies.',
     'Native CauseBarrier targets AllAllies; runtime currently follows description.',
     'target-count-range');

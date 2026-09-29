@@ -77759,11 +77759,12 @@
       "format": "compact",
       "key": "troop:7724",
       "decision": "accept",
-      "reviewer": "sa-J",
-      "reviewedAt": "2026-09-29T04:13:59.081Z",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-29T05:12:38.855Z",
       "tests": [
         "tests/unit/gowCastGolden.test.ts"
-      ]
+      ],
+      "note": "native IncreaseAllStats Life gain grows max Life; test gowFixR017-final"
     },
     {
       "format": "compact",
@@ -84280,11 +84281,13 @@
     {
       "format": "compact",
       "key": "troop:7116",
-      "decision": "issue",
-      "reviewer": "sa-Q2",
-      "reviewedAt": "2026-09-29T03:54:02.555Z",
-      "issue": "P-Q2-chosen-stat-at-cast-start",
-      "note": "R012 targeting fixed, but chosenStat attack reads the killed target (0) so the AboveTarget hit vanishes; queued primitive-queue/sa-Q2.jsonl"
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-29T05:12:36.029Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "P-Q2 chosenStat at cast start: AboveTarget hit after a kill; test gowFixR017-final"
     },
     {
       "format": "compact",
@@ -100388,11 +100391,13 @@
     {
       "format": "compact",
       "key": "troop:7468",
-      "decision": "issue",
-      "reviewer": "sa-J",
-      "reviewedAt": "2026-09-29T04:11:31.320Z",
-      "issue": "sa-J-7468-count-colour",
-      "note": "source-dispute: English + zh count Blue gems for the 7% extra-turn chance (both branches); native CountGems Color1 Yellow 700 in both branches; prototype follows native (boardGems Yellow). Needs a user ruling like R016 (accept native Yellow, or switch to Blue per English). Rest of the skill (choose A/B lightning gem + extra turn) matches."
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-29T05:12:30.542Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R017-1 Blue gems per English; test gowFixR017-final"
     },
     {
       "format": "compact",
@@ -100407,11 +100412,13 @@
     {
       "format": "compact",
       "key": "weapon:1498",
-      "decision": "issue",
-      "reviewer": "sa-J",
-      "reviewedAt": "2026-09-29T04:23:35.070Z",
-      "issue": "sa-J-1498-barrier-target",
-      "note": "source-dispute: English + zh branch B 'Barrier all other Allies'; native step3 CauseBarrier Target AllAllies (includes the hero). Prototype follows English (allyOthers). Branch A (Magic+1 Armor to all allies) matches. Needs a user ruling like R016, then accept in L2."
+      "decision": "accept",
+      "reviewer": "coord",
+      "reviewedAt": "2026-09-29T05:12:33.169Z",
+      "tests": [
+        "tests/unit/gowCastGolden.test.ts"
+      ],
+      "note": "R017-2 barrier all other allies per English; test gowFixR017-final"
     },
     {
       "format": "compact",

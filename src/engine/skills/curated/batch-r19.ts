@@ -29,7 +29,7 @@
  * 9364/9369/9492/9812/9959）移出本批 SKIPPED，避免覆盖率报告对同一 id 重复记弃。
  */
 import type { CuratedBatch } from './index';
-import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllGems, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt } from '../builders';
+import { chooseSkill, skill, devour, dmg, dmgSplash, trueDmg, heal, armor, attack, magic, mana, reduce, steal, cleanse, randomStat, inflict, inflictRandom, createGems, createGemsMixAny, createMix, createSkulls, createSpecialGems, createSpecialGems2, transform, transformToSpecial, convertSpecial, destroyColor, destroyAllGems, destroyRandomCols, destroyChosenCol, destroyRandomGems, explodeRandomGems, explodeRandomSpecialGems, explodeSpecialGems, explodeSkulls, createStorm, shuffleBoard, extraTurn, oneOf, reposition, sacrifice, summonRandom, summonRef, gainGold, gainSouls, gainMaps, scale, CHOSEN, CELL, explodeAt, gainLife } from '../builders';
 import { BaseColor } from '../../types';
 import type { Condition, CondMult } from '../effects/secondary';
 
@@ -1025,12 +1025,12 @@ const SPELLS: CuratedBatch['spells'] = [
       // lastTarget → 击杀追加 20 改判 castEnemyDied（只有选定敌人受伤害）
       attack('allySelf', 10, 0),
       armor('allySelf', 10, 0),
-      heal('allySelf', 10, 0),
+      gainLife('allySelf', 10, 0), // native IncreaseAllStats: Life grows current + max
       magic('allySelf', 10, 0),
       // sa-P P-G-ifTargetDied-after-self: native AddForKill -> ifTargetDied again (kill anchor survives self / gated steps)
       attack('allySelf', 20, 0, { ifTargetDied: true }),
       armor('allySelf', 20, 0, { ifTargetDied: true }),
-      heal('allySelf', 20, 0, { ifTargetDied: true }),
+      gainLife('allySelf', 20, 0, { ifTargetDied: true }),
       magic('allySelf', 20, 0, { ifTargetDied: true }),
     ),
   },

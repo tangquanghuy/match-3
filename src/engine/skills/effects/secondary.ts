@@ -916,7 +916,10 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     case 'chosenStat': {
       // R22 批：本次释放手动选定目标的当前属性（8659「等同于其攻击力…再同等伤害」）
       if (ctx.chosenTargetId === undefined) return 0;
-      const ch = findCharacter(ctx.state, ctx.chosenTargetId);
+      // P-Q2-chosen-stat-at-cast-start: native Count*@FromTarget runs at step 0, so once an earlier hit killed the
+      // chosen enemy (it left the roster) the value comes from the cast-start snapshot (8659 Despond: AboveTarget hit)
+      const ch = findCharacter(ctx.state, ctx.chosenTargetId)
+        ?? Object.values(tracking?.unitsAtCastStart ?? {}).flat().find((c) => c.id === ctx.chosenTargetId);
       return ch ? statOf(ch, source.stat) : 0;
     }
     case 'lastDamage':

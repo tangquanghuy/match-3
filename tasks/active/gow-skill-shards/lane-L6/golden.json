@@ -831,13 +831,13 @@
  },
  "troop:7724": {
   "lines": {
-   "L10": "dmg E11 48 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10  => E11:hp-38 arm-10 | C:hp+10 arm+10 atk+10 mag+10",
-   "R10": "dmg E11 48 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10  => E11:hp-38 arm-10 | C:hp+10 arm+10 atk+10 mag+10",
-   "L0": "dmg E11 38 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10  => E11:hp-28 arm-10 | C:hp+10 arm+10 atk+10 mag+10",
-   "K": "dmg E11 48 ; defeat E11 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 ; buff C magic+10 ; buff C attack+20 ; buff C armor+20 ; buff C hp+20 ; buff C magic+20  => E11:hp-1 DEAD | C:hp+30 arm+30 atk+30 mag+30"
+   "L10": "dmg E11 48 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 max+10 ; buff C magic+10  => E11:hp-38 arm-10 | C:hp+10 max+10 arm+10 atk+10 mag+10",
+   "R10": "dmg E11 48 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 max+10 ; buff C magic+10  => E11:hp-38 arm-10 | C:hp+10 max+10 arm+10 atk+10 mag+10",
+   "L0": "dmg E11 38 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 max+10 ; buff C magic+10  => E11:hp-28 arm-10 | C:hp+10 max+10 arm+10 atk+10 mag+10",
+   "K": "dmg E11 48 ; defeat E11 ; buff C attack+10 ; buff C armor+10 ; buff C hp+10 max+10 ; buff C magic+10 ; buff C attack+20 ; buff C armor+20 ; buff C hp+20 max+20 ; buff C magic+20  => E11:hp-1 DEAD | C:hp+30 max+30 arm+30 atk+30 mag+30"
   },
-  "by": "sa-J",
-  "at": "2026-09-29T04:13:58.979Z"
+  "by": "coord",
+  "at": "2026-09-29T05:12:38.752Z"
  },
  "troop:7738": {
   "lines": {

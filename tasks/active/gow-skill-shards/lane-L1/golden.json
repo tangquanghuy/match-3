@@ -1469,6 +1469,16 @@
   "by": "sa-E",
   "at": "2026-09-28T11:17:08.834Z"
  },
+ "troop:7116": {
+  "lines": {
+   "L10": "dmg E11 17 ; dmg E10 17 (all) ; summon mine troop:7115  => A14:new 绝望 hp30 atk15 arm9 mag4 | E11:hp-7 arm-10 | E10:hp-12 arm-5",
+   "R10": "dmg E11 17 ; dmg E10 17 (all) ; summon mine troop:7115  => A14:new 绝望 hp30 atk15 arm9 mag4 | E11:hp-7 arm-10 | E10:hp-12 arm-5",
+   "L0": "dmg E11 17 ; dmg E10 17 (all) ; summon mine troop:7115  => A14:new 绝望 hp30 atk15 arm9 mag4 | E11:hp-7 arm-10 | E10:hp-12 arm-5",
+   "K": "dmg E11 17 ; defeat E11 ; dmg E10 17 (all) ; defeat E10 ; summon mine troop:7115  => A14:new 绝望 hp30 atk15 arm9 mag4 | E11:hp-1 DEAD | E10:hp-1 DEAD"
+  },
+  "by": "coord",
+  "at": "2026-09-29T05:12:35.915Z"
+ },
  "troop:7124": {
   "lines": {
    "L10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",

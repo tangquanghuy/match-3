@@ -1,6 +1,6 @@
 # GoW skill signoff progress
 
-Generated: 2026-09-29T04:51:16.669Z; source fingerprint: b3ff85a08feacf8af600f5fa2942f71e9ebe8f916e2a44bab1c9aabad053a467.
+Generated: 2026-09-29T05:28:04.856Z; source fingerprint: aea819c5410acd13c7a73d941e0bbcc0417abca4a77a2e6f3a3eca7efcdd5781.
 Baseline: stored English and native spell snapshots, not a live official API.
 
 | Item | Count |
@@ -9,13 +9,13 @@ Baseline: stored English and native spell snapshots, not a live official API.
 | Original weapons | 718 |
 | Custom excluded | 13 |
 | Original entities | 2518 |
-| Accepted whole skills | 2514 / 2518 |
+| Accepted whole skills | 2518 / 2518 |
 | Review records | 2518 |
-| Eligible reviews | 2514 |
-| Confirmed difference entities | 3 |
-| Remaining pending reviews | 1 |
+| Eligible reviews | 2518 |
+| Confirmed difference entities | 0 |
+| Remaining pending reviews | 0 |
 
-Full regression: 16094 passed, 0 failed; TypeScript exit code 0.
+Full regression: 16101 passed, 0 failed; TypeScript exit code 0.
 
 ## Evidence and limitations
 
@@ -28,9 +28,6 @@ Full regression: 16094 passed, 0 failed; TypeScript exit code 0.
 
 | Entity | Spell | Expected from snapshot | Runtime |
 |---|---:|---|---|
-| troop 7468 | 9185 | English source describes Blue Gems for both extra-turn branches. | Both native CountGems steps specify Yellow; runtime currently follows native steps. |
-| troop 7724 | 9716 | Direct Life modes in depth-first order: gain, gain. IncreaseHealth/IncreaseAllStats grows current and maximum Life; Heal restores current Life only. | Runtime modes: legacy-capped-heal, legacy-capped-heal. |
-| weapon 1498 | 8869 | English source describes only other Allies. | Native CauseBarrier targets AllAllies; runtime currently follows description. |
 
 ## Files
 

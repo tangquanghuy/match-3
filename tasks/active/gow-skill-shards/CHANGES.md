@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 713 条改动，涉及 1169 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 716 条改动，涉及 1171 个技能 ID。
 
 ## 按时间
 
@@ -719,6 +719,9 @@
 | 2026-09-29T04:21 | sa-J | sa-J-1481-zh | data | 8809 | weapon:1481 WatchfulBlade | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 数值因地域悬崖盟友数而增强 (typo, not the Hellcrag kingdom name) → zh: 数值因地狱悬崖盟友数而增强 (EN boosted by Hellcrag Allies); reviewed-override description 8809 keeps it on regeneration (the _weapon_pools alias 地域悬崖->地狱悬崖 already existed) | display text only |
 | 2026-09-29T04:29 | sa-Q1 | P-random-stat-pool | assembler | 7323 | troop:6182 HeraldOfChaos | `src/engine/skills/curated/batch-r12.ts` | destroy row first, damage + DecreaseRandom boosted by destroyedGems Blue → native order: damage + DecreaseRandom boosted by chosenRowAtCastStart Blue x2, destroy row last |  |
 | 2026-09-29T04:35 | sa-Q1 | F1-7057-block5x5-count | assembler | 8585 | troop:7057 Mithrilion | `src/engine/skills/curated/batch-r21.ts` | explode 3x3 -> armor -> barrier per Skull destroyed → native order: armor -> explode 3x3 -> barrier per Skull destroyed (5x5 count dispute kept English 3x3) |  |
+| 2026-09-29T05:12 | coord | R017-7468-blue | assembler | 9185 | troop:7468 Judgement | `src/engine/skills/curated/batch-p40.ts` | extra-turn chance 7% per Yellow gem (native CountGems Yellow) → 7% per Blue gem, per English/zh (R017) |  |
+| 2026-09-29T05:12 | coord | P-Q2-chosen-stat-at-cast-start | primitive | 8659 | troop:7116 Despond | `src/engine/skills/effects/secondary.ts` | chosenStat of a chosen enemy killed earlier in the cast = 0 → falls back to castTracking.unitsAtCastStart (native Count@FromTarget at step 0) | chosenStat users, only when the chosen target died earlier in the cast |
+| 2026-09-29T05:12 | coord | 7724-native-life-gain | assembler | 9716 | troop:7724 TheSandstoneSentinel | `src/engine/skills/curated/batch-r19.ts` | IncreaseAllStats Life as capped heal → gainLife: current + max Life (native IncreaseAllStats) |  |
 
 ## 按技能 ID
 
@@ -1421,6 +1424,7 @@
 | 8654 | 2 | L3-008、L1-E-7111-dist |
 | 8656 | 2 | P-prefnotprev-semantics、L7-R1-7113-enemy-colour |
 | 8658 | 1 | P-R5-named-ally-count |
+| 8659 | 1 | P-Q2-chosen-stat-at-cast-start |
 | 8660 | 1 | L7-R1-lethal-order-doomskull |
 | 8662 | 1 | L7-R1-lethal-order-doomskull |
 | 8663 | 1 | L4a-R1-8663-deaths-order |
@@ -1626,6 +1630,7 @@
 | 9174 | 1 | L4a-r4-7457 |
 | 9181 | 1 | L1-E-7465-dist |
 | 9184 | 2 | P-counter-per-step、P-counter-per-step |
+| 9185 | 1 | R017-7468-blue |
 | 9187 | 1 | L4a-R8-7470-order |
 | 9190 | 1 | L7-R1-random-chain-waves |
 | 9193 | 1 | L4a-R1-9193-random-explode |
@@ -1801,7 +1806,7 @@
 | 9692 | 1 | P-E-faction-kingdom |
 | 9710 | 1 | L5-C-r9-7718 |
 | 9711 | 1 | L1-7719-random |
-| 9716 | 3 | F3-t7724、P-G-ifTargetDied-after-self、sa-J-7724-zh |
+| 9716 | 4 | F3-t7724、P-G-ifTargetDied-after-self、sa-J-7724-zh、7724-native-life-gain |
 | 9719 | 1 | P-prefnotprev-semantics |
 | 9720 | 1 | R015-random-gems-include-skulls |
 | 9721 | 2 | P-prefnotprev-semantics、F2-R001-order |

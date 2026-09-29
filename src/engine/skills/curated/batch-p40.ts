@@ -51,8 +51,8 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 9185,
     desc: '&&创造一颗蓝色闪电宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合 && 创造一颗黄色闪电宝石。板面上每有一颗蓝色宝石，则有 7% 的几率获得一个额外回合  [x7]',
-    // Both raw CountGems steps use Yellow while description says Blue: source conflict pending independent check.
-    build: skill(chooseSkill(['蓝闪电宝石与额外回合', '黄闪电宝石与额外回合'], [createSpecialGems({ kind: 'lightningRow' }, 1), extraTurn({ chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } })], [createSpecialGems({ kind: 'lightningCol' }, 1), extraTurn({ chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Yellow } } })])),
+    // R017 (user ruling): English/zh 'each Blue Gem' wins over the native CountGems Yellow in both branches.
+    build: skill(chooseSkill(['蓝闪电宝石与额外回合', '黄闪电宝石与额外回合'], [createSpecialGems({ kind: 'lightningRow' }, 1), extraTurn({ chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } })], [createSpecialGems({ kind: 'lightningCol' }, 1), extraTurn({ chance: 0, chanceBoost: { mod: { kind: 'multiplier', a: 7 }, source: { kind: 'boardGems', color: BaseColor.Blue } } })])),
   },
   {
     id: 9567,
