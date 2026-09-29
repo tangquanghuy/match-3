@@ -16,6 +16,7 @@ import { STARTER_CLASS_ID } from '../data/classes';
 import type { EventTypeId } from '../data/events';
 import type { EncounterEnemy, EncounterPlan } from '../systems/encounter';
 import type { InvasionMirror } from '../systems/invasion';
+import type { InvasionRoster, InvasionStandingsCache, MirrorRecord } from '../systems/invasionMirrors';
 
 /**
  * 存档版本。上线前基线（2026-09-29 服务端化重整）：历史 v1~v3 迁移链已删除，
@@ -152,6 +153,20 @@ export interface InvasionState {
   bestLeague: number;
   /** 已完成的赛季数 */
   seasonsPlayed: number;
+  /**
+   * 当前对手批次（含真人镜像，服务端组好落档；键 weekStart/league/refresh 对不上即视为过期，
+   * 回落纯人机推演）。null = 尚未组过。
+   */
+  roster: InvasionRoster | null;
+  /** 最近交手过的真人镜像 ownerKey（新的在前，封顶见 INVASION_MATCHMAKING.recentCap） */
+  recentOpponents: string[];
+  /** 最近一次入池录制（节流用） */
+  lastPublish: { league: number; teamHash: string; at: number } | null;
+  /**
+   * 周榜真人快照（服务端按周+联赛取样后落档；不足 29 人由人机补位）。
+   * 键对不上或过期（INVASION_MATCHMAKING.standingsTtlMs）时下次同步重取。null = 未取过。
+   */
+  standings: InvasionStandingsCache | null;
 }
 
 /**
@@ -260,7 +275,14 @@ export type PendingBattle =
       enemies: Record<string, EncounterEnemy>;
     }
   | { mode: 'arena'; requestId: string; issuedAt: number }
-  | { mode: 'invasion'; requestId: string; issuedAt: number; mirror: InvasionMirror };
+  | {
+      mode: 'invasion';
+      requestId: string;
+      issuedAt: number;
+      mirror: InvasionMirror;
+      /** 本次出击队的镜像录制（正常结算后入共享池；投降/丢票不录） */
+      attacker?: MirrorRecord;
+    };
 
 export interface MetaSave {
   version: typeof META_SAVE_VERSION;
@@ -422,7 +444,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
     materialsUnread: false,
     weaponTempering: {},
-    invasion: { progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0 },
+    invasion: { progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
     eventWeeks: {},
     eventShops: {},
     settings: { language: 'zh', battleDebug: false },

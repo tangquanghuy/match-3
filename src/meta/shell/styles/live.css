@@ -1169,6 +1169,12 @@
   background: linear-gradient(110deg, #812e344d, #391e2855);
   color: #ffb8a6; font-size: 10px; line-height: 1.3; white-space: nowrap;
 }
+/* 真人镜像标识（名字旁的小徽标） */
+.inv-real-badge {
+  display: inline-block; margin-left: 6px; padding: 1px 5px; vertical-align: middle;
+  border: 1px solid #7fb8e055; border-radius: 3px; background: #1d2c3a88;
+  color: #a9d4f2; font-size: 10px; font-weight: 500; line-height: 1.4; white-space: nowrap;
+}
 .inv-frenzy-badge i { color: #f47d69; font-size: 9px; font-style: normal; text-shadow: 0 0 7px #fa524b80; }
 .inv-frenzy-badge b { color: #f5d4bb; font-size: 10px; font-weight: 600; }
 .inv-battle-hub .frenzy .inv-rival-defense { position: relative; isolation: isolate; margin-top: 12px; }

@@ -23,6 +23,10 @@ import { WEEK_MS } from '../data/events';
 import { buildMetaRegistry, buildPlayerSnapshots, enemyToSnapshot, metaKnownTraitIds } from './battleBridge';
 import { earn, earnMaterials } from './wallet';
 import type { EncounterEnemy } from './encounter';
+import {
+  buildInvasionRoster, captureMirrorRecord, mirrorEnemyTeam, pushRecentOpponent, shouldPublish, standingsFresh, teamPower,
+  type MirrorPlayerInfo, type MirrorPoolEntry, type MirrorRecord, type StandingEntry, type VpReport,
+} from './invasionMirrors';
 
 // ---------------------------------------------------------------------------
 // 镜像对手池（D1 预留的核心形状）
@@ -58,6 +62,8 @@ export interface InvasionMirror {
   provenance: string;
   sourceRow: number | null;
   bannerKingdom: string | null;
+  /** 真人镜像专有：对方出战时的完整战斗快照（缺省 = 人机） */
+  player?: MirrorPlayerInfo;
 }
 
 /** 联赛 → 镜像周末终值 VP 区间（设计值：联赛越高卷得越凶） */
@@ -137,16 +143,38 @@ export interface StandingRow {
   vp: number;
   frenzy: boolean;
   isPlayer: boolean;
+  /** true = 真人指挥官（服务端周榜）；否则为补位人机 */
+  real?: boolean;
+}
+
+/**
+ * 某周某联赛的对手行（不含玩家本人）：服务端周榜里有真人就先用真人，
+ * 不足 bracketSize 的名额由确定性人机补齐（取 buildBracket 前 N 个）。
+ * final = 用人机的周末终值（周结名次）；否则按时刻推演。
+ */
+export function opponentStandingRows(save: MetaSave, weekStart: number, league: number, now: number, final = false): StandingRow[] {
+  const cache = save.invasion.standings;
+  const real = cache && cache.weekStart === weekStart && cache.league === league
+    ? cache.rows.slice(0, INVASION.bracketSize) : [];
+  const bots = buildBracket(weekStart, league).slice(0, INVASION.bracketSize - real.length);
+  return [
+    ...real.map(r => ({ id: `pl-${r.ownerKey}`, name: r.name, vp: r.vp, frenzy: false, isPlayer: false, real: true })),
+    ...bots.map(m => ({ id: m.id, name: m.name, vp: final ? m.finalVp : mirrorVpAt(m, now, weekStart), frenzy: false, isPlayer: false })),
+  ];
 }
 
 export function invasionStandings(save: MetaSave, now: number, weekStart: number): { rows: StandingRow[]; placement: number } {
-  const mirrors = hydrateMirrorVp(buildBracket(weekStart, save.invasion.league), now, weekStart);
   const rows: StandingRow[] = [
     { id: 'player', name: '你', vp: save.invasion.vp, frenzy: false, isPlayer: true },
-    ...mirrors.map((m) => ({ id: m.id, name: m.name, vp: m.vp, frenzy: m.frenzy, isPlayer: false })),
+    ...opponentStandingRows(save, weekStart, save.invasion.league, now),
   ].sort((a, b) => b.vp - a.vp);
   const placement = rows.findIndex((r) => r.isPlayer) + 1;
   return { rows, placement };
+}
+
+/** 周榜真人快照是否可用（同周、同联赛、未过期） */
+export function invasionStandingsFresh(save: MetaSave, weekStart: number, now: number): boolean {
+  return standingsFresh(save.invasion.standings, weekStart, save.invasion.league, now);
 }
 
 // ---------------------------------------------------------------------------
@@ -173,8 +201,8 @@ export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: nu
   const fromLeague = save.invasion.league;
   const first = save.invasion.weekStart === 0;
   const played = !first && save.invasion.battles > 0;
-  const placement = first ? 0 : 1 + buildBracket(save.invasion.weekStart, fromLeague)
-    .filter(m => m.finalVp > save.invasion.vp).length;
+  const placement = first ? 0 : 1 + opponentStandingRows(save, save.invasion.weekStart, fromLeague, _now, true)
+    .filter(r => r.vp > save.invasion.vp).length;
   // Each new week starts a fresh VP track and claim ledger, without automatic payouts.
   if (!first) { save.invasion.progressionVp = 0; save.invasion.claimedRanks = []; }
   save.invasion.league = invasionRankAt(save.invasion.progressionVp).league;
@@ -184,6 +212,8 @@ export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: nu
   save.invasion.seed = fnv1a32(`invasion-${weekStart}:${save.invasion.league}`);
   save.invasion.vp = 0;
   save.invasion.battles = 0;
+  save.invasion.roster = null;
+  save.invasion.standings = null;
   return first ? null : { played, fromLeague, toLeague: save.invasion.league,
     placement, movement: 'stay', glory: 0, gems: 0 };
 
@@ -193,8 +223,74 @@ export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: nu
 // 匹配与出战斗
 // ---------------------------------------------------------------------------
 
-/** Refresh changes the roster, not the weekly leaderboard. Read-only calls stay stable. */
+/**
+ * 当前三档对手。服务端组好的批次（可能含真人镜像）落在 save.invasion.roster，
+ * 键（周/联赛/刷新序号）对得上就用它；否则回落纯人机推演（与旧版逐字节一致）。
+ */
 export function invasionCandidates(save: MetaSave, now: number, weekStart: number): InvasionMirror[] {
+  const roster = save.invasion.roster;
+  if (roster && invasionRosterFresh(save, weekStart)) {
+    return roster.mirrors.map(m => m.player ? { ...m } : { ...m, vp: mirrorVpAt(m, now, weekStart) });
+  }
+  return botInvasionCandidates(save, now, weekStart);
+}
+
+export function invasionRosterFresh(save: MetaSave, weekStart: number): boolean {
+  const roster = save.invasion.roster;
+  return !!roster && roster.weekStart === weekStart && roster.league === save.invasion.league
+    && roster.refresh === save.invasion.refreshCount;
+}
+
+/** 我方当前出战队的强度（与镜像 rating 同口径）；队伍不可用时为 0 */
+export function invasionPlayerPower(save: MetaSave): number {
+  const built = buildPlayerSnapshots(save);
+  return built.ok ? teamPower(built.playerTeam) : 0;
+}
+
+/**
+ * 组一批对手并落档（服务端在同步/刷新/结算时调用；pool = 宿主预取的共享池样本）。
+ * replaceSlots：只重选这些槽位（打完一名真人后只换掉他，其余不动）。
+ */
+export function rebuildInvasionRoster(
+  save: MetaSave,
+  now: number,
+  weekStart: number,
+  pool: readonly MirrorPoolEntry[],
+  seed: number,
+  replaceSlots?: readonly number[],
+): void {
+  const fresh = invasionRosterFresh(save, weekStart);
+  const mirrors = buildInvasionRoster({
+    bots: botInvasionCandidates(save, now, weekStart),
+    league: save.invasion.league,
+    playerPower: invasionPlayerPower(save),
+    pool,
+    recent: save.invasion.recentOpponents,
+    now,
+    seed,
+    ...(fresh && replaceSlots ? { existing: save.invasion.roster!.mirrors, replaceSlots } : {}),
+  });
+  save.invasion.roster = { weekStart, league: save.invasion.league, refresh: save.invasion.refreshCount, mirrors };
+}
+
+/** 周榜真人快照落档（rows = 宿主预取的同周同联赛真人，已排除本人；没有共享池时为空 → 全人机补位） */
+export function refreshInvasionStandings(save: MetaSave, now: number, weekStart: number, rows: readonly StandingEntry[]): void {
+  const seen = new Set<string>();
+  const real = [...rows]
+    .filter(r => r.ownerKey && !seen.has(r.ownerKey) && seen.add(r.ownerKey))
+    .sort((a, b) => b.vp - a.vp || a.ownerKey.localeCompare(b.ownerKey))
+    .slice(0, INVASION.bracketSize)
+    .map(r => ({ ownerKey: r.ownerKey, name: r.name, vp: Math.max(0, Math.floor(r.vp)) }));
+  save.invasion.standings = { weekStart, league: save.invasion.league, fetchedAt: now, rows: real };
+}
+
+/** 结算后上报的本周 VP（服务端权威值） */
+export function invasionVpReport(save: MetaSave, now: number): VpReport {
+  return { weekStart: save.invasion.weekStart, league: save.invasion.league, vp: save.invasion.vp, at: now };
+}
+
+/** 纯人机三档（确定性推演；真人池为空或本地模式时就是最终批次） */
+export function botInvasionCandidates(save: MetaSave, now: number, weekStart: number): InvasionMirror[] {
   const refresh = save.invasion.refreshCount;
   const draftSeed = refresh === 0 ? weekStart : fnv1a32(`reroll:${weekStart}:${refresh}`);
   const mirrors = hydrateMirrorVp(buildBracket(draftSeed, save.invasion.league), now, weekStart);
@@ -249,6 +345,8 @@ export interface InvasionBridgeOutcome {
   mirror: InvasionMirror;
   /** 本场可用注册表（headless 驱动/战斗层共用） */
   registry: ReturnType<typeof buildMetaRegistry>;
+  /** 本次出击队的镜像录制（结算后入池） */
+  attacker: MirrorRecord;
 }
 
 /** 对一只镜像的出战斗计划：我方=当前预设队（主角/旗帜/王国加成全生效），敌方=镜像防守队 */
@@ -269,10 +367,14 @@ export function planInvasionBattle(
   const built = buildPlayerSnapshots(save);
   if (!built.ok) return built;
 
-  const enemyTeam: CombatantSnapshot[] = mirror.defense.map((d, index) => {
-    const troop = getTroopById(d.troopId)!;
-    return enemyToSnapshot(troop, d, index);
-  });
+  // 真人镜像：原样使用对方出战时的快照；人机：按防守条目推导
+  const enemyTeam: CombatantSnapshot[] = mirror.player
+    ? mirrorEnemyTeam(mirror)
+    : mirror.defense.map((d, index) => {
+      const troop = getTroopById(d.troopId)!;
+      return enemyToSnapshot(troop, d, index);
+    });
+  if (enemyTeam.length === 0) return fail('INVALID', '对手数据已失效，请刷新对手');
   const request: BattleRequest = {
     schemaVersion: BATTLE_SCHEMA_VERSION,
     battleId: `invasion-${weekStart >>> 0}`,
@@ -299,7 +401,40 @@ export function planInvasionBattle(
     const first = check.issues[0];
     return fail('INVALID', `入侵战斗请求未过会话校验：${first ? `${first.code} ${first.message}` : ''}`);
   }
-  return { ok: true, request, mirror, registry };
+  const attacker = captureMirrorRecord(save, built.team, built.playerTeam, playerBanner ? built.team.bannerKingdomId ?? null : null, now);
+  return { ok: true, request, mirror, registry, attacker };
+}
+
+/**
+ * 结算后的镜像记账（核心在 settleInvasionBattle 之后调用）：
+ *  - 打的是真人 → 记入最近对手，并把这一槽换人（不能对着同一个人反复刷分）；
+ *  - 联赛变了 → 整批重组；
+ *  - 正常打完（非投降）→ 返回本次出击队的录制，交宿主入池（节流见 shouldPublish）。
+ */
+export function afterInvasionSettle(
+  save: MetaSave,
+  pending: { mirror: InvasionMirror; attacker?: MirrorRecord },
+  result: BattleResult,
+  now: number,
+  weekStart: number,
+  pool: readonly MirrorPoolEntry[] | undefined,
+  seed: number,
+): MirrorRecord | null {
+  const owner = pending.mirror.player?.ownerKey;
+  if (owner) save.invasion.recentOpponents = pushRecentOpponent(save.invasion.recentOpponents, owner);
+  if (pool) {
+    if (!invasionRosterFresh(save, weekStart)) rebuildInvasionRoster(save, now, weekStart, pool, seed);
+    else if (owner) {
+      const slot = save.invasion.roster!.mirrors.findIndex(m => m.id === pending.mirror.id);
+      if (slot >= 0) rebuildInvasionRoster(save, now, weekStart, pool, seed, [slot]);
+    }
+  }
+  const record = pending.attacker;
+  if (!record || result.endReason === 'surrender') return null;
+  if (!shouldPublish(save.invasion.lastPublish, record, now)) return null;
+  save.invasion.lastPublish = { league: record.league, teamHash: record.teamHash, at: now };
+  // VP 取结算后的值（榜单展示更贴近现状）；联赛仍按出击时的分桶
+  return { ...record, vp: save.invasion.vp, recordedAt: now };
 }
 
 // ---------------------------------------------------------------------------

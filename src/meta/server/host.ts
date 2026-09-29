@@ -15,8 +15,13 @@
 import type { MetaSave } from '../state/schema';
 import { MetaSaveError } from '../state/save';
 import { buildPatch, diffRecords, recordsToSave, saveToRecords, type RecordChanges, type SaveRecords } from '../state/records';
-import { createFreshSave, runCommand, type FreshSaveKind } from './core';
+import { INVASION } from '../data/economy';
+import { commandPoolNeeds, createFreshSave, runCommand, type CommandEffects, type CommandIo, type FreshSaveKind } from './core';
 import type { ServerEnv } from './env';
+import type { InvasionMirrorPool } from './mirrorPool';
+import { weekStartOf } from '../gateway/clock';
+import { ensureInvasionSeason, invasionPlayerPower } from '../systems/invasion';
+import { invasionPoolQuery } from '../systems/invasionMirrors';
 import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type MetaCommand } from './protocol';
 
 /** 一批原子写入：把存储从 fromRevision 推到 toRevision（null = 首次建档） */
@@ -41,6 +46,10 @@ export interface MetaHostOptions {
   flushDelayMs?: number;
   /** 延迟调度器（Worker/DO 可换成 alarm；测试注入手动时钟） */
   schedule?: (delayMs: number, run: () => void) => void;
+  /** 入侵真人镜像共享池（已绑定本玩家身份）；缺省 = 对手全走人机 */
+  mirrorPool?: InvasionMirrorPool;
+  /** 池读写失败的日志出口（失败不影响命令本身） */
+  onMirrorPoolError?: (error: unknown) => void;
 }
 
 export class MetaHost {
@@ -53,6 +62,8 @@ export class MetaHost {
   private flushScheduled = false;
   private queue: Promise<unknown> = Promise.resolve();
   private loadWarning: string | null = null;
+  /** 已提交、待写共享池的副作用 */
+  private readonly effects: CommandEffects[] = [];
   private createdFresh = false;
 
   constructor(
@@ -71,6 +82,7 @@ export class MetaHost {
       if (this.save?.pendingBattle) {
         this.commit({ type: 'forfeitPendingBattle', args: {} } as MetaCommand);
         await this.flushNow();
+        await this.drainEffects();
       }
       const reply: LoadReply = { save: this.save!, fresh: this.createdFresh, warning: this.loadWarning, serverNow: this.env.now() };
       this.createdFresh = false;
@@ -87,12 +99,15 @@ export class MetaHost {
       const forfeited = PLAN_COMMANDS.has(command.type) && start.pendingBattle
         ? this.commit({ type: 'forfeitPendingBattle', args: {} } as MetaCommand)
         : false;
-      const outcome = runCommand(this.save!, command, this.env);
+      const io = await this.prefetch(command);
+      const outcome = runCommand(this.save!, command, this.env, io);
       const committed = outcome.commit ? this.apply(outcome.save) : false;
+      if (committed && outcome.effects) this.effects.push(outcome.effects);
       if (!committed && !forfeited) return { result: outcome.result, patch: null, serverNow: this.env.now() };
 
       if (forfeited || isCriticalCommand(command.type) || (this.options.flushDelayMs ?? 0) <= 0) await this.flushNow();
       else this.scheduleFlush();
+      await this.drainEffects();
 
       return {
         result: outcome.result,
@@ -113,6 +128,35 @@ export class MetaHost {
   }
 
   // —— 内部 ——
+
+  /** 需要时向共享池取样（只在入侵同步/刷新/结算时查） */
+  private async prefetch(command: MetaCommand): Promise<CommandIo> {
+    const pool = this.options.mirrorPool;
+    const save = this.save!;
+    const now = this.env.now();
+    if (!pool) return {};
+    const needs = commandPoolNeeds(save, command, now);
+    if (!needs.mirrors && !needs.standings) return {};
+    // 跨周时核心会先周结（联赛可能重算），在只含入侵字段的副本上预演一遍取联赛
+    const probe = { invasion: { ...save.invasion, claimedRanks: [...save.invasion.claimedRanks] } } as MetaSave;
+    const week = weekStartOf(now);
+    ensureInvasionSeason(probe, now, week);
+    const league = probe.invasion.league;
+    const guard = <T>(p: Promise<T>): Promise<T | undefined> => p.catch((error) => {
+      this.options.onMirrorPoolError?.(error);
+      return undefined;
+    });
+    const power = needs.mirrors ? invasionPlayerPower(save) : 0;
+    const slack = command.type === 'settleBattle' ? 1 : 0; // 结算后可能升一个联赛
+    const [mirrorPool, standings] = await Promise.all([
+      !needs.mirrors ? undefined : power <= 0 ? [] : guard(pool.sample(invasionPoolQuery(league, power, now, slack))),
+      needs.standings ? guard(pool.standings({ weekStart: week, league, limit: INVASION.bracketSize })) : undefined,
+    ]);
+    return {
+      ...(mirrorPool ? { mirrorPool } : {}),
+      ...(standings ? { standings } : {}),
+    };
+  }
 
   private serial<T>(fn: () => Promise<T>): Promise<T> {
     const run = this.queue.then(fn, fn);
@@ -152,7 +196,25 @@ export class MetaHost {
   /** 执行并（成功时）提交一条内部命令；返回是否提交 */
   private commit(command: MetaCommand): boolean {
     const outcome = runCommand(this.save!, command, this.env);
-    return outcome.commit ? this.apply(outcome.save) : false;
+    if (!outcome.commit) return false;
+    if (outcome.effects) this.effects.push(outcome.effects);
+    return this.apply(outcome.save);
+  }
+
+  /**
+   * 存档落定后再写共享池（镜像录制 / 周榜 VP）：池写失败只丢这一份，不回滚命令。
+   * 同一批里多次 VP 上报只写最后一次。
+   */
+  private async drainEffects(): Promise<void> {
+    const queued = this.effects.splice(0);
+    const pool = this.options.mirrorPool;
+    if (!pool || queued.length === 0) return;
+    const onError = (error: unknown) => this.options.onMirrorPoolError?.(error);
+    const lastVp = [...queued].reverse().find(e => e.reportVp)?.reportVp;
+    await Promise.all([
+      ...queued.filter(e => e.publishMirror).map(e => pool.publish(e.publishMirror!).catch(onError)),
+      lastVp ? pool.reportVp(lastVp).catch(onError) : undefined,
+    ]);
   }
 
   /** 把新存档设为已提交状态并标脏 */

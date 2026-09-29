@@ -23,7 +23,7 @@
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PlayerActor"] }],
 
-  // D1：只放账号表（discord_id → player_id），存档不在这里
+  // D1：账号表（discord_id → player_id）+ 入侵真人镜像池（invasion_mirrors）+ 周榜（invasion_weekly）；存档不在这里
   "d1_databases": [
     {
       "binding": "DB",

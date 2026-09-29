@@ -1,6 +1,7 @@
 ﻿import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
+import { INVASION_MATCHMAKING } from '../data/invasionMatchmaking';
 import { getTroopById } from '../../data/troops';
-import { ARENA } from '../data/economy';
+import { ARENA, INVASION } from '../data/economy';
 import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
 /**
  * Meta 存档读写（M0 · 壳与存档的逻辑部分）。
@@ -255,7 +256,18 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
       ? [...new Set(raw.invasion.claimedRanks.filter((id): id is string => typeof id === 'string' && INVASION_RANKS.some(rank => rank.id === id)))] : [];
     invasion.league = invasionRankAt(invasion.progressionVp).league;
     invasion.bestLeague = Math.max(invasion.bestLeague, invasion.league);
+    invasion.roster = hydrateInvasionRoster(raw.invasion.roster);
+    invasion.recentOpponents = Array.isArray(raw.invasion.recentOpponents)
+      ? [...new Set(raw.invasion.recentOpponents.filter((k): k is string => typeof k === 'string' && k.length > 0 && k.length <= 64))]
+        .slice(0, INVASION_MATCHMAKING.recentCap)
+      : [];
+    const lp = raw.invasion.lastPublish;
+    invasion.lastPublish = isObject(lp) && typeof lp.teamHash === 'string'
+      ? { league: num(lp.league, 0, 0, 9), teamHash: lp.teamHash, at: num(lp.at, 0, 0) }
+      : null;
+    invasion.standings = hydrateInvasionStandings(raw.invasion.standings);
   }
+  invasion.recentOpponents = [...invasion.recentOpponents];
 
   // —— 每周活动周实例 · per-event（缺键 = 该活动本周还没打过）——
   const eventWeeks: Partial<Record<EventTypeId, EventWeekState>> = {};
@@ -499,6 +511,40 @@ function hydrateOnboarding(raw: unknown, gachaLog: MetaSave['gachaLog']): MetaSa
   if (!isObject(raw)) return { step: 'done', noviceSummonUsed: pulledGem };
   const step = ONBOARDING_STEPS.includes(raw.step as MetaSave['onboarding']['step']) ? raw.step as MetaSave['onboarding']['step'] : 'done';
   return { step, noviceSummonUsed: typeof raw.noviceSummonUsed === 'boolean' ? raw.noviceSummonUsed : pulledGem };
+}
+
+/** 对手批次：服务端写入的数据，这里只做形状把关；不合法整批丢弃（回落人机推演） */
+function hydrateInvasionRoster(raw: unknown): InvasionState['roster'] {
+  if (!isObject(raw) || !Array.isArray(raw.mirrors)) return null;
+  const mirrors = raw.mirrors.filter((m): m is Record<string, unknown> => isObject(m)
+    && typeof m.id === 'string' && typeof m.name === 'string' && Array.isArray(m.defense)
+    && typeof m.difficulty === 'string' && (m.player === undefined || (isObject(m.player) && Array.isArray(m.player.team))));
+  if (mirrors.length !== raw.mirrors.length || mirrors.length === 0) return null;
+  return {
+    weekStart: num(raw.weekStart, 0, 0),
+    league: num(raw.league, 0, 0, 9),
+    refresh: num(raw.refresh, 0, 0, Number.MAX_SAFE_INTEGER - 1),
+    mirrors: mirrors as unknown as NonNullable<InvasionState['roster']>['mirrors'],
+  };
+}
+
+/** 周榜真人快照：逐行把关，坏行丢弃；封顶一个榜单的人数 */
+function hydrateInvasionStandings(raw: unknown): InvasionState['standings'] {
+  if (!isObject(raw) || !Array.isArray(raw.rows)) return null;
+  const seen = new Set<string>();
+  const rows: NonNullable<InvasionState['standings']>['rows'] = [];
+  for (const r of raw.rows) {
+    if (!isObject(r) || typeof r.ownerKey !== 'string' || !r.ownerKey || r.ownerKey.length > 64 || seen.has(r.ownerKey)) continue;
+    if (typeof r.name !== 'string') continue;
+    seen.add(r.ownerKey);
+    rows.push({ ownerKey: r.ownerKey, name: r.name.slice(0, 24), vp: num(r.vp, 0, 0) });
+  }
+  return {
+    weekStart: num(raw.weekStart, 0, 0),
+    league: num(raw.league, 0, 0, 9),
+    fetchedAt: num(raw.fetchedAt, 0, 0),
+    rows: rows.slice(0, INVASION.bracketSize),
+  };
 }
 
 function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks'], invasion: MetaSave['invasion']): MetaSave['gifts'] {

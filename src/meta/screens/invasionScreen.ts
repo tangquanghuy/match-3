@@ -10,6 +10,8 @@ import { RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import {
   invasionCandidates,
+  invasionRosterFresh,
+  invasionStandingsFresh,
   invasionVictoryVp,
   invasionStandings,
   type StandingRow,
@@ -22,6 +24,12 @@ import { troopImg } from './teamScreen';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 
 const TIER_CN: Record<string, string> = { minion: '普通', elite: '精英', boss: '首领' };
+/** 最近一次为「批次过期」发起同步的键（防同步失败时 mount→sync→refresh 循环） */
+let rosterSyncKey = '';
+/** 真人镜像名字来自玩家账号，入 HTML 前必须转义 */
+const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, (ch) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]!
+));
 function leagueEmblem(index: number): string {
   const rank = INVASION_RANKS[index] ?? INVASION_RANKS[0]!;
   return `<span class="inv-rank-emblem"><img src="${rank.icon}" alt="${rank.name} 官阶徽记" width="72" height="80"></span>`;
@@ -110,21 +118,32 @@ export class InvasionScreen implements Screen {
       .map((m) => {
         const victoryVp = invasionVictoryVp(m);
         const recommended = m.id === recommendedId;
-        const defense = m.defense
-          .map((d) => {
-            const troop = getTroopById(d.troopId);
-            if (!troop) return '';
-            return `<span class="inv-def r-${troop.rarityIdx}" title="${troop.name} · ${RARITY_CN[troop.rarityIdx] ?? ''} · ${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}">
+        const troopCard = (d: (typeof m.defense)[number]): string => {
+          const troop = getTroopById(d.troopId);
+          if (!troop) return '';
+          return `<span class="inv-def r-${troop.rarityIdx}" title="${troop.name} · ${RARITY_CN[troop.rarityIdx] ?? ''} · ${TIER_CN[d.tier] ?? d.tier} · Lv.${d.level}">
               ${troopImg(troop, false, `alt="${troop.name}"`)}
               <span class="inv-def-caption"><b>${troop.name}</b><small>Lv.${d.level} · ${d.traitCount ?? enemyTraitCount(d.level)}/3 特质</small></span>
             </span>`;
-          })
-          .join('');
+        };
+        // 真人镜像按对方实际站位展示（含主角位）；人机沿用防守条目
+        const defense = m.player
+          ? m.player.team.map((c) => {
+            if (c.templateId === undefined) {
+              return `<span class="inv-def inv-def-hero r-3" title="${escapeHtml(m.name)} 的主角 · Lv.${m.player!.heroLevel}">
+                <img src="${c.portraitUrl ?? '/static/troops/hero.webp'}" alt="主角" loading="lazy">
+                <span class="inv-def-caption"><b>主角</b><small>Lv.${m.player!.heroLevel}${c.spellName ? ` · ${escapeHtml(c.spellName)}` : ''}</small></span>
+              </span>`;
+            }
+            const d = m.defense.find(x => String(x.troopId) === c.templateId);
+            return d ? troopCard(d) : '';
+          }).join('')
+          : m.defense.map(troopCard).join('');
         return `
           <article data-difficulty="${m.difficulty}" data-vp-multiplier="${m.frenzyMultiplier}" class="inv-rival${m.frenzy ? ' frenzy' : ''}${m.frenzyMultiplier === 2 ? ' frenzy-double' : ''}${recommended ? ' recommended' : ''}">
             <div class="inv-rival-head${m.bannerKingdom ? ' has-banner' : ''}">
               ${m.bannerKingdom ? `<span class="inv-rival-banner" title="${m.bannerKingdom}旗帜">${bannerArtHtml(m.bannerKingdom, { size: 58 })}</span>` : ''}
-              <h3 class="inv-rival-name">${m.name}</h3>
+              <h3 class="inv-rival-name">${escapeHtml(m.name)}${m.player ? '<span class="inv-real-badge" title="其他指挥官实际出战过的队伍，由 AI 代为操作">真人镜像</span>' : ''}</h3>
               ${m.bannerKingdom ? `<span class="inv-rival-boosts" aria-label="${m.bannerKingdom}旗帜加成"><small>${m.bannerKingdom}</small><span class="kb-boosts">${bannerBoostChips(m.bannerKingdom)}</span></span>` : ''}
               <span class="inv-rival-nums"><span>属性分 ${m.rating}</span>${m.frenzy ? `<span class="inv-frenzy-badge" title="基础属性提升 ${Math.round(((m.defense[0]?.statMultiplier ?? 1) - 1) * 100)}%，更强的敌方阵容"><i aria-hidden="true">◆</i>血怒 <b>VP ×${m.frenzyMultiplier}</b></span>` : ''}</span>
             </div>
@@ -132,7 +151,7 @@ export class InvasionScreen implements Screen {
             <div class="inv-rival-footer">
               <div class="inv-rival-expected"><small>胜利获得</small><b>+${victoryVp} <em>VP</em></b></div>
               <small class="inv-rival-risk">战败 −${INVASION.vpLoss} VP</small>
-              <button class="inv-attack${recommended ? ' recommended' : ''}" data-invade="${m.id}" data-recommended="${recommended}" type="button" aria-label="出击 ${m.name}"><span data-icon="swords"></span>出击</button>
+              <button class="inv-attack${recommended ? ' recommended' : ''}" data-invade="${m.id}" data-recommended="${recommended}" type="button" aria-label="出击 ${escapeHtml(m.name)}"><span data-icon="swords"></span>出击</button>
             </div>
           </article>`;
       })
@@ -143,8 +162,8 @@ export class InvasionScreen implements Screen {
         .map((r) => {
           const place = standings.rows.indexOf(r) + 1;
           return `
-            <div class="inv-row${r.isPlayer ? ' me' : ''}">
-              <span class="inv-place">${place}</span><span class="inv-name">${r.name}${r.isPlayer ? ' · 你' : ''}</span><span class="inv-vp">${r.vp} VP</span>
+            <div class="inv-row${r.isPlayer ? ' me' : ''}${r.real ? ' real' : ''}">
+              <span class="inv-place">${place}</span><span class="inv-name">${escapeHtml(r.name)}${r.isPlayer ? ' · 你' : ''}${r.real ? '<span class="inv-real-badge" title="真人指挥官">真人</span>' : ''}</span><span class="inv-vp">${r.vp} VP</span>
             </div>`;
         })
         .join('');
@@ -167,8 +186,8 @@ export class InvasionScreen implements Screen {
     const rankOverview = `<section class="inv-rank-overview">${leagueEmblem(rank.index)}<div><small>当前官阶</small><h2>${rank.name}</h2><p>${progressNote}</p><progress aria-label="晋阶进度" max="100" value="${progress}"></progress><small>本周 ${save.invasion.progressionVp.toLocaleString()} VP${nextRank ? ` / ${nextRank.vp.toLocaleString()} VP` : ''}</small></div><div class="inv-rank-claimable"><b>${unclaimed.reduce((sum, r) => sum + r.gems, 0)}</b><small>待领宝石</small></div></section>`;
     const rankPager = `<nav class="inv-rank-pager" aria-label="官阶分页">${Array.from({length: pageCount}, (_, i) => `<a href="#invasion/ranks/${i}"${i === rankPage ? ' aria-current="page"' : ''}>${pageSize === 3 ? INVASION_LEAGUES[i] : `${INVASION_LEAGUES[i * 2]} · ${INVASION_LEAGUES[i * 2 + 1]}`}</a>`).join('')}</nav>`;
     const rules = `<div class="inv-rules-body">
-      <h2>官阶与战绩</h2><p>本周获得的 VP 达到门槛立即晋阶，战败不减少晋阶进度。每周重置官阶进度和领奖记录，每阶每周领取一次；钻石 III 开放周榜排名。</p>
-      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
+      <h2>官阶与战绩</h2><p>本周获得的 VP 达到门槛立即晋阶，战败不减少晋阶进度。每周重置官阶进度和领奖记录，每阶每周领取一次；钻石 III 开放周榜排名。周榜优先由同段位的真人指挥官组成，人数不足 ${INVASION.bracketSize + 1} 人时由模拟对手补位。</p>
+      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。对手可能是「真人镜像」：其他指挥官在入侵中实际出战过的队伍，由 AI 代为操作，按双方队伍强度分入低／中／高档；官阶越高，真人镜像越多；血怒也可能出现在真人镜像身上。你出击时使用的队伍也会成为其他指挥官的镜像对手。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
       <h2>荣耀奖励</h2><p>胜利获得荣耀；每日首胜另有奖励。20 荣耀可在宝箱殿兑换荣耀箱。</p>
     </div>`;
     const secondaryContent = secondary === 'standings'
@@ -200,9 +219,19 @@ export class InvasionScreen implements Screen {
 
   mount(ctx: ShellCtx): void {
     const now = ctx.gateway.now();
-    if (ctx.save().hero.level >= INVASION.unlockHeroLevel && ctx.save().invasion.weekStart !== weekStartOf(now)) {
+    const save = ctx.save();
+    const week = weekStartOf(now);
+    if (save.hero.level >= INVASION.unlockHeroLevel && save.invasion.weekStart !== week) {
       void ctx.gateway.syncInvasionSeason().then(() => ctx.refresh());
       return;
+    }
+    // 对手批次过期（首次进入 / 升联赛 / 旧档）→ 让服务端组一批（可能含真人镜像）；每个键只尝试一次
+    // 周榜真人快照过期同理（键带上次取样时刻，取到新快照后自然换键）
+    const rosterKey = `${week}:${save.invasion.league}:${save.invasion.refreshCount}:${save.invasion.standings?.fetchedAt ?? 0}`;
+    const stale = !invasionRosterFresh(save, week) || !invasionStandingsFresh(save, week, now);
+    if (save.hero.level >= INVASION.unlockHeroLevel && stale && rosterSyncKey !== rosterKey) {
+      rosterSyncKey = rosterKey;
+      void ctx.gateway.syncInvasionSeason().then(() => ctx.refresh()).catch(() => undefined);
     }
     const refreshButton = document.querySelector<HTMLButtonElement>('[data-inv-refresh]');
     if (refreshButton) this.on(refreshButton, 'click', () => {

@@ -11,6 +11,7 @@ import { defaultEnv } from '../../src/meta/server/env';
 import type { SaveRecords } from '../../src/meta/state/records';
 import type { CommandReply, LoadReply, MetaCommand } from '../../src/meta/server/protocol';
 import type { Env } from './env';
+import { D1MirrorPool } from './mirrorPool';
 
 class SqlRepository implements SaveRepository {
   constructor(private readonly storage: DurableObjectStorage) {}
@@ -40,6 +41,8 @@ export class PlayerActor extends DurableObject<Env> {
   private readonly host: MetaHost;
   private tokens = RATE_BURST;
   private refilledAt = Date.now();
+  /** 本实例对应的玩家 id（Worker 鉴权后随命令传入；DO 名字即它） */
+  private playerId: string | null = null;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -47,7 +50,12 @@ export class PlayerActor extends DurableObject<Env> {
     this.host = new MetaHost(
       new SqlRepository(ctx.storage),
       defaultEnv({ allowDev: env.DEV_LOGIN === '1' }),
-      { fresh: 'new', flushDelayMs: 0 },
+      {
+        fresh: 'new',
+        flushDelayMs: 0,
+        mirrorPool: new D1MirrorPool(env.DB, () => this.playerId),
+        onMirrorPoolError: (error) => console.error('invasion mirror pool failed', error),
+      },
     );
   }
 
@@ -55,7 +63,8 @@ export class PlayerActor extends DurableObject<Env> {
     return this.host.load();
   }
 
-  async execute(command: MetaCommand): Promise<CommandReply | { rateLimited: true }> {
+  async execute(command: MetaCommand, playerId?: string): Promise<CommandReply | { rateLimited: true }> {
+    if (playerId) this.playerId ??= playerId;
     const now = Date.now();
     this.tokens = Math.min(RATE_BURST, this.tokens + ((now - this.refilledAt) / 1000) * RATE_PER_SEC);
     this.refilledAt = now;

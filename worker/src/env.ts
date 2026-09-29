@@ -5,7 +5,7 @@ export interface Env {
   ASSETS: Fetcher;
   /** 每个玩家一个 Durable Object，名字 = player_id */
   PLAYERS: DurableObjectNamespace<PlayerActor>;
-  /** 账号表 */
+  /** 账号表 + 入侵真人镜像池（invasion_mirrors） */
   DB: D1Database;
   DISCORD_CLIENT_ID: string;
   /** secret：wrangler secret put DISCORD_CLIENT_SECRET */

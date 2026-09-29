@@ -41,6 +41,8 @@ export interface LocalTransportOptions extends Partial<ServerEnv> {
   /** 非关键命令合并落盘延迟（默认 0 = 本地每条命令直写，便于调试直接看 localStorage） */
   flushDelayMs?: number;
   schedule?: MetaHostOptions['schedule'];
+  /** 入侵真人镜像池（本地多账号调试/测试用 MemoryMirrorStore.forOwner）；缺省 = 纯人机 */
+  mirrorPool?: MetaHostOptions['mirrorPool'];
 }
 
 export class LocalTransport implements MetaTransport {
@@ -58,6 +60,7 @@ export class LocalTransport implements MetaTransport {
       fresh: options.fresh ?? 'demo',
       flushDelayMs: options.flushDelayMs ?? 0,
       schedule: options.schedule,
+      mirrorPool: options.mirrorPool,
     });
     // 合并落盘时，页面隐藏/关闭前把尾巴写掉
     if ((options.flushDelayMs ?? 0) > 0 && typeof addEventListener === 'function') {

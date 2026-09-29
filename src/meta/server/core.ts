@@ -48,7 +48,14 @@ import {
   refreshInvasionOpponents,
   claimInvasionRank,
   ensureInvasionSeason,
+  invasionRosterFresh,
+  rebuildInvasionRoster,
+  afterInvasionSettle,
+  invasionStandingsFresh,
+  refreshInvasionStandings,
+  invasionVpReport,
 } from '../systems/invasion';
+import type { MirrorPoolEntry, MirrorRecord, StandingEntry, VpReport } from '../systems/invasionMirrors';
 import {
   entryArena,
   pickDraftCard,
@@ -105,6 +112,40 @@ export interface CommandOutcome<K extends CommandType = CommandType> {
   save: MetaSave;
   /** true = 宿主应落盘（revision 已 +1） */
   commit: boolean;
+  /** 提交后由宿主执行的外部副作用（仅 commit=true 时有意义） */
+  effects?: CommandEffects;
+}
+
+/** 宿主在命令前预取、传给核心的外部数据（核心保持同步纯函数） */
+export interface CommandIo {
+  /** 入侵真人镜像池样本；undefined = 宿主没有共享池（本地/测试），对手全走人机 */
+  mirrorPool?: readonly MirrorPoolEntry[];
+  /** 本周同联赛的真人周榜（已排除本人）；undefined = 没取（沿用存档快照或人机补位） */
+  standings?: readonly StandingEntry[];
+}
+
+export interface CommandEffects {
+  /** 待写入共享池的入侵镜像录制 */
+  publishMirror?: MirrorRecord;
+  /** 待写入周榜的本周 VP */
+  reportVp?: VpReport;
+}
+
+/** 这条命令需要宿主预取哪些共享数据（避免每条命令都查共享库） */
+export function commandPoolNeeds(save: MetaSave, command: MetaCommand, now: number): { mirrors: boolean; standings: boolean } {
+  const week = weekStartOf(now);
+  // 跨周时核心会先周结，旧快照必然失效
+  const standings = save.invasion.weekStart < week || !invasionStandingsFresh(save, week, now);
+  switch (command.type) {
+    case 'refreshInvasionOpponents':
+      return { mirrors: true, standings };
+    case 'syncInvasionSeason':
+      return { mirrors: save.invasion.weekStart < week || !invasionRosterFresh(save, week), standings };
+    case 'settleBattle':
+      return { mirrors: save.pendingBattle?.mode === 'invasion', standings: false };
+    default:
+      return { mirrors: false, standings: false };
+  }
 }
 
 /**
@@ -115,6 +156,7 @@ export function runCommand<K extends CommandType>(
   save: MetaSave,
   command: MetaCommand<K>,
   env: ServerEnv,
+  io: CommandIo = {},
 ): CommandOutcome<K> {
   if (isDevCommand(command.type) && !env.allowDev) {
     return { result: fail('FORBIDDEN', '该操作仅开发环境可用') as CommandResult<K>, save, commit: false };
@@ -124,8 +166,9 @@ export function runCommand<K extends CommandType>(
   work.savedAt = now;
   let result: CommandResult<K>;
   let next: MetaSave;
+  const effects: CommandEffects = {};
   try {
-    ({ result, save: next } = execute(work, command as MetaCommand, env, now) as { result: CommandResult<K>; save: MetaSave });
+    ({ result, save: next } = execute(work, command as MetaCommand, env, now, io, effects) as { result: CommandResult<K>; save: MetaSave });
   } catch (error) {
     // 系统层抛错（越界参数等）按失败处理，不落半截状态
     const message = error instanceof Error ? error.message : String(error);
@@ -134,7 +177,7 @@ export function runCommand<K extends CommandType>(
   if (isFailureResult(result)) return { result, save, commit: false };
   next.savedAt = now;
   next.revision = save.revision + 1;
-  return { result, save: next, commit: true };
+  return { result, save: next, commit: true, ...(Object.keys(effects).length > 0 ? { effects } : {}) };
 }
 
 function isFailureResult(result: unknown): result is MetaFailure {
@@ -147,7 +190,7 @@ interface Executed {
   save: MetaSave;
 }
 
-function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: number): Executed {
+function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: number, io: CommandIo, effects: CommandEffects): Executed {
   const weekStart = weekStartOf(now);
   const todayStart = todayStartOf(now);
   const done = (result: unknown): Executed => ({ result, save });
@@ -366,6 +409,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (!outcome.ok) return done(outcome);
       save.pendingBattle = {
         mode: 'invasion', requestId: outcome.request.requestId, issuedAt: now, mirror: structuredClone(outcome.mirror),
+        attacker: outcome.attacker,
       };
       const ticket: BattleTicket = {
         ok: true, mode: 'invasion', request: outcome.request, kingdom: '入侵战',
@@ -376,9 +420,9 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
 
     // —— 战斗：结算 ——
     case 'settleBattle':
-      return withMaterials(settle(save, (command.args as CommandArgs<'settleBattle'>).result, now, weekStart, todayStart));
+      return withMaterials(settle(save, (command.args as CommandArgs<'settleBattle'>).result, now, weekStart, todayStart, io, effects, env));
     case 'forfeitPendingBattle':
-      return withMaterials(forfeit(save, now, weekStart, todayStart));
+      return withMaterials(forfeit(save, now, weekStart, todayStart, io, effects, env));
 
     // —— 馈赠 ——
     case 'claimGift':
@@ -401,10 +445,16 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
     // —— 入侵 ——
     case 'syncInvasionSeason':
       ensureInvasionSeason(save, now, weekStart);
+      // 批次过期（跨周/升联赛/首次进入）→ 组新批次落档，客户端据此展示（含真人镜像）
+      if (!invasionRosterFresh(save, weekStart)) rebuildInvasionRoster(save, now, weekStart, io.mirrorPool ?? [], env.seed());
+      // 周榜：宿主取到了就换新；快照失效又没取到（无共享池）→ 空快照，全人机补位
+      if (io.standings || !invasionStandingsFresh(save, weekStart, now)) refreshInvasionStandings(save, now, weekStart, io.standings ?? []);
       return done({ ok: true });
     case 'refreshInvasionOpponents': {
       const r = refreshInvasionOpponents(save, now, weekStart);
       if (r.ok && save.pendingBattle?.mode === 'invasion') save.pendingBattle = null;
+      if (r.ok) rebuildInvasionRoster(save, now, weekStart, io.mirrorPool ?? [], env.seed());
+      if (r.ok && io.standings) refreshInvasionStandings(save, now, weekStart, io.standings);
       return done(r);
     }
     case 'claimInvasionRank': {
@@ -492,7 +542,10 @@ function issueEncounter(
  * 有代价的战斗（竞技场败场、入侵掉 VP、活动/登塔收尾）按败北走正常结算；
  * 任务/探索无门票也无败北惩罚，直接作废（不发战败保底，避免刷保底）。
  */
-function forfeit(save: MetaSave, now: number, weekStart: number, todayStart: number): ForfeitResult | MetaFailure {
+function forfeit(
+  save: MetaSave, now: number, weekStart: number, todayStart: number,
+  io: CommandIo = {}, effects: CommandEffects = {}, env?: ServerEnv,
+): ForfeitResult | MetaFailure {
   const pending = save.pendingBattle;
   if (!pending) return { ok: true, outcome: 'none', settlement: null };
   if (pending.mode === 'encounter' && pending.plan.source.kind !== 'event') {
@@ -515,7 +568,7 @@ function forfeit(save: MetaSave, now: number, weekStart: number, todayStart: num
     actionLogDigest: 'forfeit',
     eventSummary: [],
   };
-  const settlement = settle(save, surrender, now, weekStart, todayStart);
+  const settlement = settle(save, surrender, now, weekStart, todayStart, io, effects, env);
   if (!settlement.ok) return settlement;
   return { ok: true, outcome: 'defeat', settlement };
 }
@@ -527,6 +580,9 @@ function settle(
   now: number,
   weekStart: number,
   todayStart: number,
+  io: CommandIo = {},
+  effects: CommandEffects = {},
+  env?: ServerEnv,
 ): CommandResult<'settleBattle'> {
   const pending: PendingBattle | null = save.pendingBattle;
   if (!pending) return fail('INVALID', '没有待结算的战斗（已结算或已过期）');
@@ -544,6 +600,10 @@ function settle(
     const settled = settleInvasionBattle(save, result, pending.mirror.id, now, weekStart, todayStart, pending.mirror);
     if (!settled.ok) return settled;
     ensureInvasionSeason(save, now, weekStart);
+    const record = afterInvasionSettle(save, pending, result, now, weekStart, io.mirrorPool, env?.seed() ?? now);
+    if (record) effects.publishMirror = record;
+    // 每场都上报（含投降/丢票：它们同样改变 VP）
+    effects.reportVp = invasionVpReport(save, now);
     return { ok: true, kind: 'invasion', settled, mirror: pending.mirror };
   }
   const enemyByExternalId = new Map(Object.entries(pending.enemies));

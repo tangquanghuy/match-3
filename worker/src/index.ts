@@ -20,8 +20,8 @@ import { TERMS_VERSION } from '../../src/legal/terms';
 
 export { PlayerActor } from './playerActor';
 
-/** 静态资源默认去掉 .html 后缀（/game.html 会再 307 到 /game），直接跳干净路径 */
-const GAME_PAGE = '/game';
+/** 登录成功先回封面页：在那里把游戏资源预热进缓存，完成后自动跳 /game（见 src/cover/preload.ts） */
+const AFTER_LOGIN_PAGE = '/?login=1';
 const MAX_COMMAND_BYTES = 64 * 1024;
 
 const json = (body: unknown, status = 200, headers: HeadersInit = {}): Response =>
@@ -136,7 +136,7 @@ async function loginAs(env: Env, externalId: string, username: string): Promise<
     ).bind(playerId, externalId, username, now, now, TERMS_VERSION, now).run();
   }
   const session = await createSession(env.SESSION_SECRET, playerId, now);
-  return redirect(GAME_PAGE, [cookie(SESSION_COOKIE, session.token, session.maxAge)]);
+  return redirect(AFTER_LOGIN_PAGE, [cookie(SESSION_COOKIE, session.token, session.maxAge)]);
 }
 
 async function exchangeCode(env: Env, code: string, redirectUri: string): Promise<string | null> {
@@ -188,7 +188,7 @@ async function handleMeta(request: Request, url: URL, env: Env): Promise<Respons
       return json({ error: 'bad json' }, 400);
     }
     if (!isCommandShape(command)) return json({ error: 'bad command' }, 400);
-    const reply = await actor.execute(command as never);
+    const reply = await actor.execute(command as never, playerId);
     if ('rateLimited' in reply) return json({ error: 'rate limited' }, 429, { 'retry-after': '1' });
     return json(reply);
   }
