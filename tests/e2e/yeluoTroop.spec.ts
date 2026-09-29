@@ -15,7 +15,7 @@ test('叶落 is visible in the collection with skill, traits and supplied portra
   await expect(page.locator('#unlockCost')).toBeEmpty();
   await expect(page.locator('#unlockCost')).toBeHidden();
   const image=page.locator('#portraitArt');
-  await expect(image).toHaveAttribute('src',/yeluo\.png/);
+  await expect(image).toHaveAttribute('src',/yeluo\.webp/);
   await expect.poll(()=>image.evaluate((el:HTMLImageElement)=>el.complete&&el.naturalWidth>0)).toBe(true);
   await page.locator('#spellName').scrollIntoViewIfNeeded();
   await page.screenshot({path:'artifacts/yeluo-integration.png',fullPage:true});

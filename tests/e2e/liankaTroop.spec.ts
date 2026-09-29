@@ -1,4 +1,4 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('Lianka is discoverable with the final spell, traits and original portrait', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1100 });
@@ -18,7 +18,7 @@ test('Lianka is discoverable with the final spell, traits and original portrait'
     await expect(page.locator('#traitList')).toContainText(name);
   }
   const image = page.locator('#portraitArt');
-  await expect(image).toHaveAttribute('src', /lianka\.png/);
+  await expect(image).toHaveAttribute('src', /lianka\.webp/);
   await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
   await page.locator('#spellName').scrollIntoViewIfNeeded();
   await page.screenshot({ path: 'artifacts/lianka-integration.png', fullPage: true });
