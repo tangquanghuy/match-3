@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 708 条改动，涉及 1167 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 710 条改动，涉及 1168 个技能 ID。
 
 ## 按时间
 
@@ -714,6 +714,8 @@
 | 2026-09-29T04:04 | sa-J | sa-J-7132-devour | assembler | 8681 | troop:7132 Centuragon | `src/engine/skills/curated/batch-r20.ts` | dmg enemyRandom execute chance 10% + 10%/Wildcard (kill only, no stat gain) → devour enemyRandom chance 10% + 10%/Wildcard (native ConsumeConditional = Devour, caster gains stats) |  |
 | 2026-09-29T04:13 | sa-J | sa-J-7724-zh | data | 9716 | troop:7724 TheSandstoneSentinel | `src/engine/skills/curated/batch-r19.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 如果敌人死亡，则获得伤害值增加三倍 (damage tripled) → zh: 如果敌人死亡，则获得的数值变为三倍 (EN triple the amount gained) | display text only |
 | 2026-09-29T04:21 | sa-J | sa-J-1481-zh | data | 8809 | weapon:1481 WatchfulBlade | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | zh: 数值因地域悬崖盟友数而增强 (typo, not the Hellcrag kingdom name) → zh: 数值因地狱悬崖盟友数而增强 (EN boosted by Hellcrag Allies); reviewed-override description 8809 keeps it on regeneration (the _weapon_pools alias 地域悬崖->地狱悬崖 already existed) | display text only |
+| 2026-09-29T04:29 | sa-Q1 | P-random-stat-pool | assembler | 7323 | troop:6182 HeraldOfChaos | `src/engine/skills/curated/batch-r12.ts` | destroy row first, damage + DecreaseRandom boosted by destroyedGems Blue → native order: damage + DecreaseRandom boosted by chosenRowAtCastStart Blue x2, destroy row last |  |
+| 2026-09-29T04:35 | sa-Q1 | F1-7057-block5x5-count | assembler | 8585 | troop:7057 Mithrilion | `src/engine/skills/curated/batch-r21.ts` | explode 3x3 -> armor -> barrier per Skull destroyed → native order: armor -> explode 3x3 -> barrier per Skull destroyed (5x5 count dispute kept English 3x3) |  |
 
 ## 按技能 ID
 
@@ -843,7 +845,7 @@
 | 7318 | 1 | R3-B01-1141 |
 | 7319 | 1 | P-random-stat-pool |
 | 7322 | 1 | L2-6181-create |
-| 7323 | 2 | P-random-stat-pool、F1-items-62-75 |
+| 7323 | 3 | P-random-stat-pool、F1-items-62-75、P-random-stat-pool |
 | 7326 | 1 | L1-R2-consume-first |
 | 7329 | 1 | L4a-r3-6188 |
 | 7333 | 1 | R004 (L5-004,L5-005,L5-014,L4b-6340) |
@@ -1363,6 +1365,7 @@
 | 8578 | 1 | L2-H-1418-one-colour |
 | 8580 | 1 | L3-015 |
 | 8582 | 1 | L1-devour-first |
+| 8585 | 1 | F1-7057-block5x5-count |
 | 8586 | 1 | F2-R001-order |
 | 8587 | 1 | L1-drain-devour |
 | 8589 | 1 | R7-7061-no-base |
