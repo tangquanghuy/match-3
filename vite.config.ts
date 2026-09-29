@@ -1,3 +1,4 @@
+import { existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 
@@ -21,8 +22,26 @@ const HEADERS = `/assets/*
 
 /** 进游戏前要预热的打包素材目录：界面/战斗图片 + 战斗音效与解说（BGM 流式播放、社区头像不在内） */
 const WARM_DIRS = /game-assets\/bundled\/(gems|fx|chrome|status-icons|ui|meta|materials|audio\/(combat|gems|skills|status|narrator|result))\//;
-/** 默认首屏（世界地图）等不带哈希的静态图 */
-const WARM_STATIC = ['static/map/world-map.webp'];
+/**
+ * 各固定界面用到的不带哈希的静态素材（地图、王国纹章与底图、主角、宝箱、段位徽章、召唤特效与音效…）。
+ * 部队立绘（static/portraits）与武器卡面（static/weapons）按条目数以千计，不预载，仍在真正显示时懒加载。
+ */
+const WARM_STATIC_DIRS = ['map', 'kingdoms', 'crests', 'hero', 'troops', 'ui', 'chests', 'invasion-ranks', 'fx', 'sfx'];
+
+function listStatic(dirs: string[]): string[] {
+  const files: string[] = [];
+  const walk = (rel: string): void => {
+    const abs = root(`./game-assets/public/${rel}`);
+    if (!existsSync(abs)) return;
+    for (const entry of readdirSync(abs, { withFileTypes: true })) {
+      const next = `${rel}/${entry.name}`;
+      if (entry.isDirectory()) walk(next);
+      else if (/\.(webp|png|jpe?g|wav|mp3)$/i.test(entry.name)) files.push(next);
+    }
+  };
+  for (const dir of dirs) walk(`static/${dir}`);
+  return files;
+}
 
 /**
  * 构建期产出：
@@ -55,7 +74,7 @@ function deployManifest(): Plugin {
       });
       const manifest = {
         code: [...code].map((f) => base + f),
-        images: [...WARM_STATIC, ...images].map((f) => base + f),
+        images: [...listStatic(WARM_STATIC_DIRS), ...images].map((f) => base + f),
       };
       this.emitFile({ type: 'asset', fileName: 'preload-manifest.json', source: JSON.stringify(manifest) });
     },

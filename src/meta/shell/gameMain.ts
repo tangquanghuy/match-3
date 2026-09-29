@@ -240,6 +240,27 @@ async function boot(): Promise<void> {
   window.visualViewport?.addEventListener('resize', fitStage);
   await render();
   if (snapshot.warning) toast(snapshot.warning);
+  warmScreens();
+}
+
+/**
+ * 首屏挂好后，空闲时逐个把其余屏的代码拉下并实例化（代码包已由封面页预热进缓存），
+ * 首次切屏就不用再等下载与模块求值。只加载代码，不预取立绘等条目素材。
+ */
+function warmScreens(): void {
+  const queue = Object.keys(SCREEN_LOADERS);
+  const idle = (cb: () => void): void => {
+    const ric = (window as Window & { requestIdleCallback?: (fn: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+    if (ric) ric(cb, { timeout: 2000 });
+    else window.setTimeout(cb, 200);
+  };
+  const next = (): void => {
+    const name = queue.shift();
+    if (!name) return;
+    // 预热失败无妨：真正进入该屏时 loadScreen 会重新拉取并在失败时提示
+    void loadScreen(name).catch(() => undefined).finally(() => idle(next));
+  };
+  idle(next);
 }
 
 void boot();
