@@ -35,7 +35,7 @@
 
   "vars": {
     // Discord 应用的 Client ID（公开值）；Client Secret 与会话密钥走 secret
-    "DISCORD_CLIENT_ID": "",
+    "DISCORD_CLIENT_ID": "1554456824889999430",
     // 本地 wrangler dev 可在 .dev.vars 里设 DEV_LOGIN=1 启用免 Discord 登录；线上必须为空
     "DEV_LOGIN": ""
   },
