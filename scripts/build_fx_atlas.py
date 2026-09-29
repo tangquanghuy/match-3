@@ -1,10 +1,10 @@
-"""序列帧 strip → 逐帧裁透明边的紧凑图集（无损）。
+"""序列帧 strip → 逐帧裁透明边的紧凑图集。
 
 为什么：横向 strip 里每帧都是统一外框（frameW×frameH），爆点前几帧/末几帧大半透明，
-解码后照样按整框占内存。逐帧裁到自身非透明包围盒再装箱，解码内存约省四成，像素不变。
+解码后照样按整框占内存。逐帧裁到自身非透明包围盒再装箱，解码内存约省三分之一。
 
 输入：game-assets/source/fx-strips/<stem>.webp（scripts/build_fx_strip.ps1 的产物）
-输出：game-assets/bundled/fx/atlas/<stem>.webp（WebP 无损）+ atlas.json
+输出：game-assets/bundled/fx/atlas/<stem>.webp（WebP 颜色 q70 有损、透明通道无损）+ atlas.json
   atlas.json[stem] = { width, height, frameW, frameH, frames: [[x, y, w, h, ox, oy], ...] }
   x/y = 图集内位置，w/h = 裁后尺寸（全透明帧为 0），ox/oy = 在原帧外框里的偏移。
 
@@ -24,6 +24,7 @@ CONFIG = ROOT / 'src' / 'render' / 'AnimationConfig.ts'
 APP = ROOT / 'src' / 'render' / 'App.ts'
 
 MAX_WIDTH = 4096
+QUALITY = 70  # WebP 颜色质量（有损）；透明通道始终无损
 GUTTER = 2  # 帧间透明间隔：缩放采样时不串到相邻帧
 
 
@@ -98,20 +99,17 @@ def build(stem, frames, fw, fh):
         atlas.paste(cell, pos[i])
         meta.append([pos[i][0], pos[i][1], cell.width, cell.height, boxes[i][0], boxes[i][1]])
     OUT.mkdir(parents=True, exist_ok=True)
-    atlas.save(OUT / f'{stem}.webp', 'WEBP', lossless=True, quality=100, method=6, exact=True)
-    # 自检：逐帧还原后与原图逐像素一致
+    # 颜色有损（QUALITY），透明通道无损：裁边后的轮廓与原帧完全一致，帧间透明缝不会被压出杂边
+    atlas.save(OUT / f'{stem}.webp', 'WEBP', quality=QUALITY, alpha_quality=100, method=6)
+    # 自检：逐帧还原后透明通道与原图逐像素一致（颜色为有损，不做逐位比较）
     check = Image.open(OUT / f'{stem}.webp').convert('RGBA')
     for i, (x, y, w, h, ox, oy) in enumerate(meta):
-        orig = img.crop((i * fw, 0, (i + 1) * fw, fh))
-        rebuilt = Image.new('RGBA', (fw, fh), (0, 0, 0, 0))
+        orig = img.crop((i * fw, 0, (i + 1) * fw, fh)).getchannel('A')
+        rebuilt = Image.new('L', (fw, fh), 0)
         if w:
-            rebuilt.paste(check.crop((x, y, x + w, y + h)), (ox, oy))
-        # 全透明像素的 RGB 不参与显示：alpha 为 0 的像素统一清零后再逐字节比较
-        def visible(im):
-            mask = im.getchannel('A').point(lambda a: 255 if a else 0)
-            return Image.composite(im, Image.new('RGBA', im.size, (0, 0, 0, 0)), mask).tobytes()
-        if orig.tobytes() != rebuilt.tobytes() and visible(orig) != visible(rebuilt):
-            raise SystemExit(f'{stem} 第 {i} 帧还原后可见像素不一致')
+            rebuilt.paste(check.crop((x, y, x + w, y + h)).getchannel('A'), (ox, oy))
+        if orig.tobytes() != rebuilt.tobytes():
+            raise SystemExit(f'{stem} 第 {i} 帧还原后透明通道不一致')
     return dict(width=aw, height=ah, frameW=fw, frameH=fh, frames=meta), frames * fw * fh, aw * ah
 
 
