@@ -16,7 +16,7 @@ export interface ServerEnv {
 /** crypto 熵源（浏览器与 Workers 都有 Web Crypto） */
 export function cryptoSeed(): number {
   const buf = new Uint32Array(1);
-  globalThis.crypto.getRandomValues(buf);
+  crypto.getRandomValues(buf);
   return buf[0]! >>> 0;
 }
 

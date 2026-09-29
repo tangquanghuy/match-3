@@ -1,0 +1,24 @@
+{
+  "name": "gems-meta-worker",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker：静态资源 + Discord 登录 + 每玩家 Durable Object 存档",
+  "scripts": {
+    "build:client": "cd .. && npx vite build --mode remote",
+    "build:worker": "cd .. && npx vite build --config worker/vite.worker.config.ts",
+    "build": "npm run build:client && npm run build:worker",
+    "dev": "npm run build && wrangler dev",
+    "db:migrate:local": "wrangler d1 migrations apply gems-meta --local",
+    "db:migrate:remote": "wrangler d1 migrations apply gems-meta --remote",
+    "deploy": "npm run build && wrangler deploy",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260929.1",
+    "wrangler": "4.143.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260926.1": true
+  }
+}

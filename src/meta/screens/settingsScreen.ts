@@ -693,6 +693,7 @@ export class SettingsScreen implements Screen {
                   清理浏览器数据会一并清掉存档；换设备或重装前，请先导出一份。`}
                 </p>
                 ${notice}
+                ${remote ? '<div class="settings-row"><button class="secondary" id="logoutBtn" type="button"><span data-icon="lock"></span>退出登录</button></div>' : ''}
                 <div class="settings-row">
                   <button class="secondary" id="downloadBtn" type="button"><span data-icon="chevrons"></span>导出存档文件（.json）</button>
                   <button class="secondary" id="copyBtn" type="button"><span data-icon="book"></span>复制存档文本</button>
@@ -778,6 +779,11 @@ export class SettingsScreen implements Screen {
     this.bind('#resetNew', 'click', () => void this.reset(false));
     this.bind('#resetDemo', 'click', () => void this.reset(true));
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
+    this.bind('#logoutBtn', 'click', () => {
+      void fetch('/auth/logout', { method: 'POST', credentials: 'include' })
+        .then(() => location.assign('/auth/signed-out'))
+        .catch(() => toast('退出失败，请重试'));
+    });
   }
 
   private prettyJson(): string {

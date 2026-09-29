@@ -119,6 +119,8 @@ export class HttpTransport implements MetaTransport {
     });
     if (!response.ok) {
       const text = await response.text().catch(() => '');
+      // 会话失效/未登录：去 Discord 登录，回来后重新加载
+      if (response.status === 401 && typeof location !== 'undefined') location.assign('/auth/login');
       throw new MetaHttpError(response.status, text || `HTTP ${response.status}`);
     }
     return (await response.json()) as T;
