@@ -68,12 +68,31 @@ export interface GachaCard {
   noviceGuaranteed?: boolean;
 }
 
+/**
+ * 一箱开出的非部队掉落（开箱演出里也占一张牌，卡面画材料）。
+ * tier = 卡面档位：0 白 / 1 绿 / 2 紫（最高档材料用稀有部队的紫色特效；材料不做放大特写）。
+ */
+export interface ChestItemDrop {
+  type: 'ingot' | 'stone' | 'currency';
+  /** ingot = 钢锭档键；stone = 特质石键（已定色）；currency = gold/glory/souls/gems */
+  key: string;
+  amount: number;
+  tier: 0 | 1 | 2;
+}
+/** 按开箱顺序逐张记录的结果：每箱恰好一项（部队或材料），演出按它发牌 */
+export type ChestDrop = { kind: 'troop'; card: GachaCard } | { kind: 'item'; item: ChestItemDrop };
+
+const INGOT_TIER: Record<string, 0 | 1 | 2> = { common: 0, rare: 0, ultraRare: 0, epic: 1, legendary: 2, mythic: 2 };
+const STONE_TIER: Record<string, 0 | 1 | 2> = { minor: 0, major: 1, runic: 1, arcane: 2, celestial: 2 };
+
 export interface GachaDrawResult {
   ok: true;
   kind: 'gem' | 'gold';
   /** 实际消耗 */
   spent: { gems?: number; goldKeys?: number };
   cards: GachaCard[];
+  /** 逐箱结果（含材料），长度 = 开箱数 */
+  drops: ChestDrop[];
   /** 非部队掉落（宝石箱 20% 出金属锭 / 特质石），已入账 */
   materials: MaterialDelta;
   /** true = 十连保底被触发（第 10 张结果被抬到稀有部队） */
@@ -89,6 +108,7 @@ function draw(
   spent: { gems?: number; goldKeys?: number },
   audit?: GachaAudit,
   materials: MaterialDelta = {},
+  drops: ChestDrop[] = cards.map((card) => ({ kind: 'troop', card })),
 ): GachaDrawResult {
   const entry: GachaLogEntry = {
     // 命令时刻：权威核心在执行命令前把 savedAt 设为服务器时钟（systems 不自取时钟）
@@ -100,7 +120,7 @@ function draw(
   };
   save.gachaLog.unshift(entry);
   if (save.gachaLog.length > GACHA_LOG_CAP) save.gachaLog.length = GACHA_LOG_CAP;
-  return { ok: true, kind, spent, cards, materials, pityUsed };
+  return { ok: true, kind, spent, cards, drops, materials, pityUsed };
 }
 
 /** 档位下标 6 = 非部队掉落（宝石箱的金属锭 / 特质石） */
@@ -114,6 +134,7 @@ function rollBatch(
   pity: boolean,
   audit?: GachaAudit,
   extras?: { rows: readonly ChestLootRow[]; weight: number; acc: LootAcc },
+  drops: ChestDrop[] = [],
 ): { cards: GachaCard[]; pityUsed: boolean } {
   const cards: GachaCard[] = [];
   let pityUsed = false;
@@ -136,7 +157,7 @@ function rollBatch(
     }
     if (!guaranteed && band === EXTRA_BAND && extras) {
       // 材料抽：不出卡、不写 reasons（reasons 与日志里的部队逐张对齐），但照常计入追寻进度
-      addLoot(extras.acc, pickRow(extras.rows, rng).loot as Exclude<ChestLoot, { type: 'troop' }>, rng);
+      drops.push({ kind: 'item', item: addLoot(extras.acc, pickRow(extras.rows, rng).loot as Exclude<ChestLoot, { type: 'troop' }>, rng) });
       if (pursuing) pursuit.progress++;
       continue;
     }
@@ -163,6 +184,7 @@ function rollBatch(
       audit.reasons.push(reason);
     }
     cards.push(card);
+    drops.push({ kind: 'troop', card });
   }
   return { cards, pityUsed };
 }
@@ -236,25 +258,27 @@ export function openGemChest(
     pursuitBefore: { ...save.gachaWishlist.pursuit }, pursuitAfter: { ...save.gachaWishlist.pursuit }, reasons: [] };
   let cards: GachaCard[];
   let pityUsed = false;
-  // 官方口径：部队 80%，其余 20% 是金属锭 / 特质石（GEM_CHEST_EXTRA）
+  const drops: ChestDrop[] = [];
+  // 官方口径：部队 80%，其余 20% 是金属锭 / 特质石（GEM_CHEST_EXTRA）；材料也占一张牌
   const acc = newLootAcc();
   const extras = { rows: GEM_CHEST_EXTRA, weight: GEM_CHEST_BASE - GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0), acc };
   if (novice) {
-    // 前 9 张正常抽；第 10 张固定为异界来客（稀有度 ≥ 传说，天然满足十连保底）
-    cards = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count - 1, false, audit, extras).cards;
+    // 前 9 张与普通十连同概率；只把第 10 张固定换成异界来客
+    cards = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count - 1, false, audit, extras, drops).cards;
     const card = commit(save, pickNoviceVisitor(rng));
     card.wishlistHit = audit.wishlistIds.includes(card.troopId);
     card.noviceGuaranteed = true;
     audit.reasons.push('novice');
     cards.push(card);
+    drops.push({ kind: 'troop', card });
     save.onboarding.noviceSummonUsed = true;
     if (save.onboarding.step === 'summon') save.onboarding.step = 'done';
   } else {
-    ({ cards, pityUsed } = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count, count === GEM_CHEST.multiCount, audit, extras));
+    ({ cards, pityUsed } = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count, count === GEM_CHEST.multiCount, audit, extras, drops));
   }
   audit.pursuitAfter = { ...save.gachaWishlist.pursuit };
   const { stones } = settleLoot(save, acc);
-  return draw(save, 'gem', seed, cards, pityUsed, { gems: cost }, audit, stones);
+  return draw(save, 'gem', seed, cards, pityUsed, { gems: cost }, audit, stones, drops);
 }
 
 /** 金宝箱 / 荣耀宝箱开箱结果：一箱一项掉落，部队卡、资源、特质石分别汇总 */
@@ -267,6 +291,8 @@ export interface ChestLootResult {
   boughtKeys: number;
   /** 出的部队卡（可能为空——两种箱子都以材料/资源为主） */
   cards: GachaCard[];
+  /** 逐箱结果（含材料），长度 = 开箱数 */
+  drops: ChestDrop[];
   /** 资源入账（黄金 / 荣耀 / 灵魂 / 宝石） */
   currencies: { gold: number; glory: number; souls: number; gems: number };
   /** 特质石入账 */
@@ -296,17 +322,20 @@ function pickRow(rows: readonly ChestLootRow[], rng: SeededRNG): ChestLootRow {
 }
 
 /** 记一项非部队掉落（部队档由调用方入册） */
-function addLoot(acc: LootAcc, loot: Exclude<ChestLoot, { type: 'troop' }>, rng: SeededRNG): void {
+function addLoot(acc: LootAcc, loot: Exclude<ChestLoot, { type: 'troop' }>, rng: SeededRNG): ChestItemDrop {
   if (loot.type === 'currency') {
     acc.currencies[loot.key] += loot.amount;
-  } else if (loot.type === 'ingot') {
-    acc.ingots[loot.key] = (acc.ingots[loot.key] ?? 0) + loot.amount;
-  } else {
-    const key = loot.tier === 'celestial' ? 'celestial'
-      : loot.tier === 'arcane' ? rng.pick(ARCANE_STONE_KEYS)
-      : stoneKey(loot.tier, stoneColorKeyOf(rng.pick(ALL_COLORS)))!;
-    acc.traitstones[key] = (acc.traitstones[key] ?? 0) + loot.amount;
+    return { type: 'currency', key: loot.key, amount: loot.amount, tier: loot.key === 'gems' ? 1 : 0 };
   }
+  if (loot.type === 'ingot') {
+    acc.ingots[loot.key] = (acc.ingots[loot.key] ?? 0) + loot.amount;
+    return { type: 'ingot', key: loot.key, amount: loot.amount, tier: INGOT_TIER[loot.key] ?? 0 };
+  }
+  const key = loot.tier === 'celestial' ? 'celestial'
+    : loot.tier === 'arcane' ? rng.pick(ARCANE_STONE_KEYS)
+    : stoneKey(loot.tier, stoneColorKeyOf(rng.pick(ALL_COLORS)))!;
+  acc.traitstones[key] = (acc.traitstones[key] ?? 0) + loot.amount;
+  return { type: 'stone', key, amount: loot.amount, tier: STONE_TIER[loot.tier] ?? 0 };
 }
 
 function settleLoot(save: MetaSave, acc: LootAcc): { currencies: LootAcc['currencies']; stones: MaterialDelta } {
@@ -317,15 +346,19 @@ function settleLoot(save: MetaSave, acc: LootAcc): { currencies: LootAcc['curren
 }
 
 /** 按掉落表逐箱掷一项并立刻入账（部队入册、资源/特质石汇总后一次入账） */
-function rollLoot(save: MetaSave, rows: readonly ChestLootRow[], rng: SeededRNG, count: number): Pick<ChestLootResult, 'cards' | 'currencies' | 'stones'> {
+function rollLoot(save: MetaSave, rows: readonly ChestLootRow[], rng: SeededRNG, count: number): Pick<ChestLootResult, 'cards' | 'drops' | 'currencies' | 'stones'> {
   const cards: GachaCard[] = [];
+  const drops: ChestDrop[] = [];
   const acc = newLootAcc();
   for (let index = 0; index < count; index++) {
     const loot = pickRow(rows, rng).loot;
-    if (loot.type === 'troop') cards.push(commit(save, pickTroopInBand(loot.rarityIdx, rng)));
-    else addLoot(acc, loot, rng);
+    if (loot.type === 'troop') {
+      const card = commit(save, pickTroopInBand(loot.rarityIdx, rng));
+      cards.push(card);
+      drops.push({ kind: 'troop', card });
+    } else drops.push({ kind: 'item', item: addLoot(acc, loot, rng) });
   }
-  return { cards, ...settleLoot(save, acc) };
+  return { cards, drops, ...settleLoot(save, acc) };
 }
 
 function logLoot(save: MetaSave, kind: 'gold' | 'glory', seed: number, cards: GachaCard[]): void {

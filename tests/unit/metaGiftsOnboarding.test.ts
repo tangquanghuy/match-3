@@ -65,8 +65,10 @@ describe('新手十连', () => {
       const r = openGemChest(s, seed, 10);
       if (!r.ok) throw new Error(r.message);
       // 前 9 抽可能出材料（宝石箱 20%），最后一张恒为异界来客
-      const items = Object.values({ ...r.materials.ingots, ...r.materials.traitstones }).reduce((a, n) => a + n!, 0);
-      expect(r.cards.length + items).toBe(10);
+      // 逐箱结果：恰好 10 项，材料也各占一张牌；部队顺序与 cards 一致
+      expect(r.drops).toHaveLength(10);
+      expect(r.drops.filter((d) => d.kind === 'troop').map((d) => d.kind === 'troop' && d.card)).toEqual(r.cards);
+      expect(r.drops[9]).toMatchObject({ kind: 'troop' });
       expect(r.spent.gems).toBe(NOVICE_SUMMON_COST);
       const lastCard = r.cards[r.cards.length - 1]!;
       const last = getTroopById(lastCard.troopId)!;
@@ -99,7 +101,9 @@ describe('新手引导', () => {
     const plan = await gw.planTutorialBattle();
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
-    expect(plan.request.enemyTeam).toHaveLength(2);
+    expect(plan.request.enemyTeam).toHaveLength(3);
+    // 新玩家开局队：主角、剑舞者、齿轮狮身人面像、炼金术士
+    expect(save.teams[0]!.members.slice(1)).toEqual([6035, 6504, 6005].map((troopId) => ({ kind: 'troop', troopId })));
     expect(plan.source).toMatchObject({ kind: 'quest', node: 1, tutorial: true });
 
     // 试炼获胜 → 核心按票据推进引导（客户端只回传结果）
@@ -118,5 +122,21 @@ describe('新手引导', () => {
     expect(pull.result.ok).toBe(true);
     expect(gw.current().onboarding.step).toBe('done');
     expect((await gw.planTutorialBattle()).ok).toBe(false);
+  });
+});
+
+describe('开箱逐箱结果', () => {
+  it('宝石 / 金 / 荣耀箱开几箱就有几张牌，材料牌档位只有白绿紫', async () => {
+    const { openGoldChest, openGloryChest } = await import('../../src/meta/systems/gacha');
+    for (let seed = 1; seed <= 30; seed++) {
+      const s = tutorialSave();
+      s.onboarding.noviceSummonUsed = true;
+      s.currencies.gems = 1500; s.currencies.goldKeys = 10; s.currencies.glory = 200;
+      for (const r of [openGemChest(s, seed, 10), openGoldChest(s, seed, 10), openGloryChest(s, seed, 10)]) {
+        if (!r.ok) throw new Error(r.message);
+        expect(r.drops).toHaveLength(10);
+        for (const d of r.drops) if (d.kind === 'item') expect([0, 1, 2]).toContain(d.item.tier);
+      }
+    }
   });
 });

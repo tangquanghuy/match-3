@@ -18,7 +18,7 @@ import { fail, type MetaFailure } from '../types';
 import type { MetaSave, PendingBattle } from '../state/schema';
 import { newSave } from '../state/schema';
 import { parseSaveJson } from '../state/save';
-import { starterTroopIds, STARTING_KINGDOM } from '../data/economy';
+import { NEW_PLAYER_TROOP_IDS, STARTING_KINGDOM } from '../data/economy';
 import { todayStartOf, weekStartOf } from '../gateway/clock';
 import { claimGift, claimAllGifts } from '../systems/gifts';
 import { restoreInitialCollection, restoreRealCollection, unlockKingdomTroops } from '../systems/collectionModifier';
@@ -92,7 +92,7 @@ export type FreshSaveKind = 'new' | 'demo';
 export function createFreshSave(kind: FreshSaveKind, now: number): MetaSave {
   return kind === 'demo'
     ? buildDemoSave(now)
-    : newSave({ now, starterTroopIds: starterTroopIds(), tutorial: true });
+    : newSave({ now, starterTroopIds: NEW_PLAYER_TROOP_IDS, tutorial: true });
 }
 
 // ---------------------------------------------------------------------------
@@ -320,10 +320,10 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (save.onboarding.step !== 'battle') return done(fail('INVALID', '新手试炼已完成'));
       const outcome = buildBattleRequest(save, planTutorialEncounter(STARTING_KINGDOM, env.seed()));
       if (outcome.ok) {
-        // 新手试炼：敌人半血半攻
+        // 新手试炼：敌人血厚攻低——战斗撑得够久，玩家一定能攒满法力放一次技能，又不会被打死
         for (const enemy of outcome.request.enemyTeam) {
-          enemy.stats.hp = Math.max(1, Math.ceil(enemy.stats.hp * 0.5));
-          enemy.stats.attack = Math.max(1, Math.floor(enemy.stats.attack * 0.5));
+          enemy.stats.hp = Math.max(1, Math.ceil(enemy.stats.hp * 2.2));
+          enemy.stats.attack = Math.max(1, Math.floor(enemy.stats.attack * 0.35));
         }
       }
       return done(issueEncounter(save, outcome, 'quest', now));

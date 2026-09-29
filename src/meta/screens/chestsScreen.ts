@@ -1,4 +1,5 @@
-import { gemMultiCost, goldChestPrice, noviceSummonAvailable, type ChestLootResult, type GachaCard } from '../systems/gacha';
+import { gemMultiCost, goldChestPrice, noviceSummonAvailable, type ChestDrop, type ChestItemDrop, type GachaCard } from '../systems/gacha';
+import { ingotArt, materialImg, stoneMarkupForKey } from '../shell/materialArt';
 /**
  * 宝箱 / 抽卡屏（计划 §5.7）。开箱结果来自 gacha 系统（种子化 + 十连保底稀有或以上），
  * 翻牌演出/音效沿用小样资产；概率公示从 economy 权重表派生（数值单源）。
@@ -7,11 +8,11 @@ import {
   CHEST_LOOT_BASE, GACHA_PITY_MIN_IDX, GEM_CHEST, GEM_CHEST_BASE, GEM_CHEST_EXTRA, GEM_CHEST_WEIGHTS, GLORY_CHEST, GLORY_CHEST_LOOT, GOLD_CHEST, GOLD_CHEST_LOOT,
   type ChestLootRow,
 } from '../data/economy';
-import { INGOT_NAMES, stoneName, type IngotKey, type MaterialDelta } from '../data/materials';
+import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { isFailure } from '../gateway';
-import { bottomNavHtml, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
+import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopArt, troopArtFallback } from './teamScreen';
 import { getPlayerPreferences, prefersReducedMotion } from '../../preferences/playerPreferences';
@@ -159,6 +160,31 @@ interface RewardVm {
   rarity: string;
   duplicate: boolean;
   wishLabel?: string;
+  /** 材料 / 资源牌：卡面直接画这段素材图（无立绘、无特写） */
+  item?: string;
+}
+
+const CURRENCY_ICON: Record<string, string> = { gold: 'coin', glory: 'glory', souls: 'soul', gems: 'crystal' };
+
+/** 材料牌（白 / 绿 / 紫三档卡框；最高档用稀有部队的紫色翻牌特效，不做放大特写） */
+function itemVm(item: ChestItemDrop): RewardVm {
+  const name = item.type === 'ingot' ? INGOT_NAMES[item.key as IngotKey] ?? item.key
+    : item.type === 'stone' ? stoneName(item.key)
+    : CURRENCY_CN[item.key] ?? item.key;
+  const art = item.type === 'ingot' ? materialImg(ingotArt(item.key))
+    : item.type === 'stone' ? stoneMarkupForKey(item.key)
+    : `<span data-icon="${CURRENCY_ICON[item.key] ?? 'coin'}"></span>`;
+  return {
+    troop: null,
+    name: `${name} ×${fmt(item.amount)}`,
+    art: '',
+    fb: '',
+    rarityIdx: item.tier,
+    fxClass: item.tier >= 2 ? 'rare' : 'common',
+    rarity: item.type === 'currency' ? '资源' : '材料',
+    duplicate: false,
+    item: art,
+  };
 }
 
 const STONE_TIER_CN: Record<string, string> = { minor: '初级特质石', major: '高级特质石', runic: '符文特质石', arcane: '奥术特质石', celestial: '圣辉石' };
@@ -695,28 +721,14 @@ export class ChestsScreen implements Screen {
       toast(result.message);
       return null;
     }
-    // 金宝箱 / 荣耀宝箱：一箱一项掉落——有卡走翻牌演出，其余资源/特质石进可见的汇总文案
-    const summary = 'currencies' in result ? this.lootSummary(result) : this.materialSummary(result.materials);
-    return { rewards: this.rewardsOf(result.cards), summary };
+    // 一箱一张牌：部队翻出立绘，材料 / 资源翻出素材图；开 N 箱就发 N 张
+    const bought = 'boughtKeys' in result && result.boughtKeys
+      ? `已用 ${fmt(result.spent.gold ?? 0)} 黄金补 ${result.boughtKeys} 把钥匙` : undefined;
+    return { rewards: this.rewardsOfDrops(result.drops), summary: bought };
   }
 
-  /** 宝石箱的材料抽（金属锭 / 特质石）汇总；没有材料时不出文案 */
-  private materialSummary(materials: MaterialDelta): string | undefined {
-    const parts = [
-      ...Object.entries(materials.ingots ?? {}).map(([key, n]) => `${INGOT_NAMES[key as IngotKey]} ×${n}`),
-      ...Object.entries(materials.traitstones ?? {}).map(([key, n]) => `${stoneName(key)} ×${n}`),
-    ];
-    return parts.length ? `另获得 ${parts.join('，')}` : undefined;
-  }
-
-  private lootSummary(result: ChestLootResult): string {
-    const stones = Object.entries(result.stones.traitstones ?? {}).map(([key, n]) => `${stoneName(key)} ×${n}`);
-    const money = (Object.entries(result.currencies) as [keyof ChestLootResult['currencies'], number][])
-      .filter(([, n]) => n > 0)
-      .map(([key, n]) => `${CURRENCY_CN[key]} +${fmt(n)}`);
-    const parts = [result.cards.length ? `部队卡 ×${result.cards.length}` : '', ...money, ...stones].filter(Boolean);
-    const bought = result.boughtKeys ? `（已用 ${fmt(result.spent.gold ?? 0)} 黄金补 ${result.boughtKeys} 把钥匙）` : '';
-    return `${parts.join('，') || '本次没有额外掉落'}${bought}`;
+  private rewardsOfDrops(drops: ChestDrop[]): RewardVm[] {
+    return drops.map((drop) => drop.kind === 'troop' ? this.rewardsOf([drop.card])[0]! : itemVm(drop.item));
   }
 
   private rewardsOf(cards: GachaCard[]): RewardVm[] {
@@ -732,7 +744,7 @@ export class ChestsScreen implements Screen {
         fxClass: fxClassOf(rarityIdx),
         rarity: rarityNameByIndex(rarityIdx),
         duplicate: c.duplicate,
-        wishLabel: c.noviceGuaranteed ? ' · 异界来客保底' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
+        wishLabel: c.noviceGuaranteed ? '' : c.pursuitGuaranteed ? ' · 追寻保底' : c.wishlistHit ? ' · 愿望命中' : '',
       };
     });
   }
@@ -830,14 +842,15 @@ export class ChestsScreen implements Screen {
         return `<article class="summon-card ${rarityClassByIndex(d.rarityIdx)} fx-${d.fxClass}" data-rarity="${d.fxClass}" data-rarity-idx="${d.rarityIdx}" data-name="${d.name}" data-art="${d.art}" data-fb="${d.fb}" data-dup="${d.duplicate ? 1 : 0}" style="--x:${p.x}px;--y:${p.y}px;--rot:${p.rot}deg;">
           <div class="card-3d">
             <div class="card-back" aria-hidden="true"></div>
-            <div class="card-face">
-              <img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'">
+            <div class="card-face${d.item ? ' is-item' : ''}">
+              ${d.item ? `<div class="card-item-art" aria-hidden="true">${d.item}</div>` : `<img src="${d.art}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='${d.fb}'">`}
               <div class="card-label"><small>${d.rarity}${d.duplicate ? ' · 重复' : ''}${d.wishLabel ?? ''}</small><b>${d.name}</b></div>
             </div>
           </div>
         </article>`;
       })
       .join('');
+    mountIcons(cardsEl);
     $$('.summon-card', cardsEl).forEach((card) => this.on(card, 'click', () => this.revealSingleCard(card as HTMLElement, false)));
   }
 

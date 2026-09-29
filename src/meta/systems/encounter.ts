@@ -113,13 +113,13 @@ export function pickEnemies(
   });
 }
 
-/** 新手引导试炼战：起始王国第 1 关、只有两名 Lv.1 杂兵（请求层再削弱面板） */
+/** 新手引导试炼战：起始王国第 1 关、三名 Lv.3 敌人，无特质（请求层再调成血厚攻低） */
 export function planTutorialEncounter(kingdom: string, seed: number): EncounterPlan {
   return {
     kingdom,
     source: { kind: 'quest', node: 1, tutorial: true },
     seed: seed >>> 0,
-    enemies: pickEnemies(kingdom, 1, ['minion', 'minion'], new SeededRNG(seed)).map((e) => ({ ...e, traitCount: 0 })),
+    enemies: pickEnemies(kingdom, 3, ['minion', 'elite', 'minion'], new SeededRNG(seed)).map((e) => ({ ...e, traitCount: 0 })),
   };
 }
 
