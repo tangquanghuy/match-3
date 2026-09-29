@@ -6,6 +6,8 @@
   "compatibility_date": "2026-09-01",
   // 已用 Vite 打好包（处理 ?url 资源导入与路径别名），wrangler 不再二次打包
   "no_bundle": true,
+  // 自定义域名（rown.dpdns.org 托管在同一 Cloudflare 账号；证书与 DNS 记录由 Cloudflare 自动建）
+  "routes": [{ "pattern": "match.rown.dpdns.org", "custom_domain": true }],
   "rules": [{ "type": "ESModule", "globs": ["**/*.js"] }],
 
   // 静态资源：客户端构建产物（含 public/）。/api 与 /auth 先进 Worker
