@@ -156,3 +156,42 @@ describe('sa-Q1 B04: R011 positives on Blessed, Dark Witch dispute, Bad Gargoyle
     expect(Object.keys(s.units).some(u => u.startsWith('A') && (s.units[u] ?? '').includes('mana+'))).toBe(false);
   });
 });
+
+describe('sa-Q1 B05: StealRandom weapons, Runeforger cast-start count, RemoveColor weapons', () => {
+  it('weapon:1104 Eye of Xathenos: steal 5 of a random Skill first, then [M+6] (x3 vs Fey)', () => {
+    const s = castSpell({ key: 'weapon:1104', target: 11 }).summary;
+    expect(s.order).toEqual(['buff E11 hp-5', 'buff C hp+5 max+5', 'dmg E11 16']);
+    const fey = castSpell({ key: 'weapon:1104', target: 11, enemies: [tough(), tough({ troopTypes: ['Fey'] })] }).summary;
+    expect(has(fey.order, 'dmg E11 48')).toBe(true);
+  });
+  it('weapon:1107 Staff of Madness: steal 1 random Skill from every enemy, then [M+1] to all', () => {
+    const st = { armor: 20, attack: 20, magic: 5 };
+    const s = castSpell({ key: 'weapon:1107', enemies: [tough(st), tough(st), tough(st)] }).summary;
+    const firstDmg = s.order.findIndex(x => x.startsWith('dmg '));
+    expect(s.order.slice(0, firstDmg).filter(x => x.startsWith('buff E')).length).toBe(3);
+    // stolen Magic lands before the damage (native order), so the hit is 11 + Magic stolen
+    const stolenMagic = s.order.slice(0, firstDmg).filter(x => x.startsWith('buff C magic+')).length;
+    const d = 11 + stolenMagic;
+    expect(s.order.slice(firstDmg)).toEqual([`dmg E10 ${d} (all)`, `dmg E11 ${d} (all)`, `dmg E12 ${d} (all)`]);
+  });
+  it('weapon:1158 Runeforger: Brown enemy killed by the splash still adds an explosion (counted at cast start)', () => {
+    const allies = [{ colors: ['Red'] }, { colors: ['Red'] }] as never;
+    const n = (e: object[]) => { const x = castSpell({ key: 'weapon:1158', target: 11, allies, enemies: e as never }).summary.order.find(s => s.startsWith('explode')); return x ? Number(x.split(' ')[1]) : 0; };
+    const alive = n([tough({ colors: ['Red'] }), tough({ colors: ['Brown'] }), tough({ colors: ['Red'] })]);
+    expect(alive).toBeGreaterThan(0);
+    expect(n([tough({ colors: ['Red'] }), frail({ colors: ['Brown'] }), tough({ colors: ['Red'] })])).toBe(alive);
+  });
+  it('weapon:1174 Titania\'s Fan: cleanse + heal other allies [M+1] + floor(Blue/3), then remove Blue (no mana)', () => {
+    const s = castSpell({ key: 'weapon:1174' }).summary;
+    expect(s.order.slice(0, 4)).toEqual(['cleanse A1 -poison', 'buff A1 hp+14 max+14', 'buff A2 hp+14 max+14', 'destroy 11 (Blue x11)']);
+    expect(has(s.order, 'buff C hp')).toBe(false);
+    expect(Object.keys(s.units).some(u => (s.units[u] ?? '').includes('mana+'))).toBe(false);
+  });
+  it('weapon:1230 Axe of the Spire: [M+5] + floor(Brown/3), x2 vs Elemental, Brown removed last without mana', () => {
+    const s = castSpell({ key: 'weapon:1230' }).summary;
+    expect(s.order.slice(0, 2)).toEqual(['dmg E11 17', 'destroy 8 (Brown x8)']);
+    expect(Object.keys(s.units).some(u => (s.units[u] ?? '').includes('mana+'))).toBe(false);
+    const el = castSpell({ key: 'weapon:1230', enemies: [tough(), tough({ troopTypes: ['Elemental'] })] }).summary;
+    expect(el.order[0]).toBe('dmg E11 34');
+  });
+});

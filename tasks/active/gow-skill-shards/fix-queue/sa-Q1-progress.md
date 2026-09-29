@@ -21,3 +21,6 @@ Scope: final-queue.json cat "issue", lanes L2 + L4a (32 keys; skip troop:6857 we
 - B04 troop:7851 (L4a): accept (P-R1-gargoyle-tier-filter fixed; Boss c2 waived R000)
 - B04 troop:7884 (L4a): accept per R016-1 (uniform 2-5; Boss c2 waived R000)
 - B04 weapon:1102 (L4a): accept (P-F1-remove-gems fixed)
+- B05 weapon:1104, weapon:1107 (L2): accept (P-random-stat-pool fixed)
+- B05 weapon:1158 (L4a): accept (P-R1-count-at-native-step fixed; zh already says any random gem in pool-w01 / batch-w01, ledger text stale)
+- B05 weapon:1174, weapon:1230 (L4a): accept (P-F1-remove-gems fixed; 1174 zh already fixed in pool-w01)
