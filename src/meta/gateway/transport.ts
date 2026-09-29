@@ -8,7 +8,7 @@
  * （Map、类实例、undefined 语义差异会在本地就暴露）。
  */
 import type { StorageLike } from '../state/save';
-import { MetaHost } from '../server/host';
+import { MetaHost, type MetaHostOptions } from '../server/host';
 import { LocalSaveRepository } from '../server/localRepository';
 import { defaultEnv, type ServerEnv } from '../server/env';
 import type { FreshSaveKind } from '../server/core';
@@ -38,6 +38,9 @@ export function memoryStorage(): StorageLike {
 export interface LocalTransportOptions extends Partial<ServerEnv> {
   /** 无存档时建什么档（默认 'demo'：开发时首次进入就有完整进度） */
   fresh?: FreshSaveKind;
+  /** 非关键命令合并落盘延迟（默认 0 = 本地每条命令直写，便于调试直接看 localStorage） */
+  flushDelayMs?: number;
+  schedule?: MetaHostOptions['schedule'];
 }
 
 export class LocalTransport implements MetaTransport {
@@ -51,7 +54,20 @@ export class LocalTransport implements MetaTransport {
   ) {
     const env = defaultEnv({ allowDev: true, ...options });
     this.allowDev = env.allowDev;
-    this.host = new MetaHost(new LocalSaveRepository(storage, env.now), env, { fresh: options.fresh ?? 'demo' });
+    this.host = new MetaHost(new LocalSaveRepository(storage, env.now), env, {
+      fresh: options.fresh ?? 'demo',
+      flushDelayMs: options.flushDelayMs ?? 0,
+      schedule: options.schedule,
+    });
+    // 合并落盘时，页面隐藏/关闭前把尾巴写掉
+    if ((options.flushDelayMs ?? 0) > 0 && typeof addEventListener === 'function') {
+      addEventListener('pagehide', () => void this.host.flush());
+    }
+  }
+
+  /** 立即落盘（测试/页面关闭前） */
+  flush(): Promise<void> {
+    return this.host.flush();
   }
 
   async load(): Promise<LoadReply> {

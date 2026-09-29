@@ -22,6 +22,7 @@ import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { EncounterEnemy, EncounterSource } from '../systems/encounter';
 import type { TeamMember, MetaSave, TreasureHuntState } from '../state/schema';
+import type { SavePatch } from '../state/records';
 import type { CollectionModifierOk } from '../systems/collectionModifier';
 import type { GiftClaimResult } from '../systems/gifts';
 import type { TributeTreasury } from '../systems/tribute';
@@ -201,11 +202,42 @@ export type MetaCommand<K extends CommandType = CommandType> = K extends Command
   ? { type: K; args: CommandArgs<K> }
   : never;
 
-/** 命令回执：结果 + 提交后的权威存档 + 服务器时刻（客户端据此校准展示用时钟） */
+/**
+ * 命令回执：结果 + 存档增量 + 服务器时刻（客户端据此校准展示用时钟）。
+ * patch = null：命令失败或无改动，客户端副本不变。完整存档只在 load 时下发一次。
+ */
 export interface CommandReply<K extends CommandType = CommandType> {
   result: CommandResult<K>;
-  save: MetaSave;
+  patch: SavePatch | null;
   serverNow: number;
+}
+
+/**
+ * 关键命令：产出随机结果或资源入账。提交后**立即**落盘再回执——
+ * 否则服务端重启丢掉未落盘的开箱，玩家就能「重抽」。其余命令合并延迟落盘。
+ */
+const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
+  'resetToNewGame',
+  'openChest',
+  'settleBattle',
+  'collectKingdomTribute',
+  'collectAllTribute',
+  'claimGift',
+  'claimAllGifts',
+  'buyEventGoods',
+  'abandonTowerRun',
+  'forfeitDraft',
+  'enterArena',
+  'claimInvasionRank',
+  'startTreasureHunt',
+  'playTreasureHunt',
+  'dev.importSave',
+  'dev.resetToDemo',
+  'dev.collectionModifier',
+]);
+
+export function isCriticalCommand(type: CommandType): boolean {
+  return CRITICAL_COMMANDS.has(type);
 }
 
 /** 启动加载回执 */

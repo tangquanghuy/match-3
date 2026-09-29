@@ -63,6 +63,7 @@ export function buildDemoSave(now: number): MetaSave {
       level: kingdomLevel[idx]!,
       questsDone: questDone[idx]!,
       exploreTier: idx < 2 ? 2 : 0,
+      clearedExploreTiers: [],
       lastTributeAt: now - tributeHoursAgo[idx]! * HOUR_MS,
     };
   });

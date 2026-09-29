@@ -4,6 +4,7 @@
  */
 import type { BattleResult } from '@session/contract';
 import { MetaSaveError, type StorageLike } from '../state/save';
+import { applyPatch } from '../state/records';
 import type { MetaSave } from '../state/schema';
 import type { EventTypeId } from '../data/events';
 import type { MetaFailure } from '../types';
@@ -154,9 +155,14 @@ export class CommandGateway implements MetaGateway {
 
   private async cmd<K extends CommandType>(type: K, args: CommandArgs<K>): Promise<GatewayUpdate<CommandResult<K>>> {
     const reply = await this.transport.send({ type, args } as unknown as MetaCommand<K>);
-    this.save = reply.save;
     this.calibrate(reply.serverNow);
-    return { result: reply.result, save: reply.save };
+    if (reply.patch) {
+      const save = this.current();
+      // 副本版本对不上（另一个标签页/设备写过）：整份重同步，不硬套增量
+      if (reply.patch.from !== save.revision) await this.load();
+      else applyPatch(save, reply.patch);
+    }
+    return { result: reply.result, save: this.current() };
   }
 
   private async plan<K extends CommandType>(type: K, args: CommandArgs<K>): Promise<CommandResult<K>> {

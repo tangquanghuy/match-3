@@ -252,6 +252,9 @@ describe('MockGateway', () => {
     // 客户端副本改了不影响权威状态
     gwSave(gw).materialsUnread = true;
     expect((await new MockGateway(storage).load()).save.materialsUnread).toBe(false);
+    // 红点只能由核心置位：用开发者导入造出「有新材料」的权威状态
+    await gw.dev!.importSaveJson(JSON.stringify({ ...gwSave(gw), materialsUnread: true }));
+    expect((await new MockGateway(storage).load()).save.materialsUnread).toBe(true);
     const cleared = await gw.markMaterialsSeen();
     expect(cleared.result).toBe(false);
     expect(gwSave(gw).materialsUnread).toBe(false);
