@@ -138,3 +138,4 @@
   - L4a (RemoveColor first): troop:6027 (Count 25% -> Remove Brown (R010) -> Armor, Attack M + counter)
   - L4b (ConvertGems): troop:6479 (Red->Skull, Green->Yellow, Enchant RandomAlly + RandomPrefNotPrevAlly), troop:6678 (Purple->Red, Brown->Skull, Bless x2; Blessed cleanses per official status page)
   - L4b (CountArmyKingdom 600 -> Damage 7+M -> CreateGems2Colors x6, raw KingdomId checked against English kingdom): weapon:1105 1188 1191 1234 1240 1243 1246 1249 1265 1267 1269 1271 1282 1284 1288 1290 1292 1303 1304 1305 1306 1312 1314 1353 1355 1372 1389 1390 1400 1403 1423 1432 1437
+- 2026-09-29T13:00:00Z round 10 done: primitives 2 fixed (3 keys accepted L4a); legacy 36 re-reviewed, 36 accepted (L4a 1, L4b 35, golden approve), 0 issued, 0 curated changes; signoff check L4a / L4b 0 problems; commits cd318d3, 1becde8, batches 2-8 (last e84107d)
