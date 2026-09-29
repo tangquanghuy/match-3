@@ -41,3 +41,25 @@ describe('sa-J B02', () => {
     expect(zhOf(6160, 7280)).toBe('吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。');
   });
 });
+
+describe('sa-J B03', () => {
+  // troop:6178 Quasit (7319): DecreaseRandom 1+M on the chosen enemy = one random Skill, full amount.
+  it('troop:6178 removes 1+M from a single random Skill of the chosen enemy', () => {
+    const stats = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const hits = order('troop:6178', { seed }).filter(x => x.startsWith('buff '));
+      expect(hits).toHaveLength(1);
+      // armor bottoms out at E11's 10 Armor
+      const m = /^buff E11 (hp|attack|magic)-11$|^buff E11 (armor)-10$/.exec(hits[0]);
+      expect(m).not.toBeNull();
+      stats.add(m![1] ?? m![2]);
+    }
+    expect([...stats].sort()).toEqual(['armor', 'attack', 'hp', 'magic']);
+  });
+  // troop:6192 Borealis (7333): Damage@WeakestEnemy = lowest Life + Armor (R005) -> E12 (300 + 12).
+  it('troop:6192 freezes all and hits the weakest enemy', () => {
+    const o = order('troop:6192');
+    expect(o.filter(x => x.endsWith('+frozen'))).toHaveLength(4);
+    expect(o).toContain('dmg E12 28');
+  });
+});

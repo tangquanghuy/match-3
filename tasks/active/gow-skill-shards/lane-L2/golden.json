@@ -69,6 +69,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T09:10:46.001Z"
  },
+ "troop:6178": {
+  "lines": {
+   "L10": "buff E11 hp-11  => E11:hp-11",
+   "R10": "buff E11 hp-11  => E11:hp-11",
+   "L0": "buff E11 hp-1  => E11:hp-1",
+   "K": "defeat E11 ; buff E11 hp-1  => E11:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:55:03.593Z"
+ },
  "troop:6179": {
   "lines": {
    "L10": "dmg E12 14 ; status E12 +burning  => E12:hp-2 arm-12 +burning",
