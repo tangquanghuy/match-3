@@ -70,7 +70,7 @@ export function computeBuffPlaybackBatches(events: GameEvent[]) {
         same[0].feedback.amount = same.reduce((sum, row) => sum + row.event.amount, 0);
       }
       if (sums.size > 1) {
-        const names: Record<BuffEvent['stat'], string> = { attack: '攻击', armor: '护甲', hp: '生命', mana: '法力', magic: '魔法' };
+        const names: Record<BuffEvent['stat'], string> = { attack: '攻击', armor: '护甲', hp: '生命', mana: '法力', magic: '魔力' };
         group[0].feedback.text = [...sums.values()].map(same => {
           const row = same[0];
           const amount = row.feedback.amount;

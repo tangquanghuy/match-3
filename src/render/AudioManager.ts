@@ -45,7 +45,9 @@ export const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
  * Web Audio API 统一管理程序化合成音效和预解码采样资源。
  * 三条音量总线（主/音效/音乐），首次用户交互后初始化以规避自动播放策略（需求 26.5）。
  */
-export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit' | 'manaSurge' | 'barrierBlock' | 'troopTransform';
+export type SfxName = 'swap' | 'eliminate' | 'damage' | 'skill' | 'extraTurn' | 'impact' | 'whoosh' | 'hit' | 'skillHitWater' | 'skillCastEarth' | 'skullHit' | 'gemExplosion' | 'summon' | 'poison' | 'healing' | 'armor' | 'frozen' | 'burning' | 'skillHitRedSingle' | 'skillHitPurpleSingle' | 'skillHitYellowSingle' | 'skillHitGreenSingle' | 'splashChainHit' | 'manaSurge' | 'barrierBlock' | 'troopTransform'
+  // 轻量数值反馈：属性上升 / 下降、DoT 结算扣血（合成，同类短时节流，批量结算只响一声）
+  | 'statUp' | 'statDown' | 'dotTick';
 
 /** 施法方：敌方蓄力音更低更暗（合成见 src/audio/castSfx.ts） */
 export type { CastSide } from '../audio/castSfx';
@@ -371,6 +373,67 @@ export class AudioManager {
         // 撞击：低频下扫 thud + 短噪声层，营造厚重卡肉感
         this.thud();
         break;
+      case 'statUp':
+      case 'statDown':
+      case 'dotTick':
+        this.lightCue(name);
+        break;
+    }
+  }
+
+  /** 轻量提示音的节流：同类 0.09s 内只响一次（一批属性/多目标 DoT 同刻结算只一声） */
+  private lastLightCueAt: Partial<Record<'statUp' | 'statDown' | 'dotTick', number>> = {};
+
+  /**
+   * 轻量数值反馈音（合成，音量明显低于命中/施法音，不抢主演出）：
+   *   - statUp：两声上行的清亮短音（像「叮」地涨了一格）
+   *   - statDown：一声下滑的柔和短音（被削减）
+   *   - dotTick：闷一点的低频小顿击 + 极短噪声（持续伤害结算扣血）
+   */
+  private lightCue(kind: 'statUp' | 'statDown' | 'dotTick'): void {
+    if (!this.ctx || !this.sfxBus) return;
+    const ctx = this.ctx;
+    const t = ctx.currentTime;
+    const last = this.lastLightCueAt[kind];
+    if (last !== undefined && t - last < 0.09) return;
+    this.lastLightCueAt[kind] = t;
+    const tone = (f0: number, f1: number, start: number, dur: number, type: OscillatorType, peak: number) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(f0, start);
+      osc.frequency.exponentialRampToValueAtTime(f1, start + dur);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(peak, start + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(g);
+      g.connect(this.sfxBus!);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    };
+    if (kind === 'statUp') {
+      tone(740, 880, t, 0.09, 'sine', 0.11);
+      tone(988, 1175, t + 0.07, 0.12, 'sine', 0.09);
+    } else if (kind === 'statDown') {
+      tone(520, 330, t, 0.16, 'triangle', 0.1);
+    } else {
+      tone(190, 105, t, 0.12, 'sine', 0.22);
+      const len = Math.floor(ctx.sampleRate * 0.04);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 900;
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.08, t);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+      noise.connect(lp);
+      lp.connect(ng);
+      ng.connect(this.sfxBus);
+      noise.start(t);
     }
   }
 

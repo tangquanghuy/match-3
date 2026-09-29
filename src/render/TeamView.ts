@@ -1716,6 +1716,48 @@ export class CharacterCard {
     );
   }
 
+  /**
+   * 属性变化强调：对应数值（攻击/护甲/生命/魔力）放大一拍并发光，旁边弹出一个 ▲/▼。
+   * 上升 = 暖金/绿光，下降 = 红光。须在 refresh() 之后调用（护甲/生命块每次 refresh 重建）。
+   * 属性为 0 被隐藏（如护甲 0）时静默跳过。
+   */
+  pulseStat(stat: 'attack' | 'armor' | 'hp' | 'magic', dir: 1 | -1): void {
+    const target: HTMLElement | null =
+      stat === 'attack' ? this.atkEl.parentElement
+        : stat === 'magic' ? this.magicEl.parentElement
+          : this.brEl.querySelector(stat === 'armor' ? '.stat-armor' : '.stat-hp');
+    if (!target) return;
+    const glow = dir > 0
+      ? (stat === 'hp' ? 'rgba(120,230,140,.95)' : 'rgba(255,214,110,.95)')
+      : 'rgba(255,90,80,.95)';
+    const reduced = CharacterCard.reducedMotion();
+    target.animate(
+      [
+        { transform: 'scale(1)', filter: 'none' },
+        { transform: reduced ? 'scale(1)' : 'scale(1.45)', filter: `drop-shadow(0 0 6px ${glow}) brightness(1.5)`, offset: 0.3 },
+        { transform: 'scale(1)', filter: 'none' },
+      ],
+      { duration: 560, easing: 'cubic-bezier(.2,.8,.3,1)' },
+    );
+    // ▲/▼ 小箭头：挂在数值块上，沿变化方向飘出淡去
+    const arrow = document.createElement('span');
+    arrow.textContent = dir > 0 ? '▲' : '▼';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.style.cssText =
+      `position:absolute;left:50%;top:-2px;z-index:13;pointer-events:none;font-size:${ofs(11)}px;line-height:1;` +
+      `color:${glow};text-shadow:0 1px 2px rgba(0,0,0,.9),0 0 5px ${glow}`;
+    if (getComputedStyle(target).position === 'static') target.style.position = 'relative';
+    target.appendChild(arrow);
+    arrow.animate(
+      [
+        { opacity: 0, transform: 'translate(-50%, 0)' },
+        { opacity: 1, transform: `translate(-50%, ${dir > 0 ? -8 : 8}px)`, offset: 0.35 },
+        { opacity: 0, transform: `translate(-50%, ${dir > 0 ? -16 : 16}px)` },
+      ],
+      { duration: 700, easing: 'ease-out' },
+    ).onfinish = () => arrow.remove();
+  }
+
   /** 命中一击：卡面短促红闪 + 轻微抖动（技能伤害反馈） */
   hitFlash(): void {
     this.el.animate(

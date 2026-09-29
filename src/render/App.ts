@@ -151,6 +151,9 @@ const BUFF_COLOR: Record<string, string> = {
   mana: '#8fb8ff',
 };
 
+/** 属性变化飘字的属性名（与 presentationBatches 合并飘字同口径） */
+const STAT_LABEL: Record<string, string> = { attack: '攻击', armor: '护甲', hp: '生命', mana: '法力', magic: '魔力' };
+
 const SPECIAL_GEM_FEEDBACK: Record<SpecialGemKind, { label: string; color: string }> = {
   doomSkull: { label: '末日骷髅', color: '#c58cff' },
   uberDoomSkull: { label: '至尊末日', color: '#e2a7ff' },
@@ -2014,8 +2017,13 @@ export class App {
         if (card) {
           const color = BUFF_COLOR[ev.stat] ?? '#e8c879';
           const amount = feedback?.amount ?? ev.amount;
-          if (feedback?.show ?? true) card.floatText(feedback?.text ?? `${amount >= 0 ? '+' : ''}${amount}`, color, feedback?.durationMs);
+          // 单项变化也带上属性名（「魔力 +4」），否则一个裸 +4 看不出涨的是哪项；停留更久一点
+          const label = STAT_LABEL[ev.stat];
+          const single = `${label ? `${label} ` : ''}${amount >= 0 ? '+' : ''}${amount}`;
+          if (feedback?.show ?? true) card.floatText(feedback?.text ?? single, color, Math.max(feedback?.durationMs ?? 0, 1000));
           card.refresh(); // Every original attribute event still updates its projection.
+          // 对应数值放大发光 + ▲/▼（法力走法力流演出，不在此处理）
+          if (ev.stat !== 'mana' && ev.amount !== 0) card.pulseStat(ev.stat, ev.amount > 0 ? 1 : -1);
           const fx = feedback ? feedback.heavyFx
             : ev.source !== 'trait' && ev.amount > 0
               ? ev.stat === 'hp' ? 'heal_cleanse' : ev.stat === 'armor' ? 'armor_up' : undefined
@@ -2024,6 +2032,9 @@ export class App {
             if (feedback?.playAudio ?? true) this.audio.play(fx === 'heal_cleanse' ? 'healing' : 'armor');
             const center = this.cardCenterInOverlay(card);
             if (center) this.playFrameFX(fx, center.x, center.y, { durationMs: feedback?.durationMs });
+          } else if (ev.stat !== 'mana' && ev.amount !== 0) {
+            // 没有治疗/护甲重特效的属性变化（攻击、魔力、削减）：轻量提示音（AudioManager 内同类节流）
+            this.audio.play(ev.amount > 0 ? 'statUp' : 'statDown');
           }
         }
         break;
@@ -2122,6 +2133,9 @@ export class App {
             const center = this.cardCenterInOverlay(card);
             const fx = statusFeedbackFX(ids);
             if (center && fx) this.playFrameFX(fx, center.x, center.y);
+            // DoT 扣血此前只有飘字、没有声音：卡面短促受击闪 + 轻量闷击音（同刻多目标只响一声）
+            card.hitFlash();
+            this.audio.play('dotTick');
             // 飘字按状态分色（出血红 / 燃烧橙 / 其余绿），多种 DoT 同回合结算时逐条列出
             const rows = feedback?.damageRows ?? [{ statusId: ev.statusId, damage }];
             card.floatText(dotTickBreakdown(rows, damage, id => statusBadge(id).label), dotTickColor(ids));
