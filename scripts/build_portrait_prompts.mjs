@@ -14,7 +14,7 @@
  *   --name       逗号分隔，精确兵种中文名（调试用）
  *   --limit      截取前 N 个（去重排序后）
  *   --overrides  逗号分隔的 override JSON 文件/目录路径；缺省自动加载 artifacts/prompt-overrides/*.json
- *   --out        输出目录，默认 assets/prompt/立绘
+ *   --out        输出目录，默认 game-assets/source/prompts/立绘
  *   --show       渲染指定 --name 的正面提示词到 stdout，不写文件
  *
  * 机制（极简 6 标签模板 v2）:
@@ -43,7 +43,7 @@
  *   - 汇总写 _build-report.json。
  *
  * 红线：本脚本只读取 artifacts/portrait-manifest.json 与 src/data/troops.json（只读），
- *       只写入 assets/prompt/立绘/**；绝不触碰 src/** tests/** 或范例 assets/prompt/提示词。
+ *       只写入 game-assets/source/prompts/立绘/**；绝不触碰 src/** tests/** 或范例 game-assets/source/prompts/提示词。
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -56,7 +56,7 @@ const OVERRIDES_DIR = path.join(ROOT, 'artifacts', 'prompt-overrides');
 const DEFAULT_OUT = path.join(ROOT, 'assets', 'prompt', '立绘');
 
 // ---------------------------------------------------------------------------
-// 内置常量（取自用户认可的范例 assets/prompt/提示词，逐字沿用骨架与质量锚）
+// 内置常量（取自用户认可的范例 game-assets/source/prompts/提示词，逐字沿用骨架与质量锚）
 // ---------------------------------------------------------------------------
 const STYLE_LINES = [
   'wlopk2style, Yoneyama Mai Style, ',

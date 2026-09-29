@@ -46,7 +46,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
         description: '消除一名敌人的所有正面增益效果，并将其击晕。然后将所有红色宝石转换成蓝色宝石。' } });
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('传说');
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('shirakyusu-anna.png');
+    expect(troop.artUrl).toContain('shirakyusu-anna.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
     expect(troop.traits.map(t => t.code)).toEqual(codes);
     codes.forEach(code => { expect(getTrait(code)).toBeDefined(); expect(metaKnownTraitIds()).toContain(code); });

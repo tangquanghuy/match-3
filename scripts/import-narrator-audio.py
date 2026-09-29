@@ -106,8 +106,8 @@ treasure.defeated|A-profitable-encounter
 
 root = Path(__file__).resolve().parents[1]
 source = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.home() / "Downloads"
-dest = root / "src/assets/audio/narrator"
-archive = root / "assets/audio/narrator/archive"
+dest = root / "game-assets/bundled/audio/narrator"
+archive = root / "game-assets/source/audio/narrator/archive"
 dest.mkdir(parents=True, exist_ok=True)
 archive.mkdir(parents=True, exist_ok=True)
 rules = [line.split("|", 1) for line in RULES.splitlines()]

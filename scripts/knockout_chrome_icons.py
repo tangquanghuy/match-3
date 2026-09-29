@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 
 SRC = Path(r"C:\Users\Administrator\.cursor\projects\d-Code-match-3\assets")
-DST = Path(r"d:\Code\match-3\src\assets\chrome")
+DST = Path(r"d:\Code\match-3\game-assets/bundled/chrome")
 MAP = {
     "chrome-gold.png": "gold.png",
     "chrome-soul.png": "soul.png",

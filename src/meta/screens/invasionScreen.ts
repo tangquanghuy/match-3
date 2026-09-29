@@ -14,7 +14,7 @@ import {
   invasionStandings,
   type StandingRow,
 } from '../systems/invasion';
-import { weekStartOf } from '../gateway';
+import { weekStartOf, gameNow } from '../gateway';
 import { bottomNavHtml, toastHtml, topbarHtml, toast, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
@@ -52,7 +52,7 @@ export class InvasionScreen implements Screen {
 
   html(ctx: ShellCtx, param?: string): string {
     const save = ctx.save();
-    const now = Date.now();
+    const now = gameNow();
     const weekStart = weekStartOf(now);
     const locked = save.hero.level < INVASION.unlockHeroLevel;
 
@@ -199,16 +199,15 @@ export class InvasionScreen implements Screen {
   }
 
   mount(ctx: ShellCtx): void {
-    const now = Date.now();
+    const now = ctx.gateway.now();
     if (ctx.save().hero.level >= INVASION.unlockHeroLevel && ctx.save().invasion.weekStart !== weekStartOf(now)) {
-      void ctx.gateway.syncInvasionSeason(now, weekStartOf(now)).then(() => ctx.refresh());
+      void ctx.gateway.syncInvasionSeason().then(() => ctx.refresh());
       return;
     }
     const refreshButton = document.querySelector<HTMLButtonElement>('[data-inv-refresh]');
     if (refreshButton) this.on(refreshButton, 'click', () => {
       refreshButton.disabled = true;
-      const time = Date.now();
-      void ctx.gateway.refreshInvasionOpponents(time, weekStartOf(time)).then(update => {
+      void ctx.gateway.refreshInvasionOpponents().then(update => {
         ctx.refresh();
         if (!update.result.ok) toast(update.result.message);
       }).catch(() => { refreshButton.disabled = false; toast('刷新失败，请重试'); });
@@ -216,7 +215,7 @@ export class InvasionScreen implements Screen {
     $$('[data-claim-rank]').forEach(button => this.on(button, 'click', () => {
       const btn = button as HTMLButtonElement;
       btn.disabled = true;
-      void ctx.gateway.claimInvasionRank(btn.dataset.claimRank!, Date.now(), ctx.save().invasion.weekStart).then(update => {
+      void ctx.gateway.claimInvasionRank(btn.dataset.claimRank!, ctx.save().invasion.weekStart).then(update => {
         ctx.refresh();
         toast(update.result.ok ? `已领取 ${update.result.gems} 宝石` : update.result.message);
       }).catch(() => { btn.disabled = false; toast('领取失败，请重试'); });

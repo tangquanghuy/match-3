@@ -166,7 +166,7 @@ export function topbarHtml(): string {
   return `
     <header class="topbar">
       <div class="player" id="playerBadge">
-        <img src="/meta/assets/seiji.webp" alt="玩家头像">
+        <img src="/static/hero/seiji.webp" alt="玩家头像">
         <div>
           <strong id="playerName">影织者</strong>
           <span>破晓之誓 <i id="playerLevel">Lv.1</i></span>

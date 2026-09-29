@@ -7,7 +7,7 @@
  * 见 screens/eventViews/*）。玩法主板的交互统一经 data-act / data-fight / data-select 委托。
  * 样式见 styles/events.css（总览/子页）+ styles/events-modes.css（六个玩法主板）。
  */
-import { isFailure, weekStartOf } from '../gateway';
+import { isFailure, weekStartOf, gameNow } from '../gateway';
 import {
   EVENT_MILESTONES,
   EVENT_ROTATION,
@@ -59,7 +59,7 @@ function weekCountdown(now: number, resetAt: number): string {
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
-/** 活动主视觉（与活动商店同一套横幅，素材在 src/assets/meta/shop/） */
+/** 活动主视觉（与活动商店同一套横幅，素材在 game-assets/bundled/meta/shop/） */
 function eventArt(typeId: EventTypeId): string {
   return shopArt(`event-${typeId}`);
 }
@@ -116,7 +116,7 @@ export class EventsScreen implements Screen {
   private busy = false;
 
   html(ctx: ShellCtx, param?: string): string {
-    const now = Date.now();
+    const now = gameNow();
     const weekStart = weekStartOf(now);
     const save = ctx.save();
     if (!eventsUnlocked(save)) {
@@ -336,8 +336,7 @@ export class EventsScreen implements Screen {
     if (this.busy) return;
     this.busy = true;
     try {
-      const now = Date.now();
-      const { result } = await ctx.gateway.eventAction(now, weekStartOf(now), typeId, action);
+      const { result } = await ctx.gateway.eventAction(typeId, action);
       if (isFailure(result)) { toast(result.message); return; }
       if (action.startsWith('go:') || action === 'start' || action === 'abandon') SELECTION.delete(typeId);
       ctx.refresh();
@@ -352,7 +351,7 @@ export class EventsScreen implements Screen {
     const labels = [...root.querySelectorAll<HTMLElement>('[data-event-countdown]')];
     if (labels.length === 0) return;
     const update = (): void => {
-      const now = Date.now();
+      const now = gameNow();
       if (labels.some((label) => now >= Number(label.dataset.resetAt))) {
         if (this.countdownTimer !== null) window.clearInterval(this.countdownTimer);
         this.countdownTimer = null;

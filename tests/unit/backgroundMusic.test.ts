@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import bgmManifest from '../../src/assets/audio/bgm/manifest.json';
+import bgmManifest from '../../game-assets/bundled/audio/bgm/manifest.json';
 import { BackgroundMusic } from '../../src/audio/BackgroundMusic';
 import { MUSIC_TRACKS, musicForBattle, musicForScreen } from '../../src/audio/MusicCatalog';
 import type { CombatantSnapshot } from '../../src/session/contract';

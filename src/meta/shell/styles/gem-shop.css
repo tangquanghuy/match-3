@@ -218,7 +218,7 @@
 
 /* ==========================================================================
    Gem shop v3（2026-09-28）：与活动商店同一套暖夜色底；头部挂文生图「水晶武库」横幅
-   （src/assets/meta/shop/gem-vault.webp，经 --gem-hero 注入）；武器改为竖版珍品卡，稀有度做光晕。
+   （game-assets/bundled/meta/shop/gem-vault.webp，经 --gem-hero 注入）；武器改为竖版珍品卡，稀有度做光晕。
    分页契约不变：列数来自 grid-template-columns，行数来自 --card-min-height（无单位数字）。
    ========================================================================== */
 .gem-shop-screen:has(.gem-v3) { background: #0e0c14; }

@@ -82,44 +82,44 @@ import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/ski
 import { loadGemTextures } from './gemTextures';
 import { hasTurnSwitch } from './turnHudLogic';
 // 命中爆点序列帧（DNF 108stairs hit_dodge，已对齐拼成横向 strip）
-import slashStripUrl from '../assets/fx/hit_108stairs_strip.png';
+import slashStripUrl from '@assets/fx/hit_108stairs_strip.webp';
 // 技能序列帧 strip（scripts/build_fx_strip.ps1 由「特效500个【png】」拼成）
-import waterBoltStripUrl from '../assets/fx/water_bolt_strip.png';
-import fireBurstStripUrl from '../assets/fx/fire_burst_strip.png';
-import energyBurstStripUrl from '../assets/fx/energy_burst_strip.png';
-import hitSparkStripUrl from '../assets/fx/hit_spark_strip.png';
+import waterBoltStripUrl from '@assets/fx/water_bolt_strip.webp';
+import fireBurstStripUrl from '@assets/fx/fire_burst_strip.webp';
+import energyBurstStripUrl from '@assets/fx/energy_burst_strip.webp';
+import hitSparkStripUrl from '@assets/fx/hit_spark_strip.webp';
 // 按颜色分的命中爆点帧动画（红=hit_spark，蓝=water_bolt，绿复用能量爆着色，其余各一张）
-import hitGoldStripUrl from '../assets/fx/hit_gold_strip.png';
-import hitPurpleStripUrl from '../assets/fx/hit_purple_strip.png';
-import hitBrownStripUrl from '../assets/fx/hit_brown_strip.png';
-import summonRuneStripUrl from '../assets/fx/summon_rune_strip.png';
-import healCleanseStripUrl from '../assets/fx/heal_cleanse_strip.png';
-import armorUpStripUrl from '../assets/fx/armor_up_strip.png';
-import poisonApplyStripUrl from '../assets/fx/poison_apply_strip.png';
-import waterSingleHitStripUrl from '../assets/fx/water_single_hit_strip.png';
-import yellowSingleHitStripUrl from '../assets/fx/yellow_single_hit_strip.png';
-import greenSingleHitStripUrl from '../assets/fx/green_single_hit_strip.png';
-import deathDriftStripUrl from '../assets/fx/death_drift_strip.png';
-import splashHitStripUrl from '../assets/fx/splash_hit_strip.png';
-import splashChainCastStripUrl from '../assets/fx/splash_chain_cast_strip.png';
-import splashChainSwordStripUrl from '../assets/fx/splash_chain_sword_strip.png';
-import frozenApplyStripUrl from '../assets/fx/frozen_apply_strip.png';
-import burningApplyStripUrl from '../assets/fx/burning_apply_strip.png';
+import hitGoldStripUrl from '@assets/fx/hit_gold_strip.webp';
+import hitPurpleStripUrl from '@assets/fx/hit_purple_strip.webp';
+import hitBrownStripUrl from '@assets/fx/hit_brown_strip.webp';
+import summonRuneStripUrl from '@assets/fx/summon_rune_strip.webp';
+import healCleanseStripUrl from '@assets/fx/heal_cleanse_strip.webp';
+import armorUpStripUrl from '@assets/fx/armor_up_strip.webp';
+import poisonApplyStripUrl from '@assets/fx/poison_apply_strip.webp';
+import waterSingleHitStripUrl from '@assets/fx/water_single_hit_strip.webp';
+import yellowSingleHitStripUrl from '@assets/fx/yellow_single_hit_strip.webp';
+import greenSingleHitStripUrl from '@assets/fx/green_single_hit_strip.webp';
+import deathDriftStripUrl from '@assets/fx/death_drift_strip.webp';
+import splashHitStripUrl from '@assets/fx/splash_hit_strip.webp';
+import splashChainCastStripUrl from '@assets/fx/splash_chain_cast_strip.webp';
+import splashChainSwordStripUrl from '@assets/fx/splash_chain_sword_strip.webp';
+import frozenApplyStripUrl from '@assets/fx/frozen_apply_strip.webp';
+import burningApplyStripUrl from '@assets/fx/burning_apply_strip.webp';
 // 群体攻击（ANIMATION_HANDOFF §19 P0-1）：0241 群攻释放 + 各色群体受击
-import groupCastStripUrl from '../assets/fx/group_cast_strip.png';
-import groupHitPurpleStripUrl from '../assets/fx/group_hit_purple_strip.png';
-import groupHitRedStripUrl from '../assets/fx/group_hit_red_strip.png';
-import groupHitBlueStripUrl from '../assets/fx/group_hit_blue_strip.png';
-import groupHitYellowStripUrl from '../assets/fx/group_hit_yellow_strip.png';
-import groupHitBrownStripUrl from '../assets/fx/group_hit_brown_strip.png';
-import groupHitGreenStripUrl from '../assets/fx/group_hit_green_strip.png';
+import groupCastStripUrl from '@assets/fx/group_cast_strip.webp';
+import groupHitPurpleStripUrl from '@assets/fx/group_hit_purple_strip.webp';
+import groupHitRedStripUrl from '@assets/fx/group_hit_red_strip.webp';
+import groupHitBlueStripUrl from '@assets/fx/group_hit_blue_strip.webp';
+import groupHitYellowStripUrl from '@assets/fx/group_hit_yellow_strip.webp';
+import groupHitBrownStripUrl from '@assets/fx/group_hit_brown_strip.webp';
+import groupHitGreenStripUrl from '@assets/fx/group_hit_green_strip.webp';
 // 状态施加短闪（施加瞬间命中确认）
-import poisonFlashStripUrl from '../assets/fx/poison_flash_strip.png';
-import burningFlashStripUrl from '../assets/fx/burning_flash_strip.png';
-import frozenFlashStripUrl from '../assets/fx/frozen_flash_strip.png';
+import poisonFlashStripUrl from '@assets/fx/poison_flash_strip.webp';
+import burningFlashStripUrl from '@assets/fx/burning_flash_strip.webp';
+import frozenFlashStripUrl from '@assets/fx/frozen_flash_strip.webp';
 // 状态持续层（循环挂在角色卡上直到解除）；冰冻改用程序化冰封蒙层，不用序列帧
-import stunPersistStripUrl from '../assets/fx/stun_persist_strip.png';
-import turnHudUrl from '../assets/ui/turn-hud-starfall.png';
+import stunPersistStripUrl from '@assets/fx/stun_persist_strip.webp';
+import turnHudUrl from '@assets/ui/turn-hud-starfall.png';
 
 /** 所有独立战斗固定四人；旧 debug.teamSize 值不再生效。 */
 export function readTeamSize(): number { return 4; }
@@ -3021,7 +3021,7 @@ export class App {
   /**
    * 通用序列帧特效：在覆盖层 (px,py) 处叠加播放一条 strip（AnimConfig.frameFX[name]）。
    * strip 为横向逐帧，用 CSS steps() 逐帧推进 background-position。以中心定位。
-   * @param name AnimConfig.frameFX 的键（对应 src/assets/fx/<name>_strip.png）
+   * @param name AnimConfig.frameFX 的键（对应 game-assets/bundled/fx/<name>_strip.png）
    * @param px 覆盖层布局坐标 X（中心）
    * @param py 覆盖层布局坐标 Y（中心）
    * @param opts.scale 额外缩放（默认 1）；opts.filter 覆盖默认滤镜

@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types", "vite/client"],
+    "typeRoots": ["./node_modules/@types", "./node_modules", "../node_modules"],
+    "baseUrl": "..",
+    "paths": {
+      "@engine/*": ["src/engine/*"],
+      "@render/*": ["src/render/*"],
+      "@session/*": ["src/session/*"],
+      "@assets/*": ["game-assets/bundled/*"]
+    }
+  },
+  "include": ["src"]
+}

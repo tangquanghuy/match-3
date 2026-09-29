@@ -425,14 +425,14 @@ export class SkillTestPage {
     chainAudioTool.append(chainAudioTitle, chainAudioHelp, previewSetButton, chainAudioGrid);
     panel.appendChild(chainAudioTool);
 
-    // 状态施加音试听区（窗口 I）：18 键 = 15 状态 + 3 既有采样；AI 采样放入 src/assets/audio/status/ 自动接线
+    // 状态施加音试听区（窗口 I）：18 键 = 15 状态 + 3 既有采样；AI 采样放入 game-assets/bundled/audio/status/ 自动接线
     const statusAudioTool = document.createElement('div');
     statusAudioTool.style.cssText = 'border:1px solid rgba(216,194,144,.25);border-radius:7px;padding:7px;background:rgba(23,18,8,.6);margin-top:7px';
     const statusAudioTitle = document.createElement('div');
     statusAudioTitle.textContent = '状态施加音效';
     statusAudioTitle.style.cssText = 'font-size:12px;color:#e4bc68;margin-bottom:4px';
     const statusAudioHelp = document.createElement('div');
-    statusAudioHelp.textContent = '按状态试听施加音。已放入 status/ 的 AI 采样直接播放；未放入的暂为占位合成。生成提示词：assets/音效/提示词/。';
+    statusAudioHelp.textContent = '按状态试听施加音。已放入 status/ 的 AI 采样直接播放；未放入的暂为占位合成。生成提示词：game-assets/source/audio/status-sfx-raw/提示词/。';
     statusAudioHelp.style.cssText = 'font-size:10px;line-height:1.45;color:#8f826b';
     const statusAudioGrid = document.createElement('div');
     statusAudioGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px';

@@ -8,7 +8,7 @@
  * STATUS_SYNTHS + canonicalStatusSoundId 是「status-apply 事件 → 音效」的唯一事实源，
  * AudioManager.playStatusApply 消费；覆盖范围由 tests/unit/audioStatusSynth.test.ts
  * 对引擎 status.ts 各 id 集合做快照锁定。
- * 合成先例：assets/audio/archive/legacy_gem_chain_synth.ts.txt（square 波消除音）。
+ * 合成先例：game-assets/source/audio/archive/legacy_gem_chain_synth.ts.txt（square 波消除音）。
  */
 
 export type StatusSynthFn = (ctx: AudioContext, bus: AudioNode, t: number) => void;

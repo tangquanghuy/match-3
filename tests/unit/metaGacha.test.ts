@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { SeededRNG } from '../../src/engine/rng';
 import { TROOPS, getTroopById } from '../../src/data/troops';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
 import { isFailure } from '../../src/meta/gateway';
 import {
   GACHA_PITY_MIN_IDX,

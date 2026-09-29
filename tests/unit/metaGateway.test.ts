@@ -3,10 +3,10 @@
  * 用内存 StorageLike，不碰浏览器 localStorage。
  */
 import { describe, expect, it } from 'vitest';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
-import { buildDemoSave } from '../../src/meta/gateway/demo';
-import { HOUR_MS, todayStartOf } from '../../src/meta/gateway/clock';
-import { isFailure } from '../../src/meta/gateway';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
+import { buildDemoSave } from '../../src/meta/server/demo';
+import { HOUR_MS, todayStartOf, weekStartOf } from '../../src/meta/gateway/clock';
+import { isFailure, type BattleTicket } from '../../src/meta/gateway';
 import { allKingdoms } from '../../src/meta/data/kingdoms';
 import { currentDraftChoices } from '../../src/meta/systems/arena';
 import type { BattleResult } from '../../src/session/contract';
@@ -109,23 +109,24 @@ describe('MockGateway', () => {
     if (!poor.result.ok) expect(poor.result.code).toBe('INSUFFICIENT');
   });
 
-  it('王国：进贡按离线小时结算且幂等（收取后归零）', async () => {
-    const gw = new MockGateway(memoryStorage());
+  it('王国：进贡按服务器时钟的离线小时结算且幂等（收取后归零）', async () => {
+    let clock = 1_700_000_000_000;
+    const gw = new MockGateway(memoryStorage(), { now: () => clock });
     const { save } = await gw.load();
-    const now = save.kingdoms['破碎尖塔']!.lastTributeAt + 5 * HOUR_MS;
-    const first = await gw.collectKingdomTribute('破碎尖塔', now);
+    clock = save.kingdoms['破碎尖塔']!.lastTributeAt + 5 * HOUR_MS;
+    const first = await gw.collectKingdomTribute('破碎尖塔');
     expect(first.result.hours).toBe(5);
     expect(first.result.hits).toBeGreaterThanOrEqual(0);
-    const second = await gw.collectKingdomTribute('破碎尖塔', now);
+    const second = await gw.collectKingdomTribute('破碎尖塔');
     expect(second.result.hours).toBe(0);
     expect(second.result.gold).toBe(0);
   });
 
   it('竞技场整环：黄金报名 → 四轮选卡 → 编队 → 出敌计划 → 两败收官发奖', async () => {
-    const gw = new MockGateway(memoryStorage());
-    await gw.load();
     const now = 1_700_000_000_000;
-    const entered = await gw.enterArena(now, now - 2 * DAY);
+    const gw = new MockGateway(memoryStorage(), { now: () => now });
+    await gw.load();
+    const entered = await gw.enterArena();
     expect(entered.result).toBe(false); // 正常黄金报名
 
     // 三轮三选一（选项从当前 draft 状态读，种子在网关内部）
@@ -150,21 +151,83 @@ describe('MockGateway', () => {
     if (!plan.ok) return;
     expect(plan.request.playerTeam.length).toBeGreaterThan(0);
 
-    const settled = await gw.settleArenaBattle(
-      fakeResult({ winner: 'enemy', defeatedExternalIds: [] }),
-    );
-    expect(settled.result.ok).toBe(true);
-    if (!settled.result.ok) return;
-    expect(settled.result.victory).toBe(false);
-    expect(settled.result.runOver).toBe(false); // 第一次失败仍可继续
-    const second = await gw.settleArenaBattle(fakeResult({ winner: 'enemy', defeatedExternalIds: [] }));
-    expect(second.result).toMatchObject({ ok: true, runOver: true, losses: 2 });
+    const settled = await gw.settleBattle(fakeResult({ ...ticketIds(plan), winner: 'enemy' }));
+    // 第一次失败仍可继续
+    expect(settled.result).toMatchObject({ ok: true, kind: 'arena', settled: { victory: false, runOver: false } });
+    // 同一张票不能结算两次
+    expect((await gw.settleBattle(fakeResult({ ...ticketIds(plan), winner: 'enemy' }))).result.ok).toBe(false);
+    const plan2 = await gw.planArenaBattle();
+    if (!plan2.ok) throw new Error(plan2.message);
+    const second = await gw.settleBattle(fakeResult({ ...ticketIds(plan2), winner: 'enemy' }));
+    expect(second.result).toMatchObject({ ok: true, kind: 'arena', settled: { runOver: true, losses: 2 } });
     expect(gwSave(gw).arena.activeDraft).toBeNull();
-    expect(todayStartOf(now)).toBeLessThanOrEqual(now);
   });
 
-  it('任务战斗闭环：出敌计划过校验，胜利结算推进任务并发奖励', async () => {
-    const gw = new MockGateway(memoryStorage());
+  it('防刷新重来：竞技场开打后刷新 = 判负；未结算就开下一场也判负', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    await gw.load();
+    await gw.dev!.importSaveJson(JSON.stringify({ ...gwSave(gw), currencies: { ...gwSave(gw).currencies, gold: 99_999 } }));
+    await gw.enterArena();
+    for (let round = 0; round < 4; round++) await gw.pickDraftCard(currentDraftChoices(gwSave(gw))!.options[0]!.troopId);
+    await gw.arrangeDraftTeam(gwSave(gw).arena.activeDraft!.picked);
+    await gw.startDraftBattles();
+
+    // 开打 → 刷新页面
+    const first = await gw.planArenaBattle();
+    if (!first.ok) throw new Error(first.message);
+    const reloaded = new MockGateway(storage);
+    const { save } = await reloaded.load();
+    expect(save.arena.activeDraft).toMatchObject({ wins: 0, losses: 1 });
+    expect(save.pendingBattle).toBeNull();
+    // 刷新前那一场的胜利结果交不上来
+    expect((await reloaded.settleBattle(fakeResult({ ...ticketIds(first), winner: 'player' }))).result.ok).toBe(false);
+
+    // 不交结果直接开下一场：上一场判负（第二败 → 本届收官）
+    const second = await reloaded.planArenaBattle();
+    if (!second.ok) throw new Error(second.message);
+    const third = await reloaded.planArenaBattle();
+    expect(third.ok).toBe(false);
+    expect(reloaded.current().arena.activeDraft).toBeNull();
+  });
+
+  it('防刷新重来：入侵开打后刷新 = 败北（计场次、不给胜利 VP）', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    await gw.load();
+    await gw.dev!.importSaveJson(JSON.stringify({ ...gwSave(gw), hero: { ...gwSave(gw).hero, level: 30 } }));
+    await gw.syncInvasionSeason();
+    const mirror = (await import('../../src/meta/systems/invasion')).invasionCandidates(gwSave(gw), gw.now(), weekStartOf(gw.now()))[0]!;
+    const ticket = await gw.planInvasionBattle(mirror.id);
+    if (!ticket.ok) throw new Error(ticket.message);
+    const battles = gwSave(gw).invasion.battles;
+    const { save } = await new MockGateway(storage).load();
+    expect(save.invasion.battles).toBe(battles + 1);
+    expect(save.invasion.progressionVp).toBe(gwSave(gw).invasion.progressionVp);
+    expect(save.pendingBattle).toBeNull();
+  });
+
+  it('游戏时区固定 UTC+8：日界/周界与运行环境时区无关', () => {
+    // 2026-09-28（周一）00:00 北京时间 = 2026-09-27T16:00Z
+    const mondayCst = Date.UTC(2026, 8, 27, 16);
+    expect(todayStartOf(mondayCst + 5 * HOUR_MS)).toBe(mondayCst);
+    expect(todayStartOf(mondayCst - 1)).toBe(mondayCst - DAY);
+    expect(weekStartOf(mondayCst + 6 * DAY + 23 * HOUR_MS)).toBe(mondayCst);
+    expect(weekStartOf(mondayCst - 1)).toBe(mondayCst - 7 * DAY);
+  });
+
+  it('开发者命令：本地后端可用；远端（allowDev=false）拒绝', async () => {
+    const local = new MockGateway(memoryStorage());
+    await local.load();
+    expect(local.dev).not.toBeNull();
+    const locked = new MockGateway(memoryStorage(), { allowDev: false });
+    await locked.load();
+    expect(locked.dev).toBeNull();
+  });
+
+  it('任务战斗闭环：出战票 → 结算，推进任务并发奖励', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
     await gw.load(); // 演示档：推进序第 3 个王国 questsDone=5 → 下一关 6
     const kingdom = allKingdoms()[2]!;
     expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(5);
@@ -174,14 +237,35 @@ describe('MockGateway', () => {
     if (!plan.ok) return;
     expect(plan.request.enemyTeam.length).toBeGreaterThan(0);
 
-    const detail = await gw.applyBattleSettlement(
-      fakeResult({ winner: 'player', defeatedExternalIds: [...plan.enemyByExternalId.keys()] }),
-      { plan: plan.plan, enemyByExternalId: plan.enemyByExternalId, todayStart: todayStartOf(Date.now()) },
-    );
-    expect(detail.result.victory).toBe(true);
-    expect(detail.result.questProgress).toEqual({ from: 5, to: 6 });
-    expect(detail.result.lines.length).toBeGreaterThan(0);
+    expect(plan).toMatchObject({ mode: 'quest', kingdom, source: { kind: 'quest', node: 6 } });
+
+    // 票不符（伪造 requestId）直接拒绝，不动存档
+    const forged = await gw.settleBattle(fakeResult({ ...ticketIds(plan), requestId: 'forged' }));
+    expect(forged.result.ok).toBe(false);
+    expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(5);
+
+    // 客户端只回传 BattleResult：击杀对账用的出敌表来自核心登记的票据
+    const enemyIds = plan.request.enemyTeam.map((e) => e.externalId);
+    const out = await gw.settleBattle(fakeResult({ ...ticketIds(plan), winner: 'player', defeatedExternalIds: enemyIds }));
+    if (!out.result.ok || out.result.kind !== 'encounter') throw new Error('expected encounter settlement');
+    const detail = out.result.detail;
+    expect(detail.victory).toBe(true);
+    expect(detail.questProgress).toEqual({ from: 5, to: 6 });
+    expect(detail.lines.length).toBeGreaterThan(0);
     expect(gwSave(gw).kingdoms[kingdom]?.questsDone).toBe(6);
+    expect(gwSave(gw).pendingBattle).toBeNull();
+
+    // 战斗中刷新页面：任务票直接作废（不推进、不发保底），旧结果交不上来
+    const again = await gw.planQuestBattle(kingdom, 7);
+    if (!again.ok) throw new Error(again.message);
+    const goldBefore = gwSave(gw).currencies.gold;
+    const reloaded = new MockGateway(storage);
+    const after = (await reloaded.load()).save;
+    expect(after.pendingBattle).toBeNull();
+    expect(after.kingdoms[kingdom]?.questsDone).toBe(6);
+    expect(after.currencies.gold).toBe(goldBefore);
+    const late = await reloaded.settleBattle(fakeResult({ ...ticketIds(again), winner: 'player' }));
+    expect(late.result.ok).toBe(false);
   });
 
   it('设置：导入导出往返一致；至少保留一支预设队', async () => {
@@ -189,7 +273,8 @@ describe('MockGateway', () => {
     await gw.load();
     const json = gw.exportSaveJson();
     const other = new MockGateway(memoryStorage());
-    const imported = await other.importSaveJson(json);
+    await other.load();
+    const imported = await other.dev!.importSaveJson(json);
     expect(imported.save.hero.level).toBe(20);
 
     const removed = await gw.deleteTeam(0);
@@ -212,7 +297,12 @@ describe('MockGateway', () => {
     const storage = memoryStorage();
     const gw = new MockGateway(storage);
     await gw.load();
+    // 客户端副本改了不影响权威状态
     gwSave(gw).materialsUnread = true;
+    expect((await new MockGateway(storage).load()).save.materialsUnread).toBe(false);
+    // 红点只能由核心置位：用开发者导入造出「有新材料」的权威状态
+    await gw.dev!.importSaveJson(JSON.stringify({ ...gwSave(gw), materialsUnread: true }));
+    expect((await new MockGateway(storage).load()).save.materialsUnread).toBe(true);
     const cleared = await gw.markMaterialsSeen();
     expect(cleared.result).toBe(false);
     expect(gwSave(gw).materialsUnread).toBe(false);
@@ -221,7 +311,12 @@ describe('MockGateway', () => {
   });
 });
 
-/** 网关当前权威存档（测试断言用） */
+/** 网关当前存档（客户端副本；每条命令回执后刷新） */
 function gwSave(gw: MockGateway): MetaSave {
-  return gw['save'];
+  return gw.current();
+}
+
+/** 结算回传必须带上票据里的 requestId / 规则版本 */
+function ticketIds(ticket: BattleTicket): Pick<BattleResult, 'requestId' | 'battleId' | 'rulesetVersion'> {
+  return { requestId: ticket.request.requestId, battleId: ticket.request.battleId, rulesetVersion: ticket.request.rulesetVersion };
 }

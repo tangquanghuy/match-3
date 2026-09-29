@@ -1,7 +1,7 @@
 // 每周活动玩法重做（2026-09-29）素材清单：六个玩法各自的场景底图 + 节点/遗物/棋盘/部队/地块图标。
 // 用法：ART_MANIFEST=eventAssets.mjs node scripts/art-gen/generate.mjs [id ...]
 //       ART_MANIFEST=eventAssets.mjs python scripts/art-gen/process.py [id ...]
-// 输出统一在 src/assets/meta/events/（屏层经 artAssets.eventArt() 取 URL）。
+// 输出统一在 game-assets/bundled/meta/events/（屏层经 artAssets.eventArt() 取 URL）。
 
 // 现代二次元游戏图标（与 assets.mjs 的 ANIME_COLOR 同口径，此处独立一份以免耦合）
 const ICON = 'Modern anime gacha game UI icon, in the polished style of contemporary Japanese / Chinese anime RPG item icons. '
@@ -17,10 +17,10 @@ const SCENE = 'Modern anime gacha game background art, painterly cel-shaded illu
   + 'with no strong focal clutter in the middle. No characters, no text, no letters, no logo, no watermark, no frame, no border.';
 
 const bg = (id, size, prompt) => [id, {
-  size, background: 'opaque', out: `src/assets/meta/events/${id}.webp`, longest: 1400, pad: 0, prompt: `${prompt} ${SCENE}`,
+  size, background: 'opaque', out: `game-assets/bundled/meta/events/${id}.webp`, longest: 1400, pad: 0, prompt: `${prompt} ${SCENE}`,
 }];
 const icon = (id, subject) => [id, {
-  size: '1024x1024', out: `src/assets/meta/events/${id}.webp`, longest: 160, pad: 0.02, prompt: `${subject} ${ICON}`,
+  size: '1024x1024', out: `game-assets/bundled/meta/events/${id}.webp`, longest: 160, pad: 0.02, prompt: `${subject} ${ICON}`,
 }];
 
 export const ASSETS = Object.fromEntries([

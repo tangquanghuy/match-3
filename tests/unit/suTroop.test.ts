@@ -45,7 +45,7 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(troop.spell.description).toBe('有 35% 的几率献祭除自身外的末位盟友。对一名敌人造成 [魔法 + 5] 点伤害。若成功献祭，则造成双倍伤害，并在击杀目标后吞噬另一名随机敌人。');
     expect(troop.spell.meta?.scalings).toContainEqual({ base: 5, mult: 1 });
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('su.png');
+    expect(troop.artUrl).toContain('su.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
     expect(troop.traits.map(t => t.code)).toEqual(codes);
     codes.forEach(code => { expect(getTrait(code)).toBeDefined(); expect(metaKnownTraitIds()).toContain(code); });

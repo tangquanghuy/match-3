@@ -22,7 +22,7 @@ describe('结算屏奖励呈现', () => {
     expect(reward.name).toBe('德拉古力斯');
     expect(reward.rarityIdx).toBe(5);
     expect(reward.rarityName).toBe('神话');
-    expect(reward.art).toContain('/meta/assets/portraits/');
+    expect(reward.art).toContain('/static/portraits/');
     expect(reward).not.toHaveProperty('attack');
     expect(reward).not.toHaveProperty('armor');
     expect(reward).not.toHaveProperty('health');
@@ -32,12 +32,12 @@ describe('结算屏奖励呈现', () => {
     const reward = troopRewardView({ troopId: -1, note: '测试' });
     expect(reward.name).toBe('未知部队 #-1');
     expect(reward.rarityName).toBe('普通');
-    expect(reward.art).toContain('/meta/assets/troops/');
+    expect(reward.art).toContain('/static/troops/');
   });
 
   it('王国结算使用主题图，非王国来源使用世界图', () => {
-    expect(resultSummaryArt('破碎尖塔')).toBe('/meta/assets/kingdom-spire.png');
-    expect(resultSummaryArt('竞技场')).toBe('/meta/assets/world-map-mosaic-v2.webp');
+    expect(resultSummaryArt('破碎尖塔')).toBe('/static/kingdoms/spire.webp');
+    expect(resultSummaryArt('竞技场')).toBe('/static/map/world-map.webp');
   });
 });
 

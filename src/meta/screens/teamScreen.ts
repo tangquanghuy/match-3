@@ -35,21 +35,21 @@ export function troopCdnArt(name: string): string {
 
 /** 本地兜底立绘：点名覆盖 → 种族通用图（注意在 troops/ 子目录下） */
 const NAMED_ART: Record<string, string> = {
-  法露特: '/meta/assets/troops/falute.webp',
-  奥契丝: '/meta/assets/troops/orchis.webp',
-  璐米欧儿: '/meta/assets/troops/lumiere.webp',
+  法露特: '/static/troops/falute.webp',
+  奥契丝: '/static/troops/orchis.webp',
+  璐米欧儿: '/static/troops/lumiere.webp',
 };
 export function troopArtFallback(troop: TroopData | null, hero = false): string {
-  if (hero) return '/meta/assets/troops/hero.webp';
+  if (hero) return '/static/troops/hero.webp';
   if (troop && NAMED_ART[troop.name]) return NAMED_ART[troop.name]!;
   const byType: Record<string, string> = {
-    Knight: '/meta/assets/troops/troop-paladin.png', Elf: '/meta/assets/troops/troop-elf.png', Beast: '/meta/assets/troops/troop-lion.png',
-    Dragon: '/meta/assets/troops/troop-dragon.png', Dwarf: '/meta/assets/troops/troop-dwarf.png', Goblin: '/meta/assets/troops/troop-goblin.png',
-    Rogue: '/meta/assets/troops/troop-rogue.png', Mystic: '/meta/assets/troops/troop-wizard.png', Giant: '/meta/assets/troops/troop-orc.png',
-    Orc: '/meta/assets/troops/troop-orc.png', Monster: '/meta/assets/troops/troop-shaman.png', Wildfolk: '/meta/assets/troops/troop-lion.png',
+    Knight: '/static/troops/troop-paladin.webp', Elf: '/static/troops/troop-elf.webp', Beast: '/static/troops/troop-lion.webp',
+    Dragon: '/static/troops/troop-dragon.webp', Dwarf: '/static/troops/troop-dwarf.webp', Goblin: '/static/troops/troop-goblin.webp',
+    Rogue: '/static/troops/troop-rogue.webp', Mystic: '/static/troops/troop-wizard.webp', Giant: '/static/troops/troop-orc.webp',
+    Orc: '/static/troops/troop-orc.webp', Monster: '/static/troops/troop-shaman.webp', Wildfolk: '/static/troops/troop-lion.webp',
   };
   const t = troop?.troopTypes?.[0];
-  return (t && byType[t]) || '/meta/assets/troops/troop-veteran.png';
+  return (t && byType[t]) || '/static/troops/troop-veteran.webp';
 }
 
 /**
@@ -60,7 +60,7 @@ export function troopArtChain(troop: TroopData | null, hero = false): string[] {
   if (hero || !troop) return [troopArtFallback(troop, hero)];
   const chain: string[] = [];
   if (troop.artUrl) chain.push(troop.artUrl);
-  if (troop.portrait) chain.push(`/meta/assets/portraits/${troop.portrait}.webp`);
+  if (troop.portrait) chain.push(`/static/portraits/${troop.portrait}.webp`);
   if (NAMED_ART[troop.name]) chain.push(NAMED_ART[troop.name]!);
   chain.push(troopCdnArt(troop.name), troopArtFallback(troop, hero));
   return chain;

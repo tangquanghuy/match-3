@@ -3,40 +3,40 @@ import { playCastCharge, playCastRelease, type CastChargeVoice, type CastSide } 
 import { NarrationAudio } from './NarrationAudio';
 import { narrationSubtitles } from './NarrationSubtitles';
 import type { NarrationClip } from './NarrationCatalog';
-import skullHitUrl from '../assets/audio/combat/skull_hit.wav?url';
-import gemExplosionUrl from '../assets/audio/gems/gem_explode.wav?url';
-import gemChain1Url from '../assets/audio/gems/chains/gem_chain_1.wav?url';
-import gemChain2Url from '../assets/audio/gems/chains/gem_chain_2.wav?url';
-import gemChain3Url from '../assets/audio/gems/chains/gem_chain_3.wav?url';
-import gemChain4Url from '../assets/audio/gems/chains/gem_chain_4.wav?url';
-import gemChain5Url from '../assets/audio/gems/chains/gem_chain_5.wav?url';
-import summonNecromancyUrl from '../assets/audio/skills/summon_necromancy.flac?url';
-import earthSkillCastUrl from '../assets/audio/skills/skill_cast_earth.wav?url';
-import waterSkillHitUrl from '../assets/audio/skills/skill_hit_water.wav?url';
-import poisonSpellUrl from '../assets/audio/skills/poison_spell_short.wav?url';
-import healingSpellUrl from '../assets/audio/skills/healing_spell_rise.wav?url';
-import armorIronHitUrl from '../assets/audio/skills/armor_iron_hit.wav?url';
-import frozenSkillUrl from '../assets/audio/skills/frozen.wav?url';
-import burningTreeUrl from '../assets/audio/skills/burning_tree.wav?url';
-import splashChainHitUrl from '../assets/audio/skills/splash_chain_hit.wav?url';
-import redSingleHitUrl from '../assets/audio/skills/skill_hit_red_single.wav?url';
-import purpleSingleHitUrl from '../assets/audio/skills/skill_hit_purple_single.wav?url';
-import yellowSingleHitUrl from '../assets/audio/skills/skill_hit_yellow_single.mp3?url';
-import greenSingleHitUrl from '../assets/audio/skills/skill_hit_green_single.wav?url';
+import skullHitUrl from '@assets/audio/combat/skull_hit.wav?url';
+import gemExplosionUrl from '@assets/audio/gems/gem_explode.wav?url';
+import gemChain1Url from '@assets/audio/gems/chains/gem_chain_1.wav?url';
+import gemChain2Url from '@assets/audio/gems/chains/gem_chain_2.wav?url';
+import gemChain3Url from '@assets/audio/gems/chains/gem_chain_3.wav?url';
+import gemChain4Url from '@assets/audio/gems/chains/gem_chain_4.wav?url';
+import gemChain5Url from '@assets/audio/gems/chains/gem_chain_5.wav?url';
+import summonNecromancyUrl from '@assets/audio/skills/summon_necromancy.flac?url';
+import earthSkillCastUrl from '@assets/audio/skills/skill_cast_earth.wav?url';
+import waterSkillHitUrl from '@assets/audio/skills/skill_hit_water.wav?url';
+import poisonSpellUrl from '@assets/audio/skills/poison_spell_short.wav?url';
+import healingSpellUrl from '@assets/audio/skills/healing_spell_rise.wav?url';
+import armorIronHitUrl from '@assets/audio/skills/armor_iron_hit.wav?url';
+import frozenSkillUrl from '@assets/audio/skills/frozen.wav?url';
+import burningTreeUrl from '@assets/audio/skills/burning_tree.wav?url';
+import splashChainHitUrl from '@assets/audio/skills/splash_chain_hit.wav?url';
+import redSingleHitUrl from '@assets/audio/skills/skill_hit_red_single.wav?url';
+import purpleSingleHitUrl from '@assets/audio/skills/skill_hit_purple_single.wav?url';
+import yellowSingleHitUrl from '@assets/audio/skills/skill_hit_yellow_single.mp3?url';
+import greenSingleHitUrl from '@assets/audio/skills/skill_hit_green_single.wav?url';
 import { applyPlayerPreferences, getPlayerPreferences, subscribePlayerPreferences } from '../preferences/playerPreferences';
 import { canonicalStatusSoundId, normalizeStatusKey, STATUS_CUE_SYNTHS, STATUS_SYNTHS } from './StatusSynth';
 import type { StatusCueKind } from './StatusSynth';
 
 /**
- * 状态施加音 AI 素材自动接线（窗口 I）：扫描 src/assets/audio/status/status_*.wav，
+ * 状态施加音 AI 素材自动接线（窗口 I）：扫描 game-assets/bundled/audio/status/status_*.wav，
  * 文件放入即生效（键取自文件名 status_<键>.wav 的 <键> 段，经 normalizeStatusKey 归一后
  * 直接作为状态键——目录即状态音全集事实源，可超出 StatusSynth 占位表，如 faerie_fire/terror），
  * 无需改代码。目录为空/缺某状态时回退既有采样链或 StatusSynth 占位合成。
- * 裁剪脚本：scripts/trim_status_sfx.mjs；生成提示词：assets/音效/提示词/。
+ * 裁剪脚本：scripts/trim_status_sfx.mjs；生成提示词：game-assets/source/audio/status-sfx-raw/提示词/。
  */
 export const STATUS_SAMPLE_URLS: Record<string, string> = Object.fromEntries(
   Object.entries(
-    import.meta.glob('../assets/audio/status/status_*.wav', { query: '?url', import: 'default', eager: true }) as Record<string, string>,
+    import.meta.glob('@assets/audio/status/status_*.wav', { query: '?url', import: 'default', eager: true }) as Record<string, string>,
   ).map(([path, url]) => [path.replace(/^.*[/\\]status_(.+)\.wav$/, '$1'), url]),
 );
 

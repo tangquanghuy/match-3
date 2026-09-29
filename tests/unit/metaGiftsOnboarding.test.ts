@@ -11,7 +11,7 @@ import { GEM_CHEST } from '../../src/meta/data/economy';
 import { COMMUNITY_KINGDOM } from '../../src/data/communityTroops';
 import { getTroopById } from '../../src/data/troops';
 import { SeededRNG } from '../../src/engine/rng';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { MockGateway, memoryStorage } from '../../src/meta/gateway';
 
 const tutorialSave = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457], tutorial: true });
 
@@ -99,10 +99,18 @@ describe('新手引导', () => {
     const plan = await gw.planTutorialBattle();
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
-    expect(plan.plan.enemies).toHaveLength(2);
-    expect(plan.plan.source).toMatchObject({ kind: 'quest', node: 1, tutorial: true });
+    expect(plan.request.enemyTeam).toHaveLength(2);
+    expect(plan.source).toMatchObject({ kind: 'quest', node: 1, tutorial: true });
 
-    gw.current().onboarding.step = 'gift'; // 战斗结算推进由网关完成，这里跳过真实对战
+    // 试炼获胜 → 核心按票据推进引导（客户端只回传结果）
+    const { request } = plan;
+    const settled = await gw.settleBattle({
+      schemaVersion: request.schemaVersion, battleId: request.battleId, requestId: request.requestId,
+      rulesetVersion: request.rulesetVersion, seed: request.seed, winner: 'player', turns: 5, combatants: [],
+      defeatedExternalIds: request.enemyTeam.map((e) => e.externalId), summonedCount: 0, actionLogDigest: '', eventSummary: [],
+    });
+    expect(settled.result.ok).toBe(true);
+    expect(gw.current().onboarding.step).toBe('gift');
     await gw.claimGift(GIFT_STARTER_ID);
     expect(gw.current().onboarding.step).toBe('summon');
     expect(gw.current().currencies.gems).toBeGreaterThanOrEqual(NOVICE_SUMMON_COST);

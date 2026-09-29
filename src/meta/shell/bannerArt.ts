@@ -1,7 +1,7 @@
 /**
  * 王国旗帜的彩绘呈现（地图王国弹层、编队页、旗帜选择器共用）。
  *
- * 旗面底图按旗帜「主色」（最大正加成的颜色）取 6 色之一（文生图，src/assets/meta/kingdom/banner-*.webp），
+ * 旗面底图按旗帜「主色」（最大正加成的颜色）取 6 色之一（文生图，game-assets/bundled/meta/kingdom/banner-*.webp），
  * 旗面中央叠该王国纹章；旗下挂加成色签。样式在 BANNER_ART_CSS，由使用方注入。
  */
 import { BaseColor } from '../../engine/types';

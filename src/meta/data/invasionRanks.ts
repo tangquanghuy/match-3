@@ -10,7 +10,7 @@ export const INVASION_RANKS = THRESHOLDS.map((vp, index) => ({
   division: ['I', 'II', 'III'][index % 3]!,
   name: `${INVASION_LEAGUES[Math.floor(index / 3)]} ${['I', 'II', 'III'][index % 3]}`,
   vp, gems: GEMS[Math.floor(index / 3)]!,
-  icon: `/meta/assets/invasion-ranks/rank-${index}.png`,
+  icon: `/static/invasion-ranks/rank-${index}.webp`,
 }));
 export function invasionRankAt(vp: number) {
   return INVASION_RANKS.reduce((current, rank) => vp >= rank.vp ? rank : current, INVASION_RANKS[0]!);

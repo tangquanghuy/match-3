@@ -1,12 +1,12 @@
 /**
  * 状态「中招」徽印素材表：规范键 → 图片 URL。
- * 素材由 scripts/art-gen（statusEmblems.mjs 清单）生成到 src/assets/fx/status-emblems/<key>.webp；
+ * 素材由 scripts/art-gen（statusEmblems.mjs 清单）生成到 game-assets/bundled/fx/status-emblems/<key>.webp；
  * 缺图的状态回退到徽记图标（statusBadges），保证任何状态施加都有徽印可演。
  */
 import { canonicalStatusKey } from './statusPresentation';
 import { statusBadge } from './statusBadges';
 
-const FILES = import.meta.glob('../assets/fx/status-emblems/*.webp', {
+const FILES = import.meta.glob('@assets/fx/status-emblems/*.webp', {
   eager: true, query: '?url', import: 'default',
 }) as Record<string, string>;
 

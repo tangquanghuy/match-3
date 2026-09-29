@@ -1,5 +1,5 @@
 param(
-  [string]$Path = 'D:\Code\match-3\src\assets\fx\splash_chain_cast_strip.png',
+  [string]$Path = 'D:\Code\match-3\game-assets/bundled/fx\splash_chain_cast_strip.png',
   [int]$FrameW = 309,
   [int]$FrameH = 240,
   [int[]]$Frames = @(8, 16, 24)

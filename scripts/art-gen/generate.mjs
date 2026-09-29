@@ -2,7 +2,7 @@
 // 密钥只从环境变量读取：VSA_KEY（必填）、VSA_BASE、VSA_IMAGE_MODEL。不落盘、不打印。
 // 用法：node scripts/art-gen/generate.mjs [id ...] [--force]
 //   原图写到 artifacts/art-gen/raw/<id>.png（大体积原图不进版本库），已存在的默认跳过（断点续跑）；
-//   再跑 python scripts/art-gen/process.py 裁边压缩成 webp，写入 src/assets/meta/**（进版本库）。
+//   再跑 python scripts/art-gen/process.py 裁边压缩成 webp，写入 game-assets/bundled/meta/**（进版本库）。
 // ART_MANIFEST 可切换素材清单（默认 assets.mjs；活动玩法重做用 eventAssets.mjs）。
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 const { ASSETS } = await import(`./${process.env.ART_MANIFEST ?? 'assets.mjs'}`);

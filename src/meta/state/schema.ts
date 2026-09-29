@@ -14,24 +14,14 @@ import { STARTING_CURRENCIES, STARTING_KINGDOM } from '../data/economy';
 import { STARTER_WEAPON_ID } from '../data/weapons';
 import { STARTER_CLASS_ID } from '../data/classes';
 import type { EventTypeId } from '../data/events';
-
-export const META_SAVE_VERSION = 3;
+import type { EncounterEnemy, EncounterPlan } from '../systems/encounter';
+import type { InvasionMirror } from '../systems/invasion';
 
 /**
- * v1 → v2（主角系统 v2：官方 38 职业 + 天赋树）：
- *  - 旧 8 职业为设计虚构（berserker/cleric/rogue/druid/ranger 无官方对应），
- *    迁移时重映射到官方职业 id（见 MIGRATIONS）；
- *  - talentSpent（按等级自动生效的旧天赋点）废弃，改 talentPicks（7 档三树选一）；
- *  - 新增 classTraits（职业专属特质三槽解锁状态）。
- *
- * v2 → v3（UX 阶段 B 窗口 N：活动全开放）：
- *  - 六活动从「6 周轮换、一周只有一个在跑」改为**常驻全开放**，
- *    因此 `eventWeek`（全局单实例）拆成 `eventWeeks`（每活动一份周实例）——
- *    不拆的后果实测可见：六个类型页共用同一串积分/代币/已购/里程碑 claimed，
- *    在 A 活动攒的分会把 B 活动的里程碑一起领掉（`10-events.md` §4 附加 2）；
- *  - 迁移：旧单实例按它自己的 weekStart 还原出「当时的轮值类型」，归到该活动名下，
- *    其余五个活动从零开始（见 MIGRATIONS[2]）。
+ * 存档版本。上线前基线（2026-09-29 服务端化重整）：历史 v1~v3 迁移链已删除，
+ * 结构不兼容的旧档按「损坏」处理并重建。上线后结构不兼容变化在 save.ts MIGRATIONS 追加步骤。
  */
+export const META_SAVE_VERSION = 4;
 
 // ---------------------------------------------------------------------------
 // 基础节
@@ -256,10 +246,36 @@ export const GACHA_LOG_CAP = 50;
 // 存档根对象
 // ---------------------------------------------------------------------------
 
+/**
+ * 已下发、待结算的战斗（权威核心登记；结算只认这一张票，一票一结）。
+ * 结算所需的全部上下文都在这里——客户端只回传 BattleResult，不再回传出敌计划。
+ */
+export type PendingBattle =
+  | {
+      mode: 'encounter';
+      requestId: string;
+      issuedAt: number;
+      plan: EncounterPlan;
+      /** externalId → 出敌条目（击杀对账） */
+      enemies: Record<string, EncounterEnemy>;
+    }
+  | { mode: 'arena'; requestId: string; issuedAt: number }
+  | { mode: 'invasion'; requestId: string; issuedAt: number; mirror: InvasionMirror };
+
 export interface MetaSave {
   version: typeof META_SAVE_VERSION;
   createdAt: number;
+  /**
+   * 最近一次已提交命令的权威时刻（服务器时钟）。权威核心在执行命令**前**把它设为命令时刻，
+   * 因此 systems 需要「现在」时可读它（如抽卡日志），不必自取时钟。
+   */
   savedAt: number;
+  /** 乐观锁版本号：每提交一条命令 +1（D1 用 `UPDATE … WHERE revision = ?` 防多端互相覆盖） */
+  revision: number;
+  /** 待结算战斗（null = 没有进行中的战斗） */
+  pendingBattle: PendingBattle | null;
+  /** 地图迷雾揭幕已播到的主角等级（null = 从未进过地图） */
+  mapSeenLevel: number | null;
   currencies: Currencies;
   hero: HeroState;
   /** key = troopId 十进制字符串 */
@@ -385,6 +401,9 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     version: META_SAVE_VERSION,
     createdAt: now,
     savedAt: now,
+    revision: 0,
+    pendingBattle: null,
+    mapSeenLevel: null,
     currencies,
     hero: newHero(),
     collection: {},

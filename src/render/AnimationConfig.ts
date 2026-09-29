@@ -119,7 +119,7 @@ export const AnimConfig = {
 
   /**
    * 命中序列帧特效（DNF 108stairs hit_dodge，6 帧命中爆点）：命中点叠加一团撞击爆闪。
-   * 贴图为对齐后的横向 strip（src/assets/fx/hit_108stairs_strip.png）。
+   * 贴图为对齐后的横向 strip（game-assets/bundled/fx/hit_108stairs_strip.png）。
    */
   slash: {
     frames: 6,
@@ -132,7 +132,7 @@ export const AnimConfig = {
   /**
    * 序列帧特效表（scripts/build_fx_strip.ps1 从「特效500个【png】」逐帧拼成的横向 strip）。
    * 每项：strip 内 frames 帧、每帧 frameW×frameH；displayH=实际叠加显示高度（按比例算宽）；duration=播放总时长。
-   * 用 App.playFrameFX(name, x, y) 在指定点叠加播放；命名对应 src/assets/fx/<name>_strip.png。
+   * 用 App.playFrameFX(name, x, y) 在指定点叠加播放；命名对应 game-assets/bundled/fx/<name>_strip.png。
    */
   frameFX: {
     // 0002 水弹命中（21 帧，单帧 164×240）

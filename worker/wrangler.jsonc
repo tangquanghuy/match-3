@@ -1,0 +1,41 @@
+{
+  // 部署前：`wrangler d1 create gems-meta`，把返回的 database_id 填到下面
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gems-meta",
+  "main": "dist/index.js",
+  "compatibility_date": "2026-09-01",
+  // 已用 Vite 打好包（处理 ?url 资源导入与路径别名），wrangler 不再二次打包
+  "no_bundle": true,
+  "rules": [{ "type": "ESModule", "globs": ["**/*.js"] }],
+
+  // 静态资源：客户端构建产物（含 public/）。/api 与 /auth 先进 Worker
+  "assets": {
+    "directory": "../dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/auth/*", "/"]
+  },
+
+  // 每个玩家一个 Durable Object（SQLite 存储）
+  "durable_objects": {
+    "bindings": [{ "name": "PLAYERS", "class_name": "PlayerActor" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PlayerActor"] }],
+
+  // D1：只放账号表（discord_id → player_id），存档不在这里
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gems-meta",
+      "database_id": "b8ffe76e-d4ce-4d1c-add6-b570808bb7f0",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "vars": {
+    // Discord 应用的 Client ID（公开值）；Client Secret 与会话密钥走 secret
+    "DISCORD_CLIENT_ID": "",
+    // 本地 wrangler dev 可在 .dev.vars 里设 DEV_LOGIN=1 启用免 Discord 登录；线上必须为空
+    "DEV_LOGIN": ""
+  },
+  "observability": { "enabled": true }
+}

@@ -11,7 +11,7 @@
     - If selected frame count > MaxFrames, uniformly subsamples down to MaxFrames
     - Computes the union non-transparent bounding box across sampled frames (uniform crop -> aligned, trims empty space)
     - Scales each frame to height FrameH, concatenates into one horizontal strip
-    - Writes src/assets/fx/<Name>_strip.png and prints META (frames / frameW / frameH / stripW)
+    - Writes game-assets/bundled/fx/<Name>_strip.png and prints META (frames / frameW / frameH / stripW)
 #>
 param(
   [Parameter(Mandatory=$true)][string]$SrcRoot,
@@ -21,7 +21,7 @@ param(
   [int]$MaxFrames = 30,
   [int]$StartFrame = 0,
   [int]$EndFrame = -1,
-  [string]$OutDir = "src\assets\fx"
+  [string]$OutDir = "game-assets/bundled/fx"
 )
 
 Add-Type -AssemblyName System.Drawing

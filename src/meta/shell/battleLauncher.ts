@@ -1,35 +1,44 @@
 /**
- * 战斗启动器：meta 屏 → 出敌计划 → App 全屏接管 → 结算回接。
+ * 战斗启动器：meta 屏 → 出战票 → App 全屏接管 → 结算回接。
  *
- * 每场战斗新建一个 App 实例，结算面板点「继续」（onBattleDismissed）后销毁并
- * 归还地图（M2 战斗闭环的屏层接线；战斗内的引擎/演出全部复用现有战斗层）。
+ * 出战票（BattleTicket）由权威核心签发并登记为待结算；这里只负责开打，
+ * 打完把 BattleResult 交回 `settleBattle`，结算上下文由核心按票据还原。
+ * 每场战斗新建一个 App 实例，结算面板点「继续」（onBattleDismissed）后销毁并归还地图。
  */
 import { App } from '@render/App';
 import type { BattleResult } from '@session/index';
-import { isFailure, todayStartOf, weekStartOf } from '../gateway';
+import { isFailure, type BattleTicket } from '../gateway';
 import { EVENT_TYPES } from '../data/events';
 import { exploreNodeLabel } from '../data/kingdoms';
-import type { BridgeOutcome } from '../systems/battleBridge';
-import type { ArenaBridgeOutcome } from '../systems/arena';
-import type { InvasionBridgeOutcome } from '../systems/invasion';
+import { buildMetaRegistry } from '../systems/battleBridge';
+import type { EncounterSource } from '../systems/encounter';
+import type { MetaFailure } from '../types';
 import type { ShellCtx } from './screen';
 import { toast } from './chrome';
 import { BattleLoadingScreen } from './battleLoading';
 
-export type BattleMode = 'quest' | 'explore' | 'arena' | 'event' | 'invasion';
+export type { BattleMode } from '../gateway';
 
 /** 加载页标题：战斗来源 + 地点 */
-function loadingTitle(plan: BridgeOutcome | ArenaBridgeOutcome | InvasionBridgeOutcome, mode: BattleMode): { title: string; subtitle?: string } {
-  if (mode === 'arena') return { title: '竞技场', subtitle: '现开赛对决' };
-  if (mode === 'invasion' && 'mirror' in plan) return { title: '入侵', subtitle: `对手 · ${plan.mirror.name}` };
-  if (!('plan' in plan)) return { title: '战斗' };
-  const source = plan.plan.source;
+function loadingTitle(ticket: BattleTicket): { title: string; subtitle?: string } {
+  if (ticket.mode === 'arena') return { title: '竞技场', subtitle: '现开赛对决' };
+  if (ticket.mode === 'invasion' && ticket.mirror) return { title: '入侵', subtitle: `对手 · ${ticket.mirror.name}` };
+  const source = ticket.source;
+  if (!source) return { title: '战斗' };
   if (source.kind === 'quest') {
-    return source.tutorial ? { title: '新手试炼', subtitle: plan.plan.kingdom } : { title: plan.plan.kingdom, subtitle: `王国任务 · 第 ${source.node} 关` };
+    return source.tutorial ? { title: '新手试炼', subtitle: ticket.kingdom } : { title: ticket.kingdom, subtitle: `王国任务 · 第 ${source.node} 关` };
   }
-  if (source.kind === 'explore') return { title: plan.plan.kingdom, subtitle: exploreNodeLabel(source.tier) };
+  if (source.kind === 'explore') return { title: ticket.kingdom, subtitle: exploreNodeLabel(source.tier) };
   const event = EVENT_TYPES.find((t) => t.id === source.typeId);
-  return { title: event?.name ?? '每周活动', subtitle: plan.plan.kingdom };
+  return { title: event?.name ?? '每周活动', subtitle: ticket.kingdom };
+}
+
+function sourceLabelOf(source: EncounterSource): string {
+  return source.kind === 'quest'
+    ? `NORMAL ${source.node}`
+    : source.kind === 'event'
+      ? '每周活动'
+      : exploreNodeLabel(source.tier);
 }
 
 export class BattleLauncher {
@@ -42,12 +51,7 @@ export class BattleLauncher {
 
   /** 任务关出战 */
   async launchQuest(kingdom: string, node: number): Promise<void> {
-    const plan = await this.ctx.gateway.planQuestBattle(kingdom, node);
-    if (isFailure(plan)) {
-      toast(plan.message);
-      return;
-    }
-    await this.run(plan, 'quest');
+    await this.launch(this.ctx.gateway.planQuestBattle(kingdom, node));
   }
 
   /** Hard / Very Hard 出战；传入 tier 时先写入存档再开战 */
@@ -59,74 +63,57 @@ export class BattleLauncher {
         return;
       }
     }
-    const plan = await this.ctx.gateway.planExploreBattle(kingdom);
-    if (isFailure(plan)) {
-      toast(plan.message);
-      return;
-    }
-    await this.run(plan, 'explore');
+    await this.launch(this.ctx.gateway.planExploreBattle(kingdom));
   }
 
   /** 竞技场连战出战（对手按 draft seed 计划） */
   async launchArenaBattle(): Promise<void> {
-    const plan = await this.ctx.gateway.planArenaBattle();
-    if (isFailure(plan)) {
-      toast(plan.message);
-      return;
-    }
-    await this.run(plan, 'arena');
+    await this.launch(this.ctx.gateway.planArenaBattle());
   }
 
   /** 当前活动页出战（结算行含该活动积分/里程碑素材）。 */
   async launchEventBattle(choice?: string): Promise<void> {
-    const now = Date.now();
     const hash = this.ctx.currentHash();
     const typeId = EVENT_TYPES.find((type) => hash === `#events/${type.id}` || hash.startsWith(`#events/${type.id}/`))?.id;
     if (!typeId) {
       toast('请先选择活动');
       return;
     }
-    const plan = await this.ctx.gateway.planEventBattle(now, weekStartOf(now), typeId, choice);
-    if (isFailure(plan)) {
-      toast(plan.message);
-      return;
-    }
-    await this.run(plan, 'event');
+    await this.launch(this.ctx.gateway.planEventBattle(typeId, choice));
   }
 
   /** 新手引导试炼战：按起始王国第 1 关结算，结算屏返回世界地图 */
   async launchTutorialBattle(): Promise<void> {
-    const plan = await this.ctx.gateway.planTutorialBattle();
-    if (isFailure(plan)) {
-      toast(plan.message);
-      return;
-    }
-    await this.run(plan, 'quest');
+    await this.launch(this.ctx.gateway.planTutorialBattle());
   }
 
   /** 入侵出战（mirrorId = 候选对手） */
   async launchInvasionBattle(mirrorId: string): Promise<void> {
-    const now = Date.now();
-    const plan = await this.ctx.gateway.planInvasionBattle(mirrorId, now, weekStartOf(now));
-    if (isFailure(plan)) {
-      toast(plan.message);
-      return;
-    }
-    await this.run(plan, 'invasion');
+    await this.launch(this.ctx.gateway.planInvasionBattle(mirrorId));
   }
 
-  private async run(
-    plan: BridgeOutcome | ArenaBridgeOutcome | InvasionBridgeOutcome,
-    mode: BattleMode,
-  ): Promise<void> {
+  private async launch(pending: Promise<BattleTicket | MetaFailure>): Promise<void> {
+    const ticket = await pending;
+    if (isFailure(ticket)) {
+      toast(ticket.message);
+      return;
+    }
+    await this.run(ticket);
+  }
+
+  private async run(ticket: BattleTicket): Promise<void> {
     if (this.running) return;
     this.running = true;
 
     // 加载页：先把立绘/宝石/特效拉下来并解码，战斗层初始化完再淡出
-    const loading = new BattleLoadingScreen(plan.request, loadingTitle(plan, mode));
+    const loading = new BattleLoadingScreen(ticket.request, loadingTitle(ticket));
     await loading.preload();
     this.root.hidden = false;
 
+    // 注册表是静态数据的纯函数：客户端按请求里的技能 id 自行重建，不走网络
+    const registry = buildMetaRegistry(
+      [...ticket.request.playerTeam, ...ticket.request.enemyTeam].map((s) => s.skillId as string),
+    );
     const app = new App();
     let settled = false;
     const finish = (): void => {
@@ -136,12 +123,12 @@ export class BattleLauncher {
       app.destroy();
       this.root.hidden = true;
       this.running = false;
-      void this.applyResult(plan, mode, result);
+      void this.applyResult(ticket, result);
     };
     app.onBattleDismissed = finish;
 
     try {
-      await app.init(this.root, plan.request, plan.registry);
+      await app.init(this.root, ticket.request, registry);
       await loading.finish();
     } catch (error: unknown) {
       loading.dispose();
@@ -153,68 +140,35 @@ export class BattleLauncher {
     }
   }
 
-  /** 结算分派：任务/探索/活动走 meta 结算屏；竞技场/入侵走各自系统收官 */
-  private async applyResult(
-    plan: BridgeOutcome | ArenaBridgeOutcome | InvasionBridgeOutcome,
-    mode: BattleMode,
-    result: BattleResult | null,
-  ): Promise<void> {
+  /** 结算：交回权威核心；按票据来源分派结算屏 */
+  private async applyResult(ticket: BattleTicket, result: BattleResult | null): Promise<void> {
     if (!result) return;
-    const gateway = this.ctx.gateway;
-    if (mode === 'arena') {
-      const { result: settled } = await gateway.settleArenaBattle(result);
-      if (!isFailure(settled)) {
-        this.ctx.showResult(
-          { kind: 'arena', battle: result, settled },
-          { kingdom: '竞技场', sourceLabel: '竞技场', returnHash: '#arena' },
-        );
-      } else {
-        toast(settled.message);
-        this.ctx.navigate('#arena');
-        this.ctx.refresh();
-      }
+    const { result: settlement } = await this.ctx.gateway.settleBattle(result);
+    if (isFailure(settlement)) {
+      toast(settlement.message);
+      const back = ticket.mode === 'arena' ? '#arena' : ticket.mode === 'invasion' ? '#invasion' : null;
+      if (back) this.ctx.navigate(back);
+      this.ctx.refresh();
       return;
     }
-    if (mode === 'invasion' && 'mirror' in plan) {
-      const now = Date.now();
-      const { result: settled } = await gateway.settleInvasionBattle(
-        result,
-        plan.mirror.id,
-        now,
-        weekStartOf(now),
-        todayStartOf(now),
+    if (settlement.kind === 'arena') {
+      this.ctx.showResult(
+        { kind: 'arena', battle: result, settled: settlement.settled },
+        { kingdom: '竞技场', sourceLabel: '竞技场', returnHash: '#arena' },
       );
-      if (!isFailure(settled)) {
-        this.ctx.showResult(
-          { kind: 'invasion', battle: result, settled, frenzy: plan.mirror.frenzy },
-          {
-            kingdom: '入侵战',
-            sourceLabel: `入侵 · ${plan.mirror.name}`,
-            returnHash: '#invasion',
-          },
-        );
-      } else {
-        toast(settled.message);
-        this.ctx.navigate('#invasion');
-        this.ctx.refresh();
-      }
       return;
     }
-    if (!('plan' in plan)) return;
-    const { result: detail } = await gateway.applyBattleSettlement(result, {
-      plan: plan.plan,
-      enemyByExternalId: plan.enemyByExternalId,
-      todayStart: todayStartOf(Date.now()),
-    });
-    const source = plan.plan.source;
-    const sourceLabel = source.kind === 'quest'
-      ? `NORMAL ${source.node}`
-      : source.kind === 'event'
-        ? '每周活动'
-        : exploreNodeLabel(source.tier);
-    this.ctx.showResult(detail, {
-      kingdom: plan.plan.kingdom,
-      sourceLabel,
+    if (settlement.kind === 'invasion') {
+      this.ctx.showResult(
+        { kind: 'invasion', battle: result, settled: settlement.settled, frenzy: settlement.mirror.frenzy },
+        { kingdom: '入侵战', sourceLabel: `入侵 · ${settlement.mirror.name}`, returnHash: '#invasion' },
+      );
+      return;
+    }
+    const source = settlement.source;
+    this.ctx.showResult(settlement.detail, {
+      kingdom: settlement.kingdom,
+      sourceLabel: sourceLabelOf(source),
       returnHash: source.kind === 'event' ? `#events/${source.typeId}` : undefined,
       shopHash: source.kind === 'event' ? `#shop/${source.typeId}` : undefined,
     });

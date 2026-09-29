@@ -31,7 +31,7 @@ function troopTile(kingdom: string, node: 4 | 8): string {
   const troop = id === null ? null : getTroopById(id);
   if (!troop) return '';
   const symbol = troop.portrait
-    ? `<img class="qloot-portrait" src="/meta/assets/portraits/${escapeAttr(troop.portrait)}.webp" alt="" loading="lazy">`
+    ? `<img class="qloot-portrait" src="/static/portraits/${escapeAttr(troop.portrait)}.webp" alt="" loading="lazy">`
     : '<span class="qloot-symbol" data-icon="helmet"></span>';
   return tile('troop', String(troop.id), `${troop.name} · 第 ${node} 关首次通关奖励`, symbol);
 }

@@ -41,7 +41,7 @@ describe('好想星艾 / 法力征调', () => {
     expect(troop.manaColors).toEqual([BaseColor.Yellow, BaseColor.Red]);
     expect(troop.manaCost).toBe(13);
     expect(troop.spell.name).toBe('法力征调');
-    expect(troop.artUrl).toContain('haoxiang-xingai.png');
+    expect(troop.artUrl).toContain('haoxiang-xingai.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
 
     const codes = ['fast', 'manashield', 'revered'];

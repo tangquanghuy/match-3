@@ -91,7 +91,8 @@ function draw(
   materials: MaterialDelta = {},
 ): GachaDrawResult {
   const entry: GachaLogEntry = {
-    at: Date.now(),
+    // 命令时刻：权威核心在执行命令前把 savedAt 设为服务器时钟（systems 不自取时钟）
+    at: save.savedAt,
     kind,
     seed: seed >>> 0,
     troops: cards.map((c) => c.troopId),
@@ -328,7 +329,7 @@ function rollLoot(save: MetaSave, rows: readonly ChestLootRow[], rng: SeededRNG,
 }
 
 function logLoot(save: MetaSave, kind: 'gold' | 'glory', seed: number, cards: GachaCard[]): void {
-  const entry: GachaLogEntry = { at: Date.now(), kind, seed: seed >>> 0, troops: cards.map((c) => c.troopId) };
+  const entry: GachaLogEntry = { at: save.savedAt, kind, seed: seed >>> 0, troops: cards.map((c) => c.troopId) };
   save.gachaLog.unshift(entry);
   if (save.gachaLog.length > GACHA_LOG_CAP) save.gachaLog.length = GACHA_LOG_CAP;
 }

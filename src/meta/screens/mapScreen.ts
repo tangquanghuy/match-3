@@ -3,7 +3,7 @@
  * 节点/弹层的运行时数值全部来自存档 + kingdoms/tribute/kingdomOps 纯函数；
  * 小样仅保留布局与美术。任务/探索入口经 BattleLauncher 打真实对局。
  */
-import { isFailure, todayStartOf, weekStartOf, type MetaGateway } from '../gateway';
+import { isFailure, todayStartOf, weekStartOf, type MetaGateway, gameNow } from '../gateway';
 import type { MetaSave } from '../state/schema';
 import {
   KINGDOM_MAX_LEVEL,
@@ -35,7 +35,7 @@ import { bannerUnlocked } from '../systems/banners';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
 import { playTributeChime, primeTributeChime } from '../../audio/TributeChime';
 import { ART, KINGDOM_VIEWS, kingdomViewOf, type KingdomView } from './mapData';
-import { MapFog, fogSeenLevel, markFogSeen, type FogHole } from './mapFog';
+import { MapFog, type FogHole } from './mapFog';
 import {
   CURRENCY_ICON,
   currencyList,
@@ -130,7 +130,7 @@ export interface NodeVm {
 /** 存档 → 节点视图模型（真实数据单源） */
 function nodeVms(gateway: MetaGateway): NodeVm[] {
   const save = gateway.current();
-  const now = Date.now();
+  const now = gameNow();
   return KINGDOM_VIEWS.map((view) => {
     const state = kingdomNodeState(save, view.name, now);
     const pool = kingdomTroopPool(view.name);
@@ -728,7 +728,7 @@ export class MapScreen implements Screen {
         <div class="map-frame">
           <div class="map-viewport" id="mapViewport">
             <div class="map-world" id="mapWorld">
-              <img class="map-art" src="/meta/assets/world-map-mosaic-v2.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
+              <img class="map-art" src="/static/map/world-map.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
               <canvas class="map-fog" id="mapFog" aria-hidden="true"></canvas>
               <div class="map-nodes" id="nodes"></div>
             </div>
@@ -915,9 +915,10 @@ export class MapScreen implements Screen {
     this.heroLevel = save.hero.level;
     this.nodes = nodeVms(ctx.gateway);
     // 迷雾揭幕：上次看地图之后新开放的王国（首次进入不播，只记下当前等级）
-    const seen = fogSeenLevel();
+    // 已播等级存在存档里（换设备不重播）；只在变化时写一次
+    const seen = save.mapSeenLevel;
     this.justOpened = new Set(seen === null ? [] : kingdomsUnlockedBetween(seen, save.hero.level));
-    markFogSeen(save.hero.level);
+    if (seen !== save.hero.level) void ctx.gateway.markMapSeen(save.hero.level);
     this.renderNodes(save);
     this.refreshDaily(save, ctx);
     this.fog = new MapFog($('#mapFog') as HTMLCanvasElement, MAP_W, MAP_H);
@@ -977,7 +978,7 @@ export class MapScreen implements Screen {
       this.openRailQuest(ctx);
     });
     this.on($('#dailyWin'), 'click', () => {
-      const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(Date.now());
+      const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(gameNow());
       toast(claimed ? '今日首胜已领取，明天再来。' : '打赢任意一场战斗，结算时自动领取每日首胜宝石。');
     });
     // M-9：批量结算先进宝库看清收什么，再点「全部收取」
@@ -1167,14 +1168,14 @@ export class MapScreen implements Screen {
 
   private openTreasury(ctx: ShellCtx): void {
     clearTimeout(this.collectTimer);
-    const treasury = tributeTreasury(ctx.save(), Date.now());
+    const treasury = tributeTreasury(ctx.save(), gameNow());
     $('#treasurySheet').classList.remove('is-collected');
     this.renderTreasury(treasury, false);
     $('#tributeVeil').hidden = false;
   }
 
   private renderTreasury(treasury: TributeTreasury, collected: boolean): void {
-    $('#tributeRows').innerHTML = treasuryBodyHtml(treasury, Date.now());
+    $('#tributeRows').innerHTML = treasuryBodyHtml(treasury, gameNow());
     $$('#tributeRows .tr-total').forEach((el, i) => el.style.setProperty('--i', String(i)));
     const btn = $('#tributeConfirm') as HTMLButtonElement;
     btn.disabled = !collected && !treasury.ready;
@@ -1308,7 +1309,7 @@ export class MapScreen implements Screen {
 
     // 左 3 · 活动中心：用 per-event 周状态聚合真正可处理的奖励/兑换提醒。
     const eventsButton = $('#railEvents');
-    const eventStatus = eventRailStatus(save, weekStartOf(Date.now()), Date.now());
+    const eventStatus = eventRailStatus(save, weekStartOf(gameNow()), gameNow());
     const statusParts = [
       eventStatus.claimableActivities > 0 ? `${eventStatus.claimableActivities} 个奖励待领取` : '',
       eventStatus.affordableShops > 0 ? `${eventStatus.affordableShops} 家商店可兑换` : '',
@@ -1438,7 +1439,7 @@ export class MapScreen implements Screen {
   }
 
   private refreshDaily(save: MetaSave, ctx: ShellCtx): void {
-    const now = Date.now();
+    const now = gameNow();
     // 每张牌：标题固定，第二行说「现在能做什么」，右侧角标给一眼可读的状态
     const setDaily = (id: string, state: 'hot' | 'ready' | 'idle' | 'done', copy: string, tag = '', label = ''): void => {
       const el = $(`#${id}`);
@@ -1645,7 +1646,7 @@ export class MapScreen implements Screen {
     if (btn.disabled || btn.classList.contains('is-done')) return;
     btn.disabled = true;
     primeTributeChime();
-    const { result } = await ctx.gateway.collectAllTribute(Date.now());
+    const { result } = await ctx.gateway.collectAllTribute();
     if (!result.ready) {
       toast('尚无可领取进贡。');
       this.renderTreasury(result, false);

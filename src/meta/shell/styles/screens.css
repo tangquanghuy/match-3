@@ -1157,7 +1157,7 @@
   backface-visibility: hidden;
 }
 .summon-card .card-back {
-  background: #16131c url('/meta/assets/card-back-vault.png') center / cover no-repeat;
+  background: #16131c url('/static/ui/card-back-vault.webp') center / cover no-repeat;
   border: 1px solid #b79a62;
   box-shadow: 0 10px 22px #000a;
 }

@@ -1,37 +1,53 @@
 /**
- * Meta 数据网关（视觉屏 ↔ 逻辑核的唯一通道）。
+ * Meta 数据网关（视觉屏 ↔ 权威核心的唯一通道）。
  *
- * 设计口径（为将来切 Cloudflare D1 预留的缝）：
  *  - 屏层**只读**地消费纯函数（systems/data 全是 save 的纯函数，客户端本地算视图），
- *    一切**写入**走网关异步方法——方法签名刻意不要求调用方持有可变存档；
- *  - 每个写方法 = 未来 D1 模式下的一个 RPC 端点：服务器跑同一套纯 systems、
- *    返回同一形状的结果 + 新快照。今天 mock 后端 = SaveStore(localStorage) +
- *    本地 systems，写后落盘的语义与远端一致；
- *  - 所有方法 async：换 D1 时签名零变化，屏层零返工；
- *  - 时钟不由网关自取（`now` / `weekStart` 由调用方算好传入，可测、可复算），
- *    只有 `nextSeed()` 是网关的熵源（D1 模式下对应服务端掷种子）。
+ *    一切**写入**走网关异步方法；
+ *  - 每个写方法 = 一条命令（server/protocol.ts），经 MetaTransport 送到权威核心：
+ *    本地后端在浏览器内执行，远端后端 POST 给 Worker——屏层对两者无感；
+ *  - 写方法没有时钟/种子参数：`now`、`weekStart`、随机种子都由核心所在环境决定。
+ *    屏层渲染倒计时等视图用 `gateway.now()`（按服务器时刻校准过的时钟）；
+ *  - 战斗：plan* 取出战票（核心登记 pendingBattle）→ 打完 settleBattle(result)。
+ *    客户端只回传 BattleResult，结算上下文由核心按票据还原。
  */
-import type { BattleResult } from '@session/index';
+import type { BattleResult } from '@session/contract';
 import type { MetaFailure } from '../types';
-import type { ArenaSettleResult, ArenaBridgeOutcome, DraftState } from '../systems/arena';
+import type { DraftState } from '../systems/arena';
 import type { ChestLootResult, GachaDrawResult } from '../systems/gacha';
-import type { SettlementContext, SettlementDetail } from '../systems/settlement';
 import type { LevelUpResult, AscendResult, UnlockTraitResult, DecomposeResult } from '../systems/troopProgress';
 import type { SetTeamResult } from '../systems/teamRules';
-import type { BridgeOutcome } from '../systems/battleBridge';
-import type { InvasionBridgeOutcome, InvasionSettleResult } from '../systems/invasion';
 import type { HuntMoveOk } from '../systems/treasureHunt';
 import type { EventActionResult, EventBuyResult } from '../systems/events';
 import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
-import type { TeamMember, MetaSave, TreasureHuntState } from '../state/schema';
+import type { MetaSave, TreasureHuntState } from '../state/schema';
 import type { CollectionModifierOk } from '../systems/collectionModifier';
 import type { GiftClaimResult } from '../systems/gifts';
+import type {
+  ArenaForfeit,
+  BattleSettlement,
+  BattleTicket,
+  CollectionModifierAction,
+  TeamInput,
+  TributeCollect,
+  TributeHaul,
+} from '../server/protocol';
 
-/** load 的返回：save 是网关当前权威状态，屏层直接读 */
+export type {
+  ArenaForfeit,
+  BattleMode,
+  BattleSettlement,
+  BattleTicket,
+  CollectionModifierAction,
+  TeamInput,
+  TributeCollect,
+  TributeHaul,
+} from '../server/protocol';
+
+/** load 的返回：save 是权威状态的客户端副本，屏层直接读 */
 export interface GatewaySnapshot {
   save: MetaSave;
-  /** true = 存储为空/损坏，给的是新档（mock 首次进入会铺演示数据） */
+  /** true = 刚建了新档（本地开发后端首次进入会铺演示数据） */
   fresh: boolean;
   /** 非 null = 发生过降级（主槽损坏回退备份等），UI 应告知 */
   warning: string | null;
@@ -43,77 +59,56 @@ export interface GatewayUpdate<T> {
   save: MetaSave;
 }
 
-/** 预设队写入载荷（与 teamRules.setTeamPreset 对齐） */
-export interface TeamInput {
-  name: string;
-  members: TeamMember[];
-  bannerKingdomId: string | null;
-}
+type Ok<T extends object = object> = { ok: true } & T;
 
-/** 进贡收取结果（tribute.collectTribute 的 collected） */
-export interface TributeCollect {
-  hours: number;
-  hits: number;
-  gold: number;
-  souls: number;
-  glory: number;
-  goldKeys: number;
-}
-
-/** 一键收取全部进贡的结果（tribute.collectAllTribute 的 haul） */
-export type TributeHaul = import('../systems/tribute').TributeTreasury;
-
-/** 弃赛结果 */
-export interface ArenaForfeit {
-  wins: number;
-  rewards: import('../data/economy').ArenaRewards;
+/** 开发者工具（仅本地后端提供；远端后端为 null） */
+export interface MetaDevTools {
+  /** 导入存档 JSON；结构问题以 MetaSaveError 抛出 */
+  importSaveJson(text: string): Promise<GatewaySnapshot>;
+  /** 重建演示档 */
+  resetToDemo(): Promise<GatewaySnapshot>;
+  setBattleDebug(on: boolean): Promise<GatewayUpdate<boolean>>;
+  /** 临时改当前收藏。真实收集留在 collectionTruth，不会被解锁或还原初始覆盖。 */
+  applyCollectionModifier(action: CollectionModifierAction): Promise<GatewayUpdate<CollectionModifierOk | MetaFailure>>;
 }
 
 export interface MetaGateway {
-  /** 'mock' = 本地 SaveStore + 纯 systems；'d1' = 未来远端 */
-  readonly backend: 'mock' | 'd1';
+  /** 'local' = 浏览器内权威核心 + localStorage；'remote' = Worker + D1 */
+  readonly backend: 'local' | 'remote';
+  /** 开发者工具；远端后端为 null（屏层据此隐藏相关入口） */
+  readonly dev: MetaDevTools | null;
 
-  /** 启动加载。mock 后端首次进入（无存档）会铺演示档并落盘 */
+  /** 启动加载 */
   load(): Promise<GatewaySnapshot>;
-
-  /** 当前权威存档（load 后可读；屏层渲染视图用） */
+  /** 当前权威存档的客户端副本（load 后可读；屏层渲染视图用，改它不影响权威状态） */
   current(): MetaSave;
-
-  /** 进入材料库后清除“有新材料”提示，并落盘该 UI 状态。 */
-  markMaterialsSeen(): Promise<GatewayUpdate<boolean>>;
-
-  /** 熵源：抽卡/出敌/竞技场种子（mock 用 crypto，D1 由服务端掷） */
-  nextSeed(): number;
-
-  // —— 系统（设置屏） ——
-  /** 导出当前存档 JSON（与导入口径一致） */
+  /** 按服务器时刻校准过的「现在」（视图倒计时/日界判定用） */
+  now(): number;
+  /** 导出当前存档 JSON */
   exportSaveJson(): string;
-  /** 导入存档 JSON；结构问题抛 MetaSaveError 由设置屏展示 */
-  importSaveJson(text: string): Promise<GatewaySnapshot>;
-  /** 重建演示档（mock 后端专用；D1 后端应拒绝或改为服务器操作） */
-  resetToDemo(): Promise<GatewaySnapshot>;
-  /** 重建全新档（起始队 + 起始货币，无演示进度） */
-  resetToNewGame(): Promise<GatewaySnapshot>;
-  setBattleDebug(on: boolean): Promise<GatewayUpdate<boolean>>;
-  /** 临时改当前收藏。真实收集留在 collectionTruth，不会被解锁或还原初始覆盖。 */
-  applyCollectionModifier(
-    action: { kind: 'unlock-kingdom'; kingdom: string } | { kind: 'restore-real' } | { kind: 'restore-initial' },
-  ): Promise<GatewayUpdate<CollectionModifierOk | MetaFailure>>;
 
-  // —— 养成（M1） ——
+  // —— 系统 ——
+  /** 进入材料库后清除“有新材料”提示 */
+  markMaterialsSeen(): Promise<GatewayUpdate<boolean>>;
+  /** 记录地图迷雾揭幕已播到的等级 */
+  markMapSeen(level: number): Promise<GatewayUpdate<number | MetaFailure>>;
+  /** 重开：全新档（新手引导起步） */
+  resetToNewGame(): Promise<GatewaySnapshot>;
+
+  // —— 养成 ——
   levelUpTroop(troopId: number): Promise<GatewayUpdate<LevelUpResult | MetaFailure>>;
   ascendTroop(troopId: number): Promise<GatewayUpdate<AscendResult | MetaFailure>>;
   unlockTroopTrait(troopId: number, slot: number): Promise<GatewayUpdate<UnlockTraitResult | MetaFailure>>;
   decomposeTroop(troopId: number): Promise<GatewayUpdate<DecomposeResult | MetaFailure>>;
   setTroopLocked(troopId: number, locked: boolean): Promise<GatewayUpdate<boolean | MetaFailure>>;
 
-  // —— 编队（M1） ——
+  // —— 编队 ——
   saveTeam(index: number, team: TeamInput): Promise<GatewayUpdate<SetTeamResult>>;
   activateTeam(index: number): Promise<GatewayUpdate<number | MetaFailure>>;
   /** 删除预设队（至少保留一支；index 非法返回 INVALID） */
   deleteTeam(index: number): Promise<GatewayUpdate<number | MetaFailure>>;
 
-  // —— 主角（M5/v2：38 官方职业 + 天赋树） ——
+  // —— 主角 ——
   equipHeroClass(classId: string): Promise<GatewayUpdate<string | MetaFailure>>;
   equipHeroWeapon(weaponId: string): Promise<GatewayUpdate<string | MetaFailure>>;
   /** 熔炉锻造：按配方消耗灵魂+黄金，解锁目录武器（gw_*） */
@@ -121,127 +116,86 @@ export interface MetaGateway {
   /** 按官方获取途径领取武器（精通/职业/王国/宝石商店直购；熔炉白名单除外） */
   claimHeroWeapon(weaponId: string): Promise<GatewayUpdate<string | MetaFailure>>;
   /** 天赋档位选取（tierIndex 0..6，三树选一；可随时改配） */
-  pickHeroTalent(
-    classId: string,
-    tierIndex: number,
-    talentCode: string,
-  ): Promise<GatewayUpdate<{ ok: true; classId: string; tierIndex: number } | MetaFailure>>;
-  clearHeroTalent(
-    classId: string,
-    tierIndex: number,
-  ): Promise<GatewayUpdate<{ ok: true; classId: string; tierIndex: number } | MetaFailure>>;
+  pickHeroTalent(classId: string, tierIndex: number, talentCode: string): Promise<GatewayUpdate<Ok<{ classId: string; tierIndex: number }> | MetaFailure>>;
+  clearHeroTalent(classId: string, tierIndex: number): Promise<GatewayUpdate<Ok<{ classId: string; tierIndex: number }> | MetaFailure>>;
   /** 职业专属特质槽解锁（1~3 顺序解锁，金+魂） */
-  unlockHeroTrait(
-    slot: number,
-  ): Promise<GatewayUpdate<{ ok: true; slot: number; cost: { gold: number; souls: number } } | MetaFailure>>;
+  unlockHeroTrait(slot: number): Promise<GatewayUpdate<Ok<{ slot: number; cost: { gold: number; souls: number } }> | MetaFailure>>;
   /** 升级后的法力精通二选一 */
-  pickManaMastery(
-    color: string,
-  ): Promise<GatewayUpdate<{ ok: true; color: string; value: number } | MetaFailure>>;
+  pickManaMastery(color: string): Promise<GatewayUpdate<Ok<{ color: string; value: number }> | MetaFailure>>;
+  /** 武器淬炼 +1 级（钢锭/符卷/黄金原子扣账） */
+  temperWeapon(weaponId: string): Promise<GatewayUpdate<TemperSaveResult | MetaFailure>>;
 
-  setWishlist(ids: readonly number[]): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
-  setPursuitTarget(id: number | null): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
-
-  // —— 宝箱（M4/荣耀箱） ——
+  // —— 愿望单 / 宝箱 ——
+  setWishlist(ids: readonly number[]): Promise<GatewayUpdate<Ok | MetaFailure>>;
+  setPursuitTarget(id: number | null): Promise<GatewayUpdate<Ok | MetaFailure>>;
   /**
    * 开箱。**count 是原子批量**：整批成交或一张不动（CH-1）。
    * - 'gem'：count 只能 1|10（十连保底稀有或以上）；
-   * - 'gold'：count 1~10；钥匙不足时带 buyMissingKeys 用黄金补齐，或显式只开持有钥匙数；
-   * - 'glory'：count 只能 1|10，整批一次性结算。
+   * - 'gold'：count 1~10；钥匙不足时带 buyMissingKeys 用黄金补齐；
+   * - 'glory'：count 只能 1|10。
    */
   openChest(
     kind: 'gem' | 'gold' | 'glory',
     count?: number,
-    /** gold 专用：钥匙不足时用黄金就地补（300/把），与开箱同一笔原子成交 */
     opts?: { buyMissingKeys?: boolean },
   ): Promise<GatewayUpdate<GachaDrawResult | ChestLootResult | MetaFailure>>;
 
-  // —— 王国经营（M3） ——
+  // —— 王国 ——
   upgradeKingdomLevel(kingdom: string): Promise<GatewayUpdate<number | MetaFailure>>;
-  collectKingdomTribute(kingdom: string, now: number): Promise<GatewayUpdate<TributeCollect>>;
-  /** 一键收取全部已开放王国的进贡（含多国同时进贡的宝石/金钥匙加成） */
-  collectAllTribute(now: number): Promise<GatewayUpdate<TributeHaul>>;
+  collectKingdomTribute(kingdom: string): Promise<GatewayUpdate<TributeCollect>>;
+  /** 一键收取全部已开放王国的进贡 */
+  collectAllTribute(): Promise<GatewayUpdate<TributeHaul>>;
   /** 设为主城（进贡翻倍）；null = 取消 */
   setHomeKingdom(kingdom: string | null): Promise<GatewayUpdate<string | null | MetaFailure>>;
   setKingdomExploreTier(kingdom: string, tier: number): Promise<GatewayUpdate<number | MetaFailure>>;
 
-  // —— 竞技场（M7） ——
-  /** 报名开一届现开赛（免费票按 weekStart 判定） */
-  enterArena(now: number, weekStart: number): Promise<GatewayUpdate<boolean | MetaFailure>>;
-  /** 三选一取卡（DraftState 供屏层画剩余轮次） */
+  // —— 竞技场 ——
+  /** 报名开一届现开赛 */
+  enterArena(): Promise<GatewayUpdate<boolean | MetaFailure>>;
+  /** 三选一取卡 */
   pickDraftCard(troopId: number): Promise<GatewayUpdate<DraftState | MetaFailure>>;
   /** 站位排序确认（必须是 draft 卡重排） */
   arrangeDraftTeam(order: number[]): Promise<GatewayUpdate<number[] | MetaFailure>>;
   startDraftBattles(): Promise<GatewayUpdate<boolean | MetaFailure>>;
   /** 弃赛：按已得胜场收官发奖 */
   forfeitDraft(): Promise<GatewayUpdate<ArenaForfeit | MetaFailure>>;
-  /** 第 wins 场对手计划（纯读，按 draft seed 可复现） */
-  planArenaBattle(): Promise<ArenaBridgeOutcome | MetaFailure>;
-  /** 结算一场竞技场战斗（胜场累计 / 收官发奖） */
-  settleArenaBattle(result: BattleResult): Promise<GatewayUpdate<ArenaSettleResult | MetaFailure>>;
 
-  // —— 战斗闭环（M2） ——
-  /** 任务关出战计划（只读组合：出敌 + 过会话校验的请求） */
-  planQuestBattle(kingdom: string, node: number): Promise<BridgeOutcome | MetaFailure>;
-  /** 新手引导试炼战（仅引导第一步可用；获胜后结算推进引导） */
-  planTutorialBattle(): Promise<BridgeOutcome | MetaFailure>;
-  /** 领取一项馈赠里程碑 */
+  // —— 战斗：出战票 → 结算 ——
+  planQuestBattle(kingdom: string, node: number): Promise<BattleTicket | MetaFailure>;
+  /** 新手引导试炼战（仅引导第一步可用） */
+  planTutorialBattle(): Promise<BattleTicket | MetaFailure>;
+  /** 探索出战（档位取存档当前 Hard/VH 关） */
+  planExploreBattle(kingdom: string): Promise<BattleTicket | MetaFailure>;
+  /** 指定活动的出战 */
+  planEventBattle(typeId: EventTypeId, choice?: string): Promise<BattleTicket | MetaFailure>;
+  /** 竞技场下一场 */
+  planArenaBattle(): Promise<BattleTicket | MetaFailure>;
+  /** 入侵：对一只镜像对手出战 */
+  planInvasionBattle(mirrorId: string): Promise<BattleTicket | MetaFailure>;
+  /** 结算当前出战票（一票一结；票不符/已结算返回 INVALID） */
+  settleBattle(result: BattleResult): Promise<GatewayUpdate<BattleSettlement | MetaFailure>>;
+
+  // —— 馈赠 ——
   claimGift(id: string): Promise<GatewayUpdate<GiftClaimResult>>;
-  /** 一键领取全部已达成的馈赠 */
   claimAllGifts(): Promise<GatewayUpdate<GiftClaimResult>>;
-  /** 探索出战计划（档位取存档当前 Hard/VH 关） */
-  planExploreBattle(kingdom: string): Promise<BridgeOutcome | MetaFailure>;
-  /** 结算入账（击杀/胜利/首胜/任务推进/战败保底逐行明细） */
-  applyBattleSettlement(
-    result: BattleResult,
-    ctx: SettlementContext,
-  ): Promise<GatewayUpdate<SettlementDetail>>;
 
-  // —— 淬炼（素材批 2026-09-19；WEAPON-FORGE-DESIGN F2） ——
-  /** 武器淬炼 +1 级（钢锭/符卷/黄金原子扣账，写回 weaponTempering） */
-  temperWeapon(weaponId: string): Promise<GatewayUpdate<TemperSaveResult | MetaFailure>>;
+  // —— 每周活动 ——
+  /** 主动放弃登塔（按败北同口径收尾发奖） */
+  abandonTowerRun(): Promise<GatewayUpdate<Ok<{ floorReached: number; glory: number; scrolls: number }> | MetaFailure>>;
+  /** 活动玩法的非战斗动作（爬塔选路/营地/商人/奇遇/遗物、庆典棋盘掷骰等）。失败不改存档 */
+  eventAction(typeId: EventTypeId, action: string): Promise<GatewayUpdate<EventActionResult | MetaFailure>>;
+  /** 活动商店购买；expectedPeriodStart = 屏层看到的货架期（换期时拒绝，防买错） */
+  buyEventGoods(goodsId: string, typeId: EventTypeId, expectedPeriodStart?: number): Promise<GatewayUpdate<EventBuyResult | MetaFailure>>;
 
-  // —— 每周活动（素材批 2026-09-19） ——
-  /** 指定活动的出战计划（主题出敌 + 结算所需 plan；plan.source.kind === 'event'） */
-  planEventBattle(now: number, weekStart: number, typeId: EventTypeId, choice?: string): Promise<BridgeOutcome | MetaFailure>;
+  // —— 入侵 ——
+  syncInvasionSeason(): Promise<GatewayUpdate<Ok>>;
+  refreshInvasionOpponents(): Promise<GatewayUpdate<Ok | MetaFailure>>;
+  /** expectedWeek = 屏层看到的赛季周（跨周时拒绝） */
+  claimInvasionRank(id: string, expectedWeek?: number): Promise<GatewayUpdate<Ok<{ gems: number }> | MetaFailure>>;
 
-  /** 主动放弃登塔（按败北同口径收尾发奖；= 未来 D1 端点） */
-  abandonTowerRun(weekStart: number): Promise<GatewayUpdate<{ ok: true; floorReached: number; glory: number; scrolls: number } | MetaFailure>>;
-  /**
-   * 活动玩法的非战斗动作（2026-09-29 玩法重做；= 未来 D1 端点）：
-   * 爬塔选路/营地/商人/奇遇/遗物选择、庆典棋盘掷骰等。失败不改存档。
-   */
-  eventAction(now: number, weekStart: number, typeId: EventTypeId, action: string): Promise<GatewayUpdate<EventActionResult | MetaFailure>>;
-  /** 活动商店购买（代币扣账 + 素材/货币入账 + 已购计数；= 未来 D1 端点） */
-  buyEventGoods(
-    goodsId: string,
-    now: number,
-    weekStart: number,
-    typeId: EventTypeId,
-    expectedPeriodStart?: number,
-  ): Promise<GatewayUpdate<EventBuyResult | MetaFailure>>;
-
-  // —— 入侵 PvP（素材批 2026-09-19） ——
-  syncInvasionSeason(now: number, weekStart: number): Promise<GatewayUpdate<{ ok: true }>>;
-  refreshInvasionOpponents(now: number, weekStart: number): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
-  claimInvasionRank(id: string, now?: number, expectedWeek?: number): Promise<GatewayUpdate<{ ok: true; gems: number } | MetaFailure>>;
-  /** 对一只镜像对手的出战斗计划（候选校验 + 过会话校验；跨周 lazy 周结在此触发） */
-  planInvasionBattle(
-    mirrorId: string,
-    now: number,
-    weekStart: number,
-  ): Promise<InvasionBridgeOutcome | MetaFailure>;
-  /** 结算一场入侵战斗（VP 官方表 + 荣耀/黄金入账 + 跨周 lazy 周结在此触发） */
-  settleInvasionBattle(
-    result: BattleResult,
-    mirrorId: string,
-    now: number,
-    weekStart: number,
-    todayStart: number,
-  ): Promise<GatewayUpdate<InvasionSettleResult | MetaFailure>>;
-
+  // —— 寻宝 ——
   /** 消耗 1 张藏宝图开始寻宝。已有未完成的一局时不重复扣图。 */
-  startTreasureHunt(seed: number): Promise<GatewayUpdate<{ ok: true; state: TreasureHuntState } | MetaFailure>>;
+  startTreasureHunt(): Promise<GatewayUpdate<Ok<{ state: TreasureHuntState }> | MetaFailure>>;
   /** 交换相邻两格。步数归零时在同一次写入里开奖。 */
   playTreasureHunt(from: number, to: number): Promise<GatewayUpdate<HuntMoveOk | MetaFailure>>;
 }

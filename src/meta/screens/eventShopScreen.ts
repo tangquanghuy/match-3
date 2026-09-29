@@ -4,7 +4,7 @@
  * 路由：#shop/<typeId>（六个 EventTypeId）；裸 #shop 由外壳回退到入侵周。
  * 货架只读 `eventShopOf`，成交仍交给 gateway，屏层不直接改存档。
  */
-import { isFailure, weekStartOf } from '../gateway';
+import { isFailure, weekStartOf, gameNow } from '../gateway';
 import { EVENT_ROTATION, EVENT_WEEKLY_RULES, type EventGoods, type EventTypeId } from '../data/events';
 import { INGOT_NAMES, parseStoneKey, stoneName, type IngotKey } from '../data/materials';
 import { RARITY_NAMES } from '../data/rarity';
@@ -204,7 +204,7 @@ export class EventShopScreen implements Screen {
   html(ctx: ShellCtx, param?: string): string {
     const typeId = parseTypeId(param);
     const filter = this.filters.get(typeId) ?? 'all';
-    const now = Date.now();
+    const now = gameNow();
     const weekStart = weekStartOf(now);
     const save = ctx.save();
     if (!eventsUnlocked(save)) {
@@ -275,7 +275,7 @@ export class EventShopScreen implements Screen {
     const picker=document.querySelector<HTMLSelectElement>('#shopTypePicker');
     if(picker)this.on(picker,'change',()=>ctx.navigate(`#shop/${picker.value}`));
     const checkRefresh = (): boolean => {
-      const now = Date.now();
+      const now = gameNow();
       const period = eventShopPeriodOf(now);
       if (period.start !== this.displayedPeriod || weekStartOf(now) !== this.displayedWeek) {
         ctx.refresh();
@@ -287,7 +287,7 @@ export class EventShopScreen implements Screen {
     };
     const tick = (): void => {
       if (checkRefresh()) return;
-      this.refreshTimer = setTimeout(tick, Math.min(60_000, Math.max(1, eventShopPeriodOf(Date.now()).end - Date.now())));
+      this.refreshTimer = setTimeout(tick, Math.min(60_000, Math.max(1, eventShopPeriodOf(gameNow()).end - gameNow())));
     };
     tick();
     this.on(document, 'visibilitychange', () => { if (!document.hidden) checkRefresh(); });
@@ -315,7 +315,7 @@ export class EventShopScreen implements Screen {
       const inspect=target.closest<HTMLElement>('[data-inspect]');
       if(inspect||target.closest('[data-shop-rules]')) {
         const typeId=parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0] || undefined);
-        const shop=eventShopOf(ctx.save(),weekStartOf(Date.now()),typeId,Date.now());
+        const shop=eventShopOf(ctx.save(),weekStartOf(gameNow()),typeId,gameNow());
         const row=shop.rows.find(row=>row.goods.id===inspect?.dataset.inspect);
         document.querySelector('#shopItemTitle')!.textContent=row?cleanName(row.goods.name):'兑换说明';
         document.querySelector('#shopItemContent')!.innerHTML=row
@@ -338,10 +338,10 @@ export class EventShopScreen implements Screen {
       const goodsId = buy.dataset.buy;
       if (!goodsId) return;
       const typeId = parseTypeId(ctx.currentHash().replace(/^#shop\/?/, '').split('/')[0] || undefined);
-      const now = Date.now();
+      const now = ctx.gateway.now();
       const before = eventShopOf(ctx.save(), weekStartOf(now), typeId, now).rows.find((row) => row.goods.id === goodsId)?.goods;
       if (!before) return;
-      void ctx.gateway.buyEventGoods(goodsId, now, weekStartOf(now), typeId, this.displayedPeriod).then(({ result }) => {
+      void ctx.gateway.buyEventGoods(goodsId, typeId, this.displayedPeriod).then(({ result }) => {
         if (isFailure(result)) {
           toast(result.message);
           return;

@@ -16,8 +16,8 @@
 /* 气泡 = 向导立绘（左，压在卡片上）+ 对话卡 */
 .tut-bubble { position: fixed; display: flex; align-items: flex-end; width: min(560px, calc(100vw - 24px)); color: #ece6d8; pointer-events: auto; animation: tut-in .35s ease-out both; }
 .tut-guide { position: relative; z-index: 2; flex: none; width: 170px; height: 250px; margin-right: -46px; object-fit: contain; object-position: bottom center; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); pointer-events: none; }
-/* 对话卡底图：生成的金边宝石框（src/assets/meta/tutorial/frame.webp，全局样式由 Vite 处理 url） */
-.tut-card { position: relative; flex: 1; min-width: 0; padding: 42px 34px 34px 64px; background: url('../../../assets/meta/tutorial/frame.webp') center / 100% 100% no-repeat; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .6)); }
+/* 对话卡底图：生成的金边宝石框（game-assets/bundled/meta/tutorial/frame.webp，全局样式由 Vite 处理 url） */
+.tut-card { position: relative; flex: 1; min-width: 0; padding: 42px 34px 34px 64px; background: url('@assets/meta/tutorial/frame.webp') center / 100% 100% no-repeat; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .6)); }
 
 .tut-name { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .tut-name span { padding: 1px 8px; border-radius: 4px; background: linear-gradient(90deg, #7a2e2a, #a43d33); color: #ffe7d6; font-size: 11px; letter-spacing: .2em; }

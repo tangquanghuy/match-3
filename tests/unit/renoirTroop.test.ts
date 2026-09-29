@@ -40,7 +40,7 @@ describe('RenoirSideF / 镜月蝶影 / 蝶舞 integration', () => {
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE],
       manaColors: [BaseColor.Blue, BaseColor.Yellow, BaseColor.Purple], spell: { name: '镜月蝶影' } });
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
-    expect(troop.artUrl).toContain('renoir-sidef.png');
+    expect(troop.artUrl).toContain('renoir-sidef.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
     expect(troop.traits.map(t => t.code)).toEqual(codes);
     codes.forEach(code => { expect(getTrait(code)).toBeDefined(); expect(metaKnownTraitIds()).toContain(code); });

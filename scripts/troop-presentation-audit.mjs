@@ -67,9 +67,9 @@ function requestFor(troop, key, quad) {
     manaColors: troop.manaColors.length ? troop.manaColors : ['Brown'], manaCost: troop.manaCost,
     skillId: String(troop.spell.id), traitIds: troop.traits.map(t => t.code), troopTypes: troop.troopTypes,
     ...(troop.kingdom ? { kingdom: troop.kingdom } : {}), spellName: troop.spell.name, spellDescription: troop.spell.description,
-    ...(troop.artUrl || troop.portrait ? { portraitUrl: troop.artUrl ?? `/meta/assets/portraits/${troop.portrait}.webp` } : {}) });
+    ...(troop.artUrl || troop.portrait ? { portraitUrl: troop.artUrl ?? `/static/portraits/${troop.portrait}.webp` } : {}) });
   const dummy = (i, enemy) => ({ externalId: `${enemy ? 'e' : 'p'}${i}`, name: `${enemy ? '敌方' : '友方'}陪练${i}`,
-    portraitUrl: troop.artUrl ?? `/meta/assets/portraits/${troop.portrait}.webp`,
+    portraitUrl: troop.artUrl ?? `/static/portraits/${troop.portrait}.webp`,
     stats: { hp: 200, armor: 30, attack: 12, magic: 8 }, initialHp: enemy ? 200 : 120,
     manaColors: [['Red'], ['Blue'], ['Green'], ['Purple']][i], manaCost: 20,
     skillId: '7004', traitIds: [], troopTypes: enemy ? [['Daemon'], ['Undead'], ['Dragon'], ['Human']][i] : troop.troopTypes });

@@ -32,15 +32,15 @@ import type { StormChangeEvent } from '@engine/events';
 import { AnimConfig } from './AnimationConfig';
 
 // 与 gemTextures.ts 同源的宝石贴图素材（同一文件，Vite 构建去重，零新增产物）。
-import blueGemUrl from '../assets/gems/blue.png?url';
-import skullGemUrl from '../assets/gems/skull.png?url';
-import doomSkullGemUrl from '../assets/gems/special/doomSkull.png?url';
-import uberDoomSkullGemUrl from '../assets/gems/special/uberDoomSkull.png?url';
-import brownGemUrl from '../assets/gems/brown.png?url';
-import greenGemUrl from '../assets/gems/green.png?url';
-import purpleGemUrl from '../assets/gems/purple.png?url';
-import redGemUrl from '../assets/gems/red.png?url';
-import yellowGemUrl from '../assets/gems/yellow.png?url';
+import blueGemUrl from '@assets/gems/blue.png?url';
+import skullGemUrl from '@assets/gems/skull.png?url';
+import doomSkullGemUrl from '@assets/gems/special/doomSkull.png?url';
+import uberDoomSkullGemUrl from '@assets/gems/special/uberDoomSkull.png?url';
+import brownGemUrl from '@assets/gems/brown.png?url';
+import greenGemUrl from '@assets/gems/green.png?url';
+import purpleGemUrl from '@assets/gems/purple.png?url';
+import redGemUrl from '@assets/gems/red.png?url';
+import yellowGemUrl from '@assets/gems/yellow.png?url';
 
 /** 指示器的对应色宝石贴图（按颜色，与棋盘宝石同一素材） */
 export const STORM_GEM_URL: Record<BaseColor, string> = {

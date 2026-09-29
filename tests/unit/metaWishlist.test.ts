@@ -7,7 +7,7 @@ import { openGemChest,openGoldChest,openGloryChest } from '../../src/meta/system
 import { grantTroop } from '../../src/meta/systems/troopProgress';
 import { validateWishlist,setWishlist,setPursuitTarget,recommendWishlist,hydrateWishlist,wishlistHitRate } from '../../src/meta/systems/wishlist';
 import { matchesTroopCatalog } from '../../src/meta/data/troopCatalog';
-import { MockGateway,memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { MockGateway,memoryStorage } from '../../src/meta/gateway';
 const fresh=()=>newSave({now:0,currencies:{gems:100000,goldKeys:10,glory:10000}});
 const mythics=TROOPS.filter(t=>t.rarityIdx===5);
 const target=mythics[0]!,other=mythics[1]!;

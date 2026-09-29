@@ -85,7 +85,7 @@ const CLASS_ICON: Record<string, string> = {
 };
 
 /**
- * 武器卡面（官方 webp，`public/gowhead-icons/`）。
+ * 武器卡面（官方 webp，`public/static/weapons/`）。
  *
  * 2026-09-19 窗口 M：程序化剪影 `shell/weaponIcons.ts` 已退役（UX-2 混排的根因——
  * 同一个列表里一边是透明底单色矢量、一边是满幅彩绘，且 `WEAPON_ICONS` 缺
@@ -142,7 +142,7 @@ export class HeroScreen implements Screen {
       <div class="screen hero-screen">
         <section class="panel hero-card">
           <div class="hero-art">
-            <img src="/meta/assets/seiji.webp" alt="影织者">
+            <img src="/static/hero/seiji.webp" alt="影织者">
             <div class="shade"></div>
           </div>
           <div class="hero-metrics">

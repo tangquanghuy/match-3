@@ -28,7 +28,7 @@ const KEY_ART = 'Modern anime gacha game key art background, painterly cel-shade
   + 'cinematic soft lighting and atmospheric depth, wide landscape composition. No characters in close-up, no text, no letters, no logo, no watermark, no frame, no border.';
 const BANNER = (cloth) => ({
   size: '1024x1536',
-  out: `src/assets/meta/kingdom/banner-${cloth.id}.webp`,
+  out: `game-assets/bundled/meta/kingdom/banner-${cloth.id}.webp`,
   longest: 520,
   pad: 0.01,
   prompt: 'A tall vertical medieval heraldic war banner hanging from an ornate polished gold crossbar with round finial knobs, '
@@ -48,7 +48,7 @@ export const ASSETS = {
   'map-fog': {
     size: '1536x1024',
     background: 'opaque',
-    out: 'src/assets/meta/kingdom/map-fog.webp',
+    out: 'game-assets/bundled/meta/kingdom/map-fog.webp',
     longest: 1536,
     pad: 0,
     prompt: 'Top-down view of a dense sea of soft fog-of-war clouds for a painted fantasy world map: thick billowing mist and '
@@ -58,7 +58,7 @@ export const ASSETS = {
   },
   'treasury-hoard': {
     size: '1536x1024',
-    out: 'src/assets/meta/kingdom/treasury-hoard.webp',
+    out: 'game-assets/bundled/meta/kingdom/treasury-hoard.webp',
     longest: 900,
     pad: 0.02,
     prompt: 'A royal tribute treasure hoard: an open ornate dark wooden treasure chest bound with polished gold bands, overflowing '
@@ -68,7 +68,7 @@ export const ASSETS = {
   },
   'kingdom-shield': {
     size: '1024x1024',
-    out: 'src/assets/meta/kingdom/kingdom-shield.webp',
+    out: 'game-assets/bundled/meta/kingdom/kingdom-shield.webp',
     longest: 300,
     pad: 0.02,
     prompt: 'Heraldic kingdom level badge: a heater-shaped shield with a thick polished gold rim and a deep royal-blue enamel face '
@@ -78,7 +78,7 @@ export const ASSETS = {
   },
   'home-crown': {
     size: '1024x1024',
-    out: 'src/assets/meta/kingdom/home-crown.webp',
+    out: 'game-assets/bundled/meta/kingdom/home-crown.webp',
     longest: 160,
     pad: 0.02,
     prompt: 'Home kingdom crown icon: a small rounded royal crown in bright polished gold with a deep crimson velvet cap inside, '
@@ -89,7 +89,7 @@ export const ASSETS = {
   // 2026-09-28 用户二次反馈：不要清一色象牙白。每枚图标一个鲜明主色，四枚放在一起要一眼分得开。
   'daily-firstwin': {
     size: '1024x1024',
-    out: 'src/assets/meta/daily/firstwin.webp',
+    out: 'game-assets/bundled/meta/daily/firstwin.webp',
     longest: 160,
     pad: 0.02,
     prompt: 'Daily first victory icon: a compact rounded composition, a short sword with a bright steel blade and a crimson-red hilt '
@@ -98,7 +98,7 @@ export const ASSETS = {
   },
   'daily-tribute': {
     size: '1024x1024',
-    out: 'src/assets/meta/daily/tribute.webp',
+    out: 'game-assets/bundled/meta/daily/tribute.webp',
     longest: 160,
     pad: 0.02,
     prompt: 'Kingdom tribute icon: a small chubby treasure coffer in rich royal purple with bright gold corner caps, lid slightly open, '
@@ -107,7 +107,7 @@ export const ASSETS = {
   },
   'daily-arena': {
     size: '1024x1024',
-    out: 'src/assets/meta/daily/arena.webp',
+    out: 'game-assets/bundled/meta/daily/arena.webp',
     longest: 160,
     pad: 0.02,
     prompt: 'Arena icon: two slim sabres with bright steel blades crossed in an X behind a small round shield with a vivid azure-blue face, '
@@ -116,7 +116,7 @@ export const ASSETS = {
   },
   'daily-hunt': {
     size: '1024x1024',
-    out: 'src/assets/meta/daily/hunt.webp',
+    out: 'game-assets/bundled/meta/daily/hunt.webp',
     longest: 160,
     pad: 0.02,
     prompt: 'Treasure hunt icon: a folded treasure map in warm tan parchment with a simple dotted red path and a red X, '
@@ -134,7 +134,7 @@ export const ASSETS = {
   ].map(([id, scene]) => [`shop-event-${id}`, {
     size: '1536x1024',
     background: 'opaque',
-    out: `src/assets/meta/shop/event-${id}.webp`,
+    out: `game-assets/bundled/meta/shop/event-${id}.webp`,
     longest: 1280,
     pad: 0,
     prompt: `Wide banner illustration: ${scene}. The main subject sits in the right half; the left third is calm, darker and low-detail so UI text can be placed there. ` + KEY_ART,
@@ -142,7 +142,7 @@ export const ASSETS = {
   'shop-gem-vault': {
     size: '1536x1024',
     background: 'opaque',
-    out: 'src/assets/meta/shop/gem-vault.webp',
+    out: 'game-assets/bundled/meta/shop/gem-vault.webp',
     longest: 1280,
     pad: 0,
     prompt: 'Wide banner illustration: a royal crystal armory vault, legendary swords, staves and axes displayed on elegant racks and pedestals, '
@@ -152,7 +152,7 @@ export const ASSETS = {
   // —— 新手引导向导立绘 + 战斗加载页背景（2026-09-29） ——
   'tutor-guide': {
     size: '1024x1536',
-    out: 'src/assets/meta/tutorial/guide.webp',
+    out: 'game-assets/bundled/meta/tutorial/guide.webp',
     longest: 900,
     pad: 0.01,
     prompt: 'Full body standing character illustration of a friendly young female guide mage for a fantasy match-3 RPG, '
@@ -163,7 +163,7 @@ export const ASSETS = {
   },
   'tutor-frame': {
     size: '1536x1024',
-    out: 'src/assets/meta/tutorial/frame.webp',
+    out: 'game-assets/bundled/meta/tutorial/frame.webp',
     longest: 900,
     pad: 0.01,
     prompt: 'Ornate empty dialogue box frame for a modern anime fantasy RPG UI: a wide rounded rectangle panel, deep navy translucent-looking center filled with '
@@ -173,7 +173,7 @@ export const ASSETS = {
   'battle-loading': {
     size: '1536x1024',
     background: 'opaque',
-    out: 'src/assets/meta/tutorial/battle-loading.webp',
+    out: 'game-assets/bundled/meta/tutorial/battle-loading.webp',
     longest: 1600,
     pad: 0,
     prompt: 'Wide dramatic battlefield illustration at dusk: two armies facing each other across a wide valley of ancient ruins, '
@@ -184,7 +184,7 @@ export const ASSETS = {
   'gift-hall': {
     size: '1536x1024',
     background: 'opaque',
-    out: 'src/assets/meta/gift/hall.webp',
+    out: 'game-assets/bundled/meta/gift/hall.webp',
     longest: 1280,
     pad: 0,
     prompt: 'Wide banner illustration: a grand celebratory treasure hall, stacks of gift boxes tied with crimson ribbons, open chests overflowing with glowing '
@@ -202,7 +202,7 @@ export const ASSETS = {
     ['collection', 'a thick spellbook with an emerald-green leather cover, gold corner caps and a glowing card-shaped bookmark. Dominant emerald green and gold'],
   ].map(([id, subject]) => [`gift-${id}`, {
     size: '1024x1024',
-    out: `src/assets/meta/gift/${id}.webp`,
+    out: `game-assets/bundled/meta/gift/${id}.webp`,
     longest: 160,
     pad: 0.02,
     prompt: `Milestone category icon: ${subject}. The whole icon is compact and roughly square. ` + ICON + ' ' + ANIME_COLOR,
@@ -218,4 +218,4 @@ export const RESULT_ASSETS = [
   'levelup-emblem', 'levelup-ribbon', 'mastery-card', 'title-astrolabe', 'continue-button', 'xp-icon',
   'stat-attack', 'stat-health', 'stat-armor', 'stat-magic',
   'mastery-red', 'mastery-green', 'mastery-blue', 'mastery-yellow', 'mastery-purple', 'mastery-brown',
-].map((id) => `src/assets/meta/result/${id}.webp`);
+].map((id) => `game-assets/bundled/meta/result/${id}.webp`);

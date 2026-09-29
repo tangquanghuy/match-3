@@ -1,5 +1,5 @@
 /** 材料图标。钢锭、符卷、特质石用图；藏宝图仍是简笔。 */
-const ART = import.meta.glob('../../assets/materials/*.png', {
+const ART = import.meta.glob('@assets/materials/*.png', {
   query: '?url',
   import: 'default',
   eager: true,

@@ -222,9 +222,9 @@ export function ownsWeapon(save: MetaSave, id: string): boolean {
   return save.hero.unlockedWeapons.some((raw) => resolveWeaponId(raw) === resolved);
 }
 
-/** 目录武器的官方卡面（`public/gowhead-icons/`；718/718 零缺失，故不返回 null） */
+/** 目录武器的官方卡面（`public/static/weapons/`；718/718 零缺失，故不返回 null） */
 export function catalogIconUrl(w: { imageFile?: string }): string | null {
-  return w.imageFile ? `/gowhead-icons/${w.imageFile}` : null;
+  return w.imageFile ? `/static/weapons/${w.imageFile}` : null;
 }
 
 /** 类型守卫：是否目录武器 id */

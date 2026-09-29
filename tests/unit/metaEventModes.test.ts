@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
+import { MockGateway, memoryStorage, weekStartOf } from '../../src/meta/gateway';
 import { EVENT_TYPES, EVENT_UNLOCK_HERO_LEVEL, WEEK_MS } from '../../src/meta/data/events';
 import {
   abandonTowerRun, currentEventTheme, ensureEventWeek, eventAction, eventBattlePoints, eventBattleProgress, eventBattleReady,
@@ -51,19 +51,27 @@ describe('平台：玩法状态建档与存档往返', () => {
   });
 
   it('网关：六页都能规划出属于自己活动的战斗（塔需先开始登塔）', async () => {
-    const gateway = new MockGateway(memoryStorage());
-    const { save } = await gateway.load();
-    save.hero.level = EVENT_UNLOCK_HERO_LEVEL;
-    save.hero.classId = save.hero.unlockedClasses[0] ?? save.hero.classId;
-    const towerBlocked = await gateway.planEventBattle(0, WEEK, 'towerOfDoom', 'go:0-0');
+    // 周锚点由核心按服务器时钟推导
+    const now = WEEK + 2 * 86_400_000;
+    const week = weekStartOf(now);
+    const gateway = new MockGateway(memoryStorage(), { now: () => now });
+    const { save: loaded } = await gateway.load();
+    const fixture = structuredClone(loaded);
+    fixture.hero.level = EVENT_UNLOCK_HERO_LEVEL;
+    fixture.hero.classId = fixture.hero.unlockedClasses[0] ?? fixture.hero.classId;
+    await gateway.dev!.importSaveJson(JSON.stringify(fixture));
+    const towerBlocked = await gateway.planEventBattle('towerOfDoom', 'go:0-0');
     expect(towerBlocked.ok).toBe(false);
-    const action = towerNextBattle(save, WEEK);
-    const planned = await gateway.planEventBattle(0, WEEK, 'towerOfDoom', action);
+    // 驱动器直接改存档：在副本上走到下一场战斗，再作为权威状态导入
+    const driven = structuredClone(gateway.current());
+    const action = towerNextBattle(driven, week);
+    await gateway.dev!.importSaveJson(JSON.stringify(driven));
+    const planned = await gateway.planEventBattle('towerOfDoom', action);
     expect(planned.ok).toBe(true);
     for (const id of ['invasion', 'raidBoss', 'factionAssault', 'worldEvent'] as const) {
-      const p = await gateway.planEventBattle(0, WEEK, id);
+      const p = await gateway.planEventBattle(id);
       expect(p.ok, id).toBe(true);
-      if (p.ok) expect(p.plan.source).toMatchObject({ kind: 'event', weekStart: WEEK, typeId: id });
+      if (p.ok) expect(p.source).toMatchObject({ kind: 'event', weekStart: week, typeId: id });
     }
   });
 });

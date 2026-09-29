@@ -1,7 +1,7 @@
 /**
  * 世界地图迷雾层（GoW 4.5：只看得见已开放与「下一批」王国，其余大陆藏在云雾里）。
  *
- * 实现：地图世界层里一张 1/4 分辨率的 canvas，先铺文生图云雾纹理（src/assets/meta/kingdom/map-fog.webp）
+ * 实现：地图世界层里一张 1/4 分辨率的 canvas，先铺文生图云雾纹理（game-assets/bundled/meta/kingdom/map-fog.webp）
  * 与一层夜色压暗，再用 destination-out 的径向渐变在王国处「擦」出洞：
  *   - 已开放：大洞、完全清晰；
  *   - 已探明（未来 3 级内开放）：小洞、半透明，能看见剪影与门槛；
@@ -125,26 +125,5 @@ export class MapFog {
   dispose(): void {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
-  }
-}
-
-const SEEN_KEY = 'gems.meta.fogSeenLevel';
-
-/** 上次在地图上「看过」的冒险者等级（揭幕只播新开放的王国）；首次进入返回 null */
-export function fogSeenLevel(): number | null {
-  try {
-    const raw = localStorage.getItem(SEEN_KEY);
-    const n = raw == null ? NaN : Number(raw);
-    return Number.isFinite(n) ? n : null;
-  } catch {
-    return null;
-  }
-}
-
-export function markFogSeen(level: number): void {
-  try {
-    localStorage.setItem(SEEN_KEY, String(level));
-  } catch {
-    /* 隐私模式等：揭幕每次都不播，不影响功能 */
   }
 }
