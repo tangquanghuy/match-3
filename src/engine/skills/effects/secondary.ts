@@ -368,6 +368,10 @@ export type Condition =
   /** P-R1-chosen-target-color-cond: the chosen target's mana colour at cast start (native CountArmyColor@FromTarget
    *  at step 0), usable before any targeting segment and after the target died. */
   | { kind: 'chosenTargetColor'; color: BaseColor }
+  /** P-A-chosen-target-status-precast: the chosen target (native FromTarget) holds the status, read live while it is
+   *  alive, falling back to the cast-start snapshot once it left the roster; usable before any targeting segment
+   *  (8276 ExplodeColor [AddForBurning] before Damage, 8521 ExplodeGems [AddForStun] before SplashHeavyDamage). */
+  | { kind: 'chosenTargetStatus'; statusId: string }
   | { kind: 'lastTargetRace'; race: string }
   /** 最近产目标段的主目标带该法力色（R22 批全局条件，8467「若敌人使用蓝色法力值」） */
   | { kind: 'lastTargetColor'; color: BaseColor }
@@ -441,6 +445,13 @@ export function conditionMet(
       if (id === undefined) return false;
       const colors = ctx.castTracking?.colorsAtCastStart?.[id] ?? findCharacter(ctx.state, id)?.colors ?? [];
       return colors.includes(cond.color);
+    }
+    case 'chosenTargetStatus': {
+      const id = ctx.chosenTargetId;
+      if (id === undefined) return false;
+      const live = findCharacter(ctx.state, id);
+      if (live && !live.defeated) return hasStatusForCast(ctx, live, cond.statusId);
+      return (ctx.castTracking?.statusesAtCastStart?.[id] ?? []).some((s) => sameStatus(s, cond.statusId));
     }
     case 'targetColor': {
       if (!target) return false;

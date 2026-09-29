@@ -7359,16 +7359,6 @@
       "prototype": {
         "segments": [
           {
-            "kind": "damage",
-            "target": "enemyChosen",
-            "scaling": {
-              "base": 3,
-              "mult": 1
-            },
-            "range": "splash",
-            "splashRatio": 0.75
-          },
-          {
             "kind": "gem",
             "params": {
               "op": "clear",
@@ -7383,9 +7373,19 @@
               }
             },
             "ifCond": {
-              "kind": "lastTargetStatus",
+              "kind": "chosenTargetStatus",
               "statusId": "stun"
             }
+          },
+          {
+            "kind": "damage",
+            "target": "enemyChosen",
+            "scaling": {
+              "base": 3,
+              "mult": 1
+            },
+            "range": "splash",
+            "splashRatio": 0.75
           }
         ]
       }

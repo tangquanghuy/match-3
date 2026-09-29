@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 700 条改动，涉及 1165 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 703 条改动，涉及 1166 个技能 ID。
 
 ## 按时间
 
@@ -706,6 +706,9 @@
 | 2026-09-28T23:37 | sa-I | L3-I-6526-steal-first | assembler | 7719 | troop:6526 IceWraith | `src/engine/skills/curated/batch-07.ts` | hit, Freeze, then steal 5 Mana if Frozen (always true) → native StealMana [AddForFrozen 5] first: steal only if already Frozen, then hit and Freeze |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-1445-random-true | data | 8701 | weapon:1445 CursebreakerJavelin | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | normal damage to the first + last enemy, Tempering on one hit only; zh 首位和末位敌人 → native TrueDamage RandomEnemy -> RandomPrefNotPrevEnemy, Tempering on both; zh 2 名随机敌人 真实伤害; override entry |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
+| 2026-09-29T03:50 | sa-P | P-A-chosen-target-status-precast | primitive | 8276, 8521 | troop:6857 Blightwing；weapon:1413 FleurDeLeon | `src/engine/skills/effects/secondary.ts` | no condition read the chosen target's status before a targeting segment (lastTargetStatus needs castTracking.lastTarget) → global condition chosenTargetStatus {statusId}: chosen target's status live while alive, cast-start snapshot once it left the roster | new condition only; users: 8276 8521 |
+| 2026-09-29T03:50 | sa-P | P-A-chosen-target-status-precast | assembler | 8276, 8521 | troop:6857 Blightwing；weapon:1413 FleurDeLeon | `src/engine/skills/curated/batch-r22.ts`<br>`src/engine/skills/curated/batch-w03.ts`<br>`src/data/gowWeaponReviewedOverrides.json` | 8276 dmg then explode Green/Red ifCond lastTargetStatus; 8521 dmgSplash then explode 4 ifCond lastTargetStatus stun → native order (R001): 8276 explode Red (chosenTargetStatus burning) -> explode Green (disease) -> dmg; 8521 explode 4 (chosenTargetStatus stun) -> heavy splash; override 8521 synced |  |
+| 2026-09-29T03:50 | sa-P | P-A-random-skulls-variants | primitive | 8504 | troop:7001 HoundOfYaoGuai | `src/engine/skills/effects/gems.ts`<br>`src/engine/skills/builders.ts` | randomGems include 'skull' picked plain Skulls only → include 'skull' pool = matchJoinKey skull (plain + Doom + Uber Doom Skulls, R013-5) | explodeRandomSkulls users: 8504 troop:7001, 7136 |
 
 ## 按技能 ID
 
@@ -1178,6 +1181,7 @@
 | 8262 | 1 | P-E-faction-kingdom |
 | 8263 | 1 | P-E-faction-kingdom |
 | 8273 | 1 | L1-H-6854-magic |
+| 8276 | 2 | P-A-chosen-target-status-precast、P-A-chosen-target-status-precast |
 | 8282 | 1 | L3-F-6863 |
 | 8283 | 1 | L1-1310-brown |
 | 8285 | 1 | P-E-faction-kingdom |
@@ -1317,7 +1321,7 @@
 | 8501 | 1 | L3-F-6998 |
 | 8502 | 1 | R3-B12-6999 |
 | 8503 | 2 | B-L4b-7000-zh、R014-7000-count-before-create |
-| 8504 | 1 | L4a-R9-7001-zh |
+| 8504 | 2 | L4a-R9-7001-zh、P-A-random-skulls-variants |
 | 8505 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8506 | 1 | P-E-faction-kingdom |
 | 8508 | 2 | L5-C-r4-1405、L5-C-r4-1132 |
@@ -1327,7 +1331,7 @@
 | 8514 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8515 | 2 | L1-E-kingdom-summon-raw、P-E-faction-kingdom |
 | 8517 | 1 | L2-H-1396-any-gem |
-| 8521 | 2 | L4a-R9-1413-target-stun、R015-random-gems-include-skulls |
+| 8521 | 4 | L4a-R9-1413-target-stun、R015-random-gems-include-skulls、P-A-chosen-target-status-precast、P-A-chosen-target-status-precast |
 | 8523 | 1 | L3-F-6996 |
 | 8525 | 1 | L4a-r3-7018 |
 | 8526 | 1 | L4a-R8-7019-zh |

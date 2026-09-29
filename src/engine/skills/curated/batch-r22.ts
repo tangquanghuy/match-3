@@ -838,12 +838,13 @@ const SPELLS: CuratedBatch['spells'] = [
   {
     id: 8276,
     desc: '对一名敌人造成 [魔法 + 1] 点伤害。若敌人已陷入疾病状态，则爆破 3 颗绿色宝石。若敌人陷入燃烧状态，则爆破 3 颗红色宝石。',
-    // 条件化爆破 = lastTargetStatus 全局条件（R22 新条件，修复「目标相对条件辖无目标宝石段
-    // 整段跳过」缺口，r16/r17 口径收口）。
+    // P-A-chosen-target-status-precast: native order (R001) ExplodeColor Red [AddForBurning@FromTarget] ->
+    // ExplodeColor Green [AddForDisease@FromTarget] -> Damage@FromTarget; chosenTargetStatus reads the chosen enemy
+    // before any targeting segment.
     build: skill(
+    explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'chosenTargetStatus', statusId: 'burning' } }),
+    explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'chosenTargetStatus', statusId: 'disease' } }),
     dmg('enemyChosen', 1, 1),
-    explodeRandomGems(3, 0, 'color', BaseColor.Green, { ifCond: { kind: 'lastTargetStatus', statusId: 'disease' } }),
-    explodeRandomGems(3, 0, 'color', BaseColor.Red, { ifCond: { kind: 'lastTargetStatus', statusId: 'burning' } }),
     ),
   },
   {

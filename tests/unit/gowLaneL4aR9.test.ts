@@ -170,8 +170,9 @@ describe('L4a R9 B07', () => {
     const other = castSpell({ key: 'weapon:1413', enemies: [{ statuses: [{ id: 'stun', turns: 99 }] }, {}, {}, {}] as never });
     expect(other.summary.order.some(o => o.startsWith('explode'))).toBe(false);
     const own = castSpell({ key: 'weapon:1413', enemies: [{}, { statuses: [{ id: 'stun', turns: 99 }] }, {}, {}] as never, board: skullHeavy });
-    expect(own.summary.order[0]).toBe('dmg E11 13 (splash)');
-    expect(own.summary.order.some(o => o.startsWith('explode'))).toBe(true);
+    // P-A-chosen-target-status-precast fixed (sa-P r10): native order explode first, then the heavy splash
+    expect(own.summary.order[0]).toMatch(/^explode/);
+    expect(own.summary.order.some(o => o.startsWith('dmg E11') && o.includes('(splash)'))).toBe(true);
   });
   // troop:6891 (8317): ExplodeGems 4 (Skulls eligible) ; StormSkull.
   it('troop:6891 random explosion can centre on Skulls and conjures a Bonestorm', () => {
