@@ -7,3 +7,7 @@ at Magic 10, then golden approve + signoff accept (`--by sa-Q2`, test tests/unit
 - B02 troop:7062 (L3): accept (R012 fixed: K hits E10 above the killed target)
 - B02 troop:6410 (L1): FIXED batch-r22 7566 devour enemyAboveTarget/BelowTarget -> enemyNextDown then enemyNextUp (native Consume single troop, native order), accept
 - B02 troop:7116 (L1): still issued, P-Q2-chosen-stat-at-cast-start queued (chosenStat of the killed target = 0 -> AboveTarget hit lost in K)
+- B03 troop:6483 (L6): accept (P-F3-prehit-target-compare fixed; bigger enemy -> souls 30, dmg 39)
+- B03 troop:6587 (L5): accept (P-F3-lasttarget-damaged fixed; +10 on damaged target, Enrage on kill / surviving damaged target; armor-only hit no Enrage)
+- B03 troop:6704 (L4b): accept (P-R2-chosen-color-modifier fixed; 11 Red for 11 chosen-colour gems)
+- B03 troop:6936, weapon:1427 (L5): accept (P-R3-target-status-count fixed; 3 statuses -> 43, 2 statuses -> 37)

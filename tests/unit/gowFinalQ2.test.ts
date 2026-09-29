@@ -70,3 +70,36 @@ describe('sa-Q2 B02: harness-leak items (fixed on main: fresh templates) + Doomc
     expect([...seen].sort()).toEqual(['E11', 'E13']); // E10 (two above) never devoured
   });
 });
+
+describe('sa-Q2 B03: fixed chosen-target conditions / counts', () => {
+  const big = { hp: 2000, maxHp: 2000, armor: 0, mana: 0 };
+  it('troop:6483 Sol Zara: Life compared before the hit -> 30 Souls then 3 x 13 damage (P-F3-prehit-target-compare)', () => {
+    const { summary: s } = castSpell({ key: 'troop:6483', enemies: [big, big] });
+    expect(s.economy.souls).toBe(30);
+    expect(s.order.filter(x => x.startsWith('dmg'))).toEqual(['dmg E11 39']);
+    const low = castSpell({ key: 'troop:6483', enemies: [{ hp: 50, maxHp: 50 }, { hp: 50, maxHp: 50 }] }).summary;
+    expect(low.economy.souls).toBe(10);
+  });
+  it('troop:6587 Urska Dragoon: +10 only on an already damaged target; surviving damaged target -> Enraged (P-F3-lasttarget-damaged)', () => {
+    const hurt = castSpell({ key: 'troop:6587', enemies: [big, { hp: 500, maxHp: 900, armor: 0 }] }).summary;
+    expect(hurt.order[0]).toBe('dmg E11 24');
+    expect(hurt.units.C).toContain('+rage');
+    const armorOnly = castSpell({ key: 'troop:6587', magic: 0 }).summary; // 4 damage all on armor -> not damaged
+    expect(armorOnly.units.C ?? '').not.toContain('+rage');
+  });
+  it('troop:6704 Shaman of Set: asks for a colour; one Red per gem of it (P-R2-chosen-color-modifier)', () => {
+    const { summary: s } = castSpell({ key: 'troop:6704' });
+    expect(s.gems.created.Red).toBe(11);
+    expect(s.order.some(x => x.endsWith('+bleed'))).toBe(true);
+  });
+  it('troop:6936 Royal Assassin: +10 per listed status on the target (P-R3-target-status-count)', () => {
+    const st = (ids: string[]) => ids.map(id => ({ id, turns: 3 })) as never;
+    const { summary: s } = castSpell({ key: 'troop:6936', enemies: [big, { ...big, statuses: st(['poison', 'stun', 'curse']) }] });
+    expect(s.order[0]).toBe('dmg E11 43');
+  });
+  it('weapon:1427 Elemental Reach: +12 per Entangled / Burning / Frozen / Stunned on the target', () => {
+    const st = (ids: string[]) => ids.map(id => ({ id, turns: 3 })) as never;
+    const { summary: s } = castSpell({ key: 'weapon:1427', enemies: [big, { ...big, statuses: st(['burning', 'frozen']) }] });
+    expect(s.order[0]).toBe('dmg E11 37');
+  });
+});

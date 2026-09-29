@@ -999,6 +999,16 @@
   "by": "sa-B",
   "at": "2026-09-28T10:33:07.128Z"
  },
+ "troop:6704": {
+  "lines": {
+   "L10": "convert Yellow x3, Purple x3, Blue x2, Green x3 -> Red x11 ; status E13 +bleed ; ~cascade~  => E13:+bleed | A2:mana+3  cascade",
+   "R10": "convert Yellow x3, Purple x3, Blue x2, Green x3 -> Red x11 ; status E13 +bleed ; ~cascade~  => E13:+bleed | A2:mana+3  cascade",
+   "L0": "convert Yellow x3, Purple x3, Blue x2, Green x3 -> Red x11 ; status E13 +bleed ; ~cascade~  => E13:+bleed | A2:mana+3  cascade",
+   "K": "convert Yellow x3, Purple x3, Blue x2, Green x3 -> Red x11 ; status E13 +bleed ; ~cascade~  => E13:+bleed | A2:mana+3  cascade"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:55:52.783Z"
+ },
  "troop:6733": {
   "lines": {
    "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; extra-turn match  => A2:mana+4  extra:match  cascade",
