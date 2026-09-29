@@ -1429,6 +1429,16 @@
   "by": "sa-F",
   "at": "2026-09-28T21:38:31.043Z"
  },
+ "troop:7313": {
+  "lines": {
+   "L10": "status A1 +barrier ; buff A1 mana+8  => A1:mana+8 +barrier",
+   "R10": "status A1 +barrier ; buff A1 mana+8  => A1:mana+8 +barrier",
+   "L0": "status A1 +barrier ; buff A1 mana+8  => A1:mana+8 +barrier",
+   "K": "status A1 +barrier ; buff A1 mana+8  => A1:mana+8 +barrier"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:11:47.511Z"
+ },
  "troop:7319": {
   "lines": {
    "L10": "buff E10 armor-5 ; buff E11 armor-10 ; buff E10 attack-16 ; buff E11 attack-16 ; buff A1 mana+6 ; buff A2 mana+6  => E10:arm-5 atk-16 | E11:arm-10 atk-16 | A1:mana+6 | A2:mana+6",

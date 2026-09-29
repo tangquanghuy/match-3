@@ -1599,6 +1599,16 @@
   "by": "sa-C",
   "at": "2026-09-28T11:07:38.245Z"
  },
+ "troop:7439": {
+  "lines": {
+   "L10": "status E11 +stun ; move E11 back ; buff C attack+21 ; buff C hp+21 max+21 ; buff C armor+21 ; move C front  => E11:+stun | C:hp+21 max+21 arm+21 atk+21",
+   "R10": "status E11 +stun ; move E11 back ; buff C attack+21 ; buff C hp+21 max+21 ; buff C armor+21 ; move C front  => E11:+stun | C:hp+21 max+21 arm+21 atk+21",
+   "L0": "status E11 +stun ; move E11 back ; buff C attack+1 ; buff C hp+1 max+1 ; buff C armor+1 ; move C front  => E11:+stun | C:hp+1 max+1 arm+1 atk+1",
+   "K": "status E11 +stun ; move E11 back ; buff C attack+21 ; buff C hp+21 max+21 ; buff C armor+21 ; move C front  => E11:+stun | C:hp+21 max+21 arm+21 atk+21"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:11:55.742Z"
+ },
  "troop:7464": {
   "lines": {
    "L10": "dmg E10 13 (all) ; dmg E11 13 (all)  => E10:hp-13 | E11:hp-13",

@@ -919,6 +919,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:32:13.160Z"
  },
+ "troop:7285": {
+  "lines": {
+   "L10": "gold+11  eco:{\"gold\":11,\"goldMine\":11,\"goldTheirs\":-11}",
+   "R10": "gold+11  eco:{\"gold\":11,\"goldMine\":11,\"goldTheirs\":-11}",
+   "L0": "gold+1  eco:{\"gold\":1,\"goldMine\":1,\"goldTheirs\":-1}",
+   "K": "gold+11  eco:{\"gold\":11,\"goldMine\":11,\"goldTheirs\":-11}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:11:43.017Z"
+ },
  "troop:7286": {
   "lines": {
    "L10": "buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => C:mag+3 | A1:mag+3 | A2:mag+3",

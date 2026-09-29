@@ -4,7 +4,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import { BaseColor, specialGem } from '@engine/types';
-import { castSpell, reviewBoard, type BoardFn } from '../helpers/gowCast';
+import { FixedBranchChooser } from '@engine/skills/branchChooser';
+import { castSpell, reviewBoard, setupCast, summarize, type BoardFn } from '../helpers/gowCast';
 import { spellDescription } from '../../src/data/combatText';
 import troops from '../../src/data/troops.json';
 
@@ -148,5 +149,28 @@ describe('sa-J B08', () => {
     const firstDmg = o.findIndex(x => x.startsWith('dmg '));
     expect(o.slice(0, firstDmg).filter(x => /\+(curse|bleed)$/.test(x))).toHaveLength(4);
     expect(o.slice(firstDmg, firstDmg + 2)).toEqual(['dmg E12 11 (all)', 'dmg E10 11 (all)']);
+  });
+});
+
+describe('sa-J B09', () => {
+  // troop:7285 FennecThief (8859) branch B: StealRandomStat@RandomEnemy 1+M - the caster gains the rolled Skill.
+  it('troop:7285 branch B steals one random Skill from a random enemy', () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const f = setupCast({ key: 'troop:7285', seed });
+      f.engine.setBranchChooser(new FixedBranchChooser(1));
+      const o = summarize(f, f.cast()).order;
+      const lost = o.find(x => /^buff E1\d \w+-\d+$/.test(x));
+      expect(lost).toBeDefined();
+      const stat = /^buff E1\d (\w+)-/.exec(lost!)![1];
+      seen.add(stat);
+      expect(o.some(x => new RegExp(`^buff C ${stat}\\+`).test(x))).toBe(true);
+    }
+    expect(seen.size).toBeGreaterThan(2);
+  });
+  // troop:7313 RelicKnight (8925): Spirit gems (purple, R016-7) only if the chosen ally is a Knight.
+  it('troop:7313 creates 3 Spirit gems only for a Knight ally', () => {
+    expect(order('troop:7313', { allies: [{ hp: 500, maxHp: 700, troopTypes: ['Knight'] } as Record<string, unknown>] }).at(-1)).toMatch(/-> spiritGem\/Purple x3$/);
+    expect(order('troop:7313').some(x => x.includes('spiritGem'))).toBe(false);
   });
 });

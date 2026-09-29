@@ -1809,6 +1809,16 @@
   "by": "sa-R2",
   "at": "2026-09-28T02:46:15.792Z"
  },
+ "troop:7276": {
+  "lines": {
+   "L10": "convert Yellow x1 -> uberDoomSkull x1",
+   "R10": "convert Yellow x1 -> uberDoomSkull x1",
+   "L0": "convert Yellow x1 -> uberDoomSkull x1",
+   "K": "convert Yellow x1 -> uberDoomSkull x1"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:11:40.078Z"
+ },
  "troop:7277": {
   "lines": {
    "L10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+6 | A1:mana+3  extra:match  cascade",
