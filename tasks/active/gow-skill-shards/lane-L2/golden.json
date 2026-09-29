@@ -1239,6 +1239,16 @@
   "by": "sa-H",
   "at": "2026-09-28T21:18:53.690Z"
  },
+ "troop:7739": {
+  "lines": {
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; status C +reflect ; status A1 +enraged ; status A2 +barrier ; status C +submerged ; status A1 +barrier ; status A2 +enraged ; remove C -poison ; status C +blessed ; status A1 +barrier ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3 | C:+reflect+submerged+blessed -poison | A1:+enraged+barrier | A2:+barrier+enraged+blessed",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; status C +reflect ; status A1 +enraged ; status A2 +barrier ; status C +submerged ; status A1 +barrier ; status A2 +enraged ; remove C -poison ; status C +blessed ; status A1 +barrier ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3 | C:+reflect+submerged+blessed -poison | A1:+enraged+barrier | A2:+barrier+enraged+blessed",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; remove C -poison ; status C +blessed ; status A1 +enraged ; status A2 +submerged ; status C +blessed ; status A1 +submerged ; status A2 +reflect ; status C +blessed ; status A1 +enraged ; status A2 +reflect  => E10:arm-1 | E11:arm-1 | E12:arm-3 | E13:arm-1 | C:+blessed -poison | A1:+enraged+submerged | A2:+submerged+reflect",
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +enraged ; status A1 +reflect ; status A2 +enraged ; status C +enchanted ; status A1 +submerged ; status A2 +barrier  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+enraged+enchanted | A1:+reflect+submerged | A2:+enraged+barrier"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:37:58.876Z"
+ },
  "troop:7740": {
   "lines": {
    "L10": "dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse  => E10:hp-12 arm-5 +curse -rage | E11:hp-7 arm-10 +curse | E12:hp-5 arm-12 +curse | E13:hp-14 arm-3 +curse -rage",
@@ -1328,6 +1338,16 @@
   },
   "by": "sa-H",
   "at": "2026-09-28T21:37:14.109Z"
+ },
+ "troop:7850": {
+  "lines": {
+   "L10": "buff E11 hp-11 ; status E11 +curse ; status E11 +web  => E11:hp-11 +curse+web",
+   "R10": "buff E11 hp-11 ; status E11 +curse ; status E11 +web  => E11:hp-11 +curse+web",
+   "L0": "buff E11 hp-1 ; status E11 +curse ; status E11 +web  => E11:hp-1 +curse+web",
+   "K": "defeat E11 ; buff E11 hp-1  => E11:hp-1 DEAD"
+  },
+  "by": "sa-Q1",
+  "at": "2026-09-29T04:38:01.567Z"
  },
  "troop:7881": {
   "lines": {

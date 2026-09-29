@@ -1,7 +1,7 @@
 // sa-Q1 final wrap-up: issued skills of lanes L2 / L4a re-checked after the fixed primitives
 // (sa-P fix rounds) and rulings R011-R016. Each case pins the behaviour the acceptance was based on.
 import { describe, it, expect } from 'vitest';
-import { castSpell } from '../helpers/gowCast';
+import { castSpell, reviewBoard, withCells } from '../helpers/gowCast';
 const has = (order: string[], s: string) => order.some(x => x === s || x.startsWith(s));
 const statOf = (line: string) => line.split(' ').pop()!.replace(/[+-]\d+$/, '');
 
@@ -113,5 +113,46 @@ describe('sa-Q1 B03: dual storm, Mithrilion order, row count, army count at cast
   it('troop:7492 Amatiel: Undead / Daemon enemies counted at cast start (x10 each), damage to all', () => {
     const s = castSpell({ key: 'troop:7492', enemies: [tough({ troopTypes: ['Undead'] }), tough({ troopTypes: ['Daemon'] }), tough(), tough()] }).summary;
     expect(s.order.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 31 (all)', 'dmg E11 31 (all)', 'dmg E12 31 (all)', 'dmg E13 31 (all)']);
+  });
+});
+
+describe('sa-Q1 B04: R011 positives on Blessed, Dark Witch dispute, Bad Gargoyles, R016-1, Bear Totem remove', () => {
+  it('troop:7739 Cosmo: scatter [M+6]; an already Blessed ally still receives the positive statuses (R011)', () => {
+    const bl = [{ id: 'blessed', turns: 3 }] as never;
+    let got = 0;
+    for (let seed = 1; seed <= 10; seed++) {
+      const s = castSpell({ key: 'troop:7739', seed, allies: [{ hp: 100, maxHp: 100, statuses: bl }] }).summary;
+      expect(s.order.filter(x => x.endsWith('(scatter)')).reduce((a, x) => a + Number(x.split(' ')[2]), 0)).toBe(16);
+      got += s.order.filter(x => x.startsWith('status A1 +') && !x.endsWith('+blessed')).length;
+    }
+    expect(got).toBeGreaterThan(5);
+  });
+  it('troop:7850 Dark Witch: boosted x2 by Cursed and Webbed ENEMIES (English; native web count on allies), then Curse + Web', () => {
+    const st = (id: string) => [{ id, turns: 3 }] as never;
+    const s = castSpell({ key: 'troop:7850', enemies: [tough({ statuses: st('curse') }), tough({ statuses: st('web') }), tough()] }).summary;
+    expect(s.order[0]).toMatch(/^buff E11 (attack|armor|hp|magic)-15$/); // 1 + 10 + 2 x (1 cursed + 1 webbed)
+    expect(s.order.slice(1)).toEqual(['status E11 +curse', 'status E11 +web']);
+  });
+  it('troop:7851 Seditius: [M+4] + 2 x Red, then explode 3 BAD Gargoyles only', () => {
+    expect(castSpell({ key: 'troop:7851' }).summary.order).toEqual(['dmg E11 32']);
+    const garg = (tier: number) => ({ kind: 'special', spec: { kind: 'gargoyleGem', tier } }) as never;
+    const spread = ['0,0', '0,3', '0,6', '3,0', '3,3', '3,6', '6,0'];
+    const board = withCells(reviewBoard, Object.fromEntries(spread.map((k, i) => [k, garg(i < 4 ? 2 : 1)])));
+    const r = castSpell({ key: 'troop:7851', board });
+    const n = { 1: 0, 2: 0 } as Record<number, number>;
+    r.f.board.forEach(g => { if (g && g.type.kind === 'special' && g.type.spec.kind === 'gargoyleGem') n[g.type.spec.tier ?? 1] += 1; });
+    expect(n).toEqual({ 1: 3, 2: 1 });
+  });
+  it('troop:7884 Bok Singefur: [M+4] damage, then ONE uniform 2-5 gem explosion (R016-1)', () => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const s = castSpell({ key: 'troop:7884', seed }).summary;
+      expect(s.order[0]).toBe('dmg E11 14');
+      expect(s.order.filter(x => x.startsWith('explode ')).length).toBe(1);
+    }
+  });
+  it('weapon:1102 Bear Totem: [M] damage, +1 Magic + floor(Green/3) counted before RemoveColor, removed gems give no mana', () => {
+    const s = castSpell({ key: 'weapon:1102' }).summary;
+    expect(s.order).toEqual(['dmg E11 10', 'buff C magic+5', 'destroy 13 (Green x13)']);
+    expect(Object.keys(s.units).some(u => u.startsWith('A') && (s.units[u] ?? '').includes('mana+'))).toBe(false);
   });
 });

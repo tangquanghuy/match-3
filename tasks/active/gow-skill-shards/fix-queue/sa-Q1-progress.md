@@ -16,3 +16,8 @@ Scope: final-queue.json cat "issue", lanes L2 + L4a (32 keys; skip troop:6857 we
 - B03 troop:7057 (L2): FIXED batch-r21 8585 native order (armor before the explode), accept; dispute: native counts Skulls in Block5x5 but explodes Block3x3, kept barrier per Skull destroyed in the 3x3
 - B03 troop:7316 (L4a): accept (P-R1-row-count-at-cast-start fixed)
 - B03 troop:7492 (L4a): accept (P-R1-count-at-native-step fixed)
+- B04 troop:7739 (L2): accept (R011 fixed)
+- B04 troop:7850 (L2): accept; dispute: native counts webbed ALLIES vs English webbed Enemies, kept webbed enemies
+- B04 troop:7851 (L4a): accept (P-R1-gargoyle-tier-filter fixed; Boss c2 waived R000)
+- B04 troop:7884 (L4a): accept per R016-1 (uniform 2-5; Boss c2 waived R000)
+- B04 weapon:1102 (L4a): accept (P-F1-remove-gems fixed)
