@@ -30,7 +30,7 @@ import { upgradeKingdom, setExploreTier, exploreUnlocked, setHomeKingdom } from 
 import { collectAllTribute, collectTribute } from '../systems/tribute';
 import type { SettlementContext } from '../systems/settlement';
 import { temperWeaponOnSave } from '../systems/forgeOps';
-import { planEventEncounter, currentEventTheme, ensureEventWeek, eventBattleReady, buyEventGoods, applyEventBattleModifiers, abandonTowerRun } from '../systems/events';
+import { planEventEncounter, currentEventTheme, ensureEventWeek, eventBattleReady, buyEventGoods, applyEventBattleModifiers, abandonTowerRun, eventAction } from '../systems/events';
 import { planInvasionBattle, settleInvasionBattle, refreshInvasionOpponents, claimInvasionRank, ensureInvasionSeason } from '../systems/invasion';
 import { activeTeam } from '../systems/teamRules';
 import {
@@ -467,21 +467,34 @@ export class MockGateway implements MetaGateway {
     const theme = currentEventTheme(weekStart, typeId);
     const team = activeTeam(this.save);
     const hasHero = team?.members.some((m) => m.kind === 'hero') ?? false;
-    const notReady = eventBattleReady(this.save, theme.type.id, hasHero);
+    const notReady = eventBattleReady(this.save, theme.type.id, hasHero, choice, weekStart);
     if (notReady) return fail('INVALID', notReady);
-    if (typeId === 'towerOfDoom' && choice === 'rest' && ((this.save.eventWeeks.towerOfDoom?.eventData.floor ?? 1) <= 1 || (this.save.eventWeeks.towerOfDoom?.eventData.floor ?? 1) % 5 !== 1)) return fail('INVALID', '营地休整仅在首领后的第6/11/16/21层开放');
     const beforeWeek = structuredClone(this.save.eventWeeks[typeId]!);
     const plan = planEventEncounter(this.save, weekStart, this.nextSeed(), typeId, choice);
+    if (!plan || 'ok' in plan) {
+      this.save.eventWeeks[typeId] = beforeWeek;
+      return plan as MetaFailure;
+    }
     const outcome = buildBattleRequest(this.save, plan);
     if (outcome.ok) {
       applyEventBattleModifiers(this.save, outcome);
       if (outcome.request.playerTeam.length === 0) {
         this.save.eventWeeks[typeId] = beforeWeek;
-        return fail('INVALID', '本轮已无存活成员，请放弃本轮重新登塔');
+        return fail('INVALID', '本轮已无可出战的成员');
       }
       this.persist();
     } else this.save.eventWeeks[typeId] = beforeWeek;
     return outcome;
+  }
+
+  async eventAction(_now: number, weekStart: number, typeId: EventTypeId, action: string) {
+    const before = this.materialSnapshot();
+    const result = eventAction(this.save, weekStart, typeId, action, this.nextSeed());
+    if (result.ok) {
+      this.markMaterialGains(before);
+      this.persist();
+    }
+    return { result, save: this.save };
   }
 
   async abandonTowerRun(weekStart: number) {

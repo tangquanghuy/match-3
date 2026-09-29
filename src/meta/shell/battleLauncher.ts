@@ -80,7 +80,8 @@ export class BattleLauncher {
   /** 当前活动页出战（结算行含该活动积分/里程碑素材）。 */
   async launchEventBattle(choice?: string): Promise<void> {
     const now = Date.now();
-    const typeId = EVENT_TYPES.find((type) => this.ctx.currentHash() === `#events/${type.id}`)?.id;
+    const hash = this.ctx.currentHash();
+    const typeId = EVENT_TYPES.find((type) => hash === `#events/${type.id}` || hash.startsWith(`#events/${type.id}/`))?.id;
     if (!typeId) {
       toast('请先选择活动');
       return;

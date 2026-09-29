@@ -261,6 +261,8 @@ function sanitizeEventWeek(v: unknown, typeId: EventTypeId): EventWeekState | nu
     bought,
     eventData,
     runTeam: runTeam && runTeam.length > 0 ? runTeam : null,
+    // 玩法状态：此处只保证是 JSON 对象，细粒度校验在 systems/eventModes 各自的 sanitize
+    ...(isObject(v.mode) ? { mode: JSON.parse(JSON.stringify(v.mode)) as unknown } : {}),
   };
 }
 

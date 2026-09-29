@@ -8,7 +8,10 @@ import { traitUnlockCost, totalSoulCost } from '../../src/meta/data/economy';
 import { ARCANE_STONE_KEYS, parseStoneKey, stoneName } from '../../src/meta/data/materials';
 import { KINGDOM_ORDER, exploreEnemyLevel, questEnemyLevel } from '../../src/meta/data/kingdoms';
 import { newSave } from '../../src/meta/state/schema';
-import { ensureEventWeek, planEventEncounter, eventBattleProgress, eventStageLevel, towerFloorLevel, raidTierLevel } from '../../src/meta/systems/events';
+import { eventModeState, planEventEncounter, eventStageLevel, towerFloorLevel, raidTierLevel } from '../../src/meta/systems/events';
+import { invasionSquadLevel } from '../../src/meta/systems/eventModes/invasion';
+import { trialLevel } from '../../src/meta/systems/eventModes/trials';
+import type { EncounterPlan } from '../../src/meta/systems/encounter';
 import { EVENT_DIFFICULTY } from '../../src/meta/data/events';
 import { buildBracket } from '../../src/meta/systems/invasion';
 import { entryArena, currentDraftChoices, pickDraftCard, startArenaBattles, planArenaBattle } from '../../src/meta/systems/arena';
@@ -108,36 +111,22 @@ describe('NPC difficulty and snapshot agreement', () => {
 });
 
 describe('Mode progression', () => {
-  it('legacy event saves seed difficulty from existing wins', () => {
+  it('event modes scale difficulty by their own progress axis (raid tier, tower floor, invasion wave, trial index)', () => {
     const save = newSave();
-    for (const type of ['worldEvent', 'classTrials'] as const) {
-      const week = ensureEventWeek(save, WEEK, type);
-      week.wins = 37;
-      delete week.eventData.worldWins;
-      delete week.eventData.trialWins;
-      const plan = planEventEncounter(save, WEEK, 2, type);
-      // 37 胜早已越过普通段：落到最高档起点
-      expect(plan.enemies[0].level).toBe(EVENT_DIFFICULTY.topBase);
-      expect(plan.source).toMatchObject({ topTier: true });
-      expect(week.wins).toBe(37);
+    for (const tier of [1, 2, 20, 50]) expect(raidTierLevel(tier)).toBe(20 + (tier - 1) * 3);
+    const raid = eventModeState(save, WEEK, 'raidBoss');
+    expect((planEventEncounter(save, WEEK, 1, 'raidBoss') as EncounterPlan).enemies[0].level).toBe(raidTierLevel(raid.tier));
+    for (const floor of [1, 5, 15, 25]) expect(towerFloorLevel(floor)).toBe(20 + Math.round((floor - 1) * 1.5));
+    let prior = 0;
+    for (let wave = 1; wave <= 10; wave++) {
+      const level = invasionSquadLevel(wave, 'raider');
+      expect(level).toBeGreaterThan(prior);
+      prior = level;
     }
+    for (let i = 1; i < 8; i++) expect(trialLevel(i)).toBeGreaterThan(trialLevel(i - 1));
+    expect(eventStageLevel(0)).toBe(EVENT_DIFFICULTY.base);
   });
-  it('raid advances by three per tier from Lv.20, tower by 1.5 per floor, and PvP coordinated top leagues stay within level 32–36', () => {
-    const save = newSave();
-    const raid = ensureEventWeek(save, WEEK, 'raidBoss');
-    for (const tier of [1, 2, 20, 50]) {
-      raid.eventData.bossTier = tier;
-      raid.eventData.bossHp = 0;
-      expect(planEventEncounter(save, WEEK, 1, 'raidBoss').enemies[0].level).toBe(20 + (tier - 1) * 3);
-      expect(raidTierLevel(tier)).toBe(20 + (tier - 1) * 3);
-    }
-    const tower = ensureEventWeek(save, WEEK, 'towerOfDoom');
-    tower.eventData.runActive = 1;
-    for (const floor of [1, 5, 15, 25]) {
-      tower.eventData.floor = floor;
-      expect(planEventEncounter(save, WEEK, 1, 'towerOfDoom').enemies[0].level).toBe(towerFloorLevel(floor));
-      expect(towerFloorLevel(floor)).toBe(20 + Math.round((floor - 1) * 1.5));
-    }
+  it('PvP coordinated top leagues stay within level 32–36', () => {
     for (const [league, base] of [[0, 8], [4, 18], [9, 32]]) {
       for (const mirror of buildBracket(WEEK, league)) {
         for (const enemy of mirror.defense) {
@@ -150,51 +139,6 @@ describe('Mode progression', () => {
         }, 0));
       }
     }
-  });
-
-  it('invasion cycles never reset difficulty; faction follows the shared stage curve', () => {
-    const save = newSave();
-    const inv = ensureEventWeek(save, WEEK, 'invasion');
-    let prior = 0;
-    for (let cleared = 0; cleared < 4; cleared++) for (let line = 1; line <= 3; line++) {
-      inv.eventData.invRepelled = cleared;
-      inv.eventData.invLine = line;
-      const stage = (line - 1) + cleared * 3;
-      const level = planEventEncounter(save, WEEK, 1, 'invasion', 'hold').enemies[0].level;
-      if (stage < EVENT_DIFFICULTY.topStages) {
-        expect(level).toBeGreaterThan(prior);
-        expect(level).toBe(eventStageLevel(stage));
-      } else {
-        expect(level).toBe(EVENT_DIFFICULTY.topBase);
-      }
-      prior = level;
-    }
-    const faction = ensureEventWeek(save, WEEK, 'factionAssault');
-    for (let wins = 0; wins < 15; wins++) {
-      faction.eventData.assaultWins = wins;
-      const expected = wins < EVENT_DIFFICULTY.topStages ? eventStageLevel(wins) : EVENT_DIFFICULTY.topBase;
-      expect(planEventEncounter(save, WEEK, 1, 'factionAssault', 'flank').enemies[0].level).toBe(expected);
-    }
-  });
-  it.each(['worldEvent', 'classTrials'] as const)('%s wins advance actual settlement counters; normal-stage losses keep difficulty, top-tier losses step back', type => {
-    const save = newSave();
-    let prior = 0;
-    for (let i = 0; i < 12; i++) {
-      const plan = planEventEncounter(save, WEEK, 1, type);
-      expect(plan.enemies[0].level).toBeGreaterThan(prior);
-      prior = plan.enemies[0].level;
-      eventBattleProgress(save, plan, result(), true);
-      if (i === 3) {
-        // 普通段败场不改难度
-        const before = planEventEncounter(save, WEEK, 1, type);
-        eventBattleProgress(save, before, result('enemy'), false);
-        expect(planEventEncounter(save, WEEK, 1, type).enemies[0].level).toBe(before.enemies[0].level);
-      }
-    }
-    const before = planEventEncounter(save, WEEK, 1, type);
-    expect(before.source).toMatchObject({ topTier: true });
-    eventBattleProgress(save, before, result('enemy'), false);
-    expect(planEventEncounter(save, WEEK, 1, type).enemies[0].level).toBe(before.enemies[0].level - EVENT_DIFFICULTY.topStep);
   });
   it('arena normalizes both teams and summon/transform templates, not the rest of PvP', () => {
     const save = newSave();

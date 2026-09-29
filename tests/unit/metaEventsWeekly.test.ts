@@ -4,13 +4,11 @@ import { MAX_ASCENSION } from '../../src/meta/data/economy';
 import { newSave, type MetaSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { weekStartOf } from '../../src/meta/gateway/clock';
-import { MockGateway, memoryStorage } from '../../src/meta/gateway/mockGateway';
 import { EVENT_TYPES, EVENT_MILESTONES, EVENT_WEEKLY_GEM_CAP, EVENT_SHOP, WEEK_MS, type EventTypeId } from '../../src/meta/data/events';
-import { ensureEventWeek, claimEventWeeklyGems, eventWeeklySummary, eventBattleReady, planEventEncounter,
-  applyEventBattleModifiers, eventBattleProgress, abandonTowerRun, buyEventGoods } from '../../src/meta/systems/events';
-import { buildBattleRequest, type BridgeOutcome } from '../../src/meta/systems/battleBridge';
-import { applySettlement } from '../../src/meta/systems/settlement';
+import { ensureEventWeek, claimEventWeeklyGems, eventWeeklySummary, eventModeState, buyEventGoods } from '../../src/meta/systems/events';
+import type { BridgeOutcome } from '../../src/meta/systems/battleBridge';
 import { snapshotToCharacter } from '../../src/session/combatantMapping';
+import { eventBattle, fakeResult, rollAll, settleEvent } from './helpers/eventDriver';
 import type { BattleResult } from '../../src/session/contract';
 import { eventDamageMultiplier, skullDamageMultiplier, attachPassives } from '../../src/engine/traits';
 import { damageOne } from '../../src/engine/skills/effects/damage';
@@ -24,35 +22,22 @@ const fresh = () => {
   save.hero.level = 20; // 活动 20 级解锁
   return save;
 };
-let seed = 12000;
-function battle(save: MetaSave, type: EventTypeId, choice?: string, week = WEEK): BridgeOutcome {
-  const plan = planEventEncounter(save, week, ++seed, type, choice);
-  const outcome = buildBattleRequest(save, plan);
-  if (!outcome.ok) throw new Error(outcome.message);
-  applyEventBattleModifiers(save, outcome);
-  return outcome;
+function battle(save: MetaSave, type: EventTypeId, action?: string, week = WEEK): BridgeOutcome {
+  return eventBattle(save, type, week, action);
 }
-function result(outcome: BridgeOutcome, victory = true): BattleResult {
-  const r = outcome.request;
-  return {
-    schemaVersion: r.schemaVersion, battleId: r.battleId, requestId: r.requestId, rulesetVersion: r.rulesetVersion,
-    seed: r.seed, winner: victory ? 'player' : 'enemy', turns: 10, summonedCount: 0, actionLogDigest: '', eventSummary: [],
-    combatants: [...r.playerTeam.map(s => ({ externalId: s.externalId, side: 'player' as const,
-      hp: s.initialHp ?? s.stats.hp, maxHp: s.stats.hp, armor: s.stats.armor, defeated: false, statuses: [] })),
-    ...r.enemyTeam.map(s => ({ externalId: s.externalId, side: 'enemy' as const,
-      hp: victory ? 0 : s.initialHp ?? s.stats.hp, maxHp: s.stats.hp, armor: 0, defeated: victory, statuses: [] }))],
-    defeatedExternalIds: victory ? r.enemyTeam.map(s => s.externalId) : [],
-  };
-}
+const result = (outcome: BridgeOutcome, victory = true): BattleResult => fakeResult(outcome, victory);
 function settle(save: MetaSave, out: BridgeOutcome, r = result(out), todayStart = WEEK) {
-  return applySettlement(save, r, { plan: out.plan, enemyByExternalId: out.enemyByExternalId, todayStart });
+  const detail = settleEvent(save, out, r, todayStart);
+  if (out.plan.source.kind === 'event' && out.plan.source.typeId === 'worldEvent' && todayStart < WEEK + WEEK_MS) rollAll(save, WEEK);
+  return detail;
 }
 
 describe('周常奖励账本与迁移', () => {
   it('六轨3600+共享1800+守土80，且同一周奖励领取幂等', () => {
     const s = fresh();
     for (const { id } of EVENT_TYPES) {
-      const w = ensureEventWeek(s, WEEK, id); w.points = 1200; w.wins = 5; w.eventData.supplies = 84;
+      const w = ensureEventWeek(s, WEEK, id); w.points = 1200; w.wins = 5;
+      if (id === 'worldEvent') eventModeState(s, WEEK, 'worldEvent').supplies = 84;
       claimEventWeeklyGems(s, WEEK, id);
       expect(EVENT_MILESTONES[id].reduce((n, m) => n + (m.gems ?? 0), 0)).toBe(600);
     }
@@ -90,7 +75,8 @@ describe('周常奖励账本与迁移', () => {
   });
   it('真实结算达到直接宝石上限；重复战斗结果及读档重放不重复入账', () => {
     let s = fresh();
-    for (const { id } of EVENT_TYPES) for (let i = 0; i < 14; i++) settle(s, battle(s, id));
+    // 每个活动按自己的玩法打到里程碑全部领完（塔会自己选路、世界事件会把骰子掷完）
+    for (const { id } of EVENT_TYPES) for (let i = 0; i < 40 && (ensureEventWeek(s, WEEK, id).claimed.length < 6 || (id === 'invasion' && ensureEventWeek(s, WEEK, id).playRewards < 4)); i++) settle(s, battle(s, id));
     expect(s.currencies.gems).toBe(5480);
     const out = battle(s, 'invasion'); const r = result(out); settle(s, out, r);
     const before = JSON.stringify(s); settle(s, out, r); expect(JSON.stringify(s)).toBe(before);
@@ -122,86 +108,6 @@ describe('周常奖励账本与迁移', () => {
   });
 });
 
-describe('跨层队伍、营地和固定首领', () => {
-  it('阵亡角色在第二、第三层保持阵亡，残血不覆盖最大生命，站位锁定', () => {
-    const s = fresh(); const first = battle(s, 'towerOfDoom'); const r = result(first);
-    const players = r.combatants.filter(c => c.side === 'player');
-    players[0]!.hp = Math.max(1, Math.floor(players[0]!.maxHp / 2));
-    players[1]!.hp = 0; players[1]!.defeated = true;
-    eventBattleProgress(s, first.plan, r, true);
-    const second = battle(s, 'towerOfDoom');
-    expect(second.request.playerTeam).toHaveLength(3);
-    const char = snapshotToCharacter(second.request.playerTeam[0]!, 0);
-    expect(char.hp).toBe(players[0]!.hp); expect(char.maxHp).toBe(players[0]!.maxHp);
-    eventBattleProgress(s, second.plan, result(second), true);
-    const third = battle(s, 'towerOfDoom');
-    expect(third.request.playerTeam).toHaveLength(3);
-    expect(third.request.playerTeam.some(c => c.externalId === players[1]!.externalId)).toBe(false);
-    expect(s.eventWeeks.towerOfDoom!.runTeam).toHaveLength(4);
-    expect(eventBattleReady(s, 'towerOfDoom', false)).toBeNull();
-    s.teams[0]!.members.reverse(); expect(eventBattleReady(s, 'towerOfDoom', false)).toContain('锁定');
-  });
-  it('营地只治疗存活成员，重复预览不叠加治疗，不超过最大生命', () => {
-    const s = fresh(); battle(s, 'towerOfDoom'); const w = s.eventWeeks.towerOfDoom!;
-    w.eventData.floor = 6;
-    w.runTeam![0]!.hp = 1; w.runTeam![1]!.hp = 0; w.runTeam![1]!.defeated = true;
-    const out = battle(s, 'towerOfDoom', 'rest'); const again = battle(s, 'towerOfDoom', 'rest');
-    expect(out.request.playerTeam).toHaveLength(3);
-    expect(out.request.playerTeam[0]!.initialHp).toBe(1 + Math.ceil(w.runTeam![0]!.maxHp * .35));
-    expect(again.request.playerTeam.map(c => c.initialHp)).toEqual(out.request.playerTeam.map(c => c.initialHp));
-    expect(w.runTeam![0]!.hp).toBe(1);
-    expect(out.request.playerTeam.every(c => c.initialHp! <= c.stats.hp)).toBe(true);
-    settle(s, out); expect(w.points).toBe(50);
-  });
-  it('网关拒绝非营地休整，且失败请求不创建登塔进行中状态', async () => {
-    const gateway = new MockGateway(memoryStorage()); const { save } = await gateway.load();
-    const out = await gateway.planEventBattle(WEEK, WEEK, 'towerOfDoom', 'rest');
-    expect(out.ok).toBe(false); expect(save.eventWeeks.towerOfDoom!.runTeam).toBeNull();
-    expect(save.eventWeeks.towerOfDoom!.eventData.runActive ?? 0).toBe(0);
-  });
-  it('25层独立递增，5层一首领，周最高层补差，重复登塔不重复发符卷', () => {
-    const s = fresh(); const w = ensureEventWeek(s, WEEK, 'towerOfDoom');
-    let level = 0;
-    for (let i = 1; i <= 25; i++) {
-      const out = battle(s, 'towerOfDoom');
-      expect(out.plan.enemies[0]!.level).toBeGreaterThan(level); level = out.plan.enemies[0]!.level;
-      expect(out.plan.enemies.some(e => e.tier === 'boss')).toBe(i % 5 === 0);
-      eventBattleProgress(s, out.plan, result(out), true);
-    }
-    expect(w.eventData).toMatchObject({ floorBest: 25, towerPaidFloors: 25, runActive: 0 });
-    expect(s.materials.forgeScrolls).toBe(5); expect(s.currencies.glory).toBe(50);
-    for (let i = 1; i <= 5; i++) { const out = battle(s, 'towerOfDoom'); eventBattleProgress(s, out.plan, result(out), true); }
-    expect(abandonTowerRun(s, WEEK)).toMatchObject({ ok: true, glory: 0, scrolls: 0 });
-    expect(s.materials.forgeScrolls).toBe(5);
-  });
-  it('首领/护卫同阶固定、血池真实进入战斗；败场只计首领净伤害，半血狂暴', () => {
-    const s = fresh(); const first = battle(s, 'raidBoss'); const second = battle(s, 'raidBoss');
-    expect(first.plan.enemies).toEqual(second.plan.enemies);
-    const w = s.eventWeeks.raidBoss!; const max = w.eventData.bossMax!;
-    expect(first.request.enemyTeam[0]!.stats.hp).toBe(max);
-    const r = result(first, false); const boss = r.combatants.find(c => c.side === 'enemy')!;
-    boss.hp = Math.floor(max / 2); eventBattleProgress(s, first.plan, r, false);
-    expect(w.eventData.bossHp).toBe(Math.floor(max / 2));
-    const third = battle(s, 'raidBoss'); const b = snapshotToCharacter(third.request.enemyTeam[0]!, 4);
-    expect(b.hp).toBe(boss.hp); expect(b.maxHp).toBe(max); expect(b.eventTarget).toBe('boss');
-    expect(third.request.enemyTeam[0]!.stats.attack).toBe(Math.round(first.request.enemyTeam[0]!.stats.attack * 1.3));
-    eventBattleProgress(s, third.plan, result(third), true); expect(w.eventData.bossTier).toBe(2);
-  });
-  it('阵营迂回影响下一据点，三据点循环；世界事件路线和编队加成快照生效', () => {
-    const s = fresh(); const first = battle(s, 'factionAssault', 'flank');
-    eventBattleProgress(s, first.plan, result(first), true);
-    const second = battle(s, 'factionAssault', 'siege');
-    const original = buildBattleRequest(s, second.plan); if (!original.ok) throw Error(original.message);
-    expect(second.request.enemyTeam.map(c => c.stats.armor)).toEqual(original.request.enemyTeam.map(c => Math.floor(c.stats.armor / 2)));
-    eventBattleProgress(s, second.plan, result(second), true);
-    expect(battle(s, 'factionAssault').plan.enemies.some(e => e.tier === 'boss')).toBe(true);
-    const world = battle(s, 'worldEvent', 'escort');
-    if (world.plan.source.kind === 'event') world.plan.source.matchingTroops = 4;
-    s.teams[0]!.members = []; eventBattleProgress(s, world.plan, result(world), true);
-    expect(s.eventWeeks.worldEvent!.eventData.supplies).toBeGreaterThanOrEqual(14);
-    expect(s.eventWeeks.worldEvent!.eventData.supplies).toBeLessThanOrEqual(16);
-  });
-});
 
 function char(id: number, overrides: Partial<Character> = {}): Character {
   return { id, name: `C${id}`, maxHp: 1000, hp: 1000, armor: 0, attack: 10, magic: 10,

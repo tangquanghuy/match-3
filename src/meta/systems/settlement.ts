@@ -47,14 +47,11 @@ import type { EncounterEnemy, EncounterPlan } from './encounter';
 import {
   ensureEventWeek, claimEventWeeklyGems,
   eventBattleProgress,
+  eventBattlePoints,
+  eventClassXpMultiplier,
+  eventMetricOf,
   eventMilestonesReached,
-  eventPointsOf,
-  raidBattleDamage,
-  raidPointsFor,
   eventTokensFor,
-  trialMultiplier,
-  EVENT_TRIAL_POINTS_CAP,
-  EVENT_STATE_KEYS,
 } from './events';
 import { EVENT_WEEKLY_RULES, WEEK_MS, type EventTypeId } from '../data/events';
 
@@ -205,19 +202,9 @@ export function applySettlement(
     const source = ctx.plan.source;
     const typeId = source.typeId as EventTypeId;
     const week = ensureEventWeek(save, source.weekStart, typeId);
-    // 首领突袭按伤害计分，胜败都算（血池首领通常要多场才能打空）
-    const raidPoints = typeId === 'raidBoss'
-      ? raidPointsFor(raidBattleDamage(save, ctx.plan, result), week.eventData[EVENT_STATE_KEYS.bossMax] ?? 0)
-      : 0;
-    if (victory || raidPoints > 0) {
-      let points = typeId === 'raidBoss' ? raidPoints : eventPointsOf(ctx.plan);
-      if (typeId === 'classTrials') {
-        // 连胜试炼：连续胜利积分 ×1.3/×1.6/×2.0（封顶 ×2），败场清零
-        const streak = (week.eventData[EVENT_STATE_KEYS.trialStreak] ?? 0) + 1;
-        week.eventData[EVENT_STATE_KEYS.trialStreak] = streak;
-        const ordeal = source.choice === 'ordeal' && result.combatants.some(c => c.side === 'player' && c.externalId.endsWith('-hero') && !c.defeated && c.hp > 0);
-        points = Math.min(EVENT_TRIAL_POINTS_CAP, Math.round(points * trialMultiplier(streak) * (ordeal ? 1.25 : 1)));
-      }
+    // 单场积分由各活动玩法给出（读开战时状态）：首领按伤害、试炼按新星、塔按节点类型…
+    const points = eventBattlePoints(save, ctx.plan, result, victory);
+    if (victory || points > 0) {
       week.points += points;
       if (victory) {
         week.wins += 1;
@@ -232,19 +219,17 @@ export function applySettlement(
         deltas: {},
         note: `累计 ${week.points} 分 · 活动代币 +${tokensGain}（本周商店可用）`,
       });
-    } else if (typeId === 'classTrials') {
-      week.eventData[EVENT_STATE_KEYS.trialStreak] = 0;
     }
 
-    // 各类型玩法推进（入侵防线/首领血池/塔层/物资/连胜，胜败都推进）
+    // 各活动玩法状态推进（兵线/血池/塔层/地块/骰子/星级，胜败都推进）
     const progress = eventBattleProgress(save, ctx.plan, result, victory);
     if (typeId === 'towerOfDoom') save.gifts.towerBest = Math.max(save.gifts.towerBest, week.eventData.floorBest ?? 0);
     for (const l of progress.lines) {
       lines.push({ key: 'event-progress', label: l.label, deltas: l.deltas, mats: l.mats, note: l.note });
     }
 
-    // 里程碑：世界事件按物资，其余按积分
-    const metric = typeId === 'worldEvent' ? (week.eventData[EVENT_STATE_KEYS.supplies] ?? 0) : week.points;
+    // 里程碑：进度口径由玩法决定（世界事件=物资，其余=积分）
+    const metric = eventMetricOf(save, source.weekStart, typeId).value;
     for (const gain of eventMilestonesReached(typeId, metric, week.claimed)) {
       const m = gain.milestone;
       week.claimed.push(gain.index);
@@ -375,8 +360,8 @@ export function applySettlement(
   if (victory && save.hero.classId) {
     const team = activeTeam(save);
     if (team?.members.some((m) => m.kind === 'hero')) {
-      const trialMult = ctx.plan.source.kind === 'event' && ctx.plan.source.typeId === 'classTrials'
-        ? (ctx.plan.source.choice === 'ordeal' && result.combatants.some(c => c.side === 'player' && c.externalId.endsWith('-hero') && !c.defeated && c.hp > 0) ? 3 : 2) : 1;
+      // 职业试炼：职业经验 ×2，本场三星全达成 ×3
+      const trialMult = eventClassXpMultiplier(save, ctx.plan);
       const r = addClassXp(save, save.hero.classId, CLASS_XP_PER_WIN * trialMult);
       if (r && r.levelsGained > 0) classLevelUp = { classId: save.hero.classId, newLevel: r.newLevel };
       addClassWin(save, save.hero.classId);

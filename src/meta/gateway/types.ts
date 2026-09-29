@@ -21,7 +21,7 @@ import type { SetTeamResult } from '../systems/teamRules';
 import type { BridgeOutcome } from '../systems/battleBridge';
 import type { InvasionBridgeOutcome, InvasionSettleResult } from '../systems/invasion';
 import type { HuntMoveOk } from '../systems/treasureHunt';
-import type { EventBuyResult } from '../systems/events';
+import type { EventActionResult, EventBuyResult } from '../systems/events';
 import type { EventTypeId } from '../data/events';
 import type { TemperSaveResult } from '../systems/forgeOps';
 import type { TeamMember, MetaSave, TreasureHuntState } from '../state/schema';
@@ -202,6 +202,11 @@ export interface MetaGateway {
 
   /** 主动放弃登塔（按败北同口径收尾发奖；= 未来 D1 端点） */
   abandonTowerRun(weekStart: number): Promise<GatewayUpdate<{ ok: true; floorReached: number; glory: number; scrolls: number } | MetaFailure>>;
+  /**
+   * 活动玩法的非战斗动作（2026-09-29 玩法重做；= 未来 D1 端点）：
+   * 爬塔选路/营地/商人/奇遇/遗物选择、庆典棋盘掷骰等。失败不改存档。
+   */
+  eventAction(now: number, weekStart: number, typeId: EventTypeId, action: string): Promise<GatewayUpdate<EventActionResult | MetaFailure>>;
   /** 活动商店购买（代币扣账 + 素材/货币入账 + 已购计数；= 未来 D1 端点） */
   buyEventGoods(
     goodsId: string,

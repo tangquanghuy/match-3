@@ -1,39 +1,49 @@
 /**
- * 六类常驻活动各自独立页面，#events 为六活动总览。
+ * 六类常驻活动各自独立页面，#events 为六活动总览（2026-09-29 玩法重做）。
  *
  * 路由：#events/<typeId>（invasion|raidBoss|towerOfDoom|factionAssault|worldEvent|classTrials）；
  * 子页：#events/<typeId>/rules（玩法说明）、#events/<typeId>/rewards（里程碑奖励）。
- * 详情页 = 左栏（主视觉 + 本周进度 + 奖励/兑换入口）+ 右栏（专属状态区 + 本场战术与出战）。
- * 样式见 styles/events.css（本页不再加载 live.css）。
+ * 详情页 = 左栏（主视觉 + 本周进度 + 奖励/兑换入口）+ 右侧玩法主板（每个活动一套独立界面，
+ * 见 screens/eventViews/*）。玩法主板的交互统一经 data-act / data-fight / data-select 委托。
+ * 样式见 styles/events.css（总览/子页）+ styles/events-modes.css（六个玩法主板）。
  */
 import { isFailure, weekStartOf } from '../gateway';
 import {
   EVENT_MILESTONES,
   EVENT_ROTATION,
-  EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS, EVENT_CHOICES,
+  EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS,
   WEEK_MS,
   type EventTypeId,
 } from '../data/events';
 import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import { raceName } from '../data/races';
 import {
-  ensureEventWeek,
+  ensureEventWeek, eventModeState,
   eventPageState, eventWeeklySummary, eventBattleReady, currentEventTheme, eventsUnlocked, eventNextLevel,
-  type EventPageState,
 } from '../systems/events';
 import { eventsLockPanelHtml } from './eventsLock';
-import { bottomNavHtml, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import { bottomNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { cssUrlVar, shopArt } from '../shell/artAssets';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
-import type { EventWeekState, MetaSave } from '../state/schema';
+import type { MetaSave } from '../state/schema';
 import { activeTeam } from '../systems/teamRules';
+import type { ViewCtx } from './eventViews/shared';
+import { towerViewHtml } from './eventViews/towerView';
+import { raidViewHtml } from './eventViews/raidView';
+import { invasionViewHtml } from './eventViews/invasionView';
+import { factionViewHtml } from './eventViews/factionView';
+import { worldViewHtml } from './eventViews/worldView';
+import { trialsViewHtml } from './eventViews/trialsView';
 
 const TYPE_IDS: readonly EventTypeId[] = EVENT_ROTATION.map((t) => t.id);
 const EVENT_ICON: Record<EventTypeId, string> = {
-  invasion: 'helmet', raidBoss: 'skull', towerOfDoom: 'temple',
-  factionAssault: 'banner', worldEvent: 'sparkles', classTrials: 'crown',
+  invasion: 'flag', raidBoss: 'skull', towerOfDoom: 'temple',
+  factionAssault: 'swords', worldEvent: 'chest', classTrials: 'book',
 };
+
+/** 屏内选中项（兵团/地块/节点/试炼/路线）：只在本会话记忆，不进存档 */
+const SELECTION = new Map<EventTypeId, string>();
 
 function parseTypeId(param: string | undefined): EventTypeId | null {
   return TYPE_IDS.includes(param as EventTypeId) ? (param as EventTypeId) : null;
@@ -74,31 +84,36 @@ function rewardSummary(m: {
   ].filter(Boolean).join('');
 }
 
-/** 敌人等级标签：普通段写等级，最高档额外标注 */
+/** 敌人等级标签 */
 function levelTag(level: { level: number; top: boolean }): string {
-  return `<span class="ev-level${level.top ? ' top' : ''}">${level.top ? '最高档 · ' : '敌人 '}Lv.${level.level}</span>`;
+  return `<span class="ev-level${level.top ? ' top' : ''}">敌人 Lv.${level.level}</span>`;
 }
 
-/** 各活动一句话的当前局面（总览卡片用，替代重复的介绍文案） */
-function stateSummary(page: EventPageState): string {
-  const e = page.extra;
-  switch (e.kind) {
-    case 'invasion': return `第 ${e.line} / 3 防线 · 守土 ${e.repelled} 次`;
-    case 'raidBoss': return e.max > 0 ? `第 ${e.tier} 阶 · 首领 ${Math.round((e.hp / e.max) * 100)}%` : `第 ${e.tier} 阶 · 首领待现身`;
-    case 'towerOfDoom': return e.running ? `第 ${e.floor} 层 · 存活 ${e.alive ?? '—'} 人` : `最高 ${e.best} / 25 层`;
-    case 'factionAssault': return `${e.kingdom} · 加成 ${e.match} / 4`;
-    case 'worldEvent': return `物资 ${e.supplies} · ${e.race ? raceName(e.race) : '—'}`;
-    case 'classTrials': return `连胜 ${e.streak} · 下一胜 ×${trimMult(e.mult)}`;
+/** 玩法主板：分派到各活动自己的视图 */
+function modeBoardHtml(save: MetaSave, weekStart: number, typeId: EventTypeId): string {
+  const def = EVENT_ROTATION.find((t) => t.id === typeId)!;
+  const week = ensureEventWeek(save, weekStart, typeId);
+  const hasHero = activeTeam(save)?.members.some((m) => m.kind === 'hero') ?? false;
+  const v: ViewCtx = {
+    save, week, weekStart, theme: currentEventTheme(weekStart, typeId),
+    selected: SELECTION.get(typeId),
+    ready: (action) => eventBattleReady(save, typeId, hasHero, action, weekStart),
+    fightLabel: def.fightLabel,
+  };
+  switch (typeId) {
+    case 'towerOfDoom': return towerViewHtml(v, eventModeState(save, weekStart, 'towerOfDoom'));
+    case 'raidBoss': return raidViewHtml(v, eventModeState(save, weekStart, 'raidBoss'));
+    case 'invasion': return invasionViewHtml(v, eventModeState(save, weekStart, 'invasion'));
+    case 'factionAssault': return factionViewHtml(v, eventModeState(save, weekStart, 'factionAssault'));
+    case 'worldEvent': return worldViewHtml(v, eventModeState(save, weekStart, 'worldEvent'));
+    case 'classTrials': return trialsViewHtml(v, eventModeState(save, weekStart, 'classTrials'));
   }
-}
-
-function trimMult(mult: number): string {
-  return mult.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
 }
 
 export class EventsScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private countdownTimer: number | null = null;
+  private busy = false;
 
   html(ctx: ShellCtx, param?: string): string {
     const now = Date.now();
@@ -126,13 +141,14 @@ export class EventsScreen implements Screen {
     const tabBar = `<nav class="ev-tabs" aria-label="活动页签"><a class="ev-tab ev-tab-all" href="#events"><span data-icon="arrow"></span>全部活动</a>${tabs}${mobilePicker}</nav>`;
 
     if (subpage === 'rules') {
+      const sections = def.howto.map((s) => `<section class="ev-howto"><h2>${s.title}</h2><ul>${s.items.map((line) => `<li>${line}</li>`).join('')}</ul></section>`).join('');
       return `${topbarHtml()}<div class="screen ev-screen ev-detail ev-rules-page" ${style}>
         ${tabBar}
         <section class="panel ev-panel">
-          <header class="ev-sub-head"><a class="ev-rewards-back" href="#events/${typeId}"><span data-icon="arrow"></span>返回${def.name}</a><h1>${def.name} · 玩法</h1></header>
-          <section class="ev-howto"><h2>玩法规则</h2><ul>${def.howto.map((line) => `<li>${line}</li>`).join('')}</ul></section>
-          <section class="ev-howto"><h2>难度</h2><ul><li>敌人从 Lv.20 起随本周进度变强，与你的队伍强度无关。</li><li>普通段打完进入最高档：胜利敌人 +3 级，战败 -3 级。</li></ul></section>
-          <section class="ev-howto"><h2>每周奖励</h2><ul><li>周一 0:00 刷新进度、奖励与印记。</li><li>里程碑达标自动发放；六种活动的胜场共同计入每周远征。</li><li>本周印记 ${week.tokensEarned} / ${EVENT_WEEKLY_RULES.tokenCap}，商店每两天补货。</li></ul></section>
+          <header class="ev-sub-head"><a class="ev-rewards-back" href="#events/${typeId}"><span data-icon="arrow"></span>返回${def.name}</a><h1>${def.name} · 玩法说明</h1><p>${def.brief}</p></header>
+          <div class="ev-rules-grid">${sections}
+            <section class="ev-howto"><h2>每周奖励</h2><ul><li>周一 0:00 刷新进度、奖励与印记。</li><li>里程碑达标自动发放（按${page.metric.label}计）；六种活动的胜场共同计入每周远征。</li><li>胜场按积分发放活动印记：本周 ${week.tokensEarned} / ${EVENT_WEEKLY_RULES.tokenCap}，商店每两天补货。</li></ul></section>
+          </div>
         </section></div>${bottomNavHtml('')}${toastHtml()}`;
     }
 
@@ -162,57 +178,18 @@ export class EventsScreen implements Screen {
 
     const nextMilestone = milestones.find((_m, i) => !week.claimed.includes(i));
     const nextGap = nextMilestone ? Math.max(0, nextMilestone.points - page.metric.value) : 0;
-    const hasHero = activeTeam(save)?.members.some((m) => m.kind === 'hero') ?? false;
-    const readiness = eventBattleReady(save, typeId, hasHero);
     const theme = currentEventTheme(weekStart, typeId);
     const themeChip = theme.kingdom
-      ? `<span class="ev-theme"><span data-icon="banner"></span>${theme.kingdom}</span>`
-      : theme.bonusRace ? `<span class="ev-theme"><span data-icon="sparkles"></span>${raceName(theme.bonusRace)}</span>` : '';
-
-    let towerConfirm = '';
-    if (page.extra.kind === 'towerOfDoom' && page.extra.running) {
-      const floorReached = Math.max(0, page.extra.floor - 1);
-      const paid = week.eventData.towerPaidFloors ?? 0;
-      const glory = Math.max(0, floorReached - paid) * 2;
-      const scrolls = Math.max(0, Math.floor(floorReached / 5) - Math.floor(paid / 5));
-      towerConfirm = `
-        <div class="ev-tower-confirm-veil" id="evAbandonModal" hidden>
-          <section class="ev-tower-confirm" role="dialog" aria-modal="true" aria-labelledby="evAbandonTitle" aria-describedby="evAbandonCopy">
-            <h2 id="evAbandonTitle">放弃本轮登塔？</h2>
-            <p id="evAbandonCopy">按已通过的第 ${floorReached} 层结算，当前第 ${page.extra.floor} 层不计入。</p>
-            <dl>
-              <div class="gain"><dt>本轮收益</dt><dd>荣耀 +${glory} · 熔铸符卷 +${scrolls}</dd></div>
-              <div class="clear"><dt>将清除</dt><dd>当前层进度 · 本轮队伍生命与阵亡状态</dd></div>
-              <div><dt>保留</dt><dd>最高 ${page.extra.best} 层 · 积分、印记与已领奖励</dd></div>
-            </dl>
-            <div class="ev-tower-confirm-actions">
-              <button class="ev-confirm-cancel" id="evCancelAbandon" type="button">继续登塔</button>
-              <button class="ev-confirm-danger" id="evConfirmAbandon" type="button">放弃并结算</button>
-            </div>
-          </section>
-        </div>`;
-    }
-
-    const filter = typeId === 'factionAssault' || typeId === 'invasion'
-      ? `kingdom/${encodeURIComponent(theme.kingdom ?? '')}`
-      : typeId === 'worldEvent' ? `race/${encodeURIComponent(theme.bonusRace ?? '')}` : '';
-    const options = EVENT_CHOICES[typeId].map((choice, i) => {
-      const disabled = choice.id === 'rest' && (page.extra.kind !== 'towerOfDoom' || page.extra.floor <= 1 || page.extra.floor % 5 !== 1);
-      return `<label class="ev-choice${disabled ? ' unavailable' : ''}"><input type="radio" name="eventChoice" value="${choice.id}"${i === 0 ? ' checked' : ''}${disabled ? ' disabled' : ''}><span><b>${choice.name}</b><small>${choice.description}</small></span></label>`;
-    }).join('');
-    const actions = `<section class="ev-decision" aria-label="本场战术">
-        <div class="ev-choices">${options}</div>
-        <div class="ev-action-row"><button class="ev-fight" id="evFight" type="button"${readiness ? ' disabled' : ''}><span data-icon="swords"></span>${def.fightLabel.replace(/\s+/g, '')}</button>
-          <a href="#team"><span data-icon="helmet"></span>调整编队</a>${filter ? `<a href="#troop/filter/${filter}"><span data-icon="sparkles"></span>加成角色</a>` : ''}${typeId === 'classTrials' ? '<a href="#hero"><span data-icon="crown"></span>装备职业</a>' : ''}</div>
-        ${readiness ? `<p class="ev-warning" role="status"><span data-icon="lock"></span>${readiness}</p>` : ''}
-      </section>`;
-    const pct = Math.min(100, (page.metric.value / milestones[milestones.length - 1]!.points) * 100);
+      ? `<span class="ev-theme"><span data-icon="flag"></span>${theme.kingdom}</span>`
+      : theme.bonusRace ? `<span class="ev-theme"><span data-icon="wing"></span>${raceName(theme.bonusRace)}</span>` : '';
+    const top = milestones[milestones.length - 1]!.points;
+    const pct = Math.min(100, (page.metric.value / top) * 100);
     const progress = `<div class="ev-progress" aria-label="本周里程碑进度">
         <div class="ev-progress-head">
           <span class="ev-progress-current"><small>本周${page.metric.label}</small><b>${fmt(page.metric.value)}</b></span>
           <span class="ev-progress-next"><small>${nextMilestone ? nextMilestone.label : '本周目标达成'}</small><b>${nextMilestone ? nextGap ? `还差 ${fmt(nextGap)}` : '即将入账' : '全部完成'}</b></span>
         </div>
-        <div class="ev-progress-bar">${milestones.map((m, i) => `<em class="${week.claimed.includes(i) ? 'done' : ''}" style="left:${(m.points / milestones[milestones.length - 1]!.points) * 100}%"></em>`).join('')}<i style="width:${pct}%"></i></div>
+        <div class="ev-progress-bar">${milestones.map((m, i) => `<em class="${week.claimed.includes(i) ? 'done' : ''}" style="left:${(m.points / top) * 100}%"></em>`).join('')}<i style="width:${pct}%"></i></div>
       </div>`;
     const links = `<div class="ev-secondary-links">
         <a class="ev-rewards-entry" href="#events/${typeId}/rewards"><span data-icon="chest"></span><span>里程碑</span><b>${week.claimed.length} / ${milestones.length}</b></a>
@@ -221,28 +198,35 @@ export class EventsScreen implements Screen {
 
     return `
       ${topbarHtml()}
-      <div class="screen ev-screen ev-detail" ${style}>
+      <div class="screen ev-screen ev-detail ev-mode-page ev-mode-${typeId}" ${style}>
         ${tabBar}
-        <section class="panel ev-panel">
+        <section class="panel ev-panel ev-mode-panel">
           <aside class="ev-side">
             <header class="ev-banner">
               <div class="ev-banner-art"><img src="${eventArt(typeId)}" alt="${def.name}" /><span class="ev-banner-icon" data-icon="${EVENT_ICON[typeId]}"></span></div>
               <div class="ev-banner-copy">
                 <div class="ev-title-row"><h1>${def.name}</h1><a href="#events/${typeId}/rules">玩法说明</a></div>
+                <p class="ev-brief">${def.brief}</p>
                 <div class="ev-tags">${levelTag(eventNextLevel(save, weekStart, typeId))}${themeChip}</div>
                 <p class="ev-kingdom"><span data-icon="time"></span><span class="ev-countdown" data-event-countdown data-reset-at="${resetAt}">${weekCountdown(now, resetAt)}</span><span>周一 0:00 重置</span></p>
               </div>
             </header>
-          </aside>
-          <div class="ev-main">
-            ${this.statePanelHtml(page, week, save)}
             ${progress}
             ${links}
-            ${actions}
+          </aside>
+          <div class="ev-main ev-board">${modeBoardHtml(save, weekStart, typeId)}</div>
+        </section>
+      </div>
+      <div class="evm-confirm-veil" id="evConfirm" hidden>
+        <section class="ev-tower-confirm" role="dialog" aria-modal="true" aria-labelledby="evConfirmTitle">
+          <h2 id="evConfirmTitle">确认操作</h2>
+          <p id="evConfirmCopy"></p>
+          <div class="ev-tower-confirm-actions">
+            <button class="ev-confirm-cancel" id="evConfirmCancel" type="button">取消</button>
+            <button class="ev-confirm-danger" id="evConfirmOk" type="button">确认</button>
           </div>
         </section>
       </div>
-      ${towerConfirm}
       ${bottomNavHtml('', '里程碑达标自动入账')}
       ${toastHtml()}`;
   }
@@ -261,7 +245,8 @@ export class EventsScreen implements Screen {
         <div class="ev-overview-body">
           <div class="ev-overview-top">${levelTag(eventNextLevel(save, weekStart, def.id))}</div>
           <a class="ev-overview-main" href="#events/${def.id}"><span class="ev-overview-icon" data-icon="${EVENT_ICON[def.id]}"></span><span class="ev-overview-title"><b>${def.name}</b></span><span class="ev-overview-arrow" data-icon="arrow"></span></a>
-          <p class="ev-overview-hook">${stateSummary(state)}</p>
+          <p class="ev-overview-hook">${state.summary}</p>
+          <p class="ev-overview-pitch">${def.brief}</p>
           <div class="ev-overview-progress"><span>${next ? next.label : '里程碑已全部达成'}</span><b>${next ? toNext ? `差 ${fmt(toNext)} ${state.metric.label}` : '即将入账' : '已完成'}</b><i><em style="width:${pct}%"></em></i></div>
           <div class="ev-overview-foot"><span><span data-icon="crystal"></span><b>${fmt(gemsLeft)}</b>待领</span><span><span data-icon="mark"></span><b${i === 0 ? ' id="evTokenBalance"' : ''}>${fmt(week.tokens)}</b>${def.tokenName}</span></div>
         </div>
@@ -295,101 +280,6 @@ export class EventsScreen implements Screen {
       </section>`;
   }
 
-  /** 各活动的专属状态区 */
-  private statePanelHtml(page: EventPageState, week: EventWeekState, save: MetaSave): string {
-    const e = page.extra;
-    const head = (icon: string, title: string, value: string) =>
-      `<h3><span class="ev-state-title-icon" data-icon="${icon}"></span><span>${title}</span><b>${value}</b></h3>`;
-    switch (e.kind) {
-      case 'invasion': {
-        const nodes = [1, 2, 3].map((i) => {
-          const state = i < e.line ? 'cleared' : i === e.line ? 'current' : 'waiting';
-          return `<div class="ev-line-node ${state}"><span class="ev-line-icon" data-icon="${state === 'cleared' ? 'check' : state === 'current' ? 'helmet' : 'lock'}"></span><b>第 ${i} 防线</b><small>${state === 'cleared' ? '已突破' : state === 'current' ? '交战中' : '待战'}</small><i class="ev-line-enemies"><em></em><em></em>${i === 3 ? '<em class="boss"></em>' : '<em></em>'}</i></div>`;
-        }).join('');
-        return `<div class="ev-state ev-state-invasion">
-            ${head('helmet', '入侵防线', `第 ${e.line} / 3`)}
-            <div class="ev-lines">${nodes}</div>
-            <div class="ev-line-goal"><span data-icon="chest"></span><span>攻破第 3 防线：守土大赏</span><b>已守土 ${e.repelled} 次</b></div>
-          </div>`;
-      }
-      case 'raidBoss': {
-        const pct = e.max > 0 ? Math.max(0, Math.min(100, (e.hp / e.max) * 100)) : 100;
-        const segments = Array.from({ length: 10 }, (_, i) => `<i class="${e.max === 0 || (i + 1) / 10 <= pct / 100 + 1e-9 ? 'on' : ''}"></i>`).join('');
-        return `<div class="ev-state ev-state-raid">
-            ${head('skull', '突袭首领', `第 ${e.tier} 阶`)}
-            <div class="ev-boss-visual">
-              <div class="ev-boss-medallion"><span data-icon="skull"></span><small>已讨伐 ${e.slain}</small></div>
-              <div class="ev-boss-pool">
-                <div class="ev-hpbar"><i style="width:${pct}%"></i><b>${e.max > 0 ? `${fmt(e.hp)} / ${fmt(e.max)}` : '首战生成血池'}</b></div>
-                <div class="ev-hp-segments" aria-hidden="true">${segments}</div>
-                <div class="ev-pool-caption"><span>半血后狂暴 · 按伤害计分</span><b>${Math.round(pct)}%</b></div>
-              </div>
-            </div>
-          </div>`;
-      }
-      case 'towerOfDoom': {
-        const runTeam = week.runTeam ?? [];
-        const hpCells = Array.from({ length: 4 }, (_, i) => {
-          const member = runTeam[i];
-          const ratio = member && member.maxHp > 0 ? Math.max(0, Math.min(1, member.hp / member.maxHp)) : member ? 0 : 1;
-          const state = member?.defeated || ratio <= 0 ? 'dead' : member ? 'alive' : 'empty';
-          return `<div class="ev-team-hp ${state}" title="${member ? `生命 ${Math.round(member.hp)} / ${Math.round(member.maxHp)}` : '未出战'}"><b>${member ? (member.defeated ? '阵亡' : Math.round(member.hp)) : '—'}</b><i style="width:${Math.round(ratio * 100)}%"></i></div>`;
-        }).join('');
-        const scale = Array.from({ length: 5 }, (_, i) => {
-          const mark = (i + 1) * 5;
-          const cls = [e.floor > mark ? 'passed' : '', Math.ceil(e.floor / 5) === i + 1 ? 'current' : ''].filter(Boolean).join(' ');
-          return `<i class="${cls}"><b>${mark}</b></i>`;
-        }).join('');
-        return `<div class="ev-state ev-state-tower">
-            ${head('temple', '末日之塔', `最高 ${e.best} 层`)}
-            <div class="ev-tower-visual">
-              <div class="ev-tower-scale" aria-label="每 5 层一名首领">${scale}</div>
-              <div class="ev-tower-info"><span class="ev-floor now">第 ${e.floor} 层</span>${e.running ? `<span class="ev-floor meta run">存活 ${e.alive ?? '—'} 人</span>` : '<span class="ev-floor meta">尚未开爬</span>'}</div>
-            </div>
-            ${e.running ? `<div class="ev-team-hp-row" aria-label="登塔队伍生命">${hpCells}</div><div class="ev-tower-actions"><button class="ev-abandon" id="evAbandon" type="button">放弃并结算</button></div>` : ''}
-          </div>`;
-      }
-      case 'worldEvent': {
-        const goals = EVENT_MILESTONES.worldEvent;
-        const top = goals[goals.length - 1]!.points;
-        const next = goals.find((m) => e.supplies < m.points);
-        const pct = Math.min(100, (e.supplies / top) * 100);
-        const marks = goals.map((m) => `<i class="${e.supplies >= m.points ? 'done' : ''}" style="left:${(m.points / top) * 100}%"><b>${m.points}</b></i>`).join('');
-        return `<div class="ev-state ev-state-world">
-            ${head('sparkles', '物资收集', `${e.supplies} 件`)}
-            <div class="ev-supply-card">
-              <div class="ev-supply-race"><span data-icon="sparkles"></span><b>${e.race ? raceName(e.race) : '—'}</b><small>每名出战 +1</small></div>
-              <div class="ev-supply-track"><div class="ev-supply-bar"><div class="ev-supply-fill" style="width:${pct}%"></div><div class="ev-supply-marks">${marks}</div></div><span class="ev-supply-next">${next ? `距「${next.label}」还差 ${next.points - e.supplies}` : '本周补给已集齐'}</span></div>
-            </div>
-          </div>`;
-      }
-      case 'factionAssault': {
-        const slots = Array.from({ length: 4 }, (_, i) => `<i class="${i < e.match ? 'hit' : ''}"><span data-icon="helmet"></span></i>`).join('');
-        return `<div class="ev-state ev-state-faction">
-            ${head('banner', '阵营加成', `${e.match} / 4`)}
-            <div class="ev-faction-visual">
-              <div class="ev-faction-crest"><span data-icon="banner"></span><b>${e.kingdom}</b></div>
-              <div class="ev-faction-slots" aria-label="编入目标王国的部队">${slots}</div>
-              <div class="ev-faction-buff"><span>攻击 <b>+${e.match * 2}</b></span><span>生命 <b>+${e.match * 10}</b></span></div>
-            </div>
-            <div class="ev-faction-foot"><span>当前据点 · ${['补给站', '城门', '堡垒'][e.wins % 3]}</span><b>第 ${Math.floor(e.wins / 3) + 1} 轮</b></div>
-          </div>`;
-      }
-      case 'classTrials': {
-        const hasHero = activeTeam(save)?.members.some((member) => member.kind === 'hero') ?? false;
-        const levels = [1, 1.3, 1.6, 2];
-        return `<div class="ev-state ev-state-trials">
-            ${head('crown', '连胜试炼', `×${trimMult(e.mult)}`)}
-            <div class="ev-trial-visual">
-              <div class="ev-trial-steps">${levels.map((mult, i) => `<i class="${e.streak >= i + 1 ? 'on' : ''}${e.streak === i + 1 ? ' current' : ''}"><b>${i + 1}</b><small>×${mult.toFixed(1)}</small></i>`).join('')}</div>
-              <div class="ev-trial-seal"><small>下一胜</small><b>${Math.round(100 * e.mult)} 分</b></div>
-            </div>
-            ${hasHero ? '' : '<div class="ev-hero-lock blocked"><span data-icon="lock"></span><b>主角未编入</b><a href="#team">去编队 <span data-icon="arrow"></span></a></div>'}
-          </div>`;
-      }
-    }
-  }
-
   mount(ctx: ShellCtx, root: HTMLElement, param?: string): void {
     this.startCountdown(ctx, root);
     const picker = root.querySelector<HTMLSelectElement>('#evTypePicker');
@@ -399,36 +289,62 @@ export class EventsScreen implements Screen {
     if (tabBar && activeTab && tabBar.scrollWidth > tabBar.clientWidth) {
       tabBar.scrollLeft = activeTab.offsetLeft - (tabBar.clientWidth - activeTab.offsetWidth) / 2;
     }
-    if (parseTypeId(param)) {
-      this.bind('#evFight', 'click', () => {
-        void ctx.launchEventBattle(root.querySelector<HTMLInputElement>('input[name="eventChoice"]:checked')?.value);
-      });
-    }
-    this.bind('#evAbandon', 'click', () => this.openTowerAbandon());
-    this.bind('#evCancelAbandon', 'click', () => this.closeTowerAbandon());
-    this.bind('#evConfirmAbandon', 'click', () => {
-      const button = $('#evConfirmAbandon') as HTMLButtonElement;
-      button.disabled = true;
-      const now = Date.now();
-      void ctx.gateway.abandonTowerRun(weekStartOf(now)).then(({ result }) => {
-        if (isFailure(result)) {
-          button.disabled = false;
-          toast(result.message);
-          return;
-        }
-        this.closeTowerAbandon();
-        toast(`已放弃登塔 · 到达第 ${result.floorReached} 层${result.glory ? ` · 荣耀 +${result.glory}` : ''}${result.scrolls ? ` · 符卷 +${result.scrolls}` : ''}`);
+    const typeId = parseTypeId(param?.split('/')[0]);
+    const board = root.querySelector<HTMLElement>('.ev-board');
+    if (!typeId || !board) return;
+
+    // 爬塔地图：滚到当前可走的那一层
+    const scroller = board.querySelector<HTMLElement>('[data-scroll-y]');
+    if (scroller) scroller.scrollTop = Number(scroller.dataset.scrollY) || 0;
+
+    this.on(board, 'click', (event) => {
+      const el = (event.target as HTMLElement).closest<HTMLElement>('[data-act],[data-fight],[data-select]');
+      if (!el || (el as HTMLButtonElement).disabled || el.getAttribute('aria-disabled') === 'true') return;
+      if (el.dataset.select !== undefined) {
+        SELECTION.set(typeId, el.dataset.select);
         ctx.refresh();
-      });
+        return;
+      }
+      if (el.dataset.fight !== undefined) {
+        void ctx.launchEventBattle(el.dataset.fight);
+        return;
+      }
+      const action = el.dataset.act!;
+      if (el.dataset.confirm) this.confirm(root, el.dataset.confirm, () => void this.act(ctx, typeId, action));
+      else void this.act(ctx, typeId, action);
     });
-    this.on(document, 'keydown', (event) => {
-      if ((event as KeyboardEvent).key === 'Escape') this.closeTowerAbandon();
-    });
-    const abandonModal = root.querySelector<HTMLElement>('#evAbandonModal');
-    if (abandonModal) {
-      this.on(abandonModal, 'click', (event) => {
-        if (event.target === abandonModal) this.closeTowerAbandon();
-      });
+    const veil = root.querySelector<HTMLElement>('#evConfirm');
+    if (veil) {
+      this.on(veil, 'click', (event) => { if (event.target === veil) veil.hidden = true; });
+      this.on(document, 'keydown', (event) => { if ((event as KeyboardEvent).key === 'Escape') veil.hidden = true; });
+    }
+  }
+
+  private confirm(root: HTMLElement, copy: string, onOk: () => void): void {
+    const veil = root.querySelector<HTMLElement>('#evConfirm');
+    if (!veil) { onOk(); return; }
+    veil.querySelector('#evConfirmCopy')!.textContent = copy;
+    veil.hidden = false;
+    const ok = veil.querySelector<HTMLButtonElement>('#evConfirmOk')!;
+    const cancel = veil.querySelector<HTMLButtonElement>('#evConfirmCancel')!;
+    ok.onclick = () => { veil.hidden = true; onOk(); };
+    cancel.onclick = () => { veil.hidden = true; };
+    cancel.focus();
+  }
+
+  private async act(ctx: ShellCtx, typeId: EventTypeId, action: string): Promise<void> {
+    if (this.busy) return;
+    this.busy = true;
+    try {
+      const now = Date.now();
+      const { result } = await ctx.gateway.eventAction(now, weekStartOf(now), typeId, action);
+      if (isFailure(result)) { toast(result.message); return; }
+      if (action.startsWith('go:') || action === 'start' || action === 'abandon') SELECTION.delete(typeId);
+      ctx.refresh();
+      ctx.refreshChrome();
+      if (result.message) toast(result.message);
+    } finally {
+      this.busy = false;
     }
   }
 
@@ -449,25 +365,9 @@ export class EventsScreen implements Screen {
     this.countdownTimer = window.setInterval(update, 1_000);
   }
 
-  private openTowerAbandon(): void {
-    const modal = $('#evAbandonModal');
-    modal.hidden = false;
-    ($('#evCancelAbandon') as HTMLButtonElement).focus();
-  }
-
-  private closeTowerAbandon(): void {
-    const modal = document.querySelector<HTMLElement>('#evAbandonModal');
-    if (modal) modal.hidden = true;
-  }
-
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {
     target.addEventListener(type, fn);
     this.listeners.push([target, type, fn]);
-  }
-
-  private bind(selector: string, type: string, fn: EventListenerOrEventListenerObject): void {
-    const el = $(selector);
-    if (el) this.on(el, type, fn);
   }
 
   dispose(): void {
