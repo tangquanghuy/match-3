@@ -10,7 +10,7 @@ const WHITE = 'Monochrome: only pure white and neutral grey light on black, no c
 const FX = (id, prompt, longest = 1024) => [id, {
   size: '1024x1024',
   background: 'opaque',
-  out: `public/static/fx/summon/${id}.webp`,
+  out: `game-assets/public/static/fx/summon/${id}.webp`,
   longest,
   pad: 0,
   prompt: `${prompt} ${ADDITIVE}`,

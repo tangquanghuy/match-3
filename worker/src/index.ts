@@ -2,7 +2,7 @@
  * Worker 入口：
  *  - /auth/*      Discord OAuth2 登录、登出、当前账号；
  *  - /api/meta/*  鉴权后转发到该玩家的 Durable Object（GET /save 整份快照，POST /command 执行命令）；
- *  - /            跳到游戏外壳页；
+ *  - /            封面页（登录 + 用户协议）；登录成功后跳 /game；
  *  - 其余         静态资源（ASSETS）。
  */
 import type { Env } from './env';
@@ -15,6 +15,8 @@ import {
   SESSION_COOKIE,
   verifySession,
 } from './session';
+
+import { TERMS_VERSION } from '../../src/legal/terms';
 
 export { PlayerActor } from './playerActor';
 
@@ -38,7 +40,8 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     try {
-      if (url.pathname === '/') return redirect(GAME_PAGE);
+      // 封面页（登录 + 用户协议）
+      if (url.pathname === '/') return env.ASSETS.fetch(new Request(new URL('/cover', url), request));
       if (url.pathname.startsWith('/auth/')) return await handleAuth(request, url, env);
       if (url.pathname.startsWith('/api/meta/')) return await handleMeta(request, url, env);
       return env.ASSETS.fetch(request);
@@ -65,6 +68,8 @@ function sameOrigin(request: Request, url: URL): boolean {
 async function handleAuth(request: Request, url: URL, env: Env): Promise<Response> {
   switch (url.pathname) {
     case '/auth/login': {
+      // 登录前必须在封面页同意当前版本的用户协议
+      if (Number(url.searchParams.get('terms')) !== TERMS_VERSION) return redirect('/?error=terms');
       const devName = url.searchParams.get('dev');
       if (devName !== null) {
         // 本地开发专用：免 Discord 登录。线上 DEV_LOGIN 为空，此分支不可达
@@ -80,20 +85,22 @@ async function handleAuth(request: Request, url: URL, env: Env): Promise<Respons
       authorize.searchParams.set('scope', 'identify');
       authorize.searchParams.set('state', state);
       authorize.searchParams.set('redirect_uri', `${url.origin}/auth/callback`);
+      authorize.searchParams.set('prompt', 'none');
       return redirect(authorize.toString(), [cookie(OAUTH_STATE_COOKIE, state, 600, '/auth')]);
     }
 
     case '/auth/callback': {
+      const clearState = cookie(OAUTH_STATE_COOKIE, '', 0, '/auth');
+      if (url.searchParams.get('error')) return redirect('/?error=denied', [clearState]);
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const expected = readCookie(request, OAUTH_STATE_COOKIE);
-      if (!code || !state || !expected || state !== expected) return json({ error: 'bad oauth state' }, 400);
+      if (!code || !state || !expected || state !== expected) return redirect('/?error=state', [clearState]);
       const token = await exchangeCode(env, code, `${url.origin}/auth/callback`);
-      if (!token) return json({ error: 'discord token exchange failed' }, 502);
-      const user = await discordUser(token);
-      if (!user) return json({ error: 'discord user lookup failed' }, 502);
+      const user = token ? await discordUser(token) : null;
+      if (!user) return redirect('/?error=discord', [clearState]);
       const response = await loginAs(env, user.id, user.global_name ?? user.username);
-      response.headers.append('set-cookie', cookie(OAUTH_STATE_COOKIE, '', 0, '/auth'));
+      response.headers.append('set-cookie', clearState);
       return response;
     }
 
@@ -105,32 +112,28 @@ async function handleAuth(request: Request, url: URL, env: Env): Promise<Respons
     case '/auth/me': {
       const playerId = await currentPlayer(request, env);
       if (!playerId) return json({ error: 'unauthorized' }, 401);
-      const row = await env.DB.prepare('SELECT username FROM accounts WHERE player_id = ?').bind(playerId).first<{ username: string }>();
-      return json({ playerId, username: row?.username ?? null });
+      const row = await env.DB.prepare('SELECT username, terms_version FROM accounts WHERE player_id = ?')
+        .bind(playerId).first<{ username: string; terms_version: number }>();
+      if (!row) return json({ error: 'unauthorized' }, 401);
+      return json({ playerId, username: row.username, termsAccepted: row.terms_version >= TERMS_VERSION });
     }
-
-    case '/auth/signed-out':
-      return new Response(
-        '<!doctype html><meta charset="utf-8"><title>已退出</title>'
-          + '<body style="font:16px system-ui;background:#111;color:#ddd;display:grid;place-items:center;height:100vh;margin:0">'
-          + '<div style="text-align:center"><p>已退出登录。</p><p><a style="color:#9cf" href="/auth/login">用 Discord 登录</a></p></div>',
-        { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } },
-      );
   }
   return json({ error: 'not found' }, 404);
 }
 
-/** 按外部身份找/建账号，签发会话并跳回游戏 */
+/** 按外部身份找/建账号，记录同意的协议版本，签发会话并跳进游戏 */
 async function loginAs(env: Env, externalId: string, username: string): Promise<Response> {
   const now = Date.now();
   const existing = await env.DB.prepare('SELECT player_id FROM accounts WHERE discord_id = ?').bind(externalId).first<{ player_id: string }>();
   let playerId = existing?.player_id;
   if (playerId) {
-    await env.DB.prepare('UPDATE accounts SET username = ?, last_login_at = ? WHERE player_id = ?').bind(username, now, playerId).run();
+    await env.DB.prepare('UPDATE accounts SET username = ?, last_login_at = ?, terms_version = ?, terms_agreed_at = ? WHERE player_id = ?')
+      .bind(username, now, TERMS_VERSION, now, playerId).run();
   } else {
     playerId = crypto.randomUUID();
-    await env.DB.prepare('INSERT INTO accounts (player_id, discord_id, username, created_at, last_login_at) VALUES (?, ?, ?, ?, ?)')
-      .bind(playerId, externalId, username, now, now).run();
+    await env.DB.prepare(
+      'INSERT INTO accounts (player_id, discord_id, username, created_at, last_login_at, terms_version, terms_agreed_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    ).bind(playerId, externalId, username, now, now, TERMS_VERSION, now).run();
   }
   const session = await createSession(env.SESSION_SECRET, playerId, now);
   return redirect(GAME_PAGE, [cookie(SESSION_COOKIE, session.token, session.maxAge)]);

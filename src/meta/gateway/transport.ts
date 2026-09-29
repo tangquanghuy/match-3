@@ -91,7 +91,7 @@ export class MetaHttpError extends Error {
  * Worker 端点约定：
  *  - GET  {base}/save     → LoadReply
  *  - POST {base}/command  → CommandReply（body = MetaCommand）
- * 401 = 未登录（屏层应跳 Discord 登录）。
+ * 401 = 未登录（跳回封面页登录）。
  */
 export class HttpTransport implements MetaTransport {
   readonly kind = 'remote' as const;
@@ -119,8 +119,8 @@ export class HttpTransport implements MetaTransport {
     });
     if (!response.ok) {
       const text = await response.text().catch(() => '');
-      // 会话失效/未登录：去 Discord 登录，回来后重新加载
-      if (response.status === 401 && typeof location !== 'undefined') location.assign('/auth/login');
+      // 会话失效/未登录：回封面页登录（先同意用户协议），回来后重新加载
+      if (response.status === 401 && typeof location !== 'undefined') location.assign('/');
       throw new MetaHttpError(response.status, text || `HTTP ${response.status}`);
     }
     return (await response.json()) as T;

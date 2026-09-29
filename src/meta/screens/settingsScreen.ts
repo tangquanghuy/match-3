@@ -781,7 +781,7 @@ export class SettingsScreen implements Screen {
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
     this.bind('#logoutBtn', 'click', () => {
       void fetch('/auth/logout', { method: 'POST', credentials: 'include' })
-        .then(() => location.assign('/auth/signed-out'))
+        .then(() => location.assign('/'))
         .catch(() => toast('退出失败，请重试'));
     });
   }

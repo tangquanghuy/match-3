@@ -30,10 +30,11 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       // 线上（--mode remote）只发布游戏外壳；单机对局页与技能测试台只在开发时构建
       input: mode === 'remote'
-        ? { game: root('./game.html') }
+        ? { cover: root('./cover.html'), game: root('./game.html') }
         : {
             main: root('./index.html'),
             skillsTest: root('./skills-test.html'),
+            cover: root('./cover.html'),
             game: root('./game.html'),
           },
     },

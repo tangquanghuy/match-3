@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>破晓之誓 · Chronicles of Dawn</title>
+  <meta name="description" content="破晓之誓：社区爱好者制作的免费三消 RPG">
+</head>
+<body>
+  <main class="cover" id="cover">
+    <div class="cover-art" aria-hidden="true"></div>
+    <section class="cover-panel" aria-labelledby="coverTitle">
+      <p class="cover-kicker">社区同人 · 免费三消 RPG</p>
+      <h1 id="coverTitle" class="cover-title">破晓之誓</h1>
+      <p class="cover-sub">CHRONICLES OF DAWN</p>
+      <div class="cover-actions" id="coverActions" aria-live="polite">
+        <p class="cover-status">正在连接…</p>
+      </div>
+      <p class="cover-foot">
+        非商业项目 · 完全免费 · 不对存档负责
+        <button type="button" class="link" id="openTerms">用户协议</button>
+      </p>
+    </section>
+  </main>
+
+  <dialog class="terms" id="terms" aria-labelledby="termsTitle">
+    <form method="dialog" class="terms-inner">
+      <header class="terms-head">
+        <h2 id="termsTitle">用户协议</h2>
+        <p class="terms-meta" id="termsMeta"></p>
+      </header>
+      <div class="terms-body" id="termsBody" tabindex="0"></div>
+      <footer class="terms-foot">
+        <button type="submit" class="btn secondary" value="close">关闭</button>
+        <button type="submit" class="btn primary" value="agree" id="termsAgree">我已阅读并同意</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script type="module" src="/src/cover/coverMain.ts"></script>
+</body>
+</html>
