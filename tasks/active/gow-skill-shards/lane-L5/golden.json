@@ -1129,6 +1129,16 @@
   "by": "sa-C",
   "at": "2026-09-28T22:28:21.454Z"
  },
+ "troop:6982": {
+  "lines": {
+   "L10": "dmg E11 13 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash)  => E11:hp-3 arm-10 | E10:arm-3 | E12:arm-3",
+   "R10": "dmg E11 13 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash)  => E11:hp-3 arm-10 | E10:arm-3 | E12:arm-3",
+   "L0": "dmg E11 3 (splash)  => E11:arm-3",
+   "K": "dmg E11 13 (splash) ; dmg E10 3 (splash) ; dmg E12 3 (splash) ; defeat E11 ; defeat E10 ; defeat E12  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:59:12.638Z"
+ },
  "troop:6983": {
   "lines": {
    "L10": "dmg E11 14 (splash) ; dmg E10 10 (splash) ; dmg E12 10 (splash) ; status E11 +stun ; status E10 +stun ; status E12 +stun ; shuffle theirs  => E11:hp-4 arm-10 +stun | E10:hp-5 arm-5 +stun | E12:arm-10 +stun",

@@ -11,3 +11,7 @@ at Magic 10, then golden approve + signoff accept (`--by sa-Q2`, test tests/unit
 - B03 troop:6587 (L5): accept (P-F3-lasttarget-damaged fixed; +10 on damaged target, Enrage on kill / surviving damaged target; armor-only hit no Enrage)
 - B03 troop:6704 (L4b): accept (P-R2-chosen-color-modifier fixed; 11 Red for 11 chosen-colour gems)
 - B03 troop:6936, weapon:1427 (L5): accept (P-R3-target-status-count fixed; 3 statuses -> 43, 2 statuses -> 37)
+- B04 troop:6982 (L5): accept (P-R3-next-up-target fixed; independent 30% silence chosen / next up / next down; armor 30 -> 23)
+- B04 troop:7210 (L4b): accept (P-R2-gargoyle-tier fixed; Bad-only count, also gowFixP-boardSpecial-filters)
+- B04 troop:7308, 7309 (L4b): accept per R016-7 (Spirit = Purple spiritGem); other steps verified
+- B04 troop:7363 (L3): accept, dispute: native Booty Amount 1 vs English/zh 2, kept 2 (English, as R016 did for 7884/7797/1396/6699/7704)

@@ -103,3 +103,40 @@ describe('sa-Q2 B03: fixed chosen-target conditions / counts', () => {
     expect(s.order[0]).toBe('dmg E11 37');
   });
 });
+
+describe('sa-Q2 B04: next-up target, gargoyle tier, Spirit gems (R016-7), Hanged Man', () => {
+  it('troop:6982 Mechataur: armor [3:1] boost, independent 30% Silence on target / next up / next down', () => {
+    const boosted = castSpell({ key: 'troop:6982', caster: { armor: 30 } }).summary;
+    expect(boosted.order[0]).toBe('dmg E11 23 (splash)');
+    const hit = new Set<string>();
+    let multi = false;
+    for (let seed = 1; seed <= 10; seed++) {
+      const sil = castSpell({ key: 'troop:6982', seed }).summary.order.filter(x => x.endsWith('+silence')).map(x => x.split(' ')[1]);
+      sil.forEach(x => hit.add(x)); if (sil.length > 1) multi = true;
+      expect(sil.every(x => ['E10', 'E11', 'E12'].includes(x))).toBe(true);
+    }
+    expect([...hit].sort()).toEqual(['E10', 'E11', 'E12']);
+    expect(multi).toBe(true);
+  });
+  it('troop:7210 Xenith: 5 Doomskulls, no board gargoyles -> no boost', () => {
+    expect(castSpell({ key: 'troop:7210' }).summary.gems.created.doomSkull).toBe(5);
+  });
+  it('troop:7308 Chiron / troop:7309 Spirittooth: Spirit gems are Purple spirit gems (R016-7)', () => {
+    const a = castSpell({ key: 'troop:7308' }).summary;
+    expect(a.gems.created).toMatchObject({ Yellow: 8, 'spiritGem/Purple': 8 });
+    expect(a.units.C).toContain('+enchanted');
+    const b = castSpell({ key: 'troop:7309' }).summary;
+    expect(b.order[0]).toBe('dmg E11 13');
+    expect(b.gems.created['spiritGem/Purple']).toBe(3);
+  });
+  it('troop:7363 Hanged Man: 2 Booty gems (English, dispute kept) and 7% per Blue gem counted before creation', () => {
+    const s = castSpell({ key: 'troop:7363' }).summary;
+    expect(s.gems.created.bootyGem).toBe(2);
+    expect(s.order[0]).toBe('extra-turn skill');
+    // 1 Blue gem -> 7%: most seeds give no extra turn
+    const oneBlue = (r: number, c: number) => (r === 0 && c === 0 ? { kind: 'color', color: 'Blue' } : { kind: 'color', color: (r + c) % 2 ? 'Red' : 'Green' }) as never;
+    let extra = 0;
+    for (let seed = 1; seed <= 20; seed++) if (castSpell({ key: 'troop:7363', board: oneBlue, seed }).summary.extraTurn) extra++;
+    expect(extra).toBeLessThan(6);
+  });
+});

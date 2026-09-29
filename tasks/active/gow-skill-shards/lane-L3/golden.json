@@ -1459,6 +1459,16 @@
   "by": "sa-P",
   "at": "2026-09-28T23:25:58.499Z"
  },
+ "troop:7363": {
+  "lines": {
+   "L10": "extra-turn skill ; convert Purple x1, skull x1 -> bootyGem x2  extra:skill",
+   "R10": "extra-turn skill ; convert Purple x1, skull x1 -> bootyGem x2  extra:skill",
+   "L0": "extra-turn skill ; convert Purple x1, skull x1 -> bootyGem x2  extra:skill",
+   "K": "extra-turn skill ; convert Purple x1, skull x1 -> bootyGem x2  extra:skill"
+  },
+  "by": "sa-Q2",
+  "at": "2026-09-29T03:59:21.282Z"
+ },
  "troop:7365": {
   "lines": {
    "L10": "dmg E11 112 ; gold+10 ; extra-turn skill  => E11:hp-102 arm-10  extra:skill  eco:{\"gold\":10,\"goldMine\":10}",
