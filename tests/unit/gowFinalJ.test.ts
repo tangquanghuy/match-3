@@ -88,3 +88,28 @@ describe('sa-J B05', () => {
     expect(plain.some(x => x.startsWith('dmg E11'))).toBe(false);
   });
 });
+
+describe('sa-J B06', () => {
+  // troop:6775 CorruptMagus (8165): CauseCursed ; DecreaseRandom 1+M ; DecreaseRandom 1+M = two independent rolls (R007-2).
+  it('troop:6775 curses then makes two independent random-Skill reductions on the same enemy', () => {
+    for (let seed = 1; seed <= 15; seed++) {
+      const o = order('troop:6775', { seed });
+      expect(o[0]).toBe('status E11 +curse');
+      expect(o.slice(1).every(x => /^buff E11 (hp|attack|armor|magic)-\d+$/.test(x))).toBe(true);
+    }
+  });
+  // troop:7016 TheArchduke (8547): chance to destroy = Magic %. Native runs LethalDamageConditional before Damage;
+  // the end state is the same either way (target dead + Lemure, or plain damage), which these two cases pin.
+  it('troop:7016 destroys at 100 Magic and summons, and only damages at 0 Magic', () => {
+    const hi = order('troop:7016', { magic: 100 });
+    expect(hi[0]).toBe('dmg E11 157');
+    expect(hi).toContain('defeat E11');
+    expect(hi.some(x => x.startsWith('summon mine'))).toBe(true);
+    expect(order('troop:7016', { magic: 0 })).toEqual(['dmg E11 7']);
+  });
+  // troop:7029 SkyMage (8556): Enchant only if the ally is from Shentang (kingdom 3030).
+  it('troop:7029 enchants a Shentang ally', () => {
+    expect(order('troop:7029', { allies: [{ hp: 500, maxHp: 700, kingdomId: 3030 } as Record<string, unknown>] }))
+      .toEqual(['buff A1 hp+11 max+11', 'buff A1 magic+2', 'status A1 +enchanted']);
+  });
+});

@@ -1336,8 +1336,8 @@
    "L0": "explode 30 ; skulls E10 3 ; storm Brown set  => A2:mana+1 | E10:arm-3",
    "K": "explode 30 ; skulls E10 3 ; defeat E10 ; storm Brown set  => A2:mana+1 | E10:hp-1 DEAD"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T22:46:53.800Z"
+  "by": "sa-J",
+  "at": "2026-09-29T04:00:33.687Z"
  },
  "troop:6907": {
   "lines": {

@@ -1299,6 +1299,16 @@
   "by": "sa-C",
   "at": "2026-09-28T14:26:29.671Z"
  },
+ "troop:7029": {
+  "lines": {
+   "L10": "buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2",
+   "R10": "buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2",
+   "L0": "buff A1 hp+1 max+1 ; buff A1 magic+2  => A1:hp+1 max+1 mag+2",
+   "K": "buff A1 hp+11 max+11 ; buff A1 magic+2  => A1:hp+11 max+11 mag+2"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:00:38.503Z"
+ },
  "troop:7072": {
   "lines": {
    "L10": "status E11 +curse ; status E11 +frozen ; dmg E11 14  => E11:hp-4 arm-10 +curse+frozen",

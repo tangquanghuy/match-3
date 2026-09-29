@@ -1009,6 +1009,16 @@
   "by": "sa-R7",
   "at": "2026-09-28T08:31:32.712Z"
  },
+ "troop:7043": {
+  "lines": {
+   "L10": "gold+11 ; buff E11 mana-8 ; status E11 +frozen  => E11:mana-8 +frozen  eco:{\"gold\":11,\"goldMine\":11,\"goldTheirs\":-11}",
+   "R10": "gold+11 ; buff E11 mana-8 ; status E11 +frozen  => E11:mana-8 +frozen  eco:{\"gold\":11,\"goldMine\":11,\"goldTheirs\":-11}",
+   "L0": "gold+1 ; buff E11 mana-8 ; status E11 +frozen  => E11:mana-8 +frozen  eco:{\"gold\":1,\"goldMine\":1,\"goldTheirs\":-1}",
+   "K": "gold+11 ; buff E11 mana-5 ; status E11 +frozen  => E11:mana-5 +frozen  eco:{\"gold\":11,\"goldMine\":11,\"goldTheirs\":-11}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:00:40.822Z"
+ },
  "troop:7052": {
   "lines": {
    "L10": "convert Yellow x9 -> skull x9",

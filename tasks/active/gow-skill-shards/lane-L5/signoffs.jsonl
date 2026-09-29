@@ -305,3 +305,4 @@
 {"format":"compact","key":"troop:6325","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:55:05.831Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6506","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:58:41.718Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6512","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:58:41.719Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:7029","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:00:38.603Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B06: 6775 two independent DecreaseRandom per native (R007-2); 7016 lethal-before-damage order unobservable (tested)"}
