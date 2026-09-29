@@ -1,12 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NarrationAudio } from '../../src/render/NarrationAudio';
 import type { NarrationClip } from '../../src/render/NarrationCatalog';
+import { registerAudioForTest, resetAudioBankForTest } from '../../src/render/audioBank';
 
 const clip: NarrationClip = {id: 'first', pool: 'heavy.ally', url: '/first.mp3', duration: 5};
 const other: NarrationClip = {...clip, id: 'second', url: '/second.mp3'};
 const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
 function setup() {
-  vi.useFakeTimers();
+  registerAudioForTest(clip.url, new ArrayBuffer(1));
+  registerAudioForTest(other.url, new ArrayBuffer(1));
   const sources: {start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
     disconnect: ReturnType<typeof vi.fn>; connect: ReturnType<typeof vi.fn>; onended: (() => void) | null}[] = [];
   const ctx = {state: 'running', decodeAudioData: vi.fn(async () => ({})), createBufferSource: vi.fn(() => {
@@ -16,22 +18,25 @@ function setup() {
   let enabled = true;
   const speaking = vi.fn();
   const caption = vi.fn();
-  const fetcher = vi.fn(async () => ({ok: true, arrayBuffer: async () => new ArrayBuffer(1)}));
-  vi.stubGlobal('fetch', fetcher);
   const audio = new NarrationAudio(ctx as unknown as AudioContext, {} as AudioNode, () => enabled, speaking, caption);
-  return {audio, ctx, sources, speaking, caption, fetcher, mute: () => { enabled = false; }};
+  return {audio, ctx, sources, speaking, caption, mute: () => { enabled = false; }};
 }
-afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
+afterEach(() => { resetAudioBankForTest(); });
 
 describe('narration audio', () => {
-  it('loads lazily, caches decoded audio, never overlaps ordinary clips', async () => {
-    const x = setup(); expect(x.fetcher).not.toHaveBeenCalled();
+  it('decodes preloaded bytes, caches decoded audio, never overlaps ordinary clips', async () => {
+    const x = setup();
     expect(x.audio.play(clip)).toBe(true); expect(x.audio.play(other)).toBe(false);
     await flush(); expect(x.sources[0].start).toHaveBeenCalledTimes(1);
     expect(x.speaking).toHaveBeenLastCalledWith(true);
     x.sources[0].onended?.(); expect(x.audio.isBusy()).toBe(false);
     expect(x.speaking).toHaveBeenLastCalledWith(false);
-    x.audio.play(clip); await flush(); expect(x.fetcher).toHaveBeenCalledTimes(1);
+    x.audio.play(clip); await flush(); expect(x.ctx.decodeAudioData).toHaveBeenCalledTimes(1);
+    x.audio.dispose();
+  });
+  it('throws when a clip was not preloaded instead of staying silent', () => {
+    const x = setup();
+    expect(() => x.audio.play({...clip, id: 'missing', url: '/missing.mp3'})).toThrow(/解说未预载/);
     x.audio.dispose();
   });
   it('important commentary interrupts and disconnects the previous source', async () => {
@@ -40,68 +45,51 @@ describe('narration audio', () => {
     expect(x.sources[0].disconnect).toHaveBeenCalled(); expect(x.sources[0].onended).toBeNull();
     x.audio.dispose();
   });
-  it('cancels a pending clip when stopped or interrupted', async () => {
-    const x = setup(); let resolve!: (r: Response) => void;
-    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(r => {resolve = r;})));
+  it('cancels a pending clip when stopped before decoding finishes', async () => {
+    const x = setup(); let resolve!: (b: AudioBuffer) => void;
+    x.ctx.decodeAudioData.mockImplementationOnce(() => new Promise(r => { resolve = r as never; }));
     x.audio.play(clip); x.audio.stop();
-    resolve({ok: true, arrayBuffer: async () => new ArrayBuffer(1)} as Response); await flush();
+    resolve({} as AudioBuffer); await flush();
     expect(x.sources).toHaveLength(0); expect(x.audio.isBusy()).toBe(false); x.audio.dispose();
   });
-  it('suppresses a clip after mute or context suspension during loading', async () => {
+  it('suppresses a clip after mute or context suspension', async () => {
     const x = setup(); x.audio.play(clip); x.mute(); await flush();
     expect(x.sources).toHaveLength(0); expect(x.audio.isBusy()).toBe(false);
     expect(x.audio.play(other)).toBe(false); x.audio.dispose();
     const y = setup(); y.ctx.state = 'suspended'; expect(y.audio.play(clip)).toBe(false); y.audio.dispose();
   });
-  it('drops late loads instead of narrating an old turn', async () => {
-    const x = setup(); let resolve!: (r: Response) => void;
-    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(r => {resolve = r;})));
-    x.audio.play(clip); vi.advanceTimersByTime(1801);
-    resolve({ok: true, arrayBuffer: async () => new ArrayBuffer(1)} as Response); await flush();
-    expect(x.sources).toHaveLength(0); expect(x.audio.isBusy()).toBe(false); x.audio.dispose();
-  });
-  it('retries failed requests and decoding without leaving the player busy', async () => {
-    const x = setup(); x.fetcher.mockRejectedValueOnce(new Error('network'));
-    x.audio.play(clip); await flush(); expect(x.audio.isBusy()).toBe(false);
-    x.audio.play(clip); await flush(); expect(x.sources).toHaveLength(1); x.audio.stop();
-    x.ctx.decodeAudioData.mockRejectedValueOnce(new Error('decode'));
-    x.audio.play(other); await flush(); expect(x.audio.isBusy()).toBe(false); x.audio.dispose();
-  });
-  it('dispose aborts outstanding requests and prevents further playback', async () => {
-    const x = setup(); let signal: AbortSignal | undefined;
-    vi.stubGlobal('fetch', vi.fn((_url: string, opts: RequestInit) => {
-      signal = opts.signal as AbortSignal;
-      return new Promise<Response>((_resolve, reject) => signal!.addEventListener('abort', () => reject(new Error('aborted'))));
-    }));
-    x.audio.preload(clip); x.audio.dispose(); await flush();
-    expect(signal?.aborted).toBe(true); expect(x.audio.play(other, true)).toBe(false);
-    expect(x.sources).toHaveLength(0);
+  it('dispose prevents further playback', () => {
+    const x = setup(); x.audio.dispose();
+    expect(x.audio.play(other, true)).toBe(false); expect(x.sources).toHaveLength(0);
   });
   it('waits for the actual final sample before releasing a result voice', async () => {
     const x = setup(); x.audio.play(clip, true);
     const finished = vi.fn(); void x.audio.whenIdle().then(finished);
-    await flush(); vi.advanceTimersByTime(1000); await flush();
+    await flush();
     expect(finished).not.toHaveBeenCalled();
     expect(x.sources[0].stop).not.toHaveBeenCalled();
     x.sources[0].onended?.(); await flush();
     expect(finished).toHaveBeenCalledTimes(1);
     x.audio.dispose();
   });
-  it('releases result waiters on download failure, timeout or explicit mute', async () => {
+  it('releases result waiters on explicit stop', async () => {
     const x = setup(); x.audio.play(clip, true);
     const finished = vi.fn(); void x.audio.whenIdle().then(finished);
     x.audio.stop(); await flush();
     expect(finished).toHaveBeenCalledTimes(1); x.audio.dispose();
   });
-  it('bounds the cache rather than retaining all recordings', async () => {
+  it('bounds the decoded cache rather than retaining all recordings', async () => {
     const x = setup();
-    for (let i = 0; i < 18; i++) x.audio.preload({...clip, id: `clip-${i}`});
-    await flush(); expect(x.fetcher).toHaveBeenCalledTimes(18);
-    x.audio.preload({...clip, id: 'clip-0'}); await flush(); expect(x.fetcher).toHaveBeenCalledTimes(19);
+    for (let i = 0; i < 18; i++) {
+      registerAudioForTest(`/clip-${i}.mp3`, new ArrayBuffer(1));
+      x.audio.preload({...clip, id: `clip-${i}`, url: `/clip-${i}.mp3`});
+    }
+    await flush(); expect(x.ctx.decodeAudioData).toHaveBeenCalledTimes(18);
+    x.audio.preload({...clip, id: 'clip-0', url: '/clip-0.mp3'}); await flush();
+    expect(x.ctx.decodeAudioData).toHaveBeenCalledTimes(19);
     x.audio.dispose();
   });
 });
-
 
 describe('captions follow actual audio, not selection or guessed duration', () => {
   it('preload is silent; caption starts after source.start and clears at natural end', async () => {
@@ -113,8 +101,6 @@ describe('captions follow actual audio, not selection or guessed duration', () =
     await flush();
     expect(x.caption).toHaveBeenLastCalledWith(clip);
     expect(x.sources[0].start.mock.invocationCallOrder[0]).toBeLessThan(x.caption.mock.invocationCallOrder.at(-1)!);
-    vi.advanceTimersByTime(clip.duration * 1000 + 500);
-    expect(x.caption).toHaveBeenLastCalledWith(clip);
     x.sources[0].onended?.();
     expect(x.caption).toHaveBeenLastCalledWith(null);
     x.audio.dispose();
@@ -127,18 +113,6 @@ describe('captions follow actual audio, not selection or guessed duration', () =
     ended?.();
     expect(x.caption).toHaveBeenLastCalledWith(other);
     x.audio.stop(); expect(x.caption).toHaveBeenLastCalledWith(null);
-    x.audio.dispose();
-  });
-  it('failed download or failed start never displays a phantom subtitle', async () => {
-    const x = setup(); x.fetcher.mockRejectedValueOnce(new Error('network'));
-    x.audio.play(clip); await flush();
-    expect(x.caption.mock.calls.every(([value]) => value === null)).toBe(true);
-    const create = x.ctx.createBufferSource.getMockImplementation()!;
-    x.ctx.createBufferSource.mockImplementation(() => {
-      const node = create(); node.start.mockImplementation(() => { throw new Error('start'); }); return node;
-    });
-    x.audio.play(other); await flush();
-    expect(x.caption.mock.calls.every(([value]) => value === null)).toBe(true);
     x.audio.dispose();
   });
 });

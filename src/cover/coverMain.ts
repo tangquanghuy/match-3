@@ -9,6 +9,7 @@ import './cover.css';
 import wideArt from '@assets/meta/cover/cover-wide.webp';
 import tallArt from '@assets/meta/cover/cover-tall.webp';
 import { TERMS_SECTIONS, TERMS_UPDATED, TERMS_VERSION } from '../legal/terms';
+import { onPreloadProgress, startPreload, type PreloadProgress } from './preload';
 
 const remote = Boolean(import.meta.env.VITE_META_API);
 const GAME_URL = remote ? '/game' : '/game.html';
@@ -77,12 +78,67 @@ function renderLogin(notice?: string): void {
   });
   $('#coverActions').querySelector('[data-terms]')!.addEventListener('click', openTerms);
   onAgree = () => { box.checked = true; sync(); };
+  mountBackgroundPreload();
 }
 
-function renderWelcome(me: Me): void {
+const pct = (p: PreloadProgress): number => (p.total ? Math.round((p.done / p.total) * 100) : 0);
+const preloadDone = (p: PreloadProgress): boolean => p.total > 0 && p.done >= p.total;
+let unsubscribe: (() => void) | null = null;
+
+function progressBar(id: string): string {
+  return `<div class="cover-progress" id="${id}" role="progressbar" aria-label="游戏资源加载" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>`;
+}
+
+function paintBar(bar: HTMLElement | null, p: PreloadProgress): void {
+  if (!bar) return;
+  bar.setAttribute('aria-valuenow', String(pct(p)));
+  bar.querySelector<HTMLElement>('i')!.style.width = `${pct(p)}%`;
+}
+
+/**
+ * 「进入游戏」按钮：资源预热完成前显示进度且不可点（可跳过），完成后放行。
+ * autoEnter：刚登录回来时，预热完直接进游戏，省一次点击。
+ */
+function mountEnter(autoEnter: boolean): string {
+  unsubscribe?.();
+  queueMicrotask(() => {
+    const btn = $<HTMLAnchorElement>('#enterBtn');
+    const label = $('#enterLabel');
+    const bar = $('#enterProgress');
+    const skip = $<HTMLButtonElement>('#skipPreload');
+    let ready = false;
+    const go = (): void => location.assign(GAME_URL);
+    btn.addEventListener('click', (e) => {
+      if (!ready) e.preventDefault();
+    });
+    skip.addEventListener('click', go);
+    unsubscribe = onPreloadProgress((p) => {
+      paintBar(bar, p);
+      if (!p.total) return;
+      label.textContent = preloadDone(p) ? '进入游戏' : `正在加载资源 ${pct(p)}%`;
+    });
+    void startPreload().then((p) => {
+      ready = true;
+      btn.classList.remove('is-disabled');
+      btn.removeAttribute('aria-disabled');
+      label.textContent = '进入游戏';
+      bar.hidden = true;
+      skip.hidden = true;
+      if (p.failed) $('#preloadNote').textContent = `有 ${p.failed} 项资源未能预载，进游戏后会按需加载。`;
+      if (autoEnter) go();
+    });
+  });
+  return `
+    <a class="btn primary is-disabled" id="enterBtn" href="${GAME_URL}" aria-disabled="true"><span id="enterLabel" aria-live="polite">正在加载资源…</span></a>
+    ${progressBar('enterProgress')}
+    <button type="button" class="link" id="skipPreload">跳过等待，直接进入</button>
+    <p class="cover-hint" id="preloadNote"></p>`;
+}
+
+function renderWelcome(me: Me, autoEnter: boolean): void {
   $('#coverActions').innerHTML = `
     <p class="cover-welcome">欢迎回来，<b>${escapeHtml(me.username ?? '冒险者')}</b></p>
-    <a class="btn primary" href="${GAME_URL}">进入游戏</a>
+    ${mountEnter(autoEnter)}
     <button type="button" class="link" id="logoutBtn">切换账号 / 退出登录</button>`;
   $('#logoutBtn').addEventListener('click', () => {
     void fetch('/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => location.replace('/'));
@@ -92,9 +148,25 @@ function renderWelcome(me: Me): void {
 
 function renderLocal(): void {
   $('#coverActions').innerHTML = `
-    <a class="btn primary" href="${GAME_URL}">进入游戏</a>
+    ${mountEnter(false)}
     <p class="cover-hint">本地模式：存档保存在这台设备的浏览器里。</p>`;
   onAgree = null;
+}
+
+/** 未登录：阅读协议/授权 Discord 期间在后台预热，回来时大部分已在缓存里 */
+function mountBackgroundPreload(): void {
+  unsubscribe?.();
+  const host = document.createElement('div');
+  host.className = 'cover-preload';
+  host.innerHTML = `${progressBar('bgProgress')}<p class="cover-hint" id="bgLabel">正在后台预载游戏资源…</p>`;
+  $('#coverActions').appendChild(host);
+  unsubscribe = onPreloadProgress((p) => {
+    paintBar($('#bgProgress'), p);
+    if (p.total) $('#bgLabel').textContent = preloadDone(p) ? '游戏资源已就绪，登录后即可开玩。' : `正在后台预载游戏资源 ${pct(p)}%`;
+  });
+  void startPreload().then((p) => {
+    if (!p.total) host.remove();
+  });
 }
 
 let onAgree: (() => void) | null = null;
@@ -116,11 +188,14 @@ async function boot(): Promise<void> {
 
   if (!remote) return renderLocal();
 
-  const error = new URLSearchParams(location.search).get('error');
-  if (error) history.replaceState(null, '', '/');
+  const params = new URLSearchParams(location.search);
+  const error = params.get('error');
+  // 登录回调落到 /?login=1：预热完成后自动进游戏
+  const fromLogin = params.get('login') === '1';
+  if (error || fromLogin) history.replaceState(null, '', '/');
   try {
     const me = await fetchMe();
-    if (me?.termsAccepted) return renderWelcome(me);
+    if (me?.termsAccepted) return renderWelcome(me, fromLogin);
     renderLogin(error ? ERRORS[error] ?? '登录失败，请重试。' : me ? '用户协议已更新，请重新阅读并同意后登录。' : undefined);
   } catch {
     $('#coverActions').innerHTML = '<p class="cover-notice" role="alert">暂时连不上服务器，请稍后刷新重试。</p>';

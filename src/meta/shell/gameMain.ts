@@ -1,6 +1,5 @@
 import { backgroundMusic } from '../../audio/BackgroundMusic';
 import { musicForScreen } from '../../audio/MusicCatalog';
-import { WishlistScreen } from '../screens/wishlistScreen';
 /**
  * meta 外壳入口（game.html 唯一脚本）。
  *
@@ -17,28 +16,12 @@ import './styles/chest-items.css';
 import { initMetaGateway } from '../gateway';
 import { heroXpToNext } from '../data/classes';
 import { ALL_KINGDOMS_UNLOCK_LEVEL, kingdomsUnlockedAt } from '../data/kingdoms';
-import { MapScreen } from '../screens/mapScreen';
-import { TeamScreen } from '../screens/teamScreen';
-import { TroopScreen } from '../screens/troopScreen';
-import { HeroScreen } from '../screens/heroScreen';
-import { ChestsScreen } from '../screens/chestsScreen';
-import { ArenaScreen } from '../screens/arenaScreen';
-import { EventsScreen } from '../screens/eventsScreen';
-import { QuestScreen } from '../screens/questScreen';
-import { InvasionScreen } from '../screens/invasionScreen';
-import { ResultScreen } from '../screens/resultScreen';
-import { SettingsScreen } from '../screens/settingsScreen';
-import { BagScreen } from '../screens/bagScreen';
-import { EventShopScreen } from '../screens/eventShopScreen';
-import { GemShopScreen, isGemShopParam } from '../screens/gemShopScreen';
-import { HuntScreen } from '../screens/huntScreen';
-import { WeaponsScreen } from '../screens/weaponsScreen';
-import { GiftsScreen } from '../screens/giftsScreen';
 import { TutorialGuide } from './tutorial';
 import { $, $$, fitStage, mountIcons, toast } from './chrome';
 import { BattleLauncher } from './battleLauncher';
 import { applyPageCss } from './pageCss';
 import type { Screen, ScreenName, ShellCtx } from './screen';
+import type { ResultScreen } from '../screens/resultScreen';
 import { applyPlayerPreferences } from '../../preferences/playerPreferences';
 
 const stage = document.getElementById('stage')!;
@@ -68,35 +51,60 @@ const ctx: ShellCtx = {
   launchInvasionBattle: (mirrorId) => launcher.launchInvasionBattle(mirrorId),
   launchTutorialBattle: () => launcher.launchTutorialBattle(),
   showResult: (detail, meta) => {
-    resultScreen.setDetail(detail, meta);
-    ctx.navigate('#result');
+    void loadScreen('result').then((screen) => {
+      (screen as ResultScreen).setDetail(detail, meta);
+      ctx.navigate('#result');
+    }, (error: unknown) => toast('结算页加载失败：' + (error instanceof Error ? error.message : String(error))));
   },
 };
 
 const launcher = new BattleLauncher(battleRoot, ctx);
-const resultScreen = new ResultScreen();
 const guide = new TutorialGuide(ctx, battleRoot);
 
-const SCREENS: Record<string, Screen> = {
-  map: new MapScreen(),
-  team: new TeamScreen(),
-  troop: new TroopScreen(),
-  hero: new HeroScreen(),
-  chests: new ChestsScreen(),
-  wishlist: new WishlistScreen(),
-  arena: new ArenaScreen(),
-  events: new EventsScreen(),
-  invasion: new InvasionScreen(),
-  quest: new QuestScreen(),
-  settings: new SettingsScreen(),
-  result: resultScreen,
-  bag: new BagScreen(),
-  shop: new EventShopScreen(),
-  gems: new GemShopScreen(),
-  weapons: new WeaponsScreen(),
-  hunt: new HuntScreen(),
-  gifts: new GiftsScreen(),
+/**
+ * 屏层按路由拆包：首次进入某屏才下载它的代码，实例在会话内复用（屏层自身状态不丢）。
+ * 封面页的预载清单包含全部拆出的包，进游戏后切屏直接命中缓存。
+ */
+const SCREEN_LOADERS: Record<string, () => Promise<Screen>> = {
+  map: () => import('../screens/mapScreen').then((m) => new m.MapScreen()),
+  team: () => import('../screens/teamScreen').then((m) => new m.TeamScreen()),
+  troop: () => import('../screens/troopScreen').then((m) => new m.TroopScreen()),
+  hero: () => import('../screens/heroScreen').then((m) => new m.HeroScreen()),
+  chests: () => import('../screens/chestsScreen').then((m) => new m.ChestsScreen()),
+  wishlist: () => import('../screens/wishlistScreen').then((m) => new m.WishlistScreen()),
+  arena: () => import('../screens/arenaScreen').then((m) => new m.ArenaScreen()),
+  events: () => import('../screens/eventsScreen').then((m) => new m.EventsScreen()),
+  invasion: () => import('../screens/invasionScreen').then((m) => new m.InvasionScreen()),
+  quest: () => import('../screens/questScreen').then((m) => new m.QuestScreen()),
+  settings: () => import('../screens/settingsScreen').then((m) => new m.SettingsScreen()),
+  result: () => import('../screens/resultScreen').then((m) => new m.ResultScreen()),
+  bag: () => import('../screens/bagScreen').then((m) => new m.BagScreen()),
+  shop: () => import('../screens/eventShopScreen').then((m) => new m.EventShopScreen()),
+  gems: () => import('../screens/gemShopScreen').then((m) => new m.GemShopScreen()),
+  weapons: () => import('../screens/weaponsScreen').then((m) => new m.WeaponsScreen()),
+  hunt: () => import('../screens/huntScreen').then((m) => new m.HuntScreen()),
+  gifts: () => import('../screens/giftsScreen').then((m) => new m.GiftsScreen()),
 };
+
+const screenCache = new Map<string, Promise<Screen>>();
+
+function loadScreen(name: string): Promise<Screen> {
+  const key = name in SCREEN_LOADERS ? name : 'map';
+  let pending = screenCache.get(key);
+  if (!pending) {
+    pending = SCREEN_LOADERS[key]!();
+    screenCache.set(key, pending);
+    // 下载失败不缓存失败结果，下次进入该屏重新拉取
+    pending.catch(() => screenCache.delete(key));
+  }
+  return pending;
+}
+
+/** 与 gemShopScreen.isGemShopParam 同口径（放在这里避免为判断路由提前下载宝石商店代码） */
+function isGemShopParam(param?: string): boolean {
+  return (param ?? '').split('/')[0] === 'gems';
+}
+
 
 const PAGE_TITLES: Record<string, string> = {
   map: '世 界 地 图',
@@ -132,14 +140,25 @@ const NAV_OF: Record<string, string> = {
 };
 
 let current: { name: string; screen: Screen; param?: string } | null = null;
+/** 快速连续切屏时只挂最后一次请求的屏（屏代码是异步下载的） */
+let renderTicket = 0;
 
 async function render(): Promise<void> {
+  const ticket = ++renderTicket;
   const raw = (location.hash || '#map').replace(/^#/, '');
   const [rawName, ...parts] = raw.split('/') as [ScreenName | 'result', ...string[]];
-  let name = rawName;
+  let name: string = rawName;
   const param = parts.length ? parts.join('/') : undefined;
   if (name === 'shop' && isGemShopParam(param)) name = 'gems';
-  const screen = SCREENS[name] ?? SCREENS['map']!;
+  if (!(name in SCREEN_LOADERS)) name = 'map';
+  let screen: Screen;
+  try {
+    screen = await loadScreen(name);
+  } catch (error) {
+    if (ticket === renderTicket) toast('页面加载失败，请检查网络后重试：' + (error instanceof Error ? error.message : String(error)));
+    return;
+  }
+  if (ticket !== renderTicket) return;
   current?.screen.dispose?.();
   applyPageCss(name);
   stage.innerHTML = screen.html(ctx, param);

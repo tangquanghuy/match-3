@@ -21,7 +21,8 @@ param(
   [int]$MaxFrames = 30,
   [int]$StartFrame = 0,
   [int]$EndFrame = -1,
-  [string]$OutDir = "game-assets/bundled/fx"
+  # 源 strip 目录；产出后需再跑 python scripts/build_fx_atlas.py 生成运行时图集
+  [string]$OutDir = "game-assets/source/fx-strips"
 )
 
 Add-Type -AssemblyName System.Drawing

@@ -6,7 +6,8 @@
   <title>破晓之誓 · Chronicals of Dawn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Oswald:wght@500;600&display=swap" rel="stylesheet" />
+  <!-- 外链字体不阻塞首屏：Google Fonts 在部分网络下很慢/不可达，同步样式表会让整页白屏等到超时 -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Oswald:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; min-height: 100dvh; overflow: hidden; background: #0e0e18; }
     /* meta 屏（DOM/CSS）与战斗场景（Pixi 全屏接管）互斥显示 */

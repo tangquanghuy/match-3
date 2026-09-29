@@ -43,6 +43,12 @@ html, body { margin: 0; height: 100%; background: var(--ink); color: var(--text)
 .cover-actions { display: grid; gap: 14px; min-height: 150px; align-content: start; }
 .cover-status, .cover-hint { margin: 0; color: var(--muted); font-size: 13px; }
 .cover-welcome { margin: 0; font-size: 16px; }
+.cover-progress { height: 6px; overflow: hidden; border: 1px solid rgba(231, 201, 138, .3); border-radius: 99px; background: rgba(20, 20, 30, .7); }
+.cover-progress[hidden] { display: none; }
+.cover-progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold-deep), var(--gold), #fff3d2); transition: width .25s ease; }
+.cover-preload { display: grid; gap: 6px; }
+.cover-hint:empty { display: none; }
+#enterLabel { font-variant-numeric: tabular-nums; }
 .cover-welcome b { color: var(--gold); }
 .cover-notice {
   margin: 0; padding: 10px 14px; border: 1px solid rgba(231, 120, 100, .55); border-radius: 6px;

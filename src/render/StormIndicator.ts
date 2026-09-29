@@ -81,7 +81,7 @@ export const STORM_SKULL_GLOW: Record<SkullStormDropKind, string> = {
 
 /**
  * set/replaced 新风暴的一次性色系爆发 FX：复用群体受击的各色序列帧
- * （group_hit_*_strip，App.FRAME_FX_URL 已注册、init 时延迟预载）。
+ * （group_hit_*_strip，App.FRAME_FX_STRIP 已注册，进战斗前随战斗资源一起预载）。
  * 闲置的 boom_strip.png 是中性色爆炸，不合"色系爆发"的要求，故不用。
  */
 export const STORM_BURST_FX: Record<BaseColor, string> = {

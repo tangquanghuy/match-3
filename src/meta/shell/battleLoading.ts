@@ -1,20 +1,15 @@
 /**
- * 战斗加载页：进战斗前把双方立绘、宝石贴图、技能序列帧预先拉下来并解码，
- * 加载完成（且战斗层初始化完毕）后再淡出，避免线上首帧缺图 / 棋盘闪白。
+ * 战斗加载页：进战斗前把本场全部资源（宝石贴图、立绘、序列帧特效、音效、解说、音乐）
+ * 下载并解码完（见 @render/battleAssets），战斗层初始化完毕后再淡出。
  *
- * - 单个资源失败或超时不阻塞进战斗（战斗层各自有兜底）；
+ * - 任何一项加载失败都不会进战斗：加载页显示失败并提供「重试」/「返回」；
  * - 本地加载很快：至少停留 MIN_VISIBLE_MS，避免一闪而过；
  * - 调试慢网：localStorage `gems.debug.slowLoad = <毫秒>` 为每个资源追加延迟。
  */
-import { loadGemTextures } from '@render/gemTextures';
 import type { BattleRequest, CombatantSnapshot } from '@session/index';
 import { tutorialArt } from './artAssets';
 
-const FX_STRIPS = Object.values(import.meta.glob('@assets/fx/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>);
-
 const MIN_VISIBLE_MS = 700;
-const ITEM_TIMEOUT_MS = 15_000;
-const CONCURRENCY = 6;
 
 const TIPS = [
   '连成四个同色宝石可以额外获得一回合。',
@@ -26,37 +21,7 @@ const TIPS = [
   '末日之塔的队伍生命跨层延续，残血时可以在营地休整。',
 ];
 
-interface Task { label: string; weight: number; run: () => Promise<boolean> }
-
-function slowDelay(): number {
-  try {
-    const ms = Number(localStorage.getItem('gems.debug.slowLoad'));
-    return Number.isFinite(ms) && ms > 0 ? Math.min(ms, 10_000) : 0;
-  } catch {
-    return 0;
-  }
-}
-
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
-/** 拉取并解码一张图；失败/超时返回 false，不抛出 */
-function loadImage(url: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    let done = false;
-    const finish = (ok: boolean): void => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      resolve(ok);
-    };
-    const timer = setTimeout(() => finish(false), ITEM_TIMEOUT_MS);
-    img.decoding = 'async';
-    img.onload = () => { void (img.decode?.() ?? Promise.resolve()).then(() => finish(true), () => finish(true)); };
-    img.onerror = () => finish(false);
-    img.src = url;
-  });
-}
 
 function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -91,10 +56,10 @@ export class BattleLoadingScreen {
     this.el.innerHTML = `
       <div class="bl-backdrop" aria-hidden="true"></div>
       <header class="bl-head"><small>即将开战</small><h1 id="blTitle">${escapeHtml(options.title)}</h1>${options.subtitle ? `<p>${escapeHtml(options.subtitle)}</p>` : ''}</header>
-      <div class="bl-versus">
-        <section class="bl-side player" aria-label="我方阵容">${lineup(request.playerTeam, 'player')}</section>
+      <div class="bl-versus" style="--bl-n:${Math.max(1, request.playerTeam.length, request.enemyTeam.length)}">
+        <section class="bl-side bl-side--player" aria-label="我方阵容">${lineup(request.playerTeam, 'player')}</section>
         <div class="bl-vs" aria-hidden="true"><span>VS</span></div>
-        <section class="bl-side enemy" aria-label="敌方阵容">${lineup(request.enemyTeam, 'enemy')}</section>
+        <section class="bl-side bl-side--enemy" aria-label="敌方阵容">${lineup(request.enemyTeam, 'enemy')}</section>
       </div>
       <footer class="bl-foot">
         <div class="bl-progress" role="progressbar" aria-label="战斗资源加载" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
@@ -127,37 +92,49 @@ export class BattleLoadingScreen {
     if (pctEl) pctEl.textContent = `${pct}%`;
   }
 
-  /** 预加载全部战斗资源；返回失败项数量（失败不阻塞） */
-  async preload(): Promise<number> {
-    const units = [...this.request.playerTeam, ...this.request.enemyTeam];
-    const portraits = [...new Set(units.map((u) => u.portraitUrl).filter((u): u is string => !!u))];
-    const delay = slowDelay();
-    const tasks: Task[] = [
-      { label: '宝石贴图', weight: 6, run: async () => { await loadGemTextures(); return true; } },
-      ...portraits.map((url): Task => ({ label: '角色立绘', weight: 2, run: () => loadImage(url) })),
-      ...FX_STRIPS.map((url): Task => ({ label: '技能特效', weight: 1, run: () => loadImage(url) })),
-    ];
-    const total = tasks.reduce((sum, t) => sum + t.weight, 0);
-    let doneWeight = 0;
-    let failed = 0;
-    let cursor = 0;
-    const counts = new Map<string, [number, number]>();
-    for (const t of tasks) counts.set(t.label, [0, (counts.get(t.label)?.[1] ?? 0) + 1]);
-    const worker = async (): Promise<void> => {
-      while (cursor < tasks.length) {
-        const task = tasks[cursor++]!;
-        if (delay) await sleep(delay);
-        const ok = await task.run().catch(() => false);
-        if (!ok) failed++;
-        doneWeight += task.weight;
-        const c = counts.get(task.label)!;
-        c[0]++;
-        this.setProgress(doneWeight / total * 0.92, `${task.label} ${c[0]} / ${c[1]}`);
+  /**
+   * 预载本场全部战斗资源。失败时停在加载页等玩家选择：重试（只补缺失项）或返回。
+   * loadModules：战斗层代码按需拆包，与资源一起在加载页里拉取。
+   * 返回 loadModules 的结果 = 全部就绪可以开战；返回 null = 玩家放弃。
+   */
+  async preload<T>(loadModules: () => Promise<T>): Promise<T | null> {
+    for (;;) {
+      try {
+        this.setProgress(0, '加载战斗模块');
+        const [{ BATTLE_ASSET_LABEL, preloadBattleAssets }, modules] = await Promise.all([
+          import('@render/battleAssets'),
+          loadModules(),
+        ]);
+        await preloadBattleAssets(this.request, ({ done, total, kind }) => {
+          this.setProgress(done / total * 0.92, `${BATTLE_ASSET_LABEL[kind]} ${done} / ${total}`);
+        });
+        this.setProgress(0.92, '布置战场');
+        return modules;
+      } catch (error) {
+        console.error(error);
+        if (!(await this.askRetry())) return null;
       }
-    };
-    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-    this.setProgress(0.92, '布置战场');
-    return failed;
+    }
+  }
+
+  /** 加载失败：显示「重试」/「返回」，等玩家选择 */
+  private askRetry(): Promise<boolean> {
+    this.setProgress(0, '资源加载失败，请检查网络后重试');
+    this.el.classList.add('is-failed');
+    const actions = document.createElement('div');
+    actions.className = 'bl-actions';
+    actions.innerHTML = '<button type="button" class="bl-btn primary" data-act="retry">重试</button><button type="button" class="bl-btn" data-act="back">返回</button>';
+    this.el.querySelector('.bl-foot')!.appendChild(actions);
+    actions.querySelector<HTMLButtonElement>('[data-act="retry"]')!.focus();
+    return new Promise((resolve) => {
+      actions.addEventListener('click', (e) => {
+        const act = (e.target as HTMLElement).closest<HTMLElement>('[data-act]')?.dataset.act;
+        if (!act) return;
+        actions.remove();
+        this.el.classList.remove('is-failed');
+        resolve(act === 'retry');
+      });
+    });
   }
 
   /** 战斗层初始化完毕：补满进度，淡出并移除 */

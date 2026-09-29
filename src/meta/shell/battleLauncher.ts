@@ -5,12 +5,10 @@
  * 打完把 BattleResult 交回 `settleBattle`，结算上下文由核心按票据还原。
  * 每场战斗新建一个 App 实例，结算面板点「继续」（onBattleDismissed）后销毁并归还地图。
  */
-import { App } from '@render/App';
 import type { BattleResult } from '@session/index';
 import { isFailure, type BattleTicket } from '../gateway';
 import { EVENT_TYPES } from '../data/events';
 import { exploreNodeLabel } from '../data/kingdoms';
-import { buildMetaRegistry } from '../systems/battleBridge';
 import type { EncounterSource } from '../systems/encounter';
 import type { MetaFailure } from '../types';
 import type { ShellCtx } from './screen';
@@ -105,9 +103,21 @@ export class BattleLauncher {
     if (this.running) return;
     this.running = true;
 
-    // 加载页：先把立绘/宝石/特效拉下来并解码，战斗层初始化完再淡出
+    // 加载页：战斗层代码 + 本场全部资源下载并解码完才进战斗；失败时玩家可重试或返回
     const loading = new BattleLoadingScreen(ticket.request, loadingTitle(ticket));
-    await loading.preload();
+    const modules = await loading.preload(async () => {
+      const [{ App }, { buildMetaRegistry }] = await Promise.all([
+        import('@render/App'),
+        import('../systems/battleBridge'),
+      ]);
+      return { App, buildMetaRegistry };
+    });
+    if (!modules) {
+      loading.dispose();
+      this.running = false;
+      return;
+    }
+    const { App, buildMetaRegistry } = modules;
     this.root.hidden = false;
 
     // 注册表是静态数据的纯函数：客户端按请求里的技能 id 自行重建，不走网络

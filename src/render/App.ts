@@ -79,46 +79,9 @@ import { candidatesFor, selectTargets } from '@engine/skills/targeting';
 import type { TargetMode } from '@engine/skills/targeting';
 import { skillDisplayOf } from '@session/assigner';
 import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/skills/cellChooser';
-import { loadGemTextures } from './gemTextures';
+import { preloadBattleAssets } from './battleAssets';
+import { fxAtlas, mountFxFrames, playFxFrames, type FxAtlas } from './fxAtlas';
 import { hasTurnSwitch } from './turnHudLogic';
-// 命中爆点序列帧（DNF 108stairs hit_dodge，已对齐拼成横向 strip）
-import slashStripUrl from '@assets/fx/hit_108stairs_strip.webp';
-// 技能序列帧 strip（scripts/build_fx_strip.ps1 由「特效500个【png】」拼成）
-import waterBoltStripUrl from '@assets/fx/water_bolt_strip.webp';
-import fireBurstStripUrl from '@assets/fx/fire_burst_strip.webp';
-import energyBurstStripUrl from '@assets/fx/energy_burst_strip.webp';
-import hitSparkStripUrl from '@assets/fx/hit_spark_strip.webp';
-// 按颜色分的命中爆点帧动画（红=hit_spark，蓝=water_bolt，绿复用能量爆着色，其余各一张）
-import hitGoldStripUrl from '@assets/fx/hit_gold_strip.webp';
-import hitPurpleStripUrl from '@assets/fx/hit_purple_strip.webp';
-import hitBrownStripUrl from '@assets/fx/hit_brown_strip.webp';
-import summonRuneStripUrl from '@assets/fx/summon_rune_strip.webp';
-import healCleanseStripUrl from '@assets/fx/heal_cleanse_strip.webp';
-import armorUpStripUrl from '@assets/fx/armor_up_strip.webp';
-import poisonApplyStripUrl from '@assets/fx/poison_apply_strip.webp';
-import waterSingleHitStripUrl from '@assets/fx/water_single_hit_strip.webp';
-import yellowSingleHitStripUrl from '@assets/fx/yellow_single_hit_strip.webp';
-import greenSingleHitStripUrl from '@assets/fx/green_single_hit_strip.webp';
-import deathDriftStripUrl from '@assets/fx/death_drift_strip.webp';
-import splashHitStripUrl from '@assets/fx/splash_hit_strip.webp';
-import splashChainCastStripUrl from '@assets/fx/splash_chain_cast_strip.webp';
-import splashChainSwordStripUrl from '@assets/fx/splash_chain_sword_strip.webp';
-import frozenApplyStripUrl from '@assets/fx/frozen_apply_strip.webp';
-import burningApplyStripUrl from '@assets/fx/burning_apply_strip.webp';
-// 群体攻击（ANIMATION_HANDOFF §19 P0-1）：0241 群攻释放 + 各色群体受击
-import groupCastStripUrl from '@assets/fx/group_cast_strip.webp';
-import groupHitPurpleStripUrl from '@assets/fx/group_hit_purple_strip.webp';
-import groupHitRedStripUrl from '@assets/fx/group_hit_red_strip.webp';
-import groupHitBlueStripUrl from '@assets/fx/group_hit_blue_strip.webp';
-import groupHitYellowStripUrl from '@assets/fx/group_hit_yellow_strip.webp';
-import groupHitBrownStripUrl from '@assets/fx/group_hit_brown_strip.webp';
-import groupHitGreenStripUrl from '@assets/fx/group_hit_green_strip.webp';
-// 状态施加短闪（施加瞬间命中确认）
-import poisonFlashStripUrl from '@assets/fx/poison_flash_strip.webp';
-import burningFlashStripUrl from '@assets/fx/burning_flash_strip.webp';
-import frozenFlashStripUrl from '@assets/fx/frozen_flash_strip.webp';
-// 状态持续层（循环挂在角色卡上直到解除）；冰冻改用程序化冰封蒙层，不用序列帧
-import stunPersistStripUrl from '@assets/fx/stun_persist_strip.webp';
 import turnHudUrl from '@assets/ui/turn-hud-starfall.png';
 
 /** 所有独立战斗固定四人；旧 debug.teamSize 值不再生效。 */
@@ -240,52 +203,53 @@ const SINGLE_HIT_SFX: Partial<Record<BaseColor, SfxName>> = {
 const BOARD_TOP_INSET = 44;
 const BOARD_MARGIN_Y = 4;
 
+/** 命中爆点（DNF 108stairs hit_dodge）图集名；几何见 AnimConfig.slash */
+const SLASH_STRIP = 'hit_108stairs_strip';
+
 export class App {
-  /** slash steps 关键帧仅注入一次的标记 */
-  private static slashKeyframesInjected = false;
-  /** 序列帧特效 name → strip URL（AnimConfig.frameFX 的键对应此表） */
-  private static readonly FRAME_FX_URL: Record<string, string> = {
-    water_bolt: waterBoltStripUrl,
-    fire_burst: fireBurstStripUrl,
-    energy_burst: energyBurstStripUrl,
-    hit_spark: hitSparkStripUrl,
+  /** 序列帧特效 name → 图集名（game-assets/bundled/fx/atlas/<名>.webp，scripts/build_fx_atlas.py 生成） */
+  private static readonly FRAME_FX_STRIP: Record<string, string> = {
+    water_bolt: 'water_bolt_strip',
+    fire_burst: 'fire_burst_strip',
+    energy_burst: 'energy_burst_strip',
+    hit_spark: 'hit_spark_strip',
     // 命中爆点帧动画：红/蓝复用已有 strip，其余各自的 strip
-    hit_red: hitSparkStripUrl,
-    hit_blue: waterBoltStripUrl,
+    hit_red: 'hit_spark_strip',
+    hit_blue: 'water_bolt_strip',
     // 绿：库里没有干净的绿色命中素材，复用单一色调的蓝剑气 strip（water_bolt≈203°），
     // 靠滤镜 hue-rotate 转到翠绿。不能用 energy_burst——它是钴蓝紫多色，hue-rotate 不可控。
-    hit_green: waterBoltStripUrl,
-    hit_gold: hitGoldStripUrl,
-    hit_purple: hitPurpleStripUrl,
-    hit_brown: hitBrownStripUrl,
+    hit_green: 'water_bolt_strip',
+    hit_gold: 'hit_gold_strip',
+    hit_purple: 'hit_purple_strip',
+    hit_brown: 'hit_brown_strip',
     // Effect 0011: indigo summon sigil with purple smoke.
-    summon_rune: summonRuneStripUrl,
-    heal_cleanse: healCleanseStripUrl,
-    armor_up: armorUpStripUrl,
-    poison_apply: poisonApplyStripUrl,
-    water_single_hit: waterSingleHitStripUrl,
-    yellow_single_hit: yellowSingleHitStripUrl,
-    green_single_hit: greenSingleHitStripUrl,
-    death_drift: deathDriftStripUrl,
-    splash_hit: splashHitStripUrl,
-    splash_chain_cast: splashChainCastStripUrl,
-    splash_chain_sword: splashChainSwordStripUrl,
-    frozen_apply: frozenApplyStripUrl,
-    burning_apply: burningApplyStripUrl,
+    summon_rune: 'summon_rune_strip',
+    heal_cleanse: 'heal_cleanse_strip',
+    armor_up: 'armor_up_strip',
+    poison_apply: 'poison_apply_strip',
+    water_single_hit: 'water_single_hit_strip',
+    yellow_single_hit: 'yellow_single_hit_strip',
+    green_single_hit: 'green_single_hit_strip',
+    death_drift: 'death_drift_strip',
+    splash_hit: 'splash_hit_strip',
+    splash_chain_cast: 'splash_chain_cast_strip',
+    splash_chain_sword: 'splash_chain_sword_strip',
+    frozen_apply: 'frozen_apply_strip',
+    burning_apply: 'burning_apply_strip',
     // 群体攻击：0241 群攻释放 + 各色群体受击（ANIMATION_HANDOFF §19 P0-1）
-    group_cast: groupCastStripUrl,
-    group_hit_purple: groupHitPurpleStripUrl,
-    group_hit_red: groupHitRedStripUrl,
-    group_hit_blue: groupHitBlueStripUrl,
-    group_hit_yellow: groupHitYellowStripUrl,
-    group_hit_brown: groupHitBrownStripUrl,
-    group_hit_green: groupHitGreenStripUrl,
+    group_cast: 'group_cast_strip',
+    group_hit_purple: 'group_hit_purple_strip',
+    group_hit_red: 'group_hit_red_strip',
+    group_hit_blue: 'group_hit_blue_strip',
+    group_hit_yellow: 'group_hit_yellow_strip',
+    group_hit_brown: 'group_hit_brown_strip',
+    group_hit_green: 'group_hit_green_strip',
     // 状态施加短闪
-    poison_flash: poisonFlashStripUrl,
-    burning_flash: burningFlashStripUrl,
-    frozen_flash: frozenFlashStripUrl,
+    poison_flash: 'poison_flash_strip',
+    burning_flash: 'burning_flash_strip',
+    frozen_flash: 'frozen_flash_strip',
     // 状态持续层（冰冻改用程序化冰封蒙层，见 CharacterCard.setFrozen）
-    stun_persist: stunPersistStripUrl,
+    stun_persist: 'stun_persist_strip',
   };
   /** 序列帧特效名 → 默认滤镜（无 opts.filter 时用）：给复用中性 strip 的项着色 */
   private static readonly FRAME_FX_FILTER: Record<string, string> = {
@@ -293,112 +257,6 @@ export class App {
     // 务必负角：正角会转到红/品红（方向转反）。增艳 + 绿色辉光贴合命中爆点。
     hit_green: 'filter:hue-rotate(-73deg) saturate(1.45) brightness(1.12) drop-shadow(0 0 8px rgba(120,255,150,.55))',
   };
-  /** 已注入 steps 关键帧的序列帧特效名（每条 strip 宽度不同，各注入一次） */
-  private static frameFXKeyframes = new Set<string>();
-  private static frameFXPreloads = new Map<string, HTMLImageElement>();
-  private static frameFXPreloadPromises = new Map<string, Promise<boolean>>();
-  private static frameFXReadyUrls = new Set<string>();
-
-  /** Load and decode one strip before its CSS steps animation is allowed to start. */
-  private static preloadFrameFX(name: string): Promise<boolean> {
-    const url = App.FRAME_FX_URL[name];
-    if (!url) return Promise.resolve(false);
-    if (App.frameFXReadyUrls.has(url)) return Promise.resolve(true);
-    const existing = App.frameFXPreloadPromises.get(url);
-    if (existing) return existing;
-
-    const img = new Image();
-    App.frameFXPreloads.set(url, img);
-    const promise = new Promise<boolean>((resolve) => {
-      let settled = false;
-      let timeoutId: number | null = null;
-      const finish = (ready: boolean) => {
-        if (settled) return;
-        settled = true;
-        if (timeoutId !== null) window.clearTimeout(timeoutId);
-        if (ready) App.frameFXReadyUrls.add(url);
-        resolve(ready);
-      };
-      const decode = () => {
-        if (typeof img.decode === 'function') {
-          void img.decode()
-            .then(() => finish(img.naturalWidth > 0))
-            .catch(() => finish(img.complete && img.naturalWidth > 0));
-        } else {
-          finish(img.naturalWidth > 0);
-        }
-      };
-      img.addEventListener('load', decode, { once: true });
-      img.addEventListener('error', () => finish(false), { once: true });
-      timeoutId = window.setTimeout(() => finish(false), 12_000);
-      img.src = url;
-      if (img.complete) decode();
-    });
-    App.frameFXPreloadPromises.set(url, promise);
-    return promise;
-  }
-
-  private static deferredFrameFXScheduled = false;
-
-  /** 首屏可玩后空闲时低并发预取特效；按需播放仍会复用同一 Promise。 */
-  private static scheduleDeferredFrameFX(): void {
-    if (App.deferredFrameFXScheduled) return;
-    App.deferredFrameFXScheduled = true;
-    const uniqueByUrl = new Map<string, string>();
-    for (const [name, url] of Object.entries(App.FRAME_FX_URL)) {
-      if (!uniqueByUrl.has(url)) uniqueByUrl.set(url, name);
-    }
-    const queue = [...uniqueByUrl.values()];
-    const preloadQueue = async () => {
-      let cursor = 0;
-      const worker = async () => {
-        while (cursor < queue.length) {
-          const name = queue[cursor++];
-          await App.preloadFrameFX(name);
-        }
-      };
-      await Promise.all([worker(), worker()]);
-    };
-    const start = () => { void preloadQueue(); };
-    const requestIdle = (window as typeof window & {
-      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
-    }).requestIdleCallback;
-    if (requestIdle) requestIdle(start, { timeout: 1_500 });
-    else window.setTimeout(start, 250);
-  }
-
-  /** 命中 strip 按需预解码缓存（保持引用避免被 GC）。 */
-  private static slashStripReady = false;
-  private static slashStripPromise: Promise<boolean> | null = null;
-  private static preloadSlashStrip(): Promise<boolean> {
-    if (App.slashStripReady) return Promise.resolve(true);
-    if (App.slashStripPromise) return App.slashStripPromise;
-    const img = new Image();
-    App.slashStripPromise = new Promise<boolean>((resolve) => {
-      let settled = false;
-      let timeoutId: number | null = null;
-      const finish = (ready: boolean) => {
-        if (settled) return;
-        settled = true;
-        if (timeoutId !== null) window.clearTimeout(timeoutId);
-        App.slashStripReady = ready;
-        resolve(ready);
-      };
-      const decode = () => {
-        if (typeof img.decode === 'function') {
-          void img.decode()
-            .then(() => finish(img.naturalWidth > 0))
-            .catch(() => finish(img.complete && img.naturalWidth > 0));
-        } else finish(img.naturalWidth > 0);
-      };
-      img.addEventListener('load', decode, { once: true });
-      img.addEventListener('error', () => finish(false), { once: true });
-      timeoutId = window.setTimeout(() => finish(false), 12_000);
-      img.src = slashStripUrl;
-      if (img.complete) decode();
-    });
-    return App.slashStripPromise;
-  }
   private app = new Application();
   private root = new Container();
   private board!: BoardView;
@@ -578,10 +436,6 @@ export class App {
    *   未收录法术的兜底原型才进战斗；部队+武器法术本身由 registerSkillLibrary 覆盖。
    */
   async init(mount: HTMLElement, request?: BattleRequest, registry?: ExtensionRegistry): Promise<void> {
-    // Critical 只包含首屏棋盘资源；帧特效/音频均在可玩后延迟或首次使用时加载。
-    const gemTexturesPromise = loadGemTextures();
-    void App.preloadSlashStrip();
-
     // 技能注册要先于队伍解析：配置/宿主下发的 skillId 必须校验为已注册（需求 2.6）。
     this.registry = new ExtensionRegistry();
     registerSkillLibrary(this.registry.prototypes); // 部队法术 + 武器法术（数字 id 与 gw_*）
@@ -612,6 +466,9 @@ export class App {
     const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(battleRequest);
     this.battleRequest = battleRequest;
     this.idMap = idMap;
+    // 全部战斗资源（贴图/特效/音效/解说/音乐）加载完才搭战场；meta 流程里加载页已预载，这里直接命中
+    await preloadBattleAssets(battleRequest);
+    if (this.destroyed) return;
     // 用快照的 seed 播种，棋盘生成、补充与 AI 决策才真的可复现（需求 2、3.6）
     this.rng = new SeededRNG(battleRequest.seed);
     this.portraitById = new Map(
@@ -701,9 +558,6 @@ export class App {
       laneHeight: boardTopInset,
       gemCenterY: banner.top + Math.round(banner.height * 0.19),
     });
-
-    // Critical 宝石贴图与 Pixi renderer 并行加载；同步棋盘前等待，失败时自动使用程序化回退。
-    await gemTexturesPromise;
 
     // 棋盘容器：水平居中，左右让出 宝石区 + 队伍列
     this.root.x = gemSpace + sideColW;
@@ -819,12 +673,17 @@ export class App {
     this.input.onInteractEnd = () => this.scheduleHint();
 
     // 首次交互初始化音频（需求 26.5）
-    const initAudio = () => {
-      this.audio.init();
-      void this.audio.resume().then(() => this.narrator.announceEncounter());
-      window.removeEventListener('pointerdown', initAudio);
-    };
-    window.addEventListener('pointerdown', initAudio, { signal: this.audioLifecycle.signal });
+    // 采样已全部在库里：开战即建音频图。从 meta 点「开战」进来页面已有用户手势，直接出声；
+    // 独立页首次打开还没有手势时 AudioContext 为 suspended，等第一次点击再 resume。
+    this.audio.init();
+    if (this.audio.isRunning()) this.narrator.announceEncounter();
+    else {
+      const resumeAudio = () => {
+        window.removeEventListener('pointerdown', resumeAudio);
+        void this.audio.resume().then(() => this.narrator.announceEncounter());
+      };
+      window.addEventListener('pointerdown', resumeAudio, { signal: this.audioLifecycle.signal });
+    }
 
     // 快进：按住空格临时加速到 max(选定倍速, 3×)（需求 25.1）。焦点在按钮/输入框上时空格留给控件本身。
     window.addEventListener('keydown', (e) => {
@@ -871,7 +730,6 @@ export class App {
         this.viewOf(side).getCard(ch.id)?.flashName();
       }
     }
-    App.scheduleDeferredFrameFX();
   }
   private createFullscreenButton(wrapper: HTMLDivElement): void {
     const btn = document.createElement('button');
@@ -1757,10 +1615,6 @@ export class App {
       if (!hudAdvanced) { hudAdvanced = true; this.advanceTurnHud(events); }
     };
     try {
-      // Decode before the action starts playing, so the first explosion frame is
-      // present on time. The board never waits on a late independent CSS strip.
-      if (events.some(event => event.type === 'gem-explode')) await App.preloadFrameFX('energy_burst');
-      if (this.destroyed || this.surrendered || generation !== this.finiteVisuals.generation) return;
       await this.player.play(events);
       // Finished CSS/WAAPI callbacks can start more finite work. Drain to a fixed
       // point, excluding infinite idle/status loops, rather than sleeping N ms.
@@ -2608,53 +2462,51 @@ export class App {
 
   /**
    * 命中爆炸序列帧（DNF boom，4 帧）：在接触点播放一团爆炸。
-   * 用 CSS steps() 逐帧播放 background-position（spritesheet 横向 strip）。
+   * 逐帧播放图集（fxAtlas）。
    * @param px 接触点 X（覆盖层布局坐标）
    * @param py 接触点 Y（覆盖层布局坐标）
    */
   private playSlashFX(px: number, py: number): void {
     if (this.destroyed || this.surrendered) return;
-    if (!App.slashStripReady) {
-      const pending = this.finiteVisuals.begin();
-      void App.preloadSlashStrip().then(ready => {
-        if (!pending.active) return;
-        try { if (ready) this.playSlashFX(px, py); } finally { pending.finish(); }
-      }, () => pending.finish());
-      return;
-    }
     const cfg = AnimConfig.slash;
-    const stripW = cfg.frameW * cfg.frames;
-    // 确保 steps 关键帧只注入一次
-    if (!App.slashKeyframesInjected) {
-      App.slashKeyframesInjected = true;
-      const style = document.createElement('style');
-      style.textContent =
-        `@keyframes fxSlashPlay{from{background-position-x:0}` +
-        `to{background-position-x:-${stripW}px}}`;
-      document.head.appendChild(style);
-    }
+    const atlas = App.frameAtlas(SLASH_STRIP, cfg);
     const dispW = (cfg.frameW / cfg.frameH) * cfg.displayH;
     const el = document.createElement('div');
     el.style.cssText = [
       'position:absolute', `left:${px}px`, `top:${py}px`,
       `width:${cfg.frameW}px`, `height:${cfg.frameH}px`,
       'pointer-events:none', 'z-index:32',
-      `background-image:url('${slashStripUrl}')`,
-      `background-size:${stripW}px ${cfg.frameH}px`,
-      'background-repeat:no-repeat',
       // 命中爆点本身较亮且彩色：轻提亮+增艳即可，加中性白发光描边强调撞击点，避免过曝。
       'filter:brightness(1.25) saturate(1.2) drop-shadow(0 0 10px rgba(255,255,255,.85))',
       // 缩放到目标显示尺寸 + 以中心定位（爆炸为放射状，无需按方向镜像）
       `transform:translate(-50%,-50%) scale(${dispW / cfg.frameW})`,
       'transform-origin:center center',
-      `animation:fxSlashPlay ${cfg.duration}ms steps(${cfg.frames}) forwards`,
     ].join(';');
+    const { layer } = mountFxFrames(el, atlas);
     this.overlay.appendChild(el);
+    const animation = playFxFrames(layer, atlas, { duration: cfg.duration });
     let timer: number;
     const token = this.finiteVisuals.begin(() => { clearTimeout(timer); el.remove(); });
     const finish = () => { if (!token.active) return; clearTimeout(timer); el.remove(); token.finish(); };
-    el.addEventListener('animationend', finish, { once: true });
+    void animation.finished.then(finish, () => {});
     timer = window.setTimeout(finish, scaledMs(cfg.duration) + 30);
+  }
+
+  /** 取序列帧图集并核对帧几何与 AnimConfig 一致 */
+  private static frameAtlas(stem: string, cfg: { frames: number; frameW: number; frameH: number }): FxAtlas {
+    const atlas = fxAtlas(stem);
+    if (atlas.frames.length !== cfg.frames || atlas.frameW !== cfg.frameW || atlas.frameH !== cfg.frameH) {
+      throw new Error(`序列帧图集 ${stem} 与 AnimConfig 几何不一致，请重跑 scripts/build_fx_atlas.py`);
+    }
+    return atlas;
+  }
+
+  /** 特效名对应的图集（AnimConfig.frameFX 的键） */
+  private static frameFXAtlas(name: string): FxAtlas {
+    const cfg = AnimConfig.frameFX[name];
+    const stem = App.FRAME_FX_STRIP[name];
+    if (!cfg || !stem) throw new Error(`未登记的序列帧特效：${name}`);
+    return App.frameAtlas(stem, cfg);
   }
 
   /**
@@ -2810,31 +2662,8 @@ export class App {
   ): void {
     if (this.destroyed || this.surrendered) return;
     const name = 'splash_chain_sword';
-    const cfg = AnimConfig.frameFX[name];
-    const url = App.FRAME_FX_URL[name];
-    if (!cfg || !url) {
-      onArrive();
-      return;
-    }
-    if (!App.frameFXReadyUrls.has(url)) {
-      const pending = this.finiteVisuals.begin();
-      void App.preloadFrameFX(name).then(ready => {
-        if (!pending.active) return;
-        try { if (ready) this.playSplashChainSword(from, to, onArrive, durationMs); else onArrive(); }
-        finally { pending.finish(); }
-      }, () => { if (pending.active) onArrive(); pending.finish(); });
-      return;
-    }
-
-    const stripW = cfg.frameW * cfg.frames;
-    if (!App.frameFXKeyframes.has(name)) {
-      App.frameFXKeyframes.add(name);
-      const style = document.createElement('style');
-      style.textContent =
-        `@keyframes fxFramePlay_${name}{from{background-position-x:0}` +
-        `to{background-position-x:-${stripW}px}}`;
-      document.head.appendChild(style);
-    }
+    const atlas = App.frameFXAtlas(name);
+    const cfg = AnimConfig.frameFX[name]!;
 
     const dx = to.x - from.x;
     const dy = to.y - from.y;
@@ -2864,17 +2693,15 @@ export class App {
     sword.style.cssText = [
       'position:absolute', `left:-${cfg.frameW}px`, `top:-${cfg.frameH}px`,
       `width:${cfg.frameW}px`, `height:${cfg.frameH}px`,
-      `background-image:url('${url}')`,
-      `background-size:${stripW}px ${cfg.frameH}px`,
-      'background-repeat:no-repeat',
       `transform-origin:${cfg.frameW}px ${cfg.frameH}px`,
       `transform:rotate(${rotation}deg) scale(${scale})`,
       'mix-blend-mode:screen',
       'filter:brightness(1.12) saturate(1.16) drop-shadow(0 0 7px rgba(70,185,255,.9)) drop-shadow(0 0 15px rgba(35,95,255,.55))',
-      `animation:fxFramePlay_${name} ${durationMs}ms steps(${cfg.frames}) forwards`,
     ].join(';');
+    const { layer } = mountFxFrames(sword, atlas);
     anchor.appendChild(sword);
     this.overlay.appendChild(anchor);
+    playFxFrames(layer, atlas, { duration: durationMs });
 
     sword.animate(
       [{ opacity: 0.68 }, { opacity: 1, offset: 0.42 }, { opacity: 1 }],
@@ -3034,8 +2861,8 @@ export class App {
 
   /**
    * 通用序列帧特效：在覆盖层 (px,py) 处叠加播放一条 strip（AnimConfig.frameFX[name]）。
-   * strip 为横向逐帧，用 CSS steps() 逐帧推进 background-position。以中心定位。
-   * @param name AnimConfig.frameFX 的键（对应 game-assets/bundled/fx/<name>_strip.png）
+   * 外框保持原帧尺寸并以中心定位，内层按图集逐帧切换（fxAtlas）。
+   * @param name AnimConfig.frameFX 的键（图集名见 FRAME_FX_STRIP）
    * @param px 覆盖层布局坐标 X（中心）
    * @param py 覆盖层布局坐标 Y（中心）
    * @param opts.scale 额外缩放（默认 1）；opts.filter 覆盖默认滤镜
@@ -3048,30 +2875,8 @@ export class App {
   ): void {
     if (this.destroyed || this.surrendered) return;
     if (opts.frameClock?.done) { opts.onComplete?.(); return; }
-    const cfg = AnimConfig.frameFX[name];
-    const url = App.FRAME_FX_URL[name];
-    if (!cfg || !url) { opts.onComplete?.(); return; }
-    if (!App.frameFXReadyUrls.has(url)) {
-      const pending = this.finiteVisuals.begin();
-      void App.preloadFrameFX(name).then(ready => {
-        if (!pending.active) return;
-        try {
-          if (ready) this.playFrameFX(name, px, py, opts);
-          else opts.onComplete?.();
-        } finally { pending.finish(); }
-      }, () => { if (pending.active) opts.onComplete?.(); pending.finish(); });
-      return;
-    }
-    const stripW = cfg.frameW * cfg.frames;
-    // 每条 strip 宽度不同 → 各注入一次专属 steps 关键帧
-    if (!App.frameFXKeyframes.has(name)) {
-      App.frameFXKeyframes.add(name);
-      const style = document.createElement('style');
-      style.textContent =
-        `@keyframes fxFramePlay_${name}{from{background-position-x:0}` +
-        `to{background-position-x:-${stripW}px}}`;
-      document.head.appendChild(style);
-    }
+    const atlas = App.frameFXAtlas(name);
+    const cfg = AnimConfig.frameFX[name]!;
     const baseScale = cfg.displayH / cfg.frameH;
     const scale = baseScale * (opts.scale ?? 1);
     const rot = opts.rotateDeg ? ` rotate(${opts.rotateDeg}deg)` : '';
@@ -3085,16 +2890,12 @@ export class App {
       'position:absolute', `left:${px}px`, `top:${py}px`,
       `width:${cfg.frameW}px`, `height:${cfg.frameH}px`,
       'pointer-events:none', 'z-index:32',
-      `background-image:url('${url}')`,
-      `background-size:${stripW}px ${cfg.frameH}px`,
-      'background-repeat:no-repeat',
       opts.filter ?? App.FRAME_FX_FILTER[name] ?? 'filter:brightness(1.12) saturate(1.12) drop-shadow(0 0 8px rgba(255,255,255,.5))',
       `transform:translate(-50%,-50%) scale(${scale})${rot}`,
       'transform-origin:center center',
       delay > 0 ? 'opacity:0' : '',
-      opts.frameClock ? 'background-position-x:0px'
-        : `animation:fxFramePlay_${name} ${durationMs}ms steps(${cfg.frames}) ${delay}ms forwards`,
     ].join(';');
+    const { layer, setFrame } = mountFxFrames(el, atlas);
     let delayTimer: number | undefined;
     let endTimer: number | undefined;
     let unsubscribe: (() => void) | undefined;
@@ -3116,15 +2917,14 @@ export class App {
       this.overlay.appendChild(el);
       unsubscribe = opts.frameClock.subscribe(progress => {
         if (progress >= 1) { finish(); return; }
-        const frame = Math.min(cfg.frames - 1, Math.floor(progress * cfg.frames));
-        el.style.backgroundPositionX = `${-frame * cfg.frameW}px`;
+        setFrame(Math.min(cfg.frames - 1, Math.floor(progress * cfg.frames)));
       });
       return;
     }
-    // CSS 帧动画（含 delay 段）随演出倍速加快，显隐与兜底计时也按同一倍速换算
+    // 帧动画（含 delay 段）随演出倍速加快，显隐与超时计时也按同一倍速换算
     if (delay > 0) delayTimer = window.setTimeout(() => { if (token.active) el.style.opacity = '1'; }, scaledMs(delay));
-    el.addEventListener('animationend', finish, { once: true });
     this.overlay.appendChild(el);
+    void playFxFrames(layer, atlas, { duration: durationMs, delay }).finished.then(finish, () => {});
     endTimer = window.setTimeout(finish, scaledMs(delay + durationMs) + 40);
   }
 
@@ -3138,8 +2938,7 @@ export class App {
     const key = `${charId}:${statusId}`;
     if (this.statusPersistLayers.has(key)) return; // 已挂载，避免重复
     const cfg = AnimConfig.frameFX[fxName];
-    const url = App.FRAME_FX_URL[fxName];
-    if (!cfg || !url) return;
+    if (!cfg) throw new Error(`未登记的序列帧特效：${fxName}`);
     const card = this.cardOfChar(charId);
     if (!card) return;
     // 持续层锚点/不透明度：冰壳挂下半身、眩晕/沉默挂头顶，缠绕居中。半透明以不挡立绘。
@@ -3151,15 +2950,7 @@ export class App {
       // 若期间状态已解除（key 被删）则不再挂
       if (!this.persistPending.has(key)) return;
       this.persistPending.delete(key);
-      const stripW = cfg.frameW * cfg.frames;
-      if (!App.frameFXKeyframes.has(fxName)) {
-        App.frameFXKeyframes.add(fxName);
-        const styleEl = document.createElement('style');
-        styleEl.textContent =
-          `@keyframes fxFramePlay_${fxName}{from{background-position-x:0}` +
-          `to{background-position-x:-${stripW}px}}`;
-        document.head.appendChild(styleEl);
-      }
+      const atlas = App.frameFXAtlas(fxName);
       const scale = cfg.displayH / cfg.frameH;
       const el = document.createElement('div');
       el.dataset.fxPersist = fxName;
@@ -3169,21 +2960,18 @@ export class App {
         'pointer-events:none', 'z-index:31',
         `opacity:${style.opacity}`,
         'mix-blend-mode:screen', // 暗部透出立绘，只叠加亮部，避免糊成一坨
-        `background-image:url('${url}')`,
-        `background-size:${stripW}px ${cfg.frameH}px`,
-        'background-repeat:no-repeat',
         'filter:saturate(1.1)',
         `transform:translate(-50%,-50%) scale(${scale})`,
         'transform-origin:center center',
-        `animation:fxFramePlay_${fxName} ${cfg.duration}ms steps(${cfg.frames}) infinite`,
       ].join(';');
+      const { layer } = mountFxFrames(el, atlas);
       this.overlay.appendChild(el);
+      playFxFrames(layer, atlas, { duration: cfg.duration, iterations: Infinity });
       this.statusPersistLayers.set(key, el);
     };
 
     this.persistPending.add(key);
-    if (App.frameFXReadyUrls.has(url)) mount();
-    else void App.preloadFrameFX(fxName).then((ready) => { if (ready) mount(); else this.persistPending.delete(key); });
+    mount();
   }
 
   /** 移除某角色某状态的持续层（status-expire / cleanse / 阵亡时调用） */

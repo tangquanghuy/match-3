@@ -34,7 +34,7 @@ test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被�
   await page.locator('.tut-action').click();
   const loading = page.locator('.bl-screen');
   await expect(loading).toBeVisible();
-  await expect(loading.locator('.bl-side.enemy .bl-unit')).toHaveCount(3);
+  await expect(loading.locator('.bl-side--enemy .bl-unit')).toHaveCount(3);
   await expect(loading.locator('#blTitle')).toHaveText('新手试炼');
   await page.screenshot({ path: 'artifacts/redesign-r3/shots/onboarding-loading.png' });
   await expect(loading).toHaveCount(0, { timeout: 60_000 });

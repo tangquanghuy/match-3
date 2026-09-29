@@ -93,6 +93,26 @@ async function assignSkill(page: Page, skillId: string, casterId = 0): Promise<v
   if (!ok) throw new Error(`换技能失败：skill-${skillId} 或 card-${casterId} 不存在`);
 }
 
+/**
+ * 记录此后挂到页面上的序列帧特效名（data-fx）。
+ * 爆点类特效只存在约 0.3 秒，短于 toBeVisible 的轮询间隔，直接查 DOM 会随时序漏检。
+ */
+async function recordFrameFx(page: Page): Promise<() => Promise<string[]>> {
+  await page.evaluate(() => {
+    const w = window as unknown as { __mountedFx: string[] };
+    w.__mountedFx = [];
+    new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          const name = (node as HTMLElement).dataset?.fx;
+          if (name) w.__mountedFx.push(name);
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+  return () => page.evaluate(() => (window as unknown as { __mountedFx: string[] }).__mountedFx);
+}
+
 /** 把技能标签换到我方角色卡（id=0 施法者），并短按释放 */
 async function assignAndCast(page: Page, skillId: string, casterId = 0): Promise<void> {
   await assignSkill(page, skillId, casterId);
@@ -198,29 +218,6 @@ test('unit window quick-cast checkbox writes the shared preference', async ({ pa
 
 
 
-test('frame FX preload is deferred and eventually completes', async ({ page }) => {
-  const readStatus = () => page.evaluate(() => {
-    const app = (window as unknown as DebugAppWindow).__testPage.app;
-    const ctor = app.constructor as unknown as {
-      FRAME_FX_URL: Record<string, string>;
-      frameFXReadyUrls: Set<string>;
-    };
-    const urls = [...new Set(Object.values(ctor.FRAME_FX_URL))];
-    return {
-      total: urls.length,
-      ready: urls.filter((url) => ctor.frameFXReadyUrls.has(url)).length,
-    };
-  });
-
-  const initial = await readStatus();
-  expect(initial.total).toBeGreaterThan(0);
-  expect(initial.ready).toBeLessThanOrEqual(initial.total);
-  await expect.poll(readStatus, { timeout: 25_000 }).toEqual({
-    total: initial.total,
-    ready: initial.total,
-  });
-});
-
 test('mana gem shows current/max without a tooltip, cancelled pointers never cast, and a gem tap is a card tap', async ({ page }) => {
   await assignSkill(page, 'dmg-single');
   await page.getByTestId('fill-mana').click();
@@ -320,17 +317,7 @@ test('healing, cleanse, and armor buffs use their finalized numbered frame FX', 
 });
 
 test('poison, frozen, burning, water single-target, and splash attacks route finalized frame FX', async ({ page }) => {
-  // Frame strips preload after first paint. Casting before that background work finishes legitimately skips
-  // the optional visual, so wait for the test's actual precondition instead of racing the loader.
-  await page.waitForFunction(() => {
-    const app = (window as unknown as DebugAppWindow).__testPage.app;
-    const ctor = app.constructor as unknown as {
-      FRAME_FX_URL: Record<string, string>;
-      frameFXReadyUrls: Set<string>;
-    };
-    const urls = [...new Set(Object.values(ctor.FRAME_FX_URL))];
-    return urls.every((url) => ctor.frameFXReadyUrls.has(url));
-  }, undefined, { timeout: 25_000 });
+  // 序列帧在开战前已全部加载解码，可直接施放。
   await page.evaluate(() => {
     type FrameFxFn = (name: string, px: number, py: number, opts?: unknown) => void;
     type SplashSwordFn = (
@@ -640,8 +627,9 @@ test('随机摧毁6颗：无需选择，直接产出 gem-destroy', async ({ page
 });
 
 test('随机爆破2行：无需选择，直接产出 gem-explode', async ({ page }) => {
+  const mountedFx = await recordFrameFx(page);
   await assignAndCast(page, 'gem-explode-rows');
-  await expect(page.locator('[data-fx="energy_burst"]').first()).toBeVisible();
+  await expect.poll(mountedFx).toContain('energy_burst');
   await expect(page.getByTestId('event-log')).toContainText('gem-explode');
   await expectBoardViewSettled(page);
 });
@@ -654,6 +642,7 @@ test('玩家选目标：拖★选敌伤害→短按释放→点敌方卡→命�
 });
 
 test('玩家选宝石引爆：拖★选宝石→短按→点棋盘→gem-explode', async ({ page }) => {
+  const mountedFx = await recordFrameFx(page);
   await assignAndCast(page, 'gem-boom');
   const canvas = page.locator('canvas').first();
   const box = await canvas.boundingBox();
@@ -663,7 +652,7 @@ test('玩家选宝石引爆：拖★选宝石→短按→点棋盘→gem-explode
     await page.waitForTimeout(150);
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   }
-  await expect(page.locator('[data-fx="energy_burst"]').first()).toBeVisible();
+  await expect.poll(mountedFx).toContain('energy_burst');
   await expect(page.getByTestId('event-log')).toContainText('gem-explode');
 });
 

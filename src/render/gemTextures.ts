@@ -1,5 +1,5 @@
-import { Assets, Texture } from 'pixi.js';
-import { BaseColor, SPECIAL_MATCH_COLOR } from '@engine/types';
+﻿import { Assets, Texture } from 'pixi.js';
+import { BaseColor } from '@engine/types';
 import type { GemType, SpecialGemKind, SpecialGemSpec } from '@engine/types';
 
 // 通过 Vite 以 URL 形式引入资源：自动处理 base 路径与产物哈希（需求 21.3）
@@ -108,7 +108,7 @@ const COLOR_URL: Record<BaseColor, string> = {
  * 状态搬运宝石族使用独立 256×256 透明贴图；GemSprite 上的程序化层只补环境光尘。
  * 波B（GEMS-SEMANTICS-2 2026-09-17）真美术已交付：单色/星族/无色族直接入本表；
  * 六色族经 spec.color 取分色贴图（SIX_COLOR_URL，键 `${kind}:${color}`）；
- * 石像鬼按 tier 善/恶（GARGOYLE_TIER_URL）。textureFor 的归属色回退仅作加载失败兜底。
+ * 石像鬼按 tier 善/恶（GARGOYLE_TIER_URL）。
  */
 const SPECIAL_URL: Partial<Record<SpecialGemKind, string>> = {
   doomSkull: doomSkullUrl,
@@ -238,100 +238,64 @@ function specialKey(spec: SpecialGemSpec): string {
   return spec.kind;
 }
 
-/** 该特殊宝石是否拥有独立真贴图（波B 真美术已就位；GemSprite 据此跳过程序化占位叠层） */
-export function hasOwnSpecialTexture(spec: SpecialGemSpec): boolean {
-  return specialTex.has(specialKey(spec));
+/** 全部宝石贴图 URL（战斗资源预载清单用，见 battleAssets.ts） */
+export function gemTextureUrls(): string[] {
+  const urls = [
+    ...Object.values(COLOR_URL),
+    skullUrl,
+    ...Object.values(SPECIAL_URL),
+    ...Object.values(WILDCARD_TIER_URL),
+    ...Object.values(BOOTY_TIER_URL),
+    ...Object.values(GARGOYLE_TIER_URL),
+    ...Object.values(SIX_COLOR_URL).flatMap((byColor) => Object.values(byColor)),
+  ];
+  return [...new Set(urls)];
 }
 
 /**
- * 预加载全部宝石贴图（需求 21.4）。
- * 失败不抛出：GemSprite 会回退到程序化绘制，保证可玩；重复调用复用同一任务。
+ * 加载全部宝石贴图（需求 21.4）。任一张失败即 reject，由调用方（战斗加载页）报错重试，
+ * 不做程序化回退；成功后重复调用直接返回，失败后再次调用会重新加载。
  */
 export function loadGemTextures(): Promise<void> {
   if (loaded) return Promise.resolve();
   if (loadPromise) return loadPromise;
+  const sixColorEntries: [string, string][] = [];
+  for (const [kind, byColor] of Object.entries(SIX_COLOR_URL)) {
+    for (const [color, url] of Object.entries(byColor)) sixColorEntries.push([`${kind}:${color}`, url]);
+  }
+  const specialEntries: [string, string][] = [
+    ...(Object.entries(SPECIAL_URL) as [string, string][]),
+    ...Object.entries(WILDCARD_TIER_URL).map(([tier, url]): [string, string] => [`wildcard:${tier}`, url]),
+    ...Object.entries(BOOTY_TIER_URL).map(([tier, url]): [string, string] => [`bootyGem:${tier}`, url]),
+    ...Object.entries(GARGOYLE_TIER_URL).map(([tier, url]): [string, string] => [`gargoyleGem:${tier}`, url]),
+    ...sixColorEntries,
+  ];
   loadPromise = (async () => {
-    try {
-      const colorEntries = Object.entries(COLOR_URL) as [BaseColor, string][];
-      const specialEntries = Object.entries(SPECIAL_URL) as [SpecialGemKind, string][];
-      const wildcardEntries = Object.entries(WILDCARD_TIER_URL) as [string, string][];
-      const bootyEntries = Object.entries(BOOTY_TIER_URL) as [string, string][];
-      const gargoyleEntries = Object.entries(GARGOYLE_TIER_URL) as [string, string][];
-      const sixColorEntries: [string, string][] = [];
-      for (const [kind, byColor] of Object.entries(SIX_COLOR_URL)) {
-        for (const [color, url] of Object.entries(byColor)) {
-          sixColorEntries.push([`${kind}:${color}`, url]);
-        }
-      }
-      await Promise.all([
-        ...colorEntries.map(async ([color, url]) => {
-          colorTex.set(color, await Assets.load(url));
-        }),
-        ...specialEntries.map(async ([kind, url]) => {
-          specialTex.set(kind, await Assets.load(url));
-        }),
-        ...wildcardEntries.map(async ([tier, url]) => {
-          specialTex.set(`wildcard:${tier}`, await Assets.load(url));
-        }),
-        ...bootyEntries.map(async ([tier, url]) => {
-          specialTex.set(`bootyGem:${tier}`, await Assets.load(url));
-        }),
-        ...gargoyleEntries.map(async ([tier, url]) => {
-          specialTex.set(`gargoyleGem:${tier}`, await Assets.load(url));
-        }),
-        ...sixColorEntries.map(async ([key, url]) => {
-          specialTex.set(key, await Assets.load(url));
-        }),
-        (async () => {
-          skullTex = await Assets.load(skullUrl);
-        })(),
-      ]);
-      loaded = true;
-    } catch (err) {
-      console.warn('宝石贴图加载失败，回退到程序化绘制：', err);
-      loaded = false;
-    } finally {
-      loadPromise = null;
-    }
-  })();
+    const [colors, specials, skull] = await Promise.all([
+      Promise.all((Object.entries(COLOR_URL) as [BaseColor, string][]).map(async ([color, url]) => [color, await Assets.load<Texture>(url)] as const)),
+      Promise.all(specialEntries.map(async ([key, url]) => [key, await Assets.load<Texture>(url)] as const)),
+      Assets.load<Texture>(skullUrl),
+    ]);
+    for (const [color, tex] of colors) colorTex.set(color, tex);
+    for (const [key, tex] of specials) specialTex.set(key, tex);
+    skullTex = skull;
+    loaded = true;
+  })().finally(() => {
+    loadPromise = null;
+  });
   return loadPromise;
 }
 
-export function gemTexturesReady(): boolean {
-  return loaded;
-}
-
-/**
- * 波B 宝石真贴图缺失时（加载失败兜底）的静态回退基图（无 spec.color、也不在
- * SPECIAL_MATCH_COLOR 单色表的 kind）。星族/无色族按 GEMS-SEMANTICS-2 各节"基图"行登记；
- * 'skull' = 骷髅贴图打底。
- */
-const SPECIAL_FALLBACK_COLOR: Partial<Record<SpecialGemKind, BaseColor | 'skull'>> = {
-  elementalStar: BaseColor.Brown,
-  umbralStar: BaseColor.Purple,
-  angelGem: BaseColor.Yellow,
-  daemonicPortalGem: BaseColor.Purple,
-  gargoyleGem: 'skull',
-  stoneBlock: BaseColor.Brown,
-  trapGem: 'skull',
-  mimicGem: BaseColor.Brown,
-};
-
-/** 取某宝石类型对应贴图；无对应贴图（如加载失败）返回 null，由调用方回退 */
-export function textureFor(type: GemType): Texture | null {
-  if (type.kind === 'color') return colorTex.get(type.color) ?? null;
-  if (type.kind === 'skull') return skullTex;
-  if (type.kind === 'special') {
-    const own = specialTex.get(specialKey(type.spec));
-    if (own) return own;
-    // 真贴图缺失（如加载失败）时回退归属色贴图（六色族=spec.color；单色 kind=SPECIAL_MATCH_COLOR；
-    // 无色/星族=静态回退表），程序化叠层由 GemSprite 叠在其上（GEMS-SEMANTICS-2 §0 预算）
-    const fallback = type.spec.color
-      ?? SPECIAL_MATCH_COLOR[type.spec.kind]
-      ?? SPECIAL_FALLBACK_COLOR[type.spec.kind];
-    if (fallback === 'skull') return skullTex;
-    if (fallback) return colorTex.get(fallback) ?? null;
-    return null;
+/** 取某宝石类型对应贴图；贴图未加载或该类型没有贴图时抛错（不回退到别的贴图） */
+export function textureFor(type: GemType): Texture {
+  if (!loaded) throw new Error('宝石贴图尚未加载完成');
+  let tex: Texture | null | undefined;
+  if (type.kind === 'color') tex = colorTex.get(type.color);
+  else if (type.kind === 'skull') tex = skullTex;
+  else if (type.kind === 'special') {
+    // 六色族按归属色取分色贴图；单色 kind 即便带 spec.color 也用自身贴图
+    tex = specialTex.get(specialKey(type.spec)) ?? specialTex.get(type.spec.kind);
   }
-  return null;
+  if (!tex) throw new Error(`缺少宝石贴图：${JSON.stringify(type)}`);
+  return tex;
 }
