@@ -3,8 +3,8 @@
  * standard golden scenarios (L10 R10 L0 K) do not show on their own.
  */
 import { describe, expect, it } from 'vitest';
-import { BaseColor } from '@engine/types';
-import { castSpell } from '../helpers/gowCast';
+import { BaseColor, specialGem } from '@engine/types';
+import { castSpell, reviewBoard, type BoardFn } from '../helpers/gowCast';
 import { spellDescription } from '../../src/data/combatText';
 import troops from '../../src/data/troops.json';
 
@@ -111,5 +111,24 @@ describe('sa-J B06', () => {
   it('troop:7029 enchants a Shentang ally', () => {
     expect(order('troop:7029', { allies: [{ hp: 500, maxHp: 700, kingdomId: 3030 } as Record<string, unknown>] }))
       .toEqual(['buff A1 hp+11 max+11', 'buff A1 magic+2', 'status A1 +enchanted']);
+  });
+});
+
+describe('sa-J B07', () => {
+  // troop:7068 FountainOfStars (8596): 5 Green -> Purple potions, all Brown -> Skulls, cleanse Fey allies only.
+  it('troop:7068 converts exactly 5 Green gems and the Chinese text is readable', () => {
+    const o = order('troop:7068');
+    expect(o[0]).toBe('convert Green x5 -> manaPotionGem/Purple x5');
+    expect(o[1]).toMatch(/^convert Brown x\d+ -> skull x\d+$/);
+    expect(o).not.toContain('cleanse A1 -poison');
+    expect(zhOf(7068, 8596)).toBe('将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。');
+  });
+  // troop:7132 Centuragon (8681): ConsumeConditional@RandomEnemy 10% + 10% per Wildcard = a real Devour.
+  it('troop:7132 devours (gains stats) when 9+ Wildcards make the chance 100%', () => {
+    const wild: BoardFn = (r, c) => (r === 7 && c < 5 ? specialGem('wildcard', 2) : r === 6 && c < 4 ? specialGem('wildcard', 3) : reviewBoard(r, c));
+    const o = order('troop:7132', { board: wild });
+    expect(o.some(x => / devoured$/.test(x))).toBe(true);
+    expect(o.some(x => /^buff C hp\+\d+/.test(x))).toBe(true);
+    expect(order('troop:7132').some(x => x.includes('devoured'))).toBe(false);
   });
 });

@@ -76,6 +76,11 @@
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",
       "spellDescription": "创造 5 颗绿色宝石，然后将所有绿色宝石转换为紫色。自身一项随机属性获得 [魔法 + 2] 点。"
     },
+    "7068": {
+      "spellId": 8596,
+      "reason": "sa-J final: English Fountain of Stars 'Convert 5 Green Gems to Purple Potions, and all Brown Gems to Skulls. Cleanse all Fey Allies.'; old Chinese '将5有绿宝石都转化' was garbled (read as all Green) and used 精灵同盟 instead of the project's 妖仙 for Fey.",
+      "spellDescription": "将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。"
+    },
     "6181": {
       "spellId": 7322,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",

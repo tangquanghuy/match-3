@@ -466,7 +466,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8596,
-    desc: '将5有绿宝石都转化为紫色药水，并且所有棕色宝石都变为骷髅头。净化所有精灵同盟。',
+    desc: '将 5 颗绿色宝石转换为紫色药水，并将所有棕色宝石转换为骷髅头。净化所有妖仙盟友。',
     // 【挽救】ZH 机翻病句（「将5有绿宝石」）按官方 EN 全句判读：Convert 5 Green Gems to
     // Purple Potions = transformToSpecial 绿→manaPotionGem 定量 5（转换端点无 color 通道，r14 口径
     // 按 kind 落）；「棕色宝石都变为骷髅头」= transform；「净化所有精灵(Fey)同盟」= cleanse +

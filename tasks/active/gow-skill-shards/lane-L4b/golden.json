@@ -1419,6 +1419,16 @@
   "by": "sa-B",
   "at": "2026-09-28T10:42:55.747Z"
  },
+ "troop:7068": {
+  "lines": {
+   "L10": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison",
+   "R10": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison",
+   "L0": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison",
+   "K": "convert Green x5 -> manaPotionGem/Purple x5 ; convert Brown x8 -> skull x8 ; cleanse C -poison  => C:-poison"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:24.979Z"
+ },
  "troop:7079": {
   "lines": {
    "L10": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Blue x1, Purple x2, Green x4, Brown x1 -> Red x8 ; remove C -poison ; status C +blessed ; buff C magic+3 ; ~cascade~  => C:mag+3 +blessed -poison  cascade",

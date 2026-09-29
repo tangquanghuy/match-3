@@ -1419,6 +1419,16 @@
   "by": "sa-R5",
   "at": "2026-09-28T09:06:03.338Z"
  },
+ "troop:7132": {
+  "lines": {
+   "L10": "convert skull x5 -> wildcard x5",
+   "R10": "convert skull x5 -> wildcard x5",
+   "L0": "convert skull x5 -> wildcard x5",
+   "K": "convert skull x5 -> wildcard x5"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:31.747Z"
+ },
  "troop:7133": {
   "lines": {
    "L10": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> curseGem x6 ; ~cascade~ ; trigger curseGem ; status E12 +curse ; trigger curseGem ; status E13 +curse  => E12:+curse | E13:+curse -rage  cascade",

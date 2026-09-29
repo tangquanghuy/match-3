@@ -569,6 +569,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:58:59.719Z"
  },
+ "troop:7089": {
+  "lines": {
+   "L10": "dmg E12 23  => E12:hp-11 arm-12",
+   "R10": "dmg E12 23  => E12:hp-11 arm-12",
+   "L0": "dmg E12 15  => E12:hp-3 arm-12",
+   "K": "dmg E12 23 ; defeat E12  => E12:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:29.491Z"
+ },
  "troop:7095": {
   "lines": {
    "L10": "dmg E12 14 (all) ; dmg E13 14 (all) ; dmg E12 14 (all) ; dmg E13 14 (all)  => E12:hp-16 arm-12 | E13:hp-25 arm-3",

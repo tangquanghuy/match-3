@@ -519,6 +519,16 @@
   "by": "sa-G",
   "at": "2026-09-28T21:50:18.229Z"
  },
+ "troop:7069": {
+  "lines": {
+   "L10": "buff E10 attack-13 ; buff C hp+13 max+13  => E10:atk-13 | C:hp+13 max+13",
+   "R10": "buff E10 attack-13 ; buff C hp+13 max+13  => E10:atk-13 | C:hp+13 max+13",
+   "L0": "buff E10 attack-3 ; buff C hp+3 max+3  => E10:atk-3 | C:hp+3 max+3",
+   "K": "buff E10 attack-13 ; buff C hp+13 max+13  => E10:atk-13 | C:hp+13 max+13"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:27.277Z"
+ },
  "troop:7083": {
   "lines": {
    "L10": "buff E11 armor-10 ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all)  => E11:hp-12 arm-10 | E12:arm-12 | E13:hp-9 arm-3",

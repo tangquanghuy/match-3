@@ -739,6 +739,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T08:35:30.426Z"
  },
+ "troop:7135": {
+  "lines": {
+   "L10": "buff E10 hp-11 ; buff E11 armor-10 ; buff E12 magic-11 ; buff E13 hp-11  => E10:hp-11 | E11:arm-10 | E12:mag-11 | E13:hp-11",
+   "R10": "buff E10 hp-11 ; buff E11 armor-10 ; buff E12 magic-11 ; buff E13 hp-11  => E10:hp-11 | E11:arm-10 | E12:mag-11 | E13:hp-11",
+   "L0": "buff E10 hp-1 ; buff E11 armor-1 ; buff E12 magic-1 ; buff E13 hp-1  => E10:hp-1 | E11:arm-1 | E12:mag-1 | E13:hp-1",
+   "K": "defeat E10 ; buff E10 hp-1 ; buff E12 magic-11 ; defeat E13 ; buff E13 hp-1  => E10:hp-1 DEAD | E12:mag-11 | E13:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:04:43.598Z"
+ },
  "troop:7137": {
   "lines": {
    "L10": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Red x14 ; buff E11 hp-11  => E11:hp-11",
