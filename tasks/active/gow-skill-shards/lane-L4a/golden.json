@@ -2749,6 +2749,16 @@
   "by": "sa-R1",
   "at": "2026-09-28T02:36:51.061Z"
  },
+ "weapon:1013": {
+  "lines": {
+   "L10": "destroy 1 (Yellow x1) ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => A2:mag+1 mana+1 | C:mag+1 | A1:mag+1",
+   "R10": "destroy 1 (Yellow x1) ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => A2:mag+1 mana+1 | C:mag+1 | A1:mag+1",
+   "L0": "destroy 1 (Yellow x1) ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => A2:mag+1 mana+1 | C:mag+1 | A1:mag+1",
+   "K": "destroy 1 (Yellow x1) ; buff C magic+1 ; buff A1 magic+1 ; buff A2 magic+1  => A2:mag+1 mana+1 | C:mag+1 | A1:mag+1"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:15:35.957Z"
+ },
  "weapon:1028": {
   "lines": {
    "L10": "explode 9 ; skulls E10 1 ; buff C magic+2 ; buff A1 magic+2 ; buff A2 magic+2  => A2:mag+2 mana+1 | E10:arm-1 | C:mag+2 | A1:mag+2",
@@ -2926,8 +2936,8 @@
    "L0": "explode 22 ; skulls E10 2 ; dmg E10 3 (scatter) ; dmg E12 1 (scatter) ; dmg E13 1 (scatter)  => A2:mana+3 | A1:mana+2 | E10:arm-5 | E12:arm-1 | E13:arm-1",
    "K": "explode 22 ; skulls E10 2 ; defeat E10 ; dmg E11 6 (scatter) ; dmg E12 5 (scatter) ; dmg E13 4 (scatter) ; defeat E11 ; defeat E12 ; defeat E13  => A2:mana+3 | A1:mana+2 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T22:43:49.684Z"
+  "by": "sa-J",
+  "at": "2026-09-29T04:15:35.957Z"
  },
  "weapon:1117": {
   "lines": {

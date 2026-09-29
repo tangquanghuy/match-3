@@ -499,3 +499,5 @@
 {"format":"compact","key":"troop:6891","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:00:33.797Z","tests":["tests/unit/gowCastGolden.test.ts"],"note":"B06: 6775 two independent DecreaseRandom per native (R007-2); 7016 lethal-before-damage order unobservable (tested)"}
 {"format":"compact","key":"troop:7254","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:08:09.609Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:7505","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:13:56.892Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1013","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:15:36.629Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"weapon:1114","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T04:15:36.633Z","tests":["tests/unit/gowCastGolden.test.ts"]}

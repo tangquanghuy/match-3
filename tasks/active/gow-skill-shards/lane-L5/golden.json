@@ -2199,6 +2199,16 @@
   "by": "sa-R3",
   "at": "2026-09-28T02:31:19.522Z"
  },
+ "weapon:1142": {
+  "lines": {
+   "L10": "status E12 +burning ; status E11 +frozen ; status E13 +silence ; dmg E12 13  => E12:hp-1 arm-12 +burning | E11:+frozen | E13:+silence",
+   "R10": "status E12 +burning ; status E11 +frozen ; status E13 +silence ; dmg E12 13  => E12:hp-1 arm-12 +burning | E11:+frozen | E13:+silence",
+   "L0": "status E12 +burning ; status E11 +frozen ; status E13 +silence ; dmg E12 3  => E12:arm-3 +burning | E11:+frozen | E13:+silence",
+   "K": "status E12 +burning ; status E11 +frozen ; status E13 +silence ; dmg E12 13 ; defeat E12  => E12:hp-1 +burning DEAD | E11:+frozen | E13:+silence"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:15:41.557Z"
+ },
  "weapon:1143": {
   "lines": {
    "L10": "dmg E11 16 ; status E11 +poison  => E11:hp-6 arm-10 +poison",

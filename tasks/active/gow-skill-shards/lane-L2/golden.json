@@ -1259,6 +1259,16 @@
   "by": "sa-R6",
   "at": "2026-09-28T06:01:50.263Z"
  },
+ "troop:7817": {
+  "lines": {
+   "L10": "convert Blue x11 -> poisonGem x11 ; buff E12 armor-11  => E12:arm-11",
+   "R10": "convert Blue x11 -> poisonGem x11 ; buff E12 armor-11  => E12:arm-11",
+   "L0": "convert Blue x11 -> poisonGem x11 ; buff E12 armor-1  => E12:arm-1",
+   "K": "convert Blue x11 -> poisonGem x11"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T04:15:30.946Z"
+ },
  "troop:7825": {
   "lines": {
    "L10": "(no spell events)",

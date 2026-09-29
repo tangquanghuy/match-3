@@ -192,3 +192,16 @@ describe('sa-J B10', () => {
     }
   });
 });
+
+describe('sa-J B11', () => {
+  // weapon:1186 RadiantJewel (7662): CountArmyKingdom 3003 x6 boosts damage and is the Green/Yellow mix count.
+  it("weapon:1186 adds 6 damage and 6 mixed gems per Pan's Vale ally", () => {
+    const pan = [{ hp: 500, maxHp: 700, kingdomId: 3003 }, { hp: 650, maxHp: 650, kingdomId: 3003 }] as Record<string, unknown>[];
+    const o = order('weapon:1186', { allies: pan });
+    expect(o[0]).toBe('dmg E11 29');
+    expect(o[1]).toMatch(/-> (Green|Yellow) x\d+, (Green|Yellow) x\d+$/);
+    const made = [...o[1].matchAll(/(?:Green|Yellow) x(\d+)/g)].slice(-2).reduce((s, m) => s + Number(m[1]), 0);
+    expect(made).toBe(12);
+    expect(order('weapon:1186')).toEqual(['dmg E11 17']);
+  });
+});
