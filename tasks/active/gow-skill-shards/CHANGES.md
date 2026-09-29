@@ -1,6 +1,6 @@
 # GoW 技能改动留档
 
-自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 700 条改动，涉及 1165 个技能 ID。
+自动生成（`node scripts/gow-changelog.mjs render`），源数据 [CHANGES.jsonl](CHANGES.jsonl)，共 701 条改动，涉及 1165 个技能 ID。
 
 ## 按时间
 
@@ -706,6 +706,7 @@
 | 2026-09-28T23:37 | sa-I | L3-I-6526-steal-first | assembler | 7719 | troop:6526 IceWraith | `src/engine/skills/curated/batch-07.ts` | hit, Freeze, then steal 5 Mana if Frozen (always true) → native StealMana [AddForFrozen 5] first: steal only if already Frozen, then hit and Freeze |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-1445-random-true | data | 8701 | weapon:1445 CursebreakerJavelin | `src/engine/skills/curated/batch-w03.ts`<br>`scripts/curated-pools/pool-w01.json`<br>`src/data/gowWeaponReviewedOverrides.json` | normal damage to the first + last enemy, Tempering on one hit only; zh 首位和末位敌人 → native TrueDamage RandomEnemy -> RandomPrefNotPrevEnemy, Tempering on both; zh 2 名随机敌人 真实伤害; override entry |  |
 | 2026-09-28T23:38 | sa-C | L5-C-r9-6882-order | data | 8305 | troop:6882 SwampRat | `src/engine/skills/curated/batch-r7.ts`<br>`scripts/curated-pools/pool-14.json`<br>`src/data/gowSnapshotOverrides.json` | last hit first, then 50% second-last; zh 第 3 位敌人 → native order 50% SecondLastEnemy -> LastEnemy; zh 倒数第二名敌人 + snapshot override |  |
+| 2026-09-29T03:53 | sa-J | sa-J-6160-zh | data | 7280 | troop:6160 TheGreatMaw | `src/engine/skills/curated/batch-r22.ts`<br>`src/data/gowSnapshotOverrides.json` | zh: 创造 8 颗黄色宝石和棕色宝石 (could read as 8 total) → zh: 创造 8 颗黄色宝石和 8 颗棕色宝石 (EN Create 8 Yellow and 8 Brown Gems) | display text only |
 
 ## 按技能 ID
 
@@ -816,7 +817,7 @@
 | 7273 | 2 | L4a-R9-6153-order-skulls、R015-random-gems-include-skulls |
 | 7274 | 1 | G-6154-order |
 | 7277 | 1 | L2-H-6157-ally-colour |
-| 7280 | 1 | P-create-interleave |
+| 7280 | 2 | P-create-interleave、sa-J-6160-zh |
 | 7281 | 1 | L1-R2-consume-first |
 | 7287 | 1 | F3-q26 |
 | 7293 | 1 | L1-consume-first |

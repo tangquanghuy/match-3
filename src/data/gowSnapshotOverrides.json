@@ -66,6 +66,11 @@
       "reason": "sa-C r9: English Dimetraxia 'There's a 75% chance to Burn all Enemies'; native CauseBurning@AllEnemies PercentageChance 75; old Chinese said 'everyone' (所有人).",
       "spellDescription": "对所有敌人造成 [魔法 + 9] 点散射伤害。有 75% 的几率燃烧所有敌人。"
     },
+    "6160": {
+      "spellId": 7280,
+      "reason": "sa-J final: English The Great Maw 'Create 8 Yellow and 8 Brown Gems' (native CreateGems Yellow 8 ; CreateGems Brown 8); old Chinese '8 颗黄色宝石和棕色宝石' could read as 8 in total.",
+      "spellDescription": "吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。"
+    },
     "6163": {
       "spellId": 7289,
       "reason": "English source text specifies one random Skill; extracted native IncreaseRandom awards its complete amount to one Skill per recipient. Scoped display clarification, not whole-skill signoff.",

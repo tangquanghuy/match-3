@@ -69,6 +69,16 @@
   "by": "sa-E",
   "at": "2026-09-28T11:17:08.834Z"
  },
+ "troop:6160": {
+  "lines": {
+   "L10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "R10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "L0": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "K": "dmg E11 1 devoured ; defeat E11 ; buff C attack+17 ; buff C hp+1 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-1 DEAD | C:hp+1 atk+17"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:53:13.847Z"
+ },
  "troop:6161": {
   "lines": {
    "L10": "dmg E12 12  => E12:arm-12",

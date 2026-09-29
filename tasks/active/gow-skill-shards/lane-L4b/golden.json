@@ -56,8 +56,8 @@
    "L0": "dmg E11 1 ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x1 -> Blue x9 ; ~cascade~  => E11:arm-1 | A1:mana+3  cascade",
    "K": "dmg E11 11 ; defeat E11 ; convert Brown x2, skull x2, Red x4, Yellow x1 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD  extra:match  cascade"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T13:30:58.772Z"
+  "by": "sa-J",
+  "at": "2026-09-29T03:53:09.041Z"
  },
  "troop:6037": {
   "lines": {
@@ -78,6 +78,16 @@
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:36:48.738Z"
+ },
+ "troop:6062": {
+  "lines": {
+   "L10": "convert Blue x11 -> Blue x11 ; souls+11  eco:{\"souls\":11}",
+   "R10": "convert Blue x11 -> Blue x11 ; souls+11  eco:{\"souls\":11}",
+   "L0": "convert Blue x11 -> Blue x11 ; souls+1  eco:{\"souls\":1}",
+   "K": "convert Blue x11 -> Blue x11 ; souls+11  eco:{\"souls\":11}"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:53:09.041Z"
  },
  "troop:6065": {
   "lines": {

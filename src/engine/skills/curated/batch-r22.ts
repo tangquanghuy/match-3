@@ -218,7 +218,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7280,
-    desc: '吞噬一名敌人。创造 8 颗黄色宝石和棕色宝石。只能施放一次。',
+    desc: '吞噬一名敌人。创造 8 颗黄色宝石和 8 颗棕色宝石。只能施放一次。',
     // Devour 家族回收（无几率词 = 必发）；EN「Create 8 Yellow and 8 Brown Gems」= 黄棕各 8 颗；
     // 「只能施放一次」= skillOnce（§12.5）。
     build: skillOnce(
