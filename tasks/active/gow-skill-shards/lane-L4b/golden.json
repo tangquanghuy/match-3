@@ -529,6 +529,16 @@
   "by": "sa-B",
   "at": "2026-09-28T10:38:50.773Z"
  },
+ "troop:6340": {
+  "lines": {
+   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade",
+   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade",
+   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+5 max+5 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+5 max+5 | A2:mana+7  extra:match  cascade",
+   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:56:18.581Z"
+ },
  "troop:6348": {
   "lines": {
    "L10": "dmg E12 15 ; status E12 +frozen ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => E12:hp-3 arm-12 +frozen  cascade",

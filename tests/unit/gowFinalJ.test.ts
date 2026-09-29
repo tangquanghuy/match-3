@@ -63,3 +63,16 @@ describe('sa-J B03', () => {
     expect(o).toContain('dmg E12 28');
   });
 });
+
+describe('sa-J B04', () => {
+  // troop:6352 HighPaladin (7504): CountArmor Self [2:1] ; Damage@TwoStrongestEnemies (Life + Armor, R005).
+  it('troop:6352 adds floor(my Armor / 2) and hits the two strongest enemies', () => {
+    const o = order('troop:6352', { caster: { armor: 21 } });
+    expect(o).toEqual(['dmg E11 21 (all)', 'dmg E13 21 (all)']);
+  });
+  // troop:6487 PandaskaGuard (7674): with E10 dead from the explosion skulls, the first enemy is E11 (R012).
+  it('troop:6487 hits first and last living enemies', () => {
+    const o = order('troop:6487', { enemies: [{ hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300 }, { hp: 300, maxHp: 300 }] });
+    expect(o.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 12', 'dmg E12 12']);
+  });
+});

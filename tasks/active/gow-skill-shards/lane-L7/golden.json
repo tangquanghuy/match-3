@@ -189,6 +189,16 @@
   "by": "sa-R4",
   "at": "2026-09-28T02:47:53.932Z"
  },
+ "troop:6352": {
+  "lines": {
+   "L10": "dmg E11 11 (all) ; dmg E13 11 (all)  => E11:hp-1 arm-10 | E13:hp-8 arm-3",
+   "R10": "dmg E11 11 (all) ; dmg E13 11 (all)  => E11:hp-1 arm-10 | E13:hp-8 arm-3",
+   "L0": "dmg E11 1 (all) ; dmg E13 1 (all)  => E11:arm-1 | E13:arm-1",
+   "K": "dmg E12 11 (all) ; dmg E11 11 (all) ; defeat E12 ; defeat E11  => E12:hp-1 DEAD | E11:hp-1 DEAD"
+  },
+  "by": "sa-J",
+  "at": "2026-09-29T03:56:20.799Z"
+ },
  "troop:6360": {
   "lines": {
    "L10": "dmg E11 15 (splash) ; dmg E10 7 (splash) ; dmg E12 7 (splash)  => E11:hp-5 arm-10 | E10:hp-2 arm-5 | E12:arm-7",

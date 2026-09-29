@@ -492,3 +492,6 @@
 {"format":"compact","key":"troop:6017","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:49:45.887Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6075","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:53:11.596Z","tests":["tests/unit/gowCastGolden.test.ts"]}
 {"format":"compact","key":"troop:6153","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:53:11.597Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6366","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:56:22.966Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6471","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:56:22.967Z","tests":["tests/unit/gowCastGolden.test.ts"]}
+{"format":"compact","key":"troop:6487","decision":"accept","reviewer":"sa-J","reviewedAt":"2026-09-29T03:56:22.967Z","tests":["tests/unit/gowCastGolden.test.ts"]}
