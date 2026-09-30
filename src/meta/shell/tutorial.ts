@@ -36,20 +36,20 @@ function viewOf(step: ActiveStep, route: string, param: string | undefined): Gui
     case 'battle':
       return {
         target: null, title: '欢迎来到破晓之誓',
-        text: '先来一场试炼。交换相邻宝石，三个同色连成一线就能为部队充能；法力攒满后点击部队，释放技能。',
+        text: '交换相邻宝石，连成三个同色，为部队积攒法力。法力满后，点击部队释放技能。',
         action: { label: '开始试炼', run: (ctx) => void ctx.launchTutorialBattle() },
       };
     case 'gift':
-      if (route === 'gifts') return { target: '[data-gift-claim="starter"]', title: '领取见面礼', text: '1000 宝石，正好够一次新手十连。' };
-      return { target: '#railGifts', title: '打得漂亮', text: '成长路上的每一步都有馈赠。先去领取冒险者见面礼。' };
+      if (route === 'gifts') return { target: '[data-gift-claim="starter"]', title: '领取见面礼', text: '点击「领取」，获得 1000 宝石。' };
+      return { target: '#railGifts', title: '打得漂亮', text: '打开「馈赠」，领取你的见面礼。' };
     case 'summon':
       if (route === 'chests') {
         if (param !== 'gems') return { redirect: '#chests/gems' };
-        return { target: '[data-open="gem-10"]', title: '新手十连', text: '首次十连只需 1000 宝石，最后一张必定是一名异界来客。' };
+        return { target: '[data-open="gem-10"]', title: '新手十连', text: '点击「新手十连」，花费 1000 宝石，必得一名异界来客。' };
       }
       return {
         target: null, title: '召唤伙伴',
-        text: '宝石可以在宝箱页召唤部队。首次十连只需 1000 宝石。',
+        text: '用刚领到的宝石，召唤你的新伙伴。',
         action: { label: '前往召唤', run: (ctx) => ctx.navigate('#chests/gems') },
       };
   }
@@ -89,7 +89,7 @@ export class TutorialGuide {
     this.route = [route, param];
     const step = this.ctx.save().onboarding.step;
     if (step === 'done') {
-      if (this.lastStep !== 'done') setTimeout(() => toast('新手引导完成，所有功能已开放'), 1200);
+      if (this.lastStep !== 'done') setTimeout(() => toast('准备就绪，出发探索王国吧！'), 1200);
       this.lastStep = step;
       this.view = null;
       this.removeLayer();
@@ -153,7 +153,27 @@ export class TutorialGuide {
     if (inBattle) return;
     const hole = this.layer.querySelector<HTMLElement>('.tut-hole')!;
     const bubble = this.layer.querySelector<HTMLElement>('.tut-bubble')!;
-    const box = this.view.target ? document.querySelector<HTMLElement>(this.view.target)?.getBoundingClientRect() : undefined;
+    const target = this.view.target ? document.querySelector<HTMLElement>(this.view.target) : null;
+    if (target) {
+      const bounds = target.getBoundingClientRect();
+      let top = 12, bottom = window.innerHeight - 12;
+      let left = 12, right = window.innerWidth - 12;
+      // 馈赠等页面有独立滚动区；先把操作目标带入可见区域，再放置对话框。
+      for (let parent = target.parentElement; parent; parent = parent.parentElement) {
+        const style = getComputedStyle(parent);
+        const clip = parent.getBoundingClientRect();
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+          top = Math.max(top, clip.top); bottom = Math.min(bottom, clip.bottom);
+        }
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+          left = Math.max(left, clip.left); right = Math.min(right, clip.right);
+        }
+      }
+      if (bounds.top < top || bounds.bottom > bottom || bounds.left < left || bounds.right > right) {
+        target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      }
+    }
+    const box = target?.getBoundingClientRect();
     const rect = box && box.width > 0 && box.height > 0 ? box : null;
     this.layer.classList.toggle('has-hole', !!rect);
     positionBubble(bubble, rect, hole);
@@ -187,7 +207,7 @@ function positionBubble(bubble: HTMLElement, rect: DOMRect | null, hole: HTMLEle
   const bh = bubble.offsetHeight;
   if (!rect) {
     bubble.style.left = `${Math.round((vw - bw) / 2)}px`;
-    bubble.style.top = `${Math.round((vh - bh) / 2)}px`;
+    bubble.style.top = `${Math.round(Math.max(12, (vh - bh) / 2))}px`;
     return;
   }
   const pad = 8;
@@ -205,5 +225,5 @@ function positionBubble(bubble: HTMLElement, rect: DOMRect | null, hole: HTMLEle
     left = rect.right + pad + gap + bw < vw ? rect.right + pad + gap : rect.left - pad - gap - bw;
   }
   bubble.style.left = `${Math.round(Math.min(vw - bw - 12, Math.max(12, left)))}px`;
-  bubble.style.top = `${Math.round(top)}px`;
+  bubble.style.top = `${Math.round(Math.max(12, Math.min(vh - bh - 12, top)))}px`;
 }

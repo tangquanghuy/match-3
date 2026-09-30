@@ -12,6 +12,9 @@ import type { BattleRequest, HostBridge } from '@session/index';
 
 const MIN_LANDSCAPE_WIDTH = 667;
 const MIN_LANDSCAPE_HEIGHT = 375;
+/** 竖屏版式下限：8 格 × 40px 棋盘 + 两排卡 + 顶栏 */
+const MIN_PORTRAIT_WIDTH = 320;
+const MIN_PORTRAIT_HEIGHT = 560;
 
 const mount = document.getElementById('app');
 const gate = document.getElementById('orientation-gate');
@@ -130,19 +133,21 @@ if (mount && gate) {
   const updateViewport = () => {
     frame = 0;
     const { width, height } = viewportSize();
-    const portrait = width <= height;
-    const tooSmall = !portrait
-      && (width < MIN_LANDSCAPE_WIDTH || height < MIN_LANDSCAPE_HEIGHT);
-    const blocked = portrait || tooSmall;
+    // 竖屏有独立版式（App 按挂载容器朝向选择），只拦截放不下任一版式的过小视口
+    const portrait = width < height;
+    const tooSmall = portrait
+      ? width < MIN_PORTRAIT_WIDTH || height < MIN_PORTRAIT_HEIGHT
+      : width < MIN_LANDSCAPE_WIDTH || height < MIN_LANDSCAPE_HEIGHT;
+    const blocked = tooSmall;
     mount.dataset.viewportBlocked = String(blocked);
 
     const title = gate.querySelector('strong');
     const detail = gate.querySelector('span');
     if (title && detail) {
-      title.textContent = portrait ? '请将设备旋转为横屏' : '当前屏幕空间不足';
+      title.textContent = '当前屏幕空间不足';
       detail.textContent = portrait
-        ? '战斗仅支持横屏显示，以保证棋盘和触控区域清晰可用。'
-        : `最低需要 ${MIN_LANDSCAPE_WIDTH}×${MIN_LANDSCAPE_HEIGHT} 的横屏可视区域。`;
+        ? `竖屏最低需要 ${MIN_PORTRAIT_WIDTH}×${MIN_PORTRAIT_HEIGHT} 的可视区域。`
+        : `横屏最低需要 ${MIN_LANDSCAPE_WIDTH}×${MIN_LANDSCAPE_HEIGHT} 的可视区域。`;
     }
 
     if (!blocked && !initPromise && !initialized) {

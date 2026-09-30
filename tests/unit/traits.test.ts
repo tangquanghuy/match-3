@@ -665,7 +665,8 @@ describe('回合开始与战斗开始特质', () => {
     const ch = makeChar(0, { traitIds: ['regeneration'], hp: 48, maxHp: 50 });
     attachPassives(ch);
     expect(applyTurnStartPassives([ch])).toEqual([
-      { type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: 1 },
+      { type: 'buff', source: 'trait', targetId: 0, stat: 'hp', amount: 1,
+        traitActivations: [{ characterId: 0, traitId: 'regeneration', name: '再生' }] },
     ]);
     expect(ch.hp).toBe(49);
     applyTurnStartPassives([ch]);

@@ -1531,7 +1531,7 @@ export class MapScreen implements Screen {
     const bannerOpen = bannerUnlocked(save, name);
     $('#kingdomArtBanner').innerHTML = BANNERS[name] ? bannerArtHtml(name, { size: 200, locked: locked || !bannerOpen }) : '';
     $('#kingdomBannerNote').innerHTML = BANNERS[name]
-      ? `<span class="kb-boosts">${bannerBoostChips(name)}</span><span>${bannerOpen ? '旗帜已解锁 · 编队页可挂' : '主线 8/8 解锁旗帜'}</span>`
+      ? `<span class="kb-boosts">${bannerBoostChips(name)}</span><span>${bannerOpen ? '旗帜已解锁 · 编队页可挂' : '拥有该王国后解锁旗帜'}</span>`
       : '';
 
     const bonusKey = kingdomBonusStat(view.name);

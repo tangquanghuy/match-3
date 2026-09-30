@@ -79,7 +79,7 @@ export function validateTeam(
     issues.push({ code: 'HERO_DUPLICATE', message: '主角最多编入一名' });
   }
 
-  // 旗帜（M6）：null 合法（不挂），其余必须是已解锁王国的旗帜（任务链 8/8）
+  // 旗帜（M6）：null 合法（不挂），其余必须是已开放王国的旗帜（与任务进度无关）
   const bannerIssue = bannerEquipIssue(save, team.bannerKingdomId ?? null);
   if (bannerIssue) {
     issues.push({ code: 'BAD_BANNER', message: bannerIssue });

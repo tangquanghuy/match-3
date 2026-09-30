@@ -6,12 +6,13 @@ import {
   applyStatus, consumeBarrier, RAGE_STATUS_IDS,
   hasStatus, REFLECT_STATUS_ID, endActionStatuses,
 } from './skills/effects/status';
-import { grantStat, passivesOf, skullDamageMultiplier } from './traits';
+import { grantStat, passivesOf, skullDamageMultiplier, strongestTraitActivation, traitActivations } from './traits';
 import { reflectHit } from './skills/effects/reflect';
 
 /** 战斗结算产出的事件 */
 /** 就地施加一组被动增益并产出 buff 事件；生命同时抬上限；法力按上限夹取。 */
-function applyStatGains(char: Character, gains: StatGains, events: GameEvent[]): void {
+function applyStatGains(char: Character, gains: StatGains, events: GameEvent[], source?: 'onDamagedGain' | 'onSkullHitGain'): void {
+  const start = events.length;
   for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
     const amount = gains[stat];
     if (amount === 0) continue;
@@ -35,6 +36,13 @@ function applyStatGains(char: Character, gains: StatGains, events: GameEvent[]):
       char[stat] = Math.max(0, char[stat] + amount);
     }
     events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount });
+  }
+  if (source) for (const event of events.slice(start)) {
+    if (event.type !== 'buff') continue;
+    event.traitActivations = traitActivations(char, def => {
+      const gain = def[source];
+      return !!gain && gain.amount !== 0 && (gain.stat === event.stat || !!gain.alsoStats?.includes(event.stat));
+    });
   }
 }
 
@@ -106,7 +114,7 @@ export class CombatResolver {
     // 因此受击类触发（狂暴）与命中类触发（毒液）都不生效。
     const dodgeChance = passivesOf(target).dodgeChance;
     if (dodgeChance > 0 && rng !== undefined && rng.next() < dodgeChance) {
-      events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'dodge', targetId: target.id });
+      events.push({ type: 'attack-struggle', attackerId: attacker.id, reason: 'dodge', targetId: target.id, traitActivations: strongestTraitActivation(target, 'dodgeChance') });
       return { events };
     }
 
@@ -155,12 +163,14 @@ export class CombatResolver {
       damage,
       resultingHp: target.hp,
       resultingArmor: target.armor,
+      ...(!enraged && damage < Math.round(raw)
+        ? { traitActivations: strongestTraitActivation(target, 'skullDamageReduction') } : {}),
     });
 
     // 受击触发（狂暴/兽人报甲…）：落空不触发，因此放在实际扣血之后
     const targetPassive = passivesOf(target);
     if (!enraged && !target.defeated) {
-      applyStatGains(target, targetPassive.gainOnDamaged, events);
+      applyStatGains(target, targetPassive.gainOnDamaged, events, 'onDamagedGain');
       // 承伤队伍光环（virtueofhumility「当自身生命值承受伤害时，所有盟友获得 2 点护甲值和
       // 魔力值」）：与 gainOnDamaged 同一触发点，受益者为受击者一方存活盟友
       //（'all'=全队/种族名）。目标可能在攻击方（被魅惑打自己人），按归属取队伍。
@@ -194,7 +204,7 @@ export class CombatResolver {
     }
     // 命中触发：自身增益（国王之意…）+ 给目标附状态（毒液…）
     const attackerPassive = passivesOf(attacker);
-    applyStatGains(attacker, attackerPassive.gainOnSkullHit, events);
+    applyStatGains(attacker, attackerPassive.gainOnSkullHit, events, 'onSkullHitGain');
     if (attackerPassive.inflictOnSkullHit && !target.defeated) {
       const inflicted = applyStatus(target, {
         id: attackerPassive.inflictOnSkullHit.id,
@@ -203,6 +213,10 @@ export class CombatResolver {
           ? { magnitude: attackerPassive.inflictOnSkullHit.magnitude }
           : {}),
       });
+      for (const event of inflicted) {
+        if (event.type === 'status-apply') event.traitActivations = traitActivations(attacker,
+          def => def.inflictOnSkullHit?.id === attackerPassive.inflictOnSkullHit?.id);
+      }
       events.push(...inflicted);
     }
     // 命中附状态·多条版（接线批 brokenjaw 断颚「使第一位敌人陷入出血和沉默状态」）：
@@ -272,6 +286,7 @@ export class CombatResolver {
           resultingHp: attacker.hp,
           resultingArmor: attacker.armor,
           reflected: true,
+          traitActivations: strongestTraitActivation(target, 'reflectSkullRatio'),
         });
         if (attacker.hp <= 0 && !attacker.defeated) {
           attacker.defeated = true;

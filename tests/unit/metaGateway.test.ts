@@ -12,6 +12,9 @@ import { currentDraftChoices } from '../../src/meta/systems/arena';
 import type { BattleResult } from '../../src/session/contract';
 import type { MetaSave } from '../../src/meta/state/schema';
 
+import { totalSoulCost, levelCapFor } from '../../src/meta/data/economy';
+import { getTroopById } from '../../src/data/troops';
+
 const DAY = 24 * HOUR_MS;
 
 /** 组一个最小合法 BattleResult（结算只看 winner / defeatedExternalIds / economy） */
@@ -86,6 +89,43 @@ describe('MockGateway', () => {
     if (!result.ok) return;
     expect(result.to).toBe(10);
     expect(gwSave(gw).currencies.souls).toBeLessThan(soulsBefore);
+  });
+
+  it('批量升级：指定目标等级，一次扣除累计成本并持久化', async () => {
+    const storage = memoryStorage();
+    const gw = new MockGateway(storage);
+    const { save } = await gw.load();
+    const troopId = Number(Object.keys(save.collection)[0]);
+    const rec = save.collection[String(troopId)]!;
+    const from = rec.level;
+    const target = from + 3;
+    const cost = totalSoulCost(getTroopById(troopId)!.rarityIdx, from, target);
+    const souls = save.currencies.souls;
+    const { result } = await gw.levelUpTroop(troopId, target);
+    expect(result).toEqual({ ok: true, from, to: target, soulsSpent: cost });
+    const reloaded = (await new MockGateway(storage).load()).save;
+    expect(reloaded.collection[String(troopId)]!.level).toBe(target);
+    expect(reloaded.currencies.souls).toBe(souls - cost);
+  });
+
+  it('批量升级校验：非法等级、越上限、余额不足均不改变等级或灵魂', async () => {
+    const gw = new MockGateway(memoryStorage());
+    const { save } = await gw.load();
+    const troopId = Number(Object.keys(save.collection)[0]);
+    const rec = save.collection[String(troopId)]!;
+    const cap = levelCapFor(getTroopById(troopId)!.rarityIdx, rec.ascension);
+    for (const target of [rec.level, -1, 1.5, cap + 1, NaN, Infinity]) {
+      const { result } = await gw.levelUpTroop(troopId, target);
+      expect(result.ok).toBe(false);
+      expect(gwSave(gw).collection[String(troopId)]!.level).toBe(rec.level);
+      expect(gwSave(gw).currencies.souls).toBe(save.currencies.souls);
+    }
+    save.currencies.souls = 0;
+    await gw.dev!.importSaveJson(JSON.stringify(save));
+    const { result } = await gw.levelUpTroop(troopId, rec.level + 2);
+    expect(result).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(gwSave(gw).collection[String(troopId)]!.level).toBe(rec.level);
+    expect(gwSave(gw).currencies.souls).toBe(0);
   });
 
   it('宝箱：十连产 10 张卡入册；余额不足报 INSUFFICIENT', async () => {

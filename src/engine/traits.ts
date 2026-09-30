@@ -1403,6 +1403,44 @@ export function passivesOf(char: Character): PassiveModifiers {
   return char.passive ?? NEUTRAL_PASSIVES;
 }
 
+/** Resolve names at the trigger, never infer activation from the final roster. */
+export function traitActivations(
+  char: Character,
+  matches: (trait: TraitDefinition) => boolean,
+): import('./events').TraitActivation[] {
+  return activeTraitIds(char).flatMap(code => {
+    const def = getTrait(code);
+    return def && matches(def)
+      ? [{ characterId: char.id, traitId: code, name: char.traitNames?.[code] ?? def.name }]
+      : [];
+  });
+}
+
+/** Max-stacking defenses credit only the winning modifier, not every owned trait. */
+export function strongestTraitActivation(
+  char: Character,
+  field: 'skullDamageReduction' | 'spellDamageReduction' | 'dodgeChance' | 'reflectSkullRatio' | 'armorPierceChance',
+): import('./events').TraitActivation[] {
+  const strongest = activeTraitIds(char).reduce((best, code) => Math.max(best, getTrait(code)?.[field] ?? 0), 0);
+  return strongest > 0 ? traitActivations(char, def => def[field] === strongest).slice(0, 1) : [];
+}
+
+/** Attach provenance only to nonzero stat changes emitted by this trigger. */
+function annotateTraitBuffs(
+  events: BuffEvent[], start: number, holder: Character,
+  spec: (trait: TraitDefinition, stat: PassiveStat) => boolean,
+): void {
+  for (let i = start; i < events.length; i++) {
+    const event = events[i];
+    const cues = traitActivations(holder, def => spec(def, event.stat));
+    if (cues.length) event.traitActivations = cues;
+  }
+}
+
+function gainAffects(gain: { stat: PassiveStat; amount: number; alsoStats?: PassiveStat[] } | undefined, stat: PassiveStat): boolean {
+  return !!gain && gain.amount !== 0 && (gain.stat === stat || !!gain.alsoStats?.includes(stat));
+}
+
 /** 角色是否免疫某状态。 */
 export function isImmuneToStatus(char: Character, statusId: string): boolean {
   const immunities = passivesOf(char).statusImmunities;
@@ -1485,11 +1523,14 @@ function applyTrigger(
   const events: BuffEvent[] = [];
   for (const char of characters) {
     if (char.defeated) continue;
+    const eventStart = events.length;
     const gains = passivesOf(char)[field];
     for (const stat of ['hp', 'armor', 'attack', 'magic', 'mana'] as const) {
       const actual = grantStat(char, stat, gains[stat]);
       if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
     }
+    const source = TRIGGER_FIELDS.find(([, into]) => into === field)?.[0];
+    if (source) annotateTraitBuffs(events, eventStart, char, (def, stat) => gainAffects(def[source], stat));
   }
   return events;
 }
@@ -1733,7 +1774,7 @@ function applyTypeAuraGains(
       if (aura.troopType !== 'all' && !(member.troopTypes ?? []).includes(aura.troopType)) continue;
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(member, stat, aura.gains[stat] ?? 0);
-        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual, traitActivations: traitActivations(holder, def => !!def[field]?.gains[stat]) });
       }
     }
   }
@@ -1983,7 +2024,11 @@ export function applyColorMatchTriggers(
     if (!gains) continue;
     for (const stat of GAIN_STAT_ORDER) {
       const actual = grantStat(char, stat, gains[stat]);
-      if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
+      if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual,
+        traitActivations: traitActivations(char, def =>
+          (def.onColorMatchGain?.color === color && gainAffects(def.onColorMatchGain, stat))
+          || !!def.onColorMatchGains?.some(gain => gain.color === color && gainAffects(gain, stat))),
+      });
     }
   }
   // 配色团队光环：任意存活持有者 → 同队 scope 范围内成员（按持有者序 × 队伍序确定性结算）
@@ -1997,7 +2042,7 @@ export function applyColorMatchTriggers(
         if (!scopeMatches(member, scope)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, gains[stat]);
-          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual, traitActivations: traitActivations(holder, def => def.onColorMatchTypeAura?.color === color && def.onColorMatchTypeAura.scope === scope && !!def.onColorMatchTypeAura.gains[stat]) });
         }
       }
     }
@@ -2034,7 +2079,9 @@ export function applyColorMatchTriggers(
       if (!gains) continue;
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(char, stat, gains[stat]);
-        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual,
+          traitActivations: traitActivations(char, def => def.onEnemyColorMatchGain?.color === color && gainAffects(def.onEnemyColorMatchGain, stat)),
+        });
       }
     }
   }
@@ -2349,7 +2396,7 @@ export function applyBigMatchTriggers(
         if (!scopeMatches(member, troopType)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, gains[stat]);
-          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual, traitActivations: traitActivations(holder, def => def.onBigMatchTypeAura?.troopType === troopType && !!def.onBigMatchTypeAura.gains[stat]) });
         }
       }
     }
@@ -2363,7 +2410,7 @@ export function applyBigMatchTriggers(
       if (size < Number(minSize)) continue;
       for (const stat of GAIN_STAT_ORDER) {
         const actual = grantStat(char, stat, gains[stat]);
-        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
+        if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual, traitActivations: traitActivations(char, def => def.onBigMatchSizedGain?.minSize === Number(minSize) && gainAffects(def.onBigMatchSizedGain, stat)) });
       }
     }
   }
@@ -2652,6 +2699,7 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
   const events: BuffEvent[] = [];
   for (const char of characters) {
     if (char.defeated) continue;
+    const eventStart = events.length;
     const p = passivesOf(char);
     // 回合恢复同样受出血/疾病影响：出血下再生归零，疾病下减半（与技能治疗一致）
     const healed = Math.min(effectiveHealing(char, p.regenPerTurn), char.maxHp - char.hp);
@@ -2673,6 +2721,7 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
       const actual = grantStat(char, 'magic', p.regenMagicPerTurn);
       if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'magic', amount: actual });
     }
+    annotateTraitBuffs(events, eventStart, char, (def, stat) => gainAffects(def.regen, stat));
     // 回合开始范围光环（turnStartTypeAura，定义直读）：持有者存活时给同队 scope 成员叠加
     for (const code of activeTraitIds(char)) {
       const aura = getTrait(code)?.turnStartTypeAura;
@@ -2682,7 +2731,7 @@ export function applyTurnStartPassives(characters: readonly Character[]): BuffEv
         if (!scopeMatches(member, aura.scope)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, aura.gains[stat] ?? 0);
-          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual, traitActivations: traitActivations(char, def => def.code === code) });
         }
       }
     }

@@ -96,7 +96,7 @@ export interface MetaGateway {
   resetToNewGame(): Promise<GatewaySnapshot>;
 
   // —— 养成 ——
-  levelUpTroop(troopId: number): Promise<GatewayUpdate<LevelUpResult | MetaFailure>>;
+  levelUpTroop(troopId: number, targetLevel?: number): Promise<GatewayUpdate<LevelUpResult | MetaFailure>>;
   ascendTroop(troopId: number): Promise<GatewayUpdate<AscendResult | MetaFailure>>;
   unlockTroopTrait(troopId: number, slot: number): Promise<GatewayUpdate<UnlockTraitResult | MetaFailure>>;
   decomposeTroop(troopId: number): Promise<GatewayUpdate<DecomposeResult | MetaFailure>>;

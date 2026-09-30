@@ -68,6 +68,8 @@ import {
   activeTraitIds,
 } from './traits';
 import type { DeathSummonSpec } from './traits';
+import { turnStartDue } from './battleRules';
+import type { EngineBattleRules, RuleEndReason } from './battleRules';
 import type {
   GameEvent,
   EliminationEvent,
@@ -157,6 +159,15 @@ export class TurnEngine {
    */
   pvpMode = false;
   private pvpApplied = false;
+  /**
+   * 战斗规则（活动深化批，见 battleRules.ts）：宿主构造后、首次 takeInitialEvents 前经
+   * applyRules 注入。null = 无规则，所有规则分支零事件、零随机消耗。
+   */
+  private rules: EngineBattleRules | null = null;
+  /** 规则击杀目标的角色引用（阵亡移出编队后仍可判定 defeated / fled） */
+  private ruleTargets: Character[] = [];
+  /** 开局（我方第 1 回合）的规则回合开始项已结算 */
+  private ruleOpeningApplied = false;
   /**
    * 条件经济光环入账口（条件经济批，注入 traits 触发器 ctx/opts.gainEconomy）：
    * 黄金按阵营入账，灵魂/宝石保持既有奖励模型，发既有
@@ -361,8 +372,106 @@ export class TurnEngine {
     this.initialEvents.push(...this.applyBattleStartConvertTraits());
   }
 
+  /**
+   * 注入战斗规则（活动深化批）。须在首次 takeInitialEvents 之前调用；开局棋盘预置
+   * （preset）不在这里——它要在 createGameState 之前改写生成棋盘（applyBoardPreset）。
+   */
+  applyRules(rules: EngineBattleRules | null | undefined): void {
+    if (!rules) return;
+    this.rules = rules;
+    if (rules.skullChance !== undefined) this.skullChance = rules.skullChance;
+    if (rules.specialDrops && rules.specialDrops.chance > 0 && rules.specialDrops.pool.length > 0) {
+      this.gravity.specialSpawnChance = rules.specialDrops.chance;
+      this.gravity.specialPool = rules.specialDrops.pool;
+    }
+    const all = [...this.state.teams[PlayerSide.Left].characters, ...this.state.teams[PlayerSide.Right].characters];
+    this.ruleTargets = (rules.killTargets ?? [])
+      .map((id) => all.find((c) => c.id === id))
+      .filter((c): c is Character => !!c);
+    this.state.turnCount ??= { [PlayerSide.Left]: 0, [PlayerSide.Right]: 0 };
+  }
+
+  /** 当前生效的规则（表现层读 HUD：回合上限/击杀目标） */
+  getRules(): Readonly<EngineBattleRules> | null {
+    return this.rules;
+  }
+
+  /** 补充掉落色权重：风暴权重 × 规则基色权重。无规则权重时与 stormDropWeights 完全一致。 */
+  private dropWeights(): Map<BaseColor, number> | undefined {
+    const storm = this.stormDropWeights();
+    const extra = this.rules?.colorWeights;
+    if (!extra || Object.keys(extra).length === 0) return storm;
+    const out = new Map<BaseColor, number>(storm ?? []);
+    for (const [color, w] of Object.entries(extra) as [BaseColor, number][]) {
+      out.set(color, (out.get(color) ?? 1) * Math.max(0, w));
+    }
+    return out;
+  }
+
+  /**
+   * 规则回合开始项（补法力 / 创造宝石），对即将行动方结算。
+   * @returns 是否改动过棋盘（调用方据此补胜负判定）
+   */
+  private applyRuleTurnStart(side: PlayerSide, turnNumber: number, events: GameEvent[]): boolean {
+    const entries = this.rules?.turnStart;
+    if (!entries || entries.length === 0) return false;
+    let boardChanged = false;
+    for (const entry of entries) {
+      if (entry.side !== side || !turnStartDue(entry, turnNumber)) continue;
+      if (entry.mana && entry.mana.amount !== 0) {
+        const { amount, targets, colors } = entry.mana;
+        for (const char of this.state.teams[side].characters) {
+          if (char.defeated) continue;
+          if (targets && !targets.includes(char.id)) continue;
+          if (colors && !char.colors.some((c) => colors.includes(c))) continue;
+          if (amount > 0 && !canGainMana(char)) continue;
+          const actual = grantStat(char, 'mana', amount);
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat: 'mana', amount: actual });
+        }
+      }
+      for (const spec of entry.createGems ?? []) {
+        if (spec.chance !== undefined && spec.chance < 1 && this.rng.next() >= spec.chance) continue;
+        const made = this.spawnSpecialGems(spec.gem.kind, spec.gem.tier, spec.count, undefined, spec.gem.color);
+        if (made.length > 0) { events.push(...made); boardChanged = true; }
+      }
+    }
+    if (boardChanged) this.runCascades(events);
+    return boardChanged;
+  }
+
+  /** 规则击杀目标是否全部阵亡（逃跑不算） */
+  private ruleObjectiveMet(): boolean {
+    return this.ruleTargets.length > 0 && this.ruleTargets.every((c) => c.defeated && !c.fled);
+  }
+
+  /** 判出胜负的统一收尾：首次判定时放大经济池、发 game-over */
+  private declareWinner(winner: PlayerSide, events: GameEvent[], reason?: RuleEndReason): void {
+    if (this.state.winner === null) {
+      const { gold, souls } = this.economyGainRatios;
+      if (gold > 0) this.state.economy.gold = Math.floor(this.state.economy.gold * (1 + gold));
+      if (souls > 0) this.state.economy.souls = Math.floor(this.state.economy.souls * (1 + souls));
+      // PvP 荣耀映射（职业天赋 bloodandglory「PvP 战斗中获得 1 点荣耀」）：本作无
+      // 荣耀币种，设计值映射为黄金按持有者入账（官方单场荣耀个位数，量级一致）。
+      if (this.pvpMode) {
+        for (const char of this.state.teams[PlayerSide.Left].characters) {
+          if (char.defeated) continue;
+          const gain = passivesOf(char).pvpEconomyGain;
+          if (gain && gain.amount > 0) this.creditEconomy(gain.currency, gain.amount);
+        }
+      }
+    }
+    this.state.state = MatchState.GameOver;
+    this.state.winner = winner;
+    events.push(reason ? { type: 'game-over', winner, reason } : { type: 'game-over', winner });
+  }
+
   /** 取出构造阶段的开局事件；只消费一次。 */
   takeInitialEvents(): GameEvent[] {
+    // 规则回合开始项的「我方第 1 回合」：开局没有换手，在首屏事件里结算一次
+    if (this.rules && !this.ruleOpeningApplied) {
+      this.ruleOpeningApplied = true;
+      this.applyRuleTurnStart(this.state.activePlayer, 1, this.initialEvents);
+    }
     if (this.pvpMode && !this.pvpApplied) {
       this.pvpApplied = true;
       // Left attacks; Right defends. Battle bonuses affect the holder on either
@@ -1167,7 +1276,7 @@ export class TurnEngine {
       if (this.checkVictory(events)) return;
 
       // 5. 重力 + 补充（需求 8.1-8.4）；风暴激活时对应色按 STORM_DROP_WEIGHT 加权
-      const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);
+      const result = this.gravity.apply(this.state.board, this.skullChance, this.dropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
       events.push({ type: 'refill', chainCount: chain, spawns: result.spawns });
       this.scatterManaPotionGems(manaPotions, events);
@@ -2054,7 +2163,7 @@ export class TurnEngine {
     }
 
     // 2. 重力 + 补充（风暴激活时对应色加权）
-    const result = this.gravity.apply(this.state.board, this.skullChance, this.stormDropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);
+    const result = this.gravity.apply(this.state.board, this.skullChance, this.dropWeights(), this.stormSkullDrop(), this.comboBias, this.state.actionLog);
     if (result.moves.length > 0 || result.spawns.length > 0) {
       const chain = this.state.chainCount;
       events.push({ type: 'gravity', chainCount: chain, moves: result.moves });
@@ -2524,27 +2633,15 @@ export class TurnEngine {
   private checkVictory(events: GameEvent[]): boolean {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       if (CombatResolver.isWipedOut(this.state.teams[side])) {
-        // 战后经济钩子（merchant/necromancy 族）：只在本场首次判出胜负时放大一次。
-        if (this.state.winner === null) {
-          const { gold, souls } = this.economyGainRatios;
-          if (gold > 0) this.state.economy.gold = Math.floor(this.state.economy.gold * (1 + gold));
-          if (souls > 0) this.state.economy.souls = Math.floor(this.state.economy.souls * (1 + souls));
-          // PvP 荣耀映射（职业天赋 bloodandglory「PvP 战斗中获得 1 点荣耀」）：本作无
-          // 荣耀币种，设计值映射为黄金按持有者入账（官方单场荣耀个位数，量级一致）。
-          if (this.pvpMode) {
-            for (const char of this.state.teams[PlayerSide.Left].characters) {
-              if (char.defeated) continue;
-              const gain = passivesOf(char).pvpEconomyGain;
-              if (gain && gain.amount > 0) this.creditEconomy(gain.currency, gain.amount);
-            }
-          }
-        }
-        const winner = opponentOf(side);
-        this.state.state = MatchState.GameOver;
-        this.state.winner = winner;
-        events.push({ type: 'game-over', winner });
+        // 战后经济钩子（merchant/necromancy 族）：只在本场首次判出胜负时放大一次（declareWinner）。
+        this.declareWinner(opponentOf(side), events);
         return true;
       }
+    }
+    // 规则击杀目标（活动深化批）：指定敌人全部阵亡 → 我方立即获胜
+    if (this.ruleObjectiveMet()) {
+      this.declareWinner(PlayerSide.Left, events, 'objective');
+      return true;
     }
     return false;
   }
@@ -2561,9 +2658,29 @@ export class TurnEngine {
       }
     } else {
       // 交给对手（需求 9.1）
-      const next = opponentOf(this.state.activePlayer);
+      const ended = this.state.activePlayer;
+      const next = opponentOf(ended);
       this.state.activePlayer = next;
       events.push({ type: 'turn-end', nextPlayer: next });
+      // 规则回合计数（活动深化批）：只在有规则时维护，按「该方完成的回合数」计
+      if (this.rules) {
+        const counts = this.state.turnCount ??= { [PlayerSide.Left]: 0, [PlayerSide.Right]: 0 };
+        counts[ended] += 1;
+        const limit = this.rules.turnLimit;
+        if (limit && counts[PlayerSide.Left] >= limit.turns) {
+          // enemyWins：我方第 N 回合结束仍未获胜；playerWins：我方坚守 N 回合且敌方回合也打完
+          if (limit.onExpire === 'enemyWins' && ended === PlayerSide.Left) {
+            this.pendingExtraTurnSource = null;
+            this.declareWinner(PlayerSide.Right, events, 'turn-limit');
+            return;
+          }
+          if (limit.onExpire === 'playerWins' && ended === PlayerSide.Right) {
+            this.pendingExtraTurnSource = null;
+            this.declareWinner(PlayerSide.Left, events, 'turn-limit');
+            return;
+          }
+        }
+      }
     }
     this.pendingExtraTurnSource = null;
     // 额外回合触发特质（特质收尾批：bigteeth 大牙「当盟友获得额外回合时获得 1 点攻击力」/
@@ -2623,6 +2740,13 @@ export class TurnEngine {
       // 不能把现成匹配留在盘面上等下一次行动。
       if (this.applyTurnStartBoardTraits(events)) {
         if (this.checkVictory(events)) return;
+      }
+
+      // 规则回合开始项（活动深化批：自动补法力 / 创造宝石）
+      if (this.rules?.turnStart) {
+        const side = this.state.activePlayer;
+        const turnNumber = (this.state.turnCount?.[side] ?? 0) + 1;
+        if (this.applyRuleTurnStart(side, turnNumber, events) && this.checkVictory(events)) return;
       }
     }
 

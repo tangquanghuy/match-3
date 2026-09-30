@@ -3,7 +3,7 @@ import { COMBO_CLUMP, comboStreakFade, extraTurnStreakOf, hasBigHolePattern, ref
 import type { Gem, CellPos, GemType, BaseColor, ActionLogEntry } from './types';
 import type { SeededRNG } from './rng';
 import { colorGem, specialGem, ALL_BASE_COLORS } from './types';
-import type { SpecialGemKind } from './types';
+import type { SpecialGemKind, SpecialGemSpec } from './types';
 
 /** Storm-color weight is a project tuning value, not an official published drop rate.
  * Within the six-color draw the chosen color gets 1.9 / (5 + 1.9) ~= 27.5%.
@@ -68,6 +68,12 @@ export class GravitySystem {
    * 避免不可匹配的炸弹/许愿淤积棋盘。关闭时不消耗额外随机数，不影响既有确定性。
    */
   specialSpawnChance = 0;
+
+  /**
+   * 自然掉落的特殊宝石加权池（战斗规则 specialDrops，活动深化批）。缺省 null = 旧白名单
+   * 均匀 pick；给出时按 weight 一次 rng.next() 落点取样（与旧路径同样只消耗一个随机数）。
+   */
+  specialPool: readonly { gem: SpecialGemSpec; weight: number }[] | null = null;
 
   /**
    * 可自然掉落的特殊宝石（都是可匹配的）。
@@ -150,6 +156,13 @@ export class GravitySystem {
    * 单列重力（步骤 1-3）：现存宝石保序落到底部，记录移动。
    * @returns 落定后最高的空行号（-1 = 该列已满）
    */
+  /** Shared gravity-only pass. Modes may supply their own refill economy. */
+  settle(board: BoardModel): GemMove[] {
+    const moves: GemMove[] = [];
+    for (let col = 0; col < BoardModel.COLS; col++) this.settleColumn(board, col, moves);
+    return moves;
+  }
+
   private settleColumn(board: BoardModel, col: number, moves: GemMove[]): number {
     // 1. 自底向上收集该列现存宝石（保序），同时记录其原始行号
     const survivors: { gem: Gem; fromRow: number }[] = [];
@@ -235,6 +248,17 @@ export class GravitySystem {
     combo?: ComboContext,
   ): GemType {
     if (this.specialSpawnChance > 0 && this.rng.next() < this.specialSpawnChance) {
+      const pool = this.specialPool;
+      if (pool && pool.length > 0) {
+        const total = pool.reduce((s, p) => s + Math.max(0, p.weight), 0);
+        let roll = this.rng.next() * total;
+        let pick = pool[pool.length - 1]!.gem;
+        for (const p of pool) {
+          roll -= Math.max(0, p.weight);
+          if (roll < 0) { pick = p.gem; break; }
+        }
+        return specialGem(pick.kind, pick.tier, pick.color);
+      }
       return specialGem(this.rng.pick(GravitySystem.SPAWNABLE_SPECIALS));
     }
     // 末日/超级末日风暴：骷髅判定前先掷一次末日骷髅掉落。仅风暴激活时才消耗这次

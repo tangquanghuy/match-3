@@ -68,6 +68,13 @@ export function countCompletedTurns(log: readonly ActionLogEntry[]): number {
   return log.filter((entry) => entry.outcome !== 'extra-turn').length;
 }
 
+function endReasonOf(events: readonly GameEvent[]): { endReason?: BattleResult['endReason'] } {
+  for (const e of events) {
+    if (e.type === 'game-over' && e.reason) return { endReason: e.reason };
+  }
+  return {};
+}
+
 function exportStatuses(statuses: readonly StatusInstance[]): { id: string; turns: number }[] {
   return statuses.map((status) => ({ id: status.id, turns: status.turns }));
 }
@@ -167,7 +174,8 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
       ...(state.economy.maps > 0 ? { maps: state.economy.maps } : {}),
     },
     actionLogDigest: digestString(encodeActionLog(state.actionLog)),
-    ...(events.some(e => e.type === 'game-over' && e.reason === 'surrender') ? { endReason: 'surrender' as const } : {}),
+    ...endReasonOf(events),
+    ...(state.turnCount ? { playerTurns: state.turnCount[PlayerSide.Left] } : {}),
     eventSummary: summarizeEvents(events),
   };
 }

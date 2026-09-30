@@ -176,6 +176,7 @@ export function planEventEncounter(save: MetaSave, weekStart: number, seed: numb
     source: { kind: 'event', weekStart, typeId, choice: planned.choice },
     seed: seed >>> 0,
     enemies: planned.enemies,
+    ...(planned.bonus?.length ? { bonus: planned.bonus } : {}),
   };
 }
 

@@ -8,7 +8,7 @@ import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic, locate, findCharacter, findSide, setLastTarget, effectCasterSide } from './context';
 import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue, isTargetCondition } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
-import { passivesOf, eventDamageMultiplier, isImmuneToStatus } from '../../traits';
+import { passivesOf, eventDamageMultiplier, isImmuneToStatus, strongestTraitActivation } from '../../traits';
 import { consumeBarrier, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
   REFLECT_STATUS_ID, isCursed } from './status';
 import { applyBuffGain } from './buff';
@@ -182,6 +182,8 @@ export function damageOne(
     damage: amount,
     resultingHp: target.hp,
     resultingArmor: target.armor,
+    ...(!ignoreSpellModifiers && amount < Math.round(amplified)
+      ? { traitActivations: strongestTraitActivation(target, 'spellDamageReduction') } : {}),
   };
   if (chain) {
     damageEvent.chainIndex = chain.index;

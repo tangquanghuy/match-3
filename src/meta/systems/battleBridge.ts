@@ -325,3 +325,18 @@ export function buildBattleRequest(save: MetaSave, plan: EncounterPlan): BridgeO
 
   return { ok: true, request, plan, enemyByExternalId, registry };
 }
+
+/**
+ * 活动 modify 之后的复核（活动深化批）：玩法会改写快照、注入特质与战斗规则，
+ * 下发前再过一遍会话校验，坏规则在出战前就失败而不是进场后静默失真。
+ */
+export function revalidateOutcome(outcome: BridgeOutcome): MetaFailure | null {
+  const check = validateBattleRequest(outcome.request, {
+    knownSkillIds: new Set([...outcome.registry.skills.keys(), ...outcome.registry.prototypes.keys()]),
+    knownTraitIds: metaKnownTraitIds(),
+    knownTroopTypes: knownTroopTypes(),
+  });
+  if (check.ok) return null;
+  const first = check.issues[0];
+  return fail('INVALID', `活动战斗请求未过会话校验：${first ? `${first.path} ${first.message}` : '未知问题'}`);
+}

@@ -3,7 +3,7 @@
  *
  * 官方口径（data/banners.ts 头注有完整来源）：
  *  - 加成 = 匹配对应色时该色法力 ±N（每次匹配事件平展；2=++ / 1=+ / -1=惩罚）；
- *  - 解锁 = 该王国任务链 8/8 全通；
+ *  - 解锁 = 对应王国开放；
  *  - 现开赛不吃旗帜（官方「无王国加成」口径，metaArena.test 锁）。
  */
 import { describe, it, expect } from 'vitest';
@@ -26,7 +26,7 @@ import {
   unlockedBanners,
 } from '../../src/meta';
 // 直接取具体模块：QUESTS_PER_KINGDOM/allKingdoms 不经 meta barrel（该 barrel 可能含其他窗口在途文件）
-import { QUESTS_PER_KINGDOM, allKingdoms } from '../../src/meta/data/kingdoms';
+import { QUESTS_PER_KINGDOM, allKingdoms, kingdomUnlockLevel, kingdomsUnlockedAt } from '../../src/meta/data/kingdoms';
 
 // ───────────────────────── 数据表 ─────────────────────────
 
@@ -85,13 +85,28 @@ const saveWithProgress = () => {
   return s;
 };
 
-describe('解锁（任务链 8/8 全通，派生自任务进度）', () => {
-  it('8/8 解锁、7/8 未解锁、无进度未解锁', () => {
-    const s = saveWithProgress();
+describe('解锁（王国开放即解锁，与任务进度无关）', () => {
+  it('初始王国没有任务记录也解锁；未开放王国保持锁定', () => {
+    const s = newSave({ now: 0 });
+    s.kingdoms = {};
     expect(bannerUnlocked(s, '破碎尖塔')).toBe(true);
     expect(bannerUnlocked(s, '卡拉考斯')).toBe(false);
-    expect(bannerUnlocked(s, '冰峰之巅')).toBe(false);
+    expect(bannerUnlocked(s, '亚特兰蒂斯')).toBe(false);
     expect(unlockedBanners(s)).toEqual(['破碎尖塔']);
+  });
+
+  it('达到开放等级即可装备，0/8、7/8、8/8 结果一致', () => {
+    const s = saveWithProgress();
+    s.hero.level = kingdomUnlockLevel('卡拉考斯');
+    for (const questsDone of [0, 7, 8]) {
+      s.kingdoms['卡拉考斯']!.questsDone = questsDone;
+      expect(bannerUnlocked(s, '卡拉考斯')).toBe(true);
+      expect(bannerEquipIssue(s, '卡拉考斯')).toBeNull();
+      expect(equippedBannerOf(s, { bannerKingdomId: '卡拉考斯' })).toEqual(BANNERS['卡拉考斯']);
+    }
+    expect(unlockedBanners(s)).toEqual(Object.keys(BANNERS).filter(k => kingdomsUnlockedAt(s.hero.level).includes(k)));
+    s.hero.level--;
+    expect(bannerUnlocked(s, '卡拉考斯')).toBe(false);
   });
 });
 
@@ -127,6 +142,7 @@ describe('buildBattleRequest 携带 playerBanner', () => {
     s.teams = [
       { name: '先锋队', members: [6000, 6097, 6457].map((troopId) => ({ kind: 'troop' as const, troopId })), bannerKingdomId: '破碎尖塔' },
     ];
+    s.kingdoms['破碎尖塔']!.questsDone = 0;
     const plan = planExploreEncounter('破碎尖塔', 1, 11);
     const outcome = buildBattleRequest(s, plan);
     if (!outcome.ok) throw new Error(outcome.message);

@@ -572,6 +572,9 @@ export class EventStreamPlayer {
       case 'gem-create':
         this.appendGemCreate(tl, ev);
         break;
+      case 'gem-merge':
+        this.appendGemMerge(tl, ev);
+        break;
       case 'gem-transform':
         this.appendGemTransform(tl, ev);
         break;
@@ -716,6 +719,42 @@ export class EventStreamPlayer {
   }
 
   /** 宝石转化：变更精灵纹理并高光脉冲 */
+  private appendGemMerge(tl: gsap.core.Timeline, ev: Extract<GameEvent, { type: 'gem-merge' }>): void {
+    const cfg = AnimConfig.merge;
+    const moving: { sprite: GemSprite; x: number; y: number; to: BoardPoint }[] = [];
+    const progress = { value: 0 };
+    tl.add(() => {
+      this.audio.playChain(ev.chainCount);
+      for (const group of ev.groups) {
+        const to = this.center(group.target.pos);
+        for (const piece of group.consumed) {
+          const sprite = this.board.getSprite(piece.gemId);
+          if (sprite) moving.push({ sprite, x: sprite.x, y: sprite.y, to });
+        }
+      }
+    });
+    tl.to(progress, { value: 1, duration: cfg.gather, ease: cfg.ease, onUpdate: () => {
+      for (const { sprite, x, y, to } of moving) {
+        sprite.position.set(x + (to.x - x) * progress.value, y + (to.y - y) * progress.value);
+        sprite.scale.set(1 - .65 * progress.value);
+        sprite.alpha = 1 - .6 * progress.value;
+      }
+    }});
+    tl.add(() => {
+      for (const group of ev.groups) {
+        for (const piece of group.consumed) this.board.removeGem(piece.gemId);
+        this.board.setGemType(group.target.gemId, group.target.gemType);
+        const point = this.center(group.target.pos);
+        this.fx.burst(point.x, point.y, 0xe9c77c, 1.1);
+      }
+      this.onBattleEvent?.(ev);
+    });
+    const reveal = { value: 0 };
+    tl.to(reveal, { value: 1, duration: cfg.reveal, ease: 'power2.out', onUpdate: () => {
+      for (const group of ev.groups) this.board.getSprite(group.target.gemId)?.scale.set(1 + .16 * Math.sin(reveal.value * Math.PI));
+    }});
+  }
+
   private appendGemTransform(
     tl: gsap.core.Timeline,
     ev: Extract<GameEvent, { type: 'gem-transform' }>,

@@ -183,8 +183,10 @@ describe('B · applyEnemyDeathTriggers 纯函数层', () => {
     expect(holder.maxHp).toBe(50);
     expect(holder.magic).toBe(5);
     expect(events.filter((e) => e.type === 'buff' && e.targetId === 2)).toEqual([
-      { type: 'buff', source: 'trait', targetId: 2, stat: 'hp', amount: 5 },
-      { type: 'buff', source: 'trait', targetId: 2, stat: 'magic', amount: 5 },
+      { type: 'buff', source: 'trait', targetId: 2, stat: 'hp', amount: 5,
+        traitActivations: [{ characterId: 1, traitId: 'lordofdeath', name: '死亡领主' }] },
+      { type: 'buff', source: 'trait', targetId: 2, stat: 'magic', amount: 5,
+        traitActivations: [{ characterId: 1, traitId: 'lordofdeath', name: '死亡领主' }] },
     ]);
   });
 

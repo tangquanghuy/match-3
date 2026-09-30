@@ -13,6 +13,8 @@ export interface BattleControlsGeometry {
   avoid: readonly DOMRect[];
   boardTop: number;
   boardRight: number;
+  /** 竖屏顶栏：给定时一行排在该高度（视口坐标），不再从棋盘上沿反推 */
+  rowTop?: number;
 }
 
 const BUTTON_SIZE = 44;
@@ -91,18 +93,19 @@ export class BattleControls {
       el.style.right = '';
     }
     const clear = () => group.every((el) => !geometry.avoid.some((area) => intersects(el.getBoundingClientRect(), area)));
-    if (clear()) {
+    // 竖屏顶栏（给了 rowTop）固定排成一行，不走右上竖排
+    if (geometry.rowTop === undefined && clear()) {
       this.speedButton.dataset.layout = 'stack';
       return;
     }
     const parent = (this.speedButton.offsetParent ?? document.documentElement).getBoundingClientRect();
-    const top = Math.max(4, Math.min(12, geometry.boardTop - BUTTON_SIZE - 4));
+    const top = geometry.rowTop ?? Math.max(4, Math.min(12, geometry.boardTop - BUTTON_SIZE - 4));
     group.forEach((el, index) => {
       const right = geometry.boardRight - 4 - index * (BUTTON_SIZE + BUTTON_GAP);
       el.style.top = `${top - parent.top}px`;
       el.style.right = `${parent.right - right}px`;
     });
-    if (clear()) {
+    if (geometry.rowTop !== undefined || clear()) {
       this.speedButton.dataset.layout = 'row';
       return;
     }

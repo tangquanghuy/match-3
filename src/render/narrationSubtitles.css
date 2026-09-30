@@ -25,6 +25,10 @@
 body:has(.result-screen):not(:has(#battle-root:not([hidden]))) .narration-subtitles {
   bottom: calc(94px + env(safe-area-inset-bottom, 0px));
 }
+/* 竖屏战斗：底边是我方卡行，字幕抬到卡行上方（压在棋盘底部），不遮攻防血数值 */
+html[data-battle-layout="portrait"] .narration-subtitles {
+  bottom: var(--battle-subtitle-bottom, calc(16px + env(safe-area-inset-bottom, 0px))) !important;
+}
 @media (max-width: 600px), (max-height: 500px) {
   .narration-subtitles {
     max-width: calc(100vw - 24px);

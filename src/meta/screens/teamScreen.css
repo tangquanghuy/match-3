@@ -186,3 +186,73 @@
   #stage.team-responsive .team-screen .drag-hint { display: none; }
   #stage.team-responsive .team-screen .gauge-kbonus { margin-left: 0; }
 }
+
+/* 旗帜选择在视口顶层展示，不随编队画布缩放。 */
+.banner-veil { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 24px; background: #05060bd9; backdrop-filter: blur(8px); }
+.banner-veil .banner-picker { width: min(1080px, 100%); max-height: min(860px, calc(100dvh - 48px)); color: #e7dcc4; font-family: var(--body, sans-serif); border-radius: 12px; overflow: hidden; }
+.banner-veil .banner-picker-head { flex-wrap: wrap; gap: 12px 24px; padding: 24px 28px 18px; }
+.banner-veil .banner-picker-head > div { display: flex; align-items: baseline; gap: 16px; }
+.banner-veil .banner-picker-head b { font-size: 28px; letter-spacing: 2px; }
+.banner-count { color: #bbae96; font-size: 14px; }
+.banner-veil .banner-used { margin: 0 44px 0 auto; color: #d2c6ae; font-size: 14px; line-height: 1.6; }
+.banner-veil .sheet-close { width: 44px; height: 44px; top: 14px; right: 14px; }
+.banner-veil .banner-picker-note { margin: 0; padding: 16px 28px 0; color: #c4b8a7; font-size: 15px; line-height: 1.65; }
+.banner-search { display: flex; align-items: center; gap: 10px; margin: 16px 28px; padding: 0 14px; min-height: 48px; border: 1px solid #74613f; border-radius: 6px; background: #0e0d16; }
+.banner-search [data-icon] { width: 20px; height: 20px; color: #c1aa78; flex: none; }
+.banner-search input { width: 100%; min-width: 0; padding: 12px 0; border: 0; outline: 0; background: transparent; color: #f1e6cd; font: 16px var(--body, sans-serif); }
+.banner-search:focus-within { border-color: #ecd09b; box-shadow: 0 0 0 2px #ecd09b22; }
+.banner-search input::placeholder { color: #9c9385; }
+.banner-veil .banner-picker-list { padding: 0 28px 24px; gap: 12px; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.banner-veil .banner-group { margin: 0; padding: 0 0 2px; font-size: 14px; color: #d2bf99; letter-spacing: 1px; }
+.banner-veil .banner-opt { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: auto auto auto; gap: 8px 18px; min-height: 138px; padding: 18px; border-radius: 8px; border-color: #554536; }
+.banner-veil .banner-opt-art { grid-column: 1; grid-row: 1 / 4; justify-self: center; --kb-h: 100px; }
+.banner-veil .banner-opt-name, .banner-veil .banner-opt-boosts, .banner-veil .banner-hit, .banner-veil .banner-lock { grid-column: 2; }
+.banner-veil .banner-opt-name { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.banner-veil .banner-opt-name b { font-size: 20px; line-height: 1.35; }
+.banner-veil .banner-opt-name small { font-size: 12px; color: #baa98a; }
+.banner-veil .banner-opt.on { background: #312819; border-color: #edcf8c; box-shadow: inset 3px 0 #edcf8c; }
+.banner-veil .banner-opt.on .banner-opt-name small { color: #f4d68c; }
+.banner-veil .banner-opt-boosts { gap: 8px; flex-wrap: wrap; }
+.banner-veil .banner-gem { gap: 4px; padding: 4px 7px; border-radius: 4px; background: #08081270; font-size: 15px; }
+.banner-veil .banner-gem svg { width: 20px; height: 20px; }
+.banner-veil .banner-hit, .banner-veil .banner-lock { font-size: 13px; line-height: 1.5; white-space: normal; }
+.banner-veil .banner-hit.neutral { color: #b2a590; }
+.banner-veil .banner-opt.locked { opacity: .65; }
+.banner-veil .banner-opt[data-banner=""] { min-height: 70px; grid-column: 1 / -1; display: flex; }
+.banner-veil .banner-locked-group[open] { gap: 12px; }
+.banner-veil .banner-locked-group summary { min-height: 48px; padding: 14px 2px; font-size: 15px; color: #c6b8a0; }
+.banner-veil .banner-empty { grid-column: 1 / -1; margin: 20px 0; color: #bdae95; text-align: center; font-size: 16px; }
+.banner-veil [hidden] { display: none !important; }
+.banner-veil button:focus-visible, .banner-veil summary:focus-visible { outline: 2px solid #f4d68c; outline-offset: 2px; }
+@media (max-width: 700px) {
+  .banner-veil { padding: 12px; }
+  .banner-veil .banner-picker { max-height: calc(100dvh - 24px); }
+  .banner-veil .banner-picker-head { padding: 20px 18px 14px; gap: 8px; }
+  .banner-veil .banner-picker-head > div { padding-right: 38px; gap: 10px; }
+  .banner-veil .banner-picker-head b { font-size: 24px; }
+  .banner-veil .banner-used { width: 100%; margin: 0; font-size: 13px; }
+  .banner-veil .banner-picker-note { padding: 12px 18px 0; font-size: 14px; }
+  .banner-search { margin: 12px 18px; }
+  .banner-veil .banner-picker-list, .banner-veil .banner-locked-group[open] { grid-template-columns: 1fr; }
+  .banner-veil .banner-picker-list { padding: 0 14px 18px; gap: 10px; }
+  .banner-veil .banner-opt { grid-template-columns: 50px minmax(0, 1fr); gap: 8px 12px; padding: 14px 12px; }
+  .banner-veil .banner-opt-name b { font-size: 18px; }
+  .banner-veil .banner-gem { padding: 4px 5px; font-size: 14px; }
+  .banner-veil .banner-opt-boosts { gap: 5px; }
+}
+
+@media (max-height: 500px) {
+  .banner-veil { padding: 12px; }
+  .banner-veil .banner-picker { max-height: calc(100dvh - 24px); }
+  .banner-veil .banner-picker-head { padding: 12px 20px; }
+  .banner-veil .banner-picker-head b { font-size: 22px; }
+  .banner-veil .sheet-close { top: 8px; right: 12px; width: 36px; height: 36px; }
+  .banner-veil .banner-picker-note { padding: 8px 20px 0; font-size: 13px; }
+  .banner-veil .banner-search { margin: 8px 20px; min-height: 38px; }
+  .banner-veil .banner-search input { padding: 8px 0; }
+  .banner-veil .banner-picker-list { padding: 0 20px 12px; gap: 8px; }
+  .banner-veil .banner-opt { min-height: 112px; padding: 12px; gap: 5px 12px; }
+  .banner-veil .banner-opt-art { --kb-h: 80px; }
+  .banner-veil .banner-opt-name b { font-size: 18px; }
+  .banner-veil .banner-opt[data-banner=""] { min-height: 44px; padding: 10px 12px; }
+}

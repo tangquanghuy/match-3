@@ -11,7 +11,7 @@
  * 结算时机由 TurnEngine 在固定时机（对即将行动方角色）调用 tickStatuses，保证确定性（需求 9.4）。
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isImmuneToStatus, passivesOf } from '../../traits';
+import { isImmuneToStatus, passivesOf, traitActivations } from '../../traits';
 import { applyTransformTemplate } from './summon';
 import type { SummonTemplate } from './summon';
 // 治疗修正定义在 engine/healing.ts（特质模块也要用，放这里会形成循环 import）；
@@ -376,7 +376,7 @@ export function applyStatus(
   // exception; its trait id is retained on Character for this distinction.
   const invulnerable = char.traitIds?.includes('invulnerable') ?? false;
   if (isImmuneToStatus(char, status.id) && (invulnerable || (!isCursed(char) && !isStunned(char) && !CURSE_STATUS_IDS.has(status.id)))) {
-    return [{ type: 'status-blocked', targetId: char.id, statusId: status.id, reason: 'immune' }];
+    return [{ type: 'status-blocked', targetId: char.id, statusId: status.id, reason: 'immune', traitActivations: traitActivations(char, def => !!def.statusImmunities?.some(id => id === '*' || id === status.id)) }];
   }
 
   const cancelledByOpposite = (CURSE_STATUS_IDS.has(status.id) && char.statuses.some(s => BLESS_STATUS_IDS.has(s.id) && s.turns > 0))

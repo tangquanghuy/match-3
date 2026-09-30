@@ -103,23 +103,58 @@ async function readLayout(page: Page) {
   });
 }
 
-test('portrait waits behind the gate, then landscape initializes once and restores after rotation', async ({ page }) => {
+test('portrait starts in the portrait layout: enemy row, board, ally row fit the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
+  await waitForBattle(page);
+  await expect(page.locator('#orientation-gate')).toBeHidden();
+  await expect(page.locator('canvas')).toHaveCount(1);
 
-  await expect(page.locator('#app')).toHaveAttribute('data-viewport-blocked', 'true');
-  await expect(page.locator('#orientation-gate')).toBeVisible();
-  await expect(page.locator('canvas')).toHaveCount(0);
+  const layout = await page.evaluate(() => {
+    const app = (window as unknown as { __app: { isPortraitLayout(): boolean } }).__app;
+    const rects = (sel: string) => [...document.querySelectorAll<HTMLElement>(sel)].map((el) => el.getBoundingClientRect());
+    const enemy = rects('.gcard.enemy');
+    const ally = rects('.gcard.ally');
+    const hud = document.querySelector<HTMLElement>('.turn-hud')!.getBoundingClientRect();
+    const controls = rects('.battle-settings-button,.battle-control-button,[data-testid="fullscreen-button"]');
+    return {
+      portrait: app.isPortraitLayout(),
+      enemyBottom: Math.max(...enemy.map((r) => r.bottom)),
+      allyTop: Math.min(...ally.map((r) => r.top)),
+      allyBottom: Math.max(...ally.map((r) => r.bottom)),
+      hudTop: hud.top,
+      hudBottom: hud.bottom,
+      controlsBottom: Math.max(...controls.map((r) => r.bottom)),
+      enemyTop: Math.min(...enemy.map((r) => r.top)),
+      cardW: ally[0]!.width,
+      cardH: ally[0]!.height,
+      vh: window.innerHeight,
+    };
+  });
+  expect(layout.portrait).toBe(true);
+  // 顶栏在敌方行之上，横幅夹在敌方行与我方行之间，我方行不越出视口
+  expect(layout.controlsBottom).toBeLessThanOrEqual(layout.enemyTop + 1);
+  expect(layout.hudTop).toBeGreaterThanOrEqual(layout.enemyBottom - 1);
+  expect(layout.hudBottom).toBeLessThan(layout.allyTop);
+  expect(layout.allyBottom).toBeLessThanOrEqual(layout.vh);
+  // 立绘统一纵向裁切：卡片不高于 1.4 倍卡宽
+  expect(layout.cardH / layout.cardW).toBeLessThanOrEqual(1.41);
+  await expect.poll(() => page.evaluate(() => {
+    const app = (window as unknown as MobileDebugWindow).__app;
+    return { input: app.input.enabled };
+  })).toEqual({ input: true });
+});
+
+test('too-small viewports wait behind the gate, then restore', async ({ page }) => {
+  await page.goto('/');
   await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /viewport-fit=cover/);
-
-  await page.setViewportSize({ width: 844, height: 390 });
   await waitForBattle(page);
   await expect.poll(() => page.evaluate(() => {
     const app = (window as unknown as MobileDebugWindow).__app;
-    return { input: app.input.enabled, resolution: app.app.renderer.resolution };
-  })).toEqual({ input: true, resolution: 2 });
+    return { input: app.input.enabled };
+  })).toEqual({ input: true });
 
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 600, height: 340 });
   await expect(page.locator('#app')).toHaveAttribute('data-viewport-blocked', 'true');
   await expect(page.locator('#orientation-gate')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {

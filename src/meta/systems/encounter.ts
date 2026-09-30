@@ -23,6 +23,7 @@ import {
   questEnemyLevel,
 } from '../data/kingdoms';
 import type { MetaSave } from '../state/schema';
+import type { BattleBonusSpec } from './battleBonus';
 
 export type EnemyTier = 'minion' | 'elite' | 'boss';
 
@@ -48,6 +49,8 @@ export interface EncounterPlan {
   source: EncounterSource;
   seed: number;
   enemies: EncounterEnemy[];
+  /** 通用额外奖励声明（battleBonus.ts）；结算统一发放，结算页并列展示 */
+  bonus?: BattleBonusSpec[];
 }
 
 /** 任务链线性推进：只能打「下一关」（重打刷材料走探索模式） */

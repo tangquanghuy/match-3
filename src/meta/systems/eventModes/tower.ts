@@ -20,10 +20,9 @@ import {
   TOWER_AFFIXES, TOWER_BLESSINGS, TOWER_EVENTS, TOWER_LANES, TOWER_RELICS, TOWER_RUNES, TOWER_STORM_RELICS, TOWER_TUNING, TOWER_ZONES,
   isCurse, relicById, type RelicTraitRef, type TowerAffix, type TowerBlessingId, type TowerNodeKind, type TowerRuneId,
 } from '../../data/towerData';
-import { towerTraitName } from '../../data/towerTraits';
+import '../../data/towerTraits';
 import { BaseColor } from '../../../engine/types';
 import type { SeededRNG } from '../../../engine/rng';
-import type { CombatantSnapshot } from '../../../session/contract';
 import { fail, type MetaFailure } from '../../types';
 import { earn, earnMaterials } from '../wallet';
 import { buildPlayerSnapshots, type BridgeOutcome } from '../battleBridge';
@@ -31,7 +30,7 @@ import { pickEnemies, type EnemyTier } from '../encounter';
 import { activeTeam } from '../teamRules';
 import type { EventWeekState } from '../../state/schema';
 import {
-  EVENT_BASE_LEVEL, addBanner, addMastery, buffSnapshot, int, isObj, pickN, rngOf, str, strArr,
+  EVENT_BASE_LEVEL, addBanner, addMastery, buffSnapshot, injectTraits, int, isObj, pickN, rngOf, str, strArr,
   type EventActionResult, type EventModeImpl, type EventProgressLine, type ModeCtx, type ModePlan,
 } from './common';
 
@@ -360,25 +359,6 @@ export function towerBannerTotals(run: TowerRun): ColorBoosts {
     for (const [c, n] of Object.entries(relicById(id)?.effect?.banner ?? {}) as [BaseColor, number][]) out[c] = (out[c] ?? 0) + n;
   }
   return out;
-}
-
-/** 把动态特质挂到快照：lead = 第一名存活成员，all = 每名成员；同 code 不重复挂 */
-function injectTraits(snaps: CombatantSnapshot[], refs: readonly RelicTraitRef[]): void {
-  if (snaps.length === 0 || refs.length === 0) return;
-  for (const snap of snaps) {
-    // 卡面展示清单先锁住原特质，避免遗物 code 挤占卡面三格
-    if (!snap.displayTraitIds) snap.displayTraitIds = [...(snap.traitIds ?? [])];
-  }
-  for (const ref of refs) {
-    const targets = ref.on === 'lead' ? [snaps[0]!] : snaps;
-    for (const snap of targets) {
-      const ids = snap.traitIds ?? [];
-      if (ids.includes(ref.code)) continue;
-      snap.traitIds = [...ids, ref.code];
-      const name = towerTraitName(ref.code);
-      if (name) snap.traitNames = { ...(snap.traitNames ?? {}), [ref.code]: name };
-    }
-  }
 }
 
 /** 本轮全部遗物 + 永久加成 + 节点词缀 → 战斗快照 */

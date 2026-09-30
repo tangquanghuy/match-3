@@ -91,6 +91,9 @@ export class BattleLauncher {
   }
 
   private async launch(pending: Promise<BattleTicket | MetaFailure>): Promise<void> {
+    // 触屏设备：借「出战」这次点击的用户手势自动进全屏（浏览器只允许手势内请求）。
+    // 必须在任何 await 之前调用；iPhone Safari 不支持网页全屏，此时静默跳过。
+    enterTouchFullscreen();
     const ticket = await pending;
     if (isFailure(ticket)) {
       toast(ticket.message);
@@ -183,4 +186,13 @@ export class BattleLauncher {
       shopHash: source.kind === 'event' ? `#shop/${source.typeId}` : undefined,
     });
   }
+}
+
+/** 触屏（粗指针）设备上请求整页全屏；已全屏、不支持或被拒绝时什么也不做 */
+function enterTouchFullscreen(): void {
+  if (typeof document === 'undefined' || document.fullscreenElement) return;
+  if (!window.matchMedia?.('(pointer: coarse)').matches) return;
+  const root = document.documentElement;
+  if (typeof root.requestFullscreen !== 'function') return;
+  root.requestFullscreen({ navigationUI: 'hide' }).catch(() => { /* 用户/浏览器拒绝：保持窗口模式 */ });
 }

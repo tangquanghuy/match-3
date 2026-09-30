@@ -173,7 +173,9 @@ describe('回合开始范围光环（turnStartTypeAura）', () => {
       { type: 'buff', source: 'trait', targetId: 1, stat: 'armor', amount: 0 },
       { type: 'buff', source: 'trait', targetId: 1, stat: 'attack', amount: 1 },
       { type: 'buff', source: 'trait', targetId: 1, stat: 'magic', amount: 1 },
-    ].filter((e: { amount: number }) => e.amount !== 0));
+    ].filter((e: { amount: number }) => e.amount !== 0).map(e => ({ ...e,
+      traitActivations: [{ characterId: 0, traitId: 'feralinspiration', name: '野性灵感' }],
+    })));
     // 第二回合再叠一次
     applyTurnStartPassives([holder, beast, other]);
     expect(beast.attack).toBe(7);

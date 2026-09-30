@@ -34,6 +34,7 @@ const iconPaths: Record<string, string> = {
   bag: '<path d="M8 8V6a4 4 0 018 0v2M5 8h14l-1 13H6zM9 12h6"/>',
   skull: '<path d="M8 20h8M9 17v3m6-3v3M7 10a5 5 0 0110 0c0 3-2 5-2 7H9c0-2-2-4-2-7zM9 11h.01M15 11h.01"/>',
   ticket: '<path d="M3 8h18v3a2 2 0 010 4v3H3v-3a2 2 0 010-4V8zm6-1v12"/>',
+  search: '<circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
 };
 
@@ -78,10 +79,11 @@ export function fitStage(): void {
     ['hero-responsive', '.hero-screen'],
     ['result-responsive', '.result-screen'],
     ['quest-responsive', '.quest-screen'],
+    ['hunt-responsive', '.hunt-screen'],
   ] as const;
   let responsive = false;
   for (const [className, selector] of responsiveScreens) {
-    const active = nativeSize && !!stage.querySelector(selector);
+    const active = (nativeSize || className === 'hunt-responsive') && !!stage.querySelector(selector);
     stage.classList.toggle(className, active);
     responsive ||= active;
   }

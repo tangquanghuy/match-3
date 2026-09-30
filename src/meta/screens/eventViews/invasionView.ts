@@ -1,12 +1,15 @@
 /** 入侵视图：三路兵线地图（左侧来敌，右侧王都）+ 截击面板 */
 import { getTroopById } from '../../../data/troops';
 import {
-  INVASION_CITY_MAX, INVASION_LANES, INVASION_MAX_DIST, SQUAD_INFO, invasionSquadLevel, squadInspired,
-  type InvasionState, type Squad,
+  DEFENSES, INVASION_CITY_MAX, INVASION_HOLD_TURNS, INVASION_LANES, INVASION_MAX_DIST, SQUAD_INFO, SQUAD_TRAIT_DESC,
+  invasionSquadLevel, squadHoldable, squadInspired, type DefenseId, type InvasionState, type Squad, type SquadKind,
 } from '../../systems/eventModes/invasion';
 import { troopImg } from '../teamScreen';
 import { cssUrlVar, eventArt } from '../../shell/artAssets';
-import { artImg, esc, fightButton, type ViewCtx } from './shared';
+import { actButton, esc, fightButton, iconImg, type ViewCtx } from './shared';
+
+const KIND_ICON: Record<SquadKind, string> = { raider: 'squad-raider', siege: 'squad-siege', warlord: 'squad-warlord', shaman: 'gem:status/curseGem', caravan: 'troop:6673' };
+const squadIcon = (s: { kind: SquadKind; troops: number[] }): string => s.kind === 'shaman' || s.kind === 'caravan' ? `troop:${s.troops[s.kind === 'caravan' ? 1 : 0] ?? 0}` : KIND_ICON[s.kind];
 
 const LANE_Y = [20, 50, 80];
 const CITY = { x: 90, y: 50 };
@@ -31,12 +34,24 @@ function squadDetail(v: ViewCtx, state: InvasionState, squad: Squad | undefined)
   ].join('');
   const faces = squad.troops.map((id) => { const t = getTroopById(id); return `<figure>${troopImg(t ?? null, false, 'alt=""')}<figcaption>${esc(t?.name ?? '')}</figcaption></figure>`; }).join('');
   return `<div class="iv-detail">
-      <header>${artImg(`squad-${squad.kind}`, 'iv-detail-img')}<div><b>${info.name} · ${INVASION_LANES[squad.lane]}</b><span>距王都 ${squad.dist} 步 · 敌人 Lv.${invasionSquadLevel(state.wave, squad.kind)}</span></div></header>
+      <header>${iconImg(squadIcon(squad), 'iv-detail-img')}<div><b>${info.name} · ${INVASION_LANES[squad.lane]}</b><span>距王都 ${squad.dist} 步 · 敌人 Lv.${invasionSquadLevel(state.wave, squad.kind)}</span></div></header>
       <p class="iv-detail-desc">${info.desc}</p>
       <div class="iv-faces">${faces}</div>
+      ${SQUAD_TRAIT_DESC[squad.kind] ? `<p class="iv-trait"><b>兵团特性</b> ${esc(SQUAD_TRAIT_DESC[squad.kind]!)}</p>` : ''}
       <div class="iv-tags">${tags}</div>
-      ${fightButton(v, `squad:${squad.id}`)}
+      ${fightButton(v, `squad:${squad.id}`, squad.kind === 'caravan' ? '截住辎重队' : v.fightLabel)}
+      ${squadHoldable(squad) ? `<div class="iv-hold"><p>城门坚守：撑过 ${INVASION_HOLD_TURNS} 个我方回合即胜，兵团被击退回 ${INVASION_MAX_DIST} 步外（不歼灭）</p>${fightButton(v, `hold:${squad.id}`, '城门坚守')}</div>` : ''}
     </div>`;
+}
+
+function defenseHtml(state: InvasionState): string {
+  const rows = (Object.keys(DEFENSES) as DefenseId[]).map((id) => {
+    const d = DEFENSES[id];
+    const built = state.built.includes(id);
+    return `<li class="${built ? 'built' : ''}">${iconImg(d.icon, 'iv-def-ico')}<div><b>${esc(d.name)}</b><small>${esc(d.desc)}</small></div>
+        ${built ? '<em>已建成</em>' : actButton(`${d.cost} 点`, `build:${id}`, { disabled: state.defense < d.cost, title: `建造${d.name}` })}</li>`;
+  }).join('');
+  return `<div class="iv-defense"><h4>城防建设 <small>城防点 <b>${state.defense}</b> · 每胜 +1，守土 +2</small></h4><ul>${rows}</ul></div>`;
 }
 
 export function invasionViewHtml(v: ViewCtx, state: InvasionState): string {
@@ -60,11 +75,11 @@ export function invasionViewHtml(v: ViewCtx, state: InvasionState): string {
     const sel = selected?.id === s.id ? ' selected' : '';
     const label = `${SQUAD_INFO[s.kind].name} · ${INVASION_LANES[s.lane]} · 距王都 ${s.dist} 步`;
     return `<button type="button" class="iv-squad ${s.kind}${sel}${s.dist <= 1 ? ' danger' : ''}" style="left:calc(${p.x}% + ${k * 30}px);top:calc(${p.y}% - ${k * 44}px)" data-select="squad:${s.id}" title="${esc(label)}" aria-label="${esc(label)}">
-        ${artImg(`squad-${s.kind}`, 'iv-squad-img')}<b>${s.dist}</b></button>`;
+        ${iconImg(squadIcon(s), 'iv-squad-img')}<b>${s.dist}</b></button>`;
   }).join('');
   const hearts = Array.from({ length: INVASION_CITY_MAX }, (_, i) => `<i class="${i < state.city ? 'on' : ''}"></i>`).join('');
   const legend = (Object.keys(SQUAD_INFO) as (keyof typeof SQUAD_INFO)[]).map((k) =>
-    `<li>${artImg(`squad-${k}`, 'iv-legend-img')}<b>${SQUAD_INFO[k].name}</b><span>${SQUAD_INFO[k].desc}</span></li>`).join('');
+    `<li>${iconImg(KIND_ICON[k], 'iv-legend-img')}<b>${SQUAD_INFO[k].name}</b><span>${SQUAD_INFO[k].desc}</span></li>`).join('');
   return `<div class="evm evm-invasion">
       <section class="iv-map" style='${cssUrlVar('iv-bg', eventArt('bg-invasion'))}'>
         <header class="iv-hud"><b>第 ${state.wave} 波</b><span>敌军 ${state.squads.length} 支</span><span>已守土 ${state.repelled} 次${state.fallen ? ` · 城破 ${state.fallen}` : ''}</span></header>
@@ -74,6 +89,7 @@ export function invasionViewHtml(v: ViewCtx, state: InvasionState): string {
       </section>
       <aside class="iv-side">
         ${squadDetail(v, state, selected)}
+        ${defenseHtml(state)}
         <ul class="iv-legend">${legend}</ul>
       </aside>
     </div>`;

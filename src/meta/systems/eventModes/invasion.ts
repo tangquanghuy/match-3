@@ -18,12 +18,13 @@ import type { MaterialDelta } from '../../data/materials';
 import { fail } from '../../types';
 import { earn, earnMaterials } from '../wallet';
 import { pickEnemies, type EnemyTier, type EncounterEnemy } from '../encounter';
+import { SPECIAL_INFO, applySpecialEncounter, specialEncounterPlan } from '../specialEncounters';
 import {
-  EVENT_BASE_LEVEL, EVENT_POINTS_CAP, buffSnapshot, int, isObj, pickN, rngOf,
+  EVENT_BASE_LEVEL, EVENT_POINTS_CAP, addRules, buffSnapshot, injectTraits, int, isObj, pickN, rngOf, strArr,
   type EventModeImpl, type EventProgressLine, type ModeCtx,
 } from './common';
 
-export type SquadKind = 'raider' | 'siege' | 'warlord';
+export type SquadKind = 'raider' | 'siege' | 'warlord' | 'shaman' | 'caravan';
 
 export interface Squad {
   id: number;
@@ -44,7 +45,24 @@ export interface InvasionState {
   tick: number;
   repelled: number;
   fallen: number;
+  /** 城防点（每胜 +1，守土 +2） */
+  defense: number;
+  /** 已建城防（本周永久） */
+  built: DefenseId[];
 }
+
+export type DefenseId = 'arrow' | 'oil' | 'catapult' | 'wall' | 'chapel';
+
+export const DEFENSES: Record<DefenseId, { name: string; desc: string; cost: number; icon: string }> = {
+  arrow: { name: '箭塔', desc: '开局冻结第一名敌人 3 回合', cost: 2, icon: 'status:frozen' },
+  oil: { name: '油锅', desc: '开局把 3 颗红色宝石变成燃烧宝石', cost: 2, icon: 'gem:status/burningGem' },
+  catapult: { name: '投石机', desc: '开局把 2 颗棕色宝石变成炸弹', cost: 2, icon: 'gem:special/bomb' },
+  wall: { name: '城墙', desc: '全队护甲 +6', cost: 3, icon: 'relic-iron_bulwark' },
+  chapel: { name: '圣堂', desc: '回合开始 20% 几率创造屏障宝石', cost: 3, icon: 'gem:status/barrierGem' },
+};
+
+/** 城门坚守的回合数 */
+export const INVASION_HOLD_TURNS = 7;
 
 export const INVASION_LANES = ['山道', '河谷', '平原'] as const;
 export const INVASION_CITY_MAX = 3;
@@ -54,7 +72,29 @@ export const SQUAD_INFO: Record<SquadKind, { name: string; desc: string; damage:
   raider: { name: '掠袭骑', desc: '每场推进 1 步，抵达王都城防 -1', damage: 1, tiers: ['minion', 'minion', 'minion'], levelBonus: 0 },
   siege: { name: '攻城锤', desc: '每两场推进 1 步，抵达王都城防 -2', damage: 2, tiers: ['elite', 'elite', 'minion'], levelBonus: 2 },
   warlord: { name: '督军', desc: '每场推进 1 步，同路兵团攻击 +15%，抵达王都城防 -2', damage: 2, tiers: ['boss', 'elite', 'minion'], levelBonus: 4 },
+  shaman: { name: '萨满团', desc: '每场推进 1 步，每回合为全队补 2 法力并制造诅咒宝石，抵达王都城防 -1', damage: 1, tiers: ['elite', 'minion', 'minion'], levelBonus: 1 },
+  caravan: { name: '辎重队', desc: '满载宝物的地精车队，两步后离开地图——截住它！', damage: 0, tiers: ['minion', 'elite', 'elite'], levelBonus: 0 },
 };
+
+/** 兵团特质（敌方）：lead = 队首，all = 全员 */
+const SQUAD_TRAITS: Partial<Record<SquadKind, { code: string; on: 'lead' | 'all' }[]>> = {
+  raider: [{ code: 'ev_inv_raider', on: 'all' }],
+  siege: [{ code: 'ev_inv_ram', on: 'all' }],
+  warlord: [{ code: 'ev_inv_warlord', on: 'lead' }],
+  shaman: [{ code: 'ev_inv_shaman', on: 'lead' }],
+};
+
+export const SQUAD_TRAIT_DESC: Partial<Record<SquadKind, string>> = {
+  raider: '15% 闪避骷髅',
+  siege: '骷髅伤害 -20%，身亡留下 2 颗炸弹',
+  warlord: '开局屏障，盟友身亡时攻击 +3',
+  shaman: '每回合全队 +2 法力，35% 制造诅咒宝石',
+  caravan: SPECIAL_INFO.gnomeParty.blurb,
+};
+
+function caravanPlan(ctx: ModeCtx, state: InvasionState, squad: { id: number }) {
+  return specialEncounterPlan('gnomeParty', kingdomOf(ctx), invasionSquadLevel(state.wave, 'caravan'), rngOf(fnv1a32(`inv-caravan-${ctx.weekStart}-${squad.id}`)), state.wave >= 3 ? 1 : 0);
+}
 
 /** 第 wave 波的兵团编成 */
 function waveComposition(wave: number): SquadKind[] {
@@ -82,19 +122,37 @@ function spawnWave(ctx: ModeCtx, state: InvasionState): void {
   // 三路轮流分配（每 3 支一轮随机排列），兵力摊开到三条路上
   const lanes: number[] = [];
   while (lanes.length < kinds.length) lanes.push(...pickN(rng, [0, 1, 2], 3));
+  // 第 2 波起：萨满团替换一支掠袭骑；50% 出现辎重队
+  if (state.wave >= 2) {
+    const r = kinds.indexOf('raider');
+    if (r >= 0 && rng.next() < 0.6) kinds[r] = 'shaman';
+    if (rng.next() < 0.5) kinds.push('caravan');
+  }
+  while (lanes.length < kinds.length) lanes.push(...pickN(rng, [0, 1, 2], 3));
   state.squads = kinds.map((kind, i) => {
     const lane = lanes[i]!;
-    const dist = kind === 'raider' ? 3 : INVASION_MAX_DIST;
-    const troops = pickEnemies(kingdom, invasionSquadLevel(state.wave, kind), SQUAD_INFO[kind].tiers, rng).map((e) => e.troopId);
-    return { id: state.nextId++, lane, dist, kind, troops };
+    const dist = kind === 'raider' || kind === 'shaman' ? 3 : kind === 'caravan' ? 2 : INVASION_MAX_DIST;
+    const id = state.nextId++;
+    const troops = kind === 'caravan'
+      ? caravanPlan(ctx, state, { id }).enemies.map((e) => e.troopId)
+      : pickEnemies(kingdom, invasionSquadLevel(state.wave, kind), SQUAD_INFO[kind].tiers, rng).map((e) => e.troopId);
+    return { id, lane, dist, kind, troops };
   });
   state.tick = 0;
   state.city = INVASION_CITY_MAX;
 }
 
 function squadOf(state: InvasionState, action: string | undefined): Squad | undefined {
-  const m = action?.match(/^squad:(\d+)$/);
+  const m = action?.match(/^(?:squad|hold):(\d+)$/);
   return m ? state.squads.find((s) => s.id === Number(m[1])) : undefined;
+}
+
+const isHold = (action: string | undefined): boolean => !!action?.startsWith('hold:');
+const isDefense = (v: unknown): v is DefenseId => typeof v === 'string' && v in DEFENSES;
+
+/** 该兵团可以城门坚守（兵临城下、非辎重队） */
+export function squadHoldable(squad: Squad): boolean {
+  return squad.dist <= 1 && squad.kind !== 'caravan';
 }
 
 /** 该兵团受督军鼓舞（同路存在另一支督军） */
@@ -104,7 +162,7 @@ export function squadInspired(state: InvasionState, squad: Squad): boolean {
 
 export const invasionMode: EventModeImpl<InvasionState> = {
   init(ctx) {
-    const state: InvasionState = { v: 1, wave: 1, city: INVASION_CITY_MAX, squads: [], nextId: 1, tick: 0, repelled: 0, fallen: 0 };
+    const state: InvasionState = { v: 1, wave: 1, city: INVASION_CITY_MAX, squads: [], nextId: 1, tick: 0, repelled: 0, fallen: 0, defense: 0, built: [] };
     spawnWave(ctx, state);
     return state;
   },
@@ -121,29 +179,56 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     return {
       v: 1, wave: int(raw.wave, 1, 1), city: int(raw.city, INVASION_CITY_MAX, 1, INVASION_CITY_MAX), squads,
       nextId: int(raw.nextId, squads.length + 1, 1), tick: int(raw.tick, 0, 0), repelled: int(raw.repelled, 0, 0), fallen: int(raw.fallen, 0, 0),
+      defense: int(raw.defense, 0, 0), built: strArr(raw.built).filter(isDefense),
     };
+  },
+
+  ready(_ctx, state, action) {
+    if (isHold(action)) {
+      const squad = squadOf(state, action);
+      if (!squad || !squadHoldable(squad)) return '只有兵临城下（距王都 1 步）的兵团可以城门坚守';
+    }
+    return null;
   },
 
   plan(ctx, state, _seed, action) {
     const squad = squadOf(state, action) ?? (action === undefined ? [...state.squads].sort((a, b) => a.dist - b.dist)[0] : undefined);
     if (!squad) return fail('INVALID', '请先在兵线图上选择要截击的兵团');
+    if (isHold(action) && !squadHoldable(squad)) return fail('INVALID', '该兵团还没兵临城下');
+    if (squad.kind === 'caravan') {
+      const sp = caravanPlan(ctx, state, squad);
+      return { kingdom: kingdomOf(ctx), enemies: sp.enemies, choice: `squad:${squad.id}`, bonus: sp.bonus };
+    }
     const level = invasionSquadLevel(state.wave, squad.kind);
     const enemies: EncounterEnemy[] = squad.troops.map((troopId, i) => ({ troopId, level, tier: SQUAD_INFO[squad.kind].tiers[i] ?? 'minion' }));
-    return { kingdom: kingdomOf(ctx), enemies, choice: `squad:${squad.id}` };
+    return { kingdom: kingdomOf(ctx), enemies, choice: `${isHold(action) ? 'hold' : 'squad'}:${squad.id}` };
   },
 
   modify(_ctx, state, outcome) {
-    const squad = squadOf(state, outcome.plan.source.kind === 'event' ? outcome.plan.source.choice : undefined);
+    const choice = outcome.plan.source.kind === 'event' ? outcome.plan.source.choice : undefined;
+    const squad = squadOf(state, choice);
     if (!squad) return;
+    const req = outcome.request;
     const far = squad.dist >= 3;
     const gates = squad.dist <= 1;
     const inspired = squadInspired(state, squad);
-    for (const snap of outcome.request.enemyTeam) {
+    for (const snap of req.enemyTeam) {
       snap.eventTarget = 'tower';
       if (inspired) buffSnapshot(snap, { attackPct: 0.15 });
       if (far) snap.initialHp = Math.max(1, Math.round(snap.stats.hp * 0.85));
     }
-    if (gates) for (const snap of outcome.request.playerTeam) buffSnapshot(snap, { armor: 8 });
+    if (gates) for (const snap of req.playerTeam) buffSnapshot(snap, { armor: 8 });
+    // 兵团特质 / 辎重队遭遇
+    if (squad.kind === 'caravan') applySpecialEncounter('gnomeParty', outcome);
+    else injectTraits(req.enemyTeam, SQUAD_TRAITS[squad.kind] ?? []);
+    if (squad.kind === 'shaman') addRules(outcome, { turnStart: [{ side: 'enemy', mana: { amount: 2 } }] });
+    // 城防建设
+    for (const id of state.built) {
+      if (id === 'wall') for (const snap of req.playerTeam) buffSnapshot(snap, { armor: 6 });
+      else injectTraits(req.playerTeam, [{ code: `ev_def_${id}`, on: 'lead' }]);
+    }
+    // 城门坚守：守住 N 回合即胜
+    if (isHold(choice)) addRules(outcome, { turnLimit: { turns: INVASION_HOLD_TURNS, onExpire: 'playerWins' } });
   },
 
   points(_ctx, state, plan, _result, victory) {
@@ -156,9 +241,16 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     const lines: EventProgressLine[] = [];
     const target = squadOf(state, plan.source.kind === 'event' ? plan.source.choice : undefined);
     if (!target) return lines;
+    const held = isHold(plan.source.kind === 'event' ? plan.source.choice : undefined);
     if (victory) {
-      state.squads = state.squads.filter((s) => s.id !== target.id);
-      lines.push({ label: `歼灭${INVASION_LANES[target.lane]}的${SQUAD_INFO[target.kind].name}`, deltas: {}, note: target.dist >= 3 ? '远距截击 · 先机' : undefined });
+      state.defense += 1;
+      if (held) {
+        target.dist = INVASION_MAX_DIST;
+        lines.push({ label: `城门坚守成功 · ${SQUAD_INFO[target.kind].name}被击退`, deltas: {}, note: `退回 ${INVASION_MAX_DIST} 步外 · 城防点 +1` });
+      } else {
+        state.squads = state.squads.filter((s) => s.id !== target.id);
+        lines.push({ label: `歼灭${INVASION_LANES[target.lane]}的${SQUAD_INFO[target.kind].name}`, deltas: {}, note: `${target.dist >= 3 ? '远距截击 · 先机 · ' : ''}城防点 +1` });
+      }
     } else {
       lines.push({ label: `截击${SQUAD_INFO[target.kind].name}失败`, deltas: {}, note: '兵团仍在原地' });
     }
@@ -166,10 +258,11 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     state.tick += 1;
     const raided: string[] = [];
     for (const s of state.squads) {
-      if (!victory && s.id === target.id) continue;
+      if ((!victory || held) && s.id === target.id) continue;
       if (s.kind === 'siege' && state.tick % 2 === 1) continue;
       s.dist -= 1;
       if (s.dist <= 0) {
+        if (s.kind === 'caravan') { raided.push('辎重队带着宝物离开了战场'); continue; }
         state.city -= SQUAD_INFO[s.kind].damage;
         raided.push(`${SQUAD_INFO[s.kind].name}劫掠王都（城防 -${SQUAD_INFO[s.kind].damage}）`);
       }
@@ -183,8 +276,10 @@ export const invasionMode: EventModeImpl<InvasionState> = {
       spawnWave(ctx, state);
       return lines;
     }
-    if (state.squads.length === 0) {
+    if (state.squads.every((s) => s.kind === 'caravan')) {
+      state.squads = [];
       state.repelled += 1;
+      state.defense += 2;
       const week = ctx.week;
       if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.invasion) {
         const mats: MaterialDelta = { traitstones: { 'runic:red': 2, 'runic:blue': 2 } };
@@ -203,6 +298,19 @@ export const invasionMode: EventModeImpl<InvasionState> = {
       lines.push({ label: `敌军推进 · 城防 ${state.city} / ${INVASION_CITY_MAX}`, deltas: {}, note: `最近的${SQUAD_INFO[next.kind].name}距王都 ${next.dist} 步` });
     }
     return lines;
+  },
+
+  act(_ctx, state, action) {
+    const m = action.match(/^build:(\w+)$/);
+    if (!m) return fail('INVALID', '未知操作');
+    const id = m[1];
+    if (!isDefense(id)) return fail('INVALID', '未知城防');
+    if (state.built.includes(id)) return fail('SOLD_OUT', '该城防已建成');
+    const cost = DEFENSES[id].cost;
+    if (state.defense < cost) return fail('INSUFFICIENT', `城防点不足（需要 ${cost}）`);
+    state.defense -= cost;
+    state.built.push(id);
+    return { ok: true, message: `建成${DEFENSES[id].name}：${DEFENSES[id].desc}` };
   },
 
   nextLevel(_ctx, state) {

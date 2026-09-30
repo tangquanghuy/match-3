@@ -62,34 +62,45 @@ describe('resolveCastAvailability', () => {
   });
 });
 
-describe('unitSheetMetrics（三张同尺寸卡叠成一摞）', () => {
+describe('unitSheetMetrics（适度展开的叠卡）', () => {
   const fits = (w: number, h: number) => {
     const m = unitSheetMetrics(w, h);
-    // 横向：卡宽 + 两侧偏移不超出覆盖区
-    expect(m.cardW + m.spread * 2).toBeLessThanOrEqual(w - m.pad * 2);
-    // 竖向：关闭钮预留 + 2:3 卡 + 按钮 + 复选框
-    expect(m.pad * 2 + m.closeSize + m.cardH + m.gap * 2 + m.buttonH + m.checkH).toBeLessThanOrEqual(h);
+    const angle = 6 * Math.PI / 180;
+    const rotatedW = .94 * (m.cardW * Math.cos(angle) + m.cardH * Math.sin(angle));
+    const rotatedH = .94 * (m.cardH * Math.cos(angle) + m.cardW * Math.sin(angle));
+    expect(rotatedW + m.spread * 2).toBeLessThanOrEqual(w - m.pad * 2);
+    expect(m.cardW * .065 + (m.cardH + rotatedH) / 2).toBeLessThanOrEqual(m.fanH);
+    expect(m.cardW * .065 + (m.cardH - rotatedH) / 2).toBeGreaterThanOrEqual(0);
+    expect(m.pad * 2 + m.closeSize + m.fanH + m.gap * 2 + m.buttonH + m.checkH).toBeLessThanOrEqual(h);
     expect(m.cardH).toBe(Math.round(m.cardW * 1.5));
     expect(m.spread).toBe(Math.round(m.cardW * PANE_SPREAD));
+    // 扩大点击区但保持叠卡：两侧各约一半被中间卡遮挡。
+    const overlap = (m.cardW / 2 + rotatedW / 2 - m.spread) / rotatedW;
+    expect(overlap).toBeGreaterThan(.45);
+    expect(overlap).toBeLessThan(.55);
     return m;
   };
 
-  it('1440×900 棋盘（768 逻辑 px）', () => {
-    const m = fits(768, 812);
+  it('桌面略超出棋盘宽度，保留大卡片', () => {
+    const m = fits(960, 812);
     expect(m.compact).toBe(false);
-    expect(m.cardW).toBeGreaterThan(300);
+    expect(m.cardW).toBeGreaterThan(350);
   });
 
-  it('960×720 控件占 HUD 通道时（602 逻辑 px 见方）也放得下', () => {
-    expect(fits(602, 602).compact).toBe(false);
+  it('平板控件占 HUD 通道时也放得下', () => {
+    expect(fits(800, 644).compact).toBe(false);
   });
 
-  it('740×400 棋盘（344 逻辑 px）：紧凑态，卡宽不小于 150px', () => {
-    const m = fits(344, 388);
+  it('手机横屏使用紧凑操作区，并保留正文可读尺寸', () => {
+    const m = fits(420, 380);
     expect(m.compact).toBe(true);
     expect(m.pad).toBeGreaterThanOrEqual(8);
     expect(m.cardW).toBeGreaterThanOrEqual(150);
   });
+
+  it.each([[560, 332], [768, 812], [602, 602], [344, 388], [1600, 700]])(
+    '%d × %d 下旋转后的卡片和操作区都在边界内', (w, h) => { fits(w, h); },
+  );
 });
 
 describe('bringPaneToFront', () => {

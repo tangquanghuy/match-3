@@ -1,4 +1,6 @@
-/** 材料图标。钢锭、符卷、特质石用图；藏宝图仍是简笔。 */
+import { dailyArt } from './artAssets';
+
+/** Material artwork is shared across inventory, rewards and map shortcuts. */
 const ART = import.meta.glob('@assets/materials/*.png', {
   query: '?url',
   import: 'default',
@@ -42,11 +44,7 @@ export function stoneMarkupForKey(key: string): string {
 }
 
 export function treasureMapMarkup(): string {
-  return svg(
-    `<rect x="12" y="14" width="40" height="36" rx="2" fill="#e7d3a6" stroke="#6b4423" stroke-width="3"/>`
-    + `<path d="M22 26 L42 46 M42 26 L22 46" fill="none" stroke="#8a3030" stroke-width="4" stroke-linecap="square"/>`
-    + `<circle cx="46" cy="18" r="5" fill="#c23b32" stroke="#f3d7a2" stroke-width="2"/>`,
-  );
+  return `<img class="mat-art" src="${dailyArt('hunt')}" alt="藏宝图" draggable="false">`;
 }
 
 export function scrollArt(): string {

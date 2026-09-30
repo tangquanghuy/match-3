@@ -6,8 +6,9 @@ export function battleCardDimensions(slots: 3 | 4, boardPx: number, gap = 10): {
 }
 
 /** Local card geometry, recalculated on resize/summon/departure rather than baked into the first CSS injection. */
-export function battleCardOverlayMetrics(width: number, height: number): Record<string, number> {
-  const scale = Math.min(width / 142, height / 164);
+export function battleCardOverlayMetrics(width: number, height: number, boost = 1): Record<string, number> {
+  // boost：竖屏小卡把数值/图标整体放大一档（横屏恒为 1，结果与原公式一致）
+  const scale = Math.min(width / 142, height / 164) * boost;
   return {
     'card-inset': Math.max(3, Math.round(6 * scale)),
     'trait-inset': Math.max(1, Math.round(2 * scale)),

@@ -8,6 +8,16 @@ import type { GemMove, GemSpawn } from './GravitySystem';
  * 使表现层无需回查引擎状态即可制作动画（需求 18.5）。
  */
 
+/** Presentation-only provenance, captured when an effect actually resolves. */
+export interface TraitActivation {
+  characterId: number;
+  traitId: string;
+  name: string;
+}
+export interface TraitPresentation {
+  traitActivations?: TraitActivation[];
+}
+
 export interface SwapEvent {
   type: 'swap';
   a: CellPos;
@@ -31,7 +41,17 @@ export interface EliminationEvent {
   shape: MatchShape; // 需求 7, 19.11
 }
 
-export interface ManaGainEvent {
+/** Board-only merge: consumed pieces travel into a surviving, upgraded piece. */
+export interface GemMergeEvent {
+  type: 'gem-merge';
+  chainCount: number;
+  groups: {
+    target: { pos: CellPos; gemId: number; gemType: GemType };
+    consumed: { pos: CellPos; gemId: number }[];
+  }[];
+}
+
+export interface ManaGainEvent extends TraitPresentation {
   type: 'mana-gain';
   color: BaseColor;
   amount: number;
@@ -46,7 +66,7 @@ export interface ManaGainEvent {
   halved?: boolean;
 }
 
-export interface SkullDamageEvent {
+export interface SkullDamageEvent extends TraitPresentation {
   type: 'skull-damage';
   attackerId: number; // 队首存活攻击者（需求 14.5）
   targetId: number;
@@ -65,7 +85,7 @@ export interface SkullDamageEvent {
  * 攻击落空（队首攻击者被控无法攻击：冰冻/缠绕/击晕）。
  * 表现层播放"原地挣扎/小幅前冲被拉回"动画，不造成伤害。
  */
-export interface AttackStruggleEvent {
+export interface AttackStruggleEvent extends TraitPresentation {
   type: 'attack-struggle';
   attackerId: number;
   /** 攻击未造成伤害的原因（供表现层可选区分）。barrier 为屏障整发吸收。 */
@@ -84,7 +104,7 @@ export interface SkillCastEvent {
  * 技能造成的伤害（需求 3.1, 6.5）。
  * 与骷髅伤害区分：由技能效果原语产出，携带足够动画数据。
  */
-export interface SkillDamageEvent {
+export interface SkillDamageEvent extends TraitPresentation {
   /** Confirmed lethal devour, not an ordinary lethal spell or a blocked attempt. */
   devoured?: boolean;
   type: 'skill-damage';
@@ -146,7 +166,7 @@ export type GemClearEvent = GemDestroyEvent | GemExplodeEvent;
  * 受击增益、施法响应光环、回合开始削减……）触发频率高，表现层只飘字+刷新卡面，
  * 不播音效、不占序列帧时长；技能段（effects/buff.ts 等）不带标记，走完整反馈。
  */
-export interface BuffEvent {
+export interface BuffEvent extends TraitPresentation {
   type: 'buff';
   targetId: number;
   stat: 'attack' | 'armor' | 'hp' | 'mana' | 'magic';
@@ -175,7 +195,7 @@ export interface StatusApplyEvent {
  *   - extra-turn：冰冻吞掉本应获得的匹配额外回合（targetId=被冻结的相关单位）；
  *   - mana：沉默使该单位跳过本次充能（法力流向下一个吃该色的队友）。
  */
-export interface StatusBlockedEvent {
+export interface StatusBlockedEvent extends TraitPresentation {
   type: 'status-blocked';
   targetId: number;
   statusId: string;
@@ -343,7 +363,8 @@ export interface TurnEndEvent {
 }
 
 export interface GameOverEvent {
-  reason?: 'surrender';
+  /** surrender 投降；turn-limit 回合上限到期；objective 规则击杀目标达成 */
+  reason?: 'surrender' | 'turn-limit' | 'objective';
   type: 'game-over';
   winner: PlayerSide;
 }
@@ -381,7 +402,7 @@ export interface TeamShuffleEvent {
 }
 
 /** 全部事件的可辨识联合 */
-export type GameEvent =
+export type GameEvent = (
   | SwapEvent
   | SwapRejectedEvent
   | EliminationEvent
@@ -392,6 +413,7 @@ export type GameEvent =
   | SkillDamageEvent
   | GemCreateEvent
   | GemTransformEvent
+  | GemMergeEvent
   | GemDestroyEvent
   | GemExplodeEvent
   | BuffEvent
@@ -414,7 +436,7 @@ export type GameEvent =
   | StormChangeEvent
   | ExtraTurnEvent
   | TurnEndEvent
-  | GameOverEvent;
+  | GameOverEvent) & TraitPresentation;
 
 /** 事件流 */
 export type EventStream = GameEvent[];

@@ -1,5 +1,5 @@
 import { EVENT_ROTATION } from '../data/events';
-import { troopCardFace } from './troopCard';
+import { escapeHtml, troopCardFace } from './troopCard';
 import { validateWishlist } from '../systems/wishlist';
 /**
  * 部队图鉴 + 养成详情屏（计划 §5.4 + §5.5，一屏两视图）。
@@ -26,7 +26,7 @@ import { BaseColor } from '../../engine/types';
 import { traitGlyphsFor } from '../shell/traitIcon';
 import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { troopArt, troopArtChain, troopArtFallback, typeCn } from './teamScreen';
+import { troopArt, troopArtChain, troopArtFallback, troopImg, typeCn } from './teamScreen';
 import {
   formulaKind,
   formulaParts,
@@ -101,6 +101,9 @@ export class TroopScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private formulas: Formula[] = [];
   private magic = 0;
+  private upgradeTargetLevel = 0;
+  private upgradePending = false;
+  private upgradeModal: HTMLElement | null = null;
 
   html(ctx: ShellCtx, param?: string): string {
     this.currentId = param ? Number(param.split('/')[0]) || 0 : this.firstOwnedId(ctx);
@@ -238,7 +241,36 @@ export class TroopScreen implements Screen {
       </main>
       ${bottomNavHtml('图鉴', `全图鉴 ${fmt(TROOPS.length)} 支`)}
       ${toastHtml()}
-      <div class="modal-veil" id="modal" hidden><section class="modal etched" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><h2 id="modalTitle">提升部队等级</h2><p id="modalCopy">—</p><ul class="modal-lines" id="modalPreview"></ul><button class="primary" id="confirmUpgrade">确认提升</button><button class="cancel" id="cancelUpgrade">暂不提升</button></section></div>
+      <div class="modal-veil upgrade-veil" id="modal" hidden>
+        <section class="modal upgrade-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalCopy">
+          <div class="upgrade-portrait" id="upgradePortrait"></div>
+          <div class="upgrade-content">
+            <header class="upgrade-heading"><div><h2 id="modalTitle">提升等级</h2><span id="upgradeCap"></span></div>
+              <button class="upgrade-close" id="closeUpgrade" type="button" aria-label="关闭升级">${icon('close')}</button>
+            </header>
+            <div class="upgrade-picker" role="group" aria-label="选择提升级数">
+              <button class="upgrade-step" id="upgradeLess" type="button" aria-label="减少一级">${icon('arrow')}</button>
+              <div class="upgrade-levels"><div class="upgrade-origin"><small>当前等级</small><b id="upgradeFrom"></b></div>
+                <span class="upgrade-flow" aria-hidden="true">${icon('chevrons')}</span>
+                <div class="upgrade-target"><small>目标等级</small><b id="upgradeTo"></b></div>
+              </div>
+              <button class="upgrade-step" id="upgradeMore" type="button" aria-label="增加一级">${icon('arrow')}</button>
+            </div>
+            <div class="upgrade-selection"><output id="upgradeLevels" aria-live="polite">提升 1 级</output>
+              <button class="upgrade-max" id="upgradeMax" type="button" title="选择当前灵魂可承担的最高等级">${icon('chevrons')}<span>最大</span></button>
+            </div>
+            <div class="upgrade-track" id="upgradeTrack" aria-hidden="true"></div>
+            <p class="upgrade-hint" id="upgradeHint" role="status" hidden></p>
+            <ul class="upgrade-stats" id="modalPreview" aria-label="升级后属性" aria-live="polite"></ul>
+            <div class="upgrade-resource"><span class="upgrade-soul" aria-hidden="true">${icon('soul')}</span>
+              <div class="upgrade-cost"><small>消耗灵魂</small><b id="upgradeTotalCost"></b></div>
+              <div class="upgrade-balance"><small>灵魂余额</small><span id="soulPreview"></span></div>
+            </div>
+            <button class="upgrade-confirm" id="confirmUpgrade" type="button">${icon('chevrons')}<span>确认提升</span></button>
+            <button class="cancel" id="cancelUpgrade" type="button">暂不提升</button>
+          </div>
+        </section>
+      </div>
       <!-- T-16：分解是永久销毁，自绘危险确认弹层替掉浏览器原生 confirm() -->
       <div class="modal-veil" id="dangerModal" hidden><section class="modal etched danger" role="dialog" aria-modal="true" aria-labelledby="dangerTitle"><h2 id="dangerTitle">分解副本</h2><p id="dangerCopy">—</p><ul class="modal-lines" id="dangerPreview"></ul><button class="primary" id="confirmDanger">确认分解</button><button class="cancel" id="cancelDanger">取消</button></section></div>
       <dialog id="portraitZoom" aria-label="部队立绘预览"><img id="portraitZoomArt" alt=""><button id="portraitZoomClose" type="button" aria-label="关闭立绘预览"><span data-icon="close"></span></button></dialog>`;
@@ -246,6 +278,9 @@ export class TroopScreen implements Screen {
 
   mount(ctx: ShellCtx, _root: HTMLElement, param?: string): void {
     this.ctx = ctx;
+    // 独立于缩放舞台，保证小屏触控尺寸和弹窗比例稳定。
+    this.upgradeModal = $('#modal');
+    document.body.appendChild(this.upgradeModal);
     if (param?.startsWith('filter/')) {
       const [, dimension, encoded] = param.split('/');
       let value = ''; try { value = decodeURIComponent(encoded ?? ''); } catch { /* malformed deep link */ }
@@ -309,8 +344,21 @@ export class TroopScreen implements Screen {
     this.bind('#collectionPrev', 'click', () => this.changeCollectionPage(-1));
     this.bind('#collectionNext', 'click', () => this.changeCollectionPage(1));
     this.bind('#upgrade', 'click', () => this.openUpgradeModal());
-    this.bind('#cancelUpgrade', 'click', () => ($('#modal').hidden = true));
+    this.bind('#cancelUpgrade', 'click', () => this.closeUpgradeModal());
+    this.bind('#closeUpgrade', 'click', () => this.closeUpgradeModal());
+    this.on(this.upgradeModal, 'click', (e) => { if (e.target === this.upgradeModal) this.closeUpgradeModal(); });
+    this.on(this.upgradeModal, 'keydown', (e) => {
+      const event = e as KeyboardEvent;
+      if (event.key !== 'Tab') return;
+      const controls = [...this.upgradeModal!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    });
     this.bind('#confirmUpgrade', 'click', () => void this.confirmUpgrade());
+    this.bind('#upgradeLess', 'click', () => this.selectUpgrade(this.upgradeTargetLevel - 1));
+    this.bind('#upgradeMore', 'click', () => this.selectUpgrade(this.upgradeTargetLevel + 1));
+    this.bind('#upgradeMax', 'click', () => this.selectUpgrade(this.maxUpgradeLevel()));
     this.bind('#unlock', 'click', () => void this.unlockNextTrait());
     this.bind('#ascend', 'click', () => void this.ascend());
     this.bind('#toggleLock', 'click', () => void this.toggleLock());
@@ -437,7 +485,7 @@ export class TroopScreen implements Screen {
     this.on(window, 'keydown', (e) => {
       if ((e as KeyboardEvent).key === 'Escape') {
         this.closeSpellTip();
-        $('#modal').hidden = true;
+        this.closeUpgradeModal();
         $('#dangerModal').hidden = true;
       }
     });
@@ -876,32 +924,116 @@ export class TroopScreen implements Screen {
       toast('已达当前稀有度上限，先升阶。');
       return;
     }
-    const cost = totalSoulCost(troop.rarityIdx, rec.level, rec.level + 1);
-    const souls = this.ctx.save().currencies.souls;
-    // T-11：只列真有变化的属性（四维全查），零变化项不再冒充收益
-    const diffs = this.statDiffs(troop, rec, rec.level + 1);
-    $('#modalTitle').textContent = '提升部队等级';
-    $('#modalCopy').innerHTML = `${troop.name} <b>Lv.${rec.level} → Lv.${rec.level + 1}</b>`;
-    $('#modalPreview').innerHTML =
-      (diffs.length
-        ? diffs
-            .map((d) => `<li class="gain"><span>${d.label}</span><b>${d.from} → ${d.to}（+${d.to - d.from}）</b></li>`)
-            .join('')
-        : '<li><span>属性</span><b>本级无属性变化</b></li>')
-      + `<li class="cost"><span>灵魂</span><b id="soulPreview">${fmt(souls)} → ${fmt(Math.max(0, souls - cost))}</b></li>`;
-    $('#confirmUpgrade').textContent = `确认提升 · ${fmt(cost)} 灵魂`;
+    this.upgradeTargetLevel = rec.level + 1;
+    $('#upgradePortrait').innerHTML = `${troopImg(troop, false, 'alt=""').replace('loading="lazy"', 'loading="eager"')}
+      <span class="upgrade-rarity">${escapeHtml(RARITY_CN[rarityTierOf(troop, rec)] ?? '')}</span>
+      <div class="upgrade-identity"><span class="upgrade-emblem" aria-hidden="true">${icon('chevrons')}</span>
+        <h3 id="modalCopy">${escapeHtml(troop.name)}</h3><span>${escapeHtml(typeCn(troop.troopTypes))}</span></div>`;
+    this.paintUpgradeModal();
     $('#modal').hidden = false;
-    $('#confirmUpgrade').focus();
+    $('#stage').inert = true;
+    $('.upgrade-dialog', this.upgradeModal!).scrollTop = 0;
+    $('#closeUpgrade').focus({ preventScroll: true });
+  }
+
+  private closeUpgradeModal(): void {
+    if (this.upgradePending || !this.upgradeModal || this.upgradeModal.hidden) return;
+    this.upgradeModal.hidden = true;
+    $('#stage').inert = false;
+    const opener = $('#upgrade') as HTMLButtonElement;
+    (opener.disabled ? $('#portraitExpand') : opener).focus({ preventScroll: true });
+  }
+
+  /** 最大 = 当前余额可承担的最高等级，且遵守升阶后的等级上限。 */
+  private maxUpgradeLevel(): number {
+    const troop = this.troop();
+    const rec = this.rec();
+    if (!troop || !rec) return 0;
+    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const souls = this.ctx.save().currencies.souls;
+    let target = rec.level;
+    while (target < cap && totalSoulCost(troop.rarityIdx, rec.level, target + 1) <= souls) target++;
+    return target;
+  }
+
+  private selectUpgrade(target: number): void {
+    if (this.upgradePending) return;
+    this.upgradeTargetLevel = target;
+    this.paintUpgradeModal();
+  }
+
+  private paintUpgradeModal(): void {
+    const troop = this.troop();
+    const rec = this.rec();
+    if (!troop || !rec) return;
+    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const target = Math.min(cap, Math.max(rec.level + 1, this.upgradeTargetLevel));
+    this.upgradeTargetLevel = target;
+    const cost = totalSoulCost(troop.rarityIdx, rec.level, target);
+    const souls = this.ctx.save().currencies.souls;
+    const short = souls < cost;
+    const max = this.maxUpgradeLevel();
+    const current = troopStatsOf(troop, rec);
+    const next = troopStatsOf(troop, { ...rec, level: target });
+    $('#upgradeCap').textContent = `等级上限 Lv.${cap}`;
+    $('#upgradeFrom').textContent = String(rec.level);
+    $('#upgradeTo').textContent = String(target);
+    $('#upgradeLevels').textContent = `提升 ${target - rec.level} 级`;
+    ($('#upgradeLess') as HTMLButtonElement).disabled = this.upgradePending || target <= rec.level + 1;
+    ($('#upgradeMore') as HTMLButtonElement).disabled = this.upgradePending || target >= cap;
+    ($('#upgradeMax') as HTMLButtonElement).disabled = this.upgradePending || max <= rec.level || target === max;
+    ($('#closeUpgrade') as HTMLButtonElement).disabled = this.upgradePending;
+    ($('#cancelUpgrade') as HTMLButtonElement).disabled = this.upgradePending;
+    $('#modal').setAttribute('aria-busy', String(this.upgradePending));
+    $('#upgradeHint').textContent = short ? `灵魂不足，还差 ${fmt(cost - souls)}` : '';
+    $('#upgradeHint').hidden = !short;
+    $('#upgradeHint').classList.toggle('short', short);
+    $('#upgradeTrack').innerHTML = Array.from({ length: cap }, (_, i) =>
+      `<i class="${i < rec.level ? 'earned' : i < target ? 'selected' : ''}"></i>`).join('');
+    const stats = [
+      { key: 'attack', label: '攻击', glyph: 'swords' }, { key: 'armor', label: '护甲', glyph: 'shield' },
+      { key: 'health', label: '生命', glyph: 'heart' }, { key: 'magic', label: '魔法', glyph: 'orb' },
+    ] as const;
+    $('#modalPreview').innerHTML = stats.map(({ key, label, glyph }) => {
+      const gain = next[key] - current[key];
+      return `<li class="upgrade-stat ${key}${gain ? ' improved' : ''}" aria-label="${label}：${current[key]} → ${next[key]}${gain ? `，增加 ${gain}` : '，无变化'}">
+        <span class="upgrade-stat-icon" aria-hidden="true">${icon(glyph)}</span><span class="upgrade-stat-label">${label}</span>
+        <b>${current[key]}<span aria-hidden="true"> → </span><strong>${next[key]}</strong></b>
+        <small>${gain ? `+${gain}` : '—'}</small></li>`;
+    }).join('');
+    $('#upgradeTotalCost').textContent = fmt(cost);
+    $('#soulPreview').textContent = `${fmt(souls)} → ${short ? '不足' : fmt(souls - cost)}`;
+    $('.upgrade-resource', this.upgradeModal!).classList.toggle('short', short);
+    const confirm = $('#confirmUpgrade') as HTMLButtonElement;
+    confirm.disabled = this.upgradePending || short || target <= rec.level;
+    confirm.querySelector('span')!.textContent = this.upgradePending ? '提升中…' : '确认提升';
   }
 
   private async confirmUpgrade(): Promise<void> {
-    const { result } = await this.ctx.gateway.levelUpTroop(this.currentId);
-    $('#modal').hidden = true;
-    if (result.ok) {
-      toast(`提升至 Lv.${result.to} · 灵魂 −${fmt(result.soulsSpent)}`);
-      this.afterMutation();
-    } else {
-      toast(result.message);
+    if (this.upgradePending) return;
+    this.paintUpgradeModal();
+    if (($('#confirmUpgrade') as HTMLButtonElement).disabled) return;
+    this.upgradePending = true;
+    this.paintUpgradeModal();
+    const modal = $('#modal');
+    try {
+      const { result } = await this.ctx.gateway.levelUpTroop(this.currentId, this.upgradeTargetLevel);
+      if (!modal.isConnected) return;
+      if (result.ok) {
+        modal.hidden = true;
+        $('#stage').inert = false;
+        toast(`提升至 Lv.${result.to} · 灵魂 −${fmt(result.soulsSpent)}`);
+        this.afterMutation();
+        const opener = $('#upgrade') as HTMLButtonElement;
+        (opener.disabled ? $('#portraitExpand') : opener).focus({ preventScroll: true });
+      } else {
+        toast(result.message);
+      }
+    } catch {
+      if (modal.isConnected) toast('提升请求失败，请稍后重试。');
+    } finally {
+      this.upgradePending = false;
+      if (modal.isConnected && !modal.hidden) this.paintUpgradeModal();
     }
   }
 
@@ -1310,6 +1442,10 @@ export class TroopScreen implements Screen {
   }
 
   dispose(): void {
+    this.upgradeModal?.remove();
+    this.upgradeModal = null;
+    const stage = document.getElementById('stage');
+    if (stage) stage.inert = false;
     const zoom = document.getElementById('portraitZoom') as HTMLDialogElement | null;
     if (zoom?.open) zoom.close();
     document.getElementById('stage')?.classList.remove('collection-responsive');

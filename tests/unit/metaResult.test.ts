@@ -58,7 +58,21 @@ describe('本场收益与额外奖励隔离', () => {
       { key: 'quest', label: '', deltas: { gold: 1000, goldKeys: 1 } },
       { key: 'event-milestone', label: '', deltas: { gems: 500, souls: 500 } },
       { key: 'explore-drop', label: '', deltas: { gold: 999 } },
-    ] })).toEqual({ victory: true, xp: 100, levelsGained: 1, gold: 103, souls: 40, gems: 0 });
+    ] })).toEqual({ victory: true, xp: 100, levelsGained: 1, gold: 103, souls: 40, gems: 0, materials: [] });
+  });
+  it('战斗额外奖励与本场收益并列：货币并入、素材单独成卡', () => {
+    const view = battleIncomeView({ ...base, lines: [
+      { key: 'victory', label: '', deltas: { gold: 60 } },
+      { key: 'battle-collect', label: '藏宝图', deltas: {}, mats: { treasureMaps: 1 } },
+      { key: 'battle-bonus', label: '地精钱袋', deltas: { gold: 500, gems: 30 }, mats: { treasureMaps: 1, forgeScrolls: 2 } },
+      { key: 'event-progress', label: '', deltas: {}, mats: { forgeScrolls: 9 } },
+    ] });
+    expect(view.gold).toBe(560);
+    expect(view.gems).toBe(30);
+    expect(view.materials).toEqual([
+      { key: 'treasureMaps', name: '藏宝图', amount: 2 },
+      { key: 'forgeScrolls', name: '熔铸符卷', amount: 2 },
+    ]);
   });
   it('宝石仅展示本场真实收集；重复读取不修改结算明细', () => {
     const detail = { ...base, lines: [
@@ -73,7 +87,7 @@ describe('本场收益与额外奖励隔离', () => {
   it('战败照常呈现本场经验和保底', () => {
     expect(battleIncomeView({ ...base, victory: false, xpGained: 20, heroLevelsGained: 0,
       lines: [{ key: 'defeat', label: '', deltas: { gold: 20, souls: 10 } }],
-    })).toEqual({ victory: false, xp: 20, levelsGained: 0, gold: 20, souls: 10, gems: 0 });
+    })).toEqual({ victory: false, xp: 20, levelsGained: 0, gold: 20, souls: 10, gems: 0, materials: [] });
   });
   it('竞技场整轮大奖不计入本场', () => {
     const detail = {
@@ -84,7 +98,7 @@ describe('本场收益与额外奖励隔离', () => {
         rewards: { gold: 4000, souls: 750, gems: 50 },
       },
     } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
-    expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 64, souls: 32, gems: 1 });
+    expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 64, souls: 32, gems: 1, materials: [] });
   });
   it('入侵只带本场悬赏、基础与收集，不带荣耀及赛季积分', () => {
     const detail = {
@@ -94,7 +108,7 @@ describe('本场收益与额外奖励隔离', () => {
         collected: { gold: 4, souls: 2, gems: 0, maps: 0 },
       },
     } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
-    expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 144, souls: 32, gems: 0 });
+    expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 144, souls: 32, gems: 0, materials: [] });
   });
 });
 

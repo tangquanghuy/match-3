@@ -64,8 +64,8 @@ describe('预设队保存', () => {
 
   it('校验通过 → 按 index 写入（越界即新增），站位顺序保留', () => {
     const s = save();
-    // 旗帜（M6）需该王国任务链 8/8 解锁后才可装备
-    s.kingdoms['破碎尖塔'] = { level: 1, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
+    // 初始王国已开放，旗帜不要求完成任务
+    s.kingdoms['破碎尖塔'] = { level: 1, questsDone: 0, exploreTier: 0, lastTributeAt: 0 };
     const members = [troop(6457), troop(6000), troop(6097), { kind: 'hero' as const }]; // 故意乱序：站位即数组顺序
     const r = setTeamPreset(s, 1, { name: '二号队', members, bannerKingdomId: '破碎尖塔' });
     expect(r).toMatchObject({ ok: true, index: 1 });
@@ -79,7 +79,7 @@ describe('预设队保存', () => {
     const s = save();
     const before = JSON.stringify(s.teams);
     const members = OWNED.map(troop);
-    const locked = setTeamPreset(s, 0, { name: 'X', members, bannerKingdomId: '破碎尖塔' });
+    const locked = setTeamPreset(s, 0, { name: 'X', members, bannerKingdomId: '卡拉考斯' });
     expect(locked.ok).toBe(false);
     if (!locked.ok) expect(locked.issues.map((i) => i.code)).toContain('BAD_BANNER');
     expect(JSON.stringify(s.teams)).toBe(before);

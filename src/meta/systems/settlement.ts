@@ -38,6 +38,7 @@ import {
 } from '../data/economy';
 import { EXPLORE_MAX_TIER, HARD_NODE_COUNT, KINGDOM_ORDER, kingdomBaseLevel, kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { earn, earnMaterials } from './wallet';
+import { resolveBattleBonus } from './battleBonus';
 import { grantTroop } from './troopProgress';
 import { activeTeam } from './teamRules';
 import { addClassWin, addClassXp, addHeroXp } from './hero';
@@ -67,6 +68,8 @@ export type SettlementLineKey =
   | 'kills'
   | 'victory'
   | 'battle-collect'
+  /** 通用额外奖励（EncounterPlan.bonus）：结算页与本场收益并列 */
+  | 'battle-bonus'
   | 'first-win'
   | 'kingdom-first-clear'
   | 'quest'
@@ -188,6 +191,20 @@ export function applySettlement(
         });
       }
     }
+  }
+
+  // —— 通用额外奖励（活动深化批）：计划声明、这里统一入账；结算页与普通收益并列 ——
+  for (const grant of resolveBattleBonus(ctx.plan.bonus, result)) {
+    const applied = earn(save, grant.deltas);
+    const mats = earnMaterials(save, grant.mats);
+    if (Object.keys(applied).length === 0 && Object.keys(mats).length === 0) continue;
+    lines.push({
+      key: 'battle-bonus', label: grant.spec.label, deltas: applied,
+      ...(Object.keys(mats).length > 0 ? { mats } : {}),
+      ...(grant.spec.note ? { note: grant.spec.note } : {}),
+    });
+    goldEarned += applied.gold ?? 0;
+    soulsEarned += applied.souls ?? 0;
   }
 
   let firstWinClaimed = false;

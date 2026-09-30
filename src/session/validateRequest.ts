@@ -7,6 +7,7 @@
 import { ALL_BASE_COLORS } from '@engine/types';
 import { MAX_ACTIVE_TEAM_SIZE } from '@engine/teamRoster';
 import { normalizeTier } from './assigner';
+import { RULE_COLORED_GEM_KINDS, RULE_GEM_KINDS } from '@engine/battleRules';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from './contract';
 import type { BattleRequest, CombatantSnapshot } from './contract';
 
@@ -324,8 +325,117 @@ export function validateBattleRequest(raw: unknown, opts: ValidateOptions): Vali
     issues.push({ path: 'kingdom', code: 'bad-type', message: '必须是非空字符串或 null' });
   }
 
+  if (raw.rules !== undefined) validateRules(issues, raw.rules, raw.playerTeam, raw.enemyTeam);
+
   if (issues.length > 0) return { ok: false, issues };
   return { ok: true, request: raw as unknown as BattleRequest };
+}
+
+function externalIdsOf(team: unknown): Set<string> {
+  const out = new Set<string>();
+  if (!Array.isArray(team)) return out;
+  for (const s of team) if (isPlainObject(s) && typeof s.externalId === 'string') out.add(s.externalId);
+  return out;
+}
+
+const isNum = (v: unknown, min: number, max: number): boolean =>
+  typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
+const isInt = (v: unknown, min: number, max: number): boolean => isFiniteInteger(v) && (v as number) >= min && (v as number) <= max;
+
+function validateRuleGem(issues: ValidationIssue[], path: string, gem: unknown): void {
+  if (!isPlainObject(gem) || typeof gem.kind !== 'string' || !RULE_GEM_KINDS.has(gem.kind)) {
+    issues.push({ path, code: 'bad-type', message: '未知的特殊宝石 kind' });
+    return;
+  }
+  if (gem.tier !== undefined && !isInt(gem.tier, 1, 8)) issues.push({ path: `${path}.tier`, code: 'stat-range', message: 'tier 须为 1~8 的整数' });
+  if (gem.color !== undefined && (typeof gem.color !== 'string' || !VALID_COLORS.has(gem.color))) {
+    issues.push({ path: `${path}.color`, code: 'bad-type', message: 'color 须为基色' });
+  }
+  if (RULE_COLORED_GEM_KINDS.has(gem.kind) && gem.color === undefined) {
+    issues.push({ path: `${path}.color`, code: 'missing-field', message: '六色族宝石必须指定 color' });
+  }
+}
+
+/** 战斗规则校验（活动深化批）：结构、数值范围、目标 id 归属 */
+function validateRules(issues: ValidationIssue[], rules: unknown, playerTeam: unknown, enemyTeam: unknown): void {
+  if (!isPlainObject(rules)) { issues.push({ path: 'rules', code: 'bad-type', message: 'rules 必须是对象' }); return; }
+  const players = externalIdsOf(playerTeam);
+  const enemies = externalIdsOf(enemyTeam);
+  const board = rules.board;
+  if (board !== undefined) {
+    if (!isPlainObject(board)) issues.push({ path: 'rules.board', code: 'bad-type', message: 'board 必须是对象' });
+    else {
+      if (board.skullChance !== undefined && !isNum(board.skullChance, 0, 0.5)) issues.push({ path: 'rules.board.skullChance', code: 'stat-range', message: '须为 0~0.5' });
+      if (board.colorWeights !== undefined) {
+        if (!isPlainObject(board.colorWeights)) issues.push({ path: 'rules.board.colorWeights', code: 'bad-type', message: '须为对象' });
+        else for (const [c, w] of Object.entries(board.colorWeights)) {
+          if (!VALID_COLORS.has(c) || !isNum(w, 0, 5)) issues.push({ path: `rules.board.colorWeights.${c}`, code: 'stat-range', message: '基色权重须为 0~5' });
+        }
+      }
+      const drops = board.specialDrops;
+      if (drops !== undefined) {
+        if (!isPlainObject(drops) || !isNum(drops.chance, 0, 0.25) || !Array.isArray(drops.pool) || drops.pool.length === 0) {
+          issues.push({ path: 'rules.board.specialDrops', code: 'bad-type', message: 'specialDrops 需 chance 0~0.25 与非空 pool' });
+        } else drops.pool.forEach((p, i) => {
+          if (!isPlainObject(p) || !isNum(p.weight, 0, 100)) issues.push({ path: `rules.board.specialDrops.pool.${i}`, code: 'stat-range', message: 'weight 须为 0~100' });
+          else validateRuleGem(issues, `rules.board.specialDrops.pool.${i}.gem`, p.gem);
+        });
+      }
+      if (board.preset !== undefined) {
+        if (!Array.isArray(board.preset)) issues.push({ path: 'rules.board.preset', code: 'bad-type', message: 'preset 须为数组' });
+        else {
+          let total = 0;
+          board.preset.forEach((p, i) => {
+            if (!isPlainObject(p) || !isInt(p.count, 1, 12)) { issues.push({ path: `rules.board.preset.${i}`, code: 'stat-range', message: 'count 须为 1~12' }); return; }
+            total += p.count as number;
+            validateRuleGem(issues, `rules.board.preset.${i}.gem`, p.gem);
+            if (p.onColor !== undefined && (typeof p.onColor !== 'string' || !VALID_COLORS.has(p.onColor))) issues.push({ path: `rules.board.preset.${i}.onColor`, code: 'bad-type', message: 'onColor 须为基色' });
+          });
+          if (total > 16) issues.push({ path: 'rules.board.preset', code: 'stat-range', message: '预置宝石合计不超过 16 颗' });
+        }
+      }
+    }
+  }
+  const limit = rules.turnLimit;
+  if (limit !== undefined && (!isPlainObject(limit) || !isInt(limit.turns, 1, 40) || (limit.onExpire !== 'playerWins' && limit.onExpire !== 'enemyWins'))) {
+    issues.push({ path: 'rules.turnLimit', code: 'bad-type', message: 'turnLimit 需 turns 1~40 与 onExpire playerWins|enemyWins' });
+  }
+  const objective = rules.objective;
+  if (objective !== undefined) {
+    if (!isPlainObject(objective) || !Array.isArray(objective.killTargets) || objective.killTargets.length === 0
+      || objective.killTargets.some((id) => typeof id !== 'string' || !enemies.has(id))) {
+      issues.push({ path: 'rules.objective.killTargets', code: 'bad-type', message: 'killTargets 须为非空的敌方 externalId 列表' });
+    }
+  }
+  if (rules.turnStart !== undefined) {
+    if (!Array.isArray(rules.turnStart)) { issues.push({ path: 'rules.turnStart', code: 'bad-type', message: 'turnStart 须为数组' }); return; }
+    rules.turnStart.forEach((t, i) => {
+      const path = `rules.turnStart.${i}`;
+      if (!isPlainObject(t) || (t.side !== 'player' && t.side !== 'enemy')) { issues.push({ path, code: 'bad-type', message: 'side 须为 player|enemy' }); return; }
+      if (t.every !== undefined && !isInt(t.every, 1, 10)) issues.push({ path: `${path}.every`, code: 'stat-range', message: 'every 须为 1~10' });
+      const own = t.side === 'player' ? players : enemies;
+      if (t.mana !== undefined) {
+        const m = t.mana;
+        if (!isPlainObject(m) || !isInt(m.amount, -30, 30)) issues.push({ path: `${path}.mana`, code: 'stat-range', message: 'mana.amount 须为 -30~30 的整数' });
+        else {
+          if (m.targets !== undefined && (!Array.isArray(m.targets) || m.targets.some((id) => typeof id !== 'string' || !own.has(id)))) {
+            issues.push({ path: `${path}.mana.targets`, code: 'bad-type', message: 'targets 须为本方 externalId' });
+          }
+          if (m.colors !== undefined && (!Array.isArray(m.colors) || m.colors.some((c) => typeof c !== 'string' || !VALID_COLORS.has(c)))) {
+            issues.push({ path: `${path}.mana.colors`, code: 'bad-type', message: 'colors 须为基色列表' });
+          }
+        }
+      }
+      if (t.createGems !== undefined) {
+        if (!Array.isArray(t.createGems)) issues.push({ path: `${path}.createGems`, code: 'bad-type', message: '须为数组' });
+        else t.createGems.forEach((g, j) => {
+          if (!isPlainObject(g) || !isInt(g.count, 1, 6) || (g.chance !== undefined && !isNum(g.chance, 0, 1))) {
+            issues.push({ path: `${path}.createGems.${j}`, code: 'stat-range', message: 'count 1~6，chance 0~1' });
+          } else validateRuleGem(issues, `${path}.createGems.${j}.gem`, g.gem);
+        });
+      }
+    });
+  }
 }
 
 /** 把校验问题拼成单行可读文本，供错误 UI 与日志使用。 */

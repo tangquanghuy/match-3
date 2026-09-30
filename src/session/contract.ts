@@ -6,7 +6,7 @@
  *  - 引擎结构会随内容迭代变动（statuses、summonQueue 等），不能直接暴露给宿主。
  *  - 宿主只应看到本场结算所需字段，永久养成数据仍归 AIRP。
  */
-import type { BaseColor } from '@engine/types';
+import type { BaseColor, SpecialGemKind } from '@engine/types';
 
 /** DTO 结构版本。字段语义发生不兼容变化时才递增。 */
 export const BATTLE_SCHEMA_VERSION = 1;
@@ -15,6 +15,7 @@ export const BATTLE_SCHEMA_VERSION = 1;
  * 规则解释版本。回合顺序、结算次序、法力/伤害公式等发生行为变化时递增，
  * 用于让宿主知道同一份 request 在不同客户端版本下可能得出不同结果。
  */
+// 活动深化批的 rules 字段是加性可选：不带 rules 的请求结算逐字节不变，故不递增。
 export const RULESET_VERSION = '1.1.0';
 
 /** 战斗中的一方。宿主视角固定为 player / enemy，不暴露引擎的 Left/Right。 */
@@ -142,6 +143,43 @@ export interface BattleRequest {
    * 可选字段，不构成 schemaVersion 变更。
    */
   kingdom?: string | null;
+  /**
+   * 战斗规则（活动深化批 2026-09-30，加性可选字段）：棋盘预置/掉落、回合上限、击杀目标、
+   * 回合开始补法力或宝石。语义见 engine/battleRules.ts；省略 = 常规对局。
+   */
+  rules?: BattleRules;
+}
+
+/** 宿主口径的特殊宝石规格（与引擎 SpecialGemSpec 同构） */
+export interface RuleGem {
+  kind: SpecialGemKind;
+  tier?: number;
+  color?: BaseColor;
+}
+
+/** 战斗规则（宿主口径：externalId、player/enemy） */
+export interface BattleRules {
+  board?: {
+    /** 骷髅补充概率覆盖（0~0.5） */
+    skullChance?: number;
+    /** 补充基色权重（0~5，与风暴权重相乘） */
+    colorWeights?: Partial<Record<BaseColor, number>>;
+    /** 特殊宝石自然掉落：chance 0~0.25 */
+    specialDrops?: { chance: number; pool: { gem: RuleGem; weight: number }[] };
+    /** 开局预置特殊宝石（每项 count 1~12，合计 ≤ 16） */
+    preset?: { gem: RuleGem; count: number; onColor?: BaseColor }[];
+  };
+  /** 回合上限，按我方回合计（1~40）：playerWins = 坚守 N 回合即胜；enemyWins = N 回合内未胜即败 */
+  turnLimit?: { turns: number; onExpire: 'playerWins' | 'enemyWins' };
+  /** 击杀目标：列出的敌方 externalId 全部阵亡即胜（逃跑不算击杀） */
+  objective?: { killTargets: string[] };
+  /** 回合开始效果 */
+  turnStart?: {
+    side: BattleSideName;
+    every?: number;
+    mana?: { amount: number; targets?: string[]; colors?: BaseColor[] };
+    createGems?: { gem: RuleGem; count: number; chance?: number }[];
+  }[];
 }
 
 /** 单个角色的战斗结束状态。 */
@@ -173,7 +211,10 @@ export interface BattleResult {
   rulesetVersion: string;
   seed: number;
   winner: BattleSideName;
-  endReason?: 'surrender';
+  /** surrender 投降；turn-limit 回合上限到期；objective 击杀目标达成 */
+  endReason?: 'surrender' | 'turn-limit' | 'objective';
+  /** 我方完成的回合数（仅规则对局回传） */
+  playerTurns?: number;
   /** 完成的回合数。额外回合不另计一回合，故一个回合可能包含多次行动 */
   turns: number;
   /** 只包含 request 下发的角色；场上召唤物不属于宿主资产，见 summonedCount */

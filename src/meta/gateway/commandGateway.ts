@@ -64,7 +64,7 @@ export class CommandGateway implements MetaGateway {
 
   // —— 养成 ——
 
-  levelUpTroop(troopId: number) { return this.cmd('levelUpTroop', { troopId }); }
+  levelUpTroop(troopId: number, targetLevel?: number) { return this.cmd('levelUpTroop', { troopId, targetLevel }); }
   ascendTroop(troopId: number) { return this.cmd('ascendTroop', { troopId }); }
   unlockTroopTrait(troopId: number, slot: number) { return this.cmd('unlockTroopTrait', { troopId, slot }); }
   decomposeTroop(troopId: number) { return this.cmd('decomposeTroop', { troopId }); }

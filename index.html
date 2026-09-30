@@ -56,16 +56,13 @@
         visibility: hidden;
         pointer-events: none;
       }
-      @media (orientation: portrait) {
-        #orientation-gate { display: flex; }
-      }
     </style>
   </head>
   <body>
     <div id="app" data-viewport-blocked="true">
       <div id="orientation-gate" role="status" aria-live="polite">
-        <strong>请将设备旋转为横屏</strong>
-        <span>战斗仅支持横屏显示，以保证棋盘和触控区域清晰可用。</span>
+        <strong>正在准备战场</strong>
+        <span>根据屏幕方向选择横屏或竖屏版式。</span>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

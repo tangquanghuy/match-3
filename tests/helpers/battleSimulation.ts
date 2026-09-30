@@ -22,6 +22,7 @@ import type { GameEvent } from '@engine/events';
 import { TROOPS, knownTroopTypes, troopToSummonTemplate } from '../../src/data/troops';
 import { assignBattleRequest, loadStandaloneRequest, mapRequestToTeams } from '@session/index';
 import type { BattleRequest } from '@session/index';
+import { applyRequestBoardPreset, engineRulesOf } from '@session/rules';
 import { buildBattleRequest, newSave, planQuestEncounter } from '../../src/meta';
 import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
 
@@ -156,12 +157,13 @@ function isGameOver(state: { state: MatchState }): boolean {
 
 function runBattle(cfg: SimConfig, seed: number, index: number): BattleTrace {
   const { request, registry } = cfg.scenario === 'meta' ? metaBattle(seed, index) : fixtureBattle(seed);
-  const { playerTeam, enemyTeam } = mapRequestToTeams(request);
+  const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(request);
   const rng = new SeededRNG(seed);
   let nextId = 100000;
   const idGen = () => nextId++;
   const skullChance = cfg.skullChance ?? BATTLE_SKULL_CHANCE;
-  const board = new BoardGenerator(rng, idGen, skullChance, cfg.setupBias).generate();
+  const board = new BoardGenerator(rng, idGen, request.rules?.board?.skullChance ?? skullChance, cfg.setupBias).generate();
+  applyRequestBoardPreset(board, request, rng);
   const state = createGameState(board, playerTeam, enemyTeam);
   const engine = new TurnEngine(state, rng, idGen, registry);
   engine.setSummonResolver((ref) => troopToSummonTemplate(ref, request.arenaRules));
@@ -171,6 +173,7 @@ function runBattle(cfg: SimConfig, seed: number, index: number): BattleTrace {
   setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, request.arenaRules));
   engine.skullChance = skullChance;
   engine.comboBias = cfg.comboBias;
+  engine.applyRules(engineRulesOf(request, idMap));
   engine.takeInitialEvents();
 
   const trace: BattleTrace = {

@@ -849,3 +849,162 @@
   #stage.collection-responsive #detail .detail-wishlist-button { min-height: 44px; padding: 0 12px; font-size: 12px; }
   #stage.collection-responsive #detail .back { min-height: 44px; gap: 6px; padding: 0; font-size: 12px; }
 }
+
+/* 批量升级：级数选择与实时总价。 */
+/* 部队升级：立绘卡 + 等级徽章。弹层挂到 body，避免随舞台缩放。 */
+#modal.upgrade-veil {
+  position: fixed; inset: 0; z-index: 1400; padding: 24px;
+  background: radial-gradient(ellipse at 50% 45%, #28203580, #05060be8 75%);
+  backdrop-filter: blur(9px); overflow: auto; overscroll-behavior: contain;
+}
+#modal .upgrade-dialog {
+  position: relative; display: grid; grid-template-columns: 250px minmax(0, 1fr);
+  width: min(760px, 100%); max-height: calc(100dvh - 48px); padding: 0; overflow: auto;
+  color: #eee4d0; border: 1px solid #927c52; border-radius: 12px;
+  background: radial-gradient(ellipse at 100% 0, #40314270, transparent 60%), #17141e;
+  box-shadow: 0 28px 90px #000c, 0 0 0 4px #100e16, 0 0 0 5px #927c522c, inset 0 1px #f7dea533;
+  scrollbar-width: thin; scrollbar-color: #756141 #17141e;
+}
+.upgrade-portrait { position: relative; min-height: 460px; overflow: hidden; border-right: 1px solid #a88c524d; background: #15111c; isolation: isolate; }
+.upgrade-portrait > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.upgrade-portrait::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, #11101a33 0%, transparent 30%, #14101ba6 65%, #14101b 100%); }
+.upgrade-portrait::after { content: ''; position: absolute; inset: 9px; z-index: 2; border: 1px solid #e1c3865c; border-radius: 4px; pointer-events: none; }
+.upgrade-rarity { position: absolute; top: 24px; left: 24px; z-index: 2; padding: 5px 12px; border: 1px solid #b39a6877; background: #17131cd4; border-radius: 3px; color: #e7d6b2; font: 12px var(--display); letter-spacing: 3px; }
+.upgrade-identity { position: absolute; bottom: 35px; left: 20px; right: 20px; z-index: 2; text-align: center; }
+.upgrade-emblem { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 18px; color: #efd8a0; border: 1px solid #ac9154; border-radius: 50%; background: radial-gradient(circle, #5a4935, #211c28); box-shadow: 0 0 0 4px #e4c0820b, 0 0 30px #d1a74b25; }
+.upgrade-emblem svg { width: 24px; height: 24px; }
+.upgrade-identity h3 { margin: 0 0 10px; color: #fae8be; font: 28px/1.25 var(--display); text-shadow: 0 2px 5px #000; overflow-wrap: anywhere; }
+.upgrade-identity > span:last-child { color: #bbae9c; font-size: 12px; letter-spacing: 2px; }
+.upgrade-content { position: relative; padding: 28px 30px 18px; min-width: 0; }
+.upgrade-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+#modal .upgrade-heading h2 { margin: 0 0 8px; font: 25px/1.25 var(--display); letter-spacing: 3px; color: #eddbb1; }
+#upgradeCap { color: #a89b8e; font-size: 11px; }
+.upgrade-close { flex: none; width: 34px; height: 34px; padding: 8px; border: 1px solid #86724b66; border-radius: 50%; color: #c7b58f; background: #12101977; }
+.upgrade-picker { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 24px 0 12px; }
+.upgrade-step { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 10px; border-radius: 50%; color: #f0d89e; border: 1px solid #ac8e53; background: radial-gradient(ellipse at 50% 0, #68533370, transparent 75%), linear-gradient(#322b36, #16131d); box-shadow: inset 0 0 0 3px #17141c, inset 0 0 0 4px #aa8b4d4d, 0 3px 10px #0006; }
+.upgrade-step svg { width: 20px; height: 20px; }
+#upgradeMore svg { transform: rotate(180deg); }
+.upgrade-levels { display: flex; align-items: center; justify-content: center; gap: 17px; flex: 1; min-width: 0; }
+.upgrade-origin, .upgrade-target { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.upgrade-origin small, .upgrade-target small { font-size: 10px; letter-spacing: 1px; color: #b4a694; white-space: nowrap; }
+.upgrade-origin b { font: 32px/1.15 Georgia, serif; color: #bdb1a0; }
+.upgrade-flow { display: block; flex: none; width: 18px; height: 22px; color: #a3884f; transform: rotate(90deg); }
+.upgrade-target { position: relative; justify-content: center; width: 90px; height: 90px; flex: none; border-radius: 50%; border: 1px solid #d6b875a8; background: radial-gradient(circle, #b18a4820, #2d24304d 60%, #d3ae521a); box-shadow: 0 0 0 4px #c9a4560b, 0 0 24px #d3ae5212, inset 0 0 0 4px #110f16, inset 0 0 0 5px #9d835340; }
+.upgrade-target::after { content: ''; position: absolute; width: 6px; height: 6px; top: -4px; background: #dfc384; border: 1px solid #f6e3b1; transform: rotate(45deg); box-shadow: 0 0 8px #e9c67255; }
+.upgrade-target small { color: #d0b779; font-size: 9px; }
+.upgrade-target b { color: #ffe3a1; font: 40px/1 Georgia, serif; text-shadow: 0 0 18px #e3ba5340; }
+.upgrade-selection { display: flex; align-items: center; justify-content: space-between; min-height: 30px; }
+#upgradeLevels { font-size: 12px; color: #dac8a4; }
+.upgrade-max { display: inline-flex; gap: 5px; align-items: center; justify-content: center; min-width: 70px; min-height: 36px; padding: 4px 12px; border: 1px solid #a68a5366; border-radius: 18px; color: #dcc28c; background: linear-gradient(#483c334d, #211c27); font: 12px var(--body); box-shadow: inset 0 1px #efdcb115; }
+.upgrade-max svg { width: 14px; height: 14px; }
+.upgrade-track { display: flex; gap: 3px; height: 5px; margin: 9px 0 21px; }
+.upgrade-track i { flex: 1; min-width: 0; background: #383039; border-radius: 1px; }
+.upgrade-track .earned { background: #877149; }
+.upgrade-track .selected { background: #e3c77f; box-shadow: 0 0 6px #dbb45450; }
+#modal .upgrade-hint { display: block; margin: -7px 0 12px; color: #efa695; font-size: 12px; line-height: 1.4; }
+.upgrade-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.upgrade-stat { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 12px 2px 10px; border: 1px solid #78644644; border-radius: 6px; background: linear-gradient(160deg, #38303c77, #16131e); min-width: 0; }
+.upgrade-stat-icon { display: block; width: 25px; height: 25px; filter: drop-shadow(0 2px 3px #0007); }
+.upgrade-stat.attack .upgrade-stat-icon { color: #d6b774; }
+.upgrade-stat.armor .upgrade-stat-icon { color: #b8c8d7; }
+.upgrade-stat.health .upgrade-stat-icon { color: #d57873; }
+.upgrade-stat.magic .upgrade-stat-icon { color: #b598d3; }
+.upgrade-stat-label { font-size: 10px; color: #afa396; }
+.upgrade-stat > b { font: 13px Georgia, serif; color: #9e9294; white-space: nowrap; }
+.upgrade-stat > b > span { font-size: 10px; color: #7f736c; }
+.upgrade-stat strong { font-size: 18px; color: #e6d8b9; font-weight: normal; }
+.upgrade-stat small { color: #6f656e; font: 11px var(--body); min-height: 14px; }
+.upgrade-stat.improved { border-color: #839b634d; }
+.upgrade-stat.improved small { color: #a7cc8e; }
+.upgrade-resource { display: flex; align-items: center; gap: 11px; padding: 18px 0; margin: 3px 0 0; }
+.upgrade-soul { flex: none; display: grid; place-items: center; width: 40px; height: 46px; padding: 6px; color: #c0a0e7; filter: drop-shadow(0 0 10px #a878e14d); }
+.upgrade-resource small { display: block; margin-bottom: 5px; color: #a99aa9; font-size: 10px; }
+.upgrade-cost b { color: #e5d2f6; font: 25px/1 Georgia, serif; }
+.upgrade-balance { margin-left: auto; text-align: right; }
+#soulPreview { color: #b8a9bd; font: 12px Georgia, serif; white-space: nowrap; }
+.upgrade-resource.short #soulPreview, .upgrade-resource.short .upgrade-cost b { color: #eba293; }
+.upgrade-confirm { position: relative; display: flex; align-items: center; justify-content: center; gap: 11px; width: 100%; min-height: 52px; border: 1px solid #e7cf93; border-radius: 5px; color: #302215; background: linear-gradient(105deg, #a5854e, #e3cd95 45%, #c6a971); box-shadow: inset 0 0 0 3px #47352455, inset 0 0 0 4px #fae6ac66, inset 0 1px #fff1c2, 0 4px 15px #0006; text-shadow: 0 1px #f8e6b677; font: 19px var(--display); letter-spacing: 4px; }
+.upgrade-confirm::before, .upgrade-confirm::after { content: ''; position: absolute; top: 50%; width: 5px; height: 5px; border: 1px solid #654e27; transform: translateY(-50%) rotate(45deg); }
+.upgrade-confirm::before { left: 15px; } .upgrade-confirm::after { right: 15px; }
+.upgrade-confirm > svg { width: 22px; height: 22px; }
+#modal .cancel { min-height: 32px; margin: 8px auto 0; padding: 4px 16px; font-size: 12px; color: #b1a391; }
+#modal button:focus-visible { outline-offset: 3px; }
+@media (max-width: 600px) {
+  #modal.upgrade-veil { padding: 16px; }
+  #modal .upgrade-dialog { grid-template-columns: minmax(0, 1fr); width: min(390px, 100%); max-height: calc(100dvh - 32px); }
+  .upgrade-portrait { min-height: 146px; border-right: 0; border-bottom: 1px solid #a88c524d; }
+  .upgrade-portrait > img { object-position: 50% 24%; }
+  .upgrade-portrait::before { background: linear-gradient(90deg, #15111b15, #15111b33 25%, #15111be6 70%), linear-gradient(0deg, #15111b99, transparent); }
+  .upgrade-rarity { top: 20px; left: 20px; padding: 4px 8px; font-size: 10px; }
+  .upgrade-identity { left: 45%; right: 18px; bottom: 28px; text-align: right; }
+  .upgrade-identity h3 { font-size: 23px; }
+  .upgrade-identity > span:last-child { font-size: 10px; }
+  .upgrade-emblem { display: none; }
+  .upgrade-content { padding: 20px 22px 12px; }
+  #modal .upgrade-heading h2 { font-size: 22px; }
+  .upgrade-picker { margin-top: 16px; gap: 8px; }
+  .upgrade-levels { gap: 10px; }
+  .upgrade-target { width: 78px; height: 78px; }
+  .upgrade-target b { font-size: 34px; }
+  .upgrade-origin b { font-size: 28px; }
+  .upgrade-track { margin-bottom: 16px; }
+  .upgrade-stats { gap: 6px; }
+  .upgrade-stat { padding: 9px 1px 8px; gap: 5px; }
+  .upgrade-stat > b { font-size: 12px; }
+  .upgrade-stat strong { font-size: 16px; }
+  .upgrade-resource { padding: 15px 0; gap: 8px; }
+}
+@media (max-height: 560px) and (min-width: 601px) {
+  #modal.upgrade-veil { padding: 12px; }
+  #modal .upgrade-dialog { max-height: calc(100dvh - 24px); grid-template-columns: 210px minmax(0, 1fr); width: min(720px, 100%); }
+  .upgrade-portrait { min-height: 0; }
+  .upgrade-identity { bottom: 23px; }
+  .upgrade-identity h3 { font-size: 25px; }
+  .upgrade-emblem { width: 34px; height: 34px; margin-bottom: 12px; }
+  .upgrade-content { padding: 12px 24px 8px; }
+  .upgrade-heading { align-items: center; }
+  .upgrade-heading > div { display: flex; align-items: baseline; gap: 12px; }
+  #modal .upgrade-heading h2 { font-size: 20px; margin: 0; }
+  #upgradeCap { font-size: 10px; }
+  .upgrade-close { width: 32px; height: 32px; }
+  .upgrade-picker { margin: 5px 0 3px; }
+  .upgrade-target { width: 58px; height: 58px; gap: 2px; }
+  .upgrade-target b { font-size: 27px; }
+  .upgrade-origin b { font-size: 26px; }
+  .upgrade-track { display: none; }
+  .upgrade-selection { margin-bottom: 8px; }
+  .upgrade-stat { display: grid; grid-template-columns: 1fr 1fr; align-items: center; justify-items: center; padding: 8px 6px; gap: 6px 0; }
+  .upgrade-stat-icon { width: 20px; height: 20px; justify-self: end; margin-right: 5px; }
+  .upgrade-stat-label { justify-self: start; }
+  .upgrade-stat > b { grid-column: 1; justify-self: end; }
+  .upgrade-stat strong { font-size: 15px; }
+  .upgrade-stat small { grid-column: 2; }
+  .upgrade-resource { padding: 7px 0; }
+  .upgrade-soul { width: 34px; height: 36px; }
+  .upgrade-cost b { font-size: 22px; }
+  .upgrade-confirm { min-height: 44px; font-size: 17px; }
+  #modal .cancel { margin-top: 2px; min-height: 28px; }
+}
+@media (max-width: 360px) and (max-height: 700px) {
+  #modal.upgrade-veil { padding: 12px; }
+  #modal .upgrade-dialog { max-height: calc(100dvh - 24px); }
+  .upgrade-portrait { min-height: 94px; }
+  .upgrade-identity { bottom: 18px; }
+  .upgrade-identity h3 { font-size: 20px; margin-bottom: 5px; }
+  .upgrade-content { padding: 14px 16px 8px; }
+  #modal .upgrade-heading h2 { font-size: 20px; margin-bottom: 4px; }
+  .upgrade-picker { margin: 12px 0 6px; }
+  .upgrade-target { width: 64px; height: 64px; }
+  .upgrade-target b { font-size: 30px; }
+  .upgrade-origin b { font-size: 26px; }
+  .upgrade-track { margin: 5px 0 10px; height: 3px; }
+  .upgrade-stat { gap: 3px; padding: 7px 1px; }
+  .upgrade-stat-icon { width: 20px; height: 20px; }
+  .upgrade-stat-label { display: none; }
+  .upgrade-resource { padding: 10px 0; gap: 5px; }
+  .upgrade-soul { width: 30px; height: 36px; padding: 3px; }
+  .upgrade-cost b { font-size: 23px; }
+  #soulPreview { font-size: 11px; }
+  .upgrade-confirm { min-height: 46px; }
+  #modal .cancel { min-height: 28px; margin-top: 4px; }
+}

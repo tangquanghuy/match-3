@@ -68,5 +68,11 @@ export function settleEvent(save: MetaSave, out: BridgeOutcome, r = fakeResult(o
 
 /** 世界事件：把手里的骰子全部掷完 */
 export function rollAll(save: MetaSave, week: number): void {
-  while (eventModeState(save, week, 'worldEvent').dice > 0) expectOk(eventAction(save, week, 'worldEvent', 'roll', ++seed));
+  for (let guard = 0; guard < 200; guard++) {
+    const state = eventModeState(save, week, 'worldEvent');
+    // 遭遇/集市：驱动里一律放弃，继续掷骰
+    if (state.pending) { expectOk(eventAction(save, week, 'worldEvent', 'skip', ++seed)); continue; }
+    if (state.dice <= 0) return;
+    expectOk(eventAction(save, week, 'worldEvent', 'roll', ++seed));
+  }
 }

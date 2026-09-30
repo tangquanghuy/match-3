@@ -49,7 +49,10 @@ import {
 } from './statusPresentation';
 import { statusBadge } from './statusBadges';
 import { manaMoteDelay } from './manaPlayback';
-import { TeamView, CARD_W, setTeamSize } from './TeamView';
+import { TeamView, CARD_W, setTeamSize, setTeamRowLayout, setCardOverlayBoost } from './TeamView';
+import type { MotionAxis } from './TeamView';
+import { solvePortraitLayout, PORTRAIT_CARD_GAP, PORTRAIT_PAD, PORTRAIT_BAR } from './portraitLayout';
+import type { PortraitLayout } from './portraitLayout';
 import { installStatusTooltips } from './statusTooltip';
 import type { CharacterCard, CardShownStats, PressSource } from './TeamView';
 import { traitSlotsOf } from './CharacterDetailPanel';
@@ -78,6 +81,7 @@ import { AiTargetChooser, FixedTargetChooser, prototypeChosenTargetMode } from '
 import { candidatesFor, selectTargets } from '@engine/skills/targeting';
 import type { TargetMode } from '@engine/skills/targeting';
 import { skillDisplayOf } from '@session/assigner';
+import { applyRequestBoardPreset } from '@session/rules';
 import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/skills/cellChooser';
 import { preloadBattleAssets } from './battleAssets';
 import { fxAtlas, mountFxFrames, playFxFrames, type FxAtlas } from './fxAtlas';
@@ -202,6 +206,8 @@ const SINGLE_HIT_SFX: Partial<Record<BaseColor, SfxName>> = {
 /** 棋盘上沿 HUD 通道高度与上下留白：deriveCellSize 与 init 共享同一布局公式，避免漂移。 */
 const BOARD_TOP_INSET = 44;
 const BOARD_MARGIN_Y = 4;
+/** 竖屏小卡的角标放大系数（法力宝石 / 魔力 / 攻防血） */
+const PORTRAIT_OVERLAY_BOOST = 1.3;
 
 /** 命中爆点（DNF 108stairs hit_dodge）图集名；几何见 AnimConfig.slash */
 const SLASH_STRIP = 'hit_108stairs_strip';
@@ -386,6 +392,14 @@ export class App {
    * 让画布原生铺满窗口而非靠 transform 拉伸变糊；测试台等嵌入方仍可在 init 前显式指定。
    */
   baseCellSize: number | null = null;
+  /**
+   * 版式：auto = 按挂载容器朝向（高 > 宽 走竖屏）；也可在 init 前显式指定。
+   * 显式 baseCellSize 的嵌入方（技能测试台等）在 auto 下保持横屏。
+   */
+  layoutMode: 'auto' | 'landscape' | 'portrait' = 'auto';
+  /** 本场是否竖屏版式（init 时确定） */
+  private portrait = false;
+  private portraitLayout: PortraitLayout | null = null;
   /** 玩家选择 UI（选目标/选宝石），技能释放时按需调用 */
   private targetPicker = new TargetPicker();
   private cellPicker!: CellPicker;
@@ -483,20 +497,43 @@ export class App {
     // 手机横屏紧凑基准：逻辑格下限 40px，最低 667×375 安全内容盒中不再缩小。
     // Pixi 与 DOM 仍共享同一逻辑坐标系，视口变化仅调整 wrapper 等比缩放。
     // baseCellSize 未显式指定时按视口推导，画布原生放大而非靠 transform 拉伸变糊。
-    const cellSize = Math.max(40, Math.min(96, Math.round(this.baseCellSize ?? this.deriveCellSize(mount))));
+    // 版式按挂载容器的朝向在开战时确定（竖屏：敌方行 / 棋盘 / 我方行上下排布），
+    // 战斗中旋转设备只做等比缩放，不重排。
+    const box = this.mountContentBox(mount);
+    const portrait = this.layoutMode === 'portrait'
+      || (this.layoutMode === 'auto' && this.baseCellSize === null && box.height > box.width);
+    this.portrait = portrait;
+    const pl = portrait ? solvePortraitLayout(box.width, box.height, teamSize) : null;
+    this.portraitLayout = pl;
+
+    const cellSize = pl
+      ? pl.cellSize
+      : Math.max(40, Math.min(96, Math.round(this.baseCellSize ?? this.deriveCellSize(mount))));
     // Reserve a compact 44px HUD lane so the turn frame never covers the first gem row.
     const boardTopInset = BOARD_TOP_INSET;
     const gridPx = cellSize * BoardModel.COLS;
     const teamColumnPx = boardTopInset + gridPx;
-    setTeamSize(teamSize, teamColumnPx);
+    if (pl) {
+      // 反解 boardPx 让 CARD_W 恰为横排卡宽：卡内烘焙比例与同宽横屏卡一致
+      setTeamSize(teamSize, (pl.cardW * 512) / (teamSize >= 4 ? 132 : 142));
+      setTeamRowLayout({ rowWidth: pl.rowWidth, cardH: pl.cardH, maxCardW: pl.cardW, gap: PORTRAIT_CARD_GAP });
+      setCardOverlayBoost(PORTRAIT_OVERLAY_BOOST);
+    } else {
+      setTeamSize(teamSize, teamColumnPx);
+      setTeamRowLayout(null);
+      setCardOverlayBoost(1);
+    }
 
     const topMargin = BOARD_MARGIN_Y;
     const bottomMargin = BOARD_MARGIN_Y;
     const colGap = 6;
     const gemSpace = 8;
     const sideColW = CARD_W + colGap;
-    const dimW = gemSpace * 2 + sideColW * 2 + gridPx;
-    const dimH = teamColumnPx + topMargin + bottomMargin;
+    const dimW = pl ? pl.width : gemSpace * 2 + sideColW * 2 + gridPx;
+    const dimH = pl ? pl.height : teamColumnPx + topMargin + bottomMargin;
+    // 棋盘左上角（wrapper 布局坐标）
+    const boardLeft = pl ? pl.boardLeft : gemSpace + sideColW;
+    const boardTop = pl ? pl.boardTop : topMargin + boardTopInset;
 
     const resolution = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
     await this.app.init({
@@ -537,40 +574,44 @@ export class App {
     this.overlay = overlay;
 
     installStatusTooltips();
-    this.createFullscreenButton(wrapper);
+    this.createFullscreenButton(wrapper, pl ? { left: PORTRAIT_PAD, top: pl.barTop } : undefined);
 
     const banner = this.createTurnBanner(
       wrapper,
-      gemSpace + sideColW,
+      boardLeft,
       gridPx,
-      topMargin + boardTopInset,
+      boardTop,
+      // 竖屏横幅上方是敌方卡行：最高只能长到卡行下沿
+      pl ? pl.bannerTopLimit : 0,
     );
     // 风暴指示器：天色铺满棋盘上沿，宝石压在星落横幅的冠饰星位（素材纵向 19% 处的紫钻石）。
-    const stormWidth = gridPx;
-    const stormLeft = gemSpace + sideColW;
     this.stormIndicator.mount(wrapper, {
       // Storm is a battlefield-wide effect: keep the gem centered over the board,
       // while the color wash covers the entire top banner.
-      leftColumnX: stormLeft,
-      rightColumnX: stormLeft,
-      columnWidth: stormWidth,
-      laneTop: topMargin,
+      leftColumnX: boardLeft,
+      rightColumnX: boardLeft,
+      columnWidth: gridPx,
+      laneTop: boardTop - boardTopInset,
       laneHeight: boardTopInset,
       gemCenterY: banner.top + Math.round(banner.height * 0.19),
     });
 
-    // 棋盘容器：水平居中，左右让出 宝石区 + 队伍列
-    this.root.x = gemSpace + sideColW;
-    this.root.y = topMargin + boardTopInset;
+    // 棋盘容器：横屏水平居中、左右让出 宝石区 + 队伍列；竖屏在两排队伍之间
+    this.root.x = boardLeft;
+    this.root.y = boardTop;
     this.app.stage.addChild(this.root);
 
     // 构建引擎
     const rng = this.rng;
     const idGen = () => this.nextId++;
-    const genBoard = new BoardGenerator(rng, idGen, BATTLE_SKULL_CHANCE, BATTLE_SETUP_BIAS).generate();
+    const genBoard = new BoardGenerator(rng, idGen, battleRequest.rules?.board?.skullChance ?? BATTLE_SKULL_CHANCE, BATTLE_SETUP_BIAS).generate();
+    // 战斗规则·开局预置特殊宝石（活动深化批）：先于首屏快照与开局特质落地
+    applyRequestBoardPreset(genBoard, battleRequest, rng);
     // Retain the pre-trigger board: constructor traits can explode/convert/refill it.
     const initialPresentationBoard = genBoard.clone();
-    const state = createGameState(genBoard, playerTeam, enemyTeam);
+    // 战斗发生王国（BattleRequest.kingdom）：「战斗发生在X王国」类条件的唯一来源
+    const state = createGameState(genBoard, playerTeam, enemyTeam, PlayerSide.Left,
+      battleRequest.kingdom !== undefined ? { kingdom: battleRequest.kingdom } : undefined);
     this.narrator.start(state);
     this.engine = new TurnEngine(state, rng, idGen, this.registry);
     this.engine.setSummonResolver((ref) => troopToSummonTemplate(ref, battleRequest.arenaRules));
@@ -601,6 +642,7 @@ export class App {
     }
     // 表现层一律通过 session 提交行动，事件流才会被完整累积进结果摘要与 digest
     this.session = new BattleSession({ request: battleRequest, idMap, engine: this.engine });
+    if (this.ruleHudHost) this.mountRuleHud(this.ruleHudHost.hud, this.ruleHudHost.hudHeight);
 
     // 视图
     this.board = new BoardView(cellSize);
@@ -612,7 +654,6 @@ export class App {
     // 战斗队伍视图（需求 19.6, 19.10）：左队居左、右队居右，竖向居中，紧贴棋盘
     const teamsH = TeamView.totalHeight();
     const teamY = topMargin + (teamColumnPx - teamsH) / 2;
-    const boardLeft = gemSpace + sideColW;
     const boardRight = boardLeft + gridPx;
 
     // 部队详情窗：挂 wrapper 随舞台缩放，只盖棋盘（含上方 HUD 通道），两侧队伍列保持可点
@@ -645,7 +686,8 @@ export class App {
       onLongPress: (id) => this.openUnitSheet(id),
       longPressArmed: (id) => skipCastConfirm() && this.canCastNow(id),
     });
-    this.leftTeamView.mount(this.overlay, boardLeft - colGap - CARD_W, teamY);
+    if (pl) this.leftTeamView.mount(this.overlay, pl.rowLeft, pl.allyTop);
+    else this.leftTeamView.mount(this.overlay, boardLeft - colGap - CARD_W, teamY);
 
     this.rightTeamView = new TeamView(state.teams[PlayerSide.Right], PlayerSide.Right, {
       portraits: Object.fromEntries(
@@ -654,7 +696,8 @@ export class App {
       // 敌方卡：点按（按多久都一样）打开/切换详情窗，任何时候都可以，包括对手回合与演出中
       onShortPress: (id, via) => this.onCardTap(id, via),
     });
-    this.rightTeamView.mount(this.overlay, boardRight + colGap, teamY);
+    if (pl) this.rightTeamView.mount(this.overlay, pl.rowLeft, pl.enemyTop);
+    else this.rightTeamView.mount(this.overlay, boardRight + colGap, teamY);
 
     this.board.syncFromBoard(initialPresentationBoard);
     this.player = new EventStreamPlayer(this.board, this.fx, this.root, this.audio);
@@ -731,12 +774,13 @@ export class App {
       }
     }
   }
-  private createFullscreenButton(wrapper: HTMLDivElement): void {
+  private createFullscreenButton(wrapper: HTMLDivElement, at?: { left: number; top: number }): void {
     const btn = document.createElement('button');
     btn.setAttribute('aria-label', '全屏');
     btn.dataset.testid = 'fullscreen-button';
     btn.style.cssText = [
-      'position:absolute', 'right:-44px', 'bottom:0', 'z-index:10',
+      // 横屏挂在舞台右下外侧；竖屏放进顶栏左端（右端是齿轮/倍速/自动）
+      'position:absolute', ...(at ? [`left:${at.left}px`, `top:${at.top}px`] : ['right:-44px', 'bottom:0']), 'z-index:10',
       'width:44px', 'height:44px', 'padding:0',
       'display:flex', 'align-items:center', 'justify-content:center',
       'background:rgba(11,10,9,.62)', 'border:1px solid rgba(216,194,144,.34)',
@@ -747,7 +791,8 @@ export class App {
       expand
         ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M16 21h3a2 2 0 0 0 2-2v-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>`
         : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a2 2 0 0 1 2-2h3M20 8V5a2 2 0 0 0-2-2h-3M20 16v3a2 2 0 0 1-2 2h-3M4 16v3a2 2 0 0 0 2 2h3"/></svg>`;
-    btn.innerHTML = icon(true);
+    // 局外出战可能已自动进了全屏（触屏设备），图标按当前状态初始化
+    btn.innerHTML = icon(!document.fullscreenElement);
     btn.onmouseenter = () => { btn.style.borderColor = '#c9a35c'; btn.style.background = 'rgba(11,10,9,.85)'; };
     btn.onmouseleave = () => { btn.style.borderColor = 'rgba(216,194,144,.34)'; btn.style.background = 'rgba(11,10,9,.62)'; };
     btn.onclick = async () => {
@@ -759,8 +804,9 @@ export class App {
       }
     };
     if (!this.mountEl.requestFullscreen) {
-      btn.disabled = true;
-      btn.title = '当前浏览器不支持全屏';
+      // 不支持网页全屏（iPhone Safari 等）：不摆一个点不动的按钮
+      btn.hidden = true;
+      btn.style.display = 'none';
     }
     document.addEventListener('fullscreenchange', () => {
       const fs = !!document.fullscreenElement;
@@ -812,6 +858,7 @@ export class App {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.clearPortraitSubtitleAnchor();
     this.audioLifecycle.abort();
     this.battleSettings?.dispose();
     this.player?.cancel();
@@ -850,10 +897,58 @@ export class App {
     const scale = Math.max(0.1, Math.min(1.75, fit));
     this.wrapper.style.transform = `scale(${scale})`;
     this.syncBackingStore(scale);
+    this.syncPortraitSubtitleAnchor();
     // B-7：卡内覆盖层里有"屏幕像素"口径的尺寸下限（状态徽记 ≥24px），
     // 舞台缩放变了必须告诉卡片，否则移动横屏还是阶段 A 的 17×17。
     this.leftTeamView?.setStageScale(scale);
     this.rightTeamView?.setStageScale(scale);
+  }
+
+  /** 竖屏：旁白字幕（document 级 fixed）抬到我方卡行上方，避免遮住卡面数值 */
+  private syncPortraitSubtitleAnchor(): void {
+    const pl = this.portraitLayout;
+    if (!pl || this.destroyed) return;
+    const root = document.documentElement;
+    root.dataset.battleLayout = 'portrait';
+    const rect = this.wrapper.getBoundingClientRect();
+    const scale = this.baseH > 0 ? rect.height / this.baseH : 1;
+    const allyTopPx = rect.top + pl.allyTop * scale;
+    root.style.setProperty('--battle-subtitle-bottom', `${Math.max(0, Math.round(window.innerHeight - allyTopPx + 10))}px`);
+  }
+
+  private clearPortraitSubtitleAnchor(): void {
+    const root = document.documentElement;
+    if (root.dataset.battleLayout === 'portrait') delete root.dataset.battleLayout;
+    root.style.removeProperty('--battle-subtitle-bottom');
+  }
+
+  /** 挂载容器内容盒（扣除 padding / safe-area）；未布局时退回窗口尺寸 */
+  private mountContentBox(mount: HTMLElement): { width: number; height: number } {
+    const rect = mount.getBoundingClientRect();
+    const style = getComputedStyle(mount);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    return {
+      width: Math.max(1, (rect.width > 0 ? rect.width : window.innerWidth) - padX),
+      height: Math.max(1, (rect.height > 0 ? rect.height : window.innerHeight) - padY),
+    };
+  }
+
+  /** 本场是否竖屏版式 */
+  isPortraitLayout(): boolean {
+    return this.portrait;
+  }
+
+  /** 攻击方向：横屏左打右 +1 / 右打左 -1；竖屏我方（下）向上 -1、敌方（上）向下 +1 */
+  private attackDir(attackerId: number): 1 | -1 {
+    const ally = this.sideOfChar(attackerId) === PlayerSide.Left;
+    if (this.portrait) return ally ? -1 : 1;
+    return ally ? 1 : -1;
+  }
+
+  /** 卡片冲撞/后仰/闪避的位移轴 */
+  private get motionAxis(): MotionAxis {
+    return this.portrait ? 'y' : 'x';
   }
 
   /** 未显式指定 baseCellSize 时按挂载视口高度反解逻辑格：画布原生高度≈视口，refreshLayout 只需微调而非放大。 */
@@ -968,6 +1063,7 @@ export class App {
     boardLeft: number,
     gridPx: number,
     boardTop: number,
+    topLimit = 0,
   ): { top: number; height: number } {
     // 素材 1425×310：顶部金冠 + 星空主体 + 底部波浪羽化。宽度与棋盘对齐（不再外溢边框）；
     // 高度取自然纵横比，受「棋盘上方空间 + 羽化沉入深度」约束，空间不足时整体等比压缩。
@@ -975,8 +1071,8 @@ export class App {
     const hudWidth = gridPx;
     const dipIntoBoard = Math.round((gridPx / BoardModel.COLS) * 0.42);
     const naturalHeight = Math.round((gridPx * 310) / 1425);
-    const hudHeight = Math.min(naturalHeight, boardTop + dipIntoBoard);
-    const hudTop = Math.max(0, boardTop + dipIntoBoard - hudHeight);
+    const hudHeight = Math.min(naturalHeight, boardTop + dipIntoBoard - topLimit);
+    const hudTop = Math.max(topLimit, boardTop + dipIntoBoard - hudHeight);
     const hud = document.createElement('div');
     hud.className = 'turn-hud';
     hud.style.cssText = [
@@ -1150,6 +1246,8 @@ export class App {
 
     textSlot.appendChild(text);
     hud.append(frame, glowFrame, comboFx, textSlot);
+    // 规则角标要读引擎规则：此时引擎尚未搭建，session 建好后再挂（见 init）
+    this.ruleHudHost = { hud, hudHeight };
     wrapper.appendChild(hud);
     this.turnTextEl = text;
     this.turnHudEl = hud;
@@ -1312,9 +1410,60 @@ export class App {
     return `TURN ${String(this.turnNumber).padStart(2, '0')}`;
   }
 
+  /** 战斗规则角标（活动深化批）：左 = 击杀目标，右 = 回合上限进度；无规则不挂载 */
+  private ruleHudHost: { hud: HTMLDivElement; hudHeight: number } | null = null;
+  private ruleHudLeft: HTMLSpanElement | null = null;
+  private ruleHudRight: HTMLSpanElement | null = null;
+
+  private mountRuleHud(hud: HTMLDivElement, hudHeight: number): void {
+    const rules = this.engine?.getRules();
+    if (!rules || (!rules.turnLimit && !rules.killTargets?.length)) return;
+    const pill = (side: 'left' | 'right'): HTMLSpanElement => {
+      const el = document.createElement('span');
+      el.className = `rule-hud rule-hud-${side}`;
+      el.style.cssText = [
+        'position:absolute', `${side}:5%`, `top:${Math.round(hudHeight * 0.39)}px`, 'z-index:5',
+        'max-width:31%', 'overflow:hidden', 'text-overflow:ellipsis', 'white-space:nowrap',
+        'padding:2px 8px', 'border-radius:999px', 'font:600 11px/1.3 system-ui,sans-serif',
+        'color:#fbe9bd', 'background:rgba(24,14,40,.78)', 'border:1px solid rgba(214,172,96,.6)',
+        'box-shadow:0 0 6px rgba(0,0,0,.5)',
+      ].join(';');
+      hud.appendChild(el);
+      return el;
+    };
+    if (rules.killTargets?.length) {
+      const all = [...this.engine.getState().teams[PlayerSide.Right].characters];
+      const names = rules.killTargets.map((id) => all.find((c) => c.id === id)?.name).filter(Boolean);
+      this.ruleHudLeft = pill('left');
+      this.ruleHudLeft.textContent = `🎯 击杀 ${names.join('、') || '目标'}`;
+      this.ruleHudLeft.title = '击杀目标即可获胜（目标逃跑则不算）';
+    }
+    if (rules.turnLimit) {
+      this.ruleHudRight = pill('right');
+      this.refreshRuleHud();
+    }
+  }
+
+  private refreshRuleHud(): void {
+    const el = this.ruleHudRight;
+    const limit = this.engine?.getRules()?.turnLimit;
+    if (!el || !limit) return;
+    const done = this.engine.getState().turnCount?.[PlayerSide.Left] ?? 0;
+    if (limit.onExpire === 'playerWins') {
+      el.textContent = `🛡 坚守 ${Math.min(done, limit.turns)}/${limit.turns}`;
+      el.title = `坚守 ${limit.turns} 个我方回合即获胜`;
+    } else {
+      const left = Math.max(0, limit.turns - done);
+      el.textContent = `⏳ 剩余 ${left} 回合`;
+      el.title = `须在 ${limit.turns} 个我方回合内获胜`;
+      el.style.color = left <= 2 ? '#ff9d8a' : '#fbe9bd';
+    }
+  }
+
   private advanceTurnHud(events: GameEvent[]): void {
     if (!hasTurnSwitch(events)) return;
     this.turnNumber += 1;
+    this.refreshRuleHud();
     const text = this.turnTextEl;
     if (!text) return;
     const next = this.turnLabel();
@@ -1461,6 +1610,15 @@ export class App {
     const gridPx = this.board.cellSize * BoardModel.COLS * scale;
     const grid = new DOMRect(wrapperRect.left + this.root.x * scale, wrapperRect.top + this.root.y * scale, gridPx, gridPx);
     const cards = [...this.overlay.querySelectorAll<HTMLElement>('.gcard')].map((card) => card.getBoundingClientRect());
+    const pl = this.portraitLayout;
+    if (pl) {
+      // 竖屏：齿轮/倍速/自动排进顶栏右端（顶栏竖向居中），与左端全屏钮同一行
+      const rowTop = wrapperRect.top + (pl.barTop + PORTRAIT_BAR / 2) * scale - 22;
+      const barRight = wrapperRect.left + (pl.width - PORTRAIT_PAD) * scale;
+      this.battleControls.place({ avoid: [grid, ...cards], boardTop: grid.top, boardRight: barRight + 4, rowTop });
+      this.applyUnitSheetBounds(true);
+      return;
+    }
     this.battleControls.place({ avoid: [grid, ...cards], boardTop: grid.top, boardRight: grid.right });
     // 按钮组落进棋盘上方 HUD 通道（窄屏时排成一行）→ 详情窗让出这条通道，只盖棋盘，
     // 否则设置/倍速/自动按钮会压住详情窗的标题栏和关闭钮。
@@ -1622,6 +1780,8 @@ export class App {
         await this.finiteVisuals.waitForIdle(generation);
         if (generation !== this.finiteVisuals.generation) break;
         const animations = this.wrapper.getAnimations({ subtree: true }).filter(animation => {
+          const target = (animation.effect as KeyframeEffect | null)?.target;
+          if (target instanceof Element && target.closest('.trait-activation-lane')) return false;
           const timing = animation.effect?.getComputedTiming();
           return timing && Number.isFinite(timing.endTime) &&
             (animation.playState === 'running' || animation.playState === 'paused' || animation.pending);
@@ -1633,6 +1793,8 @@ export class App {
         // Fence queued animationend/onfinish handlers and DOM removals before input.
         if (!await this.finiteVisuals.raceCancellation(new Promise<void>(resolve => requestAnimationFrame(() => resolve())), generation)) break;
         const remaining = this.wrapper.getAnimations({ subtree: true }).some(a => {
+          const target = (a.effect as KeyframeEffect | null)?.target;
+          if (target instanceof Element && target.closest('.trait-activation-lane')) return false;
           const timing = a.effect?.getComputedTiming();
           return timing && Number.isFinite(timing.endTime) && (a.playState === 'running' || a.pending);
         });
@@ -1645,8 +1807,18 @@ export class App {
     }
   }
 
+  private showTraitActivations(ev: GameEvent): void {
+    for (const cue of ev.traitActivations ?? []) {
+      this.cardOfChar(cue.characterId)?.showTraitActivation(cue.traitId, cue.name);
+    }
+  }
+
   private onBattleEvent(ev: GameEvent, presentation?: ImpactPresentation): void {
     const state = this.engine.getState();
+    // Hit provenance fires inside the impact callback, not at projectile launch.
+    if (ev.type !== 'skull-damage' && ev.type !== 'skill-damage' && ev.type !== 'attack-struggle') {
+      this.showTraitActivations(ev);
+    }
     switch (ev.type) {
       case 'mana-gain': {
         const card =
@@ -1669,19 +1841,20 @@ export class App {
         // 反弹伤害（受击方的荆棘/Reflect 把伤害弹回攻击者）：不是一次主动攻击，
         // 不播冲撞——否则攻击者与反弹方各冲一次，看起来像双方对撞。只给受弹方闪白。
         if (ev.reflected) {
+          this.showTraitActivations(ev);
           const reflectee = this.cardOfChar(ev.attackerId);
           reflectee?.hitFlash();
           break;
         }
         // 攻击冲撞特效：攻击者短促前压，目标后退
-        this.playAttackLunge(ev.attackerId, ev.targetId);
+        this.playAttackLunge(ev.attackerId, ev.targetId, () => this.showTraitActivations(ev));
         break;
       }
       case 'attack-struggle': {
         // 屏障/闪避：攻击确实打过去了——照常冲撞，命中瞬间播格挡或闪避；
         // 队首被控（冰冻/缠绕/击晕）：原地小幅前冲被拉回，不造成伤害
         if ((ev.reason === 'barrier' || ev.reason === 'dodge') && ev.targetId !== undefined) {
-          this.playDeflectedLunge(ev.attackerId, ev.targetId, ev.reason);
+          this.playDeflectedLunge(ev.attackerId, ev.targetId, ev.reason, () => this.showTraitActivations(ev));
         } else {
           this.playStruggle(ev.attackerId);
         }
@@ -1821,6 +1994,7 @@ export class App {
           this.audio.play(hitSfx);
         };
         const impact = () => {
+          this.showTraitActivations(ev);
           if (to) {
             this.playFrameFX(hitFx, to.x, to.y);
             this.playHitBurst(to.x, to.y, color);
@@ -2031,7 +2205,7 @@ export class App {
           const casterCard = this.cardOfChar(blocked.casterId);
           const from = casterCard ? this.cardCenterInOverlay(casterCard) : null;
           const to = this.cardCenterInOverlay(card);
-          const dir = this.sideOfChar(blocked.casterId) === PlayerSide.Right ? -1 : 1;
+          const dir = this.attackDir(blocked.casterId);
           const impact = () => { this.playBarrierBlock(card, dir); expire(); };
           if (from && to && blocked.casterId !== ev.targetId && blocked.range !== 'splash') {
             this.audio.play('skill');
@@ -2245,7 +2419,9 @@ export class App {
       const distance = Math.max(1, Math.hypot(dx, dy));
       const normal = { x: -dy / distance, y: dx / distance };
       const curve = 28 + Math.min(48, distance * 0.075) + (index % 3) * 5;
-      const tailLength = Math.max(surged ? 88 : 68, Math.min(surged ? 136 : 112, Math.abs(dx) * (surged ? 0.3 : 0.24)));
+      // 拖尾长度：横屏按水平跨度；竖屏法力主要竖向流动，按路径距离，否则恒取下限
+      const tailBasis = this.portrait ? distance : Math.abs(dx);
+      const tailLength = Math.max(surged ? 88 : 68, Math.min(surged ? 136 : 112, tailBasis * (surged ? 0.3 : 0.24)));
       // Every control point advances along the source-to-target vector. The perpendicular offset
       // only bends the route, so a stream can no longer launch away from its recipient first.
       const points = [
@@ -2348,64 +2524,64 @@ export class App {
   }
 
   /** 攻击冲撞特效：攻击者短促前压（不跨屏顶到对方卡上），目标受击后退 */
-  private playAttackLunge(attackerId: number, targetId: number): void {
+  private playAttackLunge(attackerId: number, targetId: number, onImpact?: () => void): void {
     const attacker = this.cardOfChar(attackerId);
     const target = this.cardOfChar(targetId);
     if (!attacker) return;
-    // 攻击者属于哪一方决定冲撞方向：左队向右(+)，右队向左(-)
-    const attackerSide = this.sideOfChar(attackerId);
-    const dir = attackerSide === PlayerSide.Right ? -1 : 1;
-    // 冲撞距离：短促前压（原先按 0.7×卡距、上限 520px，会把攻击者整个顶到对方卡上，
-    // 加上受击方大立绘溢出，观感像双方对撞）。压到 0.3×卡距、上限 170px，
-    // 命中点交给命中特效与受击后仰表达。
-    let dist = 150;
-    if (target) {
-      const a = attacker.el.getBoundingClientRect();
-      const t = target.el.getBoundingClientRect();
-      const gap = Math.abs(t.left - a.left);
-      // getBoundingClientRect 受 wrapper 缩放影响，除回缩放还原到布局坐标
-      const scale = this.currentScale();
-      dist = Math.min(Math.max((gap / scale) * 0.3, 70), 170);
-    }
+    // 攻击者属于哪一方决定冲撞方向：横屏左队向右(+)、右队向左(-)；竖屏我方向上(-)、敌方向下(+)
+    const dir = this.attackDir(attackerId);
+    const dist = this.lungeDistance(attacker, target);
     attacker.lunge(dir * dist, () => {
+      onImpact?.();
       // 命中瞬间：撞击音效 + 整屏震动(棋盘+卡片一起晃) + 目标后仰 + 命中特效
       this.audio.play('skullHit');
       impactShake(this.wrapper, this.wrapper.style.transform);
-      if (target) target.recoil(dir * 1);
+      if (target) target.recoil(dir * 1, this.motionAxis);
       this.playImpactFX(target ?? attacker, dir);
-    });
+    }, this.motionAxis);
+  }
+
+  /**
+   * 冲撞距离：短促前压（原先按 0.7×卡距、上限 520px，会把攻击者整个顶到对方卡上，
+   * 加上受击方大立绘溢出，观感像双方对撞）。压到 0.3×卡距、上限 170px，
+   * 命中点交给命中特效与受击后仰表达。卡距沿冲撞轴量（竖屏为上下）。
+   */
+  private lungeDistance(attacker: CharacterCard, target: CharacterCard | undefined): number {
+    if (!target) return 150;
+    const a = attacker.el.getBoundingClientRect();
+    const t = target.el.getBoundingClientRect();
+    const gap = this.portrait ? Math.abs(t.top - a.top) : Math.abs(t.left - a.left);
+    // getBoundingClientRect 受 wrapper 缩放影响，除回缩放还原到布局坐标
+    return Math.min(Math.max((gap / this.currentScale()) * 0.3, 70), 170);
   }
 
   /**
    * 被屏障挡下 / 被闪避的骷髅攻击：冲撞照常（与 playAttackLunge 同距离），命中瞬间
    * 屏障 → 护盾格挡音 + 冰蓝护盾圈 + 轻震屏；闪避 → 破空声 + 目标侧身让开。都不播斩击与后仰。
    */
-  private playDeflectedLunge(attackerId: number, targetId: number, reason: 'barrier' | 'dodge'): void {
+  private playDeflectedLunge(attackerId: number, targetId: number, reason: 'barrier' | 'dodge', onImpact?: () => void): void {
     const attacker = this.cardOfChar(attackerId);
     const target = this.cardOfChar(targetId);
     if (!attacker) return;
-    const dir = this.sideOfChar(attackerId) === PlayerSide.Right ? -1 : 1;
-    let dist = 150;
-    if (target) {
-      const gap = Math.abs(target.el.getBoundingClientRect().left - attacker.el.getBoundingClientRect().left);
-      dist = Math.min(Math.max((gap / this.currentScale()) * 0.3, 70), 170);
-    }
+    const dir = this.attackDir(attackerId);
+    const dist = this.lungeDistance(attacker, target);
     attacker.lunge(dir * dist, () => {
+      onImpact?.();
       if (reason === 'barrier') {
         this.playBarrierBlock(target, dir);
       } else {
         this.audio.play('whoosh');
-        target?.dodgeStep(dir);
+        target?.dodgeStep(dir, this.motionAxis);
         target?.floatText('闪避', '#d9d4c7');
       }
-    });
+    }, this.motionAxis);
   }
 
   /** 屏障格挡反馈（骷髅普攻与法术共用）：格挡音 + 护盾圈 + 轻震屏 + 「格挡」字 */
   private playBarrierBlock(target: CharacterCard | undefined, dir: number): void {
     this.audio.play('barrierBlock');
     impactShake(this.wrapper, this.wrapper.style.transform, 0.35);
-    target?.blockFlash(dir);
+    target?.blockFlash(dir, this.motionAxis);
     target?.floatText('格挡', '#a9ddff');
   }
 
@@ -2416,18 +2592,19 @@ export class App {
   private playStruggle(attackerId: number): void {
     const attacker = this.cardOfChar(attackerId);
     if (!attacker) return;
-    const dir = this.sideOfChar(attackerId) === PlayerSide.Right ? -1 : 1;
+    const dir = this.attackDir(attackerId);
     const el = attacker.el;
     const nudge = dir * 14; // 小幅前冲（远小于正常冲撞）
+    const t = this.portrait ? 'translateY' : 'translateX';
     el.animate(
       [
-        { transform: 'translateX(0) rotate(0deg)' },
-        { transform: `translateX(${nudge * 0.5}px) rotate(${dir * 1.5}deg)`, offset: 0.2 },
-        { transform: `translateX(${nudge}px) rotate(${dir * 2}deg)`, offset: 0.38 },
+        { transform: `${t}(0px) rotate(0deg)` },
+        { transform: `${t}(${nudge * 0.5}px) rotate(${dir * 1.5}deg)`, offset: 0.2 },
+        { transform: `${t}(${nudge}px) rotate(${dir * 2}deg)`, offset: 0.38 },
         // 被"拉回"：反向过冲一点点再归位，像被束缚拽住
-        { transform: `translateX(${-dir * 5}px) rotate(${-dir * 1}deg)`, offset: 0.62 },
-        { transform: `translateX(${nudge * 0.4}px) rotate(${dir * 1}deg)`, offset: 0.8 },
-        { transform: 'translateX(0) rotate(0deg)' },
+        { transform: `${t}(${-dir * 5}px) rotate(${-dir * 1}deg)`, offset: 0.62 },
+        { transform: `${t}(${nudge * 0.4}px) rotate(${dir * 1}deg)`, offset: 0.8 },
+        { transform: `${t}(0px) rotate(0deg)` },
       ],
       { duration: 400, easing: 'cubic-bezier(.34,1.4,.5,1)' },
     );
@@ -2442,10 +2619,16 @@ export class App {
     const oRect = this.overlay.getBoundingClientRect();
     const tRect = target.el.getBoundingClientRect();
     const scale = this.currentScale();
-    // 接触点：目标朝攻击者一侧的边缘、竖向居中（换算到覆盖层布局坐标）
-    const edgeScreenX = dir > 0 ? tRect.left : tRect.right;
-    const px = (edgeScreenX - oRect.left) / scale;
-    const py = (tRect.top + tRect.height / 2 - oRect.top) / scale;
+    // 接触点：目标朝攻击者一侧的边缘（横屏左右沿竖向居中，竖屏上下沿水平居中），换算到覆盖层布局坐标
+    let px: number;
+    let py: number;
+    if (this.portrait) {
+      px = (tRect.left + tRect.width / 2 - oRect.left) / scale;
+      py = ((dir > 0 ? tRect.top : tRect.bottom) - oRect.top) / scale;
+    } else {
+      px = ((dir > 0 ? tRect.left : tRect.right) - oRect.left) / scale;
+      py = (tRect.top + tRect.height / 2 - oRect.top) / scale;
+    }
 
     // 爆炸序列帧（DNF）：在接触点叠一团爆炸，作为命中主视觉
     this.playSlashFX(px, py);
@@ -2523,6 +2706,7 @@ export class App {
     if (!to) return;
     const from = this.cellsCenterInOverlay([ev.originCell ?? { row: 3, col: 3 }]) ?? to;
     this.playProjectile(from, to, '#e8e0cf', () => {
+      this.showTraitActivations(ev);
       this.audio.play('skullHit');
       card.floatText(`-${ev.damage}`, '#ffb37a');
       card.hitFlash();
@@ -2537,6 +2721,7 @@ export class App {
   ): void {
     const target = this.cardCenterInOverlay(card);
     const impact = () => {
+      this.showTraitActivations(ev);
       if (target) this.playFrameFX('splash_hit', target.x, target.y);
       this.audio.play('splashChainHit');
       card.floatText(`-${ev.damage}`, '#ff7f72');
@@ -2628,15 +2813,19 @@ export class App {
       this.playFrameFX('group_cast', castPoint.x, castPoint.y, { rotateDeg });
     }
 
+    const hitCfg = AnimConfig.frameFX[hitFx];
+    const groupHitRotate = this.portrait && hitCfg && hitCfg.frameW / hitCfg.frameH > 1.3 ? 90 : 0;
     // 2) 命中延迟后，全体同时受击
     this.visualDelay(AnimConfig.groupAttack.hitDelay, () => {
       let audioPlayed = false;
       for (const ev of events) {
         const card = this.cardOfChar(ev.targetId);
         if (!card) continue;
+        this.showTraitActivations(ev);
         const center = this.cardCenterInOverlay(card);
-        // 受击范围大：群体受击 strip displayH 已放大，覆盖整卡而非头像中心一小块
-        if (center) this.playFrameFX(hitFx, center.x, center.y);
+        // 受击范围大：群体受击 strip displayH 已放大，覆盖整卡而非头像中心一小块。
+        // 宽幅 strip 横屏时沿棋盘↔屏外方向铺开；竖屏卡片横排，转 90° 保持同样的铺开方向、不压左右队友。
+        if (center) this.playFrameFX(hitFx, center.x, center.y, { rotateDeg: groupHitRotate });
         // 颜色受击音效整批只播一次
         if (!audioPlayed) {
           this.audio.play(hitSfx);
@@ -3578,14 +3767,17 @@ export class App {
   // —— 详情窗 / 施法演出（lane A）——
 
   /**
-   * 详情窗覆盖区（wrapper 布局坐标）：默认盖住棋盘 + 上方 HUD 通道；
+   * 详情卡扇可略微伸入两侧部队立绘，保留紧凑叠放而不挤在棋盘内；
    * 窄屏下设置/倍速/自动按钮排进 HUD 通道时只盖棋盘，避免按钮压住标题栏与关闭钮。
    */
   private applyUnitSheetBounds(includeHudLane: boolean): void {
     if (!this.unitSheet) return;
     const gridPx = this.board.cellSize * BoardModel.COLS;
     const inset = includeHudLane ? BOARD_TOP_INSET : 0;
-    this.unitSheet.setBounds({ left: this.root.x, top: this.root.y - inset, width: gridPx, height: gridPx + inset });
+    const width = Math.min(this.baseW, gridPx * 1.25);
+    this.unitSheet.setBounds({
+      left: this.root.x - (width - gridPx) / 2, top: this.root.y - inset, width, height: gridPx + inset,
+    });
   }
 
   /**

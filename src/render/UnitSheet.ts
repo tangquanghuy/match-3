@@ -1,15 +1,15 @@
 /**
  * 部队详情窗（战斗内，非模态）——三张图鉴样式的卡叠成一摞。
  *
- * 点任意战斗卡打开：棋盘区压暗，三张同尺寸的卡收拢叠放——当前页居中压在最上面，另两张从左右两侧
- * 露出一截；点露出的那张就把它换到最前（与原当前页交换位置），再点空白处 / Esc / ✕ 关闭。
+ * 点任意战斗卡打开：三张同尺寸的卡扇形叠放，当前页居中突出，两侧多露出一些便于点击切换。
+ * 点两侧卡片可换到最前（与原当前页交换位置），再点空白处 / Esc / ✕ 关闭。
  *   - 立绘卡（默认当前页）：图鉴部队卡同款，左上法力「当前/上限」、右上魔力、名字与种族 · 王国、
  *     攻击·护甲·生命一行，底部一排状态图标（悬停看说明）；
  *   - 技能卡：图鉴法术卷轴（暗色抬头 + 羊皮纸正文，按当前魔力求值、附目标说明）；
  *   - 特质卡：图鉴「天赋特质」3 个槽位，已解锁 / 未解锁 / 未开槽与图鉴一致。
  * 我方卡摞下是图鉴主按钮「释放技能」与「快速释放」复选框；敌方只列法力。
  *
- * 只盖棋盘（含上方 HUD 通道），两侧队伍列保持可见可点：点另一张战斗卡切换角色。挂在战斗 wrapper 内
+ * 卡扇覆盖棋盘与部分队伍立绘，未遮挡的队伍卡仍可点击切换角色。挂在战斗 wrapper 内
  * 随舞台缩放；不暂停战斗，数值跟随卡面显示值实时刷新（App 轮询）。图鉴 meta 样式不在独立战斗页加载，
  * 这里用 `usw-` 前缀按图鉴规则复刻。
  */
@@ -187,7 +187,8 @@ const CSS_STACK = `
   .usw{position:absolute;z-index:1100;box-sizing:border-box;display:none;flex-direction:column;align-items:center;justify-content:center;
     --pad:16px;--gap:10px;--cw:294px;--ch:441px;--sp:120px;--bh:44px;--chk:26px;--close:32px;
     gap:var(--gap);padding:calc(var(--pad) + var(--close)) var(--pad) var(--pad);border-radius:10px;color:#f2ead8;font-family:${BODY};
-    background:radial-gradient(ellipse 75% 70% at 50% 48%,rgba(14,14,24,.55),rgba(8,9,16,.86))}
+    pointer-events:none;background:radial-gradient(ellipse 65% 70% at 50% 48%,rgba(14,14,24,.75),rgba(8,9,16,.18))}
+  .usw-close,.usw-actions{pointer-events:auto}
   .usw.open{display:flex}
   .usw *{box-sizing:border-box}
   .usw [hidden]{display:none !important}
@@ -199,13 +200,13 @@ const CSS_STACK = `
   .usw-close:focus-visible,.usw-cast:focus-visible,.usw-quick input:focus-visible,.usw-pane:focus-visible,.usw-pane-body:focus-visible{
     outline:2px solid #a6dff9;outline-offset:3px}
 
-  .usw-stack{position:relative;flex:none;width:calc(var(--cw) + var(--sp) * 2);height:calc(var(--ch) + var(--cw) * .04);max-width:100%}
-  .usw-pane{position:absolute;left:50%;top:0;width:var(--cw);height:var(--ch);margin-left:calc(var(--cw) * -.5);
-    transform-origin:50% 60%;transition:transform .32s cubic-bezier(.2,.8,.25,1),filter .32s ease;will-change:transform}
+  .usw-stack{position:relative;flex:none;width:calc(var(--cw) + var(--sp) * 2);height:var(--fan-h);max-width:100%;pointer-events:none}
+  .usw-pane{position:absolute;left:50%;top:calc(var(--cw) * .04);width:var(--cw);height:var(--ch);pointer-events:auto;margin-left:calc(var(--cw) * -.5);
+    transform-origin:50% 50%;transition:transform .32s cubic-bezier(.2,.8,.25,1),filter .32s ease;will-change:transform}
   .usw-pane[data-pos="center"]{z-index:3;transform:none;filter:none}
-  .usw-pane[data-pos="left"]{z-index:1;transform:translateX(calc(var(--sp) * -1)) scale(.9) rotate(-4deg);filter:brightness(.52) saturate(.8);cursor:pointer}
-  .usw-pane[data-pos="right"]{z-index:2;transform:translateX(var(--sp)) scale(.9) rotate(4deg);filter:brightness(.52) saturate(.8);cursor:pointer}
-  .usw-pane:not([data-pos="center"]):hover{filter:brightness(.72) saturate(.9)}
+  .usw-pane[data-pos="left"]{z-index:1;transform:translateX(calc(var(--sp) * -1)) translateY(calc(var(--cw) * .025)) scale(.94) rotate(-6deg);filter:brightness(.78);cursor:pointer}
+  .usw-pane[data-pos="right"]{z-index:2;transform:translateX(var(--sp)) translateY(calc(var(--cw) * .025)) scale(.94) rotate(6deg);filter:brightness(.78);cursor:pointer}
+  .usw-pane:not([data-pos="center"]):hover{filter:brightness(.94)}
   .usw-pane:not([data-pos="center"]) *{pointer-events:none}
   .usw-pane:not([data-pos="center"]) .usw-pane-body{overflow:hidden}
 
@@ -364,7 +365,7 @@ const CSS_PANES = `
   .usw-trait-tag{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid #6e5a3c;vertical-align:1px;letter-spacing:0;
     font:max(11px,calc(var(--cw) * .028))/1.5 ${BODY};color:#9e885f}
 
-  .usw-actions{flex:none;width:var(--cw);display:flex;flex-direction:column;align-items:stretch;gap:calc(var(--gap) * .6)}
+  .usw-actions{flex:none;width:var(--cw);display:flex;flex-direction:column;align-items:stretch;gap:calc(var(--gap) * .6);background:rgba(13,12,21,.94);border-radius:0 0 6px 6px}
   .usw-cast{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:var(--bh);padding:0 24px;cursor:pointer;
     color:#f2e5bc;font:max(14px,calc(var(--bh) * .37)) ${DISPLAY};letter-spacing:.14em;text-indent:.14em;
     background:linear-gradient(#477454,#294b38 49%,#213b2d 50%,#2f4e37);border:1px solid #baa674;border-radius:0;
@@ -413,8 +414,12 @@ function ensureStyles(): void {
   document.head.appendChild(style);
 }
 
-/** 两侧露出的卡相对卡宽的偏移（translateX），缩放 0.9 后每侧约露出 0.29 × 卡宽 */
-export const PANE_SPREAD = 0.34;
+/** 两侧卡略多露出点击区，仍有约一半叠在中间卡后，避免三张并排。 */
+export const PANE_SPREAD = 0.5;
+const FAN_ANGLE = 6 * Math.PI / 180;
+const FAN_SIDE_WIDTH = 0.94 * (Math.cos(FAN_ANGLE) + 1.5 * Math.sin(FAN_ANGLE));
+// 含旋转后的上下边缘、侧卡下沉与顶部留白。
+const FAN_HEIGHT = 1.61;
 
 /** 详情窗版式（wrapper 逻辑像素） */
 export interface UnitSheetMetrics {
@@ -426,17 +431,18 @@ export interface UnitSheetMetrics {
   cardH: number;
   /** 两侧卡的水平偏移 */
   spread: number;
+  fanH: number;
   buttonH: number;
   checkH: number;
   closeSize: number;
 }
 
 /**
- * 卡宽取「竖向放得下 2:3 卡 + 饰件 + 按钮 + 复选框」与「横向放得下卡摞（卡宽 + 两侧偏移）」的较小者。
+ * 同时预留卡扇旋转后的边界与底部操作区；宽屏展开不以牺牲小屏文字大小为代价。
  */
 export function unitSheetMetrics(width: number, height: number): UnitSheetMetrics {
-  const k = Math.max(0.3, Math.min(1.2, width / 768));
-  const compact = width < 520;
+  const k = Math.max(0.3, Math.min(1.2, width / 1100, height / 812));
+  const compact = height < 520;
   const pad = Math.max(8, Math.round(16 * k));
   const gap = Math.max(5, Math.round(10 * k));
   const buttonH = Math.round(Math.max(30, 46 * k));
@@ -444,9 +450,9 @@ export function unitSheetMetrics(width: number, height: number): UnitSheetMetric
   const closeSize = Math.round(Math.max(24, 32 * k));
   const usableH = height - pad * 2 - closeSize - buttonH - checkH - gap * 2;
   const innerW = width - pad * 2;
-  const cardW = Math.max(80, Math.floor(Math.min(usableH / 1.54, innerW / (1 + PANE_SPREAD * 2))));
+  const cardW = Math.max(80, Math.floor(Math.min((usableH - 2) / FAN_HEIGHT, (innerW - 2) / (FAN_SIDE_WIDTH + PANE_SPREAD * 2))));
   return {
-    pad, gap, compact, cardW, cardH: Math.round(cardW * 1.5), spread: Math.round(cardW * PANE_SPREAD), buttonH, checkH, closeSize,
+    pad, gap, compact, cardW, cardH: Math.round(cardW * 1.5), spread: Math.round(cardW * PANE_SPREAD), fanH: Math.ceil(cardW * FAN_HEIGHT), buttonH, checkH, closeSize,
   };
 }
 
@@ -454,7 +460,7 @@ const PANE_LABEL: Record<SheetPane, string> = { spell: '技能', portrait: '部�
 
 /**
  * 部队详情窗 DOM 组件。一个实例常驻 wrapper，open() 切换内容、update() 就地刷新数值。
- * 非模态：不拦截窗外（两侧队伍列）的任何输入。
+ * 非模态：只拦截卡扇与操作按钮的输入，未遮挡的队伍卡仍可点选。
  */
 export class UnitSheet {
   private root: HTMLElement;
@@ -502,7 +508,7 @@ export class UnitSheet {
     });
   }
 
-  /** 覆盖区域（wrapper 布局坐标）：棋盘（宽屏另含上方 HUD 通道） */
+  /** 覆盖区域（wrapper 布局坐标）：棋盘略向两侧扩展，按需让出 HUD 通道 */
   setBounds(b: UnitSheetBounds): void {
     const m = unitSheetMetrics(b.width, b.height);
     Object.assign(this.root.style, {
@@ -510,7 +516,7 @@ export class UnitSheet {
     });
     const px: [string, number][] = [
       ['--pad', m.pad], ['--gap', m.gap], ['--cw', m.cardW], ['--ch', m.cardH], ['--sp', m.spread],
-      ['--bh', m.buttonH], ['--chk', m.checkH], ['--close', m.closeSize],
+      ['--fan-h', m.fanH], ['--bh', m.buttonH], ['--chk', m.checkH], ['--close', m.closeSize],
     ];
     for (const [name, value] of px) this.root.style.setProperty(name, `${value}px`);
     this.root.classList.toggle('compact', m.compact);
@@ -572,7 +578,7 @@ export class UnitSheet {
         this.handlers.onClose();
       };
       window.addEventListener('keydown', this.keyHandler);
-      // 点详情窗以外的任何地方都关闭（棋盘区的压暗层由 root 自己的 click 处理）。
+      // 卡扇和按钮以外的空白处透传点击，由这里统一关闭详情。
       // 战斗卡片除外：点卡由 App 的点卡逻辑负责「同一张收起 / 另一张切换」。
       this.outsideHandler = (e: PointerEvent) => {
         if (!this.isOpen()) return;

@@ -281,7 +281,8 @@ describe('入侵 · 三路兵线', () => {
     while (state.wave === 1 && state.squads.length) { const w = eventBattle(s, 'invasion', WEEK); settleEvent(s, w, fakeResult(w), WEEK); }
     expect(state.wave).toBe(2);
     expect(state.repelled).toBe(1);
-    expect(state.squads.length).toBe(4);
+    // 第 2 波 4 支主力（可能另有一支辎重队）
+    expect(state.squads.filter((x) => x.kind !== 'caravan').length).toBe(4);
     expect(state.squads.some((x) => x.kind === 'warlord')).toBe(true);
     expect(s.currencies.gems).toBeGreaterThan(gems);
     expect(state.city).toBe(INVASION_CITY_MAX);
@@ -319,6 +320,10 @@ describe('阵营突袭 · 领地征服', () => {
     if (before.ok) expect(after.request.playerTeam[0]!.stats.attack).toBeGreaterThanOrEqual(before.request.playerTeam[0]!.stats.attack + 3);
     expect(state.counterIn).toBe(FACTION_COUNTER_EVERY - 1);
     for (let i = 0; i < 3; i++) { const lose = eventBattle(s, 'factionAssault', WEEK, `tile:1-${barracks.y}`); settleEvent(s, lose, fakeResult(lose, false), WEEK); }
+    // 反扑先指向地块（可驰援），下一场不驰援则失守
+    expect(state.threat).toEqual({ x: barracks.x, y: barracks.y });
+    expect(barracks.owner).toBe('player');
+    { const lose = eventBattle(s, 'factionAssault', WEEK, `tile:1-${barracks.y}`); settleEvent(s, lose, fakeResult(lose, false), WEEK); }
     expect(barracks.owner).toBe('enemy'); // 反扑夺回
     for (const d of state.districts) if (d.kind !== 'capital') d.owner = 'player';
     expect(eventBattleReady(s, 'factionAssault', true, 'tile:3-1', WEEK)).toContain('内应');

@@ -36,6 +36,14 @@ describe('寻宝', () => {
     }
   });
 
+  it('开局按种子生成不同宝物分布，而不是反复回退到固定双色盘', () => {
+    const boards = Array.from({length:100}, (_, i) => createOpeningBoard(new SeededRNG(i + 1)));
+    expect(new Set(boards.map(cells => cells.join(','))).size).toBe(100);
+    expect(boards.filter(cells => cells.includes(2) || cells.includes(3)).length).toBeGreaterThan(95);
+    for (const cells of boards) { expect(hasMatch(cells)).toBe(false); expect(hasLegalMove(cells)).toBe(true); }
+    expect(createOpeningBoard(new SeededRNG(42))).toEqual(createOpeningBoard(new SeededRNG(42)));
+  });
+
   it('三连把被移动的那颗升一档，并消耗 1 步', () => {
     const cells = checker();
     cells[at(0, 1)] = 0;

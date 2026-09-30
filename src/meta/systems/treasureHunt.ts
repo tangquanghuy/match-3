@@ -10,6 +10,8 @@
  *  - 每走 15 步，结束时额外一颗随机特质石。
  * 宝石钥匙在本作记入金钥匙（没有单独的钥匙库存）。
  */
+import { HuntBoardTrace } from '../../engine/HuntBoard';
+import type { GameEvent } from '../../engine/events';
 import { SeededRNG } from '../../engine/rng';
 import { STONE_COLORS } from '../data/materials';
 import type { MetaSave, TreasureHuntState } from '../state/schema';
@@ -70,6 +72,7 @@ export interface HuntMoveOk {
   best: number;
   shuffled: boolean;
   grant: HuntGrant | null;
+  events: GameEvent[];
 }
 
 function at(row: number, col: number): number {
@@ -177,22 +180,26 @@ function fill(cells: number[], rng: SeededRNG): void {
   }
 }
 
-function resolve(cells: number[], rng: SeededRNG, prefer: number): number {
+function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoardTrace): number {
   let best = 0;
   let hot = prefer;
   for (let guard = 0; guard < 30; guard++) {
     const groups = findGroups(cells);
     if (groups.length === 0) break;
     for (const group of groups) best = Math.max(best, group.length);
+    const merges: { indices: number[]; keep: number; tier: number }[] = [];
     for (const group of groups) {
       const keep = group.includes(hot) ? hot : group.reduce((a, b) => (a > b ? a : b));
       const tier = Math.min(VAULT, cells[keep]! + 1);
+      merges.push({ indices: group, keep, tier });
       for (const id of group) cells[id] = EMPTY;
       cells[keep] = tier;
       hot = keep;
     }
+    trace.merge(merges, guard + 1);
     fall(cells);
     fill(cells, rng);
+    trace.refill(cells, guard + 1);
     hot = -1;
   }
   return best;
@@ -219,14 +226,23 @@ function reshuffle(cells: number[], rng: SeededRNG): boolean {
 
 export function createOpeningBoard(rng: SeededRNG): number[] {
   for (let attempt = 0; attempt < 60; attempt++) {
-    const cells = Array.from({ length: HUNT_CELLS }, () => {
-      const n = rng.nextInt(100);
-      if (n < 58) return 0;
-      if (n < 86) return 1;
-      if (n < 97) return 2;
-      return 3;
-    });
-    if (findGroups(cells).length === 0 && hasLegalMove(cells)) return cells;
+    // Fill without creating a starting match. Rejecting entire weighted boards
+    // almost always exhausted the old retries and produced the same checkerboard.
+    const cells: number[] = [];
+    const weights = [58, 28, 11, 3];
+    for (let i = 0; i < HUNT_CELLS; i++) {
+      const choices = weights.map((weight, tier) => {
+        const horizontal = i % HUNT_SIZE >= 2 && cells[i - 1] === tier && cells[i - 2] === tier;
+        const vertical = i >= HUNT_SIZE * 2 && cells[i - HUNT_SIZE] === tier && cells[i - HUNT_SIZE * 2] === tier;
+        return horizontal || vertical ? 0 : weight;
+      });
+      let roll = rng.nextInt(choices.reduce((sum, weight) => sum + weight, 0));
+      for (let tier = 0; tier < choices.length; tier++) {
+        roll -= choices[tier]!;
+        if (roll < 0) { cells.push(tier); break; }
+      }
+    }
+    if (hasLegalMove(cells)) return cells;
   }
   return Array.from({ length: HUNT_CELLS }, (_, i) => ((Math.floor(i / HUNT_SIZE) + (i % HUNT_SIZE)) % 2 === 0 ? 0 : 1));
 }
@@ -250,7 +266,9 @@ export function applyMove(state: TreasureHuntState, from: number, to: number): H
   if (findGroups(cells).length === 0) return fail('INVALID', '这样换不成一组');
   const rng = new SeededRNG(1);
   rng.setState(state.rng);
-  const best = resolve(cells, rng, to);
+  const trace = new HuntBoardTrace(state.cells);
+  trace.swap(from, to);
+  const best = resolve(cells, rng, to, trace);
   const turns = Math.max(0, state.turns + turnDelta(best));
   const moves = state.moves + 1;
   let over = turns === 0;
@@ -258,6 +276,7 @@ export function applyMove(state: TreasureHuntState, from: number, to: number): H
   if (!over && !hasLegalMove(cells)) {
     shuffled = true;
     if (!reshuffle(cells, rng)) over = true;
+    trace.reshuffle(cells);
   }
   return {
     ok: true,
@@ -269,6 +288,7 @@ export function applyMove(state: TreasureHuntState, from: number, to: number): H
     best,
     shuffled,
     grant: null,
+    events: trace.events,
   };
 }
 

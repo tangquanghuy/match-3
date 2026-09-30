@@ -113,7 +113,7 @@ export interface CommandTable {
   resetToNewGame: { args: object; result: Ok };
 
   // —— 养成 ——
-  levelUpTroop: { args: { troopId: number }; result: LevelUpResult | MetaFailure };
+  levelUpTroop: { args: { troopId: number; targetLevel?: number }; result: LevelUpResult | MetaFailure };
   ascendTroop: { args: { troopId: number }; result: AscendResult | MetaFailure };
   unlockTroopTrait: { args: { troopId: number; slot: number }; result: UnlockTraitResult | MetaFailure };
   decomposeTroop: { args: { troopId: number }; result: DecomposeResult | MetaFailure };

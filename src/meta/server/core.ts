@@ -73,7 +73,7 @@ import {
   planTutorialEncounter,
   type EncounterEnemy,
 } from '../systems/encounter';
-import { buildBattleRequest, type BridgeOutcome } from '../systems/battleBridge';
+import { buildBattleRequest, revalidateOutcome, type BridgeOutcome } from '../systems/battleBridge';
 import { applySettlement } from '../systems/settlement';
 import { beginHunt, commitMove } from '../systems/treasureHunt';
 import type { Materials } from '../state/schema';
@@ -216,10 +216,10 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
 
     // —— 养成 ——
     case 'levelUpTroop': {
-      const { troopId } = command.args as CommandArgs<'levelUpTroop'>;
+      const { troopId, targetLevel } = command.args as CommandArgs<'levelUpTroop'>;
       const rec = getRecord(save, troopId);
       if (!rec) return done(fail('NOT_OWNED', '尚未拥有该部队'));
-      return done(levelUp(save, troopId, rec.level + 1));
+      return done(levelUp(save, troopId, targetLevel === undefined ? rec.level + 1 : targetLevel));
     }
     case 'ascendTroop':
       return done(ascend(save, (command.args as CommandArgs<'ascendTroop'>).troopId));
@@ -391,6 +391,8 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (!outcome.ok) return done(outcome);
       applyEventBattleModifiers(save, outcome);
       if (outcome.request.playerTeam.length === 0) return done(fail('INVALID', '本轮已无可出战的成员'));
+      const invalid = revalidateOutcome(outcome);
+      if (invalid) return done(invalid);
       return done(issueEncounter(save, outcome, 'event', now));
     }
     case 'planArenaBattle': {

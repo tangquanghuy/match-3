@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { TROOPS } from '../../src/data/troops';
 import { MAX_ASCENSION } from '../../src/meta/data/economy';
 import { newSave, type MetaSave } from '../../src/meta/state/schema';
@@ -26,8 +26,11 @@ function battle(save: MetaSave, type: EventTypeId, action?: string, week = WEEK)
   return eventBattle(save, type, week, action);
 }
 const result = (outcome: BridgeOutcome, victory = true): BattleResult => fakeResult(outcome, victory);
+/** 额外奖励（battle-bonus）的钻石是低概率惊喜，不计入周活动宝石预算 */
+let bonusGems = 0;
 function settle(save: MetaSave, out: BridgeOutcome, r = result(out), todayStart = WEEK) {
   const detail = settleEvent(save, out, r, todayStart);
+  for (const l of detail.lines) if (l.key === 'battle-bonus') bonusGems += l.deltas.gems ?? 0;
   if (out.plan.source.kind === 'event' && out.plan.source.typeId === 'worldEvent' && todayStart < WEEK + WEEK_MS) rollAll(save, WEEK);
   return detail;
 }
@@ -75,9 +78,10 @@ describe('周常奖励账本与迁移', () => {
   });
   it('真实结算达到直接宝石上限；重复战斗结果及读档重放不重复入账', () => {
     let s = fresh();
+    bonusGems = 0;
     // 每个活动按自己的玩法打到里程碑全部领完（塔会自己选路、世界事件会把骰子掷完）
     for (const { id } of EVENT_TYPES) for (let i = 0; i < 40 && (ensureEventWeek(s, WEEK, id).claimed.length < 6 || (id === 'invasion' && ensureEventWeek(s, WEEK, id).playRewards < 4)); i++) settle(s, battle(s, id));
-    expect(s.currencies.gems).toBe(5480);
+    expect(s.currencies.gems - bonusGems).toBe(5480);
     const out = battle(s, 'invasion'); const r = result(out); settle(s, out, r);
     const before = JSON.stringify(s); settle(s, out, r); expect(JSON.stringify(s)).toBe(before);
     s = migrateSave(JSON.parse(before)); const loaded = JSON.stringify(s);

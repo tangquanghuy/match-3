@@ -65,6 +65,7 @@ const COLORED_SINGLE_HIT_URLS: Record<ColoredSingleHit, string> = {
 };
 
 const GEM_CHAIN_URLS = [gemChain1Url, gemChain2Url, gemChain3Url, gemChain4Url, gemChain5Url] as const;
+export const BOARD_SFX_URLS: readonly string[] = GEM_CHAIN_URLS;
 const GEM_CHAIN_PREVIEW_GAP_MS = 850;
 
 

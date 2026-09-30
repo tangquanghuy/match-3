@@ -13,13 +13,16 @@
 import type { BaseColor } from '../../../engine/types';
 import { SeededRNG } from '../../../engine/rng';
 import { STAT_LIMITS } from '../../../session/validateRequest';
-import type { CombatantSnapshot, BattleResult } from '../../../session/contract';
+import type { CombatantSnapshot, BattleResult, BattleRules } from '../../../session/contract';
 import type { EventTheme, EventTypeId } from '../../data/events';
 import type { MaterialDelta } from '../../data/materials';
 import type { EventWeekState, MetaSave } from '../../state/schema';
 import type { CurrencyDelta, MetaFailure } from '../../types';
 import type { BridgeOutcome } from '../battleBridge';
 import type { EncounterEnemy, EncounterPlan } from '../encounter';
+import type { BattleBonusSpec } from '../battleBonus';
+import { towerTraitName } from '../../data/towerTraits';
+import { eventTraitName } from '../../data/eventTraits';
 
 export interface EventProgressLine {
   label: string;
@@ -41,6 +44,8 @@ export interface ModePlan {
   kingdom: string;
   enemies: EncounterEnemy[];
   choice: string;
+  /** 通用额外奖励声明（battleBonus.ts）；externalId 口径 `e{序号}-{部队id}` 见 enemyExternalId */
+  bonus?: BattleBonusSpec[];
 }
 
 export interface EventActionResult {
@@ -106,6 +111,55 @@ export function addMastery(outcome: BridgeOutcome, colors: readonly BaseColor[],
   const req = outcome.request;
   const map = (req.playerManaMastery ??= {});
   for (const c of colors) map[c] = (map[c] ?? 0) + amount;
+}
+
+/** 动态特质挂载引用：lead = 第一名成员，all = 每名成员 */
+export interface TraitRef {
+  code: string;
+  on: 'lead' | 'all';
+}
+
+/** 把动态特质挂到快照（同 code 不重复挂；卡面展示清单先锁住原特质，避免挤占卡面三格） */
+export function injectTraits(snaps: CombatantSnapshot[], refs: readonly TraitRef[]): void {
+  if (snaps.length === 0 || refs.length === 0) return;
+  for (const snap of snaps) {
+    if (!snap.displayTraitIds) snap.displayTraitIds = [...(snap.traitIds ?? [])];
+  }
+  for (const ref of refs) {
+    const targets = ref.on === 'lead' ? [snaps[0]!] : snaps;
+    for (const snap of targets) {
+      const ids = snap.traitIds ?? [];
+      if (ids.includes(ref.code)) continue;
+      snap.traitIds = [...ids, ref.code];
+      const name = towerTraitName(ref.code) ?? eventTraitName(ref.code);
+      if (name) snap.traitNames = { ...(snap.traitNames ?? {}), [ref.code]: name };
+    }
+  }
+}
+
+/** 挂到单个快照（首领/目标专属） */
+export function injectTraitsOn(snap: CombatantSnapshot | undefined, codes: readonly string[]): void {
+  if (!snap) return;
+  injectTraits([snap], codes.map((code) => ({ code, on: 'lead' as const })));
+}
+
+/** 合并战斗规则（活动 modify 共用）：preset / createGems 队列 / turnStart 追加，其余覆盖 */
+export function addRules(outcome: BridgeOutcome, add: BattleRules): void {
+  const r = (outcome.request.rules ??= {});
+  if (add.board) {
+    const prev = r.board ?? {};
+    const preset = [...(prev.preset ?? []), ...(add.board.preset ?? [])];
+    r.board = { ...prev, ...add.board, ...(preset.length ? { preset } : {}) };
+    if (prev.colorWeights && add.board.colorWeights) r.board.colorWeights = { ...prev.colorWeights, ...add.board.colorWeights };
+  }
+  if (add.turnLimit) r.turnLimit = { ...add.turnLimit };
+  if (add.objective) r.objective = { killTargets: [...new Set([...(r.objective?.killTargets ?? []), ...add.objective.killTargets])] };
+  if (add.turnStart) r.turnStart = [...(r.turnStart ?? []), ...add.turnStart];
+}
+
+/** 敌方快照 externalId（与 battleBridge.enemyToSnapshot 同口径） */
+export function enemyExternalId(index: number, troopId: number): string {
+  return `e${index}-${troopId}`;
 }
 
 /** 玩家快照 externalId → 部队 id（主角返回 'hero'） */

@@ -23,6 +23,9 @@ export const AnimConfig = {
   /** 消除（需求 19.3）：短促有力，靠粒子/闪光撑视觉而非拉长时间 */
   eliminate: { duration: 0.2, scaleUp: 1.3, ease: 'power2.in' },
 
+  /** Merge modes share swap/gravity and add this short gather-and-upgrade beat. */
+  merge: { gather: 0.22, reveal: 0.16, ease: 'power2.in' },
+
   /** 消除后、开始下落前的留白 */
   postEliminatePause: 0.02,
 

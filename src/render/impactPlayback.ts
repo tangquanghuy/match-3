@@ -4,7 +4,7 @@ import type { ClearEventBatches } from './clearEventBatches';
 /** Spatially independent board/card lanes share a region; lifecycle events are
  * barriers. Board operations remain ordered by the player's board lane. */
 export function isBoardPlaybackEvent(event: GameEvent): boolean {
-  return ['elimination', 'gem-explode', 'gem-destroy', 'gem-create', 'gem-transform',
+  return ['elimination', 'gem-explode', 'gem-destroy', 'gem-create', 'gem-transform', 'gem-merge',
     'gravity', 'refill'].includes(event.type);
 }
 export function isCardPlaybackEvent(event: GameEvent): boolean {

@@ -38,6 +38,8 @@ import { escapeHtml } from './troopCard';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, resultArt } from '../shell/artAssets';
+import { ingotArt, materialImg, scrollArt, stoneMarkupForKey, treasureMapMarkup } from '../shell/materialArt';
+import { INGOT_NAMES, stoneName, type IngotKey, type MaterialDelta } from '../data/materials';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -116,6 +118,45 @@ export interface BattleIncomeView {
   gold: number;
   souls: number;
   gems: number;
+  /** 本场素材收益（战斗内藏宝图 + 额外奖励素材），与货币卡并列展示 */
+  materials: MaterialIncome[];
+}
+
+/** 一张素材收益卡：key 为 treasureMaps / forgeScrolls / ingot:<key> / stone:<key> */
+export interface MaterialIncome {
+  key: string;
+  name: string;
+  amount: number;
+}
+
+/** 本场收益口径：战斗行 + 通用额外奖励（周常/首胜/任务等账户奖励不并入） */
+const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus'];
+
+function materialIncome(lines: readonly { mats?: MaterialDelta }[]): MaterialIncome[] {
+  const sums = new Map<string, MaterialIncome>();
+  const add = (key: string, name: string, n: number | undefined): void => {
+    if (!n || n <= 0) return;
+    const cur = sums.get(key);
+    if (cur) cur.amount += n; else sums.set(key, { key, name, amount: n });
+  };
+  for (const line of lines) {
+    const m = line.mats;
+    if (!m) continue;
+    add('treasureMaps', '藏宝图', m.treasureMaps);
+    add('forgeScrolls', '熔铸符卷', m.forgeScrolls);
+    for (const [k, n] of Object.entries(m.ingots ?? {})) add(`ingot:${k}`, INGOT_NAMES[k as IngotKey] ?? k, n);
+    for (const [k, n] of Object.entries(m.traitstones ?? {})) add(`stone:${k}`, stoneName(k), n);
+  }
+  return [...sums.values()];
+}
+
+/** 素材卡图标（与背包同源） */
+function materialIconHtml(key: string): string {
+  if (key === 'treasureMaps') return treasureMapMarkup();
+  if (key === 'forgeScrolls') return materialImg(scrollArt());
+  if (key.startsWith('ingot:')) return materialImg(ingotArt(key.slice(6)));
+  if (key.startsWith('stone:')) return stoneMarkupForKey(key.slice(6));
+  return '';
 }
 
 export function battleIncomeView(detail: SettlementDetail | PvpSettlementView): BattleIncomeView {
@@ -130,14 +171,14 @@ export function battleIncomeView(detail: SettlementDetail | PvpSettlementView): 
       gold: (base?.gold ?? 0) + (collected?.gold ?? 0) + (detail.kind === 'invasion' ? detail.settled.gold : 0),
       souls: (base?.souls ?? 0) + (collected?.souls ?? 0),
       gems: collected?.gems ?? 0,
+      materials: collected?.maps ? [{ key: 'treasureMaps', name: '藏宝图', amount: collected.maps }] : [],
     };
   }
-  const battleLines = detail.lines.filter(line =>
-    ['kills', 'victory', 'defeat', 'battle-collect'].includes(line.key));
+  const battleLines = detail.lines.filter(line => BATTLE_INCOME_KEYS.includes(line.key));
   const sum = (key: 'gold' | 'souls' | 'gems') =>
     battleLines.reduce((total, line) => total + (line.deltas[key] ?? 0), 0);
   return { victory: detail.victory, xp: detail.xpGained, levelsGained: detail.heroLevelsGained,
-    gold: sum('gold'), souls: sum('souls'), gems: sum('gems') };
+    gold: sum('gold'), souls: sum('souls'), gems: sum('gems'), materials: materialIncome(battleLines) };
 }
 
 /**
@@ -370,8 +411,13 @@ export class ResultScreen implements Screen {
         ${income.levelsGained > 0 ? '<em class="rs-levelup-tag">升级</em>' : ''}
       </div>`;
     const [souls, gold, gems] = rewards;
+    const matCards = income.materials.map((m, i) =>
+      `<div class="rs-reward reward-row rs-mat" data-battle-material="${escapeHtml(m.key)}" style="--i:${4 + i}">
+        <span class="rs-reward-icon">${materialIconHtml(m.key)}</span>
+        <p><strong data-count="${m.amount}">+${fmt(m.amount)}</strong><span>${escapeHtml(m.name)}</span></p>
+      </div>`);
     $('#rewardRows').innerHTML = [
-      currency(souls!, 0), xp, currency(gold!, 2), gems!.amount > 0 ? currency(gems!, 3) : '',
+      currency(souls!, 0), xp, currency(gold!, 2), gems!.amount > 0 ? currency(gems!, 3) : '', ...matCards,
     ].join('');
     this.particles(income.victory);
     this.animateSummary(income);

@@ -18,6 +18,9 @@ export class InputController {
   /** 交互结束但未发起交换（归位）时触发，用于恢复待机动画 */
   onInteractEnd: (() => void) | null = null;
 
+  /** Optional mode rule (for example an immovable treasure vault). */
+  canInteract: ((cell: CellPos) => boolean) | null = null;
+
   private _enabled = true;
   private destroyed = false;
   private activePointerId: number | null = null;
@@ -120,7 +123,7 @@ export class InputController {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const p = this.localPos(e);
     const cell = this.board.pixelToCell(p.x, p.y);
-    if (!cell) return;
+    if (!cell || this.canInteract?.(cell) === false) return;
 
     // 两步点选：已有选中且点选相邻 → 交换
     if (this.selected && this.isAdjacent(this.selected, cell)) {
@@ -289,7 +292,7 @@ export class InputController {
 
   /** 让相邻宝石朝被拖宝石原位反向滑动，做预交换预览 */
   private updatePreview(target: CellPos, _dir: CellPos, moveMag: number): void {
-    if (!BoardModel.inBounds(target)) {
+    if (!BoardModel.inBounds(target) || this.canInteract?.(target) === false) {
       this.restorePreview();
       return;
     }
@@ -363,7 +366,7 @@ export class InputController {
 
     if (dir) {
       const target: CellPos = { row: start.row + dir.row, col: start.col + dir.col };
-      if (BoardModel.inBounds(target)) {
+      if (BoardModel.inBounds(target) && this.canInteract?.(target) !== false) {
         // 越过阈值：保持宝石在当前拖拽位置，不复位，交给事件流接管动画。
         // 合法 → 从当前位置补完交换；非法 → 从当前位置直接弹回原位（单程）。
         this.previewSprite = null;
@@ -430,6 +433,7 @@ export class InputController {
     this.board.off('pointercancel', this.onCancel, this);
     this.captureElement?.removeEventListener('pointercancel', this.nativeCancel);
     this.captureElement?.removeEventListener('lostpointercapture', this.nativeLostCapture);
+    this.canInteract = null;
     this.onSwapRequest = null;
     this.onInteractStart = null;
     this.onInteractEnd = null;

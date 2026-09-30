@@ -199,7 +199,7 @@ async function tap(page: Page, id: number, holdMs = 60): Promise<void> {
 
 const castButton = (page: Page) => page.locator('.usw.open [data-testid="unit-sheet-cast"]');
 
-test('unit window covers only the board, keeps both columns tappable, and badges never swallow the tap', async ({ page }) => {
+test('unit window fans across the troop columns, keeps exposed cards tappable, and badges open details', async ({ page }) => {
   await openStandalone(page, false);
   // 点法力宝石（最显眼的位置）也是卡片动作
   await page.getByTestId('card-1').locator('.gem').click();
@@ -211,12 +211,12 @@ test('unit window covers only the board, keeps both columns tappable, and badges
     const cols = [...document.querySelectorAll('.gcol')].map((c) => c.getBoundingClientRect());
     return { left: r.left, right: r.right, allyRight: cols[0].right, enemyLeft: cols[1].left };
   });
-  expect(geo.left).toBeGreaterThanOrEqual(geo.allyRight);
-  expect(geo.right).toBeLessThanOrEqual(geo.enemyLeft);
-  // 另一张（敌方）卡切换内容；同一张再点收起
-  await tap(page, 6);
-  await expect(sheet).toHaveAttribute('data-char-id', '6');
-  await tap(page, 6);
+  expect(geo.left).toBeLessThan(geo.allyRight);
+  expect(geo.right).toBeGreaterThan(geo.enemyLeft);
+  // 未遮挡的敌方宝石仍可切换内容；同一张再点收起。
+  await page.getByTestId('card-4').locator('.gem').click();
+  await expect(sheet).toHaveAttribute('data-char-id', '4');
+  await page.getByTestId('card-4').locator('.gem').click();
   await expect(page.locator('.usw.open')).toHaveCount(0);
   // 默认模式下长按与点按相同：不画进度环
   const box = await page.getByTestId('card-0').boundingBox();
@@ -236,6 +236,52 @@ test('unit window covers only the board, keeps both columns tappable, and badges
   await expect(page.locator('.usw.open')).toHaveCount(0);
   expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([]);
 });
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 844, height: 390 }, { width: 667, height: 375 }]) {
+  test(`unit window keeps a compact fan with broad switch targets at ${viewport.width}`, async ({ page }) => {
+    await openStandalone(page, false, viewport);
+    await page.getByTestId('card-1').locator('.gem').click();
+    const sheet = page.locator('.usw.open');
+    await expect(sheet).toBeVisible();
+    await page.waitForTimeout(400);
+    for (const pane of ['spell', 'traits']) {
+      const geometry = await sheet.evaluate((root, name) => {
+        const center = root.querySelector<HTMLElement>('[data-pos="center"]')!.getBoundingClientRect();
+        const side = root.querySelector<HTMLElement>(`[data-pane="${name}"]`)!;
+        const r = side.getBoundingClientRect();
+        const left = side.dataset.pos === 'left';
+        const exposed = left ? center.left - r.left : r.right - center.right;
+        const x = left ? (r.left + center.left) / 2 : (center.right + r.right) / 2;
+        const y = r.top + r.height / 2;
+        return {
+          exposed, ratio: exposed / r.width, x, y,
+          hit: document.elementFromPoint(x, y)?.closest('.usw-pane') === side,
+          inside: r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight,
+        };
+      }, pane);
+      // 有足够的触屏点击区，同时仍遮住约半张侧卡，防止回退成三卡并排。
+      expect(geometry.exposed).toBeGreaterThan(44);
+      expect(geometry.ratio).toBeGreaterThan(.4);
+      expect(geometry.ratio).toBeLessThan(.6);
+      expect(geometry.hit).toBe(true);
+      expect(geometry.inside).toBe(true);
+      await page.mouse.click(geometry.x, geometry.y);
+      await expect(sheet.locator(`[data-pane="${pane}"]`)).toHaveAttribute('data-pos', 'center');
+      await page.waitForTimeout(400);
+    }
+    const portrait = sheet.locator('[data-pane="portrait"]');
+    await portrait.focus();
+    await page.keyboard.press('Enter');
+    await expect(portrait).toHaveAttribute('data-pos', 'center');
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `artifacts/battle-details-refined-${viewport.width}.png` });
+    await page.getByTestId('unit-sheet-quick').check();
+    await expect(page.getByTestId('unit-sheet-quick')).toBeChecked();
+    await page.getByRole('button', { name: '关闭详情' }).click();
+    await expect(page.locator('.usw.open')).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as LaneWindow).__casts)).toEqual([]);
+  });
+}
 
 test('tap during playback opens the window (结算中) and the cast button enables itself later', async ({ page }) => {
   test.setTimeout(90_000);

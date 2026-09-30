@@ -3,6 +3,7 @@ import type { Character, Team } from '@engine/types';
 import { AnimConfig } from './AnimationConfig';
 import { scaledMs } from './battleSpeed';
 import { battleCardDimensions, battleCardOverlayMetrics } from './battleCardLayout';
+import { portraitRowCardWidth } from './portraitLayout';
 import { statusBadge, statusBadgeIcon } from './statusBadges';
 import {
   STATUS_ACCENT_KEYS, isPositiveStatus, statusAccentKey, statusBadgeCorner, statusLiveLines,
@@ -13,6 +14,7 @@ import frostBorderUrl from '@assets/fx/frost_border_overlay.webp';
 import frostVeinsUrl from '@assets/fx/frost_veins_overlay.webp';
 import silenceSealUrl from '@assets/fx/silence_seal_overlay.webp';
 import entangleVinesUrl from '@assets/fx/entangle_vines_overlay.webp';
+import traitInkUrl from '@assets/fx/trait_ink_stroke.webp';
 
 /**
  * 方向 G · 胶片机能（Cinematic-Mecha）角色卡 —— DOM 实现。
@@ -39,6 +41,43 @@ export function setTeamSize(n: number, boardPx?: number): void {
   // 提高卡片宽高比让全身立绘更舒展，不再显得瘦窄）
   const scale = BOARD_PX / 512;
   CARD_W = Math.round((n >= 4 ? 132 : 142) * scale);
+}
+
+/**
+ * 竖屏横排模式（App 按布局解算设置；横屏为 null）：队伍从竖列改成一行，
+ * 卡高由布局统一给定（立绘纵向裁切），卡宽按行宽均分。
+ */
+interface TeamRowLayout {
+  rowWidth: number;
+  cardH: number;
+  maxCardW: number;
+  gap: number;
+}
+let ROW_LAYOUT: TeamRowLayout | null = null;
+
+/** 设置/清除竖屏横排模式；每场战斗 init 时都要调用（模块状态跨场保留） */
+export function setTeamRowLayout(layout: TeamRowLayout | null): void {
+  ROW_LAYOUT = layout;
+}
+
+/** 当前是否为竖屏横排 */
+export function isTeamRowLayout(): boolean {
+  return ROW_LAYOUT !== null;
+}
+
+/**
+ * 卡面角标放大系数（法力宝石 / 魔力角标 / 攻防血数值）。横屏为 1，保持原调参；
+ * 竖屏小卡上这些信息偏小，App 设为 >1。通过卡片级 CSS 变量生效，不依赖首次注入的烘焙值。
+ */
+let OVERLAY_BOOST = 1;
+export function setCardOverlayBoost(boost: number): void {
+  OVERLAY_BOOST = boost > 0 ? boost : 1;
+}
+
+/** 卡片位移动画的轴：横屏左右对打走 X，竖屏上下对打走 Y */
+export type MotionAxis = 'x' | 'y';
+function shift(axis: MotionAxis, px: number): string {
+  return axis === 'y' ? `translateY(${px}px)` : `translateX(${px}px)`;
 }
 
 /** 当前队伍人数 */
@@ -220,6 +259,7 @@ const GRAIN_URI =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 let stylesInjected = false;
+
 function ensureStyles(): void {
   if (stylesInjected) return;
   stylesInjected = true;
@@ -249,6 +289,22 @@ function ensureStyles(): void {
     linear-gradient(270deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) right top/18px 2px no-repeat,
     linear-gradient(270deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) right bottom/18px 2px no-repeat}
   .gcol.active-enemy .turn-frame::after{right:-3px}
+  /* 竖屏横排：队伍一行排开，回合指示改为横向括线（仍在远离棋盘的外侧：我方下沿、敌方上沿） */
+  .gcol.grow{flex-direction:row}
+  .gcol.grow .turn-frame{top:auto;bottom:auto;left:-7px;right:-7px;width:auto;height:28px;transform:scaleX(.18)}
+  .gcol.grow .turn-frame::after{top:auto;left:50%;margin-top:0;margin-left:-4px}
+  .gcol.grow.active-ally .turn-frame{left:-7px;right:-7px;bottom:-5px;transform:scaleX(1)}
+  .gcol.grow.active-ally .turn-frame::before{background:
+    linear-gradient(90deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.96)) left 10px bottom 0/calc(100% - 20px) 2px no-repeat,
+    linear-gradient(0deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) left bottom/2px 18px no-repeat,
+    linear-gradient(0deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) right bottom/2px 18px no-repeat}
+  .gcol.grow.active-ally .turn-frame::after{left:50%;bottom:-3px}
+  .gcol.grow.active-enemy .turn-frame{left:-7px;right:-7px;top:-5px;transform:scaleX(1)}
+  .gcol.grow.active-enemy .turn-frame::before{background:
+    linear-gradient(90deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.96)) left 10px top 0/calc(100% - 20px) 2px no-repeat,
+    linear-gradient(180deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) left top/2px 18px no-repeat,
+    linear-gradient(180deg,rgba(var(--turn-color),.96),rgba(var(--turn-color),.18)) right top/2px 18px no-repeat}
+  .gcol.grow.active-enemy .turn-frame::after{left:50%;right:auto;top:-3px}
 
   /* border-box：1px 边框不得撑大卡片，否则 CARD_W/CARD_H 与实际占位不一致，
      末位卡片会溢出 wrapper 底边并被视口裁掉（移动横屏 1px 截断）。 */
@@ -298,7 +354,7 @@ function ensureStyles(): void {
   .gcard.castable .frame-ornament{filter:brightness(1.15) drop-shadow(0 2px 2px rgba(0,0,0,.8))}
   /* 可释放：卡框暖金流光 + 宝石呼吸。满法力不再打感叹号——那个角标比宝石还抢眼。
      沉默且满法力仍在同一位置打紫灰叉，避免和可释放态混成同一种亮宝石。 */
-  .gcard .cast-flag{position:absolute;z-index:8;top:${os(2)}px;left:${gemSize() + os(3)}px;
+  .gcard .cast-flag{position:absolute;z-index:8;top:${os(2)}px;left:calc(var(--gem-size,${gemSize()}px) + ${os(3)}px);
     display:none;align-items:center;justify-content:center;
     min-width:${os(14)}px;height:${os(14)}px;padding:0 ${os(3)}px;box-sizing:border-box;
     border-radius:${os(4)}px;pointer-events:none;
@@ -627,7 +683,7 @@ function ensureStyles(): void {
   /* 宝石只是卡面的一部分：点它与点卡面其它位置一样执行卡片动作（打开详情窗/快速释放），
      法力进度浮窗只在鼠标悬停时出现（statusTooltip）。 */
   .gcard .gem{position:absolute;top:0;left:0;z-index:6;
-    width:${gemSize()}px;height:${gemSize()}px;padding:${Math.round(gemSize() * 0.12)}px;
+    width:var(--gem-size,${gemSize()}px);height:var(--gem-size,${gemSize()}px);padding:var(--gem-pad,${Math.round(gemSize() * 0.12)}px);
     /* 底衬贴住宝石：留白过大会在空法力（暗态）时读成一大块黑板 */
     box-sizing:border-box;cursor:pointer;
     background:linear-gradient(135deg,rgba(20,18,15,.92),rgba(11,10,9,.82));
@@ -670,11 +726,11 @@ function ensureStyles(): void {
   .gcard .gem .gem-mana{position:absolute;left:0;top:0;bottom:0;z-index:1;min-width:100%;width:max-content;
     display:flex;align-items:center;justify-content:center;white-space:nowrap;
     pointer-events:none;font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;
-    font-size:${Math.max(10, Math.round(gemSize() * 0.4))}px;font-variant-numeric:tabular-nums;letter-spacing:-.03em;
+    font-size:var(--gem-font,${Math.max(10, Math.round(gemSize() * 0.4))}px);font-variant-numeric:tabular-nums;letter-spacing:-.03em;
     color:#f3ead6;
     text-shadow:1px 0 0 rgba(10,8,6,.92),-1px 0 0 rgba(10,8,6,.92),0 1px 0 rgba(10,8,6,.92),0 -1px 0 rgba(10,8,6,.92),
       0 1px 3px rgba(0,0,0,.9);transition:color .2s ease}
-  .gcard .gem .gem-mana .max{font-size:${Math.max(8, Math.round(gemSize() * 0.29))}px;font-weight:700;opacity:.86;
+  .gcard .gem .gem-mana .max{font-size:var(--gem-max-font,${Math.max(8, Math.round(gemSize() * 0.29))}px);font-weight:700;opacity:.86;
     margin-left:.04em}
   .gcard .gem .gem-mana.is-zero{color:rgba(243,234,214,.62)}
   .gcard.mana-full .gem .gem-mana{color:#ffe6a8;
@@ -702,15 +758,15 @@ function ensureStyles(): void {
   .gcard .stat .ic{fill:currentColor}
 
   .gcard .magic{position:absolute;top:0;right:0;z-index:6;
-    height:${os(21)}px;padding:0 ${os(6)}px 0 ${os(5)}px;box-sizing:border-box;
-    display:flex;align-items:center;gap:${os(3)}px;pointer-events:none;
+    height:var(--magic-h,${os(21)}px);padding:0 var(--magic-pr,${os(6)}px) 0 var(--magic-pl,${os(5)}px);box-sizing:border-box;
+    display:flex;align-items:center;gap:var(--magic-gap,${os(3)}px);pointer-events:none;
     background:linear-gradient(225deg,rgba(38,26,54,.94),rgba(16,11,22,.86));
     border:1px solid rgba(178,140,224,.42);border-top-color:rgba(200,166,240,.6);
     border-right-color:rgba(200,166,240,.6);
     border-radius:0 ${os(8)}px 0 ${os(12)}px;
     box-shadow:-1px 1px 4px rgba(0,0,0,.5),inset 0 0 6px rgba(140,90,200,.22)}
-  .gcard .magic .ic-magic{flex:none;width:${os(14)}px;height:${os(14)}px;filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
-  .gcard .magic .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:${ofs(13)}px;
+  .gcard .magic .ic-magic{flex:none;width:var(--magic-icon,${os(14)}px);height:var(--magic-icon,${os(14)}px);filter:drop-shadow(0 0 3px rgba(180,130,240,.7))}
+  .gcard .magic .v{font-family:"Playfair Display",Georgia,serif;font-weight:800;line-height:1;font-size:var(--magic-font,${ofs(13)}px);
     letter-spacing:-.01em;color:#f1e9ff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 5px rgba(150,100,210,.5)}
 
   /* 状态图标恢复到底部数值上方，避免与右上角魔力值冲突。 */
@@ -799,6 +855,12 @@ function ensureStyles(): void {
   .gcard .trait-badge:hover{filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 6px rgba(240,222,170,.85))}
   .gcard .trait-badge svg{display:block;width:100%;height:100%}
   .gcard .trait-badge-off{opacity:.4}
+
+  /* Real brush texture: retain alpha/bristle detail without tilting the lettering. */
+  .gcard .trait-activation::before{content:"";position:absolute;inset:-.35em -.9em;z-index:-1;
+    pointer-events:none;transform:rotate(-3deg);opacity:.84;
+    background:url("${traitInkUrl}") center / 100% 100% no-repeat}
+
 
   `;
   const style = document.createElement('style');
@@ -933,9 +995,31 @@ export class CharacterCard {
   resize(width: number, height: number): void {
     this.el.style.width = `${width}px`;
     this.el.style.height = `${height}px`;
-    const metrics = battleCardOverlayMetrics(width, height);
+    const metrics = battleCardOverlayMetrics(width, height, OVERLAY_BOOST);
     this.el.classList.toggle('portrait-compact', height <= 110);
-    this.el.style.setProperty('--compact-trait-top', `${Math.max(gemSize(), os(21)) + os(4)}px`);
+    let gemPx = gemSize();
+    let magicH = os(21);
+    if (OVERLAY_BOOST !== 1) {
+      // 按本卡实际宽度换算角标（与横屏 os() 同一基准），再乘放大系数
+      const s = (width / 137) * OVERLAY_BOOST;
+      const px = (base: number) => Math.max(1, Math.round(base * s));
+      gemPx = Math.round(width * 0.18 * OVERLAY_BOOST);
+      magicH = px(21);
+      const vars: Record<string, number> = {
+        'gem-size': gemPx,
+        'gem-pad': Math.round(gemPx * 0.12),
+        'gem-font': Math.max(10, Math.round(gemPx * 0.4)),
+        'gem-max-font': Math.max(8, Math.round(gemPx * 0.29)),
+        'magic-h': magicH,
+        'magic-pl': px(5),
+        'magic-pr': px(6),
+        'magic-gap': px(3),
+        'magic-icon': px(14),
+        'magic-font': Math.max(10, px(13)),
+      };
+      for (const [key, value] of Object.entries(vars)) this.el.style.setProperty(`--${key}`, `${value}px`);
+    }
+    this.el.style.setProperty('--compact-trait-top', `${Math.max(gemPx, magicH) + os(4)}px`);
     for (const [key, value] of Object.entries(metrics)) this.el.style.setProperty(`--${key}`, `${value}px`);
     // Reserve the right-hand stat stack, including three-digit values.
     this.statusStripEl.style.maxWidth = `${Math.max(0, width - metrics['card-inset'] * 2 - metrics['stat-font'] * 3.2)}px`;
@@ -1648,6 +1732,10 @@ export class CharacterCard {
   }
 
   destroy(): void {
+    this.el.querySelectorAll('.trait-activation').forEach(label => {
+      label.getAnimations().forEach(animation => animation.cancel());
+      label.remove();
+    });
     this.pressCleanup?.();
     if (this.hintTimer !== null) {
       window.clearTimeout(this.hintTimer);
@@ -1664,6 +1752,44 @@ export class CharacterCard {
       [{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }],
       { duration: 280, easing: 'ease-in-out' },
     );
+  }
+
+  /** Separate lower-portrait lane: keep damage numbers and trait names readable together. */
+  showTraitActivation(traitId: string, name: string): void {
+    let lane = this.el.querySelector<HTMLElement>('.trait-activation-lane');
+    if (!lane) {
+      lane = document.createElement('div');
+      lane.className = 'trait-activation-lane';
+      lane.style.cssText = 'position:absolute;left:3%;right:3%;bottom:22%;z-index:14;display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none';
+      this.el.appendChild(lane);
+    }
+    // One active label per trait; multi-stat/aura events must not flood the portrait.
+    if ([...lane.children].some(child => (child as HTMLElement).dataset.traitId === traitId)) return;
+    while (lane.childElementCount >= 3) {
+      const old = lane.firstElementChild!;
+      old.getAnimations().forEach(animation => animation.cancel());
+      old.remove();
+    }
+    const label = document.createElement('div');
+    label.className = 'trait-activation';
+    label.dataset.traitId = traitId;
+    label.textContent = name;
+    label.style.cssText = `position:relative;isolation:isolate;box-sizing:border-box;max-width:100%;padding:2px 6px;border:0;background:none;` +
+      `font-family:var(--display,"Palatino Linotype","STZhongsong","Songti SC","SimSun",serif);` +
+      `color:#e9dfc9;font-size:${ofs(name.length > 8 ? 12 : 14)}px;font-weight:400;font-synthesis:none;` +
+      `letter-spacing:.12em;line-height:1.4;text-align:center;overflow-wrap:anywhere;` +
+      `text-shadow:0 1px 2px rgba(8,7,12,.95),0 0 4px rgba(8,7,12,.7);pointer-events:none;`;
+    lane.appendChild(label);
+    const reduced = CharacterCard.reducedMotion();
+    const animation = label.animate([
+      { opacity: 0, transform: reduced ? 'none' : 'translateY(4px)' },
+      { opacity: 1, transform: 'none', offset: .18 },
+      { opacity: 1, transform: reduced ? 'none' : 'translateY(-4px)', offset: .72 },
+      { opacity: 0, transform: reduced ? 'none' : 'translateY(-9px)' },
+    ], { duration: 1600, easing: 'ease-out' });
+    const remove = () => label.remove();
+    animation.onfinish = remove;
+    animation.oncancel = remove;
   }
 
   /**
@@ -1778,7 +1904,7 @@ export class CharacterCard {
    * 屏障格挡：卡面外沿亮起一圈冰蓝护盾（外扩淡出）+ 卡面冷色闪一下，微微被顶一下但不后仰。
    * @param dir 来袭方向（+1 从左往右打 / -1 从右往左打），决定被顶的方向
    */
-  blockFlash(dir = 1): void {
+  blockFlash(dir = 1, axis: MotionAxis = 'x'): void {
     const ring = document.createElement('div');
     ring.setAttribute('aria-hidden', 'true');
     ring.style.cssText = [
@@ -1799,26 +1925,28 @@ export class CharacterCard {
     ).onfinish = () => ring.remove();
     this.el.animate(
       [
-        { filter: 'brightness(1)', transform: 'translateX(0)' },
+        { filter: 'brightness(1)', transform: shift(axis, 0) },
         { filter: 'brightness(1.45) saturate(.7) drop-shadow(0 0 8px rgba(140,210,255,.8))',
-          transform: reduced ? 'translateX(0)' : `translateX(${dir * 5}px)`, offset: 0.22 },
-        { filter: 'brightness(1)', transform: 'translateX(0)' },
+          transform: shift(axis, reduced ? 0 : dir * 5), offset: 0.22 },
+        { filter: 'brightness(1)', transform: shift(axis, 0) },
       ],
       { duration: 300, easing: 'ease-out' },
     );
   }
 
   /** 闪避：卡片向后一闪让开再回位，半透明一下 */
-  dodgeStep(dir = 1): void {
+  dodgeStep(dir = 1, axis: MotionAxis = 'x'): void {
     if (CharacterCard.reducedMotion()) {
       this.el.animate([{ opacity: 1 }, { opacity: 0.55, offset: 0.3 }, { opacity: 1 }], { duration: 320 });
       return;
     }
+    // 沿来袭方向退让 22px，另一轴侧闪 6px（横屏向上、竖屏向左）
+    const away = axis === 'y' ? `translate(-6px,${dir * 22}px)` : `translateX(${dir * 22}px) translateY(-6px)`;
     this.el.animate(
       [
-        { transform: 'translateX(0)', opacity: 1 },
-        { transform: `translateX(${dir * 22}px) translateY(-6px)`, opacity: 0.55, offset: 0.3 },
-        { transform: 'translateX(0)', opacity: 1 },
+        { transform: shift(axis, 0), opacity: 1 },
+        { transform: away, opacity: 0.55, offset: 0.3 },
+        { transform: shift(axis, 0), opacity: 1 },
       ],
       { duration: 360, easing: 'cubic-bezier(.2,.8,.3,1)' },
     );
@@ -1876,7 +2004,7 @@ export class CharacterCard {
    * @param dx 冲撞水平位移（像素，含正负方向）
    * @param onHit 命中瞬间回调（用于播放撞击音效/震屏）
    */
-  lunge(dx: number, onHit?: () => void): void {
+  lunge(dx: number, onHit?: () => void, axis: MotionAxis = 'x'): void {
     const el = this.el;
     const cfg = AnimConfig.attack;
     const prevZ = el.style.zIndex;
@@ -1890,8 +2018,8 @@ export class CharacterCard {
     // 阶段 1：直接匀速冲过去（干脆利落，无缓动）
     const dash = el.animate(
       [
-        { transform: 'translateX(0) scale(1)' },
-        { transform: `translateX(${dx}px) scale(${cfg.lungeScale})` },
+        { transform: `${shift(axis, 0)} scale(1)` },
+        { transform: `${shift(axis, dx)} scale(${cfg.lungeScale})` },
       ],
       { duration: cfg.dashDuration, easing: 'linear', fill: 'forwards' },
     );
@@ -1899,7 +2027,7 @@ export class CharacterCard {
     dash.onfinish = () => {
       if (gen !== this.lungeGen) return;
       // 命中瞬间：定格强调——瞬时再放大一点并锁住，制造“顿”的卡肉
-      el.style.transform = `translateX(${dx}px) scale(${cfg.hitPunchScale})`;
+      el.style.transform = `${shift(axis, dx)} scale(${cfg.hitPunchScale})`;
       // 触发音效/震屏/受击
       onHit?.();
       window.setTimeout(() => {
@@ -1907,8 +2035,8 @@ export class CharacterCard {
         // 阶段 2：平滑归位（缓出，不向后拉、不过冲）
         const back = el.animate(
           [
-            { transform: `translateX(${dx}px) scale(${cfg.hitPunchScale})` },
-            { transform: 'translateX(0) scale(1)' },
+            { transform: `${shift(axis, dx)} scale(${cfg.hitPunchScale})` },
+            { transform: `${shift(axis, 0)} scale(1)` },
           ],
           { duration: cfg.returnDuration, easing: 'ease-out', fill: 'forwards' },
         );
@@ -1927,23 +2055,26 @@ export class CharacterCard {
    * 再用弹性曲线带过冲地弹回原位。
    * @param dx 受击水平方向位移（像素，含正负；幅度由 AnimConfig.recoil 控制）
    */
-  recoil(dx: number): void {
+  recoil(dx: number, axis: MotionAxis = 'x'): void {
     const cfg = AnimConfig.recoil;
     const dir = Math.sign(dx) || 1;
     const kb = dir * cfg.knockback;
     const rot = dir * cfg.tilt;
+    // 横屏：沿 X 顶退 + 上抬；竖屏：沿 Y 顶退（上抬与顶退同轴，只保留挤压微转）
+    const hit = axis === 'y' ? `translate(0px, ${kb}px)` : `translate(${kb}px, ${-cfg.lift}px)`;
+    const over = axis === 'y' ? `translate(0px, ${kb * -0.18}px)` : `translate(${kb * -0.18}px, 0)`;
     this.el.animate(
       [
         // 受击：被向后上方顶起、挤压、微转（定格那一下）
         { transform: 'translate(0,0) scale(1) rotate(0deg)', offset: 0 },
         {
-          transform: `translate(${kb}px, ${-cfg.lift}px) scale(${cfg.squash}) rotate(${rot}deg)`,
+          transform: `${hit} scale(${cfg.squash}) rotate(${rot}deg)`,
           offset: 0.18,
           easing: 'cubic-bezier(.2,.8,.3,1)',
         },
         // 掉回并越过原位一点（过冲），制造重量回落感
         {
-          transform: `translate(${kb * -0.18}px, 0) scale(1.02) rotate(${rot * -0.4}deg)`,
+          transform: `${over} scale(1.02) rotate(${rot * -0.4}deg)`,
           offset: 0.55,
           easing: 'cubic-bezier(.3,1.4,.5,1)',
         },
@@ -1992,7 +2123,8 @@ export class TeamView {
     this.longPress = opts?.onLongPress;
     this.longPressArmed = opts?.longPressArmed;
     this.el = document.createElement('div');
-    this.el.className = 'gcol';
+    this.el.className = ROW_LAYOUT ? 'gcol grow' : 'gcol';
+    if (ROW_LAYOUT) this.el.style.gap = `${ROW_LAYOUT.gap}px`;
     const frame = document.createElement('div');
     frame.className = 'turn-frame';
     this.el.appendChild(frame);
@@ -2033,18 +2165,30 @@ export class TeamView {
 
   private layoutMetrics(): { slots: 3 | 4; width: number; height: number } {
     const slots: 3 | 4 = this.cards.size + this.emptySlots().length >= 4 ? 4 : 3;
+    if (ROW_LAYOUT) {
+      const width = portraitRowCardWidth(ROW_LAYOUT.rowWidth, slots, ROW_LAYOUT.gap, ROW_LAYOUT.maxCardW);
+      return { slots, width, height: ROW_LAYOUT.cardH };
+    }
     return { slots, ...battleCardDimensions(slots, BOARD_PX, CARD_GAP) };
   }
 
   /** Switch between the three-card and four-card layouts without rebuilding the column. */
   private applyLayout(): void {
     const metrics = this.layoutMetrics();
-    this.el.style.width = `${metrics.width}px`;
     for (const card of this.cards.values()) card.resize(metrics.width, metrics.height);
     for (const slot of this.emptySlots()) {
       slot.style.width = `${metrics.width}px`;
       slot.style.height = `${metrics.height}px`;
     }
+    if (ROW_LAYOUT) {
+      // 横排：行在布局给定的行宽内居中
+      const count = this.cardEls().length + this.emptySlots().length;
+      const used = count * metrics.width + Math.max(0, count - 1) * ROW_LAYOUT.gap;
+      this.el.style.width = `${used}px`;
+      if (this.mounted) this.el.style.left = `${this.leftAnchor + Math.round((ROW_LAYOUT.rowWidth - used) / 2)}px`;
+      return;
+    }
+    this.el.style.width = `${metrics.width}px`;
     if (!this.mounted) return;
     const left = this.side === PlayerSide.Left
       ? this.rightAnchor - metrics.width
@@ -2214,17 +2358,23 @@ export class TeamView {
 
   /** 先改 DOM 顺序，再用位移把卡从旧位置滑到新位置。 */
   private slideReorder(mutate: () => void): void {
-    const before = new Map(this.cardEls().map((el) => [el, el.getBoundingClientRect().top]));
+    // 竖列沿 Y 补位，竖屏横排沿 X 补位
+    const axis: MotionAxis = ROW_LAYOUT ? 'x' : 'y';
+    const pos = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      return axis === 'x' ? r.left : r.top;
+    };
+    const before = new Map(this.cardEls().map((el) => [el, pos(el)]));
     mutate();
     for (const el of this.cardEls()) {
       const prev = before.get(el);
       if (prev === undefined) continue;
-      const dy = prev - el.getBoundingClientRect().top;
+      const dy = prev - pos(el);
       if (Math.abs(dy) < 0.5) continue;
       this.slideAnims.get(el)?.cancel();
       el.style.zIndex = '8';
       const anim = el.animate(
-        [{ transform: `translateY(${dy}px)` }, { transform: 'translateY(0px)' }],
+        [{ transform: shift(axis, dy) }, { transform: shift(axis, 0) }],
         { duration: 320, easing: 'cubic-bezier(.22,.8,.28,1)' },
       );
       this.slideAnims.set(el, anim);

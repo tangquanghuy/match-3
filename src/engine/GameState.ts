@@ -43,6 +43,11 @@ export interface GameState {
    * → createGameState opts 注入（宿主/表现层接线，引擎不做隐式推断）。
    */
   kingdom?: string | null;
+  /**
+   * 各方已完成的回合数（额外回合不计；活动深化批战斗规则）。只在注入规则后维护，
+   * 缺省 = 无规则对局（回合数另由 actionLog 推导）。
+   */
+  turnCount?: Record<PlayerSide, number>;
 }
 
 /** createGameState 的可选战斗上下文（武器原语批 K-E）。 */

@@ -55,13 +55,13 @@ function renderLogin(notice?: string): void {
     ${notice ? `<p class="cover-notice" role="alert">${escapeHtml(notice)}</p>` : ''}
     <label class="agree">
       <input type="checkbox" id="agreeBox">
-      <span>我已阅读并同意<button type="button" class="link" data-terms>《用户协议》</button>：本项目非商业、完全免费，不对存档负责。</span>
+      <span>我已阅读并同意<button type="button" class="link" data-terms>《用户协议》</button></span>
     </label>
     <a class="btn primary discord is-disabled" id="loginBtn" href="/auth/login?terms=${TERMS_VERSION}" aria-disabled="true">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.5 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.2 18a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12 0l.5.4-2 1 1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.1-.8-9.6-3.5-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
       <span>使用 Discord 登录</span>
     </a>
-    <p class="cover-hint">只读取 Discord 用户 ID 和用户名，用来绑定你的存档。</p>`;
+    <p class="cover-hint">使用 Discord 账号保存游戏进度。</p>`;
   const box = $<HTMLInputElement>('#agreeBox');
   const login = $<HTMLAnchorElement>('#loginBtn');
   const sync = (): void => {
@@ -124,7 +124,7 @@ function mountEnter(autoEnter: boolean): string {
       label.textContent = '进入游戏';
       bar.hidden = true;
       skip.hidden = true;
-      if (p.failed) $('#preloadNote').textContent = `有 ${p.failed} 项资源未能预载，进游戏后会按需加载。`;
+      if (p.failed) $('#preloadNote').textContent = '部分资源将在进入游戏后继续加载。';
       if (autoEnter) go();
     });
   });
@@ -139,7 +139,7 @@ function renderWelcome(me: Me, autoEnter: boolean): void {
   $('#coverActions').innerHTML = `
     <p class="cover-welcome">欢迎回来，<b>${escapeHtml(me.username ?? '冒险者')}</b></p>
     ${mountEnter(autoEnter)}
-    <button type="button" class="link" id="logoutBtn">切换账号 / 退出登录</button>`;
+    <button type="button" class="link" id="logoutBtn">退出登录</button>`;
   $('#logoutBtn').addEventListener('click', () => {
     void fetch('/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => location.replace('/'));
   });
@@ -149,7 +149,7 @@ function renderWelcome(me: Me, autoEnter: boolean): void {
 function renderLocal(): void {
   $('#coverActions').innerHTML = `
     ${mountEnter(false)}
-    <p class="cover-hint">本地模式：存档保存在这台设备的浏览器里。</p>`;
+    <p class="cover-hint">游戏进度保存在当前浏览器。</p>`;
   onAgree = null;
 }
 
@@ -158,11 +158,11 @@ function mountBackgroundPreload(): void {
   unsubscribe?.();
   const host = document.createElement('div');
   host.className = 'cover-preload';
-  host.innerHTML = `${progressBar('bgProgress')}<p class="cover-hint" id="bgLabel">正在后台预载游戏资源…</p>`;
+  host.innerHTML = `${progressBar('bgProgress')}<p class="cover-hint" id="bgLabel">正在准备游戏…</p>`;
   $('#coverActions').appendChild(host);
   unsubscribe = onPreloadProgress((p) => {
     paintBar($('#bgProgress'), p);
-    if (p.total) $('#bgLabel').textContent = preloadDone(p) ? '游戏资源已就绪，登录后即可开玩。' : `正在后台预载游戏资源 ${pct(p)}%`;
+    if (p.total) $('#bgLabel').textContent = preloadDone(p) ? '游戏已就绪' : `正在准备游戏 ${pct(p)}%`;
   });
   void startPreload().then((p) => {
     if (!p.total) host.remove();
@@ -178,6 +178,7 @@ function openTerms(): void {
 }
 
 async function boot(): Promise<void> {
+  void startPreload();
   document.documentElement.style.setProperty('--cover-wide', `url("${wideArt}")`);
   document.documentElement.style.setProperty('--cover-tall', `url("${tallArt}")`);
   renderTerms();

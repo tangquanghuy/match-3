@@ -354,6 +354,7 @@ export class TeamScreen implements Screen {
         this.closeBannerPicker();
         return;
       }
+      if ((ev.target as HTMLElement)?.closest('input, textarea, [contenteditable="true"]')) return;
       if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z' && this.lastRemoved) {
         ev.preventDefault();
         this.undoRemove();
@@ -671,7 +672,7 @@ export class TeamScreen implements Screen {
       ? Object.entries(BANNERS[kingdom]?.boosts ?? {}).filter(([c, n]) => (n ?? 0) > 0 && used[c.toLowerCase()]).length
       : 0;
     $('#bannerHit').textContent = kingdom
-      ? hits ? `命中队伍用色 ${hits} 种` : '没有命中队伍用色'
+      ? hits ? `强化队伍的 ${hits} 种法力颜色` : '队伍暂未使用加成颜色'
       : '挂上旗帜，匹配对应颜色时额外获得法力';
     post.classList.toggle('is-empty', !kingdom);
     post.classList.toggle('no-hit', !!kingdom && hits === 0);
@@ -1095,8 +1096,7 @@ export class TeamScreen implements Screen {
 
   private toggleBannerPicker(): void {
     // TM-5：改居中独立弹层（阶段 A 挂在 lineup 内部、盖住 3、4 号位，且 Esc/点空白都关不掉）
-    const host = document.querySelector('.team-screen') ?? document.querySelector('#stage');
-    if (!host) return;
+    const host = document.body;
     if (this.closeBannerPicker()) return;
     const save = this.ctx.save();
     const used = this.teamColors();
@@ -1104,23 +1104,23 @@ export class TeamScreen implements Screen {
       Object.entries(BANNERS[kingdom]?.boosts ?? {}).filter(([c, n]) => (n ?? 0) > 0 && used[c.toLowerCase()]).length;
     const row = (kingdom: string | null): string => {
       if (kingdom === null) {
-        return `<button class="banner-opt${this.banner === null ? ' on' : ''}" data-banner="" type="button">
-          <span class="banner-opt-name"><b>不挂旗帜</b><small>无加成、无惩罚</small></span></button>`;
+        return `<button class="banner-opt${this.banner === null ? ' on' : ''}" data-banner="" type="button" aria-pressed="${this.banner === null}">
+          <span class="banner-opt-name"><b>不装备旗帜</b><small>不改变法力获取</small></span></button>`;
       }
       const def = BANNERS[kingdom]!;
       const unlocked = bannerUnlocked(save, kingdom);
       const chips = Object.entries(def.boosts)
         .map(([color, mana]) => {
           const key = color as keyof typeof BANNER_COLOR_LABELS;
-          return `<span class="banner-gem" title="${color} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)} 法力值">${gemSvg([color.toLowerCase()])}<i>${BANNER_COLOR_LABELS[key]} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)}</i></span>`;
+          return `<span class="banner-gem" title="${BANNER_COLOR_LABELS[key]}色 ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)} 法力值">${gemSvg([color.toLowerCase()])}<i>${BANNER_COLOR_LABELS[key]} ${mana! > 0 ? '+' : '−'}${Math.abs(mana!)}</i></span>`;
         })
         .join('');
       const hits = hitCount(kingdom);
-      return `<button class="banner-opt${this.banner === kingdom ? ' on' : ''}${unlocked ? '' : ' locked'}" data-banner="${kingdom}"${unlocked ? '' : ' disabled'} type="button">
-        ${bannerArtHtml(kingdom, { size: 58, locked: !unlocked, cls: 'banner-opt-art' })}
-        <span class="banner-opt-name"><b>${kingdom}</b><small>${def.en}</small></span>
+      return `<button class="banner-opt${this.banner === kingdom ? ' on' : ''}${unlocked ? '' : ' locked'}" data-banner="${kingdom}" aria-pressed="${this.banner === kingdom}"${unlocked ? '' : ' disabled'} type="button">
+        ${bannerArtHtml(kingdom, { size: 96, locked: !unlocked, cls: 'banner-opt-art' })}
+        <span class="banner-opt-name"><b>${kingdom}</b><small>${this.banner === kingdom ? '已装备' : unlocked ? '点击装备' : ''}</small></span>
         <span class="banner-opt-boosts">${chips}</span>
-        ${unlocked ? (hits ? `<small class="banner-hit">命中用色 ${hits}</small>` : '') : '<small class="banner-lock">任务 8/8 解锁</small>'}
+        ${unlocked ? (hits ? `<small class="banner-hit">强化 ${hits} 种队伍用色</small>` : '<small class="banner-hit neutral">队伍未使用加成色</small>') : '<small class="banner-lock">王国开放后解锁</small>'}
       </button>`;
     };
     const all = Object.keys(BANNERS);
@@ -1128,25 +1128,27 @@ export class TeamScreen implements Screen {
       .filter((k) => bannerUnlocked(save, k))
       .sort((a, b) => hitCount(b) - hitCount(a) || a.localeCompare(b, 'zh-Hans-CN'));
     const lockedList = all.filter((k) => !bannerUnlocked(save, k));
-    const usedCopy = ROSTER_COLORS.filter((c) => used[c]).map((c) => `${COLOR_CN_ROSTER[c]}×${used[c]}`).join(' ') || '（空编队）';
+    const usedCopy = ROSTER_COLORS.filter((c) => used[c]).map((c) => `${COLOR_CN_ROSTER[c]}×${used[c]}`).join(' ') || '暂无';
     const veil = document.createElement('div');
     veil.className = 'modal-veil banner-veil';
     veil.innerHTML = `
-      <section class="banner-picker" role="dialog" aria-modal="true" aria-label="选择旗帜">
+      <section class="banner-picker" role="dialog" aria-modal="true" aria-labelledby="bannerPickerTitle">
         <div class="banner-picker-head">
-          <div><b>选择旗帜</b></div>
+          <div><b id="bannerPickerTitle">选择旗帜</b><span class="banner-count">已解锁 ${unlockedList.length} / ${all.length}</span></div>
           <span class="banner-used">队伍用色 ${usedCopy}</span>
           <button class="sheet-close" data-banner-close type="button" aria-label="关闭"><span data-icon="close"></span></button>
         </div>
-        <p class="banner-picker-note">匹配加成色时该色法力值 ±N（每次匹配，官方王国旗帜语义）· 已解锁 ${unlockedList.length} / ${all.length}</p>
+        <p class="banner-picker-note">每次消除对应颜色的宝石，按旗帜数值增加或减少法力。</p>
+        <label class="banner-search"><span data-icon="search"></span><input type="search" id="bannerSearch" placeholder="搜索王国" aria-label="搜索王国" autocomplete="off"></label>
         <div class="banner-picker-list">
-          <div class="banner-group">已解锁（按命中你的用色排序）</div>
+          <div class="banner-group">可用旗帜</div>
           ${row(null)}
           ${unlockedList.map((kingdom) => row(kingdom)).join('')}
           <details class="banner-locked-group">
-            <summary>未解锁 ${lockedList.length} 个王国（各需该王国任务 8/8）</summary>
+            <summary>未解锁旗帜 · ${lockedList.length}</summary>
             ${lockedList.map((kingdom) => row(kingdom)).join('')}
           </details>
+          <p class="banner-empty" hidden>没有找到这个王国</p>
         </div>
       </section>`;
     veil.addEventListener('click', (e) => {
@@ -1161,14 +1163,44 @@ export class TeamScreen implements Screen {
       toast(def ? `已挂上「${this.banner}」旗帜（${describeBoosts(def.boosts)}）。` : '已取下旗帜。');
       this.changed();
     });
+    const search = veil.querySelector<HTMLInputElement>('#bannerSearch')!;
+    search.addEventListener('input', () => {
+      const query = search.value.trim().toLocaleLowerCase();
+      let matches = 0;
+      const locked = veil.querySelector<HTMLDetailsElement>('.banner-locked-group')!;
+      let lockedMatches = 0;
+      veil.querySelectorAll<HTMLButtonElement>('[data-banner]').forEach((button) => {
+        const kingdom = button.dataset.banner ?? '';
+        button.hidden = !!query && !kingdom.toLocaleLowerCase().includes(query);
+        if (!button.hidden) {
+          matches++;
+          if (button.disabled) lockedMatches++;
+        }
+      });
+      locked.hidden = lockedMatches === 0;
+      if (query) locked.open = lockedMatches > 0;
+      (veil.querySelector('.banner-group') as HTMLElement).hidden = !!query;
+      (veil.querySelector('.banner-empty') as HTMLElement).hidden = matches > 0;
+    });
+    veil.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      const focusable = [...veil.querySelectorAll<HTMLElement>('button:not(:disabled), input, summary')]
+        .filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    });
     host.appendChild(veil);
     mountIcons(veil);
+    veil.querySelector<HTMLButtonElement>('[data-banner-close]')!.focus();
   }
 
   /** 关闭弹出（已开着返回 true） */
   private closeBannerPicker(): boolean {
     const existing = document.querySelector('.banner-veil');
     existing?.remove();
+    if (existing) document.querySelector<HTMLButtonElement>('#banner')?.focus({ preventScroll: true });
     return Boolean(existing);
   }
 

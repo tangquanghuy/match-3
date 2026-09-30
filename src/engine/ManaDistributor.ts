@@ -2,7 +2,7 @@ import type { Team, BaseColor } from './types';
 import type { ManaGainEvent, StatusBlockedEvent } from './events';
 import { PlayerSide } from './types';
 import { canGainMana, hasStatus } from './skills/effects/status';
-import { manaLinkBonus } from './traits';
+import { manaLinkBonus, traitActivations, ALL_COLORS } from './traits';
 
 /**
  * 法力分配器（需求 10, 11, 12）—— 单一法力条模型（照搬《Gems of War》）。
@@ -74,6 +74,8 @@ export class ManaDistributor {
       };
       // 演出元数据：实际入账少于本该给的量 = 被疾病砍半（表现层标注原因）
       if (actualGive < give) gain.halved = true;
+      if (bonus > 0) gain.traitActivations = traitActivations(ch, def =>
+        !!def.manaLink && def.manaLink.amount > 0 && (def.manaLink.color === color || def.manaLink.color === ALL_COLORS));
       events.push(gain);
     }
 

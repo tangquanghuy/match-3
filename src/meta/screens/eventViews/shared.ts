@@ -9,7 +9,7 @@
  */
 import type { EventTheme } from '../../data/events';
 import type { EventWeekState, MetaSave } from '../../state/schema';
-import { eventArt } from '../../shell/artAssets';
+import { eventArt, gemArt, statusArt } from '../../shell/artAssets';
 import { getTroopById } from '../../../data/troops';
 
 export interface ViewCtx {
@@ -29,6 +29,27 @@ export const esc = (s: string): string => s.replace(/[&<>"']/g, (c) => ({ '&': '
 export function artImg(name: string, cls = '', alt = ''): string {
   const url = eventArt(name);
   return url ? `<img class="${cls}" src="${url}" alt="${esc(alt)}" draggable="false" />` : `<span class="${cls} evm-art-missing" aria-hidden="true"></span>`;
+}
+
+/** 图标名 → URL：`gem:<路径>` 棋盘宝石、`status:<名>` 状态图标、`troop:<id>` 部队立绘，其余走活动素材 */
+export function iconUrl(icon: string): string {
+  if (icon.startsWith('gem:')) return gemArt(icon.slice(4));
+  if (icon.startsWith('status:')) return statusArt(icon.slice(7));
+  if (icon.startsWith('troop:')) {
+    const troop = getTroopById(Number(icon.slice(6)));
+    return troop ? troop.artUrl ?? `/static/portraits/${troop.portrait}.webp` : '';
+  }
+  return eventArt(icon);
+}
+
+export function iconImg(icon: string, cls = '', alt = ''): string {
+  const url = iconUrl(icon);
+  return url ? `<img class="${cls}" src="${url}" alt="${esc(alt)}" draggable="false" />` : `<span class="${cls} evm-art-missing" aria-hidden="true"></span>`;
+}
+
+/** 特质 code → 显示名 + 描述（活动/塔动态特质） */
+export function traitChip(name: string, desc: string, icon?: string): string {
+  return `<span class="evm-chip" title="${esc(desc)}">${icon ? iconImg(icon, 'evm-chip-ico') : ''}<b>${esc(name)}</b><small>${esc(desc)}</small></span>`;
 }
 
 export function fightButton(v: ViewCtx, action: string | undefined, label = v.fightLabel): string {
