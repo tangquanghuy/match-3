@@ -1,22 +1,19 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function fixture(page: Page, step = 'done', route = 'team') {
+  // Build the save on an inert page: a previous tutorial's route guard or
+  // pending gateway write must not participate in preparing the next scenario.
   await page.goto('/cover.html');
-  await page.evaluate(() => localStorage.removeItem('gems.meta.save'));
-  await page.goto('/game.html#team');
-  await expect(page.locator('#banner')).toBeVisible({ timeout: 20000 });
   await page.evaluate(async (step) => {
     const load = (path: string) => import(/* @vite-ignore */ path);
-    const { metaGateway } = await load('/src/meta/gateway/index.ts');
-    const gw = metaGateway();
-    const save = JSON.parse(gw.exportSaveJson());
+    const { buildDemoSave } = await load('/src/meta/server/demo.ts');
+    const save = buildDemoSave(Date.now());
     save.hero.level = 25;
     save.onboarding = { step, noviceSummonUsed: false };
     save.currencies.gems = 1000;
     localStorage.setItem('gems.meta.save', JSON.stringify(save));
   }, step);
-  // Full navigation avoids the active tutorial redirect racing the fixture route.
-  await page.goto(`/game.html?dialogFixture=${step}#${route}`);
+  await page.goto(`/game.html?dialogFixture=${step}-${Date.now()}#${route}`);
 }
 
 for (const viewport of [{ width: 1600, height: 900 }, { width: 390, height: 844 }, { width: 844, height: 390 }]) {

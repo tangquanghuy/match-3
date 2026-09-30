@@ -340,3 +340,7 @@
   .fa-map, .wd-board { min-height: 460px; }
   .ev-rules-grid { grid-template-columns: 1fr; }
 }
+/* 平板：events.css 把横幅改为左图右文（row），上面的 flex:none 会让主视觉宽度塌成 0 */
+@media (min-width: 700px) and (max-width: 999px) {
+  .ev-mode-page .ev-banner-art { flex: 0 0 42%; height: auto; min-height: 150px; }
+}

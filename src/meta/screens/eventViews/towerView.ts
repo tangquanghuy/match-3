@@ -9,6 +9,7 @@
  *  - 奖励/营地/商人/奇遇弹层可「收起查看地图」。
  * 客户端行为（拖拽、滚动记忆、面板开关）在 mountTowerBoard，由 eventsScreen.mount 调用。
  */
+import { characterPortrait, type CharacterProfile } from '../../state/character';
 import {
   TOWER_AFFIXES, TOWER_BLESSINGS, TOWER_EVENTS, TOWER_NODE_INFO, TOWER_RELICS, TOWER_RUNES, TOWER_TUNING, TOWER_ZONES,
   relicById, type RelicDef, type RelicRarity, type TowerAffix, type TowerNodeKind,
@@ -53,9 +54,9 @@ function iconImg(icon: string, cls: string, alt = ''): string {
   return url ? `<img class="${cls}" src="${url}" alt="${esc(alt)}" draggable="false" />` : `<span class="${cls} evm-art-missing" aria-hidden="true"></span>`;
 }
 
-function memberPortrait(externalId: string): string {
+function memberPortrait(externalId: string, character: CharacterProfile | null): string {
   const key = memberKey(externalId);
-  if (key === 'hero') return '/static/troops/hero.webp';
+  if (key === 'hero') return character?.portrait === 'legacy' ? '/static/troops/hero.webp' : characterPortrait(character);
   const troop = getTroopById(Number(key));
   return troop?.artUrl ?? (troop?.portrait ? `/static/portraits/${troop.portrait}.webp` : '');
 }
@@ -398,9 +399,9 @@ function sideHtml(v: ViewCtx, run: TowerRun): string {
   const team = members.map((m) => {
     const dead = m.defeated || m.hp <= 0;
     const ratio = pct(m.hp, m.maxHp);
-    const url = memberPortrait(m.externalId);
+    const url = memberPortrait(m.externalId, v.save.character);
     return `<li class="${dead ? 'dead' : ratio < 35 ? 'low' : ''}">
-        <span class="tw-face">${url ? `<img src="${url}" alt="" loading="lazy" draggable="false" />` : ''}${dead ? '<i data-icon="skull"></i>' : ''}</span>
+        <span class="tw-face">${url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" draggable="false" />` : ''}${dead ? '<i data-icon="skull"></i>' : ''}</span>
         <div><span>${esc(memberName(m.externalId))}</span><b>${dead ? '阵亡' : `${Math.round(m.hp)}/${Math.round(m.maxHp)}`}</b><i class="tw-hp"><em style="width:${ratio}%"></em></i></div>
       </li>`;
   }).join('');
@@ -452,8 +453,8 @@ function startHtml(v: ViewCtx, state: TowerState): string {
   const members = activeTeam(v.save)?.members ?? [];
   const faces = members.map((m, i) => {
     const ext = `p${i}-${m.kind === 'hero' ? 'hero' : m.troopId}`;
-    const url = memberPortrait(ext);
-    return `<li><span class="tw-face">${url ? `<img src="${url}" alt="" loading="lazy" draggable="false" />` : ''}</span><b>${esc(memberName(ext))}</b></li>`;
+    const url = memberPortrait(ext, v.save.character);
+    return `<li><span class="tw-face">${url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" draggable="false" />` : ''}</span><b>${esc(memberName(ext))}</b></li>`;
   }).join('');
   const kinds = (['battle', 'elite', 'camp', 'treasure', 'merchant', 'event', 'boss'] as const).map((k) =>
     `<li>${iconImg(`node-${k}`, 'tw-legend-img')}<b>${TOWER_NODE_INFO[k].name}</b><span>${TOWER_NODE_INFO[k].hint}</span></li>`).join('');

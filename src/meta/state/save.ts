@@ -13,6 +13,7 @@ import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
  *  - 本文件与 localStorage 无关的部分（migrate/hydrate/parse/serialize）同样被
  *    服务端复用：D1 里存的就是 serializeSave 的产物。
  */
+import { hydrateCharacter } from './character';
 import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type PendingBattle, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
 import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, type EventTypeId } from '../data/events';
 import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
@@ -484,6 +485,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     eventShops,
     settings: { ...base.settings },
     treasureHunt,
+    character: hydrateCharacter(raw.character),
     onboarding: hydrateOnboarding(raw.onboarding, gachaLog),
     gifts: hydrateGifts(raw.gifts, eventWeeks, invasion),
   };

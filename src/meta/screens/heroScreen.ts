@@ -3,6 +3,7 @@
  * （3 树 × 7 档，每档三树选一、可随时改配）、职业专属特质（3 槽金+魂解锁）、
  * 武器库（唯一施法手段：装备后决定法力色/耗蓝/法术）。
  */
+import { setCharacterImage } from '../shell/characterImage';
 import {
   CHAMPION_TIERS,
   CLASSES,
@@ -292,6 +293,8 @@ export class HeroScreen implements Screen {
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
+    const portrait = document.querySelector<HTMLImageElement>('.hero-art img');
+    if (portrait) setCharacterImage(portrait, ctx.save().character);
     this.bind('#vaultClose', 'click', () => ($('#vaultVeil').hidden = true));
     this.bind('#vaultForge', 'click', () => {
       this.forgeMode = !this.forgeMode;

@@ -12,6 +12,8 @@ import './styles/extras.css';
 import './styles/tutorial.css';
 import './styles/battle-loading.css';
 import './styles/chest-items.css';
+import { characterName } from '../state/character';
+import { setCharacterImage } from './characterImage';
 
 import { initMetaGateway } from '../gateway';
 import { heroXpToNext } from '../data/classes';
@@ -66,6 +68,7 @@ const guide = new TutorialGuide(ctx, battleRoot);
  * 封面页的预载清单包含全部拆出的包，进游戏后切屏直接命中缓存。
  */
 const SCREEN_LOADERS: Record<string, () => Promise<Screen>> = {
+  character: () => import('../screens/characterScreen').then(m => new m.CharacterScreen()),
   map: () => import('../screens/mapScreen').then((m) => new m.MapScreen()),
   team: () => import('../screens/teamScreen').then((m) => new m.TeamScreen()),
   troop: () => import('../screens/troopScreen').then((m) => new m.TroopScreen()),
@@ -150,6 +153,8 @@ async function render(): Promise<void> {
   let name: string = rawName;
   const param = parts.length ? parts.join('/') : undefined;
   if (name === 'shop' && isGemShopParam(param)) name = 'gems';
+  if (!ctx.save().character) name = 'character';
+  else if (name === 'character') name = 'map';
   if (!(name in SCREEN_LOADERS)) name = 'map';
   let screen: Screen;
   try {
@@ -164,6 +169,7 @@ async function render(): Promise<void> {
   stage.innerHTML = screen.html(ctx, param);
   screen.mount(ctx, stage, param);
   current = { name, screen, param };
+  if (name === 'character') { fitStage(); return; }
   bindChrome(name);
   if (guide.sync(name, param)) return;
   const musicScene = musicForScreen(name);
@@ -214,6 +220,9 @@ function refreshWallet(): void {
 }
 
 function refreshPlayer(): void {
+  if ($('#playerName')) $('#playerName').textContent = characterName(ctx.save().character);
+  const image = document.querySelector<HTMLImageElement>('#playerPortrait');
+  if (image) setCharacterImage(image, ctx.save().character);
   const hero = ctx.save().hero;
   if ($('#playerLevel')) $('#playerLevel').textContent = `Lv.${hero.level}`;
   const next = heroXpToNext(hero.level);

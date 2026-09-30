@@ -896,6 +896,14 @@ export class App {
     // 紧凑基准在支持范围内只会放大；桌面端封顶，避免画面无限膨胀。
     const scale = Math.max(0.1, Math.min(1.75, fit));
     this.wrapper.style.transform = `scale(${scale})`;
+    // The fullscreen button lives inside the scaled stage, unlike the other controls.
+    // Preserve a 44 CSS-pixel touch target when compact landscape layouts shrink it.
+    const fullscreen = this.wrapper.querySelector<HTMLElement>('[data-testid="fullscreen-button"]');
+    if (fullscreen) {
+      const size = Math.ceil(44 / Math.min(1, scale));
+      fullscreen.style.width = fullscreen.style.height = `${size}px`;
+      if (!this.portraitLayout) fullscreen.style.right = `${-size}px`;
+    }
     this.syncBackingStore(scale);
     this.syncPortraitSubtitleAnchor();
     // B-7：卡内覆盖层里有"屏幕像素"口径的尺寸下限（状态徽记 ≥24px），

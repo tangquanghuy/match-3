@@ -13,6 +13,7 @@
  *  - 战斗必须先 plan 取票（登记 pendingBattle）再 settle，一票一结，
  *    结算所需上下文全部取自票据而不是客户端。
  */
+import { isCharacterGender, isCharacterPortrait } from '../state/character';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION, type BattleResult } from '@session/contract';
 import { fail, type MetaFailure } from '../types';
 import type { MetaSave, PendingBattle } from '../state/schema';
@@ -161,6 +162,9 @@ export function runCommand<K extends CommandType>(
   if (isDevCommand(command.type) && !env.allowDev) {
     return { result: fail('FORBIDDEN', '该操作仅开发环境可用') as CommandResult<K>, save, commit: false };
   }
+  if (env.requireCharacter && !save.character && !['createCharacter', 'resetToNewGame'].includes(command.type) && !isDevCommand(command.type)) {
+    return { result: fail('PREREQ_LOCKED', '请先创建角色') as CommandResult<K>, save, commit: false };
+  }
   const now = env.now();
   const work = structuredClone(save);
   work.savedAt = now;
@@ -210,6 +214,15 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (!Number.isInteger(level) || level < 0 || level > save.hero.level) return done(fail('INVALID', '等级不合法'));
       save.mapSeenLevel = Math.max(save.mapSeenLevel ?? 0, level);
       return done(save.mapSeenLevel);
+    }
+    case 'createCharacter': {
+      if (save.character) return done(fail('ALREADY_UNLOCKED', '角色已创建'));
+      const { gender, portrait } = command.args;
+      const name = env.accountName?.();
+      if (!name || name.length > 128) return done(fail('FORBIDDEN', '请重新登录后创建角色'));
+      if (!isCharacterGender(gender) || !isCharacterPortrait(portrait)) return done(fail('INVALID', '请选择性别和有效的角色立绘'));
+      save.character = { name, gender, portrait };
+      return done({ ok: true });
     }
     case 'resetToNewGame':
       return { result: { ok: true }, save: rebase(createFreshSave('new', now), save) };

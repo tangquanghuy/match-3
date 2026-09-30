@@ -42,3 +42,14 @@ test-results/
 tmp-*
 tmp_*
 tmp-old/
+
+# Required compressed defaults supplied by the user; keep only these static assets in Git.
+!game-assets/public/
+game-assets/public/*
+!game-assets/public/static/
+game-assets/public/static/*
+!game-assets/public/static/hero/
+game-assets/public/static/hero/*
+!game-assets/public/static/hero/character-male.webp
+!game-assets/public/static/hero/character-female.webp
+!game-assets/public/static/hero/character-unknown.webp

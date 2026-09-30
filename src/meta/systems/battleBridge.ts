@@ -10,6 +10,7 @@
  *  3. 会话校验：产出的 request 用 `session/validateRequest` 全量过一遍，
  *     校验口径与真实嵌入模式一致（knownSkillIds = 注册表键集）。
  */
+import { characterName, characterPortrait } from '../state/character';
 import { getTroopById, knownTroopTypes, type TroopData } from '../../data/troops';
 import { enemyEncounterStats, enemyTraitCount, enemyLevel } from '../data/enemyDifficulty';
 import { troopStatsAtLevel } from '../../data/leveling';
@@ -228,9 +229,9 @@ export function buildPlayerSnapshots(
       const displayTraitIds = heroDisplayTraitIds(save);
       playerTeam.push({
         externalId: `p${position}-hero`,
-        name: '主角',
+        name: save.character?.portrait === 'legacy' ? '主角' : characterName(save.character),
         levelLabel: `Lv.${save.hero.level}`,
-        portraitUrl: '/static/troops/hero.webp',
+        portraitUrl: save.character?.portrait === 'legacy' ? '/static/troops/hero.webp' : characterPortrait(save.character),
         stats: {
           hp: heroBase.health + statBonus.health + heroTalent.health + heroAura.health,
           attack: heroBase.attack + statBonus.attack + heroTalent.attack + heroAura.attack,

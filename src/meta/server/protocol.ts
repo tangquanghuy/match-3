@@ -111,6 +111,7 @@ export interface CommandTable {
   markMaterialsSeen: { args: object; result: boolean };
   markMapSeen: { args: { level: number }; result: number };
   resetToNewGame: { args: object; result: Ok };
+  createCharacter: { args: import('../state/character').CreateCharacterInput; result: Ok | MetaFailure };
 
   // —— 养成 ——
   levelUpTroop: { args: { troopId: number; targetLevel?: number }; result: LevelUpResult | MetaFailure };
@@ -237,6 +238,7 @@ export interface CommandReply<K extends CommandType = CommandType> {
  */
 const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'resetToNewGame',
+  'createCharacter',
   'openChest',
   'settleBattle',
   'forfeitPendingBattle',

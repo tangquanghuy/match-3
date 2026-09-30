@@ -13,6 +13,9 @@ type DebugAppWindow = Window & {
   __testPage: {
     app: {
       casting: boolean;
+      startupPlaying: boolean;
+      visualPlaying: boolean;
+      player: { isPlaying(): boolean };
       input: { enabled: boolean };
       triggerCast: (charId: number) => Promise<void>;
       setDebugSkill: (charId: number, proto: {
@@ -34,6 +37,8 @@ type DebugAppWindow = Window & {
       };
       engine: {
         getState: () => {
+          activePlayer: string;
+          state: string;
           board: {
             forEach: (fn: (gem: { id: number } | null, pos: DebugCell) => void) => void;
           };
@@ -58,13 +63,22 @@ async function shortPressCard(page: Page, charId: number): Promise<void> {
   const card = page.getByTestId(`card-${charId}`);
   const box = await card.boundingBox();
   if (!box) throw new Error(`card-${charId} 无边界`);
-  // Use the upper-right card body; the 44px mana gem occupies the upper-left corner.
+  // Use the upper-right card body; the mana bookmark occupies the upper-left corner.
   const x = box.x + box.width * 0.75;
   const y = box.y + box.height * 0.3;
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.waitForTimeout(80);
   await page.mouse.up();
+}
+
+async function waitForPlayerTurn(page: Page): Promise<void> {
+  await page.waitForFunction(() => {
+    const app = (window as unknown as DebugAppWindow).__testPage.app;
+    const state = app.engine.getState();
+    return state.activePlayer === 'Left' && state.state === 'AwaitingInput'
+      && !app.casting && !app.startupPlaying && !app.player.isPlaying() && !app.visualPlaying;
+  });
 }
 
 /**
@@ -76,6 +90,7 @@ async function shortPressCard(page: Page, charId: number): Promise<void> {
  * 与页面真实的拖放处理器（读取 text/plain）完全一致，且与滚动无关。
  */
 async function assignSkill(page: Page, skillId: string, casterId = 0): Promise<void> {
+  await waitForPlayerTurn(page);
   const ok = await page.evaluate(
     ({ skillId, casterId }) => {
       const src = document.querySelector(`[data-testid="skill-${skillId}"]`);
@@ -122,7 +137,7 @@ async function assignAndCast(page: Page, skillId: string, casterId = 0): Promise
 
 /** Wait for the cast flow, then verify every model gem has a sprite at its cell. */
 async function expectBoardViewSettled(page: Page): Promise<void> {
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
   const mismatch = await page.evaluate(() => {
     const app = (window as unknown as DebugAppWindow).__testPage.app;
     const view = app.board;
@@ -150,6 +165,9 @@ async function expectBoardViewSettled(page: Page): Promise<void> {
 
 
 test.beforeEach(async ({ page }) => {
+  // Keep battle initialization independent of external font request latency.
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
   // Bulk skill semantics tests exercise the cast result, not the confirmation preference.
   // Keep that choice explicit so B-4's player-facing default confirmation cannot stall them.
   await page.addInitScript(() => window.localStorage.setItem('battle.skipCastConfirm', '1'));
@@ -159,6 +177,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/skills-test.html', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#app')).toHaveAttribute('data-test-ready', 'true', { timeout: 15_000 });
   await expect(page.getByTestId('skill-dmg-single')).toBeVisible({ timeout: 15_000 });
+  await waitForPlayerTurn(page);
 });
 
 test('unit window replaces the cast confirmation: tap opens it, its native cast button starts targeting', async ({ page }) => {
@@ -273,7 +292,7 @@ test('cast restores board input and does not show a released toast', async ({ pa
 
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
   await expect(page.getByTestId('event-log')).toContainText('skill-cast');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
   await expect.poll(() => page.evaluate(() => (
     window as unknown as DebugAppWindow
   ).__testPage.app.input.enabled)).toBe(true);
@@ -282,7 +301,7 @@ test('cast restores board input and does not show a released toast', async ({ pa
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
   await expect(page.getByTestId('event-log')).toContainText('skill-damage');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
   await expect.poll(() => page.evaluate(() => (
     window as unknown as DebugAppWindow
   ).__testPage.app.input.enabled)).toBe(true);
@@ -300,14 +319,14 @@ test('healing, cleanse, and armor buffs use their finalized numbered frame FX', 
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
   await expect(page.locator('[data-fx="heal_cleanse"]')).toBeVisible();
   await expect(page.getByTestId('event-log')).toContainText('buff');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
 
   await assignSkill(page, 'cleanse');
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
   await expect(page.locator('[data-fx="heal_cleanse"]')).toBeVisible();
-  await expect(page.getByTestId('event-log')).toContainText('status-cleanse');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await expect(page.getByTestId('event-log')).toContainText('净化 → 角色0 poison');
+  await waitForPlayerTurn(page);
 
   await assignSkill(page, 'armor');
   await page.getByTestId('fill-mana').click();
@@ -317,6 +336,7 @@ test('healing, cleanse, and armor buffs use their finalized numbered frame FX', 
 });
 
 test('poison, frozen, burning, water single-target, and splash attacks route finalized frame FX', async ({ page }) => {
+  test.setTimeout(90_000);
   // 序列帧在开战前已全部加载解码，可直接施放。
   await page.evaluate(() => {
     type FrameFxFn = (name: string, px: number, py: number, opts?: unknown) => void;
@@ -349,7 +369,7 @@ test('poison, frozen, burning, water single-target, and splash attacks route fin
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
   await expect.poll(frameFxCalls).toContain('poison_flash');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
 
   await page.evaluate(() => {
     const app = (window as unknown as DebugAppWindow).__testPage.app as unknown as {
@@ -370,7 +390,7 @@ test('poison, frozen, burning, water single-target, and splash attacks route fin
   expect(await page.evaluate(() =>
     (window as unknown as { __statusAudioCalls: string[] }).__statusAudioCalls,
   )).toContain('frozen');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
 
   await assignSkill(page, 'burning');
   await page.getByTestId('fill-mana').click();
@@ -379,7 +399,7 @@ test('poison, frozen, burning, water single-target, and splash attacks route fin
   expect(await page.evaluate(() =>
     (window as unknown as { __statusAudioCalls: string[] }).__statusAudioCalls,
   )).toContain('burning');
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  await waitForPlayerTurn(page);
 
   await page.getByTestId('ally-mana-color').selectOption('Blue');
   await page.evaluate(() => {
@@ -414,8 +434,8 @@ test('poison, frozen, burning, water single-target, and splash attacks route fin
   expect(await page.evaluate(() => (window as unknown as { __skillProjectileCalls: number }).__skillProjectileCalls)).toBe(1);
   expect(await page.evaluate(() =>
     (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls.filter((name) => name === 'skill').length,
-  )).toBe(2);
-  await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+  )).toBe(1); // One projectile whoosh; impact uses the color-specific sample.
+  await waitForPlayerTurn(page);
 
   await page.evaluate(() => {
     const marker = window as unknown as { __skillProjectileCalls: number; __skillAudioCalls: string[] };
@@ -431,12 +451,15 @@ test('poison, frozen, burning, water single-target, and splash attacks route fin
   await expect.poll(frameFxCalls).toContain('splash_hit');
   await expect.poll(frameFxCalls).toContain('splash_chain_sword');
   expect(await page.evaluate(() => (window as unknown as { __skillProjectileCalls: number }).__skillProjectileCalls)).toBe(0);
-  expect(await page.evaluate(() =>
-    (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls.filter((name) => name === 'skill').length,
-  )).toBe(1);
+  const splashAudio = await page.evaluate(() =>
+    (window as unknown as { __skillAudioCalls: string[] }).__skillAudioCalls,
+  );
+  expect(splashAudio).not.toContain('skill'); // Splash has its own impact, not a projectile whoosh.
+  expect(splashAudio).toContain('splashChainHit');
 });
 
 test('single-target hit FX and audio route by caster color', async ({ page }) => {
+  test.setTimeout(90_000); // Five casts, each followed by a real AI turn and its animations.
   await assignSkill(page, 'dmg-single');
   await page.evaluate(() => {
     type FrameFxFn = (name: string, px: number, py: number, opts?: unknown) => void;
@@ -512,7 +535,7 @@ test('single-target hit FX and audio route by caster color', async ({ page }) =>
       }, { sfx: item.sfx, fx: item.fx });
       expect(lead).toBeGreaterThan(70);
     }
-    await page.waitForFunction(() => !(window as unknown as DebugAppWindow).__testPage.app.casting);
+    await waitForPlayerTurn(page);
   }
 });
 
@@ -531,25 +554,39 @@ test('defeat uses effect 0353 slightly above the card center before removal', as
     state.teams.Right.characters[0].armor = 0;
   });
 
+  // Capture geometry when the short-lived frame node mounts; polling the DOM can
+  // miss it entirely under load, but removal order and alignment still matter.
+  await page.evaluate(() => {
+    const observer = new MutationObserver(() => {
+      const fx = document.querySelector<HTMLElement>('[data-fx="death_drift"]');
+      if (!fx) return;
+      const card = document.querySelector<HTMLElement>('[data-testid="card-4"]');
+      const next = document.querySelector<HTMLElement>('[data-testid="card-5"]');
+      const r = fx.getBoundingClientRect();
+      (window as unknown as { __deathSnapshot: unknown }).__deathSnapshot = {
+        targetVisible: !!card && card.getBoundingClientRect().height > 0,
+        defeated: card?.classList.contains('defeated'), nextY: next?.getBoundingClientRect().y,
+        fx: { x: r.x, y: r.y, width: r.width, height: r.height },
+      };
+      observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
   await assignSkill(page, 'dmg-single');
   await page.getByTestId('fill-mana').click();
   await page.evaluate(() => { void (window as unknown as DebugAppWindow).__testPage.app.triggerCast(0); });
-  const deathFx = page.locator('[data-fx="death_drift"]');
-  await expect(deathFx).toBeVisible();
-  await expect(target).toBeVisible();
-  await expect(target).toHaveClass(/defeated/);
-  const nextBoxDuringFx = await nextCard.boundingBox();
-  if (nextBoxBefore && nextBoxDuringFx) {
-    expect(Math.abs(nextBoxDuringFx.y - nextBoxBefore.y)).toBeLessThan(2);
-  }
-  const fxBox = await deathFx.boundingBox();
-  expect(fxBox).not.toBeNull();
-  if (targetBox && fxBox) {
-    const expectedX = targetBox.x + targetBox.width / 2;
-    const expectedY = targetBox.y + targetBox.height * 0.43;
-    expect(Math.abs(fxBox.x + fxBox.width / 2 - expectedX)).toBeLessThan(8);
-    expect(Math.abs(fxBox.y + fxBox.height / 2 - expectedY)).toBeLessThan(8);
-  }
+  await expect.poll(() => page.evaluate(() => (window as unknown as {
+    __deathSnapshot?: unknown;
+  }).__deathSnapshot ?? null)).not.toBeNull();
+  const snapshot = await page.evaluate(() => (window as unknown as {
+    __deathSnapshot: { targetVisible: boolean; defeated: boolean; nextY: number; fx: { x: number; y: number; width: number; height: number } };
+  }).__deathSnapshot);
+  expect(snapshot.targetVisible).toBe(true);
+  expect(snapshot.defeated).toBe(true);
+  expect(Math.abs(snapshot.nextY - nextBoxBefore!.y)).toBeLessThan(2);
+  const fxBox = snapshot.fx;
+  expect(Math.abs(fxBox.x + fxBox.width / 2 - (targetBox!.x + targetBox!.width / 2))).toBeLessThan(8);
+  expect(Math.abs(fxBox.y + fxBox.height / 2 - (targetBox!.y + targetBox!.height * 0.43))).toBeLessThan(8);
   await expect(page.getByTestId('event-log')).toContainText('defeat');
   await expect(target).toHaveCount(0);
   // 后排递进顶到前面（滑动补位），卡片尺寸不变，空位补在队尾
@@ -603,17 +640,24 @@ test('群体伤害', async ({ page }) => {
   await expect(page.getByTestId('event-log')).toContainText('skill-damage');
 });
 
-test('中毒→status-apply；推进回合→tick 与 expire', async ({ page }) => {
+test('中毒施加后按回合结算，超过旧倒计时也不会自然过期', async ({ page }) => {
+  test.setTimeout(90_000);
   await assignAndCast(page, 'poison');
   const log = page.getByTestId('event-log');
-  await expect(log).toContainText('status-apply');
-  for (let i = 0; i < 6; i++) {
-    if ((await log.textContent())?.includes('status-expire')) break;
+  await expect(log).toContainText('status-apply → 角色4 poison');
+  for (let i = 0; i < 4; i++) {
+    await waitForPlayerTurn(page);
     await page.getByTestId('step-turn').click();
-    await page.waitForTimeout(700);
+    await waitForPlayerTurn(page);
   }
-  await expect(log).toContainText('status-tick');
-  await expect(log).toContainText('status-expire');
+  await expect(log).toContainText('status-tick → 角色4 poison');
+  await expect(log).not.toContainText('status-expire → 角色4 poison');
+  expect(await page.evaluate(() => {
+    const state = (window as unknown as DebugAppWindow).__testPage.app.engine.getState() as unknown as {
+      teams: { Right: { characters: Array<{ statuses: Array<{ id: string }> }> } };
+    };
+    return state.teams.Right.characters[0].statuses.some(s => s.id === 'poison');
+  })).toBe(true);
 });
 
 test('创造宝石：gem-create 或（满盘）gem-transform', async ({ page }) => {

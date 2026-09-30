@@ -5,6 +5,7 @@ type MobileDebugWindow = Window & {
     app: { renderer: { resolution: number } };
     input: { enabled: boolean };
     root: { y: number };
+    board: { cellSize: number };
     idleTweens: unknown[];
     hintTimer: number | null;
     hintTweens: unknown[];
@@ -20,6 +21,12 @@ const LANDSCAPE_VIEWPORTS = [
   { width: 915, height: 412 },
   { width: 667, height: 375 },
 ] as const;
+
+// External font availability must not block navigation or battle startup in E2E.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+});
 
 test.use({
   viewport: { width: 844, height: 390 },
@@ -44,14 +51,14 @@ async function readLayout(page: Page) {
     const mount = document.querySelector<HTMLElement>('#app');
     const wrapper = document.querySelector<HTMLElement>('[data-testid="battle-wrapper"]');
     const fullscreen = document.querySelector<HTMLElement>('[data-testid="fullscreen-button"]');
-    const teamToggle = document.querySelector<HTMLElement>('[data-testid="team-size-toggle"]');
+    const controls = [...document.querySelectorAll<HTMLElement>('.battle-control-button, .battle-settings-button')];
     const manaGem = document.querySelector<HTMLElement>('.gcol .gem');
     const hud = document.querySelector<HTMLElement>('.turn-hud');
     const allyCards = document.querySelectorAll<HTMLElement>('.gcard.ally');
     const enemyCards = document.querySelectorAll<HTMLElement>('.gcard.enemy');
     const lastAllyCard = allyCards[allyCards.length - 1];
     const lastEnemyCard = enemyCards[enemyCards.length - 1];
-    if (!mount || !wrapper || !fullscreen || !teamToggle || !manaGem || !hud || !lastAllyCard || !lastEnemyCard) {
+    if (!mount || !wrapper || !fullscreen || controls.length !== 3 || !manaGem || !hud || !lastAllyCard || !lastEnemyCard) {
       throw new Error('移动布局关键节点尚未就绪');
     }
 
@@ -82,9 +89,10 @@ async function readLayout(page: Page) {
     const firstRowTop = wrapperRect.top + app.root.y * scale;
 
     return {
-      teamCardOverlap: overlapArea(teamToggle.getBoundingClientRect(), lastAllyCard.getBoundingClientRect()),
+      controlsCardOverlap: controls.reduce((sum, control) => sum + [...allyCards, ...enemyCards].reduce((n, card) => n + overlapArea(control.getBoundingClientRect(), card.getBoundingClientRect()), 0), 0),
       fullscreenCardOverlap: overlapArea(fullscreen.getBoundingClientRect(), lastEnemyCard.getBoundingClientRect()),
       hudGap: firstRowTop - hudRect.bottom,
+      hudPointerEvents: getComputedStyle(hud).pointerEvents,
       cardsOutOfWrapper,
       mount: { width: mountRect.width, height: mountRect.height },
       wrapper: {
@@ -95,10 +103,11 @@ async function readLayout(page: Page) {
       },
       expectedScale: Math.min(1.75, mount.clientWidth / logicalWidth, mount.clientHeight / logicalHeight),
       scale,
-      cellSize: 40 * scale,
+      cellSize: app.board.cellSize * scale,
       fullscreen: rect(fullscreen),
-      teamToggle: rect(teamToggle),
+      controls: controls.map(rect),
       manaGem: rect(manaGem),
+      allyCard: rect(lastAllyCard),
     };
   });
 }
@@ -191,20 +200,22 @@ test('supported landscape sizes keep the board and controls usable without overf
     expect(metrics.wrapper.right).toBeLessThanOrEqual(metrics.mount.width + 0.5);
     expect(metrics.wrapper.bottom).toBeLessThanOrEqual(metrics.mount.height + 0.5);
     expect(metrics.cellSize).toBeGreaterThanOrEqual(40);
-    // 底部两个控件挂在 wrapper 外侧，任何重叠都意味着又压回了角色卡。
-    expect(metrics.teamCardOverlap).toBe(0);
+    // 舞台操作控件与全屏按钮均应避开角色卡，任何重叠都意味着回归。
+    expect(metrics.controlsCardOverlap).toBe(0);
     expect(metrics.fullscreenCardOverlap).toBe(0);
     expect(metrics.cardsOutOfWrapper).toBe(0);
-    // HUD 底边不得越过首行宝石顶边（留 0.01px 容差吸收浮点误差）。
-    expect(metrics.hudGap).toBeGreaterThanOrEqual(-0.01);
-    for (const target of [metrics.fullscreen, metrics.teamToggle]) {
+    // HUD 的羽化边缘有意伸入首行，但不覆盖宝石中心，也不拦截棋盘点击。
+    expect(metrics.hudGap).toBeGreaterThan(-metrics.cellSize / 2);
+    expect(metrics.hudPointerEvents).toBe('none');
+    for (const target of [metrics.fullscreen, ...metrics.controls]) {
       expect(target.width).toBeGreaterThanOrEqual(44);
       expect(target.height).toBeGreaterThanOrEqual(44);
     }
-    // 法力宝石是二级信息入口（点开法力进度浮窗），尺寸按 PC 设计稿的卡宽占比锚定
-    // （26% ≈ 26 逻辑 px），不再计入 44×44 关键控件；这里只守住"仍然可点、没被缩没"。
-    expect(metrics.manaGem.width).toBeGreaterThanOrEqual(24);
-    expect(metrics.manaGem.height).toBeGreaterThanOrEqual(24);
+    // 法力角标现为卡片信息（点击等同点卡片），不再是独立浮窗入口。
+    // 按当前 18% 卡宽（小屏信息放大后至 24%）检查比例与正方形，触控尺寸由整张卡承担。
+    expect(metrics.manaGem.width / metrics.allyCard.width).toBeGreaterThanOrEqual(0.17);
+    expect(metrics.manaGem.width / metrics.allyCard.width).toBeLessThanOrEqual(0.25);
+    expect(Math.abs(metrics.manaGem.width - metrics.manaGem.height)).toBeLessThan(1);
   }
 });
 

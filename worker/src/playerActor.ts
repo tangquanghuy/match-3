@@ -43,13 +43,14 @@ export class PlayerActor extends DurableObject<Env> {
   private refilledAt = Date.now();
   /** 本实例对应的玩家 id（Worker 鉴权后随命令传入；DO 名字即它） */
   private playerId: string | null = null;
+  private accountName: string | null = null;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS records (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
     this.host = new MetaHost(
       new SqlRepository(ctx.storage),
-      defaultEnv({ allowDev: env.DEV_LOGIN === '1' }),
+      defaultEnv({ allowDev: env.DEV_LOGIN === '1', requireCharacter: true, accountName: () => this.accountName }),
       {
         fresh: 'new',
         flushDelayMs: 0,
@@ -63,8 +64,9 @@ export class PlayerActor extends DurableObject<Env> {
     return this.host.load();
   }
 
-  async execute(command: MetaCommand, playerId?: string): Promise<CommandReply | { rateLimited: true }> {
+  async execute(command: MetaCommand, playerId?: string, accountName?: string): Promise<CommandReply | { rateLimited: true }> {
     if (playerId) this.playerId ??= playerId;
+    if (accountName) this.accountName = accountName;
     const now = Date.now();
     this.tokens = Math.min(RATE_BURST, this.tokens + ((now - this.refilledAt) / 1000) * RATE_PER_SEC);
     this.refilledAt = now;

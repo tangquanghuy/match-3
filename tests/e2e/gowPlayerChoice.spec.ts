@@ -5,6 +5,12 @@ import type {EventStreamPlayer} from '../../src/render/EventStreamPlayer';
 type Runtime = Omit<App, 'castPlayerSkill' | 'startupPlaying' | 'casting' | 'player' | 'refreshTeams' | 'input'> & { castPlayerSkill(id: number): Promise<void>; startupPlaying: boolean; casting: boolean;
  player: EventStreamPlayer; refreshTeams(): void; input: {enabled:boolean}; branchEvents: GameEvent[]; branchDone: boolean };
 declare global { interface Window { __choiceApp: Runtime } }
+// External font availability must not block navigation or battle startup in E2E.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+});
+
 async function open(page: Page, spellId = '8300') {
  await page.addInitScript(()=>{localStorage.setItem('battle.skipCastConfirm','1');localStorage.setItem('battle.gestureHintShown','1');});
  await page.goto('/index.html');

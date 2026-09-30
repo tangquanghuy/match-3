@@ -16,6 +16,7 @@ test.describe('宝箱视觉与批量入口', () => {
     await page.evaluate(() => {
       const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
       save.currencies.glory = 0;
+      save.currencies.gloryKeys = 0;
       localStorage.setItem('gems.meta.save', JSON.stringify(save));
     });
     await page.reload();
@@ -46,11 +47,22 @@ test.describe('宝箱视觉与批量入口', () => {
       path: `${ARTIFACT_DIR}/glory-actions-desktop.png`,
       fullPage: false,
     });
+    const before = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!));
     await page.locator('[data-open="glory-10"]').click();
-    await expect.poll(() => page.evaluate(() => {
-      const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
-      return { glory: save.currencies.glory, lastPool: save.gachaLog[0]?.kind };
-    })).toEqual({ glory: 0, lastPool: 'glory' });
+    await expect.poll(() => page.evaluate(() =>
+      JSON.parse(localStorage.getItem('gems.meta.save')!).gachaLog[0]?.kind,
+    )).toBe('glory');
+    // Loot may award glory back. Replay the recorded seed against the pre-draw
+    // save to check the exact debit AND credited loot rather than assuming zero.
+    const settlement = await page.evaluate(async (before) => {
+      const after = JSON.parse(localStorage.getItem('gems.meta.save')!);
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const { openGloryChest } = await load('/src/meta/systems/gacha.ts');
+      const result = openGloryChest(before, after.gachaLog[0].seed, 10);
+      return { actual: after.currencies.glory, expected: before.currencies.glory, spent: result.spent.glory };
+    }, before);
+    expect(settlement.spent).toBe(200);
+    expect(settlement.actual).toBe(settlement.expected);
     await expect(page.locator('#summonModal:not([hidden]), #gloryFeedback:not([hidden])')).toHaveCount(1);
   });
 
@@ -69,6 +81,8 @@ test.describe('宝箱视觉与批量入口', () => {
     test(`宝石宝箱主体在 ${viewport.label} 构图中居中且无遮挡`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await openFresh(page, 'chests/gems');
+      await expect.poll(() => page.locator('.gem-chest-page .chest-art')
+        .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
       const framing = await page.evaluate(() => {
         const stage = document.querySelector<HTMLElement>('.chest-stage')!;
         const art = document.querySelector<HTMLImageElement>('.gem-chest-page .chest-art')!;

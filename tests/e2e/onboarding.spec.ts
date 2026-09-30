@@ -1,10 +1,29 @@
 import { expect, test, type Page } from '@playwright/test';
 
+// External font availability must not block navigation or battle startup in E2E.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+});
+
 /**
- * 新手引导全流程：全新档 → 引导遮罩拦截 → 战斗加载页 → 试炼战（自动） → 结算 → 回地图
+ * 新手引导全流程：全新档 → 创建角色 → 引导遮罩拦截 → 战斗加载页 → 试炼战（自动） → 结算 → 回地图
  * → 馈赠领见面礼 → 宝箱页新手十连（第 10 张异界来客）→ 引导结束。
  */
 async function newGame(page: Page): Promise<void> {
+  // Reproducible encounter/board entropy; retain real combat, AI and settlement.
+  // Other Web Crypto callers (e.g. UUID-sized buffers) keep their original entropy.
+  await page.addInitScript(() => {
+    localStorage.setItem('battle.speed', '3');
+    const original = crypto.getRandomValues.bind(crypto);
+    crypto.getRandomValues = <T extends ArrayBufferView>(array: T): T => {
+      if (array instanceof Uint32Array && array.length === 1) {
+        array[0] = 3;
+        return array;
+      }
+      return original(array);
+    };
+  });
   await page.goto('/game.html#map');
   await expect(page.locator('.map-shell')).toBeVisible({ timeout: 20_000 });
   await page.evaluate(async () => {
@@ -14,6 +33,9 @@ async function newGame(page: Page): Promise<void> {
     localStorage.setItem('gems.debug.slowLoad', '120');
   });
   await page.reload();
+  await expect(page.locator('.character-screen')).toBeVisible();
+  await page.locator('[name="characterGender"][value="male"]').check();
+  await page.locator('#createCharacter').click();
 }
 
 test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被拦截', async ({ page }) => {
@@ -40,6 +62,7 @@ test('新手引导：试炼 → 馈赠 → 新手十连，期间其他入口被�
   await expect(loading).toHaveCount(0, { timeout: 60_000 });
   await expect(page.locator('#battle-root')).toBeVisible();
 
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).pendingBattle.plan.seed)).toBe(3);
   await page.getByText('自动', { exact: true }).click();
   await expect(page).toHaveURL(/#result/, { timeout: 180_000 });
   // 结算页（含升级二选一）不加任何遮挡

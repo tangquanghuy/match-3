@@ -5,6 +5,7 @@
  *  - /            封面页（登录 + 用户协议）；登录成功后跳 /game；
  *  - 其余         静态资源（ASSETS）。
  */
+import type { CommandReply } from '../../src/meta/server/protocol';
 import type { Env } from './env';
 import {
   cookie,
@@ -188,8 +189,18 @@ async function handleMeta(request: Request, url: URL, env: Env): Promise<Respons
       return json({ error: 'bad json' }, 400);
     }
     if (!isCommandShape(command)) return json({ error: 'bad command' }, 400);
-    const reply = await actor.execute(command as never, playerId);
+    const type = (command as { type: string }).type;
+    // Never trust a name in command.args: resolve the signed-in account in D1.
+    const identity = type === 'createCharacter'
+      ? await env.DB.prepare('SELECT username FROM accounts WHERE player_id = ?').bind(playerId).first<{ username: string }>()
+      : null;
+    if (type === 'createCharacter' && !identity) return json({ error: 'unauthorized' }, 401);
+    const reply = await actor.execute(command as never, playerId, identity?.username) as CommandReply | { rateLimited: true };
     if ('rateLimited' in reply) return json({ error: 'rate limited' }, 429, { 'retry-after': '1' });
+    // Reset and cookie clearing share one response; no second logout request can fail in between.
+    if (type === 'resetToNewGame' && (reply.result as { ok?: boolean })?.ok === true) {
+      return json(reply, 200, { 'set-cookie': cookie(SESSION_COOKIE, '', 0) });
+    }
     return json(reply);
   }
 

@@ -2,6 +2,8 @@
  * 部队编成屏（计划 §5.3）。预设队、站位、旗帜、校验 issues 全走存档与 teamRules。
  * 名册 = 收藏中的部队 + 主角；立绘走本地降级图（troopTypes 映射 + 点名覆盖）。
  */
+import { characterName, characterPortrait, DEFAULT_CHARACTER_PORTRAITS, type CharacterProfile } from '../state/character';
+import { escapeHtml } from './troopCard';
 import type { TroopData } from '../../data/troops';
 import { getTroopById } from '../../data/troops';
 import type { TeamMember } from '../state/schema';
@@ -72,10 +74,10 @@ export function troopArt(troop: TroopData | null, hero = false): string {
 }
 
 /** 带兜底链的 <img> 标签：onerror 沿链逐级回退（大列表建议保持 lazy） */
-export function troopImg(troop: TroopData | null, hero = false, attrs = ''): string {
-  const chain = troopArtChain(troop, hero);
+export function troopImg(troop: TroopData | null, hero = false, attrs = '', character?: CharacterProfile | null): string {
+  const chain = hero && character && character.portrait !== 'legacy' ? [characterPortrait(character), DEFAULT_CHARACTER_PORTRAITS[character.gender]] : troopArtChain(troop, hero);
   const fb = JSON.stringify(chain.slice(1));
-  return `<img src="${chain[0]}" ${attrs} loading="lazy" data-fb='${fb}' onerror="const fb=JSON.parse(this.dataset.fb||'[]');const i=fb.indexOf(this.getAttribute('src'));if(i+1<fb.length){this.src=fb[i+1]}else{this.onerror=null}">`;
+  return `<img src="${escapeHtml(chain[0]!)}" ${attrs} referrerpolicy="no-referrer" loading="lazy" data-fb='${escapeHtml(fb)}' onerror="const fb=JSON.parse(this.dataset.fb||'[]');const i=fb.indexOf(this.getAttribute('src'));if(i+1<fb.length){this.src=fb[i+1]}else{this.onerror=null}">`;
 }
 
 const TYPE_CN: Record<string, string> = {
@@ -575,7 +577,7 @@ export class TeamScreen implements Screen {
     const list: RosterEntry[] = [{
       key: 'hero',
       troop: null,
-      name: '主角',
+      name: save.character?.portrait === 'legacy' ? '主角' : characterName(save.character),
       typeLabel: '主角',
       typeRaw: 'hero',
       level: save.hero.level,
@@ -775,10 +777,10 @@ export class TeamScreen implements Screen {
             </button>${ops}</div>`;
         }
         return `<div class="slot-wrap">
-          <button class="slot${i === 0 ? ' leader' : ''}${this.selected === i ? ' on' : ''}${this.inspectedKey === t.key ? ' look' : ''} ${t.rarityIdx >= 0 ? 'r-' + t.rarityIdx : 'r-hero'}" data-slot="${i}" title="${t.name} · ${t.typeLabel} · Lv.${t.level} · 耗蓝 ${t.cost}" type="button">
+          <button class="slot${i === 0 ? ' leader' : ''}${this.selected === i ? ' on' : ''}${this.inspectedKey === t.key ? ' look' : ''} ${t.rarityIdx >= 0 ? 'r-' + t.rarityIdx : 'r-hero'}" data-slot="${i}" title="${escapeHtml(t.name)} · ${t.typeLabel} · Lv.${t.level} · 耗蓝 ${t.cost}" type="button">
             <span class="slot-tag${i === 0 ? ' skull' : ''}" title="${i === 0 ? '1 号位优先承受骷髅伤害' : `${i + 1} 号位`}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
-            <span class="slot-art">${manaCorner('slot-mana', t.colors, t.cost)}${troopImg(t.troop, t.key === 'hero', `alt="${t.name}"`)}</span>
-            <span class="slot-foot"><b>${t.name}</b><span class="slot-level">Lv.${t.level}</span></span>
+            <span class="slot-art">${manaCorner('slot-mana', t.colors, t.cost)}${troopImg(t.troop, t.key === 'hero', `alt="${escapeHtml(t.name)}"`, this.ctx.save().character)}</span>
+            <span class="slot-foot"><b>${escapeHtml(t.name)}</b><span class="slot-level">Lv.${t.level}</span></span>
           </button>${ops}</div>`;
       })
       .join('');
@@ -894,12 +896,12 @@ export class TeamScreen implements Screen {
     rosterEl.innerHTML = slice
       .map((t) => {
         const used = this.slots.includes(t.key === 'hero' ? 'hero' : Number(t.key));
-        return `<button class="mini${used ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${t.name} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ' · 已上阵' : ''} · 单击查看 / 双击编入" type="button">
+        return `<button class="mini${used ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${escapeHtml(t.name)} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ' · 已上阵' : ''} · 单击查看 / 双击编入" type="button">
           <i class="rarity-edge" aria-hidden="true"></i>
-          ${troopImg(t.troop, t.key === 'hero', `alt="${t.name}"`)}
+          ${troopImg(t.troop, t.key === 'hero', `alt="${escapeHtml(t.name)}"`, this.ctx.save().character)}
           ${manaCorner('mini-mana', t.colors, t.cost)}
           <span class="mini-lv">Lv.${t.level}</span>
-          <span class="mini-shade"><b>${t.name}</b></span>
+          <span class="mini-shade"><b>${escapeHtml(t.name)}</b></span>
         </button>`;
       })
       .join('');
@@ -962,12 +964,12 @@ export class TeamScreen implements Screen {
       usedAt >= 0
         ? `<button class="inspect-act" id="inspectAct" type="button">卸下 · ${usedAt + 1}号位</button>`
         : occupant
-          ? `<button class="inspect-act primary" id="inspectAct" type="button">替换 ${occupant.name}</button>`
+          ? `<button class="inspect-act primary" id="inspectAct" type="button">替换 ${escapeHtml(occupant.name)}</button>`
           : `<button class="inspect-act primary" id="inspectAct" type="button">编入 ${this.selected + 1}号位</button>`;
     dock.innerHTML = `
-      <div class="inspect-art">${troopImg(troop.troop, troop.key === 'hero')}</div>
+      <div class="inspect-art">${troopImg(troop.troop, troop.key === 'hero', '', this.ctx.save().character)}</div>
       <div class="inspect-copy">
-        <div class="inspect-name"><b>${troop.name}</b><span>${troop.key === 'hero' ? '主角' : RARITY_CN_ROSTER[troop.rarityIdx]} · ${troop.typeLabel} · Lv.${troop.level}${troop.copies > 1 ? ` · ×${troop.copies}` : ''}</span></div>
+        <div class="inspect-name"><b>${escapeHtml(troop.name)}</b><span>${troop.key === 'hero' ? '主角' : RARITY_CN_ROSTER[troop.rarityIdx]} · ${troop.typeLabel} · Lv.${troop.level}${troop.copies > 1 ? ` · ×${troop.copies}` : ''}</span></div>
         <div class="inspect-spell">
           ${manaCorner('inspect-mana', troop.colors, troop.cost)}
           <div><strong>${troop.spellName}</strong><small>${troop.key === 'hero' ? '经武器施放' : '部队法术'}</small></div>

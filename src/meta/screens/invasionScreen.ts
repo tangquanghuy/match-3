@@ -131,7 +131,7 @@ export class InvasionScreen implements Screen {
           ? m.player.team.map((c) => {
             if (c.templateId === undefined) {
               return `<span class="inv-def inv-def-hero r-3" title="${escapeHtml(m.name)} 的主角 · Lv.${m.player!.heroLevel}">
-                <img src="${c.portraitUrl ?? '/static/troops/hero.webp'}" alt="主角" loading="lazy">
+                <img src="${escapeHtml(c.portraitUrl ?? '/static/troops/hero.webp')}" alt="主角" loading="lazy" referrerpolicy="no-referrer">
                 <span class="inv-def-caption"><b>主角</b><small>Lv.${m.player!.heroLevel}${c.spellName ? ` · ${escapeHtml(c.spellName)}` : ''}</small></span>
               </span>`;
             }

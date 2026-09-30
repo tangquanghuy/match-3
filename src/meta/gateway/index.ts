@@ -21,7 +21,7 @@ let current: MetaGateway | null = null;
 /** 按构建环境选后端 */
 export function defaultMetaGateway(): MetaGateway {
   const api = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_META_API;
-  return api ? new CommandGateway(new HttpTransport(api)) : new CommandGateway(new LocalTransport());
+  return api ? new CommandGateway(new HttpTransport(api)) : new CommandGateway(new LocalTransport(undefined, { requireCharacter: true }));
 }
 
 /** 外壳启动时初始化一次；之后所有屏共享同一实例 */

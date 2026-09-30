@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+// Layout assertions should not wait for the optional third-party font CDN.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+});
+
 test('材料库以物品格展示，并在桌面侧栏切换详情', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/game.html#bag/ingots');

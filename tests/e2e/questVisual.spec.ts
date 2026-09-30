@@ -72,7 +72,8 @@ test('难度切换同步路由、节点和奖励图示，刷新保持 VERY HARD'
 test('VERY HARD 三个关卡更新敌人等级并保存实际探索档位', async ({ page }) => {
   await openQuest(page);
   await selectMode(page, 'veryHard');
-  for (const [node, level, tier] of [[1, 16, 4], [2, 21, 5], [3, 26, 6]]) {
+  // 破碎尖塔基数 Lv.1，主线末关 Lv.8；VERY HARD 档 4~6 = 末关 + 35/55/80（exploreEnemyLevel）
+  for (const [node, level, tier] of [[1, 43, 4], [2, 63, 5], [3, 88, 6]]) {
     const pin = page.locator(`.qpin[data-node="${node}"]`);
     await pin.click();
     await expect(pin).toHaveAttribute('aria-pressed', 'true');
@@ -88,7 +89,7 @@ test('VERY HARD 三个关卡更新敌人等级并保存实际探索档位', asyn
   }
   await page.reload();
   await expect(page.locator('.qpin[data-node="3"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#qdSub')).toContainText('Lv.26');
+  await expect(page.locator('#qdSub')).toContainText('Lv.88');
 });
 
 test('普通主线全通后清晰呈现已通关，不能重复出战', async ({ page }) => {

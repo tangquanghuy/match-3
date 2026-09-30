@@ -285,6 +285,7 @@ export type PendingBattle =
     };
 
 export interface MetaSave {
+  character: import('./character').CharacterProfile | null;
   version: typeof META_SAVE_VERSION;
   createdAt: number;
   /**
@@ -422,6 +423,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     options.currencies,
   );
   const save: MetaSave = {
+    character: options.tutorial ? null : { name: '影织者', gender: 'unknown', portrait: 'legacy' },
     version: META_SAVE_VERSION,
     createdAt: now,
     savedAt: now,

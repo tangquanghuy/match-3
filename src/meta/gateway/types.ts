@@ -94,6 +94,7 @@ export interface MetaGateway {
   markMapSeen(level: number): Promise<GatewayUpdate<number | MetaFailure>>;
   /** 重开：全新档（新手引导起步） */
   resetToNewGame(): Promise<GatewaySnapshot>;
+  createCharacter(input: import('../state/character').CreateCharacterInput): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
 
   // —— 养成 ——
   levelUpTroop(troopId: number, targetLevel?: number): Promise<GatewayUpdate<LevelUpResult | MetaFailure>>;

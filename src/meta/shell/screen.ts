@@ -23,7 +23,7 @@ export type PvpSettlementView =
 
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
-  | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
+  | 'character' | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
   | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt' | 'gifts'
   /** 王国主线页 `#quest/<王国>`（M10） */
   | 'quest';

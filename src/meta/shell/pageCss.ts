@@ -1,3 +1,4 @@
+import characterCss from './styles/character.css?raw';
 import wishlistCss from './styles/wishlist.css?raw';
 /**
  * 页面级 CSS 管理：小样各页的级联顺序各不相同（troop.css 要排在 style.css
@@ -28,6 +29,7 @@ interface PageCssSpec {
 }
 
 const PAGE_CSS: Record<string, PageCssSpec> = {
+  character: { css: characterCss, position: 'last' },
   wishlist: { css: wishlistCss, position: 'last' },
   troop: { css: troopCss, position: 'first' },
   arena: { css: arenaCss, position: 'last' },

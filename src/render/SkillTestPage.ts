@@ -259,6 +259,8 @@ export class SkillTestPage {
     layout.style.cssText = 'display:flex;gap:16px;align-items:flex-start;padding:12px;font-family:"Oswald","PingFang SC",sans-serif';
 
     const gameMount = document.createElement('div');
+    // Anchor absolute battle controls to the game, not the adjacent test panel.
+    gameMount.style.position = 'relative';
     layout.appendChild(gameMount);
     layout.appendChild(this.buildControls());
     mount.appendChild(layout);

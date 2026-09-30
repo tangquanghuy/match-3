@@ -17,21 +17,22 @@ describe('cover priority artwork preload', () => {
     const task = startPreload();
     expect(startPreload()).toBe(task);
     const images = fetcher.mock.calls.map(([url]) => url).filter(url => !url.includes('preload-manifest'));
-    expect(images).toHaveLength(3);
+    expect(images).toHaveLength(6);
     expect(images.some(url => url.includes('frame.webp'))).toBe(true);
     expect(images.some(url => url.includes('guide.webp'))).toBe(true);
     expect(images.some(url => url.includes('battle-loading.webp'))).toBe(true);
+    for (const gender of ['male', 'female', 'unknown']) expect(images).toContain(`/static/hero/character-${gender}.webp`);
     resolveManifest(manifest([...images, '/extra.webp', '/extra.webp']));
-    expect(await task).toEqual({ done: 5, total: 5, failed: 0 });
+    expect(await task).toEqual({ done: 8, total: 8, failed: 0 });
     for (const image of images) expect(fetcher.mock.calls.filter(([url]) => url === image)).toHaveLength(1);
-    expect(updates.at(-1)).toBe(5);
+    expect(updates.at(-1)).toBe(8);
     unsubscribe();
   });
 
-  it('still warms tutorial assets when no manifest exists', async () => {
+  it('still warms tutorial and character assets when no manifest exists', async () => {
     vi.stubGlobal('fetch', vi.fn((url: string) => Promise.resolve(new Response('', { status: url.includes('preload-manifest') ? 404 : 200 }))));
     const { startPreload } = await import('../../src/cover/preload');
-    expect(await startPreload()).toEqual({ done: 3, total: 3, failed: 0 });
+    expect(await startPreload()).toEqual({ done: 6, total: 6, failed: 0 });
   });
 
   it('counts failed artwork without blocking entry', async () => {
@@ -41,6 +42,6 @@ describe('cover priority artwork preload', () => {
       return Promise.resolve(new Response('image'));
     }));
     const { startPreload } = await import('../../src/cover/preload');
-    expect(await startPreload()).toEqual({ done: 3, total: 3, failed: 1 });
+    expect(await startPreload()).toEqual({ done: 6, total: 6, failed: 1 });
   });
 });

@@ -781,13 +781,13 @@
  },
  "troop:6878": {
   "lines": {
-   "L10": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+7 | E10:arm-3  cascade",
-   "R10": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+7 | E10:arm-3  cascade",
-   "L0": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+7 | E10:arm-3  cascade",
+   "L10": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+10 | E10:arm-3  cascade",
+   "R10": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+10 | E10:arm-3  cascade",
+   "L0": "buff E11 mana-8 ; explode 46 ; skulls E10 3 ; ~cascade~  => E11:mana-8 | A2:mana+6 | A1:mana+10 | E10:arm-3  cascade",
    "K": "buff E11 mana-5 ; explode 38 ; skulls E10 3 ; defeat E10  => E11:mana-5 | A2:mana+2 | A1:mana+4 | E10:hp-1 DEAD"
   },
-  "by": "sa-P",
-  "at": "2026-09-28T23:25:58.499Z"
+  "by": "kiro-surge-rule",
+  "at": "2026-09-30T05:31:14.075Z"
  },
  "troop:6886": {
   "lines": {

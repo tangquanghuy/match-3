@@ -75,7 +75,7 @@ describe('活动规则战 · AI 对打到终局', () => {
         endings.add(`${enc}:${r.endReason ?? 'wipe'}:${(r.fledExternalIds ?? []).length > 0 ? 'fled' : ''}`);
       }
     }
-    if (process.env.SIM_LOG) console.log([...endings].join(' | '));
+    if (import.meta.env.SIM_LOG) console.log([...endings].join(' | '));
     expect(endings.size).toBeGreaterThan(0);
   });
 

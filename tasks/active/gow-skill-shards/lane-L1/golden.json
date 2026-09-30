@@ -2371,13 +2371,13 @@
  },
  "weapon:1484": {
   "lines": {
-   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:arm-3  extra:match  cascade",
+   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:arm-3  extra:match  cascade",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 黑曜石龙 hp28 atk21 arm8 mag12 | A1:mana+1 | A2:mana+1",
-   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
   },
-  "by": "sa-P",
-  "at": "2026-09-28T23:25:54.643Z"
+  "by": "kiro-surge-rule",
+  "at": "2026-09-30T05:31:11.662Z"
  },
  "weapon:1486": {
   "lines": {

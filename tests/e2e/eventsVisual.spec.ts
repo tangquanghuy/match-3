@@ -40,40 +40,28 @@ test('玩法说明独立成页，出战页只呈现当前决策', async ({ page 
   await expect(page).toHaveURL(/#events\/invasion\/rules$/);
   await expect(page.locator('.ev-howto li').first()).toBeVisible();
   await expect(page.locator('.ev-howto').last()).toContainText('周一 0:00');
-  await expect(page.locator('#evFight')).toHaveCount(0);
+  await expect(page.locator('.ev-fight')).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.ev-rules-page')).toBeVisible();
   await page.locator('.ev-rewards-back').first().click();
-  await expect(page.locator('#evFight')).toBeVisible();
+  await expect(page.locator('.ev-board .evm')).toBeVisible();
 });
 
 test('末日之塔放弃使用页内确认，取消和 Esc 不会清除本轮', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openCleanEvents(page, '#events/towerOfDoom');
-  await page.evaluate(() => {
-    const key = 'gems.meta.save';
-    const save = JSON.parse(localStorage.getItem(key)!);
-    const date = new Date();
-    date.setDate(date.getDate() - ((date.getDay() + 6) % 7));
-    date.setHours(0, 0, 0, 0);
-    save.eventWeeks.towerOfDoom = {
-      weekStart: date.getTime(), points: 420, claimed: [], wins: 3,
-      tokens: 18, tokensEarned: 18, playRewards: 0, bought: {},
-      eventData: { floor: 8, floorBest: 11, runActive: 1 },
-      runTeam: [
-        { externalId: 'tower-a', hp: 12, maxHp: 40, defeated: false },
-        { externalId: 'tower-b', hp: 0, maxHp: 36, defeated: true },
-      ],
-    };
-    localStorage.setItem(key, JSON.stringify(save));
-  });
-  await page.reload();
+  // Start a real run through the gateway; legacy eventData/runTeam no longer
+  // describes the roguelike tower state introduced in the mode redesign.
+  await page.locator('[data-act="start"]').click();
+  await expect(page.locator('.evm-tower')).toHaveClass(/is-running/);
+  await page.locator('[data-act^="pick:"]').first().click();
+  const runBefore = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).eventWeeks.towerOfDoom);
 
-  await page.locator('#evAbandon').click();
-  const modal = page.locator('#evAbandonModal');
+  await page.locator('[data-act="abandon"]').click();
+  const modal = page.locator('#evConfirm');
   await expect(modal).toBeVisible();
-  await expect(modal).toContainText('荣耀 +0 · 熔铸符卷 +0');
-  await expect(modal).toContainText('当前层进度 · 本轮队伍生命与阵亡状态');
+  await expect(modal).toContainText('当前队伍状态、遗物与塔金将清除');
+  await expect(modal).toContainText('本周最高层与积分保留');
   const confirmBounds = await modal.locator('.ev-tower-confirm').evaluate((element) => {
     const rect = element.getBoundingClientRect();
     return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
@@ -83,19 +71,22 @@ test('末日之塔放弃使用页内确认，取消和 Esc 不会清除本轮', 
   expect(confirmBounds.top).toBeGreaterThanOrEqual(0);
   expect(confirmBounds.bottom).toBeLessThanOrEqual(844);
   await page.screenshot({ path: 'artifacts/visual-redesign/events-tower-abandon-confirm-mobile.png' });
-  await page.locator('#evCancelAbandon').click();
+  await page.locator('#evConfirmCancel').click();
   await expect(modal).toBeHidden();
-  await expect(page.locator('#evAbandon')).toBeVisible();
+  await expect(page.locator('[data-act="abandon"]')).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).eventWeeks.towerOfDoom)).toEqual(runBefore);
 
-  await page.locator('#evAbandon').click();
+  await page.locator('[data-act="abandon"]').click();
   await page.keyboard.press('Escape');
   await expect(modal).toBeHidden();
-  await expect(page.locator('#evAbandon')).toBeVisible();
+  await expect(page.locator('[data-act="abandon"]')).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).eventWeeks.towerOfDoom)).toEqual(runBefore);
 
-  await page.locator('#evAbandon').click();
-  await page.locator('#evConfirmAbandon').click();
-  await expect(page.locator('#evAbandon')).toHaveCount(0);
-  await expect(page.locator('.ev-tower-info')).toContainText('尚未开爬');
+  await page.locator('[data-act="abandon"]').click();
+  await page.locator('#evConfirmOk').click();
+  await expect(page.locator('[data-act="abandon"]')).toHaveCount(0);
+  await expect(page.locator('[data-act="start"]')).toBeVisible();
+  await expect(page.locator('.tw-last')).toContainText('第 0 层');
 });
 
 for (const size of [
@@ -128,7 +119,7 @@ for (const size of [
       await loadedArtwork(page, '.ev-banner-art img');
       await expect(page.locator('.ev-mile-track .ev-mile')).toHaveCount(0);
       await expect(page.locator(`.ev-rewards-entry[href="#events/${id}/rewards"]`)).toBeVisible();
-      await expect(page.locator('.ev-state')).toBeVisible();
+      await expect(page.locator('.ev-board .evm')).toBeVisible();
       await expect(page.locator('.ev-shop-entry')).toHaveCount(1);
       await expect(page.locator('[data-nav="商店"]')).toBeVisible();
       const layout = await page.locator('.ev-screen').evaluate((root) => {
@@ -184,11 +175,11 @@ test('手机活动切换菜单能到达每个活动，无须横向寻找被截�
 test('活动战术、加成角色图鉴筛选与兑换入口可直接操作', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openCleanEvents(page, '#events/invasion');
-  await page.locator('input[value="charge"]').check();
-  await expect(page.locator('input[value="charge"]')).toBeChecked();
-  const state = await page.locator('.ev-state').boundingBox();
-  const fight = await page.locator('#evFight').boundingBox();
-  expect(state!.y + state!.height).toBeLessThan(fight!.y);
+  const squad = page.locator('[data-select^="squad:"]').first();
+  const action = await squad.getAttribute('data-select');
+  await squad.click();
+  await expect(page.locator('.iv-detail:not(.empty)')).toBeVisible();
+  await expect(page.locator(`[data-fight="${action}"]`)).toBeEnabled();
   for (const [id, dimension, select] of [['factionAssault', 'kingdom', '#kingdomSelect'], ['worldEvent', 'race', '#typeSelect']]) {
     await page.goto(`/game.html#events/${id}`);
     const entry = page.locator(`a[href^="#troop/filter/${dimension}/"]`);
@@ -200,7 +191,7 @@ test('活动战术、加成角色图鉴筛选与兑换入口可直接操作', as
     await expect(page.locator('#collectionSearch')).toHaveValue('');
   }
   await page.goto('/game.html#events/towerOfDoom');
-  await expect(page.locator('input[value="rest"]')).toBeDisabled();
+  await expect(page.locator('[data-act="start"]')).toBeVisible();
   await page.locator('.ev-shop-entry').click();
   await expect(page).toHaveURL(/#shop\/towerOfDoom$/);
   await page.locator('[data-shop-rules]').click();
@@ -223,9 +214,9 @@ test('没有职业时试炼给出修复入口，跨周自动刷新共享目标�
     localStorage.setItem(key, JSON.stringify(save));
   });
   await page.reload();
-  await expect(page.locator('#evFight')).toBeDisabled();
+  await expect(page.locator('.ev-fight')).toBeDisabled();
   await expect(page.locator('.ev-warning')).toContainText('职业');
-  await expect(page.locator('.ev-action-row a[href="#hero"]')).toBeVisible();
+  await expect(page.locator('.ct-class[href="#hero"]')).toBeVisible();
   await page.goto('/game.html#events');
   await expect(page.locator('.ev-weekly-goals .claimed')).toHaveCount(4);
   await page.clock.fastForward(20_000);

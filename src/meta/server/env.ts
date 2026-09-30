@@ -5,6 +5,8 @@
  * 测试注入固定时钟/种子序列，保证可复算。
  */
 export interface ServerEnv {
+  accountName?(): string | null;
+  requireCharacter?: boolean;
   /** 权威时刻（epoch ms） */
   now(): number;
   /** 32 位无符号种子（抽卡/出敌/竞技场/寻宝） */
@@ -25,5 +27,7 @@ export function defaultEnv(options: Partial<ServerEnv> = {}): ServerEnv {
     now: options.now ?? (() => Date.now()),
     seed: options.seed ?? cryptoSeed,
     allowDev: options.allowDev ?? false,
+    accountName: options.accountName,
+    requireCharacter: options.requireCharacter ?? false,
   };
 }

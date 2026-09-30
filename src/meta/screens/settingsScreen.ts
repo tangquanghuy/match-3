@@ -629,7 +629,7 @@ export class SettingsScreen implements Screen {
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
     this.bind('#logoutBtn', 'click', () => {
       void fetch('/auth/logout', { method: 'POST', credentials: 'include' })
-        .then(() => location.assign('/'))
+        .then(response => { if (!response.ok) throw new Error('退出失败'); location.replace('/'); })
         .catch(() => toast('退出失败，请重试'));
     });
   }
@@ -852,7 +852,10 @@ export class SettingsScreen implements Screen {
   }
 
   /** S-5：页内两段式确认，取代跳出舞台的原生 confirm()（两条文案只差两字、默认焦点在"确定"） */
+  private resetting = false;
+
   private async reset(demo: boolean): Promise<void> {
+    if (this.resetting) return;
     const which: 'demo' | 'new' = demo ? 'demo' : 'new';
     const label = demo ? '演示档' : '全新档';
     const btn = $(demo ? '#resetDemo' : '#resetNew');
@@ -883,9 +886,25 @@ export class SettingsScreen implements Screen {
     this.armed = null;
     const dev = this.ctx.gateway.dev;
     if (demo && !dev) return;
-    const snapshot = demo && dev ? await dev.resetToDemo() : await this.ctx.gateway.resetToNewGame();
-    toast(snapshot.warning ? `已重置：${snapshot.warning}` : `已重置为${label}。`);
-    this.ctx.navigate('#map');
+    this.resetting = true;
+    (btn as HTMLButtonElement).disabled = true;
+    try {
+      const snapshot = demo && dev ? await dev.resetToDemo() : await this.ctx.gateway.resetToNewGame();
+      if (!demo) {
+        // Remote reset clears its session cookie in the same successful API response.
+        location.replace(this.ctx.gateway.backend === 'remote' ? '/' : '/cover.html');
+        return;
+      }
+      toast(snapshot.warning ? `已重置：${snapshot.warning}` : `已重置为${label}。`);
+      this.ctx.navigate('#map');
+    } catch (error) {
+      toast('重置失败，请重试：' + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      this.resetting = false;
+      (btn as HTMLButtonElement).disabled = false;
+      labelEl.textContent = demo ? '重置为演示档' : '重置为全新档';
+      btn.classList.remove('armed');
+    }
   }
 
   private showResult(kind: 'ok' | 'bad', html: string): void {

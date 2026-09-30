@@ -124,14 +124,25 @@ for (const width of [1600, 390, 320]) {
     await page.screenshot({ path: `artifacts/visual-redesign/shop-item-${width}.png` });
     await page.keyboard.press('Escape');
     await page.goto('/game.html#chests/gems');
-    await expect(page.locator('#openWishlist')).toHaveText('愿望单 · 已选 27');
+    await expect(page.locator('#openWishlist b')).toHaveText('愿望单');
+    await expect(page.locator('#wishlistSummary')).toHaveText('已选 27 名');
     const wishButton = page.locator('#openWishlist');
     await expect(wishButton).toBeInViewport({ ratio: 1 });
-    const metrics = await wishButton.evaluate(el => ({height:el.getBoundingClientRect().height, nowrap:getComputedStyle(el).whiteSpace, fits:el.scrollWidth<=el.clientWidth+1}));
-    expect(metrics.nowrap).toBe('nowrap');
+    // 两行入口（标题 / 已选数），与开箱按钮同高：桌面 52px，窄屏 46px；已选数单行不折行
+    const metrics = await wishButton.evaluate(el => {
+      const summary = el.querySelector('small')!;
+      return {
+        height: el.getBoundingClientRect().height,
+        summaryNowrap: getComputedStyle(summary).whiteSpace,
+        summaryHeight: summary.getBoundingClientRect().height,
+        fits: el.scrollWidth <= el.clientWidth + 1,
+      };
+    });
+    expect(metrics.summaryNowrap).toBe('nowrap');
+    expect(metrics.summaryHeight).toBeLessThan(20);
     expect(metrics.fits).toBe(true);
     expect(metrics.height).toBeGreaterThanOrEqual(44);
-    expect(metrics.height).toBeLessThanOrEqual(48);
+    expect(metrics.height).toBeLessThanOrEqual(52);
     await expect.poll(() => page.locator('.chest-art').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     await page.screenshot({ path: `artifacts/visual-redesign/chests-wishlist-${width}.png` });
   });

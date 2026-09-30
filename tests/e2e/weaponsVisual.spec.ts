@@ -213,7 +213,9 @@ test('熔炉要求进入独立次级页，并明确显示等级与资源缺口',
   await expect(page.locator('.weapon-upgrade-view')).toContainText('劫数之书');
   expect((await page.locator('.weapon-upgrade-view').innerText()).match(/劫数之书/g)).toHaveLength(1);
   await expect(page.locator('.upgrade-gate')).toContainText('主角 Lv.40');
-  await expect(page.locator('.upgrade-gate')).toContainText('还差 28 级');
+  // 演示档主角 Lv.20（buildDemoSave），门槛 Lv.40 → 差 20 级
+  await expect(page.locator('.upgrade-gate')).toContainText('当前 Lv.20');
+  await expect(page.locator('.upgrade-gate')).toContainText('还差 20 级');
   await expect(page.locator('.resource-row')).toHaveCount(2);
   await expect(page.locator('.resource-row.is-short')).toHaveCount(2);
   await expect(page.locator('.detail-actions .primary-action')).toBeDisabled();

@@ -8,6 +8,12 @@ declare global {
 }
 const caption = (page: Page) => page.locator('.narration-subtitles');
 
+// External font availability must not block navigation or battle startup in E2E.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+});
+
 async function start(page: Page): Promise<void> {
   await page.goto('/index.html');
   await page.waitForFunction(() => {

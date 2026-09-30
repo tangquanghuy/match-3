@@ -175,7 +175,11 @@ describe('织网 · 拦截魔力值增益', () => {
 
     const events = applyCastTriggers([caster, ally], []);
     // caster 未织网：+1 法强并发 buff；ally 织网：被拦截
-    expect(events).toEqual([{ type: 'buff', source: 'trait', targetId: caster.id, stat: 'magic', amount: 1 }]);
+    expect(events).toEqual([{
+      type: 'buff', source: 'trait', targetId: caster.id, stat: 'magic', amount: 1,
+      // 演出元数据：触发来源特质（卡面「特质触发」提示用）
+      traitActivations: [expect.objectContaining({ characterId: caster.id, traitId: 'arcane' })],
+    }]);
     expect(caster.magic).toBe(9);
     expect(ally.magic).toBe(8);
   });

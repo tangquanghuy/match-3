@@ -2,14 +2,15 @@
  * 封面页资源预热：在登录/进游戏之前，把 game 入口的 JS/CSS 与首屏、战斗常用图下载进浏览器 HTTP 缓存。
  *
  * 清单 `/preload-manifest.json` 由构建插件生成（vite.config.ts · deployManifest）；
- * 向导素材优先加载；开发服务器或清单缺失时仍预载这些首屏素材。单项失败不阻塞进入游戏。
+ * 建角立绘与向导素材优先加载；开发服务器或清单缺失时仍预载这些首屏素材。单项失败不阻塞进入游戏。
  */
+import { DEFAULT_CHARACTER_PORTRAITS } from '../meta/state/character';
 import guideArt from '@assets/meta/tutorial/guide.webp';
 import frameArt from '@assets/meta/tutorial/frame.webp';
 import battleLoadingArt from '@assets/meta/tutorial/battle-loading.webp';
 
 /** 独立于构建清单，封面挂载即下载；登录回调后继续复用 HTTP 缓存。 */
-const PRIORITY_IMAGES = [frameArt, guideArt, battleLoadingArt];
+const PRIORITY_IMAGES = [...Object.values(DEFAULT_CHARACTER_PORTRAITS), frameArt, guideArt, battleLoadingArt];
 
 export interface PreloadProgress {
   done: number;
@@ -67,7 +68,7 @@ export function onPreloadProgress(fn: (p: PreloadProgress) => void): () => void 
 /** 启动预热（重复调用复用同一任务）；resolve 时全部项已完成或失败 */
 export function startPreload(): Promise<PreloadProgress> {
   running ??= (async () => {
-    // 不等待登录查询或清单返回，立即开始下载向导图片。
+    // 不等待登录查询或清单返回，立即开始下载建角立绘与向导图片。
     const priority = PRIORITY_IMAGES.map((url) => warm(url));
     const urls = (await fetchManifest()).filter((url) => !PRIORITY_IMAGES.includes(url));
     const progress: PreloadProgress = { done: 0, total: urls.length + priority.length, failed: 0 };

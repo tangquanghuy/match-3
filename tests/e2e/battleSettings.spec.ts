@@ -12,6 +12,12 @@ type Runtime = Omit<App, 'audio' | 'player' | 'session' | 'narrator'> & {
 };
 declare global { interface Window { __settingsTestApp?: Runtime } }
 
+// External font availability must not block navigation or battle startup in E2E.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+});
+
 async function openBattle(page: Page): Promise<void> {
   await page.goto('/index.html');
   await page.waitForFunction(() => {

@@ -26,7 +26,7 @@ for (const viewport of [
     await expectNoHorizontalOverflow(page);
 
     await page.goto('/game.html#events/towerOfDoom');
-    await expect(page.locator('.ev-state h3')).toContainText('最高');
+    await expect(page.locator('.tw-start-stats')).toContainText('最高');
     await expect(page.locator('.ev-banner-copy > small, .ev-state h3 small, .ev-shop-entry-copy > small')).toHaveCount(0);
     expect(await bodyText(page)).not.toMatch(/EVENT SHOP|END TOWER RUN|TOWER FLOORS|\bBEST\b|\bTier\b/);
     await page.screenshot({ path: `artifacts/ux-phase-b/copy-cleanup-events-${viewport.label}.png` });
@@ -78,8 +78,9 @@ for (const viewport of [
     await expect(page.locator('.banner-picker')).toBeVisible();
     await expect(page.locator('.banner-picker-head small')).toHaveCount(0);
     expect(await bodyText(page)).not.toMatch(/\bCONFIRM\b|CLEAR LINEUP|DELETE PRESET|>BANNER</);
-    const bannerNames = await page.locator('.banner-opt-name small').allTextContents();
-    expect(bannerNames.some((name) => /[A-Z]/.test(name))).toBe(true);
+    // The picker now uses localized names/status; official English is checked on the kingdom detail above.
+    await expect(page.locator('.banner-opt-name b').first()).not.toBeEmpty();
+    expect(await page.locator('.banner-opt-name').allTextContents()).not.toHaveLength(0);
     await page.screenshot({ path: `artifacts/ux-phase-b/copy-cleanup-team-${viewport.label}.png` });
 
     await page.goto('/game.html#troop');

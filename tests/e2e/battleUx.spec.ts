@@ -16,6 +16,12 @@ type BattleWindow = Window & {
   };
 };
 
+// External font availability must not block navigation or battle startup in E2E.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+});
+
 /** 独立战斗固定 4v4（3v3 已废除）。 */
 async function openBattle(page: Page): Promise<void> {
   await page.addInitScript(() => {

@@ -67,6 +67,7 @@ export function fitStage(): void {
   const height = document.documentElement.clientHeight || window.innerHeight;
   const nativeSize = width < 1400;
   const responsiveScreens = [
+    ['character-responsive', '.character-screen'],
     ['wishlist-responsive', '.wishlist-screen'],
     ['invasion-mobile', '.inv-screen'],
     ['events-responsive', '.ev-screen'],
@@ -83,7 +84,7 @@ export function fitStage(): void {
   ] as const;
   let responsive = false;
   for (const [className, selector] of responsiveScreens) {
-    const active = (nativeSize || className === 'hunt-responsive') && !!stage.querySelector(selector);
+    const active = (nativeSize || className === 'hunt-responsive' || className === 'character-responsive') && !!stage.querySelector(selector);
     stage.classList.toggle(className, active);
     responsive ||= active;
   }
@@ -168,7 +169,7 @@ export function topbarHtml(): string {
   return `
     <header class="topbar">
       <div class="player" id="playerBadge">
-        <img src="/static/hero/seiji.webp" alt="玩家头像">
+        <img id="playerPortrait" src="/static/hero/seiji.webp" alt="玩家头像">
         <div>
           <strong id="playerName">影织者</strong>
           <span>破晓之誓 <i id="playerLevel">Lv.1</i></span>

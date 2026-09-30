@@ -54,7 +54,7 @@ export class LocalTransport implements MetaTransport {
     storage: StorageLike = typeof localStorage !== 'undefined' ? localStorage : memoryStorage(),
     options: LocalTransportOptions = {},
   ) {
-    const env = defaultEnv({ allowDev: true, ...options });
+    const env = defaultEnv({ allowDev: true, accountName: () => '本地旅者', ...options });
     this.allowDev = env.allowDev;
     this.host = new MetaHost(new LocalSaveRepository(storage, env.now), env, {
       fresh: options.fresh ?? 'demo',

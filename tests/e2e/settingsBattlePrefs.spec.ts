@@ -43,7 +43,7 @@ test('玩家音效与减弱动效偏好持久化，并被宝箱音效和翻牌�
       configurable: true,
       value(this: HTMLMediaElement) {
         // The music channel is independent; this assertion observes chest SFX only.
-        if (!this.src.includes('/assets/audio/bgm/')) playedVolumes.push(this.volume);
+        if (new URL(this.src, location.href).pathname.startsWith('/static/sfx/')) playedVolumes.push(this.volume);
         return Promise.resolve();
       },
     });

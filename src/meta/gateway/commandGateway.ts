@@ -57,6 +57,8 @@ export class CommandGateway implements MetaGateway {
 
   markMaterialsSeen() { return this.cmd('markMaterialsSeen', {}); }
   markMapSeen(level: number) { return this.cmd('markMapSeen', { level }); }
+  createCharacter(input: import('../state/character').CreateCharacterInput) { return this.cmd('createCharacter', input); }
+
   async resetToNewGame(): Promise<GatewaySnapshot> {
     const { save } = await this.cmd('resetToNewGame', {});
     return { save, fresh: true, warning: null };

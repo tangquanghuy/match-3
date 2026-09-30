@@ -27,7 +27,8 @@ describe('拦截类演出事件 status-blocked', () => {
   it('特质免疫：不施加状态，发一条 immune', () => {
     const ch = makeChar(1, { passive: { ...neutralPassives(), statusImmunities: ['burning'] } });
     const events = applyStatus(ch, { id: 'burning', turns: 3 });
-    expect(events).toEqual([{ type: 'status-blocked', targetId: 1, statusId: 'burning', reason: 'immune' }]);
+    // 免疫直接写在 passive 上（无特质 id），触发来源为空
+    expect(events).toEqual([{ type: 'status-blocked', targetId: 1, statusId: 'burning', reason: 'immune', traitActivations: [] }]);
     expect(ch.statuses).toEqual([]);
   });
 

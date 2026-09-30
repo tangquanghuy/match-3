@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+// Layout assertions should not wait for the optional third-party font CDN.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+});
+
 async function openFreshArena(page: import('@playwright/test').Page): Promise<void> {
   await page.goto('/game.html#arena');
   await page.evaluate(() => localStorage.clear());

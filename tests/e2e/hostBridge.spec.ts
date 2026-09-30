@@ -28,6 +28,7 @@ type HarnessWindow = Window & {
 
 /** iframe 内 App 的最小形状：只声明测试真正用到的成员。 */
 interface FrameCharacter {
+  id: number;
   hp: number;
   armor: number;
   mana: number;
@@ -117,8 +118,18 @@ async function finishBattleInFrame(page: Page): Promise<void> {
       if (app.engine.getState().winner !== null) return;
       const caster = app.engine.getState().teams.Left.characters[0];
       caster.mana = caster.manaCost;
-      return app.castPlayerSkill(0);
+      void app.castPlayerSkill(caster.id);
     });
+    // The native spell now chooses its enemy. Do not await the cast promise before
+    // providing input; a single remaining enemy is selected automatically.
+    const frame = page.frameLocator('[data-testid="battle-frame"]');
+    await page.waitForFunction(() => {
+      const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!.contentWindow as FrameWindow;
+      return !!win.document.querySelector('.aim-overlay') || !win.__app.casting;
+    });
+    if (await frame.locator('.aim-overlay').count()) {
+      await frame.locator('.gcard.enemy:not(.defeated)').first().click();
+    }
     // 条件等待而不是固定 sleep：等到本次行动的演出与 AI 回合都结束（或已分出胜负）
     await page.waitForFunction(() => {
       const win = document.querySelector<HTMLIFrameElement>('[data-testid="battle-frame"]')!

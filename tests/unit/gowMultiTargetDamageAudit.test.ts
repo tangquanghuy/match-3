@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { registerSkillLibrary } from '@engine/skills/library';
-import { executePrototype, type DamageSegment } from '@engine/skills/prototypes';
+import { executePrototype, type DamageSegment, type EffectSegment } from '@engine/skills/prototypes';
 import { ExtensionRegistry } from '@engine/registry';
 import { TurnEngine } from '@engine/TurnEngine';
 import { SeededRNG } from '@engine/rng';
@@ -45,7 +45,9 @@ describe('multi-victim damage compared with repository native/English snapshot',
       // conditional riders and effects not yet signed off for this entity.
       const f = damageFixture(0, 0, [{}, {}, {}, {}]);
       f.caster.magic = 11;
-      const selected = runtime(row).segments.flatMap(s => s.kind === 'choose' ? s.options.flat() : [s]);
+      // choose（玩家选分支）与 oneOf（随机分支，如 8101「击退前 2 名之一」）都把各分支的段摊平检查
+      const selected = runtime(row).segments.flatMap((s): EffectSegment[] =>
+        s.kind === 'choose' || s.kind === 'oneOf' ? s.options.flat() : [s]);
       const actual = selected.filter(s => s.kind === 'damage' && s.target === segment.target && !s.range)[ordinal];
       if (!actual) {
         // Fix round A split some "N enemies" spells into one damage segment per native step (each step has
