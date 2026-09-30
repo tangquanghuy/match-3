@@ -1,3 +1,4 @@
+import { networkActivity } from './networkActivity';
 /**
  * 网关传输层：把命令送到权威核心。
  *
@@ -114,18 +115,20 @@ export class HttpTransport implements MetaTransport {
   }
 
   private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
-    const response = await this.fetchImpl(`${this.base}${path}`, {
-      method,
-      credentials: 'include',
-      headers: body === undefined ? undefined : { 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
+    return networkActivity.track(async () => {
+      const response = await this.fetchImpl(`${this.base}${path}`, {
+        method,
+        credentials: 'include',
+        headers: body === undefined ? undefined : { 'content-type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        // 会话失效/未登录：回封面页登录（先同意用户协议），回来后重新加载
+        if (response.status === 401 && typeof location !== 'undefined') location.assign('/');
+        throw new MetaHttpError(response.status, text || `HTTP ${response.status}`);
+      }
+      return (await response.json()) as T;
     });
-    if (!response.ok) {
-      const text = await response.text().catch(() => '');
-      // 会话失效/未登录：回封面页登录（先同意用户协议），回来后重新加载
-      if (response.status === 401 && typeof location !== 'undefined') location.assign('/');
-      throw new MetaHttpError(response.status, text || `HTTP ${response.status}`);
-    }
-    return (await response.json()) as T;
   }
 }

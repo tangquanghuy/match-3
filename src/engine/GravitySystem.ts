@@ -1,3 +1,4 @@
+import { pickSkullVariant, type SkullDropMix } from './skullDrops';
 import { BoardModel } from './BoardModel';
 import { COMBO_CLUMP, comboStreakFade, extraTurnStreakOf, hasBigHolePattern, refillScore } from './comboBias';
 import type { Gem, CellPos, GemType, BaseColor, ActionLogEntry } from './types';
@@ -62,9 +63,12 @@ export interface GravityResult {
  * - 补充：列顶剩余空格用新生成的宝石填满。
  */
 export class GravitySystem {
+  /** Optional skull-family mix; App enables the 15/4/1 natural battle distribution. */
+  skullDropMix?: SkullDropMix;
+
   /**
    * 补充时生成特殊宝石的概率（0～1，默认 0 = 关闭）。
-   * 自然掉落暂不启用（任务书：留配置开关）；只掉可匹配的特殊宝石，
+   * 独立的活动特殊宝石池（不含常驻骷髅系比例）；只掉可匹配的特殊宝石，
    * 避免不可匹配的炸弹/许愿淤积棋盘。关闭时不消耗额外随机数，不影响既有确定性。
    */
   specialSpawnChance = 0;
@@ -268,8 +272,9 @@ export class GravitySystem {
     }
     // 骸骨风暴：骷髅判定阈值整体抬升（skullChance × STORM_DROP_WEIGHT），消耗随机数次数不变
     const effectiveSkullChance = skullDrop?.kind === 'skull' ? skullDrop.chance : skullChance;
-    if (effectiveSkullChance > 0 && this.rng.next() < effectiveSkullChance) {
-      return { kind: 'skull', variant: 'normal' };
+    if (effectiveSkullChance > 0) {
+      const roll = this.rng.next();
+      if (roll < effectiveSkullChance) return pickSkullVariant(roll, effectiveSkullChance, this.skullDropMix);
     }
     return colorGem(combo ? this.pickComboColor(stormWeights, combo) : this.pickColor(stormWeights));
   }

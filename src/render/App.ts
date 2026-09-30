@@ -1,3 +1,4 @@
+import { BATTLE_SKULL_DROPS } from '../engine/skullDrops';
 import type { ImpactPresentation } from './impactPlayback';
 import { BattleSettings } from './BattleSettings';
 import { BattleControls } from './BattleControls';
@@ -604,7 +605,7 @@ export class App {
     // 构建引擎
     const rng = this.rng;
     const idGen = () => this.nextId++;
-    const genBoard = new BoardGenerator(rng, idGen, battleRequest.rules?.board?.skullChance ?? BATTLE_SKULL_CHANCE, BATTLE_SETUP_BIAS).generate();
+    const genBoard = new BoardGenerator(rng, idGen, battleRequest.rules?.board?.skullChance ?? BATTLE_SKULL_CHANCE, BATTLE_SETUP_BIAS, BATTLE_SKULL_DROPS).generate();
     // 战斗规则·开局预置特殊宝石（活动深化批）：先于首屏快照与开局特质落地
     applyRequestBoardPreset(genBoard, battleRequest, rng);
     // Retain the pre-trigger board: constructor traits can explode/convert/refill it.
@@ -621,6 +622,7 @@ export class App {
     // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据
     setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, battleRequest.arenaRules));
     this.engine.skullChance = BATTLE_SKULL_CHANCE; // 骷髅为棋盘常驻成分（Gems of War 风格；节奏调参见 comboBias.ts）
+    this.engine.skullDropMix = BATTLE_SKULL_DROPS;
     this.engine.comboBias = BATTLE_COMBO_BIAS; // 补充的连消倾向：4/5 连机会与连锁更常见（见 engine/comboBias.ts）
     // 玩家旗帜加成（meta M6）：请求带 playerBanner 时注入引擎，玩家方匹配加成色 ±N 法力
     const bannerBoosts = battleRequest.playerBanner?.boosts;
@@ -1755,7 +1757,7 @@ export class App {
 
   /** 实时响应战斗事件：法力流入、受击、阵亡时即时更新对应卡片（需求 19.6, 19.7） */
   private visualDelay(ms: number, callback: () => void): void {
-    let timer: number;
+    let timer: number | undefined = undefined;
     const token = this.finiteVisuals.begin(() => clearTimeout(timer));
     timer = window.setTimeout(() => {
       if (!token.active) return;
@@ -2676,7 +2678,7 @@ export class App {
     const { layer } = mountFxFrames(el, atlas);
     this.overlay.appendChild(el);
     const animation = playFxFrames(layer, atlas, { duration: cfg.duration });
-    let timer: number;
+    let timer: number | undefined = undefined;
     const token = this.finiteVisuals.begin(() => { clearTimeout(timer); el.remove(); });
     const finish = () => { if (!token.active) return; clearTimeout(timer); el.remove(); token.finish(); };
     void animation.finished.then(finish, () => {});
@@ -2904,7 +2906,7 @@ export class App {
       [{ opacity: 0.68 }, { opacity: 1, offset: 0.42 }, { opacity: 1 }],
       { duration: durationMs, easing: 'ease-out', fill: 'forwards' },
     );
-    let timer: number;
+    let timer: number | undefined = undefined;
     const token = this.finiteVisuals.begin(() => { clearTimeout(timer); anchor.remove(); });
     timer = window.setTimeout(() => {
       if (!token.active) return;
@@ -2969,7 +2971,7 @@ export class App {
       approachFired = true;
       opts.onApproach();
     };
-    let tween: gsap.core.Tween | undefined;
+    let tween: gsap.core.Tween | undefined = undefined;
     const token = this.finiteVisuals.begin(() => { tween?.kill(); el.remove(); });
     tween = gsap.to(proxy, {
       t: 1,
@@ -3051,7 +3053,7 @@ export class App {
       { duration: cfg.duration, easing: 'ease-out', fill: 'forwards' },
     );
     this.overlay.appendChild(wrap);
-    let timer: number;
+    let timer: number | undefined = undefined;
     const token = this.finiteVisuals.begin(() => { clearTimeout(timer); wrap.remove(); });
     timer = window.setTimeout(() => { wrap.remove(); token.finish(); }, scaledMs(cfg.duration) + 40);
   }
@@ -3094,7 +3096,7 @@ export class App {
     ].join(';');
     const { layer, setFrame } = mountFxFrames(el, atlas);
     let delayTimer: number | undefined;
-    let endTimer: number | undefined;
+    let endTimer: number | undefined = undefined;
     let unsubscribe: (() => void) | undefined;
     const token = this.finiteVisuals.begin(() => {
       unsubscribe?.();

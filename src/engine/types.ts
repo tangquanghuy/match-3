@@ -41,9 +41,9 @@ export const COLOR_ELEMENT: Record<BaseColor, Element> = {
  * 触发时机分两条入口：被匹配（MatchResolver 匹配组）与被摧毁（clear 管线）。
  */
 export type SpecialGemKind =
-  /** 末日骷髅：被匹配时骷髅伤害 +5 并引爆相邻一圈（不响应"被摧毁"） */
+  /** 末日骷髅：匹配时每颗骷髅伤害 +5；被摧毁时 5 点伤害，两种路径均不引爆 */
   | 'doomSkull'
-  /** 至尊末日骷髅（Uber，官方 4.1 更强变体，仅特定兵种/武器生成）：被匹配时 +10 并引爆一圈 */
+  /** 至尊末日骷髅（Uber）：匹配时每颗 +10；匹配或被摧毁均引爆相邻一圈，可自然掉落 */
   | 'uberDoomSkull'
   /** 炸弹：不可匹配；被摧毁时爆炸摧毁相邻一圈 */
   | 'bomb'
@@ -61,7 +61,7 @@ export type SpecialGemKind =
   | 'hourglass'
   /**
    * 赃物（Booty，官方 Heroic Gems 原文）：不可匹配、无法力色；被摧毁时给摧毁方 +10 金币
-   * （战场经济，DECISIONS 四项拍板①）。只由技能创造/末日骷髅爆炸波及摧毁，不自然掉落。
+   * （战场经济，DECISIONS 四项拍板①）。只由技能创造/至尊末日骷髅爆炸波及摧毁，不自然掉落。
    */
   | 'bootyGem'
   /**

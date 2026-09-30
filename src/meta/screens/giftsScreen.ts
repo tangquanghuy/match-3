@@ -66,6 +66,8 @@ function groupIcon(id: GiftGroupId, fallback: string): string {
 
 export class GiftsScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListener]> = [];
+  private claiming = false;
+  private mountedRoot: HTMLElement | null = null;
   private page = 0;
   private pageGroup: GiftGroupId | null = null;
 
@@ -146,30 +148,72 @@ export class GiftsScreen implements Screen {
   }
 
   mount(ctx: ShellCtx, root: HTMLElement): void {
-    const claim = (promise: ReturnType<ShellCtx['gateway']['claimGift']>): void => {
-      void promise.then(({ result }) => {
+    this.mountedRoot = root;
+    this.syncClaimButtons();
+    const claim = async (send: () => ReturnType<ShellCtx['gateway']['claimGift']>): Promise<void> => {
+      if (this.claiming) return;
+      this.claiming = true;
+      this.syncClaimButtons();
+      const returnHash = ctx.currentHash();
+      try {
+        const { result } = await send();
+        ctx.refreshChrome();
+        if (!this.mountedRoot) return;
         if (isFailure(result)) { toast(result.message); return; }
         if (result.cards.length) {
-          // 部队卡：借宝箱页开箱演出翻牌，关闭后回到当前馈赠页
-          queueGiftReveal({ cards: result.cards, gems: result.gems, returnHash: ctx.currentHash() });
+          queueGiftReveal({ cards: result.cards, gems: result.gems, returnHash });
           ctx.navigate('#chests/gems');
           return;
         }
         ctx.refresh();
-        setTimeout(() => toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`), 0);
-      });
+        setTimeout(() => {
+          if (this.mountedRoot) toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`);
+        }, 0);
+      } catch {
+        // A lost reply may already have committed. Re-read authority, never replay a reward command.
+        let synced = false;
+        try { await ctx.gateway.load(); synced = true; } catch { /* retry remains available */ }
+        ctx.refreshChrome();
+        if (this.mountedRoot) {
+          ctx.refresh();
+          setTimeout(() => {
+            if (this.mountedRoot) toast(synced
+              ? '网络请求中断，已同步领取状态，请查看馈赠'
+              : '网络请求失败，请重试；已到账的馈赠不会重复发放');
+          }, 0);
+        }
+      } finally {
+        this.claiming = false;
+        this.syncClaimButtons();
+      }
     };
     this.on(root, 'click', (event) => {
       const target = event.target as HTMLElement;
       const one = target.closest<HTMLButtonElement>('[data-gift-claim]');
-      if (one) { one.disabled = true; claim(ctx.gateway.claimGift(one.dataset.giftClaim!)); return; }
+      if (one && !one.disabled) { void claim(() => ctx.gateway.claimGift(one.dataset.giftClaim!)); return; }
       const all = target.closest<HTMLButtonElement>('#giftClaimAll');
-      if (all && !all.disabled) { all.disabled = true; claim(ctx.gateway.claimAllGifts()); return; }
+      if (all && !all.disabled) { void claim(() => ctx.gateway.claimAllGifts()); return; }
       const page = target.closest<HTMLButtonElement>('[data-gift-page]');
       if (page) { this.page = Number(page.dataset.giftPage); ctx.refresh(); }
     });
   }
 
+
+  private syncClaimButtons(): void {
+    this.mountedRoot?.querySelectorAll<HTMLButtonElement>('[data-gift-claim], #giftClaimAll').forEach(button => {
+      if (this.claiming) {
+        if (!button.disabled) {
+          button.dataset.claimPending = 'true';
+          button.disabled = true;
+          button.setAttribute('aria-busy', 'true');
+        }
+      } else if (button.dataset.claimPending) {
+        delete button.dataset.claimPending;
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+      }
+    });
+  }
 
   private on(target: EventTarget, type: string, fn: EventListener): void {
     target.addEventListener(type, fn);
@@ -177,6 +221,7 @@ export class GiftsScreen implements Screen {
   }
 
   dispose(): void {
+    this.mountedRoot = null;
     for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
   }
 }

@@ -163,13 +163,13 @@ describe('赃物宝石（Booty Gem）：摧毁 → +10 金币', () => {
       .toEqual([{ type: 'economy-gain', currency: 'gold', amount: 10, side: PlayerSide.Left }]);
   });
 
-  it('末日骷髅匹配爆炸圈波及赃物宝石：同样 +10 金币', () => {
+  it('至尊末日骷髅匹配爆炸圈波及赃物宝石：同样 +10 金币', () => {
     const { engine, state } = makeEngineHarness({
       setGems: (board, g) => {
-        // 末日骷髅 (4,4) + 普通骷髅 (4,3) + 普通骷髅 (5,5)：交换 (4,5)/(5,5) 后
-        // 行4 成 [骷髅,末日骷髅,骷髅] → 末日骷髅被匹配引爆一圈，赃物 (3,4) 在环上
+        // 至尊末日骷髅 (4,4) + 普通骷髅 (4,3) + 普通骷髅 (5,5)：交换 (4,5)/(5,5) 后
+        // 行4 成 [骷髅,至尊末日骷髅,骷髅] → 至尊末日骷髅被匹配引爆一圈，赃物 (3,4) 在环上
         board.set({ row: 4, col: 3 }, g(skull()));
-        board.set({ row: 4, col: 4 }, g(specialGem('doomSkull')));
+        board.set({ row: 4, col: 4 }, g(specialGem('uberDoomSkull')));
         board.set({ row: 3, col: 4 }, g(specialGem('bootyGem')));
         board.set({ row: 5, col: 5 }, g(skull()));
       },

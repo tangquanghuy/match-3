@@ -161,10 +161,10 @@ describe('L4b troop:6751/spell:8129 Curse all enemies, convert every Green gem t
   const made=creations(ev);expect(made.map(m=>m.pos).sort()).toEqual([...greens].sort());
   expect(made.every(m=>isColor(m.from,BaseColor.Green)&&m.to.kind==='special'&&m.to.spec.kind==='doomSkull')).toBe(true);
   const trig=ev.filter(e=>e.type==='special-gem-trigger'&&e.kind==='doomSkull').map(e=>e.type==='special-gem-trigger'&&`${e.pos.row},${e.pos.col}`);
-  // (0,0..2) matched as a 3-row; (1,3) not in the match, destroyed by the ring explosion and triggers too.
-  expect(trig).toEqual(expect.arrayContaining(['0,0','0,1','0,2','1,3']));
-  // Isolated (5,5)/(7,0) Doomskulls neither matched nor exploded remain on board untriggered.
-  expect(trig).not.toContain('5,5');expect(trig).not.toContain('7,0');
+  // Doom matches add damage without explosions; nearby unmatched Doom skulls remain intact.
+  expect(trig).toEqual([]);
+  expect(ev.filter(e=>e.type==='gem-explode')).toHaveLength(0);
+  expect(f.board.get({row:1,col:3})?.type).toEqual(specialGem('doomSkull'));
   expect(f.board.get({row:5,col:5})?.type).toEqual(specialGem('doomSkull'));
   expect(f.board.get({row:7,col:0})?.type).toEqual(specialGem('doomSkull'));
   expect(f.enemies.some(e=>e.hp<1000)).toBe(true); // Doomskull match deals skull damage (board source)

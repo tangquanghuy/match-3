@@ -1,0 +1,30 @@
+.network-wait {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border: 1px solid rgba(216, 194, 144, .38);
+  border-radius: 8px;
+  background: rgba(15, 20, 29, .96);
+  box-shadow: 0 4px 20px #0006;
+  color: #f2ead8;
+  font: 13px/1.4 "Segoe UI", "Microsoft YaHei", sans-serif;
+  pointer-events: none;
+}
+.network-wait[hidden] { display: none; }
+.network-wait-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(216, 194, 144, .25);
+  border-top-color: #d8c290;
+  border-radius: 50%;
+  animation: network-wait-spin .85s linear infinite;
+}
+@keyframes network-wait-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .network-wait-spinner { animation: none; }
+}

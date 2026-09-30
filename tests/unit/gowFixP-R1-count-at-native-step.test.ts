@@ -28,11 +28,16 @@ describe('P-R1-count-at-native-step', () => {
     // 6 Doomskulls far enough apart that one explosion never reaches another
     const board = withCells(reviewBoard, Object.fromEntries(['7,0', '7,3', '7,6', '4,0', '4,3', '4,6'].map((k) => [k, DOOM])));
     const divine = (e: object) => ({ ...e, troopTypes: ['Divine'] });
-    const triggers = (r: ReturnType<typeof castSpell>) => r.summary.order.filter((s) => s === 'trigger doomSkull').length;
+    // Count the spell's selected Doomskulls, not the removed inherent explosion.
+    const selected = (r: ReturnType<typeof castSpell>) => {
+      expect(r.summary.order).not.toContain('trigger doomSkull');
+      const blast = r.events.find(e => e.type === 'gem-explode');
+      return blast?.type === 'gem-explode' ? blast.cells.filter(c => c.gemType.kind === 'special' && c.gemType.spec.kind === 'doomSkull').length : 0;
+    };
     const r = castSpell({ key: 'troop:6593', board, enemies: [divine(frail()), divine(frail()), tough(), tough()] });
     expect(r.f.enemies[0].defeated && r.f.enemies[1].defeated).toBe(true);
-    expect(triggers(r)).toBe(3 + 2);
-    expect(triggers(castSpell({ key: 'troop:6593', board, enemies: [tough(), tough(), tough(), tough()] }))).toBe(3);
+    expect(selected(r)).toBe(3 + 2);
+    expect(selected(castSpell({ key: 'troop:6593', board, enemies: [tough(), tough(), tough(), tough()] }))).toBe(3);
   });
   it('troop:6115 Ranger 7207: scatter is boosted by the enemies alive at cast start (chosen target killed first)', () => {
     const r = castSpell({ key: 'troop:6115', target: 11, enemies: [tough(), frail(), tough(), tough()] });

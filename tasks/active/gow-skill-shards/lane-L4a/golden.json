@@ -1563,13 +1563,13 @@
  },
  "troop:6991": {
   "lines": {
-   "L10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 4 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 38 ; ~cascade~ ; trigger doomSkull ; explode 3 ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 4 ; skulls E10 11  => A2:mana+11 | E10:hp-71 arm-5  cascade",
-   "R10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 4 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 38 ; ~cascade~ ; trigger doomSkull ; explode 3 ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 4 ; skulls E10 11  => A2:mana+11 | E10:hp-71 arm-5  cascade",
-   "L0": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 6 ; trigger doomSkull ; explode 5 ; skulls E10 6  => E10:hp-1 arm-5",
-   "K": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; explode 4 ; trigger doomSkull ; explode 1 ; trigger doomSkull ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 38 ; defeat E10 ; ~cascade~ ; defeat E11 ; trigger doomSkull ; explode 3 ; trigger doomSkull ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 4 ; skulls E12 11 ; defeat E12  => A2:mana+11 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD  cascade"
+   "L10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; skulls E10 37 ; ~cascade~  => A2:mana+5 | E10:hp-32 arm-5  cascade",
+   "R10": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; skulls E10 37 ; ~cascade~  => A2:mana+5 | E10:hp-32 arm-5  cascade",
+   "L0": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 6 ; skulls E10 6  => E10:hp-1 arm-5",
+   "K": "convert Green x4, Purple x4, Brown x1, Red x1, Yellow x2 -> doomSkull x12 ; explode 37 ; skulls E10 37 ; defeat E10 ; ~cascade~  => A2:mana+5 | E10:hp-1 DEAD  cascade"
   },
-  "by": "sa-P",
-  "at": "2026-09-28T23:25:49.658Z"
+  "by": "release-2026-09-30-doom-no-inherent-blast",
+  "at": "2026-09-30T12:06:36.335Z"
  },
  "troop:7001": {
   "lines": {

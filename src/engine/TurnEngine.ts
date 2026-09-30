@@ -1,3 +1,4 @@
+import type { SkullDropMix } from './skullDrops';
 import { BoardModel } from './BoardModel';
 import { creditGoldForSide } from './battleGold';
 import { MatchResolver, grantsExtraTurn } from './MatchResolver';
@@ -91,6 +92,10 @@ export class TurnEngine {
 
   /** 补充时生成骷髅的概率；战斗模式 > 0，纯三消模式 = 0 */
   skullChance = 0;
+
+  /** Host-injected natural skull variants, shared by every gravity/refill path. */
+  get skullDropMix(): SkullDropMix | undefined { return this.gravity.skullDropMix; }
+  set skullDropMix(value: SkullDropMix | undefined) { this.gravity.skullDropMix = value; }
 
   /**
    * 补充的「连消倾向」强度（GravitySystem.apply 的 comboBias，机制见 comboBias.ts）：> 0 时
@@ -1251,7 +1256,7 @@ export class TurnEngine {
         // 结算法力 / 骷髅伤害（颜色组含通配倍率；骷髅组含末日骷髅加伤）
         this.applyGroupEffects(group, events);
 
-        // 特殊宝石"被匹配"触发：织网/沙漏即时结算；末日骷髅/闪电的破坏登记到
+        // 特殊宝石"被匹配"触发：织网/沙漏即时结算；至尊末日骷髅/闪电的破坏登记到
         // destroyTriggers，统一在全部组移除后引爆（避免提前清掉同迭代其他组的宝石造成双重结算）
         this.collectMatchTriggers(group, destroyTriggers, events);
       }
@@ -1263,7 +1268,7 @@ export class TurnEngine {
         }
       }
 
-      // 3. 特殊宝石破坏链：末日骷髅引爆相邻一圈 / 闪电清整行整列，
+      // 3. 特殊宝石破坏链：至尊末日骷髅引爆相邻一圈 / 闪电清整行整列，
       //    以及连带的炸弹/闪电/许愿连锁；链上摧毁照常结算法力/骷髅
       const manaPotions: BaseColor[] = [];
       this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events, manaPotions), events);
@@ -1484,7 +1489,7 @@ export class TurnEngine {
 
   /**
    * 特殊宝石"被匹配"触发（宝石此刻仍在盘上，移除发生在组循环之后）：
-   *   - 末日骷髅 / 闪电：破坏型，登记到 destroyTriggers 统一引爆（见 runCascades 步骤 3）
+   *   - 至尊末日骷髅 / 闪电：破坏型，登记到 destroyTriggers 统一引爆（见 runCascades 步骤 3）
    *   - 织网：随机一名存活敌人获得 web 状态
    *   - 沙漏：本方获得一次额外回合
    *   - 五种即时匹配状态宝石（燃烧/冻结/诅咒/毒/恐怖）：立即施加；摧毁同样触发
@@ -1500,7 +1505,7 @@ export class TurnEngine {
       const gem = this.state.board.get(cell);
       if (!gem || gem.type.kind !== 'special') continue;
       const kind = gem.type.spec.kind;
-      if (kind === 'doomSkull' || kind === 'uberDoomSkull' || kind === 'lightningRow' || kind === 'lightningCol') {
+      if (kind === 'uberDoomSkull' || kind === 'lightningRow' || kind === 'lightningCol') {
         destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
       } else if (kind === 'web') {
         events.push(...this.applyWebGem(cell));
@@ -1566,7 +1571,7 @@ export class TurnEngine {
   /**
    * 特殊宝石"被摧毁"触发链（clear 管线路径 + 匹配路径共用的引爆引擎）。
    * 队列 FIFO：炸弹→引爆相邻一圈（gem-explode）、闪电→清空整行/列（gem-destroy）、
-   * 许愿→5 选 1 随机回蓝；末日骷髅匹配和直接摧毁均引爆相邻一圈。
+   * 许愿→5 选 1 随机回蓝；至尊末日骷髅匹配和直接摧毁均引爆相邻一圈；末日骷髅仅结算伤害。
    * 链上新摧毁的宝石继续入队（炸弹可连环引爆）。
    *
    * `initial` 里 viaMatch 的宝石视为匹配触发的登记（已被随组移除并结算，只触发其效果），
@@ -1587,7 +1592,7 @@ export class TurnEngine {
       if (kind === 'bomb') {
         events.push({ type: 'special-gem-trigger', kind: 'bomb', pos: d.pos });
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
-      } else if (kind === 'doomSkull' || kind === 'uberDoomSkull') {
+      } else if (kind === 'uberDoomSkull') {
         // 匹配和直接摧毁都引爆；同一颗只经破坏链处理一次。
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
@@ -1612,7 +1617,7 @@ export class TurnEngine {
         this.applyWish(d.pos, events);
       } else if (kind === 'bootyGem') {
         // 赃物宝石（官方 Booty Gem）：被摧毁时给摧毁方 +10 金币（战场经济池）。
-        // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/末日骷髅爆炸圈抵达这里。
+        // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/至尊末日骷髅爆炸圈抵达这里。
         events.push({ type: 'special-gem-trigger', kind: 'bootyGem', pos: d.pos });
         creditGoldForSide(this.state, this.state.activePlayer, BOOTY_GEM_GOLD);
         events.push({
@@ -2015,7 +2020,7 @@ export class TurnEngine {
           else cur.matched += 1;
           colorCounts.set(color, cur);
         }
-        // 被炸毁的末日/至尊末日骷髅：破坏链已引爆，仍按炸毁伤害结算（5/10 点）。
+        // 被摧毁的末日/至尊末日骷髅：仍结算 5/10 点；只有至尊末日会继续引爆。
         if (d.gemType.spec.kind === 'doomSkull') {
           doomCount += 1;
           if (d.pos) skullCells.push(d.pos);

@@ -139,3 +139,16 @@ for (const viewport of [{ width: 1600, height: 1000 }, { width: 390, height: 844
     await page.screenshot({ path: `artifacts/character-layout-${viewport.width}.png` });
   });
 }
+
+test('uses Dawn branding, concise labels and male as the initial profile', async ({ page }) => {
+  await fixture(page);
+  await expect(page.locator('.character-header a')).toHaveText('破晓之誓 CHRONICLES OF DAWN');
+  await expect(page.locator('[name="characterGender"][value="male"]')).toBeChecked();
+  await expect(page.locator('[data-portrait="male"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#characterPreview')).toHaveAttribute('src', '/static/hero/character-male.webp');
+  const text = await page.locator('.character-screen').innerText();
+  for (const redundant of ['相同显示名的账号', '不影响战斗属性', '选择默认形象，或使用自己的立绘', '网络立绘依赖原站可用性']) expect(text).not.toContain(redundant);
+  await page.locator('#createCharacter').click();
+  await expect(page.locator('#playerName')).toHaveText('本地旅者');
+  expect((await profile(page)).gender).toBe('male');
+});

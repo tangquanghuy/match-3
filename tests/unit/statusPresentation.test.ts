@@ -116,15 +116,19 @@ describe('拦截与移除的演出提示', () => {
   });
 
   it('净化与驱散的提示不同（驱散不是治疗）', () => {
+    for (const kind of ['recovered', 'stripped', 'cleansed', 'dispelled', 'barrier-block'] as const) {
+      expect(statusExpireCue(kind).sfx).toBeUndefined();
+    }
     expect(statusExpireCue('cleansed').text).toBe('净化');
     expect(statusExpireCue('cleansed').sfx).toBeUndefined();
-    expect(statusExpireCue('dispelled')).toMatchObject({ text: '驱散', sfx: 'dispel' });
-    expect(statusExpireCue('stripped')).toMatchObject({ text: '增益被剥离', sfx: 'dispel' });
-    expect(statusExpireCue('recovered')).toMatchObject({ text: '挣脱', sfx: 'recover' });
+    expect(statusExpireCue('dispelled')).toMatchObject({ text: '驱散' });
+    expect(statusExpireCue('stripped')).toMatchObject({ text: '增益被剥离' });
+    expect(statusExpireCue('recovered')).toMatchObject({ text: '挣脱' });
   });
 
   it('死亡标记与恐怖的零伤害结算有专属演出', () => {
-    expect(statusTickCue('death-mark')).toMatchObject({ text: '死亡标记', sfx: 'deathMark' });
+    expect(statusTickCue('death-mark')).toMatchObject({ text: '死亡标记' });
+    expect(statusTickCue('death-mark')?.sfx).toBeUndefined();
     expect(statusTickCue('death_mark')?.text).toBe('死亡标记');
     expect(statusTickCue('terror')).toMatchObject({ text: '恐惧后退', sfx: 'terror' });
     // DoT 走伤害飘字，不额外弹提示

@@ -2,7 +2,7 @@
  * 封面页资源预热：在登录/进游戏之前，把 game 入口的 JS/CSS 与首屏、战斗常用图下载进浏览器 HTTP 缓存。
  *
  * 清单 `/preload-manifest.json` 由构建插件生成（vite.config.ts · deployManifest）；
- * 建角立绘与向导素材优先加载；开发服务器或清单缺失时仍预载这些首屏素材。单项失败不阻塞进入游戏。
+ * 建角立绘与向导素材优先加载；开发服务器无清单时仍预载首屏素材。生产清单或任一资源失败时保持入口关闭。
  */
 import { DEFAULT_CHARACTER_PORTRAITS } from '../meta/state/character';
 import guideArt from '@assets/meta/tutorial/guide.webp';
@@ -27,15 +27,35 @@ const CONCURRENCY = 6;
 const ITEM_TIMEOUT_MS = 20_000;
 
 async function fetchManifest(): Promise<string[]> {
-  try {
-    const res = await fetch(`${import.meta.env.BASE_URL}preload-manifest.json`, { cache: 'no-cache' });
-    if (!res.ok || !(res.headers.get('content-type') ?? '').includes('json')) return [];
-    const manifest = (await res.json()) as Manifest;
-    // JS/CSS 排前面：进游戏第一步就要用
-    return [...new Set([...(manifest.code ?? []), ...(manifest.images ?? [])])];
-  } catch {
-    return [];
+  const res = await fetch(`${import.meta.env.BASE_URL}preload-manifest.json`, {
+    cache: 'no-cache', signal: AbortSignal.timeout(ITEM_TIMEOUT_MS),
+  });
+  if (!res.ok || !(res.headers.get('content-type') ?? '').includes('json')) {
+    if (import.meta.env.DEV) return [];
+    throw new Error('预加载清单读取失败');
   }
+  const manifest = (await res.json()) as Manifest;
+  if (!Array.isArray(manifest.code) || !manifest.code.length || !Array.isArray(manifest.images)
+    || [...manifest.code, ...manifest.images].some(url => typeof url !== 'string' || !url.startsWith('/') || url.startsWith('//'))) {
+    throw new Error('预加载清单格式错误');
+  }
+  return [...new Set([...manifest.code, ...manifest.images])];
+}
+
+// 持有已解码的首屏图片，进入时无需再次等待解码。
+const decodedImages: HTMLImageElement[] = [];
+async function decodePriority(url: string, signal: AbortSignal): Promise<void> {
+  if (typeof Image === 'undefined' || !PRIORITY_IMAGES.includes(url)) return;
+  const image = new Image();
+  image.referrerPolicy = 'no-referrer';
+  image.src = url;
+  await new Promise<void>((resolve, reject) => {
+    const aborted = (): void => reject(new Error('图片解码超时'));
+    signal.addEventListener('abort', aborted, { once: true });
+    if (signal.aborted) aborted();
+    void image.decode().then(resolve, reject).finally(() => signal.removeEventListener('abort', aborted));
+  });
+  decodedImages.push(image);
 }
 
 /** 完整读完响应体才算进了缓存；超时中止 */
@@ -46,6 +66,7 @@ async function warm(url: string): Promise<boolean> {
     const res = await fetch(url, { signal: controller.signal, credentials: 'same-origin' });
     if (!res.ok) return false;
     await res.arrayBuffer();
+    await decodePriority(url, controller.signal);
     return true;
   } catch {
     return false;
@@ -70,8 +91,10 @@ export function startPreload(): Promise<PreloadProgress> {
   running ??= (async () => {
     // 不等待登录查询或清单返回，立即开始下载建角立绘与向导图片。
     const priority = PRIORITY_IMAGES.map((url) => warm(url));
-    const urls = (await fetchManifest()).filter((url) => !PRIORITY_IMAGES.includes(url));
-    const progress: PreloadProgress = { done: 0, total: urls.length + priority.length, failed: 0 };
+    let manifestFailed = false;
+    const urls = (await fetchManifest().catch(() => { manifestFailed = true; return []; }))
+      .filter((url) => !PRIORITY_IMAGES.includes(url));
+    const progress: PreloadProgress = { done: 0, total: urls.length + priority.length, failed: manifestFailed ? 1 : 0 };
     const emit = (): void => {
       latest = { ...progress };
       listeners.forEach((fn) => fn(latest));
@@ -91,4 +114,13 @@ export function startPreload(): Promise<PreloadProgress> {
     return latest;
   })();
   return running;
+}
+
+/** 仅失败任务可重试；成功项由 HTTP 缓存复用。 */
+export function retryPreload(): Promise<PreloadProgress> {
+  if (latest.done >= latest.total && latest.failed > 0) {
+    running = null;
+    decodedImages.length = 0;
+  }
+  return startPreload();
 }

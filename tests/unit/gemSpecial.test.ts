@@ -385,7 +385,7 @@ describe('MatchResolver 特殊宝石匹配', () => {
 
 // ───────────────────────── 第一批：末日骷髅 / 炸弹 ─────────────────────────
 
-describe('末日骷髅（被匹配：+5 伤害 + 引爆一圈）', () => {
+describe('末日骷髅仅加伤，至尊末日骷髅另有一圈爆炸', () => {
   // (3,3)=S (3,4)=D；交换 (3,5)↔(3,6) 把 S 换入组成 S-D-S。
   // 换出的填充宝石落在 (3,6)，在引爆圈（行列 2~4）之外，不干扰环内计数。
   const layout = [
@@ -399,35 +399,16 @@ describe('末日骷髅（被匹配：+5 伤害 + 引爆一圈）', () => {
     '........',
   ];
 
-  it('匹配结算 = 骷髅普攻 +5，且相邻一圈被引爆（gem-explode）', () => {
-    const { engine, state } = makeEngine(layout, { seed: 7 });
-    const idsBefore = boardGemIds(state.board);
+  it('末日骷髅匹配 +5 伤害，不引爆邻格或产生爆炸触发事件', () => {
+    const { engine } = makeEngine(layout, { seed: 7 });
     const events = engine.resolveSwap({ row: 3, col: 5 }, { row: 3, col: 6 });
     expect(events[0].type).toBe('swap');
-
-    // 骷髅伤害：attack 10 + 末日骷髅 5 = 15
-    const dmg = eventsOf('skull-damage', events)[0];
-    expect(dmg).toMatchObject({ type: 'skull-damage', damage: 15 });
-
-    // 末日骷髅触发事件 + 引爆一圈（三连已移除 (3,3)(3,5)，环内其余 6 格全炸）
-    const trigger = eventsOf('special-gem-trigger', events).find(
-      (e) => e.type === 'special-gem-trigger' && e.kind === 'doomSkull',
-    );
-    expect(trigger).toMatchObject({ pos: { row: 3, col: 4 } });
-    const explode = eventsOf('gem-explode', events)[0];
-    expect(explode).toBeDefined();
-    expect(explode.cells).toHaveLength(6);
-
-    // 引爆产出的颜色宝石照常结算法力；被炸宝石确实离场（按 id 核对）
-    expect(eventsOf('mana-gain', events).length).toBeGreaterThan(0);
-    const idsAfter = boardGemIds(state.board);
-    for (const c of explode.cells) {
-      expect(idsBefore.has(c.gemId)).toBe(true);
-      expect(idsAfter.has(c.gemId)).toBe(false);
-    }
+    expect(eventsOf('skull-damage', events)[0]).toMatchObject({ damage: 15 });
+    expect(eventsOf('special-gem-trigger', events).filter(e => e.kind === 'doomSkull')).toHaveLength(0);
+    expect(eventsOf('gem-explode', events)).toHaveLength(0);
   });
 
-  it('至尊末日骷髅：普攻 +10 且同样引爆一圈', () => {
+  it('至尊末日骷髅：普攻 +10 且保留一圈爆炸', () => {
     const { engine } = makeEngine([
       '........',
       '........',
@@ -459,7 +440,7 @@ describe('末日骷髅（被匹配：+5 伤害 + 引爆一圈）', () => {
     expect(run()).toBe(run());
   });
 
-  it('末日骷髅直接摧毁也只引爆一次相邻一圈', () => {
+  it('末日骷髅直接摧毁只结算伤害，不引爆相邻一圈', () => {
     const { board, engine } = makeEngine([
       '........',
       '........',
@@ -474,8 +455,9 @@ describe('末日骷髅（被匹配：+5 伤害 + 引爆一圈）', () => {
     board.set({ row: 3, col: 3 }, null);
     const events: GameEvent[] = [];
     engine.resolveBoardChange([{ gemType: specialGem('doomSkull'), pos: { row: 3, col: 3 } }], events);
-    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'doomSkull')).toHaveLength(1);
-    expect(eventsOf('gem-explode', events).flatMap((e) => e.cells)).toHaveLength(8);
+    expect(eventsOf('special-gem-trigger', events).filter((e) => e.kind === 'doomSkull')).toHaveLength(0);
+    expect(eventsOf('gem-explode', events)).toHaveLength(0);
+    expect(eventsOf('skill-damage', events)[0]).toMatchObject({ damage: 5 });
   });
 });
 
@@ -853,7 +835,7 @@ describe('闪电镜像方向覆盖', () => {
 });
 
 describe('多颗特殊宝石同组触发', () => {
-  it('[S,D,U] 双末日族同组：加伤合计 +15，各自引爆一圈（环重叠去重）', () => {
+  it('[S,D,U] 双末日族同组：加伤合计 +15，仅至尊末日引爆一圈', () => {
     const { engine, state } = makeEngine([
       '........',
       '........',
@@ -871,12 +853,11 @@ describe('多颗特殊宝石同组触发', () => {
     expect(dmg).toMatchObject({ damage: 25 }); // attack 10 + 末日 5 + 至尊 10
 
     const kinds = eventsOf('special-gem-trigger', events).map((e) => (e as { kind: string }).kind);
-    expect(kinds).toEqual(['doomSkull', 'uberDoomSkull']);
+    expect(kinds).toEqual(['uberDoomSkull']);
     const explodes = eventsOf('gem-explode', events);
-    expect(explodes).toHaveLength(2);
-    // 末日环：环内 6 格（组内 2 格已移除）；至尊环与末日环重叠 4 格已空，只剩 3 格
-    expect(explodes[0].cells).toHaveLength(6);
-    expect(explodes[1].cells).toHaveLength(3);
+    expect(explodes).toHaveLength(1);
+    // 至尊末日位于组末端，邻环中的末日骷髅已随匹配移除，其余 7 格被炸。
+    expect(explodes[0].cells).toHaveLength(7);
     const idsAfter = boardGemIds(state.board);
     for (const ex of explodes) {
       for (const c of ex.cells) expect(idsAfter.has(c.gemId)).toBe(false);
@@ -959,13 +940,13 @@ describe('多颗特殊宝石同组触发', () => {
   });
 });
 
-describe('末日环跨链与幽魂', () => {
-  it('末日骷髅引爆圈波及炸弹：匹配路径接入摧毁链（炸弹继续连环）', () => {
+describe('至尊末日环跨链与幽魂', () => {
+  it('至尊末日骷髅引爆圈波及炸弹：匹配路径接入摧毁链（炸弹继续连环）', () => {
     const { engine } = makeEngine([
       '........',
       '........',
-      '....X...',   // (2,4)=炸弹，在末日环内
-      '...SD.S.',
+      '....X...',   // (2,4)=炸弹，在至尊末日环内
+      '...SU.S.',
       '........',
       '........',
       '........',
@@ -975,10 +956,10 @@ describe('末日环跨链与幽魂', () => {
     expect(events[0].type).toBe('swap');
 
     const kinds = eventsOf('special-gem-trigger', events).map((e) => (e as { kind: string }).kind);
-    expect(kinds).toEqual(['doomSkull', 'bomb']);
+    expect(kinds).toEqual(['uberDoomSkull', 'bomb']);
     const explodes = eventsOf('gem-explode', events);
     expect(explodes).toHaveLength(2);
-    // 末日环 6 格（含炸弹），炸弹连环再炸 3 格（其余环内格已空）
+    // 至尊末日环 6 格（含炸弹），炸弹连环再炸 3 格（其余环内格已空）
     expect(explodes[0].cells).toHaveLength(6);
     expect(explodes[1].cells).toHaveLength(3);
   });

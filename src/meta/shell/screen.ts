@@ -31,6 +31,8 @@ export type ScreenName =
 /** 屏层上下文：网关 + 导航 + 战斗启动。屏层禁止绕过它直接摸路由/战斗层 */
 export interface ShellCtx {
   readonly gateway: MetaGateway;
+  /** 本次登录的显示名；创建时服务端仍独立校验身份。 */
+  readonly loginName?: string;
   /** 当前权威存档（每次变更后重新读，屏层不要长期缓存引用） */
   save(): MetaSave;
   /** hash 导航（'#map' / '#troop/6001' …） */

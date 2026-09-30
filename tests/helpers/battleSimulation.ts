@@ -1,3 +1,4 @@
+import { BATTLE_SKULL_DROPS } from '@engine/skullDrops';
 /**
  * 确定性 AI 对 AI 战斗模拟（棋盘手感调参用，零 DOM）。
  *
@@ -162,7 +163,7 @@ function runBattle(cfg: SimConfig, seed: number, index: number): BattleTrace {
   let nextId = 100000;
   const idGen = () => nextId++;
   const skullChance = cfg.skullChance ?? BATTLE_SKULL_CHANCE;
-  const board = new BoardGenerator(rng, idGen, request.rules?.board?.skullChance ?? skullChance, cfg.setupBias).generate();
+  const board = new BoardGenerator(rng, idGen, request.rules?.board?.skullChance ?? skullChance, cfg.setupBias, BATTLE_SKULL_DROPS).generate();
   applyRequestBoardPreset(board, request, rng);
   const state = createGameState(board, playerTeam, enemyTeam);
   const engine = new TurnEngine(state, rng, idGen, registry);
@@ -172,6 +173,7 @@ function runBattle(cfg: SimConfig, seed: number, index: number): BattleTrace {
   engine.setBeastPool(TROOPS.filter((t) => t.troopTypes.includes('Beast')).map((t) => t.referenceName));
   setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, request.arenaRules));
   engine.skullChance = skullChance;
+  engine.skullDropMix = BATTLE_SKULL_DROPS;
   engine.comboBias = cfg.comboBias;
   engine.applyRules(engineRulesOf(request, idMap));
   engine.takeInitialEvents();

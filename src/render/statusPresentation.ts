@@ -154,18 +154,18 @@ export function expireCueKind(reason: StatusExpireReason | undefined): ExpireCue
 /** 移除类演出提示（每目标每种原因一次）。 */
 export function statusExpireCue(kind: ExpireCueKind): StatusCue {
   switch (kind) {
-    case 'recovered': return { text: '挣脱', color: '#bff5c8', sfx: 'recover', ring: 'burst' };
-    case 'stripped': return { text: '增益被剥离', color: '#c79bff', sfx: 'dispel', ring: 'shatter' };
+    case 'recovered': return { text: '挣脱', color: '#bff5c8', ring: 'burst' };
+    case 'stripped': return { text: '增益被剥离', color: '#c79bff', ring: 'shatter' };
     case 'cleansed': return { text: '净化', color: '#fff2b0', ring: 'burst' };
-    case 'dispelled': return { text: '驱散', color: '#c79bff', sfx: 'dispel', ring: 'shatter' };
-    case 'barrier-block': return { text: '屏障抵挡', color: '#8cecf7', sfx: 'barrierBreak', ring: 'shatter' };
+    case 'dispelled': return { text: '驱散', color: '#c79bff', ring: 'shatter' };
+    case 'barrier-block': return { text: '屏障抵挡', color: '#8cecf7', ring: 'shatter' };
   }
 }
 
 /** status-tick 中需要单独演出的非伤害结算。 */
 export function statusTickCue(statusId: string): StatusCue | null {
   const key = canonicalStatusKey(statusId);
-  if (key === 'death-mark') return { text: '死亡标记', color: '#ff5066', sfx: 'deathMark', ring: 'burst' };
+  if (key === 'death-mark') return { text: '死亡标记', color: '#ff5066', ring: 'burst' };
   if (key === 'terror') return { text: '恐惧后退', color: '#d9a6ff', sfx: 'terror', ring: 'ripple' };
   return null;
 }

@@ -50,7 +50,10 @@ describe('sa-Q1 B02: count at native step, disputes kept (6621 / 6864), random p
     const board = (r: number, c: number) => ([7, 4].includes(r) && [0, 3, 6].includes(c) ? DOOM : ({ kind: 'color', color: ['Red', 'Green', 'Blue'][(r + c) % 3] } as never));
     const div = (e: object) => ({ ...e, troopTypes: ['Divine'] });
     const r = castSpell({ key: 'troop:6593', board, enemies: [div(frail()), div(frail()), div(tough()), tough()] });
-    expect(r.summary.order.filter(s => s === 'trigger doomSkull').length).toBe(3 + 3);
+    const blast = r.events.find(e => e.type === 'gem-explode');
+    expect(blast?.type === 'gem-explode' && blast.cells.filter(c => c.gemType.kind === 'special' && c.gemType.spec.kind === 'doomSkull').length).toBe(3 + 3);
+    expect(r.summary.order).not.toContain('trigger doomSkull');
+    expect(r.f.enemies[0].defeated && r.f.enemies[1].defeated).toBe(true);
     expect(r.summary.order).toContain('status E12 +silence');
     expect(r.summary.order).not.toContain('status E13 +silence');
   });

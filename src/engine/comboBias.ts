@@ -25,14 +25,13 @@ import type { ActionLogEntry, CellPos } from './types';
 
 /**
  * 实战补充强度（TurnEngine.comboBias）：后续新宝石适度提高 4/5 连机会。
- * 强度 7 = 每次补充试掷 8 份取最好的一份 + 同色成团系数 COMBO_CLUMP × 7。
- * 节奏调参（用户：平均每场行动数 ~38 → ~30）：与 BATTLE_SKULL_CHANCE 0.2、开局 70%/90%、
- * 新的法力涌动规则一起，AI 对 AI 模拟 300 场约 30 次行动/场（battleSimulation.test.ts）。
+ * 强度 5 = 每次补充试掷 6 份取最好的一份 + 同色成团系数 COMBO_CLUMP × 5。
+ * 骷髅系基础落率维持 20%，拆分为普通 15% / 末日 4% / 至尊末日 1%，见 skullDrops.ts。
  */
-export const BATTLE_COMBO_BIAS = 7;
+export const BATTLE_COMBO_BIAS = 5;
 
-/** 实战骷髅落率（开局与补充共用）：骷髅是主要伤害来源，0.16 → 0.2 缩短对局 */
-export const BATTLE_SKULL_CHANCE = 0.2;
+/** 兼容既有调参入口；骷髅系总落率与分类比例统一维护在 skullDrops.ts。 */
+export { BATTLE_SKULL_CHANCE } from './skullDrops';
 
 /**
  * 实战开局强度（BoardGenerator 第 4 参）：> 0 时先按 SETUP_SHARE_* 抽本局开局档位

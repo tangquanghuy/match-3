@@ -1243,13 +1243,13 @@
  },
  "troop:6890": {
   "lines": {
-   "L10": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~ ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 1  => E11:+bleed | E12:+death-mark | E10:hp-28 arm-5 | A2:mana+1  cascade",
-   "R10": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~ ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 1  => E11:+bleed | E12:+death-mark | E10:hp-28 arm-5 | A2:mana+1  cascade",
-   "L0": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~ ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E10 1  => E11:+bleed | E12:+death-mark | E10:hp-28 arm-5 | A2:mana+1  cascade",
-   "K": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~ ; defeat E10 ; trigger doomSkull ; explode 7 ; trigger doomSkull ; explode 2 ; trigger doomSkull ; explode 3 ; skulls E11 1 ; defeat E11  => E11:hp-1 +bleed DEAD | E12:+death-mark | E10:hp-1 DEAD | A2:mana+1  cascade"
+   "L10": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~  => E11:+bleed | E12:+death-mark | E10:hp-27 arm-5  cascade",
+   "R10": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~  => E11:+bleed | E12:+death-mark | E10:hp-27 arm-5  cascade",
+   "L0": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~  => E11:+bleed | E12:+death-mark | E10:hp-27 arm-5  cascade",
+   "K": "convert Green x3, Yellow x1, Blue x1, Purple x1 -> Brown x6 ; convert Brown x14 -> doomSkull x14 ; status E11 +bleed ; status E12 +death-mark ; ~cascade~ ; defeat E10  => E11:+bleed | E12:+death-mark | E10:hp-1 DEAD  cascade"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T10:45:56.271Z"
+  "by": "release-2026-09-30-doom-no-inherent-blast",
+  "at": "2026-09-30T12:06:39.503Z"
  },
  "troop:6895": {
   "lines": {

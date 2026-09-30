@@ -4,7 +4,7 @@ const manifest = (urls: string[]) => new Response(JSON.stringify({ code: ['/game
 
 describe('cover priority artwork preload', () => {
   beforeEach(() => vi.resetModules());
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
   it('starts artwork before the manifest resolves and shares repeated calls', async () => {
     let resolveManifest!: (r: Response) => void;
@@ -35,13 +35,35 @@ describe('cover priority artwork preload', () => {
     expect(await startPreload()).toEqual({ done: 6, total: 6, failed: 0 });
   });
 
-  it('counts failed artwork without blocking entry', async () => {
+  it('reports failed artwork so entry stays blocked', async () => {
     vi.stubGlobal('fetch', vi.fn((url: string) => {
-      if (url.includes('preload-manifest')) return Promise.reject(new Error('offline'));
+      if (url.includes('preload-manifest')) return Promise.resolve(new Response('', { status: 404 }));
       if (url.includes('guide.webp')) return Promise.reject(new Error('image failed'));
       return Promise.resolve(new Response('image'));
     }));
     const { startPreload } = await import('../../src/cover/preload');
     expect(await startPreload()).toEqual({ done: 6, total: 6, failed: 1 });
   });
+  it('blocks production entry for a missing or invalid manifest', async () => {
+    vi.stubEnv('DEV', false);
+    vi.stubGlobal('fetch', vi.fn((url: string) => Promise.resolve(new Response('', { status: url.includes('preload-manifest') ? 404 : 200 }))));
+    const { startPreload } = await import('../../src/cover/preload');
+    expect((await startPreload()).failed).toBe(1);
+  });
+
+  it('retries a failed preload and keeps successful runs memoized', async () => {
+    let broken = true;
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      if (url.includes('preload-manifest')) return Promise.resolve(manifest([]));
+      return Promise.resolve(new Response('asset', { status: broken && url.includes('character-male') ? 503 : 200 }));
+    }));
+    const { startPreload, retryPreload } = await import('../../src/cover/preload');
+    expect((await startPreload()).failed).toBe(1);
+    broken = false;
+    const retry = retryPreload();
+    expect(startPreload()).toBe(retry);
+    expect(await retry).toEqual({ done: 7, total: 7, failed: 0 });
+    expect(retryPreload()).toBe(retry);
+  });
+
 });

@@ -10,7 +10,7 @@
  *   - 新 AI · 实战倾向 = App 实战配置（BATTLE_COMBO_BIAS / BATTLE_SETUP_BIAS）。
  *
  * 调参口径（用户裁定，详见 comboBias.ts）：开局约 70% 有 ≥2 处、90% 有 ≥1 处 4+ 交换（开局检查在
- * comboBias.test.ts）；之后新宝石以强度 7 适度提高 4/5 连概率，骷髅落率 0.2；目标每场约 30 次行动。
+ * comboBias.test.ts）；之后新宝石以强度 5 适度提高 4/5 连概率，骷髅系基础落率 15%/4%/1%；观察新配置下的行动节奏。
  * 下面的断言是留有余量的回归护栏，不是精确目标。
  */
 import { describe, expect, it } from 'vitest';
@@ -55,13 +55,13 @@ describe('AI 对 AI 棋盘手感模拟', () => {
     // 新 AI 会施法（旧 AI 从不施法）
     expect(legacy.castsPerBattle.right).toBe(0);
     expect(tuned.castsPerBattle.right).toBeGreaterThan(1);
-    // 节奏调参（强度 7 + 骷髅 0.2 + 开局 70%/90%）：回合开头的 4+ 机会与额外回合高于无倾向，
+    // 节奏调参（强度 5 + 骷髅 0.2 + 开局 70%/90%）：回合开头的 4+ 机会与额外回合高于无倾向，
     // 额外回合仍受护栏约束，不失控
     expect(tuned.bigSwapShareTurnStart).toBeGreaterThan(base.bigSwapShareTurnStart + 0.1);
     expect(tuned.bigSwapShareTurnStart).toBeLessThan(0.55);
     expect(tuned.extraTurnShare).toBeGreaterThan(base.extraTurnShare);
     expect(tuned.extraTurnShare).toBeLessThanOrEqual(0.42);
-    // 目标节奏：平均每场约 30 次行动（300 场模拟 29.9；这里 40 场，留余量）
+    // 目标节奏：平均每场约 30 次行动（历史参考；这里 40 场，留余量）
     expect(tuned.actionsPerBattle).toBeLessThan(34);
     // 交换带来的长连段罕见
     expect(tuned.swapStreak5BattleShare).toBeLessThanOrEqual(0.05);

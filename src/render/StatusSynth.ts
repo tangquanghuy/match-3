@@ -162,13 +162,6 @@ function chipDyad(ctx: AudioContext, bus: AudioNode, t: number, notes: [number, 
 /* 比施加音短、轻（0.25~0.6s，峰值 ≤0.26），叠在伤害/光效上不抢戏。         */
 /* ------------------------------------------------------------------ */
 
-/** 驱散：上行扫频被「剪断」+ 碎光噪声（正面增益被抹掉）。 */
-function cueDispel(ctx: AudioContext, bus: AudioNode, t: number): void {
-  tone(ctx, bus, t, { type: 'square', from: 520, to: 1400, dur: 0.14, peak: 0.18 });
-  chipArp(ctx, bus, t + 0.15, [84, 79, 72], 0.06, 0.16);
-  noise(ctx, bus, t + 0.14, { dur: 0.22, peak: 0.12, filter: { type: 'highpass', from: 3500, to: 1200 } });
-}
-
 /** 免疫：金属「叮」+ 短五度（被挡下）。 */
 function cueImmune(ctx: AudioContext, bus: AudioNode, t: number): void {
   chipNote(ctx, bus, t, 88, 0.08, 0.2);
@@ -176,29 +169,10 @@ function cueImmune(ctx: AudioContext, bus: AudioNode, t: number): void {
   noise(ctx, bus, t, { dur: 0.05, peak: 0.1, filter: { type: 'highpass', from: 5000 } });
 }
 
-/** 挣脱：快速上行大调三连 + 轻亮尾（负面状态自行解除）。 */
-function cueRecover(ctx: AudioContext, bus: AudioNode, t: number): void {
-  chipArp(ctx, bus, t, [72, 76, 79, 84], 0.055, 0.18);
-  noise(ctx, bus, t + 0.2, { dur: 0.16, peak: 0.07, filter: { type: 'highpass', from: 4200 } });
-}
-
-/** 死亡标记触发：低音丧钟重击 + 下坠滑音。 */
-function cueDeathMark(ctx: AudioContext, bus: AudioNode, t: number): void {
-  chipDyad(ctx, bus, t, [36, 37], 0.5, 0.26);
-  tone(ctx, bus, t + 0.05, { type: 'square', from: 420, to: 60, dur: 0.45, peak: 0.2 });
-  noise(ctx, bus, t, { dur: 0.3, peak: 0.14, filter: { type: 'lowpass', from: 700 } });
-}
-
 /** 恐怖换位：两音「后退」下行 + 颤抖。 */
 function cueTerror(ctx: AudioContext, bus: AudioNode, t: number): void {
   chipNote(ctx, bus, t, 70, 0.1, 0.18);
   tone(ctx, bus, t + 0.1, { type: 'square', from: hz(66), to: hz(58), dur: 0.3, peak: 0.16, vibrato: { rate: 11, depth: 14 } });
-}
-
-/** 屏障破碎：高频玻璃碎裂噪声 + 下行碎片音。 */
-function cueBarrierBreak(ctx: AudioContext, bus: AudioNode, t: number): void {
-  noise(ctx, bus, t, { dur: 0.18, peak: 0.2, filter: { type: 'highpass', from: 6000, to: 2500 } });
-  chipArp(ctx, bus, t + 0.02, [91, 86, 81, 76], 0.04, 0.14);
 }
 
 /** 冰冻吞额外回合：冷硬「咔」+ 被掐断的上行（额外回合没来）。 */
@@ -222,17 +196,13 @@ function cueReflect(ctx: AudioContext, bus: AudioNode, t: number): void {
 }
 
 export type StatusCueKind =
-  | 'dispel' | 'immune' | 'recover' | 'deathMark' | 'terror'
-  | 'barrierBreak' | 'frozenDeny' | 'submergeDodge' | 'reflect';
+  | 'immune' | 'terror'
+  | 'frozenDeny' | 'submergeDodge' | 'reflect';
 
 /** 状态演出提示音表（AudioManager.playStatusCue 消费）。 */
 export const STATUS_CUE_SYNTHS: Readonly<Record<StatusCueKind, StatusSynthFn>> = {
-  dispel: cueDispel,
   immune: cueImmune,
-  recover: cueRecover,
-  deathMark: cueDeathMark,
   terror: cueTerror,
-  barrierBreak: cueBarrierBreak,
   frozenDeny: cueFrozenDeny,
   submergeDodge: cueSubmergeDodge,
   reflect: cueReflect,

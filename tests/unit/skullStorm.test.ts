@@ -117,7 +117,7 @@ describe('炸毁骷髅（爆破/摧毁，非三消）官方规则', () => {
     expect(events.some((e) => e.type === 'skull-damage')).toBe(false);
   });
 
-  it('被炸末日骷髅 → 5 点伤害并引爆相邻一圈', () => {
+  it('被炸末日骷髅 → 5 点伤害，不继续引爆', () => {
     const { board, state, engine } = makeEngine();
     const pos: CellPos = { row: 3, col: 3 };
     board.set(pos, g(specialGem('doomSkull')));
@@ -129,8 +129,8 @@ describe('炸毁骷髅（爆破/摧毁，非三消）官方规则', () => {
 
     expect(skillDamageEvents(events)[0].damage).toBe(5);
     expect(front.hp + front.armor).toBe(before - 5);
-    expect(events.filter((e) => e.type === 'gem-explode')).toHaveLength(1);
-    expect(events.filter((e) => e.type === 'special-gem-trigger' && e.kind === 'doomSkull')).toHaveLength(1);
+    expect(events.filter((e) => e.type === 'gem-explode')).toHaveLength(0);
+    expect(events.filter((e) => e.type === 'special-gem-trigger' && e.kind === 'doomSkull')).toHaveLength(0);
     // 演出元数据：末日骷髅弹体 + 爆炸源格
     const meta = skillDamageEvents(events)[0];
     expect(meta.skullBurst).toEqual({ normal: 0, doom: 1, uber: 0 });
@@ -149,6 +149,8 @@ describe('炸毁骷髅（爆破/摧毁，非三消）官方规则', () => {
 
     expect(skillDamageEvents(events)[0].damage).toBe(10);
     expect(front.hp + front.armor).toBe(before - 10);
+    expect(events.filter(e => e.type === 'gem-explode')).toHaveLength(1);
+    expect(events.filter(e => e.type === 'special-gem-trigger' && e.kind === 'uberDoomSkull')).toHaveLength(1);
   });
 
   it('混合批次（2 普通 + 1 末日）→ 合计 7 点', () => {

@@ -1,7 +1,8 @@
+import { pickSkullVariant, type SkullDropMix } from './skullDrops';
 import { BoardModel } from './BoardModel';
 import { MatchResolver } from './MatchResolver';
 import { SeededRNG } from './rng';
-import { colorGem, skullGem, ALL_BASE_COLORS } from './types';
+import { colorGem, skullGem, ALL_BASE_COLORS, matchJoinKey } from './types';
 import type { Gem, CellPos, GemType } from './types';
 import { bigSwapCount, setupBucketFor } from './comboBias';
 
@@ -23,6 +24,8 @@ export class BoardGenerator {
      * 取第一张落在该档的；都没中则取最接近的一张。App 实战用 BATTLE_SETUP_BIAS。
      */
     private setupBias = 0,
+    /** Same family mix as battle refills; omitted = ordinary skulls only. */
+    private skullDropMix?: SkullDropMix,
   ) {}
 
   generate(): BoardModel {
@@ -51,7 +54,7 @@ export class BoardGenerator {
 
   /** 该类型的"匹配键"（同色或同为骷髅视为同键） */
   private matchKey(type: GemType): string {
-    return type.kind === 'skull' ? 'skull' : type.kind === 'color' ? type.color : 'other';
+    return matchJoinKey(type) ?? 'other';
   }
 
   /** 逐格填充，且避免在放置时立即形成 ≥3 连（需求 3.1） */
@@ -85,8 +88,9 @@ export class BoardGenerator {
   /** 在不触发三连的候选里挑一个类型：先决定是否骷髅，再回退颜色 */
   private pickGemType(forbidden: Set<string>): GemType {
     const skullOk = !forbidden.has('skull');
-    if (skullOk && this.skullChance > 0 && this.rng.next() < this.skullChance) {
-      return skullGem();
+    if (skullOk && this.skullChance > 0) {
+      const roll = this.rng.next();
+      if (roll < this.skullChance) return pickSkullVariant(roll, this.skullChance, this.skullDropMix);
     }
     const candidates = ALL_BASE_COLORS.filter((c) => !forbidden.has(c));
     if (candidates.length === 0) {

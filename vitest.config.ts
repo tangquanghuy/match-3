@@ -15,6 +15,6 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.{test,spec}.ts'],
     // 排除 Playwright 端到端用例（由 playwright 单独运行，非 vitest）
-    exclude: ['tests/e2e/**', 'node_modules/**'],
+    exclude: ['tests/e2e/**', 'tests/cover/**', 'node_modules/**'],
   },
 });
