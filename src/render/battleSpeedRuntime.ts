@@ -88,6 +88,9 @@ function isInfiniteGsap(animation: gsap.core.Animation): boolean {
 
 /** gsap 无限循环（待机呼吸/提示弹跳/状态宝石微动）按 1/倍速 补偿，维持原速 */
 function compensateGsapLoops(speed: number): void {
+  // GSAP timeScale() can reattach a killed tween to its former parent. Remove
+  // detached entries BEFORE changing rates, not on a later animation frame.
+  pruneGsapLoops();
   for (const child of gsap.globalTimeline.getChildren(false, true, true)) {
     if (gsapChecked.has(child)) continue;
     gsapChecked.add(child);
@@ -104,8 +107,9 @@ function compensateGsapLoops(speed: number): void {
 }
 
 function pruneGsapLoops(): void {
-  const alive = new Set<gsap.core.Animation>(gsap.globalTimeline.getChildren(false, true, true));
-  for (const animation of gsapInfinite.keys()) if (!alive.has(animation)) gsapInfinite.delete(animation);
+  for (const animation of gsapInfinite.keys()) {
+    if (animation.parent !== gsap.globalTimeline) gsapInfinite.delete(animation);
+  }
 }
 
 const onTick = (): void => {
@@ -161,7 +165,8 @@ export function attachBattleSpeed(root: Element): () => void {
     rafId = null;
     if (tickerBound) gsap.ticker.remove(onTick);
     tickerBound = false;
-    // 离开战斗：全局时间线回到 1×，补偿过的无限循环也恢复基准速率
+    // 离开战斗：只恢复仍存活的循环；已 kill 的旧场景补间不得复活。
+    pruneGsapLoops();
     for (const [animation, base] of gsapInfinite) animation.timeScale(base);
     gsapInfinite.clear();
     appliedSpeed = 1;

@@ -22,7 +22,7 @@ import type { InvasionMirrorPool } from './mirrorPool';
 import { weekStartOf } from '../gateway/clock';
 import { ensureInvasionSeason, invasionPlayerPower } from '../systems/invasion';
 import { invasionPoolQuery } from '../systems/invasionMirrors';
-import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type MetaCommand } from './protocol';
+import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type SaveLoadOptions, type MetaCommand } from './protocol';
 
 /** 一批原子写入：把存储从 fromRevision 推到 toRevision（null = 首次建档） */
 export interface RecordBatch {
@@ -74,12 +74,13 @@ export class MetaHost {
 
   /**
    * 整份快照（登录/刷新页面/重同步时下发）。首次调用会载入或建档。
-   * 防刷新重来：此时还挂着未结算的出战票 = 玩家在战斗中刷新了，先判负/作废再下发。
+   * 防刷新重来：默认先将旧战斗判负/作废。命令存档序号重同步显式保留战斗票，
+   * 否则出战回执因副本存档序号落后而触发同步时，会作废刚签发的新票。
    */
-  load(): Promise<LoadReply> {
+  load(options: SaveLoadOptions = {}): Promise<LoadReply> {
     return this.serial(async () => {
       await this.ensureLoaded();
-      if (this.save?.pendingBattle) {
+      if (!options.preservePendingBattle && this.save?.pendingBattle) {
         this.commit({ type: 'forfeitPendingBattle', args: {} } as MetaCommand);
         await this.flushNow();
         await this.drainEffects();

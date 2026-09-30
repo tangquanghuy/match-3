@@ -172,7 +172,7 @@ export class GiftsScreen implements Screen {
       } catch {
         // A lost reply may already have committed. Re-read authority, never replay a reward command.
         let synced = false;
-        try { await ctx.gateway.load(); synced = true; } catch { /* retry remains available */ }
+        try { await ctx.gateway.sync(); synced = true; } catch { /* retry remains available */ }
         ctx.refreshChrome();
         if (this.mountedRoot) {
           ctx.refresh();

@@ -39,6 +39,9 @@ export class ArenaScreen implements Screen {
   private order: number[] = [];
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private ticketTimer: number | null = null;
+  private arranging = false;
+  private starting = false;
+  private mounted = false;
 
   html(): string {
     const showcase = [6029, 7478, 6194]
@@ -195,6 +198,7 @@ export class ArenaScreen implements Screen {
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
+    this.mounted = true;
     this.bind('#enter', 'click', () => void this.enter());
     this.bind('#nextDraft', 'click', () => void this.confirmPick());
     this.bind('#fight', 'click', () => void this.fight());
@@ -364,6 +368,10 @@ export class ArenaScreen implements Screen {
     if (!draft) return;
     this.order = draft.picked.length === ARENA.rounds ? (this.order.length === ARENA.rounds ? this.order : [...draft.picked]) : [...draft.picked];
     this.order = this.normalizeOrder();
+    const busy = this.arranging || this.starting;
+    const locked = busy || this.ctx.save().pendingBattle?.mode === 'arena';
+    ($('#fight') as HTMLButtonElement).disabled = busy;
+    ($('#clearDraft') as HTMLButtonElement).disabled = busy;
     const teamEl = $('#draftTeam');
     teamEl.innerHTML = this.order
       .map((id, i) => {
@@ -379,8 +387,8 @@ export class ArenaScreen implements Screen {
           </div>
           <span class="pos${i === 0 ? ' skull' : ''}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
           <div class="shift" role="group" aria-label="${troop.name} 站位调整">
-            <button type="button" data-shift="up" data-i="${i}" aria-label="${troop.name} 前移一位" title="前移一位"${i === 0 ? ' disabled' : ''}>▲</button>
-            <button type="button" data-shift="down" data-i="${i}" aria-label="${troop.name} 后移一位" title="后移一位"${i === this.order.length - 1 ? ' disabled' : ''}>▼</button>
+            <button type="button" data-shift="up" data-i="${i}" aria-label="${troop.name} 前移一位" title="前移一位"${locked || i === 0 ? ' disabled' : ''}>▲</button>
+            <button type="button" data-shift="down" data-i="${i}" aria-label="${troop.name} 后移一位" title="后移一位"${locked || i === this.order.length - 1 ? ' disabled' : ''}>▼</button>
           </div>
         </div>`;
       })
@@ -416,6 +424,7 @@ export class ArenaScreen implements Screen {
   }
 
   private shiftClicked(e: Event): void {
+    if (this.arranging || this.starting || this.ctx.save().pendingBattle?.mode === 'arena') return;
     const btn = (e.target as HTMLElement).closest('[data-shift]') as HTMLElement | null;
     if (!btn) return;
     const i = Number(btn.dataset.i);
@@ -427,9 +436,21 @@ export class ArenaScreen implements Screen {
   }
 
   private async applyOrder(): Promise<void> {
-    const { result } = await this.ctx.gateway.arrangeDraftTeam(this.order);
-    if (isFailure(result)) toast(result.message);
+    this.arranging = true;
+    const order = [...this.order];
     this.renderBattle();
+    try {
+      const { result } = await this.ctx.gateway.arrangeDraftTeam(order);
+      if (this.mounted && isFailure(result)) toast(result.message);
+    } catch {
+      // 可能已入库但回包丢失，只读同步，不自动重发调整或作废战斗票。
+      try { await this.ctx.gateway.sync(); } catch { /* 下次操作可重试 */ }
+      if (this.mounted) toast('站位保存未确认，请检查站位后重试。');
+    } finally {
+      this.arranging = false;
+      this.order = [...(this.draft()?.picked ?? [])];
+      if (this.mounted) this.render();
+    }
   }
 
   private async enter(): Promise<void> {
@@ -443,22 +464,36 @@ export class ArenaScreen implements Screen {
   }
 
   private async fight(): Promise<void> {
+    if (this.arranging || this.starting) return;
     const draft = this.draft();
     if (!draft) return;
-    if (draft.stage === 'building') {
-      // 先落库站位，再进入连战
-      const { result } = await this.ctx.gateway.arrangeDraftTeam(this.normalizeOrder());
-      if (isFailure(result)) {
-        toast(result.message);
-        return;
+    this.starting = true;
+    this.renderBattle();
+    try {
+      if (draft.stage === 'building') {
+        // 先落库站位，再进入连战；慢响应期间禁止换位或重复开始。
+        const { result } = await this.ctx.gateway.arrangeDraftTeam(this.normalizeOrder());
+        if (!this.mounted) return;
+        if (isFailure(result)) {
+          toast(result.message);
+          return;
+        }
+        const started = await this.ctx.gateway.startDraftBattles();
+        if (!this.mounted) return;
+        if (isFailure(started.result)) {
+          toast(started.result.message);
+          return;
+        }
       }
-      const started = await this.ctx.gateway.startDraftBattles();
-      if (isFailure(started.result)) {
-        toast(started.result.message);
-        return;
-      }
+      await this.ctx.launchArenaBattle();
+    } catch {
+      try { await this.ctx.gateway.sync(); } catch { /* 保留重试入口 */ }
+      if (this.mounted) toast('开战准备未确认，请重试。');
+    } finally {
+      this.starting = false;
+      this.order = [...(this.draft()?.picked ?? [])];
+      if (this.mounted) this.render();
     }
-    await this.ctx.launchArenaBattle();
   }
 
   private openForfeitModal(): void {
@@ -503,6 +538,7 @@ export class ArenaScreen implements Screen {
   }
 
   dispose(): void {
+    this.mounted = false;
     if (this.ticketTimer !== null) {
       window.clearInterval(this.ticketTimer);
       this.ticketTimer = null;

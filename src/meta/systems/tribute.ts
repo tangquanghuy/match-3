@@ -58,7 +58,7 @@ export interface TributePreview {
    * （UX M-4：不能用「累计了小时数」判，否则会出现「0 袋 + 按钮可点 + 点了说没有」。）
    */
   ready: boolean;
-  /** 未截断的累计小时数；> capHours 即正在溢出（超出部分在收取瞬间永久丢失） */
+  /** 跳过完整空窗口后的累计小时数；有收益且 > capHours 时溢出 */
   pendingHours: number;
   /** 是否已达 12 小时上限并开始溢出 */
   overflowing: boolean;
@@ -73,7 +73,8 @@ function levelOf(save: MetaSave, kingdom: string): number {
 }
 
 function lastTributeOf(save: MetaSave, kingdom: string): number {
-  return save.kingdoms[kingdom]?.lastTributeAt ?? 0;
+  // 缺条目 / 旧默认 0 表示尚未领取，从建档时开始，避免从 1970 年算起。
+  return save.kingdoms[kingdom]?.lastTributeAt || save.createdAt;
 }
 
 /** 冒险者等级是否已开放该王国（未开放的王国不进贡） */
@@ -85,18 +86,25 @@ export function tributeKingdomOpen(save: MetaSave, kingdom: string): boolean {
 export function tributePreview(save: MetaSave, kingdom: string, now: number): TributePreview {
   const level = levelOf(save, kingdom);
   const last = lastTributeOf(save, kingdom);
-  const pending = Math.max(0, Math.floor((now - last) / HOUR_MS));
-  const hours = Math.min(pending, TRIBUTE.capHours);
-  const firstHour = Math.floor(last / HOUR_MS) + 1;
+  const elapsed = Math.max(0, Math.floor((now - last) / HOUR_MS));
   const chance = tributeChance(level);
   const home = save.homeKingdom === kingdom;
   const per = tributeYield(kingdom, level, home);
   const hitHours: number[] = [];
-  for (let i = 0; i < hours; i++) {
-    const hourIndex = firstHour + i;
-    const rng = new SeededRNG(fnv1a32(`${kingdom}:${hourIndex}`));
-    if (rng.next() < chance) hitHours.push(hourIndex);
+  let skipped = 0;
+  let hours: number;
+  // 零产出的完整窗口视为已检查，继续后面的小时，避免永远卡在最早 12 次未命中。
+  // 一旦窗口有收益就保留原有封顶，不用滚动窗口覆盖玩家尚未领取的进贡。
+  for (;;) {
+    hours = Math.min(elapsed - skipped, TRIBUTE.capHours);
+    const firstHour = Math.floor(last / HOUR_MS) + skipped + 1;
+    for (let i = 0; i < hours; i++) {
+      if (tributeHourHit(kingdom, firstHour + i, level)) hitHours.push(firstHour + i);
+    }
+    if (hitHours.length || hours < TRIBUTE.capHours) break;
+    skipped += TRIBUTE.capHours;
   }
+  const pending = elapsed - skipped;
   const hits = hitHours.length;
   const gold = hits * per.gold;
   const souls = hits * per.souls;
@@ -114,9 +122,9 @@ export function tributePreview(save: MetaSave, kingdom: string, now: number): Tr
     chance,
     ready: gold > 0 || souls > 0 || glory > 0,
     pendingHours: pending,
-    overflowing: pending > TRIBUTE.capHours,
-    capAt: last + TRIBUTE.capHours * HOUR_MS,
-    nextHourAt: last + (pending + 1) * HOUR_MS,
+    overflowing: hits > 0 && pending > TRIBUTE.capHours,
+    capAt: last + (skipped + TRIBUTE.capHours) * HOUR_MS,
+    nextHourAt: last + (elapsed + 1) * HOUR_MS,
   };
 }
 

@@ -8,8 +8,9 @@ declare global {
 
 async function fixture(page: Page): Promise<void> {
   await page.route(/fonts\.(?:googleapis|gstatic)\.com/, route => route.abort());
-  await page.route('**/api/meta/save', async route => {
-    const reply = await page.evaluate(async () => {
+  await page.route(/\/api\/meta\/save(?:\?.*)?$/, async route => {
+    const preservePendingBattle = new URL(route.request().url()).searchParams.get('sync') === '1';
+    const reply = await page.evaluate(async preservePendingBattle => {
       if (!window.giftBackend) {
         const path = '/src/meta/gateway/transport.ts';
         const { LocalTransport, memoryStorage } = await import(/* @vite-ignore */ path);
@@ -22,8 +23,8 @@ async function fixture(page: Page): Promise<void> {
         await backend.send({ type: 'dev.importSave', args: { json: JSON.stringify(save) } });
         window.giftBackend = backend;
       }
-      return window.giftBackend.load();
-    });
+      return window.giftBackend.load({ preservePendingBattle });
+    }, preservePendingBattle);
     await route.fulfill({ json: reply });
   });
 }
@@ -102,6 +103,11 @@ test('failed gift request restores the button and a manual retry succeeds', asyn
 });
 
 test('lost reply after commit resynchronizes without replaying the reward', async ({ page }) => {
+  const saveRequests: string[] = [];
+  page.on('request', request => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/meta/save') saveRequests.push(url.search);
+  });
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await fixture(page);
@@ -121,4 +127,5 @@ test('lost reply after commit resynchronizes without replaying the reward', asyn
   expect(claims).toBe(1);
   expect((await page.evaluate(() => window.giftBackend!.load())).save.currencies.gems).toBe(1000);
   expect(errors).toEqual([]);
+  expect(saveRequests).toEqual(['', '?sync=1']);
 });

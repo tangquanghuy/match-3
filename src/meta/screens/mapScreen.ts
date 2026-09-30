@@ -44,6 +44,7 @@ import {
   specialtyTagHtml,
   STAT_NAME,
   treasuryBodyHtml,
+  tributeCountdown,
   tributeYieldHtml,
 } from './kingdomSheet';
 import KINGDOM_SHEET_CSS from './kingdomSheet.css?inline';
@@ -59,12 +60,6 @@ const HOME_SCALE = 0.78;
 const START_KINGDOM = '破碎尖塔';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
-
-/** 时间戳 → 本地 HH:MM（进贡「下一袋 21:40」「21:40 满」文案用） */
-const clockOf = (ts: number): string => {
-  const d = new Date(ts);
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-};
 
 export interface EventRailStatus {
   claimableActivities: number;
@@ -699,6 +694,12 @@ export class MapScreen implements Screen {
   /** 本次进入地图时刚开放的王国（揭幕动画 + 金色光环） */
   private justOpened = new Set<string>();
   private collectTimer = 0;
+  private tributeTimer = 0;
+  private tributeSnapshot: TributeTreasury | null = null;
+  private tributeRevision = -1;
+  private tributeClockAt = 0;
+  private collectingTribute = false;
+  private mounted = false;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject, AddEventListenerOptions?]> = [];
 
   html(ctx: ShellCtx): string {
@@ -911,6 +912,7 @@ export class MapScreen implements Screen {
     // first so the initial camera uses the real viewport instead of the 1600px design canvas.
     fitStage();
     this.ctx = ctx;
+    this.mounted = true;
     const save = ctx.save();
     this.heroLevel = save.hero.level;
     this.nodes = nodeVms(ctx.gateway);
@@ -921,6 +923,8 @@ export class MapScreen implements Screen {
     if (seen !== save.hero.level) void ctx.gateway.markMapSeen(save.hero.level);
     this.renderNodes(save);
     this.refreshDaily(save, ctx);
+    this.tributeTimer = window.setInterval(() => this.tickTribute(), 1000);
+    this.on(document, 'visibilitychange', () => this.tickTribute());
     this.fog = new MapFog($('#mapFog') as HTMLCanvasElement, MAP_W, MAP_H);
     this.paintFog();
     if (this.justOpened.size) {
@@ -1171,6 +1175,7 @@ export class MapScreen implements Screen {
     const treasury = tributeTreasury(ctx.save(), gameNow());
     $('#treasurySheet').classList.remove('is-collected');
     this.renderTreasury(treasury, false);
+    if (this.collectingTribute) ($('#tributeConfirm') as HTMLButtonElement).disabled = true;
     $('#tributeVeil').hidden = false;
   }
 
@@ -1459,17 +1464,10 @@ export class MapScreen implements Screen {
       winReady ? `${gem}${DAILY_FIRST_WIN_GEMS}` : '✓',
       winReady ? `未领，赢一场得 ${DAILY_FIRST_WIN_GEMS} 宝石` : '今日已领');
 
-    // 进贡：进度条 = 攒得最久的王国已攒小时 / 12；满了变红提示溢出
-    const treasury = tributeTreasury(save, now);
-    const hours = treasury.kingdoms.reduce((m, p) => Math.max(m, p.hours), 0);
-    ($(`#dailyTributeBar`) as HTMLElement).style.width = `${Math.round((hours / TRIBUTE.capHours) * 100)}%`;
-    if (treasury.overflowing) {
-      setDaily('dailyTribute', 'hot', `已满 · ${treasury.readyCount} 国可收`, '已满', `已满，${treasury.readyCount} 国可收`);
-    } else if (treasury.ready) {
-      setDaily('dailyTribute', 'ready', `${treasury.readyCount} 国可收 · ${hours}/${TRIBUTE.capHours} 时`, '可收');
-    } else {
-      setDaily('dailyTribute', 'idle', `累积中 · 下一次 ${clockOf(treasury.nextHourAt)}`, `${hours}/${TRIBUTE.capHours}`);
-    }
+    this.tributeSnapshot = tributeTreasury(save, now);
+    this.tributeRevision = save.revision;
+    this.tributeClockAt = now;
+    this.renderTributeCard(this.tributeSnapshot, now);
 
     if (save.arena.activeDraft) {
       setDaily('dailyArena', 'ready', '比赛进行中', '继续');
@@ -1493,6 +1491,76 @@ export class MapScreen implements Screen {
     $('#kingdomBonusCopy').innerHTML = parts.length ? `王国加成 ${parts.join(' ')}` : '王国加成 · 满级 0';
     $('#kingdomBonusBtn').classList.toggle('zero', parts.length === 0);
     void ctx;
+  }
+
+  private renderTributeCard(treasury: TributeTreasury, now: number): void {
+    const setTribute = (state: string, copy: string, tag: string, label = copy): void => {
+      $('#dailyTribute').dataset.state = state;
+      $('#dailyTributeCopy').textContent = copy;
+      $('#dailyTributeTag').textContent = tag;
+      $('#dailyTributeTag').hidden = false;
+      $('#dailyTribute').setAttribute('aria-label', `进贡：${label}`);
+    };
+    const hours = treasury.kingdoms.reduce((m, p) => Math.max(m, p.hours), 0);
+    ($(`#dailyTributeBar`) as HTMLElement).style.width = `${Math.round((hours / TRIBUTE.capHours) * 100)}%`;
+    if (treasury.ready && treasury.overflowing) {
+      setTribute('hot', `已满 · ${treasury.readyCount} 国可收`, '已满', `已满，${treasury.readyCount} 国可收`);
+    } else if (treasury.ready) {
+      setTribute('ready', `${treasury.readyCount} 国可收 · ${hours}/${TRIBUTE.capHours} 时`, '可收');
+    } else {
+      setTribute('idle', `累积中 · 下一次 ${tributeCountdown(treasury.nextHourAt, now)}`, '累积中');
+    }
+  }
+
+  private renderKingdomTribute(vm: NodeVm): void {
+    const name = vm.view.name;
+    const locked = vm.locked;
+    // 进贡：本国配比 + 库存 + 计时
+    $('#tributeSpecialty').textContent = vm.home ? '主城 ×2' : '';
+    $('#tributeYield').innerHTML = tributeYieldHtml(name, vm.level, vm.home, vm.tributeChance);
+    // 只在有东西可收时显示金额；计时已在上方进度条里
+    const tributeStock = $('#kingdomTribute');
+    tributeStock.hidden = locked || !vm.tributeReady;
+    tributeStock.innerHTML = vm.tributeReady
+      ? `可收 ${currencyList({ gold: vm.tributeGold, souls: vm.tributeSouls, glory: vm.tributeGlory })}`
+      : '';
+    ($('#kingdomCollect') as HTMLButtonElement).disabled = locked;
+    $('#collectLabel').textContent = vm.tributeReady ? '打开宝库收取' : '打开宝库';
+    $('#tributeRow').classList.toggle('over', !locked && vm.tributeOverflowing);
+    $('#tributeFill').style.width = locked ? '0%' : `${Math.min(100, (vm.tributeHours / TRIBUTE.capHours) * 100)}%`;
+    $('#tributeCopy').innerHTML = locked
+      ? '解锁后开始'
+      : vm.tributeOverflowing
+        ? `已攒满 ${TRIBUTE.capHours} 小时`
+        : `已攒 ${vm.tributeHours}/${TRIBUTE.capHours} 小时 · 下一次 <span data-tribute-at="${vm.tributeNextHourAt}">${tributeCountdown(vm.tributeNextHourAt, gameNow())}</span>`;
+    $('#tributeRow').title = locked ? '' : vm.tributeOverflowing ? '已经攒满，再等也不会变多' : `最多攒 ${TRIBUTE.capHours} 小时`;
+  }
+
+  /** 本地时钟更新；只在跨结算点或存档变化时重算收益，不轮询服务器。 */
+  private tickTribute(): void {
+    if (!this.mounted || document.hidden) return;
+    const save = this.ctx.save();
+    const now = gameNow();
+    const changed = !this.tributeSnapshot || this.tributeRevision !== save.revision
+      || now >= this.tributeSnapshot.nextHourAt || now < this.tributeClockAt;
+    const treasury = changed ? tributeTreasury(save, now) : this.tributeSnapshot!;
+    this.tributeSnapshot = treasury;
+    this.tributeRevision = save.revision;
+    this.tributeClockAt = now;
+    this.renderTributeCard(treasury, now);
+    if (changed) {
+      this.nodes = nodeVms(this.ctx.gateway);
+      this.renderNodes(save);
+      const selected = this.nodes.find(n => n.view.name === this.openName);
+      if (selected) this.renderKingdomTribute(selected);
+      if (!$('#kingdomListVeil').hidden) this.renderKingdomList();
+      if (!$('#tributeVeil').hidden && !this.collectingTribute && !$('#treasurySheet').classList.contains('is-collected')) {
+        this.renderTreasury(treasury, false);
+      }
+    }
+    $$('[data-tribute-at]').forEach(el => {
+      el.textContent = tributeCountdown(Number(el.dataset.tributeAt), now);
+    });
   }
 
   // —— 王国弹层 ——
@@ -1560,25 +1628,7 @@ export class MapScreen implements Screen {
     $('#upgradeLabel').textContent = locked ? '王国未解锁' : vm.level >= KINGDOM_MAX_LEVEL ? '已达满级' : `升到 ${vm.level + 1} 级`;
     $('.price', upgradeBtn).hidden = locked || vm.level >= KINGDOM_MAX_LEVEL;
 
-    // 进贡：本国配比 + 库存 + 计时
-    $('#tributeSpecialty').textContent = vm.home ? '主城 ×2' : '';
-    $('#tributeYield').innerHTML = tributeYieldHtml(name, vm.level, vm.home, vm.tributeChance);
-    // 只在有东西可收时显示金额；计时已在上方进度条里
-    const tributeStock = $('#kingdomTribute');
-    tributeStock.hidden = locked || !vm.tributeReady;
-    tributeStock.innerHTML = vm.tributeReady
-      ? `可收 ${currencyList({ gold: vm.tributeGold, souls: vm.tributeSouls, glory: vm.tributeGlory })}`
-      : '';
-    ($('#kingdomCollect') as HTMLButtonElement).disabled = locked;
-    $('#collectLabel').textContent = vm.tributeReady ? '打开宝库收取' : '打开宝库';
-    $('#tributeRow').classList.toggle('over', !locked && vm.tributeOverflowing);
-    $('#tributeFill').style.width = locked ? '0%' : `${Math.min(100, (vm.tributeHours / TRIBUTE.capHours) * 100)}%`;
-    $('#tributeCopy').textContent = locked
-      ? '解锁后开始'
-      : vm.tributeOverflowing
-        ? `已攒满 ${TRIBUTE.capHours} 小时`
-        : `已攒 ${vm.tributeHours}/${TRIBUTE.capHours} 小时 · 下一次 ${clockOf(vm.tributeNextHourAt)}`;
-    $('#tributeRow').title = locked ? '' : vm.tributeOverflowing ? '已经攒满，再等也不会变多' : `最多攒 ${TRIBUTE.capHours} 小时`;
+    this.renderKingdomTribute(vm);
 
     $('#kingdomLockLevel').textContent = `冒险者 Lv.${vm.unlockLevel}`;
     $('#kingdomLockGap').textContent = `还差 ${Math.max(0, vm.unlockLevel - this.heroLevel)} 级`;
@@ -1643,29 +1693,44 @@ export class MapScreen implements Screen {
 
   private async collectAllTribute(ctx: ShellCtx): Promise<void> {
     const btn = $('#tributeConfirm') as HTMLButtonElement;
-    if (btn.disabled || btn.classList.contains('is-done')) return;
+    if (this.collectingTribute || btn.disabled || btn.classList.contains('is-done')) return;
     btn.disabled = true;
     primeTributeChime();
-    const { result } = await ctx.gateway.collectAllTribute();
-    if (!result.ready) {
-      toast('尚无可领取进贡。');
-      this.renderTreasury(result, false);
-      return;
+    this.collectingTribute = true;
+    try {
+      const { result } = await ctx.gateway.collectAllTribute();
+      if (!this.mounted) return;
+      if (!result.ready) {
+        toast('尚无可领取进贡。');
+        this.afterMutation(ctx);
+        this.renderTreasury(tributeTreasury(ctx.save(), gameNow()), false);
+        return;
+      }
+      const t = result.totals;
+      const summary = [
+        t.gold ? `黄金 +${fmt(t.gold)}` : '',
+        t.souls ? `灵魂 +${fmt(t.souls)}` : '',
+        t.glory ? `荣耀 +${fmt(t.glory)}` : '',
+        t.gems ? `宝石 +${fmt(t.gems)}` : '',
+        t.goldKeys ? `金钥匙 +${fmt(t.goldKeys)}` : '',
+      ].filter(Boolean).join('，');
+      this.renderTreasury(result, true);
+      $('#treasurySheet').classList.add('is-collected');
+      playTributeChime(t);
+      toast(`已收取 ${result.readyCount} 国进贡：${summary}`);
+      this.afterMutation(ctx);
+      this.collectTimer = window.setTimeout(() => this.closeTreasury(), 1800);
+    } catch {
+      // 回包丢失时先只读同步，既不重放领奖命令，也不作废后台战斗票。
+      try { await ctx.gateway.sync(); } catch { /* 保留重试入口 */ }
+      if (this.mounted) {
+        this.afterMutation(ctx);
+        this.renderTreasury(tributeTreasury(ctx.save(), gameNow()), false);
+        toast('进贡收取未确认，请查看余额后重试。');
+      }
+    } finally {
+      this.collectingTribute = false;
     }
-    const t = result.totals;
-    const summary = [
-      t.gold ? `黄金 +${fmt(t.gold)}` : '',
-      t.souls ? `灵魂 +${fmt(t.souls)}` : '',
-      t.glory ? `荣耀 +${fmt(t.glory)}` : '',
-      t.gems ? `宝石 +${fmt(t.gems)}` : '',
-      t.goldKeys ? `金钥匙 +${fmt(t.goldKeys)}` : '',
-    ].filter(Boolean).join('，');
-    this.renderTreasury(result, true);
-    $('#treasurySheet').classList.add('is-collected');
-    playTributeChime(t);
-    toast(`已收取 ${result.readyCount} 国进贡：${summary}`);
-    this.afterMutation(ctx);
-    this.collectTimer = window.setTimeout(() => this.closeTreasury(), 1800);
   }
 
   /**
@@ -1855,6 +1920,9 @@ export class MapScreen implements Screen {
     cancelAnimationFrame(this.drag.inertia);
     cancelAnimationFrame(this.labelJob);
     clearTimeout(this.collectTimer);
+    clearInterval(this.tributeTimer);
+    this.mounted = false;
+    this.tributeSnapshot = null;
     this.fog?.dispose();
     this.fog = null;
     for (const [target, type, fn, opts] of this.listeners.splice(0)) {

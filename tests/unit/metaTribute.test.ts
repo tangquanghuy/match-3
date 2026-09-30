@@ -79,14 +79,15 @@ describe('进贡配比（GoW 官方基数 + 设计值）', () => {
 describe('进贡（离线结算）', () => {
   it('预览只读且确定：同参数两次一致；离线 30 小时按 12 小时封顶；产出 = 命中 × 配比', () => {
     const s = save();
+    s.kingdoms[KINGDOM] = { level: 10, questsDone: 0, exploreTier: 0, lastTributeAt: 0 };
     const t30h = 30 * HOUR_MS;
     const a = tributePreview(s, KINGDOM, t30h);
     const b = tributePreview(s, KINGDOM, t30h);
     expect(b).toEqual(a);
     expect(a.hours).toBe(TRIBUTE.capHours);
-    expect(a.hits).toBe(expectHits(KINGDOM, 1, 0, t30h).hits);
+    expect(a.hits).toBe(expectHits(KINGDOM, 10, 0, t30h).hits);
     expect(a.hitHours).toHaveLength(a.hits);
-    const per = tributeYield(KINGDOM, 1);
+    const per = tributeYield(KINGDOM, 10);
     expect(a.gold).toBe(a.hits * per.gold);
     expect(a.souls).toBe(a.hits * per.souls);
     expect(a.glory).toBe(a.hits * per.glory);
@@ -96,6 +97,7 @@ describe('进贡（离线结算）', () => {
 
   it('M-4/M-10 口径：ready 只看产出；满溢与下一袋时刻可算', () => {
     const s = save();
+    s.kingdoms[KINGDOM] = { level: 10, questsDone: 0, exploreTier: 0, lastTributeAt: 0 };
     const atCap = tributePreview(s, KINGDOM, TRIBUTE.capHours * HOUR_MS);
     expect(atCap.hours).toBe(TRIBUTE.capHours);
     expect(atCap.pendingHours).toBe(TRIBUTE.capHours);

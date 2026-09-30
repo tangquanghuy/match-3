@@ -13,13 +13,14 @@ import { MetaHost, type MetaHostOptions } from '../server/host';
 import { LocalSaveRepository } from '../server/localRepository';
 import { defaultEnv, type ServerEnv } from '../server/env';
 import type { FreshSaveKind } from '../server/core';
-import type { CommandReply, CommandType, LoadReply, MetaCommand } from '../server/protocol';
+import type { CommandReply, CommandType, LoadReply, SaveLoadOptions, MetaCommand } from '../server/protocol';
 
 export interface MetaTransport {
   readonly kind: 'local' | 'remote';
   /** 是否提供开发者命令 */
   readonly allowDev: boolean;
-  load(): Promise<LoadReply>;
+  /** 默认是页面刷新；内部同步必须显式保留正在进行的战斗。 */
+  load(options?: SaveLoadOptions): Promise<LoadReply>;
   send<K extends CommandType>(command: MetaCommand<K>): Promise<CommandReply<K>>;
 }
 
@@ -74,8 +75,8 @@ export class LocalTransport implements MetaTransport {
     return this.host.flush();
   }
 
-  async load(): Promise<LoadReply> {
-    return wire(await this.host.load());
+  async load(options: SaveLoadOptions = {}): Promise<LoadReply> {
+    return wire(await this.host.load(options));
   }
 
   async send<K extends CommandType>(command: MetaCommand<K>): Promise<CommandReply<K>> {
@@ -106,8 +107,8 @@ export class HttpTransport implements MetaTransport {
     private readonly fetchImpl: typeof fetch = (...args) => fetch(...args),
   ) {}
 
-  load(): Promise<LoadReply> {
-    return this.request<LoadReply>('GET', '/save');
+  load(options: SaveLoadOptions = {}): Promise<LoadReply> {
+    return this.request<LoadReply>('GET', options.preservePendingBattle ? '/save?sync=1' : '/save');
   }
 
   send<K extends CommandType>(command: MetaCommand<K>): Promise<CommandReply<K>> {

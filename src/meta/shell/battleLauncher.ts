@@ -41,6 +41,8 @@ function sourceLabelOf(source: EncounterSource): string {
 
 export class BattleLauncher {
   private running = false;
+  /** 在发出签票/难度保存请求前占位，慢网连点也只接受一次出战。 */
+  private launching = false;
 
   constructor(
     private readonly root: HTMLElement,
@@ -49,24 +51,23 @@ export class BattleLauncher {
 
   /** 任务关出战 */
   async launchQuest(kingdom: string, node: number): Promise<void> {
-    await this.launch(this.ctx.gateway.planQuestBattle(kingdom, node));
+    await this.launch(() => this.ctx.gateway.planQuestBattle(kingdom, node));
   }
 
   /** Hard / Very Hard 出战；传入 tier 时先写入存档再开战 */
   async launchExplore(kingdom: string, tier?: number): Promise<void> {
-    if (tier != null) {
-      const { result } = await this.ctx.gateway.setKingdomExploreTier(kingdom, tier);
-      if (isFailure(result)) {
-        toast(result.message);
-        return;
+    await this.launch(async () => {
+      if (tier != null) {
+        const { result } = await this.ctx.gateway.setKingdomExploreTier(kingdom, tier);
+        if (isFailure(result)) return result;
       }
-    }
-    await this.launch(this.ctx.gateway.planExploreBattle(kingdom));
+      return this.ctx.gateway.planExploreBattle(kingdom);
+    });
   }
 
   /** 竞技场连战出战（对手按 draft seed 计划） */
   async launchArenaBattle(): Promise<void> {
-    await this.launch(this.ctx.gateway.planArenaBattle());
+    await this.launch(() => this.ctx.gateway.planArenaBattle());
   }
 
   /** 当前活动页出战（结算行含该活动积分/里程碑素材）。 */
@@ -77,29 +78,39 @@ export class BattleLauncher {
       toast('请先选择活动');
       return;
     }
-    await this.launch(this.ctx.gateway.planEventBattle(typeId, choice));
+    await this.launch(() => this.ctx.gateway.planEventBattle(typeId, choice));
   }
 
   /** 新手引导试炼战：按起始王国第 1 关结算，结算屏返回世界地图 */
   async launchTutorialBattle(): Promise<void> {
-    await this.launch(this.ctx.gateway.planTutorialBattle());
+    await this.launch(() => this.ctx.gateway.planTutorialBattle());
   }
 
   /** 入侵出战（mirrorId = 候选对手） */
   async launchInvasionBattle(mirrorId: string): Promise<void> {
-    await this.launch(this.ctx.gateway.planInvasionBattle(mirrorId));
+    await this.launch(() => this.ctx.gateway.planInvasionBattle(mirrorId));
   }
 
-  private async launch(pending: Promise<BattleTicket | MetaFailure>): Promise<void> {
-    // 触屏设备：借「出战」这次点击的用户手势自动进全屏（浏览器只允许手势内请求）。
-    // 必须在任何 await 之前调用；iPhone Safari 不支持网页全屏，此时静默跳过。
-    enterTouchFullscreen();
-    const ticket = await pending;
-    if (isFailure(ticket)) {
-      toast(ticket.message);
-      return;
+  private async launch(request: () => Promise<BattleTicket | MetaFailure>): Promise<void> {
+    // 先挡住重复操作，再创建网络请求。仅在 run() 挡住渲染为时已晚：
+    // 多发的一次 plan 会在服务端作废正在屏幕上进行的战斗票。
+    if (this.launching || this.running) return;
+    this.launching = true;
+    try {
+      // 保留点击手势内请求全屏的时机，不等签票回包。
+      enterTouchFullscreen();
+      const ticket = await request();
+      if (isFailure(ticket)) {
+        toast(ticket.message);
+        return;
+      }
+      await this.run(ticket);
+    } catch (error: unknown) {
+      this.running = false;
+      toast('战斗启动失败：' + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      this.launching = false;
     }
-    await this.run(ticket);
   }
 
   private async run(ticket: BattleTicket): Promise<void> {

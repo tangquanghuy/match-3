@@ -140,7 +140,7 @@ export class CharacterScreen implements Screen {
       void ctx.gateway.createCharacter({ gender, portrait }).then(async ({ result }) => {
         if (!alive()) return;
         if (!result.ok) {
-          if (result.code === 'ALREADY_UNLOCKED') { await ctx.gateway.load(); ctx.navigate('#map'); return; }
+          if (result.code === 'ALREADY_UNLOCKED') { await ctx.gateway.sync(); ctx.navigate('#map'); return; }
           throw new Error(result.message);
         }
         ctx.navigate('#map');

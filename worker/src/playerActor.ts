@@ -60,8 +60,8 @@ export class PlayerActor extends DurableObject<Env> {
     );
   }
 
-  load(): Promise<LoadReply> {
-    return this.host.load();
+  load(preservePendingBattle = false): Promise<LoadReply> {
+    return this.host.load({ preservePendingBattle });
   }
 
   async execute(command: MetaCommand, playerId?: string, accountName?: string): Promise<CommandReply | { rateLimited: true }> {

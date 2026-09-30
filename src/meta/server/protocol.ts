@@ -32,6 +32,11 @@ import type { ArenaRewards } from '../data/economy';
 // 载荷与结果形状
 // ---------------------------------------------------------------------------
 
+/** 页面启动默认放弃旧战斗；命令回执的存档序号重同步仅取快照，不改变战斗票。 */
+export interface SaveLoadOptions {
+  preservePendingBattle?: boolean;
+}
+
 /** 预设队写入载荷（与 teamRules.setTeamPreset 对齐） */
 export interface TeamInput {
   name: string;

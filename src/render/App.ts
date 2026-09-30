@@ -869,6 +869,10 @@ export class App {
     if (this.destroyed) return;
     this.destroyed = true;
     this.clearPortraitSubtitleAnchor();
+    // Stop pointer-follow and idle/hint loops before restoring global speed or
+    // destroying Pixi transforms. Old battles must leave no runnable callbacks.
+    this.input?.destroy();
+    this.stopIdle();
     this.audioLifecycle.abort();
     this.battleSettings?.dispose();
     this.player?.cancel();
@@ -883,6 +887,7 @@ export class App {
     if (this.hintTimer !== null) clearTimeout(this.hintTimer);
     if (this.turnHudComboTimer !== null) clearTimeout(this.turnHudComboTimer);
     this.disposeUnitSheetAndCutIn();
+    this.stormIndicator.destroy();
     this.branchPicker.cancel();
     for (const tween of this.hintTweens) tween.kill();
     for (const animation of this.turnHudAnimations) animation.cancel();

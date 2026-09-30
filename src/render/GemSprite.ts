@@ -1,4 +1,5 @@
-import { Container, Sprite } from 'pixi.js';
+import { Container, Sprite, type DestroyOptions } from 'pixi.js';
+import { gsap } from 'gsap';
 import { BaseColor } from '@engine/types';
 import type { GemType, SpecialGemKind } from '@engine/types';
 import { isStatusGemKind } from '@engine/types';
@@ -94,12 +95,30 @@ export class GemSprite extends Container {
     this.addChild(this.spr);
   }
 
+  private clearStatusOverlay(): void {
+    disposeStatusGemOverlay(this.statusOverlay);
+    this.statusOverlay = null;
+  }
+
+  /** 对象池回收/复用与最终销毁共用，包含子级状态粒子的循环。 */
+  stopAnimations(): void {
+    gsap.killTweensOf(this);
+    gsap.killTweensOf(this.scale);
+    this.clearStatusOverlay();
+  }
+
+  override destroy(options?: DestroyOptions): void {
+    if (this.destroyed) return;
+    // Pixi 销毁 transform 前先停补间，下一帧不得再访问已清空的位置/缩放。
+    this.stopAnimations();
+    super.destroy(options);
+  }
+
   /** 根据宝石类型换贴图 */
   setType(gemId: number, type: GemType): void {
     this.gemId = gemId;
     // 旧状态叠层先销毁（对象池复用时残留的补间/图层不能带到新宝石上）
-    disposeStatusGemOverlay(this.statusOverlay);
-    this.statusOverlay = null;
+    this.clearStatusOverlay();
 
     const tex = textureFor(type);
     this.spr.texture = tex;

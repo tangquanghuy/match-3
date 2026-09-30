@@ -115,9 +115,12 @@ export function pickDraftCard(save: MetaSave, troopId: number): { ok: true; pick
   return { ok: true, picked: [...draft.picked] };
 }
 
-/** 编队阶段：调整 4 张 draft 卡的站位顺序（队首吃骷髅） */
+/** 首场前及场间可调整站位；fighting 是整届连战阶段，单场是否在打由票据判断。 */
 export function arrangeArenaTeam(save: MetaSave, order: number[]): { ok: true; picked: number[] } | MetaFailure {
-  const draft = requireDraft(save, 'building');
+  const draft = save.arena.activeDraft;
+  if (!draft) return fail('INVALID', '没有进行中的现开赛');
+  if (draft.stage !== 'building' && draft.stage !== 'fighting') return fail('INVALID', '请先完成四轮选牌');
+  if (save.pendingBattle?.mode === 'arena') return fail('INVALID', '本场战斗尚未结算，请结算后调整站位');
   if (order.length !== draft.picked.length) return fail('INVALID', '站位数量与 draft 卡数不符');
   const remaining = new Set(draft.picked);
   for (const id of order) {

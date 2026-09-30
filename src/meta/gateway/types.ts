@@ -78,8 +78,10 @@ export interface MetaGateway {
   /** 开发者工具；远端后端为 null（屏层据此隐藏相关入口） */
   readonly dev: MetaDevTools | null;
 
-  /** 启动加载 */
+  /** 页面启动加载：放弃上一页面遗留的未结算战斗。 */
   load(): Promise<GatewaySnapshot>;
+  /** 当前页面内恢复/同步数据：保留战斗票，旧快照也不回退副本。 */
+  sync(): Promise<GatewaySnapshot>;
   /** 当前权威存档的客户端副本（load 后可读；屏层渲染视图用，改它不影响权威状态） */
   current(): MetaSave;
   /** 按服务器时刻校准过的「现在」（视图倒计时/日界判定用） */

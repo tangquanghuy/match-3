@@ -112,6 +112,12 @@ const clock = (ts: number): string => {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
+/** 剩余时间而非墙上时钟；午夜结算应显示剩余分钟，不是 00:00。 */
+export function tributeCountdown(at: number, now: number): string {
+  const seconds = Math.max(0, Math.ceil((at - now) / 1000));
+  return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
 /** 宝库总览：大额合计 + 多国同进贡加成 + 逐国明细 */
 export function treasuryBodyHtml(t: TributeTreasury, now: number): string {
   const totals = t.totals;
@@ -134,7 +140,6 @@ export function treasuryBodyHtml(t: TributeTreasury, now: number): string {
         <span class="tr-row-gain">${currencyList({ gold: p.gold, souls: p.souls, glory: p.glory })}</span>
       </li>`)
     .join('');
-  void now;
   return `
     <div class="tr-totals">${bigTotals}</div>
     ${bonusRows ? `<section class="tr-block">
@@ -143,7 +148,7 @@ export function treasuryBodyHtml(t: TributeTreasury, now: number): string {
     </section>` : ''}
     <section class="tr-block">
       <header><b>进贡王国 · ${ready.length}</b></header>
-      <ul class="tr-rows">${kingdomRows || `<li class="tr-bonus-empty">下一次进贡 ${clock(t.nextHourAt)}</li>`}</ul>
+      <ul class="tr-rows">${kingdomRows || `<li class="tr-bonus-empty">下一次进贡 <span data-tribute-at="${t.nextHourAt}">${tributeCountdown(t.nextHourAt, now)}</span></li>`}</ul>
     </section>`;
 }
 

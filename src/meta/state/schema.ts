@@ -293,7 +293,7 @@ export interface MetaSave {
    * 因此 systems 需要「现在」时可读它（如抽卡日志），不必自取时钟。
    */
   savedAt: number;
-  /** 乐观锁版本号：每提交一条命令 +1（D1 用 `UPDATE … WHERE revision = ?` 防多端互相覆盖） */
+  /** 存档数据修订序号（不是程序发布版本）：每成功提交一条命令 +1（D1 用 `UPDATE … WHERE revision = ?` 防多端互相覆盖） */
   revision: number;
   /** 待结算战斗（null = 没有进行中的战斗） */
   pendingBattle: PendingBattle | null;

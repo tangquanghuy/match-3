@@ -40,6 +40,16 @@ export class CommandGateway implements MetaGateway {
     return { save: reply.save, fresh: reply.fresh, warning: reply.warning };
   }
 
+  /** 操作回执/网络恢复用的只读同步，与页面启动时放弃旧战斗分开。 */
+  async sync(): Promise<GatewaySnapshot> {
+    const reply = await this.transport.load({ preservePendingBattle: true });
+    if (!this.save || reply.save.revision >= this.save.revision) {
+      this.save = reply.save;
+      this.calibrate(reply.serverNow);
+    }
+    return { save: this.current(), fresh: reply.fresh, warning: reply.warning };
+  }
+
   current(): MetaSave {
     if (!this.save) throw new Error('Meta 网关尚未 load()');
     return this.save;
@@ -161,9 +171,14 @@ export class CommandGateway implements MetaGateway {
     this.calibrate(reply.serverNow);
     if (reply.patch) {
       const save = this.current();
-      // 副本版本对不上（另一个标签页/设备写过）：整份重同步，不硬套增量
-      if (reply.patch.from !== save.revision) await this.load();
-      else applyPatch(save, reply.patch);
+      // 晚到的旧回执已被更新的快照覆盖，不回退副本，也不触发刷新判负。
+      if (reply.patch.to > save.revision) {
+        if (reply.patch.from === save.revision) applyPatch(save, reply.patch);
+        else {
+          // 只读取权威快照；load() 的页面刷新语义会作废正在进行的战斗。
+          await this.sync();
+        }
+      }
     }
     return { result: reply.result, save: this.current() };
   }
