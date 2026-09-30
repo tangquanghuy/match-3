@@ -106,7 +106,7 @@ export function recommendWishlist(save: MetaSave): number[] {
   }
   kingdoms.forEach((k, i) => { cap[4 + i]![sink] = RULES.perKingdom - ids.filter((id) => wishlistKingdom(getTroopById(id)!) === k).length; });
   const original = cap.map((row) => [...row]);
-  while (true) {
+  for (;;) {
     const parent = Array<number>(size).fill(-1); parent[source] = source;
     const queue = [source];
     for (let q = 0; q < queue.length && parent[sink] === -1; q++) {

@@ -1,3 +1,13 @@
+interface Observation {
+  seed: number;
+  observed?: boolean;
+  errors: string[];
+  status: string;
+  eventTypes?: string[];
+  eventCount?: number;
+  presentation?: ReturnType<typeof planPresentation>;
+  finalState?: ReturnType<typeof traitFixture>['state']['state'];
+}
 // @ts-expect-error node types are not installed in this browser project
 import fs from 'node:fs';
 import { it, expect } from 'vitest';
@@ -10,7 +20,7 @@ import { planPresentation } from '../helpers/presentationBudget';
 it('executes every troop x trait mechanism, with individual natural-seed observation and event contracts', () => {
  const rows=TRAIT_HOLDER_CASES.map(c=>{
   const attempts: {seed:number;observed:boolean}[]=[];
-  let chosen:any;
+  let chosen: (typeof c & Observation) | undefined;
   for(const seed of [42,1,2,3,4,5,7,9,13,17,23,31,47,61,79,97]){
    try{
     const f=traitFixture(c,seed),control=traitFixture(c,seed,true);
@@ -25,7 +35,8 @@ it('executes every troop x trait mechanism, with individual natural-seed observa
     if(observed||['mode-unwired','unmapped'].includes(c.scenario))break;
    }catch(e){chosen={...c,seed,observed:false,status:'fixture-error',errors:[String(e)]};break;}
   }
-  return {...chosen,attempts,name:getTrait(c.code)?.name,description:getTrait(c.code)?.description,users:[c.troopId]};
+  if (!chosen) throw new Error('No trait fixture was executed');
+      return {...chosen,attempts,name:getTrait(c.code)?.name,description:getTrait(c.code)?.description,users:[c.troopId]};
  });
  const report={generatedAt:new Date().toISOString(),scope:'Every troop holding every referenced mechanism gets its own key, natural-seed/control fixture and browser review item. Fixture stats/colors/types are targeted preconditions, not ordinary balance or co-trigger semantic approval.',
   summary:{troops:new Set(rows.map(r=>r.troopId)).size,traits:new Set(rows.map(r=>r.code)).size,mechanisms:TRAIT_CASES.length,contexts:rows.length,

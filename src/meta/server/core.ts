@@ -376,9 +376,9 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (save.onboarding.step !== 'battle') return done(fail('INVALID', '新手试炼已完成'));
       const outcome = buildBattleRequest(save, planTutorialEncounter(STARTING_KINGDOM, env.seed()));
       if (outcome.ok) {
-        // 新手试炼：敌人血厚攻低——战斗有一定长度，又不会被打死
+        // 新手试炼：生命仅增至 1.2 倍，保留低攻击配置
         for (const enemy of outcome.request.enemyTeam) {
-          enemy.stats.hp = Math.max(1, Math.ceil(enemy.stats.hp * 1.8));
+          enemy.stats.hp = Math.max(1, Math.ceil(enemy.stats.hp * 1.2));
           enemy.stats.attack = Math.max(1, Math.floor(enemy.stats.attack * 0.35));
         }
       }

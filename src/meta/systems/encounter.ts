@@ -116,13 +116,14 @@ export function pickEnemies(
   });
 }
 
-/** 新手引导试炼战：起始王国第 1 关、三名 Lv.3 敌人，无特质（请求层再调成血厚攻低） */
+/** 新手试炼固定队序：堡垒大门、食人魔、火枪手、女祭司；Lv.3、无特质。 */
+export const TUTORIAL_ENEMY_IDS = [6097, 6000, 6004, 6028] as const;
 export function planTutorialEncounter(kingdom: string, seed: number): EncounterPlan {
   return {
     kingdom,
     source: { kind: 'quest', node: 1, tutorial: true },
     seed: seed >>> 0,
-    enemies: pickEnemies(kingdom, 3, ['minion', 'elite', 'minion'], new SeededRNG(seed)).map((e) => ({ ...e, traitCount: 0 })),
+    enemies: TUTORIAL_ENEMY_IDS.map((troopId) => ({ troopId, level: 3, tier: 'minion', traitCount: 0 })),
   };
 }
 

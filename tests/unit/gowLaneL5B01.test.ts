@@ -1,3 +1,4 @@
+import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B01, reviewer sa-L5.
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Tests named "REPRO L5-xxx" document current runtime behaviour for an issue
@@ -37,9 +38,9 @@ function setup(o:Opts){
  f.state.teams[o.side].characters=mine;f.state.teams[other].characters=f.enemies;f.state.activePlayer=o.side;
  const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);engine.skullChance=0;
  engine.setTargetChooser(new FixedTargetChooser(o.chosen));
- return {...f,allies,mine,engine,other,cast:()=>engine.castSkill(f.caster.id) as any[]};
+ return {...f,allies,mine,engine,other,cast:()=>engine.castSkill(f.caster.id)};
 }
-const ids=(ev:any[],type:string,status?:string)=>ev.filter(e=>e.type===type&&(status===undefined||e.statusId===status)).map(e=>e.targetId);
+const ids=(ev:GameEvent[],type:string,status?:string)=>ev.filter(e=>e.type===type&&(status===undefined||('statusId' in e&&e.statusId===status))).map(e=>'targetId' in e?e.targetId:undefined);
 const has=(c:Character,id:string)=>c.statuses.some(s=>s.id===id&&s.turns>0);
 const SIDES=[PlayerSide.Left,PlayerSide.Right];
 
@@ -150,7 +151,7 @@ describe('L5 weapon:1368 / spell:8403 self Barrier, Magic+3 to chosen enemy, Sil
   expect(ids(ev,'status-apply','barrier')).toEqual([0]);expect(has(f.caster,'barrier')).toBe(true);
   expect(f.allies[0].statuses).toEqual([]);
   expect(f.enemies.map(e=>1000-e.hp)).toEqual([0,0,magic+3,0]);
-  expect(ev.filter(e=>e.type==='status-apply'&&e.statusId==='silence').map(e=>[e.targetId,e.turns])).toEqual([[12,3]]);
+  expect(ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId==='silence').map(e=>[e.targetId,e.turns])).toEqual([[12,3]]);
   // the opponent's turn start ticks immediately after the cast: R004 no countdown, recovery roll failed (10 -> 20)
   expect(f.enemies[2].statuses.map(s=>[s.id,s.turns,s.recoveryChance])).toEqual([['silence',3,20]]);
   expect(f.enemies.filter((_,i)=>i!==2).every(e=>e.statuses.length===0)).toBe(true);
@@ -178,7 +179,7 @@ describe('L5 weapon:1368 / spell:8403 self Barrier, Magic+3 to chosen enemy, Sil
   expect(f.enemies[2].hp).toBe(988);expect(ids(ev,'status-apply','silence')).toEqual([]);expect(has(f.enemies[2],'silence')).toBe(false);
   const g=setup({skill:'8403',cost:COST,colors:COLORS,side:PlayerSide.Left,magic:9,chosen:12});
   g.enemies[2].statuses=[{id:'silence',turns:1}];const gev=g.cast();
-  expect(gev.filter(e=>e.type==='status-apply'&&e.statusId==='silence').map(e=>e.turns)).toEqual([3]);
+  expect(gev.filter(e=>e.type==='status-apply').filter(e=>e.statusId==='silence').map(e=>e.turns)).toEqual([3]);
   expect(g.enemies[2].statuses.map(s=>[s.id,s.turns,s.recoveryChance])).toEqual([['silence',3,20]]);
  });
  it('FIXED L5-005 (R004): Silence has no 3-turn cap; it ends only on the cumulative self-cleanse roll',()=>{
@@ -350,7 +351,7 @@ describe('L5 weapon:1369 / spell:8404 self Barrier, ally Gain 1.5M+1 Life, Clean
   expect(f.allies[0].statuses).toEqual([{id:'enchanted',turns:3}]);
   expect(ev.filter(e=>e.type==='status-cleanse').map(e=>[e.targetId,e.statusIds])).toEqual([[1,['poison','silence']]]);
   expect(f.allies[1].statuses).toEqual([]);expect(f.enemies.every(e=>e.statuses.length===0&&e.hp===1000)).toBe(true);
-  const order=ev.filter(e=>['status-apply','buff','status-cleanse'].includes(e.type)).map(e=>e.type==='buff'?'life':e.type==='status-cleanse'?'cleanse':e.statusId);
+  const order=ev.filter(e=>e.type==='status-apply'||e.type==='buff'||e.type==='status-cleanse').map(e=>e.type==='buff'?'life':e.type==='status-cleanse'?'cleanse':e.statusId);
   expect(order).toEqual(['barrier','life','cleanse','enchanted']);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
  });

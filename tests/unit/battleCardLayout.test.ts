@@ -29,7 +29,11 @@ describe('battle portrait card layout', () => {
     setTeamSize(4, 512);
     try {
       for (const side of [PlayerSide.Left, PlayerSide.Right]) {
-        const view: any = Object.create(TeamView.prototype);
+        const view = Object.create(TeamView.prototype) as {
+          side:PlayerSide;el:{style:Record<string,string>};mounted:boolean;
+          cards:Map<number,{resize:ReturnType<typeof vi.fn>}>;
+          mount(parent:{appendChild:ReturnType<typeof vi.fn>},x:number,y:number):void;applyLayout():void;
+        };
         view.side = side; view.el = { style: {} }; view.mounted = false;
         view.cards = new Map([1,2,3,4].map(id => [id, { resize: vi.fn() }]));
         const parent = { appendChild: vi.fn() };

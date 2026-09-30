@@ -7,12 +7,23 @@ import {describe,it,expect} from 'vitest';
 import {assessWholeSkillReview,assessCompactSignoff,applyWholeSkillReviews,reviewSourceDigest,nativeBranchKeys} from '../../scripts/lib/gow-whole-skill-reviews.mjs';
 // @ts-expect-error Node audit dimensions
 import {AUDIT_DIMENSIONS} from '../../scripts/lib/gow-skill-audit.mjs';
+interface ReviewPart {
+ id?: string; status: string; note: string; evidenceIds: string[]; tests: string[];
+ realBattleEntry?: boolean; exclusion?: { kind: string; mode?:string };
+}
+interface ReviewFixture {
+ key: string; scope: string; sourceDigest: string; reviewer: string; reviewedAt: string; decision: string;
+ sourceEvidence: {id:string;role:string;path:string;sha256?:string;note:string}[];
+ dimensions: Record<string, ReviewPart>;
+ clauseReviews: ReviewPart[]; nativeStepReviews: ReviewPart[]; branchReviews: ReviewPart[];
+}
 function fixture(){
- const row:any={key:'troop:1',spellId:7001,status:'pending-review',sourceStatus:'native-and-english-snapshot',source:{englishDescription:'Deal damage.',native:{SpellSteps:[{Type:'Damage'}]}},runtime:{manaCost:6,prototype:{segments:[]}},bindingChecks:{binding:true},sourceClauses:[{id:'c1',text:'Deal damage.'}],confirmedDifferences:[],acceptance:{accepted:false}};
+ const row={key:'troop:1',spellId:7001,status:'pending-review',sourceStatus:'native-and-english-snapshot',source:{englishDescription:'Deal damage.',native:{SpellSteps:[{Type:'Damage'}] as Record<string,unknown>[],Randomize:undefined as string|undefined}},runtime:{manaCost:6,prototype:{segments:[]}},bindingChecks:{binding:true},sourceClauses:[{id:'c1',text:'Deal damage.'}],confirmedDifferences:[] as {id:string}[],acceptance:{accepted:false,waived:undefined as {part:string;id:string;mode:string;note:string}[]|undefined},wholeSkillReview:undefined as {failures:string[]}|undefined};
  const data='synthetic independent fixture, not production evidence';const hash=createHash('sha256').update(data).digest('hex');
  const entry={status:'verified',note:'Explicit synthetic gate test',evidenceIds:['en','native','rule'],tests:['tests/unit/fixture.test.ts']};
- const review:any={key:row.key,scope:'stored-gow-snapshot',sourceDigest:reviewSourceDigest(row),reviewer:'gate-test',reviewedAt:'2026-09-26',decision:'accept',sourceEvidence:[['en','english-snapshot'],['native','native-snapshot'],['rule','official-shared-rule']].map(([id,role])=>({id,role,path:`fixture/${id}`,sha256:hash,note:'Synthetic fixture only'})),dimensions:Object.fromEntries(AUDIT_DIMENSIONS.map((d:string)=>[d,{...entry,...(d==='battle-pipeline'?{realBattleEntry:true}:{})}])),clauseReviews:[{id:'c1',...entry}],nativeStepReviews:[{id:'0',...entry}],branchReviews:[{id:'main',...entry}]};
- const opts:any={fingerprint:'current',receipt:{fingerprint:'current',testExitCode:0,typecheckExitCode:0,passed:1,failed:0,suites:[{path:'tests/unit/fixture.test.ts',status:'passed',passed:1,failed:0}]},readEvidence:()=>data};
+ const review:ReviewFixture={key:row.key,scope:'stored-gow-snapshot',sourceDigest:reviewSourceDigest(row),reviewer:'gate-test',reviewedAt:'2026-09-26',decision:'accept',sourceEvidence:[['en','english-snapshot'],['native','native-snapshot'],['rule','official-shared-rule']].map(([id,role])=>({id,role,path:`fixture/${id}`,sha256:hash,note:'Synthetic fixture only'})),dimensions:Object.fromEntries(AUDIT_DIMENSIONS.map((d:string)=>[d,{...entry,...(d==='battle-pipeline'?{realBattleEntry:true}:{})}])),clauseReviews:[{id:'c1',...entry}],nativeStepReviews:[{id:'0',...entry}],branchReviews:[{id:'main',...entry}]};
+ const receipt={fingerprint:'current',testExitCode:0,typecheckExitCode:0,passed:1,failed:0,suites:[{path:'tests/unit/fixture.test.ts',status:'passed',passed:1,failed:0}]};
+ const opts={fingerprint:'current',receipt:receipt as typeof receipt|null,readEvidence:()=>data};
  return {row,review,opts};
 }
 describe('explicit whole-skill signoff, never compiler/scoped default pass',()=>{
@@ -37,11 +48,11 @@ describe('explicit whole-skill signoff, never compiler/scoped default pass',()=>
   (f:ReturnType<typeof fixture>)=>f.row.confirmedDifferences=[{id:'unresolved'}],
   (f:ReturnType<typeof fixture>)=>f.row.sourceStatus='english-snapshot-only',
   (f:ReturnType<typeof fixture>)=>f.opts.receipt=null,
-  (f:ReturnType<typeof fixture>)=>f.opts.receipt.fingerprint='outdated',
-  (f:ReturnType<typeof fixture>)=>f.opts.receipt.testExitCode=1,
-  (f:ReturnType<typeof fixture>)=>f.opts.receipt.typecheckExitCode=1,
-  (f:ReturnType<typeof fixture>)=>f.opts.receipt.failed=1,
-  (f:ReturnType<typeof fixture>)=>f.opts.receipt.suites[0].status='failed',
+  (f:ReturnType<typeof fixture>)=>f.opts.receipt!.fingerprint='outdated',
+  (f:ReturnType<typeof fixture>)=>f.opts.receipt!.testExitCode=1,
+  (f:ReturnType<typeof fixture>)=>f.opts.receipt!.typecheckExitCode=1,
+  (f:ReturnType<typeof fixture>)=>f.opts.receipt!.failed=1,
+  (f:ReturnType<typeof fixture>)=>f.opts.receipt!.suites[0].status='failed',
   (f:ReturnType<typeof fixture>)=>f.opts.readEvidence=()=>{throw new Error('missing');},
   (f:ReturnType<typeof fixture>)=>f.row.runtime.manaCost=99,
   (f:ReturnType<typeof fixture>)=>f.row.source.native.SpellSteps.push({Type:'CauseBurning'}),
@@ -52,7 +63,7 @@ describe('explicit whole-skill signoff, never compiler/scoped default pass',()=>
   applyWholeSkillReviews([f.row],{...f.opts,reviews:[f.review]});expect(f.row.acceptance.accepted).toBe(false);
  });
  it('duplicate review keys never accept by choosing a convenient record',()=>{
-  const f=fixture();applyWholeSkillReviews([f.row],{...f.opts,reviews:[f.review,f.review]});expect(f.row.wholeSkillReview.failures).toContain('duplicate-review-key');expect(f.row.acceptance.accepted).toBe(false);
+  const f=fixture();applyWholeSkillReviews([f.row],{...f.opts,reviews:[f.review,f.review]});expect(f.row.wholeSkillReview!.failures).toContain('duplicate-review-key');expect(f.row.acceptance.accepted).toBe(false);
  });
  it('native choice/random branches must all be reviewed separately',()=>{
   const f=fixture();f.row.source.native.Randomize='Choose:ABC-DEF';expect(nativeBranchKeys(f.row)).toEqual(['ABC','DEF']);

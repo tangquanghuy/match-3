@@ -12,7 +12,8 @@ import type { ImpactPresentation } from './impactPlayback';
 import type { ClearEvent } from './clearEventBatches';
 import { computeManaPlaybackBatches, computeManaSources, manaFlowDuration } from './manaPlayback';
 import type { ManaOriginRef, ManaPlaybackBatch } from './manaPlayback';
-import type { CellPos } from '@engine/types';
+import { DOOMSKULL_BONUS_DAMAGE, UBER_DOOMSKULL_BONUS_DAMAGE } from '@engine/types';
+import type { CellPos, PlayerSide } from '@engine/types';
 import { BoardView } from './BoardView';
 import { FXLayer, screenShake } from './FXLayer';
 import { AnimConfig, fallDuration } from './AnimationConfig';
@@ -115,6 +116,8 @@ export class EventStreamPlayer {
   onManaFlow: ((ev: Extract<GameEvent, { type: 'mana-gain' }>, origins: BoardPoint[]) => void) | null = null;
   /** Fired for cascade levels 2+ and once more when an extra action is awarded. */
   onComboPulse: ((level: number) => void) | null = null;
+  onMatchExtraTurn?: (side: PlayerSide) => void;
+  onSkullMatchBonus?: (pos: CellPos, bonus: number) => void;
   /**
    * 风暴演出回调（storm-change，阶段 2）：App 负责顶部指示器的弹入/淡出与
    * 对应色一次性爆发 FX；召唤音效由本类按 stormChangePlan 在同一时间点播放。
@@ -916,6 +919,7 @@ export class EventStreamPlayer {
     tl.add(() => {
       // Multiple match groups can share one cascade level; play one suite step only.
       if (isLead) this.audio.playChain(chain);
+      if (ev.extraTurnPlayer !== undefined) this.onMatchExtraTurn?.(ev.extraTurnPlayer);
       // 每个连锁等级仅触发一次震动 + 飘字（需求 19.5），避免叠加糊成一团
       if (chain > 1 && isLead) {
         this.onComboPulse?.(chain);
@@ -928,6 +932,13 @@ export class EventStreamPlayer {
         const { x, y } = this.center(cell.pos);
         this.manaOriginCache.set(cell.gemId, sprite ? { x: sprite.x, y: sprite.y } : { x, y });
         const col = colorOf(cell.gemType);
+        if (cell.gemType.kind === 'special') {
+          const kind = cell.gemType.spec.kind;
+          if (kind === 'doomSkull' || kind === 'uberDoomSkull') {
+            this.onSkullMatchBonus?.(cell.pos, kind === 'doomSkull'
+              ? DOOMSKULL_BONUS_DAMAGE : UBER_DOOMSKULL_BONUS_DAMAGE);
+          }
+        }
         // 粒子/闪光在消除一开始就炸开，填满整个时长的视觉
         this.fx.burst(x, y, col, intensity);
         if (sprite) {

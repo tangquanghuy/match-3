@@ -1,3 +1,4 @@
+import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B05, reviewer sa-L5 (round 3).
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Durations follow rulings/R004 (no turn cap; shared cumulative self-cleanse; Submerged ends on action).
@@ -37,12 +38,12 @@ function setup(o:Opts){
  const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);engine.skullChance=0;
  for(let i=0;i<(o.seed??0);i++)f.ctx.rng.next();
  engine.setTargetChooser(new FixedTargetChooser(o.chosen));
- return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id) as any[]};
+ return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id)};
 }
-const applied=(ev:any[],status:string)=>ev.filter(e=>e.type==='status-apply'&&e.statusId===status).map(e=>e.targetId);
+const applied=(ev:GameEvent[],status:string)=>ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId===status).map(e=>e.targetId);
 const sids=(c:Character)=>c.statuses.map(s=>s.id);
 const loss=(f:{foes:Character[]})=>f.foes.map(e=>1000-e.hp);
-const firstDmg=(ev:any[])=>ev.findIndex(e=>e.type==='skill-damage');
+const firstDmg=(ev:GameEvent[])=>ev.findIndex(e=>e.type==='skill-damage');
 const SIDES=[PlayerSide.Left,PlayerSide.Right];
 const block=(mk:()=>ReturnType<typeof setup>,cost:number)=>{
  for(const mode of ['low-mana','silence'] as const)it(`${mode} blocks the real cast`,()=>{
@@ -129,7 +130,7 @@ describe('L5 troop:7862 / spell:9937 Stun all enemies, then Magic+5 splash to 3 
   for(const c of centres){const i=ids.indexOf(c);out[i]+=m;if(i>0)out[i-1]+=Math.floor(m/2);if(i<3)out[i+1]+=Math.floor(m/2);}
   return out;
  };
- const centresOf=(ev:any[])=>ev.filter(e=>e.type==='skill-damage'&&e.chainIndex===0).map(e=>e.targetId);
+ const centresOf=(ev:GameEvent[])=>ev.filter(e=>e.type==='skill-damage').filter(e=>e.chainIndex===0).map(e=>e.targetId);
  for(const side of SIDES)for(const magic of [0,4])
  it(`real cast side=${side} magic=${magic}: every enemy Stunned before damage; 3 distinct splash centres (normal 50%)`,()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side,magic,chosen:10});

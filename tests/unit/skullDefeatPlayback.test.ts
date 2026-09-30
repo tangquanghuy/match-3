@@ -23,10 +23,9 @@ describe('skull attack after a defeat', () => {
       getSprite: () => undefined, removeGem: () => {} };
     const player = new EventStreamPlayer(board as never, noop as never, {} as never, noop as never);
     const log: { event: GameEvent; time: number }[] = [];
-    let timeline: gsap.core.Timeline;
     player.onBattleEvent = (event) => log.push({ event, time: timeline.time() });
     void player.play(events);
-    timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+    const timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
     timeline.pause();
     try {
       for (let t = 0; t <= timeline.duration() + 0.01; t += 0.01) timeline.totalTime(t, false);

@@ -39,6 +39,8 @@ export interface EliminationEvent {
   chainCount: number; // 需求 8.8
   cells: { pos: CellPos; gemId: number; gemType: GemType }[];
   shape: MatchShape; // 需求 7, 19.11
+  /** 本组确实授予额外回合时记录归属；演出跟随该轮消除，冻结组不标记。 */
+  extraTurnPlayer?: PlayerSide;
 }
 
 /** Board-only merge: consumed pieces travel into a surviving, upgraded piece. */

@@ -1,17 +1,27 @@
+import type { GameEvent } from '@engine/events';
+import type { App } from '@render/App';
+import type { EventStreamPlayer } from '@render/EventStreamPlayer';
+import type { CharacterCard } from '@render/TeamView';
+
+interface TraitTestWindow extends Window {
+  __app: Pick<App, 'getEngine'> & { startupPlaying: boolean; playEventsWithTail(events: GameEvent[]): Promise<void>; player: EventStreamPlayer; cardOfChar(id: number): CharacterCard };
+  __traitPlaybackDone?: boolean;
+}
+
 import { expect, test, type Page } from '@playwright/test';
 
 async function openBattle(page: Page) {
   await page.addInitScript(() => localStorage.clear());
   await page.goto('/index.html');
   await page.waitForFunction(() => {
-    const app = (window as any).__app;
+    const app = (window as unknown as TraitTestWindow).__app;
     return app && !app.startupPlaying && document.querySelectorAll('.gcard').length === 8;
   });
 }
 
 async function triggerArmor(page: Page, reverse = false) {
   return page.evaluate(async (reverse) => {
-    const app = (window as any).__app;
+    const app = (window as unknown as TraitTestWindow).__app;
     const load = (path: string) => import(/* @vite-ignore */ path);
     const { CombatResolver } = await load('/src/engine/CombatResolver.ts');
     const { attachPassives } = await load('/src/engine/traits.ts');
@@ -84,7 +94,7 @@ for (const [width, height] of [[1440, 900], [844, 390], [667, 375]]) {
 test('repeated trait feedback coalesces without hiding distinct names', async ({ page }) => {
   await openBattle(page);
   await page.evaluate(() => {
-    const app = (window as any).__app;
+    const app = (window as unknown as TraitTestWindow).__app;
     const char = app.getEngine().getState().teams.Left.characters[0];
     const card = app.cardOfChar(char.id);
     card.showTraitActivation('armored', '全副武装');
@@ -99,20 +109,20 @@ test('repeated trait feedback coalesces without hiding distinct names', async ({
 test('trait labels remain readable without holding up the battle input tail', async ({ page }) => {
   await openBattle(page);
   await page.evaluate(async () => {
-    const app = (window as any).__app;
+    const app = (window as unknown as TraitTestWindow).__app;
     const path = '/src/engine/traits.ts';
     const { attachPassives, applyTurnStartPassives } = await import(/* @vite-ignore */ path);
     const char = app.getEngine().getState().teams.Left.characters[0];
     char.traitIds = ['regeneration']; char.hp = char.maxHp - 2; char.statuses = [];
     attachPassives(char);
-    (window as any).__traitPlaybackDone = false;
-    void app.playEventsWithTail(applyTurnStartPassives([char])).then(() => { (window as any).__traitPlaybackDone = true; });
+    (window as unknown as TraitTestWindow).__traitPlaybackDone = false;
+    void app.playEventsWithTail(applyTurnStartPassives([char])).then(() => { (window as unknown as TraitTestWindow).__traitPlaybackDone = true; });
   });
   const label = page.locator('.trait-activation');
   await expect(label).toHaveText('再生');
   await label.evaluate(el => el.getAnimations().forEach(a => a.pause()));
   // A paused cosmetic label would hang the old animation-drain loop indefinitely.
-  await page.waitForFunction(() => (window as any).__traitPlaybackDone, undefined, { timeout: 4000 });
+  await page.waitForFunction(() => (window as unknown as TraitTestWindow).__traitPlaybackDone, undefined, { timeout: 4000 });
   await label.evaluate(el => el.getAnimations().forEach(a => a.play()));
 });
 
@@ -120,7 +130,7 @@ test('reduced motion fades names without travel, and disposal clears active labe
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await openBattle(page);
   await page.evaluate(() => {
-    const app = (window as any).__app;
+    const app = (window as unknown as TraitTestWindow).__app;
     const char = app.getEngine().getState().teams.Left.characters[0];
     app.cardOfChar(char.id).showTraitActivation('armored', '全副武装');
   });
@@ -129,7 +139,7 @@ test('reduced motion fades names without travel, and disposal clears active labe
   expect(await label.evaluate(el => el.getAnimations().every(a =>
     (a.effect as KeyframeEffect).getKeyframes().every(frame => frame.transform === 'none')))).toBe(true);
   await page.evaluate(() => {
-    const app = (window as any).__app;
+    const app = (window as unknown as TraitTestWindow).__app;
     app.cardOfChar(app.getEngine().getState().teams.Left.characters[0].id).destroy();
   });
   await expect(label).toHaveCount(0);

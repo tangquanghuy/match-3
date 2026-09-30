@@ -10,6 +10,7 @@ import { openGemChest, gemMultiCost, pickNoviceVisitor, NOVICE_SUMMON_COST } fro
 import { GEM_CHEST } from '../../src/meta/data/economy';
 import { COMMUNITY_KINGDOM } from '../../src/data/communityTroops';
 import { getTroopById } from '../../src/data/troops';
+import { enemyEncounterStats } from '../../src/meta/data/enemyDifficulty';
 import { SeededRNG } from '../../src/engine/rng';
 import { MockGateway, memoryStorage } from '../../src/meta/gateway';
 
@@ -101,7 +102,14 @@ describe('新手引导', () => {
     const plan = await gw.planTutorialBattle();
     expect(plan.ok).toBe(true);
     if (!plan.ok) return;
-    expect(plan.request.enemyTeam).toHaveLength(3);
+    expect(plan.request.enemyTeam).toHaveLength(4);
+    expect(plan.request.enemyTeam.map(enemy => enemy.templateId)).toEqual(['6097', '6000', '6004', '6028']);
+    for (const enemy of plan.request.enemyTeam) {
+      const base = enemyEncounterStats(getTroopById(Number(enemy.templateId))!, 3);
+      expect(enemy.stats.hp).toBe(Math.ceil(base.health * 1.2));
+      expect(enemy.stats.attack).toBe(Math.max(1, Math.floor(base.attack * .35)));
+      expect(enemy.traitIds).toEqual([]);
+    }
     // 新玩家开局队：主角、剑舞者、齿轮狮身人面像、炼金术士
     expect(save.teams[0]!.members.slice(1)).toEqual([6035, 6504, 6005].map((troopId) => ({ kind: 'troop', troopId })));
     expect(plan.source).toMatchObject({ kind: 'quest', node: 1, tutorial: true });

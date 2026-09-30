@@ -1,3 +1,4 @@
+import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B06, reviewer sa-L5 (round 3).
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Durations follow rulings/R004; Cleanse removes negatives only (rulings/R002).
@@ -35,12 +36,12 @@ function setup(o:Opts){
  for(const e of foes)attachPassives(e);
  const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);engine.skullChance=0;
  engine.setTargetChooser(new FixedTargetChooser(o.chosen));
- return {...f,allies,foes,engine,other,cast:()=>engine.castSkill(f.caster.id) as any[]};
+ return {...f,allies,foes,engine,other,cast:()=>engine.castSkill(f.caster.id)};
 }
-const applied=(ev:any[],status:string)=>ev.filter(e=>e.type==='status-apply'&&e.statusId===status).map(e=>e.targetId);
+const applied=(ev:GameEvent[],status:string)=>ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId===status).map(e=>e.targetId);
 const sids=(c:Character)=>c.statuses.map(s=>s.id);
 const loss=(f:{foes:Character[]})=>f.foes.map(e=>1000-e.hp);
-const seq=(ev:any[])=>ev.filter(e=>['status-apply','skill-damage','status-cleanse','buff'].includes(e.type))
+const seq=(ev:GameEvent[])=>ev.filter(e=>e.type==='status-apply'||e.type==='skill-damage'||e.type==='status-cleanse'||e.type==='buff')
  .map(e=>e.type==='skill-damage'?`dmg@${e.targetId}`:e.type==='status-cleanse'?`cleanse@${e.targetId}`:e.type==='buff'?`${e.stat}@${e.targetId}`:`${e.statusId}@${e.targetId}`);
 const SIDES=[PlayerSide.Left,PlayerSide.Right];
 const block=(mk:()=>ReturnType<typeof setup>,cost:number)=>{
@@ -138,7 +139,7 @@ describe('L5 troop:6209 / spell:7351 Magic+2 damage to an enemy and Web them',()
  it('FIXED L5-013 (R001 native order): Web lands before the damage, so a lethal hit still applies the Web first',()=>{
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:6,chosen:13,enemies:[{},{},{},{hp:3}]});
   const ev=f.cast();
-  expect(ev.filter(e=>['status-apply','skill-damage','defeat'].includes(e.type)).map(e=>e.type)).toEqual(['status-apply','skill-damage','defeat']);
+  expect(ev.filter(e=>e.type==='status-apply'||e.type==='skill-damage'||e.type==='defeat').map(e=>e.type)).toEqual(['status-apply','skill-damage','defeat']);
   expect(applied(ev,'web')).toEqual([13]);expect(f.foes[3].defeated).toBe(true);
  });
  it('Barrier absorbs the damage, Web still lands; Invulnerable target takes damage but no Web',()=>{

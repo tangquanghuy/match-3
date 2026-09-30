@@ -1,3 +1,4 @@
+import { planTutorialEncounter } from '../../src/meta/systems/encounter';
 import { describe, it, expect } from 'vitest';
 import { getTroopById } from '../../src/data/troops';
 import {
@@ -87,5 +88,18 @@ describe('任务线性推进校验', () => {
     expect(questNodeUnlocked(save, KINGDOM, 4)).toBe(true);
     expect(nextQuestNode(save, KINGDOM)).toBe(4);
     expect(nextQuestNode(kingdomWith(QUESTS_PER_KINGDOM), KINGDOM)).toBeNull();
+  });
+});
+
+
+describe('固定新手敌队', () => {
+  it('不同 seed 保持堡垒大门、食人魔、火枪手、普通女祭司的队序', () => {
+    for (const seed of [0, 1, 42, 999999]) {
+      const plan = planTutorialEncounter(KINGDOM, seed);
+      expect(plan.enemies.map(enemy => enemy.troopId)).toEqual([6097, 6000, 6004, 6028]);
+      expect(plan.enemies.map(enemy => getTroopById(enemy.troopId)!.name))
+        .toEqual(['堡垒大门', '食人魔', '火枪手', '女祭司']);
+      expect(plan.enemies.every(enemy => enemy.level === 3 && enemy.traitCount === 0)).toBe(true);
+    }
   });
 });

@@ -74,8 +74,8 @@ export function snapshot(state: ReturnType<typeof createGameState>) {
 }
 export function traitFixture(c: TraitCase, seed = 42, control = false) {
   const troop = TROOPS.find(t => t.id === c.troopId)!;
-  const def = getTrait(c.code)! as unknown as Record<string, any>;
-  const spec = def[c.field];
+  const def = getTrait(c.code)!;
+  const spec: unknown = (def as unknown as Record<string, unknown>)[c.field];
   let gid = 1;
   const board = new BoardModel();
   const palette: GemType[] = [...colors.map(colorGem), skullGem()];
@@ -84,11 +84,11 @@ export function traitFixture(c: TraitCase, seed = 42, control = false) {
     hp:180,maxHp:240,armor:30,attack:20,magic:10,mana:0,manaCost:20,skillId:'audit-hit',
     traitIds:id===0 && !control?[c.code]:[],troopTypes:allTypes,colors:[...colors],statuses:[],defeated:false});
   const left=[0,1,2,3].map(ch),right=[4,5,6,7].map(ch);
-  if (c.field==='positionAura' && spec.position==='last') left.push(left.shift()!);
+  if (c.field==='positionAura' && def.positionAura?.position==='last') left.push(left.shift()!);
   if (/Cleanse/.test(c.field)) left.forEach(x=>x.statuses=[{id:'poison',turns:10,magnitude:1}]);
-  if (c.field==='skullMultVsStatus') right[0].statuses=[{id:spec.status,turns:10,magnitude:1}];
-  if (c.field==='skullMultVsStatusList') right[0].statuses=spec.map((s:any)=>({id:s.status,turns:10,magnitude:1}));
-  if (c.field==='vsAscendedMultiplier') { right[0].eventTarget=spec.target; left[0].eventRarity=5; }
+  if (c.field==='skullMultVsStatus') right[0].statuses=[{id:def.skullMultVsStatus!.status,turns:10,magnitude:1}];
+  if (c.field==='skullMultVsStatusList') right[0].statuses=def.skullMultVsStatusList!.map((s)=>({id:s.status,turns:10,magnitude:1}));
+  if (c.field==='vsAscendedMultiplier') { right[0].eventTarget=def.vsAscendedMultiplier!.target; left[0].eventRarity=5; }
   if (c.field==='perAllyTrait') left[1].traitIds=['bandinglife'];
   if(c.code==='defender'){left[0].traitIds=[];right[0].traitIds=control?[]:[c.code];}
   // 敌方阵亡不会为持有者一方腾位；为召唤特质预留一个真实空位。
@@ -113,7 +113,9 @@ export function traitFixture(c: TraitCase, seed = 42, control = false) {
     engine.setTargetChooser(new FixedTargetChooser(target.id));
     return engine.castSkill(caster.id);
   };
-  let matchColor: string = spec?.color ?? spec?.[0]?.color ?? 'Red';
+  const colorSpec: unknown = Array.isArray(spec) ? spec[0] : spec;
+  let matchColor = colorSpec && typeof colorSpec === 'object' && 'color' in colorSpec && typeof colorSpec.color === 'string'
+    ? colorSpec.color : 'Red';
   if (matchColor==='any') matchColor='Red';
   if (c.scenario.startsWith('skull') || c.field==='onSkullMatchEconomy') matchColor='skull';
   const matchType = matchColor === 'skull' ? skullGem() : colorGem(matchColor as BaseColor);
@@ -127,9 +129,9 @@ export function traitFixture(c: TraitCase, seed = 42, control = false) {
     state.activePlayer=['enemy-color','skull-defense'].includes(c.scenario)?PlayerSide.Right:PlayerSide.Left;
   }
   // A specific-gem trigger needs the affected species available on the board.
-  if (c.field==='onBigMatchExplodeGem' && spec.kind==='gargoyleGem')
-    for(let col=0;col<4;col++)board.set({row:7,col},{id:gid++,type:specialGem('gargoyleGem',spec.tier)});
-  if(c.field==='turnStartExplodeGem' && spec.kind==='angelGem') board.set({row:7,col:5},{id:gid++,type:specialGem('angelGem')});
+  if (c.field==='onBigMatchExplodeGem' && def.onBigMatchExplodeGem?.kind==='gargoyleGem')
+    for(let col=0;col<4;col++)board.set({row:7,col},{id:gid++,type:specialGem('gargoyleGem',def.onBigMatchExplodeGem!.tier)});
+  if(c.field==='turnStartExplodeGem' && def.turnStartExplodeGem?.kind==='angelGem') board.set({row:7,col:5},{id:gid++,type:specialGem('angelGem')});
   // Scene preconditions belong before rendering/timing, never silent mutations mid-action.
   if(c.scenario==='self-death'){holder.hp=1;holder.armor=0;}
   if(c.scenario==='ally-death'){left[1].hp=1;left[1].armor=0;}
@@ -158,7 +160,8 @@ export function traitFixture(c: TraitCase, seed = 42, control = false) {
       case 'devour-immunity': return cast(PlayerSide.Right,right[1],holder,'audit-devour');
       case 'mana-immunity': return cast(PlayerSide.Right,right[1],holder,'audit-drain');
       case 'status-immunity': {
-        const status=spec.includes('*')?'poison':spec[0];
+        const immunities = def.statusImmunities!;
+        const status=immunities.includes('*')?'poison':immunities[0];
         registry.prototypes.set('audit-status',skill(inflict(status,'enemyChosen')));
         return cast(PlayerSide.Right,right[1],holder,'audit-status');
       }

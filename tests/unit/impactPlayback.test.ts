@@ -22,11 +22,10 @@ function playback(events: GameEvent[]) {
     getSprite: () => undefined, removeGem: () => {} };
   const player = new EventStreamPlayer(board as never, { burst: () => {} } as never,
     {} as never, { play: () => {}, playChain: () => {} } as never);
-  let timeline: gsap.core.Timeline;
   player.onBattleEvent = (event, presentation) => log.push({ event, time: timeline.time(), projectileDurationMs: presentation?.projectileDurationMs });
   player.onGroupAttack = events => { for (const event of events) log.push({ event, time: timeline.time() }); };
   void player.play(events);
-  timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+  const timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
   timeline.pause();
   return { player, timeline, log };
 }
@@ -48,10 +47,9 @@ describe('cascade skull attack timing', () => {
       getSprite: () => undefined, removeGem: () => {} };
     const player = new EventStreamPlayer(board as never, noop as never, {} as never, noop as never);
     const log: { event: GameEvent; time: number }[] = [];
-    let timeline: gsap.core.Timeline;
     player.onBattleEvent = (event) => log.push({ event, time: timeline.time() });
     void player.play(events);
-    timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+    const timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
     timeline.pause();
     try {
       timeline.totalTime(timeline.duration(), false);

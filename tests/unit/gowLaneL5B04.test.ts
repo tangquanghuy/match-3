@@ -1,3 +1,4 @@
+import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B04, reviewer sa-L5.
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Tests named "FIXED L5-xxx" assert behaviour repaired in this batch (rulings/R001 native order).
@@ -33,11 +34,11 @@ function setup(o:Opts){
  for(const e of foes)attachPassives(e);
  const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);engine.skullChance=0;
  engine.setTargetChooser(new FixedTargetChooser(o.chosen));
- return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id) as any[]};
+ return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id)};
 }
-const applied=(ev:any[],status:string)=>ev.filter(e=>e.type==='status-apply'&&e.statusId===status).map(e=>e.targetId);
+const applied=(ev:GameEvent[],status:string)=>ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId===status).map(e=>e.targetId);
 const sids=(c:Character)=>c.statuses.map(s=>s.id);
-const seq=(ev:any[])=>ev.filter(e=>e.type==='status-apply'||e.type==='skill-damage').map(e=>e.type==='skill-damage'?`dmg@${e.targetId}`:`${e.statusId}@${e.targetId}`);
+const seq=(ev:GameEvent[])=>ev.filter(e=>e.type==='status-apply'||e.type==='skill-damage').map(e=>e.type==='skill-damage'?`dmg@${e.targetId}`:`${e.statusId}@${e.targetId}`);
 const SIDES=[PlayerSide.Left,PlayerSide.Right];
 const block=(mk:()=>ReturnType<typeof setup>,cost:number)=>{
  for(const mode of ['low-mana','silence'] as const)it(`${mode} blocks the real cast`,()=>{
@@ -118,9 +119,9 @@ describe('L5 troop:6136 / spell:7238 Poison then Magic+2 damage to the chosen en
   expect(seq(ev)).toEqual(['poison@12','dmg@12']);
   expect(f.foes[2].armor).toBe(0);
   // the enemy turn start follows the cast: Poison ticks 0 or 1 true damage (50%)
-  const poisonTick=ev.filter(e=>e.type==='status-tick'&&e.targetId===12&&e.statusId==='poison').map(e=>e.damage);
+  const poisonTick=ev.filter(e=>e.type==='status-tick').filter(e=>e.targetId===12&&e.statusId==='poison').map(e=>e.damage);
   expect(poisonTick).toHaveLength(1);expect([0,1]).toContain(poisonTick[0]);
-  expect(f.foes[2].hp).toBe(1000-(magic+2-1)-poisonTick[0]);
+  expect(f.foes[2].hp).toBe(1000-(magic+2-1)-poisonTick[0]!);
   expect(sids(f.foes[2])).toEqual(['poison']);
   expect(f.foes.filter((_,i)=>i!==2).every(e=>e.hp===1000&&e.statuses.length===0)).toBe(true);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
@@ -137,7 +138,7 @@ describe('L5 troop:6136 / spell:7238 Poison then Magic+2 damage to the chosen en
   const a=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:5,chosen:12});
   a.foes[2].statuses=[{id:'barrier',turns:3}];
   const aev=a.cast();expect(seq(aev)).toEqual(['poison@12']);expect(a.foes[2].hp).toBeGreaterThanOrEqual(999);
-  expect(aev.filter(e=>e.type==='status-expire'&&e.targetId===12).map(e=>e.statusId)).toEqual(['barrier']);
+  expect(aev.filter(e=>e.type==='status-expire').filter(e=>e.targetId===12).map(e=>e.statusId)).toEqual(['barrier']);
   const b=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:5,chosen:12,enemies:[{},{},{traitIds:['sturdy']},{}]});
   const bev=b.cast();expect(applied(bev,'poison')).toEqual([]);expect(b.foes[2].hp).toBe(993);
   const c=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Right,magic:0,chosen:12,enemies:[{},{},{hp:2},{}]});
@@ -168,7 +169,7 @@ describe('L5 troop:6646 / spell:7978 Poison the weakest enemy, then Magic+2 dama
   const f=setup({skill:SK,cost:COST,colors:COLORS,side,magic,chosen:10,enemies:[{},{hp:600},{hp:800},{hp:300}]});
   const ev=f.cast();
   expect(seq(ev)).toEqual(['poison@13','dmg@13']);
-  expect(ev.find(e=>e.type==='skill-damage').damage).toBe(magic+2);
+  expect(ev.find(e=>e.type==='skill-damage')!.damage).toBe(magic+2);
   expect(sids(f.foes[3])).toEqual(['poison']);
   expect(f.foes.slice(0,3).every(e=>e.statuses.length===0)).toBe(true);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);

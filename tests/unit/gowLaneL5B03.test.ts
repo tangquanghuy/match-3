@@ -1,3 +1,4 @@
+import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B03, reviewer sa-L5.
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Tests named "FIXED L5-xxx" assert behaviour repaired in this batch (rulings/R001 native order, L5-012 missing step).
@@ -33,11 +34,11 @@ function setup(o:Opts){
  for(const e of foes)attachPassives(e);
  const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);engine.skullChance=0;
  engine.setTargetChooser(new FixedTargetChooser(o.chosen));
- return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id) as any[]};
+ return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id)};
 }
-const applied=(ev:any[],status:string)=>ev.filter(e=>e.type==='status-apply'&&e.statusId===status).map(e=>e.targetId);
+const applied=(ev:GameEvent[],status:string)=>ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId===status).map(e=>e.targetId);
 const sids=(c:Character)=>c.statuses.map(s=>s.id);
-const seq=(ev:any[])=>ev.filter(e=>e.type==='status-apply'||e.type==='skill-damage').map(e=>e.type==='skill-damage'?`dmg@${e.targetId}`:`${e.statusId}@${e.targetId}`);
+const seq=(ev:GameEvent[])=>ev.filter(e=>e.type==='status-apply'||e.type==='skill-damage').map(e=>e.type==='skill-damage'?`dmg@${e.targetId}`:`${e.statusId}@${e.targetId}`);
 const SIDES=[PlayerSide.Left,PlayerSide.Right];
 const block=(mk:()=>ReturnType<typeof setup>,cost:number)=>{
  for(const mode of ['low-mana','silence'] as const)it(`${mode} blocks the real cast`,()=>{

@@ -41,6 +41,7 @@ import { AnimConfig } from './AnimationConfig';
 import { restoreBattleSpeed, scaledMs, setBattleSpeedBoost } from './battleSpeed';
 import { FiniteVisuals } from './FiniteVisuals';
 import { ExtraTurnNotice } from './ExtraTurnNotice';
+import { showSkullMatchBonus } from './SkullMatchBonus';
 import type { FramePlaybackClock } from './FramePlaybackClock';
 import { planExplosionBursts } from './explosionPlayback';
 import { statusFeedbackFX, statusFeedbackLabel } from './statusPlayback';
@@ -710,6 +711,13 @@ export class App {
     this.player.onCastRelease = (charId) => this.playCastRelease(charId);
     this.player.onManaFlow = (ev, origins) => this.playManaFlow(ev, origins);
     this.player.onComboPulse = (level) => this.playTurnHudCombo(level);
+    this.player.onMatchExtraTurn = (side) => {
+      if (this.turnHudEl) this.extraTurnNotice.show(this.turnHudEl, side);
+    };
+    this.player.onSkullMatchBonus = (pos, bonus) => {
+      const point = this.board.toGlobal(this.board.cellCenter(pos));
+      showSkullMatchBonus(this.overlay, this.finiteVisuals, point, bonus, this.board.cellSize);
+    };
     this.player.onStormChange = (ev) => this.onStormChangePresentation(ev);
     // 输入
     this.input = new InputController(this.board, this.app.canvas);

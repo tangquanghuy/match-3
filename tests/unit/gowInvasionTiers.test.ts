@@ -1,6 +1,6 @@
 import { adaptiveDefensePool } from '../../src/meta/data/opponentTeams';
 import { troopStrategy, manaLinkScore } from '../../src/meta/data/troopStrategy';
-﻿import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 // @ts-expect-error Node-only audit; this browser project does not install Node types.
 import { readFileSync } from 'node:fs';
 // @ts-expect-error Node-only audit; this browser project does not install Node types.

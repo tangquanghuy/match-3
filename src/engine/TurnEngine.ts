@@ -1191,7 +1191,6 @@ export class TurnEngine {
   /** 连锁主循环（需求 8.5-8.9, 18.2, 18.3） */
   private runCascades(events: GameEvent[]): void {
     this.state.chainCount = 0;
-    let grantedExtra = false;
     /** 冰冻吞掉额外回合的归因单位（整轮连锁结束后才发演出事件，不打断消除批次） */
     let frozenDeniedBy: number | undefined;
 
@@ -1205,11 +1204,15 @@ export class TurnEngine {
       // 1. 消除：发出 elimination 事件，并按组结算效果；登记特殊宝石"被匹配"触发
       const destroyTriggers: { gemType: GemType; pos: CellPos; viaMatch: boolean }[] = [];
       for (const group of matches) {
-        events.push(this.makeEliminationEvent(group, chain));
+        const elimination = this.makeEliminationEvent(group, chain);
+        events.push(elimination);
         if (grantsExtraTurn(group.shape)) {
           const frozenBy = this.matchExtraTurnFrozenBy(group);
-          if (!frozenBy) grantedExtra = true;
-          else frozenDeniedBy ??= frozenBy.id;
+          if (!frozenBy) {
+            // 每轮连锁就地登记，后续重力/特质嵌套连锁不推迟或覆盖该行动的奖励。
+            this.pendingExtraTurnSource ??= 'match';
+            elimination.extraTurnPlayer = this.state.activePlayer;
+          } else frozenDeniedBy ??= frozenBy.id;
         }
 
         // 4/5 连响应特质（庞然/巨型/修理…）：只给匹配方自己一队，按组结算。
@@ -1288,13 +1291,8 @@ export class TurnEngine {
       // 循环：再次检测匹配（需求 8.5, 8.6）
     }
 
-    // 记录本回合是否由匹配获得额外回合。技能主动授予的优先保留 skill 来源，
-    // 因为效果原语已经发出 source:'skill' 的展示事件。
-    if (grantedExtra && this.pendingExtraTurnSource === null) {
-      this.pendingExtraTurnSource = 'match';
-    }
     // 只有额外回合确实丢了才提示（别的组/技能已给额外回合时不提示）
-    if (frozenDeniedBy !== undefined && !grantedExtra && this.pendingExtraTurnSource === null) {
+    if (frozenDeniedBy !== undefined && this.pendingExtraTurnSource === null) {
       events.push({ type: 'status-blocked', targetId: frozenDeniedBy, statusId: 'frozen', reason: 'extra-turn' });
     }
   }

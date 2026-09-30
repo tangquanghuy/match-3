@@ -9,18 +9,19 @@ import { planPresentation } from '../helpers/presentationBudget';
 
 function fixture(reduced = false, waapi = true) {
   vi.useFakeTimers();
-  const nodes: any[] = [];
-  const children = new Set<any>();
-  const host = {
-    ownerDocument: {
-      defaultView: { matchMedia: () => ({ matches: reduced }) },
-      createElement: () => {
+  const nodes: ReturnType<typeof createNode>[] = [];
+  const children = new Set<unknown>();
+  function createNode() {
         const animation = { onfinish: null as null | (() => void), oncancel: null as null | (() => void), cancel: vi.fn() };
         const node = { className: '', dataset: {} as Record<string, string>, style: { cssText: '' }, textContent: '',
           setAttribute: vi.fn(), remove: vi.fn(() => children.delete(node)), animation,
-          animate: waapi ? vi.fn(() => animation) : undefined };
-        nodes.push(node); return node;
-      },
+          animate: waapi ? vi.fn((_frames: Keyframe[], _options: KeyframeAnimationOptions) => animation) : undefined };
+        return node;
+      }
+  const host = {
+    ownerDocument: {
+      defaultView: { matchMedia: () => ({ matches: reduced }) },
+      createElement: () => { const node = createNode(); nodes.push(node); return node; },
     },
     appendChild: (node: unknown) => children.add(node),
   } as unknown as HTMLElement;
@@ -39,14 +40,14 @@ describe('lightweight extra turn notice', () => {
     expect(el.style.cssText).toContain('pointer-events:none');
     expect(el.style.cssText).not.toMatch(/url\(|filter:|box-shadow:/);
     expect(el.setAttribute).toHaveBeenCalledWith('role', 'status');
-    expect(el.animate.mock.calls[0][1].duration).toBe(720);
+    expect(el.animate!.mock.calls[0][1].duration).toBe(720);
     x.visuals.cancel();
   });
   it('coalesces repeated grants per action without queueing or restarting the lifetime', () => {
     const x = fixture(); x.notice.beginAction();
     for (let i = 0; i < 8; i++) x.notice.show(x.host, PlayerSide.Left);
     expect(x.nodes).toHaveLength(1); expect(x.visuals.size).toBe(1);
-    x.nodes[0].animation.onfinish();
+    x.nodes[0].animation.onfinish!();
     x.notice.show(x.host, PlayerSide.Left);
     expect(x.nodes).toHaveLength(1);
     x.notice.beginAction(); x.notice.show(x.host, PlayerSide.Left);
@@ -57,14 +58,14 @@ describe('lightweight extra turn notice', () => {
     const x = fixture(); x.notice.show(x.host, PlayerSide.Left);
     const done = vi.fn(); const pending = x.visuals.waitForIdle().then(done);
     await Promise.resolve(); expect(done).not.toHaveBeenCalled();
-    x.nodes[0].animation.onfinish(); await pending;
+    x.nodes[0].animation.onfinish!(); await pending;
     expect(done).toHaveBeenCalledTimes(1); expect(x.children.size).toBe(0);
     expect(x.visuals.size).toBe(0); expect(vi.getTimerCount()).toBe(0);
   });
   it('replaces the opposite side without stale cleanup touching the current notice', () => {
     const x = fixture(); x.notice.show(x.host, PlayerSide.Left);
     const oldFinish = x.nodes[0].animation.onfinish;
-    x.notice.show(x.host, PlayerSide.Right); oldFinish();
+    x.notice.show(x.host, PlayerSide.Right); oldFinish!();
     expect(x.children.size).toBe(1); expect(x.visuals.size).toBe(1);
     expect(x.nodes[1].dataset.side).toBe(PlayerSide.Right);
     x.visuals.cancel();
@@ -72,7 +73,7 @@ describe('lightweight extra turn notice', () => {
   });
   it('has a timer fallback and respects reduced motion', () => {
     const x = fixture(true); x.notice.show(x.host, PlayerSide.Left);
-    const frames = x.nodes[0].animate.mock.calls[0][0];
+    const frames = x.nodes[0].animate!.mock.calls[0][0];
     expect(new Set(frames.map((frame: Keyframe) => frame.transform)).size).toBe(1);
     vi.advanceTimersByTime(AnimConfig.extraTurnNotice.durationMs + 50);
     expect(x.visuals.size).toBe(0); expect(x.children.size).toBe(0);

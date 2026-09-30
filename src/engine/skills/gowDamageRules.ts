@@ -24,7 +24,8 @@ export function applyGowDamageRule(id: number, proto: SkillPrototype): SkillProt
       return { ...segment, splashRatio: ratio };
     }
     if (rule.scatter && !segment.drain && (segment.range === 'all' || segment.splitRandom)) {
-      const { splitRandom: _legacy, ...rest } = segment;
+      const rest = { ...segment };
+      delete rest.splitRandom;
       return { ...rest, range: 'scatter' };
     }
     return segment;

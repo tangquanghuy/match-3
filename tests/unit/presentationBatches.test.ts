@@ -23,10 +23,9 @@ function playback(events: GameEvent[]) {
   const player = new EventStreamPlayer(board as never, { burst: () => {} } as never, {} as never,
     { play: () => {}, playChain: () => {} } as never);
   player.setPaused(true);
-  let timeline: gsap.core.Timeline;
   player.onBattleEvent = (event, presentation) => log.push({ event, presentation, time: timeline.time() });
   void player.play(events);
-  timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+  const timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
   return { player, timeline, log, clears };
 }
 

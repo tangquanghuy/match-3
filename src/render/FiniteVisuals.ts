@@ -7,12 +7,12 @@ export class FiniteVisuals {
   get size(): number { return this.entries.size; }
 
   begin(cleanup: () => void = () => {}) {
-    const registry = this;
     const key = {};
     const generation = this.epoch;
     this.entries.set(key, cleanup);
+    const isActive = () => generation === this.epoch && this.entries.has(key);
     return {
-      get active() { return generation === registry.epoch && registry.entries.has(key); },
+      get active() { return isActive(); },
       finish: () => {
         if (this.entries.delete(key)) this.notify();
       },

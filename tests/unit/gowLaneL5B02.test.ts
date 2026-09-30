@@ -1,3 +1,4 @@
+import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B02, reviewer sa-L5.
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Tests named "REPRO L5-xxx" document current runtime behaviour for an issue
@@ -35,9 +36,9 @@ function setup(o:Opts){
  const foes=[...f.enemies];
  const engine=new TurnEngine(f.state,f.ctx.rng,f.ctx.nextGemId,registry);engine.skullChance=0;
  engine.setTargetChooser(new FixedTargetChooser(o.chosen));
- return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id) as any[]};
+ return {...f,ally,foes,engine,other,cast:()=>engine.castSkill(f.caster.id)};
 }
-const applied=(ev:any[],status:string)=>ev.filter(e=>e.type==='status-apply'&&e.statusId===status).map(e=>e.targetId);
+const applied=(ev:GameEvent[],status:string)=>ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId===status).map(e=>e.targetId);
 const sids=(c:Character)=>c.statuses.map(s=>s.id);
 const SIDES=[PlayerSide.Left,PlayerSide.Right];
 const block=(mk:()=>ReturnType<typeof setup>,cost:number)=>{
@@ -98,7 +99,7 @@ describe('L5 weapon:1142 / spell:7338 Burn, Freeze, Silence and Magic+3 damage t
    for(let i=0;i<seed;i++)f.ctx.rng.next();
    const ev=f.cast();
    const b=applied(ev,'burning')[0],fr=applied(ev,'frozen')[0],si=applied(ev,'silence')[0];
-   const d=ev.find(e=>e.type==='skill-damage').targetId;
+   const d=ev.find(e=>e.type==='skill-damage')!.targetId;
    expect(fr).not.toBe(b);expect(si).not.toBe(fr);expect(d).not.toBe(si);
    seen.add(b);
   }
@@ -141,32 +142,32 @@ describe('L5 weapon:1436 / spell:8668 all negative statuses on an enemy, all pos
   expect(w.spell.description).toBe('使一名敌人陷入所有负面状态效果，并赋予自身所有正面状态效果。');
   const p=registry.prototypes.get('8668')!;
   expect(registry.prototypes.get('gw_TrickAndTreat')).toEqual(p);
-  expect(p.segments.filter((s:any)=>s.kind==='status').map((s:any)=>[s.target,s.statusId])).toEqual(NEG.map(id=>['enemyChosen',id]));
+  expect(p.segments.filter((s)=>s.kind==='status').map((s)=>[s.target,s.statusId])).toEqual(NEG.map(id=>['enemyChosen',id]));
   expect(p.segments.at(-1)).toEqual({kind:'randomStatus',target:'allySelf',allPositive:true});
  });
  for(const side of SIDES)for(const alias of ['8668','gw_TrickAndTreat'])
  it(`real cast ${side}/${alias}: Curse first, then negatives on chosen enemy only; positives on caster only`,()=>{
   const f=setup({skill:alias,cost:COST,colors:COLORS,side,magic:5,chosen:12});
   const ev=f.cast();
-  const onEnemy=ev.filter(e=>e.type==='status-apply'&&e.targetId===12).map(e=>e.statusId);
+  const onEnemy=ev.filter(e=>e.type==='status-apply').filter(e=>e.targetId===12).map(e=>e.statusId);
   expect(onEnemy).toEqual(NEG);
-  expect(ev.filter(e=>e.type==='status-apply'&&e.targetId===0).map(e=>e.statusId)).toEqual(POS);
+  expect(ev.filter(e=>e.type==='status-apply').filter(e=>e.targetId===0).map(e=>e.statusId)).toEqual(POS);
   expect(f.foes.filter(e=>e.id!==12).every(e=>e.statuses.length===0&&e.hp===1000)).toBe(true);
   expect(f.ally.statuses).toEqual([]);
   // no spell damage; enemy 12 only loses Life to DoT ticks at its own turn start right after the cast
   expect(ev.some(e=>e.type==='skill-damage')).toBe(false);
-  expect(ev.filter(e=>e.type==='status-tick'&&e.targetId===12).length).toBeGreaterThan(0);
+  expect(ev.filter(e=>e.type==='status-tick').filter(e=>e.targetId===12).length).toBeGreaterThan(0);
   expect(f.caster.mana).toBe(0);expect(f.state.actionLog).toHaveLength(1);expect(f.state.activePlayer).toBe(f.other);
  });
  it('Curse lands first: strips the enemy Barrier and penetrates ordinary immunity, Invulnerable blocks everything',()=>{
   const f=setup({skill:'8668',cost:COST,colors:COLORS,side:PlayerSide.Left,magic:5,chosen:12});
   f.foes[2].statuses=[{id:'barrier',turns:3}];f.foes[2].traitIds=['sturdy'];attachPassives(f.foes[2]);
   const ev=f.cast();
-  expect(ev.filter(e=>e.type==='status-expire'&&e.targetId===12).map(e=>e.statusId)).toEqual(['barrier']);
+  expect(ev.filter(e=>e.type==='status-expire').filter(e=>e.targetId===12).map(e=>e.statusId)).toEqual(['barrier']);
   expect(sids(f.foes[2])).toEqual(NEG);
   const g=setup({skill:'8668',cost:COST,colors:COLORS,side:PlayerSide.Left,magic:5,chosen:12});
   g.foes[2].traitIds=['invulnerable'];attachPassives(g.foes[2]);
-  expect(g.cast().filter(e=>e.type==='status-apply'&&e.targetId===12)).toEqual([]);
+  expect(g.cast().filter(e=>e.type==='status-apply').filter(e=>e.targetId===12)).toEqual([]);
  });
  it('Blessed enemy: Curse and Blessed cancel (neither kept), remaining negatives then land',()=>{
   const f=setup({skill:'8668',cost:COST,colors:COLORS,side:PlayerSide.Left,magic:5,chosen:12});
@@ -237,11 +238,11 @@ describe('L5 troop:7182 / spell:8752 steal Magic+1 from 2 weakest, Curse + 3 Ble
   const f=setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:3,chosen:10,enemies:hp});
   f.foes[1].statuses=[{id:'barrier',turns:3}];
   const ev=f.cast();
-  expect(ev.filter(e=>e.type==='status-expire'&&e.targetId===11).map(e=>e.statusId)).toContain('barrier');
+  expect(ev.filter(e=>e.type==='status-expire').filter(e=>e.targetId===11).map(e=>e.statusId)).toContain('barrier');
   expect(ev.filter(e=>e.type==='skill-damage').map(e=>e.targetId)).toEqual([11,12]);
   // steal 4, then the 3-stack Bleed tick (6) at the enemy turn start
   expect(f.foes[1].hp).toBe(290);
-  const kinds=ev.filter(e=>['skill-damage','status-apply'].includes(e.type)).map(e=>e.type==='skill-damage'?'steal':e.statusId);
+  const kinds=ev.filter(e=>e.type==='skill-damage'||e.type==='status-apply').map(e=>e.type==='skill-damage'?'steal':e.statusId);
   expect(kinds).toEqual(['curse','curse','bleed','bleed','steal','steal']);
  });
  block(()=>setup({skill:SK,cost:COST,colors:COLORS,side:PlayerSide.Left,magic:3,chosen:10}),COST);

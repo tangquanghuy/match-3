@@ -36,7 +36,7 @@ export class ExtraTurnNotice {
     host.appendChild(el);
 
     let animation: Animation | undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined = undefined;
     let finished = false;
     const finish = () => {
       if (finished) return;

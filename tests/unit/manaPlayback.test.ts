@@ -29,11 +29,10 @@ function playback(events: GameEvent[]) {
     {} as ConstructorParameters<typeof EventStreamPlayer>[2],
     { play: () => {}, playChain: () => {} } as unknown as ConstructorParameters<typeof EventStreamPlayer>[3],
   );
-  let timeline: gsap.core.Timeline;
   player.onBattleEvent = event => log.push({ type: event.type, time: timeline.time(), event });
   player.onManaFlow = (event, origins) => log.push({ type: 'flow', time: timeline.time(), event, origins });
   void player.play(events);
-  timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+  const timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
   timeline.pause();
   return { player, timeline, log };
 }

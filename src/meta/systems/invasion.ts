@@ -508,7 +508,7 @@ export function settleInvasionBattle(
   let vpBase = 0;
   let glory = 0;
   let gold = 0;
-  let bonuses: ReturnType<typeof invasionVpBonuses> = { speed: 0, survivors: 0, extraTurns: 0, total: 0 };
+  const bonuses: ReturnType<typeof invasionVpBonuses> = { speed: 0, survivors: 0, extraTurns: 0, total: 0 };
   let firstWinToday = false;
 
   if (victory) {

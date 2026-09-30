@@ -156,7 +156,7 @@ describe('L2B03 troop:6416 Diviner spell 7574 A+(B-C-D-E-F): chosen colour -> Ye
  it('branch weights follow the 5 native options: Cleanse ~2/5, Enchant ~2/5, Magic ~1/5 (500 seeds)',()=>{
   const c:Record<string,number>={};for(let s=1;s<=500;s++){const b=run(s).b;c[b]=(c[b]??0)+1;}
   expect(c.none).toBeUndefined();
-  for(const k of ['cleanse','enchant'])expect(c[k]).toBeGreaterThanOrEqual(160),expect(c[k]).toBeLessThanOrEqual(240);
+  for(const k of ['cleanse','enchant']) { expect(c[k]).toBeGreaterThanOrEqual(160); expect(c[k]).toBeLessThanOrEqual(240); }
   expect(c.magic).toBeGreaterThanOrEqual(65);expect(c.magic).toBeLessThanOrEqual(135);
  });
  it('Magic option = [(Magic/2)+1] to every living ally incl. caster: magic 10 -> +6, magic 11 -> +7 (convention:R006-C1 round)',()=>{
@@ -248,7 +248,7 @@ describe('L2B03 troop:7326 Beltane spell 8938 conversions + 1-3 random positive 
   const first:Record<string,number>={};
   for(let s=1;s<=600;s++){const ev=setup({...C,seed:s}).cast();const id=applied(ev)[0].statusId;first[id]=(first[id]??0)+1;}
   expect(Object.keys(first).sort()).toEqual([...OFFICIAL_POSITIVE].sort());
-  for(const k of OFFICIAL_POSITIVE)expect(first[k]).toBeGreaterThanOrEqual(65),expect(first[k]).toBeLessThanOrEqual(135);
+  for(const k of OFFICIAL_POSITIVE) { expect(first[k]).toBeGreaterThanOrEqual(65); expect(first[k]).toBeLessThanOrEqual(135); }
  });
  it('count: 1 guaranteed + 50% + 25% (one roll per step for the whole team): lone caster gets 1-3 applications, >=2 in roughly half the casts',()=>{
   const c:Record<number,number>={};

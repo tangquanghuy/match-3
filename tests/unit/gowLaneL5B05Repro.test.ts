@@ -19,7 +19,7 @@ describe('L5-016 troop:7439 spell 9131: native Target Enemy / FromTarget (protot
    for(let i=0;i<seed;i++)f.ctx.rng.next();
    engine.setTargetChooser(new FixedTargetChooser(11));
    const ev=engine.castSkill(0);
-   expect(ev.filter(e=>e.type==='status-apply'&&e.statusId==='stun').map(e=>e.type==='status-apply'&&e.targetId)).toEqual([11]);
+   expect(ev.filter(e=>e.type==='status-apply').filter(e=>e.statusId==='stun').map(e=>e.type==='status-apply'&&e.targetId)).toEqual([11]);
    expect(f.state.teams.Right.characters.map(c=>c.id)).toEqual([10,12,13,11]);
    expect(f.state.teams.Left.characters.map(c=>c.id)).toEqual([0,1]);
    expect(f.state.activePlayer).toBe(PlayerSide.Right);

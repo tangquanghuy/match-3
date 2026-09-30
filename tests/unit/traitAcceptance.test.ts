@@ -1,3 +1,13 @@
+interface Observation {
+  seed: number;
+  observed?: boolean;
+  errors: string[];
+  status: string;
+  eventTypes?: string[];
+  eventCount?: number;
+  presentation?: ReturnType<typeof planPresentation>;
+  finalState?: ReturnType<typeof traitFixture>['state']['state'];
+}
 // @ts-expect-error node types are not installed in this project
 import fs from 'node:fs';
 import { describe,it,expect } from 'vitest';
@@ -11,7 +21,7 @@ describe('exhaustive referenced-trait trigger inventory',()=>{
   it('executes a targeted fixture and control for EVERY definition field, retains unobserved cases as gaps',()=>{
     const rows=TRAIT_CASES.map(c=>{
       const attempts=[];
-      let chosen:any;
+      let chosen: (typeof c & Observation) | undefined;
       // Searching real seeded outcomes avoids changing production RNG/chance semantics.
       for(const seed of [42,1,2,3,4,5,7,9,13,17,23,31,47,61,79,97]){
         try {
@@ -29,6 +39,7 @@ describe('exhaustive referenced-trait trigger inventory',()=>{
           if(observed || ['mode-unwired','unmapped'].includes(c.scenario))break;
         }catch(e){ chosen={...c,seed,status:'fixture-error',errors:[String(e)]};break; }
       }
+      if (!chosen) throw new Error('No trait fixture was executed');
       return {...chosen,attempts,name:getTrait(c.code)?.name,description:getTrait(c.code)?.description,
         users:TROOPS.filter(t=>t.traits.some(x=>x.code===c.code)).map(t=>t.id)};
     });

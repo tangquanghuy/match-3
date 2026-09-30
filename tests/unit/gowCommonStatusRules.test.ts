@@ -26,7 +26,8 @@ describe('Lycanthropy shared status transformation', () => {
     const rng = { next: () => [0.9, 0.14][rolls++], nextInt: () => 0 } as unknown as SeededRNG;
     const beast = { ...character(99), name: 'BeastFixture', attack: 31, hp: 15,
       colors: [BaseColor.Green], skillId: 'beast-spell', troopTypes: ['Beast'] };
-    const { id: _id, defeated: _defeated, statuses: _statuses, ...template } = beast;
+    const { id, defeated, statuses, ...template } = beast;
+    expect({ id, defeated, statuses }).toEqual({ id: 99, defeated: false, statuses: [] });
     const team = [victim];
     const events = tickTeamStatuses(team, rng, PlayerSide.Left, () => template);
     expect(team[0]).toBe(victim);
