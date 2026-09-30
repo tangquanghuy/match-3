@@ -23,3 +23,14 @@
 ## 交付范围
 
 用户已确认提交部署。本次发布包含上述战斗与新手配置变更，以及此前已验证的 lint 清理和加载诊断记录；不变更生产配置或玩家数据。部署结果以发布记录和 Cloudflare 输出为准。artifacts 日志、截图和本地 Playwright 配置不纳入 Git。
+
+## 提交、部署与线上验收
+
+- 应用提交：`5425fe20`，已推送 `origin/main`。
+- 部署时间：2026-09-30 22:08:21（UTC+8）。执行 `npm --prefix worker run deploy`，remote 客户端和 Worker 重新构建成功，部署成功。
+- 线上域名：`match.rown.dpdns.org`；Worker 版本 `67bf6a12-8205-4a06-8669-ff4825578c28`。`wrangler deployments list` 确认该版本承接 100% 流量。
+- HTTP 验收通过：线上预加载清单与本地发布构建一致；App、gameMain、characterScreen 代码包和三张压缩主角立绘 SHA-256 一致；匿名 `/auth/me`、`/api/meta/save` 均返回 401。
+- 线上浏览器协议交互通过：同意前展示全文，滚动至底部再启用确认；未显示跳过加载入口。
+- **冷启动加载验收未通过 240 秒门槛。** 首次浏览器检查等待登录按钮启用超时；第二次独立采集在约 242.5 秒时仍为 94%，登录按钮仍禁用。该次捕获 577 个本站响应，无静态资源 HTTP 错误、无本站 requestfailed、无页面脚本异常；唯一 401 为预期的匿名身份检查。终止时仍有六个资源请求进行中，表明加载尚未完成。本轮没有修改预加载策略，也不把成功发布等同于解决此前慢加载问题。
+- 两次线上浏览器检查均为匿名访问，没有登录、重置账号、发放奖励或变更玩家存档。没有执行数据库迁移、调整生产变量或修改域名/CDN 配置。
+- 日志：`artifacts/cascade-release-deploy.log`、`cascade-release-deployments.log`、`cascade-release-http-check.json`、`cascade-release-live-check.log`、`cascade-release-live-diagnostic.json` 与相应截图。上述文件仅保留本机。
