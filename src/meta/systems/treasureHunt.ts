@@ -14,9 +14,10 @@ import { HuntBoardTrace } from '../../engine/HuntBoard';
 import type { GameEvent } from '../../engine/events';
 import { SeededRNG } from '../../engine/rng';
 import { STONE_COLORS } from '../data/materials';
-import type { MetaSave, TreasureHuntState } from '../state/schema';
+import type { HuntSoftCap, MetaSave, TreasureHuntState } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { earn, earnMaterials, spendMaterials } from './wallet';
+import { createHuntSoftCap, hydrateHuntSoftCap, huntComboBias, observeHuntProgress } from './huntPacing';
 
 export const HUNT_SIZE = 8;
 export const HUNT_CELLS = HUNT_SIZE * HUNT_SIZE;
@@ -68,6 +69,7 @@ export interface HuntMoveOk {
   turns: number;
   moves: number;
   rng: number;
+  softCap: HuntSoftCap;
   over: boolean;
   best: number;
   shuffled: boolean;
@@ -153,6 +155,8 @@ export function hasLegalMove(cells: readonly number[]): boolean {
   return false;
 }
 
+/** 基础补充自然随机（匹配强度 0），独立于 BATTLE_COMBO_BIAS。
+ * 仅达到本局随机软上限后，由 fill 做负向择优；触发前每格只抽一次。 */
 function rollDrop(rng: SeededRNG): number {
   const n = rng.nextInt(100);
   if (n < 72) return 0;
@@ -174,13 +178,87 @@ function fall(cells: number[]): void {
   }
 }
 
-function fill(cells: number[], rng: SeededRNG): void {
-  for (let i = 0; i < HUNT_CELLS; i++) {
-    if (cells[i]! < 0) cells[i] = rollDrop(rng);
-  }
+/** Size of the line/L/T created at a swapped cell, without allocating match groups. */
+function swapMatchSize(cells: readonly number[], index: number): number {
+  const tier = cells[index]!;
+  if (tier < 0 || tier >= VAULT) return 0;
+  const row = Math.floor(index / HUNT_SIZE), col = index % HUNT_SIZE;
+  let horizontal = 1, vertical = 1;
+  for (let c = col - 1; c >= 0 && cells[at(row, c)] === tier; c--) horizontal++;
+  for (let c = col + 1; c < HUNT_SIZE && cells[at(row, c)] === tier; c++) horizontal++;
+  for (let r = row - 1; r >= 0 && cells[at(r, col)] === tier; r--) vertical++;
+  for (let r = row + 1; r < HUNT_SIZE && cells[at(r, col)] === tier; r++) vertical++;
+  return horizontal >= 3 && vertical >= 3 ? horizontal + vertical - 1 : Math.max(horizontal, vertical);
 }
 
-function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoardTrace): number {
+/** Lower is calmer: suppress automatic bonus chains first, then future 4/5 opportunities. */
+function refillMatchScore(cells: number[]): number {
+  const groups = findGroups(cells);
+  if (groups.length) {
+    const best = Math.max(...groups.map(group => group.length));
+    return (best >= 5 ? 10_000 : best >= 4 ? 5_000 : 0)
+      + groups.length * 200 + groups.reduce((sum, group) => sum + group.length * 10, 0);
+  }
+  let opportunities = 0;
+  for (let a = 0; a < HUNT_CELLS; a++) {
+    if (cells[a] === VAULT) continue;
+    for (const b of [a % HUNT_SIZE < HUNT_SIZE - 1 ? a + 1 : -1, a + HUNT_SIZE < HUNT_CELLS ? a + HUNT_SIZE : -1]) {
+      if (b < 0 || cells[b] === VAULT || cells[a] === cells[b]) continue;
+      const av = cells[a]!, bv = cells[b]!;
+      cells[a] = bv; cells[b] = av;
+      const best = Math.max(swapMatchSize(cells, a), swapMatchSize(cells, b));
+      opportunities += best >= 5 ? 2 : best >= 4 ? 1 : 0;
+      cells[a] = av; cells[b] = bv;
+    }
+  }
+  return opportunities;
+}
+
+/** Post-cap only: downweight neighboring duplicates rather than manufacturing matches.
+ * Every low-tier treasure keeps nonzero weight; nothing is removed from the pool. */
+function rollCoolingDrop(cells: readonly number[], index: number, rng: SeededRNG, pressure: number): number {
+  const row = Math.floor(index / HUNT_SIZE), col = index % HUNT_SIZE;
+  const neighbors = [row > 0 ? index - HUNT_SIZE : -1, row < HUNT_SIZE - 1 ? index + HUNT_SIZE : -1,
+    col > 0 ? index - 1 : -1, col < HUNT_SIZE - 1 ? index + 1 : -1];
+  const weights = [72, 22, 5, 1].map((weight, tier) => {
+    const same = neighbors.filter(i => i >= 0 && cells[i] === tier).length;
+    return weight / (1 + pressure * same);
+  });
+  let roll = rng.next() * weights.reduce((sum, weight) => sum + weight, 0);
+  for (let tier = 0; tier < weights.length; tier++) {
+    roll -= weights[tier]!;
+    if (roll < 0) return tier;
+  }
+  return 3;
+}
+
+function fill(cells: number[], rng: SeededRNG, cap: HuntSoftCap): void {
+  const empty = cells.flatMap((tier, i) => tier < 0 ? [i] : []);
+  if (!empty.length) return;
+  const pressure = -huntComboBias(cap);
+  // Before the threshold this is exactly one draw per empty cell, without scoring.
+  if (pressure === 0) {
+    for (const i of empty) cells[i] = rollDrop(rng);
+    return;
+  }
+  let best: number[] = [], bestScore = Infinity;
+  // Post-cap trials use neighboring-duplicate downweighting. Existing pieces never change.
+  // Bounded effort: at most 11 candidates, only after the single soft threshold.
+  for (let attempt = 0; attempt < 1 + pressure * 2; attempt++) {
+    // Clear the previous trial, so later empty slots do not bias earlier draws.
+    for (const i of empty) cells[i] = EMPTY;
+    for (const i of empty) cells[i] = rollCoolingDrop(cells, i, rng, pressure);
+    const score = refillMatchScore(cells);
+    if (score < bestScore) {
+      best = empty.map(i => cells[i]!);
+      bestScore = score;
+      if (score === 0) break;
+    }
+  }
+  empty.forEach((i, j) => { cells[i] = best[j]!; });
+}
+
+function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoardTrace, cap: HuntSoftCap): number {
   let best = 0;
   let hot = prefer;
   for (let guard = 0; guard < 30; guard++) {
@@ -197,8 +275,9 @@ function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoa
       hot = keep;
     }
     trace.merge(merges, guard + 1);
+    observeHuntProgress(cap, cells);
     fall(cells);
-    fill(cells, rng);
+    fill(cells, rng, cap);
     trace.refill(cells, guard + 1);
     hot = -1;
   }
@@ -224,6 +303,8 @@ function reshuffle(cells: number[], rng: SeededRNG): boolean {
   return false;
 }
 
+/** 寻宝开局不安排四/五连：只排除现成匹配及死盘，首个可走盘立即采用。
+ * 不接入 BATTLE_SETUP_BIAS，不按大消机会筛盘；自然形成的四/五连机会仍保留。 */
 export function createOpeningBoard(rng: SeededRNG): number[] {
   for (let attempt = 0; attempt < 60; attempt++) {
     // Fill without creating a starting match. Rejecting entire weighted boards
@@ -268,7 +349,9 @@ export function applyMove(state: TreasureHuntState, from: number, to: number): H
   rng.setState(state.rng);
   const trace = new HuntBoardTrace(state.cells);
   trace.swap(from, to);
-  const best = resolve(cells, rng, to, trace);
+  const softCap = hydrateHuntSoftCap(state.softCap, state.rng, state.cells);
+  const best = resolve(cells, rng, to, trace, softCap);
+  if (softCap.peak >= softCap.target) softCap.activeMoves = Math.min(Number.MAX_SAFE_INTEGER, softCap.activeMoves + 1);
   const turns = Math.max(0, state.turns + turnDelta(best));
   const moves = state.moves + 1;
   let over = turns === 0;
@@ -284,6 +367,7 @@ export function applyMove(state: TreasureHuntState, from: number, to: number): H
     turns,
     moves,
     rng: rng.getState(),
+    softCap,
     over,
     best,
     shuffled,
@@ -333,7 +417,11 @@ export function stonesFromMoves(moves: number): number {
 }
 
 export function beginHunt(save: MetaSave, seed: number): { ok: true; state: TreasureHuntState } | MetaFailure {
-  if (save.treasureHunt && save.treasureHunt.turns > 0) return { ok: true, state: save.treasureHunt };
+  if (save.treasureHunt && save.treasureHunt.turns > 0) {
+    const current = save.treasureHunt;
+    current.softCap = hydrateHuntSoftCap(current.softCap, current.rng, current.cells);
+    return { ok: true, state: current };
+  }
   const paid = spendMaterials(save, { treasureMaps: 1 });
   if (!paid.ok) return paid;
   const rng = new SeededRNG(seed);
@@ -342,6 +430,7 @@ export function beginHunt(save: MetaSave, seed: number): { ok: true; state: Trea
     turns: HUNT_START_TURNS,
     moves: 0,
     rng: rng.getState(),
+    softCap: createHuntSoftCap(seed),
   };
   save.treasureHunt = state;
   return { ok: true, state };
@@ -365,6 +454,7 @@ export function commitMove(save: MetaSave, from: number, to: number): HuntMoveOk
     turns: played.turns,
     moves: played.moves,
     rng: played.rng,
+    softCap: played.softCap,
   };
   return played;
 }

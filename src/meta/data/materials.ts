@@ -75,7 +75,7 @@ const TIER_NAMES: Record<TraitstoneTier, string> = {
   major: '高级',
   runic: '符文',
   celestial: '圣辉',
-  arcane: '奥术',
+  arcane: '秘法',
 };
 
 /** 特质石库存键：'{tier}:{color}'；celestial 无色。非法组合返回 null（对账用） */
@@ -110,7 +110,12 @@ export function stoneName(key: string): string {
   const parsed = parseStoneKey(key);
   if (!parsed) return key;
   if (parsed.tier === 'celestial') return '圣辉石';
-  if (parsed.tier === 'arcane') return `奥术${parsed.colorKey!.split(':').map(color => STONE_COLORS.find(c => c.key === color)!.name).join('·')}之石`;
+  if (parsed.tier === 'arcane') {
+    // Preserve inventory identity while accepting either color order for display.
+    const colors = parsed.colorKey!.split(':').sort((a, b) =>
+      STONE_COLORS.findIndex(c => c.key === a) - STONE_COLORS.findIndex(c => c.key === b));
+    return ARCANE_STONE_NAMES[`arcane:${colors.join(':')}`] ?? key;
+  }
   const colorName = STONE_COLORS.find((c) => c.key === parsed.colorKey)?.name ?? parsed.colorKey ?? '';
   return `${TIER_NAMES[parsed.tier]}${colorName}之石`;
 }
@@ -144,3 +149,29 @@ export function addMaterialDelta(a: MaterialDelta, b: MaterialDelta): MaterialDe
 
 /** Canonical 21 arcane pairs, in source-data color order. */
 export const ARCANE_STONE_KEYS = STONE_COLORS.flatMap((a, i) => STONE_COLORS.slice(i).map(b => `arcane:${a.key}:${b.key}`));
+
+/** 中文名称取自 data/raw/troops.gow.zh.json 的 stats.traits[].traitstones（ID 18–38）。
+ * 仅校正显示名称，库存键与配方保持稳定；秘法与符文是独立档位。 */
+export const ARCANE_STONE_NAMES: Readonly<Record<string, string>> = {
+  'arcane:blue:blue': '秘法坚毅属性石',
+  'arcane:blue:green': '秘法沼泽属性石',
+  'arcane:blue:red': '秘法鲜血属性石',
+  'arcane:blue:yellow': '秘法剑刃属性石',
+  'arcane:blue:purple': '秘法精神属性石',
+  'arcane:blue:brown': '秘法护盾属性石',
+  'arcane:green:green': '秘法隐匿属性石',
+  'arcane:green:red': '秘法野兽属性石',
+  'arcane:green:yellow': '秘法光之属性石',
+  'arcane:green:purple': '秘法毒液属性石',
+  'arcane:green:brown': '秘法森林属性石',
+  'arcane:red:red': '秘法狂怒属性石',
+  'arcane:red:yellow': '秘法风暴属性石',
+  'arcane:red:purple': '秘法暗之属性石',
+  'arcane:red:brown': '秘法熔岩属性石',
+  'arcane:yellow:yellow': '秘法夏之属性石',
+  'arcane:yellow:purple': '秘法平原属性石',
+  'arcane:yellow:brown': '秘法山岳属性石',
+  'arcane:purple:purple': '秘法死亡属性石',
+  'arcane:purple:brown': '秘法骷髅属性石',
+  'arcane:brown:brown': '秘法深渊属性石',
+};

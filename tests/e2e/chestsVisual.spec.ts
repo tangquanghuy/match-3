@@ -119,3 +119,17 @@ test.describe('宝箱视觉与批量入口', () => {
     });
   }
 });
+
+
+test('宝石宝箱概率公示：每种特质石1颗，高阶概率递减', async ({ page }) => {
+  await openFresh(page, 'chests/gems');
+  await page.locator('#showOdds').click();
+  const rows = page.locator('#oddsDrawer .odds-row');
+  for (const [name, rate] of [['高级特质石 ×1', '10%'], ['符文特质石 ×1', '8%'], ['秘法特质石 ×1', '2%'], ['圣辉石 ×1', '0.5%']]) {
+    const row = rows.filter({ has: page.getByText(name!, { exact: true }) });
+    await expect(row).toHaveCount(1);
+    await expect(row.locator('span').last()).toHaveText(rate!);
+  }
+  const total = await rows.locator('span:last-child').allTextContents();
+  expect(total.reduce((sum, text) => sum + Number.parseFloat(text), 0)).toBeCloseTo(100, 8);
+});

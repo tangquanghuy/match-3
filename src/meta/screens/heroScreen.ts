@@ -42,6 +42,7 @@ import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ 
 import { isFailure } from '../gateway';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { formulaKind, formulaParts, formulaRule, renderSpell } from '../shell/spellText';
+import { bindTermTips } from '../shell/termTip';
 import {
   combatManaMastery,
   kingdomMasteryBonus,
@@ -136,6 +137,7 @@ export class HeroScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   /** 最近一次 spellSheet 渲染的公式集（bindSheetTips 消费） */
   private sheetFormulas: ReturnType<typeof renderSpell>['formulas'] = [];
+  private termTips?: () => void;
 
   html(): string {
     return `
@@ -919,6 +921,8 @@ export class HeroScreen implements Screen {
     const body = sheet.querySelector<HTMLElement>('.wspell-body');
     const tip = sheet.querySelector<HTMLElement>('.spell-tip');
     const bar = sheet.querySelector<HTMLElement>('.formula');
+    this.termTips?.();
+    this.termTips = copy ? bindTermTips(copy) : undefined;
     if (!copy || !body || !tip) return;
     const formulas = this.sheetFormulas;
     copy.querySelectorAll<HTMLElement>('.spell-stat').forEach((btn, i) => {
@@ -1190,6 +1194,7 @@ export class HeroScreen implements Screen {
   }
 
   dispose(): void {
+    this.termTips?.();
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);
     }

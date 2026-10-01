@@ -18,9 +18,12 @@ export interface Formula {
 export interface SpellRender {
   html: string;
   formulas: Formula[];
+  /** 本段文案里出现过的术语条目（按首次出现排序、去重） */
+  terms: TermEntry[];
 }
 
 import { normalizeCombatText } from '../../data/combatText';
+import { TERM_PATTERN, termEntryOf, type TermEntry } from '../../data/termGlossary';
 export const normalizeText = normalizeCombatText;
 
 export function evalMagicExpr(inner: string, magic: number): number | null {
@@ -44,11 +47,37 @@ export function isScalingTag(inner: string): boolean {
   return /^\d+:\d+$/.test(c) || /^x\d+$/i.test(c);
 }
 
+/**
+ * 术语高亮：把文本里的已知术语（状态/特殊宝石/战斗词，见 data/termGlossary）包成
+ * `.spell-term` 按钮，点击弹出术语解释面板（shell/termTip.ts）。
+ *
+ * 按 HTML 标签切分后只处理文本节点，不会碰已生成的 `<button class="spell-stat">`、
+ * `<b>` 等标记；公式按钮内部文案（「3 点护甲值」）不含术语别名，天然不受影响。
+ * 不受 interactive 开关限制——术语解释是静态内容，非交互场景同样可点。
+ */
+export function applyTermMarkup(text: string, terms?: TermEntry[]): string {
+  if (!text) return text;
+  return text
+    .split(/(<[^>]*>)/)
+    .map((seg) => {
+      if (!seg || seg.startsWith('<')) return seg;
+      return seg.replace(TERM_PATTERN, (alias: string) => {
+        const entry = termEntryOf(alias);
+        if (!entry) return alias;
+        if (terms && !terms.includes(entry)) terms.push(entry);
+        // span 而非 button：描述可能渲染在 <button>（竞技场 draft 卡）里，嵌套 button 是非法 HTML
+        return `<span class="spell-term" role="button" tabindex="0" aria-expanded="false" data-term="${entry.id}">${alias}</span>`;
+      });
+    })
+    .join('');
+}
+
 export function renderSpell(desc: string, magic: number, opts: { interactive?: boolean } = {}): SpellRender {
   const interactive = opts.interactive ?? true;
   const clean = normalizeText(desc ?? '');
-  if (!clean) return { html: '', formulas: [] };
+  if (!clean) return { html: '', formulas: [], terms: [] };
   const formulas: Formula[] = [];
+  const terms: TermEntry[] = [];
   const unit = '点(?:真实)?(?:伤害|生命值|生命|护甲值|护甲|攻击力|攻击|法力值|法力|魔力值)?';
   const mark = (value: number, suffix: string): string =>
     interactive
@@ -70,7 +99,7 @@ export function renderSpell(desc: string, magic: number, opts: { interactive?: b
     formulas.push({ expr: inner.trim(), value, unit: '' });
     return mark(value, '');
   });
-  return { html: text.trim(), formulas };
+  return { html: applyTermMarkup(text, terms).trim(), formulas, terms };
 }
 
 export function formulaRule(expr: string): string {

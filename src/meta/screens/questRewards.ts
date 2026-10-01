@@ -1,14 +1,11 @@
 import { getTroopById } from '../../data/troops';
-import { BaseColor } from '../../engine/types';
 import { EXPLORE_DROPS, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import {
-  exploreTierForNode,
   kingdomBaseLevel,
   kingdomQuestRewardTroop,
-  kingdomTroopPool,
   type KingdomStageMode,
 } from '../data/kingdoms';
-import { INGOT_KEYS, INGOT_NAMES, STONE_COLORS, stoneColorKeyOf, stoneName } from '../data/materials';
+import { INGOT_KEYS, INGOT_NAMES, STONE_COLORS, stoneName } from '../data/materials';
 import type { KingdomState } from '../state/schema';
 import { kingdomStageCleared } from '../systems/kingdomFirstClear';
 import { ingotArt, materialImg, stoneMarkup } from '../shell/materialArt';
@@ -45,30 +42,13 @@ function ingotTile(kingdom: string): string {
   return tile('ingot', key, label, `<span class="qloot-symbol ingot">${materialImg(ingotArt(key))}</span>`, key);
 }
 
-/** Actual lead candidates, matching encounter.ts's rarity-band fallback.
- * Preview enemies use a different seed, so their lead cannot promise one stone color.
- */
-function possibleStoneColors(kingdom: string, mode: 'hard' | 'veryHard', node: number): string[] {
-  const tier = exploreTierForNode(mode, node);
-  let min = tier <= 2 ? 0 : 2;
-  let max = tier <= 2 ? 2 : 4;
-  let pool = kingdomTroopPool(kingdom, { min, max });
-  while (pool.length === 0 && (min > 0 || max < 5)) {
-    min = Math.max(0, min - 1);
-    max = Math.min(5, max + 1);
-    pool = kingdomTroopPool(kingdom, { min, max });
-  }
-  const possible = new Set(pool.map((troop) => stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown)));
-  return STONE_COLORS.filter((color) => possible.has(color.key)).map((color) => color.key);
-}
-
 function stoneSymbol(color: string): string {
   return `<span class="qloot-symbol stone" data-tier="minor">${stoneMarkup('minor', color === 'neutral' ? 'blue' : color)}</span>`;
 }
 
 function stoneTile(color: string): string {
   const key = `minor:${color}`;
-  const label = `${stoneName(key)} · 可能掉落；胜利时 ${Math.round(EXPLORE_DROPS.minorStoneChance * 100)}% 概率获得一颗初级特质石，颜色取决于实战队首`;
+  const label = `${stoneName(key)} · 可能掉落；胜利时 ${Math.round(EXPLORE_DROPS.minorStoneChance * 100)}% 概率获得一颗初级特质石，六色等概率随机`;
   return tile('stone', key, label, stoneSymbol(color), 'minor');
 }
 
@@ -82,19 +62,11 @@ export function questRewardsHtml(kingdom: string, mode: KingdomStageMode, node: 
       + (node === 4 || node === 8 ? troopTile(kingdom, node) : '')
       + (node === 8 ? currencyTile('key') : '') + gems;
   }
-  return ingotTile(kingdom) + possibleStoneColors(kingdom, mode, node).map(stoneTile).join('') + gems;
+  return ingotTile(kingdom) + STONE_COLORS.map(({ key }) => stoneTile(key)).join('') + gems;
 }
 
 /** Compact tab artwork, reusing the same material silhouettes as reward tiles. */
 export function questModeLootHtml(kingdom: string, mode: KingdomStageMode): string {
   if (mode === 'normal') return troopTile(kingdom, 8) + currencyTile('key');
-  if (mode === 'hard') {
-    return ingotTile(kingdom) + tile('stone', 'minor', '初级特质石 · 可能掉落，颜色取决于实战队首', stoneSymbol('neutral'), 'minor');
-  }
-  const colors = possibleStoneColors(kingdom, mode, 1);
-  const names = colors.map((color) => stoneName(`minor:${color}`)).join('、');
-  return ingotTile(kingdom) + tile(
-    'stone', 'minor', `${names || '初级特质石'} · 可能掉落，颜色取决于实战队首`,
-    `<span class="qloot-cluster">${colors.map(stoneSymbol).join('')}</span>`, 'minor',
-  );
+  return ingotTile(kingdom) + tile('stone', 'minor', '初级特质石 · 可能掉落，六色等概率随机', stoneSymbol('neutral'), 'minor');
 }

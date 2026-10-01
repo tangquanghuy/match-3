@@ -34,7 +34,7 @@ describe('王国逐关独立首通宝石', () => {
     const save = saveWithGems();
     save.kingdoms[kingdom] = { level: 1, questsDone: 8, exploreTier: 6, lastTributeAt: 0 };
     for (const tier of [6, 3, 1, 4, 2, 5]) {
-      const context = ctx(planExploreEncounter(kingdom, tier, 1));
+      const context = ctx(planExploreEncounter(kingdom, tier, 1, 5));
       const expected = tier <= 3 ? KINGDOM_FIRST_CLEAR_GEMS.hard : KINGDOM_FIRST_CLEAR_GEMS.veryHard;
       expect(reward(applySettlement(save, { ...win, winner: 'enemy' }, context))).toBeUndefined();
       expect(save.kingdoms[kingdom]!.clearedExploreTiers ?? []).not.toContain(tier);
@@ -47,7 +47,7 @@ describe('王国逐关独立首通宝石', () => {
   it('不同王国相同关号独立；活动胜利不借用王国首通奖励', () => {
     const save = saveWithGems();
     for (const k of KINGDOM_ORDER.slice(0, 2)) {
-      expect(reward(applySettlement(save, win, ctx(planExploreEncounter(k, 1, 1))))?.deltas.gems).toBe(200);
+      expect(reward(applySettlement(save, win, ctx(planExploreEncounter(k, 1, 1, 5))))?.deltas.gems).toBe(200);
     }
     const event: EncounterPlan = { ...planExploreEncounter(kingdom, 2, 1), source: { kind: 'event', weekStart: 1000, typeId: 'worldEvent' } };
     expect(reward(applySettlement(save, win, ctx(event)))).toBeUndefined();
@@ -60,7 +60,7 @@ describe('王国逐关独立首通宝石', () => {
     expect(hydrated.kingdoms[kingdom]!.clearedExploreTiers).toEqual([]);
     expect(hydrated.kingdoms[kingdom]!.questsDone).toBe(8);
     const raw = JSON.parse(JSON.stringify(save));
-    raw.kingdoms[kingdom].clearedExploreTiers = [6, 1, 1, 0, -1, 7, 2.5, '3', null];
+    raw.kingdoms[kingdom].clearedExploreTiers = [12, 1, 1, 0, -1, 13, 2.5, '3', null];
     hydrated = hydrateSave(raw);
     expect(hydrated.kingdoms[kingdom]!.clearedExploreTiers).toEqual([1, EXPLORE_MAX_TIER]);
     expect(reward(applySettlement(hydrated, win, ctx(planQuestEncounter(kingdom, 8, 1))))).toBeUndefined();
@@ -69,16 +69,20 @@ describe('王国逐关独立首通宝石', () => {
     const storageData = new Map<string, string>();
     const storage = { getItem: (k: string) => storageData.get(k) ?? null, setItem: (k: string, v: string) => { storageData.set(k, v); } };
     const seeded = newSave({ now: 0, currencies: { gems: 0 }, starterTroopIds: [6000, 6097, 6457] });
-    seeded.kingdoms[kingdom] = { level: 1, questsDone: 8, exploreTier: 4, lastTributeAt: 0 };
+    seeded.kingdoms[kingdom] = { level: 1, questsDone: 8, exploreTier: 4, exploreUnlockedTier: 4, lastTributeAt: 0 };
     new SaveStore(storage).persist(seeded);
     // 走真实出战票：出敌计划由核心签发，客户端只回传结果
     const fight = async (gw: MockGateway) => {
+      let detail!: ReturnType<typeof applySettlement>;
+      for (let stage = 0; stage < 6; stage++) {
       const ticket = await gw.planExploreBattle(kingdom);
       if (!ticket.ok) throw new Error(ticket.message);
       const { request } = ticket;
       const out = (await gw.settleBattle({ ...win, requestId: request.requestId, battleId: request.battleId, rulesetVersion: request.rulesetVersion })).result;
       if (!out.ok || out.kind !== 'encounter') throw new Error('expected encounter settlement');
-      return out.detail;
+      detail = out.detail;
+      }
+      return detail;
     };
     const gateway = new MockGateway(storage);
     await gateway.load();

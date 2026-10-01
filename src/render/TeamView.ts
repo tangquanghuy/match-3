@@ -2182,7 +2182,8 @@ export class TeamView {
     }
     if (ROW_LAYOUT) {
       // 横排：行在布局给定的行宽内居中
-      const count = this.cardEls().length + this.emptySlots().length;
+      // Exiting cards remain in the DOM for their fade, but no longer occupy a slot.
+      const count = this.cards.size + this.emptySlots().length;
       const used = count * metrics.width + Math.max(0, count - 1) * ROW_LAYOUT.gap;
       this.el.style.width = `${used}px`;
       if (this.mounted) this.el.style.left = `${this.leftAnchor + Math.round((ROW_LAYOUT.rowWidth - used) / 2)}px`;
@@ -2328,11 +2329,11 @@ export class TeamView {
       if (from < to) {
         const after = next[to + 1];
         if (after) this.el.insertBefore(card.el, after);
-        else this.el.appendChild(card.el);
+        else this.el.insertBefore(card.el, this.emptySlots()[0] ?? null);
       } else {
         const ref = next[to];
         if (ref) this.el.insertBefore(card.el, ref);
-        else this.el.appendChild(card.el);
+        else this.el.insertBefore(card.el, this.emptySlots()[0] ?? null);
       }
     });
   }
@@ -2344,14 +2345,15 @@ export class TeamView {
     this.slideReorder(() => {
       for (const id of ids) {
         const card = this.cards.get(id);
-        if (card) this.el.appendChild(card.el);
+        if (card) this.el.insertBefore(card.el, this.emptySlots()[0] ?? null);
       }
     });
   }
 
   private cardEls(): HTMLElement[] {
+    const live = new Set<HTMLElement>([...this.cards.values()].map(card => card.el));
     return [...this.el.children].filter((el): el is HTMLElement =>
-      el instanceof HTMLElement && el.classList.contains('gcard'));
+      el instanceof HTMLElement && live.has(el));
   }
 
   private slideAnims = new Map<HTMLElement, Animation>();

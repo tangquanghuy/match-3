@@ -434,7 +434,7 @@ describe('职业解锁分五批（用户裁定 2026-09-29）', () => {
   };
   const exploreSettle = (s: ReturnType<typeof save>, kingdom: string, tier: number) =>
     applySettlement(s, mkResult('player'), {
-      plan: planExploreEncounter(kingdom, tier, 5), enemyByExternalId: new Map(), todayStart: 1000,
+      plan: planExploreEncounter(kingdom, tier, 5, 5), enemyByExternalId: new Map(), todayStart: 1000,
     });
 
   it('五批覆盖全部 38 个职业，破碎尖塔独占 default 批', () => {

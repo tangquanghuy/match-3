@@ -54,6 +54,20 @@ describe('treasure hunt battle-board trace', () => {
     }
     expect(merges).toBeGreaterThan(200);
   });
+  it('replays post-cap negatively biased refills without rerolling or replacing existing vaults', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const cells = createOpeningBoard(new SeededRNG(seed));
+      cells[63] = 7;
+      const state = { cells, turns: 100, moves: 80, rng: seed, softCap: { target: 3, peak: 3, activeMoves: 12 } };
+      const before = structuredClone(state);
+      const result = firstMove(state);
+      expect(state).toEqual(before);
+      expect(replay(createHuntBoard(cells), result.events)).toEqual(result.cells);
+      expect(result.cells.filter(tier => tier === 7).length).toBeGreaterThanOrEqual(1);
+      expect(result.softCap.target).toBe(3);
+      expect(result.softCap.activeMoves).toBe(13);
+    }
+  });
   it('reshuffle retains every piece id and tier', () => {
     const cells = Array.from({ length: 64 }, (_, i) => i % 8);
     const trace = new HuntBoardTrace(cells);

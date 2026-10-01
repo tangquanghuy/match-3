@@ -928,6 +928,8 @@ export interface PassiveModifiers {
    * 编队），复用 creditEconomy 入账口（economy-gain 事件，side 记行动方）。
    */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
+  /** On actual death, fill one random surviving ally's mana (not the dead holder). */
+  onSelfDeathFillAllyMana?: boolean;
   /**
    * 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」）。
    * 与 onDeathEconomy 同一结算点（行动末尾统一扫 defeat 事件），从行动开始的引用快照取

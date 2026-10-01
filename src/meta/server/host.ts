@@ -1,3 +1,4 @@
+import { defenseRecord, emptyDefenseLog } from '../systems/invasionDefense';
 /**
  * 玩家 Actor：一个玩家一个实例，在线期间存档常驻内存。
  *
@@ -85,6 +86,7 @@ export class MetaHost {
         await this.flushNow();
         await this.drainEffects();
       }
+      await this.drainDefenseOutbox();
       const reply: LoadReply = { save: this.save!, fresh: this.createdFresh, warning: this.loadWarning, serverNow: this.env.now() };
       this.createdFresh = false;
       this.loadWarning = null;
@@ -120,7 +122,7 @@ export class MetaHost {
 
   /** 立即落盘所有脏记录（下线 / 实例回收前调用） */
   flush(): Promise<void> {
-    return this.serial(() => this.flushNow());
+    return this.serial(async () => { await this.flushNow(); await this.drainDefenseOutbox(); });
   }
 
   /** 已提交未落盘的记录数（监控/测试用） */
@@ -135,6 +137,11 @@ export class MetaHost {
     const pool = this.options.mirrorPool;
     const save = this.save!;
     const now = this.env.now();
+    if (command.type === 'syncInvasionDefense' || command.type === 'claimInvasionDefense' || command.type === 'planInvasionRevenge') {
+      if (!pool) return { defenseLog: emptyDefenseLog(now, weekStartOf(now)) };
+      try { return { defenseLog: await pool.defenseLog(now, weekStartOf(now), save.invasion.defenseProgress.cursor) }; }
+      catch (error) { this.options.onMirrorPoolError?.(error); return {}; }
+    }
     if (!pool) return {};
     const needs = commandPoolNeeds(save, command, now);
     if (!needs.mirrors && !needs.standings) return {};
@@ -207,6 +214,7 @@ export class MetaHost {
    * 同一批里多次 VP 上报只写最后一次。
    */
   private async drainEffects(): Promise<void> {
+    await this.drainDefenseOutbox();
     const queued = this.effects.splice(0);
     const pool = this.options.mirrorPool;
     if (!pool || queued.length === 0) return;
@@ -216,6 +224,42 @@ export class MetaHost {
       ...queued.filter(e => e.publishMirror).map(e => pool.publish(e.publishMirror!).catch(onError)),
       lastVp ? pool.reportVp(lastVp).catch(onError) : undefined,
     ]);
+  }
+
+  /** Delivery is at-least-once; shared storage deduplicates by attacker + authoritative ticket. */
+  private async drainDefenseOutbox(): Promise<void> {
+    const pool = this.options.mirrorPool;
+    const reports = this.save?.invasion.defenseOutbox ?? [];
+    const publish = this.save?.invasion.defensePublishPending ?? false;
+    if (!pool || (reports.length === 0 && !publish)) return;
+    await this.flushNow(); // persist result + outbox before touching shared storage
+    const delivered = new Set<string>();
+    let published = false;
+    if (publish) {
+      const record = defenseRecord(this.save!, this.env.now());
+      if (record) {
+        try { await pool.publish(record); published = true; }
+        catch (error) { this.options.onMirrorPoolError?.(error); }
+      }
+    }
+    // Bounded batch: a storage outage must not create an unbounded burst on reconnect.
+    for (const report of reports.slice(0, 20)) {
+      try { await pool.recordDefense(report); delivered.add(report.id); }
+      catch (error) { this.options.onMirrorPoolError?.(error); break; }
+    }
+    if (delivered.size || published) {
+      const next = structuredClone(this.save!);
+      if (published) next.invasion.defensePublishPending = false;
+      next.invasion.defenseOutbox = next.invasion.defenseOutbox.filter(r => !delivered.has(r.id));
+      next.revision += 1;
+      this.apply(next);
+      await this.flushNow();
+    }
+    if (this.save!.invasion.defenseOutbox.length || this.save!.invasion.defensePublishPending) {
+      // Worker alarm / local scheduler retries even if no further player commands arrive.
+      const schedule = this.options.schedule ?? ((ms: number, run: () => void) => void setTimeout(run, ms));
+      schedule(30_000, () => { void this.flush().catch(error => this.options.onMirrorPoolError?.(error)); });
+    }
   }
 
   /** 把新存档设为已提交状态并标脏 */

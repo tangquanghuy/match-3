@@ -79,13 +79,13 @@ describe('admit at most one battle before requesting an authoritative ticket', (
       if (command.type === 'setKingdomExploreTier') { committed.resolve(); await release.promise; }
       return reply;
     });
-    const first = launcher.launchExplore(kingdom, 4);
+    const first = launcher.launchExplore(kingdom, 2);
     await committed.promise;
-    const second = launcher.launchExplore(kingdom, 5);
+    const second = launcher.launchExplore(kingdom, 1);
     release.resolve();
     await Promise.all([first, second]);
     expect(calls.mock.calls.filter(([c]) => c.type === 'setKingdomExploreTier')).toHaveLength(1);
-    expect(gateway.current().kingdoms[kingdom]!.exploreTier).toBe(4);
+    expect(gateway.current().kingdoms[kingdom]!.exploreTier).toBe(2);
     expect(rendered.requests).toHaveLength(1);
   });
 

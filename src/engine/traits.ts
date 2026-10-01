@@ -92,6 +92,8 @@ export interface TraitDefinition {
   onDamagedCreateGem?: { gem: SpecialGemKind; tier?: number; color?: string; count: number };
   /** 自己身亡时向战场经济池入账（valuable「在自身身亡时获得 25 黄金」） */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
+  /** On actual death, fill one random surviving ally's mana (not the dead holder). */
+  onSelfDeathFillAllyMana?: boolean;
   /** 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」） */
   onDeathCreateGem?: { gem: SpecialGemKind; tier?: number; count: number };
   /** 法力操作免疫（manashield「对法力灼烧、法力耗尽和法力窃取免疫」）：reduce 原语 stat='mana' 的执行入口跳过 */
@@ -1065,6 +1067,7 @@ export function resolvePassives(
       passive.onEnemyDeathEnemyStatus = { ...trait.onEnemyDeathEnemyStatus };
     }
     // 身亡经济（valuable）：同类取先声明的一条（与上方死亡变体同口径）
+    if (trait.onSelfDeathFillAllyMana) passive.onSelfDeathFillAllyMana = true;
     if (trait.onDeathEconomy && passive.onDeathEconomy === undefined) {
       passive.onDeathEconomy = { ...trait.onDeathEconomy };
     }
@@ -1704,6 +1707,23 @@ export function applyPositionAuras(
     }
   }
   return events;
+}
+
+/** Self-death mana gift. Called once per resolved defeat, after revival checks. */
+export function applySelfDeathManaGift(
+  dead: Character,
+  allies: readonly Character[],
+  rng: { nextInt(max: number): number },
+): GameEvent[] {
+  if (!dead.defeated || !passivesOf(dead).onSelfDeathFillAllyMana) return [];
+  const pool = allies.filter(c => c.id !== dead.id && !c.defeated && c.hp > 0);
+  if (pool.length === 0) return [];
+  // Full-mana allies remain valid: the trait promises a random ally, not smart targeting.
+  const target = pool[rng.nextInt(pool.length)];
+  const amount = grantStat(target, 'mana', Math.max(0, target.manaCost - target.mana));
+  return amount > 0 ? [{ type: 'buff', source: 'trait', targetId: target.id, stat: 'mana', amount,
+    traitActivations: traitActivations(dead, def => !!def.onSelfDeathFillAllyMana),
+  }] : [];
 }
 
 /**

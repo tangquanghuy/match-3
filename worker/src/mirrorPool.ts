@@ -1,3 +1,5 @@
+import type { D1Database } from '@cloudflare/workers-types';
+import { DEFENSE_HISTORY_LIMIT, DEFENSE_INBOX_BATCH, hydrateDefenseReports, emptyDefenseLog, type DefenseLog, type DefenseReport } from '../../src/meta/systems/invasionDefense';
 /**
  * 入侵真人镜像池的 D1 实现（表结构见 migrations/0003_invasion_mirrors.sql）。
  *
@@ -33,6 +35,51 @@ const PRUNE_EVERY = 50;
 
 export class D1MirrorPool implements InvasionMirrorPool {
   constructor(private readonly db: D1Database, private readonly playerId: () => string | null) {}
+
+  async recordDefense(report: DefenseReport): Promise<void> {
+    const self = this.playerId();
+    if (!self) throw new Error('Missing invasion actor identity');
+    if (report.defender === mirrorOwnerKey(self)) return;
+    // Identity comes from this actor, target/outcome from its persisted battle ticket.
+    await this.db.prepare(`INSERT INTO invasion_defenses
+      (attacker_id, battle_id, defender_key, attacker_key, at, defender_won, surrendered, frenzy, revenge, attacker_snapshot)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (attacker_id, battle_id) DO NOTHING`)
+      .bind(self, report.id, report.defender, mirrorOwnerKey(self), report.at,
+        Number(report.defenderWon), Number(report.surrendered), Number(report.frenzy), Number(report.revenge === true), report.attackerSnapshot ? JSON.stringify(report.attackerSnapshot) : null).run();
+  }
+
+  async defenseLog(now: number, weekStart: number, afterSequence = 0): Promise<DefenseLog> {
+    const self = this.playerId();
+    if (!self) return emptyDefenseLog(now, weekStart);
+    const key = mirrorOwnerKey(self);
+    // Same transactional snapshot for counters and the recent page; covering index serves counts.
+    const [counts, history, inbox] = await this.db.batch([
+      this.db.prepare(`SELECT COUNT(*) AS total, COALESCE(SUM(defender_won), 0) AS wins,
+        COALESCE(SUM(CASE WHEN at >= ? THEN 1 ELSE 0 END), 0) AS weeklyTotal,
+        COALESCE(SUM(CASE WHEN at >= ? THEN defender_won ELSE 0 END), 0) AS weeklyWins
+        FROM invasion_defenses WHERE defender_key = ?`).bind(weekStart, weekStart, key),
+      this.db.prepare(`SELECT d.*, a.username FROM invasion_defenses d
+        LEFT JOIN accounts a ON a.player_id = d.attacker_id
+        WHERE d.defender_key = ? ORDER BY d.at DESC, d.battle_id DESC LIMIT ?`).bind(key, DEFENSE_HISTORY_LIMIT),
+      this.db.prepare(`SELECT d.*, a.username FROM invasion_defenses d
+        LEFT JOIN accounts a ON a.player_id = d.attacker_id
+        WHERE d.defender_key = ? AND d.sequence > ? ORDER BY d.sequence ASC LIMIT ?`)
+        .bind(key, afterSequence, DEFENSE_INBOX_BATCH + 1),
+    ]);
+    const totals = counts!.results[0] as { total: number; wins: number; weeklyTotal: number; weeklyWins: number };
+    const parse = (rows: Record<string, unknown>[]) => rows.map(r => {
+      let attackerSnapshot: unknown;
+      try { attackerSnapshot = JSON.parse(String(r.attacker_snapshot ?? 'null')); } catch { /* corrupt snapshot disables revenge, not history */ }
+      const report = hydrateDefenseReports([{ id: r.battle_id, defender: r.defender_key, at: r.at,
+        defenderWon: r.defender_won === 1, surrendered: r.surrendered === 1, frenzy: r.frenzy === 1,
+        revenge: r.revenge === 1, attackerSnapshot }])[0]!;
+      return { ...report, sequence: Number(r.sequence), attacker: String(r.attacker_key),
+        name: String(r.username ?? '').trim().slice(0, 24) || '无名指挥官' };
+    });
+    return { fetchedAt: now, weekStart, ...totals, entries: parse(history!.results as Record<string, unknown>[]),
+      pending: parse(inbox!.results.slice(0, DEFENSE_INBOX_BATCH) as Record<string, unknown>[]), hasMore: inbox!.results.length > DEFENSE_INBOX_BATCH };
+  }
 
   async sample(q: MirrorPoolQuery): Promise<MirrorPoolEntry[]> {
     const self = this.playerId();
@@ -120,7 +167,9 @@ export class D1MirrorPool implements InvasionMirrorPool {
          power = excluded.power, vp = excluded.vp, snapshot = excluded.snapshot, recorded_at = excluded.recorded_at`,
     ).bind(self, mirrorOwnerKey(self), record.league, record.weekStart, record.ruleset,
       Math.round(record.power), Math.round(record.vp), JSON.stringify(snapshot), record.recordedAt);
-    if (Math.random() * PRUNE_EVERY < 1) {
+    if (record.explicitDefense) {
+      await this.db.batch([upsert, this.db.prepare('DELETE FROM invasion_mirrors WHERE player_id = ? AND league != ?').bind(self, record.league)]);
+    } else if (Math.random() * PRUNE_EVERY < 1) {
       const cutoff = record.recordedAt - INVASION_MATCHMAKING.maxAgeMs;
       await this.db.batch([upsert, this.db.prepare('DELETE FROM invasion_mirrors WHERE recorded_at < ?').bind(cutoff)]);
     } else {

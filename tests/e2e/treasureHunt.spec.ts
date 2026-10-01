@@ -169,3 +169,26 @@ test.describe('mobile touch gestures', () => {
     });
   }
 });
+
+
+test('single soft-cap target and cooling progress survive a move and page reload', async ({ page }) => {
+  await setup(page);
+  await page.evaluate(async () => {
+    const path = '/src/meta/gateway/index.ts';
+    const { metaGateway } = await import(/* @vite-ignore */ path);
+    const gateway = metaGateway();
+    const save = JSON.parse(gateway.exportSaveJson());
+    save.treasureHunt.softCap = { target: 7, peak: 7, activeMoves: 2 };
+    await gateway.dev.importSaveJson(JSON.stringify(save));
+  });
+  await page.reload();
+  await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready', 'true', { timeout: 25000 });
+  await swap(page, 1, 9);
+  await expect(page.locator('#huntMoves')).toHaveText('已走 1 步', { timeout: 12000 });
+  await expect(page.locator('#huntBoard')).toHaveAttribute('aria-busy', 'false');
+  const played = await snapshot(page);
+  expect(played.treasureHunt.softCap).toEqual({ target: 7, peak: 7, activeMoves: 3 });
+  await page.reload();
+  await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready', 'true', { timeout: 25000 });
+  expect((await snapshot(page)).treasureHunt).toEqual(played.treasureHunt);
+});

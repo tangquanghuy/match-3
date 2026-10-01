@@ -74,6 +74,8 @@
 .bag-item.selected { border-color: var(--mat); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mat) 45%, transparent), 0 7px 18px #5248371d; }
 .bag-item.empty { border-style: dashed; background: #faf8f2; }
 .bag-item.empty .bag-item-art { filter: grayscale(1); opacity: .38; }
+/* Arcane colors identify the recipe even before the first stone is collected. */
+.bag-item.empty[data-bag-item^="arcane:"] .bag-item-art { filter: none; opacity: .72; }
 .bag-rarity-line { position: absolute; top: 12px; bottom: 12px; left: 0; width: 3px; border-radius: 0 3px 3px 0; background: var(--mat); }
 .bag-item-art { display: grid; place-items: center; width: 57px; height: 53px; }
 .bag-item-art .mat-art { width: 100%; height: 100%; object-fit: contain; }
@@ -143,3 +145,8 @@
 .bag-pagination a { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #d8cdb9; border-radius: 5px; color: #303c3e; text-decoration: none; background: #fffdf7; }
 .bag-pagination a[aria-disabled="true"] { opacity: .35; pointer-events: none; }
 .bag-pagination a:focus-visible { outline: 2px solid #766241; outline-offset: 2px; }
+
+.bag-stone-filters { display: flex; gap: 6px; margin: 0 0 12px; border-bottom: 1px solid #d8cdb9; }
+.bag-stone-filters a { padding: 8px 14px; color: #635b50; font-size: 13px; text-decoration: none; border-bottom: 2px solid transparent; }
+.bag-stone-filters a[aria-current] { color: #40301a; border-color: #947447; font-weight: 700; }
+.bag-stone-filters a:focus-visible { outline: 2px solid #766241; outline-offset: -2px; }

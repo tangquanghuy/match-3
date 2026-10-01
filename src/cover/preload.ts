@@ -23,8 +23,20 @@ interface Manifest {
   images?: string[];
 }
 
-const CONCURRENCY = 6;
+// 先用 12 路填充队列；顺畅时升至 18，慢请求/失败后降到 6，避免弱网拥塞。
+// 槽位覆盖完整响应体读取和优先图解码，不是浏览器连接数。
+const INITIAL_CONCURRENCY = 12;
+const MAX_CONCURRENCY = 18;
+const FALLBACK_CONCURRENCY = 6;
+const FAST_ITEM_MS = 4_000;
+const SLOW_ITEM_MS = 8_000;
 const ITEM_TIMEOUT_MS = 20_000;
+
+interface DownloadResult {
+  ok: boolean;
+  retryable: boolean;
+  elapsedMs: number;
+}
 
 async function fetchManifest(): Promise<string[]> {
   const res = await fetch(`${import.meta.env.BASE_URL}preload-manifest.json`, {
@@ -59,17 +71,22 @@ async function decodePriority(url: string, signal: AbortSignal): Promise<void> {
 }
 
 /** 完整读完响应体才算进了缓存；超时中止 */
-async function warm(url: string): Promise<boolean> {
+async function warm(url: string): Promise<DownloadResult> {
+  const started = performance.now();
+  const result = (ok: boolean, retryable = false): DownloadResult => ({ ok, retryable, elapsedMs: performance.now() - started });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ITEM_TIMEOUT_MS);
   try {
     const res = await fetch(url, { signal: controller.signal, credentials: 'same-origin' });
-    if (!res.ok) return false;
+    if (!res.ok) {
+      await res.body?.cancel();
+      return result(false, res.status === 429 || res.status >= 500);
+    }
     await res.arrayBuffer();
     await decodePriority(url, controller.signal);
-    return true;
+    return result(true);
   } catch {
-    return false;
+    return result(false, true);
   } finally {
     clearTimeout(timer);
   }
@@ -100,17 +117,46 @@ export function startPreload(): Promise<PreloadProgress> {
       listeners.forEach((fn) => fn(latest));
     };
     emit();
-    const tasks = [...priority.map((task) => () => task), ...urls.map((url) => () => warm(url))];
-    let cursor = 0;
-    const worker = async (): Promise<void> => {
-      while (cursor < tasks.length) {
-        const ok = await tasks[cursor++]!();
-        if (!ok) progress.failed++;
-        progress.done++;
-        emit();
+    type Task = { url: string; run: () => Promise<DownloadResult> };
+    const tasks: Task[] = [
+      ...PRIORITY_IMAGES.map((url, index) => ({ url, run: () => priority[index]! })),
+      ...urls.map(url => ({ url, run: () => warm(url) })),
+    ];
+    const retryTasks: Task[] = [];
+    let limit = INITIAL_CONCURRENCY;
+    let congested = false;
+    const settle = (result: DownloadResult): void => {
+      if (!result.ok) progress.failed++;
+      progress.done++;
+      emit();
+    };
+    const runQueue = async (queue: Task[], retry: boolean): Promise<void> => {
+      let cursor = 0;
+      const active = new Set<Promise<void>>();
+      while (cursor < queue.length || active.size) {
+        while (cursor < queue.length && active.size < limit) {
+          const task = queue[cursor++]!;
+          const pending = task.run().then(result => {
+            if (!result.ok || result.elapsedMs >= SLOW_ITEM_MS) {
+              congested = true;
+              limit = FALLBACK_CONCURRENCY;
+            } else if (!retry && !congested && result.elapsedMs < FAST_ITEM_MS) {
+              limit = Math.min(MAX_CONCURRENCY, limit + 1);
+            }
+            // 临时失败延后到低并发补一轮；成功项不重下，进度只在最终结果时计数。
+            if (!retry && !result.ok && result.retryable) retryTasks.push({ url: task.url, run: () => warm(task.url) });
+            else settle(result);
+          }).finally(() => { active.delete(pending); });
+          active.add(pending);
+        }
+        if (active.size) await Promise.race(active);
       }
     };
-    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+    await runQueue(tasks, false);
+    if (retryTasks.length) {
+      limit = FALLBACK_CONCURRENCY;
+      await runQueue(retryTasks, true);
+    }
     return latest;
   })();
   return running;

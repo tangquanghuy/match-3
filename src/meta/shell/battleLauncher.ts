@@ -8,7 +8,7 @@
 import type { BattleResult } from '@session/index';
 import { isFailure, type BattleTicket } from '../gateway';
 import { EVENT_TYPES } from '../data/events';
-import { exploreNodeLabel } from '../data/kingdoms';
+import { exploreNodeLabel, exploreStageLabel } from '../data/kingdoms';
 import type { EncounterSource } from '../systems/encounter';
 import type { MetaFailure } from '../types';
 import type { ShellCtx } from './screen';
@@ -26,7 +26,7 @@ function loadingTitle(ticket: BattleTicket): { title: string; subtitle?: string 
   if (source.kind === 'quest') {
     return source.tutorial ? { title: '新手试炼', subtitle: ticket.kingdom } : { title: ticket.kingdom, subtitle: `王国任务 · 第 ${source.node} 关` };
   }
-  if (source.kind === 'explore') return { title: ticket.kingdom, subtitle: exploreNodeLabel(source.tier) };
+  if (source.kind === 'explore') return { title: ticket.kingdom, subtitle: `${exploreNodeLabel(source.tier)} · ${exploreStageLabel(source.stage ?? 0)}` };
   const event = EVENT_TYPES.find((t) => t.id === source.typeId);
   return { title: event?.name ?? '每周活动', subtitle: ticket.kingdom };
 }
@@ -36,7 +36,7 @@ function sourceLabelOf(source: EncounterSource): string {
     ? `NORMAL ${source.node}`
     : source.kind === 'event'
       ? '每周活动'
-      : exploreNodeLabel(source.tier);
+      : `${exploreNodeLabel(source.tier)} · ${exploreStageLabel(source.stage ?? 0)}`;
 }
 
 export class BattleLauncher {
@@ -87,8 +87,8 @@ export class BattleLauncher {
   }
 
   /** 入侵出战（mirrorId = 候选对手） */
-  async launchInvasionBattle(mirrorId: string): Promise<void> {
-    await this.launch(() => this.ctx.gateway.planInvasionBattle(mirrorId));
+  async launchInvasionBattle(mirrorId: string, revenge = false): Promise<void> {
+    await this.launch(() => revenge ? this.ctx.gateway.planInvasionRevenge(mirrorId) : this.ctx.gateway.planInvasionBattle(mirrorId));
   }
 
   private async launch(request: () => Promise<BattleTicket | MetaFailure>): Promise<void> {
@@ -193,7 +193,7 @@ export class BattleLauncher {
     this.ctx.showResult(settlement.detail, {
       kingdom: settlement.kingdom,
       sourceLabel: sourceLabelOf(source),
-      returnHash: source.kind === 'event' ? `#events/${source.typeId}` : undefined,
+      returnHash: source.kind === 'event' ? `#events/${source.typeId}` : source.kind === 'explore' ? `#explore/${encodeURIComponent(settlement.kingdom)}` : undefined,
       shopHash: source.kind === 'event' ? `#shop/${source.typeId}` : undefined,
     });
   }

@@ -1,21 +1,10 @@
-/**
- * 出敌生成器（M2）——主线 8 关 / Hard 3 关 / Very Hard 3 关的敌队计划。
- *
- * 纯函数 + 种子化 RNG（engine/rng 的 mulberry32）：同 seed 必出同一份计划，
- * 与会话层「同 seed 复现同一场战斗」的口径衔接。
- *
- * 分层规则（设计值）：
- *  - 任务 1~3 关：杂兵群；4~6 关：精英带队；7~8 关：精英群 + 首领压阵；
- *  - Hard 1~2 杂兵、Hard 3 / Very Hard 1 精英带队、Very Hard 2~3 精英 + 首领；
- *  - 按稀有度带选人（杂兵 0~2 / 精英 2~4 / 首领 4~5），池内无货时逐档放宽
- *    （少数王国缺高稀有度内容，不因缺卡而无敌可出）。
- */
+/** Seeded main-story encounters and fixed 4 + 1 + 1 kingdom Explore teams. */
+import { TROOPS } from '../../data/troops';
 import { enemyLevel, enemyTraitCount } from '../data/enemyDifficulty';
 import { SeededRNG } from '../../engine/rng';
 import {
   BATTLE_TEAM_SIZE,
   EXPLORE_MAX_TIER,
-  EXPLORE_TEAM_SIZES,
   exploreEnemyLevel,
   kingdomTroopPool,
   QUESTS_PER_KINGDOM,
@@ -40,7 +29,7 @@ export interface EncounterEnemy {
 export type EncounterSource =
   /** tutorial = 新手引导试炼战（按起始王国第 1 关结算，敌人削弱） */
   | { kind: 'quest'; node: number; tutorial?: boolean }
-  | { kind: 'explore'; tier: number }
+  | { kind: 'explore'; tier: number; stage?: number; runId?: string }
   /** 每周活动战斗（素材批 2026-09-19）：weekStart 锚定活动周实例，typeId 定主题 */
   | { kind: 'event'; weekStart: number; typeId: string; choice?: string; matchingTroops?: number; bossStartHp?: number; topTier?: boolean };
 
@@ -82,13 +71,6 @@ function questTierPlan(node: number): EnemyTier[] {
   const size = QUEST_TEAM_SIZES[node - 1] ?? BATTLE_TEAM_SIZE;
   if (node <= 3) return Array.from({ length: size }, () => 'minion' as const);
   if (node <= 6) return squad('elite', 'minion');
-  return squad('elite', 'elite', 'boss');
-}
-
-function exploreTierPlan(tier: number): EnemyTier[] {
-  const size = EXPLORE_TEAM_SIZES[tier - 1] ?? BATTLE_TEAM_SIZE;
-  if (tier <= 2) return Array.from({ length: size }, () => 'minion' as const);
-  if (tier <= 4) return squad('elite', 'minion');
   return squad('elite', 'elite', 'boss');
 }
 
@@ -140,15 +122,36 @@ export function planQuestEncounter(kingdom: string, node: number, seed: number):
   };
 }
 
-/** 探索出敌。tier 1~6（Hard 1~3 + Very Hard 1~3），越界抛 RangeError。 */
-export function planExploreEncounter(kingdom: string, tier: number, seed: number): EncounterPlan {
-  if (!Number.isInteger(tier) || tier < 1 || tier > EXPLORE_MAX_TIER) {
-    throw new RangeError(`探索档越界: ${tier}`);
+/** Four regular teams (base rarity <= Epic), one Legendary mini-boss, one Mythic boss.
+ * Project names map official Epic -> 传说(idx3), Legendary -> 史诗(idx4).
+ * Kingdoms without the required boss rarity use their strongest eligible local troop.
+ * Event-only pseudo-kingdoms without regular troops use global low-rarity fillers.
+ */
+export function planExploreEncounter(kingdom: string, tier: number, seed: number, stage = 0, runId?: string): EncounterPlan {
+  if (!Number.isInteger(tier) || tier < 1 || tier > EXPLORE_MAX_TIER) throw new RangeError(`探索档越界: ${tier}`);
+  if (!Number.isInteger(stage) || stage < 0 || stage > 5) throw new RangeError(`探索阶段越界: ${stage}`);
+  const rng = new SeededRNG(seed);
+  const all = kingdomTroopPool(kingdom);
+  if (!all.length) throw new RangeError(`王国不存在: ${kingdom}`);
+  const chosen = new Set<number>();
+  const level = exploreEnemyLevel(kingdom, tier);
+  const enemies: EncounterEnemy[] = [];
+  for (let slot = 0; slot < BATTLE_TEAM_SIZE; slot++) {
+    const boss = stage >= 4 && slot === 0;
+    const max = boss ? (stage === 4 ? 4 : 5) : 3;
+    let pool = all.filter(t => !chosen.has(t.id) && (boss ? t.rarityIdx === max : t.rarityIdx <= max));
+    if (!pool.length) {
+      const eligible = all.filter(t => !chosen.has(t.id) && t.rarityIdx <= max);
+      const best = Math.max(...eligible.map(t => t.rarityIdx));
+      pool = boss ? eligible.filter(t => t.rarityIdx === best) : eligible;
+    }
+    // Tiny kingdoms may repeat eligible troops, never introduce a second Mythic boss.
+    if (!pool.length) pool = all.filter(t => t.rarityIdx <= (boss ? max : 3));
+    // Event pseudo-kingdoms may have no regular troops: use global low-rarity fillers.
+    if (!pool.length) pool = TROOPS.filter(t => t.rarityIdx <= max && !chosen.has(t.id));
+    const troop = pool[rng.nextInt(pool.length)]!;
+    chosen.add(troop.id);
+    enemies.push({ troopId: troop.id, level, tier: boss ? 'boss' : troop.rarityIdx >= 2 ? 'elite' : 'minion', traitCount: enemyTraitCount(level) });
   }
-  return {
-    kingdom,
-    source: { kind: 'explore', tier },
-    seed: seed >>> 0,
-    enemies: pickEnemies(kingdom, exploreEnemyLevel(kingdom, tier), exploreTierPlan(tier), new SeededRNG(seed)),
-  };
+  return { kingdom, source: { kind: 'explore', tier, stage, ...(runId ? { runId } : {}) }, seed: seed >>> 0, enemies };
 }

@@ -1,7 +1,8 @@
 import { dailyArt } from './artAssets';
+import { STONE_COLORS } from '../data/materials';
 
 /** Material artwork is shared across inventory, rewards and map shortcuts. */
-const ART = import.meta.glob('@assets/materials/*.png', {
+const ART = import.meta.glob('@assets/materials/*.{png,webp}', {
   query: '?url',
   import: 'default',
   eager: true,
@@ -16,22 +17,21 @@ export function ingotArt(key: string): string {
   return fileUrl(`ingot-${key}.png`);
 }
 
-function svg(inner: string): string {
-  return `<svg class="mat-art" viewBox="0 0 64 64" aria-hidden="true">${inner}</svg>`;
-}
-
-/** 初级碎片、高级大碎片、符文石块、圣辉石板。颜色只改玻璃色。 */
+/** Shared raster artwork; dual-color identity is canonical regardless of display order. */
 export function stoneArt(tier: string, color = 'blue'): string {
+  if (tier === 'arcane') {
+    const order = STONE_COLORS.map(c => c.key);
+    const parts = color.split(':');
+    const [first, second = first] = parts;
+    if (parts.length > 2 || !order.includes(first) || !order.includes(second)) return '';
+    const pair = [first, second].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    return fileUrl(`stone-arcane-${pair.join('-')}.webp`);
+  }
   const name = tier === 'celestial' ? 'stone-celestial.png' : `stone-${tier}-${color}.png`;
   return fileUrl(name);
 }
 
 export function stoneMarkup(tier: string, color = 'blue'): string {
-  if (tier === 'arcane') {
-    const colors: Record<string, string> = { blue: '#6ab8f5', green: '#6fc279', red: '#e76b62', yellow: '#e9cb63', purple: '#b487df', brown: '#ba9168' };
-    const [a, b = a] = color.split(':');
-    return svg(`<path d="M32 5 55 22 45 53 19 53 9 22Z" fill="${colors[a] ?? colors.blue}" stroke="#e6d9ba" stroke-width="3"/><path d="M32 5 55 22 45 53 32 43Z" fill="${colors[b] ?? colors.blue}"/><path d="M23 24 32 17 41 24 37 38 27 38Z" fill="none" stroke="#fff" stroke-width="2"/>`);
-  }
   return materialImg(stoneArt(tier, color));
 }
 

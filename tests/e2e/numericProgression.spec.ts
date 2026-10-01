@@ -16,7 +16,7 @@ test('零黄金的1级玩家卡按逐槽配方解锁，预览与实际扣石一�
   await expect(page.locator('#unlockCost [data-icon="coin"]')).toHaveCount(0);
   for (let slot = 0; slot < 3; slot++) {
     await expect(page.locator('#unlock')).toBeEnabled();
-    if (slot === 2) await expect(page.locator('#unlockCost')).toContainText('奥术水·水之石 ×1');
+    if (slot === 2) await expect(page.locator('#unlockCost')).toContainText('秘法坚毅属性石 ×1');
     await page.locator('#unlock').click();
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).collection['6000'].traits.filter(Boolean).length)).toBe(slot + 1);
   }

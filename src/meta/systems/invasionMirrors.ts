@@ -33,6 +33,7 @@ import type { InvasionMirror, MirrorDefender } from './invasion';
 
 /** 一份待入池的录制（权威核心产出，宿主负责写入共享池） */
 export interface MirrorRecord {
+  explicitDefense?: boolean;
   /** 录制时所在联赛（入池分桶键） */
   league: number;
   weekStart: number;
@@ -234,7 +235,7 @@ export function mirrorFromEntry(entry: MirrorPoolEntry, difficulty: InvasionDiff
     defense: entry.defense.map(d => ({ ...d })),
     archetypeId: `player:${entry.ownerKey}`,
     archetypeName: '真人镜像',
-    strategy: '其他指挥官实际出战过的队伍',
+    strategy: '其他指挥官的防守队伍',
     roles: [],
     difficulty,
     provenance: '真人镜像',

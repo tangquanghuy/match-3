@@ -83,6 +83,7 @@ import { AiTargetChooser, FixedTargetChooser, prototypeChosenTargetMode } from '
 import { candidatesFor, selectTargets } from '@engine/skills/targeting';
 import type { TargetMode } from '@engine/skills/targeting';
 import { skillDisplayOf } from '@session/assigner';
+import { currentFormSnapshot } from './currentFormSnapshot';
 import { applyRequestBoardPreset } from '@session/rules';
 import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/skills/cellChooser';
 import { preloadBattleAssets } from './battleAssets';
@@ -3470,10 +3471,10 @@ export class App {
   /**
    * 技能显示文本（详情窗技能块与我方施法切入的名牌共用），与 `buildDetailViewModel` 同一取数来源，
    * 免得同一个技能在切入里叫「技能」、在详情窗叫「英灵再世」：
-   * 快照/角色携带的文本 → 按名字匹配的兵种数据 → 分拣技能池（AIRP/独立模式角色）。
+   * 当前形态角色/快照携带的文本 → 按名字匹配的兵种数据 → 分拣技能池（AIRP/独立模式角色）。
    */
   private skillDisplayTextOf(ch: Character): { name: string; description: string } {
-    const snapshot = this.idMap.snapshotOf(ch.id);
+    const snapshot = currentFormSnapshot(ch, this.idMap.snapshotOf(ch.id));
     const name = ch.spellName ?? snapshot?.spellName;
     const description = ch.spellDescription ?? snapshot?.spellDescription;
     if (name) return { name, description: description ?? '' };
@@ -3882,7 +3883,7 @@ export class App {
     };
     // 演示/宿主角色多为原创名字，按名字匹配兵种数据取稀有度/种族/王国；匹配不到则按角色自带字段降级
     const troop = TROOPS.find((t) => t.name === ch.name);
-    const snapshot = this.idMap.snapshotOf(charId);
+    const snapshot = currentFormSnapshot(ch, this.idMap.snapshotOf(charId));
     const display = snapshot
       ? { spellName: snapshot.spellName, spellDescription: snapshot.spellDescription, traitNames: snapshot.traitNames }
       : undefined;

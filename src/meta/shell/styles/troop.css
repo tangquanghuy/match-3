@@ -1008,3 +1008,24 @@
   .upgrade-confirm { min-height: 46px; }
   #modal .cancel { min-height: 28px; margin-top: 4px; }
 }
+
+/* A two-line poem needs its own header, not two lines squeezed into the 65px title bar.
+   Grow the card with the header so the spell description keeps its original room. */
+#detail .spell.spell-couplet-card { height: auto; min-height: 332px; }
+#detail .spell-couplet-card .spell-body { min-height: 220px; }
+#detail .spell-head.spell-head-couplet {
+  height: auto;
+  min-height: 110px;
+  padding: 18px 22px;
+  gap: 18px;
+}
+#detail .spell-head-couplet .spell-mark { width: 48px; height: 48px; }
+#detail .spell-head-couplet .spell-title { flex: 1; min-width: 0; }
+#detail .spell-title h2.spell-couplet {
+  white-space: pre-line;
+  font-size: 20px;
+  line-height: 1.75;
+  letter-spacing: .06em;
+}
+
+.trait-material-link { display: inline-block; color: #d6bc86; padding: 8px 0; font-size: 13px; }

@@ -92,8 +92,8 @@ export function traitFamilyRank(name: string, description: string): string[] {
 }
 
 /** 单特质图标（无去重诉求时用）。tier = 所在卡的稀有度档（0~5），决定质感档 */
-export function traitGlyph(_code: string | undefined, name: string, description: string, tier = 2): string {
-  return traitGlyphsFor([{ name, description }], tier)[0]!;
+export function traitGlyph(code: string | undefined, name: string, description: string, tier = 2): string {
+  return traitGlyphsFor([{ code, name, description }], tier)[0]!;
 }
 
 /**
@@ -102,7 +102,7 @@ export function traitGlyph(_code: string | undefined, name: string, description:
  * tier 决定质感档（simple/normal/ornate）。
  */
 export function traitGlyphsFor(
-  traits: Array<{ name?: string; description?: string } | undefined>,
+  traits: Array<{ code?: string; name?: string; description?: string } | undefined>,
   tier = 2,
 ): string[] {
   const used = new Set<string>();
@@ -110,6 +110,8 @@ export function traitGlyphsFor(
   return traits.map((trait) => {
     if (!trait) return wrap(TRAIT_FALLBACK_ICON, '#827768', '未开槽');
     const ranked = traitFamilyRank(trait.name ?? '', trait.description ?? '');
+    // 辞旧表现法力的传承，用蓝色水晶球而非死亡触发所对应的墓碑。
+    if (trait.code === 'huijiu_farewell') ranked.unshift('法力');
     if (ranked.length === 0) return wrap(TRAIT_FALLBACK_ICON, '#c9a8ee', '特质');
     let label = ranked.find((l) => !used.has(l));
     if (!label) label = FAMILIES.map((f) => f.label).find((l) => !used.has(l)) ?? ranked[0]!;

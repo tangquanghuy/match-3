@@ -14,6 +14,7 @@ import gameCss2 from './styles/extras.css?inline';
 import gameCss3 from './styles/tutorial.css?inline';
 import gameCss4 from './styles/battle-loading.css?inline';
 import gameCss5 from './styles/chest-items.css?inline';
+import gameCss6 from './styles/term-tip.css?inline';
 import { characterName } from '../state/character';
 import { setCharacterImage } from './characterImage';
 
@@ -39,10 +40,12 @@ const SCREEN_LOADERS: Record<string, () => Promise<Screen>> = {
   arena: () => import('../screens/arenaScreen').then((m) => new m.ArenaScreen()),
   events: () => import('../screens/eventsScreen').then((m) => new m.EventsScreen()),
   invasion: () => import('../screens/invasionScreen').then((m) => new m.InvasionScreen()),
+  explore: () => import('../screens/exploreScreen').then((m) => new m.ExploreScreen()),
   quest: () => import('../screens/questScreen').then((m) => new m.QuestScreen()),
   settings: () => import('../screens/settingsScreen').then((m) => new m.SettingsScreen()),
   result: () => import('../screens/resultScreen').then((m) => new m.ResultScreen()),
   bag: () => import('../screens/bagScreen').then((m) => new m.BagScreen()),
+  materials: () => import('../screens/materialShopScreen').then(m => new m.MaterialShopScreen()),
   shop: () => import('../screens/eventShopScreen').then((m) => new m.EventShopScreen()),
   gems: () => import('../screens/gemShopScreen').then((m) => new m.GemShopScreen()),
   weapons: () => import('../screens/weaponsScreen').then((m) => new m.WeaponsScreen()),
@@ -85,7 +88,7 @@ export async function prepareGame(loginName?: string): Promise<() => Promise<voi
 async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: Awaited<ReturnType<typeof gateway.load>>, loginName?: string): Promise<void> {
   const style = document.createElement('style');
   style.id = 'meta-global-css';
-  style.textContent = gameCss0 + gameCss1 + gameCss2 + gameCss3 + gameCss4 + gameCss5 + networkWaitCss + `
+  style.textContent = gameCss0 + gameCss1 + gameCss2 + gameCss3 + gameCss4 + gameCss5 + gameCss6 + networkWaitCss + `
     html, body { min-height: 100dvh; }
     #battle-root { position: fixed; inset: 0; z-index: 50; background: #0e0e16; display: grid; place-items: center;
       box-sizing: border-box; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
@@ -116,7 +119,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     launchExplore: (kingdom, tier) => launcher.launchExplore(kingdom, tier),
     launchArenaBattle: () => launcher.launchArenaBattle(),
     launchEventBattle: (choice) => launcher.launchEventBattle(choice),
-    launchInvasionBattle: (mirrorId) => launcher.launchInvasionBattle(mirrorId),
+    launchInvasionBattle: (mirrorId, revenge) => launcher.launchInvasionBattle(mirrorId, revenge),
     launchTutorialBattle: () => launcher.launchTutorialBattle(),
     showResult: (detail, meta) => {
       void loadScreen('result').then((screen) => {
@@ -144,9 +147,11 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     events: '每 周 活 动',
     invasion: '入 侵',
     quest: '王 国 主 线',
+    explore: '王 国 探 索',
     settings: '设 置',
     result: '战 斗 结 算',
     bag: '材 料 库',
+    materials: '材 料 商 店',
     shop: '活 动 商 店',
     gems: '宝 石 商 店',
     weapons: '武 器 中 心',
@@ -160,9 +165,11 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     // 王国主线页是地图的下一层，导航仍高亮「地图」（避免设置页那种"孤儿页"观感）
     wishlist: '宝箱',
     quest: '地图',
+    explore: '地图',
     hunt: '地图',
     weapons: '英雄',
     gems: '商店',
+    materials: '商店',
     shop: '商店',
   };
 

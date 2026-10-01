@@ -304,7 +304,34 @@ export interface EventGoods {
 }
 
 /** 活动专属兵种 / 符卷 / 成长补给的单机适配；印记沿用原活动代币，不另设货币。 */
-export const EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
+/** 普通活动补给翻倍；保留钢锭、符卷及已有圣辉数量。 */
+function boostBasicStones(mats: MaterialDelta): MaterialDelta {
+  return { ...mats, ...(mats.traitstones ? { traitstones: Object.fromEntries(
+    Object.entries(mats.traitstones).map(([key, amount]) => [key, /^(minor|major|runic):/.test(key) ? (amount ?? 0) * 2 : amount]),
+  ) } : {}) };
+}
+
+/** 真正高难挑战独立周限额，低难积分和旧 playRewards 不消耗此额度。 */
+export const EVENT_HIGH_TIER_REWARDS = {
+  tower: [{ floor: 16, amount: 1, celestial: 0 }, { floor: 20, amount: 2, celestial: 0 }, { floor: 25, amount: 3, celestial: 1 }],
+  raid: { minLevel: 50, amount: 2, weeklyKills: 4, celestialMinLevel: 80, celestialWeeklyKills: 2 },
+} as const;
+
+/** 六活动固定分配全部 21 种秘法石，不依赖队首、愿望单或每周随机主题。 */
+export const EVENT_ARCANE_STONES: Record<EventTypeId, readonly string[]> = {
+  invasion: ['arcane:blue:blue', 'arcane:blue:red', 'arcane:red:red'],
+  raidBoss: ['arcane:red:brown', 'arcane:yellow:brown', 'arcane:brown:brown'],
+  towerOfDoom: ['arcane:blue:purple', 'arcane:green:purple', 'arcane:purple:purple', 'arcane:purple:brown'],
+  factionAssault: ['arcane:blue:brown', 'arcane:green:brown', 'arcane:green:green', 'arcane:green:red'],
+  worldEvent: ['arcane:blue:green', 'arcane:green:yellow', 'arcane:red:yellow', 'arcane:yellow:yellow'],
+  classTrials: ['arcane:blue:yellow', 'arcane:red:purple', 'arcane:yellow:purple'],
+};
+
+export function eventArcaneBundle(type: EventTypeId, amount: number): Record<string, number> {
+  return Object.fromEntries(EVENT_ARCANE_STONES[type].map(key => [key, amount]));
+}
+
+const BASE_EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
   invasion: [
     { id: 'invasion_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
     { id: 'invasion_minor', name: '先锋补给', cost: 10, stock: 12, mats: { traitstones: { 'minor:red': 2, 'minor:blue': 2 } } },
@@ -372,6 +399,15 @@ export const EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
     { id: 'ct_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
   ],
 };
+
+/** 每两天补货；不改变活动币周产出上限。 */
+export const EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = Object.fromEntries(
+  EVENT_TYPES.map(({ id }) => [id, [...BASE_EVENT_SHOP[id].map(goods => ({ ...goods, ...(goods.mats ? { mats: boostBasicStones(goods.mats) } : {}) })), {
+    id: `${id}_arcane`, name: '秘法属性石礼包', cost: 48, stock: 2,
+    mats: { traitstones: eventArcaneBundle(id, 2) },
+  }]]),
+) as unknown as Record<EventTypeId, readonly EventGoods[]>;
+
 
 /**
  * 各活动类型的里程碑轨（设计值：六档递进；材料轨保留，阈值与宝石由 EVENT_WEEKLY_RULES 覆盖）。
@@ -443,6 +479,8 @@ export const EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = 
   Object.entries(BASE_EVENT_MILESTONES).map(([id, rows]) => [id, rows.map((row, index) => ({
     ...row, points: (id === 'worldEvent' ? EVENT_WEEKLY_RULES.supplies : EVENT_WEEKLY_RULES.points)[index]!,
     gems: EVENT_WEEKLY_RULES.gems[index]!,
+    // 普通积分只增加基础材料；高阶挑战奖励按实际关卡单独结算。
+    ...(row.mats ? { mats: boostBasicStones(row.mats) } : {}),
   }))]),
 ) as unknown as Record<EventTypeId, readonly EventMilestone[]>;
 

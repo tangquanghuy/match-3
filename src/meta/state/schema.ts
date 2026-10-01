@@ -131,6 +131,12 @@ export interface ArenaState {
 
 /** 入侵 PvP（2026-09-19）：联赛官阶 + 每周 VP 赛季（系统逻辑见 systems/invasion.ts） */
 export interface InvasionState {
+  defenseProgress: import('../systems/invasionDefense').DefenseProgress;
+  defenseTeam: TeamPreset | null;
+  defensePublishPending: boolean;
+  defenseLog: import('../systems/invasionDefense').DefenseLog | null;
+  /** Durable delivery queue; acknowledged only after shared storage accepts the result. */
+  defenseOutbox: import('../systems/invasionDefense').DefenseReport[];
   /** This week's earned VP; losses do not reduce it, weekly reset clears it. */
   progressionVp: number;
   /** Reward IDs claimed this week; cleared on weekly reset. */
@@ -219,14 +225,26 @@ export interface EventWeekState {
   mode?: unknown;
 }
 
+export interface ExploreRun {
+  id: string;
+  tier: number;
+  /** Next encounter: 0–3 regular, 4 mini-boss, 5 final boss. */
+  stage: number;
+  seed: number;
+}
+
 export interface KingdomState {
   /** 1~10 */
   level: number;
   questsDone: number;
-  /** Hard 1~3 / Very Hard 1~3（内部 1~6；0=未选） */
+  /** 探索难度1–12；0=未选。 */
   exploreTier: number;
-  /** 已首通的探索关，1~3=困难，4~6=非常困难；旧档缺省空表。选中档位不代表通关。 */
+  /** 已完成整轮的探索难度1–12；旧档首通记录保留。选中档位不代表通关。 */
   clearedExploreTiers?: number[];
+  /** 在本王国解锁的最高难度；所有王国共享其最大值。 */
+  exploreUnlockedTier?: number;
+  /** 一轮六战；离开页面/跨日不清空。 */
+  exploreRun?: ExploreRun | null;
   /** 进贡离线结算锚点（epoch ms） */
   lastTributeAt: number;
 }
@@ -282,6 +300,7 @@ export type PendingBattle =
       mirror: InvasionMirror;
       /** 本次出击队的镜像录制（正常结算后入共享池；投降/丢票不录） */
       attacker?: MirrorRecord;
+      revengeKey?: string;
     };
 
 export interface MetaSave {
@@ -329,6 +348,8 @@ export interface MetaSave {
   materials: Materials;
   /** 有新素材入账且尚未进入材料库查看；加性 UI 状态，旧档默认为 false */
   materialsUnread: boolean;
+  /** 金币秘法优惠已购颗数；账号存档内累计，跨颜色共用，不按天/周重置。 */
+  materialShop: { arcaneIntroPurchased: number };
   /** 武器淬炼等级（加性字段，version 仍为 2） */
   weaponTempering: WeaponTempering;
   /** 入侵 PvP 赛季（加性字段，version 仍为 2） */
@@ -370,12 +391,23 @@ export interface GiftState {
   invasionBattles: number;
 }
 
+/** 同一个随机软上限，单位为红箱等价值（红箱1、宝库3）。 */
+export interface HuntSoftCap {
+  target: number;
+  /** 本局达到过的最高盘面等价值；升级不重复累计，后续也不解除软上限。 */
+  peak: number;
+  /** 达标后的有效操作数；仅用于渐进降温，不直接扣步数。 */
+  activeMoves: number;
+}
+
 /** 寻宝棋盘。cells 为 8×8，0 铜币 … 7 金库。 */
 export interface TreasureHuntState {
   cells: number[];
   turns: number;
   moves: number;
   rng: number;
+  /** 加性字段，旧局在读档/下一次有效操作时补齐。 */
+  softCap?: HuntSoftCap;
 }
 
 export interface NewSaveOptions {
@@ -445,8 +477,9 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     gachaWishlist: emptyGachaWishlist(),
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
     materialsUnread: false,
+    materialShop: { arcaneIntroPurchased: 0 },
     weaponTempering: {},
-    invasion: { progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
+    invasion: { defenseProgress: { cursor: 0, rewards: { gold: 0, souls: 0, glory: 0 }, results: [] }, defenseTeam: null, defensePublishPending: false, defenseLog: null, defenseOutbox: [], progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
     eventWeeks: {},
     eventShops: {},
     settings: { language: 'zh', battleDebug: false },

@@ -80,12 +80,19 @@ export class BagScreen implements Screen {
     const tab = tabOf(param);
     const save = ctx.save();
     const materials = save.materials;
-    const allItems = this.itemsFor(tab, save);
+    const parts = param?.split('/') ?? [];
+    const filter = tab === 'stones' && ['basic', 'arcane', 'celestial'].includes(parts[1]) ? parts[1] : 'all';
+    const allItems = this.itemsFor(tab, save).filter(item => filter === 'all' || (filter === 'basic'
+      ? /^(minor|major|runic):/.test(item.id) : filter === 'arcane' ? item.id.startsWith('arcane:') : item.id === 'celestial'));
+    const pageParam = filter === 'all' ? parts[1] : parts[2];
+    const pageRoute = `#bag/${tab}${filter === 'all' ? '' : `/${filter}`}`;
+    const filters = tab === 'stones' ? `<nav class="bag-stone-filters" aria-label="特质石品阶">${[['all', '全部'], ['basic', '基础'], ['arcane', '秘法'], ['celestial', '圣辉']].map(([id, label]) => `<a href="#bag/stones${id === 'all' ? '' : `/${id}`}" ${filter === id ? 'aria-current="page"' : ''}>${label}</a>`).join('')}</nav>` : '';
+    const sectionTitle = filter === 'arcane' ? '秘法属性石' : filter === 'celestial' ? '圣辉石' : filter === 'basic' ? '基础特质石' : '';
     const pageSize = 19;
     const pageCount = Math.ceil(allItems.length / pageSize);
-    const page = Math.min(pageCount, Math.max(1, Number.parseInt(param?.split('/')[1] ?? '1', 10) || 1));
+    const page = Math.min(pageCount, Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1));
     const items = allItems.slice((page - 1) * pageSize, page * pageSize);
-    const pager = pageCount > 1 ? `<nav class="bag-pagination" aria-label="材料分页"><a href="#bag/${tab}/${Math.max(1, page - 1)}" aria-label="上一页" aria-disabled="${page === 1}">‹</a><span>${page} / ${pageCount}</span><a href="#bag/${tab}/${Math.min(pageCount, page + 1)}" aria-label="下一页" aria-disabled="${page === pageCount}">›</a></nav>` : '';
+    const pager = pageCount > 1 ? `<nav class="bag-pagination" aria-label="材料分页"><a href="${pageRoute}/${Math.max(1, page - 1)}" aria-label="上一页" aria-disabled="${page === 1}">‹</a><span>${page} / ${pageCount}</span><a href="${pageRoute}/${Math.min(pageCount, page + 1)}" aria-label="下一页" aria-disabled="${page === pageCount}">›</a></nav>` : '';
     const selected = items.find((item) => item.count > 0) ?? items[0];
     const tabCounts: Record<BagTab, number> = {
       ingots: Object.values(materials.ingots).filter((count) => count > 0).length,
@@ -109,7 +116,7 @@ export class BagScreen implements Screen {
           </nav>
           <div class="bag-body">
             <div class="bag-content">
-              <div class="bag-section-head"><h2>${tabs.find(([id]) => id === tab)?.[1]}</h2>${pager}<label class="bag-owned-toggle"><input id="bagOwnedOnly" type="checkbox">${pageCount > 1 ? '本页持有' : '只看持有'}</label></div>
+              ${filters}<div class="bag-section-head"><h2>${sectionTitle || tabs.find(([id]) => id === tab)?.[1]}</h2>${pager}<label class="bag-owned-toggle"><input id="bagOwnedOnly" type="checkbox">${pageCount > 1 ? '本页持有' : '只看持有'}</label></div>
               <div class="bag-shelf"><div class="bag-grid" data-bag-category="${tab}">${items.map((item) => `<button type="button" class="bag-item${item.count === 0 ? ' empty' : ''}${item.id === selected?.id ? ' selected' : ''}" style="--mat:${item.tone}" data-bag-item="${item.id}" aria-label="${item.name}，${item.count > 0 ? `持有 ${item.count}` : '未获得'}" aria-pressed="${item.id === selected?.id}"><span class="bag-rarity-line"></span><span class="bag-item-art">${item.art}</span><span class="bag-item-name">${item.name}</span><span class="bag-item-count">${item.count > 0 ? `×${item.count.toLocaleString('en-US')}` : '未获得'}</span></button>`).join('')}</div><p class="bag-filter-empty" hidden>暂无持有材料</p></div>
             </div>
             <aside class="bag-detail" aria-label="材料详情">
@@ -221,15 +228,15 @@ export class BagScreen implements Screen {
     const count = save.materials.traitstones.celestial ?? 0;
     const arcane = ARCANE_STONE_KEYS.map(key => ({
       id: key, name: stoneName(key), count: save.materials.traitstones[key] ?? 0,
-      art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '奥术',
+      art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '秘法',
       purpose: '高阶特质解锁', hint: this.stoneHint(save, key, save.materials.traitstones[key] ?? 0),
-      source: '探索（定向产出已拥有部队所需材料）', destination: '#troop', action: '查看部队特质',
+      source: '王国探索首领 · 荣耀/宝石宝箱 · 高层登塔 · 高阶讨伐 · 活动兑换 · 探索特质补缺', destination: '#troop', action: '查看部队特质',
     }));
-    return [...stones, {
+    return [...stones, ...arcane, {
       id: 'celestial', name: '圣辉石', count, art: stoneMarkup('celestial'), tone: '#a5d8eb',
       group: '圣辉', purpose: '高阶部队特质解锁', hint: this.stoneHint(save, 'celestial', count),
       source: '探索 · 活动 · 宝箱', destination: '#troop', action: '查看部队特质',
-    }, ...arcane];
+    }];
   }
 
   private ingotHint(save: MetaSave, key: IngotKey, held: number): string {
@@ -277,7 +284,7 @@ export class BagScreen implements Screen {
   }
 
   private tierName(tier: TraitstoneTier): string {
-    return tier === 'minor' ? '初级' : tier === 'major' ? '高级' : tier === 'runic' ? '符文' : tier === 'arcane' ? '奥术' : '圣辉';
+    return tier === 'minor' ? '初级' : tier === 'major' ? '高级' : tier === 'runic' ? '符文' : tier === 'arcane' ? '秘法' : '圣辉';
   }
 
   dispose(): void {

@@ -59,7 +59,7 @@ import {
   applyCastRandomStatusTriggers,
   applyColorMatchTriggers,
   applyDeathSummons,
-  applyDeathTriggers,
+  applyDeathTriggers, applySelfDeathManaGift,
   applyEnemyDeathTriggers,
   applyPositionAuras,
   applyTurnStartPassives,
@@ -2400,6 +2400,7 @@ export class TurnEngine {
       // 死者已移出编队，编译被动随对象走，从行动开始的引用快照取；入账复用 creditEconomy
       //（黄金归死者阵营，economy-gain 的 side 记其归属方），每名死者至多入账一次。
       const dead = this.rosterCharAtActionStart.get(id);
+      if (dead) events.push(...applySelfDeathManaGift(dead, this.state.teams[side].characters, this.rng));
       const deathEco = dead ? passivesOf(dead).onDeathEconomy : undefined;
       if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount, side));
       // 自身亡→敌方全体陷入状态（职业天赋 deathcurse「我身亡时，使所有敌人陷入死亡标记」）：
@@ -2777,14 +2778,20 @@ export class TurnEngine {
   passTurn(): GameEvent[] {
     if (this.state.state !== MatchState.AwaitingInput) return [];
     const events: GameEvent[] = [];
-    const sides = new Map<number, PlayerSide>();
+    // Keep the same death snapshot as swaps/casts: turn-start DoT can kill a trait holder.
+    this.rosterSideAtActionStart.clear();
+    this.rosterCharAtActionStart.clear();
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
-      for (const char of this.state.teams[side].characters) sides.set(char.id, side);
+      for (const char of this.state.teams[side].characters) {
+        this.rosterSideAtActionStart.set(char.id, side);
+        this.rosterCharAtActionStart.set(char.id, char);
+      }
     }
     this.state.state = MatchState.Resolving;
     this.pendingExtraTurnSource = null;
     this.finishTurn(events);
-    this.recordBattleDeaths(events, sides);
+    this.processDeathTriggers(events);
+    this.recordBattleDeaths(events, this.rosterSideAtActionStart);
     return events;
   }
 

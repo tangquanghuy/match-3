@@ -1,3 +1,4 @@
+import { DEFENSE_HISTORY_LIMIT, DEFENSE_INBOX_BATCH, emptyDefenseLog, type DefenseLog, type DefenseReport, type DefenseEntry } from '../systems/invasionDefense';
 /**
  * 入侵真人镜像的共享池（跨玩家存储）。
  *
@@ -14,6 +15,8 @@ import type {
 } from '../systems/invasionMirrors';
 
 export interface InvasionMirrorPool {
+  recordDefense(report: DefenseReport): Promise<void>;
+  defenseLog(now: number, weekStart: number, afterSequence?: number): Promise<DefenseLog>;
   sample(query: MirrorPoolQuery): Promise<MirrorPoolEntry[]>;
   publish(record: MirrorRecord): Promise<void>;
   /** 本周同联赛真人周榜（VP 降序，排除本人） */
@@ -30,10 +33,26 @@ export function mirrorOwnerKey(playerId: string): string {
 /** 多名玩家共享的内存池；`forOwner` 给每个宿主一个绑定了身份的视图 */
 export class MemoryMirrorStore {
   private readonly rows = new Map<string, MirrorPoolEntry>();
+  private sequence = 0;
+  private readonly defenses = new Map<string, DefenseEntry>();
 
   forOwner(playerId: string, name: string = playerId): InvasionMirrorPool {
     const ownerKey = mirrorOwnerKey(playerId);
     return {
+      recordDefense: async (report) => {
+        if (report.defender === ownerKey) return;
+        const key = `${ownerKey}:${report.id}`;
+        if (!this.defenses.has(key)) this.defenses.set(key, { ...structuredClone(report), sequence: ++this.sequence, attacker: ownerKey, name });
+      },
+      defenseLog: async (now, weekStart, afterSequence = 0) => {
+        const rows = [...this.defenses.values()].filter(r => r.defender === ownerKey).sort((a, b) => b.at - a.at || b.id.localeCompare(a.id));
+        const pending = rows.filter(r => r.sequence! > afterSequence).sort((a, b) => a.sequence! - b.sequence!);
+        const weekly = rows.filter(r => r.at >= weekStart);
+        return { ...emptyDefenseLog(now, weekStart), total: rows.length, wins: rows.filter(r => r.defenderWon).length,
+          weeklyTotal: weekly.length, weeklyWins: weekly.filter(r => r.defenderWon).length,
+          pending: structuredClone(pending.slice(0, DEFENSE_INBOX_BATCH)), hasMore: pending.length > DEFENSE_INBOX_BATCH,
+          entries: structuredClone(rows.slice(0, DEFENSE_HISTORY_LIMIT)) };
+      },
       sample: async (q) => [...this.rows.values()]
         .filter(e => e.ownerKey !== ownerKey && e.ruleset === q.ruleset && e.recordedAt >= q.since
           && e.league >= q.leagueMin && e.league <= q.leagueMax && e.power >= q.powerMin && e.power <= q.powerMax)
@@ -41,6 +60,7 @@ export class MemoryMirrorStore {
         .slice(0, q.limit)
         .map(e => structuredClone(e)),
       publish: async (record) => {
+        if (record.explicitDefense) for (const [key, row] of this.rows) if (row.ownerKey === ownerKey) this.rows.delete(key);
         this.rows.set(`${ownerKey}:${record.league}`, { ...structuredClone(record), ownerKey, name });
       },
       standings: async (q) => [...this.weekly.values()]

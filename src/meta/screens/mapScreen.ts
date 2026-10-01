@@ -1,3 +1,4 @@
+import { defenseRewardsReady } from '../systems/invasionDefense';
 /**
  * 世界地图屏（游戏首页，计划 §5.1 + §5.2 王国弹层）。
  * 节点/弹层的运行时数值全部来自存档 + kingdoms/tribute/kingdomOps 纯函数；
@@ -677,6 +678,8 @@ const MAP_CSS = `
 `;
 
 export class MapScreen implements Screen {
+  private defenseSyncAt = 0;
+  private defenseSyncPending = false;
   private nodes: NodeVm[] = [];
   private selected = START_KINGDOM;
   private openName: string | null = null;
@@ -1005,10 +1008,24 @@ export class MapScreen implements Screen {
       if (unlocked) {
         invasionBtn.classList.remove('is-lock');
         invasionBtn.removeAttribute('data-locked');
-        $('#railInvasionCopy').textContent = '入侵排位';
+        const updateDefenseHint = () => {
+          if (!this.mounted || document.getElementById('railInvasion') !== invasionBtn) return;
+          const ready = defenseRewardsReady(ctx.save());
+          invasionBtn.classList.toggle('has-defense-reward', ready);
+          $('#railInvasionCopy').textContent = ready ? '防守奖励可领取' : '入侵排位';
+          invasionBtn.querySelector('[data-defense-coin]')?.remove();
+          if (ready) invasionBtn.insertAdjacentHTML('beforeend', '<span data-defense-coin class="map-defense-coin" aria-hidden="true"><i class="defense-floating-coin"></i></span>');
+        };
+        updateDefenseHint();
+        if (!this.defenseSyncPending && ctx.gateway.now() - this.defenseSyncAt > 30_000) {
+          this.defenseSyncAt = ctx.gateway.now();
+          this.defenseSyncPending = true;
+          void ctx.gateway.syncInvasionDefense().then(updateDefenseHint).catch(() => undefined)
+            .finally(() => { this.defenseSyncPending = false; });
+        }
       }
       this.on(invasionBtn, 'click', () => {
-        if (ctx.save().hero.level >= INVASION.unlockHeroLevel) ctx.navigate('#invasion');
+        if (ctx.save().hero.level >= INVASION.unlockHeroLevel) ctx.navigate(defenseRewardsReady(ctx.save()) ? '#invasion/defense' : '#invasion');
         else toast(`入侵需要主角 ${INVASION.unlockHeroLevel} 级（当前 Lv.${ctx.save().hero.level}）。`);
       });
     }
@@ -1745,7 +1762,7 @@ export class MapScreen implements Screen {
       return;
     }
     ctx.navigate(
-      '#quest/' + encodeURIComponent(vm.view.name) + (vm.nextNode === null ? '/hard' : ''),
+      (vm.nextNode === null ? '#explore/' : '#quest/') + encodeURIComponent(vm.view.name),
     );
   }
 
@@ -1760,7 +1777,7 @@ export class MapScreen implements Screen {
       toast(`主线通关后开放 HARD / VERY HARD（当前 ${vm.questsDone}/8）。`);
       return;
     }
-    ctx.navigate('#quest/' + encodeURIComponent(vm.view.name) + '/hard');
+    ctx.navigate('#explore/' + encodeURIComponent(vm.view.name));
   }
 
   /** K-2：王国部队不再只给一句 toast，跳图鉴并带王国筛选参数 */

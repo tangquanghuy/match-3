@@ -74,10 +74,12 @@ describe('探索与地图节点状态', () => {
     expect(setExploreTier(s, KINGDOM, 1)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
     s.kingdoms[KINGDOM] = { level: 1, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
     expect(exploreUnlocked(s, KINGDOM)).toBe(true);
+    expect(setExploreTier(s, KINGDOM, 3)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    s.kingdoms[KINGDOM]!.exploreUnlockedTier = 12;
     expect(setExploreTier(s, KINGDOM, 3)).toEqual({ ok: true, tier: 3 });
     expect(s.kingdoms[KINGDOM]?.exploreTier).toBe(3);
     expect(setExploreTier(s, KINGDOM, 6)).toEqual({ ok: true, tier: 6 });
-    expect(setExploreTier(s, KINGDOM, 7)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(setExploreTier(s, KINGDOM, 13)).toMatchObject({ ok: false, code: 'INVALID' });
   });
 
   it('节点状态：主角等级门槛、任务进度、进贡气泡、探索标记', () => {

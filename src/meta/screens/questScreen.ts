@@ -1,3 +1,4 @@
+import { ExploreScreen } from './exploreScreen';
 /**
  * 王国关卡页 `#quest/<王国>` / `#quest/<王国>/hard` / `#quest/<王国>/veryhard`
  *
@@ -178,6 +179,7 @@ function storedTier(saveTier: number): number {
 }
 
 export class QuestScreen implements Screen {
+  private exploration: ExploreScreen | null = null;
   private kingdom = '';
   private kingdomEntry: KingdomState | undefined;
   private mode: KingdomStageMode = 'normal';
@@ -201,6 +203,11 @@ export class QuestScreen implements Screen {
   }
 
   html(ctx: ShellCtx, param?: string): string {
+    if (/(?:\/)(hard|veryhard|explore|vh)$/i.test(param ?? '')) {
+      this.exploration = new ExploreScreen();
+      return this.exploration.html(ctx, (param ?? '').split('/')[0]);
+    }
+    this.exploration = null;
     const route = this.parseRoute(param);
     this.kingdom = route.kingdom;
     this.mode = route.mode;
@@ -270,8 +277,7 @@ export class QuestScreen implements Screen {
         </div>
         <nav class="qtabs" aria-label="关卡难度">
           ${this.tabBtn('normal', this.mode, true)}
-          ${this.tabBtn('hard', this.mode, farmOpen)}
-          ${this.tabBtn('veryHard', this.mode, farmOpen)}
+          <button type="button" class="qtab" id="questExplore" ${farmOpen ? '' : 'disabled'}><span data-icon="compass"></span><span class="qtab-copy"><b>王国探索</b><small>12 档难度</small></span></button>
         </nav>
         <button class="secondary qback" id="questBack" type="button"><span data-icon="arrow"></span>地图</button>
         <div class="qmap-compass" aria-hidden="true"><span data-icon="compass"></span><i>N</i></div>
@@ -291,6 +297,8 @@ export class QuestScreen implements Screen {
   }
 
   mount(ctx: ShellCtx): void {
+    if (this.exploration) { this.exploration.mount(ctx); return; }
+    this.bind('#questExplore', 'click', () => ctx.navigate('#explore/' + encodeURIComponent(this.kingdom)));
     document.getElementById('stage')?.classList.add('quest-responsive');
     mountIcons(document);
     this.bind('#questBack', 'click', () => ctx.navigate('#map'));
@@ -428,6 +436,8 @@ export class QuestScreen implements Screen {
   }
 
   dispose(): void {
+    this.exploration?.dispose();
+    this.exploration = null;
     document.getElementById('stage')?.classList.remove('quest-responsive');
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);

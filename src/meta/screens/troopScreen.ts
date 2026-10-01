@@ -1,3 +1,4 @@
+import { isCoupletSpell, spellTitleText } from '../../data/spellPresentation';
 import { EVENT_ROTATION } from '../data/events';
 import { escapeHtml, troopCardFace } from './troopCard';
 import { validateWishlist } from '../systems/wishlist';
@@ -28,12 +29,14 @@ import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, gemSvg, 
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopArt, troopArtChain, troopArtFallback, troopImg, typeCn } from './teamScreen';
 import {
+  applyTermMarkup,
   formulaKind,
   formulaParts,
   formulaRule,
   renderSpell,
   type Formula,
 } from '../shell/spellText';
+import { bindTermTips } from '../shell/termTip';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -101,6 +104,8 @@ export class TroopScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private formulas: Formula[] = [];
   private magic = 0;
+  private termTipsSpell?: () => void;
+  private termTipsTraits?: () => void;
   private upgradeTargetLevel = 0;
   private upgradePending = false;
   private upgradeModal: HTMLElement | null = null;
@@ -582,11 +587,16 @@ export class TroopScreen implements Screen {
     this.magic = magic;
     const parsed = renderSpell(troop.spell.description, magic);
     this.formulas = parsed.formulas;
-    $('#spellName').textContent = troop.spell.name;
+    $('#spellName').textContent = spellTitleText(troop.spell.name);
+    $('#spellName').classList.toggle('spell-couplet', isCoupletSpell(troop.spell.name));
+    $('#spellName').closest('.spell-head')?.classList.toggle('spell-head-couplet', isCoupletSpell(troop.spell.name));
+    $('#spellName').closest('.spell')?.classList.toggle('spell-couplet-card', isCoupletSpell(troop.spell.name));
     $('#spellTag').textContent = troop.kingdom ? `${troop.kingdom} · 部队法术` : '部队法术';
     $('#spellCopy').innerHTML = parsed.html;
     $('#spellMark').innerHTML = gemSvg(troop.manaColors.map((c) => c.toLowerCase())) + `<b>${troop.manaCost}</b>`;
     this.bindSpellTips();
+    this.termTipsSpell?.();
+    this.termTipsSpell = bindTermTips($('#spellCopy'));
     const formulaBar = $('#spellFormula');
     if (!parsed.formulas.length) {
       formulaBar.hidden = true;
@@ -705,12 +715,14 @@ export class TroopScreen implements Screen {
         const glyph = glyphs[i]!;
         return `<article class="trait${unlocked ? '' : ' locked'}"${i === 2 ? ' id="lastTrait"' : ''}>
           <span class="trait-glyph">${glyph}</span>
-          <div class="trait-copy"><h3>${name}</h3><p>${text.replace(/(\d+(?:\.\d+)?%?)/g, '<b class="spell-stat">$1</b>')}</p></div>
+          <div class="trait-copy"><h3>${name}</h3><p>${applyTermMarkup(text.replace(/(\d+(?:\.\d+)?%?)/g, '<b class="spell-stat">$1</b>'))}</p></div>
           <span class="${unlocked ? 'acquired' : 'lock-icon'}" data-icon="${unlocked ? 'check' : 'lock'}" role="img" aria-label="${unlocked ? '已解锁' : '尚未解锁'}"></span>
         </article>`;
       })
       .join('');
     mountIcons(list);
+    this.termTipsTraits?.();
+    this.termTipsTraits = bindTermTips(list);
     // 下一个待解锁槽位与代价
     const nextSlot = rec.traits.findIndex((v) => !v) + 1;
     const unlockBtn = $('#unlock') as HTMLButtonElement;
@@ -743,7 +755,7 @@ export class TroopScreen implements Screen {
       unlockBtn.disabled = shortfalls.length > 0;
       unlockBtn.title = shortfalls.join(' · ');
       unlockCost.hidden = false;
-      unlockCost.innerHTML = stoneRows.join('');
+      unlockCost.innerHTML = stoneRows.join('') + `<a class="trait-material-link" href="#materials/gems/${troop.id}">查看特质材料整套 →</a>`;
       mountIcons($('#unlockCost'));
     }
   }
@@ -1444,6 +1456,8 @@ export class TroopScreen implements Screen {
   dispose(): void {
     this.upgradeModal?.remove();
     this.upgradeModal = null;
+    this.termTipsSpell?.();
+    this.termTipsTraits?.();
     const stage = document.getElementById('stage');
     if (stage) stage.inert = false;
     const zoom = document.getElementById('portraitZoom') as HTMLDialogElement | null;

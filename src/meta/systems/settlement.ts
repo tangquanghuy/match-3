@@ -1,3 +1,4 @@
+import { advanceExploreRun, kingdomArcaneKey } from './explore';
 import { PARTICIPATION_XP } from './battleRewards';
 /**
  * 战斗结算（M2）——BattleResult → 账本入账 + 任务推进 + 逐行明细。
@@ -16,12 +17,11 @@ import { PARTICIPATION_XP } from './battleRewards';
 import { TROOP_PROGRESSION } from '../../data/leveling';
 import { getTroopById } from '../../data/troops';
 import { SeededRNG } from '../../engine/rng';
-import { BaseColor } from '../../engine/types';
 import type { BattleResult } from '../../session/contract';
 import type { KingdomState, MetaSave } from '../state/schema';
 import type { CurrencyDelta } from '../types';
 import type { MaterialDelta } from '../data/materials';
-import { INGOT_KEYS, stoneColorKeyOf, stoneKey } from '../data/materials';
+import { INGOT_KEYS, STONE_COLORS, stoneKey } from '../data/materials';
 import {
   DEFEAT_CONSOLATION,
   DAILY_FIRST_WIN_GEMS,
@@ -50,8 +50,7 @@ import {
   eventBattleProgress,
   eventBattlePoints,
   eventClassXpMultiplier,
-  eventMetricOf,
-  eventMilestonesReached,
+  claimEventMilestones,
   eventTokensFor,
 } from './events';
 import { EVENT_WEEKLY_RULES, WEEK_MS, type EventTypeId } from '../data/events';
@@ -246,21 +245,8 @@ export function applySettlement(
     }
 
     // 里程碑：进度口径由玩法决定（世界事件=物资，其余=积分）
-    const metric = eventMetricOf(save, source.weekStart, typeId).value;
-    for (const gain of eventMilestonesReached(typeId, metric, week.claimed)) {
-      const m = gain.milestone;
-      week.claimed.push(gain.index);
-      const applied = earn(save, {
-        gold: m.gold ?? 0, souls: m.souls ?? 0, goldKeys: m.goldKeys ?? 0, glory: m.glory ?? 0,
-      });
-      const mats = earnMaterials(save, m.mats ?? {});
-      lines.push({
-        key: 'event-milestone',
-        label: `里程碑 · ${m.label}`,
-        deltas: applied,
-        mats,
-        note: typeId === 'worldEvent' ? `${m.points} 物资达成` : `${m.points} 分达成`,
-      });
+    for (const reward of claimEventMilestones(save, source.weekStart, typeId)) {
+      lines.push({ key: 'event-milestone', ...reward });
     }
     for (const reward of claimEventWeeklyGems(save, source.weekStart, typeId)) {
       lines.push({ key: 'event-milestone', ...reward });
@@ -277,9 +263,10 @@ export function applySettlement(
       const ingotKey = INGOT_KEYS[tierIdx === -1 ? INGOT_KEYS.length - 2 : tierIdx]!;
       mats.ingots![ingotKey] = (mats.ingots![ingotKey] ?? 0) + 1;
     }
-    const lead = ctx.plan.enemies[0] ? getTroopById(ctx.plan.enemies[0].troopId) : null;
-    if (lead && dropRng.next() < EXPLORE_DROPS.minorStoneChance) {
-      const key = stoneKey('minor', stoneColorKeyOf(lead.manaColors[0] ?? BaseColor.Brown))!;
+    if (dropRng.next() < EXPLORE_DROPS.minorStoneChance) {
+      // Every color is equally likely, independent of either lineup and the kingdom.
+      const color = STONE_COLORS[dropRng.nextInt(STONE_COLORS.length)]!.key;
+      const key = stoneKey('minor', color)!;
       mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
     }
     // Project economy: one useful stone per exploration, selected from next locked recipes.
@@ -292,6 +279,13 @@ export function applySettlement(
     const useful = [...new Set(missing)];
     if (useful.length) {
       const key = useful[dropRng.nextInt(useful.length)]!;
+      mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
+    }
+    // Fixed six-battle runs: final boss always drops the kingdom Arcane.
+    // Highest difficulty mini-boss also guarantees one; unrelated existing drops remain.
+    const source = ctx.plan.source;
+    if (source.stage === 5 || (source.stage === 4 && source.tier === 12)) {
+      const key = kingdomArcaneKey(ctx.plan.kingdom);
       mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
     }
     const appliedMats = earnMaterials(save, mats);
@@ -309,7 +303,7 @@ export function applySettlement(
   let classUnlocked: string | null = null;
 
   // 探索可重复刷；仅实际首次胜利领取该档奖励，记录与钱包一起持久化。
-  if (victory && ctx.plan.source.kind === 'explore' && KINGDOM_ORDER.includes(ctx.plan.kingdom)) {
+  if (victory && ctx.plan.source.kind === 'explore' && (ctx.plan.source.stage === 5 || ctx.plan.source.stage === undefined) && KINGDOM_ORDER.includes(ctx.plan.kingdom)) {
     const tier = ctx.plan.source.tier;
     if (Number.isInteger(tier) && tier >= 1 && tier <= EXPLORE_MAX_TIER) {
       const entry = save.kingdoms[ctx.plan.kingdom] ?? newKingdomEntry();
@@ -318,14 +312,15 @@ export function applySettlement(
         save.kingdoms[ctx.plan.kingdom] = entry;
         entry.clearedExploreTiers = [...cleared, tier].sort((a, b) => a - b);
         const mode = tier <= HARD_NODE_COUNT ? 'hard' : 'veryHard';
-        const node = mode === 'hard' ? tier : tier - HARD_NODE_COUNT;
-        earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS[mode] },
-          `${ctx.plan.kingdom} · ${mode === 'hard' ? '困难' : '非常困难'} ${node} · 仅一次`);
+        if (tier <= 6) earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS[mode] },
+          `${ctx.plan.kingdom} · 探索难度 ${tier} · 仅一次`);
         // 困难／非常困难批次的职业：该难度 3 关全通才解锁
         classUnlocked = tryUnlockClassOnExplore(save, ctx.plan.kingdom) ?? classUnlocked;
       }
     }
   }
+
+  advanceExploreRun(save, ctx.plan.kingdom, ctx.plan.source, victory);
 
   let questProgress: { from: number; to: number } | null = null;
   const troopRewards: { troopId: number; note: string }[] = [];

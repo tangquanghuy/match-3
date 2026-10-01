@@ -206,7 +206,7 @@ export class HuntScreen implements Screen {
   }
 
   private acceptResult(ctx: ShellCtx, result: HuntMoveOk): void {
-    this.current = { cells: result.cells, turns: result.turns, moves: result.moves, rng: result.rng };
+    this.current = { cells: result.cells, turns: result.turns, moves: result.moves, rng: result.rng, softCap: result.softCap };
     this.scene!.sync(result.cells);
     this.paint(ctx);
     if (result.over && result.grant) { this.current = null; this.showGrant(ctx, result.grant); }

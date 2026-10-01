@@ -4752,3 +4752,5 @@
   #stage.chests-responsive .dock-pool .chest-btn,
   #stage.chests-responsive .dock-wish { height: 46px; }
 }
+
+.inspect-spell strong.spell-couplet { white-space: pre-line; font-size: 16px; line-height: 1.6; letter-spacing: .04em; }

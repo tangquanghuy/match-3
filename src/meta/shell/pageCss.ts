@@ -1,3 +1,6 @@
+import materialShopCss from './styles/material-shop.css?raw';
+import defenseRewardCss from './styles/defense-reward.css?raw';
+import invasionDefenseCss from './styles/invasion-defense.css?raw';
 import characterCss from './styles/character.css?raw';
 import wishlistCss from './styles/wishlist.css?raw';
 /**
@@ -29,14 +32,16 @@ interface PageCssSpec {
 }
 
 const PAGE_CSS: Record<string, PageCssSpec> = {
+  map: { css: defenseRewardCss, position: 'last' },
   character: { css: characterCss, position: 'last' },
   wishlist: { css: wishlistCss, position: 'last' },
   troop: { css: troopCss, position: 'first' },
   arena: { css: arenaCss, position: 'last' },
   result: { css: resultCss, position: 'last' },
   events: { css: eventsCss + eventsModesCss + eventsTowerCss + eventsLockCss, position: 'last' },
-  invasion: { css: liveCss, position: 'last' },
+  invasion: { css: liveCss + invasionDefenseCss + defenseRewardCss, position: 'last' },
   bag: { css: bagCss, position: 'last' },
+  materials: { css: marketCss + materialShopCss, position: 'last' },
   shop: { css: eventShopCss + marketCss + eventsLockCss, position: 'last' },
   gems: { css: gemShopCss + marketCss, position: 'last' },
   hunt: { css: huntCss, position: 'last' },

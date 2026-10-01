@@ -4,6 +4,24 @@ import type { TraitDefinition } from '../engine/traits';
 /** 自定义单位特质独立维护，避免被官方图鉴生成脚本覆盖。 */
 export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
+    code: 'huijiu_listen_rain',
+    name: '听雨',
+    description: '受到敌人造成的骷髅头伤害时，使对方陷入沉默状态。',
+    inflictOnSkullDamaged: { id: 'silence', turns: 3 },
+  },
+  {
+    code: 'huijiu_refill_cup',
+    name: '续盏',
+    description: '配对 4 颗或更多宝石时，给予所有盟友 1 点生命值。',
+    onBigMatchTypeAura: { troopType: 'all', gains: { hp: 1 } },
+  },
+  {
+    code: 'huijiu_farewell',
+    name: '辞旧',
+    description: '自身身亡时，充满一名随机盟友的法力值。',
+    onSelfDeathFillAllyMana: true,
+  },
+  {
     code: 'ping_evernight',
     name: '永夜',
     description: '我的回合开始时，召唤暗风暴。',

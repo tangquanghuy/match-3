@@ -5,6 +5,8 @@
 import { describe, expect, it } from 'vitest';
 import { TROOPS } from '../../src/data/troops';
 import { traitGlyph, traitGlyphsFor } from '../../src/meta/shell/traitIcon';
+import { TRAIT_FAMILY_ICONS } from '../../src/meta/shell/traitIconsGameIcons';
+import { traitBadgeSvg, traitCardGlyphs } from '../../src/render/traitBadges';
 
 /** 收集 troops.json 全量去重特质 */
 function allTraits(): Array<{ code: string; name: string; description: string }> {
@@ -88,6 +90,28 @@ describe('traitGlyph 特质图标全覆盖', () => {
       expect(g).toContain('<svg');
       expect(labelOf(g)).toBe('攻击');
     }
+  });
+
+  it('辞旧在图鉴和战斗中使用蓝色法力水晶球，且不与其他特质撞图', () => {
+    const troop = TROOPS.find((t) => t.name === '灰鸠')!;
+    expect(troop).toBeDefined();
+    const glyphs = traitGlyphsFor(troop.traits, 3);
+    const index = troop.traits.findIndex((t) => t.code === 'huijiu_farewell');
+    expect(index).toBeGreaterThanOrEqual(0);
+    const glyph = glyphs[index]!;
+    expect(labelOf(glyph)).toBe('法力');
+    expect(glyph).toContain(TRAIT_FAMILY_ICONS['法力']!.normal.body);
+    expect(glyph).toContain('fill="#8fb8ff"');
+    expect(glyph).not.toContain(TRAIT_FAMILY_ICONS['亡语']!.normal.body);
+    expect(new Set(glyphs.map(labelOf)).size).toBe(troop.traits.length);
+    expect(traitBadgeSvg('huijiu_farewell')).toBe(glyph);
+    expect(traitCardGlyphs(troop.traits.map((t) => t.code), undefined, troop.name, 3)[index]!.svg).toBe(glyph);
+  });
+
+  it('辞旧的定向换图不影响其他亡语特质', () => {
+    const glyph = traitGlyph('other_death_trait', '遗愿', '自身身亡时触发。', 3);
+    expect(labelOf(glyph)).toBe('亡语');
+    expect(glyph).toContain(TRAIT_FAMILY_ICONS['亡语']!.normal.body);
   });
 
   it('空描述兜底星堆，绝不抛错、绝不返回空串', () => {

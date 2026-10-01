@@ -1,3 +1,4 @@
+import type { MaterialShopRequest } from '../systems/materialShop';
 /**
  * 命令网关：把 MetaGateway 的每个方法翻译成一条命令，经 MetaTransport 送到权威核心。
  * 客户端只保存权威存档的副本（current()），从不自己改存档。
@@ -116,6 +117,7 @@ export class CommandGateway implements MetaGateway {
   collectKingdomTribute(kingdom: string) { return this.cmd('collectKingdomTribute', { kingdom }); }
   collectAllTribute() { return this.cmd('collectAllTribute', {}); }
   setHomeKingdom(kingdom: string | null) { return this.cmd('setHomeKingdom', { kingdom }); }
+  abandonKingdomExplore(kingdom: string) { return this.cmd('abandonKingdomExplore', { kingdom }); }
   setKingdomExploreTier(kingdom: string, tier: number) { return this.cmd('setKingdomExploreTier', { kingdom, tier }); }
 
   // —— 竞技场 ——
@@ -135,6 +137,8 @@ export class CommandGateway implements MetaGateway {
     return this.plan('planEventBattle', choice === undefined ? { typeId } : { typeId, choice });
   }
   planArenaBattle() { return this.plan('planArenaBattle', {}); }
+  planInvasionRevenge(key: string) { return this.plan('planInvasionRevenge', { key }); }
+  claimInvasionDefense() { return this.cmd('claimInvasionDefense', {}); }
   planInvasionBattle(mirrorId: string) { return this.plan('planInvasionBattle', { mirrorId }); }
   settleBattle(result: BattleResult) { return this.cmd('settleBattle', { result }); }
 
@@ -147,6 +151,7 @@ export class CommandGateway implements MetaGateway {
 
   abandonTowerRun() { return this.cmd('abandonTowerRun', {}); }
   eventAction(typeId: EventTypeId, action: string) { return this.cmd('eventAction', { typeId, action }); }
+  buyMaterialGoods(request: MaterialShopRequest, expectedQuote: string) { return this.cmd('buyMaterialGoods', { request, expectedQuote }); }
   buyEventGoods(goodsId: string, typeId: EventTypeId, expectedPeriodStart?: number) {
     return this.cmd('buyEventGoods', expectedPeriodStart === undefined ? { goodsId, typeId } : { goodsId, typeId, expectedPeriodStart });
   }
@@ -154,6 +159,8 @@ export class CommandGateway implements MetaGateway {
   // —— 入侵 ——
 
   syncInvasionSeason() { return this.cmd('syncInvasionSeason', {}); }
+  setInvasionDefense(index: number) { return this.cmd('setInvasionDefense', { index }); }
+  syncInvasionDefense() { return this.cmd('syncInvasionDefense', {}); }
   refreshInvasionOpponents() { return this.cmd('refreshInvasionOpponents', {}); }
   claimInvasionRank(id: string, expectedWeek?: number) {
     return this.cmd('claimInvasionRank', expectedWeek === undefined ? { id } : { id, expectedWeek });

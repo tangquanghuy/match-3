@@ -1,3 +1,8 @@
+import { buyMaterialGoods } from '../systems/materialShop';
+import { abandonExploreRun, advanceExploreRun, exploreBattleSeed, exploreRunMatches, maxExploreTier } from '../systems/explore';
+import { mirrorFromEntry } from '../systems/invasionMirrors';
+import { earn } from '../systems/wallet';
+import { defenseRecord, accountDefenseLog, defenseEntryKey, validSnapshot, type DefenseLog } from '../systems/invasionDefense';
 /**
  * Meta 权威核心：执行一条命令，产出结果与新存档。
  *
@@ -19,12 +24,12 @@ import { fail, type MetaFailure } from '../types';
 import type { MetaSave, PendingBattle } from '../state/schema';
 import { newSave } from '../state/schema';
 import { parseSaveJson } from '../state/save';
-import { NEW_PLAYER_TROOP_IDS, STARTING_KINGDOM } from '../data/economy';
+import { INVASION, NEW_PLAYER_TROOP_IDS, STARTING_KINGDOM } from '../data/economy';
 import { todayStartOf, weekStartOf } from '../gateway/clock';
 import { claimGift, claimAllGifts } from '../systems/gifts';
 import { restoreInitialCollection, restoreRealCollection, unlockKingdomTroops } from '../systems/collectionModifier';
 import { levelUp, ascend, unlockTrait, decompose, getRecord } from '../systems/troopProgress';
-import { setTeamPreset, activeTeam } from '../systems/teamRules';
+import { setTeamPreset, activeTeam, validateTeam } from '../systems/teamRules';
 import { claimWeapon, equipClass, equipWeapon, forgeCatalogWeapon } from '../systems/hero';
 import { clearTalent, pickTalent, unlockHeroTrait } from '../systems/talents';
 import { pickManaMastery } from '../systems/manaMastery';
@@ -119,6 +124,7 @@ export interface CommandOutcome<K extends CommandType = CommandType> {
 
 /** 宿主在命令前预取、传给核心的外部数据（核心保持同步纯函数） */
 export interface CommandIo {
+  defenseLog?: DefenseLog;
   /** 入侵真人镜像池样本；undefined = 宿主没有共享池（本地/测试），对手全走人机 */
   mirrorPool?: readonly MirrorPoolEntry[];
   /** 本周同联赛的真人周榜（已排除本人）；undefined = 没取（沿用存档快照或人机补位） */
@@ -334,6 +340,11 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       const r = setHomeKingdom(save, (command.args as CommandArgs<'setHomeKingdom'>).kingdom);
       return done(r.ok ? r.home : r);
     }
+    case 'abandonKingdomExplore': {
+      const { kingdom } = command.args as CommandArgs<'abandonKingdomExplore'>;
+      const r = abandonExploreRun(save, kingdom);
+      return done(r.ok ? true : r);
+    }
     case 'setKingdomExploreTier': {
       const { kingdom, tier } = command.args as CommandArgs<'setKingdomExploreTier'>;
       const r = setExploreTier(save, kingdom, tier);
@@ -387,9 +398,16 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
     case 'planExploreBattle': {
       const { kingdom } = command.args as CommandArgs<'planExploreBattle'>;
       if (!exploreUnlocked(save, kingdom)) return done(fail('PREREQ_LOCKED', '先通关该王国主线'));
-      const stored = save.kingdoms[kingdom]?.exploreTier ?? 0;
-      const tier = stored >= 1 ? stored : 1;
-      return done(issueEncounter(save, buildBattleRequest(save, planExploreEncounter(kingdom, tier, env.seed())), 'explore', now));
+      const entry = save.kingdoms[kingdom]!;
+      const tier = entry.exploreRun?.tier ?? Math.min(Math.max(entry.exploreTier || 1, 1), maxExploreTier(save));
+      if (!entry.exploreRun) {
+        const seed = env.seed() >>> 0;
+        entry.exploreRun = { id: `explore-${now}-${seed}`, tier, stage: 0, seed };
+        entry.exploreTier = tier;
+      }
+      const run = entry.exploreRun;
+      return done(issueEncounter(save, buildBattleRequest(save,
+        planExploreEncounter(kingdom, run.tier, exploreBattleSeed(run), run.stage, run.id)), 'explore', now));
     }
     case 'planEventBattle': {
       const { typeId, choice } = command.args as CommandArgs<'planEventBattle'>;
@@ -418,14 +436,34 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       };
       return done(ticket);
     }
+    case 'planInvasionRevenge':
     case 'planInvasionBattle': {
-      const { mirrorId } = command.args as CommandArgs<'planInvasionBattle'>;
-      const outcome = planInvasionBattle(save, mirrorId, env.seed(), now, weekStart);
+      let revengeKey: string | undefined;
+      let revengeMirror: import('../systems/invasion').InvasionMirror | undefined;
+      if (command.type === 'planInvasionRevenge') {
+        if (!io.defenseLog) return done(fail('INVALID', '战报同步失败，请稍后重试'));
+        ensureInvasionSeason(save, now, weekStart);
+        accountDefenseLog(save, io.defenseLog, weekStart);
+        effects.reportVp = invasionVpReport(save, now);
+        revengeKey = (command.args as CommandArgs<'planInvasionRevenge'>).key;
+        const entry = io.defenseLog.entries.find(e => defenseEntryKey(e) === revengeKey);
+        const used = save.invasion.defenseProgress.results.find(r => r.key === revengeKey)?.revenge;
+        if (!entry || entry.defenderWon || entry.revenge || entry.at < save.createdAt || used) return done(fail('INVALID', '这场记录没有可用的复仇机会'));
+        if (!validSnapshot(entry.attackerSnapshot, now)) return done(fail('INVALID', '对方阵容已过期，请挑战其他对手'));
+        revengeMirror = mirrorFromEntry({ ...entry.attackerSnapshot, ownerKey: entry.attacker, name: entry.name }, 'normal', `-revenge-${entry.sequence ?? entry.at}`);
+      }
+      const mirrorId = revengeMirror?.id ?? (command.args as CommandArgs<'planInvasionBattle'>).mirrorId;
+      const outcome = planInvasionBattle(save, mirrorId, env.seed(), now, weekStart, revengeMirror);
       if (!outcome.ok) return done(outcome);
       save.pendingBattle = {
         mode: 'invasion', requestId: outcome.request.requestId, issuedAt: now, mirror: structuredClone(outcome.mirror),
-        attacker: outcome.attacker,
+        attacker: outcome.attacker, ...(revengeKey ? { revengeKey } : {}),
       };
+      if (revengeKey) {
+        const row = save.invasion.defenseProgress.results.find(r => r.key === revengeKey);
+        if (row) row.revenge = 'pending';
+        else save.invasion.defenseProgress.results.push({ key: revengeKey, vpDelta: 0, revenge: 'pending' });
+      }
       const ticket: BattleTicket = {
         ok: true, mode: 'invasion', request: outcome.request, kingdom: '入侵战',
         source: null, mirror: outcome.mirror, opponents: [],
@@ -452,14 +490,54 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       const { typeId, action } = command.args as CommandArgs<'eventAction'>;
       return withMaterials(eventAction(save, weekStart, typeId, action, env.seed()));
     }
+    case 'buyMaterialGoods': {
+      const { request, expectedQuote } = command.args as CommandArgs<'buyMaterialGoods'>;
+      return withMaterials(buyMaterialGoods(save, request, expectedQuote));
+    }
     case 'buyEventGoods': {
       const { goodsId, typeId, expectedPeriodStart } = command.args as CommandArgs<'buyEventGoods'>;
       return withMaterials(buyEventGoods(save, goodsId, weekStart, typeId, now, expectedPeriodStart));
     }
 
     // —— 入侵 ——
+    case 'setInvasionDefense': {
+      if (save.hero.level < INVASION.unlockHeroLevel) return done(fail('PREREQ_LOCKED', '入侵尚未解锁'));
+      const { index } = command.args as CommandArgs<'setInvasionDefense'>;
+      if (!Number.isInteger(index) || index < 0 || index >= save.teams.length) return done(fail('INVALID', '请选择有效队伍'));
+      const team = save.teams[index]!;
+      const check = validateTeam(save, team);
+      if (!check.ok) return done(fail('INVALID', check.issues.map(i => i.message).join('；')));
+      ensureInvasionSeason(save, now, weekStart);
+      save.invasion.defenseTeam = structuredClone(team);
+      const record = defenseRecord(save, now);
+      if (!record) return done(fail('INVALID', '防守队伍数据无效'));
+      save.invasion.defensePublishPending = true;
+      save.invasion.lastPublish = { league: record.league, teamHash: record.teamHash, at: now };
+      return done({ ok: true });
+    }
+    case 'claimInvasionDefense':
+    case 'syncInvasionDefense': {
+      if (!io.defenseLog) return done(fail('INVALID', '战报同步失败，请稍后重试'));
+      ensureInvasionSeason(save, now, weekStart);
+      accountDefenseLog(save, io.defenseLog, weekStart);
+      effects.reportVp = invasionVpReport(save, now);
+      if (defenseRecord(save, now)) save.invasion.defensePublishPending = true;
+      if (command.type === 'syncInvasionDefense') return done({ ok: true });
+      const reward = { ...save.invasion.defenseProgress.rewards };
+      if (reward.gold === 0 && reward.souls === 0 && reward.glory === 0) return done({ ok: true, ...reward });
+      earn(save, reward);
+      save.stats.goldEarned += reward.gold;
+      save.invasion.defenseProgress.rewards = { gold: 0, souls: 0, glory: 0 };
+      return done({ ok: true, ...reward });
+    }
     case 'syncInvasionSeason':
       ensureInvasionSeason(save, now, weekStart);
+      if (save.hero.level >= INVASION.unlockHeroLevel) {
+        const team = activeTeam(save);
+        if (!save.invasion.defenseTeam && team && validateTeam(save, team).ok) save.invasion.defenseTeam = structuredClone(team);
+        const record = defenseRecord(save, now);
+        if (record) save.invasion.defensePublishPending = true;
+      }
       // 批次过期（跨周/升联赛/首次进入）→ 组新批次落档，客户端据此展示（含真人镜像）
       if (!invasionRosterFresh(save, weekStart)) rebuildInvasionRoster(save, now, weekStart, io.mirrorPool ?? [], env.seed());
       // 周榜：宿主取到了就换新；快照失效又没取到（无共享池）→ 空快照，全人机补位
@@ -532,6 +610,8 @@ function issueEncounter(
   now: number,
 ): BattleTicket | MetaFailure {
   if (!outcome.ok) return outcome;
+  // A retry keeps its enemy seed, but must never reuse a consumed ticket identity.
+  if (outcome.plan.source.kind === 'explore') outcome.request.requestId += `-r${save.revision + 1}`;
   const enemies: Record<string, EncounterEnemy> = {};
   for (const [id, enemy] of outcome.enemyByExternalId) enemies[id] = enemy;
   save.pendingBattle = {
@@ -564,6 +644,7 @@ function forfeit(
   const pending = save.pendingBattle;
   if (!pending) return { ok: true, outcome: 'none', settlement: null };
   if (pending.mode === 'encounter' && pending.plan.source.kind !== 'event') {
+    advanceExploreRun(save, pending.plan.kingdom, pending.plan.source, false);
     save.pendingBattle = null;
     return { ok: true, outcome: 'discarded', settlement: null };
   }
@@ -605,6 +686,9 @@ function settle(
     return fail('INVALID', '战斗结果与当前出战票不符');
   }
   if (result.rulesetVersion !== RULESET_VERSION) return fail('INVALID', '战斗规则版本不一致，请刷新页面');
+  if (pending.mode === 'encounter' && !exploreRunMatches(save, pending.plan.kingdom, pending.plan.source)) {
+    return fail('INVALID', '探索轮次已结束，请返回探索页面');
+  }
   save.pendingBattle = null;
 
   if (pending.mode === 'arena') {
@@ -616,7 +700,21 @@ function settle(
     if (!settled.ok) return settled;
     ensureInvasionSeason(save, now, weekStart);
     const record = afterInvasionSettle(save, pending, result, now, weekStart, io.mirrorPool, env?.seed() ?? now);
-    if (record) effects.publishMirror = record;
+    const configured = defenseRecord(save, now);
+    if (configured) save.invasion.defensePublishPending = true;
+    else if (!save.invasion.defenseTeam && record) effects.publishMirror = record;
+    const defender = pending.mirror.player?.ownerKey;
+    if (defender) save.invasion.defenseOutbox.push({
+      id: `${pending.requestId}:${pending.issuedAt}`,
+      defender, at: now, defenderWon: !settled.victory,
+      ...((configured ?? pending.attacker) ? { attackerSnapshot: configured ?? pending.attacker } : {}),
+      ...(pending.revengeKey ? { revenge: true } : {}),
+      surrendered: result.endReason === 'surrender', frenzy: pending.mirror.frenzy,
+    });
+    if (pending.revengeKey) {
+      const row = save.invasion.defenseProgress.results.find(r => r.key === pending.revengeKey);
+      if (row) row.revenge = settled.victory ? 'won' : 'lost';
+    }
     // 每场都上报（含投降/丢票：它们同样改变 VP）
     effects.reportVp = invasionVpReport(save, now);
     return { ok: true, kind: 'invasion', settled, mirror: pending.mirror };

@@ -1,4 +1,6 @@
-﻿import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
+import { hydrateHuntSoftCap } from '../systems/huntPacing';
+import { hydrateDefenseProgress, hydrateDefenseTeam, hydrateDefenseLog, hydrateDefenseReports } from '../systems/invasionDefense';
+import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
 import { INVASION_MATCHMAKING } from '../data/invasionMatchmaking';
 import { getTroopById } from '../../data/troops';
 import { ARENA, INVASION } from '../data/economy';
@@ -62,7 +64,8 @@ function huntState(raw: unknown): MetaSave['treasureHunt'] {
   }
   const turns = num(raw.turns, 0, 0);
   if (turns <= 0) return null;
-  return { cells, turns, moves: num(raw.moves, 0, 0), rng: num(raw.rng, 1, 0) };
+  const rng = num(raw.rng, 1, 0, 0xffffffff);
+  return { cells, turns, moves: num(raw.moves, 0, 0), rng, softCap: hydrateHuntSoftCap(raw.softCap, rng, cells) };
 }
 
 function bool(v: unknown, fallback: boolean): boolean {
@@ -176,12 +179,22 @@ function sanitizeEventWeek(v: unknown, typeId: EventTypeId): EventWeekState | nu
   };
 }
 
+function sanitizeExploreRun(v: unknown): KingdomState['exploreRun'] {
+  if (!isObject(v) || typeof v.id !== 'string' || !v.id || v.id.length > 100) return null;
+  if (typeof v.tier !== 'number' || !Number.isInteger(v.tier) || v.tier < 1 || v.tier > EXPLORE_MAX_TIER) return null;
+  if (typeof v.stage !== 'number' || !Number.isInteger(v.stage) || v.stage < 0 || v.stage > 5) return null;
+  if (typeof v.seed !== 'number' || !Number.isInteger(v.seed) || v.seed < 0 || v.seed > 0xffffffff) return null;
+  return { id: v.id, tier: v.tier, stage: v.stage, seed: v.seed };
+}
+
 function sanitizeKingdom(v: unknown): KingdomState | null {
   if (!isObject(v)) return null;
   return {
     level: num(v.level, 1, 1, 10),
     questsDone: num(v.questsDone, 0, 0, 8),
-    exploreTier: num(v.exploreTier, 0, 0, 6),
+    exploreTier: num(v.exploreTier, 0, 0, EXPLORE_MAX_TIER),
+    ...(v.exploreUnlockedTier === undefined ? {} : { exploreUnlockedTier: num(v.exploreUnlockedTier, 2, 2, EXPLORE_MAX_TIER) }),
+    ...(v.exploreRun === undefined ? {} : { exploreRun: sanitizeExploreRun(v.exploreRun) }),
     clearedExploreTiers: Array.isArray(v.clearedExploreTiers)
       ? [...new Set(v.clearedExploreTiers.filter((tier): tier is number =>
         typeof tier === 'number' && Number.isInteger(tier) && tier >= 1 && tier <= EXPLORE_MAX_TIER))].sort((a, b) => a - b)
@@ -267,6 +280,11 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
       ? { league: num(lp.league, 0, 0, 9), teamHash: lp.teamHash, at: num(lp.at, 0, 0) }
       : null;
     invasion.standings = hydrateInvasionStandings(raw.invasion.standings);
+    invasion.defenseProgress = hydrateDefenseProgress(raw.invasion.defenseProgress);
+    invasion.defenseTeam = hydrateDefenseTeam(raw.invasion.defenseTeam);
+    invasion.defensePublishPending = raw.invasion.defensePublishPending === true;
+    invasion.defenseLog = hydrateDefenseLog(raw.invasion.defenseLog);
+    invasion.defenseOutbox = hydrateDefenseReports(raw.invasion.defenseOutbox);
   }
   invasion.recentOpponents = [...invasion.recentOpponents];
 
@@ -479,6 +497,8 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     gachaWishlist: hydrateWishlist(raw.gachaWishlist),
     materials,
     materialsUnread: typeof raw.materialsUnread === 'boolean' ? raw.materialsUnread : false,
+    materialShop: { arcaneIntroPurchased: isObject(raw.materialShop)
+      ? num(raw.materialShop.arcaneIntroPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0 },
     weaponTempering,
     invasion,
     eventWeeks,

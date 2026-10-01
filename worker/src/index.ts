@@ -174,7 +174,7 @@ async function handleMeta(request: Request, url: URL, env: Env): Promise<Respons
   const actor = env.PLAYERS.get(env.PLAYERS.idFromName(playerId));
 
   if (url.pathname === '/api/meta/save' && request.method === 'GET') {
-    return json(await actor.load(url.searchParams.get('sync') === '1'));
+    return json(await actor.load(url.searchParams.get('sync') === '1', playerId));
   }
 
   if (url.pathname === '/api/meta/command' && request.method === 'POST') {

@@ -219,7 +219,7 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
   it('货架数据合法：id 全局唯一、cost>0、限量≥1、奖励非空；每类 8 件限量商品与独立余印补给', () => {
     const seen = new Set<string>();
     for (const [typeId, goods] of Object.entries(EVENT_SHOP)) {
-      expect(goods.filter(g => g.stock !== null), typeId).toHaveLength(8);
+      expect(goods.filter(g => g.stock !== null), typeId).toHaveLength(9);
       expect(goods.filter(g => g.stock === null), typeId).toHaveLength(1);
       expect(goods.reduce((sum,g)=>sum+g.cost*(g.stock??0),0),typeId).toBeGreaterThan(360);
       expect(goods.every(g => !g.gems),typeId).toBe(true);

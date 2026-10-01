@@ -1,3 +1,4 @@
+import { rewardRaidHighTier } from '../eventHighTierRewards';
 /**
  * 突袭首领 · 阶段血池 + 轮换出战（2026-09-29 重做；2026-09-30 深化批：首领原型机制 + 战术补给）。
  *
@@ -266,6 +267,7 @@ export const raidMode: EventModeImpl<RaidState> = {
       } else {
         lines.push({ label: `讨伐成功 · 第 ${tier} 阶首领倒下！`, deltas: {}, note: '本周讨伐奖励已领满，积分与印记仍正常获得' });
       }
+      lines.push(...rewardRaidHighTier(ctx.save, ctx.week, raidTierLevel(tier), tier));
       state.slain += 1;
       state.tier += 1;
       spawnBoss(state, ctx.weekStart);

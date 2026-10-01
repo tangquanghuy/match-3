@@ -206,7 +206,7 @@ describe('结算入账（探索首胜双倍）', () => {
     expect(line.deltas.gold).toBe(kills.gold * 2);
     expect(line.note).toBe('每日首胜双倍');
     expect(detail.firstWinClaimed).toBe(true);
-    expect(save.currencies.gems).toBe(400);
+    expect(save.currencies.gems).toBe(200); // regular battle: daily reward, no final-boss first clear yet
   });
 
   it('当日已领过首胜：探索击杀不双倍', () => {

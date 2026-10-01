@@ -452,3 +452,5 @@
   .ev-mobile-picker > span { display: none; }
   .ev-tab-all { padding: 0 12px; }
 }
+
+.ev-rewards-panel > .ev-high-tier { margin-top: 20px; }

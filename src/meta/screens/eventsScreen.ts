@@ -9,7 +9,7 @@
  */
 import { isFailure, weekStartOf, gameNow } from '../gateway';
 import {
-  EVENT_MILESTONES,
+  EVENT_MILESTONES, EVENT_HIGH_TIER_REWARDS, EVENT_ARCANE_STONES,
   EVENT_ROTATION,
   EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS,
   WEEK_MS,
@@ -140,13 +140,24 @@ export class EventsScreen implements Screen {
     const mobilePicker = `<label class="ev-mobile-picker"><span>切换活动</span><select id="evTypePicker" aria-label="切换活动">${EVENT_ROTATION.map((t) => `<option value="${t.id}"${t.id === typeId ? ' selected' : ''}>${t.name}</option>`).join('')}</select></label>`;
     const tabBar = `<nav class="ev-tabs" aria-label="活动页签"><a class="ev-tab ev-tab-all" href="#events"><span data-icon="arrow"></span>全部活动</a>${tabs}${mobilePicker}</nav>`;
 
+    const highTierRewards = (() => {
+      if (typeId === 'towerOfDoom') {
+        const stones = EVENT_ARCANE_STONES[typeId].map(stoneName).join('、');
+        return `<section class="ev-howto ev-high-tier"><h2>高层挑战奖励</h2><ul>${EVENT_HIGH_TIER_REWARDS.tower.map(r => `<li>${r.floor} 层或以上首次战斗胜利：${stones}各 ×${r.amount}${r.celestial ? `，圣辉石 ×${r.celestial}` : ''} · ${week.eventData[`arcaneTower${r.floor}`] ? '本周已领' : '本周未领'}</li>`).join('')}<li>各档每周一次；营地、商人等非战斗层顺延至下一场胜利。</li></ul></section>`;
+      }
+      if (typeId === 'raidBoss') {
+        const r = EVENT_HIGH_TIER_REWARDS.raid;
+        return `<section class="ev-howto ev-high-tier"><h2>高阶首领奖励</h2><ul><li>击破 Lv.${r.minLevel}+ 首领血池：${EVENT_ARCANE_STONES[typeId].map(stoneName).join('、')}各 ×${r.amount} · 本周 ${week.eventData.arcaneRaidKills ?? 0} / ${r.weeklyKills}</li><li>击破 Lv.${r.celestialMinLevel}+ 首领额外获得圣辉石 ×1 · 本周 ${week.eventData.celestialRaidKills ?? 0} / ${r.celestialWeeklyKills}</li><li>两种额度独立；仅造成伤害或累计低阶积分不计入。</li></ul></section>`;
+      }
+      return '';
+    })();
     if (subpage === 'rules') {
       const sections = def.howto.map((s) => `<section class="ev-howto"><h2>${s.title}</h2><ul>${s.items.map((line) => `<li>${line}</li>`).join('')}</ul></section>`).join('');
       return `${topbarHtml()}<div class="screen ev-screen ev-detail ev-rules-page" ${style}>
         ${tabBar}
         <section class="panel ev-panel">
           <header class="ev-sub-head"><a class="ev-rewards-back" href="#events/${typeId}"><span data-icon="arrow"></span>返回${def.name}</a><h1>${def.name} · 玩法说明</h1><p>${def.brief}</p></header>
-          <div class="ev-rules-grid">${sections}
+          <div class="ev-rules-grid">${sections}${highTierRewards}
             <section class="ev-howto"><h2>每周奖励</h2><ul><li>周一 0:00 刷新进度、奖励与印记。</li><li>里程碑达标自动发放（按${page.metric.label}计）；六种活动的胜场共同计入每周远征。</li><li>胜场按积分发放活动印记：本周 ${week.tokensEarned} / ${EVENT_WEEKLY_RULES.tokenCap}，商店每两天补货。</li></ul></section>
           </div>
         </section></div>${bottomNavHtml('')}${toastHtml()}`;
@@ -171,6 +182,7 @@ export class EventsScreen implements Screen {
               <p>本周${page.metric.label} <b>${fmt(page.metric.value)}</b> · 已领 ${week.claimed.length} / ${milestones.length}</p>
             </header>
             <div class="ev-mile-track" aria-label="里程碑奖励">${track}</div>
+            ${highTierRewards}
             <a class="ev-rewards-back ev-rewards-back-bottom" href="#events/${typeId}"><span data-icon="arrow"></span>返回${def.name}</a>
           </section>
         </div>${bottomNavHtml('', '里程碑达标自动入账')}${toastHtml()}`;

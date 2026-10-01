@@ -448,10 +448,12 @@ export function createSpecialGems2(
   kinds: readonly [SpecialGemSpec, SpecialGemSpec],
   base: number,
   mult = 0,
-  opts: CreateOpts = {},
+  opts: CreateOpts & { minimumEach?: number } = {},
 ): GemSegment {
   kinds.forEach(requireSpiritColor);
-  const params: CreateGemParams = { op: 'create', gem: { kind: 'mixSpecial', specs: [kinds[0], kinds[1]] }, count: scale(base, mult) };
+  const params: CreateGemParams = { op: 'create', gem: { kind: 'mixSpecial', specs: [kinds[0], kinds[1]],
+    ...(opts.minimumEach !== undefined ? { minimumEach: opts.minimumEach } : {}),
+  }, count: scale(base, mult) };
   return createSeg(params, opts);
 }
 

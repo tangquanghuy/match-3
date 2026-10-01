@@ -1132,3 +1132,5 @@
   .arena-screen .match-enemy img { height: 60px; }
   .arena-screen .match-enemy b { font-size: 9px; }
 }
+
+.draft-spell strong.spell-couplet { white-space: pre-line; font-size: 16px; line-height: 1.6; letter-spacing: .04em; }

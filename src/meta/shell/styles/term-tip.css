@@ -1,0 +1,133 @@
+/*
+ * 术语高亮 + 术语解释面板（全站共享，termTip.ts 消费）。
+ *
+ * - `.spell-term`：描述文案里的可点击术语，视觉语言与数值按钮 `.spell-stat`
+ *   同款（点状下划线 + ▼ 小箭头），蓝色系区分「术语解释」与红色「数值计算」。
+ *   配色按底色分档：默认档给深底容器（编队/竞技场/武器/特质卡），
+ *   羊皮纸浅底（图鉴法术卷轴 .spell-body、战斗技能卡 .usw-copy）用深墨蓝，
+ *   与卷轴的墨水风格（正文 #32281c、数值红 #6f1f2a）同一档对比度。
+ * - `.term-tip`：position:fixed 面板，自含全部样式——不依赖各页面对
+ *   `.spell-tip` 的局部作用域（troop.css / screens.css / UnitSheet 注入样式）。
+ */
+
+.spell-copy .spell-term,
+.spell-term {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted #7186b3aa;
+  border-radius: 0;
+  color: #93a7d9;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+/* 羊皮纸浅底：深墨蓝，与数值红 #6f1f2a 同档的墨水对比度 */
+.spell-body .spell-term,
+.usw-copy .spell-term {
+  color: #1f3a63;
+  border-bottom-color: #1f3a63aa;
+}
+
+.spell-term:after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  vertical-align: middle;
+  border: 3.5px solid transparent;
+  border-top-color: currentColor;
+  border-bottom-width: 0;
+  opacity: 0.65;
+  transform: translateY(1px);
+}
+
+.spell-term:hover,
+.spell-term:focus-visible,
+.spell-term[aria-expanded="true"] {
+  color: #b0c1ec;
+  border-bottom-color: #b0c1ec;
+  outline: none;
+}
+
+.spell-body .spell-term:hover,
+.spell-body .spell-term:focus-visible,
+.spell-body .spell-term[aria-expanded="true"],
+.usw-copy .spell-term:hover,
+.usw-copy .spell-term:focus-visible,
+.usw-copy .spell-term[aria-expanded="true"] {
+  color: #14294a;
+  border-bottom-color: #14294a;
+}
+
+.term-tip {
+  position: fixed;
+  z-index: 9999;
+  width: 264px;
+  padding: 10px 12px 11px;
+  background: linear-gradient(165deg, #2c2432, #15131c);
+  border: 1px solid #b89a62;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px #000000a8;
+  color: #d8cdb8;
+  font: 12px/1.65 Georgia, "Songti SC", "SimSun", serif;
+  pointer-events: auto;
+}
+
+.term-tip .term-tip-arrow {
+  position: absolute;
+  top: -5px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: inherit;
+  border-left: 1px solid #b89a62;
+  border-top: 1px solid #b89a62;
+  transform: rotate(45deg);
+}
+
+.term-tip .term-tip-arrow.above {
+  top: auto;
+  bottom: -5px;
+  border: 0;
+  border-right: 1px solid #b89a62;
+  border-bottom: 1px solid #b89a62;
+  transform: rotate(45deg);
+}
+
+.term-tip .term-tip-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.term-tip strong {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #e8d9ae;
+}
+
+.term-tip .term-tip-cat {
+  flex: none;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #15131c;
+}
+
+.term-tip .term-tip-cat-status { background: #d36a6a; }
+.term-tip .term-tip-cat-gem { background: #7fa5d6; }
+.term-tip .term-tip-cat-combat { background: #c8b472; }
+
+.term-tip p {
+  margin: 0;
+  color: #cfc3ab;
+}

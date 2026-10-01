@@ -6,7 +6,7 @@ import { enemyLevel, enemyStatsAtLevel, enemyTraitCount } from '../../src/meta/d
 import { enemyToSnapshot } from '../../src/meta/systems/battleBridge';
 import { traitUnlockCost, totalSoulCost } from '../../src/meta/data/economy';
 import { ARCANE_STONE_KEYS, parseStoneKey, stoneName } from '../../src/meta/data/materials';
-import { KINGDOM_ORDER, exploreEnemyLevel, questEnemyLevel } from '../../src/meta/data/kingdoms';
+import { KINGDOM_ORDER, exploreEnemyLevel } from '../../src/meta/data/kingdoms';
 import { newSave } from '../../src/meta/state/schema';
 import { eventModeState, planEventEncounter, eventStageLevel, towerFloorLevel, raidTierLevel } from '../../src/meta/systems/events';
 import { invasionSquadLevel } from '../../src/meta/systems/eventModes/invasion';
@@ -65,6 +65,23 @@ describe('Imported per-troop progression', () => {
     expect(parseStoneKey('minor:blue:garbage')).toBeNull();
     expect(parseStoneKey('arcane:blue:garbage')).toBeNull();
   });
+  it('all 21 arcane names match Chinese source IDs, without renaming or merging runic stones', () => {
+    const raw = JSON.parse(rawSource);
+    const seen = new Set<number>();
+    for (const troop of raw.troops) for (const trait of troop.stats.traits ?? []) {
+      for (const stone of trait.traitstones ?? []) {
+        if (stone.id < 18 || stone.id > 38) continue;
+        expect(stoneName(ARCANE_STONE_KEYS[stone.id - 18])).toBe(stone.name);
+        seen.add(stone.id);
+      }
+    }
+    expect(seen.size).toBe(21);
+    expect(stoneName('major:purple')).toBe('高级魔法之石');
+    expect(stoneName('runic:purple')).toBe('符文魔法之石');
+    expect(stoneName('arcane:blue:brown')).toBe('秘法护盾属性石');
+    expect(stoneName('arcane:brown:blue')).toBe('秘法护盾属性石');
+    expect(stoneName('arcane:blue:blue')).toBe('秘法坚毅属性石');
+  });
   it('soul totals are bounded project tuning, not exponential rarity multipliers', () => {
     expect(totalSoulCost(0, 1, 20)).toBeGreaterThan(3000);
     expect(totalSoulCost(5, 1, 20)).toBeLessThan(10000);
@@ -98,10 +115,10 @@ describe('NPC difficulty and snapshot agreement', () => {
     expect(enemyLevel(Infinity)).toBe(1);
     expect(enemyLevel(10001)).toBe(1000);
   });
-  it('every kingdom advances from main story into six strictly harder tiers', () => {
+  it('every kingdom shares twelve increasing exploration difficulties', () => {
     for (const kingdom of KINGDOM_ORDER) {
-      let prior = questEnemyLevel(kingdom, 8);
-      for (let tier = 1; tier <= 6; tier++) {
+      let prior = 0;
+      for (let tier = 1; tier <= 12; tier++) {
         const level = exploreEnemyLevel(kingdom, tier);
         expect(level).toBeGreaterThan(prior);
         prior = level;

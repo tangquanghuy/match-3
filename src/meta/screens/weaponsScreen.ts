@@ -46,6 +46,7 @@ import { ingotArt, materialImg, scrollArt } from '../shell/materialArt';
 import { isFailure } from '../gateway';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { renderSpell } from '../shell/spellText';
+import { bindTermTips } from '../shell/termTip';
 
 type WeaponTab = 'owned' | 'all' | 'forge' | 'temper';
 type FilterName = 'rarity' | 'type' | 'color' | 'ownership' | 'source' | 'sort';
@@ -114,6 +115,7 @@ export class WeaponsScreen implements Screen {
   private selectedId: string | null = null;
   private detailMode: 'overview' | 'upgrade' = 'overview';
   private renderedPageSize = 12;
+  private termTips?: () => void;
   /** 高价配方的自绘二次确认状态（不使用原生 confirm，避免阻塞/样式脱节）。 */
   private forgeConfirmId: string | null = null;
   private filters: WeaponFilters = {
@@ -371,6 +373,9 @@ export class WeaponsScreen implements Screen {
     const soul = screen.querySelector<HTMLElement>('#weaponsSoulBalance');
     if (soul) soul.textContent = fmt(save.currencies.souls);
     mountIcons(screen);
+    this.termTips?.();
+    const detailCopy = screen.querySelector<HTMLElement>('.weapon-detail .detail-copy');
+    this.termTips = detailCopy ? bindTermTips(detailCopy) : undefined;
     if (focusQuery) {
       const input = screen.querySelector<HTMLInputElement>('[data-weapon-search]');
       if (input) {
@@ -838,6 +843,7 @@ export class WeaponsScreen implements Screen {
   }
 
   dispose(): void {
+    this.termTips?.();
     this.root?.removeEventListener('click', this.onClick);
     this.root?.removeEventListener('input', this.onInput);
     this.root?.removeEventListener('change', this.onChange);

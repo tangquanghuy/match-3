@@ -72,10 +72,17 @@ export function questEnemyLevel(kingdom: string, node: number): number {
   return kingdomBaseLevel(kingdom) + Math.min(Math.max(node, 1), QUESTS_PER_KINGDOM) - 1;
 }
 
-/** Hard 3 关 / Very Hard 3 关，内部仍用 1~6 档接现有探索出敌 */
+/** Legacy first-clear gem budget and class unlock groups (tiers 1–3 / 4–6). */
 export const HARD_NODE_COUNT = 3;
 export const VERY_HARD_NODE_COUNT = 3;
-export const EXPLORE_MAX_TIER = HARD_NODE_COUNT + VERY_HARD_NODE_COUNT;
+export const EXPLORE_MAX_TIER = 12;
+/** Explore 1–12 enemy levels; fixed across kingdoms (not quest level + offset).
+ * Evidence/verification gaps: docs/kingdom-explore-12-implementation.md. */
+export const EXPLORE_ENEMY_LEVELS = [11, 18, 21, 30, 40, 50, 60, 80, 100, 110, 130, 150] as const;
+export const EXPLORE_RUN_LENGTH = 6;
+export function exploreStageLabel(stage: number): string {
+  return stage < 4 ? `遭遇战 ${stage + 1} / 4` : stage === 4 ? '首领队伍' : '最终 Boss';
+}
 
 export type KingdomStageMode = 'normal' | 'hard' | 'veryHard';
 
@@ -91,14 +98,13 @@ export function exploreTierForNode(mode: 'hard' | 'veryHard', node: number): num
 }
 
 export function exploreNodeLabel(tier: number): string {
-  if (tier <= HARD_NODE_COUNT) return `HARD ${tier}`;
-  return `VERY HARD ${tier - HARD_NODE_COUNT}`;
+  return `探索 · 难度 ${tier}`;
 }
 
-/** 探索档 tier 的敌人等级：主线末关 + [5,10,20,35,55,80]（项目六档曲线） */
-export function exploreEnemyLevel(kingdom: string, tier: number): number {
-  const clamped = Math.min(Math.max(tier, 1), EXPLORE_MAX_TIER);
-  return questEnemyLevel(kingdom, QUESTS_PER_KINGDOM) + [5, 10, 20, 35, 55, 80][clamped - 1]!;
+/** 独立探索难度，不受王国开放等级影响。 */
+export function exploreEnemyLevel(_kingdom: string, tier: number): number {
+  const clamped = Math.min(Math.max(Math.floor(tier), 1), EXPLORE_MAX_TIER);
+  return EXPLORE_ENEMY_LEVELS[clamped - 1]!;
 }
 
 /** 主线 8 关一律 4 人队 */
@@ -113,14 +119,7 @@ export const QUEST_TEAM_SIZES = [
   BATTLE_TEAM_SIZE,
 ] as const;
 /** Hard 1~3 + Very Hard 1~3 一律 4 人队 */
-export const EXPLORE_TEAM_SIZES = [
-  BATTLE_TEAM_SIZE,
-  BATTLE_TEAM_SIZE,
-  BATTLE_TEAM_SIZE,
-  BATTLE_TEAM_SIZE,
-  BATTLE_TEAM_SIZE,
-  BATTLE_TEAM_SIZE,
-] as const;
+export const EXPLORE_TEAM_SIZES = Array.from({ length: EXPLORE_MAX_TIER }, () => BATTLE_TEAM_SIZE);
 
 /**
  * 任务 4/8 关的王国部队奖励（对齐 GoW「王国部队投放」）：从该王国普通卡

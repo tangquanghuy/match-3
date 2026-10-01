@@ -1,3 +1,4 @@
+import { maxExploreTier } from './explore';
 /**
  * 王国操作（M3）——黄金升级 / 探索解锁 / 地图节点状态 / 10 级加成聚合。
  *
@@ -47,7 +48,7 @@ export function exploreUnlocked(save: MetaSave, kingdom: string): boolean {
   return (save.kingdoms[kingdom]?.questsDone ?? 0) >= 8;
 }
 
-/** 设置 Hard / Very Hard 关卡档（1~6），未解锁或越界拒绝 */
+/** 设置探索难度（1–12）；先校验全局解锁和本轮难度锁定 */
 export function setExploreTier(save: MetaSave, kingdom: string, tier: number): { ok: true; tier: number } | MetaFailure {
   if (!Number.isInteger(tier) || tier < 1 || tier > EXPLORE_MAX_TIER) {
     return fail('INVALID', '关卡不存在');
@@ -56,6 +57,8 @@ export function setExploreTier(save: MetaSave, kingdom: string, tier: number): {
     return fail('PREREQ_LOCKED', '先通关该王国主线');
   }
   const entry = save.kingdoms[kingdom]!;
+  if (entry.exploreRun && entry.exploreRun.tier !== tier) return fail('PREREQ_LOCKED', '先完成或放弃当前探索');
+  if (tier > maxExploreTier(save)) return fail('PREREQ_LOCKED', '先击败上一难度的首领队伍');
   entry.exploreTier = tier;
   return { ok: true, tier };
 }

@@ -29,8 +29,8 @@ describe('通关进度与存档版本重同步', () => {
     const kingdom = mode === 'normal' ? allKingdoms()[2]! : home;
     const before = player.current().kingdoms[kingdom]!.questsDone;
     // 另一个标签页/设备已经写入，当前客户端的 revision 落后一版。
-    const changed = await other.setKingdomExploreTier(home, mode === 'veryHard' ? 4 : 1);
-    expect(changed.result).toBe(mode === 'veryHard' ? 4 : 1);
+    const changed = await other.setKingdomExploreTier(home, mode === 'veryHard' ? 2 : 1);
+    expect(changed.result).toBe(mode === 'veryHard' ? 2 : 1);
     expect(player.current().revision).toBeLessThan(other.current().revision);
     const ticket = mode === 'normal' ? await player.planQuestBattle(kingdom, before + 1) : await player.planExploreBattle(kingdom);
     if (!ticket.ok) throw new Error(ticket.message);
@@ -43,7 +43,7 @@ describe('通关进度与存档版本重同步', () => {
     const reload = new CommandGateway(new LocalTransport(storage));
     const { save } = await reload.load();
     if (mode === 'normal') expect(save.kingdoms[kingdom]!.questsDone).toBe(before + 1);
-    else expect(save.kingdoms[kingdom]!.clearedExploreTiers).toContain(mode === 'hard' ? 1 : 4);
+    else expect(save.kingdoms[kingdom]!.exploreRun).toMatchObject({ tier: mode === 'hard' ? 1 : 2, stage: 1 });
   });
 });
 
@@ -75,7 +75,7 @@ describe('战斗重同步与乱序响应边界', () => {
       }
       return reply;
     });
-    const select = player.setKingdomExploreTier(allKingdoms()[0]!, 4);
+    const select = player.setKingdomExploreTier(allKingdoms()[0]!, 2);
     await sent.promise;
     const ticket = await player.planExploreBattle(allKingdoms()[0]!);
     if (!ticket.ok) throw new Error(ticket.message);
@@ -85,7 +85,7 @@ describe('战斗重同步与乱序响应边界', () => {
     held.resolve();
     await select;
     expect(player.current()).toEqual(after);
-    expect(player.current().kingdoms[allKingdoms()[0]!]!.clearedExploreTiers).toContain(4);
+    expect(player.current().kingdoms[allKingdoms()[0]!]!.exploreRun).toMatchObject({ tier: 2, stage: 1 });
   });
 
   it('较旧快照晚到时，不回退已同步的新进度', async () => {
@@ -118,7 +118,7 @@ describe('战斗重同步与乱序响应边界', () => {
     held.resolve();
     await first;
     expect(player.current()).toEqual(after);
-    expect(player.current().kingdoms[home]!.clearedExploreTiers).toContain(2);
+    expect(player.current().kingdoms[home]!.exploreRun).toMatchObject({ tier: 2, stage: 1 });
   });
 
   it('HTTP 区分页面刷新和保留战斗票的内部同步', async () => {

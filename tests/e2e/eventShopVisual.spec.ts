@@ -20,11 +20,11 @@ test('货架保留交易信息，用途和持有量进入物品详情', async ({
   await page.setViewportSize({ width: 1600, height: 900 });
   await openCleanShop(page);
   await expect(page.locator('.shop-tab')).toHaveCount(6);
-  await expect(page.locator('.shop-goods')).toHaveCount(8);
+  await expect(page.locator('.shop-goods')).toHaveCount(9);
   await expect(page.locator('.shop-goods-blurb')).toHaveCount(0);
   await expect(page.locator('.shop-grid .shop-reward-copy em')).toHaveCount(0);
   await expect(page.locator('.shop-token-bar')).toContainText('入侵印记');
-  await expect(page.locator('.shop-buy.is-poor')).toHaveCount(8);
+  await expect(page.locator('.shop-buy.is-poor')).toHaveCount(9);
   await expect(page.locator('.market-switch a.active')).toContainText('活动商店');
   await expect(page.locator('[data-nav="商店"]')).toHaveClass(/active/);
   await page.locator('.shop-goods.featured .shop-goods-art').click();
@@ -54,7 +54,7 @@ for (const viewport of [{width:1600,height:900},{width:1280,height:720},{width:7
     await openCleanShop(page);
     for(const id of ['invasion','raidBoss','towerOfDoom','factionAssault','worldEvent','classTrials']) {
       await page.goto(`/game.html#shop/${id}`);
-      await expect(page.locator('.shop-goods')).toHaveCount(8);
+      await expect(page.locator('.shop-goods')).toHaveCount(9);
       await expect(page.locator('.shop-goods.featured')).toHaveCount(1);
       const layout=await page.locator('.event-shop-panel').evaluate(panel=>({
         overflow:panel.scrollWidth-panel.clientWidth,
@@ -228,7 +228,7 @@ for (const width of [1600, 390]) {
       await expect(page.locator('.shop-goods:visible:not([data-category="forge"])')).toHaveCount(0);
       await expect(page.locator('.shop-goods:visible').first()).toBeVisible();
       await page.locator('[data-shop-category="all"]').click();
-      await expect(page.locator('.shop-goods:visible')).toHaveCount(8);
+      await expect(page.locator('.shop-goods:visible')).toHaveCount(9);
     }
   });
 }
@@ -242,7 +242,7 @@ test('货架文字对比、交易区分层及可兑换状态', async ({page}) =>
     localStorage.setItem('gems.meta.save',JSON.stringify(s));
   },currentWeekStart());
   await page.reload();
-  await expect(page.locator('.shop-goods.ready')).toHaveCount(8);
+  await expect(page.locator('.shop-goods.ready')).toHaveCount(9);
   const result=await page.locator('.event-shop-panel').evaluate(panel=>{
     const lum=(rgb:string)=>rgb.match(/[\d.]+/g)!.slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i]!,0);
     const selectors='.shop-stock,.shop-reward-copy small,.shop-reward-copy b,.shop-price b,.shop-price small,.shop-troop-meta,.shop-atlas-link,.shop-goods-title h3 button';

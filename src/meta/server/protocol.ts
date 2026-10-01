@@ -1,3 +1,4 @@
+import type { MaterialShopRequest, MaterialShopBuyResult } from '../systems/materialShop';
 /**
  * Meta 命令协议（客户端 ↔ 权威核心的线协议）。
  *
@@ -97,7 +98,7 @@ export interface ForfeitResult {
 
 /** 出战票类命令（开新票前会先把未结算的旧票判负/作废） */
 export const PLAN_COMMANDS: ReadonlySet<string> = new Set([
-  'planQuestBattle', 'planTutorialBattle', 'planExploreBattle', 'planEventBattle', 'planArenaBattle', 'planInvasionBattle',
+  'planQuestBattle', 'planTutorialBattle', 'planExploreBattle', 'planEventBattle', 'planArenaBattle', 'planInvasionBattle', 'planInvasionRevenge',
 ]);
 
 export type CollectionModifierAction =
@@ -163,6 +164,7 @@ export interface CommandTable {
   collectKingdomTribute: { args: { kingdom: string }; result: TributeCollect };
   collectAllTribute: { args: object; result: TributeHaul };
   setHomeKingdom: { args: { kingdom: string | null }; result: string | null | MetaFailure };
+  abandonKingdomExplore: { args: { kingdom: string }; result: boolean | MetaFailure };
   setKingdomExploreTier: { args: { kingdom: string; tier: number }; result: number | MetaFailure };
 
   // —— 竞技场 ——
@@ -178,6 +180,8 @@ export interface CommandTable {
   planExploreBattle: { args: { kingdom: string }; result: BattleTicket | MetaFailure };
   planEventBattle: { args: { typeId: EventTypeId; choice?: string }; result: BattleTicket | MetaFailure };
   planArenaBattle: { args: object; result: BattleTicket | MetaFailure };
+  planInvasionRevenge: { args: { key: string }; result: BattleTicket | MetaFailure };
+  claimInvasionDefense: { args: object; result: Ok<{ gold: number; souls: number; glory: number }> | MetaFailure };
   planInvasionBattle: { args: { mirrorId: string }; result: BattleTicket | MetaFailure };
   settleBattle: { args: { result: BattleResult }; result: BattleSettlement | MetaFailure };
   /**
@@ -197,6 +201,7 @@ export interface CommandTable {
   };
   /** 活动玩法的非战斗动作（爬塔选路/营地/商人/奇遇/遗物、庆典棋盘掷骰等） */
   eventAction: { args: { typeId: EventTypeId; action: string }; result: EventActionResult | MetaFailure };
+  buyMaterialGoods: { args: { request: MaterialShopRequest; expectedQuote: string }; result: MaterialShopBuyResult };
   buyEventGoods: {
     args: { goodsId: string; typeId: EventTypeId; expectedPeriodStart?: number };
     result: EventBuyResult | MetaFailure;
@@ -204,6 +209,8 @@ export interface CommandTable {
 
   // —— 入侵 ——
   syncInvasionSeason: { args: object; result: Ok };
+  setInvasionDefense: { args: { index: number }; result: Ok | MetaFailure };
+  syncInvasionDefense: { args: object; result: Ok | MetaFailure };
   refreshInvasionOpponents: { args: object; result: Ok | MetaFailure };
   claimInvasionRank: { args: { id: string; expectedWeek?: number }; result: Ok<{ gems: number }> | MetaFailure };
 
@@ -242,6 +249,8 @@ export interface CommandReply<K extends CommandType = CommandType> {
  * 否则服务端重启丢掉未落盘的开箱，玩家就能「重抽」。其余命令合并延迟落盘。
  */
 const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
+  'planExploreBattle',
+  'abandonKingdomExplore',
   'resetToNewGame',
   'createCharacter',
   'openChest',
@@ -252,11 +261,16 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'claimGift',
   'claimAllGifts',
   'buyEventGoods',
+  'buyMaterialGoods',
   'eventAction',
   'abandonTowerRun',
   'forfeitDraft',
   'enterArena',
   'claimInvasionRank',
+  'setInvasionDefense',
+  'syncInvasionDefense',
+  'claimInvasionDefense',
+  'planInvasionRevenge',
   'startTreasureHunt',
   'playTreasureHunt',
   'dev.importSave',

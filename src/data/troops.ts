@@ -173,6 +173,9 @@ export function troopToCharacter(troop: TroopData, id: number, level = OFFICIAL_
     // 技能 id = 兵种 spell.id 字符串；技能库(SKILL_LIBRARY)按此键提供原型，
     // 未配置则运行时回退"仅扣法力"（需求 1.4/1.5）。
     skillId: String(troop.spell.id),
+    spellName: troop.spell.name,
+    spellDescription: troop.spell.description,
+    traitNames: Object.fromEntries(troop.traits.map(t => [t.code, t.name])),
     statuses: [],
     defeated: false,
     // 特质 code 直接透传；引擎未实现的 code 在编译被动时安全忽略（原 GAP-4 已落地）
@@ -213,6 +216,9 @@ export function troopToSummonTemplate(
     manaCost: troop.manaCost,
     mana: 0,
     skillId: String(troop.spell.id),
+    spellName: troop.spell.name,
+    spellDescription: troop.spell.description,
+    traitNames: Object.fromEntries(troop.traits.map(t => [t.code, t.name])),
     traitIds: arenaRules ? [] : troop.traits.map(t => t.code),
     troopTypes: [...troop.troopTypes],
     kingdom: troop.kingdom ?? undefined,

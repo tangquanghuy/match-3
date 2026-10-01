@@ -7,6 +7,7 @@ import { heroStatsOf } from '../systems/hero';
 import { bottomNavHtml, mountIcons, shopNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { cssUrlVar, shopArt } from '../shell/artAssets';
 import { renderSpell } from '../shell/spellText';
+import { bindTermTips } from '../shell/termTip';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 
@@ -91,6 +92,7 @@ export class GemShopScreen implements Screen {
   private restoreSelection = false;
   private resizeObserver?: ResizeObserver;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
+  private termTips?: () => void;
 
   private catalogHash(): string {
     return `#shop/gems${this.filter ? `/${this.filter}` : ''}`;
@@ -166,6 +168,9 @@ export class GemShopScreen implements Screen {
         });
       });
       mountIcons(root);
+      const detailSection = root.querySelector<HTMLElement>('.gem-shop-detail');
+      this.termTips?.();
+      this.termTips = detailSection ? bindTermTips(detailSection) : undefined;
       return;
     }
 
@@ -240,6 +245,7 @@ export class GemShopScreen implements Screen {
   dispose(): void {
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
+    this.termTips?.();
     for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
   }
 }

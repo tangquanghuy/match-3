@@ -151,7 +151,7 @@ export type CreateGemSpec =
   | { kind: 'skull' }
   | { kind: 'mix'; colors: ColorSpec[] }
   | { kind: 'special'; spec: SpecialGemSpec }
-  | { kind: 'mixSpecial'; specs: SpecialGemSpec[] }
+  | { kind: 'mixSpecial'; specs: SpecialGemSpec[]; minimumEach?: number }
   /**
    * 混合创造·通用形态（R22 批，官方 CreateGems「a mix of …」句式）：entries 逐颗放回均匀
    * 掷选，端点可为颜色占位符 / 'SKULL'（骷髅）/ 特殊宝石 spec——
@@ -395,10 +395,54 @@ function resolveCreateSpec(spec: CreateGemSpec, ctx: EffectContext): CreateGemSp
   return spec;
 }
 
+function doCreateGuaranteedMix(
+  params: CreateGemParams,
+  spec: Extract<CreateGemSpec, { kind: 'mixSpecial' }>,
+  ctx: EffectContext,
+): GameEvent[] {
+  if (spec.specs.length === 0) return [];
+  const count = params.countRange ? rollInRange(params.countRange, ctx)
+    : evaluateWithModifier(evaluateScaling(params.count, casterMagic(ctx)), params.modifier, ctx);
+  if (count <= 0) return [];
+  const board = ctx.state.board;
+  const empty = pickN(emptyCells(board), count, ctx);
+  const occupied: CellPos[] = [];
+  board.forEach((gem, pos) => { if (gem) occupied.push(pos); });
+  // Unlike ordinary mono-colour creation, all occupied cells are valid for this explicit
+  // mixed-special placement. Match-compatible blue/red/etc. must not be excluded.
+  const slots = [...empty, ...pickN(occupied, count - empty.length, ctx)];
+  const spawns: GemCreateEvent['spawns'] = [];
+  const changes: GemTransformEvent['changes'] = [];
+  const guaranteed = Math.max(0, Math.floor(spec.minimumEach ?? 0)) * spec.specs.length;
+  slots.forEach((pos, index) => {
+    const chosen = index < guaranteed ? spec.specs[index % spec.specs.length]
+      : spec.specs[ctx.rng.nextInt(spec.specs.length)];
+    const type = specialGem(chosen.kind, chosen.tier, chosen.color);
+    const old = board.get(pos);
+    if (old) {
+      changes.push({ pos, gemId: old.id, from: old.type, to: type });
+      board.set(pos, { id: old.id, type });
+    } else {
+      const id = ctx.nextGemId();
+      board.set(pos, { id, type });
+      spawns.push({ pos, gemId: id, gemType: type });
+    }
+  });
+  const events: GameEvent[] = [];
+  if (spawns.length) events.push({ type: 'gem-create', spawns });
+  if (changes.length) events.push({ type: 'gem-transform', changes });
+  if (slots.length && ctx.castTracking) ctx.castTracking.lastCreatedCell = slots[0];
+  if (events.length) ctx.resolveBoardChange?.([], events);
+  return events;
+}
+
 function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   const board = ctx.state.board;
   const gemSpec = resolveCreateSpec(params.gem, ctx);
   if (gemSpec === null) return [];
+  if (gemSpec.kind === 'mixSpecial' && (gemSpec.minimumEach ?? 0) > 0) {
+    return doCreateGuaranteedMix(params, gemSpec, ctx);
+  }
   // 骷髅/单色可提前判跳过；混合色逐颗取色，先确认全部占位符可解析
   const probe = pickCreateGemType(gemSpec, ctx);
   if (probe === null) return [];

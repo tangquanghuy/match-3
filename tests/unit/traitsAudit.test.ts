@@ -613,7 +613,7 @@ describe('B · 编译契约', () => {
     'onDamagedEnemyStatus', 'onSkullDamagedEnemyDamage', 'onDamagedCreateGem',
     // 接线批死亡钩子补族（temptation 蛊惑 / icyrebirth 寒冰重生 / deafeningwail 哀嚎）：
     // 与职业天赋 savior/deathcurse 同字段的既有编译产物
-    'onAllyDeathStatus', 'onSelfDeathEnemyAllStatus',
+    'onAllyDeathStatus', 'onSelfDeathEnemyAllStatus', 'onSelfDeathFillAllyMana',
     // 特质收尾批：大连爆破 kind 扩展（unstablepossession 'random' / goodomen 'skull'/特殊宝石）
     // + 大连创造素色宝石（lunarscales）
     'onBigMatchExplodeGem', 'onBigMatchCreatePlainGem',

@@ -259,7 +259,7 @@ export function openGemChest(
   let cards: GachaCard[];
   let pityUsed = false;
   const drops: ChestDrop[] = [];
-  // 官方口径：部队 80%，其余 20% 是金属锭 / 特质石（GEM_CHEST_EXTRA）；材料也占一张牌
+  // 部队及材料概率由共享配置派生（GEM_CHEST_EXTRA）；材料也占一张牌，每次1颗
   const acc = newLootAcc();
   const extras = { rows: GEM_CHEST_EXTRA, weight: GEM_CHEST_BASE - GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0), acc };
   if (novice) {

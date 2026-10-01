@@ -246,6 +246,12 @@ export function eventAction(save: MetaSave, weekStart: number, typeId: EventType
     Object.assign(live, snap.mode as Record<string, unknown>);
     week.runTeam = snap.runTeam; week.eventData = snap.eventData;
     save.currencies = snap.currencies; save.materials = snap.materials; save.gifts = snap.gifts;
+  } else {
+    const rewards = [
+      ...claimEventMilestones(save, weekStart, typeId),
+      ...claimEventWeeklyGems(save, weekStart, typeId),
+    ];
+    if (rewards.length) result.lines = [...(result.lines ?? []), ...rewards];
   }
   return result;
 }
@@ -286,6 +292,23 @@ export function eventMilestonesReached(
     if (value >= table[i]!.points) gains.push({ index: i, milestone: table[i]! });
   }
   return gains;
+}
+
+/** 战斗和非战斗进度共用领取账本；每周每档仅入账一次。宝石使用独立旧档兼容账本。 */
+export function claimEventMilestones(save: MetaSave, weekStart: number, typeId: EventTypeId): EventProgressLine[] {
+  const week = ensureEventWeek(save, weekStart, typeId);
+  const metric = eventMetricOf(save, weekStart, typeId).value;
+  return eventMilestonesReached(typeId, metric, week.claimed).map(({ index, milestone: m }) => {
+    week.claimed.push(index);
+    const deltas = earn(save, {
+      gold: m.gold ?? 0, souls: m.souls ?? 0, goldKeys: m.goldKeys ?? 0, glory: m.glory ?? 0,
+    });
+    const mats = earnMaterials(save, m.mats ?? {});
+    return {
+      label: `里程碑 · ${m.label}`, deltas, mats,
+      note: typeId === 'worldEvent' ? `${m.points} 物资达成` : `${m.points} 分达成`,
+    };
+  });
 }
 
 /** 活动页读模型：里程碑进度 + 总览一句话 */

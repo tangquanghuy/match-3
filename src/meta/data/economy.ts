@@ -309,7 +309,7 @@ export const GOLD_CHEST_LOOT: readonly ChestLootRow[] = [
  * 荣耀宝箱掉落（GoW 官方「荣耀宝箱」公示原样）：部队 70% / 特质石 20% / 资源 10%。
  * 官方档名按 GoW 稀有度档位映射到本作六档（GoW 稀有=精良、罕见=稀有、史诗=传说、传奇=史诗、神话=神话）：
  * 精良 50.4 / 稀有 15.4 / 传说 3.69 / 史诗 0.5 / 神话 0.01；
- * 特质石 高级 15 / 符文 4.2 / 奥术 0.7 / 圣辉 0.1；资源 宝石 / 荣耀 / 黄金 / 灵魂 各 2.5（数量为设计值）。
+ * 特质石 高级 15 / 符文 4.2 / 秘法 0.7 / 圣辉 0.1；资源 宝石 / 荣耀 / 黄金 / 灵魂 各 2.5（数量为设计值）。
  */
 export const GLORY_CHEST_LOOT: readonly ChestLootRow[] = [
   { group: 'troop', weight: 50_400, loot: { type: 'troop', rarityIdx: 1 } },
@@ -332,30 +332,30 @@ export const GEM_CHEST_BASE = 10_000;
 
 /**
  * 宝石宝箱部队档权重（万分比，占全部开箱；idx 0..5 = 普通..神话）。
- * 2026-09-29 用户裁定对齐 GoW 官方公示：部队 80%，官方档名按档位映射
- * （GoW 罕见=本作稀有、史诗=传说、传奇=史诗、神话=神话），不出普通与精良。
- * 神话维持本作原 0.2%（官方 0.1%，用户裁定不动），多出的 0.1% 从稀有让出（官方 67.2 → 67.1），部队仍合计 80%。
+ * 养成供给调整：稀有部队让出 10.5 个百分点给特质石，部队合计 69.5%。
+ * 传说 10.7%、史诗 2%、神话 0.2% 不变，不出普通与精良。
  */
-export const GEM_CHEST_WEIGHTS: readonly number[] = Object.freeze([0, 0, 6710, 1070, 200, 20]);
+export const GEM_CHEST_WEIGHTS: readonly number[] = Object.freeze([0, 0, 5660, 1070, 200, 20]);
 
 /**
- * 宝石宝箱的非部队掉落（十万分比，与金/荣耀箱同一基数；合计 20% = GEM_CHEST_BASE − 部队档合计）。
- * 金属锭 10%（超稀 8 / 史诗 1.6 / 传说 0.32 / 神话 0.08，按 GoW 罕见/史诗/传奇/神话对应本作钢锭档）、
- * 特质石 10%（符文 9 / 奥术 0.8 / 圣辉 0.2）。数量为设计值。
+ * 非部队掉落合计 30.5%（十万分比）：金属锭 10%，特质石 20.5%。
+ * 高级 10%、符文 8%、秘法 2%、圣辉 0.5%；每次命中只给 1 颗。
+ * 秘法在 21 种属性组合中均匀抽取；这是本作供给调整，并非官方概率。
  */
 export const GEM_CHEST_EXTRA: readonly ChestLootRow[] = [
   { group: 'ingot', weight: 8_000, loot: { type: 'ingot', key: 'ultraRare', amount: 1 } },
   { group: 'ingot', weight: 1_600, loot: { type: 'ingot', key: 'epic', amount: 1 } },
   { group: 'ingot', weight: 320, loot: { type: 'ingot', key: 'legendary', amount: 1 } },
   { group: 'ingot', weight: 80, loot: { type: 'ingot', key: 'mythic', amount: 1 } },
-  { group: 'stone', weight: 9_000, loot: { type: 'stone', tier: 'runic', amount: 1 } },
-  { group: 'stone', weight: 800, loot: { type: 'stone', tier: 'arcane', amount: 1 } },
-  { group: 'stone', weight: 200, loot: { type: 'stone', tier: 'celestial', amount: 1 } },
+  { group: 'stone', weight: 10_000, loot: { type: 'stone', tier: 'major', amount: 1 } },
+  { group: 'stone', weight: 8_000, loot: { type: 'stone', tier: 'runic', amount: 1 } },
+  { group: 'stone', weight: 2_000, loot: { type: 'stone', tier: 'arcane', amount: 1 } },
+  { group: 'stone', weight: 500, loot: { type: 'stone', tier: 'celestial', amount: 1 } },
 ];
 
 /**
  * 十连至少一张稀有或以上部队；仅将未达标批次的末张结果（材料）提升为稀有部队。
- * 对齐官方后宝石箱部队最低即稀有，只有「前九张全是材料且第十张也是材料」时才触发（约 0.2^10）。
+ * 对齐官方后宝石箱部队最低即稀有，只有「前九张全是材料且第十张也是材料」时才触发（约 0.305^10）。
  */
 export const GACHA_PITY_MIN_IDX = 2;
 
@@ -417,7 +417,7 @@ export const EXPLORE_DROPS = {
   ingotChance: 0.3,
   /** 钢锭档位随王国基数等级递进：≤10 普通 / ≤20 稀有 / ≤30 超稀 / ≤40 史诗 / 其余传说 */
   ingotTierByKingdomLevel: [10, 20, 30, 40] as const,
-  /** 胜利掉初级特质石概率（颜色=敌方队首部队主色） */
+  /** 胜利掉初级特质石概率（六种颜色等概率随机，与双方队首无关） */
   minorStoneChance: 0.25,
 } as const;
 

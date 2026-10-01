@@ -74,12 +74,13 @@ export function fitStage(): void {
     ['gifts-responsive', '.gift-screen'],
     ['event-shop-responsive', '.event-shop-screen'],
     ['gem-shop-responsive', '.gem-shop-screen'],
+    ['material-shop-responsive', '.material-shop-screen'],
     ['weapons-responsive', '.weapons-screen'],
     ['arena-responsive', '.arena-screen'],
     ['map-responsive', '.map-shell'],
     ['hero-responsive', '.hero-screen'],
     ['result-responsive', '.result-screen'],
-    ['quest-responsive', '.quest-screen'],
+    ['quest-responsive', '.quest-screen, .explore-screen'],
     ['hunt-responsive', '.hunt-screen'],
   ] as const;
   let responsive = false;
@@ -213,8 +214,9 @@ export function bottomNavHtml(active: string, hint = '42 王国'): string {
     </footer>`;
 }
 
-export function shopNavHtml(active: 'events' | 'gems'): string {
+export function shopNavHtml(active: 'events' | 'gems' | 'materials'): string {
   return `<nav class="market-switch" aria-label="商店分类">
+    <a href="#materials/gold"${active === 'materials' ? ' class="active" aria-current="page"' : ''}><span data-icon="bag"></span>材料商店</a>
     <a href="#shop"${active === 'events' ? ' class="active" aria-current="page"' : ''}><span data-icon="bag"></span>活动商店</a>
     <a href="#shop/gems"${active === 'gems' ? ' class="active" aria-current="page"' : ''}><span data-icon="crystal"></span>宝石商店</a>
   </nav>`;

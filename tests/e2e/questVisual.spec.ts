@@ -1,208 +1,197 @@
-import { expect, test, type Page } from '@playwright/test';
+﻿import { expect, test, type Page } from '@playwright/test';
 
 const KINGDOM = '破碎尖塔';
 const QUEST_HASH = `#quest/${encodeURIComponent(KINGDOM)}`;
-type Mode = 'normal' | 'hard' | 'veryHard';
-
-async function openQuest(page: Page, questsDone = 8): Promise<void> {
+const EXPLORE_HASH = `#explore/${encodeURIComponent(KINGDOM)}`;
+async function openQuest(page: Page, questsDone = 8, unlocked = 2): Promise<void> {
   await page.goto(`/game.html${QUEST_HASH}`);
-  await expect(page.locator('.quest-map')).toBeVisible({ timeout: 15_000 });
-  await page.evaluate(({ kingdom, completed }) => {
+  await expect(page.locator('.quest-map')).toBeVisible({ timeout: 20_000 });
+  await page.evaluate(({ kingdom, completed, unlocked }) => {
     const key = 'gems.meta.save';
     const save = JSON.parse(localStorage.getItem(key)!);
     save.kingdoms[kingdom].questsDone = completed;
     save.kingdoms[kingdom].exploreTier = completed === 8 ? 2 : 0;
+    save.kingdoms[kingdom].exploreUnlockedTier = unlocked;
+    save.kingdoms[kingdom].clearedExploreTiers = [];
+    save.kingdoms[kingdom].exploreRun = null;
     localStorage.setItem(key, JSON.stringify(save));
-  }, { kingdom: KINGDOM, completed: questsDone });
+  }, { kingdom: KINGDOM, completed: questsDone, unlocked });
   await page.reload();
-  await expect(page.locator('.quest-map')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.quest-map')).toBeVisible({ timeout: 20_000 });
 }
-
-async function selectMode(page: Page, mode: Mode): Promise<void> {
-  await page.locator(`.qtab[data-mode="${mode}"]`).click();
-  const suffix = mode === 'normal' ? '' : `/${mode.toLowerCase()}`;
-  await expect.poll(() => page.evaluate(() => decodeURIComponent(location.hash)))
-    .toBe(`#quest/${KINGDOM}${suffix}`);
-  await expect(page.locator('.quest-map')).toHaveAttribute('data-mode', mode);
-  await expect(page.locator(`.qtab[data-mode="${mode}"]`)).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.qtab[aria-pressed="true"]')).toHaveCount(1);
-  await expect(page.locator('.qpin')).toHaveCount(mode === 'normal' ? 8 : 3);
+async function openExplore(page: Page) {
+  await page.locator('#questExplore').click();
+  await expect(page.locator('.explore-screen')).toBeVisible();
+  await expect(page.locator('.ex-scale-labels span')).toHaveCount(12);
+  await expect(page.locator('.ex-difficulty-feature')).toHaveCount(1);
+  await expect(page.locator('.ex-route li')).toHaveCount(6);
 }
-
-async function screenshot(page: Page, name: string): Promise<void> {
-  await expect.poll(() => page.locator('.quest-map img').evaluateAll((images) =>
-    images.every((image) => (image as HTMLImageElement).complete),
+async function screenshot(page: Page, name: string) {
+  await expect.poll(() => page.locator('.explore-screen img').evaluateAll(images =>
+    images.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0),
   )).toBe(true);
   await page.screenshot({ path: `artifacts/quest-redesign/${name}.png`, animations: 'disabled' });
 }
 
-test('难度切换同步路由、节点和奖励图示，刷新保持 VERY HARD', async ({ page }) => {
-  await page.setViewportSize({ width: 1600, height: 900 });
+test('普通主线保持八关与首通状态；王国探索为独立12档页面', async ({ page }) => {
   await openQuest(page);
-  await expect(page.locator('.qtab')).toHaveCount(3);
-  for (const mode of ['normal', 'hard', 'veryHard'] as const) {
-    const loot = page.locator(`.qtab[data-mode="${mode}"] .qtab-loot`);
-    await expect(loot).toBeVisible();
-    await expect.poll(() => loot.locator('.qloot-tile').count()).toBeGreaterThan(0);
-    await expect.poll(() => loot.locator('.qloot-tile').evaluateAll((tiles) =>
-      tiles.every((tile) => tile.querySelector('.qloot-symbol, img') !== null),
-    )).toBe(true);
-    await selectMode(page, mode);
-    await expect(page.locator('#qdRewards')).toBeVisible();
-    await expect.poll(() => page.locator('#qdRewards [data-reward]').count()).toBeGreaterThan(0);
-  }
-
-  const rewardKeys = await page.evaluate(() => {
-    const keys = (selector: string): string[] => [...document.querySelectorAll<HTMLElement>(selector)]
-      .map((element) => element.dataset.reward!);
-    return {
-      tab: keys('.qtab[data-mode="veryHard"] [data-reward]'),
-      detail: keys('#qdRewards [data-reward]'),
-    };
-  });
-  expect(rewardKeys.tab.length).toBeGreaterThan(0);
-  expect(rewardKeys.tab.some((key) => rewardKeys.detail.includes(key))).toBe(true);
-  await page.reload();
-  await expect(page.locator('.qtab[data-mode="veryHard"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.qpin')).toHaveCount(3);
-  await expect(page.locator('#questFight')).toBeEnabled();
-  await screenshot(page, 'desktop-very-hard-rewards');
-});
-
-test('VERY HARD 三个关卡更新敌人等级并保存实际探索档位', async ({ page }) => {
-  await openQuest(page);
-  await selectMode(page, 'veryHard');
-  // 破碎尖塔基数 Lv.1，主线末关 Lv.8；VERY HARD 档 4~6 = 末关 + 35/55/80（exploreEnemyLevel）
-  for (const [node, level, tier] of [[1, 43, 4], [2, 63, 5], [3, 88, 6]]) {
-    const pin = page.locator(`.qpin[data-node="${node}"]`);
-    await pin.click();
-    await expect(pin).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('.qpin[aria-pressed="true"]')).toHaveCount(1);
-    await expect(page.locator('#qdTitle')).toHaveText(`${KINGDOM} ${node}`);
-    await expect(page.locator('#qdSub')).toContainText(`Lv.${level}`);
-    await expect(page.locator('#qdFoes .qd-foe')).toHaveCount(4);
-    await expect(page.locator('#questFight')).toBeEnabled();
-    await expect.poll(() => page.evaluate((kingdom) => {
-      const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
-      return save.kingdoms[kingdom].exploreTier;
-    }, KINGDOM)).toBe(tier);
-  }
-  await page.reload();
-  await expect(page.locator('.qpin[data-node="3"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#qdSub')).toContainText('Lv.88');
-});
-
-test('普通主线全通后清晰呈现已通关，不能重复出战', async ({ page }) => {
-  await openQuest(page);
+  await expect(page.locator('.qpin')).toHaveCount(8);
   await expect(page.locator('#questFight')).toBeDisabled();
   await expect(page.locator('#questFight')).toContainText('已通关');
   await page.locator('.qpin[data-node="1"]').click();
-  await expect(page.locator('#qdTitle')).toHaveText(`${KINGDOM} 1`);
-  await expect(page.locator('#questFight')).toBeDisabled();
-  await expect(page.locator('#questFight')).toContainText('已通关');
-  await selectMode(page, 'hard');
-  await expect(page.locator('#questFight')).toBeEnabled();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
+  await openExplore(page);
+  await expect(page.locator('#exploreFight')).toBeEnabled();
+  await expect(page.locator('.ex-enemy')).toHaveCount(4);
+  await expect(page.locator('#exploreDifficulty')).toHaveAttribute('max', '2');
+  await expect(page.locator('#explorePrev')).toBeEnabled();
+  await expect(page.locator('#exploreNext')).toBeDisabled();
+  await expect(page.locator('.ex-scale-labels .locked')).toHaveCount(10);
+  await expect(page.locator('.ex-material b')).toHaveText('秘法护盾属性石');
+  await expect(page.locator('.ex-first-clear')).toHaveText('首次完成本轮 +200 宝石');
+  await page.locator('#explorePrev').click();
+  await expect(page.locator('#exploreDifficulty')).toHaveValue('1');
+  await expect(page.locator('#explorePrev')).toBeDisabled();
+  await page.reload();
+  await expect(page.locator('#exploreDifficulty')).toHaveValue('1');
+  await expect(page.locator('#explorePrev')).toBeDisabled();
 });
 
-test('未全通存档可预览困难奖励，但只有当前普通关卡可以出战', async ({ page }) => {
+test('难度刻度支持键盘与边界，刷新后保持操作焦点', async ({ page }) => {
+  await openQuest(page, 8, 12);
+  await openExplore(page);
+  await page.locator('#exploreDifficulty').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '3');
+  await expect(page.locator('#exploreDifficulty')).toBeFocused();
+  await page.keyboard.press('End');
+  await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '12');
+  await expect(page.locator('#exploreNext')).toBeDisabled();
+  await page.keyboard.press('Home');
+  await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '1');
+  await expect(page.locator('#explorePrev')).toBeDisabled();
+});
+
+test('主线未通仍只开放当前普通关卡，探索出战被锁定', async ({ page }) => {
   await openQuest(page, 3);
   await expect(page.locator('.qpin[data-node="4"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#questFight')).toBeEnabled();
+  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +100 宝石');
   await page.locator('.qpin[data-node="5"]').click();
   await expect(page.locator('#questFight')).toBeDisabled();
+  await expect(page.locator('#questExplore')).toBeDisabled();
+  await page.goto(`/game.html${EXPLORE_HASH}`);
+  await expect(page.locator('#exploreFight')).toBeDisabled();
+  await expect(page.locator('.ex-gate')).toHaveText('通关本王国主线后开放');
+});
 
-  for (const mode of ['hard', 'veryHard'] as const) {
-    await selectMode(page, mode);
-    await page.locator('.qpin[data-node="3"]').click();
-    await expect(page.locator('#qdTitle')).toHaveText(`${KINGDOM} 3`);
-    await expect(page.locator('#qdRewards')).toBeVisible();
-    await expect(page.locator('#questFight')).toBeDisabled();
-  }
-  expect(await page.evaluate((kingdom) => {
+test('全12档可选且保存，已通关可重复探索，旧路由导入新页面', async ({ page }) => {
+  await openQuest(page, 8, 12);
+  await page.evaluate(k => {
     const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
-    return save.kingdoms[kingdom].exploreTier;
-  }, KINGDOM)).toBe(0);
-  await screenshot(page, 'locked-very-hard-preview');
-  await selectMode(page, 'normal');
-  await expect(page.locator('.qpin[data-node="4"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#questFight')).toBeEnabled();
+    save.kingdoms[k].clearedExploreTiers = [1, 2, 3, 4, 5, 6];
+    localStorage.setItem('gems.meta.save', JSON.stringify(save));
+  }, KINGDOM);
+  await page.reload();
+  await openExplore(page);
+  await page.locator('#exploreDifficulty').focus();
+  await page.keyboard.press('Home');
+  await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '1');
+  for (let tier = 1; tier <= 12; tier++) {
+    if (tier > 1) await page.locator('#exploreNext').click();
+    await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', String(tier));
+    await expect(page.locator('#exploreDifficulty')).toHaveValue(String(tier));
+    await expect(page.locator('#exploreFight')).toBeEnabled();
+    if (tier <= 6) await expect(page.locator('.ex-first-clear')).toHaveText('首通已完成');
+  }
+  await expect(page.locator('.ex-material')).toContainText('本档首领也必掉 1 颗');
+  await page.reload();
+  await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '12');
+    await expect(page.locator('.ex-level')).toContainText('Lv.150');
+    await expect(page.locator('.ex-landscape')).toHaveAttribute('src', /relic-landscape.*\.webp/);
+    await expect(page.locator('.ex-medallion img')).toHaveAttribute('src', /difficulty-sigil.*\.webp/);
+    await expect(page.locator('.ex-stone img')).toHaveAttribute('src', /stone-arcane-blue-brown.*\.webp/);
+    await expect(page.locator('.ex-stone svg')).toHaveCount(0);
+    await expect(page.locator('.ex-reward-amount')).toHaveText('×2');
+  for (const suffix of ['hard', 'veryhard', 'vh', 'explore']) {
+    await page.goto(`/game.html${QUEST_HASH}/${suffix}`);
+    await expect(page.locator('.ex-scale-labels span')).toHaveCount(12);
+  await expect(page.locator('.ex-difficulty-feature')).toHaveCount(1);
+  }
+});
+
+test('已进行的六场路线锁定难度、刷新保留阵容、放弃需确认且不抹奖励', async ({ page }) => {
+  await openQuest(page, 8, 12);
+  await page.evaluate(k => {
+    const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+    save.kingdoms[k].exploreRun = { id: 'e2e-run', tier: 12, stage: 4, seed: 42 };
+    save.materials.traitstones['arcane:blue:brown'] = 7;
+    localStorage.setItem('gems.meta.save', JSON.stringify(save));
+  }, KINGDOM);
+  await page.reload();
+  await openExplore(page);
+  await expect(page.locator('.ex-route .done')).toHaveCount(4);
+  await expect(page.locator('.ex-route .current')).toContainText('首领');
+  await expect(page.locator('#exploreDifficulty')).toBeDisabled();
+  await expect(page.locator('.ex-step:disabled')).toHaveCount(2);
+  await expect(page.locator('#exploreFight')).toHaveText('继续探索');
+  const before = await page.locator('.ex-enemies').innerText();
+  await page.reload();
+  await expect(page.locator('.ex-enemies')).toHaveText(before, { useInnerText: true });
+  await page.locator('#exploreAbandon').click();
+  await expect(page.locator('#exploreConfirm')).toBeVisible();
+  await page.locator('#exploreKeep').click();
+  await expect(page.locator('#exploreConfirm')).not.toBeVisible();
+  await page.locator('#exploreAbandon').click();
+  await page.locator('#exploreConfirmAbandon').click();
+  await expect(page.locator('#exploreFight')).toHaveText('开始探索');
+  await expect(page.locator('.ex-route .done')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(k => {
+    const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+    return [save.kingdoms[k].exploreRun, save.materials.traitstones['arcane:blue:brown']];
+  }, KINGDOM)).toEqual([null, 7]);
 });
 
 for (const viewport of [
   { width: 1600, height: 900, label: 'desktop' },
+  { width: 1366, height: 768, label: 'laptop' },
   { width: 768, height: 1024, label: 'tablet' },
   { width: 390, height: 844, label: 'mobile' },
+  { width: 320, height: 568, label: 'small-mobile' },
+  { width: 844, height: 390, label: 'landscape' },
 ]) {
-  test(`关卡选择 ${viewport.label} 的难度、关卡和出战控件完整且不重叠`, async ({ page }) => {
+  test(`探索 ${viewport.label} 控件可达、无横向截断、资源正常`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await openQuest(page);
-    for (const mode of ['normal', 'hard', 'veryHard'] as const) {
-      await selectMode(page, mode);
-      const layout = await page.evaluate(() => {
-        const rect = (selector: string): DOMRect => document.querySelector(selector)!.getBoundingClientRect();
-        const tabs = [...document.querySelectorAll('.qtab')].map((element) => element.getBoundingClientRect());
-        const pins = [...document.querySelectorAll('.qpin')].map((element) => element.getBoundingClientRect());
-        const dock = rect('.quest-dock');
-        const fight = rect('#questFight');
-        const nav = rect('.bottom-bar');
-        const overlaps = (a: DOMRect, b: DOMRect): boolean =>
-          Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 &&
-          Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2;
-        const controls = [...tabs, ...pins];
-        return {
-          documentOverflow: document.documentElement.scrollWidth > innerWidth + 1,
-          controlsWithinViewport: [...controls, fight].every((bounds) =>
-            bounds.left >= -1 && bounds.right <= innerWidth + 1 &&
-            bounds.top >= -1 && bounds.bottom <= innerHeight + 1,
-          ),
-          controlsOverlap: controls.some((a, index) => controls.slice(index + 1).some((b) => overlaps(a, b))),
-          dockOverlapsControls: controls.some((control) => overlaps(control, dock)),
-          dockAboveNav: dock.bottom <= nav.top + 2,
-          fightWithinDock: fight.left >= dock.left - 1 && fight.right <= dock.right + 1 &&
-            fight.top >= dock.top - 1 && fight.bottom <= dock.bottom + 1,
-        };
-      });
-      expect(layout.documentOverflow).toBe(false);
-      expect(layout.controlsWithinViewport).toBe(true);
-      expect(layout.controlsOverlap).toBe(false);
-      expect(layout.dockOverlapsControls).toBe(false);
-      expect(layout.dockAboveNav).toBe(true);
-      expect(layout.fightWithinDock).toBe(true);
-      await screenshot(page, `${viewport.label}-${mode}`);
+    await openQuest(page, 8, 12);
+    // Keep the ordinary quest regression, independent of the new Explore layout.
+    const mainFits = await page.locator('#questFight').evaluate(el => {
+      const r = el.getBoundingClientRect();
+      return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+    });
+    expect(mainFits).toBe(true);
+    await openExplore(page);
+    await page.locator('#exploreDifficulty').focus();
+    await page.keyboard.press('End');
+    await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '12');
+    await expect(page.locator('.ex-level')).toContainText('Lv.150');
+    await expect(page.locator('.ex-landscape')).toHaveAttribute('src', /relic-landscape.*\.webp/);
+    await expect(page.locator('.ex-medallion img')).toHaveAttribute('src', /difficulty-sigil.*\.webp/);
+    await expect(page.locator('.ex-stone img')).toHaveAttribute('src', /stone-arcane-blue-brown.*\.webp/);
+    await expect(page.locator('.ex-stone svg')).toHaveCount(0);
+    await expect(page.locator('.ex-reward-amount')).toHaveText('×2');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    if (viewport.width < 1400) {
+      await expect(page.locator('#stage')).toHaveClass(/quest-responsive/);
+      expect(await page.locator('#stage').evaluate(el => Math.round(el.getBoundingClientRect().width))).toBe(viewport.width);
+      expect(await page.locator('#exploreFight').evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     }
+    await screenshot(page, `explore-${viewport.label}-top`);
+    await page.locator('#exploreFight').scrollIntoViewIfNeeded();
+    expect(await page.locator('#exploreFight').evaluate(el => {
+      const r = el.getBoundingClientRect();
+      const nav = document.querySelector('.bottom-bar')!.getBoundingClientRect();
+      return r.left >= 0 && r.right <= innerWidth + 1 && r.top >= 0 && r.bottom <= nav.top + 1;
+    })).toBe(true);
+    await screenshot(page, `explore-${viewport.label}-fight`);
   });
 }
-
-
-test('逐关首通宝石：可见金额、存档通关状态、刷新与重复挑战入口', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await openQuest(page, 1);
-  await page.locator('.qpin[data-node="2"]').click();
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +100 宝石');
-  await page.locator('.qpin[data-node="1"]').click();
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
-  await expect(page.locator('#questFight')).toBeDisabled();
-  await page.evaluate((kingdom) => {
-    const key = 'gems.meta.save';
-    const save = JSON.parse(localStorage.getItem(key)!);
-    save.kingdoms[kingdom].questsDone = 8;
-    save.kingdoms[kingdom].clearedExploreTiers = [2, 4];
-    localStorage.setItem(key, JSON.stringify(save));
-  }, KINGDOM);
-  await page.reload();
-  await selectMode(page, 'hard');
-  await page.locator('.qpin[data-node="1"]').click();
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +200 宝石');
-  await page.locator('.qpin[data-node="2"]').click();
-  await expect(page.locator('.qpin[data-node="2"]')).toHaveClass(/done/);
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
-  await expect(page.locator('#questFight')).toBeEnabled();
-  await selectMode(page, 'veryHard');
-  await page.locator('.qpin[data-node="2"]').click();
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通 +300 宝石');
-  await screenshot(page, 'mobile-first-clear-gems');
-  await page.locator('.qpin[data-node="1"]').click();
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
-  await page.reload();
-  await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
-});

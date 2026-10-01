@@ -187,7 +187,7 @@ function itemVm(item: ChestItemDrop): RewardVm {
   };
 }
 
-const STONE_TIER_CN: Record<string, string> = { minor: '初级特质石', major: '高级特质石', runic: '符文特质石', arcane: '奥术特质石', celestial: '圣辉石' };
+const STONE_TIER_CN: Record<string, string> = { minor: '初级特质石', major: '高级特质石', runic: '符文特质石', arcane: '秘法特质石', celestial: '圣辉石' };
 const CURRENCY_CN: Record<string, string> = { gold: '黄金', glory: '荣耀', souls: '灵魂', gems: '宝石' };
 const LOOT_GROUP_CN: Record<ChestLootRow['group'], string> = { troop: '部队', ingot: '金属锭', stone: '特质石', resource: '资源' };
 

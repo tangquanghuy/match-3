@@ -1,3 +1,6 @@
+import huijiuPortrait from '@assets/community/huijiu.webp?url';
+import { HUIJIU_SPELL_NAME } from './spellPresentation';
+import erochikaPortrait from '@assets/community/erochika.webp?url';
 import pingPortrait from '@assets/community/ping.webp?url';
 import zhuwangPortrait from '@assets/community/zhuwang.webp?url';
 import guanliObserverPortrait from '@assets/community/guanli-observer.webp?url';
@@ -57,6 +60,14 @@ export const PING_ID = 10016;
 export const PING_SPELL_ID = 20016;
 export const ZHUWANG_ID = 10017;
 export const ZHUWANG_SPELL_ID = 20017;
+export const EROCHIKA_ID = 10018;
+export const EROCHIKA_SPELL_ID = 20018;
+export const HUIJIU_ID = 10019;
+export const HUIJIU_SPELL_ID = 20019;
+
+const huijiuDescription = '创造 2 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [1:1]';
+
+const erochikaDescription = '对一名敌人造成 [魔法 + 2] 点真实伤害，并窃取其 2 点魔力值。将所有蓝色宝石转换为黄色宝石。';
 
 const bailuDescription = '对一名选定敌人造成 [魔法 + 7] 点法术伤害，并使其陷入织网状态。生命值最低的盟友获得屏障。';
 const douglasDescription = '对所有敌人造成 [魔法 + 3] 点法术伤害。然后爆破 3 颗随机宝石。';
@@ -527,5 +538,57 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     traits: communityTraits(['stonelink', 'frenzy', 'armored']),
     portrait: null,
     artUrl: zhuwangPortrait,
+  },
+  {
+    id: EROCHIKA_ID,
+    name: 'Erochika',
+    referenceName: 'Erochika',
+    rarity: 'UltraRare',
+    rarityIdx: 3,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Mage',
+    attack: 13,
+    armor: 14,
+    health: 27,
+    magic: 10,
+    base: { attack: 3, armor: 3, health: 6, magic: 1 },
+    manaColors: [BaseColor.Purple, BaseColor.Yellow],
+    manaCost: 14,
+    spell: {
+      id: EROCHIKA_SPELL_ID,
+      name: '秋庭扫叶',
+      description: erochikaDescription,
+      meta: buildSkillMetadata(erochikaDescription),
+    },
+    traits: communityTraits(['airlink', 'invigorated', 'bornoflight']),
+    portrait: null,
+    artUrl: erochikaPortrait,
+  },
+  {
+    id: HUIJIU_ID,
+    name: '灰鸠',
+    referenceName: 'Huijiu',
+    rarity: 'UltraRare',
+    rarityIdx: 3,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Generator',
+    attack: 12,
+    armor: 14,
+    health: 29,
+    magic: 5,
+    base: { attack: 3, armor: 3, health: 7, magic: 1 },
+    manaColors: [BaseColor.Blue, BaseColor.Purple],
+    manaCost: 16,
+    spell: {
+      id: HUIJIU_SPELL_ID,
+      name: HUIJIU_SPELL_NAME,
+      description: huijiuDescription,
+      meta: buildSkillMetadata(huijiuDescription),
+    },
+    traits: communityTraits(['huijiu_listen_rain', 'huijiu_refill_cup', 'huijiu_farewell']),
+    portrait: null,
+    artUrl: huijiuPortrait,
   },
 ];

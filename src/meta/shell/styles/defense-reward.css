@@ -1,0 +1,7 @@
+.defense-floating-coin { display:inline-block; position:relative; width:18px; height:18px; border-radius:50%; border:2px solid #f5d585; background:radial-gradient(circle at 35% 30%,#ffe9a4,#c18a29 70%); box-shadow:0 0 12px #edbb5540,inset 0 0 0 2px #95651c; animation:defense-coin-float 2.4s ease-in-out infinite; flex-shrink:0; }
+.defense-floating-coin::after { content:''; position:absolute; inset:4px 6px; background:#ffe6a4; }
+@keyframes defense-coin-float { 0%,100% { transform:translateY(2px) rotate(-8deg); } 50% { transform:translateY(-5px) rotate(8deg); } }
+.inv-defense-reward-hint { display:inline-flex; gap:7px; align-items:center; color:#edca7d; font-size:11px; font-style:normal; }
+#railInvasion.has-defense-reward { position:relative; }
+.map-defense-coin { position:absolute; top:8px; right:9px; pointer-events:none; }
+@media(prefers-reduced-motion:reduce) { .defense-floating-coin { animation:none; } }

@@ -10,7 +10,6 @@ import {
   QUEST_TEAM_SIZES,
   questEnemyLevel,
   questNodeUnlocked,
-  exploreEnemyLevel,
 } from '../../src/meta';
 import type { MetaSave } from '../../src/meta';
 
@@ -54,21 +53,21 @@ describe('出敌生成器（同 seed 可复现）', () => {
     expect(plan.enemies.every((e) => getTroopById(e.troopId))).toBe(true);
   });
 
-  it('Hard 3 / Very Hard 2：精英带队与首领压阵；等级按档爬升', () => {
-    const t3 = planExploreEncounter(KINGDOM, 3, 11);
-    expect(t3.source).toEqual({ kind: 'explore', tier: 3 });
-    expect(t3.enemies.map((e) => e.tier)).toEqual(['elite', 'minion', 'minion', 'minion']);
-    const t5 = planExploreEncounter(KINGDOM, 5, 11);
-    expect(t5.enemies).toHaveLength(4);
-    expect(t5.enemies.at(-1)!.tier).toBe('boss');
-    expect(t5.enemies[0]!.level).toBe(exploreEnemyLevel(KINGDOM, 5));
-    expect(planExploreEncounter(KINGDOM, 6, 11).enemies).toHaveLength(4);
+  it('探索四场普通队伍，之后首领与最终 Boss；等级只由难度决定', () => {
+    for (let stage = 0; stage < 6; stage++) {
+      const plan = planExploreEncounter(KINGDOM, 12, 11, stage);
+      expect(plan.source).toEqual({ kind: 'explore', tier: 12, stage });
+      expect(plan.enemies).toHaveLength(4);
+      expect(plan.enemies.every(e => e.level === 150)).toBe(true);
+      if (stage >= 4) expect(plan.enemies[0]!.tier).toBe('boss');
+      for (const e of plan.enemies.slice(stage >= 4 ? 1 : 0)) expect(getTroopById(e.troopId)!.rarityIdx).toBeLessThanOrEqual(3);
+    }
   });
 
   it('越界抛 RangeError', () => {
     expect(() => planQuestEncounter(KINGDOM, 0, 1)).toThrow(RangeError);
     expect(() => planQuestEncounter(KINGDOM, 9, 1)).toThrow(RangeError);
-    expect(() => planExploreEncounter(KINGDOM, 7, 1)).toThrow(RangeError);
+    expect(() => planExploreEncounter(KINGDOM, 13, 1)).toThrow(RangeError);
   });
 });
 

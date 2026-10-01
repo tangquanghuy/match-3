@@ -128,17 +128,23 @@ describe('MockGateway', () => {
     expect(gwSave(gw).currencies.souls).toBe(0);
   });
 
-  it('宝箱：十连产 10 张卡入册；余额不足报 INSUFFICIENT', async () => {
+  it('宝箱：十连产10项，批量材料正确入库；余额不足报 INSUFFICIENT', async () => {
     const gw = new MockGateway(memoryStorage());
     const { save } = await gw.load();
     const ownedBefore = Object.keys(save.collection).length;
+    const materialsBefore = structuredClone(save.materials);
     const drawn = await gw.openChest('gem', 10);
     expect(drawn.result.ok).toBe(true);
-    // 宝石箱 20% 出材料：部队卡 + 材料项 == 10（一抽一项）
+    // 每抽一项，但材料项可包含多颗；数量应完整记入权威存档。
     if (drawn.result.ok && 'materials' in drawn.result) {
-      const m = drawn.result.materials;
-      const items = Object.values({ ...m.ingots, ...m.traitstones }).reduce((a, n) => a + n!, 0);
-      expect(drawn.result.cards.length + items).toBe(10);
+      expect(drawn.result.drops).toHaveLength(10);
+      for (const [key, amount] of Object.entries(drawn.result.materials.traitstones ?? {})) {
+        expect(gwSave(gw).materials.traitstones[key]).toBe((materialsBefore.traitstones[key] ?? 0) + amount!);
+      }
+      for (const [key, amount] of Object.entries(drawn.result.materials.ingots ?? {})) {
+        const ingot = key as keyof typeof materialsBefore.ingots;
+        expect(gwSave(gw).materials.ingots[ingot]).toBe((materialsBefore.ingots[ingot] ?? 0) + amount!);
+      }
     }
     expect(Object.keys(gwSave(gw).collection).length).toBeGreaterThanOrEqual(ownedBefore);
     expect(gwSave(gw).gachaLog).toHaveLength(1);

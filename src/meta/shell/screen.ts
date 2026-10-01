@@ -24,9 +24,9 @@ export type PvpSettlementView =
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
   | 'character' | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
-  | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt' | 'gifts'
+  | 'materials' | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt' | 'gifts'
   /** 王国主线页 `#quest/<王国>`（M10） */
-  | 'quest';
+  | 'quest' | 'explore';
 
 /** 屏层上下文：网关 + 导航 + 战斗启动。屏层禁止绕过它直接摸路由/战斗层 */
 export interface ShellCtx {
@@ -57,7 +57,7 @@ export interface ShellCtx {
   /** 启动一场本周活动战斗（结算走结算屏，活动积分/里程碑在结算行里） */
   launchEventBattle(choice?: string): Promise<void>;
   /** 启动一场入侵对战（mirrorId = 候选对手 id；结算走入侵屏自身） */
-  launchInvasionBattle(mirrorId: string): Promise<void>;
+  launchInvasionBattle(mirrorId: string, revenge?: boolean): Promise<void>;
   /** 启动新手引导试炼战（结算后回世界地图） */
   launchTutorialBattle(): Promise<void>;
   /** 展示结算屏（普通战斗带逐行入账，PvP 带战果与加分构成） */

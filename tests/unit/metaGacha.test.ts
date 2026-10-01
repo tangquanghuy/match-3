@@ -26,15 +26,49 @@ const save = (gems = 0, goldKeys = 0) =>
 
 describe('宝石宝箱（150 单抽 / 1500 十连保底稀有或以上）', () => {
   afterEach(() => vi.restoreAllMocks());
-  it('权重表对齐 GoW 官方：部队 80%（不出普通/精良，神话维持 0.2%）+ 金属锭 10% + 特质石 10%', () => {
-    expect(GEM_CHEST_WEIGHTS).toEqual([0, 0, 6710, 1070, 200, 20]);
-    expect(GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0)).toBe(8000);
+  it('养成供给权重：部队 69.5%（不出普通/精良，神话维持 0.2%）+ 金属锭 10% + 特质石 20.5%', () => {
+    expect(GEM_CHEST_WEIGHTS).toEqual([0, 0, 5660, 1070, 200, 20]);
+    expect(GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0)).toBe(6950);
     const extra = GEM_CHEST_EXTRA.reduce((a, row) => a + row.weight, 0);
-    // 材料表是十万分比，必须恰好补满宝石箱剩余的 20%
-    expect(extra / CHEST_LOOT_BASE).toBeCloseTo((GEM_CHEST_BASE - 8000) / GEM_CHEST_BASE, 10);
+    // 材料表是十万分比，必须恰好补满宝石箱剩余的 30.5%
+    expect(extra / CHEST_LOOT_BASE).toBeCloseTo((GEM_CHEST_BASE - 6950) / GEM_CHEST_BASE, 10);
     const sum = (group: string) => GEM_CHEST_EXTRA.filter((row) => row.group === group).reduce((a, row) => a + row.weight, 0);
-    expect([sum('ingot'), sum('stone')]).toEqual([10_000, 10_000]);
+    expect([sum('ingot'), sum('stone')]).toEqual([10_000, 20_500]);
     expect(GACHA_PITY_MIN_IDX).toBe(2);
+  });
+
+  it('特质石概率随稀有度递减，秘法不超过2%、圣辉不超过0.5%，全部每次1颗', () => {
+    const stones = GEM_CHEST_EXTRA.filter(row => row.loot.type === 'stone');
+    expect(stones.map(row => [row.loot.type === 'stone' && row.loot.tier, row.weight, row.loot.type === 'stone' && row.loot.amount]))
+      .toEqual([['major', 10_000, 1], ['runic', 8_000, 1], ['arcane', 2_000, 1], ['celestial', 500, 1]]);
+    const probabilities = stones.map(row => row.weight / CHEST_LOOT_BASE);
+    expect(probabilities[2]).toBeLessThanOrEqual(.02);
+    expect(probabilities[3]).toBeLessThanOrEqual(.005);
+    for (let i = 1; i < probabilities.length; i++) expect(probabilities[i]).toBeLessThan(probabilities[i - 1]!);
+  });
+
+  it.each(GEM_CHEST_EXTRA.map((row, index) => ({ row, index })))('材料行 $index 实际抽取只入库1件', ({ row, index }) => {
+    const s = save(150);
+    const total = GEM_CHEST_EXTRA.reduce((n, item) => n + item.weight, 0);
+    const lower = GEM_CHEST_EXTRA.slice(0, index).reduce((n, item) => n + item.weight, 0);
+    const troopTotal = GEM_CHEST_WEIGHTS.reduce((n, weight) => n + weight, 0);
+    vi.spyOn(SeededRNG.prototype, 'next')
+      .mockReturnValueOnce((troopTotal + GEM_CHEST_BASE) / 2 / GEM_CHEST_BASE)
+      .mockReturnValueOnce((lower + row.weight / 2) / total)
+      .mockReturnValue(.5);
+    const before = structuredClone(s.materials);
+    const result = openGemChest(s, 42, 1);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.cards).toHaveLength(0);
+    expect(result.drops).toHaveLength(1);
+    const bucket = row.loot.type === 'ingot' ? 'ingots' : 'traitstones';
+    const entries = Object.entries(result.materials[bucket] ?? {});
+    expect(entries).toHaveLength(1);
+    const [key, amount] = entries[0]!;
+    expect(amount).toBe(1);
+    const inventory = s.materials[bucket] as Record<string, number>;
+    const oldInventory = before[bucket] as Record<string, number>;
+    expect(inventory[key]).toBe((oldInventory[key] ?? 0) + 1);
   });
 
   it('宝石不足 → INSUFFICIENT 且不出卡', () => {
@@ -64,8 +98,10 @@ describe('宝石宝箱（150 单抽 / 1500 十连保底稀有或以上）', () =
       expect(s.currencies.gems).toBe(0);
       expect(r.cards.length).toBeGreaterThanOrEqual(1);
       expect(r.cards.every((c) => c.rarityIdx >= GACHA_PITY_MIN_IDX)).toBe(true);
-      const materials = Object.values({ ...r.materials.ingots, ...r.materials.traitstones }).reduce((a, n) => a + n!, 0);
-      expect(r.cards.length + materials).toBe(10); // 一抽一项
+      expect(r.drops).toHaveLength(10); // 一抽一项，材料每次命中只给 1 颗
+      for (const [key, amount] of Object.entries(r.materials.traitstones ?? {})) {
+        expect(s.materials.traitstones[key]).toBe(amount);
+      }
     }
   });
 
@@ -126,8 +162,9 @@ describe('宝石宝箱（150 单抽 / 1500 十连保底稀有或以上）', () =
         if (card.duplicate) dups += 1;
       }
     }
-    expect(materials).toBeGreaterThan(N * 0.2 * 0.8);
-    expect(materials).toBeLessThan(N * 0.2 * 1.2);
+    const materialRate = GEM_CHEST_EXTRA.reduce((sum, row) => sum + row.weight, 0) / CHEST_LOOT_BASE;
+    expect(materials).toBeGreaterThan(N * materialRate * 0.8);
+    expect(materials).toBeLessThan(N * materialRate * 1.2);
     const expected = GEM_CHEST_WEIGHTS.map((w) => (w / GEM_CHEST_BASE) * N);
     for (let idx = 0; idx < 6; idx++) {
       const exp = expected[idx]!;

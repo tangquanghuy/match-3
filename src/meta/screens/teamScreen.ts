@@ -1,3 +1,4 @@
+import { isCoupletSpell, spellTitleText } from '../../data/spellPresentation';
 /**
  * 部队编成屏（计划 §5.3）。预设队、站位、旗帜、校验 issues 全走存档与 teamRules。
  * 名册 = 收藏中的部队 + 主角；立绘走本地降级图（troopTypes 映射 + 点名覆盖）。
@@ -17,6 +18,7 @@ import { BANNERS, BANNER_COLOR_LABELS, bannerOf } from '../data/banners';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
 import { isFailure } from '../gateway';
 import { renderSpell } from '../shell/spellText';
+import { bindTermTips } from '../shell/termTip';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { kingdomBonusOf } from '../systems/kingdomOps';
@@ -153,6 +155,7 @@ export class TeamScreen implements Screen {
   private banner: string | null = null;
   private selected = 0;
   private inspectedKey: string | null = null;
+  private termTipsInspect?: () => void;
   private filter = 'all';
   private search = '';
   private page = 0;
@@ -972,7 +975,7 @@ export class TeamScreen implements Screen {
         <div class="inspect-name"><b>${escapeHtml(troop.name)}</b><span>${troop.key === 'hero' ? '主角' : RARITY_CN_ROSTER[troop.rarityIdx]} · ${troop.typeLabel} · Lv.${troop.level}${troop.copies > 1 ? ` · ×${troop.copies}` : ''}</span></div>
         <div class="inspect-spell">
           ${manaCorner('inspect-mana', troop.colors, troop.cost)}
-          <div><strong>${troop.spellName}</strong><small>${troop.key === 'hero' ? '经武器施放' : '部队法术'}</small></div>
+          <div><strong class="${isCoupletSpell(troop.spellName) ? 'spell-couplet' : ''}">${escapeHtml(spellTitleText(troop.spellName))}</strong><small>${troop.key === 'hero' ? '经武器施放' : '部队法术'}</small></div>
         </div>
         <p>${spellText(troop.spellDesc, troop.magic)}</p>
         ${statChips(troop.attack, troop.armor, troop.health, troop.magic)}
@@ -982,6 +985,8 @@ export class TeamScreen implements Screen {
         <button class="inspect-codex" id="inspectCodex" type="button">图鉴</button>
       </div>`;
     mountIcons(dock);
+    this.termTipsInspect?.();
+    this.termTipsInspect = bindTermTips(dock);
     $('#inspectAct').onclick = () => (usedAt >= 0 ? this.removeInspected() : this.assignInspected());
     $('#inspectCodex').onclick = () => {
       // TM-11：主角图鉴统一进入壳内武器中心，不再打开独立网页或绕回英雄页。
@@ -1241,6 +1246,7 @@ export class TeamScreen implements Screen {
     this.drag = null;
     this.closeBannerPicker();
     this.closeConfirm();
+    this.termTipsInspect?.();
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);
     }

@@ -1,3 +1,4 @@
+import type { MaterialShopRequest, MaterialShopBuyResult } from '../systems/materialShop';
 /**
  * Meta 数据网关（视觉屏 ↔ 权威核心的唯一通道）。
  *
@@ -150,6 +151,7 @@ export interface MetaGateway {
   collectAllTribute(): Promise<GatewayUpdate<TributeHaul>>;
   /** 设为主城（进贡翻倍）；null = 取消 */
   setHomeKingdom(kingdom: string | null): Promise<GatewayUpdate<string | null | MetaFailure>>;
+  abandonKingdomExplore(kingdom: string): Promise<GatewayUpdate<boolean | MetaFailure>>;
   setKingdomExploreTier(kingdom: string, tier: number): Promise<GatewayUpdate<number | MetaFailure>>;
 
   // —— 竞技场 ——
@@ -174,6 +176,8 @@ export interface MetaGateway {
   /** 竞技场下一场 */
   planArenaBattle(): Promise<BattleTicket | MetaFailure>;
   /** 入侵：对一只镜像对手出战 */
+  planInvasionRevenge(key: string): Promise<BattleTicket | MetaFailure>;
+  claimInvasionDefense(): Promise<GatewayUpdate<Ok<{ gold: number; souls: number; glory: number }> | MetaFailure>>;
   planInvasionBattle(mirrorId: string): Promise<BattleTicket | MetaFailure>;
   /** 结算当前出战票（一票一结；票不符/已结算返回 INVALID） */
   settleBattle(result: BattleResult): Promise<GatewayUpdate<BattleSettlement | MetaFailure>>;
@@ -187,11 +191,15 @@ export interface MetaGateway {
   abandonTowerRun(): Promise<GatewayUpdate<Ok<{ floorReached: number; glory: number; scrolls: number }> | MetaFailure>>;
   /** 活动玩法的非战斗动作（爬塔选路/营地/商人/奇遇/遗物、庆典棋盘掷骰等）。失败不改存档 */
   eventAction(typeId: EventTypeId, action: string): Promise<GatewayUpdate<EventActionResult | MetaFailure>>;
+  /** 材料商店购买；服务端重算配方/价格，拒绝过期报价。 */
+  buyMaterialGoods(request: MaterialShopRequest, expectedQuote: string): Promise<GatewayUpdate<MaterialShopBuyResult>>;
   /** 活动商店购买；expectedPeriodStart = 屏层看到的货架期（换期时拒绝，防买错） */
   buyEventGoods(goodsId: string, typeId: EventTypeId, expectedPeriodStart?: number): Promise<GatewayUpdate<EventBuyResult | MetaFailure>>;
 
   // —— 入侵 ——
   syncInvasionSeason(): Promise<GatewayUpdate<Ok>>;
+  setInvasionDefense(index: number): Promise<GatewayUpdate<Ok | MetaFailure>>;
+  syncInvasionDefense(): Promise<GatewayUpdate<Ok | MetaFailure>>;
   refreshInvasionOpponents(): Promise<GatewayUpdate<Ok | MetaFailure>>;
   /** expectedWeek = 屏层看到的赛季周（跨周时拒绝） */
   claimInvasionRank(id: string, expectedWeek?: number): Promise<GatewayUpdate<Ok<{ gems: number }> | MetaFailure>>;

@@ -1,8 +1,8 @@
 import type { CuratedBatch } from './index';
 import { BaseColor } from '../../types';
-import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_SPELL_ID, PING_SPELL_ID, ZHUWANG_SPELL_ID, COMMUNITY_TROOPS } from '../../../data/communityTroops';
+import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_SPELL_ID, PING_SPELL_ID, ZHUWANG_SPELL_ID, EROCHIKA_SPELL_ID, HUIJIU_SPELL_ID, COMMUNITY_RACE, COMMUNITY_TROOPS } from '../../../data/communityTroops';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
-import { CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, skill, summonRef, transform } from '../builders';
+import { createSpecialGems2, trueDmg, steal, CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, skill, summonRef, transform } from '../builders';
 
 export const BATCH_COMMUNITY: CuratedBatch = {
   batch: 'community',
@@ -182,6 +182,30 @@ export const BATCH_COMMUNITY: CuratedBatch = {
           troopId: 6935,
           ifCond: { kind: 'castStartBoardAtLeast', color: BaseColor.Red, n: 13 },
           chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'selfStat', stat: 'attack' }, max: 50 },
+        }),
+      ),
+    },
+    {
+      id: EROCHIKA_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === EROCHIKA_SPELL_ID)!.spell.description,
+      build: skill(
+        // Damage precedes theft; this cast does not benefit from the newly stolen magic.
+        trueDmg('enemyChosen', 2, 1),
+        // Retain the selected enemy; a lethal hit must never redirect the theft.
+        steal('lastTarget', 'magic', 'magic', 2, 0),
+        transform(BaseColor.Blue, BaseColor.Yellow),
+      ),
+    },
+    {
+      id: HUIJIU_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === HUIJIU_SPELL_ID)!.spell.description,
+      build: skill(
+        createSpecialGems2([{ kind: 'elementalStar' }, { kind: 'umbralStar' }], 2, 0, {
+          minimumEach: 1,
+          modifier: {
+            mod: { kind: 'ratio', a: 1, b: 1 },
+            sources: [{ kind: 'alliesOfRace', race: COMMUNITY_RACE }, { kind: 'boardGems', color: BaseColor.Blue }],
+          },
         }),
       ),
     },

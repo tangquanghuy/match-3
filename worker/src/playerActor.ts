@@ -54,18 +54,32 @@ export class PlayerActor extends DurableObject<Env> {
       {
         fresh: 'new',
         flushDelayMs: 0,
+        schedule: (delayMs) => { void ctx.storage.setAlarm(Date.now() + delayMs); },
         mirrorPool: new D1MirrorPool(env.DB, () => this.playerId),
         onMirrorPoolError: (error) => console.error('invasion mirror pool failed', error),
       },
     );
   }
 
-  load(preservePendingBattle = false): Promise<LoadReply> {
+  private async bindPlayer(playerId?: string): Promise<void> {
+    if (this.playerId) return;
+    this.playerId = playerId ?? await this.ctx.storage.get<string>('invasionActorIdentity') ?? null;
+    if (playerId) await this.ctx.storage.put('invasionActorIdentity', playerId);
+  }
+
+  async load(preservePendingBattle = false, playerId?: string): Promise<LoadReply> {
+    await this.bindPlayer(playerId);
     return this.host.load({ preservePendingBattle });
   }
 
+  override async alarm(): Promise<void> {
+    await this.bindPlayer();
+    await this.host.load({ preservePendingBattle: true });
+    await this.host.flush();
+  }
+
   async execute(command: MetaCommand, playerId?: string, accountName?: string): Promise<CommandReply | { rateLimited: true }> {
-    if (playerId) this.playerId ??= playerId;
+    await this.bindPlayer(playerId);
     if (accountName) this.accountName = accountName;
     const now = Date.now();
     this.tokens = Math.min(RATE_BURST, this.tokens + ((now - this.refilledAt) / 1000) * RATE_PER_SEC);

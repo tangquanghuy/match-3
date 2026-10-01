@@ -68,6 +68,8 @@ function templateOf(char: Character): SummonTemplate {
     colors: [...char.colors],
     traitIds: [...(char.traitIds ?? [])],
     troopTypes: [...(char.troopTypes ?? [])],
+    traitNames: char.traitNames ? { ...char.traitNames } : undefined,
+    displayTraitIds: char.displayTraitIds ? [...char.displayTraitIds] : undefined,
   };
 }
 
@@ -120,6 +122,11 @@ export function applyTransformTemplate(target: Character, template: SummonTempla
   target.manaCost = template.manaCost;
   target.mana = 0;
   target.skillId = template.skillId;
+  // Replace the whole form's presentation, including clearing fields absent in the new template.
+  target.spellName = template.spellName;
+  target.spellDescription = template.spellDescription;
+  target.traitNames = template.traitNames ? { ...template.traitNames } : undefined;
+  target.displayTraitIds = template.displayTraitIds ? [...template.displayTraitIds] : undefined;
   target.traitIds = [...(template.traitIds ?? [])];
   target.troopTypes = [...(template.troopTypes ?? [])];
   target.kingdom = template.kingdom;
@@ -131,7 +138,7 @@ export function applyTransformTemplate(target: Character, template: SummonTempla
 /** 队伍最大容量（与 4 人上限一致；队伍数组长度可小于此值时有空位） */
 export const MAX_TEAM_SIZE = MAX_ACTIVE_TEAM_SIZE;
 
-/** 召唤物属性模板（引擎所需数值属性；不含表现层字段） */
+/** 召唤物属性模板（含当前形态的技能与特质显示元数据） */
 export type SummonTemplate = Omit<Character, 'id' | 'defeated' | 'statuses'>;
 
 /**

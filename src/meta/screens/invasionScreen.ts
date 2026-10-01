@@ -1,3 +1,5 @@
+import { defenseRewardsReady } from '../systems/invasionDefense';
+import { invasionDefensePanel, invasionDefenseLogPanel } from './invasionDefensePanel';
 import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY, INVASION_RANK_GEMS_TOTAL } from '../data/invasionRanks';
 import { enemyTraitCount } from '../data/enemyDifficulty';
 /**
@@ -56,6 +58,8 @@ function playerSummary(save: MetaSave): string {
 }
 
 export class InvasionScreen implements Screen {
+  private defenseSyncAt = 0;
+  private defenseSyncPending = false;
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
 
   html(ctx: ShellCtx, param?: string): string {
@@ -169,7 +173,7 @@ export class InvasionScreen implements Screen {
         .join('');
 
     const route = param?.split('/')[0];
-    const secondary = route === 'standings' || route === 'ranks' || route === 'rules' ? route : null;
+    const secondary = route === 'standings' || route === 'ranks' || route === 'rules' || route === 'defense' || route === 'defense-log' ? route : null;
     const pageSize = typeof window !== 'undefined' && window.innerWidth <= 900 ? 3 : 6;
     const pageCount = Math.ceil(INVASION_RANKS.length / pageSize);
     const rawPage = Number(param?.split('/')[1]);
@@ -187,10 +191,10 @@ export class InvasionScreen implements Screen {
     const rankPager = `<nav class="inv-rank-pager" aria-label="官阶分页">${Array.from({length: pageCount}, (_, i) => `<a href="#invasion/ranks/${i}"${i === rankPage ? ' aria-current="page"' : ''}>${pageSize === 3 ? INVASION_LEAGUES[i] : `${INVASION_LEAGUES[i * 2]} · ${INVASION_LEAGUES[i * 2 + 1]}`}</a>`).join('')}</nav>`;
     const rules = `<div class="inv-rules-body">
       <h2>官阶与战绩</h2><p>本周获得的 VP 达到门槛立即晋阶，战败不减少晋阶进度。每周重置官阶进度和领奖记录，每阶每周领取一次；钻石 III 开放周榜排名。周榜优先由同段位的真人指挥官组成，人数不足 ${INVASION.bracketSize + 1} 人时由模拟对手补位。</p>
-      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。对手可能是「真人镜像」：其他指挥官在入侵中实际出战过的队伍，由 AI 代为操作，按双方队伍强度分入低／中／高档；官阶越高，真人镜像越多；血怒也可能出现在真人镜像身上。你出击时使用的队伍也会成为其他指挥官的镜像对手。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
+      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。对手可能是「真人镜像」：其他指挥官部署的防守队伍，由 AI 代为操作，按双方队伍强度分入低／中／高档；官阶越高，真人镜像越多；血怒也可能出现在真人镜像身上。在「领地防守」独立部署防守队伍，供其他指挥官挑战；对手结算后记入防守战报，守胜 +2 榜单 VP、失守 −2 榜单 VP（最低 0），不回退晋阶进度。守胜奖励存入防守宝库后手动领取，失守记录可发起一次复仇战。尚未配置时首次同步采用当前出战队。已生成的对手与已开始的战斗保持当时快照。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
       <h2>荣耀奖励</h2><p>胜利获得荣耀；每日首胜另有奖励。20 荣耀可在宝箱殿兑换荣耀箱。</p>
     </div>`;
-    const secondaryContent = secondary === 'standings'
+    const secondaryContent = secondary === 'defense-log' ? invasionDefenseLogPanel(save, now) : secondary === 'defense' ? invasionDefensePanel(save) : secondary === 'standings'
       ? `<section class="inv-secondary-body"><header><h2>本周榜单</h2><p>${isTop ? `${leagueName} · ${standings.rows.length} 人 · 你当前第 ${standings.placement} 名` : '达到钻石 III 后开放排名；当前晋阶只看本周晋阶 VP。'}</p></header>${isTop ? `<div class="inv-rows">${standingsRows(standings.rows)}</div>` : '<a class="inv-rank-link" href="#invasion/ranks">查看官阶进度</a>'}</section>`
       : secondary === 'ranks'
         ? `<section class="inv-secondary-body inv-ranks-page"><header><h2>官阶与奖励</h2><p>每周 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石 · 每周一重置</p></header>${rankOverview}${rankPager}<div class="inv-rank-list">${rankList}</div><p class="inv-rank-page-note">第 ${rankPage + 1} / ${pageCount} 页 · 共 30 阶</p></section>`
@@ -199,13 +203,13 @@ export class InvasionScreen implements Screen {
     return `
       <style>${BANNER_ART_CSS}</style>
       ${topbarHtml()}
-      <div class="screen inv-screen${secondary ? ' inv-screen-secondary' : ''}">
+      <div class="screen inv-screen${secondary ? ' inv-screen-secondary' : ''}${secondary?.startsWith('defense') ? ' inv-defense-screen' : ''}">
         <section class="panel inv-panel inv-battle-hub">
-          ${secondary ? `<nav class="inv-subnav" aria-label="入侵信息"><a href="#invasion"><span data-icon="arrow"></span>返回对战</a>${isTop ? `<a href="#invasion/standings"${secondary === 'standings' ? ' aria-current="page"' : ''}>本周榜单</a>` : ''}<a href="#invasion/ranks"${secondary === 'ranks' ? ' aria-current="page"' : ''}>官阶</a><a href="#invasion/rules"${secondary === 'rules' ? ' aria-current="page"' : ''}>规则</a></nav>${secondaryContent}` : `
+          ${secondary ? `<nav class="inv-subnav" aria-label="入侵信息"><a href="${secondary === 'defense-log' ? '#invasion/defense' : '#invasion'}"><span data-icon="arrow"></span>${secondary === 'defense-log' ? '返回防守' : '返回对战'}</a>${isTop ? `<a href="#invasion/standings"${secondary === 'standings' ? ' aria-current="page"' : ''}>本周榜单</a>` : ''}<a href="#invasion/ranks"${secondary === 'ranks' ? ' aria-current="page"' : ''}>官阶</a><a href="#invasion/defense"${secondary?.startsWith('defense') ? ' aria-current="page"' : ''}>领地防守</a><a href="#invasion/rules"${secondary === 'rules' ? ' aria-current="page"' : ''}>规则</a></nav>${secondaryContent}` : `
           <header class="inv-hub-head">
             <div class="inv-hub-rank">${leagueEmblem(rank.index)}<div><small>当前官阶</small><h1>${leagueName}</h1><p>${progressNote}</p></div></div>
             <div class="inv-hub-status"><span><small>本周 VP</small><b>${save.invasion.vp}</b></span><span><small>${isTop ? '当前名次' : '本周晋阶 VP'}</small><b>${isTop ? `第 ${standings.placement}` : save.invasion.progressionVp}</b></span></div>
-            <nav class="inv-hub-links" aria-label="入侵信息">${isTop ? '<a href="#invasion/standings">榜单 <span data-icon="arrow"></span></a>' : ''}<a href="#invasion/ranks">官阶${unclaimed.length ? `<i class="inv-reward-dot">${unclaimed.length} 可领</i>` : ''} <span data-icon="arrow"></span></a><a href="#invasion/rules">规则 <span data-icon="arrow"></span></a></nav>
+            <nav class="inv-hub-links" aria-label="入侵信息">${isTop ? '<a href="#invasion/standings">榜单 <span data-icon="arrow"></span></a>' : ''}<a href="#invasion/ranks">官阶${unclaimed.length ? `<i class="inv-reward-dot">${unclaimed.length} 可领</i>` : ''} <span data-icon="arrow"></span></a><a href="#invasion/defense">领地防守${defenseRewardsReady(save) ? '<i class="inv-defense-reward-hint"><i class="defense-floating-coin"></i>奖励可领</i>' : ''} <span data-icon="arrow"></span></a><a href="#invasion/rules">规则 <span data-icon="arrow"></span></a></nav>
           </header>
           <div class="inv-choice-head"><div><small>免费刷新 · 不限次数</small><h2>选择对手</h2></div><button type="button" class="inv-choice-refresh" data-inv-refresh>刷新对手</button><div class="inv-choice-pager" aria-label="切换对手"><button type="button" data-inv-prev aria-label="上一名对手" title="上一名对手" disabled><span data-icon="arrow"></span></button><span class="inv-choice-position" aria-live="polite">1 / ${orderedCandidates.length}</span><button type="button" data-inv-next aria-label="下一名对手" title="下一名对手"${orderedCandidates.length < 2 ? ' disabled' : ''}><span data-icon="arrow"></span></button></div></div>
           <div class="inv-rivals">${candidateRows}</div>
@@ -221,6 +225,7 @@ export class InvasionScreen implements Screen {
     const now = ctx.gateway.now();
     const save = ctx.save();
     const week = weekStartOf(now);
+    this.mountDefense(ctx);
     if (save.hero.level >= INVASION.unlockHeroLevel && save.invasion.weekStart !== week) {
       void ctx.gateway.syncInvasionSeason().then(() => ctx.refresh());
       return;
@@ -228,7 +233,7 @@ export class InvasionScreen implements Screen {
     // 对手批次过期（首次进入 / 升联赛 / 旧档）→ 让服务端组一批（可能含真人镜像）；每个键只尝试一次
     // 周榜真人快照过期同理（键带上次取样时刻，取到新快照后自然换键）
     const rosterKey = `${week}:${save.invasion.league}:${save.invasion.refreshCount}:${save.invasion.standings?.fetchedAt ?? 0}`;
-    const stale = !invasionRosterFresh(save, week) || !invasionStandingsFresh(save, week, now);
+    const stale = !save.invasion.defenseTeam || !invasionRosterFresh(save, week) || !invasionStandingsFresh(save, week, now);
     if (save.hero.level >= INVASION.unlockHeroLevel && stale && rosterSyncKey !== rosterKey) {
       rosterSyncKey = rosterKey;
       void ctx.gateway.syncInvasionSeason().then(() => ctx.refresh()).catch(() => undefined);
@@ -283,6 +288,71 @@ export class InvasionScreen implements Screen {
         void ctx.launchInvasionBattle(id);
       }),
     );
+  }
+
+  private mountDefense(ctx: ShellCtx): void {
+    if (ctx.save().hero.level < INVASION.unlockHeroLevel) return;
+    const refresh = document.querySelector<HTMLButtonElement>('[data-refresh-defense]');
+    const sync = () => {
+      if (this.defenseSyncPending) return;
+      this.defenseSyncPending = true;
+      this.defenseSyncAt = ctx.gateway.now();
+      if (refresh) { refresh.disabled = true; refresh.textContent = '同步中…'; }
+      let synced = false;
+      void ctx.gateway.syncInvasionDefense().then(update => {
+        synced = update.result.ok;
+        if (!update.result.ok) toast(update.result.message);
+        else if (ctx.currentHash().startsWith('#invasion')) ctx.refresh();
+      }).catch(() => toast('战报同步失败，请重试')).finally(() => {
+        this.defenseSyncPending = false;
+        if (refresh) { refresh.disabled = false; refresh.textContent = '刷新'; }
+        if (synced && ctx.save().invasion.defenseLog?.hasMore && ctx.currentHash().startsWith('#invasion')) sync();
+      });
+    };
+    if (refresh) this.on(refresh, 'click', sync);
+    if (ctx.gateway.now() - this.defenseSyncAt > 30_000) sync();
+    if (!document.querySelector('[data-invasion-defense], [data-invasion-defense-log]')) return;
+    document.querySelectorAll<HTMLButtonElement>('[data-revenge]').forEach(button => this.on(button, 'click', () => {
+      void ctx.launchInvasionBattle(button.dataset.revenge!, true);
+    }));
+    document.querySelectorAll<HTMLButtonElement>('[data-defense-filter]').forEach(button => this.on(button, 'click', () => {
+      const filter = button.dataset.defenseFilter;
+      document.querySelectorAll<HTMLButtonElement>('[data-defense-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+      document.querySelectorAll<HTMLElement>('.inv-defense-event').forEach(row => {
+        row.hidden = filter === 'loss' ? row.dataset.defenseResult !== 'loss' : filter === 'revenge' ? row.dataset.canRevenge !== 'true' : false;
+      });
+      const empty = document.querySelector<HTMLElement>('[data-defense-filter-empty]');
+      if (empty) empty.hidden = !!document.querySelector('.inv-defense-event:not([hidden])');
+    }));
+    if (!document.querySelector('[data-invasion-defense]')) return;
+    const claim = document.querySelector<HTMLButtonElement>('[data-claim-defense]')!;
+    this.on(claim, 'click', () => {
+      claim.disabled = true;
+      claim.textContent = '领取中…';
+      void ctx.gateway.claimInvasionDefense().then(update => {
+        if (ctx.currentHash().startsWith('#invasion')) ctx.refresh();
+        toast(update.result.ok ? `已领取 ${update.result.gold} 金币、${update.result.souls} 灵魂、${update.result.glory} 荣誉` : update.result.message);
+      }).catch(() => { claim.disabled = false; claim.textContent = '领取奖励'; toast('领取失败，请重试'); });
+    });
+    const select = document.querySelector<HTMLSelectElement>('#invasionDefensePreset')!;
+    const deploy = document.querySelector<HTMLButtonElement>('[data-deploy-defense]')!;
+    this.on(select, 'change', () => {
+      document.querySelectorAll<HTMLElement>('[data-defense-preview]').forEach(el => { el.hidden = el.dataset.defensePreview !== select.value; });
+      deploy.disabled = Number(select.value) < 0 || (select.selectedOptions[0]?.disabled ?? true);
+    });
+    this.on(deploy, 'click', () => {
+      deploy.disabled = true;
+      select.disabled = true;
+      deploy.textContent = '部署中…';
+      void ctx.gateway.setInvasionDefense(Number(select.value)).then(update => {
+        if (ctx.currentHash().startsWith('#invasion/defense')) ctx.refresh();
+        toast(update.result.ok ? '防守队伍已保存' : update.result.message);
+      }).catch(() => toast('部署失败，请重试')).finally(() => {
+        select.disabled = false;
+        deploy.disabled = false;
+        deploy.textContent = '部署防守';
+      });
+    });
   }
 
   private on(target: EventTarget, type: string, fn: EventListenerOrEventListenerObject): void {

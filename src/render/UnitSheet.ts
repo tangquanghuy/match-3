@@ -1,3 +1,4 @@
+import { isCoupletSpell, spellTitleText } from '../data/spellPresentation';
 /**
  * 部队详情窗（战斗内，非模态）——三张图鉴样式的卡叠成一摞。
  *
@@ -14,7 +15,8 @@
  * 这里用 `usw-` 前缀按图鉴规则复刻。
  */
 import type { BaseColor } from '@engine/types';
-import { renderSpell } from '../meta/shell/spellText';
+import { renderSpell, applyTermMarkup } from '../meta/shell/spellText';
+import { bindTermTips } from '../meta/shell/termTip';
 import { STATUS_DESCRIPTIONS } from '../data/statusDescriptions';
 import { statusBadge, statusBadgeIcon } from './statusBadges';
 import { isPositiveStatus, statusBadgeCorner, statusLiveLines } from './statusPresentation';
@@ -399,6 +401,12 @@ const CSS_PANES = `
   /* 紧凑（手机横屏）：去次要信息、收字距 */
   .usw.compact .usw-quick small,.usw.compact .usw-head-title small,.usw.compact .usw-stats b i{display:none}
   .usw.compact .usw-head-title h3,.usw.compact .usw-trait-head h3{letter-spacing:.04em}
+  .usw .usw-couplet-head{min-height:calc(var(--cw) * .28);padding:max(12px,calc(var(--cw) * .045)) calc(var(--cw) * .053);gap:calc(var(--cw) * .05)}
+  .usw .usw-couplet-head .usw-spell-mark{width:max(28px,calc(var(--cw) * .125));height:max(28px,calc(var(--cw) * .125))}
+  .usw .usw-couplet-head .usw-head-title small{display:none}
+  .usw.compact .usw-couplet-head{flex-direction:column;gap:10px;text-align:center}
+  .usw.compact .usw-couplet-head .usw-head-title{width:100%}
+  .usw .usw-head-title h3.spell-couplet{margin:0;white-space:pre-line;overflow:visible;text-overflow:clip;font-size:max(14px,calc(var(--cw) * .05));line-height:1.75;letter-spacing:.06em}
   .usw.compact .usw-name span{letter-spacing:.1em;text-indent:.1em}
   .usw.compact .usw-trait{min-height:0}
   @media (prefers-reduced-motion:reduce){.usw-pane,.usw-cast{transition:none}}
@@ -473,6 +481,7 @@ export class UnitSheet {
   private statusSig = '';
   private copySig = '';
   private headerSig = '';
+  private termTips?: () => void;
 
   constructor(parent: HTMLElement, private handlers: UnitSheetHandlers) {
     ensureStyles();
@@ -506,6 +515,8 @@ export class UnitSheet {
       const input = e.target as HTMLInputElement;
       if (input.classList.contains('usw-quick-box')) this.handlers.onQuickCast(input.checked);
     });
+    // 术语解释委托绑定在根上一次即可：patchCopy/traitsHtml 重绘后 span 是新的，委托不受影响
+    this.termTips = bindTermTips(this.root);
   }
 
   /** 覆盖区域（wrapper 布局坐标）：棋盘略向两侧扩展，按需让出 HUD 通道 */
@@ -641,6 +652,7 @@ export class UnitSheet {
 
   destroy(): void {
     this.close();
+    this.termTips?.();
     this.root.remove();
   }
 
@@ -665,9 +677,9 @@ export class UnitSheet {
       <div class="usw-stack">
         <section class="usw-pane" data-pane="spell">
           <div class="usw-page">
-            <header class="usw-pane-head">
+            <header class="usw-pane-head${isCoupletSpell(d.skillName || '') ? ' usw-couplet-head' : ''}">
               <div class="usw-spell-mark" aria-hidden="true">${manaGemSvg(d.colors, 1)}<b>${d.shown.manaCost}</b></div>
-              <div class="usw-head-title"><small>法力 ${d.shown.manaCost}</small><h3>${esc(d.skillName || '技能')}</h3></div>
+              <div class="usw-head-title"><small>法力 ${d.shown.manaCost}</small><h3 class="${isCoupletSpell(d.skillName || '') ? 'spell-couplet' : ''}">${esc(spellTitleText(d.skillName || '技能'))}</h3></div>
             </header>
             <div class="usw-pane-body usw-spell-body" tabindex="0" aria-label="技能说明">
               <div class="usw-ink"><i></i><span>${esc(d.skillTag)}</span><i></i></div>
@@ -823,7 +835,7 @@ export class UnitSheet {
     return d.traitSlots.map((t) => {
       const glyph = t.code ? glyphs[gi++]?.svg ?? '' : '';
       const off = t.unlocked && t.code && !t.implemented ? '<span class="usw-trait-tag">本场不生效</span>' : '';
-      const text = esc(t.description || '暂无描述。').replace(/(\d+(?:\.\d+)?%?)/g, '<b>$1</b>');
+      const text = applyTermMarkup(esc(t.description || '暂无描述。').replace(/(\d+(?:\.\d+)?%?)/g, '<b>$1</b>'));
       return `<article class="usw-trait${t.unlocked ? '' : ' locked'}">
         <span class="usw-trait-glyph${glyph ? '' : ' empty'}" aria-hidden="true">${glyph}</span>
         <div class="usw-trait-copy"><h4>${esc(t.name)}${off}</h4><p>${text}</p></div>

@@ -70,13 +70,14 @@ describe('M10 王国主线页 · 读模型', () => {
     const s = save();
     s.hero.level = 20;
     s.kingdoms[KINGDOM] = { level: 1, questsDone: QUESTS_PER_KINGDOM, exploreTier: 0, lastTributeAt: 0 };
+    s.kingdoms[KINGDOM]!.exploreUnlockedTier = 12;
     const ok = setExploreTier(s, KINGDOM, 4);
     expect(ok).toEqual({ ok: true, tier: 4 });
     expect(s.kingdoms[KINGDOM]!.exploreTier).toBe(4);
     expect(exploreEnemyLevel(KINGDOM, 6)).toBeGreaterThan(exploreEnemyLevel(KINGDOM, 1));
     expect(EXPLORE_TEAM_SIZES.every((size) => size === 4)).toBe(true);
     expect(exploreLineupPreview(KINGDOM, 4)).toHaveLength(4);
-    expect(setExploreTier(s, KINGDOM, 7)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(setExploreTier(s, KINGDOM, 13)).toMatchObject({ ok: false, code: 'INVALID' });
     s.kingdoms[KINGDOM]!.questsDone = 0;
     expect(setExploreTier(s, KINGDOM, 2)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
   });

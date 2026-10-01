@@ -136,3 +136,86 @@ test('OAuth callback auto-enters only after successful preparation', async ({ pa
   await expect(page.locator('#createCharacter')).toBeEnabled();
   await expect(page).toHaveURL(/\/game$/);
 });
+
+
+test('preload fills 18 download slots but waits for the final resource before enabling login', async ({ page }) => {
+  await fixture(page);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  const urls = Array.from({ length: 40 }, (_, i) => `/preload-fixture/${i}.webp`);
+  await page.route('**/preload-manifest.json', route => route.fulfill({ json: {
+    code: ['/preload-fixture/game.js'], images: urls,
+  } }));
+  let releaseBatch!: () => void;
+  let releaseLast!: () => void;
+  const batch = new Promise<void>(resolve => { releaseBatch = resolve; });
+  const last = new Promise<void>(resolve => { releaseLast = resolve; });
+  let active = 0;
+  let peak = 0;
+  let started = 0;
+  await page.route('**/preload-fixture/*', async route => {
+    active++;
+    peak = Math.max(peak, active);
+    started++;
+    await (new URL(route.request().url()).pathname === urls.at(-1) ? last : batch);
+    // Count application slots, rather than real HTTP sockets. These are held response fixtures.
+    active--;
+    await route.fulfill({ status: 200, body: 'preloaded bytes' });
+  });
+  try {
+    await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+    await expect.poll(() => active).toBe(18);
+    expect(started).toBe(18);
+    await page.locator('#agreeBox').click();
+    await readTerms(page);
+    await expect(page.locator('#loginBtn')).toBeDisabled();
+    releaseBatch();
+    await expect.poll(() => started).toBe(41);
+    await expect.poll(() => active).toBe(1);
+    await expect(page.locator('#loginBtn')).toBeDisabled();
+    await expect(page.locator('#skipPreload')).toHaveCount(0);
+    releaseLast();
+    await expect(page.locator('#bgLabel')).toHaveText('游戏已就绪');
+    await expect(page.locator('#loginBtn')).toBeEnabled();
+    expect(peak).toBe(18);
+    expect(errors).toEqual([]);
+  } finally { releaseBatch(); releaseLast(); }
+});
+
+
+test('transient preload failure retries only that resource and keeps login gated until recovery', async ({ page }) => {
+  await fixture(page);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route('**/preload-manifest.json', route => route.fulfill({ json: {
+    code: ['/preload-fixture/game.js'], images: ['/preload-fixture/transient.webp'],
+  } }));
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  const counts = new Map<string, number>();
+  await page.route('**/preload-fixture/*', async route => {
+    const path = new URL(route.request().url()).pathname;
+    counts.set(path, (counts.get(path) ?? 0) + 1);
+    if (path.endsWith('/transient.webp')) {
+      if (counts.get(path) === 1) {
+        await route.fulfill({ status: 503, body: 'temporary failure' });
+        return;
+      }
+      await held;
+    }
+    await route.fulfill({ status: 200, body: 'preloaded bytes' });
+  });
+  try {
+    await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+    await expect.poll(() => counts.get('/preload-fixture/transient.webp')).toBe(2);
+    await page.locator('#agreeBox').click();
+    await readTerms(page);
+    await expect(page.locator('#loginBtn')).toBeDisabled();
+    release();
+    await expect(page.locator('#bgLabel')).toHaveText('游戏已就绪');
+    await expect(page.locator('#loginBtn')).toBeEnabled();
+    expect(counts.get('/preload-fixture/transient.webp')).toBe(2);
+    expect(counts.get('/preload-fixture/game.js')).toBe(1);
+    expect(errors).toEqual([]);
+  } finally { release(); }
+});

@@ -356,12 +356,13 @@ export function planInvasionBattle(
   battleSeed: number,
   now: number,
   weekStart: number,
+  revengeMirror?: InvasionMirror,
 ): InvasionBridgeOutcome | MetaFailure {
   ensureInvasionSeason(save, now, weekStart);
   if (save.hero.level < INVASION.unlockHeroLevel) {
     return fail('PREREQ_LOCKED', `入侵需要主角 ${INVASION.unlockHeroLevel} 级（当前 ${save.hero.level}）`);
   }
-  const mirror = invasionCandidates(save, now, weekStart).find((m) => m.id === mirrorId);
+  const mirror = revengeMirror ?? invasionCandidates(save, now, weekStart).find((m) => m.id === mirrorId);
   if (!mirror) return fail('INVALID', '对手已刷新，请重新选择');
 
   const built = buildPlayerSnapshots(save);

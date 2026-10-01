@@ -110,15 +110,15 @@ test('紧凑网格完整显示于常见视口，矮屏详情仍能关闭', async
 });
 
 
-test('新增奥术石分页展示，手机详情和返回页正常', async ({ page }) => {
+test('新增秘法石分页展示，手机详情和返回页正常', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/game.html#bag/stones');
   await expect(page.locator('.bag-pagination')).toContainText('1 / 3');
   await page.getByRole('link', { name: '下一页', exact: true }).click();
   await expect(page.locator('.bag-pagination')).toContainText('2 / 3');
   await expect(page.locator('.bag-item')).toHaveCount(19);
-  await page.locator('[data-bag-item="arcane:blue:blue"]').click();
-  await expect(page.locator('.bag-detail-card:visible h3')).toHaveText('奥术水·水之石');
+  await page.locator('[data-bag-item="arcane:blue:green"]').click();
+  await expect(page.locator('.bag-detail-card:visible h3')).toHaveText('秘法沼泽属性石');
   await expect(page.locator('.bag-detail-card:visible')).toContainText('探索');
   await page.locator('.bag-detail-close').click();
   await page.getByRole('link', { name: '下一页', exact: true }).click();
