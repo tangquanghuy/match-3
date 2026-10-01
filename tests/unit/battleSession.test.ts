@@ -43,8 +43,10 @@ function makeRequest(): BattleRequest {
 }
 
 /** 造一场可控战斗：静态棋盘 + 底行一处合法交换 + 一个纯伤害技能。 */
-function setup(damage = 3) {
+function setup(damage = 3, region?: 'WintersReach', bannerBoost?: number) {
   const request = makeRequest();
+  if (bannerBoost !== undefined) request.playerBanner = { boosts: { [BaseColor.Red]: bannerBoost } };
+  if (region) request.region = region;
   const { playerTeam, enemyTeam, idMap } = mapRequestToTeams(request);
 
   const board = new BoardModel();
@@ -75,6 +77,17 @@ function setup(damage = 3) {
 }
 
 describe('BattleSession 生命周期（设计 §2）', () => {
+  it('passes regional context into the engine and keeps ordinary battles regionless', () => {
+    expect(setup(3, 'WintersReach').session.getState().region).toBe('WintersReach');
+    expect(setup().session.getState().region).toBeUndefined();
+  });
+  it.each([3, 4])('applies the full aggregated +%s banner through a session', (boost) => {
+    const { session } = setup(3, undefined, boost);
+    const events = session.resolve({ type: 'swap', from: { row: 7, col: 2 }, to: { row: 6, col: 2 } });
+    const gain = events.find((e) => e.type === 'mana-gain' && e.color === BaseColor.Red);
+    expect(gain).toMatchObject({ type: 'mana-gain', amount: 3 + boost });
+  });
+
   it('提交行动会累积事件流', () => {
     const { session } = setup();
     expect(session.recordedEvents()).toHaveLength(0);
@@ -182,5 +195,16 @@ describe('surrender', () => {
     session.surrender();
     expect(session.resolve({ type: 'swap', from: { row: 0, col: 0 }, to: { row: 0, col: 1 } })).toEqual([]);
     expect(state.actionLog).toHaveLength(0);
+  });
+});
+
+
+describe('battle result map cap', () => {
+  it.each([[99, 2], [1.9, 1], [-2, undefined], [NaN, undefined]])('serializes %s maps as %s', (maps, expected) => {
+    const { session, state } = setup(999);
+    state.economy.maps = maps!;
+    state.teams[PlayerSide.Left].characters[0].mana = 10;
+    session.resolve({ type: 'cast', characterId: 0 });
+    expect(session.buildResult().economy?.maps).toBe(expected);
   });
 });

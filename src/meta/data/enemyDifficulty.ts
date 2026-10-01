@@ -2,6 +2,7 @@
  * Player troop caps, hero growth and arena normalization are separate.
  * See docs/GOW-NUMERIC-AUDIT.md for sources and tuning anchors.
  */
+import { isImmortal, IMMORTAL_MAX_LEVEL } from '../../data/immortals';
 import { STAT_LIMITS } from '../../session/validateRequest';
 import type { TroopData } from '../../data/troops';
 import { troopStatsAtLevel, type LeveledStats } from '../../data/leveling';
@@ -17,12 +18,13 @@ export function enemyTraitCount(level: number): number {
   return lv < 10 ? 0 : lv < 15 ? 1 : lv < 20 ? 2 : 3;
 }
 
-/** Lv.20 = x1; Lv.100 = x5; Lv.500 = x25. Zero stats stay zero. */
+/** Ordinary Lv.20 = x1; Immortals reach their growth anchor at 30. Beyond the anchor, NPCs scale proportionally. */
 export function enemyStatsAtLevel(troop: TroopData, level: number): LeveledStats {
   const lv = enemyLevel(level);
-  const stats = troopStatsAtLevel(troop, Math.min(20, lv));
-  if (lv <= 20) return stats;
-  const multiplier = lv / 20;
+  const anchor = isImmortal(troop) ? IMMORTAL_MAX_LEVEL : 20;
+  const stats = troopStatsAtLevel(troop, Math.min(anchor, lv));
+  if (lv <= anchor) return stats;
+  const multiplier = lv / anchor;
   return {
     health: Math.min(STAT_LIMITS.hp.max, Math.max(1, Math.round(stats.health * multiplier))),
     armor: Math.min(STAT_LIMITS.armor.max, Math.round(stats.armor * multiplier)),

@@ -1,3 +1,7 @@
+import type { BaseColor } from '../../engine/types';
+import { isRegionId, regionDefinition, type RegionId } from '../data/regionalPvp';
+import { regionLegal, regionalRule } from '../systems/regionalPvp';
+import { weekStartOf } from '../gateway/clock';
 import { isCoupletSpell, spellTitleText } from '../../data/spellPresentation';
 /**
  * 部队编成屏（计划 §5.3）。预设队、站位、旗帜、校验 issues 全走存档与 teamRules。
@@ -156,6 +160,8 @@ export class TeamScreen implements Screen {
   private selected = 0;
   private inspectedKey: string | null = null;
   private termTipsInspect?: () => void;
+  private regionalMode = false;
+  private regionalId:RegionId = 'WintersReach';
   private filter = 'all';
   private search = '';
   private page = 0;
@@ -173,11 +179,17 @@ export class TeamScreen implements Screen {
   private saveSeq = 0;
   private drag: TeamDrag | null = null;
 
-  html(): string {
+  html(ctx: ShellCtx, param?: string): string {
+    const regional = param?.startsWith('regional/') ?? false;
+    const regionPart=param?.split('/')[2];
+    const region:RegionId=isRegionId(regionPart)?regionPart:'WintersReach';
+    const returnHash = regional ? '#regional/' + param!.slice('regional/'.length) : '#regional';
+    const context = regional ? `<aside class="regional-team-context"><span>${regionDefinition(region)!.name} · 本周${regionalRule(weekStartOf(ctx.gateway.now()),region).name} · 仅显示可参战成员</span><a href="${escapeHtml(returnHash)}">返回备战 ›</a></aside>` : '';
     return `
       <style id="teamScreenCss">${TEAM_CSS}${BANNER_ART_CSS}</style>
       ${topbarHtml()}
       <div class="screen team-screen">
+        ${context}
         <section class="team-switcher" aria-label="队伍预设">
           <div class="switcher-heading">
             <span data-icon="shield"></span>
@@ -275,8 +287,14 @@ export class TeamScreen implements Screen {
       </div>`;
   }
 
-  mount(ctx: ShellCtx, root: HTMLElement): void {
+  mount(ctx: ShellCtx, root: HTMLElement, param?: string): void {
     this.ctx = ctx;
+    this.regionalMode = param?.startsWith('regional/') ?? false;
+    const regionPart=param?.split('/')[2];
+    this.regionalId=isRegionId(regionPart)?regionPart:'WintersReach';
+    this.typeFilter = '';
+    this.rarityFilter = '';
+    this.colorFilter = null;
     root.classList.add('team-responsive');
     const save = ctx.save();
     this.selectedTeamIndex = Math.min(save.activeTeamIndex, Math.max(0, save.teams.length - 1));
@@ -873,6 +891,7 @@ export class TeamScreen implements Screen {
   /** 名册筛选 + 排序（TM-6：阶段 A 只有"全部/主角/5 个种族 tab"和按名字搜） */
   private visiblePool(): RosterEntry[] {
     const list = this.rosterCache.filter((t) => {
+      if (this.regionalMode && !regionLegal({ templateId: t.key, troopTypes: t.troop?.troopTypes, manaColors:t.colors as BaseColor[], kingdom:t.troop?.kingdom??undefined }, weekStartOf(this.ctx.gateway.now()),this.regionalId)) return false;
       if (this.filter === 'hero' && t.key !== 'hero') return false;
       if (this.typeFilter && !(t.troop?.troopTypes ?? []).includes(this.typeFilter)) return false;
       if (this.rarityFilter !== '' && t.rarityIdx !== Number(this.rarityFilter)) return false;

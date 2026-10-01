@@ -133,7 +133,9 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto(`/game.html#quest/${encodeURIComponent('破碎尖塔')}`);
     await expect(page.locator('.quest-map')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('.qtab')).toHaveCount(3);
+    await expect(page.locator('.qtab')).toHaveCount(2);
+    await expect(page.locator('.qtab[data-mode="normal"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#questExplore')).toContainText('12 档难度');
     await expect(page.locator('.qpin')).toHaveCount(8);
 
     const layout = await page.evaluate(() => {
@@ -163,8 +165,14 @@ for (const viewport of [
     expect(layout.documentOverflow).toBe(false);
 
     await page.screenshot({ path: `artifacts/ux-phase-b/quest-responsive-${viewport.label}.png` });
-    await page.locator('.qtab[data-mode="hard"]').click();
-    await expect(page.locator('.qpin')).toHaveCount(3);
-    await page.screenshot({ path: `artifacts/ux-phase-b/quest-responsive-${viewport.label}-hard.png` });
+    await expect(page.locator('#questExplore')).toBeEnabled();
+    await page.locator('#questExplore').click();
+    await expect(page.locator('.explore-screen')).toBeVisible();
+    await expect(page.locator('.ex-scale-labels span')).toHaveCount(12);
+    await expect(page.locator('.ex-route li')).toHaveCount(6);
+    await page.locator('#exploreFight').scrollIntoViewIfNeeded();
+    await expect(page.locator('#exploreFight')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width + 1);
+    await page.screenshot({ path: `artifacts/ux-phase-b/quest-responsive-${viewport.label}-explore.png` });
   });
 }

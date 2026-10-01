@@ -85,10 +85,10 @@ describe('寻宝', () => {
     expect(useless.ok).toBe(false);
   });
 
-  it('铜币固定给25黄金，长局不再按步数赠送特质石', () => {
+  it('铜币降价后给17黄金，长局不再按步数赠送特质石', () => {
     const rng = new SeededRNG(1);
     const grant = rollRewards(Array.from({ length: 64 }, () => 0), 30, rng);
-    expect(grant.gold).toBe(64 * 25);
+    expect(grant.gold).toBe(64 * 17);
     expect(grant.souls).toBe(0);
     expect(Object.values(grant.traitstones).reduce((sum, n) => sum + n, 0)).toBe(0);
   });

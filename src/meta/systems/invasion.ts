@@ -1,3 +1,5 @@
+import { resolveBattleMaps } from './battleMaps';
+import { invasionVictoryGold } from './invasionGold';
 import { INVASION_FRENZY, rollInvasionFrenzy, type FrenzyMultiplier } from '../data/invasionFrenzy';
 import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../data/invasionRanks';
 import { grantBattleRewards, type BattleRewards } from './battleRewards';
@@ -45,6 +47,8 @@ export interface InvasionMirror {
   name: string;
   /** 防守评分（展示 + 宿敌判定的强度近似） */
   rating: number;
+  /** Enemy league snapshot; optional for saves created before the gold rebalance. */
+  league?: number;
   /** Random strengthened encounter flag; the weekly leaderboard itself is not rerolled. */
   frenzy: boolean;
   frenzyMultiplier: 1 | FrenzyMultiplier;
@@ -113,7 +117,7 @@ export function buildBracket(weekStart: number, league: number): InvasionMirror[
     mirrors.push({
       id: `bot-${i + 1}`,
       name,
-      rating,
+      rating, league,
       frenzy: false, frenzyMultiplier: 1,
       vp: 0,
       finalVp,
@@ -497,7 +501,7 @@ export function settleInvasionBattle(
   const battleRewards = grantBattleRewards(save, result);
   const amount = (n: number | undefined) => n !== undefined && Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
   const collected = result.endReason === 'surrender' ? { gold: 0, souls: 0, gems: 0, maps: 0 }
-    : { gold: amount(result.economy?.gold), souls: amount(result.economy?.souls), gems: amount(result.economy?.gems), maps: amount(result.economy?.maps) };
+    : { gold: amount(result.economy?.gold), souls: amount(result.economy?.souls), gems: amount(result.economy?.gems), maps: resolveBattleMaps(result).total };
   earn(save, { gold: collected.gold, souls: collected.souls, gems: collected.gems });
   earnMaterials(save, { treasureMaps: collected.maps });
   save.stats.goldEarned += collected.gold;
@@ -522,7 +526,8 @@ export function settleInvasionBattle(
       save.invasion.lastWinDay = todayStart;
       firstWinToday = true;
     }
-    gold = 40 + Math.floor(mirror.rating / 10);
+    // The preview already includes the common victory gold paid above.
+    gold = Math.max(0, invasionVictoryGold(mirror) - battleRewards.gold);
     save.invasion.vp += vpDelta;
   } else {
     const loss = Math.min(INVASION.vpLoss, save.invasion.vp);

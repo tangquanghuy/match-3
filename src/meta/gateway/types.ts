@@ -1,3 +1,5 @@
+import type { HeroTraitCost } from '../data/heroTraitCosts';
+import type { RegionalAction, RegionalPlanArgs } from '../systems/regionalPvp';
 import type { MaterialShopRequest, MaterialShopBuyResult } from '../systems/materialShop';
 /**
  * Meta 数据网关（视觉屏 ↔ 权威核心的唯一通道）。
@@ -74,6 +76,8 @@ export interface MetaDevTools {
 }
 
 export interface MetaGateway {
+  regionalAction(args: RegionalAction): Promise<GatewayUpdate<{ ok: true } | MetaFailure>>;
+  planRegionalBattle(args: RegionalPlanArgs): Promise<BattleTicket | MetaFailure>;
   /** 'local' = 浏览器内权威核心 + localStorage；'remote' = Worker + D1 */
   readonly backend: 'local' | 'remote';
   /** 开发者工具；远端后端为 null（屏层据此隐藏相关入口） */
@@ -123,7 +127,7 @@ export interface MetaGateway {
   pickHeroTalent(classId: string, tierIndex: number, talentCode: string): Promise<GatewayUpdate<Ok<{ classId: string; tierIndex: number }> | MetaFailure>>;
   clearHeroTalent(classId: string, tierIndex: number): Promise<GatewayUpdate<Ok<{ classId: string; tierIndex: number }> | MetaFailure>>;
   /** 职业专属特质槽解锁（1~3 顺序解锁，金+魂） */
-  unlockHeroTrait(slot: number): Promise<GatewayUpdate<Ok<{ slot: number; cost: { gold: number; souls: number } }> | MetaFailure>>;
+  unlockHeroTrait(slot: number, classId?: string): Promise<GatewayUpdate<Ok<{ slot: number; cost: HeroTraitCost }> | MetaFailure>>;
   /** 升级后的法力精通二选一 */
   pickManaMastery(color: string): Promise<GatewayUpdate<Ok<{ color: string; value: number }> | MetaFailure>>;
   /** 武器淬炼 +1 级（钢锭/符卷/黄金原子扣账） */
@@ -207,6 +211,8 @@ export interface MetaGateway {
   // —— 寻宝 ——
   /** 消耗 1 张藏宝图开始寻宝。已有未完成的一局时不重复扣图。 */
   startTreasureHunt(): Promise<GatewayUpdate<Ok<{ state: TreasureHuntState }> | MetaFailure>>;
+  /** 主动结束并一次性结算当前棋盘。 */
+  finishTreasureHunt(): Promise<GatewayUpdate<HuntMoveOk | MetaFailure>>;
   /** 交换相邻两格。步数归零时在同一次写入里开奖。 */
   playTreasureHunt(from: number, to: number): Promise<GatewayUpdate<HuntMoveOk | MetaFailure>>;
 }

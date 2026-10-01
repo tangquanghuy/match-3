@@ -270,9 +270,9 @@ describe('L2B02 troop:7698 Azaleus spell 9657 Choose:ABC-DEF chosen colour -> En
    {Color1:'FromTarget',Amount:10,Color2:'Entangle',Type:'ConvertGems'},{Target:'FromManaColorEnemy',Type:'CauseCursed'}]);
   const g=(k:string)=>({kind:'gem',params:{op:'transform',from:'CHOSEN',to:'SKULL',toSpecial:k,count:{base:10,mult:0}}});
   const st=(target:string,id:string)=>({kind:'status',target,statusId:id,turns:3,ifCond:{kind:'targetColor',color:'CHOSEN'}});
-  expect(proto).toEqual({segments:[{kind:'choose',labels:['选定颜色转10颗附魔宝石，祝福该色盟友','选定颜色转10颗纠缠宝石，诅咒该色敌人'],
+  expect(proto).toEqual({segments:[{kind:'choose',labels:['选定颜色转10颗附魔宝石，祝福该色盟友','选定颜色转10颗缠绕宝石，诅咒该色敌人'],
    options:[[g('enchantedGem'),st('allyAll','blessed')],[g('entangleGem'),st('enemyAll','curse')]]}]});
-  expect(t.spell.description).toBe('选择一项：选择一种法力颜色，将 10 颗该色宝石转化为附魔宝石，祝福所有该色盟友；或选择一种法力颜色，将 10 颗该色宝石转化为纠缠宝石，诅咒所有该色敌人。');
+  expect(t.spell.description).toBe('选择一项：选择一种法力颜色，将 10 颗该色宝石转化为附魔宝石，祝福所有该色盟友；或选择一种法力颜色，将 10 颗该色宝石转化为缠绕宝石，诅咒所有该色敌人。');
  });
  const G=[BaseColor.Green],R=[BaseColor.Red],B=[BaseColor.Blue];
  for(const side of SIDES)it(`real cast ${side} branch 0: 10 Green -> Enchant Gems; Green allies (caster incl.) Blessed; enemies untouched`,()=>{

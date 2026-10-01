@@ -41,7 +41,7 @@ const BADGES: Record<string, StatusBadgeSpec> = {
   poison: { label: '中毒', color: '#78e95f', icon: poisonIcon },
   burning: { label: '燃烧', color: '#ff7a35', icon: burningIcon },
   silence: { label: '沉默', color: '#ad78dc', icon: silenceIcon },
-  frozen: { label: '冰冻', color: '#72c9ff', icon: frozenIcon },
+  frozen: { label: '冻结', color: '#72c9ff', icon: frozenIcon },
   stun: { label: '击晕', color: '#f2cc58', icon: stunIcon },
   entangle: { label: '缠绕', color: '#67c95d', icon: entangleIcon },
   web: { label: '织网', color: '#bd8aeb', icon: webIcon },

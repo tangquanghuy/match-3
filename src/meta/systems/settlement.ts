@@ -1,3 +1,4 @@
+import { resolveBattleMaps } from './battleMaps';
 import { advanceExploreRun, kingdomArcaneKey } from './explore';
 import { PARTICIPATION_XP } from './battleRewards';
 /**
@@ -75,6 +76,7 @@ export type SettlementLineKey =
   | 'defeat'
   | 'event-points'
   | 'event-progress'
+  | 'tower-boss-clear'
   | 'event-milestone'
   | 'explore-drop';
 
@@ -89,6 +91,7 @@ export interface SettlementLine {
 }
 
 export interface SettlementDetail {
+  burningSouls?: number;
   victory: boolean;
   lines: SettlementLine[];
   xpGained: number;
@@ -171,13 +174,16 @@ export function applySettlement(
     earnLine('defeat', '战败保底', { ...DEFEAT_CONSOLATION });
   }
 
+  const bonusGrants = resolveBattleBonus(ctx.plan.bonus, result);
+  const mapRewards = resolveBattleMaps(result, bonusGrants.map(grant => grant.mats));
+
   if (result.economy) {
     earnLine('battle-collect', '战斗内收集', {
       gold: result.economy.gold,
       souls: result.economy.souls,
       gems: result.economy.gems,
     }, '幽魂宝石 / 战斗内经济');
-    const maps = Math.floor(result.economy.maps ?? 0);
+    const maps = mapRewards.collected;
     if (maps > 0) {
       const mats = earnMaterials(save, { treasureMaps: maps });
       if ((mats.treasureMaps ?? 0) > 0) {
@@ -193,9 +199,9 @@ export function applySettlement(
   }
 
   // —— 通用额外奖励（活动深化批）：计划声明、这里统一入账；结算页与普通收益并列 ——
-  for (const grant of resolveBattleBonus(ctx.plan.bonus, result)) {
+  for (const [index, grant] of bonusGrants.entries()) {
     const applied = earn(save, grant.deltas);
-    const mats = earnMaterials(save, grant.mats);
+    const mats = earnMaterials(save, mapRewards.bonuses[index]!);
     if (Object.keys(applied).length === 0 && Object.keys(mats).length === 0) continue;
     lines.push({
       key: 'battle-bonus', label: grant.spec.label, deltas: applied,
@@ -204,6 +210,11 @@ export function applySettlement(
     });
     goldEarned += applied.gold ?? 0;
     soulsEarned += applied.souls ?? 0;
+  }
+
+  if (mapRewards.drop > 0) {
+    const mats = earnMaterials(save, { treasureMaps: mapRewards.drop });
+    lines.push({ key: 'battle-bonus', label: '战斗掉落 · 藏宝图', deltas: {}, mats });
   }
 
   let firstWinClaimed = false;
@@ -241,7 +252,7 @@ export function applySettlement(
     const progress = eventBattleProgress(save, ctx.plan, result, victory);
     if (typeId === 'towerOfDoom') save.gifts.towerBest = Math.max(save.gifts.towerBest, week.eventData.floorBest ?? 0);
     for (const l of progress.lines) {
-      lines.push({ key: 'event-progress', label: l.label, deltas: l.deltas, mats: l.mats, note: l.note });
+      lines.push({ key: l.key ?? 'event-progress', label: l.label, deltas: l.deltas, mats: l.mats, note: l.note });
     }
 
     // 里程碑：进度口径由玩法决定（世界事件=物资，其余=积分）

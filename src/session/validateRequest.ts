@@ -1,3 +1,4 @@
+import { PVP_REGION_IDS } from '../data/pvpRegions';
 /**
  * BattleRequest 校验（需求 2.4、2.6；设计 §4）。
  *
@@ -8,7 +9,7 @@ import { ALL_BASE_COLORS } from '@engine/types';
 import { MAX_ACTIVE_TEAM_SIZE } from '@engine/teamRoster';
 import { normalizeTier } from './assigner';
 import { RULE_COLORED_GEM_KINDS, RULE_GEM_KINDS } from '@engine/battleRules';
-import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from './contract';
+import { BATTLE_BANNER_BOOST_LIMITS, BATTLE_SCHEMA_VERSION, RULESET_VERSION } from './contract';
 import type { BattleRequest, CombatantSnapshot } from './contract';
 
 /** 数值上限：防止宿主传入越界或畸形数值把战斗拖成不可结束的状态。 */
@@ -29,6 +30,7 @@ export type ValidationCode =
   | 'missing-field'
   | 'bad-type'
   | 'team-size'
+  | 'immortal-limit'
   | 'duplicate-external-id'
   | 'stat-range'
   | 'mana-colors'
@@ -257,6 +259,11 @@ function validateTeam(
       message: `人数必须在 ${TEAM_SIZE_LIMITS.min}～${TEAM_SIZE_LIMITS.max} 之间，实际 ${raw.length}`,
     });
   }
+  const immortals = raw.filter(entry => isPlainObject(entry)
+    && Array.isArray(entry.troopTypes) && entry.troopTypes.includes('Immortal'));
+  if (immortals.length > 1) {
+    issues.push({ path, code: 'immortal-limit', message: '每支队伍最多一名不朽部队' });
+  }
   raw.forEach((entry, i) => {
     validateCombatant(issues, `${path}[${i}]`, entry, opts, seenExternalIds);
   });
@@ -308,8 +315,8 @@ export function validateBattleRequest(raw: unknown, opts: ValidateOptions): Vali
       continue;
     }
     for (const [color, amount] of Object.entries(banner.boosts)) {
-      if (!VALID_COLORS.has(color) || !isFiniteInteger(amount) || amount < -1 || amount > 2) {
-        issues.push({ path: `${key}.boosts.${color}`, code: 'stat-range', message: 'Banner boost requires a base color and an integer from -1 to 2' });
+      if (!VALID_COLORS.has(color) || !isFiniteInteger(amount) || amount < BATTLE_BANNER_BOOST_LIMITS.min || amount > BATTLE_BANNER_BOOST_LIMITS.max) {
+        issues.push({ path: `${key}.boosts.${color}`, code: 'stat-range', message: `Banner boost requires a base color and an integer from ${BATTLE_BANNER_BOOST_LIMITS.min} to ${BATTLE_BANNER_BOOST_LIMITS.max}` });
       }
     }
   }
@@ -321,6 +328,9 @@ export function validateBattleRequest(raw: unknown, opts: ValidateOptions): Vali
 
   // kingdom 可选（武器原语批 K-E）：战斗发生王国；给了就必须是非空字符串或显式 null
   //（竞技场口径）。类型错误按坏数据拒绝——静默忽略会让「战斗发生在X王国」类条件失真。
+  if (raw.region !== undefined && !(PVP_REGION_IDS as readonly unknown[]).includes(raw.region)) {
+    issues.push({ path: 'region', code: 'bad-type', message: '未知区域' });
+  }
   if (raw.kingdom !== undefined && raw.kingdom !== null && !isNonEmptyString(raw.kingdom)) {
     issues.push({ path: 'kingdom', code: 'bad-type', message: '必须是非空字符串或 null' });
   }

@@ -965,7 +965,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '&& 选择一种法力颜色。将 10 颗该颜色的宝石转换为附魔宝石，并祝福该颜色的所有盟友。&& 选择一种法力颜色。将 10 颗该颜色的宝石转换为纠缠宝石，并诅咒该颜色的所有敌人。',
     // 附魔宝石 = enchantedGem / 纠缠宝石 = entangleGem（波A/波B）；两次选色引擎为单选色，
     // 两段共用同一选定色（r16 9219 FromTarget+FromManaColor* 超集口径并注明）
-    build: skill(chooseSkill(["选定颜色转10颗附魔宝石，祝福该色盟友","选定颜色转10颗纠缠宝石，诅咒该色敌人"], [transformToSpecial(CHOSEN, 'enchantedGem', { count: 10 }), inflict('blessed', 'allyAll', { ifCond: CHOSEN_COLOR })], [transformToSpecial(CHOSEN, 'entangleGem', { count: 10 }), inflict('curse', 'enemyAll', { ifCond: CHOSEN_COLOR })])),
+    build: skill(chooseSkill(["选定颜色转10颗附魔宝石，祝福该色盟友","选定颜色转10颗缠绕宝石，诅咒该色敌人"], [transformToSpecial(CHOSEN, 'enchantedGem', { count: 10 }), inflict('blessed', 'allyAll', { ifCond: CHOSEN_COLOR })], [transformToSpecial(CHOSEN, 'entangleGem', { count: 10 }), inflict('curse', 'enemyAll', { ifCond: CHOSEN_COLOR })])),
   },
   {
     id: 9659,

@@ -1,3 +1,4 @@
+import { freshRegionalState, type RegionalState, type RegionalBattleContext } from './regional';
 import { emptyGachaWishlist, type GachaWishlist, type GachaAudit } from '../data/gachaRules';
 /**
  * Meta 层存档 schema（v2）——对齐 META-GAME-PLAN.md §3.3 草案。
@@ -134,6 +135,8 @@ export interface InvasionState {
   defenseProgress: import('../systems/invasionDefense').DefenseProgress;
   defenseTeam: TeamPreset | null;
   defensePublishPending: boolean;
+  /** Last acknowledged defense snapshot; separate from legacy attacking-team publication. */
+  lastDefensePublish: { fingerprint: string; at: number } | null;
   defenseLog: import('../systems/invasionDefense').DefenseLog | null;
   /** Durable delivery queue; acknowledged only after shared storage accepts the result. */
   defenseOutbox: import('../systems/invasionDefense').DefenseReport[];
@@ -284,6 +287,7 @@ export const GACHA_LOG_CAP = 50;
  * 结算所需的全部上下文都在这里——客户端只回传 BattleResult，不再回传出敌计划。
  */
 export type PendingBattle =
+  | { mode: 'regional'; requestId: string; issuedAt: number; context: RegionalBattleContext }
   | {
       mode: 'encounter';
       requestId: string;
@@ -304,6 +308,7 @@ export type PendingBattle =
     };
 
 export interface MetaSave {
+  regional?: RegionalState;
   character: import('./character').CharacterProfile | null;
   version: typeof META_SAVE_VERSION;
   createdAt: number;
@@ -479,7 +484,8 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     materialsUnread: false,
     materialShop: { arcaneIntroPurchased: 0 },
     weaponTempering: {},
-    invasion: { defenseProgress: { cursor: 0, rewards: { gold: 0, souls: 0, glory: 0 }, results: [] }, defenseTeam: null, defensePublishPending: false, defenseLog: null, defenseOutbox: [], progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
+    invasion: { defenseProgress: { cursor: 0, rewards: { gold: 0, souls: 0, glory: 0 }, results: [] }, defenseTeam: null, defensePublishPending: false, lastDefensePublish: null, defenseLog: null, defenseOutbox: [], progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
+    regional: freshRegionalState(),
     eventWeeks: {},
     eventShops: {},
     settings: { language: 'zh', battleDebug: false },

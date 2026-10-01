@@ -10,6 +10,7 @@
  * 其余数字为设计值（首版宁紧勿松）：调经济节奏只改本文件；
  * 概率公示等玩家可见文案必须从这里派生，禁止两处硬编码。
  */
+import { IMMORTAL_MAX_LEVEL } from '../../data/immortals';
 import { TROOP_PROGRESSION } from '../../data/leveling';
 import { TROOPS } from '../../data/troops';
 import type { KingdomStageMode } from './kingdoms';
@@ -60,7 +61,7 @@ const SOUL_COST_BASE = [10, 12, 14, 16, 18, 20] as const;
 
 export function soulCostForLevel(rarityIdx: number, targetLevel: number): number {
   const idx = Math.min(Math.max(Math.floor(rarityIdx), 0), SOUL_COST_BASE.length - 1);
-  const lv = Math.min(Math.max(Math.floor(targetLevel), 2), LEVEL_CAP_BY_RARITY[LEVEL_CAP_BY_RARITY.length - 1]);
+  const lv = Math.min(Math.max(Math.floor(targetLevel), 2), IMMORTAL_MAX_LEVEL);
   const raw = SOUL_COST_BASE[idx] * Math.pow(lv - 1, 1.25);
   return Math.max(5, Math.round(raw / 5) * 5);
 }
@@ -332,14 +333,14 @@ export const GEM_CHEST_BASE = 10_000;
 
 /**
  * 宝石宝箱部队档权重（万分比，占全部开箱；idx 0..5 = 普通..神话）。
- * 养成供给调整：稀有部队让出 10.5 个百分点给特质石，部队合计 69.5%。
- * 传说 10.7%、史诗 2%、神话 0.2% 不变，不出普通与精良。
+ * 部队合计 78.8%：稀有 65.35%、传说 10.7%、史诗 2.5%、神话 0.25%。
+ * 不出普通与精良；下调特质石的权重全部归还部队。
  */
-export const GEM_CHEST_WEIGHTS: readonly number[] = Object.freeze([0, 0, 5660, 1070, 200, 20]);
+export const GEM_CHEST_WEIGHTS: readonly number[] = Object.freeze([0, 0, 6535, 1070, 250, 25]);
 
 /**
- * 非部队掉落合计 30.5%（十万分比）：金属锭 10%，特质石 20.5%。
- * 高级 10%、符文 8%、秘法 2%、圣辉 0.5%；每次命中只给 1 颗。
+ * 非部队掉落合计 21.2%（十万分比）：金属锭 10%，特质石 11.2%。
+ * 高级 5%、符文 5%、秘法 1%、圣辉 0.2%；每次命中只给 1 颗。
  * 秘法在 21 种属性组合中均匀抽取；这是本作供给调整，并非官方概率。
  */
 export const GEM_CHEST_EXTRA: readonly ChestLootRow[] = [
@@ -347,15 +348,15 @@ export const GEM_CHEST_EXTRA: readonly ChestLootRow[] = [
   { group: 'ingot', weight: 1_600, loot: { type: 'ingot', key: 'epic', amount: 1 } },
   { group: 'ingot', weight: 320, loot: { type: 'ingot', key: 'legendary', amount: 1 } },
   { group: 'ingot', weight: 80, loot: { type: 'ingot', key: 'mythic', amount: 1 } },
-  { group: 'stone', weight: 10_000, loot: { type: 'stone', tier: 'major', amount: 1 } },
-  { group: 'stone', weight: 8_000, loot: { type: 'stone', tier: 'runic', amount: 1 } },
-  { group: 'stone', weight: 2_000, loot: { type: 'stone', tier: 'arcane', amount: 1 } },
-  { group: 'stone', weight: 500, loot: { type: 'stone', tier: 'celestial', amount: 1 } },
+  { group: 'stone', weight: 5_000, loot: { type: 'stone', tier: 'major', amount: 1 } },
+  { group: 'stone', weight: 5_000, loot: { type: 'stone', tier: 'runic', amount: 1 } },
+  { group: 'stone', weight: 1_000, loot: { type: 'stone', tier: 'arcane', amount: 1 } },
+  { group: 'stone', weight: 200, loot: { type: 'stone', tier: 'celestial', amount: 1 } },
 ];
 
 /**
  * 十连至少一张稀有或以上部队；仅将未达标批次的末张结果（材料）提升为稀有部队。
- * 对齐官方后宝石箱部队最低即稀有，只有「前九张全是材料且第十张也是材料」时才触发（约 0.305^10）。
+ * 对齐官方后宝石箱部队最低即稀有，只有「前九张全是材料且第十张也是材料」时才触发（约 0.212^10）。
  */
 export const GACHA_PITY_MIN_IDX = 2;
 

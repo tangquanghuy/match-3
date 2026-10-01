@@ -1,3 +1,4 @@
+import { hydrateRegionalState } from './regional';
 import { hydrateHuntSoftCap } from '../systems/huntPacing';
 import { hydrateDefenseProgress, hydrateDefenseTeam, hydrateDefenseLog, hydrateDefenseReports } from '../systems/invasionDefense';
 import { INVASION_RANKS, invasionRankAt } from '../data/invasionRanks';
@@ -283,6 +284,13 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     invasion.defenseProgress = hydrateDefenseProgress(raw.invasion.defenseProgress);
     invasion.defenseTeam = hydrateDefenseTeam(raw.invasion.defenseTeam);
     invasion.defensePublishPending = raw.invasion.defensePublishPending === true;
+    const defensePublication = raw.invasion.lastDefensePublish;
+    invasion.lastDefensePublish = isObject(defensePublication)
+      && typeof defensePublication.fingerprint === 'string'
+      && /^[0-9a-f]{8}$/.test(defensePublication.fingerprint)
+      && Number.isSafeInteger(defensePublication.at) && Number(defensePublication.at) >= 0
+      ? { fingerprint: defensePublication.fingerprint, at: Number(defensePublication.at) }
+      : null;
     invasion.defenseLog = hydrateDefenseLog(raw.invasion.defenseLog);
     invasion.defenseOutbox = hydrateDefenseReports(raw.invasion.defenseOutbox);
   }
@@ -501,6 +509,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
       ? num(raw.materialShop.arcaneIntroPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0 },
     weaponTempering,
     invasion,
+    regional: hydrateRegionalState(raw.regional),
     eventWeeks,
     eventShops,
     settings: { ...base.settings },
@@ -517,6 +526,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
  */
 function hydratePendingBattle(raw: unknown): PendingBattle | null {
   if (!isObject(raw) || typeof raw.requestId !== 'string' || typeof raw.issuedAt !== 'number') return null;
+  if (raw.mode === 'regional' && isObject(raw.context) && isObject(raw.context.opponent)) return raw as unknown as PendingBattle;
   if (raw.mode === 'arena') return { mode: 'arena', requestId: raw.requestId, issuedAt: raw.issuedAt };
   if (raw.mode === 'encounter' && isObject(raw.plan) && isObject(raw.enemies)) {
     return raw as unknown as PendingBattle;

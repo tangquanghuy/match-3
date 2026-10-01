@@ -1,9 +1,10 @@
+import type { RegionalPlanArgs } from '../systems/regionalPvp';
 /**
  * 战斗启动器：meta 屏 → 出战票 → App 全屏接管 → 结算回接。
  *
  * 出战票（BattleTicket）由权威核心签发并登记为待结算；这里只负责开打，
  * 打完把 BattleResult 交回 `settleBattle`，结算上下文由核心按票据还原。
- * 每场战斗新建一个 App 实例，结算面板点「继续」（onBattleDismissed）后销毁并归还地图。
+ * 每场战斗新建一个 App 实例；收到 onBattleDismissed 后结算，待结算页挂载再销毁战斗。
  */
 import type { BattleResult } from '@session/index';
 import { isFailure, type BattleTicket } from '../gateway';
@@ -19,6 +20,7 @@ export type { BattleMode } from '../gateway';
 
 /** 加载页标题：战斗来源 + 地点 */
 function loadingTitle(ticket: BattleTicket): { title: string; subtitle?: string } {
+  if (ticket.mode === 'regional') return { title: ticket.kingdom, subtitle: '永生战域' };
   if (ticket.mode === 'arena') return { title: '竞技场', subtitle: '现开赛对决' };
   if (ticket.mode === 'invasion' && ticket.mirror) return { title: '入侵', subtitle: `对手 · ${ticket.mirror.name}` };
   const source = ticket.source;
@@ -91,6 +93,10 @@ export class BattleLauncher {
     await this.launch(() => revenge ? this.ctx.gateway.planInvasionRevenge(mirrorId) : this.ctx.gateway.planInvasionBattle(mirrorId));
   }
 
+  async launchRegionalBattle(args: RegionalPlanArgs): Promise<void> {
+    await this.launch(() => this.ctx.gateway.planRegionalBattle(args));
+  }
+
   private async launch(request: () => Promise<BattleTicket | MetaFailure>): Promise<void> {
     // 先挡住重复操作，再创建网络请求。仅在 run() 挡住渲染为时已晚：
     // 多发的一次 plan 会在服务端作废正在屏幕上进行的战斗票。
@@ -144,10 +150,23 @@ export class BattleLauncher {
       if (settled) return;
       settled = true;
       const result = app.exportResult();
-      app.destroy();
-      this.root.hidden = true;
-      this.running = false;
-      void this.applyResult(ticket, result);
+      // Keep the final battle frame covering the old kingdom screen through
+      // the network request AND result-screen mounting, not just the request.
+      const waiting = typeof document === 'undefined' ? null : document.createElement('div');
+      if (waiting) {
+        waiting.setAttribute('role', 'status');
+        waiting.className = 'battle-settlement-wait';
+        waiting.innerHTML = '<style>.battle-settlement-wait{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:12px;background:#080c14b3;color:#f0dfb8;font:16px "Microsoft YaHei",sans-serif}.battle-settlement-wait i{width:22px;height:22px;border:2px solid #f0dfb844;border-top-color:#f0dfb8;border-radius:50%;animation:settlement-spin .8s linear infinite}@keyframes settlement-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.battle-settlement-wait i{animation:none}}</style><i aria-hidden="true"></i><span>正在结算，等待网络中...</span>';
+        this.root.appendChild(waiting);
+      }
+      void this.applyResult(ticket, result).catch((error: unknown) => {
+        toast('战斗结算失败：' + (error instanceof Error ? error.message : String(error)));
+      }).finally(() => {
+        app.destroy();
+        waiting?.remove();
+        this.root.hidden = true;
+        this.running = false;
+      });
     };
     app.onBattleDismissed = finish;
 
@@ -170,27 +189,31 @@ export class BattleLauncher {
     const { result: settlement } = await this.ctx.gateway.settleBattle(result);
     if (isFailure(settlement)) {
       toast(settlement.message);
-      const back = ticket.mode === 'arena' ? '#arena' : ticket.mode === 'invasion' ? '#invasion' : null;
+      const back = ticket.mode === 'regional' ? `#regional/region/${ticket.request.region??'WintersReach'}` : ticket.mode === 'arena' ? '#arena' : ticket.mode === 'invasion' ? '#invasion' : null;
       if (back) this.ctx.navigate(back);
       this.ctx.refresh();
       return;
     }
+    if (settlement.kind === 'regional') {
+      await this.ctx.showResult(settlement.detail, { kingdom: ticket.kingdom, sourceLabel: settlement.label, returnHash: `#regional/region/${ticket.request.region??'WintersReach'}` });
+      return;
+    }
     if (settlement.kind === 'arena') {
-      this.ctx.showResult(
+      await this.ctx.showResult(
         { kind: 'arena', battle: result, settled: settlement.settled },
         { kingdom: '竞技场', sourceLabel: '竞技场', returnHash: '#arena' },
       );
       return;
     }
     if (settlement.kind === 'invasion') {
-      this.ctx.showResult(
+      await this.ctx.showResult(
         { kind: 'invasion', battle: result, settled: settlement.settled, frenzy: settlement.mirror.frenzy },
         { kingdom: '入侵战', sourceLabel: `入侵 · ${settlement.mirror.name}`, returnHash: '#invasion' },
       );
       return;
     }
     const source = settlement.source;
-    this.ctx.showResult(settlement.detail, {
+    await this.ctx.showResult(settlement.detail, {
       kingdom: settlement.kingdom,
       sourceLabel: sourceLabelOf(source),
       returnHash: source.kind === 'event' ? `#events/${source.typeId}` : source.kind === 'explore' ? `#explore/${encodeURIComponent(settlement.kingdom)}` : undefined,

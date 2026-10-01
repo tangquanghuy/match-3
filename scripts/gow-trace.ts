@@ -15,12 +15,32 @@ import { castSpell, entitySkill, registry, summaryLine, SCENARIOS, type CastSumm
 const root = process.cwd();
 const args = process.argv.slice(2);
 const opt = (n: string) => { const i = args.indexOf(`--${n}`); return i < 0 ? null : args[i + 1]; };
-const read = (p: string) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
-const ledger = read('artifacts/gow-skill-audit/ledger.json');
-const lanes = read('tasks/active/gow-skill-shards/lanes.json').lanes as { id: string; name: string; entities: { key: string }[] }[];
+const read = <T>(p: string): T => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8')) as T;
+const ledger = read<{ fingerprint: string; rows: LedgerRow[] }>('artifacts/gow-skill-audit/ledger.json');
+const lanes = read<{ lanes: { id: string; name: string; entities: { key: string }[] }[] }>('tasks/active/gow-skill-shards/lanes.json').lanes;
 const laneOf = new Map(lanes.flatMap(l => l.entities.map(e => [e.key, l.id] as const)));
 
 type Step = Record<string, unknown> & { Type: string };
+interface LedgerRow {
+  key: string;
+  status: string;
+  referenceName: string;
+  spellId: string | number;
+  acceptance?: { accepted?: boolean };
+  source: { englishDescription?: string; native?: { SpellSteps?: Step[]; Randomize?: unknown } };
+}
+interface TraceRecord {
+  key: string;
+  name: string;
+  spellId: string | number;
+  lane: string | null;
+  accepted: boolean;
+  hints: string[];
+  notes?: string[];
+  skill?: ReturnType<typeof entitySkill>['skill'];
+  lines?: Record<string, string>;
+  error?: string;
+}
 const catOfStep = (t: string): string | null => {
   if (/^(Count|Delay|ResetTargets|DisableMySpell|None)/.test(t)) return null;
   if (/^Consume/.test(t)) return 'devour';
@@ -63,7 +83,7 @@ function stepKind(x: Step): 'always' | 'kill' | 'cond' {
   if (x.Target && /Type$|Kingdom$|Troop$/.test(String(x.Target)) && x.Data) return 'cond'; // AllyType/AllyKingdom filter
   return 'always';
 }
-function hints(row: any, s: Record<string, CastSummary>, sameProto: boolean | null): { hints: string[]; notes: string[] } {
+function hints(row: LedgerRow, s: Record<string, CastSummary>, sameProto: boolean | null): { hints: string[]; notes: string[] } {
   const h: string[] = [], notes: string[] = [];
   const steps = ((row.source.native?.SpellSteps ?? []) as Step[]).filter(x => x.Type !== 'None');
   const random = !!row.source.native?.Randomize;
@@ -97,11 +117,11 @@ function hints(row: any, s: Record<string, CastSummary>, sameProto: boolean | nu
 
 const only = opt('keys')?.split(',');
 const laneFilter = opt('lane');
-const rows = ledger.rows.filter((r: any) => r.status !== 'custom-excluded' && (!only || only.includes(r.key)) && (!laneFilter || laneOf.get(r.key) === laneFilter));
-const out: Record<string, any> = {};
+const rows = ledger.rows.filter((r: LedgerRow) => r.status !== 'custom-excluded' && (!only || only.includes(r.key)) && (!laneFilter || laneOf.get(r.key) === laneFilter));
+const out: Record<string, TraceRecord> = {};
 let n = 0;
 for (const row of rows) {
-  const rec: any = { key: row.key, name: row.referenceName, spellId: row.spellId, lane: laneOf.get(row.key) ?? null, accepted: !!row.acceptance?.accepted };
+  const rec: TraceRecord = { hints: [], key: row.key, name: row.referenceName, spellId: row.spellId, lane: laneOf.get(row.key) ?? null, accepted: !!row.acceptance?.accepted };
   try {
     const ent = entitySkill(row.key);
     const sameProto = ent.kind === 'weapon' ? JSON.stringify(registry.prototypes.get(ent.skill)) === JSON.stringify(registry.prototypes.get(ent.numericSkill)) : null;
@@ -112,14 +132,14 @@ for (const row of rows) {
 }
 const dir = path.join(root, 'artifacts/gow-skill-audit/trace'); fs.mkdirSync(dir, { recursive: true });
 const tracePath = path.join(dir, 'trace.json');
-const merged = only || laneFilter ? { ...(fs.existsSync(tracePath) ? read('artifacts/gow-skill-audit/trace/trace.json').entities : {}), ...out } : out;
+const merged = only || laneFilter ? { ...(fs.existsSync(tracePath) ? read<{ entities: Record<string, TraceRecord> }>('artifacts/gow-skill-audit/trace/trace.json').entities : {}), ...out } : out;
 fs.writeFileSync(tracePath, JSON.stringify({ generatedAt: new Date().toISOString(), ledgerFingerprint: ledger.fingerprint, entities: merged }, null, 1) + '\n');
 
 const esc = (s: unknown) => String(s ?? '').replaceAll('|', '\\|').replaceAll('\n', ' ');
-const nativeLine = (row: any) => ((row.source.native?.SpellSteps ?? []) as Step[]).map((x, i) => ({ i, x })).filter(({ x }) => x.Type !== 'None')
+const nativeLine = (row: LedgerRow) => ((row.source.native?.SpellSteps ?? []) as Step[]).map((x, i) => ({ i, x })).filter(({ x }) => x.Type !== 'None')
   .map(({ i, x }) => `${i}:${x.Type}${x.Target ? '@' + x.Target : ''}${x.Amount !== undefined ? ' ' + x.Amount : ''}${x.SpellPowerMultiplier ? ' +M×' + x.SpellPowerMultiplier : ''}${x.Color1 ? ' ' + x.Color1 : ''}${x.Color2 ? '>' + x.Color2 : ''}${x.StatusModifier ? ' [' + x.StatusModifier + ' ' + (x.StatusAmount ?? '') + ']' : ''}`).join(' ; ');
 const tdir = path.join(root, 'tasks/active/gow-skill-shards/trace'); fs.mkdirSync(tdir, { recursive: true });
-const byRow = new Map(ledger.rows.map((r: any) => [r.key, r]));
+const byRow = new Map(ledger.rows.map((r: LedgerRow) => [r.key, r]));
 const summaryCounts: Record<string, { pending: number; flagged: number }> = {};
 for (const lane of lanes) {
   const recs = lane.entities.map(e => merged[e.key]).filter(r => r && !r.accepted);
@@ -130,10 +150,10 @@ for (const lane of lanes) {
     '`L10` 左方魔法 10；`K` 为击杀场景（所有敌人 1 血）；右方镜像 R10 与魔法 0 的 L0 在 trace.json 与 `gow-golden.ts show`。',
     '**提示只是线索**：没有提示不代表数值正确。“按盟友种族/颜色/王国增强”在默认场景里计数多为 0，需要手写用例验证加成。', '',
     '| key | 名称 | 英文 | 原生步骤 | 实际（L10） | 击杀场景 K | 提示 |', '|---|---|---|---|---|---|---|',
-    ...recs.map(r => { const row = byRow.get(r.key) as any; return `| ${r.key} | ${esc(r.name)} | ${esc(row.source.englishDescription)} | ${esc(nativeLine(row))}${row.source.native?.Randomize ? ' {Randomize ' + row.source.native.Randomize + '}' : ''} | ${esc(r.lines?.L10 ?? r.error)} | ${esc(r.lines?.K)} | ${esc([...r.hints.map((x: string) => '**' + x + '**'), ...(r.notes ?? [])].join('; '))} |`; }), ''];
+    ...recs.map(r => { const row = byRow.get(r.key)!; return `| ${r.key} | ${esc(r.name)} | ${esc(row.source.englishDescription)} | ${esc(nativeLine(row))}${row.source.native?.Randomize ? ' {Randomize ' + row.source.native.Randomize + '}' : ''} | ${esc(r.lines?.L10 ?? r.error)} | ${esc(r.lines?.K)} | ${esc([...r.hints.map((x: string) => '**' + x + '**'), ...(r.notes ?? [])].join('; '))} |`; }), ''];
   fs.writeFileSync(path.join(tdir, `${lane.id}.md`), md.join('\n'));
 }
-const allRecs = Object.values(merged) as any[];
+const allRecs = Object.values(merged);
 const tally: Record<string, number> = {};
 for (const r of allRecs.filter(r => !r.accepted)) for (const h of r.hints) { const k = h.replace(/ native .*/, '').replace(/ERROR .*/, 'ERROR').replace(/missing .*/, m => m.includes('(cond)') && !/missing [^,]*[a-z](,|$)(?<!\(cond\))/.test(m) ? 'missing (cond only)' : 'missing'); tally[k] = (tally[k] ?? 0) + 1; }
 console.log(JSON.stringify({ traced: rows.length, lanes: summaryCounts, hintTally: tally }, null, 1));

@@ -47,29 +47,62 @@ export function isScalingTag(inner: string): boolean {
   return /^\d+:\d+$/.test(c) || /^x\d+$/i.test(c);
 }
 
+/** 生成术语 span（span 而非 button：描述可能渲染在 <button>（竞技场 draft 卡）里，嵌套 button 是非法 HTML） */
+function termSpan(alias: string, entry: TermEntry): string {
+  return `<span class="spell-term" role="button" tabindex="0" aria-expanded="false" data-term="${entry.id}">${alias}</span>`;
+}
+
 /**
  * 术语高亮：把文本里的已知术语（状态/特殊宝石/战斗词，见 data/termGlossary）包成
  * `.spell-term` 按钮，点击弹出术语解释面板（shell/termTip.ts）。
  *
- * 按 HTML 标签切分后只处理文本节点，不会碰已生成的 `<button class="spell-stat">`、
- * `<b>` 等标记；公式按钮内部文案（「3 点护甲值」）不含术语别名，天然不受影响。
+ * 按 HTML 标签切分后只处理顶层文本节点：`<button>`/`<b>`/`<span>` 内部的文本
+ * 一律跳过——数值按钮内部嵌套术语会出现双箭头和点击冲突（先公式后术语两通道
+ * 叠加时的边界），术语与公式尾缀相邻的拆分由 renderSpell 的 mark 负责处。
  * 不受 interactive 开关限制——术语解释是静态内容，非交互场景同样可点。
  */
 export function applyTermMarkup(text: string, terms?: TermEntry[]): string {
   if (!text) return text;
+  const SKIP_TAGS = new Set(['button', 'b', 'span']);
+  let depth = 0;
   return text
     .split(/(<[^>]*>)/)
     .map((seg) => {
-      if (!seg || seg.startsWith('<')) return seg;
+      if (!seg) return seg;
+      if (seg.startsWith('<')) {
+        const m = seg.match(/^<(\/?)([a-zA-Z][a-zA-Z0-9-]*)/);
+        if (m && SKIP_TAGS.has(m[2].toLowerCase())) {
+          depth += m[1] ? -1 : 1;
+          if (depth < 0) depth = 0;
+        }
+        return seg;
+      }
+      if (depth > 0) return seg;
       return seg.replace(TERM_PATTERN, (alias: string) => {
         const entry = termEntryOf(alias);
         if (!entry) return alias;
         if (terms && !terms.includes(entry)) terms.push(entry);
-        // span 而非 button：描述可能渲染在 <button>（竞技场 draft 卡）里，嵌套 button 是非法 HTML
-        return `<span class="spell-term" role="button" tabindex="0" aria-expanded="false" data-term="${entry.id}">${alias}</span>`;
+        return termSpan(alias, entry);
       });
     })
     .join('');
+}
+
+/** 数值按钮尾缀里若含术语别名，拆成「数值按钮 + 术语 span」两段（避免按钮内嵌套） */
+function mark(value: number, suffix: string, interactive: boolean, terms?: TermEntry[]): string {
+  const m = suffix.match(TERM_PATTERN);
+  const termHit = m && termEntryOf(m[0]);
+  let head = suffix;
+  let rest = '';
+  if (m && termHit) {
+    const idx = suffix.indexOf(m[0]);
+    head = suffix.slice(0, idx);
+    rest = applyTermMarkup(suffix.slice(idx), terms);
+  }
+  const label = `${value}${head ? ' ' + head : ''}`;
+  return interactive
+    ? `<button type="button" class="spell-stat" aria-expanded="false">${label}</button>${rest}`
+    : `<b>${label}</b>${rest}`;
 }
 
 export function renderSpell(desc: string, magic: number, opts: { interactive?: boolean } = {}): SpellRender {
@@ -79,10 +112,6 @@ export function renderSpell(desc: string, magic: number, opts: { interactive?: b
   const formulas: Formula[] = [];
   const terms: TermEntry[] = [];
   const unit = '点(?:真实)?(?:伤害|生命值|生命|护甲值|护甲|攻击力|攻击|法力值|法力|魔力值)?';
-  const mark = (value: number, suffix: string): string =>
-    interactive
-      ? `<button type="button" class="spell-stat" aria-expanded="false">${value} ${suffix}</button>`
-      : `<b>${value}${suffix ? ' ' + suffix : ''}</b>`;
 
   let text = clean.replace(/\s*\[([^[]]+)\]\s*$/g, (all, inner: string) => (isScalingTag(inner) ? '' : all));
   text = text.replace(new RegExp('\\[([^\\[\\]]+)\\](\\s*)(' + unit + ')', 'g'), (all, inner: string, sp: string, u: string) => {
@@ -90,14 +119,14 @@ export function renderSpell(desc: string, magic: number, opts: { interactive?: b
     const value = evalMagicExpr(inner, magic);
     if (value == null) return all;
     formulas.push({ expr: inner.trim(), value, unit: u });
-    return mark(value, u);
+    return mark(value, u, interactive, terms);
   });
   text = text.replace(/\[([^[]]+)\]/g, (all, inner: string) => {
     if (isScalingTag(inner)) return '';
     const value = evalMagicExpr(inner, magic);
     if (value == null) return all;
     formulas.push({ expr: inner.trim(), value, unit: '' });
-    return mark(value, '');
+    return mark(value, '', interactive, terms);
   });
   return { html: applyTermMarkup(text, terms).trim(), formulas, terms };
 }

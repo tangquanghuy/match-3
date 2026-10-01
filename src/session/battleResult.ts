@@ -1,3 +1,4 @@
+import { clampBattleMaps } from '../engine/battleMaps';
 /**
  * 引擎终局状态 → BattleResult（需求 3.6；设计 §4）。
  *
@@ -171,7 +172,7 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
       gold: state.economy.gold,
       souls: state.economy.souls,
       gems: state.economy.gems,
-      ...(state.economy.maps > 0 ? { maps: state.economy.maps } : {}),
+      ...(clampBattleMaps(state.economy.maps) > 0 ? { maps: clampBattleMaps(state.economy.maps) } : {}),
     },
     actionLogDigest: digestString(encodeActionLog(state.actionLog)),
     ...endReasonOf(events),

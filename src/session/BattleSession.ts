@@ -37,6 +37,7 @@ export class BattleSession {
     this.engine.bannerBoosts = init.request.playerBanner ? { ...init.request.playerBanner.boosts } : null;
     this.engine.enemyBannerBoosts = init.request.enemyBanner ? { ...init.request.enemyBanner.boosts } : null;
     // 战斗规则（活动深化批）：棋盘预置已在建盘时落地，这里注入掉落/回合/胜负规则
+    this.engine.getState().region = init.request.region;
     this.engine.applyRules(engineRulesOf(init.request, init.idMap));
     this.record(this.engine.takeInitialEvents());
   }

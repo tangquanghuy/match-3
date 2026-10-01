@@ -1,3 +1,5 @@
+import { burningSoulCost } from '../data/regionalPvp';
+import { isImmortal, immortalTraitBurningCost } from '../../data/immortals';
 import { isCoupletSpell, spellTitleText } from '../../data/spellPresentation';
 import { EVENT_ROTATION } from '../data/events';
 import { escapeHtml, troopCardFace } from './troopCard';
@@ -16,11 +18,10 @@ import {
   MAX_ASCENSION,
   ascensionCopiesNeeded,
   decomposeYield,
-  levelCapFor,
   totalSoulCost,
   traitUnlockCost,
 } from '../data/economy';
-import { getRecord, rarityTierOf, troopStatsOf } from '../systems/troopProgress';
+import { getRecord, levelCapOf, rarityTierOf, troopStatsOf } from '../systems/troopProgress';
 import { stoneColorKeyOf, stoneName } from '../data/materials';
 import { stoneMarkupForKey } from '../shell/materialArt';
 import { BaseColor } from '../../engine/types';
@@ -262,7 +263,7 @@ export class TroopScreen implements Screen {
               <button class="upgrade-step" id="upgradeMore" type="button" aria-label="增加一级">${icon('arrow')}</button>
             </div>
             <div class="upgrade-selection"><output id="upgradeLevels" aria-live="polite">提升 1 级</output>
-              <button class="upgrade-max" id="upgradeMax" type="button" title="选择当前灵魂可承担的最高等级">${icon('chevrons')}<span>最大</span></button>
+              <button class="upgrade-max" id="upgradeMax" type="button" title="选择当前资源可承担的最高等级">${icon('chevrons')}<span>最大</span></button>
             </div>
             <div class="upgrade-track" id="upgradeTrack" aria-hidden="true"></div>
             <p class="upgrade-hint" id="upgradeHint" role="status" hidden></p>
@@ -531,7 +532,7 @@ export class TroopScreen implements Screen {
     const rec = ownedRec ?? UNOWNED_REC;
     const owned = !!ownedRec;
     const stats = troopStatsOf(troop, rec);
-    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const cap = levelCapOf(troop, rec);
     const tier = rarityTierOf(troop, rec);
 
     const portraitEl = $('#portraitArt') as HTMLImageElement;
@@ -673,7 +674,7 @@ export class TroopScreen implements Screen {
   }
 
   private paintGrowth(troop: TroopData, rec: TroopRecord, owned: boolean): void {
-    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const cap = levelCapOf(troop, rec);
     const cost = rec.level < cap ? totalSoulCost(troop.rarityIdx, rec.level, rec.level + 1) : 0;
     const atCap = rec.level >= cap;
     const souls = this.ctx.save().currencies.souls;
@@ -681,7 +682,7 @@ export class TroopScreen implements Screen {
     $('#growthNext').innerHTML = !owned
       ? '获得该部队后可提升等级'
       : atCap
-        ? '已达稀有度上限 · 升阶可提升'
+        ? isImmortal(troop) ? '已达不朽等级上限 · 30级' : '已达稀有度上限 · 升阶可提升'
         : diffs.length
           ? diffs.map((d) => `${d.label} <b>+${d.to - d.from}</b>`).join(' ')
           : '下一级无属性变化（等级本身计入战力上限）';
@@ -749,21 +750,27 @@ export class TroopScreen implements Screen {
         if (have < n) shortfalls.push(`${stoneName(key)}还差 ${n - have}`);
         return `<span>${stoneMarkupForKey(key)}${stoneName(key)} ×${n}<em class="${have < n ? 'short' : ''}">持有 ${fmt(have)}</em></span>`;
       });
+      const burning = immortalTraitBurningCost(troop, nextSlot);
+      if (burning) {
+        const have = save.regional?.burningSouls ?? 0;
+        if (have < burning) shortfalls.unshift(`燃烧灵魂还差 ${burning - have}`);
+        stoneRows.push(`<span>燃烧灵魂 ×${burning}<em class="${have < burning ? 'short' : ''}">持有 ${fmt(have)}</em></span>`);
+      }
       $('#unlockLabel').textContent = shortfalls.length
         ? `材料不足 · ${shortfalls[0]}`
         : `解锁特质 ${['Ⅰ', 'Ⅱ', 'Ⅲ'][nextSlot - 1]}`;
       unlockBtn.disabled = shortfalls.length > 0;
       unlockBtn.title = shortfalls.join(' · ');
       unlockCost.hidden = false;
-      unlockCost.innerHTML = stoneRows.join('') + `<a class="trait-material-link" href="#materials/gems/${troop.id}">查看特质材料整套 →</a>`;
+      unlockCost.innerHTML = stoneRows.join('') + (burning ? '<a class="trait-material-link" href="#regional">燃烧灵魂 · 永生战域获取 →</a>' : '') + `<a class="trait-material-link" href="#materials/gems/${troop.id}">查看特质材料整套 →</a>`;
       mountIcons($('#unlockCost'));
     }
   }
 
   private paintAscension(troop: TroopData, rec: TroopRecord, owned: boolean): void {
     const need = rec.ascension >= MAX_ASCENSION ? 0 : ascensionCopiesNeeded(rec.ascension);
-    const capNow = levelCapFor(troop.rarityIdx, rec.ascension);
-    const capNext = levelCapFor(troop.rarityIdx, rec.ascension + 1);
+    const capNow = levelCapOf(troop, rec);
+    const capNext = levelCapOf(troop, { ...rec, ascension: rec.ascension + 1 });
     const tierNow = rarityTierOf(troop, rec);
     const tierNext = Math.min(tierNow + 1, 5);
     $('#ascendBenefit').innerHTML = rec.ascension >= MAX_ASCENSION
@@ -931,9 +938,9 @@ export class TroopScreen implements Screen {
     const troop = this.troop();
     const rec = this.rec();
     if (!troop || !rec) return;
-    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const cap = levelCapOf(troop, rec);
     if (rec.level >= cap) {
-      toast('已达当前稀有度上限，先升阶。');
+      toast(isImmortal(troop) ? '已达不朽等级上限：30级' : '已达当前稀有度上限，先升阶。');
       return;
     }
     this.upgradeTargetLevel = rec.level + 1;
@@ -961,10 +968,10 @@ export class TroopScreen implements Screen {
     const troop = this.troop();
     const rec = this.rec();
     if (!troop || !rec) return 0;
-    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const cap = levelCapOf(troop, rec);
     const souls = this.ctx.save().currencies.souls;
     let target = rec.level;
-    while (target < cap && totalSoulCost(troop.rarityIdx, rec.level, target + 1) <= souls) target++;
+    while (target < cap && totalSoulCost(troop.rarityIdx, rec.level, target + 1) <= souls && (!isImmortal(troop) || burningSoulCost(rec.level, target + 1) <= (this.ctx.save().regional?.burningSouls ?? 0))) target++;
     return target;
   }
 
@@ -978,12 +985,14 @@ export class TroopScreen implements Screen {
     const troop = this.troop();
     const rec = this.rec();
     if (!troop || !rec) return;
-    const cap = levelCapFor(troop.rarityIdx, rec.ascension);
+    const cap = levelCapOf(troop, rec);
     const target = Math.min(cap, Math.max(rec.level + 1, this.upgradeTargetLevel));
     this.upgradeTargetLevel = target;
     const cost = totalSoulCost(troop.rarityIdx, rec.level, target);
     const souls = this.ctx.save().currencies.souls;
-    const short = souls < cost;
+    const burning = isImmortal(troop) ? burningSoulCost(rec.level, target) : 0;
+    const fuel = this.ctx.save().regional?.burningSouls ?? 0;
+    const short = souls < cost || fuel < burning;
     const max = this.maxUpgradeLevel();
     const current = troopStatsOf(troop, rec);
     const next = troopStatsOf(troop, { ...rec, level: target });
@@ -997,7 +1006,7 @@ export class TroopScreen implements Screen {
     ($('#closeUpgrade') as HTMLButtonElement).disabled = this.upgradePending;
     ($('#cancelUpgrade') as HTMLButtonElement).disabled = this.upgradePending;
     $('#modal').setAttribute('aria-busy', String(this.upgradePending));
-    $('#upgradeHint').textContent = short ? `灵魂不足，还差 ${fmt(cost - souls)}` : '';
+    $('#upgradeHint').textContent = fuel < burning ? `燃烧灵魂不足，还差 ${burning - fuel} · 前往永生战域获取` : souls < cost ? `灵魂不足，还差 ${fmt(cost - souls)}` : '';
     $('#upgradeHint').hidden = !short;
     $('#upgradeHint').classList.toggle('short', short);
     $('#upgradeTrack').innerHTML = Array.from({ length: cap }, (_, i) =>
@@ -1013,8 +1022,8 @@ export class TroopScreen implements Screen {
         <b>${current[key]}<span aria-hidden="true"> → </span><strong>${next[key]}</strong></b>
         <small>${gain ? `+${gain}` : '—'}</small></li>`;
     }).join('');
-    $('#upgradeTotalCost').textContent = fmt(cost);
-    $('#soulPreview').textContent = `${fmt(souls)} → ${short ? '不足' : fmt(souls - cost)}`;
+    $('#upgradeTotalCost').textContent = fmt(cost) + (burning ? ` + ${burning} 燃烧灵魂` : '');
+    $('#soulPreview').textContent = `${fmt(souls)} → ${souls < cost ? '不足' : fmt(souls - cost)}${burning ? ` · 燃烧灵魂 ${fuel} → ${Math.max(0,fuel-burning)}` : ''}`;
     $('.upgrade-resource', this.upgradeModal!).classList.toggle('short', short);
     const confirm = $('#confirmUpgrade') as HTMLButtonElement;
     confirm.disabled = this.upgradePending || short || target <= rec.level;
@@ -1057,7 +1066,7 @@ export class TroopScreen implements Screen {
     const { result } = await this.ctx.gateway.unlockTroopTrait(this.currentId, slot);
     if (result.ok) {
       const stones = Object.entries(result.cost.stones).map(([key, n]) => `${stoneName(key)}×${n}`).join(' · ');
-      toast(`特质已解锁${stones ? ' · ' + stones : ''}`);
+      toast(`特质已解锁${stones ? ' · ' + stones : ''}${result.burningSpent ? ` · 燃烧灵魂×${result.burningSpent}` : ''}`);
       this.afterMutation();
     } else {
       toast(result.message);

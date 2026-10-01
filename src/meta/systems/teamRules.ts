@@ -6,6 +6,7 @@
  * 这里只出权威判定）。站位即数组顺序，队首吃骷髅伤害——是战术不是校验项。
  */
 import { getTroopById } from '../../data/troops';
+import { isImmortal, IMMORTAL_TEAM_LIMIT } from '../../data/immortals';
 import { bannerEquipIssue } from './banners';
 import type { MetaSave, TeamMember, TeamPreset } from '../state/schema';
 
@@ -17,6 +18,7 @@ export type TeamRuleCode =
   | 'TOO_MANY'
   | 'DUPLICATE_TROOP'
   | 'HERO_DUPLICATE'
+  | 'IMMORTAL_LIMIT'
   | 'BAD_MEMBER'
   | 'UNKNOWN_TROOP'
   | 'NOT_OWNED'
@@ -37,12 +39,22 @@ const SIZE_NAMES: Record<string, string> = {
   troop: '部队',
 };
 
+/** Also checked at battle start, so legacy presets cannot bypass the limit. */
+export function immortalTeamIssue(members: readonly TeamMember[]): TeamIssue | null {
+  const count = members.filter(m => m.kind === 'troop' && isImmortal(getTroopById(m.troopId))).length;
+  return count > IMMORTAL_TEAM_LIMIT
+    ? { code: 'IMMORTAL_LIMIT', message: '每支队伍最多编入一名不朽部队，请调整阵容' }
+    : null;
+}
+
 export function validateTeam(
   save: MetaSave,
   team: Pick<TeamPreset, 'members'> & Partial<Pick<TeamPreset, 'bannerKingdomId'>>,
 ): TeamValidation {
   const issues: TeamIssue[] = [];
   const { members } = team;
+  const immortalIssue = immortalTeamIssue(members);
+  if (immortalIssue) issues.push(immortalIssue);
 
   if (members.length < MIN_TEAM_SIZE) {
     issues.push({ code: 'TOO_FEW', message: `至少 ${MIN_TEAM_SIZE} 人才能出战（当前 ${members.length} 人）` });

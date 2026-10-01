@@ -45,7 +45,10 @@ test('只有最高小阶显示周榜；直达地址也遵守门槛', async ({ pa
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!); s.invasion.progressionVp = 7500;
     localStorage.setItem('gems.meta.save', JSON.stringify(s));
   });
-  await page.reload(); await expect(page.locator('.inv-row')).toHaveCount(0);
+  await page.reload();
+  // A zero-count assertion alone also passes before the async screen has mounted.
+  await expect(page.locator('.inv-secondary-body')).toContainText('达到钻石 III');
+  await expect(page.locator('.inv-row')).toHaveCount(0);
   await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!); s.invasion.progressionVp = 8000;
     localStorage.setItem('gems.meta.save', JSON.stringify(s));

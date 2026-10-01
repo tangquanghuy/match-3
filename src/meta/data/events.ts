@@ -21,7 +21,7 @@ import { allKingdoms } from './kingdoms';
 import { TROOPS } from '../../data/troops';
 import { fnv1a32 } from './hash';
 import { isRaceType } from './races';
-import type { MaterialDelta } from './materials';
+import { STONE_COLORS, type MaterialDelta } from './materials';
 
 /** 一周毫秒数（活动周历刻度） */
 export const WEEK_MS = 7 * 24 * 3_600_000;
@@ -120,6 +120,8 @@ export const EVENT_TYPES: readonly EventTypeDef[] = [
         '遗物在本轮内永久生效，直接改写棋盘：开局召唤风暴、把宝石变成燃烧 / 冻结 / 织网 / 末日骷髅 / 沙漏 / 闪电、匹配时叠攻击或回血、闪避与反弹……首领遗物更强但带代价。',
         '地图上任意节点都能点开查看敌人等级、词缀与奖励；遗物效果与法力加成在右栏随时可查。',
         '周奖励按本周新到达的最高层补差发放（每层荣耀 2、每 5 层熔铸符卷 1），重复低层不重复产出。',
+        '第 8 / 16 / 25 层首领每周首次击败，额外保底掉落钢锭与特质石，越高区材料越高级；战斗胜利时自动入账，具体数量见奖励页。',
+        '通关材料与积分里程碑、高层特质奖励独立；重复登塔不重复领取，跨周重置。',
         '战斗节点计积分：普通 100，精英与首领 120。',
       ] },
     ],
@@ -330,6 +332,33 @@ export const EVENT_ARCANE_STONES: Record<EventTypeId, readonly string[]> = {
 export function eventArcaneBundle(type: EventTypeId, amount: number): Record<string, number> {
   return Object.fromEntries(EVENT_ARCANE_STONES[type].map(key => [key, amount]));
 }
+
+/** 三区首领额外保底材料：8 / 16 / 25 层各每周一次，与积分、符卷及高层特质奖励独立。 */
+export interface TowerBossReward {
+  floor: number;
+  zone: number;
+  mats: MaterialDelta;
+}
+const towerColorStones = (tier: 'major' | 'runic', amount: number): Record<string, number> =>
+  Object.fromEntries(STONE_COLORS.map(({ key }) => [`${tier}:${key}`, amount]));
+
+export const TOWER_BOSS_REWARDS: readonly TowerBossReward[] = [
+  { floor: 8, zone: 1, mats: {
+    ingots: { rare: 6, ultraRare: 4 },
+    traitstones: { ...towerColorStones('major', 3), ...towerColorStones('runic', 1) },
+  } },
+  { floor: 16, zone: 2, mats: {
+    ingots: { epic: 4, legendary: 2 },
+    traitstones: { ...towerColorStones('runic', 2), ...eventArcaneBundle('towerOfDoom', 1) },
+  } },
+  { floor: 25, zone: 3, mats: {
+    ingots: { legendary: 4, mythic: 2 },
+    traitstones: { ...towerColorStones('runic', 3), ...eventArcaneBundle('towerOfDoom', 2), celestial: 1 },
+  } },
+];
+
+/** 独立周账本键；保留旧档已有的 arcaneTower / towerPaidFloors 记录。 */
+export const towerBossRewardKey = (floor: number): string => `towerBoss${floor}`;
 
 const BASE_EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
   invasion: [

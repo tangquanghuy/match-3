@@ -1211,3 +1211,6 @@
   .inv-battle-hub .frenzy .inv-rival-defense::before,
   .inv-battle-hub .frenzy .inv-rival-defense::after { animation: none; }
 }
+
+/* Keep currency separate from VP so narrow opponent cards remain readable. */
+.inv-battle-hub .inv-gold-preview { display: block; margin-top: 4px; color: #f1d48d; font-size: 13px; line-height: 1.4; white-space: nowrap; }

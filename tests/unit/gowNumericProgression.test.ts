@@ -1,3 +1,4 @@
+import { isImmortal } from '../../src/data/immortals';
 import { describe, it, expect } from 'vitest';
 import rawSource from '../../data/raw/troops.gow.zh.json?raw';
 import { TROOPS, getTroopById, troopToSummonTemplate } from '../../src/data/troops';
@@ -28,7 +29,7 @@ const result = (winner: 'player' | 'enemy' = 'player'): BattleResult => ({
 });
 
 describe('Imported per-troop progression', () => {
-  it('all 1798 source rows preserve every individual level gain and trait recipe', () => {
+  it('all source rows preserve ordinary per-level gains, Immortal growth totals, and trait recipes', () => {
     const raw = JSON.parse(rawSource);
     const fields = { health: 'Health', armor: 'Armor', attack: 'Attack', magic: 'SpellPower' } as const;
     const colors = ['blue', 'green', 'red', 'yellow', 'purple', 'brown'];
@@ -36,11 +37,15 @@ describe('Imported per-troop progression', () => {
     for (const source of raw.troops) {
       const troop = getTroopById(source.id)!;
       expect(troop).toBeTruthy();
-      for (let level = 1; level <= 20; level++) {
+      for (let level = 1; level <= (isImmortal(troop) ? 30 : 20); level++) {
         const stats = troopStatsAtLevel(troop, level);
         for (const [stat, field] of Object.entries(fields)) {
-          const expected = (source.raw_data[`${field}_Base`] ?? 0)
-            + source.raw_data[`${field}Increase`].slice(0, level).reduce((a: number, b: number) => a + b, 0);
+          const increments: number[] = source.raw_data[`${field}Increase`];
+          expect(TROOP_PROGRESSION[troop.id]!.growth[stat as keyof typeof fields]).toEqual(increments);
+          const gain = isImmortal(troop)
+            ? Math.floor(increments.reduce((a, b) => a + b, 0) * (level - 1) / 29)
+            : increments.slice(0, level).reduce((a, b) => a + b, 0);
+          const expected = (source.raw_data[`${field}_Base`] ?? 0) + gain;
           expect(stats[stat as keyof typeof fields], `${source.id}/${stat}/${level}`).toBe(expected);
         }
       }

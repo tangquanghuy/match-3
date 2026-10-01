@@ -17,7 +17,7 @@ import { getTroopById } from '../../../data/troops';
 import type { MaterialDelta } from '../../data/materials';
 import { fail } from '../../types';
 import { earn, earnMaterials } from '../wallet';
-import { pickEnemies, type EnemyTier, type EncounterEnemy } from '../encounter';
+import { repairLegacyRandomEnemyRoster, pickEnemies, type EnemyTier, type EncounterEnemy } from '../encounter';
 import { SPECIAL_INFO, applySpecialEncounter, specialEncounterPlan } from '../specialEncounters';
 import {
   EVENT_BASE_LEVEL, EVENT_POINTS_CAP, addRules, buffSnapshot, injectTraits, int, isObj, pickN, rngOf, strArr,
@@ -174,7 +174,7 @@ export const invasionMode: EventModeImpl<InvasionState> = {
       if (!isObj(s) || !(typeof s.kind === 'string' && s.kind in SQUAD_INFO)) return null;
       const troops = (Array.isArray(s.troops) ? s.troops : []).filter((n): n is number => Number.isInteger(n) && !!getTroopById(n));
       if (troops.length === 0) return null;
-      squads.push({ id: int(s.id, 0, 0), lane: int(s.lane, 0, 0, 2), dist: int(s.dist, 1, 1, INVASION_MAX_DIST), kind: s.kind as SquadKind, troops });
+      squads.push({ id: int(s.id, 0, 0), lane: int(s.lane, 0, 0, 2), dist: int(s.dist, 1, 1, INVASION_MAX_DIST), kind: s.kind as SquadKind, troops: repairLegacyRandomEnemyRoster(troops, fnv1a32(`inv-legacy-${s.id}-${raw.wave}`)) });
     }
     return {
       v: 1, wave: int(raw.wave, 1, 1), city: int(raw.city, INVASION_CITY_MAX, 1, INVASION_CITY_MAX), squads,

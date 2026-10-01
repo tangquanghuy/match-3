@@ -10,12 +10,14 @@
  *  - trait 别名 → 主角快照 traitIds（走引擎既有特质管线， battleBridge 过滤已实现集）；
  *  - xpBonus → 结算期主角经验加成（settlement 调用 xpBonusPct）；
  *  - pvp → 无 PvP 模式，不适用；unimplemented → 未实现，不产出任何数值（审计见 classes.json）。
- * 职业特质：3 槽按 HERO_TRAIT_COST 金+魂解锁，已实现的 code 同样进主角 traitIds。
+ * 职业特质：3 槽按职业配色消耗特质石，顺序解锁，已实现的 code 同样进主角 traitIds。
  */
 import { TRAIT_LIBRARY, registerDynamicTraits } from '../../engine/traits';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
-import { spend } from './wallet';
+import { spendMaterials } from './wallet';
+import { heroTraitCost, type HeroTraitCost } from '../data/heroTraitCosts';
+import { stoneName } from '../data/materials';
 import { PVP_DYNAMIC_DEFS, PERK_DYNAMIC_DEFS, TALENT_DYNAMIC_CODES, TALENT_DYNAMIC_DEFS } from '../data/talentDefs';
 import {
   CHAMPION_TIERS,
@@ -135,30 +137,44 @@ export function heroTraitSlots(save: MetaSave): { def: ClassDef; state: [boolean
   return { def, state: save.hero.classTraits[def.id] ?? [false, false, false] };
 }
 
-/** 职业特质槽费用（独立小表：原特质解锁基准的金+魂口径；素材批后与部队特质石体系脱钩——
- *  职业槽无颜色归属，不吃特质石；部队特质解锁走 economy.traitUnlockCost(slot, color)） */
-const HERO_TRAIT_COST = [
-  { gold: 2000, souls: 500 },
-  { gold: 10000, souls: 2500 },
-  { gold: 20000, souls: 5000 },
-] as const;
+/** Shared read-only quote: UI and server use the same recipe and prerequisites. */
+export function heroTraitQuote(save: MetaSave, classId: string, slot: number) {
+  const def = classById(classId);
+  const cost = heroTraitCost(classId, slot);
+  if (!def || !cost) return null;
+  const perk = def.perks[slot - 1]!;
+  const state = save.hero.classTraits[classId] ?? [false, false, false];
+  const rows = Object.entries(cost.stones).map(([key, required]) => {
+    const owned = save.materials.traitstones[key] ?? 0;
+    return { key, required, owned, short: Math.max(0, required - owned) };
+  });
+  const reason = !save.hero.unlockedClasses.includes(classId) ? '职业尚未解锁'
+    : state[slot - 1] ? '该特质已解锁'
+    : slot > 1 && !state[slot - 2] ? '请先解锁前一个特质'
+    : !perk.implemented && !TALENT_DYNAMIC_CODES.has(perk.code) ? '该特质暂未开放'
+    : rows.some(row => row.short > 0) ? '特质石不足' : '';
+  return { def, perk, cost, rows, reason, canUnlock: !reason, unlocked: !!state[slot - 1] };
+}
 
-/** 解锁职业特质槽（1 起；须顺序解锁；金+魂，无同名卡） */
+/** Explicit classId pins the confirmation to its subject even if equipment changes. */
 export function unlockHeroTrait(
   save: MetaSave,
   slot: number,
-): { ok: true; slot: number; cost: { gold: number; souls: number } } | MetaFailure {
-  const holder = heroTraitSlots(save);
-  if (!holder) return fail('INVALID', '未装备职业');
-  if (!Number.isInteger(slot) || slot < 1 || slot > 3) return fail('INVALID', '特质槽位越界');
-  if (holder.state[slot - 1]) return fail('ALREADY_UNLOCKED', '该特质已解锁');
-  if (slot > 1 && !holder.state[slot - 2]) return fail('PREREQ_LOCKED', '需要先解锁前一个特质槽');
-  const cost = HERO_TRAIT_COST[slot - 1]!;
-  const paid = spend(save, { gold: cost.gold, souls: cost.souls });
+  classId: string | null = save.hero.classId,
+): { ok: true; slot: number; cost: HeroTraitCost } | MetaFailure {
+  if (!classId) return fail('INVALID', '未装备职业');
+  const quote = heroTraitQuote(save, classId, slot);
+  if (!quote) return fail('INVALID', '职业或特质槽位无效');
+  if (quote.unlocked) return fail('ALREADY_UNLOCKED', '该特质已解锁');
+  if (quote.reason && quote.reason !== '特质石不足') return fail('PREREQ_LOCKED', quote.reason);
+  if (!quote.canUnlock) return fail('INSUFFICIENT', quote.rows.filter(r => r.short > 0)
+    .map(r => `${stoneName(r.key)}还差 ${r.short}`).join('；'));
+  const paid = spendMaterials(save, { traitstones: quote.cost.stones });
   if (!paid.ok) return paid;
-  save.hero.classTraits[holder.def.id] = [...holder.state];
-  save.hero.classTraits[holder.def.id]![slot - 1] = true;
-  return { ok: true, slot, cost: { gold: cost.gold, souls: cost.souls } };
+  const state = [...(save.hero.classTraits[classId] ?? [false, false, false])] as [boolean, boolean, boolean];
+  state[slot - 1] = true;
+  save.hero.classTraits[classId] = state;
+  return { ok: true, slot, cost: quote.cost };
 }
 
 // ---------------------------------------------------------------------------

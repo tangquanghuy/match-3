@@ -34,9 +34,15 @@ export function observeHuntProgress(cap: HuntSoftCap, cells: readonly number[]):
   cap.peak = Math.max(cap.peak, huntRewardProgress(cells));
 }
 
-/** Zero before the target; gradually stronger negative bias after it, never positive bias. */
-export function huntComboBias(cap: HuntSoftCap): number {
-  if (cap.peak < cap.target) return 0;
-  return -Math.min(HUNT_SOFT_CAP.maxPressure,
-    1 + Math.floor(cap.activeMoves / HUNT_SOFT_CAP.rampEveryMoves) + Math.floor((cap.peak - cap.target) / 2));
+/** Leave room to assemble chests before gradually cooling a long run, even if its random reward threshold is not reached.
+ * Neither clock time nor accumulated turns is consumed; four/five matches keep their rewards. */
+export const HUNT_LONG_RUN = Object.freeze({ startMoves: 150, rampEveryMoves: 30 });
+
+export function huntComboBias(cap: HuntSoftCap, moves = 0): number {
+  const rewardPressure = cap.peak < cap.target ? 0
+    : 1 + Math.floor(cap.activeMoves / HUNT_SOFT_CAP.rampEveryMoves) + Math.floor((cap.peak - cap.target) / 2);
+  const lengthPressure = moves < HUNT_LONG_RUN.startMoves ? 0
+    : 1 + Math.floor((moves - HUNT_LONG_RUN.startMoves) / HUNT_LONG_RUN.rampEveryMoves);
+  const pressure = Math.min(HUNT_SOFT_CAP.maxPressure, Math.max(rewardPressure, lengthPressure));
+  return pressure === 0 ? 0 : -pressure;
 }

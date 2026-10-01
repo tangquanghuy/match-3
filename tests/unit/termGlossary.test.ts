@@ -94,6 +94,21 @@ describe('renderSpell 术语通道', () => {
     expect((parsed.html.match(/spell-term/g) ?? []).length).toBe(0);
   });
 
+  it('公式尾缀含术语时拆成相邻两元素，不在按钮内嵌套（2 点真实伤害）', () => {
+    const parsed = renderSpell('对 1 名敌人造成 [魔法 + 2] 点真实伤害。', 5);
+    expect(parsed.html).toContain('>7 点</button><span class="spell-term"');
+    expect(parsed.html).toContain('data-term="truedamage"');
+    // 数值按钮内部不允许再嵌套术语 span
+    expect(parsed.html).not.toMatch(/<button[^>]*>[^<]*<span/);
+    expect(parsed.terms.map((t) => t.id)).toContain('truedamage');
+  });
+
+  it('applyTermMarkup 幂等：已包裹的输出再跑一遍不产生嵌套', () => {
+    const once = applyTermMarkup('燃烧所有敌人。使他们陷入中毒状态。');
+    const twice = applyTermMarkup(once);
+    expect(twice).toBe(once);
+  });
+
   it('已有 HTML 标签不被破坏（先公式后术语两通道叠加）', () => {
     const parsed = renderSpell('窃取所有敌人 [魔法 + 5] 点生命值。', 5);
     expect(() => applyTermMarkup(parsed.html)).not.toThrow();

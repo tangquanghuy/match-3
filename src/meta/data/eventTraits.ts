@@ -60,7 +60,7 @@ export const EVENT_TRAIT_DEFS: readonly TraitDefinition[] = [
   { code: 'ev_boss_venomfang', name: '首领·毒牙', description: '造成骷髅伤害时使目标中毒。', inflictOnSkullHit: { id: 'poison', turns: 3, magnitude: 3 } },
   { code: 'ev_boss_frostwyrm', name: '首领·霜龙', description: '战斗开始时召唤寒冰风暴；回合开始时有 40% 几率把 1 颗蓝色宝石变成冻结宝石。', battleStartStorm: STORM.ice, turnStartColorToSpecial: { color: BaseColor.Blue, gem: 'freezeGem', count: 1, chance: 0.4 } },
   ...COLORS.map((c): TraitDefinition => ({
-    code: weakGiantCode(c), name: `破绽·${COLOR_ZH[c]}`, description: `受到骷髅伤害时掉落 1 颗${COLOR_ZH[c]}色巨人宝石（匹配 +5 法力并引爆周围）。`,
+    code: weakGiantCode(c), name: `破绽·${COLOR_ZH[c]}`, description: `受到骷髅伤害时掉落 1 颗${COLOR_ZH[c]}色巨型宝石（匹配 +5 法力并引爆周围）。`,
     onDamagedCreateGem: { gem: 'giantGem', color: c, count: 1 },
   })),
   // 阶段机制

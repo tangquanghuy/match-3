@@ -34,11 +34,13 @@ const SCREEN_LOADERS: Record<string, () => Promise<Screen>> = {
   map: () => import('../screens/mapScreen').then((m) => new m.MapScreen()),
   team: () => import('../screens/teamScreen').then((m) => new m.TeamScreen()),
   troop: () => import('../screens/troopScreen').then((m) => new m.TroopScreen()),
+  classes: () => import('../screens/classesScreen').then(m => new m.ClassesScreen()),
   hero: () => import('../screens/heroScreen').then((m) => new m.HeroScreen()),
   chests: () => import('../screens/chestsScreen').then((m) => new m.ChestsScreen()),
   wishlist: () => import('../screens/wishlistScreen').then((m) => new m.WishlistScreen()),
   arena: () => import('../screens/arenaScreen').then((m) => new m.ArenaScreen()),
   events: () => import('../screens/eventsScreen').then((m) => new m.EventsScreen()),
+  regional: () => import('../screens/regionalScreen').then(m => m.regionalScreen),
   invasion: () => import('../screens/invasionScreen').then((m) => new m.InvasionScreen()),
   explore: () => import('../screens/exploreScreen').then((m) => new m.ExploreScreen()),
   quest: () => import('../screens/questScreen').then((m) => new m.QuestScreen()),
@@ -120,12 +122,19 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     launchArenaBattle: () => launcher.launchArenaBattle(),
     launchEventBattle: (choice) => launcher.launchEventBattle(choice),
     launchInvasionBattle: (mirrorId, revenge) => launcher.launchInvasionBattle(mirrorId, revenge),
+    launchRegionalBattle: (args) => launcher.launchRegionalBattle(args),
     launchTutorialBattle: () => launcher.launchTutorialBattle(),
-    showResult: (detail, meta) => {
-      void loadScreen('result').then((screen) => {
+    showResult: async (detail, meta) => {
+      try {
+        const screen = await loadScreen('result');
         (screen as ResultScreen).setDetail(detail, meta);
-        ctx.navigate('#result');
-      }, (error: unknown) => toast('结算页加载失败：' + (error instanceof Error ? error.message : String(error))));
+        // Mount underneath the battle cover before the launcher releases it.
+        // pushState avoids a second asynchronous hashchange render.
+        if (location.hash !== '#result') history.pushState(null, '', '#result');
+        await render();
+      } catch (error: unknown) {
+        toast('结算页加载失败：' + (error instanceof Error ? error.message : String(error)));
+      }
     },
   };
 
@@ -140,6 +149,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     map: '世 界 地 图',
     team: '部 队 编 成',
     hero: '主 角',
+    classes: '职 业 圣 殿',
     troop: '部 队 图 鉴',
     chests: '宝 箱',
     wishlist: '愿 望 单',
@@ -168,6 +178,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     explore: '地图',
     hunt: '地图',
     weapons: '英雄',
+    classes: '英雄',
     gems: '商店',
     materials: '商店',
     shop: '商店',

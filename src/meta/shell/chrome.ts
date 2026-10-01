@@ -79,13 +79,15 @@ export function fitStage(): void {
     ['arena-responsive', '.arena-screen'],
     ['map-responsive', '.map-shell'],
     ['hero-responsive', '.hero-screen'],
+    ['classes-responsive', '.classes-screen'],
     ['result-responsive', '.result-screen'],
     ['quest-responsive', '.quest-screen, .explore-screen'],
     ['hunt-responsive', '.hunt-screen'],
+    ['regional-responsive', '.regional-screen'],
   ] as const;
   let responsive = false;
   for (const [className, selector] of responsiveScreens) {
-    const active = (nativeSize || className === 'hunt-responsive' || className === 'character-responsive') && !!stage.querySelector(selector);
+    const active = (nativeSize || className === 'classes-responsive' || className === 'regional-responsive' || className === 'hunt-responsive' || className === 'character-responsive') && !!stage.querySelector(selector);
     stage.classList.toggle(className, active);
     responsive ||= active;
   }

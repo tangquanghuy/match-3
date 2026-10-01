@@ -1,3 +1,7 @@
+import classesCss from '../screens/classesScreen.css?raw';
+import heroTraitDialogCss from '../screens/heroTraitDialog.css?raw';
+import regionalEntryCss from './styles/regional-entry.css?raw';
+import regionalCss from '../screens/regionalScreen.css?raw';
 import materialShopCss from './styles/material-shop.css?raw';
 import defenseRewardCss from './styles/defense-reward.css?raw';
 import invasionDefenseCss from './styles/invasion-defense.css?raw';
@@ -32,7 +36,10 @@ interface PageCssSpec {
 }
 
 const PAGE_CSS: Record<string, PageCssSpec> = {
-  map: { css: defenseRewardCss, position: 'last' },
+  classes: { css: classesCss + '\n' + heroTraitDialogCss, position: 'last' },
+  hero: { css: heroTraitDialogCss, position: 'last' },
+  regional: { css: regionalCss, position: 'last' },
+  map: { css: defenseRewardCss + regionalEntryCss, position: 'last' },
   character: { css: characterCss, position: 'last' },
   wishlist: { css: wishlistCss, position: 'last' },
   troop: { css: troopCss, position: 'first' },
@@ -56,7 +63,9 @@ export function applyPageCss(page: string): void {
   if (!spec) return;
   const style = document.createElement('style');
   style.id = STYLE_ID;
-  style.textContent = spec.css;
+  // Raw fragments may carry a UTF-8 BOM. Inside a joined stylesheet it becomes
+  // part of the next selector (e.g. \uFEFF.hero-trait-dialog), silently breaking it.
+  style.textContent = spec.css.replace(/\uFEFF/g, '');
   if (spec.position === 'first') {
     document.head.insertBefore(style, document.head.firstChild);
   } else {

@@ -17,7 +17,7 @@ import { temperingLevelOf } from '../systems/forgeOps';
 import { traitUnlockCost } from '../data/economy';
 import { getRecord } from '../systems/troopProgress';
 import { TROOPS } from '../../data/troops';
-import { bottomNavHtml, mountIcons, toastHtml, topbarHtml } from '../shell/chrome';
+import { bottomNavHtml, icon, mountIcons, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt, stoneMarkup, treasureMapMarkup } from '../shell/materialArt';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
@@ -98,7 +98,7 @@ export class BagScreen implements Screen {
       ingots: Object.values(materials.ingots).filter((count) => count > 0).length,
       stones: Object.values(materials.traitstones).filter((count) => count > 0).length,
       supplies: Number(materials.forgeScrolls > 0) + Number(materials.treasureMaps > 0)
-        + save.currencies.gloryKeys,
+        + Number(save.currencies.gloryKeys > 0) + Number((save.regional?.burningSouls ?? 0) > 0),
     };
     const tabs = [
       ['ingots', '钢锭'],
@@ -134,7 +134,7 @@ export class BagScreen implements Screen {
   mount(ctx: ShellCtx, root: HTMLElement): void {
     root.classList.add('bag-responsive');
     mountIcons(root);
-    void ctx.gateway.markMaterialsSeen().then(() => ctx.refreshChrome());
+    if (ctx.save().materialsUnread) void ctx.gateway.markMaterialsSeen().then(() => ctx.refreshChrome());
     root.querySelectorAll<HTMLElement>('[data-bag-nav]').forEach((el) => {
       el.addEventListener('click', () => {
         const href = el.dataset.bagNav;
@@ -195,6 +195,11 @@ export class BagScreen implements Screen {
     });
     if (tab === 'stones') return this.stoneItems(save);
     return [{
+      id:'burningSouls', name:'燃烧灵魂', count:save.regional?.burningSouls ?? 0,
+      art:`<span class="bag-ticket-art" style="color:#ed9859">${icon('soul')}</span>`, tone:'#ed9859', group:'不朽材料',
+      purpose:'用于不朽升级与特质解锁', hint:'升至 30 级共需 99 个；三个特质另需 33 / 66 / 99 个',
+      source:'永生战域 · 周奖励与城塞守护者', destination:'#regional', action:'前往永生战域',
+    }, {
       id: 'forgeScrolls', name: '熔铸符卷', count: materials.forgeScrolls,
       art: materialImg(scrollArt()), tone: '#a596e6', group: '符卷',
       purpose: '末日武器淬炼', hint: this.scrollHint(save, materials.forgeScrolls),
@@ -208,8 +213,8 @@ export class BagScreen implements Screen {
     }, {
       id: 'treasureMaps', name: '藏宝图', count: materials.treasureMaps,
       art: treasureMapMarkup(), tone: '#c4a36a', group: '门票',
-      purpose: '寻宝 · 每次消耗 1 张', hint: '',
-      source: '活动 · 冒险', destination: '#hunt', action: '前往寻宝',
+      purpose: '寻宝 · 每次消耗 1 张', hint: '每场战斗最多获得 2 张，包含技能和活动奖励',
+      source: '战斗胜利掉落（1%）· 部队技能 · 活动', destination: '#hunt', action: '前往寻宝',
     }];
   }
 

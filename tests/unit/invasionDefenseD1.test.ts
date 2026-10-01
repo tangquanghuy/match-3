@@ -23,7 +23,7 @@ afterEach(() => { for (const db of databases.splice(0)) db.close(); });
 /** Real SQLite statements + transactional batch, no production services involved. */
 function database() {
   const db = new DatabaseSync(':memory:'); databases.push(db);
-  for (const file of ['0001_accounts.sql', '0003_invasion_mirrors.sql', '0005_invasion_defenses.sql']) {
+  for (const file of ['0001_accounts.sql', '0003_invasion_mirrors.sql', '0004_invasion_weekly.sql', '0005_invasion_defenses.sql']) {
     db.exec(readFileSync(new URL(`../../worker/migrations/${file}`, import.meta.url), 'utf8'));
   }
   for (const [id, name] of [['attacker', '甲'], ['defender', '乙'], ['other', '丙']]) {
@@ -51,6 +51,23 @@ function database() {
 const report = (id = 'ticket') => ({ id, defender: mirrorOwnerKey('defender'), at: 1000, defenderWon: false, surrendered: false, frenzy: false });
 
 describe('D1 invasion defense storage (real SQLite)', () => {
+  it('skips identical weekly upserts even after actor restart and preserves score tie time', async () => {
+    const { adapter, db } = database();
+    const report = { weekStart: 1000, league: 1, vp: 20, at: 2000 };
+    await new D1MirrorPool(adapter, () => 'defender').reportVp(report);
+    const changes = () => db.prepare('SELECT total_changes() AS n').get()!.n;
+    const before = changes();
+    await new D1MirrorPool(adapter, () => 'defender').reportVp({ ...report, at: 3000 });
+    expect(changes()).toBe(before);
+    expect(db.prepare('SELECT updated_at FROM invasion_weekly').get()).toEqual({ updated_at: 2000 });
+    await new D1MirrorPool(adapter, () => 'defender').reportVp({ ...report, vp: 21, at: 4000 });
+    expect(db.prepare('SELECT vp, updated_at FROM invasion_weekly').get()).toEqual({ vp: 21, updated_at: 4000 });
+    await new D1MirrorPool(adapter, () => 'defender').reportVp({ ...report, league: 2, at: 5000 });
+    expect(db.prepare('SELECT league, updated_at FROM invasion_weekly').get()).toEqual({ league: 2, updated_at: 5000 });
+    await new D1MirrorPool(adapter, () => 'defender').reportVp({ ...report, weekStart: 2000, at: 6000 });
+    expect(db.prepare('SELECT COUNT(*) AS n FROM invasion_weekly').get()).toEqual({ n: 2 });
+  });
+
   it('is idempotent per attacker ticket and isolates recipient reads', async () => {
     const { adapter } = database();
     const a = new D1MirrorPool(adapter, () => 'attacker'); const b = new D1MirrorPool(adapter, () => 'defender');
@@ -81,7 +98,11 @@ describe('D1 invasion defense storage (real SQLite)', () => {
   });
   it('rejects missing actor identity so pending reports are retained', async () => {
     const { adapter } = database();
-    await expect(new D1MirrorPool(adapter, () => null).recordDefense(report())).rejects.toThrow('identity');
+    const unbound = new D1MirrorPool(adapter, () => null);
+    await expect(unbound.recordDefense(report())).rejects.toThrow('identity');
+    await expect(unbound.reportVp({ weekStart: 1000, league: 1, vp: 20, at: 2000 })).rejects.toThrow('identity');
+    const save = buildDemoSave(1000); save.invasion.defenseTeam = structuredClone(save.teams[0]!);
+    await expect(unbound.publish(defenseRecord(save, 1000)!)).rejects.toThrow('identity');
   });
   it('publishes the independent roster and atomically removes superseded historical league snapshots', async () => {
     const { adapter, db } = database();

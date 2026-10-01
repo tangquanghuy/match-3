@@ -9,7 +9,7 @@ test('宝石十连发满 10 张牌，材料牌显示材料图', async ({ page })
   await page.goto('/game.html#chests/gems');
   const ten = page.locator('[data-open="gem-10"]');
   await expect(ten).toBeEnabled({ timeout: 20_000 });
-  // 连开几次，直到本批里至少有一张材料牌（宝石箱基础 30.5% 出材料）
+  // 连开几次，直到本批里至少有一张材料牌（宝石箱基础 21.2% 出材料）
   let itemCount = 0;
   for (let attempt = 0; attempt < 4 && itemCount === 0; attempt++) {
     await ten.click();

@@ -1,3 +1,4 @@
+import type { RegionalPlanArgs } from '../systems/regionalPvp';
 /**
  * 屏层共享上下文与类型。每个屏 = { html, mount }，由 gameMain 的路由挂载。
  */
@@ -36,7 +37,7 @@ export type ScreenName =
   | 'character' | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
   | 'materials' | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt' | 'gifts'
   /** 王国主线页 `#quest/<王国>`（M10） */
-  | 'quest' | 'explore';
+  | 'quest' | 'explore' | 'regional' | 'classes';
 
 /** 屏层上下文：网关 + 导航 + 战斗启动。屏层禁止绕过它直接摸路由/战斗层 */
 export interface ShellCtx {
@@ -70,11 +71,12 @@ export interface ShellCtx {
   launchInvasionBattle(mirrorId: string, revenge?: boolean): Promise<void>;
   /** 启动新手引导试炼战（结算后回世界地图） */
   launchTutorialBattle(): Promise<void>;
+  launchRegionalBattle?(args: RegionalPlanArgs): Promise<void>;
   /** 展示结算屏（普通战斗带逐行入账，PvP 带战果与加分构成） */
   showResult(
     detail: SettlementView,
     meta: { kingdom: string; sourceLabel: string; returnHash?: string; shopHash?: string },
-  ): void;
+  ): void | Promise<void>;
 }
 
 export interface Screen {

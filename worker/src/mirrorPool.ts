@@ -138,12 +138,14 @@ export class D1MirrorPool implements InvasionMirrorPool {
 
   async reportVp(report: VpReport): Promise<void> {
     const self = this.playerId();
-    if (!self) return;
+    if (!self) throw new Error('Missing player actor identity');
     const upsert = this.db.prepare(
       `INSERT INTO invasion_weekly (player_id, owner_key, week_start, league, vp, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT (player_id, week_start) DO UPDATE SET
-         owner_key = excluded.owner_key, league = excluded.league, vp = excluded.vp, updated_at = excluded.updated_at`,
+         owner_key = excluded.owner_key, league = excluded.league, vp = excluded.vp, updated_at = excluded.updated_at
+       WHERE invasion_weekly.owner_key != excluded.owner_key
+          OR invasion_weekly.league != excluded.league OR invasion_weekly.vp != excluded.vp`,
     ).bind(self, mirrorOwnerKey(self), report.weekStart, report.league, Math.round(report.vp), report.at);
     if (Math.random() * PRUNE_EVERY < 1) {
       await this.db.batch([upsert, this.db.prepare('DELETE FROM invasion_weekly WHERE week_start < ?').bind(report.weekStart - WEEKLY_KEEP_MS)]);
@@ -154,7 +156,7 @@ export class D1MirrorPool implements InvasionMirrorPool {
 
   async publish(record: MirrorRecord): Promise<void> {
     const self = this.playerId();
-    if (!self) return;
+    if (!self) throw new Error('Missing player actor identity');
     const snapshot: StoredSnapshot = {
       team: record.team, defense: record.defense, heroLevel: record.heroLevel,
       bannerKingdom: record.bannerKingdom, teamHash: record.teamHash,

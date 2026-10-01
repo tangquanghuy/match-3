@@ -95,7 +95,7 @@ describe('L4b troop:7030/spell:8557 Convert all Red Gems into Yellow Dragon Gems
  const board=pattern([BaseColor.Red,BaseColor.Blue,BaseColor.Purple,BaseColor.Brown]);
  it('source/native/prototype/display binding',()=>{
   troopBinding(7030,8557,13,base.colors,'Convert all Red Gems into Yellow Dragon Gems.',
-   [{Color1:'Red',Amount:100,Color2:'DragonYellow',Type:'ConvertGems'}],'将所有红色宝石转换成黄龙宝石。');
+   [{Color1:'Red',Amount:100,Color2:'DragonYellow',Type:'ConvertGems'}],'将所有红色宝石转换成黄色龙宝石。');
   expect(registry.prototypes.get('8557')).toEqual({segments:[{kind:'gem',params:{op:'transform',from:'Red',to:'SKULL',toSpecial:{kind:'dragonGem',color:'Yellow'}}}]});
  });
  for(const side of sides)it(`real cast side=${side}: all 16 Red -> Yellow Dragon Gems`,()=>{

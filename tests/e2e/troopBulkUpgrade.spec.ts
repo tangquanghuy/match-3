@@ -196,3 +196,41 @@ test('窄屏灵魂不足仍能调整级数，资源警示清楚且不溢出', as
   await page.locator('#closeUpgrade').click();
   expect(await saved(page)).toEqual({ level: 1, souls });
 });
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test(`不朽从旧20级存档升级至30级，刷新后等级和上限一致 ${viewport.width}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await setup(page);
+    await page.evaluate(async () => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const { metaGateway } = await load('/src/meta/gateway/index.ts');
+      const gw = metaGateway();
+      const save = JSON.parse(gw.exportSaveJson());
+      save.collection[7580] = { level: 20, ascension: 0, copies: 0, traits: [false, false, false], locked: false };
+      save.currencies.souls = 1000000;
+      const { freshRegionalState } = await load('/src/meta/state/regional.ts');
+      save.regional = { ...freshRegionalState(), burningSouls: 60 };
+      await gw.dev.importSaveJson(JSON.stringify(save));
+    });
+    await page.goto('/game.html#troop/7580');
+    await page.reload();
+    await expect(page.locator('#upgrade')).toBeEnabled({ timeout: 15000 });
+    await page.locator('#upgrade').click();
+    await page.locator('#upgradeMax').click();
+    await expect(page.locator('#upgradeTo')).toHaveText('30');
+    await expect(page.locator('#upgradeLevels')).toHaveText('提升 10 级');
+    await expect(page.locator('#upgradeTotalCost')).toContainText('60 燃烧灵魂');
+    await expect(page.locator('#upgradeMore')).toBeDisabled();
+    const box = await page.locator('#confirmUpgrade').boundingBox();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+    await page.screenshot({ path: `artifacts/immortal-upgrade-${viewport.width}.png` });
+    await page.locator('#confirmUpgrade').click();
+    await expect(page.locator('#modal')).toBeHidden();
+    await expect(page.locator('#growthNext')).toContainText('30级');
+    await page.reload();
+    await expect(page.locator('#upgrade')).toBeDisabled({ timeout: 15000 });
+    await expect(page.locator('#growthNext')).toContainText('不朽等级上限');
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).collection[7580].level)).toBe(30);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).regional.burningSouls)).toBe(0);
+  });
+}

@@ -8,6 +8,13 @@ test('入侵主屏三选一，榜单/官阶/规则走次级视图', async ({ pag
 
   const rivals = page.locator('.inv-rival');
   await expect(rivals).toHaveCount(3);
+  await expect(page.locator('.inv-gold-preview')).toHaveCount(3);
+  for (const preview of await page.locator('.inv-gold-preview').all()) {
+    const amount = Number(await preview.getAttribute('data-gold'));
+    expect(amount).toBeGreaterThanOrEqual(300);
+    expect(amount).toBeLessThanOrEqual(3000);
+    await expect(preview).toHaveText(`+${amount.toLocaleString()} 金币`);
+  }
   await expect(page.locator('.inv-rank-emblem')).toHaveCount(1);
   await expect(page.locator('.inv-rows, .inv-rank-list, .inv-vp-rule')).toHaveCount(0);
   await expect(page.locator('.inv-attack.recommended')).toHaveCount(1);
@@ -187,5 +194,22 @@ for (const width of [1600, 390]) {
     await expect(hard.locator('.inv-attack')).toBeInViewport();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     await page.screenshot({ path: `artifacts/ux-phase-b/shots/gow-invasion-three-tiers-${width}.png` });
+  });
+}
+
+for (const width of [320, 390, 768, 1600]) {
+  test(`${width}px 入侵金币预览与出击按钮完整显示`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/game.html#invasion');
+    await expect(page.locator('.inv-gold-preview')).toHaveCount(3);
+    const fits = await page.locator('.inv-rival').evaluateAll(cards => cards.every(card => {
+      const bounds = card.getBoundingClientRect();
+      return [...card.querySelectorAll('.inv-gold-preview, .inv-attack')].every(el => {
+        const r = el.getBoundingClientRect();
+        return r.left >= bounds.left && r.right <= bounds.right + 1 && r.bottom <= bounds.bottom + 1
+          && el.scrollWidth <= el.clientWidth + 1;
+      });
+    }));
+    expect(fits).toBe(true);
   });
 }

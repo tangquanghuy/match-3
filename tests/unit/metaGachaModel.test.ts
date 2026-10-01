@@ -10,11 +10,11 @@ describe('宝石经济和抽卡模型',()=>{
   const b=gemBudget(BUDGET_SCENARIOS.standard!);expect(b.firstWin).toBe(350);expect(b.arenaRewards).toBe(0);expect(b.arenaFees).toBe(0);expect(b.netWeekly).toBe(350);
   const x=gemBudget({...BUDGET_SCENARIOS.standard!,otherWeeklySpending:100,gachaFraction:.5});expect(x.dailyGacha).toBeCloseTo(250*.5/7);
  });
- // 宝石箱对齐官方（2026-09-29）：传说 10.7% / 史诗 2% / 神话 0.2%（占全部开箱，含 20% 材料抽）
- it('名单指定卡传说平均约105抽、史诗约643抽；不把卡池总数用在名单内',()=>{
+ // 宝石箱当前权重：传说 10.7% / 史诗 2.5% / 神话 0.25%（占全部开箱，含 21.2% 材料抽）
+ it('名单指定卡传说平均约105抽、史诗约514抽；不把卡池总数用在名单内',()=>{
   expect(forecastTarget({rarity:3,batchSize:1}).meanFirst).toBeCloseTo(9/(.107*.8));
-  expect(forecastTarget({rarity:4,batchSize:1}).meanFirst).toBeCloseTo(9/(.02*.7));
-  expect(forecastTarget({rarity:5,batchSize:1}).meanFirst).toBeCloseTo(4500);
+  expect(forecastTarget({rarity:4,batchSize:1}).meanFirst).toBeCloseTo(9/(.025*.7));
+  expect(forecastTarget({rarity:5,batchSize:1}).meanFirst).toBeCloseTo(3600);
   expect(forecastTarget({rarity:3,selectedCount:1}).naturalPerPull).toBe(forecastTarget({rarity:3,selectedCount:9}).naturalPerPull);
  });
  it('按十连付费比命中位置略高，分位数按整批付费',()=>{
@@ -22,7 +22,7 @@ describe('宝石经济和抽卡模型',()=>{
   const q=1-.107*.8/9;expect(q**f.p90Paid).toBeLessThanOrEqual(.1);expect(q**(f.p90Paid-10)).toBeGreaterThan(.1);
  });
  it('首次追寻截断分布正确，已有199进度只需再付单抽或一组十连',()=>{
-  const f=forecastTarget({rarity:5,pursuitRemaining:200,batchSize:1});expect(f.meanFirst).toBeCloseTo((1-(1-1/4500)**200)/(1/4500));expect(f.p90Paid).toBe(200);
+  const f=forecastTarget({rarity:5,pursuitRemaining:200,batchSize:1});expect(f.meanFirst).toBeCloseTo((1-(1-1/3600)**200)/(1/3600));expect(f.p90Paid).toBe(200);
   expect(forecastTarget({rarity:5,pursuitRemaining:1}).meanPaid).toBe(10);expect(forecastTarget({rarity:5,pursuitRemaining:1,batchSize:1}).meanPaid).toBe(1);
  });
  it('零或负净收入不伪造可达日期；一次性库存与持续收入分开',()=>{
@@ -40,7 +40,7 @@ describe('宝石经济和抽卡模型',()=>{
  });
  it('活动里程碑、守土上限、入侵结算、寻宝终盘共享实际奖励表',()=>{
   const b=gemBudget({...BUDGET_SCENARIOS.light!,eventPoints:{invasion:2200,worldEvent:200},successfulDefenses:999,invasionDistribution:[.2,.5,.2,.1],hunt:{runs:2,meanFinalBoard:[60,0,0,0,0,2,1,1]}});
-  expect(b.events).toBe(600+600+80);expect(b.invasion).toBe(0);expect(b.hunt).toBeCloseTo(2*(2*20+100+300));
+  expect(b.events).toBe(600+600+80);expect(b.invasion).toBe(0);expect(b.hunt).toBeCloseTo(2*(2*14+70+210));
   expect(()=>gemBudget({...BUDGET_SCENARIOS.light!,hunt:{runs:1,meanFinalBoard:[1]}})).toThrow();
   expect(()=>gemBudget({...BUDGET_SCENARIOS.light!,invasionDistribution:[1,1,1,1]})).toThrow();
  });

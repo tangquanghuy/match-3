@@ -1,4 +1,4 @@
-import { rewardTowerHighTier } from '../eventHighTierRewards';
+import { rewardTowerBoss, rewardTowerHighTier } from '../eventHighTierRewards';
 /**
  * 末日之塔 · 肉鸽爬塔（2026-09-29 重做，参照《杀戮尖塔》的地图楼层结构；同日深化批）。
  *
@@ -816,6 +816,7 @@ export const towerMode: EventModeImpl<TowerState> = {
     run.path.push(node.row + '-' + node.col);
     run.floor = floor;
     lines.push(...rewardTowerHighTier(ctx.save, week, floor));
+    if (node.kind === 'boss') lines.push(...rewardTowerBoss(ctx.save, week, floor));
     week.eventData.floorBest = Math.max(week.eventData.floorBest ?? 0, floor);
     ctx.save.gifts.towerBest = Math.max(ctx.save.gifts.towerBest, week.eventData.floorBest);
     if (node.kind === 'elite') run.elites += 1;

@@ -111,3 +111,28 @@ describe('回收原语五件套（2026-09-17）', () => {
     expect(enemy.length).toBeGreaterThan(0);
   });
 });
+
+
+describe('藏宝图技能单场上限', () => {
+  it('重复施法最多两张，事件报告实际增量，后续伤害照常执行', () => {
+    const { ctx, state } = setup();
+    expect(executePrototype(skill(gainMaps(1)), ctx)).toMatchObject([{ type: 'economy-gain', amount: 1 }]);
+    expect(executePrototype(skill(gainMaps(2)), ctx)).toMatchObject([{ type: 'economy-gain', amount: 1 }]);
+    const events = executePrototype(skill(gainMaps(2), dmg('enemyFront', 3)), ctx);
+    expect(events.some(e => e.type === 'economy-gain')).toBe(false);
+    expect(events.some(e => e.type === 'skill-damage')).toBe(true);
+    expect(state.economy.maps).toBe(2);
+    expect(setup().state.economy.maps).toBe(0);
+  });
+});
+
+
+it('map-scaled damage uses the two actually collected maps after repeated casts', () => {
+  const { ctx } = setup();
+  executePrototype(skill(gainMaps(2)), ctx);
+  const events = executePrototype(skill(gainMaps(2), dmg('enemyFront', 1, 0, {
+    modifier: { mod: { kind: 'multiplier', a: 4 }, source: { kind: 'battleMaps' } },
+  })), ctx);
+  expect(events.filter(e => e.type === 'economy-gain')).toHaveLength(0);
+  expect(events.find(e => e.type === 'skill-damage')).toMatchObject({ damage: 9 });
+});

@@ -64,6 +64,27 @@ function codesAt(raw: unknown, path: string): string[] {
 }
 
 describe('BattleRequest 校验（需求 2.4、2.6）', () => {
+  describe.each(['playerBanner', 'enemyBanner'] as const)('%s aggregated boosts', (side) => {
+    it.each([-1, 0, 1, 2, 3, 4])('accepts integer %s on every base color', (amount) => {
+      for (const color of Object.values(BaseColor)) {
+        expect(validate(request({ [side]: { boosts: { [color]: amount } } })).ok).toBe(true);
+      }
+    });
+
+    it.each([-2, 5, 1.5, NaN, Infinity, -Infinity, '3', null, true])('rejects invalid amount %s', (amount) => {
+      expect(codesAt(request({ [side]: { boosts: { Red: amount } } }), `${side}.boosts.Red`))
+        .toEqual(['stat-range']);
+    });
+
+    it('rejects unknown colors and malformed boost containers', () => {
+      expect(codesAt(request({ [side]: { boosts: { Pink: 3 } } }), `${side}.boosts.Pink`))
+        .toEqual(['stat-range']);
+      for (const value of [null, [], {}, { boosts: null }, { boosts: [] }]) {
+        expect(codesAt(request({ [side]: value }), side)).toEqual(['bad-type']);
+      }
+    });
+  });
+
   it('合法 request 通过校验', () => {
     const result = validate(request());
     expect(result.ok).toBe(true);

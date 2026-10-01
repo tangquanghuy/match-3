@@ -1,3 +1,4 @@
+import { creditBattleMaps } from '../../battleMaps';
 /**
  * 战场经济效果原语（DECISIONS 四项拍板①）：金币 / 灵魂 / 宝石（钻石）三币种获得。
  *
@@ -30,7 +31,7 @@ export interface EconomyGainParams {
 export function economyGainEffect(params: EconomyGainParams): EffectPrimitive {
   return {
     apply(ctx: EffectContext): GameEvent[] {
-      const amount = evaluateWithModifier(
+      let amount = evaluateWithModifier(
         evaluateScaling(params.scaling, casterMagic(ctx)),
         params.modifier,
         ctx,
@@ -38,7 +39,9 @@ export function economyGainEffect(params: EconomyGainParams): EffectPrimitive {
       if (amount <= 0) return [];
       const side = effectCasterSide(ctx);
       if (params.currency === 'gold') creditGoldForSide(ctx.state, side, amount);
+      else if (params.currency === 'maps') amount = creditBattleMaps(ctx.state, amount);
       else ctx.state.economy[params.currency] += amount;
+      if (amount <= 0) return [];
       const event: EconomyGainEvent = {
         type: 'economy-gain',
         currency: params.currency,

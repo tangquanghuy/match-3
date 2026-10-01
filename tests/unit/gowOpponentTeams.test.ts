@@ -1,3 +1,4 @@
+import { battleMapDrop } from '../../src/meta/systems/battleMaps';
 import { invasionPoolLeague } from '../../src/meta/data/invasionDifficulty';
 import { COMMUNITY_DEFENSES } from '../../src/meta/data/communityDefenses';
 import { describe, it, expect } from 'vitest';
@@ -168,4 +169,28 @@ describe('Arena glory keys are spendable', () => {
     const s = newSave(); s.currencies.gloryKeys = 3; s.currencies.glory = 139;
     const before = structuredClone(s); expect(openGloryChest(s, 42, 10).ok).toBe(false); expect(s).toEqual(before);
   });
+});
+
+
+describe('battle map payout integration', () => {
+ it.each([
+   ['win-drop', 0, 'player', undefined, 1],
+   ['win-skill-and-drop', 1, 'player', undefined, 2],
+   ['win-cap', 99, 'player', undefined, 2],
+   ['defeat-skills', 99, 'enemy', undefined, 2],
+   ['defeat-no-drop', 0, 'enemy', undefined, 0],
+   ['surrender', 99, 'enemy', 'surrender', 0],
+ ] as const)('%s', (_name, maps, winner, endReason, expected) => {
+  const requestId = Array.from({ length: 10000 }, (_, i) => `map-integration-${i}`).find(requestId => battleMapDrop({ requestId, winner: 'player' }) === 1)!;
+  expect(requestId).toBeTruthy();
+  const r: BattleResult = { schemaVersion: 1, rulesetVersion: '1.1.0', battleId: 'map-integration', requestId, seed: 1,
+    winner, endReason, turns: 1, combatants: [], defeatedExternalIds: [], summonedCount: 0,
+    actionLogDigest: '', eventSummary: [], economy: { gold: 0, souls: 0, gems: 0, maps } };
+
+  const s = drafted(); startArenaBattles(s);
+  const before = s.materials.treasureMaps;
+  const out = settleArenaBattle(s, r);
+  expect(out).toMatchObject({ ok: true, collected: { maps: expected } });
+  expect(s.materials.treasureMaps - before).toBe(expected);
+ });
 });

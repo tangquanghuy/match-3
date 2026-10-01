@@ -1,11 +1,13 @@
 /** Player/hero/sandbox progression (1..100).
- * Imported GoWHead rows use actual per-level gains through 20. Index 0 is level 1;
+ * Ordinary imported GoWHead rows use per-level gains through 20. Index 0 is level 1;
  * indices 1..19 are increments for levels 2..20. The legacy average shape remains
  * only for heroes and community troops without imported progression.
- * Levels 21..100 retain the project sandbox extension; NPC difficulty is separate
+ * Immortals instead spread the imported growth total across levels 1..30.
+ * Ordinary levels 21..100 retain the project sandbox extension; NPC difficulty is separate
  * in meta/data/enemyDifficulty.ts. Provenance and deviations: docs/GOW-NUMERIC-AUDIT.md.
  */
 import type { TroopData } from './troops';
+import { isImmortal, IMMORTAL_MAX_LEVEL } from './immortals';
 import progressionData from './troop-progression.json';
 
 export interface TroopProgression {
@@ -15,7 +17,7 @@ export interface TroopProgression {
 export const TROOP_PROGRESSION: Readonly<Record<string, TroopProgression>> = progressionData as unknown as Readonly<Record<string, TroopProgression>>;
 
 /** 曲线版本。改动任何锚点或外推节奏都要递增，便于宿主判断数值口径。 */
-export const LEVEL_CURVE_VERSION = 2;
+export const LEVEL_CURVE_VERSION = 3;
 
 export const MIN_LEVEL = 1;
 /** 导入逐级表覆盖到这一级；之后走外推段 */
@@ -104,6 +106,16 @@ export function troopStatsAtLevel(troop: TroopData, level: number): LeveledStats
   const lv = clampLevel(level);
   const progression = TROOP_PROGRESSION[troop.id];
   const value = (stat: StatKey): number => {
+    if (isImmortal(troop)) {
+      // Project curve: spread the imported total over 29 upgrades, not levels 2..8.
+      // The official announcement establishes the cap, not a per-level stat table.
+      const base = troop.base?.[stat] ?? troop[stat];
+      const total = progression
+        ? progression.growth[stat].reduce((sum, n) => sum + n, 0)
+        : Math.max(0, troop[stat] - base);
+      const progress = Math.min(lv, IMMORTAL_MAX_LEVEL) - MIN_LEVEL;
+      return base + Math.floor(total * progress / (IMMORTAL_MAX_LEVEL - MIN_LEVEL));
+    }
     if (!progression) return statAtLevel(stat, troop.base?.[stat] ?? 0, troop[stat], lv);
     // Index 0 belongs to level 1 (zero); indices 1..19 are actual level-up gains.
     const gain = progression.growth[stat].slice(0, Math.min(lv, OFFICIAL_MAX_LEVEL)).reduce((sum, n) => sum + n, 0);

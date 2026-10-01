@@ -9,6 +9,8 @@
  *  - 奖励/营地/商人/奇遇弹层可「收起查看地图」。
  * 客户端行为（拖拽、滚动记忆、面板开关）在 mountTowerBoard，由 eventsScreen.mount 调用。
  */
+import { TOWER_BOSS_REWARDS, towerBossRewardKey } from '../../data/events';
+import { INGOT_NAMES, type IngotKey } from '../../data/materials';
 import { characterPortrait, type CharacterProfile } from '../../state/character';
 import {
   TOWER_AFFIXES, TOWER_BLESSINGS, TOWER_EVENTS, TOWER_NODE_INFO, TOWER_RELICS, TOWER_RUNES, TOWER_TUNING, TOWER_ZONES,
@@ -92,7 +94,7 @@ function affixChips(node: TowerNode, withDesc = false): string {
   }).join('');
 }
 
-function rewardPreview(node: TowerNode): string {
+function rewardPreview(node: TowerNode, v: ViewCtx, run: TowerRun): string {
   const [bl, bh] = TOWER_TUNING.goldBattle;
   const [el, eh] = TOWER_TUNING.goldElite;
   const [tl, th] = TOWER_TUNING.treasureGold;
@@ -100,7 +102,13 @@ function rewardPreview(node: TowerNode): string {
   switch (node.kind) {
     case 'battle': return `符文 / 灵纹三选一 · 塔金 ${bl}–${bh}`;
     case 'elite': return node.star ? `稀有遗物三选一 · 塔金 ${Math.round(el * m)}–${Math.round(eh * m)}` : `遗物三选一 · 塔金 ${el}–${eh}`;
-    case 'boss': return `首领遗物三选一 · 塔金 ${TOWER_TUNING.goldBoss} · 全队回复 ${Math.round(TOWER_TUNING.bossHealPct * 100)}%`;
+    case 'boss': {
+      const reward = TOWER_BOSS_REWARDS.find(r => r.floor === towerFloorOf(run.zone, node.row));
+      const materials = reward ? Object.entries(reward.mats.ingots ?? {}).map(([key, n]) => `${INGOT_NAMES[key as IngotKey]} ×${n}`).join('、')
+        + `、特质石 ×${Object.values(reward.mats.traitstones ?? {}).reduce((sum, n) => sum + (n ?? 0), 0)}` : '';
+      const status = reward && v.week.eventData[towerBossRewardKey(reward.floor)] ? '本周已领' : '本周首通保底';
+      return `首领遗物三选一 · 塔金 ${TOWER_TUNING.goldBoss} · 全队回复 ${Math.round(TOWER_TUNING.bossHealPct * 100)}%${materials ? ` · ${status}：${materials}` : ''}`;
+    }
     case 'camp': return '休整 / 磨砺 / 冥想 / 招魂 四选一';
     case 'treasure': return `一件遗物 + 塔金 ${tl}–${th}`;
     case 'merchant': return '遗物、治疗、驱除诅咒，可付费换一批货';
@@ -329,7 +337,7 @@ function detailHtml(v: ViewCtx, run: TowerRun): string {
       <div class="tw-detail-copy">
         <b>${nodeTitle(run, node)}${status}</b>
         <span>${esc(info.hint)}</span>
-        <span class="tw-detail-meta">${battle ? `<i>敌人 Lv.${towerNodeLevel(run.zone, node)}</i>` : ''}<i>奖励：${rewardPreview(node)}</i></span>
+        <span class="tw-detail-meta">${battle ? `<i>敌人 Lv.${towerNodeLevel(run.zone, node)}</i>` : ''}<i>奖励：${rewardPreview(node, v, run)}</i></span>
         ${node.affix ? `<span class="tw-affix-row">${affixChips(node, true)}</span>` : ''}
       </div>
       <div class="tw-detail-act">${action}</div>
@@ -463,6 +471,7 @@ function startHtml(v: ViewCtx, state: TowerState): string {
       <section class="tw-start-hero">
         <h3>登上末日之塔</h3>
         <p>25 层，三个区域，每区一张随机分叉的地图。自己决定走哪条路：多打精英换遗物，还是绕去营地保命。队伍生命与阵亡一路延续，战败即结束。</p>
+        <p>第 8 / 16 / 25 层首领每周首通，额外保底获得钢锭与特质石，胜利时自动入账。<a href="#events/towerOfDoom/rewards">查看通关材料</a></p>
         <div class="tw-start-stats"><span>本周最高 <b>${best}</b> / ${TOWER_FLOORS} 层</span><span>本周登塔 <b>${state.runs}</b> 轮</span><span>遗物 <b>${TOWER_RELICS.length}</b> 件</span></div>
         ${last}
         ${faces ? `<div class="tw-start-team"><small>出战队伍（开始后锁定到本轮结束）</small><ul>${faces}</ul><a href="#team"><span data-icon="gear"></span>调整编队</a></div>` : ''}

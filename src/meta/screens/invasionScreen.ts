@@ -1,3 +1,4 @@
+import { invasionVictoryGold } from '../systems/invasionGold';
 import { defenseRewardsReady } from '../systems/invasionDefense';
 import { invasionDefensePanel, invasionDefenseLogPanel } from './invasionDefensePanel';
 import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY, INVASION_RANK_GEMS_TOTAL } from '../data/invasionRanks';
@@ -153,7 +154,7 @@ export class InvasionScreen implements Screen {
             </div>
             <div class="inv-rival-defense" aria-label="防守队阵容">${defense}</div>
             <div class="inv-rival-footer">
-              <div class="inv-rival-expected"><small>胜利获得</small><b>+${victoryVp} <em>VP</em></b></div>
+              <div class="inv-rival-expected"><small>胜利获得</small><b>+${victoryVp} <em>VP</em></b><strong class="inv-gold-preview" data-gold="${invasionVictoryGold(m)}">+${invasionVictoryGold(m).toLocaleString()} 金币</strong></div>
               <small class="inv-rival-risk">战败 −${INVASION.vpLoss} VP</small>
               <button class="inv-attack${recommended ? ' recommended' : ''}" data-invade="${m.id}" data-recommended="${recommended}" type="button" aria-label="出击 ${escapeHtml(m.name)}"><span data-icon="swords"></span>出击</button>
             </div>
@@ -191,7 +192,7 @@ export class InvasionScreen implements Screen {
     const rankPager = `<nav class="inv-rank-pager" aria-label="官阶分页">${Array.from({length: pageCount}, (_, i) => `<a href="#invasion/ranks/${i}"${i === rankPage ? ' aria-current="page"' : ''}>${pageSize === 3 ? INVASION_LEAGUES[i] : `${INVASION_LEAGUES[i * 2]} · ${INVASION_LEAGUES[i * 2 + 1]}`}</a>`).join('')}</nav>`;
     const rules = `<div class="inv-rules-body">
       <h2>官阶与战绩</h2><p>本周获得的 VP 达到门槛立即晋阶，战败不减少晋阶进度。每周重置官阶进度和领奖记录，每阶每周领取一次；钻石 III 开放周榜排名。周榜优先由同段位的真人指挥官组成，人数不足 ${INVASION.bracketSize + 1} 人时由模拟对手补位。</p>
-      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。对手可能是「真人镜像」：其他指挥官部署的防守队伍，由 AI 代为操作，按双方队伍强度分入低／中／高档；官阶越高，真人镜像越多；血怒也可能出现在真人镜像身上。在「领地防守」独立部署防守队伍，供其他指挥官挑战；对手结算后记入防守战报，守胜 +2 榜单 VP、失守 −2 榜单 VP（最低 0），不回退晋阶进度。守胜奖励存入防守宝库后手动领取，失守记录可发起一次复仇战。尚未配置时首次同步采用当前出战队。已生成的对手与已开始的战斗保持当时快照。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
+      <h2>三档对手</h2><p>每次提供三名对手，自由选择挑战。免费刷新，不限次数；官阶越高，对手越强。对手可能是「真人镜像」：其他指挥官部署的防守队伍，由 AI 代为操作，按双方队伍强度分入低／中／高档；官阶越高，真人镜像越多；血怒也可能出现在真人镜像身上。在「领地防守」独立部署防守队伍，供其他指挥官挑战；对手结算后记入防守战报，守胜 +2 榜单 VP、失守 −2 榜单 VP（最低 0），不回退晋阶进度。守胜奖励存入防守宝库后手动领取，失守记录可发起一次复仇战。尚未配置时首次同步采用当前出战队。已生成的对手与已开始的战斗保持当时快照。</p><h2>战斗金币</h2><p>胜利获得 300～3,000 金币，随敌方官阶、队伍等级与属性评分提高；卡片显示基础总额，战斗中收集的金币另计。血怒不直接倍增金币，增强后的属性会计入奖励。</p><h2>胜负与积分</h2><p>三档对手每胜分别获得 ${INVASION_VP_BY_DIFFICULTY.easy}／${INVASION_VP_BY_DIFFICULTY.normal}／${INVASION_VP_BY_DIFFICULTY.hard} VP，不受等级、回合数或存活人数影响。血怒对手随机出现，阵容与基础属性更强：×1.5 血怒基础属性提升 25%，×2 血怒提升 50%，胜利 VP 按标示倍率增加；并非每次刷新都会出现。战败扣 ${INVASION.vpLoss} 榜单 VP，保底为零，不扣晋阶 VP。每周一重置，未领取奖励过期；每周全部领取共 ${INVASION_RANK_GEMS_TOTAL.toLocaleString()} 宝石。</p>
       <h2>荣耀奖励</h2><p>胜利获得荣耀；每日首胜另有奖励。20 荣耀可在宝箱殿兑换荣耀箱。</p>
     </div>`;
     const secondaryContent = secondary === 'defense-log' ? invasionDefenseLogPanel(save, now) : secondary === 'defense' ? invasionDefensePanel(save) : secondary === 'standings'

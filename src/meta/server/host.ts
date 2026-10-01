@@ -1,4 +1,4 @@
-import { defenseRecord, emptyDefenseLog } from '../systems/invasionDefense';
+import { defenseRecord, defensePublicationStamp, emptyDefenseLog } from '../systems/invasionDefense';
 /**
  * 玩家 Actor：一个玩家一个实例，在线期间存档常驻内存。
  *
@@ -66,6 +66,8 @@ export class MetaHost {
   /** 已提交、待写共享池的副作用 */
   private readonly effects: CommandEffects[] = [];
   private createdFresh = false;
+  /** Success-only cache. D1 also suppresses unchanged writes after a cold start. */
+  private reportedVpKey: string | null = null;
 
   constructor(
     private readonly repo: SaveRepository,
@@ -105,8 +107,12 @@ export class MetaHost {
       const io = await this.prefetch(command);
       const outcome = runCommand(this.save!, command, this.env, io);
       const committed = outcome.commit ? this.apply(outcome.save) : false;
-      if (committed && outcome.effects) this.effects.push(outcome.effects);
-      if (!committed && !forfeited) return { result: outcome.result, patch: null, serverNow: this.env.now() };
+      if (outcome.effects) this.effects.push(outcome.effects);
+      const failed = typeof outcome.result === 'object' && outcome.result !== null
+        && 'ok' in outcome.result && outcome.result.ok === false;
+      if (!committed && !forfeited && failed) {
+        return { result: outcome.result, patch: null, revision: this.save!.revision, serverNow: this.env.now() };
+      }
 
       if (forfeited || isCriticalCommand(command.type) || (this.options.flushDelayMs ?? 0) <= 0) await this.flushNow();
       else this.scheduleFlush();
@@ -114,7 +120,9 @@ export class MetaHost {
 
       return {
         result: outcome.result,
-        patch: buildPatch(start.revision, this.save!.revision, diffRecords(startRecords, this.records)),
+        patch: start.revision === this.save!.revision ? null
+          : buildPatch(start.revision, this.save!.revision, diffRecords(startRecords, this.records)),
+        revision: this.save!.revision,
         serverNow: this.env.now(),
       };
     });
@@ -156,8 +164,10 @@ export class MetaHost {
     });
     const power = needs.mirrors ? invasionPlayerPower(save) : 0;
     const slack = command.type === 'settleBattle' ? 1 : 0; // 结算后可能升一个联赛
+    const query = invasionPoolQuery(league, power, now, slack);
+    if (command.type === 'regionalAction') Object.assign(query, { leagueMin: 0, leagueMax: 9, powerMin: 1, powerMax: 100000, limit: 60 });
     const [mirrorPool, standings] = await Promise.all([
-      !needs.mirrors ? undefined : power <= 0 ? [] : guard(pool.sample(invasionPoolQuery(league, power, now, slack))),
+      !needs.mirrors ? undefined : power <= 0 ? [] : guard(pool.sample(query)),
       needs.standings ? guard(pool.standings({ weekStart: week, league, limit: INVASION.bracketSize })) : undefined,
     ]);
     return {
@@ -222,8 +232,17 @@ export class MetaHost {
     const lastVp = [...queued].reverse().find(e => e.reportVp)?.reportVp;
     await Promise.all([
       ...queued.filter(e => e.publishMirror).map(e => pool.publish(e.publishMirror!).catch(onError)),
-      lastVp ? pool.reportVp(lastVp).catch(onError) : undefined,
+      lastVp ? this.reportVpIfChanged(pool, lastVp).catch(onError) : undefined,
     ]);
+  }
+
+  private async reportVpIfChanged(pool: InvasionMirrorPool, report: NonNullable<CommandEffects['reportVp']>): Promise<void> {
+    const key = `${report.weekStart}:${report.league}:${Math.round(report.vp)}`;
+    if (key === this.reportedVpKey) return;
+    // A lost acknowledgement may have changed D1: do not retain an older success.
+    this.reportedVpKey = null;
+    await pool.reportVp(report);
+    this.reportedVpKey = key;
   }
 
   /** Delivery is at-least-once; shared storage deduplicates by attacker + authoritative ticket. */
@@ -234,11 +253,11 @@ export class MetaHost {
     if (!pool || (reports.length === 0 && !publish)) return;
     await this.flushNow(); // persist result + outbox before touching shared storage
     const delivered = new Set<string>();
-    let published = false;
+    let published: MetaSave['invasion']['lastDefensePublish'] = null;
     if (publish) {
       const record = defenseRecord(this.save!, this.env.now());
       if (record) {
-        try { await pool.publish(record); published = true; }
+        try { await pool.publish(record); published = defensePublicationStamp(record); }
         catch (error) { this.options.onMirrorPoolError?.(error); }
       }
     }
@@ -249,7 +268,10 @@ export class MetaHost {
     }
     if (delivered.size || published) {
       const next = structuredClone(this.save!);
-      if (published) next.invasion.defensePublishPending = false;
+      if (published) {
+        next.invasion.defensePublishPending = false;
+        next.invasion.lastDefensePublish = published;
+      }
       next.invasion.defenseOutbox = next.invasion.defenseOutbox.filter(r => !delivered.has(r.id));
       next.revision += 1;
       this.apply(next);
@@ -277,7 +299,7 @@ export class MetaHost {
   }
 
   private scheduleFlush(): void {
-    if (this.flushScheduled) return;
+    if (this.flushScheduled || this.dirty.size === 0) return;
     this.flushScheduled = true;
     const schedule = this.options.schedule ?? ((ms, run) => void setTimeout(run, ms));
     schedule(this.options.flushDelayMs ?? 0, () => {

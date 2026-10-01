@@ -4754,3 +4754,17 @@
 }
 
 .inspect-spell strong.spell-couplet { white-space: pre-line; font-size: 16px; line-height: 1.6; letter-spacing: .04em; }
+
+/* Existing talent-tree sheet: expose horizontal navigation on narrow touch screens. */
+.tree-swipe-tip { display: none; }
+@media (max-width: 700px) {
+  .tree-swipe-tip { display: block; padding: 4px 12px 5px; color: #cbb583; text-align: right; background: #181a1f; font-size: 10px; border-bottom: 1px solid rgba(186,164,139,.18); }
+  .tree-body .tier-rail, .tree-body .tree-corner { position: sticky; left: 0; z-index: 2; background: #181a20; }
+  .tree-body .tree-corner { z-index: 3; }
+}
+/* A phone rotated to landscape is wider than the portrait breakpoint but still short. */
+@media (max-width: 900px), (max-height: 600px) {
+  #stage.hero-responsive .tree-sheet { width: calc(100vw - 20px); height: calc(100dvh - 20px); max-height: none; }
+  #stage.hero-responsive .tree-body { flex: 1; min-height: 0; max-height: none; overflow: auto; padding: 8px 10px 14px; }
+  #stage.hero-responsive .tree-body .talent-tree { min-width: 680px; }
+}

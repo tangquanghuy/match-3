@@ -26,25 +26,25 @@ const save = (gems = 0, goldKeys = 0) =>
 
 describe('宝石宝箱（150 单抽 / 1500 十连保底稀有或以上）', () => {
   afterEach(() => vi.restoreAllMocks());
-  it('养成供给权重：部队 69.5%（不出普通/精良，神话维持 0.2%）+ 金属锭 10% + 特质石 20.5%', () => {
-    expect(GEM_CHEST_WEIGHTS).toEqual([0, 0, 5660, 1070, 200, 20]);
-    expect(GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0)).toBe(6950);
+  it('养成供给权重：部队 78.8%（史诗 2.5%、神话 0.25%）+ 金属锭 10% + 特质石 11.2%', () => {
+    expect(GEM_CHEST_WEIGHTS).toEqual([0, 0, 6535, 1070, 250, 25]);
+    expect(GEM_CHEST_WEIGHTS.reduce((a, b) => a + b, 0)).toBe(7880);
     const extra = GEM_CHEST_EXTRA.reduce((a, row) => a + row.weight, 0);
-    // 材料表是十万分比，必须恰好补满宝石箱剩余的 30.5%
-    expect(extra / CHEST_LOOT_BASE).toBeCloseTo((GEM_CHEST_BASE - 6950) / GEM_CHEST_BASE, 10);
+    // 材料表是十万分比，必须恰好补满宝石箱剩余的 21.2%
+    expect(extra / CHEST_LOOT_BASE).toBeCloseTo((GEM_CHEST_BASE - 7880) / GEM_CHEST_BASE, 10);
     const sum = (group: string) => GEM_CHEST_EXTRA.filter((row) => row.group === group).reduce((a, row) => a + row.weight, 0);
-    expect([sum('ingot'), sum('stone')]).toEqual([10_000, 20_500]);
+    expect([sum('ingot'), sum('stone')]).toEqual([10_000, 11_200]);
     expect(GACHA_PITY_MIN_IDX).toBe(2);
   });
 
-  it('特质石概率随稀有度递减，秘法不超过2%、圣辉不超过0.5%，全部每次1颗', () => {
+  it('特质石概率不随稀有度倒挂，秘法1%、圣辉0.2%，全部每次1颗', () => {
     const stones = GEM_CHEST_EXTRA.filter(row => row.loot.type === 'stone');
     expect(stones.map(row => [row.loot.type === 'stone' && row.loot.tier, row.weight, row.loot.type === 'stone' && row.loot.amount]))
-      .toEqual([['major', 10_000, 1], ['runic', 8_000, 1], ['arcane', 2_000, 1], ['celestial', 500, 1]]);
+      .toEqual([['major', 5_000, 1], ['runic', 5_000, 1], ['arcane', 1_000, 1], ['celestial', 200, 1]]);
     const probabilities = stones.map(row => row.weight / CHEST_LOOT_BASE);
-    expect(probabilities[2]).toBeLessThanOrEqual(.02);
-    expect(probabilities[3]).toBeLessThanOrEqual(.005);
-    for (let i = 1; i < probabilities.length; i++) expect(probabilities[i]).toBeLessThan(probabilities[i - 1]!);
+    expect(probabilities[2]).toBe(.01);
+    expect(probabilities[3]).toBe(.002);
+    for (let i = 1; i < probabilities.length; i++) expect(probabilities[i]).toBeLessThanOrEqual(probabilities[i - 1]!);
   });
 
   it.each(GEM_CHEST_EXTRA.map((row, index) => ({ row, index })))('材料行 $index 实际抽取只入库1件', ({ row, index }) => {

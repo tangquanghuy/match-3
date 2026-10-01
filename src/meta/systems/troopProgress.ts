@@ -1,10 +1,12 @@
+import { burningSoulCost } from '../data/regionalPvp';
+import { isImmortal, immortalTraitBurningCost, IMMORTAL_MAX_LEVEL } from '../../data/immortals';
 /**
  * 部队养成系统（M1/M4 的逻辑部分）——升级 / 升阶 / 特质解锁 / 分解 / 入册。
  *
  * 规则与项目差异见 docs/GOW-NUMERIC-AUDIT.md；数值单源在 data/economy.ts：
  *  - 等级上限按基础稀有度 15..20，升阶提档 +1 上限；
  *  - 升阶同名卡 5/10/25（不耗本体）；升阶后四维按新上限重算，全副本生效（存档每卡一份）；
- *  - 特质按逐卡配方只耗特质石，槽位有前置顺序，与玩家卡等级独立；
+ *  - 特质按逐卡配方耗特质石，不朽额外耗燃烧灵魂，槽位有前置顺序，与玩家卡等级独立；
  *  - 分解只拆多余副本（本体不可拆），locked 保护，不回收已投入养成。
  *
  * 所有函数直接改传入的 save（调用方自行 persist），失败返回 MetaFailure 且存档不被改动。
@@ -70,7 +72,7 @@ export function rarityTierOf(troop: TroopData, rec: TroopRecord): number {
 }
 
 export function levelCapOf(troop: TroopData, rec: TroopRecord): number {
-  return levelCapFor(troop.rarityIdx, rec.ascension);
+  return isImmortal(troop) ? IMMORTAL_MAX_LEVEL : levelCapFor(troop.rarityIdx, rec.ascension);
 }
 
 /** 战斗桥接用：当前等级四维（升阶只抬高上限，数值由等级驱动） */
@@ -83,7 +85,7 @@ export function troopStatsOf(troop: TroopData, rec: TroopRecord): LeveledStats {
 // ---------------------------------------------------------------------------
 
 export type LevelUpResult =
-  | { ok: true; from: number; to: number; soulsSpent: number }
+  | { ok: true; from: number; to: number; soulsSpent: number; burningSpent?: number }
   | MetaFailure;
 
 /** 升到 targetLevel（支持一次多级；上限按当前稀有度档硬截断） */
@@ -95,15 +97,18 @@ export function levelUp(save: MetaSave, troopId: number, targetLevel: number): L
   if (!Number.isInteger(targetLevel)) return fail('INVALID', '目标等级必须是整数');
   const cap = levelCapOf(troop, rec);
   if (targetLevel > cap) {
-    return fail('AT_CAP', `已达当前稀有度上限 ${cap} 级，升阶可提升`);
+    return fail('AT_CAP', isImmortal(troop) ? `不朽等级上限为 ${cap} 级` : `已达当前稀有度上限 ${cap} 级，升阶可提升`);
   }
   if (targetLevel <= rec.level) return fail('INVALID', '目标等级需高于当前等级');
   const cost = totalSoulCost(troop.rarityIdx, rec.level, targetLevel);
+  const burning = isImmortal(troop) ? burningSoulCost(rec.level, targetLevel) : 0;
+  if ((save.regional?.burningSouls ?? 0) < burning) return fail('INSUFFICIENT', `燃烧灵魂不足：需要 ${burning}`);
   const paid = spend(save, { souls: cost });
   if (!paid.ok) return paid;
+  if (burning && save.regional) save.regional.burningSouls -= burning;
   const from = rec.level;
   rec.level = targetLevel;
-  return { ok: true, from, to: targetLevel, soulsSpent: cost };
+  return { ok: true, from, to: targetLevel, soulsSpent: cost, ...(burning ? { burningSpent: burning } : {}) };
 }
 
 // ---------------------------------------------------------------------------
@@ -136,11 +141,11 @@ export function ascend(save: MetaSave, troopId: number): AscendResult {
 }
 
 // ---------------------------------------------------------------------------
-// 特质解锁（逐卡配方，只消耗特质石）
+// 特质解锁（逐卡特质石配方，不朽额外消耗燃烧灵魂）
 // ---------------------------------------------------------------------------
 
 export type UnlockTraitResult =
-  | { ok: true; slot: number; cost: { gold: number; stones: Record<string, number> } }
+  | { ok: true; slot: number; cost: { gold: number; stones: Record<string, number> }; burningSpent?: number }
   | MetaFailure;
 
 /** 解锁第 slot（1 起）个特质；槽位按顺序解锁（GoW 语义）。消耗本卡主色的特质石 */
@@ -158,10 +163,13 @@ export function unlockTrait(save: MetaSave, troopId: number, slot: number): Unlo
   }
   const primaryColor = stoneColorKeyOf(troop.manaColors[0] ?? BaseColor.Brown);
   const cost = traitUnlockCost(slot, primaryColor, troop.id);
+  const burning = immortalTraitBurningCost(troop, slot);
+  if ((save.regional?.burningSouls ?? 0) < burning) return fail('INSUFFICIENT', `燃烧灵魂不足：需要 ${burning}`);
   const paidMaterials = spendMaterials(save, { traitstones: cost.stones });
   if (!paidMaterials.ok) return paidMaterials;
+  if (burning && save.regional) save.regional.burningSouls -= burning;
   rec.traits[slot - 1] = true;
-  return { ok: true, slot, cost };
+  return { ok: true, slot, cost, ...(burning ? { burningSpent: burning } : {}) };
 }
 
 // ---------------------------------------------------------------------------

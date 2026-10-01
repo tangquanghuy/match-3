@@ -256,3 +256,8 @@
   .banner-veil .banner-opt-name b { font-size: 18px; }
   .banner-veil .banner-opt[data-banner=""] { min-height: 44px; padding: 10px 12px; }
 }
+
+/* Regional preparation keeps the full editor on its own page. */
+.regional-team-context { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; margin-bottom:12px; border:1px solid #b6a17166; background:#142833; color:#d9c89d; font-size:13px; flex-shrink:0; }
+.regional-team-context a { color:#f3dfac; text-decoration:none; border:1px solid #b6a17166; border-radius:4px; padding:10px 14px; white-space:nowrap; }
+@media(max-width:700px) { .regional-team-context { flex-wrap:wrap; line-height:1.6; } .regional-team-context a { margin-left:auto; } }

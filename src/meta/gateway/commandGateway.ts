@@ -1,3 +1,4 @@
+import type { RegionalAction, RegionalPlanArgs } from '../systems/regionalPvp';
 import type { MaterialShopRequest } from '../systems/materialShop';
 /**
  * 命令网关：把 MetaGateway 的每个方法翻译成一条命令，经 MetaTransport 送到权威核心。
@@ -66,6 +67,8 @@ export class CommandGateway implements MetaGateway {
 
   // —— 系统 ——
 
+  regionalAction(args: RegionalAction) { return this.cmd('regionalAction', args); }
+  planRegionalBattle(args: RegionalPlanArgs) { return this.plan('planRegionalBattle', args); }
   markMaterialsSeen() { return this.cmd('markMaterialsSeen', {}); }
   markMapSeen(level: number) { return this.cmd('markMapSeen', { level }); }
   createCharacter(input: import('../state/character').CreateCharacterInput) { return this.cmd('createCharacter', input); }
@@ -99,7 +102,7 @@ export class CommandGateway implements MetaGateway {
     return this.cmd('pickHeroTalent', { classId, tierIndex, talentCode });
   }
   clearHeroTalent(classId: string, tierIndex: number) { return this.cmd('clearHeroTalent', { classId, tierIndex }); }
-  unlockHeroTrait(slot: number) { return this.cmd('unlockHeroTrait', { slot }); }
+  unlockHeroTrait(slot: number, classId?: string) { return this.cmd('unlockHeroTrait', { slot, ...(classId ? { classId } : {}) }); }
   pickManaMastery(color: string) { return this.cmd('pickManaMastery', { color }); }
   temperWeapon(weaponId: string) { return this.cmd('temperWeapon', { weaponId }); }
 
@@ -168,6 +171,7 @@ export class CommandGateway implements MetaGateway {
 
   // —— 寻宝 ——
 
+  finishTreasureHunt() { return this.cmd('finishTreasureHunt', {}); }
   startTreasureHunt() { return this.cmd('startTreasureHunt', {}); }
   playTreasureHunt(from: number, to: number) { return this.cmd('playTreasureHunt', { from, to }); }
 
@@ -186,6 +190,9 @@ export class CommandGateway implements MetaGateway {
           await this.sync();
         }
       }
+    } else if (reply.revision !== undefined && reply.revision > this.current().revision) {
+      // Another tab, or a lost reply followed by an idempotent retry.
+      await this.sync();
     }
     return { result: reply.result, save: this.current() };
   }

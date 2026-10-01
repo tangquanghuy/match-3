@@ -176,7 +176,7 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(save.currencies.gold).toBe(2000 + 60 + 60); // 收集 60 + 胜利 60（无击杀行）
     expect(save.currencies.souls).toBe(800 + 85 + 30);
     expect(save.currencies.gems).toBe(150 + 5 + 50 + 100);
-    expect(save.materials.treasureMaps).toBe(3);
+    expect(save.materials.treasureMaps).toBe(2);
   });
 
   it('幽灵击杀（不在出敌计划里）不记账', () => {

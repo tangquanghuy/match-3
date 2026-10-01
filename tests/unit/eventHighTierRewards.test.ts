@@ -78,7 +78,8 @@ describe('高阶活动奖励按真实难度结算', () => {
     }
     expect(reached).toBe(25);
     expect(w.eventData).toMatchObject({ arcaneTower16: 1, arcaneTower20: 1, arcaneTower25: 1 });
-    for (const key of EVENT_ARCANE_STONES.towerOfDoom) expect(s.materials.traitstones[key]).toBe(6);
+    // 原高层奖励各 6 + 三区通关材料各 3；独立奖励叠加。
+    for (const key of EVENT_ARCANE_STONES.towerOfDoom) expect(s.materials.traitstones[key]).toBe(9);
     // 结算总圣辉包含已有积分里程碑，检查高难结算行的来源由独立账本保证。
     expect(s.materials.traitstones.celestial).toBeGreaterThanOrEqual(1);
   });

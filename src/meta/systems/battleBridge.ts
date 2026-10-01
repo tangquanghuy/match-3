@@ -25,7 +25,7 @@ import { fallbackPrototype } from '../../engine/skills/prototypes';
 import { registerSkillLibrary } from '../../engine/skills/library';
 import { CATALOG_WEAPONS } from '../data/weaponCatalog';
 import { fail, type MetaFailure } from '../types';
-import { activeTeam } from './teamRules';
+import { activeTeam, immortalTeamIssue } from './teamRules';
 import { equippedBannerOf } from './banners';
 import { combatManaMastery, toEngineMastery } from './manaMastery';
 import { getRecord } from './troopProgress';
@@ -187,6 +187,9 @@ export function buildPlayerSnapshots(
 ): { ok: true; playerTeam: CombatantSnapshot[]; team: TeamPreset } | MetaFailure {
   const team = activeTeam(save);
   if (!team) return fail('NO_TEAM', '没有可用队伍：先在编队页保存一支 4 人队');
+
+  const immortalIssue = immortalTeamIssue(team.members);
+  if (immortalIssue) return fail('INVALID', immortalIssue.message);
 
   const playerTeam: CombatantSnapshot[] = [];
   const statBonus = kingdomBonusOf(save);

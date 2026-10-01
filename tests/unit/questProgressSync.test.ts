@@ -21,6 +21,8 @@ describe('通关进度与存档版本重同步', () => {
   it.each(['normal', 'hard', 'veryHard'] as const)('%s: 出战时副本落后，重同步不应作废刚签发的战斗票', async mode => {
     const storage = memoryStorage();
     const transport = new LocalTransport(storage);
+    // Tier 2 is the demo default: establish tier 1 before taking either snapshot.
+    if (mode === 'veryHard') await transport.send({ type: 'setKingdomExploreTier', args: { kingdom: allKingdoms()[0]!, tier: 1 } });
     const player = new CommandGateway(transport);
     const other = new CommandGateway(transport);
     await player.load();
@@ -75,7 +77,7 @@ describe('战斗重同步与乱序响应边界', () => {
       }
       return reply;
     });
-    const select = player.setKingdomExploreTier(allKingdoms()[0]!, 2);
+    const select = player.setKingdomExploreTier(allKingdoms()[0]!, 1);
     await sent.promise;
     const ticket = await player.planExploreBattle(allKingdoms()[0]!);
     if (!ticket.ok) throw new Error(ticket.message);
@@ -85,7 +87,7 @@ describe('战斗重同步与乱序响应边界', () => {
     held.resolve();
     await select;
     expect(player.current()).toEqual(after);
-    expect(player.current().kingdoms[allKingdoms()[0]!]!.exploreRun).toMatchObject({ tier: 2, stage: 1 });
+    expect(player.current().kingdoms[allKingdoms()[0]!]!.exploreRun).toMatchObject({ tier: 1, stage: 1 });
   });
 
   it('较旧快照晚到时，不回退已同步的新进度', async () => {

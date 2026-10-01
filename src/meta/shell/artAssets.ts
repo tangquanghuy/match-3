@@ -75,3 +75,6 @@ export function shopArt(name: string): string {
 export function cssUrlVar(name: string, url: string): string {
   return url ? `--${name}:url("${url}")` : '';
 }
+
+const REGIONAL = import.meta.glob('@assets/meta/regional/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+export function regionalArt(name: string): string { return pick(REGIONAL, name); }

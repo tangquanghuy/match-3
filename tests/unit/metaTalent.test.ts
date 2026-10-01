@@ -1,3 +1,4 @@
+import { heroTraitCost } from '../../src/meta/data/heroTraitCosts';
 /**
  * 天赋树与职业特质系统测试（v2）：
  * 选取/改配/档位门控、自身静态加成（站位/武器类型/每盟友）、全队静态加成 scope、
@@ -152,6 +153,7 @@ describe('战斗快照期加成', () => {
     expect(heroTraitCodes(s).sort()).toEqual(['songoflight', 'stonewall'].sort());
     // 解锁特质槽 1（knightbond 已实现）
     earn(s, { gold: 100000, souls: 100000 });
+    Object.assign(s.materials.traitstones, heroTraitCost(KNIGHT, 1)!.stones);
     expect(unlockHeroTrait(s, 2)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
     expect(unlockHeroTrait(s, 1)).toMatchObject({ ok: true, slot: 1 });
     expect(heroTraitCodes(s).sort()).toEqual(['knightbond', 'songoflight', 'stonewall'].sort());
@@ -187,11 +189,13 @@ describe('职业特质槽', () => {
     equipClass(s, KNIGHT);
     const goldBefore = s.currencies.gold;
     const soulsBefore = s.currencies.souls;
+    Object.assign(s.materials.traitstones, heroTraitCost(KNIGHT, 1)!.stones);
     const r = unlockHeroTrait(s, 1);
     expect(r).toMatchObject({ ok: true, slot: 1 });
     if (r.ok) {
-      expect(s.currencies.gold).toBe(goldBefore - r.cost.gold);
-      expect(s.currencies.souls).toBe(soulsBefore - r.cost.souls);
+      expect(s.currencies.gold).toBe(goldBefore);
+      expect(s.currencies.souls).toBe(soulsBefore);
+      for (const key of Object.keys(r.cost.stones)) expect(s.materials.traitstones[key]).toBe(0);
     }
     expect(s.hero.classTraits[KNIGHT]).toEqual([true, false, false]);
     expect(unlockHeroTrait(s, 1)).toMatchObject({ ok: false, code: 'ALREADY_UNLOCKED' });
@@ -200,6 +204,7 @@ describe('职业特质槽', () => {
   it('特质槽按职业隔离：切换职业后另一职业槽为空', () => {
     const s = saveWithClass(KNIGHT, 1);
     earn(s, { gold: 100000, souls: 100000 });
+    Object.assign(s.materials.traitstones, heroTraitCost(KNIGHT, 1)!.stones);
     unlockHeroTrait(s, 1);
     expect(s.hero.classTraits[KNIGHT]).toEqual([true, false, false]);
     s.hero.unlockedClasses.push('warrior');

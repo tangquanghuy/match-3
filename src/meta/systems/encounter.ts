@@ -1,5 +1,6 @@
 /** Seeded main-story encounters and fixed 4 + 1 + 1 kingdom Explore teams. */
-import { TROOPS } from '../../data/troops';
+import { isImmortal } from '../../data/immortals';
+import { TROOPS, getTroopById } from '../../data/troops';
 import { enemyLevel, enemyTraitCount } from '../data/enemyDifficulty';
 import { SeededRNG } from '../../engine/rng';
 import {
@@ -74,7 +75,7 @@ function questTierPlan(node: number): EnemyTier[] {
   return squad('elite', 'elite', 'boss');
 }
 
-/** 按层级表从王国池选人（稀有度带逐档放宽）；供 encounter 与竞技场对手共用 */
+/** 域外随机敌人统一排除不朽；王国稀有度带逐档放宽，活动与主线共用。 */
 export function pickEnemies(
   kingdom: string,
   level: number,
@@ -82,17 +83,21 @@ export function pickEnemies(
   rng: SeededRNG,
 ): EncounterEnemy[] {
   const chosen = new Set<number>();
+  if (!kingdomTroopPool(kingdom).length) throw new RangeError(`王国不存在: ${kingdom}`);
+  const eligible = (t: (typeof TROOPS)[number]): boolean => !chosen.has(t.id) && !isImmortal(t);
   return tiers.map((tier) => {
     const band = BAND_BY_TIER[tier];
     let min = band.min;
     let max = band.max;
-    let pool = kingdomTroopPool(kingdom, { min, max }).filter((t) => !chosen.has(t.id));
+    let pool = kingdomTroopPool(kingdom, { min, max }).filter(eligible);
     while (pool.length === 0 && (min > 0 || max < 5)) {
       min = Math.max(0, min - 1);
       max = Math.min(5, max + 1);
-      pool = kingdomTroopPool(kingdom, { min, max }).filter((t) => !chosen.has(t.id));
+      pool = kingdomTroopPool(kingdom, { min, max }).filter(eligible);
     }
-    const troop = pool[rng.nextInt(pool.length)];
+    // Preserve exclusions even when the local rarity bands are exhausted.
+    if (!pool.length) pool = TROOPS.filter(t => eligible(t) && !isImmortal(t) && t.rarityIdx >= band.min && t.rarityIdx <= band.max);
+    const troop = pool[rng.nextInt(pool.length)]!;
     chosen.add(troop.id);
     return { troopId: troop.id, level: enemyLevel(level), tier, traitCount: enemyTraitCount(level) };
   });
@@ -131,8 +136,9 @@ export function planExploreEncounter(kingdom: string, tier: number, seed: number
   if (!Number.isInteger(tier) || tier < 1 || tier > EXPLORE_MAX_TIER) throw new RangeError(`探索档越界: ${tier}`);
   if (!Number.isInteger(stage) || stage < 0 || stage > 5) throw new RangeError(`探索阶段越界: ${stage}`);
   const rng = new SeededRNG(seed);
-  const all = kingdomTroopPool(kingdom);
-  if (!all.length) throw new RangeError(`王国不存在: ${kingdom}`);
+  const kingdomPool = kingdomTroopPool(kingdom);
+  if (!kingdomPool.length) throw new RangeError(`王国不存在: ${kingdom}`);
+  const all = kingdomPool.filter(t => !isImmortal(t));
   const chosen = new Set<number>();
   const level = exploreEnemyLevel(kingdom, tier);
   const enemies: EncounterEnemy[] = [];
@@ -148,10 +154,29 @@ export function planExploreEncounter(kingdom: string, tier: number, seed: number
     // Tiny kingdoms may repeat eligible troops, never introduce a second Mythic boss.
     if (!pool.length) pool = all.filter(t => t.rarityIdx <= (boss ? max : 3));
     // Event pseudo-kingdoms may have no regular troops: use global low-rarity fillers.
-    if (!pool.length) pool = TROOPS.filter(t => t.rarityIdx <= max && !chosen.has(t.id));
+    if (!pool.length) pool = TROOPS.filter(t => !isImmortal(t) && t.rarityIdx <= max && !chosen.has(t.id));
     const troop = pool[rng.nextInt(pool.length)]!;
     chosen.add(troop.id);
     enemies.push({ troopId: troop.id, level, tier: boss ? 'boss' : troop.rarityIdx >= 2 ? 'elite' : 'minion', traitCount: enemyTraitCount(level) });
   }
   return { kingdom, source: { kind: 'explore', tier, stage, ...(runId ? { runId } : {}) }, seed: seed >>> 0, enemies };
+}
+
+
+/** Repair only forbidden members of old generated event rosters, without resetting progress. */
+export function repairLegacyRandomEnemyRoster(ids: readonly number[], seed: number): number[] {
+  const rng = new SeededRNG(seed);
+  const chosen = new Set(ids.filter(id => !isImmortal(getTroopById(id))));
+  return ids.map(id => {
+    const troop = getTroopById(id);
+    if (!troop || !isImmortal(troop)) return id;
+    const eligible = TROOPS.filter(t => !isImmortal(t) && !chosen.has(t.id));
+    const local = eligible.filter(t => t.kingdom === troop.kingdom);
+    let pool = local.filter(t => t.rarityIdx === troop.rarityIdx);
+    if (!pool.length) pool = eligible.filter(t => t.rarityIdx === troop.rarityIdx);
+    if (!pool.length) pool = local.length ? local : eligible;
+    const replacement = pool[rng.nextInt(pool.length)]!.id;
+    chosen.add(replacement);
+    return replacement;
+  });
 }

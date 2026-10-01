@@ -8,7 +8,7 @@ import {
   applyEventBattleModifiers, eventAction, eventModeState, planEventEncounter,
 } from '../../../src/meta/systems/events';
 import { towerReachable } from '../../../src/meta/systems/eventModes/tower';
-import { buildBattleRequest, type BridgeOutcome } from '../../../src/meta/systems/battleBridge';
+import { buildBattleRequest, revalidateOutcome, type BridgeOutcome } from '../../../src/meta/systems/battleBridge';
 import { applySettlement } from '../../../src/meta/systems/settlement';
 import type { BattleResult } from '../../../src/session/contract';
 
@@ -46,6 +46,8 @@ export function eventBattle(save: MetaSave, type: EventTypeId, week: number, act
   const outcome = buildBattleRequest(save, plan);
   if (!outcome.ok) throw new Error(outcome.message);
   applyEventBattleModifiers(save, outcome);
+  const invalid = revalidateOutcome(outcome);
+  if (invalid) throw new Error(invalid.message);
   return outcome;
 }
 

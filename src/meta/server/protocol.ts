@@ -1,3 +1,5 @@
+import type { HeroTraitCost } from '../data/heroTraitCosts';
+import type { RegionalAction, RegionalPlanArgs } from '../systems/regionalPvp';
 import type { MaterialShopRequest, MaterialShopBuyResult } from '../systems/materialShop';
 /**
  * Meta 命令协议（客户端 ↔ 权威核心的线协议）。
@@ -64,7 +66,7 @@ export interface ArenaForfeit {
   rewards: ArenaRewards;
 }
 
-export type BattleMode = 'quest' | 'explore' | 'event' | 'arena' | 'invasion';
+export type BattleMode = 'quest' | 'explore' | 'event' | 'arena' | 'invasion' | 'regional';
 
 /**
  * 出战票：核心已登记为待结算（MetaSave.pendingBattle），客户端拿 request 开打，
@@ -85,6 +87,7 @@ export interface BattleTicket {
 
 /** 结算结果（按战斗来源分派） */
 export type BattleSettlement =
+  | { ok: true; kind: 'regional'; detail: SettlementDetail; label: string }
   | { ok: true; kind: 'encounter'; detail: SettlementDetail; source: EncounterSource; kingdom: string }
   | { ok: true; kind: 'arena'; settled: ArenaSettleResult }
   | { ok: true; kind: 'invasion'; settled: InvasionSettleResult; mirror: InvasionMirror };
@@ -98,7 +101,7 @@ export interface ForfeitResult {
 
 /** 出战票类命令（开新票前会先把未结算的旧票判负/作废） */
 export const PLAN_COMMANDS: ReadonlySet<string> = new Set([
-  'planQuestBattle', 'planTutorialBattle', 'planExploreBattle', 'planEventBattle', 'planArenaBattle', 'planInvasionBattle', 'planInvasionRevenge',
+  'planRegionalBattle', 'planQuestBattle', 'planTutorialBattle', 'planExploreBattle', 'planEventBattle', 'planArenaBattle', 'planInvasionBattle', 'planInvasionRevenge',
 ]);
 
 export type CollectionModifierAction =
@@ -113,6 +116,8 @@ export type CollectionModifierAction =
 type Ok<T extends object = object> = { ok: true } & T;
 
 export interface CommandTable {
+  regionalAction: { args: RegionalAction; result: Ok | MetaFailure };
+  planRegionalBattle: { args: RegionalPlanArgs; result: BattleTicket | MetaFailure };
   // —— 系统 ——
   markMaterialsSeen: { args: object; result: boolean };
   markMapSeen: { args: { level: number }; result: number };
@@ -145,8 +150,8 @@ export interface CommandTable {
     result: Ok<{ classId: string; tierIndex: number }> | MetaFailure;
   };
   unlockHeroTrait: {
-    args: { slot: number };
-    result: Ok<{ slot: number; cost: { gold: number; souls: number } }> | MetaFailure;
+    args: { slot: number; classId?: string };
+    result: Ok<{ slot: number; cost: HeroTraitCost }> | MetaFailure;
   };
   pickManaMastery: { args: { color: string }; result: Ok<{ color: string; value: number }> | MetaFailure };
   temperWeapon: { args: { weaponId: string }; result: TemperSaveResult | MetaFailure };
@@ -216,6 +221,7 @@ export interface CommandTable {
 
   // —— 寻宝 ——
   startTreasureHunt: { args: object; result: Ok<{ state: TreasureHuntState }> | MetaFailure };
+  finishTreasureHunt: { args: object; result: HuntMoveOk | MetaFailure };
   playTreasureHunt: { args: { from: number; to: number }; result: HuntMoveOk | MetaFailure };
 
   // —— 开发者命令（远端后端默认拒绝：ServerEnv.allowDev） ——
@@ -241,6 +247,8 @@ export type MetaCommand<K extends CommandType = CommandType> = K extends Command
 export interface CommandReply<K extends CommandType = CommandType> {
   result: CommandResult<K>;
   patch: SavePatch | null;
+  /** Lets stale clients resync even when a successful no-op has no patch. */
+  revision?: number;
   serverNow: number;
 }
 
@@ -249,6 +257,8 @@ export interface CommandReply<K extends CommandType = CommandType> {
  * 否则服务端重启丢掉未落盘的开箱，玩家就能「重抽」。其余命令合并延迟落盘。
  */
 const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
+  'planRegionalBattle',
+  'regionalAction',
   'planExploreBattle',
   'abandonKingdomExplore',
   'resetToNewGame',
@@ -273,6 +283,7 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'planInvasionRevenge',
   'startTreasureHunt',
   'playTreasureHunt',
+  'finishTreasureHunt',
   'dev.importSave',
   'dev.resetToDemo',
   'dev.collectionModifier',

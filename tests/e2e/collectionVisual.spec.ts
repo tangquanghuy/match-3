@@ -10,9 +10,10 @@ const RARITY_BORDER = [
 ] as const;
 
 async function openFresh(page: Page, hash: 'troop' | 'team'): Promise<void> {
-  await page.goto(`/game.html#${hash}`);
+  await page.goto(`/game.html#${hash}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator(hash === 'troop' ? '#collection' : '.team-screen')).toBeVisible({ timeout: 15_000 });
   await page.evaluate(() => localStorage.clear());
-  await page.reload();
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator(hash === 'troop' ? '#collection' : '.team-screen')).toBeVisible({ timeout: 15_000 });
 }
 

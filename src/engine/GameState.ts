@@ -16,6 +16,7 @@ export interface BattleEconomy {
 
 /** 全局对局状态（需求） */
 export interface GameState {
+  region?: string;
   board: BoardModel;
   teams: Record<PlayerSide, Team>;
   activePlayer: PlayerSide;

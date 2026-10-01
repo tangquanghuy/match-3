@@ -1,14 +1,16 @@
+import { regionDefinition } from '../data/regionalPvp';
+import { regionalAction, planRegional, settleRegional } from '../systems/regionalPvp';
 import { buyMaterialGoods } from '../systems/materialShop';
 import { abandonExploreRun, advanceExploreRun, exploreBattleSeed, exploreRunMatches, maxExploreTier } from '../systems/explore';
 import { mirrorFromEntry } from '../systems/invasionMirrors';
 import { earn } from '../systems/wallet';
-import { defenseRecord, accountDefenseLog, defenseEntryKey, validSnapshot, type DefenseLog } from '../systems/invasionDefense';
+import { queueDefensePublish, accountDefenseLog, defenseEntryKey, validSnapshot, type DefenseLog } from '../systems/invasionDefense';
 /**
  * Meta 权威核心：执行一条命令，产出结果与新存档。
  *
  * 这是整条 meta 管线里**唯一**会写 MetaSave 的地方。同一份代码有两个宿主：
  *  - 本地后端（gateway/localTransport.ts）：浏览器内执行，存储 = localStorage；
- *  - 远端后端（Cloudflare Worker）：按玩家读 D1 → executeCommand → 乐观锁写回。
+ *  - 远端后端（Cloudflare Worker）：每玩家 Durable Object 串行执行 → 按脏记录写回 SQLite。
  *
  * 约定：
  *  - 时钟与熵只来自 ServerEnv（命令里没有 now/seed，客户端无法影响）；
@@ -81,7 +83,7 @@ import {
 } from '../systems/encounter';
 import { buildBattleRequest, revalidateOutcome, type BridgeOutcome } from '../systems/battleBridge';
 import { applySettlement } from '../systems/settlement';
-import { beginHunt, commitMove } from '../systems/treasureHunt';
+import { beginHunt, commitMove, finishHunt } from '../systems/treasureHunt';
 import type { Materials } from '../state/schema';
 import { buildDemoSave } from './demo';
 import type { ServerEnv } from './env';
@@ -118,7 +120,7 @@ export interface CommandOutcome<K extends CommandType = CommandType> {
   save: MetaSave;
   /** true = 宿主应落盘（revision 已 +1） */
   commit: boolean;
-  /** 提交后由宿主执行的外部副作用（仅 commit=true 时有意义） */
+  /** Successful commands may have I/O effects even when gameplay state is unchanged. */
   effects?: CommandEffects;
 }
 
@@ -144,6 +146,8 @@ export function commandPoolNeeds(save: MetaSave, command: MetaCommand, now: numb
   // 跨周时核心会先周结，旧快照必然失效
   const standings = save.invasion.weekStart < week || !invasionStandingsFresh(save, week, now);
   switch (command.type) {
+    case 'regionalAction':
+      return { mirrors: command.args.action !== 'claim', standings: false };
     case 'refreshInvasionOpponents':
       return { mirrors: true, standings };
     case 'syncInvasionSeason':
@@ -156,7 +160,7 @@ export function commandPoolNeeds(save: MetaSave, command: MetaCommand, now: numb
 }
 
 /**
- * 宿主入口：在工作副本上执行命令；成功则提交（revision+1），失败则原样返回旧档。
+ * 宿主入口：在工作副本上执行命令；实际状态变化才提交（revision+1），失败与空操作保留旧档。
  * 传入的 `save` 不会被修改。
  */
 export function runCommand<K extends CommandType>(
@@ -185,9 +189,20 @@ export function runCommand<K extends CommandType>(
     return { result: fail('INVALID', message) as CommandResult<K>, save, commit: false };
   }
   if (isFailureResult(result)) return { result, save, commit: false };
+  const sideEffects = Object.keys(effects).length > 0 ? { effects } : {};
+  if (!hasGameplayChanges(save, next)) return { result, save, commit: false, ...sideEffects };
   next.savedAt = now;
   next.revision = save.revision + 1;
-  return { result, save: next, commit: true, ...(Object.keys(effects).length > 0 ? { effects } : {}) };
+  return { result, save: next, commit: true, ...sideEffects };
+}
+
+/** Compare persisted data, not bookkeeping; stop at the first changed section. */
+function hasGameplayChanges(before: MetaSave, after: MetaSave): boolean {
+  for (const key of new Set([...Object.keys(before), ...Object.keys(after)]) as Set<keyof MetaSave>) {
+    if (key === 'savedAt' || key === 'revision') continue;
+    if (before[key] !== after[key] && JSON.stringify(before[key]) !== JSON.stringify(after[key])) return true;
+  }
+  return false;
 }
 
 function isFailureResult(result: unknown): result is MetaFailure {
@@ -212,6 +227,13 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
 
   switch (command.type) {
     // —— 系统 ——
+    case 'regionalAction': return done(regionalAction(save, command.args, now, io.mirrorPool));
+    case 'planRegionalBattle': {
+      const outcome = planRegional(save, command.args, now, env.seed());
+      if (!outcome.ok) return done(outcome);
+      save.pendingBattle = { mode: 'regional', requestId: outcome.request.requestId, issuedAt: now, context: outcome.context };
+      return done({ ok: true, mode: 'regional', request: outcome.request, kingdom: regionDefinition(outcome.context.region??'WintersReach')!.name, source: null, mirror: null, opponents: [] });
+    }
     case 'markMaterialsSeen':
       save.materialsUnread = false;
       return done(false);
@@ -306,7 +328,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       return done(clearTalent(save, classId, tierIndex));
     }
     case 'unlockHeroTrait':
-      return done(unlockHeroTrait(save, (command.args as CommandArgs<'unlockHeroTrait'>).slot));
+      return done(unlockHeroTrait(save, (command.args as CommandArgs<'unlockHeroTrait'>).slot, (command.args as CommandArgs<'unlockHeroTrait'>).classId));
     case 'pickManaMastery':
       return done(pickManaMastery(save, (command.args as CommandArgs<'pickManaMastery'>).color));
     case 'temperWeapon':
@@ -509,10 +531,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (!check.ok) return done(fail('INVALID', check.issues.map(i => i.message).join('；')));
       ensureInvasionSeason(save, now, weekStart);
       save.invasion.defenseTeam = structuredClone(team);
-      const record = defenseRecord(save, now);
-      if (!record) return done(fail('INVALID', '防守队伍数据无效'));
-      save.invasion.defensePublishPending = true;
-      save.invasion.lastPublish = { league: record.league, teamHash: record.teamHash, at: now };
+      if (!queueDefensePublish(save, now)) return done(fail('INVALID', '防守队伍数据无效'));
       return done({ ok: true });
     }
     case 'claimInvasionDefense':
@@ -521,7 +540,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       ensureInvasionSeason(save, now, weekStart);
       accountDefenseLog(save, io.defenseLog, weekStart);
       effects.reportVp = invasionVpReport(save, now);
-      if (defenseRecord(save, now)) save.invasion.defensePublishPending = true;
+      queueDefensePublish(save, now);
       if (command.type === 'syncInvasionDefense') return done({ ok: true });
       const reward = { ...save.invasion.defenseProgress.rewards };
       if (reward.gold === 0 && reward.souls === 0 && reward.glory === 0) return done({ ok: true, ...reward });
@@ -535,8 +554,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (save.hero.level >= INVASION.unlockHeroLevel) {
         const team = activeTeam(save);
         if (!save.invasion.defenseTeam && team && validateTeam(save, team).ok) save.invasion.defenseTeam = structuredClone(team);
-        const record = defenseRecord(save, now);
-        if (record) save.invasion.defensePublishPending = true;
+        queueDefensePublish(save, now);
       }
       // 批次过期（跨周/升联赛/首次进入）→ 组新批次落档，客户端据此展示（含真人镜像）
       if (!invasionRosterFresh(save, weekStart)) rebuildInvasionRoster(save, now, weekStart, io.mirrorPool ?? [], env.seed());
@@ -560,6 +578,8 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
     }
 
     // —— 寻宝 ——
+    case 'finishTreasureHunt':
+      return withMaterials(finishHunt(save));
     case 'startTreasureHunt':
       return done(beginHunt(save, env.seed()));
     case 'playTreasureHunt': {
@@ -691,6 +711,10 @@ function settle(
   }
   save.pendingBattle = null;
 
+  if (pending.mode === 'regional') {
+    const detail = settleRegional(save, result, pending.context, now);
+    return { ok: true, kind: 'regional', detail, label: pending.context.opponent.name };
+  }
   if (pending.mode === 'arena') {
     const settled = settleArenaBattle(save, result);
     return settled.ok ? { ok: true, kind: 'arena', settled } : settled;
@@ -700,9 +724,8 @@ function settle(
     if (!settled.ok) return settled;
     ensureInvasionSeason(save, now, weekStart);
     const record = afterInvasionSettle(save, pending, result, now, weekStart, io.mirrorPool, env?.seed() ?? now);
-    const configured = defenseRecord(save, now);
-    if (configured) save.invasion.defensePublishPending = true;
-    else if (!save.invasion.defenseTeam && record) effects.publishMirror = record;
+    const configured = queueDefensePublish(save, now);
+    if (!configured && !save.invasion.defenseTeam && record) effects.publishMirror = record;
     const defender = pending.mirror.player?.ownerKey;
     if (defender) save.invasion.defenseOutbox.push({
       id: `${pending.requestId}:${pending.issuedAt}`,

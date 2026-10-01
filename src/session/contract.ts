@@ -18,6 +18,13 @@ export const BATTLE_SCHEMA_VERSION = 1;
 // 活动深化批的 rules 字段是加性可选：不带 rules 的请求结算逐字节不变，故不递增。
 export const RULESET_VERSION = '1.1.0';
 
+/**
+ * 战斗请求中的最终旗帜加成 = 编队旗帜 + 活动修正，而非单面旗帜的数据值域。
+ * 普通旗帜最高 +2；爬塔在玩法层封顶 +3；法力潮汐额外 +2，叠加后最高 +4。
+ * 此处只定义共享契约边界，各玩法仍须执行自己的叠加与封顶规则。
+ */
+export const BATTLE_BANNER_BOOST_LIMITS = { min: -1, max: 4 } as const;
+
 /** 战斗中的一方。宿主视角固定为 player / enemy，不暴露引擎的 Left/Right。 */
 export type BattleSideName = 'player' | 'enemy';
 
@@ -115,12 +122,13 @@ export interface BattleRequest {
   playerTeam: CombatantSnapshot[];
   enemyTeam: CombatantSnapshot[];
   /**
-   * 玩家方旗帜加成（GoW 王国旗帜语义；meta M6）。形如 `{ Red: 2, Yellow: 1, Brown: -1 }`：
+   * 玩家方最终旗帜加成（已叠加活动修正；值域见 BATTLE_BANNER_BOOST_LIMITS）。
+   * 普通旗帜形如 `{ Red: 2, Yellow: 1, Brown: -1 }`：
    * 玩家方匹配对应色宝石时，该色法力按**每次匹配事件**平展 ±N（不逐宝石、不放大，
    * 惩罚色向下保底 0）。可选字段，省略 = 无旗帜，不构成 schemaVersion 变更。
    */
   playerBanner?: { boosts: Partial<Record<BaseColor, number>> };
-  /** Optional NPC defense banner; identical mana semantics on the enemy side. */
+  /** Optional aggregated enemy banner; identical bounds and mana semantics to playerBanner. */
   enemyBanner?: { boosts: Partial<Record<BaseColor, number>> };
   /**
    * 玩家方法力精通（战斗涌动概率）。键省略 = 0。可选字段，不构成 schemaVersion 变更。
@@ -143,6 +151,8 @@ export interface BattleRequest {
    * 可选字段，不构成 schemaVersion 变更。
    */
   kingdom?: string | null;
+  /** Regional PvP identity, distinct from kingdom. */
+  region?: import('../data/pvpRegions').RegionId;
   /**
    * 战斗规则（活动深化批 2026-09-30，加性可选字段）：棋盘预置/掉落、回合上限、击杀目标、
    * 回合开始补法力或宝石。语义见 engine/battleRules.ts；省略 = 常规对局。

@@ -79,9 +79,9 @@ const DEFAULT_ADAPTIVE_POLICY: AdaptiveDefensePolicy = {
   rarityWeights: [1, 1, 1, 1, 1, 1], sampleSize: 24, jitter: 8,
   exploration: .15, requireManaSupport: false,
 };
-export function buildAdaptiveDefense(seed: number, league: number, level: number, policy = DEFAULT_ADAPTIVE_POLICY) {
+export function buildAdaptiveDefense(seed: number, league: number, level: number, policy = DEFAULT_ADAPTIVE_POLICY, eligibleTroop?: (troop: typeof TROOPS[number]) => boolean) {
   const rng = new SeededRNG(seed >>> 0);
-  const pool = adaptiveDefensePool(league);
+  const pool = adaptiveDefensePool(league).filter(t => !eligibleTroop || eligibleTroop(t));
   const rarityChoices = (candidates: typeof pool) => {
     const buckets = policy.rarityWeights.map((weight, rarity) => ({
       weight, troops: candidates.filter(t => t.rarityIdx === rarity),

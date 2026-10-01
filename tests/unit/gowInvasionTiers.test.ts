@@ -130,7 +130,7 @@ describe('invasion daily low / middle / high choice', () => {
       }
       const opts = { knownSkillIds: new Set([...plan.registry.skills.keys(), ...plan.registry.prototypes.keys()]), knownTraitIds: metaKnownTraitIds(), knownTroopTypes: knownTroopTypes() };
       expect(validateBattleRequest(plan.request, opts).ok).toBe(true);
-      for (const bad of [{ boosts: { Red: NaN } }, { boosts: { Red: 3 } }, { boosts: { Skull: 2 } }, null]) {
+      for (const bad of [{ boosts: { Red: NaN } }, { boosts: { Red: 5 } }, { boosts: { Skull: 2 } }, null]) {
         expect(validateBattleRequest({ ...plan.request, enemyBanner: bad }, opts).ok).toBe(false);
       }
     }

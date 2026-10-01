@@ -1,8 +1,23 @@
 /** 只由实际战斗胜利/首领血池击破调用，不使用积分或历史最高层推断。 */
-import { EVENT_HIGH_TIER_REWARDS, eventArcaneBundle } from '../data/events';
+import { EVENT_HIGH_TIER_REWARDS, TOWER_BOSS_REWARDS, eventArcaneBundle, towerBossRewardKey } from '../data/events';
 import type { EventWeekState, MetaSave } from '../state/schema';
 import type { EventProgressLine } from './eventModes/common';
 import { earnMaterials } from './wallet';
+
+/** 只在对应区域首领胜利时调用；不按最高层补发，也不等待遗物选择。 */
+export function rewardTowerBoss(save: MetaSave, week: EventWeekState, floor: number): EventProgressLine[] {
+  const reward = TOWER_BOSS_REWARDS.find(row => row.floor === floor);
+  if (!reward) return [];
+  const key = towerBossRewardKey(floor);
+  if (week.eventData[key]) return [];
+  const mats = earnMaterials(save, reward.mats);
+  week.eventData[key] = 1;
+  return [{
+    key: 'tower-boss-clear',
+    label: `第 ${reward.zone} 区通关材料（第 ${floor} 层首领）`, deltas: {}, mats,
+    note: '本周首次击败该区首领 · 钢锭与特质石已入账 · 独立于原有奖励',
+  }];
+}
 
 export function rewardTowerHighTier(save: MetaSave, week: EventWeekState, floor: number): EventProgressLine[] {
   // 个别层是营地/商人；越过阈值后的首场胜利才发，不因走到非战斗节点发奖。

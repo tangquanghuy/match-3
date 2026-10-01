@@ -25,7 +25,7 @@ import { STAT_LIMITS } from '../../../session/validateRequest';
 import type { MaterialDelta } from '../../data/materials';
 import { fail } from '../../types';
 import { earn, earnMaterials } from '../wallet';
-import { pickEnemies, type EncounterEnemy, type EncounterPlan } from '../encounter';
+import { repairLegacyRandomEnemyRoster, pickEnemies, type EncounterEnemy, type EncounterPlan } from '../encounter';
 import { SPECIAL_TUNING } from '../specialEncounters';
 import type { BattleResult } from '../../../session/contract';
 import {
@@ -169,7 +169,7 @@ export const raidMode: EventModeImpl<RaidState> = {
     const tier = int(raw.tier, 1, 1);
     const offer = Array.isArray(raw.offer) ? raw.offer.filter(isSupply) : [];
     return {
-      v: 1, tier, kingdom: str(raw.kingdom, KINGDOM_ORDER[0]!), lineup,
+      v: 1, tier, kingdom: str(raw.kingdom, KINGDOM_ORDER[0]!), lineup: repairLegacyRandomEnemyRoster(lineup, fnv1a32(`raid-legacy-${ctx.weekStart}-${tier}`)),
       hp: int(raw.hp, max, 0, max), max, slain: int(raw.slain, 0, 0), fatigue: strArr(raw.fatigue),
       fatiguePhase: int(raw.fatiguePhase, 0, 0, 2), bestHit: int(raw.bestHit, 0, 0), attempts: int(raw.attempts, 0, 0),
       archetype: typeof raw.archetype === 'string' && raw.archetype in RAID_ARCHETYPES ? raw.archetype as RaidArchetype : raidArchetypeOf(ctx.weekStart, tier),

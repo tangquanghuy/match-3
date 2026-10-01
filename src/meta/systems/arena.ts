@@ -1,6 +1,8 @@
+import { resolveBattleMaps } from './battleMaps';
 import { grantBattleRewards, type BattleRewards } from './battleRewards';
 /** Four-pick normal Arena: level 15, no traits/bonuses, six wins or two losses. */
 import { getTroopById, knownTroopTypes, TROOPS, type TroopData } from '../../data/troops';
+import { isImmortal } from '../../data/immortals';
 import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 import { SeededRNG } from '../../engine/rng';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from '../../session/contract';
@@ -19,7 +21,7 @@ import { earn, earnMaterials, spend } from './wallet';
 const BAND_TROOPS: TroopData[][] = (() => {
   const bands: TroopData[][] = [[], [], [], [], [], []];
   for (const t of TROOPS) {
-    if (t.kingdom !== COMMUNITY_KINGDOM) bands[Math.min(Math.max(t.rarityIdx, 0), 5)]!.push(t);
+    if (t.kingdom !== COMMUNITY_KINGDOM && !isImmortal(t)) bands[Math.min(Math.max(t.rarityIdx, 0), 5)]!.push(t);
   }
   return bands;
 })();
@@ -248,7 +250,7 @@ export function settleArenaBattle(save: MetaSave, result: BattleResult): ArenaSe
     return fail('INVALID', (e as Error).message);
   }
   const amount = (n: number | undefined): number => n !== undefined && Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
-  const collected = { gold: amount(result.economy?.gold), souls: amount(result.economy?.souls), gems: amount(result.economy?.gems), maps: amount(result.economy?.maps) };
+  const collected = { gold: amount(result.economy?.gold), souls: amount(result.economy?.souls), gems: amount(result.economy?.gems), maps: resolveBattleMaps(result).total };
   earn(save, { gold: collected.gold, souls: collected.souls, gems: collected.gems });
   earnMaterials(save, { treasureMaps: collected.maps });
   save.stats.goldEarned += collected.gold;

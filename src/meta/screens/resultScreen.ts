@@ -4,7 +4,7 @@
  * 两个视图，同一路由 `#result`：
  * 1. 结算（summary）：「战斗胜利 / 战斗失败」标题 + 星座纹饰 → 来源副题（任务·王国·关卡·进度）
  *    → 横贯全屏的收益条（灵魂 / 经验值+等级条 / 黄金 / 本场宝石）→ 金色「继续」。
- *    只展示本场经验和实际战斗收益；首胜、首通、周常及整轮奖励不合并展示。
+ *    只展示本场经验和实际战斗收益（含爬塔区域首领通关材料）；其他首胜、首通、周常及整轮奖励不合并展示。
  * 2. 升级（levelup）：主角本场升级时，「继续」先进入逐级升级页——双翼盾徽 + 等级数字、
  *    本级法力精通二选一（hero.masteryOffers 队首，经网关 pickManaMastery 入账）、
  *    底栏四维（本级提升项绿色高亮）。选定精通后才能继续；多级连升逐页呈现。
@@ -34,7 +34,7 @@ import type { MetaSave } from '../state/schema';
 import { ART, KINGDOM_VIEWS, kingdomViewOf } from './mapData';
 import { troopArt } from './teamScreen';
 import { escapeHtml } from './troopCard';
-import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { SettlementView, Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, resultArt } from '../shell/artAssets';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey, treasureMapMarkup } from '../shell/materialArt';
@@ -133,7 +133,7 @@ export interface MaterialIncome {
 }
 
 /** 本场收益口径：战斗行 + 通用额外奖励（周常/首胜/任务等账户奖励不并入） */
-const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus'];
+const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus', 'tower-boss-clear'];
 
 function materialIncome(lines: readonly { mats?: MaterialDelta }[]): MaterialIncome[] {
   const sums = new Map<string, MaterialIncome>();
@@ -155,6 +155,7 @@ function materialIncome(lines: readonly { mats?: MaterialDelta }[]): MaterialInc
 
 /** 素材卡图标（与背包同源） */
 function materialIconHtml(key: string): string {
+  if (key === 'burningSouls') return `<span class="regional-flame" style="display:block;width:100%;height:100%;color:#ee985e" aria-hidden="true">${icon('soul')}</span>`;
   if (key === 'treasureMaps') return treasureMapMarkup();
   if (key === 'forgeScrolls') return materialImg(scrollArt());
   if (key.startsWith('ingot:')) return materialImg(ingotArt(key.slice(6)));
@@ -193,7 +194,7 @@ export function battleIncomeView(detail: SettlementView): BattleIncomeView {
     gold: sum('gold'), souls: sum('souls'), gems: sum('gems'),
     ...(sum('glory') > 0 ? { glory: sum('glory') } : {}),
     ...(sum('goldKeys') > 0 ? { goldKeys: sum('goldKeys') } : {}),
-    materials: materialIncome(battleLines) };
+    materials: [...materialIncome(battleLines), ...(detail.burningSouls ? [{ key: 'burningSouls', name: '燃烧灵魂', amount: detail.burningSouls }] : [])] };
 }
 
 /**
@@ -214,6 +215,8 @@ export function resultSubtitle(
     return meta.sourceLabel || '入侵';
   }
   const label = meta.sourceLabel.trim();
+  const towerClear = detail.lines.find(line => line.key === 'tower-boss-clear');
+  if (towerClear) return [label, meta.kingdom, towerClear.label, '已入账'].filter(Boolean).join(' · ');
   const normal = /^NORMAL (\d+)$/.exec(label);
   if (normal) {
     const progress = detail.questProgress?.to ?? questsDone;

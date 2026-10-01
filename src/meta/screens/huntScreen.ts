@@ -5,7 +5,6 @@ import { LOOT_ART } from './huntArt';
 import {
   HUNT_START_TURNS,
   LOOT_LADDER,
-  HUNT_STONE_ODDS_TEXT,
   type HuntMoveOk,
 } from '../systems/treasureHunt';
 import { HuntBoardScene } from '../../render/HuntBoardScene';
@@ -16,7 +15,7 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 
 function ladderHtml(): string {
   return LOOT_LADDER.map((row, index) => `
-    <li><img src="${LOOT_ART[index]}" alt="" draggable="false"><div><b>${row.name}</b><small>${row.reward}</small></div></li>
+    <li><img src="${LOOT_ART[index]}" alt="" draggable="false"><div><b>${row.name}</b><small>${row.reward}</small>${row.stoneOdds ? `<small class="hunt-stone-odds">额外掉落：${row.stoneOdds}</small>` : ''}</div></li>
   `).join('');
 }
 
@@ -57,14 +56,24 @@ export class HuntScreen implements Screen {
           </div>
         </section>
         <footer class="hunt-hint">三连 −1 步<span>·</span>四连不耗步<span>·</span>五连及以上 +1 步</footer>
+        <div class="hunt-actions"><button id="huntFinish" class="hunt-finish" type="button" hidden>结束并结算</button></div>
+        <dialog class="hunt-rules hunt-end-dialog" id="huntEndDialog" aria-labelledby="huntEndTitle">
+          <h2 id="huntEndTitle">结束本次寻宝？</h2>
+          <p>立即领取当前棋盘的全部奖励，结束后不再保留本局。</p>
+          <div class="hunt-end-actions">
+            <button id="huntEndCancel" class="hunt-finish" type="button" autofocus>继续寻宝</button>
+            <button id="huntEndConfirm" class="hunt-begin" type="button">结算奖励</button>
+          </div>
+        </dialog>
         <dialog class="hunt-rules" id="huntRules" aria-labelledby="huntRulesTitle">
           <button id="huntCloseRules" class="hunt-close" aria-label="关闭规则">×</button>
           <h2 id="huntRulesTitle">寻宝规则</h2>
           <p>拖动交换，或依次点选相邻两格。三件相同宝物合成高一级，空位自动下落补齐。</p>
           <p>同一手按最大的合成组计算步数：三连消耗 1 步，四连不耗步，五连及以上增加 1 步。</p>
-          <p>金库不可交换或继续合成。中途返回地图会保留进度。</p>
-          <p>每件宝物同时获得下表全部货币。每个红箱、金库另有一次材料掉落机会：${HUNT_STONE_ODDS_TEXT}，命中仅给 1 颗，其余情况不掉材料。不再按已走步数赠送特质石。</p>
-          <h3>每件宝物的固定奖励</h3><ol>${ladderHtml()}</ol>
+          <p>寻宝深入后，连续大合成的机会逐渐减少，四连、五连仍照常奖励步数。</p>
+          <p>金库不可交换或继续合成。返回地图保留进度；选择「结束并结算」立即领取当前棋盘奖励。</p>
+          <p>每件宝物同时获得下表全部货币。终盘每个褐箱、绿箱、红箱和金库各自独立判定特质石掉落，命中给 1 颗；一局可获得多颗。未命中不影响其他箱子与货币奖励，合成时不提前发奖。</p>
+          <h3>每件宝物的奖励与掉落概率</h3><ol>${ladderHtml()}</ol>
         </dialog>
       </div>${toastHtml()}`;
   }
@@ -82,6 +91,14 @@ export class HuntScreen implements Screen {
     this.el('huntBegin').addEventListener('click', () => {
       if (!this.ready) void this.initialize(ctx); else void this.start(ctx);
     });
+    const endDialog = this.el<HTMLDialogElement>('huntEndDialog');
+    this.el('huntFinish').addEventListener('click', () => {
+      if (!this.busy && this.current) { this.scene!.enabled = false; endDialog.showModal(); }
+    });
+    this.el('huntEndCancel').addEventListener('click', () => endDialog.close());
+    this.el('huntEndConfirm').addEventListener('click', () => void this.finish(ctx));
+    endDialog.addEventListener('cancel', e => { if (this.busy) e.preventDefault(); });
+    endDialog.addEventListener('close', () => { if (this.scene) this.scene.enabled = !this.busy && this.current !== null; });
     const dialog = this.el<HTMLDialogElement>('huntRules');
     this.el('huntHelp').addEventListener('click', () => { dialog.showModal(); this.el('huntHelp').setAttribute('aria-expanded', 'true'); });
     this.el('huntCloseRules').addEventListener('click', () => dialog.close());
@@ -152,6 +169,7 @@ export class HuntScreen implements Screen {
     this.busy = true;
     this.scene.enabled = false;
     this.el('huntBoard').setAttribute('aria-busy', 'true');
+    this.el<HTMLButtonElement>('huntFinish').disabled = true;
     let accepted: HuntMoveOk | null = null;
     try {
       const played = await ctx.gateway.playTreasureHunt(from, to);
@@ -179,7 +197,53 @@ export class HuntScreen implements Screen {
       }
     } finally {
       if (this.isCurrent(generation)) this.busy = false;
-      if (this.isCurrent(generation)) { this.scene.enabled = this.current !== null; this.el('huntBoard').setAttribute('aria-busy', 'false'); }
+      if (this.isCurrent(generation)) { this.scene.enabled = this.current !== null; this.el('huntBoard').setAttribute('aria-busy', 'false'); this.el<HTMLButtonElement>('huntFinish').disabled = false; }
+    }
+  }
+
+  private async finish(ctx: ShellCtx): Promise<void> {
+    if (this.busy || this.disposed || !this.current) return;
+    const generation = this.generation;
+    this.busy = true;
+    this.scene!.enabled = false;
+    this.el<HTMLButtonElement>('huntEndConfirm').disabled = true;
+    this.el<HTMLButtonElement>('huntEndCancel').disabled = true;
+    this.el('huntEndConfirm').textContent = '结算中…';
+    try {
+      const ended = await ctx.gateway.finishTreasureHunt();
+      if (!this.isCurrent(generation)) return;
+      if (isFailure(ended.result)) {
+        if (!ctx.save().treasureHunt) {
+          this.el<HTMLDialogElement>('huntEndDialog').close();
+          ctx.navigate('#map');
+          toast('本局已结束，请查看已到账奖励');
+        } else toast(ended.result.message);
+        return;
+      }
+      this.el<HTMLDialogElement>('huntEndDialog').close();
+      this.acceptResult(ctx, ended.result);
+    } catch {
+      if (this.isCurrent(generation)) {
+        // A lost reply can follow a successful payment. Read authority, never reroll locally.
+        try {
+          await ctx.gateway.sync();
+          if (this.isCurrent(generation) && !ctx.save().treasureHunt) {
+            this.el<HTMLDialogElement>('huntEndDialog').close();
+            ctx.navigate('#map');
+            toast('本局已结算，奖励已到账');
+            return;
+          }
+        } catch { /* Keep the dialog so an uncommitted request can be retried. */ }
+        if (this.isCurrent(generation)) toast('连接中断，请重试');
+      }
+    } finally {
+      if (this.isCurrent(generation)) {
+        this.busy = false;
+        this.el<HTMLButtonElement>('huntEndConfirm').disabled = false;
+        this.el<HTMLButtonElement>('huntEndCancel').disabled = false;
+        this.el('huntEndConfirm').textContent = '结算奖励';
+        this.scene!.enabled = this.current !== null && !this.el<HTMLDialogElement>('huntEndDialog').open;
+      }
     }
   }
 
@@ -198,6 +262,7 @@ export class HuntScreen implements Screen {
   private showBoard(state: TreasureHuntState): void {
     this.current = state;
     this.el('huntGate').hidden = true;
+    this.el('huntFinish').hidden = false;
     this.scene!.sync(state.cells);
     this.scene!.enabled = true;
     this.scene!.startMusic();
@@ -223,6 +288,7 @@ export class HuntScreen implements Screen {
     clearTimeout(this.feedbackTimer);
     this.abort.abort();
     this.el<HTMLDialogElement>('huntRules').close();
+    this.el<HTMLDialogElement>('huntEndDialog').close();
     this.scene?.dispose(); this.scene = null;
   }
 }

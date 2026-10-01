@@ -41,11 +41,12 @@ function fixture(afterCommand?: (command: MetaCommand, reply: CommandReply) => P
 const kingdom = allKingdoms()[0]!;
 
 describe('single-client HTTP save revisions are independent of application releases', () => {
+  // Demo starts at tier 2; select unlocked tier 1 so the fixture actually mutates state.
   it('sequential successful commands increment data revision without sending a client version', async () => {
     const { player, trace } = fixture();
     await player.load();
     const initial = player.current().revision;
-    await player.setKingdomExploreTier(kingdom, 2);
+    await player.setKingdomExploreTier(kingdom, 1);
     const ticket = await player.planExploreBattle(kingdom);
     if (!ticket.ok) throw new Error(ticket.message);
     expect((await player.settleBattle(victory(ticket))).result.ok).toBe(true);
@@ -64,7 +65,7 @@ describe('single-client HTTP save revisions are independent of application relea
     });
     await player.load();
     const initial = player.current().revision;
-    const selection = player.setKingdomExploreTier(kingdom, 2);
+    const selection = player.setKingdomExploreTier(kingdom, 1);
     await committed.promise;
     expect(player.current().revision).toBe(initial);
     expect((await authority.load({ preservePendingBattle: true })).save.revision).toBe(initial + 1);
@@ -79,7 +80,7 @@ describe('single-client HTTP save revisions are independent of application relea
     if (!ticket?.ok) throw new Error('Missing battle ticket');
     expect(player.current().revision).toBe(initial + 2);
     expect((await player.settleBattle(victory(ticket))).result.ok).toBe(true);
-    expect(player.current().kingdoms[kingdom]!.exploreRun).toMatchObject({ tier: 2, stage: 1 });
+    expect(player.current().kingdoms[kingdom]!.exploreRun).toMatchObject({ tier: 1, stage: 1 });
   });
 
   it('a lost response can leave the server ahead despite identical builds and one client', async () => {
@@ -88,7 +89,7 @@ describe('single-client HTTP save revisions are independent of application relea
     });
     await player.load();
     const initial = player.current().revision;
-    await expect(player.setKingdomExploreTier(kingdom, 2)).rejects.toThrow('AFTER commit');
+    await expect(player.setKingdomExploreTier(kingdom, 1)).rejects.toThrow('AFTER commit');
     expect(player.current().revision).toBe(initial);
     expect((await authority.load({ preservePendingBattle: true })).save.revision).toBe(initial + 1);
     const ticket = await player.planExploreBattle(kingdom);
@@ -104,7 +105,7 @@ describe('single-client HTTP save revisions are independent of application relea
     await player.load();
     const ticket = await player.planExploreBattle(kingdom);
     if (!ticket.ok) throw new Error(ticket.message);
-    await expect(player.setKingdomExploreTier(kingdom, 2)).rejects.toThrow('AFTER commit');
+    await expect(player.setKingdomExploreTier(kingdom, 1)).rejects.toThrow('AFTER commit');
     const snapshot = await player.sync();
     expect(trace.at(-1)?.path).toBe('/api/meta/save?sync=1');
     expect(snapshot.save.revision).toBe((await authority.load({ preservePendingBattle: true })).save.revision);
@@ -112,11 +113,34 @@ describe('single-client HTTP save revisions are independent of application relea
     expect((await player.settleBattle(victory(ticket))).result.ok).toBe(true);
   });
 
+  it('a lost response followed by a no-op retry resyncs without forfeiting a ticket', async () => {
+    let loseNext = false;
+    const { player, authority, trace } = fixture(async command => {
+      if (loseNext && command.type === 'markMaterialsSeen') {
+        loseNext = false;
+        throw new TypeError('Simulated response loss AFTER commit');
+      }
+    });
+    await player.load();
+    const ticket = await player.planExploreBattle(kingdom);
+    if (!ticket.ok) throw new Error(ticket.message);
+    // Another tab changed a real field; its response was not delivered to this gateway.
+    await authority.send({ type: 'saveTeam', args: { index: 0, team: { ...player.current().teams[0]!, name: 'Changed by another tab' } } });
+    loseNext = true;
+    await expect(player.markMaterialsSeen()).rejects.toThrow('AFTER commit');
+    await player.markMaterialsSeen(); // successful no-op, patch:null, server revision ahead
+    expect(trace.at(-2)).toMatchObject({ type: 'markMaterialsSeen', from: undefined, to: undefined });
+    expect(trace.at(-1)?.path).toBe('/api/meta/save?sync=1');
+    expect(player.current().teams[0]?.name).toBe('Changed by another tab');
+    expect(player.current().pendingBattle?.requestId).toBe(ticket.request.requestId);
+    expect((await player.settleBattle(victory(ticket))).result.ok).toBe(true);
+  });
+
   it('the OLD mismatch-to-normal-load sequence discards a new ticket even with the same ruleset', async () => {
     const { http } = fixture();
     const initial = await http.load();
     // Server commits selection; simulate the client not yet receiving/applying that reply.
-    await http.send({ type: 'setKingdomExploreTier', args: { kingdom, tier: 2 } });
+    await http.send({ type: 'setKingdomExploreTier', args: { kingdom, tier: 1 } });
     const plan = await http.send({ type: 'planExploreBattle', args: { kingdom } });
     if (!plan.result.ok) throw new Error(plan.result.message);
     expect(plan.patch?.from).not.toBe(initial.save.revision);

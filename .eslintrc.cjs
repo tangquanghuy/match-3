@@ -30,5 +30,6 @@ module.exports = {
       },
     },
   ],
-  ignorePatterns: ['dist', 'node_modules', '*.config.ts', '.eslintrc.cjs'],
+  // Generated audit output and local historical snapshots are not project sources.
+  ignorePatterns: ['dist', 'node_modules', 'artifacts/', 'tmp/', '*.config.ts', '.eslintrc.cjs'],
 };

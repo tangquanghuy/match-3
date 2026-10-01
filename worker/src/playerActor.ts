@@ -12,6 +12,7 @@ import type { SaveRecords } from '../../src/meta/state/records';
 import type { CommandReply, LoadReply, MetaCommand } from '../../src/meta/server/protocol';
 import type { Env } from './env';
 import { D1MirrorPool } from './mirrorPool';
+import { PlayerIdentity } from './playerIdentity';
 
 class SqlRepository implements SaveRepository {
   constructor(private readonly storage: DurableObjectStorage) {}
@@ -42,11 +43,15 @@ export class PlayerActor extends DurableObject<Env> {
   private tokens = RATE_BURST;
   private refilledAt = Date.now();
   /** 本实例对应的玩家 id（Worker 鉴权后随命令传入；DO 名字即它） */
-  private playerId: string | null = null;
+  private readonly identity: PlayerIdentity;
   private accountName: string | null = null;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
+    this.identity = new PlayerIdentity({
+      read: () => ctx.storage.get<string>('invasionActorIdentity'),
+      write: playerId => ctx.storage.put('invasionActorIdentity', playerId),
+    });
     ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS records (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
     this.host = new MetaHost(
       new SqlRepository(ctx.storage),
@@ -55,16 +60,14 @@ export class PlayerActor extends DurableObject<Env> {
         fresh: 'new',
         flushDelayMs: 0,
         schedule: (delayMs) => { void ctx.storage.setAlarm(Date.now() + delayMs); },
-        mirrorPool: new D1MirrorPool(env.DB, () => this.playerId),
+        mirrorPool: new D1MirrorPool(env.DB, () => this.identity.value),
         onMirrorPoolError: (error) => console.error('invasion mirror pool failed', error),
       },
     );
   }
 
-  private async bindPlayer(playerId?: string): Promise<void> {
-    if (this.playerId) return;
-    this.playerId = playerId ?? await this.ctx.storage.get<string>('invasionActorIdentity') ?? null;
-    if (playerId) await this.ctx.storage.put('invasionActorIdentity', playerId);
+  private bindPlayer(playerId?: string): Promise<void> {
+    return this.identity.bind(playerId);
   }
 
   async load(preservePendingBattle = false, playerId?: string): Promise<LoadReply> {

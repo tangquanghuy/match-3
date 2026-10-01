@@ -104,9 +104,11 @@ test('活动奖励子页展示真实难度与独立周额度', async ({ page }) 
   await expect(page.locator('.ev-high-tier')).toContainText('本周 0 / 4');
   await expect(page.locator('.ev-high-tier')).toContainText('本周 0 / 2');
   await page.goto('/game.html#events/towerOfDoom/rewards');
-  await expect(page.locator('.ev-high-tier')).toContainText('16 层');
-  await expect(page.locator('.ev-high-tier')).toContainText('20 层');
-  await expect(page.locator('.ev-high-tier')).toContainText('25 层');
+  const bossRewards = page.locator('.ev-high-tier').filter({ hasText: '三区通关材料' });
+  const challengeRewards = page.locator('.ev-high-tier').filter({ hasText: '高层挑战奖励' });
+  await expect(page.locator('.ev-high-tier')).toHaveCount(2);
+  for (const floor of [8, 16, 25]) await expect(bossRewards).toContainText(`第 ${floor} 层`);
+  for (const floor of [16, 20, 25]) await expect(challengeRewards).toContainText(`${floor} 层`);
 });
 
 

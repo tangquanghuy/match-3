@@ -15,6 +15,7 @@
  *  - 窗口内不同玩家太少（池浅）→ 全部人机；排除自己、最近交手过的人、同一批里的重复；
  *  - 血怒槽按 frenzyRealShare 的独立概率换成真人：按该槽档位挑人，再整队套血怒属性加成与 VP 倍率。
  */
+import { isImmortal, IMMORTAL_TEAM_LIMIT } from '../../data/immortals';
 import { INVASION_MATCHMAKING as MM } from '../data/invasionMatchmaking';
 import { INVASION_DIFFICULTIES, type InvasionDifficulty } from '../data/invasionDifficulty';
 import { CATALOG_WEAPONS } from '../data/weaponCatalog';
@@ -212,6 +213,7 @@ const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFi
 export function usableEntry(entry: MirrorPoolEntry, now: number): boolean {
   if (entry.ruleset !== RULESET_VERSION || now - entry.recordedAt > MM.maxAgeMs) return false;
   if (!Array.isArray(entry.team) || entry.team.length !== 4 || !finite(entry.power) || entry.power <= 0) return false;
+  if (entry.team.filter(c => isImmortal(getTroopById(Number(c?.templateId)))).length > IMMORTAL_TEAM_LIMIT) return false;
   return entry.team.every((c) => {
     if (!c || typeof c !== 'object' || !c.stats) return false;
     if (![c.stats.hp, c.stats.attack, c.stats.armor, c.stats.magic].every(finite) || c.stats.hp <= 0) return false;
@@ -228,6 +230,7 @@ export function mirrorFromEntry(entry: MirrorPoolEntry, difficulty: InvasionDiff
     id: `pl-${entry.ownerKey}${suffix}`,
     name: entry.name,
     rating: entry.power,
+    league: entry.league,
     frenzy: false,
     frenzyMultiplier: 1,
     vp: entry.vp,

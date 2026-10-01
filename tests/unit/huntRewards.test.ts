@@ -1,10 +1,9 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { SeededRNG } from '../../src/engine/rng';
-import { GEM_CHEST_EXTRA } from '../../src/meta/data/economy';
 import { ARCANE_STONE_KEYS, STONE_COLORS, parseStoneKey } from '../../src/meta/data/materials';
 import { newSave } from '../../src/meta/state/schema';
 import {
-  HUNT_EXPECTED_GEMS, HUNT_FIXED_REWARDS, HUNT_STONE_BASE, HUNT_STONE_DROPS,
+  HUNT_EXPECTED_GEMS, HUNT_FIXED_REWARDS, HUNT_STONE_BASE, HUNT_STONE_DROPS, HUNT_CHEST_STONE_DROPS,
   LOOT_LADDER, commitMove, rollRewards,
 } from '../../src/meta/systems/treasureHunt';
 
@@ -17,8 +16,8 @@ const currencies = ['gold', 'souls', 'glory', 'gems', 'goldKeys'] as const;
 
 describe('treasure hunt currency-first rewards', () => {
   it.each([
-    [6, { gold: 50_000, souls: 1_500, glory: 300, gems: 100 }],
-    [7, { gold: 200_000, souls: 5_000, glory: 1_000, gems: 300 }],
+    [6, { gold: 35_000, souls: 1_050, glory: 210, gems: 70 }],
+    [7, { gold: 140_000, souls: 3_500, glory: 700, gems: 210 }],
   ] as const)('tier %i always awards all four currencies together', (tier, expected) => {
     for (const roll of [0, 1000, 1800, 2000, 2050, 9999]) {
       const grant = rollRewards([tier], 0, new FixedRoll(roll));
@@ -27,8 +26,13 @@ describe('treasure hunt currency-first rewards', () => {
     }
   });
 
-  it.each([6, 7])('tier %i has exact absolute material probabilities, including a no-stone outcome', tier => {
-    const counts: Record<string, number> = { major: 0, runic: 0, arcane: 0, celestial: 0, none: 0 };
+  it.each([
+    [4, { minor: 2000, major: 500, runic: 0, arcane: 0, celestial: 0, none: 7500 }],
+    [5, { minor: 1500, major: 1000, runic: 0, arcane: 0, celestial: 0, none: 7500 }],
+    [6, { minor: 0, major: 1000, runic: 800, arcane: 200, celestial: 50, none: 7950 }],
+    [7, { minor: 0, major: 1000, runic: 800, arcane: 200, celestial: 50, none: 7950 }],
+  ] as const)('tier %i has exact absolute material probabilities, including a no-stone outcome', (tier, expected) => {
+    const counts: Record<string, number> = { minor: 0, major: 0, runic: 0, arcane: 0, celestial: 0, none: 0 };
     for (let roll = 0; roll < HUNT_STONE_BASE; roll++) {
       const stones = rollRewards([tier], 1_000_000, new FixedRoll(roll)).traitstones;
       const entries = Object.entries(stones);
@@ -40,15 +44,13 @@ describe('treasure hunt currency-first rewards', () => {
       expect(parsed).not.toBeNull();
       counts[parsed!.tier]!++;
     }
-    expect(counts).toEqual({ major: 1000, runic: 800, arcane: 200, celestial: 50, none: 7950 });
+    expect(counts).toEqual(expected);
   });
 
-  it('matches gem chest base material odds and single-item quantities without conditional renormalization', () => {
-    for (const row of HUNT_STONE_DROPS) {
-      const chest = GEM_CHEST_EXTRA.find(entry => entry.loot.type === 'stone' && entry.loot.tier === row.tier)!;
-      expect(row.weight / HUNT_STONE_BASE).toBe(chest.weight / 100_000);
-      expect(chest.loot).toMatchObject({ amount: 1 });
-    }
+  it('keeps treasure hunt stone odds independent of gem chest changes', () => {
+    expect(HUNT_STONE_DROPS.map(({ tier, weight }) => [tier, weight])).toEqual([
+      ['major', 1_000], ['runic', 800], ['arcane', 200], ['celestial', 50],
+    ]);
   });
 
   it('all canonical arcane combinations and base colors are reachable', () => {
@@ -63,9 +65,9 @@ describe('treasure hunt currency-first rewards', () => {
   });
 
   it('low tiers award fixed currencies and never give stones regardless of moves', () => {
-    const cells = [0, 1, 2, 3, 4, 5];
+    const cells = [0, 1, 2, 3];
     expect(rollRewards(cells, 15_000, new SeededRNG(1))).toEqual({
-      gold: 12_850, souls: 700, glory: 130, gems: 20, goldKeys: 0, traitstones: {},
+      gold: 594, souls: 35, glory: 0, gems: 0, goldKeys: 0, traitstones: {},
     });
     expect(rollRewards([6, 7], 0, new SeededRNG(19))).toEqual(rollRewards([6, 7], 15_000, new SeededRNG(19)));
   });
@@ -73,16 +75,52 @@ describe('treasure hunt currency-first rewards', () => {
   it('multiple high-tier treasures add all currencies, with at most one bonus stone each', () => {
     const cells = [6, 6, 6, 7];
     const grant = rollRewards(cells, 0, new SeededRNG(42));
-    expect(grant).toMatchObject({ gold: 350_000, souls: 9_500, glory: 1_900, gems: 600 });
+    expect(grant).toMatchObject({ gold: 245_000, souls: 6_650, glory: 1_330, gems: 420 });
     expect(Object.values(grant.traitstones).reduce((a, b) => a + b, 0)).toBeLessThanOrEqual(4);
     expect(grant).toEqual(rollRewards(cells, 0, new SeededRNG(42)));
     for (const key of currencies) expect(HUNT_FIXED_REWARDS[7]![key] ?? 0).toBeGreaterThanOrEqual(3 * (HUNT_FIXED_REWARDS[6]![key] ?? 0));
   });
 
+
+  it('each chest rolls independently, misses do not stop later rolls, and same stones accumulate', () => {
+    class ChestRolls extends SeededRNG {
+      calls = 0;
+      constructor(private rolls: number[]) { super(1); }
+      override nextInt(max: number): number {
+        if(max !== HUNT_STONE_BASE) return 0;
+        const roll=this.rolls[this.calls++];
+        if(roll===undefined)throw new Error('unexpected extra chest roll');
+        return roll;
+      }
+    }
+    const rng = new ChestRolls([0,9999,0,1000,9999,0]);
+    const grant = rollRewards([0,4,4,5,6,7,7,3], 99999, rng);
+    expect(rng.calls).toBe(6);
+    const color = STONE_COLORS[0]!.key;
+    expect(grant.traitstones).toEqual({ [`minor:${color}`]:2, [`major:${color}`]:1, [`runic:${color}`]:1 });
+    // Not one drop per run or one roll per chest type: all 12 identical boxes can hit.
+    const many = new ChestRolls(Array(12).fill(0));
+    expect(rollRewards(Array(12).fill(6),0,many).traitstones).toEqual({ [`major:${color}`]:12 });
+    expect(many.calls).toBe(12);
+  });
+
+  it('each chest rule displays its own absolute drop table and leaves a no-drop outcome',()=>{
+    expect(LOOT_LADDER[4]!.stoneOdds).toBe('初级石 20%、高级石 5%');
+    expect(LOOT_LADDER[5]!.stoneOdds).toBe('初级石 15%、高级石 10%');
+    for(const tier of [4,5,6,7]){
+      const rows=HUNT_CHEST_STONE_DROPS[tier]!;
+      expect(rows.reduce((sum,row)=>sum+row.weight,0)).toBeLessThan(HUNT_STONE_BASE);
+      expect(new Set(rows.map(row=>row.tier)).size).toBe(rows.length);
+    }
+    expect(LOOT_LADDER.slice(0,4).every(row=>row.stoneOdds==='')).toBe(true);
+    expect(LOOT_LADDER[6]!.stoneOdds).toBe('高级石 10%、符文石 8%、秘法石 2%、圣辉石 0.5%');
+    expect(LOOT_LADDER[7]!.stoneOdds).toBe(LOOT_LADDER[6]!.stoneOdds);
+  });
+
   it('rule display and economy model use the same fixed currency table', () => {
-    expect(HUNT_EXPECTED_GEMS).toEqual([0, 0, 0, 0, 0, 20, 100, 300]);
-    expect(LOOT_LADDER[6]!.reward).toBe('50,000 黄金 + 1,500 灵魂 + 300 荣耀 + 100 宝石');
-    expect(LOOT_LADDER[7]!.reward).toBe('200,000 黄金 + 5,000 灵魂 + 1,000 荣耀 + 300 宝石');
+    expect(HUNT_EXPECTED_GEMS).toEqual([0, 0, 0, 0, 0, 14, 70, 210]);
+    expect(LOOT_LADDER[6]!.reward).toBe('35,000 黄金 + 1,050 灵魂 + 210 荣耀 + 70 宝石');
+    expect(LOOT_LADDER[7]!.reward).toBe('140,000 黄金 + 3,500 灵魂 + 700 荣耀 + 210 宝石');
     for (const [tier, reward] of HUNT_FIXED_REWARDS.entries()) {
       const actual = rollRewards([tier], 0, new FixedRoll(9999));
       for (const key of currencies) expect(actual[key]).toBe(reward[key] ?? 0);
@@ -106,7 +144,7 @@ describe('treasure hunt currency-first rewards', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.over).toBe(true);
-    expect(result.grant!.gems).toBeGreaterThanOrEqual(400);
+    expect(result.grant!.gems).toBeGreaterThanOrEqual(280);
     expect(save.treasureHunt).toBeNull();
     for (const key of currencies) expect(save.currencies[key] - before.currencies[key]).toBe(result.grant![key]);
     const expected = { ...before.materials.traitstones };

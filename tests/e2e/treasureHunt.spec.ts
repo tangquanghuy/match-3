@@ -209,21 +209,24 @@ for (const width of [1440, 390, 320]) {
   test(`fixed high-tier currency rewards and sparse material rules ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await setup(page, 1);
-    await page.evaluate(async () => {
+    const expected = await page.evaluate(async () => {
       const path = '/src/meta/systems/treasureHunt.ts';
       const { commitMove } = await import(/* @vite-ignore */ path);
       const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+      save.treasureHunt.cells[54] = 4;
+      save.treasureHunt.cells[55] = 5;
       save.treasureHunt.cells[56] = 6;
       save.treasureHunt.cells[63] = 7;
       save.treasureHunt.moves = 2999;
-      let found = false;
+      let found: { chestCount: number; stones: Record<string, number> } | null = null;
       for (let seed = 1; seed <= 1000; seed++) {
         save.treasureHunt.rng = seed;
         const result = commitMove(structuredClone(save), 1, 9);
-        if (result.ok && result.grant && Object.keys(result.grant.traitstones).length) { found = true; break; }
+        if (result.ok && result.grant && Object.values(result.grant.traitstones).reduce((sum:number,n)=>sum+Number(n),0)>=3) { found = { chestCount: result.cells.filter((tier:number)=>tier>=4).length, stones: result.grant.traitstones }; break; }
       }
       if (!found) throw new Error('No material-reward seed found');
       localStorage.setItem('gems.meta.save', JSON.stringify(save));
+      return found;
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready', 'true');
@@ -235,9 +238,14 @@ for (const width of [1440, 390, 320]) {
     await page.locator('#huntHelp').click();
     const rules = page.locator('#huntRules');
     await expect(rules).toContainText('每件宝物同时获得下表全部货币');
-    await expect(rules).toContainText('50,000 黄金 + 1,500 灵魂 + 300 荣耀 + 100 宝石');
-    await expect(rules).toContainText('200,000 黄金 + 5,000 灵魂 + 1,000 荣耀 + 300 宝石');
-    await expect(rules).toContainText('高级石 10%、符文石 8%、秘法石 2%、圣辉石 0.5%');
+    await expect(rules).toContainText('35,000 黄金 + 1,050 灵魂 + 210 荣耀 + 70 宝石');
+    await expect(rules).toContainText('140,000 黄金 + 3,500 灵魂 + 700 荣耀 + 210 宝石');
+    await expect(rules).toContainText('各自独立判定特质石掉落');
+    await expect(rules).toContainText('一局可获得多颗');
+    await expect(rules.locator('li').nth(4)).toContainText('初级石 20%、高级石 5%');
+    await expect(rules.locator('li').nth(5)).toContainText('初级石 15%、高级石 10%');
+    await expect(rules.locator('li').nth(6)).toContainText('高级石 10%、符文石 8%、秘法石 2%、圣辉石 0.5%');
+    await expect(rules.locator('li').nth(7)).toContainText('高级石 10%、符文石 8%、秘法石 2%、圣辉石 0.5%');
     await expect(rules).not.toContainText('每完成 15 次交换');
     await expect(rules).not.toContainText('随机开出以下一项');
     await rules.locator('li').last().scrollIntoViewIfNeeded();
@@ -252,7 +260,7 @@ for (const width of [1440, 390, 320]) {
     const after = await snapshot(page);
     expect(after.treasureHunt).toBeNull();
     for (const [key, minimum, name] of [
-      ['gold', 250000, '黄金'], ['souls', 6500, '灵魂'], ['glory', 1300, '荣耀'], ['gems', 400, '宝石'],
+      ['gold', 175000, '黄金'], ['souls', 4550, '灵魂'], ['glory', 910, '荣耀'], ['gems', 280, '宝石'],
     ] as const) {
       const paid = after.currencies[key] - before.currencies[key];
       expect(paid).toBeGreaterThanOrEqual(minimum);
@@ -261,8 +269,9 @@ for (const width of [1440, 390, 320]) {
       await expect(card.locator('strong')).toHaveText(`+${paid.toLocaleString('en-US')}`);
     }
     const stoneCount = (save: typeof after) => Object.values(save.materials.traitstones as Record<string, number>).reduce((a, b) => a + b, 0);
-    expect(stoneCount(after) - stoneCount(before)).toBeGreaterThan(0);
-    expect(stoneCount(after) - stoneCount(before)).toBeLessThanOrEqual(2);
+    expect(stoneCount(after) - stoneCount(before)).toBeGreaterThanOrEqual(3);
+    expect(stoneCount(after) - stoneCount(before)).toBeLessThanOrEqual(expected.chestCount);
+    for (const [key, quantity] of Object.entries(expected.stones)) expect(after.materials.traitstones[key] - (before.materials.traitstones[key] ?? 0)).toBe(quantity);
     for (const [key, quantity] of Object.entries(after.materials.traitstones) as [string, number][]) {
       const added = quantity - (before.materials.traitstones[key] ?? 0);
       if (added <= 0) continue;
@@ -281,3 +290,101 @@ for (const width of [1440, 390, 320]) {
     expect((await snapshot(page)).materials.traitstones).toEqual(after.materials.traitstones);
   });
 }
+
+
+for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:568},{width:844,height:390}]) {
+  test(`manual finish pays current board, cancel preserves it, layout ${viewport.width}`, async ({page}) => {
+    await page.setViewportSize(viewport);
+    await setup(page, 20);
+    const expected = await page.evaluate(async () => {
+      const path = '/src/meta/systems/treasureHunt.ts';
+      const { finishHunt } = await import(/* @vite-ignore */ path);
+      const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+      save.treasureHunt.cells[54] = 4; save.treasureHunt.cells[55] = 5;
+      save.treasureHunt.cells[56] = 6; save.treasureHunt.cells[63] = 7;
+      const result = finishHunt(structuredClone(save));
+      if (!result.ok) throw new Error(result.message);
+      localStorage.setItem('gems.meta.save', JSON.stringify(save));
+      return result.grant;
+    });
+    await page.reload({waitUntil:'domcontentloaded'});
+    await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready','true');
+    const before = await snapshot(page);
+    const finish = page.locator('#huntFinish');
+    await expect(finish).toBeVisible();
+    const box = (await finish.boundingBox())!;
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
+    const canvas = (await page.getByTestId('hunt-canvas').boundingBox())!;
+    // Landscape places the action beside the board; portrait/desktop place it below.
+    const disjoint = canvas.y + canvas.height <= box.y || box.y + box.height <= canvas.y
+      || canvas.x + canvas.width <= box.x || box.x + box.width <= canvas.x;
+    expect(disjoint).toBe(true);
+    await page.screenshot({path:`artifacts/hunt-finish-board-${viewport.width}.png`});
+    await finish.click();
+    await expect(page.locator('#huntEndDialog')).toBeVisible();
+    await expect(page.locator('#huntEndDialog')).toContainText('当前棋盘');
+    await page.locator('#huntEndCancel').click();
+    expect((await snapshot(page)).treasureHunt).toEqual(before.treasureHunt);
+    expect((await snapshot(page)).currencies).toEqual(before.currencies);
+    await finish.click();
+    await page.screenshot({path:`artifacts/hunt-finish-dialog-${viewport.width}.png`});
+    await page.locator('#huntEndConfirm').click();
+    await expect(page.locator('.result-screen')).toBeVisible();
+    const after = await snapshot(page);
+    expect(after.treasureHunt).toBeNull();
+    expect(after.materials.treasureMaps).toBe(before.materials.treasureMaps);
+    for (const key of ['gold','souls','glory','gems'] as const) {
+      expect(after.currencies[key] - before.currencies[key]).toBe(expected![key]);
+      await expect(page.locator(`[data-battle-currency="${key}"] strong`)).toHaveText(`+${expected![key].toLocaleString('en-US')}`);
+    }
+    const stones = {...before.materials.traitstones};
+    for (const [key, amount] of Object.entries(expected!.traitstones)) stones[key] = (stones[key] ?? 0) + amount;
+    expect(after.materials.traitstones).toEqual(stones);
+    await page.reload({waitUntil:'domcontentloaded'});
+    expect((await snapshot(page)).currencies).toEqual(after.currencies);
+    expect((await snapshot(page)).treasureHunt).toBeNull();
+  });
+}
+
+test('manual finish network failure preserves board and permits retry', async ({page}) => {
+  await setup(page, 20);
+  const before = await snapshot(page);
+  await page.evaluate(async () => {
+    const path='/src/meta/gateway/index.ts';
+    const gateway=(await import(/* @vite-ignore */ path)).metaGateway();
+    const original=gateway.finishTreasureHunt.bind(gateway);
+    let first=true;
+    gateway.finishTreasureHunt=async () => {
+      if(first) {first=false;throw new Error('simulated offline');}
+      return original();
+    };
+  });
+  await page.locator('#huntFinish').click();
+  await page.locator('#huntEndConfirm').click();
+  await expect(page.locator('#huntEndConfirm')).toBeEnabled();
+  await expect(page.locator('#huntEndDialog')).toBeVisible();
+  expect((await snapshot(page)).treasureHunt).toEqual(before.treasureHunt);
+  expect((await snapshot(page)).currencies).toEqual(before.currencies);
+  await page.locator('#huntEndConfirm').click();
+  await expect(page.locator('.result-screen')).toBeVisible();
+  expect((await snapshot(page)).treasureHunt).toBeNull();
+});
+
+test('manual finish lost receipt synchronizes paid state without keeping a stale board', async ({page}) => {
+  await setup(page, 20);
+  await page.evaluate(async () => {
+    const path='/src/meta/gateway/index.ts';
+    const gateway=(await import(/* @vite-ignore */ path)).metaGateway();
+    const original=gateway.finishTreasureHunt.bind(gateway);
+    gateway.finishTreasureHunt=async () => {await original();throw new Error('simulated lost receipt');};
+  });
+  const before = await snapshot(page);
+  await page.locator('#huntFinish').click();
+  await page.locator('#huntEndConfirm').click();
+  await expect(page).toHaveURL(/#map$/);
+  const paid = await snapshot(page);
+  expect(paid.treasureHunt).toBeNull();
+  expect(paid.currencies.gold).toBeGreaterThan(before.currencies.gold);
+  await page.reload({waitUntil:'domcontentloaded'});
+  expect((await snapshot(page)).currencies).toEqual(paid.currencies);
+});

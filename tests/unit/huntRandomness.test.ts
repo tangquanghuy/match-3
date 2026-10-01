@@ -41,7 +41,7 @@ describe('藏宝图：零匹配偏置，与普通战斗隔离', () => {
     }
   });
 
-  it('每次补充按72/22/5/1独立抽取；连锁中的每颗宝物也不读取邻居或额外择优', () => {
+  it('每次补充按55/30/12/3独立抽取；连锁中的每颗宝物也不读取邻居或额外择优', () => {
     forbidBattleGeneration();
     let checked = 0;
     let cascadeRefills = 0;
@@ -58,7 +58,7 @@ describe('藏宝图：零匹配偏置，与普通战斗隔离', () => {
         if (refill.chainCount > 1) cascadeRefills++;
         for (const spawn of refill.spawns) {
           const roll = natural.nextInt(100);
-          const tier = roll < 72 ? 0 : roll < 94 ? 1 : roll < 99 ? 2 : 3;
+          const tier = roll < 55 ? 0 : roll < 85 ? 1 : roll < 97 ? 2 : 3;
           expect(spawn.gemType).toMatchObject({ kind: 'special', spec: { tier: tier + 1 } });
         }
       }

@@ -187,7 +187,7 @@ export function forecastTarget(input: ForecastInput) {
   const { rarity, selected = true, selectedCount = selected ? 9 : 0, batchSize = 10 } = input;
   const weights = input.weights ?? GEM_CHEST_WEIGHTS;
   const troopTotal = weights.reduce((a,b)=>a+b,0);
-  // 默认权重只覆盖部队档（占全部开箱 80%），剩余是材料抽：不命中目标、不满足保底
+  // 默认权重只覆盖部队档（占全部开箱 78.8%），剩余是材料抽：不命中目标、不满足保底
   const total = input.weights ? troopTotal : GEM_CHEST_BASE;
   const extraWeight = total - troopTotal;
   const pool = TROOPS.filter(t=>t.rarityIdx===rarity).length;

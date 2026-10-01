@@ -1,3 +1,5 @@
+import type { BattleResult } from '../../src/session/contract';
+import { battleMapDrop } from '../../src/meta/systems/battleMaps';
 import { invasionVictoryVp } from '../../src/meta/systems/invasion';
 import { heroXpToNext } from '../../src/meta/data/classes';
 /**
@@ -378,4 +380,30 @@ expect(INVASION_ZONES).toHaveLength(10);
     expect(s.currencies.souls - before.souls).toBe(10);
     expect(s.hero.xp).toBe(20);
   });
+});
+
+
+describe('battle map payout integration', () => {
+ it.each([
+   ['win-drop', 0, 'player', undefined, 1],
+   ['win-skill-and-drop', 1, 'player', undefined, 2],
+   ['win-cap', 99, 'player', undefined, 2],
+   ['defeat-skills', 99, 'enemy', undefined, 2],
+   ['defeat-no-drop', 0, 'enemy', undefined, 0],
+   ['surrender', 99, 'enemy', 'surrender', 0],
+ ] as const)('%s', (_name, maps, winner, endReason, expected) => {
+  const requestId = Array.from({ length: 10000 }, (_, i) => `map-integration-${i}`).find(requestId => battleMapDrop({ requestId, winner: 'player' }) === 1)!;
+  expect(requestId).toBeTruthy();
+  const r: BattleResult = { schemaVersion: 1, rulesetVersion: '1.1.0', battleId: 'map-integration', requestId, seed: 1,
+    winner, endReason, turns: 1, combatants: [], defeatedExternalIds: [], summonedCount: 0,
+    actionLogDigest: '', eventSummary: [], economy: { gold: 0, souls: 0, gems: 0, maps } };
+
+  const s = save(20);
+  ensureInvasionSeason(s, 0, WEEK);
+  const mirror = invasionCandidates(s, WEEK + 3600000, WEEK)[0]!;
+  const before = s.materials.treasureMaps;
+  const out = settleInvasionBattle(s, r, mirror.id, WEEK + 3600000, WEEK, WEEK);
+  expect(out).toMatchObject({ ok: true, collected: { maps: expected } });
+  expect(s.materials.treasureMaps - before).toBe(expected);
+ });
 });

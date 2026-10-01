@@ -48,10 +48,15 @@ test('手机端选择材料展开详情并可关闭', async ({ page }) => {
 test('符卷与钥匙同栏展示，荣耀钥匙可查看和使用', async ({ page }) => {
   await page.goto('/game.html#bag/supplies');
   await expect(page.locator('.bag-tab')).toHaveCount(3);
-  await expect(page.locator('.bag-item')).toHaveCount(3);
+  await expect(page.locator('.bag-item')).toHaveCount(4);
+  await expect(page.locator('[data-bag-item="burningSouls"]')).toContainText('燃烧灵魂');
+  await expect(page.locator('[data-bag-item="burningSouls"] .bag-item-count')).toHaveText('未获得');
   await expect(page.locator('[data-bag-item="gloryKeys"] .bag-item-count')).toHaveText('未获得');
   await expect(page.locator('[data-bag-item="forgeScrolls"]')).toContainText('熔铸符卷');
   await expect(page.locator('[data-bag-item="treasureMaps"]')).toContainText('藏宝图');
+  await page.locator('[data-bag-item="burningSouls"]').click();
+  await expect(page.locator('.bag-detail-card:visible')).toContainText('用于不朽升级与特质解锁');
+  await expect(page.locator('.bag-detail-card:visible')).toContainText('33 / 66 / 99');
 
   await page.evaluate(() => {
     const save = JSON.parse(localStorage.getItem('gems.meta.save')!);

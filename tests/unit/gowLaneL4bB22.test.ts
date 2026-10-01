@@ -94,7 +94,7 @@ describe('L4b troop:7499/spell:9244 Brown->Yellow Dragon Gems, 1 Magic to all Ye
  const board=pattern([BaseColor.Brown,BaseColor.Blue,BaseColor.Purple,BaseColor.Red]);
  it('source/native/prototype/display binding (AllyColor Data 3 = Yellow)',()=>{
   troopBinding(7499,9244,15,base.colors,'Convert all Brown Gems to Yellow Dragon Gems. Give 1 Magic to all Yellow Allies.',
-   [{Color1:'Brown',Amount:100,Color2:'DragonYellow',Type:'ConvertGems'},{Target:'AllyColor',Amount:1,Type:'IncreaseSpellPower',Data:'3'}],'将所有棕色宝石转换成黄龙宝石。给予所有黄色盟友 1 点魔力值。');
+   [{Color1:'Brown',Amount:100,Color2:'DragonYellow',Type:'ConvertGems'},{Target:'AllyColor',Amount:1,Type:'IncreaseSpellPower',Data:'3'}],'将所有棕色宝石转换成黄色龙宝石。给予所有黄色盟友 1 点魔力值。');
   expect(registry.prototypes.get('9244')).toEqual({segments:[{kind:'gem',params:{op:'transform',from:'Brown',to:'SKULL',toSpecial:{kind:'dragonGem',color:'Yellow'}}},
    {kind:'buff',target:'allyAll',stat:'magic',scaling:{base:1,mult:0},ifCond:{kind:'targetColor',color:'Yellow'}}]});
  });

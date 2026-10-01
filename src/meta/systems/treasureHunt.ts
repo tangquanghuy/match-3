@@ -3,7 +3,7 @@
  *
  * 玩法：消耗 1 张藏宝图，8×8 棋盘、起始 8 步；三连升级，四连不耗步，五连净加一步。
  * 金库不再合成或交换；步数归零后，按最终棋盘逐件累计固定货币奖励。
- * 红箱、金库各额外抽一次特质石（最多一颗），不替代货币，不按已走步数赠石。
+ * 从褐箱开始，每个宝箱／金库按各自概率额外抽一次特质石（单箱最多一颗，整局可得多颗），不替代货币，不按已走步数赠石。
  * 奖励为本项目配置，非 GOW 官方奖励表。
  */
 import { HuntBoardTrace } from '../../engine/HuntBoard';
@@ -25,34 +25,45 @@ export const LOOT_NAMES = ['铜币', '银币', '金币', '钱袋', '褐箱', '�
 
 type Option = { gold?: number; souls?: number; gems?: number; glory?: number; goldKeys?: number };
 
-/** 每件终盘宝物同时获得全部所列货币；不是随机抽取其中一项。 */
+/** 每件终盘宝物同时获得全部所列货币；不是随机抽取其中一项。四货币均为原表70%，逐件向下取整。 */
 export const HUNT_FIXED_REWARDS: readonly Readonly<Option>[] = [
-  { gold: 25 },
-  { gold: 75 },
-  { gold: 250 },
-  { gold: 500, souls: 50 },
-  { gold: 2_000, souls: 150, glory: 30 },
-  { gold: 10_000, souls: 500, glory: 100, gems: 20 },
-  { gold: 50_000, souls: 1_500, glory: 300, gems: 100 },
-  { gold: 200_000, souls: 5_000, glory: 1_000, gems: 300 },
+  { gold: 17 },
+  { gold: 52 },
+  { gold: 175 },
+  { gold: 350, souls: 35 },
+  { gold: 1_400, souls: 105, glory: 21 },
+  { gold: 7_000, souls: 350, glory: 70, gems: 14 },
+  { gold: 35_000, souls: 1_050, glory: 210, gems: 70 },
+  { gold: 140_000, souls: 3_500, glory: 700, gems: 210 },
 ];
 
-/** 每个红箱/金库独立一次，万分比；剩余79.5%不附送材料，货币照常全部到账。
- * 对照宝石宝箱当前基础概率，独立配置避免未来抽卡调参隐式改变寻宝经济。
+/** 红箱/金库的高阶材料表，万分比；剩余79.5%不附送材料，货币照常全部到账。
+ * 寻宝概率独立配置，抽卡调参不应隐式改变寻宝经济。
  */
-export const HUNT_STONE_DROPS: readonly { tier: Exclude<TraitstoneTier, 'minor'>; weight: number }[] = [
+type HuntStoneDrop = Readonly<{ tier: TraitstoneTier; weight: number }>;
+export const HUNT_STONE_DROPS: readonly HuntStoneDrop[] = [
   { tier: 'major', weight: 1_000 },
   { tier: 'runic', weight: 800 },
   { tier: 'arcane', weight: 200 },
   { tier: 'celestial', weight: 50 },
 ];
 export const HUNT_STONE_BASE = 10_000;
-const STONE_LABELS = { major: '高级石', runic: '符文石', arcane: '秘法石', celestial: '圣辉石' };
-export const HUNT_STONE_ODDS_TEXT = HUNT_STONE_DROPS
-  .map(row => `${STONE_LABELS[row.tier]} ${row.weight / HUNT_STONE_BASE * 100}%`).join('、');
+const STONE_LABELS = { minor: '初级石', major: '高级石', runic: '符文石', arcane: '秘法石', celestial: '圣辉石' };
+/** 终盘每个箱子各判定一次；褐箱／绿箱补基础材料，不扩散秘法／圣辉产出。 */
+export const HUNT_CHEST_STONE_DROPS: Readonly<Partial<Record<number, readonly HuntStoneDrop[]>>> = {
+  4: [{ tier: 'minor', weight: 2_000 }, { tier: 'major', weight: 500 }],
+  5: [{ tier: 'minor', weight: 1_500 }, { tier: 'major', weight: 1_000 }],
+  6: HUNT_STONE_DROPS,
+  7: HUNT_STONE_DROPS,
+};
+function stoneOddsText(tier: number): string {
+  return (HUNT_CHEST_STONE_DROPS[tier] ?? [])
+    .map(row => `${STONE_LABELS[row.tier]} ${row.weight / HUNT_STONE_BASE * 100}%`).join('、');
+}
 
-export const LOOT_LADDER: readonly { name: string; reward: string }[] = HUNT_FIXED_REWARDS.map((reward, tier) => ({
+export const LOOT_LADDER: readonly { name: string; reward: string; stoneOdds: string }[] = HUNT_FIXED_REWARDS.map((reward, tier) => ({
   name: LOOT_NAMES[tier]!,
+  stoneOdds: stoneOddsText(tier),
   reward: ([['gold', '黄金'], ['souls', '灵魂'], ['glory', '荣耀'], ['gems', '宝石']] as const)
     .filter(([key]) => (reward[key] ?? 0) > 0)
     .map(([key, label]) => `${reward[key]!.toLocaleString('en-US')} ${label}`).join(' + '),
@@ -163,12 +174,14 @@ export function hasLegalMove(cells: readonly number[]): boolean {
 }
 
 /** 基础补充自然随机（匹配强度 0），独立于 BATTLE_COMBO_BIAS。
- * 仅达到本局随机软上限后，由 fill 做负向择优；触发前每格只抽一次。 */
+ * 达到随机奖励软上限或进入长局后，由 fill 做负向择优；触发前每格只抽一次。 */
+const HUNT_DROP_WEIGHTS = [55, 30, 12, 3] as const;
 function rollDrop(rng: SeededRNG): number {
-  const n = rng.nextInt(100);
-  if (n < 72) return 0;
-  if (n < 94) return 1;
-  if (n < 99) return 2;
+  let roll = rng.nextInt(100);
+  for (let tier = 0; tier < HUNT_DROP_WEIGHTS.length; tier++) {
+    roll -= HUNT_DROP_WEIGHTS[tier]!;
+    if (roll < 0) return tier;
+  }
   return 3;
 }
 
@@ -198,64 +211,48 @@ function swapMatchSize(cells: readonly number[], index: number): number {
   return horizontal >= 3 && vertical >= 3 ? horizontal + vertical - 1 : Math.max(horizontal, vertical);
 }
 
-/** Lower is calmer: suppress automatic bonus chains first, then future 4/5 opportunities. */
-function refillMatchScore(cells: number[]): number {
+/** Cooling targets only net-positive (5+) extra-turn loops made of copper/silver.
+ * Triples, four-matches and gold/bag/chest upgrades carry no penalty, including cascades.
+ * Score only; never change an existing piece or cancel an earned extra turn. */
+export function huntLowTierLoopScore(cells: number[]): number {
   const groups = findGroups(cells);
-  if (groups.length) {
-    const best = Math.max(...groups.map(group => group.length));
-    return (best >= 5 ? 10_000 : best >= 4 ? 5_000 : 0)
-      + groups.length * 200 + groups.reduce((sum, group) => sum + group.length * 10, 0);
+  let score = 0;
+  for (const group of groups) {
+    if (cells[group[0]!]! <= 1 && group.length >= 5) {
+      score += 10_000;
+    }
   }
-  let opportunities = 0;
   for (let a = 0; a < HUNT_CELLS; a++) {
     if (cells[a] === VAULT) continue;
     for (const b of [a % HUNT_SIZE < HUNT_SIZE - 1 ? a + 1 : -1, a + HUNT_SIZE < HUNT_CELLS ? a + HUNT_SIZE : -1]) {
       if (b < 0 || cells[b] === VAULT || cells[a] === cells[b]) continue;
       const av = cells[a]!, bv = cells[b]!;
       cells[a] = bv; cells[b] = av;
-      const best = Math.max(swapMatchSize(cells, a), swapMatchSize(cells, b));
-      opportunities += best >= 5 ? 2 : best >= 4 ? 1 : 0;
+      const best = Math.max(bv <= 1 ? swapMatchSize(cells, a) : 0, av <= 1 ? swapMatchSize(cells, b) : 0);
+      score += best >= 5 ? 1 : 0;
       cells[a] = av; cells[b] = bv;
     }
   }
-  return opportunities;
+  return score;
 }
 
-/** Post-cap only: downweight neighboring duplicates rather than manufacturing matches.
- * Every low-tier treasure keeps nonzero weight; nothing is removed from the pool. */
-function rollCoolingDrop(cells: readonly number[], index: number, rng: SeededRNG, pressure: number): number {
-  const row = Math.floor(index / HUNT_SIZE), col = index % HUNT_SIZE;
-  const neighbors = [row > 0 ? index - HUNT_SIZE : -1, row < HUNT_SIZE - 1 ? index + HUNT_SIZE : -1,
-    col > 0 ? index - 1 : -1, col < HUNT_SIZE - 1 ? index + 1 : -1];
-  const weights = [72, 22, 5, 1].map((weight, tier) => {
-    const same = neighbors.filter(i => i >= 0 && cells[i] === tier).length;
-    return weight / (1 + pressure * same);
-  });
-  let roll = rng.next() * weights.reduce((sum, weight) => sum + weight, 0);
-  for (let tier = 0; tier < weights.length; tier++) {
-    roll -= weights[tier]!;
-    if (roll < 0) return tier;
-  }
-  return 3;
-}
-
-function fill(cells: number[], rng: SeededRNG, cap: HuntSoftCap): void {
+function fill(cells: number[], rng: SeededRNG, cap: HuntSoftCap, moves: number): void {
   const empty = cells.flatMap((tier, i) => tier < 0 ? [i] : []);
   if (!empty.length) return;
-  const pressure = -huntComboBias(cap);
-  // Before the threshold this is exactly one draw per empty cell, without scoring.
+  const pressure = -huntComboBias(cap, moves);
+  // Before cooling this is exactly one draw per empty cell, without scoring.
   if (pressure === 0) {
     for (const i of empty) cells[i] = rollDrop(rng);
     return;
   }
   let best: number[] = [], bestScore = Infinity;
-  // Post-cap trials use neighboring-duplicate downweighting. Existing pieces never change.
-  // Bounded effort: at most 11 candidates, only after the single soft threshold.
+  // Every candidate uses the natural drop pool; only low-tier bonus loops are scored.
+  // Bounded effort: at most 11 candidates, only while reward/long-run cooling is active.
   for (let attempt = 0; attempt < 1 + pressure * 2; attempt++) {
     // Clear the previous trial, so later empty slots do not bias earlier draws.
     for (const i of empty) cells[i] = EMPTY;
-    for (const i of empty) cells[i] = rollCoolingDrop(cells, i, rng, pressure);
-    const score = refillMatchScore(cells);
+    for (const i of empty) cells[i] = rollDrop(rng);
+    const score = huntLowTierLoopScore(cells);
     if (score < bestScore) {
       best = empty.map(i => cells[i]!);
       bestScore = score;
@@ -265,7 +262,7 @@ function fill(cells: number[], rng: SeededRNG, cap: HuntSoftCap): void {
   empty.forEach((i, j) => { cells[i] = best[j]!; });
 }
 
-function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoardTrace, cap: HuntSoftCap): number {
+function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoardTrace, cap: HuntSoftCap, moves: number): number {
   let best = 0;
   let hot = prefer;
   for (let guard = 0; guard < 30; guard++) {
@@ -284,7 +281,7 @@ function resolve(cells: number[], rng: SeededRNG, prefer: number, trace: HuntBoa
     trace.merge(merges, guard + 1);
     observeHuntProgress(cap, cells);
     fall(cells);
-    fill(cells, rng, cap);
+    fill(cells, rng, cap, moves);
     trace.refill(cells, guard + 1);
     hot = -1;
   }
@@ -357,7 +354,7 @@ export function applyMove(state: TreasureHuntState, from: number, to: number): H
   const trace = new HuntBoardTrace(state.cells);
   trace.swap(from, to);
   const softCap = hydrateHuntSoftCap(state.softCap, state.rng, state.cells);
-  const best = resolve(cells, rng, to, trace, softCap);
+  const best = resolve(cells, rng, to, trace, softCap, state.moves);
   if (softCap.peak >= softCap.target) softCap.activeMoves = Math.min(Number.MAX_SAFE_INTEGER, softCap.activeMoves + 1);
   const turns = Math.max(0, state.turns + turnDelta(best));
   const moves = state.moves + 1;
@@ -395,9 +392,9 @@ function addOption(grant: HuntGrant, option: Option): void {
   grant.goldKeys += option.goldKeys ?? 0;
 }
 
-function rollStone(rng: SeededRNG): string | null {
+function rollStone(rng: SeededRNG, drops: readonly HuntStoneDrop[]): string | null {
   let roll = rng.nextInt(HUNT_STONE_BASE);
-  for (const row of HUNT_STONE_DROPS) {
+  for (const row of drops) {
     roll -= row.weight;
     if (roll >= 0) continue;
     if (row.tier === 'celestial') return 'celestial';
@@ -413,8 +410,9 @@ export function rollRewards(cells: readonly number[], _moves: number, rng: Seede
   for (const tier of cells) {
     if (!Number.isInteger(tier) || tier < 0 || tier > VAULT) continue;
     addOption(grant, HUNT_FIXED_REWARDS[tier]!);
-    if (tier < 6) continue;
-    const key = rollStone(rng);
+    const drops = HUNT_CHEST_STONE_DROPS[tier];
+    if (!drops) continue;
+    const key = rollStone(rng, drops);
     if (key) grant.traitstones[key] = (grant.traitstones[key] ?? 0) + 1;
   }
   return grant;
@@ -461,6 +459,22 @@ export function commitMove(save: MetaSave, from: number, to: number): HuntMoveOk
     softCap: played.softCap,
   };
   return played;
+}
+
+/** 主动结束与自然结束使用同一奖励表和支付路径；只读取权威存档里的棋盘/随机流。 */
+export function finishHunt(save: MetaSave): HuntMoveOk | MetaFailure {
+  const hunt = save.treasureHunt;
+  if (!hunt || hunt.turns <= 0) return fail('INVALID', '没有进行中的寻宝');
+  const rng = new SeededRNG(1);
+  rng.setState(hunt.rng);
+  const grant = rollRewards(hunt.cells, hunt.moves, rng);
+  pay(save, grant);
+  save.treasureHunt = null;
+  return {
+    ok: true, cells: hunt.cells.slice(), turns: 0, moves: hunt.moves,
+    rng: rng.getState(), softCap: hydrateHuntSoftCap(hunt.softCap, hunt.rng, hunt.cells),
+    over: true, best: 0, shuffled: false, grant, events: [],
+  };
 }
 
 function pay(save: MetaSave, grant: HuntGrant): void {

@@ -37,7 +37,7 @@ describe('秘法石真实需求与供给', () => {
     const row = rows[index]!;
     const total = kind === 'gem' ? rows.reduce((n, r) => n + r.weight, 0) : CHEST_LOOT_BASE;
     const pick = (rows.slice(0, index).reduce((n, r) => n + r.weight, 0) + row.weight / 2) / total;
-    expect(row.weight / CHEST_LOOT_BASE).toBe(kind === 'gem' ? .02 : .007);
+    expect(row.weight / CHEST_LOOT_BASE).toBe(kind === 'gem' ? .01 : .007);
     for (const [i, key] of ARCANE_STONE_KEYS.entries()) {
       const s = fresh();
       const spy = vi.spyOn(SeededRNG.prototype, 'next');

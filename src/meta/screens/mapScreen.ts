@@ -1,3 +1,4 @@
+import { REGION_UNLOCK_LEVEL } from '../data/regionalPvp';
 import { defenseRewardsReady } from '../systems/invasionDefense';
 /**
  * 世界地图屏（游戏首页，计划 §5.1 + §5.2 王国弹层）。
@@ -30,7 +31,7 @@ import { eventMetricOf, eventShopOf, eventsUnlocked } from '../systems/events';
 import { giftsReady } from '../systems/gifts';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { cssUrlVar, dailyArt, kingdomArt, resultArt } from '../shell/artAssets';
+import { cssUrlVar, dailyArt, kingdomArt, resultArt, regionalArt } from '../shell/artAssets';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { bannerUnlocked } from '../systems/banners';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
@@ -210,6 +211,9 @@ function crestSvg(view: KingdomView): string {
  * L 的 `tokens.css`（`--ds-*`）交付后，本段的字面色值整体迁移到 token（见任务书批次 2 待办）。
  */
 const MAP_CSS = `
+  #kingdomBonusBack { position:absolute;left:14px;top:12px;z-index:5;padding:8px 12px;background:#111016e8;border:1px solid #aa9260;color:#dcca9f; }
+  #kingdomBonusBack[hidden] { display:none; }
+
   /* M-2：锁态节点——门槛明文是主角，王国名退为第二行；不出现裸数字 */
   .kmeta.locked {
     flex-direction: column;
@@ -609,7 +613,7 @@ const MAP_CSS = `
     .stage.map-responsive .map-shell .rail.left { left: 3px; }
     .stage.map-responsive .map-shell .rail.right { right: 3px; }
     .stage.map-responsive .rail button.is-lock { display: none; }
-    .stage.map-responsive .rail .facet { width: 32px; height: 32px; }
+    .stage.map-responsive .rail .facet { width: clamp(27px, 8vw, 32px); height: clamp(27px, 8vw, 32px); }
     .stage.map-responsive .rail .rail-copy b { font-size: 9px; }
     .stage.map-responsive .map-frame { left: 5px; right: 5px; top: 66px; bottom: 61px; border-radius: 6px; }
     .stage.map-responsive .map-frame:after { inset: 4px; }
@@ -683,6 +687,7 @@ export class MapScreen implements Screen {
   private nodes: NodeVm[] = [];
   private selected = START_KINGDOM;
   private openName: string | null = null;
+  private kingdomFromBonus = false;
   private heroLevel = 1;
   private cam = { x: 0, y: 0, s: HOME_SCALE };
   private drag = { on: false, moved: false, id: null as string | null, lx: 0, ly: 0, vx: 0, vy: 0, t: 0, inertia: 0 };
@@ -730,6 +735,9 @@ export class MapScreen implements Screen {
           </button>
         </aside>
         <div class="map-frame">
+          ${ctx.save().hero.level < REGION_UNLOCK_LEVEL
+            ? `<button type="button" class="regional-entry" disabled aria-disabled="true" style="--regional-entry-art:url('${regionalArt('winter-map')}')"><span class="regional-entry-emblem" data-icon="temple"></span><span><small>IMMORTAL REALMS</small><b>永生战域</b><em>主角 ${REGION_UNLOCK_LEVEL} 级开放</em></span><i class="regional-entry-lock" data-icon="lock" aria-hidden="true"></i></button>`
+            : `<a class="regional-entry" href="#regional" style="--regional-entry-art:url('${regionalArt('winter-map')}')"><span class="regional-entry-emblem" data-icon="temple"></span><span><small>IMMORTAL REALMS</small><b>永生战域</b><em>中央尖塔 · 本周战区</em></span><i aria-hidden="true">›</i></a>`}
           <div class="map-viewport" id="mapViewport">
             <div class="map-world" id="mapWorld">
               <img class="map-art" src="/static/map/world-map.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
@@ -779,6 +787,7 @@ export class MapScreen implements Screen {
 
       <div class="modal-veil" id="kingdomVeil" hidden>
         <section class="kingdom-sheet" id="kingdomSheet" role="dialog" aria-modal="true" aria-labelledby="kingdomName">
+          <button type="button" id="kingdomBonusBack" hidden>‹ 返回王国加成</button>
           <button class="sheet-close" id="kingdomClose" type="button" aria-label="关闭"><span data-icon="close"></span></button>
           <div class="kingdom-art" id="kingdomArt">
             <img id="kingdomPortrait" alt="">
@@ -947,6 +956,15 @@ export class MapScreen implements Screen {
     this.on(viewport, 'dragstart', (e) => e.preventDefault());
     this.on($('#compass'), 'click', () => this.focusKingdom(START_KINGDOM, this.homeScale()));
     this.on($('#kingdomClose'), 'click', () => this.closeKingdom());
+    this.on($('#kingdomBonusBack'), 'click', () => {
+      const name = this.openName;
+      this.closeKingdom();
+      this.renderBonusSheet(ctx.save());
+      $('#kbonusVeil').hidden = false;
+      mountIcons($('#kbonusVeil'));
+      const rows = Array.from(document.querySelectorAll<HTMLElement>('#kbonusList .kb-row'));
+      (rows.find(row => row.dataset.id === name) ?? rows[0])?.focus({ preventScroll: true });
+    });
     this.on($('#kingdomVeil'), 'click', (e) => {
       if (e.target === $('#kingdomVeil')) this.closeKingdom();
     });
@@ -974,7 +992,7 @@ export class MapScreen implements Screen {
       const row = target.closest<HTMLElement>('.kb-row');
       if (row?.dataset.id) {
         $('#kbonusVeil').hidden = true;
-        this.openKingdom(row.dataset.id);
+        this.openKingdom(row.dataset.id, true);
       }
     });
     this.on($('#entryQuest'), 'click', () => this.enterQuest(ctx));
@@ -1582,12 +1600,14 @@ export class MapScreen implements Screen {
 
   // —— 王国弹层 ——
 
-  private openKingdom(name: string): void {
+  private openKingdom(name: string, fromBonus = false): void {
     const vm = this.nodes.find((n) => n.view.name === name);
     if (!vm || vm.fog === 'hidden') return;
     const save = this.ctx.save();
     this.selected = name;
     this.openName = name;
+    this.kingdomFromBonus = fromBonus;
+    $('#kingdomBonusBack').hidden = !fromBonus;
     $$('.knode').forEach((n) => n.classList.toggle('sel', n.dataset.id === name));
     this.focusKingdom(name, Math.max(this.cam.s, 1));
 
@@ -1676,6 +1696,7 @@ export class MapScreen implements Screen {
   private closeKingdom(): void {
     $('#kingdomVeil').hidden = true;
     this.openName = null;
+    this.kingdomFromBonus = false;
   }
 
   // —— 弹层操作（全走网关） ——
@@ -1792,7 +1813,7 @@ export class MapScreen implements Screen {
     this.nodes = nodeVms(ctx.gateway);
     this.renderNodes(ctx.save());
     this.refreshDaily(ctx.save(), ctx);
-    if (this.openName) this.openKingdom(this.openName);
+    if (this.openName) this.openKingdom(this.openName, this.kingdomFromBonus);
     // M-3：地图上花钱/收钱后顶栏必须立即正确，否则玩家读成「没扣钱」而连点
     ctx.refreshChrome();
   }
@@ -1848,7 +1869,7 @@ export class MapScreen implements Screen {
   private onPointerDown(e: PointerEvent): void {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const t = e.target as HTMLElement;
-    if (t.closest('.rail, .compass, .daily, .orb, .wallet, .topbar, .bottom-bar, .modal-veil')) return;
+    if (t.closest('.regional-entry, .rail, .compass, .daily, .orb, .wallet, .topbar, .bottom-bar, .modal-veil')) return;
     e.preventDefault();
     cancelAnimationFrame(this.drag.inertia);
     this.drag.on = true;

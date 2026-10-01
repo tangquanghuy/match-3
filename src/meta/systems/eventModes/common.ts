@@ -25,6 +25,8 @@ import { towerTraitName } from '../../data/towerTraits';
 import { eventTraitName } from '../../data/eventTraits';
 
 export interface EventProgressLine {
+  /** 本场首领奖励单独进入战斗结算展示，不混入其他活动进度。 */
+  key?: 'tower-boss-clear';
   label: string;
   deltas: CurrencyDelta;
   mats?: MaterialDelta;

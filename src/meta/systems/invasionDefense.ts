@@ -1,5 +1,7 @@
 /** Independent PvP defense configuration and server-settled incoming battles. */
 import type { MetaSave, TeamPreset } from '../state/schema';
+import { fnv1a32 } from '../data/hash';
+import { INVASION_MATCHMAKING } from '../data/invasionMatchmaking';
 import { validateTeam } from './teamRules';
 import { buildPlayerSnapshots } from './battleBridge';
 import { captureMirrorRecord, usableEntry, type MirrorRecord } from './invasionMirrors';
@@ -44,6 +46,25 @@ export function defenseRecord(save: MetaSave, now: number): MirrorRecord | null 
   const built = buildPlayerSnapshots(view);
   if (!built.ok) return null;
   return { ...captureMirrorRecord(save, team, built.playerTeam, team.bannerKingdomId, now), explicitDefense: true };
+}
+
+/** Include every published gameplay field, but not the observation timestamp. */
+export function defensePublicationStamp(record: MirrorRecord): NonNullable<MetaSave['invasion']['lastDefensePublish']> {
+  const { recordedAt, ...snapshot } = record;
+  return { fingerprint: fnv1a32(JSON.stringify(snapshot)).toString(16).padStart(8, '0'), at: recordedAt };
+}
+
+/** Schedule only changed/expired snapshots. A pending delivery is never cancelled. */
+export function queueDefensePublish(save: MetaSave, now: number): MirrorRecord | null {
+  const record = defenseRecord(save, now);
+  if (!record) return null;
+  const last = save.invasion.lastDefensePublish;
+  const next = defensePublicationStamp(record);
+  if (!last || last.fingerprint !== next.fingerprint || now < last.at
+    || now - last.at >= INVASION_MATCHMAKING.republishMs) {
+    save.invasion.defensePublishPending = true;
+  }
+  return record;
 }
 
 export function hydrateDefenseTeam(value: unknown): TeamPreset | null {
@@ -138,7 +159,17 @@ export function accountDefenseLog(save: MetaSave, log: DefenseLog, weekStart: nu
   const pendingKey = save.pendingBattle?.mode === 'invasion' ? save.pendingBattle.revengeKey : undefined;
   progress.results = progress.results.filter(r => visible.has(r.key) || r.key === pendingKey);
   // Pending rows can contain hundreds of snapshots; never put them in the client save/cache.
-  save.invasion.defenseLog = { ...log, pending: undefined };
+  const previous = save.invasion.defenseLog;
+  // Use the same field ordering/optional-field defaults as a reloaded save.
+  const snapshot = hydrateDefenseLog(log) ?? { ...log, pending: undefined };
+  // fetchedAt is not gameplay state. Keep the prior snapshot when a read found
+  // nothing new; UI refresh throttling already uses its own in-memory clock.
+  const unchanged = previous && previous.weekStart === log.weekStart
+    && previous.total === log.total && previous.wins === log.wins
+    && previous.weeklyTotal === log.weeklyTotal && previous.weeklyWins === log.weeklyWins
+    && Boolean(previous.hasMore) === Boolean(log.hasMore)
+    && JSON.stringify(previous.entries) === JSON.stringify(snapshot.entries);
+  if (!unchanged) save.invasion.defenseLog = snapshot;
 }
 export function defenseRewardsReady(save: MetaSave): boolean {
   return save.invasion.defenseProgress.rewards.gold > 0;

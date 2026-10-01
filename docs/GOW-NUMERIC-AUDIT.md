@@ -40,7 +40,7 @@
 
 - 来源：仓库 `data/raw/troops.gow.zh.json`，标注 `gowhead.com /api/entities`，导出时间 `2026-07-12T11:21:14Z`。
 - GoWHead 是第三方游戏数据快照，不等同于官方帮助中心，也不代表 2026-09-27 当天实时目录。
-- 读取 1,798 张卡的 `HealthIncrease`、`ArmorIncrease`、`AttackIncrease`、`SpellPowerIncrease`；长度均为 20，索引 0 对应初始等级，索引 1..19 对应升 2..20 级的实际增量。彻底替代这些卡原先的全库平均插值。
+- 读取 1,798 张卡的 `HealthIncrease`、`ArmorIncrease`、`AttackIncrease`、`SpellPowerIncrease`；长度均为 20，普通部队索引 0 对应初始等级，索引 1..19 对应升 2..20 级的实际增量。**不朽例外（2026-10-01修正）**：保留基础/成长总量，在1～30级按项目线性规则分配，不再将前7段集中当作2～8级成长。详见 `immortal-progression-and-souls-2026-10-01.md`。
 - 读取 `raw_data.Traitstones` 的逐卡、逐槽配方，而非所有卡共用“主色 8 石 + 黄金”公式。石头 ID 0..17 分别为三档六色，18..38 为 21 种 Arcane 色对，39 为 Celestial。
 - 生成器：`node scripts/build_troop_progression.mjs`；产物 `src/data/troop-progression.json`。它不重写手工编辑过的 `troops.json`。
 - 导入表之外的社区卡保留已有基础/满级插值；缺失特质石配方时使用显式的普通档主色备用配方，不变成免费解锁。
@@ -149,3 +149,7 @@
 - Playwright 竞技场、入侵、活动、背包、养成扣费五组：26 项通过，覆盖桌面/平板/手机、奥术石分页，以及 1 级零黄金按三槽配方实际解锁。
 - `npm run build`：TypeScript 检查和 Vite 生产构建通过；仍有大体积 chunk 提示。
 - `node scripts/build_troop_progression.mjs`：成功生成 1,798 张卡，生成前校验增量长度、非负整数、石 ID 范围和正整数成本。
+
+## 2026-10-01 不朽例外
+
+上述15～20级上限、普通灵魂/特质石的官方说明针对常规部队；官方不朽有独立专属灵魂和30级成长。本项目本轮修正等级上限、属性曲线和编队限制，专属经济与等级解锁特质/武器/宠物仍是待实施的差异，详见 `immortal-progression-and-souls-2026-10-01.md`。
