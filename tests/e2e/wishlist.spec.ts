@@ -35,3 +35,25 @@ test('第200抽追寻在宝箱出卡、消耗、保存与记录一致',async({pa
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!));expect(state.currencies.gems).toBe(0);expect(state.gachaLog[0].troops).toEqual([id]);expect(state.gachaLog[0].audit.reasons).toEqual(['pursuit']);
  await expect(page.locator('.summon-card .card-label').first()).toContainText('追寻保底');
 });
+
+test('同一王国可选多名同品质角色，并按品质清空',async({page})=>{
+ await page.goto('/game.html#wishlist');await page.evaluate(()=>localStorage.clear());await page.reload();
+ const group=await page.evaluate(async()=>{
+  const { TROOPS }=await import('../../src/data/troops');
+  return [...new Map(TROOPS.filter(t=>t.rarityIdx===5).map(t=>[t.kingdom,TROOPS.filter(x=>x.rarityIdx===5&&x.kingdom===t.kingdom)])).values()].find(ts=>ts.length>=2)?.map(t=>({id:t.id}))??[];
+ });
+ expect(group.length).toBeGreaterThanOrEqual(2);
+ for(const t of group.slice(0,2)){
+  await page.locator('#wl-query').fill(String(t.id));
+  await expect(page.locator('.wl-card')).toHaveCount(1);
+  await page.locator('.wl-card [data-toggle]').click();
+  await expect(page.locator('.wl-status')).toHaveText('已保存');
+ }
+ await page.locator('.wl-tabs a[href="#wishlist/selected"]').click();
+ await expect(page.locator('.wl-group')).toHaveCount(1);
+ await expect(page.locator('.wl-group h3')).toContainText('神话 2/9');
+ await page.reload();await page.locator('.wl-tabs a[href="#wishlist/selected"]').click();
+ await expect(page.locator('.wl-pick')).toHaveCount(2);
+ await page.locator('[data-clear-rarity="5"]').click();
+ await expect(page.locator('#wl-selected-panel h2').first()).toHaveText('已选角色 0');
+});

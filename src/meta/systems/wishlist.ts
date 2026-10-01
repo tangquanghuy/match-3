@@ -11,19 +11,14 @@ export const reallyOwned = (save: MetaSave, id: number): boolean => !!(save.coll
 export function validateWishlist(ids: readonly number[]): MetaFailure | null {
   if (ids.length > RULES.maxTroops) return fail('INVALID', '已达愿望单上限，请先移除一名角色');
   const seen = new Set<number>();
-  const kingdoms = new Map<string, number>();
   const bands = new Map<number, number>();
   for (const id of ids) {
     const t = Number.isInteger(id) ? getTroopById(id) : undefined;
     if (!t || t.rarityIdx < RULES.minRarity) return fail('INVALID', '请选择传说、史诗或神话角色');
     if (seen.has(id)) return fail('INVALID', '同一角色只占一个愿望位置');
     seen.add(id);
-    const k = wishlistKingdom(t);
-    kingdoms.set(k, (kingdoms.get(k) ?? 0) + 1);
     bands.set(t.rarityIdx, (bands.get(t.rarityIdx) ?? 0) + 1);
-    if (kingdoms.get(k)! > RULES.perKingdom) return fail('INVALID', `${k}已满 ${RULES.perKingdom} 人，请先移除一人`);
     if (bands.get(t.rarityIdx)! > RULES.slotsPerRarity) return fail('INVALID', `该稀有度已满 ${RULES.slotsPerRarity} 人，请先移除一人`);
-    if (kingdoms.size > RULES.maxKingdoms) return fail('INVALID', `已选 ${RULES.maxKingdoms} 个王国，请先清空一个王国`);
   }
   return null;
 }
@@ -75,9 +70,7 @@ export function hydrateWishlist(raw: unknown): GachaWishlist {
   return value;
 }
 
-/** 确定性补齐建议：仅添加，不替换；偏好未拥有、当前队伍同色/同族，非强度评级。
- * 固定至多九个王国后，以稀有度→王国的最大流分配剩余槽，避免贪心填满某一档造成死路。
- */
+/** 确定性补齐建议：每档各补至九名，仅添加不替换；偏好未拥有、当前队伍同色/同族。 */
 export function recommendWishlist(save: MetaSave): number[] {
   const ids = [...save.gachaWishlist.troopIds];
   const team = save.teams[save.activeTeamIndex]?.members ?? [];
@@ -86,40 +79,11 @@ export function recommendWishlist(save: MetaSave): number[] {
   const races = new Set(allies.flatMap((t) => t.troopTypes));
   const score = (t: TroopData): number => (reallyOwned(save, t.id) ? 0 : 100)
     + t.manaColors.filter((c) => colors.has(c)).length * 5 + t.troopTypes.filter((r) => races.has(r)).length * 3;
-  const available = WISHLIST_TROOPS.filter((t) => !ids.includes(t.id)).sort((a, b) => score(b) - score(a) || a.id - b.id);
-  const kingdoms = [...new Set(ids.map((id) => wishlistKingdom(getTroopById(id)!)))];
-  const allKingdoms = [...new Set(available.map(wishlistKingdom))].filter((k) => !kingdoms.includes(k));
-  allKingdoms.sort((a, b) => {
-    const rank = (k: string) => {
-      const pool = available.filter((t) => wishlistKingdom(t) === k);
-      return new Set(pool.map((t) => t.rarityIdx)).size * 1000 + Math.max(0, ...pool.map(score));
-    };
-    return rank(b) - rank(a) || a.localeCompare(b, 'zh-Hans-CN');
-  });
-  kingdoms.push(...allKingdoms.slice(0, RULES.maxKingdoms - kingdoms.length));
-  const source = 0, sink = 4 + kingdoms.length, size = sink + 1;
-  const cap = Array.from({ length: size }, () => Array<number>(size).fill(0));
-  for (let r = 3; r <= 5; r++) {
-    const node = r - 2;
-    cap[source]![node] = RULES.slotsPerRarity - wishlistCount(ids, r);
-    kingdoms.forEach((k, i) => { cap[node]![4 + i] = available.filter((t) => t.rarityIdx === r && wishlistKingdom(t) === k).length; });
+  for (const rarity of [3, 4, 5]) {
+    const slots = RULES.slotsPerRarity - wishlistCount(ids, rarity);
+    ids.push(...WISHLIST_TROOPS.filter((t) => t.rarityIdx === rarity && !ids.includes(t.id))
+      .sort((a, b) => score(b) - score(a) || a.id - b.id).slice(0, slots).map((t) => t.id));
   }
-  kingdoms.forEach((k, i) => { cap[4 + i]![sink] = RULES.perKingdom - ids.filter((id) => wishlistKingdom(getTroopById(id)!) === k).length; });
-  const original = cap.map((row) => [...row]);
-  for (;;) {
-    const parent = Array<number>(size).fill(-1); parent[source] = source;
-    const queue = [source];
-    for (let q = 0; q < queue.length && parent[sink] === -1; q++) {
-      const u = queue[q]!;
-      for (let v = 0; v < size; v++) if (parent[v] === -1 && cap[u]![v]! > 0) { parent[v] = u; queue.push(v); }
-    }
-    if (parent[sink] === -1) break;
-    for (let v = sink; v !== source; v = parent[v]!) { const u = parent[v]!; cap[u]![v]!--; cap[v]![u]!++; }
-  }
-  for (let r = 3; r <= 5; r++) kingdoms.forEach((k, i) => {
-    const n = original[r - 2]![4 + i]! - cap[r - 2]![4 + i]!;
-    ids.push(...available.filter((t) => t.rarityIdx === r && wishlistKingdom(t) === k).slice(0, n).map((t) => t.id));
-  });
   return ids;
 }
 

@@ -35,7 +35,7 @@ export class WishlistScreen implements Screen {
         </section>
         <section class="wl-selection" aria-label="已选愿望角色" ${this.view!=='selected'?'hidden':''}><div id="wl-selected-panel"></div></section>
         <section class="wl-rules-page" aria-label="召唤规则" ${this.view!=='rules'?'hidden':''}><a href="#wishlist" class="wl-help">← 返回选择</a><h2>召唤规则</h2>
-          <section><h3>选择心仪角色</h3><p>愿望单用于宝石宝箱。可选择 ${R.maxKingdoms} 个王国，每国 ${R.perKingdom} 名角色；传说、史诗、神话各 ${R.slotsPerRarity} 名。随时更换，选择后自动保存。</p></section>
+          <section><h3>选择心仪角色</h3><p>愿望单用于宝石宝箱。传说、史诗、神话各可选 ${R.slotsPerRarity} 名，不限王国。随时更换，选择后自动保存。</p></section>
           <section><h3>愿望概率</h3><p>品质概率保持不变。抽到对应品质后，名单内角色有更高机会出现；少选角色不会集中概率。</p><div id="wl-rates"></div><p>每名角色占满名单概率的 1/${R.slotsPerRarity}，空位概率留给名单外角色。愿望角色可重复获得。</p></section>
           <section><h3>神话追寻</h3><p>在已选角色中，指定一名尚未拥有的神话。首次最多 ${R.firstPursuitLimit} 抽获得，后续每轮最多 ${R.repeatPursuitLimit} 抽。</p><p>有目标时累计进度；更换或暂停保留进度。抽到目标即完成本轮，抽到其他神话不重置。保底在该次抽卡中生效，不额外增加卡片。</p></section>
           <section><h3>十连保障</h3><p>十连至少获得一张稀有或以上角色。</p></section>
@@ -101,14 +101,14 @@ export class WishlistScreen implements Screen {
       }).join('')}</div>
       ${!choices.length?'<div class="wl-empty"><h3>没有匹配的角色</h3><p>试试减少筛选条件，或用名字、技能关键词搜索。</p><button data-action="reset">重置全部筛选</button></div>':''}
       <div class="wl-pages"><button data-action="prev" ${this.page===1?'disabled':''}>上一页</button><span>${this.page} / ${pages}</span><button data-action="next" ${this.page===pages?'disabled':''}>下一页</button></div>`;
-    const groups=[...new Set(ids.map(id=>wishlistKingdom(getTroopById(id)!)))];
+    const groups=[3,4,5].filter(r=>ids.some(id=>getTroopById(id)?.rarityIdx===r));
     const p=save.gachaWishlist.pursuit;
     const active=p.targetId!==null&&!reallyOwned(save,p.targetId);
     this.root.querySelector('#wl-filter-done')!.textContent=`查看 ${choices.length} 名角色`;
     this.root.querySelector('#wl-rates')!.innerHTML=`<table><thead><tr><th>品质</th><th>当前名单命中</th><th>满名单命中</th></tr></thead><tbody>${[3,4,5].map(r=>`<tr><th>${RARITY_NAMES[r]}</th><td>${(wishlistHitRate(ids,r)*100).toFixed(1)}%</td><td>${R.wishlistShares[r]!*100}%</td></tr>`).join('')}</tbody></table>`;
     this.root.querySelector('#wl-selected-panel')!.innerHTML=`<div class="wl-selection-head"><div><h2>已选角色 <span>${ids.length}</span></h2><p class="wl-status" role="status" aria-live="polite">${esc(this.notice)}</p></div><button data-action="recommend" ${this.busy?'disabled':''}>推荐角色</button></div>
       ${active||ids.some(id=>getTroopById(id)?.rarityIdx===5&&!reallyOwned(save,id))||p.progress?`<section class="wl-pursuit"><div><h3>神话追寻</h3><b>${active?esc(getTroopById(p.targetId!)!.name):'选择一名神话角色开始追寻'}</b></div><div class="wl-pursuit-progress"><span>${active?`最多再 ${p.limit-p.progress} 抽`:`已保留 ${p.progress} 抽进度`}</span><progress aria-label="神话追寻进度" max="${p.limit}" value="${p.progress}"></progress></div>${active?`<button data-action="pause" ${this.busy?'disabled':''}>暂停</button>`:''}</section>`:''}
-      <div class="wl-groups">${groups.map(k=>`<section class="wl-group"><h3>${esc(k)}<button class="wl-clear-group wl-text-button" data-clear-kingdom="${esc(k)}" ${this.busy?'disabled':''}>移除此组</button></h3><div class="wl-group-picks">${ids.filter(id=>wishlistKingdom(getTroopById(id)!)===k).map(id=>{
+      <div class="wl-groups">${groups.map(k=>`<section class="wl-group"><h3>${RARITY_NAMES[k]} ${ids.filter(id=>getTroopById(id)?.rarityIdx===k).length}/${R.slotsPerRarity}<button class="wl-clear-group wl-text-button" data-clear-rarity="${k}" ${this.busy?'disabled':''}>移除此组</button></h3><div class="wl-group-picks">${ids.filter(id=>getTroopById(id)?.rarityIdx===k).map(id=>{
         const t=getTroopById(id)!,rec=(save.collectionTruth??save.collection)[String(id)];
         return `<article class="wl-pick"><button class="collection-card r-${t.rarityIdx}" style="--rc:${RARITY_COLORS[t.rarityIdx]}" data-detail="${id}" aria-label="查看${esc(t.name)}详情">${troopCardFace(t,rec)}</button><div class="wl-pick-actions">
           ${t.rarityIdx===5&&!reallyOwned(save,id)?`<button data-pursue="${id}" ${p.targetId===id||this.busy?'disabled':''}>${p.targetId===id?'追寻中':'追寻'}</button>`:''}<button data-toggle="${id}" aria-label="移除${esc(t.name)}" ${this.busy?'disabled':''}>移除</button></div></article>`;
@@ -124,8 +124,8 @@ export class WishlistScreen implements Screen {
   }
   private async click(e:Event):Promise<void> {
     const btn=(e.target as HTMLElement).closest<HTMLButtonElement>('button');if(!btn||btn.disabled)return;
-    const {action,detail,toggle,pursue,clearKingdom}=btn.dataset;
-    if(clearKingdom){await this.write(()=>this.ctx.gateway.setWishlist(this.ctx.save().gachaWishlist.troopIds.filter(id=>wishlistKingdom(getTroopById(id)!)!==clearKingdom)));return;}
+    const {action,detail,toggle,pursue,clearRarity}=btn.dataset;
+    if(clearRarity){await this.write(()=>this.ctx.gateway.setWishlist(this.ctx.save().gachaWishlist.troopIds.filter(id=>getTroopById(id)?.rarityIdx!==Number(clearRarity))));return;}
     if(detail){this.ctx.navigate(`#troop/${detail}/wishlist`);return;}
     if(toggle){const id=Number(toggle),ids=this.ctx.save().gachaWishlist.troopIds;const next=ids.includes(id)?ids.filter(n=>n!==id):[...ids,id];const error=validateWishlist(next);if(error){toast(error.message);return;}await this.write(()=>this.ctx.gateway.setWishlist(next));return;}
     if(pursue){await this.write(()=>this.ctx.gateway.setPursuitTarget(Number(pursue)));return;}
@@ -139,7 +139,7 @@ export class WishlistScreen implements Screen {
     else if(action==='pause')await this.write(()=>this.ctx.gateway.setPursuitTarget(null));
     else if(action==='recommend'||action==='clear'){
       this.modalInvoker=btn;
-      this.root.querySelector('#wl-preview-note')!.textContent=action==='clear'?'所有王国选择都会移除，追寻进度保留。':'优先推荐未拥有的角色，保留已有选择。';
+      this.root.querySelector('#wl-preview-note')!.textContent=action==='clear'?'所有已选角色都会移除，追寻进度保留。':'优先推荐未拥有的角色，保留已有选择。';
       this.root.querySelector('[data-action="apply-preview"]')!.textContent=action==='clear'?'确认清空':'确认加入';
       this.preview=action==='clear'?[]:recommendWishlist(this.ctx.save());
       this.root.querySelector('#wl-preview-title')!.textContent=action==='clear'?'确认清空愿望单？':'推荐角色';

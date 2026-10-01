@@ -21,16 +21,34 @@ describe('愿望单配额和持久化',()=>{
   expect(hydrateSave(raw).gachaWishlist.troopIds).toEqual([]);
   expect(hydrateWishlist({troopIds:[target.id,target.id,-1,TROOPS.find(t=>t.rarityIdx===0)!.id],pursuit:{targetId:-1,progress:-1}}).troopIds).toEqual([target.id]);
  });
- it('严格限制品质、总数、每国3人、王国9个、每档9人，失败原子化',()=>{
+ it('仅限制每档九人及总数，同王国同档可多选，失败原子化',()=>{
   const s=fresh();const ids=recommendWishlist(s);expect(ids).toHaveLength(27);expect(validateWishlist(ids)).toBeNull();
+  for (const rarity of [3,4,5]) expect(ids.filter(id=>TROOPS.find(t=>t.id===id)?.rarityIdx===rarity)).toHaveLength(9);
   expect(setWishlist(s,ids).ok).toBe(true);const before=JSON.stringify(s);
   expect(setWishlist(s,[...ids,target.id]).ok).toBe(false);expect(JSON.stringify(s)).toBe(before);
   expect(validateWishlist([target.id,target.id])).not.toBeNull();
-  const same=TROOPS.filter(t=>t.rarityIdx>=3&&t.kingdom===target.kingdom).slice(0,4);expect(same).toHaveLength(4);expect(validateWishlist(same.map(t=>t.id))).not.toBeNull();
-  const distinct=[...new Map(mythics.map(t=>[t.kingdom,t])).values()];expect(validateWishlist(distinct.slice(0,10).map(t=>t.id))).not.toBeNull();
+  const group=TROOPS.filter(t=>t.rarityIdx===3).reduce((map,t)=>{
+    const key=t.kingdom??'无王国';map.set(key,[...(map.get(key)??[]),t.id]);return map;
+  },new Map<string,number[]>());
+  const same=[...group.values()].find(ids=>ids.length>=2)!;
+  expect(same).toBeDefined();expect(validateWishlist(same.slice(0,2))).toBeNull();
+  const other=TROOPS.filter(t=>t.rarityIdx===3&&!same.includes(t.id)).map(t=>t.id);
+  const nine=[...same.slice(0,2),...other.slice(0,7)];
+  expect(validateWishlist(nine)).toBeNull();expect(validateWishlist([...nine,other[7]!])).not.toBeNull();
+  const distinct=[...new Map(mythics.map(t=>[t.kingdom,t])).values()];
+  expect(distinct.length).toBeGreaterThan(9);
+  expect(validateWishlist(distinct.slice(0,9).map(t=>t.id))).toBeNull();
+ });
+ it('旧档载入同一王国的多名角色，不丢失追寻进度',()=>{
+  const group=[...new Map(mythics.map(t=>[t.kingdom,mythics.filter(x=>x.kingdom===t.kingdom)])).values()].find(ts=>ts.length>=2)!;
+  expect(group).toBeDefined();
+  const s=fresh();s.gachaWishlist.troopIds=group.slice(0,2).map(t=>t.id);
+  s.gachaWishlist.pursuit.targetId=group[0]!.id;s.gachaWishlist.pursuit.progress=37;
+  expect(hydrateSave(JSON.parse(JSON.stringify(s))).gachaWishlist).toEqual(s.gachaWishlist);
  });
  it('推荐补齐保留已选，重复执行稳定且通过所有配额',()=>{
-  const s=fresh();setWishlist(s,[target.id]);const ids=recommendWishlist(s);expect(ids).toContain(target.id);expect(ids).toHaveLength(27);
+  const s=fresh();const group=TROOPS.filter(t=>t.rarityIdx===3&&t.kingdom===target.kingdom).slice(0,2);
+  setWishlist(s,[target.id,...group.map(t=>t.id)]);const ids=recommendWishlist(s);expect(ids).toEqual(expect.arrayContaining([target.id,...group.map(t=>t.id)]));expect(ids).toHaveLength(27);
   setWishlist(s,ids);expect(recommendWishlist(s)).toEqual(ids);expect(validateWishlist(ids)).toBeNull();
  });
  it('每一档只有1人时也仅占固定九分之一，空位不集中过去',()=>{
