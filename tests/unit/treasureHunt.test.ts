@@ -85,12 +85,12 @@ describe('寻宝', () => {
     expect(useless.ok).toBe(false);
   });
 
-  it('铜币只开出 1 黄金；每 15 步额外一颗特质石', () => {
+  it('铜币固定给25黄金，长局不再按步数赠送特质石', () => {
     const rng = new SeededRNG(1);
     const grant = rollRewards(Array.from({ length: 64 }, () => 0), 30, rng);
-    expect(grant.gold).toBe(64);
+    expect(grant.gold).toBe(64 * 25);
     expect(grant.souls).toBe(0);
-    expect(Object.values(grant.traitstones).reduce((sum, n) => sum + n, 0)).toBe(2);
+    expect(Object.values(grant.traitstones).reduce((sum, n) => sum + n, 0)).toBe(0);
   });
 
   it('开局扣 1 张藏宝图，未打完的一局不重复扣', () => {
@@ -118,6 +118,6 @@ describe('寻宝', () => {
     expect(played.over).toBe(true);
     expect(save.treasureHunt).toBeNull();
     expect(save.currencies.gold).toBeGreaterThan(goldBefore);
-    expect(Object.values(save.materials.traitstones).reduce((sum, n) => sum + n, 0)).toBe(1);
+    expect(Object.values(save.materials.traitstones).reduce((sum, n) => sum + n, 0)).toBe(0);
   });
 });

@@ -40,7 +40,7 @@ describe('宝石经济和抽卡模型',()=>{
  });
  it('活动里程碑、守土上限、入侵结算、寻宝终盘共享实际奖励表',()=>{
   const b=gemBudget({...BUDGET_SCENARIOS.light!,eventPoints:{invasion:2200,worldEvent:200},successfulDefenses:999,invasionDistribution:[.2,.5,.2,.1],hunt:{runs:2,meanFinalBoard:[60,0,0,0,0,2,1,1]}});
-  expect(b.events).toBe(600+600+80);expect(b.invasion).toBe(0);expect(b.hunt).toBeCloseTo(2*(2*.25+.4+.5));
+  expect(b.events).toBe(600+600+80);expect(b.invasion).toBe(0);expect(b.hunt).toBeCloseTo(2*(2*20+100+300));
   expect(()=>gemBudget({...BUDGET_SCENARIOS.light!,hunt:{runs:1,meanFinalBoard:[1]}})).toThrow();
   expect(()=>gemBudget({...BUDGET_SCENARIOS.light!,invasionDistribution:[1,1,1,1]})).toThrow();
  });

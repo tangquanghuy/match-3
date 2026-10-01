@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pve') {
-  await page.goto('/game.html#result');
+  await page.goto('/game.html#result', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.result-screen')).toBeVisible({ timeout: 15_000 });
   await page.evaluate(async ({ gems, returnHash, kind }) => {
     const path = '/src/meta/screens/resultScreen.ts';
@@ -42,7 +42,7 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
 
 /** 真实存档 + 真实精通逻辑的升级流程；navigate 记录到 window.__nav。 */
 async function mountLevelUp(page: Page, levels: number, offers: string[][]) {
-  await page.goto('/game.html#result');
+  await page.goto('/game.html#result', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.result-screen')).toBeVisible({ timeout: 15_000 });
   await page.evaluate(async ({ levels, offers }) => {
     const load = (p: string) => import(/* @vite-ignore */ p);
@@ -77,7 +77,7 @@ const amount = (page: Page, currency: string) => page.locator(`[data-battle-curr
 const navigated = (page: Page) => page.evaluate(() => (window as unknown as { __nav: string | null }).__nav);
 
 test('直接进入结算页不伪造胜利或奖励', async ({ page }) => {
-  await page.goto('/game.html#result');
+  await page.goto('/game.html#result', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#resultTitle')).toHaveText('暂无战报');
   await expect(page.locator('#standardXp')).toBeHidden();
   await expect(page.locator('#standardRewards')).toBeHidden();
@@ -218,3 +218,79 @@ test('胜利播放凯旋曲，升级叠加号角，离开结算淡出并交还�
   });
   await expect.poll(music).toBeNull();
 });
+
+
+for (const viewport of [
+  { width: 1440, height: 900 }, { width: 390, height: 844 },
+  { width: 320, height: 568 }, { width: 844, height: 390 },
+]) {
+  test(`寻宝共用结算展示全部材料并保持操作可达 ${viewport.width}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/game.html#result', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.result-screen')).toBeVisible();
+    await page.evaluate(async () => {
+      const load = (p: string) => import(/* @vite-ignore */ p);
+      const { ResultScreen } = await load('/src/meta/screens/resultScreen.ts');
+      const { newSave } = await load('/src/meta/state/schema.ts');
+      const { ARCANE_STONE_KEYS } = await load('/src/meta/data/materials.ts');
+      const save = newSave({ now: 1 });
+      const screen = new ResultScreen();
+      const stones = { 'major:blue': 1, 'runic:red': 1, celestial: 1,
+        ...Object.fromEntries(ARCANE_STONE_KEYS.slice(0, 8).map((key: string) => [key, 1])),
+      };
+      screen.setDetail({ kind: 'hunt', moves: 123, grant: {
+        gold: 250000, souls: 6500, glory: 1300, gems: 400, goldKeys: 1, traitstones: stones,
+      } }, { kingdom: '', sourceLabel: '寻宝', returnHash: '#hunt' });
+      document.querySelector('#stage')!.innerHTML = screen.html();
+      screen.mount({ save: () => save, navigate: (hash: string) => {
+        (window as unknown as { __nav: string }).__nav = hash;
+      } });
+    });
+    await expect(page.locator('#resultTitle')).toHaveText('寻宝收获');
+    await expect(page.locator('#standardXp')).toHaveCount(0);
+    await expect(page.locator('[data-battle-currency]')).toHaveCount(5);
+    await expect(page.locator('[data-battle-material]')).toHaveCount(11);
+    for (const [key, n] of [['gold', '250,000'], ['souls', '6,500'], ['glory', '1,300'], ['gems', '400'], ['goldKeys', '1']]) {
+      await expect(page.locator(`[data-battle-currency="${key}"] strong`)).toHaveText(`+${n}`);
+    }
+    const scroll = page.locator('#resultScroll');
+    const footerBefore = (await page.locator('.result-actions').boundingBox())!;
+    const overflowing = await scroll.evaluate(el => el.scrollHeight > el.clientHeight + 2);
+    if (overflowing) {
+      await expect(page.locator('#resultScrollMore')).toBeVisible();
+      await page.screenshot({ path: `artifacts/hunt-rewards-top-${viewport.width}.png` });
+      await page.locator('#resultScrollMore').click();
+      await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+    } else {
+      await expect(page.locator('#resultScrollMore')).toBeHidden();
+    }
+    for (const card of await page.locator('[data-battle-material]').all()) {
+      await card.scrollIntoViewIfNeeded();
+      await expect(card.locator('strong')).toHaveText('+1');
+      await expect.poll(() => card.locator('img').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      const box = (await card.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 1);
+      const window = (await scroll.boundingBox())!;
+      expect(box.y).toBeGreaterThanOrEqual(window.y - 1);
+      expect(box.y + box.height).toBeLessThanOrEqual(window.y + window.height + 1);
+      expect(box.y + box.height).toBeLessThanOrEqual(footerBefore.y + 1);
+    }
+    expect((await page.locator('.result-actions').boundingBox())!.y).toBeCloseTo(footerBefore.y, 0);
+    expect(await scroll.evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+    expect(await page.locator('#standardRewards').evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+    for (const id of ['again', 'team']) {
+      const box = (await page.locator('#' + id).boundingBox())!;
+      expect(box.y).toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
+    }
+    await scroll.evaluate(el => { el.scrollTop = el.scrollHeight; });
+    await expect(page.locator('#resultScrollMore')).toBeHidden();
+    await page.screenshot({ path: `artifacts/hunt-shared-many-rewards-${viewport.width}.png` });
+    await page.locator('#again').click();
+    expect(await navigated(page)).toBe('#hunt');
+    await page.locator('#team').click();
+    expect(await navigated(page)).toBe('#map');
+  });
+}

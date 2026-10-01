@@ -178,3 +178,34 @@ describe('经验条与升级页数据', () => {
     expect(pendingMasteryOffer(save)).toBeNull();
   });
 });
+
+
+describe('寻宝复用战斗结算', () => {
+  it('显示已入账的四货币、钥匙和额外材料，无经验或升级，不改动输入', () => {
+    const detail = { kind: 'hunt' as const, moves: 3000, grant: {
+      gold: 250000, souls: 6500, gems: 400, glory: 1300, goldKeys: 1,
+      traitstones: { 'major:blue': 1, 'runic:red': 1, 'arcane:blue:green': 1, celestial: 1 },
+    } };
+    const before = structuredClone(detail);
+    const income = battleIncomeView(detail);
+    expect(income).toMatchObject({ victory: true, xp: 0, levelsGained: 0,
+      gold: 250000, souls: 6500, gems: 400, glory: 1300, goldKeys: 1 });
+    expect(income.materials.map(m => [m.key, m.amount])).toEqual([
+      ['stone:major:blue', 1], ['stone:runic:red', 1], ['stone:arcane:blue:green', 1], ['stone:celestial', 1],
+    ]);
+    expect(battleIncomeView(detail)).toEqual(income);
+    expect(detail).toEqual(before);
+    expect(resultSubtitle(detail, { kingdom: '', sourceLabel: '寻宝' })).toBe('寻宝 · 已走 3,000 步');
+  });
+  it('普通战斗额外奖励也展示荣耀和钥匙，不混入首胜收益', () => {
+    const view = battleIncomeView({ victory: true, xpGained: 0, heroLevelsGained: 0,
+      classLevelUp: null, classUnlocked: null, questProgress: null, troopRewards: [], firstWinClaimed: true,
+      lines: [
+        { key: 'battle-bonus', label: '', deltas: { glory: 25, goldKeys: 2 } },
+        { key: 'first-win', label: '', deltas: { glory: 999, goldKeys: 999 } },
+      ],
+    });
+    expect(view.glory).toBe(25);
+    expect(view.goldKeys).toBe(2);
+  });
+});

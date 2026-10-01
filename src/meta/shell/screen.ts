@@ -6,6 +6,7 @@ import type { MetaSave } from '../state/schema';
 import type { SettlementDetail } from '../systems/settlement';
 import type { ArenaSettleResult } from '../systems/arena';
 import type { InvasionSettleResult } from '../systems/invasion';
+import type { HuntGrant } from '../systems/treasureHunt';
 import type { BattleResult } from '@session/index';
 
 export type PvpSettlementView =
@@ -20,6 +21,15 @@ export type PvpSettlementView =
       settled: InvasionSettleResult;
       frenzy: boolean;
     };
+
+/** 已由寻宝网关入账；结算屏只负责展示。 */
+export interface HuntSettlementView {
+  kind: 'hunt';
+  grant: HuntGrant;
+  moves: number;
+}
+
+export type SettlementView = SettlementDetail | PvpSettlementView | HuntSettlementView;
 
 /** 所有屏名（hash 路由用） */
 export type ScreenName =
@@ -62,7 +72,7 @@ export interface ShellCtx {
   launchTutorialBattle(): Promise<void>;
   /** 展示结算屏（普通战斗带逐行入账，PvP 带战果与加分构成） */
   showResult(
-    detail: SettlementDetail | PvpSettlementView,
+    detail: SettlementView,
     meta: { kingdom: string; sourceLabel: string; returnHash?: string; shopHash?: string },
   ): void;
 }

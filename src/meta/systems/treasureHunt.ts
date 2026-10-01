@@ -1,19 +1,15 @@
 /**
  * 寻宝（Gems of War Treasure Hunt）。
  *
- * 口径取自 Infinity Plus Two 帮助（2025-06-19）与 2016 年社区核对过的奖励表：
- *  - 消耗 1 张藏宝图开局，8×8，起始 8 步；
- *  - 三连及以上合成高一档，合成物留在棋盘上，其余空位下落补新；
- *  - 四连不耗步，五连及以上（含 L/T）净加 1 步，同一手只结算一次；
- *  - 金库不能再合成，也不能手动交换；
- *  - 步数归零后，棋盘上每件东西在自己的奖池里随机开出一项；
- *  - 每走 15 步，结束时额外一颗随机特质石。
- * 宝石钥匙在本作记入金钥匙（没有单独的钥匙库存）。
+ * 玩法：消耗 1 张藏宝图，8×8 棋盘、起始 8 步；三连升级，四连不耗步，五连净加一步。
+ * 金库不再合成或交换；步数归零后，按最终棋盘逐件累计固定货币奖励。
+ * 红箱、金库各额外抽一次特质石（最多一颗），不替代货币，不按已走步数赠石。
+ * 奖励为本项目配置，非 GOW 官方奖励表。
  */
 import { HuntBoardTrace } from '../../engine/HuntBoard';
 import type { GameEvent } from '../../engine/events';
 import { SeededRNG } from '../../engine/rng';
-import { STONE_COLORS } from '../data/materials';
+import { ARCANE_STONE_KEYS, STONE_COLORS, type TraitstoneTier } from '../data/materials';
 import type { HuntSoftCap, MetaSave, TreasureHuntState } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { earn, earnMaterials, spendMaterials } from './wallet';
@@ -27,32 +23,43 @@ const EMPTY = -1;
 
 export const LOOT_NAMES = ['铜币', '银币', '金币', '钱袋', '褐箱', '绿箱', '红箱', '金库'] as const;
 
-export const LOOT_LADDER: readonly { name: string; reward: string }[] = [
-  { name: '铜币', reward: '1 黄金' },
-  { name: '银币', reward: '3 黄金' },
-  { name: '金币', reward: '10 黄金' },
-  { name: '钱袋', reward: '30 黄金或 3 灵魂' },
-  { name: '褐箱', reward: '80 黄金、8 灵魂或 2 荣耀' },
-  { name: '绿箱', reward: '200 黄金、20 灵魂、6 荣耀或 1 宝石' },
-  { name: '红箱', reward: '500 黄金、50 灵魂、15 荣耀、2 宝石或 2 金钥匙' },
-  { name: '金库', reward: '1250 黄金、125 灵魂、40 荣耀、3 宝石、6 金钥匙或 2 金钥匙' },
-];
-
 type Option = { gold?: number; souls?: number; gems?: number; glory?: number; goldKeys?: number };
 
-const OPTIONS: readonly (readonly Option[])[] = [
-  [{ gold: 1 }],
-  [{ gold: 3 }],
-  [{ gold: 10 }],
-  [{ gold: 30 }, { souls: 3 }],
-  [{ gold: 80 }, { souls: 8 }, { glory: 2 }],
-  [{ gold: 200 }, { souls: 20 }, { glory: 6 }, { gems: 1 }],
-  [{ gold: 500 }, { souls: 50 }, { glory: 15 }, { gems: 2 }, { goldKeys: 2 }],
-  [{ gold: 1250 }, { souls: 125 }, { glory: 40 }, { gems: 3 }, { goldKeys: 6 }, { goldKeys: 2 }],
+/** 每件终盘宝物同时获得全部所列货币；不是随机抽取其中一项。 */
+export const HUNT_FIXED_REWARDS: readonly Readonly<Option>[] = [
+  { gold: 25 },
+  { gold: 75 },
+  { gold: 250 },
+  { gold: 500, souls: 50 },
+  { gold: 2_000, souls: 150, glory: 30 },
+  { gold: 10_000, souls: 500, glory: 100, gems: 20 },
+  { gold: 50_000, souls: 1_500, glory: 300, gems: 100 },
+  { gold: 200_000, souls: 5_000, glory: 1_000, gems: 300 },
 ];
 
-/** 每个结算物件的宝石期望，供预算模型按实测终盘构成估算。 */
-export const HUNT_EXPECTED_GEMS = OPTIONS.map(pool => pool.reduce((sum, option) => sum + (option.gems ?? 0), 0) / pool.length);
+/** 每个红箱/金库独立一次，万分比；剩余79.5%不附送材料，货币照常全部到账。
+ * 对照宝石宝箱当前基础概率，独立配置避免未来抽卡调参隐式改变寻宝经济。
+ */
+export const HUNT_STONE_DROPS: readonly { tier: Exclude<TraitstoneTier, 'minor'>; weight: number }[] = [
+  { tier: 'major', weight: 1_000 },
+  { tier: 'runic', weight: 800 },
+  { tier: 'arcane', weight: 200 },
+  { tier: 'celestial', weight: 50 },
+];
+export const HUNT_STONE_BASE = 10_000;
+const STONE_LABELS = { major: '高级石', runic: '符文石', arcane: '秘法石', celestial: '圣辉石' };
+export const HUNT_STONE_ODDS_TEXT = HUNT_STONE_DROPS
+  .map(row => `${STONE_LABELS[row.tier]} ${row.weight / HUNT_STONE_BASE * 100}%`).join('、');
+
+export const LOOT_LADDER: readonly { name: string; reward: string }[] = HUNT_FIXED_REWARDS.map((reward, tier) => ({
+  name: LOOT_NAMES[tier]!,
+  reward: ([['gold', '黄金'], ['souls', '灵魂'], ['glory', '荣耀'], ['gems', '宝石']] as const)
+    .filter(([key]) => (reward[key] ?? 0) > 0)
+    .map(([key, label]) => `${reward[key]!.toLocaleString('en-US')} ${label}`).join(' + '),
+}));
+
+/** 每个结算物件的宝石收益，供预算模型按实测终盘构成估算。 */
+export const HUNT_EXPECTED_GEMS = HUNT_FIXED_REWARDS.map(reward => reward.gems ?? 0);
 
 export interface HuntGrant {
   gold: number;
@@ -388,32 +395,29 @@ function addOption(grant: HuntGrant, option: Option): void {
   grant.goldKeys += option.goldKeys ?? 0;
 }
 
-function rollStone(rng: SeededRNG): string {
-  const color = STONE_COLORS[rng.nextInt(STONE_COLORS.length)]!.key;
-  const n = rng.nextInt(100);
-  if (n < 4) return 'celestial';
-  if (n < 16) return `runic:${color}`;
-  if (n < 40) return `major:${color}`;
-  return `minor:${color}`;
+function rollStone(rng: SeededRNG): string | null {
+  let roll = rng.nextInt(HUNT_STONE_BASE);
+  for (const row of HUNT_STONE_DROPS) {
+    roll -= row.weight;
+    if (roll >= 0) continue;
+    if (row.tier === 'celestial') return 'celestial';
+    if (row.tier === 'arcane') return rng.pick(ARCANE_STONE_KEYS);
+    return `${row.tier}:${rng.pick(STONE_COLORS).key}`;
+  }
+  return null;
 }
 
-export function rollRewards(cells: readonly number[], moves: number, rng: SeededRNG): HuntGrant {
+/** moves 保留调用兼容；奖励仅由终盘宝物决定，长局不额外堆叠特质石。 */
+export function rollRewards(cells: readonly number[], _moves: number, rng: SeededRNG): HuntGrant {
   const grant = emptyGrant();
   for (const tier of cells) {
-    if (tier < 0 || tier > VAULT) continue;
-    const pool = OPTIONS[tier]!;
-    addOption(grant, pool[rng.nextInt(pool.length)]!);
-  }
-  const stones = Math.floor(moves / 15);
-  for (let i = 0; i < stones; i++) {
+    if (!Number.isInteger(tier) || tier < 0 || tier > VAULT) continue;
+    addOption(grant, HUNT_FIXED_REWARDS[tier]!);
+    if (tier < 6) continue;
     const key = rollStone(rng);
-    grant.traitstones[key] = (grant.traitstones[key] ?? 0) + 1;
+    if (key) grant.traitstones[key] = (grant.traitstones[key] ?? 0) + 1;
   }
   return grant;
-}
-
-export function stonesFromMoves(moves: number): number {
-  return Math.floor(moves / 15);
 }
 
 export function beginHunt(save: MetaSave, seed: number): { ok: true; state: TreasureHuntState } | MetaFailure {

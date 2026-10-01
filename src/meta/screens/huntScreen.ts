@@ -1,4 +1,3 @@
-import { stoneName } from '../data/materials';
 import { toast, toastHtml, topbarHtml } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { isFailure } from '../gateway';
@@ -6,8 +5,7 @@ import { LOOT_ART } from './huntArt';
 import {
   HUNT_START_TURNS,
   LOOT_LADDER,
-  stonesFromMoves,
-  type HuntGrant,
+  HUNT_STONE_ODDS_TEXT,
   type HuntMoveOk,
 } from '../systems/treasureHunt';
 import { HuntBoardScene } from '../../render/HuntBoardScene';
@@ -20,19 +18,6 @@ function ladderHtml(): string {
   return LOOT_LADDER.map((row, index) => `
     <li><img src="${LOOT_ART[index]}" alt="" draggable="false"><div><b>${row.name}</b><small>${row.reward}</small></div></li>
   `).join('');
-}
-
-function grantLines(grant: HuntGrant): string {
-  const rows: string[] = [];
-  if (grant.gold) rows.push(`黄金 +${fmt(grant.gold)}`);
-  if (grant.souls) rows.push(`灵魂 +${fmt(grant.souls)}`);
-  if (grant.glory) rows.push(`荣耀 +${fmt(grant.glory)}`);
-  if (grant.gems) rows.push(`宝石 +${fmt(grant.gems)}`);
-  if (grant.goldKeys) rows.push(`金钥匙 +${fmt(grant.goldKeys)}`);
-  for (const [key, n] of Object.entries(grant.traitstones)) {
-    if (n > 0) rows.push(`${stoneName(key)} +${n}`);
-  }
-  return rows.map((line) => `<li>${line}</li>`).join('') || '<li>本次暂无奖励</li>';
 }
 
 export class HuntScreen implements Screen {
@@ -58,7 +43,7 @@ export class HuntScreen implements Screen {
         </header>
         <div class="hunt-status" aria-live="polite">
           <span class="hunt-turns"><b id="huntTurns">${HUNT_START_TURNS}</b> 剩余步数</span>
-          <span id="huntMoves">已走 0 步</span><span id="huntStones">特质石 0</span>
+          <span id="huntMoves">已走 0 步</span><span id="huntTreasures">红箱 0 · 金库 0</span>
         </div>
         <section class="hunt-stage">
           <div class="hunt-board" id="huntBoard" data-ready="false" aria-busy="true"></div>
@@ -70,11 +55,6 @@ export class HuntScreen implements Screen {
             <button class="hunt-begin" id="huntBegin" type="button" disabled>棋盘加载中…</button>
             <small id="huntCost">每局消耗 1 张藏宝图</small>
           </div>
-          <div class="hunt-result" id="huntResult" hidden>
-            <h2>寻宝收获</h2><ul class="hunt-loot" id="huntLoot"></ul>
-            <button class="hunt-again" id="huntAgain" type="button">再开一局 · 1 张藏宝图</button>
-            <a class="hunt-back" href="#map">返回地图</a>
-          </div>
         </section>
         <footer class="hunt-hint">三连 −1 步<span>·</span>四连不耗步<span>·</span>五连及以上 +1 步</footer>
         <dialog class="hunt-rules" id="huntRules" aria-labelledby="huntRulesTitle">
@@ -82,8 +62,9 @@ export class HuntScreen implements Screen {
           <h2 id="huntRulesTitle">寻宝规则</h2>
           <p>拖动交换，或依次点选相邻两格。三件相同宝物合成高一级，空位自动下落补齐。</p>
           <p>同一手按最大的合成组计算步数：三连消耗 1 步，四连不耗步，五连及以上增加 1 步。</p>
-          <p>金库不可交换或继续合成。每完成 15 次交换，结算时额外获得 1 颗随机特质石。中途返回地图会保留进度。</p>
-          <h3>每件宝物随机开出以下一项</h3><ol>${ladderHtml()}</ol>
+          <p>金库不可交换或继续合成。中途返回地图会保留进度。</p>
+          <p>每件宝物同时获得下表全部货币。每个红箱、金库另有一次材料掉落机会：${HUNT_STONE_ODDS_TEXT}，命中仅给 1 颗，其余情况不掉材料。不再按已走步数赠送特质石。</p>
+          <h3>每件宝物的固定奖励</h3><ol>${ladderHtml()}</ol>
         </dialog>
       </div>${toastHtml()}`;
   }
@@ -101,7 +82,6 @@ export class HuntScreen implements Screen {
     this.el('huntBegin').addEventListener('click', () => {
       if (!this.ready) void this.initialize(ctx); else void this.start(ctx);
     });
-    this.el('huntAgain').addEventListener('click', () => void this.start(ctx));
     const dialog = this.el<HTMLDialogElement>('huntRules');
     this.el('huntHelp').addEventListener('click', () => { dialog.showModal(); this.el('huntHelp').setAttribute('aria-expanded', 'true'); });
     this.el('huntCloseRules').addEventListener('click', () => dialog.close());
@@ -152,19 +132,17 @@ export class HuntScreen implements Screen {
     const generation = this.generation;
     this.busy = true;
     this.el<HTMLButtonElement>('huntBegin').disabled = true;
-    this.el<HTMLButtonElement>('huntAgain').disabled = true;
     try {
       const begun = await ctx.gateway.startTreasureHunt();
       if (!this.isCurrent(generation)) return;
       ctx.refreshChrome();
       if (isFailure(begun.result)) { toast(begun.result.message); return; }
-      this.el('huntResult').hidden = true;
       this.showBoard(begun.result.state);
       this.el('huntMaps').textContent = `藏宝图 ${fmt(ctx.save().materials.treasureMaps)}`;
     } catch { if (this.isCurrent(generation)) toast('连接中断，请重试'); }
     finally {
       if (this.isCurrent(generation)) this.busy = false;
-      if (this.isCurrent(generation)) for (const id of ['huntBegin', 'huntAgain']) this.el<HTMLButtonElement>(id).disabled = ctx.save().materials.treasureMaps <= 0;
+      if (this.isCurrent(generation)) this.el<HTMLButtonElement>('huntBegin').disabled = ctx.save().materials.treasureMaps <= 0;
     }
   }
 
@@ -209,7 +187,12 @@ export class HuntScreen implements Screen {
     this.current = { cells: result.cells, turns: result.turns, moves: result.moves, rng: result.rng, softCap: result.softCap };
     this.scene!.sync(result.cells);
     this.paint(ctx);
-    if (result.over && result.grant) { this.current = null; this.showGrant(ctx, result.grant); }
+    if (result.over && result.grant) {
+      this.current = null;
+      ctx.showResult({ kind: 'hunt', grant: result.grant, moves: result.moves }, {
+        kingdom: '', sourceLabel: '寻宝', returnHash: '#hunt',
+      });
+    }
   }
 
   private showBoard(state: TreasureHuntState): void {
@@ -225,7 +208,7 @@ export class HuntScreen implements Screen {
     if (!this.current) return;
     this.el('huntTurns').textContent = String(this.current.turns);
     this.el('huntMoves').textContent = `已走 ${this.current.moves} 步`;
-    this.el('huntStones').textContent = `特质石 ${stonesFromMoves(this.current.moves)}`;
+    this.el('huntTreasures').textContent = `红箱 ${this.current.cells.filter(tier => tier === 6).length} · 金库 ${this.current.cells.filter(tier => tier === 7).length}`;
   }
 
   private paint(ctx: ShellCtx): void { this.paintCounters(); ctx.refreshChrome(); }
@@ -233,15 +216,6 @@ export class HuntScreen implements Screen {
     clearTimeout(this.feedbackTimer);
     this.el('huntFeedback').textContent = text;
     this.feedbackTimer = setTimeout(() => { if (!this.disposed) this.el('huntFeedback').textContent = ''; }, 1500);
-  }
-
-  private showGrant(ctx: ShellCtx, grant: HuntGrant): void {
-    this.el('huntLoot').innerHTML = grantLines(grant);
-    const maps = ctx.save().materials.treasureMaps;
-    this.el<HTMLButtonElement>('huntAgain').disabled = maps <= 0;
-    this.el('huntAgain').textContent = maps > 0 ? '再开一局 · 1 张藏宝图' : '藏宝图不足';
-    this.el('huntResult').hidden = false;
-    this.el<HTMLButtonElement>('huntAgain').focus();
   }
 
   dispose(): void {

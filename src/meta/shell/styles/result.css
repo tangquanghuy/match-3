@@ -128,10 +128,43 @@
   position: relative;
   z-index: 2;
   height: 100%;
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
+/* 标题与奖励作为完整内容滚动，底部操作不参与滚动。 */
+.rs-summary-content {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #b89854 #161019;
+  scroll-padding-block: 16px;
+}
+.rs-summary-content > * { flex-shrink: 0; }
+/* 星盘允许纵向装饰溢出，但不把手机内容区撑出横向滚动。 */
+.rs-summary-content .rs-banner { overflow-x: clip; overflow-y: visible; }
+.rs-summary-content:focus-visible { outline: 1px solid #b89854; outline-offset: -2px; }
+.rs-summary-content .rs-strip { margin-top: auto; }
+.rs-summary > .rs-footer { flex: 0 0 auto; box-sizing: border-box; }
+.rs-scroll-more {
+  flex: 0 0 28px;
+  width: 100%;
+  padding: 0 12px;
+  border: 0;
+  background: #161019;
+  color: #e3c991;
+  font: 12px/28px var(--body);
+  cursor: pointer;
+}
+.rs-scroll-more[hidden] { display: none; }
+.rs-scroll-more.is-at-end { visibility: hidden; pointer-events: none; }
+
 
 .rs-banner {
   position: relative;
@@ -869,3 +902,9 @@ html[data-motion="reduced"] .rs-particles { display: none; }
   }
   .rs-particles { display: none; }
 }
+
+/* 多奖品自动换行；奖励条使用自然高度，最后一排完整可达。 */
+.has-many-rewards .rs-banner { height: clamp(90px, 18cqh, 160px); margin-top: clamp(8px, 2cqh, 24px); }
+.has-many-rewards .rs-strip { box-sizing: border-box; }
+.has-many-rewards .rs-rewards { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); grid-auto-columns: auto; gap: 18px 16px; width: min(100%, 1280px); box-sizing: border-box; margin-inline: auto; }
+.has-many-rewards .rs-reward p { flex-direction: column; align-items: center; white-space: normal; text-align: center; overflow-wrap: anywhere; font-size: clamp(14px, 2.3cqmin, 22px); }

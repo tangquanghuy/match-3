@@ -16,7 +16,6 @@
 import { backgroundMusic } from '../../audio/BackgroundMusic';
 import { resultMusic } from '../../audio/ResultMusic';
 import { prefersReducedMotion } from '../../preferences/playerPreferences';
-import type { SettlementDetail } from '../systems/settlement';
 import { heroStatsAt, heroXpToNext } from '../data/classes';
 import { ALL_KINGDOMS_UNLOCK_LEVEL, kingdomsUnlockedBetween, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { getTroopById, type TroopData } from '../../data/troops';
@@ -36,7 +35,7 @@ import { ART, KINGDOM_VIEWS, kingdomViewOf } from './mapData';
 import { troopArt } from './teamScreen';
 import { escapeHtml } from './troopCard';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
-import type { PvpSettlementView, Screen, ShellCtx } from '../shell/screen';
+import type { SettlementView, Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, resultArt } from '../shell/artAssets';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey, treasureMapMarkup } from '../shell/materialArt';
 import { INGOT_NAMES, stoneName, type IngotKey, type MaterialDelta } from '../data/materials';
@@ -52,6 +51,8 @@ const CURRENCY_ART = {
   souls: new URL('@assets/chrome/soul.png', import.meta.url).href,
   gold: new URL('@assets/chrome/gold.png', import.meta.url).href,
   gems: new URL('@assets/chrome/gem.png', import.meta.url).href,
+  glory: new URL('@assets/chrome/glory.png', import.meta.url).href,
+  goldKeys: new URL('@assets/chrome/key.png', import.meta.url).href,
 } as const;
 
 /** 结算/升级页彩绘素材（game-assets/bundled/meta/result/，透明底 WebP，随构建打包） */
@@ -118,6 +119,8 @@ export interface BattleIncomeView {
   gold: number;
   souls: number;
   gems: number;
+  glory?: number;
+  goldKeys?: number;
   /** 本场素材收益（战斗内藏宝图 + 额外奖励素材），与货币卡并列展示 */
   materials: MaterialIncome[];
 }
@@ -159,7 +162,16 @@ function materialIconHtml(key: string): string {
   return '';
 }
 
-export function battleIncomeView(detail: SettlementDetail | PvpSettlementView): BattleIncomeView {
+export function battleIncomeView(detail: SettlementView): BattleIncomeView {
+  if ('kind' in detail && detail.kind === 'hunt') {
+    const { grant } = detail;
+    return {
+      victory: true, xp: 0, levelsGained: 0,
+      gold: grant.gold, souls: grant.souls, gems: grant.gems,
+      glory: grant.glory, goldKeys: grant.goldKeys,
+      materials: materialIncome([{ mats: { traitstones: grant.traitstones } }]),
+    };
+  }
   if ('kind' in detail) {
     const base = detail.settled.battleRewards;
     const collected = detail.settled.collected;
@@ -175,10 +187,13 @@ export function battleIncomeView(detail: SettlementDetail | PvpSettlementView): 
     };
   }
   const battleLines = detail.lines.filter(line => BATTLE_INCOME_KEYS.includes(line.key));
-  const sum = (key: 'gold' | 'souls' | 'gems') =>
+  const sum = (key: 'gold' | 'souls' | 'gems' | 'glory' | 'goldKeys') =>
     battleLines.reduce((total, line) => total + (line.deltas[key] ?? 0), 0);
   return { victory: detail.victory, xp: detail.xpGained, levelsGained: detail.heroLevelsGained,
-    gold: sum('gold'), souls: sum('souls'), gems: sum('gems'), materials: materialIncome(battleLines) };
+    gold: sum('gold'), souls: sum('souls'), gems: sum('gems'),
+    ...(sum('glory') > 0 ? { glory: sum('glory') } : {}),
+    ...(sum('goldKeys') > 0 ? { goldKeys: sum('goldKeys') } : {}),
+    materials: materialIncome(battleLines) };
 }
 
 /**
@@ -186,11 +201,12 @@ export function battleIncomeView(detail: SettlementDetail | PvpSettlementView): 
  * questsDone：未推进时（战败/重打）仍显示当前王国主线进度。
  */
 export function resultSubtitle(
-  detail: SettlementDetail | PvpSettlementView,
+  detail: SettlementView,
   meta: Pick<ResultMeta, 'kingdom' | 'sourceLabel'>,
   questsDone?: number,
 ): string {
   if ('kind' in detail) {
+    if (detail.kind === 'hunt') return `寻宝 · 已走 ${fmt(detail.moves)} 步`;
     if (detail.kind === 'arena') {
       const s = detail.settled;
       return `竞技场 · 战绩 ${s.wins ?? 0} 胜 ${s.losses ?? 0} 负${s.runOver ? ' · 本届已结束' : ''}`;
@@ -263,17 +279,18 @@ const hash01 = (i: number, k: number): number => {
 
 export class ResultScreen implements Screen {
   private ctx!: ShellCtx;
-  private detail: SettlementDetail | PvpSettlementView | null = null;
+  private detail: SettlementView | null = null;
   private meta: ResultMeta = { kingdom: '', sourceLabel: '' };
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private frames = new Set<number>();
+  private summaryResize: ResizeObserver | null = null;
   private levels: number[] = [];
   private levelIndex = 0;
   private levelUpDone = false;
   private selected: ManaColor | null = null;
   private busy = false;
 
-  setDetail(detail: SettlementDetail | PvpSettlementView, meta: ResultMeta): void {
+  setDetail(detail: SettlementView, meta: ResultMeta): void {
     this.detail = detail;
     this.meta = meta;
     this.levelUpDone = false;
@@ -287,6 +304,7 @@ export class ResultScreen implements Screen {
         <div class="rs-particles" id="rsParticles" aria-hidden="true"></div>
 
         <section class="rs-summary" id="resultSummary" aria-labelledby="resultTitle">
+          <div class="rs-summary-content" id="resultScroll" tabindex="0" role="region" aria-label="结算奖励">
           <header class="rs-banner">
             <div class="rs-banner-art" aria-hidden="true"><img src="${art('title-astrolabe')}" alt="" draggable="false"></div>
             <h1 id="resultTitle">暂无战报</h1>
@@ -296,6 +314,8 @@ export class ResultScreen implements Screen {
           <div class="rs-strip" id="standardRewards" hidden>
             <div class="rs-rewards" id="rewardRows"></div>
           </div>
+          </div>
+          <button class="rs-scroll-more" id="resultScrollMore" type="button" hidden>向下查看其余奖励 ↓</button>
           <footer class="rs-footer result-actions">
             <button class="rs-ghost" id="team" type="button" hidden>调整队伍</button>
             <button class="rs-continue" id="again" type="button"><span>去世界地图</span></button>
@@ -329,14 +349,36 @@ export class ResultScreen implements Screen {
     this.busy = false;
     backgroundMusic.setDucking('result', true);
     this.bind('#again', () => this.continueFromSummary());
-    this.bind('#team', () => ctx.navigate('#team'));
+    this.bind('#team', () => ctx.navigate(this.isHunt() ? '#map' : '#team'));
     this.bind('#luContinue', () => void this.continueFromLevelUp());
     this.bind('#luChoices', (e) => {
       const card = (e.target as HTMLElement).closest<HTMLElement>('[data-mastery-color]');
       if (card?.dataset.masteryColor) this.select(card.dataset.masteryColor);
     });
     this.paint();
+    const scroll = $('#resultScroll');
+    const updateScrollHint = () => {
+      const hint = $('#resultScrollMore');
+      const overflow = scroll.scrollHeight > scroll.clientHeight + 2;
+      hint.hidden = !overflow;
+      const atEnd = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 2;
+      hint.classList.toggle('is-at-end', atEnd);
+      (hint as HTMLButtonElement).disabled = atEnd;
+    };
+    scroll.addEventListener('scroll', updateScrollHint, { passive: true });
+    this.listeners.push([scroll, 'scroll', updateScrollHint]);
+    this.bind('#resultScrollMore', () => scroll.scrollBy({
+      top: scroll.clientHeight * 0.75, behavior: prefersReducedMotion() ? 'instant' : 'smooth',
+    }));
+    this.summaryResize = new ResizeObserver(updateScrollHint);
+    this.summaryResize.observe(scroll);
+    this.summaryResize.observe($('#rewardRows'));
+    updateScrollHint();
     if (this.detail) resultMusic.play(battleIncomeView(this.detail).victory ? 'victory' : 'defeat');
+  }
+
+  private isHunt(): boolean {
+    return !!this.detail && 'kind' in this.detail && this.detail.kind === 'hunt';
   }
 
   private returnLabel(): string {
@@ -344,6 +386,7 @@ export class ResultScreen implements Screen {
     if (this.detail && 'kind' in this.detail && this.detail.kind === 'arena' && !this.detail.settled.runOver) return '继续竞技场';
     if (!hash || hash === '#map') return '返回地图';
     if (hash.startsWith('#events')) return '返回活动页';
+    if (hash === '#hunt') return '返回寻宝';
     if (hash === '#arena') return '返回竞技场';
     if (hash === '#invasion') return '返回入侵页';
     return '返回来源页';
@@ -362,7 +405,9 @@ export class ResultScreen implements Screen {
     $('#standardRewards').hidden = !detail;
     $('#summaryArt').hidden = !detail;
     $('#team').hidden = !detail;
+    $('#team').textContent = this.isHunt() ? '返回地图' : '调整队伍';
     $('#rewardRows').replaceChildren();
+    screen.classList.remove('has-many-rewards');
     const image = $('#sumArt') as HTMLImageElement;
     const again = $('#again');
     if (!detail) {
@@ -375,24 +420,26 @@ export class ResultScreen implements Screen {
     }
     image.src = resultSummaryArt(this.meta.kingdom);
     const income = battleIncomeView(detail);
-    const surrendered = 'kind' in detail && detail.battle.endReason === 'surrender';
+    const surrendered = 'kind' in detail && detail.kind !== 'hunt' && detail.battle.endReason === 'surrender';
     screen.classList.add(income.victory ? 'is-victory' : 'is-defeat');
-    screen.classList.toggle('is-pvp', 'kind' in detail);
-    const title = surrendered ? '已放弃' : income.victory ? '战斗胜利' : '战斗失败';
+    screen.classList.toggle('is-pvp', 'kind' in detail && detail.kind !== 'hunt');
+    const title = this.isHunt() ? '寻宝收获' : surrendered ? '已放弃' : income.victory ? '战斗胜利' : '战斗失败';
     $('#resultTitle').innerHTML = [...title].map((ch, i) => `<span style="--c:${i}">${ch}</span>`).join('');
     const save = this.ctx.save();
     $('#resultSub').textContent = resultSubtitle(detail, this.meta, save.kingdoms?.[this.meta.kingdom]?.questsDone ?? 0);
-    again.innerHTML = '<span>继续</span>';
+    again.innerHTML = this.isHunt() ? '<span>返回寻宝</span>' : '<span>继续</span>';
     again.setAttribute('aria-label', income.levelsGained > 0 ? '继续：查看等级提升' : `继续：${this.returnLabel()}`);
     again.title = income.levelsGained > 0 ? '查看等级提升' : this.returnLabel();
 
     const hero = save.hero;
     const need = heroXpToNext(hero.level);
-    const rewards: Array<{ key: 'souls' | 'gold' | 'gems'; name: string; amount: number }> = [
+    const rewards: Array<{ key: keyof typeof CURRENCY_ART; name: string; amount: number }> = [
       { key: 'souls', name: '灵魂', amount: income.souls },
       { key: 'gold', name: '黄金', amount: income.gold },
       // No empty gem card, fake gem roll, or aggregate of the whole account's gains.
       { key: 'gems', name: '宝石', amount: income.gems },
+      { key: 'glory', name: '荣耀', amount: income.glory ?? 0 },
+      { key: 'goldKeys', name: '金钥匙', amount: income.goldKeys ?? 0 },
     ];
     const currency = (r: (typeof rewards)[number], i: number) =>
       `<div class="rs-reward reward-row" data-battle-currency="${r.key}" style="--i:${i}">
@@ -410,15 +457,17 @@ export class ResultScreen implements Screen {
         <small id="xpNote">${income.levelsGained > 0 ? `提升 ${income.levelsGained} 级 · ` : ''}${fmt(hero.xp)} / ${fmt(need)}</small>
         ${income.levelsGained > 0 ? '<em class="rs-levelup-tag">升级</em>' : ''}
       </div>`;
-    const [souls, gold, gems] = rewards;
+    const [souls, gold, ...extras] = rewards;
     const matCards = income.materials.map((m, i) =>
-      `<div class="rs-reward reward-row rs-mat" data-battle-material="${escapeHtml(m.key)}" style="--i:${4 + i}">
+      `<div class="rs-reward reward-row rs-mat" data-battle-material="${escapeHtml(m.key)}" style="--i:${6 + i}">
         <span class="rs-reward-icon">${materialIconHtml(m.key)}</span>
         <p><strong data-count="${m.amount}">+${fmt(m.amount)}</strong><span>${escapeHtml(m.name)}</span></p>
       </div>`);
     $('#rewardRows').innerHTML = [
-      currency(souls!, 0), xp, currency(gold!, 2), gems!.amount > 0 ? currency(gems!, 3) : '', ...matCards,
+      currency(souls!, 0), this.isHunt() ? '' : xp, currency(gold!, 2),
+      ...extras.filter(r => r.amount > 0).map((r, i) => currency(r, 3 + i)), ...matCards,
     ].join('');
+    screen.classList.toggle('has-many-rewards', $('#rewardRows').childElementCount > 4);
     this.particles(income.victory);
     this.animateSummary(income);
   }
@@ -704,6 +753,8 @@ export class ResultScreen implements Screen {
   dispose(): void {
     for (const id of this.frames) cancelAnimationFrame(id);
     this.frames.clear();
+    this.summaryResize?.disconnect();
+    this.summaryResize = null;
     resultMusic.stop(0.9);
     backgroundMusic.finishResult();
     for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
