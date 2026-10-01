@@ -435,7 +435,7 @@ export const TERM_GLOSSARY: readonly TermEntry[] = [
     category: 'combat',
     title: '溅射',
     aliases: ['轻度溅射', '重度溅射', '溅射'],
-    body: '主目标承受全额伤害，相邻位按比例受波及：轻度 25%、重度 75%、未标注 50%。',
+    body: '主目标承受全额伤害，相邻位按比例受波及：溅射 50%、轻度溅射 25%、重度溅射 75%。',
   },
   {
     id: 'scatter',

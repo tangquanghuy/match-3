@@ -58,7 +58,8 @@ describe('灰鸠 integration', () => {
     expect(t).toMatchObject({ name: '灰鸠', rarity: 'UltraRare', rarityIdx: 3, kingdom: COMMUNITY_KINGDOM,
       troopTypes: [COMMUNITY_RACE], manaColors: [BaseColor.Blue, BaseColor.Purple], manaCost: 16,
       spell: { id: HUIJIU_SPELL_ID, name: HUIJIU_SPELL_NAME } });
-    expect(t.spell.description).toContain('[1:1]');
+    expect(t.spell.description).toContain('[3:1]');
+    expect(t.spell.meta.modifier).toEqual({ kind: 'ratio', a: 3, b: 1 });
     expect(t.traits.map(t => t.code)).toEqual(ids);
     expect(t.artUrl).toContain('huijiu.webp'); expect(troopArt(t)).toBe(t.artUrl);
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(t);
@@ -79,7 +80,7 @@ describe('灰鸠 integration', () => {
 });
 
 describe('灰鸠 guaranteed mixed stars', () => {
-  it('snapshots base 2 + living otherworld allies (including self) + blue gems at 1:1', () => {
+  it('scales each source independently at 3:1 (five blue gems + two living allies)', () => {
     const f = fixture(); stableBoard(f);
     for (let col = 0; col < 5; col++) f.board.set({ row: 0, col }, { id: col + 1, type: colorGem(BaseColor.Blue) });
     f.state.teams[PlayerSide.Left].characters.push(damageCharacter(1, { troopTypes: [COMMUNITY_RACE] }),
@@ -87,11 +88,18 @@ describe('灰鸠 guaranteed mixed stars', () => {
     const resolve = vi.fn(); f.ctx.resolveBoardChange = resolve;
     const events = executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx);
     const made = placements(events);
-    expect(made).toHaveLength(9); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(9);
+    expect(made).toHaveLength(3); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(3);
     expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
     expect(resolve).toHaveBeenCalledTimes(1);
     expect(events.some(e => e.type === 'extra-turn')).toBe(false);
+  });
+  it('crosses the 3-blue threshold without pooling it with the caster race count', () => {
+    for (const [blue, expected] of [[2, 2], [3, 3], [5, 3], [6, 4]]) {
+      const f = fixture(); stableBoard(f);
+      for (let i = 0; i < blue; i++) f.board.set({ row: 0, col: i }, { id: i + 1, type: colorGem(BaseColor.Blue) });
+      expect(placements(executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx))).toHaveLength(expected);
+    }
   });
   it.each(Array.from({ length: 20 }, (_, i) => i + 1))('guarantees one of each at base 2, independent of magic, seed %i', seed => {
     const f = fixture(false, seed); stableBoard(f); f.caster.troopTypes = []; f.caster.magic = seed * 100;
@@ -102,16 +110,16 @@ describe('灰鸠 guaranteed mixed stars', () => {
     const f = fixture(); stableBoard(f);
     for (let i = 0; i < empty; i++) f.board.set({ row: Math.floor(i / 8), col: i % 8 }, null);
     const events = executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx);
-    const made = placements(events); expect(made).toHaveLength(3);
-    expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(3);
+    const made = placements(events); expect(made).toHaveLength(2);
+    expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(2);
     expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
-    expect(events.filter(e => e.type === 'gem-create').flatMap(e => e.spawns)).toHaveLength(Math.min(empty, 3));
+    expect(events.filter(e => e.type === 'gem-create').flatMap(e => e.spawns)).toHaveLength(Math.min(empty, 2));
   });
-  it('caps at board capacity even on a fully blue board; both stars remain represented', () => {
+  it('scales a full blue board at 3:1; both stars remain represented', () => {
     const f = fixture(); f.board.forEach((g, p) => { if (g) f.board.set(p, { id: g.id, type: colorGem(BaseColor.Blue) }); });
     const made = placements(executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx));
-    expect(made).toHaveLength(64); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(64);
+    expect(made).toHaveLength(23); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(23);
     expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
   });
@@ -123,7 +131,7 @@ describe('灰鸠 guaranteed mixed stars', () => {
     const f = fixture(false); stableBoard(f); const engine = engineFor(f);
     const events = engine.castSkill(0);
     expect(events.filter(e => e.type === 'skill-cast')).toHaveLength(1);
-    expect(placements(events).filter(p => ['elementalStar', 'umbralStar'].includes(gemKind(p.type)))).toHaveLength(3);
+    expect(placements(events).filter(p => ['elementalStar', 'umbralStar'].includes(gemKind(p.type)))).toHaveLength(2);
     expect(f.state.actionLog).toHaveLength(1);
   });
   it('15 mana does not cast', () => {

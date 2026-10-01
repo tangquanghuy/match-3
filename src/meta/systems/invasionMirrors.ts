@@ -210,8 +210,16 @@ const WEAPON_IDS = new Set(CATALOG_WEAPONS.filter(w => w.skill).map(w => w.id));
 const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n);
 
 /** 池条目能否上场：规则版本、时效、4 人、部队/武器仍在目录、数值合法 */
+export function compatibleMirrorRuleset(version: string): boolean {
+  const parse = (value: string) => /^\d+\.\d+\.\d+$/.test(value) ? value.split('.').map(Number) : null;
+  const current = parse(RULESET_VERSION);
+  const candidate = parse(version);
+  return !!current && !!candidate && candidate[0] === current[0]
+    && candidate[1]! <= current[1]! && current[1]! - candidate[1]! <= 1;
+}
+
 export function usableEntry(entry: MirrorPoolEntry, now: number): boolean {
-  if (entry.ruleset !== RULESET_VERSION || now - entry.recordedAt > MM.maxAgeMs) return false;
+  if (!compatibleMirrorRuleset(entry.ruleset) || now - entry.recordedAt > MM.maxAgeMs) return false;
   if (!Array.isArray(entry.team) || entry.team.length !== 4 || !finite(entry.power) || entry.power <= 0) return false;
   if (entry.team.filter(c => isImmortal(getTroopById(Number(c?.templateId)))).length > IMMORTAL_TEAM_LIMIT) return false;
   return entry.team.every((c) => {
@@ -322,19 +330,21 @@ export function buildInvasionRoster(input: RosterInput): InvasionMirror[] {
     const scored = [...byOwner.values()]
       .filter(e => !taken.has(e.ownerKey))
       .map(e => {
-        const ratio = e.power / input.playerPower;
+        const multiplier = lowerLeagueMultiplier(league, e.league, e.power / input.playerPower, lo);
+        const ratio = e.power * multiplier / input.playerPower;
         if (ratio < lo || ratio > hi) return null;
         const offset = e.league - league;
         const leagueMiss = offset < reachLo ? reachLo - offset : offset > reachHi ? offset - reachHi : 0;
         const age = Math.min(1, Math.max(0, (now - e.recordedAt) / MM.maxAgeMs));
-        return { e, score: Math.abs(ratio - center) / half + leagueMiss * MM.leaguePenalty + age * MM.agePenalty };
+        return { e, multiplier, score: Math.abs(ratio - center) / half + leagueMiss * MM.leaguePenalty + age * MM.agePenalty };
       })
-      .filter((x): x is { e: MirrorPoolEntry; score: number } => x !== null)
+      .filter((x): x is { e: MirrorPoolEntry; multiplier: number; score: number } => x !== null)
       .sort((a, b) => a.score - b.score || a.e.ownerKey.localeCompare(b.e.ownerKey));
     if (scored.length === 0) return bot;
-    const pick = scored[rng.nextInt(Math.min(MM.topPicks, scored.length))]!.e;
-    taken.add(pick.ownerKey);
-    const mirror = mirrorFromEntry(pick, difficulty, suffix);
+    const pick = scored[rng.nextInt(Math.min(MM.topPicks, scored.length))]!;
+    taken.add(pick.e.ownerKey);
+    let mirror = mirrorFromEntry(pick.e, difficulty, suffix);
+    if (pick.multiplier > 1) mirror = scaleMirror(mirror, pick.multiplier);
     return bot.frenzy && bot.frenzyMultiplier !== 1 ? applyFrenzy(mirror, bot.frenzyMultiplier) : mirror;
   });
 }
@@ -343,25 +353,34 @@ export function buildInvasionRoster(input: RosterInput): InvasionMirror[] {
  * 真人镜像套血怒：整队四维 × INVASION_FRENZY.stats[倍率]（向上取整、按会话上限封顶，
  * 与 enemyEncounterStats 同口径），rating 随之重算；VP 倍率由 frenzyMultiplier 生效。
  */
+function lowerLeagueMultiplier(own: number, rival: number, powerRatio: number, bandMin: number): number {
+  if (rival >= own || powerRatio <= 0) return 1;
+  return Math.min(1.5, Math.max(1 + Math.min(2, own - rival) * 0.1, bandMin / powerRatio));
+}
+
+function scaleMirror(mirror: InvasionMirror, scale: number): InvasionMirror {
+  const team = (mirror.player?.team ?? []).map(c => ({ ...c, stats: {
+    hp: Math.min(STAT_LIMITS.hp.max, Math.ceil(c.stats.hp * scale)),
+    attack: Math.min(STAT_LIMITS.attack.max, Math.ceil(c.stats.attack * scale)),
+    armor: Math.min(STAT_LIMITS.armor.max, Math.ceil(c.stats.armor * scale)),
+    magic: Math.min(STAT_LIMITS.magic.max, Math.ceil(c.stats.magic * scale)),
+  } }));
+  return { ...mirror, rating: teamPower(team),
+    defense: mirror.defense.map(d => ({ ...d, statMultiplier: (d.statMultiplier ?? 1) * scale })),
+    player: mirror.player ? { ...mirror.player, team } : mirror.player };
+}
+
 export function applyFrenzy(mirror: InvasionMirror, multiplier: FrenzyMultiplier): InvasionMirror {
   const scale = INVASION_FRENZY.stats[multiplier];
-  const team = (mirror.player?.team ?? []).map((c) => ({
-    ...c,
-    stats: {
-      hp: Math.min(STAT_LIMITS.hp.max, Math.ceil(c.stats.hp * scale)),
-      attack: Math.min(STAT_LIMITS.attack.max, Math.ceil(c.stats.attack * scale)),
-      armor: Math.min(STAT_LIMITS.armor.max, Math.ceil(c.stats.armor * scale)),
-      magic: Math.min(STAT_LIMITS.magic.max, Math.ceil(c.stats.magic * scale)),
-    },
-  }));
+  const boosted = scaleMirror(mirror, scale);
   return {
-    ...mirror,
+    ...boosted,
     frenzy: true,
     frenzyMultiplier: multiplier,
-    rating: teamPower(team),
+    rating: boosted.rating,
     // 卡面「基础属性提升 N%」读 defense[].statMultiplier
-    defense: mirror.defense.map(d => ({ ...d, statMultiplier: scale })),
-    player: mirror.player ? { ...mirror.player, team } : mirror.player,
+    defense: boosted.defense,
+    player: boosted.player,
   };
 }
 

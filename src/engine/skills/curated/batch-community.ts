@@ -203,7 +203,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         createSpecialGems2([{ kind: 'elementalStar' }, { kind: 'umbralStar' }], 2, 0, {
           minimumEach: 1,
           modifier: {
-            mod: { kind: 'ratio', a: 1, b: 1 },
+            mod: { kind: 'ratio', a: 3, b: 1 },
             sources: [{ kind: 'alliesOfRace', race: COMMUNITY_RACE }, { kind: 'boardGems', color: BaseColor.Blue }],
           },
         }),

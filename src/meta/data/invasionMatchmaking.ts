@@ -41,9 +41,9 @@ export const INVASION_MATCHMAKING = {
   } as Record<InvasionDifficulty, readonly [number, number]>,
   /** 各档优先的段位偏移（相对我方联赛）；超出范围每差一级加罚分 */
   leagueReach: {
-    easy: [-1, 0],
-    normal: [0, 0],
-    hard: [0, 1],
+    easy: [-2, 0],
+    normal: [-1, 1],
+    hard: [0, 2],
   } as Record<InvasionDifficulty, readonly [number, number]>,
   /** 段位偏离罚分（每级） */
   leaguePenalty: 0.5,
@@ -51,8 +51,8 @@ export const INVASION_MATCHMAKING = {
   agePenalty: 0.3,
   /** 在最优的前 N 名里随机挑一个，避免同强度的人被固定刷到 */
   topPicks: 3,
-  /** 窗口内至少要有这么多不同玩家才启用真人匹配（池浅时全走人机） */
-  minDistinctOwners: 6,
+  /** One compatible owner is enough to attempt a real opponent; recent-opponent filtering still applies. */
+  minDistinctOwners: 1,
   /** 快照有效期：两个赛季 */
   maxAgeMs: 14 * DAY_MS,
   /** 最近交手过的真人不再匹配（按 ownerKey） */
@@ -64,7 +64,7 @@ export const INVASION_MATCHMAKING = {
   /** 服务端一次取样上限 */
   queryLimit: 60,
   /** 服务端取样的强度粗筛区间（比各档区间宽，留给纯逻辑细分） */
-  queryPower: [0.6, 1.6] as readonly [number, number],
+  queryPower: [0.5, 1.6] as readonly [number, number],
   /** 服务端取样的段位窗口（相对我方联赛） */
-  queryLeagues: [-1, 1] as readonly [number, number],
+  queryLeagues: [-2, 2] as readonly [number, number],
 } as const;

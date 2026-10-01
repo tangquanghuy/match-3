@@ -9,6 +9,7 @@ import { DEFENSE_HISTORY_LIMIT, DEFENSE_INBOX_BATCH, hydrateDefenseReports, empt
  */
 import { mirrorOwnerKey, type InvasionMirrorPool } from '../../src/meta/server/mirrorPool';
 import { INVASION_MATCHMAKING } from '../../src/meta/data/invasionMatchmaking';
+import { compatibleMirrorRuleset } from '../../src/meta/systems/invasionMirrors';
 import type {
   MirrorPoolEntry, MirrorPoolQuery, MirrorRecord, StandingEntry, StandingsQuery, VpReport,
 } from '../../src/meta/systems/invasionMirrors';
@@ -88,11 +89,11 @@ export class D1MirrorPool implements InvasionMirrorPool {
       `SELECT * FROM (
          SELECT m.owner_key, m.league, m.week_start, m.ruleset, m.power, m.vp, m.snapshot, m.recorded_at, a.username
          FROM invasion_mirrors m LEFT JOIN accounts a ON a.player_id = m.player_id
-         WHERE m.ruleset = ? AND m.league BETWEEN ? AND ? AND m.recorded_at >= ?
+         WHERE m.ruleset LIKE ? AND m.league BETWEEN ? AND ? AND m.recorded_at >= ?
            AND m.power BETWEEN ? AND ? AND m.player_id != ?
          ORDER BY m.recorded_at DESC LIMIT ?
        ) ORDER BY random() LIMIT ?`,
-    ).bind(q.ruleset, q.leagueMin, q.leagueMax, q.since, q.powerMin, q.powerMax, self, RECENT_WINDOW, q.limit)
+    ).bind(`${q.ruleset.split('.')[0]}.%`, q.leagueMin, q.leagueMax, q.since, q.powerMin, q.powerMax, self, RECENT_WINDOW, q.limit)
       .all<Row>();
     const entries: MirrorPoolEntry[] = [];
     for (const row of results ?? []) {
@@ -117,7 +118,7 @@ export class D1MirrorPool implements InvasionMirrorPool {
         // 坏行跳过（核心 usableEntry 还会再把关一次）
       }
     }
-    return entries;
+    return entries.filter(entry => compatibleMirrorRuleset(entry.ruleset));
   }
 
   async standings(q: StandingsQuery): Promise<StandingEntry[]> {
@@ -169,9 +170,7 @@ export class D1MirrorPool implements InvasionMirrorPool {
          power = excluded.power, vp = excluded.vp, snapshot = excluded.snapshot, recorded_at = excluded.recorded_at`,
     ).bind(self, mirrorOwnerKey(self), record.league, record.weekStart, record.ruleset,
       Math.round(record.power), Math.round(record.vp), JSON.stringify(snapshot), record.recordedAt);
-    if (record.explicitDefense) {
-      await this.db.batch([upsert, this.db.prepare('DELETE FROM invasion_mirrors WHERE player_id = ? AND league != ?').bind(self, record.league)]);
-    } else if (Math.random() * PRUNE_EVERY < 1) {
+    if (Math.random() * PRUNE_EVERY < 1) {
       const cutoff = record.recordedAt - INVASION_MATCHMAKING.maxAgeMs;
       await this.db.batch([upsert, this.db.prepare('DELETE FROM invasion_mirrors WHERE recorded_at < ?').bind(cutoff)]);
     } else {

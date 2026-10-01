@@ -65,7 +65,7 @@ export const EROCHIKA_SPELL_ID = 20018;
 export const HUIJIU_ID = 10019;
 export const HUIJIU_SPELL_ID = 20019;
 
-const huijiuDescription = '创造 2 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [1:1]';
+const huijiuDescription = '创造 2 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [3:1]';
 
 const erochikaDescription = '对一名敌人造成 [魔法 + 2] 点真实伤害，并窃取其 2 点魔力值。将所有蓝色宝石转换为黄色宝石。';
 
