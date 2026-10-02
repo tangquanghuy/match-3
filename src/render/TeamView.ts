@@ -977,7 +977,7 @@ export class CharacterCard {
     // 卡面任意位置（含法力宝石、状态/特质徽记）都执行同一个卡片动作，不再有吞点击的子区域。
     this.resize(CARD_W, CARD_H);
 
-    this.refresh();
+    this.refresh(true);
   }
 
   /** 卡面三枚特质：与养成页同一套 game-icons，未实现 code 也按名称出图。 */
@@ -1089,10 +1089,10 @@ export class CharacterCard {
     const rise = this.gemEl.querySelector('.rise');
     if (rise) this.riseEl = rise as SVGRectElement;
     this.renderTraitRow();
-    this.refresh();
+    this.refresh(true);
   }
 
-  refresh(): void {
+  refresh(syncMana = false): void {
     const c = this.char;
 
     this.atkEl.textContent = String(c.attack);
@@ -1104,8 +1104,8 @@ export class CharacterCard {
       : '';
     this.brEl.innerHTML = `${armorBlock}<div class="stat stat-hp" aria-label="生命 ${Math.max(0, c.hp)}">${HEART_SVG}<span class="v hp">${Math.max(0, c.hp)}</span></div>`;
 
-    // Normal refresh synchronizes to engine state; absorbMana() advances intermediate visual states.
-    this.displayedMana = Math.min(c.mana, c.manaCost);
+    // The engine is already at the action's final state while its events are still playing.
+    if (syncMana) this.displayedMana = Math.min(c.mana, c.manaCost);
     this.renderMana(this.displayedMana);
 
     this.renderStatuses();
@@ -1148,6 +1148,11 @@ export class CharacterCard {
     this.renderMana(0);
     this.setCastable(false);
     this.recordShown();
+  }
+
+  changeMana(amount: number): void {
+    this.displayedMana = Math.max(0, Math.min(this.char.manaCost, this.displayedMana + amount));
+    this.renderMana(this.displayedMana);
   }
 
   /** 渲染状态图标栏：按角色当前 statuses 显示可区分图标（需求 6.1） */
@@ -2390,7 +2395,7 @@ export class TeamView {
   }
 
   refreshAll(): void {
-    for (const card of this.cards.values()) card.refresh();
+    for (const card of this.cards.values()) card.refresh(true);
   }
 
   /** 推入舞台缩放（B-7：徽记 24px 下限是屏幕像素口径，见 CharacterCard.setStageScale） */

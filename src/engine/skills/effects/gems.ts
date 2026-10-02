@@ -405,9 +405,11 @@ function doCreateGuaranteedMix(
     : evaluateWithModifier(evaluateScaling(params.count, casterMagic(ctx)), params.modifier, ctx);
   if (count <= 0) return [];
   const board = ctx.state.board;
-  const empty = pickN(emptyCells(board), count, ctx);
+  const reserved = ctx.createdCellKeys ??= new Set<string>();
+  const available = (pos: CellPos) => !reserved.has(`${pos.row}:${pos.col}`);
+  const empty = pickN(emptyCells(board).filter(available), count, ctx);
   const occupied: CellPos[] = [];
-  board.forEach((gem, pos) => { if (gem) occupied.push(pos); });
+  board.forEach((gem, pos) => { if (gem && available(pos)) occupied.push(pos); });
   // Unlike ordinary mono-colour creation, all occupied cells are valid for this explicit
   // mixed-special placement. Match-compatible blue/red/etc. must not be excluded.
   const slots = [...empty, ...pickN(occupied, count - empty.length, ctx)];
@@ -415,6 +417,7 @@ function doCreateGuaranteedMix(
   const changes: GemTransformEvent['changes'] = [];
   const guaranteed = Math.max(0, Math.floor(spec.minimumEach ?? 0)) * spec.specs.length;
   slots.forEach((pos, index) => {
+    reserved.add(`${pos.row}:${pos.col}`);
     const chosen = index < guaranteed ? spec.specs[index % spec.specs.length]
       : spec.specs[ctx.rng.nextInt(spec.specs.length)];
     const type = specialGem(chosen.kind, chosen.tier, chosen.color);
@@ -454,12 +457,15 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   if (n <= 0) return [];
 
   const events: GameEvent[] = [];
+  const reserved = ctx.createdCellKeys ??= new Set<string>();
+  const available = (pos: CellPos) => !reserved.has(`${pos.row}:${pos.col}`);
 
   // 1. 优先填空格 → gem-create；首颗落格记入跨段追踪（batch-r28，surroundingGems
   //    位置锚来源——8804「宝石附近或下方每有一颗绿色宝石」的锚=刚创造的宝石）
-  const slots = pickN(emptyCells(board), n, ctx);
+  const slots = pickN(emptyCells(board).filter(available), n, ctx);
   const spawns: GemCreateEvent['spawns'] = [];
   for (const pos of slots) {
+    reserved.add(`${pos.row}:${pos.col}`);
     const gemType = pickCreateGemType(gemSpec, ctx)!;
     const gem: Gem = { id: ctx.nextGemId(), type: gemType };
     board.set(pos, gem);
@@ -475,11 +481,12 @@ function doCreate(params: CreateGemParams, ctx: EffectContext): GameEvent[] {
   if (remaining > 0) {
     const convertible: CellPos[] = [];
     board.forEach((gem, pos) => {
-      if (gem && probe && !isSameMatchType(gem.type, probe)) convertible.push(pos);
+      if (gem && probe && available(pos) && !isSameMatchType(gem.type, probe)) convertible.push(pos);
     });
     const targets = pickN(convertible, remaining, ctx);
     const changes: GemTransformEvent['changes'] = [];
     for (const pos of targets) {
+      reserved.add(`${pos.row}:${pos.col}`);
       const gem = board.get(pos)!;
       const from = gem.type;
       const to = pickCreateGemType(gemSpec, ctx)!;

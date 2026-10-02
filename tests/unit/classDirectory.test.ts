@@ -41,6 +41,10 @@ describe('职业目录和独立详情', () => {
     expect(html.match(/aria-disabled="true"/g)).toHaveLength(21);
     expect(html).not.toContain('class="hc-tier"');
     expect(html).toContain('role="tablist"');
+    expect(html).toContain('主角 Lv.40 开放该王国');
+    s.hero.level = 40;
+    expect(classDetailHtml({ save: () => s }, classById('elementalist')!)).not.toContain('主角 Lv.40 开放该王国');
+    s.hero.level = before.hero.level;
     classDirectory(s, { ...state, query: 'mechanist' });
     expect(s).toEqual(before);
   });

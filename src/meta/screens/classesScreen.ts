@@ -26,7 +26,7 @@ export function classDetailHtml(ctx: Pick<ShellCtx, 'save'>, c: ClassDef): strin
   return `<header class="hc-detail-head" data-class-detail="${esc(c.id)}">
       <div class="hc-detail-mark">${icon(CLASS_ICON[c.id] ?? 'helmet')}</div>
       <div class="hc-detail-title"><small>${esc(c.kingdom)} / ${esc(c.nameEn)}</small><h1>${esc(c.name)}</h1>
-      <p>${unlocked ? `冠军 Lv.${level} · ${classWinsOf(save, c.id)} 胜` : esc(classUnlockText(c.id))}</p></div>
+      <p>${unlocked ? `冠军 Lv.${level} · ${classWinsOf(save, c.id)} 胜` : esc(classUnlockText(c.id, save.hero.level))}</p></div>
       <button type="button" class="hc-button hc-equip" data-equip="${esc(c.id)}" ${equipped || !unlocked ? 'disabled' : ''}>${equipped ? '\u5f53\u524d\u804c\u4e1a' : unlocked ? '\u88c5\u5907\u804c\u4e1a' : '\u5c1a\u672a\u89e3\u9501'}</button>
     </header>
     <div class="hc-detail-tabs" role="tablist" aria-label="\u804c\u4e1a\u8be6\u60c5">

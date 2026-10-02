@@ -22,6 +22,7 @@ function playback(events: GameEvent[]) {
     cellCenter: (pos: { row: number; col: number }) => ({ x: (pos.col + .5) * 88, y: (pos.row + .5) * 88 }),
     getSprite: () => undefined,
     removeGem: () => log.push({ type: 'remove', time: timeline.time() }),
+    setGemType: () => log.push({ type: 'set-gem', time: timeline.time() }),
   };
   const player = new EventStreamPlayer(
     board as unknown as ConstructorParameters<typeof EventStreamPlayer>[0],
@@ -38,6 +39,22 @@ function playback(events: GameEvent[]) {
 }
 
 describe('parallel clear / mana playback', () => {
+  it('shows consecutive creation changes together', () => {
+    const first: GameEvent = { type: 'gem-transform', changes: [{
+      pos: { row: 0, col: 0 }, gemId: 1, from: colorGem(BaseColor.Blue), to: colorGem(BaseColor.Red),
+    }] };
+    const second: GameEvent = { type: 'gem-transform', changes: [{
+      pos: { row: 0, col: 1 }, gemId: 2, from: colorGem(BaseColor.Blue), to: colorGem(BaseColor.Yellow),
+    }] };
+    const { player, timeline, log } = playback([first, second]);
+    try {
+      timeline.totalTime(.001, false);
+      expect(log.filter(row => row.type === 'set-gem')).toHaveLength(2);
+      expect(new Set(log.filter(row => row.type === 'set-gem').map(row => row.time)).size).toBe(1);
+      expect(timeline.duration()).toBeCloseTo(.28, 4);
+    } finally { player.cancel(); }
+  });
+
   it('uses max(clear, mana) rather than adding the clear and every recipient flight', () => {
     const onlyClear = planPresentation([clear]).timelineMs;
     const concurrent = planPresentation([clear, ...recipients]);

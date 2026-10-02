@@ -170,6 +170,8 @@ export interface EffectContext {
   rng: SeededRNG;
   /** 分配新宝石稳定 id（创造宝石时用；由 TurnEngine 注入） */
   nextGemId: () => number;
+  /** Cells already used by a create step in this cast; later create steps cannot overwrite them. */
+  createdCellKeys?: Set<string>;
   /**
    * 宝石操作后交回引擎的棋盘结算（需求 7.3, 7.5）：
    * 结算被直接摧毁宝石的法力/骷髅 → 重力补充 → 解析由此产生的连锁。

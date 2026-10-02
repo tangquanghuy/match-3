@@ -24,6 +24,9 @@ describe('P-create-interleave: troop:6160 spell 7280 (Consume, CreateGems 8 Yell
       const made = createdColors(pre).filter((t) => t.kind === 'color');
       expect(made.filter((t) => t.kind === 'color' && t.color === BaseColor.Yellow)).toHaveLength(8);
       expect(made.filter((t) => t.kind === 'color' && t.color === BaseColor.Brown)).toHaveLength(8);
+      const placements = pre.flatMap(e => e.type === 'gem-transform' ? e.changes.map(c => c.pos)
+        : e.type === 'gem-create' ? e.spawns.map(s => s.pos) : []);
+      expect(new Set(placements.map(pos => `${pos.row}:${pos.col}`)).size).toBe(16);
       expect(findMatches(r.f.state.board)).toHaveLength(0);
     });
   }

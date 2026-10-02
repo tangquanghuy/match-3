@@ -193,8 +193,11 @@ export class EventStreamPlayer {
     let fallStart: number | undefined;
     let clearStart: number | undefined;
     let feedbackStart: number | undefined;
+    let createStart: number | undefined;
     const targetEnds = new Map<string, number>();
     events.forEach((ev, i) => {
+      const creating = ev.type === 'gem-create' || ev.type === 'gem-transform';
+      if (!creating) createStart = undefined;
       const window = impactWindows.get(i);
       if (window !== currentWindow) {
         currentWindow = window;
@@ -227,6 +230,10 @@ export class EventStreamPlayer {
         : Math.max(windowStart, ...lanes.map(lane => targetEnds.get(lane) ?? windowStart));
       if (window !== undefined && isBoardPlaybackEvent(ev)) {
         this.segmentPosition = ev.type === 'refill' && fallStart !== undefined ? fallStart : boardEnd;
+      }
+      if (creating) {
+        if (createStart === undefined) createStart = this.segmentPosition ?? tl.duration();
+        else this.segmentPosition = createStart;
       }
       if (ev.type === 'elimination') {
         const leader = eliminationWaves.get(i)!;

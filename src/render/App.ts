@@ -2074,7 +2074,8 @@ export class App {
           const label = STAT_LABEL[ev.stat];
           const single = `${label ? `${label} ` : ''}${amount >= 0 ? '+' : ''}${amount}`;
           if (feedback?.show ?? true) card.floatText(feedback?.text ?? single, color, Math.max(feedback?.durationMs ?? 0, 1000));
-          card.refresh(); // Every original attribute event still updates its projection.
+          if (ev.stat === 'mana') card.changeMana(ev.amount);
+          card.refresh(); // Keep mana on the event timeline while other attributes update.
           // 对应数值放大发光 + ▲/▼（法力走法力流演出，不在此处理）
           if (ev.stat !== 'mana' && ev.amount !== 0) card.pulseStat(ev.stat, ev.amount > 0 ? 1 : -1);
           const fx = feedback ? feedback.heavyFx
