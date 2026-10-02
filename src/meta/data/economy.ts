@@ -13,7 +13,7 @@
 import { IMMORTAL_MAX_LEVEL } from '../../data/immortals';
 import { TROOP_PROGRESSION } from '../../data/leveling';
 import { TROOPS } from '../../data/troops';
-import type { KingdomStageMode } from './kingdoms';
+import { EXPLORE_MAX_TIER, type KingdomStageMode } from './kingdoms';
 import type { IngotKey, TraitstoneTier } from './materials';
 
 /** 每个王国、每个关卡独立的一次性首通奖励；重复胜利不发。 */
@@ -419,11 +419,32 @@ export const EXPLORE_DROPS = {
   ingotChance: 0.3,
   /** 钢锭档位随王国基数等级递进：≤10 普通 / ≤20 稀有 / ≤30 超稀 / ≤40 史诗 / 其余传说 */
   ingotTierByKingdomLevel: [10, 20, 30, 40] as const,
-  /** 胜利掉初级特质石的概率；命中后再按王国旗帜颜色加权 */
-  minorStoneChance: 0.25,
+  /** 每场基础抽取次数：小怪 / 首领 / 最终 Boss */
+  stoneRollsByStage: [1, 1, 1, 1, 3, 5] as const,
+  /** 每场额外的初级 / 高级石抽取次数 */
+  extraBasicStoneRolls: 3,
+  /** 基础抽取：高级 15%，符文 2%，秘法 1%，圣辉 0.2%；剩余给初级 */
+  majorStoneChance: 0.15,
+  runicStoneChance: 0.02,
+  arcaneStoneChance: 0.01,
+  celestialStoneChance: 0.002,
+  /** 符文每升一级增加初始概率的 20%；圣辉难度 12 按指定的 0.96% 终值 */
+  rareStoneGrowthPerTier: 0.2,
+  celestialStoneChanceAtMaxTier: 0.0096,
   /** 随机特质石落在王国旗帜正向加成色中的概率（存在两类候选时） */
   bannerColorShare: 0.75,
 } as const;
+
+export function exploreStoneChances(tier: number) {
+  const steps = Math.max(0, Math.min(EXPLORE_MAX_TIER - 1, tier - 1));
+  return {
+    major: EXPLORE_DROPS.majorStoneChance,
+    runic: EXPLORE_DROPS.runicStoneChance * (1 + steps * EXPLORE_DROPS.rareStoneGrowthPerTier),
+    arcane: EXPLORE_DROPS.arcaneStoneChance,
+    celestial: EXPLORE_DROPS.celestialStoneChance
+      + steps * (EXPLORE_DROPS.celestialStoneChanceAtMaxTier - EXPLORE_DROPS.celestialStoneChance) / (EXPLORE_MAX_TIER - 1),
+  };
+}
 
 // ---------------------------------------------------------------------------
 // 荣耀宝箱（2026-09-19 入侵批；官方 Glory Chest 语义：特质石为主）

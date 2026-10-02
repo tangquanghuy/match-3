@@ -52,7 +52,7 @@ test('普通主线保持八关与首通状态；王国探索为独立12档页面
   await expect(page.locator('#exploreNext')).toBeDisabled();
   await expect(page.locator('.ex-scale-labels .locked')).toHaveCount(10);
   await expect(page.locator('.ex-material b')).toHaveText('秘法护盾属性石');
-  await expect(page.locator('.ex-first-clear')).toHaveText('首次完成本轮 +200 宝石');
+  await expect(page.locator('.ex-first-clear')).toHaveText('首通秘法石 ×1 · +200 宝石');
   await page.locator('#explorePrev').click();
   await expect(page.locator('#exploreDifficulty')).toHaveValue('1');
   await expect(page.locator('#explorePrev')).toBeDisabled();
@@ -106,9 +106,9 @@ test('全12档可选且保存，已通关可重复探索，旧路由导入新页
     await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', String(tier));
     await expect(page.locator('#exploreDifficulty')).toHaveValue(String(tier));
     await expect(page.locator('#exploreFight')).toBeEnabled();
-    if (tier <= 6) await expect(page.locator('.ex-first-clear')).toHaveText('首通已完成');
+    if (tier <= 6) await expect(page.locator('.ex-first-clear')).toHaveText('本难度首通已完成');
   }
-  await expect(page.locator('.ex-material')).toContainText('本档首领也必掉 1 颗');
+  await expect(page.locator('.ex-material')).toContainText('基础抽取每次 1% 掉秘法石');
   await page.reload();
   await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '12');
     await expect(page.locator('.ex-level')).toContainText('Lv.150');
@@ -116,7 +116,7 @@ test('全12档可选且保存，已通关可重复探索，旧路由导入新页
     await expect(page.locator('.ex-medallion img')).toHaveAttribute('src', /difficulty-sigil.*\.webp/);
     await expect(page.locator('.ex-stone img')).toHaveAttribute('src', /stone-arcane-blue-brown.*\.webp/);
     await expect(page.locator('.ex-stone svg')).toHaveCount(0);
-    await expect(page.locator('.ex-reward-amount')).toHaveText('×2');
+    await expect(page.locator('.ex-first-clear')).toContainText('首通秘法石 ×1');
   for (const suffix of ['hard', 'veryhard', 'vh', 'explore']) {
     await page.goto(`/game.html${QUEST_HASH}/${suffix}`);
     await expect(page.locator('.ex-scale-labels span')).toHaveCount(12);
@@ -182,7 +182,7 @@ for (const viewport of [
     await expect(page.locator('.ex-medallion img')).toHaveAttribute('src', /difficulty-sigil.*\.webp/);
     await expect(page.locator('.ex-stone img')).toHaveAttribute('src', /stone-arcane-blue-brown.*\.webp/);
     await expect(page.locator('.ex-stone svg')).toHaveCount(0);
-    await expect(page.locator('.ex-reward-amount')).toHaveText('×2');
+    await expect(page.locator('.ex-first-clear')).toContainText('首通秘法石 ×1');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     if (viewport.width < 1400) {
       await expect(page.locator('#stage')).toHaveClass(/quest-responsive/);

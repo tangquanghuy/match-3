@@ -50,7 +50,7 @@ function stoneSymbol(color: string): string {
 function stoneTile(kingdom: string, color: string): string {
   const key = `minor:${color}`;
   const preferred = kingdomBoostedStoneColors(kingdom).includes(color);
-  const label = `${stoneName(key)} · 探索胜利有 ${Math.round(EXPLORE_DROPS.minorStoneChance * 100)}% 概率获得一颗初级石；${preferred ? '本王国旗帜加成色，更易掉落' : '非本王国旗帜加成色，仍有机会掉落'}`;
+  const label = `${stoneName(key)} · 探索每场额外抽取 ${EXPLORE_DROPS.extraBasicStoneRolls} 次初级或高级石；${preferred ? '本王国旗帜加成色，更易掉落' : '非本王国旗帜加成色，仍有机会掉落'}`;
   return tile('stone', key, label, stoneSymbol(color), 'minor');
 }
 
@@ -70,5 +70,5 @@ export function questRewardsHtml(kingdom: string, mode: KingdomStageMode, node: 
 /** Compact tab artwork, reusing the same material silhouettes as reward tiles. */
 export function questModeLootHtml(kingdom: string, mode: KingdomStageMode): string {
   if (mode === 'normal') return troopTile(kingdom, 8) + currencyTile('key');
-  return ingotTile(kingdom) + tile('stone', 'minor', '初级特质石 · 胜利时 25% 概率掉落；其中 75% 落在本王国旗帜加成色中', stoneSymbol('neutral'), 'minor');
+  return ingotTile(kingdom) + tile('stone', 'minor', `初级特质石 · 每场额外抽取 ${EXPLORE_DROPS.extraBasicStoneRolls} 次初级或高级石；其中 75% 优先本王国旗帜加成色`, stoneSymbol('neutral'), 'minor');
 }

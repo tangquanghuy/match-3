@@ -14,7 +14,8 @@ import {
 import { ownedWeapons } from '../data/weaponCatalog';
 import { temperingCost, MAX_TEMPERING_LEVEL } from '../systems/forge';
 import { temperingLevelOf } from '../systems/forgeOps';
-import { traitUnlockCost } from '../data/economy';
+import { EXPLORE_DROPS, exploreStoneChances, traitUnlockCost } from '../data/economy';
+import { EXPLORE_MAX_TIER } from '../data/kingdoms';
 import { getRecord } from '../systems/troopProgress';
 import { kingdomsForExploreStone } from '../systems/explore';
 import { TROOPS } from '../../data/troops';
@@ -233,8 +234,10 @@ export class BagScreen implements Screen {
         group: `${this.tierName(tier)} · ${color.name}`, purpose: `解锁${color.name}系部队特质`,
         hint: this.stoneHint(save, key, count),
         source: tier === 'minor'
-          ? '探索胜利有 25% 概率掉初级石；其中 75% 落在旗帜加成色中。也可从活动、商店和宝箱获得。'
-          : '持有部队的下一特质缺此石时，探索胜利可补给；缺石池同时含加成色与其他颜色时，75% 优先加成色。也可从活动、商店和宝箱获得。',
+          ? `探索每场额外抽取 ${EXPLORE_DROPS.extraBasicStoneRolls} 次初级或高级石，高级概率 ${EXPLORE_DROPS.majorStoneChance * 100}%，其余为初级；基础抽取未命中其他品阶时也会掉落。${EXPLORE_DROPS.bannerColorShare * 100}% 优先旗帜加成色。`
+          : tier === 'major'
+            ? `探索每次基础及额外抽取均有 ${EXPLORE_DROPS.majorStoneChance * 100}% 概率掉高级石；${EXPLORE_DROPS.bannerColorShare * 100}% 优先旗帜加成色。`
+            : `探索基础抽取每次掉符文石的概率从难度 1 的 ${exploreStoneChances(1).runic * 100}% 增至难度 ${EXPLORE_MAX_TIER} 的 ${exploreStoneChances(EXPLORE_MAX_TIER).runic * 100}%；${EXPLORE_DROPS.bannerColorShare * 100}% 优先旗帜加成色。`,
         farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
       };
     }));
@@ -244,14 +247,14 @@ export class BagScreen implements Screen {
       art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '秘法',
       purpose: '高阶特质解锁', hint: this.stoneHint(save, key, save.materials.traitstones[key] ?? 0),
       source: kingdomsForExploreStone(key).length
-        ? '对应王国探索的最终 Boss 每轮必掉 1 颗；难度 12 首领额外必掉 1 颗。也可从宝箱、活动和探索特质补缺获得。'
-        : '暂无固定掉落王国；可从宝箱、活动和探索特质补缺获得。',
+        ? `对应王国的每个探索难度首通最终 Boss 固定获得 1 颗；基础抽取每次有 ${EXPLORE_DROPS.arcaneStoneChance * 100}% 概率掉秘法石，双色按旗帜加成色倾向。`
+        : `探索基础抽取每次有 ${EXPLORE_DROPS.arcaneStoneChance * 100}% 概率掉秘法石，双色按旗帜加成色倾向；也可从宝箱和活动获得。`,
       farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
     }));
     return [...stones, ...arcane, {
       id: 'celestial', name: '圣辉石', count, art: stoneMarkup('celestial'), tone: '#a5d8eb',
       group: '圣辉', purpose: '高阶部队特质解锁', hint: this.stoneHint(save, 'celestial', count),
-      source: '探索 · 活动 · 宝箱', destination: '#troop', action: '查看部队特质',
+      source: `探索基础抽取每次掉圣辉石的概率从难度 1 的 ${exploreStoneChances(1).celestial * 100}% 增至难度 ${EXPLORE_MAX_TIER} 的 ${exploreStoneChances(EXPLORE_MAX_TIER).celestial * 100}%；也可从活动和宝箱获得。`, destination: '#troop', action: '查看部队特质',
     }];
   }
 

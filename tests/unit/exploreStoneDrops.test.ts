@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { TROOP_PROGRESSION } from '../../src/data/leveling';
 import { TROOPS } from '../../src/data/troops';
 import { newSave } from '../../src/meta/state/schema';
 import { SaveStore } from '../../src/meta/state/save';
@@ -8,7 +7,8 @@ import { applySettlement } from '../../src/meta/systems/settlement';
 import { planExploreEncounter } from '../../src/meta/systems/encounter';
 import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
 import { STONE_COLORS } from '../../src/meta/data/materials';
-import { kingdomBoostedStoneColors, kingdomsForExploreStone, pickExploreStoneKey } from '../../src/meta/systems/explore';
+import { EXPLORE_DROPS, exploreStoneChances } from '../../src/meta/data/economy';
+import { kingdomArcaneKey, kingdomBoostedStoneColors, kingdomsForExploreStone, pickExploreStoneKey } from '../../src/meta/systems/explore';
 import { SeededRNG } from '../../src/engine/rng';
 import { questRewardsHtml, questModeLootHtml } from '../../src/meta/screens/questRewards';
 import type { BattleResult } from '../../src/session/contract';
@@ -16,17 +16,16 @@ import type { BattleResult } from '../../src/session/contract';
 const kingdom = KINGDOM_ORDER[0]!;
 const result = (seed: number): BattleResult => ({ schemaVersion: 1, battleId: `explore-${seed}`, requestId: 'r', rulesetVersion: '1',
   seed, winner: 'player', turns: 1, combatants: [], defeatedExternalIds: [], summonedCount: 0, actionLogDigest: '', eventSummary: [] });
-function stoneDrop(seed: number, enemyId?: number) {
+function stoneDrop(seed: number, enemyId?: number, stage = 0, tier = 1) {
   const save = newSave({ now: 0, starterTroopIds: [6000] });
-  // Isolate the base 25% drop from the independent missing-recipe bonus.
   for (const rec of Object.values(save.collection)) rec.traits = [true, true, true];
-  const plan = planExploreEncounter(kingdom, 1, seed);
+  const plan = planExploreEncounter(kingdom, tier, seed, stage);
   if (enemyId !== undefined) plan.enemies[0]!.troopId = enemyId;
   const detail = applySettlement(save, result(seed), { plan, todayStart: 0, enemyByExternalId: new Map() });
   return detail.lines.find(line => line.key === 'explore-drop')?.mats?.traitstones ?? {};
 }
 
-describe('探索初级石随机颜色与可重复奖励', () => {
+describe('探索特质石抽取与首通奖励', () => {
   it('同一结算种子不受敌方队首主色影响，所有六色都可掉落', () => {
     const leads = STONE_COLORS.map(color => TROOPS.find(t => t.manaColors[0] === color.base)!.id);
     const seen = new Set<string>();
@@ -35,23 +34,28 @@ describe('探索初级石随机颜色与可重复奖励', () => {
       Object.keys(expected).forEach(key => seen.add(key));
       for (const lead of leads.slice(1)) expect(stoneDrop(seed, lead)).toEqual(expected);
     }
-    expect([...seen].sort()).toEqual(STONE_COLORS.map(c => `minor:${c.key}`).sort());
+    for (const color of STONE_COLORS) expect(seen).toContain(`minor:${color.key}`);
   });
-  it('维持约25%掉落率，命中后约75%落在本王国旗帜加成色中', () => {
+  it('小怪每场固定四颗，初级颜色约 75% 偏向王国旗帜', () => {
     const counts: Record<string, number> = {};
     for (let seed = 1; seed <= 6000; seed++) {
       for (const [key, n] of Object.entries(stoneDrop(seed))) counts[key] = (counts[key] ?? 0) + n;
     }
     const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
-    expect(total).toBeGreaterThan(1350);
-    expect(total).toBeLessThan(1650);
+    expect(total).toBe(6000 * (EXPLORE_DROPS.stoneRollsByStage[0] + EXPLORE_DROPS.extraBasicStoneRolls));
     const favored = new Set(kingdomBoostedStoneColors(kingdom));
-    const favoredTotal = Object.entries(counts).reduce((sum, [key, n]) => sum + (favored.has(key.slice(6)) ? n : 0), 0);
-    expect(favoredTotal / total).toBeGreaterThan(0.71);
-    expect(favoredTotal / total).toBeLessThan(0.79);
+    const minorTotal = Object.entries(counts).reduce((sum, [key, n]) => sum + (key.startsWith('minor:') ? n : 0), 0);
+    const favoredTotal = Object.entries(counts).reduce((sum, [key, n]) => sum + (key.startsWith('minor:') && favored.has(key.slice(6)) ? n : 0), 0);
+    expect(favoredTotal / minorTotal).toBeGreaterThan(0.71);
+    expect(favoredTotal / minorTotal).toBeLessThan(0.79);
+    const majorTotal = Object.entries(counts).reduce((sum, [key, n]) => sum + (key.startsWith('major:') ? n : 0), 0);
+    expect(majorTotal / total).toBeGreaterThan(0.13);
+    expect(majorTotal / total).toBeLessThan(0.17);
+    expect(Object.keys(counts).some(key => key.startsWith('runic:'))).toBe(true);
+    expect(Object.keys(counts).some(key => key.startsWith('arcane:'))).toBe(true);
     for (const color of STONE_COLORS) expect(counts[`minor:${color.key}`]).toBeGreaterThan(0);
   });
-  it('按王国旗帜加权缺石池，缺少加成色候选时仍能补给', () => {
+  it('按王国旗帜加权颜色候选，缺少加成色候选时仍可抽取', () => {
     const preferred = kingdomBoostedStoneColors(kingdom)[0]!;
     const other = STONE_COLORS.find(color => !kingdomBoostedStoneColors(kingdom).includes(color.key))!.key;
     const keys = [`major:${preferred}`, `major:${other}`];
@@ -70,7 +74,7 @@ describe('探索初级石随机颜色与可重复奖励', () => {
       for (const color of STONE_COLORS) expect(html).toContain(`data-reward="stone:minor:${color.key}"`);
       expect(html).toContain('本王国旗帜加成色，更易掉落');
       expect(html).not.toContain('队首');
-      expect(questModeLootHtml(k, mode)).toContain('75% 落在本王国旗帜加成色中');
+      expect(questModeLootHtml(k, mode)).toContain('75% 优先本王国旗帜加成色');
     }
   });
   it.each([1, 2, 3, 4, 5, 6])('档位%i已通关仍可重新签票，材料和胜利奖励再次入账，首通只领一次', async tier => {
@@ -92,20 +96,25 @@ describe('探索初级石随机颜色与可重复奖励', () => {
       expect(settled.detail.lines.some(l => l.key === 'kingdom-first-clear')).toBe(attempt === 0 && stage === 5);
     }
   });
-  it.each(['runic:', 'celestial'])('缺口补给真实入账：%s，无缺口时停止补给', prefix => {
-    const entry = Object.entries(TROOP_PROGRESSION).find(([, row]) => row.traits.some(recipe => Object.keys(recipe).some(key => key.startsWith(prefix))))!;
-    const [id, row] = entry;
-    const slot = row.traits.findIndex(recipe => Object.keys(recipe).some(key => key.startsWith(prefix)));
-    const recipe = row.traits[slot]!;
-    const key = Object.keys(recipe).find(k => k.startsWith(prefix))!;
-    const save = newSave({ now: 0, starterTroopIds: [Number(id)] });
-    for (const rec of Object.values(save.collection)) rec.traits = [true, true, true];
-    save.collection[id]!.traits = [slot > 0, slot > 1, false];
-    save.materials.traitstones = { ...recipe, [key]: recipe[key]! - 1 };
+  it('掉落不依赖持有部队的特质缺口', () => {
+    const saveA = newSave({ now: 0, starterTroopIds: [6000] });
+    const saveB = structuredClone(saveA);
+    saveA.collection['6000']!.traits = [false, false, false];
+    saveB.collection['6000']!.traits = [true, true, true];
     const ctx = { plan: planExploreEncounter(kingdom, 1, 7), todayStart: 0, enemyByExternalId: new Map() };
-    applySettlement(save, result(7), ctx);
-    expect(save.materials.traitstones[key]).toBe(recipe[key]);
-    applySettlement(save, result(8), ctx);
-    expect(save.materials.traitstones[key]).toBe(recipe[key]);
+    const a = applySettlement(saveA, result(7), ctx).lines.find(line => line.key === 'explore-drop')?.mats?.traitstones;
+    const b = applySettlement(saveB, result(7), ctx).lines.find(line => line.key === 'explore-drop')?.mats?.traitstones;
+    expect(a).toEqual(b);
+  });
+  it('首领六颗、最终 Boss 八颗基础石，首通额外一颗对应王国秘法', () => {
+    expect(Object.values(stoneDrop(29, undefined, 4)).reduce((sum, n) => sum + n, 0)).toBe(6);
+    const boss = stoneDrop(29, undefined, 5);
+    expect(Object.values(boss).reduce((sum, n) => sum + n, 0)).toBe(9);
+    expect(boss[kingdomArcaneKey(kingdom)]).toBeGreaterThanOrEqual(1);
+  });
+  it('难度 12 圣辉单次 0.96%，符文按每级基础概率增加 20%', () => {
+    expect(exploreStoneChances(1)).toMatchObject({ major: 0.15, runic: 0.02, arcane: 0.01, celestial: 0.002 });
+    expect(exploreStoneChances(12).celestial).toBeCloseTo(0.0096);
+    expect(exploreStoneChances(12).runic).toBeCloseTo(0.064);
   });
 });

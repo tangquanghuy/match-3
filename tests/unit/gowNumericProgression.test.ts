@@ -17,16 +17,10 @@ import { EVENT_DIFFICULTY } from '../../src/meta/data/events';
 import { buildBracket } from '../../src/meta/systems/invasion';
 import { entryArena, currentDraftChoices, pickDraftCard, startArenaBattles, planArenaBattle } from '../../src/meta/systems/arena';
 import { STAT_LIMITS } from '../../src/session/validateRequest';
-import { applySettlement } from '../../src/meta/systems/settlement';
-import { planExploreEncounter } from '../../src/meta/systems/encounter';
-import type { BattleResult } from '../../src/session/contract';
+import { pickExploreStoneKey } from '../../src/meta/systems/explore';
+import { SeededRNG } from '../../src/engine/rng';
 
 const WEEK = 1_700_000_000_000;
-const result = (winner: 'player' | 'enemy' = 'player'): BattleResult => ({
-  schemaVersion: 1, battleId: 'b', requestId: 'r', rulesetVersion: '1.0.0', seed: 42,
-  winner, turns: 1, combatants: [], defeatedExternalIds: [], summonedCount: 0,
-  actionLogDigest: '', eventSummary: [],
-});
 
 describe('Imported per-troop progression', () => {
   it('all source rows preserve ordinary per-level gains, Immortal growth totals, and trait recipes', () => {
@@ -188,14 +182,11 @@ describe('Mode progression', () => {
     expect(summon.hp).toBe(troopStatsAtLevel(troop, 15).health);
     expect(troopToSummonTemplate(troop.referenceName)!.traitIds!.length).toBeGreaterThan(0);
   });
-  it('new arcane/celestial costs remain earnable through exploration', () => {
-    const save = newSave({ starterTroopIds: [6000] });
-    const rec = save.collection['6000'];
-    rec.traits = [true, true, false];
+  it('arcane trait recipes remain in the exploration color pool', () => {
     const recipe = traitUnlockCost(3, 'blue', 6000).stones;
-    save.materials.traitstones = { ...recipe, 'arcane:blue:blue': 0 };
-    const plan = planExploreEncounter(KINGDOM_ORDER[0], 1, 7);
-    applySettlement(save, result(), { plan, enemyByExternalId: new Map(), todayStart: 0 });
-    expect(save.materials.traitstones['arcane:blue:blue']).toBe(1);
+    expect(recipe['arcane:blue:blue']).toBeGreaterThan(0);
+    const rng = new SeededRNG(42);
+    const picks = Array.from({ length: 3000 }, () => pickExploreStoneKey(KINGDOM_ORDER[0]!, ARCANE_STONE_KEYS, rng));
+    expect(picks).toContain('arcane:blue:blue');
   });
 });

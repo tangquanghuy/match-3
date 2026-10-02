@@ -15,19 +15,19 @@ import { PARTICIPATION_XP } from './battleRewards';
  *  - 任务只线性推进（打赢 questsDone+1 关才推进），4/8 关发王国部队奖励，8 关解锁职业；
  *  - 主角/职业经验在胜利时结算（M5）：多级一次连升，职业经验只在主角编队时积累。
  */
-import { TROOP_PROGRESSION } from '../../data/leveling';
 import { getTroopById } from '../../data/troops';
 import { SeededRNG } from '../../engine/rng';
 import type { BattleResult } from '../../session/contract';
 import type { KingdomState, MetaSave } from '../state/schema';
 import type { CurrencyDelta } from '../types';
 import type { MaterialDelta } from '../data/materials';
-import { INGOT_KEYS, STONE_COLORS, stoneKey } from '../data/materials';
+import { ARCANE_STONE_KEYS, INGOT_KEYS, STONE_COLORS, stoneKey } from '../data/materials';
 import {
   DEFEAT_CONSOLATION,
   DAILY_FIRST_WIN_REWARD,
   KINGDOM_FIRST_CLEAR_GEMS,
   EXPLORE_DROPS,
+  exploreStoneChances,
   killGoldReward,
   killSoulReward,
   QUEST_COMPLETE_GOLD_KEYS,
@@ -276,29 +276,30 @@ export function applySettlement(
       const ingotKey = INGOT_KEYS[tierIdx === -1 ? INGOT_KEYS.length - 2 : tierIdx]!;
       mats.ingots![ingotKey] = (mats.ingots![ingotKey] ?? 0) + 1;
     }
-    if (dropRng.next() < EXPLORE_DROPS.minorStoneChance) {
-      const key = pickExploreStoneKey(ctx.plan.kingdom,
-        STONE_COLORS.map(color => stoneKey('minor', color.key)!), dropRng)!;
-      mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
-    }
-    // Project economy: one useful stone per exploration, selected from next locked recipes.
-    // All imported tiers/pairs are obtainable without introducing a paid-only material gate.
-    const missing = Object.entries(save.collection).flatMap(([id, rec]) => {
-      const slot = rec.traits.findIndex(unlocked => !unlocked);
-      const recipe = TROOP_PROGRESSION[id]?.traits[slot];
-      return Object.entries(recipe ?? {}).filter(([key, n]) => (save.materials.traitstones[key] ?? 0) < n).map(([key]) => key);
-    });
-    const useful = [...new Set(missing)];
-    if (useful.length) {
-      const key = pickExploreStoneKey(ctx.plan.kingdom, useful, dropRng)!;
-      mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
-    }
-    // Fixed six-battle runs: final boss always drops the kingdom Arcane.
-    // Highest difficulty mini-boss also guarantees one; unrelated existing drops remain.
     const source = ctx.plan.source;
-    if (source.stage === 5 || (source.stage === 4 && source.tier === 12)) {
-      const key = kingdomArcaneKey(ctx.plan.kingdom);
+    const stage = source.stage ?? 5;
+    const chance = exploreStoneChances(source.tier);
+    const addStone = (tier: 'minor' | 'major' | 'runic' | 'arcane' | 'celestial') => {
+      const key = tier === 'celestial' ? 'celestial' : pickExploreStoneKey(ctx.plan.kingdom,
+        tier === 'arcane' ? ARCANE_STONE_KEYS : STONE_COLORS.map(color => stoneKey(tier, color.key)!), dropRng)!;
       mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
+    };
+    for (let i = 0; i < EXPLORE_DROPS.stoneRollsByStage[stage]!; i++) {
+      const roll = dropRng.next();
+      addStone(roll < chance.celestial ? 'celestial'
+        : roll < chance.celestial + chance.runic ? 'runic'
+          : roll < chance.celestial + chance.runic + chance.arcane ? 'arcane'
+            : roll < chance.celestial + chance.runic + chance.arcane + chance.major ? 'major' : 'minor');
+    }
+    for (let i = 0; i < EXPLORE_DROPS.extraBasicStoneRolls; i++) {
+      addStone(dropRng.next() < EXPLORE_DROPS.majorStoneChance ? 'major' : 'minor');
+    }
+    if (stage === 5 && KINGDOM_ORDER.includes(ctx.plan.kingdom)) {
+      const key = kingdomArcaneKey(ctx.plan.kingdom);
+      const firstClear = !save.kingdoms[ctx.plan.kingdom]?.clearedExploreTiers?.includes(source.tier);
+      if (firstClear) {
+        mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
+      }
     }
     const appliedMats = earnMaterials(save, mats);
     if (Object.keys(appliedMats).length > 0) {
