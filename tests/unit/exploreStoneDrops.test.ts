@@ -8,6 +8,8 @@ import { applySettlement } from '../../src/meta/systems/settlement';
 import { planExploreEncounter } from '../../src/meta/systems/encounter';
 import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
 import { STONE_COLORS } from '../../src/meta/data/materials';
+import { kingdomBoostedStoneColors, kingdomsForExploreStone, pickExploreStoneKey } from '../../src/meta/systems/explore';
+import { SeededRNG } from '../../src/engine/rng';
 import { questRewardsHtml, questModeLootHtml } from '../../src/meta/screens/questRewards';
 import type { BattleResult } from '../../src/session/contract';
 
@@ -35,7 +37,7 @@ describe('探索初级石随机颜色与可重复奖励', () => {
     }
     expect([...seen].sort()).toEqual(STONE_COLORS.map(c => `minor:${c.key}`).sort());
   });
-  it('维持约25%掉落率，掉落后六色均匀而非按阵容筛选', () => {
+  it('维持约25%掉落率，命中后约75%落在本王国旗帜加成色中', () => {
     const counts: Record<string, number> = {};
     for (let seed = 1; seed <= 6000; seed++) {
       for (const [key, n] of Object.entries(stoneDrop(seed))) counts[key] = (counts[key] ?? 0) + n;
@@ -43,18 +45,32 @@ describe('探索初级石随机颜色与可重复奖励', () => {
     const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
     expect(total).toBeGreaterThan(1350);
     expect(total).toBeLessThan(1650);
-    for (const color of STONE_COLORS) {
-      expect(counts[`minor:${color.key}`]).toBeGreaterThan(190);
-      expect(counts[`minor:${color.key}`]).toBeLessThan(310);
-    }
+    const favored = new Set(kingdomBoostedStoneColors(kingdom));
+    const favoredTotal = Object.entries(counts).reduce((sum, [key, n]) => sum + (favored.has(key.slice(6)) ? n : 0), 0);
+    expect(favoredTotal / total).toBeGreaterThan(0.71);
+    expect(favoredTotal / total).toBeLessThan(0.79);
+    for (const color of STONE_COLORS) expect(counts[`minor:${color.key}`]).toBeGreaterThan(0);
   });
-  it.each(['hard', 'veryHard'] as const)('%s 奖励预览显示六色随机，与王国和关卡无关', mode => {
+  it('按王国旗帜加权缺石池，缺少加成色候选时仍能补给', () => {
+    const preferred = kingdomBoostedStoneColors(kingdom)[0]!;
+    const other = STONE_COLORS.find(color => !kingdomBoostedStoneColors(kingdom).includes(color.key))!.key;
+    const keys = [`major:${preferred}`, `major:${other}`];
+    const rng = new SeededRNG(17);
+    const picks = Array.from({ length: 4000 }, () => pickExploreStoneKey(kingdom, keys, rng));
+    const favored = picks.filter(key => key === keys[0]).length;
+    expect(favored / picks.length).toBeGreaterThan(0.72);
+    expect(favored / picks.length).toBeLessThan(0.78);
+    expect(pickExploreStoneKey(kingdom, [keys[1]!], rng)).toBe(keys[1]);
+    expect(pickExploreStoneKey(kingdom, [], rng)).toBeNull();
+    expect(kingdomsForExploreStone(keys[0]!)).toContain(kingdom);
+  });
+  it.each(['hard', 'veryHard'] as const)('%s 奖励预览标明本王国更易掉落的颜色', mode => {
     for (const k of KINGDOM_ORDER) for (const node of [1, 2, 3]) {
       const html = questRewardsHtml(k, mode, node);
       for (const color of STONE_COLORS) expect(html).toContain(`data-reward="stone:minor:${color.key}"`);
-      expect(html).toContain('六色等概率随机');
+      expect(html).toContain('本王国旗帜加成色，更易掉落');
       expect(html).not.toContain('队首');
-      expect(questModeLootHtml(k, mode)).toContain('六色等概率随机');
+      expect(questModeLootHtml(k, mode)).toContain('75% 落在本王国旗帜加成色中');
     }
   });
   it.each([1, 2, 3, 4, 5, 6])('档位%i已通关仍可重新签票，材料和胜利奖励再次入账，首通只领一次', async tier => {

@@ -1,7 +1,9 @@
 /** Persistent 4 + 1 + 1 Explore runs. No daily resets, tickets or target troop selection. */
 import { EXPLORE_MAX_TIER, EXPLORE_RUN_LENGTH, KINGDOM_ORDER } from '../data/kingdoms';
 import { BANNERS } from '../data/banners';
-import { STONE_COLORS } from '../data/materials';
+import { EXPLORE_DROPS } from '../data/economy';
+import { parseStoneKey, STONE_COLORS } from '../data/materials';
+import type { SeededRNG } from '../../engine/rng';
 import type { ExploreRun, MetaSave } from '../state/schema';
 import type { EncounterSource } from './encounter';
 import { fail, type MetaFailure } from '../types';
@@ -51,10 +53,36 @@ export function exploreBattleSeed(run: ExploreRun): number {
   return (run.seed + Math.imul(run.stage, 0x9e3779b9)) >>> 0;
 }
 
-/** Kingdom's positive banner colours, ordered like imported Arcane recipes. */
-export function kingdomArcaneKey(kingdom: string): string {
+/** Positive banner colours, in the same order as stone recipes. */
+export function kingdomBoostedStoneColors(kingdom: string): string[] {
   const boosts = BANNERS[kingdom]?.boosts ?? {};
-  const colors = STONE_COLORS.filter(c => (boosts[c.base] ?? 0) > 0).map(c => c.key);
+  return STONE_COLORS.filter(c => (boosts[c.base] ?? 0) > 0).map(c => c.key);
+}
+
+/** Kingdom's fixed Arcane reward for the final exploration boss. */
+export function kingdomArcaneKey(kingdom: string): string {
+  const colors = kingdomBoostedStoneColors(kingdom);
   const first = colors[0] ?? 'blue';
   return `arcane:${first}:${colors[1] ?? first}`;
+}
+
+/** Prefer banner colours while preserving a route to every other eligible stone. */
+export function pickExploreStoneKey(kingdom: string, candidates: readonly string[], rng: SeededRNG): string | null {
+  if (!candidates.length) return null;
+  const boosted = new Set(kingdomBoostedStoneColors(kingdom));
+  const preferred = candidates.filter(key => parseStoneKey(key)?.colorKey?.split(':').some(color => boosted.has(color)));
+  const others = candidates.filter(key => !preferred.includes(key));
+  const pool = preferred.length && others.length
+    ? rng.next() < EXPLORE_DROPS.bannerColorShare ? preferred : others
+    : candidates;
+  return pool[rng.nextInt(pool.length)]!;
+}
+
+/** Fixed Arcane source, or kingdoms where a basic stone's colour has banner affinity. */
+export function kingdomsForExploreStone(key: string): string[] {
+  const stone = parseStoneKey(key);
+  if (!stone || stone.tier === 'celestial') return [];
+  return KINGDOM_ORDER.filter(kingdom => stone.tier === 'arcane'
+    ? kingdomArcaneKey(kingdom) === key
+    : kingdomBoostedStoneColors(kingdom).includes(stone.colorKey!));
 }

@@ -16,6 +16,7 @@ import { temperingCost, MAX_TEMPERING_LEVEL } from '../systems/forge';
 import { temperingLevelOf } from '../systems/forgeOps';
 import { traitUnlockCost } from '../data/economy';
 import { getRecord } from '../systems/troopProgress';
+import { kingdomsForExploreStone } from '../systems/explore';
 import { TROOPS } from '../../data/troops';
 import { bottomNavHtml, icon, mountIcons, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt, stoneMarkup, treasureMapMarkup } from '../shell/materialArt';
@@ -61,7 +62,11 @@ interface BagItem {
   source: string;
   destination: string;
   action: string;
+  farmKingdoms?: readonly string[];
 }
+
+const escapeHtml = (value: string): string => value.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function tabOf(param?: string): BagTab {
   if (param?.split('/')[0] === 'stones') return 'stones';
@@ -121,7 +126,7 @@ export class BagScreen implements Screen {
             </div>
             <aside class="bag-detail" aria-label="材料详情">
               <button type="button" class="bag-detail-close" aria-label="关闭材料详情">×</button>
-              ${items.map((item) => `<div class="bag-detail-card" data-bag-detail="${item.id}" ${item.id === selected?.id ? '' : 'hidden'}><span class="bag-detail-kicker">${item.group}</span><div class="bag-detail-art" style="--mat:${item.tone}">${item.art}</div><h3>${item.name}</h3><p class="bag-detail-count">${item.id === 'arenaTicket' ? '本周剩余' : '持有'} <strong>${item.count.toLocaleString('en-US')}</strong></p><div class="bag-detail-section"><small>用途</small><p>${item.purpose}</p><em>${item.hint}</em></div><div class="bag-detail-section"><small>来源</small><p>${item.source}</p></div><button type="button" class="bag-detail-action" data-bag-nav="${item.destination}">${item.action} →</button></div>`).join('')}
+              ${items.map((item) => `<div class="bag-detail-card" data-bag-detail="${item.id}" ${item.id === selected?.id ? '' : 'hidden'}><span class="bag-detail-kicker">${item.group}</span><div class="bag-detail-art" style="--mat:${item.tone}">${item.art}</div><h3>${item.name}</h3><p class="bag-detail-count">${item.id === 'arenaTicket' ? '本周剩余' : '持有'} <strong>${item.count.toLocaleString('en-US')}</strong></p><div class="bag-detail-section"><small>用途</small><p>${item.purpose}</p><em>${item.hint}</em></div><div class="bag-detail-section"><small>来源</small><p>${item.source}</p>${item.farmKingdoms?.length ? `<details class="bag-farm"><summary>对应王国 · ${item.farmKingdoms.length}</summary><div>${item.farmKingdoms.map(kingdom => `<button type="button" data-bag-nav="#explore/${encodeURIComponent(kingdom)}">${escapeHtml(kingdom)}</button>`).join('')}</div></details>` : ''}</div><button type="button" class="bag-detail-action" data-bag-nav="${item.destination}">${item.action} →</button></div>`).join('')}
             </aside>
           </div>
           <div class="bag-detail-backdrop" hidden></div>
@@ -226,8 +231,11 @@ export class BagScreen implements Screen {
       return {
         id: key, name: stoneName(key), count, art: stoneMarkup(tier, color.key), tone: STONE_TONE[color.key],
         group: `${this.tierName(tier)} · ${color.name}`, purpose: `解锁${color.name}系部队特质`,
-        hint: this.stoneHint(save, key, count), source: '活动 · 商店 · 宝箱',
-        destination: '#troop', action: '查看部队特质',
+        hint: this.stoneHint(save, key, count),
+        source: tier === 'minor'
+          ? '探索胜利有 25% 概率掉初级石；其中 75% 落在旗帜加成色中。也可从活动、商店和宝箱获得。'
+          : '持有部队的下一特质缺此石时，探索胜利可补给；缺石池同时含加成色与其他颜色时，75% 优先加成色。也可从活动、商店和宝箱获得。',
+        farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
       };
     }));
     const count = save.materials.traitstones.celestial ?? 0;
@@ -235,7 +243,10 @@ export class BagScreen implements Screen {
       id: key, name: stoneName(key), count: save.materials.traitstones[key] ?? 0,
       art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '秘法',
       purpose: '高阶特质解锁', hint: this.stoneHint(save, key, save.materials.traitstones[key] ?? 0),
-      source: '王国探索首领 · 荣耀/宝石宝箱 · 高层登塔 · 高阶讨伐 · 活动兑换 · 探索特质补缺', destination: '#troop', action: '查看部队特质',
+      source: kingdomsForExploreStone(key).length
+        ? '对应王国探索的最终 Boss 每轮必掉 1 颗；难度 12 首领额外必掉 1 颗。也可从宝箱、活动和探索特质补缺获得。'
+        : '暂无固定掉落王国；可从宝箱、活动和探索特质补缺获得。',
+      farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
     }));
     return [...stones, ...arcane, {
       id: 'celestial', name: '圣辉石', count, art: stoneMarkup('celestial'), tone: '#a5d8eb',

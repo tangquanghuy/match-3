@@ -1,5 +1,5 @@
 import { resolveBattleMaps } from './battleMaps';
-import { advanceExploreRun, kingdomArcaneKey } from './explore';
+import { advanceExploreRun, kingdomArcaneKey, pickExploreStoneKey } from './explore';
 import { PARTICIPATION_XP } from './battleRewards';
 /**
  * 战斗结算（M2）——BattleResult → 账本入账 + 任务推进 + 逐行明细。
@@ -277,9 +277,8 @@ export function applySettlement(
       mats.ingots![ingotKey] = (mats.ingots![ingotKey] ?? 0) + 1;
     }
     if (dropRng.next() < EXPLORE_DROPS.minorStoneChance) {
-      // Every color is equally likely, independent of either lineup and the kingdom.
-      const color = STONE_COLORS[dropRng.nextInt(STONE_COLORS.length)]!.key;
-      const key = stoneKey('minor', color)!;
+      const key = pickExploreStoneKey(ctx.plan.kingdom,
+        STONE_COLORS.map(color => stoneKey('minor', color.key)!), dropRng)!;
       mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
     }
     // Project economy: one useful stone per exploration, selected from next locked recipes.
@@ -291,7 +290,7 @@ export function applySettlement(
     });
     const useful = [...new Set(missing)];
     if (useful.length) {
-      const key = useful[dropRng.nextInt(useful.length)]!;
+      const key = pickExploreStoneKey(ctx.plan.kingdom, useful, dropRng)!;
       mats.traitstones![key] = (mats.traitstones![key] ?? 0) + 1;
     }
     // Fixed six-battle runs: final boss always drops the kingdom Arcane.

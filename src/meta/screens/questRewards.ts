@@ -8,6 +8,7 @@ import {
 import { INGOT_KEYS, INGOT_NAMES, STONE_COLORS, stoneName } from '../data/materials';
 import type { KingdomState } from '../state/schema';
 import { kingdomStageCleared } from '../systems/kingdomFirstClear';
+import { kingdomBoostedStoneColors } from '../systems/explore';
 import { ingotArt, materialImg, stoneMarkup } from '../shell/materialArt';
 
 function escapeAttr(value: string): string {
@@ -46,9 +47,10 @@ function stoneSymbol(color: string): string {
   return `<span class="qloot-symbol stone" data-tier="minor">${stoneMarkup('minor', color === 'neutral' ? 'blue' : color)}</span>`;
 }
 
-function stoneTile(color: string): string {
+function stoneTile(kingdom: string, color: string): string {
   const key = `minor:${color}`;
-  const label = `${stoneName(key)} · 可能掉落；胜利时 ${Math.round(EXPLORE_DROPS.minorStoneChance * 100)}% 概率获得一颗初级特质石，六色等概率随机`;
+  const preferred = kingdomBoostedStoneColors(kingdom).includes(color);
+  const label = `${stoneName(key)} · 探索胜利有 ${Math.round(EXPLORE_DROPS.minorStoneChance * 100)}% 概率获得一颗初级石；${preferred ? '本王国旗帜加成色，更易掉落' : '非本王国旗帜加成色，仍有机会掉落'}`;
   return tile('stone', key, label, stoneSymbol(color), 'minor');
 }
 
@@ -62,11 +64,11 @@ export function questRewardsHtml(kingdom: string, mode: KingdomStageMode, node: 
       + (node === 4 || node === 8 ? troopTile(kingdom, node) : '')
       + (node === 8 ? currencyTile('key') : '') + gems;
   }
-  return ingotTile(kingdom) + STONE_COLORS.map(({ key }) => stoneTile(key)).join('') + gems;
+  return ingotTile(kingdom) + STONE_COLORS.map(({ key }) => stoneTile(kingdom, key)).join('') + gems;
 }
 
 /** Compact tab artwork, reusing the same material silhouettes as reward tiles. */
 export function questModeLootHtml(kingdom: string, mode: KingdomStageMode): string {
   if (mode === 'normal') return troopTile(kingdom, 8) + currencyTile('key');
-  return ingotTile(kingdom) + tile('stone', 'minor', '初级特质石 · 可能掉落，六色等概率随机', stoneSymbol('neutral'), 'minor');
+  return ingotTile(kingdom) + tile('stone', 'minor', '初级特质石 · 胜利时 25% 概率掉落；其中 75% 落在本王国旗帜加成色中', stoneSymbol('neutral'), 'minor');
 }

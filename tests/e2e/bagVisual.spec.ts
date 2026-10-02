@@ -133,3 +133,22 @@ test('新增秘法石分页展示，手机详情和返回页正常', async ({ pa
   await expect(page.locator('.bag-pagination')).toContainText('2 / 3');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+test('特质石详情列出对应王国并能进入探索', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/game.html#bag/stones');
+  await page.locator('[data-bag-item="minor:blue"]').click();
+  const basic = page.locator('.bag-detail-card:visible');
+  await expect(basic).toContainText('75% 落在旗帜加成色中');
+  await basic.locator('.bag-farm summary').click();
+  await expect(basic.locator('.bag-farm button')).not.toHaveCount(0);
+  await page.locator('.bag-detail-close').click();
+
+  await page.goto('/game.html#bag/stones/arcane');
+  await page.locator('[data-bag-item="arcane:blue:brown"]').click();
+  const arcane = page.locator('.bag-detail-card:visible');
+  await expect(arcane).toContainText('最终 Boss 每轮必掉 1 颗');
+  await arcane.locator('.bag-farm summary').click();
+  await arcane.locator('.bag-farm button', { hasText: '破碎尖塔' }).click();
+  await expect(page.locator('.explore-screen h1')).toHaveText('破碎尖塔');
+});
