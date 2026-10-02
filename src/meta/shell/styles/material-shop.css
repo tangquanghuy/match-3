@@ -79,11 +79,16 @@
  #stage.material-shop-responsive .material-shop-screen { inset: 59px 0 57px; padding: 7px; }
 }
 
-.material-price { padding: 12px 0; border-top: 1px solid #bfa67433; }
-.material-price p { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin: 0 0 8px; font-size: 13px; line-height: 20px; }
-.material-price .material-offer { color: #e6cf9f; }
-.material-offer small { flex-basis: 100%; color: #9da9b0; font-size: 12px; }
-.material-price .material-original { color: #8e9ba4; font-size: 12px; }
+.material-price { padding: 12px 0 14px; border-top: 1px solid #bfa67433; }
+.material-price-heading { display: flex; align-items: center; gap: 10px; min-height: 24px; }
+.material-promo-badge { display: inline-flex; align-items: center; height: 23px; padding: 0 8px; border-radius: 2px; background: #b83931; color: #fff5e8; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.material-promo-badge.is-regular { background: #414d51; color: #e2e7e6; }
+.material-price-context { color: #a9b3b6; font-size: 12px; }
+.material-price-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px 12px; padding: 7px 0 2px; }
+.material-price-row strong { color: #ffcf80; font-size: 26px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.material-price-row strong small { font-size: 13px; font-weight: 500; }
+.material-price-row del { color: #8b969b; font-size: 12px; }
+.material-detail p.material-price-foot { margin: 0; color: #9eabb0; font-size: 12px; line-height: 1.4; }
 
 /* 配方组合目录：限定每页五行，不随玩家部队收藏增长。 */
 .material-catalog .material-select { margin-bottom: 12px; gap: 8px; font-size: 13px; }
@@ -117,17 +122,18 @@
  .material-body-bundles .material-bundles { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
  .material-body-bundles .material-bundles button { min-height: 54px; flex-shrink: 0; }
  .material-body-bundles .material-detail { overflow: hidden; padding: 16px 24px; }
+ .material-body-bundles .material-family-name { display: none; }
  .material-body-bundles .material-detail> :not(.material-contents) { flex-shrink: 0; }
- .material-body-bundles .material-contents { flex: 1; min-height: 0; overflow-y: auto; margin: 8px 0 12px; scrollbar-width: thin; }
- .material-body-bundles .material-contents li { padding: 6px 0; }
- .material-body-bundles .material-stage { padding: 8px 0; }
- .material-body-bundles .material-detail h2 { margin: 8px 0; }
+ .material-body-bundles .material-contents { flex: 1; min-height: 0; overflow-y: auto; margin: 4px 0 8px; scrollbar-width: thin; }
+ .material-body-bundles .material-contents li { padding: 2px 0; }
+ .material-body-bundles .material-stage { padding: 6px 0; }
+ .material-body-bundles .material-detail h2 { margin: 6px 0; }
  .material-body-bundles .material-back { margin-bottom: 10px; }
  .material-body-bundles #materialBuy { margin-top: 0; }
 }
 @media(min-width:761px) {
  .material-body-bundles .material-bundles button { padding: 5px 12px; }
- .material-body-bundles .material-contents li { padding: 4px 0; font-size: 13px; line-height: 18px; }
- .material-body-bundles .material-contents li>img,.material-body-bundles .material-contents li>svg { width: 36px; height: 36px; }
- .material-body-bundles .material-contents small { margin-top: 0; font-size: 11px; line-height: 14px; }
+ .material-body-bundles .material-contents li { padding: 2px 0; font-size: 12px; line-height: 14px; }
+ .material-body-bundles .material-contents li>img,.material-body-bundles .material-contents li>svg { width: 26px; height: 26px; }
+ .material-body-bundles .material-contents small { margin-top: 0; font-size: 10px; line-height: 12px; }
 }

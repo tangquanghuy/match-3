@@ -43,7 +43,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     expect(troop).toMatchObject({ name: 'Shirakyusu Anna', rarity: 'UltraRare', rarityIdx: 3,
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE], manaCost: 11,
       manaColors: [BaseColor.Blue, BaseColor.Purple], spell: { name: '静海结界',
-        description: '消除一名敌人的所有正面增益效果，并将其击晕。然后将所有红色宝石转换成蓝色宝石。' } });
+        description: '消除一名敌人的所有正面增益效果，并将其击晕和冻结。然后将所有红色宝石转换成蓝色宝石。' } });
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('传说');
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
     expect(troop.artUrl).toContain('shirakyusu-anna.webp');
@@ -64,7 +64,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     f.enemies.forEach(e => { e.statuses = statuses.map(s => ({ ...s })); });
     f.caster.statuses = [{ id: 'barrier', turns: 5 }];
     const events = executePrototype(proto, f.ctx);
-    expect(f.enemies[1].statuses.map(s => s.id)).toEqual(['poison', 'silence', 'web', 'stun']);
+    expect(f.enemies[1].statuses.map(s => s.id)).toEqual(['poison', 'silence', 'web', 'stun', 'freeze']);
     for (const index of [0, 2, 3]) expect(f.enemies[index].statuses).toEqual(statuses);
     expect(f.caster.statuses).toEqual([{ id: 'barrier', turns: 5 }]);
     expect(events.filter(e => e.type === 'status-expire')).toHaveLength(POSITIVE_STATUS_IDS.length);
@@ -95,6 +95,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     expect(events[0].type).toBe('skill-cast');
     expect(f.caster.mana).toBe(0);
     expect(events.some(e => e.type === 'status-apply' && e.targetId === 11 && e.statusId === 'stun')).toBe(true);
+    expect(events.some(e => e.type === 'status-apply' && e.targetId === 11 && e.statusId === 'freeze')).toBe(true);
     expect(f.enemies.every(e => e.hp === 1000 && e.mana === 16)).toBe(true);
   });
   it('resolves conversion matches into blue mana through the real battle engine', () => {

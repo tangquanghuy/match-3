@@ -74,6 +74,29 @@ test.describe('收藏域视觉回归', () => {
     expect(rarity.border).toBe(RARITY_BORDER[rarity.tier]);
   });
 
+  test('collection cards fit two desktop viewports with aligned metadata', async ({ page }) => {
+    for (const viewport of [
+      { width: 2048, height: 997, pageSize: 16 },
+      { width: 1280, height: 800, pageSize: 14 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openFresh(page, 'troop');
+      await page.locator('[data-tab="all"]').click();
+      await expect(page.locator('.collection-card')).toHaveCount(viewport.pageSize);
+      const geometry = await page.locator('#collectionBands').evaluate((bands) => {
+        const info = bands.querySelector('.collection-info')!;
+        const name = info.querySelector('h2')!.getBoundingClientRect();
+        const level = info.querySelector('.collection-level')!.getBoundingClientRect();
+        const role = info.querySelector('.collection-role')!.getBoundingClientRect();
+        return { scrollHeight: bands.scrollHeight, clientHeight: bands.clientHeight,
+          nameBottom: name.bottom, levelTop: level.top, nameRight: name.right, roleLeft: role.left };
+      });
+      expect(geometry.scrollHeight).toBeLessThanOrEqual(geometry.clientHeight + 1);
+      expect(geometry.nameBottom).toBeLessThanOrEqual(geometry.levelTop + 1);
+      expect(geometry.nameRight).toBeLessThan(geometry.roleLeft);
+    }
+  });
+
   for (const viewport of [
     { width: 1600, height: 900, label: '桌面', pageSize: 16 },
     { width: 768, height: 1024, label: '平板', pageSize: 8 },

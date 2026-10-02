@@ -44,13 +44,13 @@ describe('好想星艾 / 法力征调', () => {
     expect(troop.artUrl).toContain('haoxiang-xingai.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
 
-    const codes = ['fast', 'manashield', 'revered'];
+    const codes = ['xingai_star_charge', 'manashield', 'revered'];
     expect(troop.traits.map((trait) => trait.code)).toEqual(codes);
     for (const code of codes) {
       expect(getTrait(code)).toBeDefined();
       expect(metaKnownTraitIds()).toContain(code);
     }
-    expect(getTrait('fast')?.battleStartManaRatio).toBe(0.5);
+    expect(getTrait('xingai_star_charge')).toMatchObject({ name: '星跃先机', battleStartManaRatio: 0.75 });
     expect(resolvePassives(codes).manaOpsImmunity).toBe(true);
     expect(getTrait('revered')?.teamAura).toMatchObject({ scope: 'allies', stat: 'random', amount: 2 });
 
@@ -108,8 +108,8 @@ describe('好想星艾 / 法力征调', () => {
   });
 
 
-  it('activates fast start, random team skill points, and mana-operation immunity in battle', () => {
-    const caster = character(0, 0, { traitIds: ['fast', 'manashield', 'revered'] });
+  it('activates 75% start, random team skill points, and mana-operation immunity in battle', () => {
+    const caster = character(0, 0, { traitIds: ['xingai_star_charge', 'manashield', 'revered'] });
     const ally = character(1, 0);
     const enemy = character(10, 10);
     const total = (c: Character) => c.attack + c.armor + c.maxHp + c.magic;
@@ -120,7 +120,7 @@ describe('好想星艾 / 法力征调', () => {
     );
     let nextId = 1;
     new TurnEngine(state, new SeededRNG(10005), () => nextId++);
-    expect(caster.mana).toBe(6); // floor(13 * 50%)
+    expect(caster.mana).toBe(9); // floor(13 * 75%)
     expect(total(caster)).toBe(baseline[0]! + 2);
     expect(total(ally)).toBe(baseline[1]! + 2);
     expect(total(enemy)).toBe(baseline[2]);
@@ -129,7 +129,7 @@ describe('好想星艾 / 法力征调', () => {
       state, casterId: enemy.id, chosenTargetId: caster.id,
       rng: new SeededRNG(8), nextGemId: () => nextId++,
     });
-    expect(caster.mana).toBe(6); // manashield blocks enemy mana reduction
+    expect(caster.mana).toBe(9); // manashield blocks enemy mana reduction
   });
 
   it('does not grant mana to the caster if no other ally survives', () => {

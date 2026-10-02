@@ -65,7 +65,7 @@ export const EROCHIKA_SPELL_ID = 20018;
 export const HUIJIU_ID = 10019;
 export const HUIJIU_SPELL_ID = 20019;
 
-const huijiuDescription = '创造 2 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [3:1]';
+const huijiuDescription = '创造 3 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [3:1]';
 
 const erochikaDescription = '对一名敌人造成 [魔法 + 2] 点真实伤害，并窃取其 2 点魔力值。将所有蓝色宝石转换为黄色宝石。';
 
@@ -82,9 +82,9 @@ const yeluoDescription = '对一名选定敌人造成 [魔法 + 4] 点溅射伤�
 
 const renoirDescription = '给予所有盟友 8 点攻击力，并赋予首两位盟友反射效果。';
 
-const suDescription = '有 35% 的几率献祭除自身外的末位盟友。对一名敌人造成 [魔法 + 5] 点伤害。若成功献祭，则造成双倍伤害，并在击杀目标后吞噬另一名随机敌人。';
+const suDescription = '有 50% 的几率献祭除自身外的末位盟友。对一名敌人造成 [魔法 + 5] 点伤害。若成功献祭，则造成三倍伤害，并在击杀目标后吞噬另一名随机敌人。';
 
-const annaDescription = '消除一名敌人的所有正面增益效果，并将其击晕。然后将所有红色宝石转换成蓝色宝石。';
+const annaDescription = '消除一名敌人的所有正面增益效果，并将其击晕和冻结。然后将所有红色宝石转换成蓝色宝石。';
 
 const linkongluoDescription = '对一名敌人造成 [魔法 + 6] 点伤害。如果敌人的生命值全满，则造成双倍伤害。创造 3 颗红色龙宝石。';
 
@@ -93,7 +93,7 @@ const yinshiluoDescription = '净化一名盟友，并给予其 [魔法 + 2] 点
 const wangfengDescription = '将所有红色宝石转换为紫色宝石，并将所有黄色宝石转换为棕色宝石。召唤一名触手之墙，并将其推至队首。';
 
 const guanliObserverDescription = '创造 1 颗蓝色法力药水宝石和 1 颗紫色法力药水宝石。再爆破 4 颗随机宝石。';
-const hongdieDescription = '对最后两名敌人造成 [魔法 + 3] 点伤害，并使其陷入沉默状态。耗掉其各 3 点法力值。';
+const hongdieDescription = '对最后两名敌人造成 [魔法 + 3] 点伤害，并使其陷入沉默状态。耗掉其各 3 点法力值，再打乱敌方队伍顺序。';
 
 const pingDescription = '摧毁所有选定颜色的宝石。对所有使用该颜色的敌人造成 [魔法 + 4] 点伤害，并耗掉其各 4 点法力值。若摧毁了至少 10 颗该色宝石，则获得一个额外回合。';
 const zhuwangDescription = '创造 6 颗红色宝石。选择一名其他盟友，有 25% 的几率将其转化为装甲小野猪，再给予其 [魔法 + 3] 点攻击力。若施法时棋盘上有 13 颗或更多红色宝石，则有等同于自身攻击力的几率将一名随机敌人转化为装甲小野猪，最高 50%。[1:1]';
@@ -122,14 +122,14 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 9,
     base: { attack: 4, armor: 6, health: 10, magic: 1 },
     manaColors: [BaseColor.Blue, BaseColor.Purple],
-    manaCost: 15,
+    manaCost: 13,
     spell: {
       id: BAILU_YIXI_SPELL_ID,
       name: '离岸封函',
       description: bailuDescription,
       meta: buildSkillMetadata(bailuDescription),
     },
-    traits: communityTraits(['waterlink', 'stealthy', 'arcane']),
+    traits: communityTraits(['waterlink', 'stealthy', 'bailu_tide_suppression']),
     portrait: null,
     artUrl: bailuPortrait,
   },
@@ -148,14 +148,14 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 4, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Green, BaseColor.Blue, BaseColor.Purple],
-    manaCost: 19,
+    manaCost: 16,
     spell: {
       id: DOUGLAS_SPELL_ID,
       name: '拿铁涟漪',
       description: douglasDescription,
       meta: buildSkillMetadata(douglasDescription),
     },
-    traits: communityTraits(['naturelink', 'insulated', 'agile']),
+    traits: communityTraits(['naturelink', 'insulated', 'douglas_blue_lightning']),
     portrait: null,
     artUrl: douglasPortrait,
   },
@@ -233,7 +233,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
       description: xingaiDescription,
       meta: buildSkillMetadata(xingaiDescription),
     },
-    traits: communityTraits(['fast', 'manashield', 'revered']),
+    traits: communityTraits(['xingai_star_charge', 'manashield', 'revered']),
     portrait: null,
     artUrl: xingaiPortrait,
   },
@@ -278,7 +278,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 11,
     base: { attack: 4, armor: 4, health: 6, magic: 1 },
     manaColors: [BaseColor.Red, BaseColor.Green],
-    manaCost: 14,
+    manaCost: 12,
     spell: {
       id: YELUO_SPELL_ID,
       name: '猩红谢幕',
@@ -486,7 +486,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 3, armor: 3, health: 6, magic: 1 },
     manaColors: [BaseColor.Red, BaseColor.Blue, BaseColor.Purple],
-    manaCost: 13,
+    manaCost: 12,
     spell: {
       id: HONGDIE_SPELL_ID,
       name: '夜蝶迷踪',
@@ -514,7 +514,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     manaColors: [BaseColor.Red, BaseColor.Purple, BaseColor.Brown],
     manaCost: 22,
     spell: { id: PING_SPELL_ID, name: '夜色流转', description: pingDescription, meta: buildSkillMetadata(pingDescription) },
-    traits: communityTraits(['firelink', 'ping_evernight', 'nightsong']),
+    traits: communityTraits(['firelink', 'ping_evernight', 'ping_nightsong']),
     portrait: null,
     artUrl: pingPortrait,
   },
@@ -554,7 +554,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 3, armor: 3, health: 6, magic: 1 },
     manaColors: [BaseColor.Purple, BaseColor.Yellow],
-    manaCost: 14,
+    manaCost: 12,
     spell: {
       id: EROCHIKA_SPELL_ID,
       name: '秋庭扫叶',
@@ -580,7 +580,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 5,
     base: { attack: 3, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Blue, BaseColor.Purple],
-    manaCost: 16,
+    manaCost: 14,
     spell: {
       id: HUIJIU_SPELL_ID,
       name: HUIJIU_SPELL_NAME,

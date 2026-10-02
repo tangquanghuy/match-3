@@ -24,7 +24,7 @@ const ids = ['huijiu_listen_rain', 'huijiu_refill_cup', 'huijiu_farewell'];
 function fixture(unlocked = true, seed = 42) {
   const f = damageFixture();
   Object.assign(f.caster, { name: '灰鸠', troopTypes: [COMMUNITY_RACE], colors: [BaseColor.Blue, BaseColor.Purple],
-    manaCost: 16, mana: 16, skillId: String(HUIJIU_SPELL_ID), traitIds: unlocked ? ids : [], passive: resolvePassives(unlocked ? ids : []) });
+    manaCost: 14, mana: 14, skillId: String(HUIJIU_SPELL_ID), traitIds: unlocked ? ids : [], passive: resolvePassives(unlocked ? ids : []) });
   f.ctx.rng = new SeededRNG(seed);
   return f;
 }
@@ -50,13 +50,13 @@ function gifts(events: GameEvent[]) {
 }
 
 describe('灰鸠 integration', () => {
-  it('registers UltraRare, blue/purple 16 mana, portrait, kingdom, collection and three traits', () => {
+  it('registers UltraRare, blue/purple 14 mana, portrait, kingdom, collection and three traits', () => {
     const t = getTroopById(HUIJIU_ID)!;
     expect(getTroopByRef('Huijiu')).toBe(t);
     expect(TROOPS.filter(t => t.id === HUIJIU_ID)).toHaveLength(1);
     expect(TROOPS.filter(t => t.spell.id === HUIJIU_SPELL_ID)).toHaveLength(1);
     expect(t).toMatchObject({ name: '灰鸠', rarity: 'UltraRare', rarityIdx: 3, kingdom: COMMUNITY_KINGDOM,
-      troopTypes: [COMMUNITY_RACE], manaColors: [BaseColor.Blue, BaseColor.Purple], manaCost: 16,
+      troopTypes: [COMMUNITY_RACE], manaColors: [BaseColor.Blue, BaseColor.Purple], manaCost: 14,
       spell: { id: HUIJIU_SPELL_ID, name: HUIJIU_SPELL_NAME } });
     expect(t.spell.description).toContain('[3:1]');
     expect(t.spell.meta.modifier).toEqual({ kind: 'ratio', a: 3, b: 1 });
@@ -88,38 +88,40 @@ describe('灰鸠 guaranteed mixed stars', () => {
     const resolve = vi.fn(); f.ctx.resolveBoardChange = resolve;
     const events = executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx);
     const made = placements(events);
-    expect(made).toHaveLength(3); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(3);
+    expect(made).toHaveLength(4); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(4);
     expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
     expect(resolve).toHaveBeenCalledTimes(1);
     expect(events.some(e => e.type === 'extra-turn')).toBe(false);
   });
   it('crosses the 3-blue threshold without pooling it with the caster race count', () => {
-    for (const [blue, expected] of [[2, 2], [3, 3], [5, 3], [6, 4]]) {
+    for (const [blue, expected] of [[2, 3], [3, 4], [5, 4], [6, 5]]) {
       const f = fixture(); stableBoard(f);
       for (let i = 0; i < blue; i++) f.board.set({ row: 0, col: i }, { id: i + 1, type: colorGem(BaseColor.Blue) });
       expect(placements(executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx))).toHaveLength(expected);
     }
   });
-  it.each(Array.from({ length: 20 }, (_, i) => i + 1))('guarantees one of each at base 2, independent of magic, seed %i', seed => {
+  it.each(Array.from({ length: 20 }, (_, i) => i + 1))('guarantees one of each at base 3, independent of magic, seed %i', seed => {
     const f = fixture(false, seed); stableBoard(f); f.caster.troopTypes = []; f.caster.magic = seed * 100;
     const made = placements(executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx));
-    expect(made.map(p => gemKind(p.type)).sort()).toEqual(['elementalStar', 'umbralStar']);
+    expect(made).toHaveLength(3);
+    expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
+    expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
   });
   it.each([0, 1, 2, 64])('places into %i empty cells without overwriting its own placements', empty => {
     const f = fixture(); stableBoard(f);
     for (let i = 0; i < empty; i++) f.board.set({ row: Math.floor(i / 8), col: i % 8 }, null);
     const events = executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx);
-    const made = placements(events); expect(made).toHaveLength(2);
-    expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(2);
+    const made = placements(events); expect(made).toHaveLength(3);
+    expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(3);
     expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
-    expect(events.filter(e => e.type === 'gem-create').flatMap(e => e.spawns)).toHaveLength(Math.min(empty, 2));
+    expect(events.filter(e => e.type === 'gem-create').flatMap(e => e.spawns)).toHaveLength(Math.min(empty, 3));
   });
   it('scales a full blue board at 3:1; both stars remain represented', () => {
     const f = fixture(); f.board.forEach((g, p) => { if (g) f.board.set(p, { id: g.id, type: colorGem(BaseColor.Blue) }); });
     const made = placements(executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx));
-    expect(made).toHaveLength(23); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(23);
+    expect(made).toHaveLength(24); expect(new Set(made.map(p => `${p.pos.row},${p.pos.col}`)).size).toBe(24);
     expect(made.some(p => gemKind(p.type) === 'elementalStar')).toBe(true);
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
   });
@@ -131,12 +133,12 @@ describe('灰鸠 guaranteed mixed stars', () => {
     const f = fixture(false); stableBoard(f); const engine = engineFor(f);
     const events = engine.castSkill(0);
     expect(events.filter(e => e.type === 'skill-cast')).toHaveLength(1);
-    expect(placements(events).filter(p => ['elementalStar', 'umbralStar'].includes(gemKind(p.type)))).toHaveLength(2);
+    expect(placements(events).filter(p => ['elementalStar', 'umbralStar'].includes(gemKind(p.type)))).toHaveLength(3);
     expect(f.state.actionLog).toHaveLength(1);
   });
-  it('15 mana does not cast', () => {
-    const f = fixture(); stableBoard(f); const engine = engineFor(f); f.caster.mana = 15;
-    expect(engine.castSkill(0).some(e => e.type === 'skill-cast')).toBe(false); expect(f.caster.mana).toBe(15);
+  it('13 mana does not cast', () => {
+    const f = fixture(); stableBoard(f); const engine = engineFor(f); f.caster.mana = 13;
+    expect(engine.castSkill(0).some(e => e.type === 'skill-cast')).toBe(false); expect(f.caster.mana).toBe(13);
   });
 });
 

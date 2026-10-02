@@ -2,7 +2,7 @@ import type { CuratedBatch } from './index';
 import { BaseColor } from '../../types';
 import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_SPELL_ID, PING_SPELL_ID, ZHUWANG_SPELL_ID, EROCHIKA_SPELL_ID, HUIJIU_SPELL_ID, COMMUNITY_RACE, COMMUNITY_TROOPS } from '../../../data/communityTroops';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
-import { createSpecialGems2, trueDmg, steal, CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, skill, summonRef, transform } from '../builders';
+import { createSpecialGems2, trueDmg, steal, CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, shuffleTeam, skill, summonRef, transform } from '../builders';
 
 export const BATCH_COMMUNITY: CuratedBatch = {
   batch: 'community',
@@ -95,8 +95,8 @@ export const BATCH_COMMUNITY: CuratedBatch = {
       id: SU_SPELL_ID,
       desc: COMMUNITY_TROOPS.find(t => t.spell.id === SU_SPELL_ID)!.spell.description,
       build: skill(
-        sacrifice('allyLastOther', { chance: 0.35 }),
-        dmg('enemyChosen', 5, 1, { condMult: { times: 2, cond: { kind: 'castSacrificed' } } }),
+        sacrifice('allyLastOther', { chance: 0.5 }),
+        dmg('enemyChosen', 5, 1, { condMult: { times: 3, cond: { kind: 'castSacrificed' } } }),
         devour('enemyRandom', { chance: 1, ifTargetDied: true,
           ifCond: { kind: 'allOf', of: [{ kind: 'castSacrificed' }, { kind: 'castEnemyDied' }] },
         }),
@@ -109,6 +109,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         // Dispel only positive statuses; preserve existing debuffs and the chosen target.
         ...POSITIVE_STATUS_IDS.map((statusId, index) => dispelStatus(statusId, index === 0 ? 'enemyChosen' : 'lastTarget')),
         inflict('stun', 'lastTarget'),
+        inflict('freeze', 'lastTarget'),
         transform(BaseColor.Red, BaseColor.Blue),
       ),
     },
@@ -158,6 +159,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         // Keep the original targets: deaths must not redirect silence/drain to earlier enemies.
         inflict('silence', 'lastTargets'),
         reduce('lastTargets', 'mana', 3, 0),
+        shuffleTeam('enemy'),
       ),
     },
     {
@@ -200,7 +202,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
       id: HUIJIU_SPELL_ID,
       desc: COMMUNITY_TROOPS.find(t => t.spell.id === HUIJIU_SPELL_ID)!.spell.description,
       build: skill(
-        createSpecialGems2([{ kind: 'elementalStar' }, { kind: 'umbralStar' }], 2, 0, {
+        createSpecialGems2([{ kind: 'elementalStar' }, { kind: 'umbralStar' }], 3, 0, {
           minimumEach: 1,
           modifier: {
             mod: { kind: 'ratio', a: 3, b: 1 },

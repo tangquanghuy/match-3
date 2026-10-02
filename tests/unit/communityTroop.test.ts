@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { BoardModel } from '@engine/BoardModel';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
+import { TurnEngine } from '@engine/TurnEngine';
 import { executePrototype } from '@engine/skills/prototypes';
 import { SKILL_LIBRARY } from '@engine/skills/library';
-import { getTrait, resolvePassives } from '@engine/traits';
+import { applyBigMatchTriggers, getTrait, resolvePassives } from '@engine/traits';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import {
@@ -49,12 +50,12 @@ describe('白鹭依晞 · 时空裂隙', () => {
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('传说');
     expect(troop.role).toBe('Warlock');
     expect(troop.manaColors).toEqual([BaseColor.Blue, BaseColor.Purple]);
-    expect(troop.manaCost).toBe(15);
+    expect(troop.manaCost).toBe(13);
   });
 
   it('三项已有特质能进入战斗快照，立绘与图鉴同源', () => {
     const troop = getTroopById(BAILU_YIXI_ID)!;
-    const codes = ['waterlink', 'stealthy', 'arcane'];
+    const codes = ['waterlink', 'stealthy', 'bailu_tide_suppression'];
     expect(troop.traits.map((trait) => trait.code)).toEqual(codes);
     for (const code of codes) expect(getTrait(code)).toBeDefined();
 
@@ -67,6 +68,15 @@ describe('白鹭依晞 · 时空裂隙', () => {
     expect(snapshot.traitIds).toEqual(codes);
     expect(snapshot.skillId).toBe(String(BAILU_YIXI_SPELL_ID));
     expect(snapshot.portraitUrl).toBe(troopArt(troop));
+  });
+
+  it('四连或五连时降低所有存活敌人 2 点攻击力', () => {
+    const holder = character(0, { traitIds: ['bailu_tide_suppression'], passive: resolvePassives(['bailu_tide_suppression']) });
+    const enemies = [character(1, { attack: 5 }), character(2, { attack: 1 })];
+    applyBigMatchTriggers([holder], { size: 3, enemyTeam: enemies });
+    expect(enemies.map(enemy => enemy.attack)).toEqual([5, 1]);
+    applyBigMatchTriggers([holder], { size: 4, enemyTeam: enemies });
+    expect(enemies.map(enemy => enemy.attack)).toEqual([3, 0]);
   });
 
   it('离岸封函只伤害并织网指定敌人，为当前最低生命盟友加屏障', () => {
@@ -125,7 +135,7 @@ describe('Douglas · 时空裂隙', () => {
     expect(rarityNameByIndex(troop.rarityIdx)).toBe('史诗');
     expect(troop.role).toBe('Mage');
     expect(troop.manaColors).toEqual([BaseColor.Green, BaseColor.Blue, BaseColor.Purple]);
-    expect(troop.manaCost).toBe(19);
+    expect(troop.manaCost).toBe(16);
     expect(troop.spell.name).toBe('拿铁涟漪');
     expect(troop.artUrl).toContain('douglas.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
@@ -133,7 +143,7 @@ describe('Douglas · 时空裂隙', () => {
 
   it('已有特质、立绘与技能均进入战斗快照', () => {
     const troop = getTroopById(DOUGLAS_ID)!;
-    const codes = ['naturelink', 'insulated', 'agile'];
+    const codes = ['naturelink', 'insulated', 'douglas_blue_lightning'];
     expect(troop.traits.map((trait) => trait.code)).toEqual(codes);
     for (const code of codes) expect(getTrait(code)).toBeDefined();
 
@@ -146,7 +156,25 @@ describe('Douglas · 时空裂隙', () => {
     expect(snapshot.skillId).toBe(String(DOUGLAS_SPELL_ID));
     expect(snapshot.portraitUrl).toBe(troopArt(troop));
     expect(snapshot.manaColors).toEqual(troop.manaColors);
-    expect(snapshot.manaCost).toBe(19);
+    expect(snapshot.manaCost).toBe(16);
+    expect(getTrait('douglas_blue_lightning')?.turnStartCreateSpecialGem).toEqual({ gem: 'lightningRow', count: 1 });
+  });
+
+  it('只在己方回合开始创造一颗蓝色闪电宝石', () => {
+    const board = new BoardModel();
+    const colors = [BaseColor.Red, BaseColor.Green, BaseColor.Blue, BaseColor.Purple];
+    for (let row = 0; row < BoardModel.ROWS; row++) for (let col = 0; col < BoardModel.COLS; col++) {
+      board.set({ row, col }, { id: row * BoardModel.COLS + col + 1, type: colorGem(colors[(row + col) % colors.length]!) });
+    }
+    const state = createGameState(board,
+      { player: PlayerSide.Left, characters: [character(0, { traitIds: ['douglas_blue_lightning'] })] },
+      { player: PlayerSide.Right, characters: [character(1)] },
+    );
+    const engine = new TurnEngine(state, new SeededRNG(10002), () => 1000);
+    const created = (events: ReturnType<typeof engine.passTurn>) => events.flatMap(event => event.type === 'gem-transform' ? event.changes : [])
+      .filter(change => change.to.kind === 'special' && change.to.spec.kind === 'lightningRow');
+    expect(created(engine.passTurn())).toHaveLength(0);
+    expect(created(engine.passTurn())).toHaveLength(1);
   });
 
   it('拿铁涟漪先对所有敌人造成魔法+3伤害，再随机爆破3颗宝石', () => {

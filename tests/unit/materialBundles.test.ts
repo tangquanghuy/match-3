@@ -48,15 +48,43 @@ describe('按真实配方组合销售', () => {
     expect(materialShopQuote(s, request)).toEqual(quote);
     s.collection = {};
     expect(materialShopQuote(s, request)).toEqual(quote);
-    expect(quote).toMatchObject({ ok: true, price: 2568 });
+    expect(quote).toMatchObject({ ok: true, price: 2280, gemOffer: { regularPrice: 11480, discount: 2 } });
+  });
+  it('宝石组合按全价与首购折扣分别凑整，传说三特质整包全价3980', () => {
+    const s = newSave({ now: 0, currencies: { gems: 20000 } });
+    for (const [troopId, regularPrice, price] of [[6000, 980, 180], [6001, 1480, 280], [6003, 1980, 380], [6081, 3980, 780], [6065, 5980, 1180], [6169, 11480, 2280]] as const) {
+      expect(materialShopQuote(s, requestFor(troopId, 7))).toMatchObject({ ok: true, price, gemOffer: { regularPrice, discount: 2 } });
+    }
+    expect(materialShopQuote(s, requestFor(6081, 6))).toMatchObject({ ok: true, price: 580, gemOffer: { regularPrice: 3080 } });
+    expect(materialShopQuote(s, requestFor(6081, 4))).toMatchObject({ ok: true, price: 280, gemOffer: { regularPrice: 1380 } });
+    for (const bundle of materialBundleCatalog().flatMap(family => family.bundles)) {
+      for (const mask of [7, 6, 4]) {
+        const quote = materialShopQuote(s, { kind: 'gems', bundleId: bundle.id, mask });
+        if (quote.ok) {
+          expect(quote.gemOffer!.regularPrice % (mask === 7 ? 500 : 100)).toBe(mask === 7 ? 480 : 80);
+          expect(Math.abs(quote.price! / quote.gemOffer!.regularPrice - 0.2), `${bundle.id}/${mask}`).toBeLessThanOrEqual(0.08);
+        }
+      }
+    }
+
+    const request = requestFor(6081);
+    const previous = materialShopQuote(s, request, {
+      revision: 2,
+      gold: { minor: 2000, major: 8000, runic: 60000, arcane: 1000000, celestial: 2000000 },
+      gems: { minor: 1, major: 3, runic: 12, arcane: 40, celestial: 120 },
+    });
+    if (!previous.ok) throw new Error(previous.message);
+    expect(previous.price).toBe(980);
+    expect(buyMaterialGoods(s, request, previous.signature).ok).toBe(false);
+    expect(s.currencies.gems).toBe(20000);
   });
   it('组合订单成交与旧部队整套结果一致，阶段订单仅买对应阶段', () => {
     for (const mask of [7, 6, 4]) {
-      const s = newSave({ now: 0, currencies: { gems: 10000 } }); s.materials.traitstones = {};
+      const s = newSave({ now: 0, currencies: { gems: 20000 } }); s.materials.traitstones = {};
       const request = requestFor(6169, mask), quote = materialShopQuote(s, request);
       if (!quote.ok) throw new Error(quote.message);
       expect(buyMaterialGoods(s, request, quote.signature).ok).toBe(true);
-      expect(s.currencies.gems).toBe(10000 - quote.price!);
+      expect(s.currencies.gems).toBe(20000 - quote.price!);
       expect(s.materials.traitstones).toEqual(quote.stones);
       expect(s.materialShop.arcaneIntroPurchased).toBe(0);
     }

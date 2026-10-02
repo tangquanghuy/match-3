@@ -37,7 +37,7 @@ export const ROLE_ICONS: Record<TroopRole, string> = {
   Striker: 'swords',
   Generator: 'crystal',
   Support: 'heart',
-  Mage: 'orb',
+  Mage: 'sparkles',
   Warlock: 'swirl',
   Assassin: 'skull',
   Warrior: 'barbute',

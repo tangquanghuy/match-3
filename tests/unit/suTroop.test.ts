@@ -42,7 +42,7 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(troop).toMatchObject({ name: '苏', rarity: 'UltraRare', rarityIdx: 3, manaCost: 12,
       kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE],
       manaColors: [BaseColor.Purple, BaseColor.Brown], spell: { name: '狂乱献礼' } });
-    expect(troop.spell.description).toBe('有 35% 的几率献祭除自身外的末位盟友。对一名敌人造成 [魔法 + 5] 点伤害。若成功献祭，则造成双倍伤害，并在击杀目标后吞噬另一名随机敌人。');
+    expect(troop.spell.description).toBe('有 50% 的几率献祭除自身外的末位盟友。对一名敌人造成 [魔法 + 5] 点伤害。若成功献祭，则造成三倍伤害，并在击杀目标后吞噬另一名随机敌人。');
     expect(troop.spell.meta?.scalings).toContainEqual({ base: 5, mult: 1 });
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
     expect(troop.artUrl).toContain('su.webp');
@@ -57,17 +57,17 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(troopToSnapshot(troop, record, 'su')).toMatchObject({ traitIds: codes,
       skillId: String(SU_SPELL_ID), manaCost: 12, portraitUrl: troop.artUrl });
   });
-  it.each([0, 0.349999, 0.35, 0.999])('uses a strict 35%% sacrifice threshold at %s', roll => {
+  it.each([0, 0.499999, 0.5, 0.999])('uses a strict 50%% sacrifice threshold at %s', roll => {
     const f = setup(); rig(f, roll);
     executePrototype(proto, f.ctx);
-    expect(f.allies[3].defeated).toBe(roll < 0.35);
-    expect(f.enemies[1].hp).toBe(roll < 0.35 ? 970 : 985);
+    expect(f.allies[3].defeated).toBe(roll < 0.5);
+    expect(f.enemies[1].hp).toBe(roll < 0.5 ? 955 : 985);
     expect(f.caster.defeated).toBe(false);
   });
-  it.each([0, 10, 40])('doubles the complete magic + 5 formula at magic %i', magic => {
+  it.each([0, 10, 40])('triples the complete magic + 5 formula at magic %i', magic => {
     const f = setup(); f.caster.magic = magic; rig(f, 0);
     executePrototype(proto, f.ctx);
-    expect(f.enemies[1].hp).toBe(1000 - 2 * (magic + 5));
+    expect(f.enemies[1].hp).toBe(1000 - 3 * (magic + 5));
     expect(f.enemies.filter(e => e.id !== 11).every(e => e.hp === 1000)).toBe(true);
   });
   it('skips the caster at the back and already defeated allies', () => {
@@ -78,7 +78,7 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(f.allies[2].defeated).toBe(true);
     expect(f.allies[0].defeated).toBe(false);
     expect(f.caster.defeated).toBe(false);
-    expect(f.enemies[1].hp).toBe(970);
+    expect(f.enemies[1].hp).toBe(955);
   });
   it.each([false, true])('without a living ally only deals base damage, even on a kill (%s)', lethal => {
     const f = setup(); rig(f, 0);
@@ -91,7 +91,7 @@ describe('Su / 狂乱献礼 integration', () => {
     expect(f.enemies.filter(e => e.id !== 11).every(e => e.hp === 1000)).toBe(true);
   });
   it('does not devour on a kill when the sacrifice roll failed', () => {
-    const f = setup(); rig(f, 0.35); f.enemies[1].hp = 15;
+    const f = setup(); rig(f, 0.5); f.enemies[1].hp = 15;
     const events = executePrototype(proto, f.ctx);
     expect(events.filter(e => e.type === 'defeat')).toHaveLength(1);
     expect(events.some(e => e.type === 'skill-damage' && e.devoured)).toBe(false);
@@ -146,7 +146,7 @@ describe('Su / 狂乱献礼 integration', () => {
     executePrototype(proto, f.ctx);
     roll.mockReturnValueOnce(0.5);
     executePrototype(proto, f.ctx);
-    expect(f.enemies[1].hp).toBe(955);
+    expect(f.enemies[1].hp).toBe(940);
     expect(f.ctx.castTracking?.sacrificeSucceeded).toBe(false);
   });
   it.each([BaseColor.Brown, BaseColor.Purple])('stonelink adds one mana only on brown: %s', color => {
@@ -166,7 +166,7 @@ describe('Su / 狂乱献礼 integration', () => {
     applyCastTriggers(f.enemies, f.allies);
     expect(f.caster.magic).toBe(11);
   });
-  it.each([false, true])('real cast spends 16 mana and respects trait unlocks: %s', unlocked => {
+  it.each([false, true])('real cast spends 12 mana and respects trait unlocks: %s', unlocked => {
     const f = setup(unlocked); rig(f, 0.5);
     const registry = new ExtensionRegistry(); registry.prototypes.set(String(SU_SPELL_ID), proto);
     const engine = new TurnEngine(f.state, f.ctx.rng, f.ctx.nextGemId, registry);

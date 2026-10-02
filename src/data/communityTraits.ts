@@ -4,6 +4,30 @@ import type { TraitDefinition } from '../engine/traits';
 /** 自定义单位特质独立维护，避免被官方图鉴生成脚本覆盖。 */
 export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
+    code: 'bailu_tide_suppression',
+    name: '潮汐压制',
+    description: '配对 4 或 5 颗宝石时，所有敌人损失 2 点攻击力。',
+    onBigMatchEnemyDrain: { stat: 'attack', amount: 2, scope: 'allEnemies' },
+  },
+  {
+    code: 'douglas_blue_lightning',
+    name: '蓝电回响',
+    description: '在我的回合开始时，创造 1 颗蓝色闪电宝石。',
+    turnStartCreateSpecialGem: { gem: 'lightningRow', count: 1 },
+  },
+  {
+    code: 'xingai_star_charge',
+    name: '星跃先机',
+    description: '战斗开始时获得 75% 法力值。',
+    battleStartManaRatio: 0.75,
+  },
+  {
+    code: 'ping_nightsong',
+    name: '夜曲',
+    description: '所有紫色盟友在我的回合开始时获得 2 点生命值和魔力值。',
+    turnStartTypeAura: { scope: 'Purple', gains: { hp: 2, magic: 2 } },
+  },
+  {
     code: 'huijiu_listen_rain',
     name: '听雨',
     description: '受到敌人造成的骷髅头伤害时，使对方陷入沉默状态。',

@@ -22,7 +22,7 @@ function fixture(unlocked = false) {
   const f = damageFixture();
   const troop = getTroopById(EROCHIKA_ID)!;
   Object.assign(f.caster, { name: troop.name, magic: 10, colors: troop.manaColors,
-    manaCost: 14, mana: 14, skillId: String(EROCHIKA_SPELL_ID),
+    manaCost: 12, mana: 12, skillId: String(EROCHIKA_SPELL_ID),
     traitIds: unlocked ? traitIds : [], passive: resolvePassives(unlocked ? traitIds : []) });
   return f;
 }
@@ -47,7 +47,7 @@ describe('Erochika / 秋庭扫叶', () => {
     expect(TROOPS.filter(t => t.id === EROCHIKA_ID)).toHaveLength(1);
     expect(TROOPS.filter(t => t.spell.id === EROCHIKA_SPELL_ID)).toHaveLength(1);
     expect(troop).toMatchObject({ name: 'Erochika', rarity: 'UltraRare', rarityIdx: 3,
-      kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE], manaCost: 14,
+      kingdom: COMMUNITY_KINGDOM, troopTypes: [COMMUNITY_RACE], manaCost: 12,
       manaColors: [BaseColor.Purple, BaseColor.Yellow], spell: { id: EROCHIKA_SPELL_ID, name: '秋庭扫叶' } });
     expect(troop.spell.description).toBe('对一名敌人造成 [魔法 + 2] 点真实伤害，并窃取其 2 点魔力值。将所有蓝色宝石转换为黄色宝石。');
     expect(troop.traits.map(t => t.code)).toEqual(traitIds);
@@ -55,7 +55,7 @@ describe('Erochika / 秋庭扫叶', () => {
     expect(troopArt(troop)).toBe(troop.artUrl);
     expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
     expect(prototypeChosenTargetMode(SKILL_LIBRARY[EROCHIKA_SPELL_ID])).toBe('enemyChosen');
-    expect(troopToSummonTemplate('Erochika')).toMatchObject({ name: 'Erochika', manaCost: 14, skillId: String(EROCHIKA_SPELL_ID) });
+    expect(troopToSummonTemplate('Erochika')).toMatchObject({ name: 'Erochika', manaCost: 12, skillId: String(EROCHIKA_SPELL_ID) });
     traitIds.forEach(code => { expect(getTrait(code)).toBeDefined(); expect(metaKnownTraitIds()).toContain(code); });
   });
 
@@ -66,7 +66,7 @@ describe('Erochika / 秋庭扫叶', () => {
     expect(troopToSnapshot(troop, record, 'Erochika').traitIds).toEqual([]);
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, 'Erochika')).toMatchObject({ name: 'Erochika',
-      manaCost: 14, skillId: String(EROCHIKA_SPELL_ID), traitIds, portraitUrl: troop.artUrl });
+      manaCost: 12, skillId: String(EROCHIKA_SPELL_ID), traitIds, portraitUrl: troop.artUrl });
   });
 
   it.each([0, 1, 2, 15])('deals true damage first, then steals up to 2 actual magic (target magic=%i)', magic => {
@@ -104,7 +104,7 @@ describe('Erochika / 秋庭扫叶', () => {
     expect(f.caster.magic).toBe(12);
   });
 
-  it('real cast spends 14 mana and invokes its own invigorated trait', () => {
+  it('real cast spends 12 mana and invokes its own invigorated trait', () => {
     const f = engineFixture(true);
     const hp = f.caster.hp;
     const events = f.engine.castSkill(0);
@@ -120,13 +120,13 @@ describe('Erochika / 秋庭扫叶', () => {
   it.each([0, 999])('invalid target %i cancels before mana spending', target => {
     const f = engineFixture(); f.engine.setTargetChooser({ choose: () => target });
     expect(f.engine.castSkill(0).filter(e => e.type === 'skill-cast')).toHaveLength(0);
-    expect(f.caster.mana).toBe(14);
+    expect(f.caster.mana).toBe(12);
   });
 
-  it('13 mana is insufficient to cast', () => {
-    const f = engineFixture(); f.caster.mana = 13;
+  it('11 mana is insufficient to cast', () => {
+    const f = engineFixture(); f.caster.mana = 11;
     expect(f.engine.castSkill(0).filter(e => e.type === 'skill-cast')).toHaveLength(0);
-    expect(f.caster.mana).toBe(13);
+    expect(f.caster.mana).toBe(11);
   });
 
   it.each([true, false])('airlink adds one yellow mana only when unlocked (%s)', unlocked => {

@@ -15,6 +15,7 @@ export interface MaterialShopQuote {
   slots: number[];
   signature: string;
   goldLine?: { regularUnit: number; regularCount: number; discountUnit: number; discountCount: number; remaining: number; limit: number };
+  gemOffer?: { regularPrice: number; discount: number; purchased: number; nextDiscount: number | null };
 }
 export type MaterialShopBuyResult = { ok: true; currency: 'gold' | 'gems'; spent: number; mats: MaterialDelta } | MetaFailure;
 
@@ -59,6 +60,22 @@ export function materialShopQuote(save: MetaSave, request: MaterialShopRequest, 
     price += unit * amount;
     if (!Number.isSafeInteger(price)) return fail('INVALID', '商品总价超出范围');
   }
+  let gemOffer: MaterialShopQuote['gemOffer'];
+  // Complete packs use broad shelf tiers; smaller stage orders keep finer increments.
+  if (request.kind === 'gems' && price !== null) {
+    const step = slots.length === 3 ? 500 : 100;
+    price = Math.ceil((price + 20) / step) * step - 20;
+    if (!Number.isSafeInteger(price)) return fail('INVALID', '商品总价超出范围');
+    const regularPrice = price;
+    const purchased = save.materialShop?.gemBundlesPurchased ?? 0;
+    const discounts = pricing.gemBundleDiscounts ?? [];
+    const discount = discounts[purchased] ?? 10;
+    if (!Number.isInteger(discount) || discount < 1 || discount > 10) return fail('INVALID', '商品价格配置异常');
+    if (discount < 10) {
+      price = Math.min(regularPrice, Math.max(80, Math.round((regularPrice * discount / 10 + 20) / 100) * 100 - 20));
+    }
+    gemOffer = { regularPrice, discount, purchased, nextDiscount: discounts[purchased + 1] ?? null };
+  }
   let goldLine: MaterialShopQuote['goldLine'];
   if (request.kind === 'gold' && price !== null) {
     const regularUnit = pricing.gold[parseStoneKey(request.key)!.tier]!;
@@ -71,8 +88,8 @@ export function materialShopQuote(save: MetaSave, request: MaterialShopRequest, 
     price = discountCount * discountUnit + (request.count - discountCount) * regularUnit;
     goldLine = { regularUnit, regularCount: request.count - discountCount, discountUnit, discountCount, remaining, limit: intro?.limit ?? 0 };
   }
-  const signature = JSON.stringify([pricing.revision, request, slots, stones, price, goldLine]);
-  return { ok: true, currency: request.kind, stones, slots, price, signature, ...(goldLine ? { goldLine } : {}) };
+  const signature = JSON.stringify([pricing.revision, request, slots, stones, price, goldLine, gemOffer]);
+  return { ok: true, currency: request.kind, stones, slots, price, signature, ...(goldLine ? { goldLine } : {}), ...(gemOffer ? { gemOffer } : {}) };
 }
 
 export function buyMaterialGoods(save: MetaSave, request: MaterialShopRequest, expectedQuote: string, pricing: MaterialShopPricing = MATERIAL_SHOP_PRICING): MaterialShopBuyResult {
@@ -84,8 +101,12 @@ export function buyMaterialGoods(save: MetaSave, request: MaterialShopRequest, e
   if (!paid.ok) return paid;
   const mats = earnMaterials(save, { traitstones: quote.stones });
   if (quote.goldLine?.discountCount) {
-    save.materialShop ??= { arcaneIntroPurchased: 0 };
+    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0 };
     save.materialShop.arcaneIntroPurchased += quote.goldLine.discountCount;
+  }
+  if (quote.currency === 'gems') {
+    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0 };
+    save.materialShop.gemBundlesPurchased += 1;
   }
   return { ok: true, currency: quote.currency, spent: quote.price, mats };
 }

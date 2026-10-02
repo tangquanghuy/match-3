@@ -16,7 +16,7 @@ const pricing: MaterialShopPricing = {
   revision: 1, gold: { minor: 10, major: 20, runic: 30, arcane: 40, celestial: 50 },
   gems: { minor: 1, major: 2, runic: 3, arcane: 4, celestial: 5 },
 };
-const fresh = () => newSave({ now: 0, starterTroopIds: [6000, 6169], currencies: { gold: 10000, gems: 10000 } });
+const fresh = () => newSave({ now: 0, starterTroopIds: [6000, 6169], currencies: { gold: 10000, gems: 20000 } });
 
 describe('材料商店：实际配方、价格审核与原子成交', () => {
   it('金币目录完整覆盖40种特质石', () => {
@@ -49,7 +49,7 @@ describe('材料商店：实际配方、价格审核与原子成交', () => {
     expect(Object.keys(q.stones).some(k => k.startsWith('minor:'))).toBe(true);
     expect(Object.keys(q.stones).some(k => k.startsWith('major:'))).toBe(true);
     expect(Object.keys(q.stones).some(k => k.startsWith('runic:'))).toBe(true);
-    expect(q.price).toBe(2568);
+    expect(q.price).toBe(2280);
   });
   it('已解锁特质从整套剔除；现有库存不抵扣完整礼包', () => {
     const s = fresh(); s.collection['6000']!.traits = [true, true, false];
@@ -83,9 +83,10 @@ describe('材料商店：实际配方、价格审核与原子成交', () => {
   it('全套材料到账后可连续解锁全部特质，按真实配方扣完', () => {
     const s = fresh(); const request = { kind: 'gems' as const, troopId: 6169 };
     const q = materialShopQuote(s, request); if (!q.ok) throw new Error(q.message);
-    expect(buyMaterialGoods(s, request, q.signature)).toMatchObject({ ok: true, spent: 2568 });
-    expect(s.currencies.gems).toBe(7432);
+    expect(buyMaterialGoods(s, request, q.signature)).toMatchObject({ ok: true, spent: 2280 });
+    expect(s.currencies.gems).toBe(17720);
     expect(s.materialShop.arcaneIntroPurchased).toBe(0);
+    expect(s.materialShop.gemBundlesPurchased).toBe(1);
     for (const slot of [1, 2, 3]) expect(unlockTrait(s, 6169, slot).ok).toBe(true);
     for (const key of Object.keys(q.stones)) expect(s.materials.traitstones[key]).toBe(0);
     expect(s.collection['6169']!.traits).toEqual([true, true, true]);
@@ -115,7 +116,7 @@ describe('材料商店正式定价与账号优惠账本', () => {
   };
   it('40种材料均有正式价格，金币高价补缺，秘法首次五折', () => {
     const s = funded();
-    const prices: Record<string, number> = { minor: 2000, major: 8000, runic: 60000, arcane: 500000, celestial: 2000000 };
+    const prices: Record<string, number> = { minor: 3000, major: 12000, runic: 60000, arcane: 500000, celestial: 2000000 };
     for (const key of MATERIAL_SHOP_KEYS) {
       const { request, quote } = order(s, key, 1);
       expect(quote.price).toBe(prices[key.split(':')[0]!]);
@@ -189,5 +190,50 @@ describe('材料商店正式定价与账号优惠账本', () => {
     expect(gateway.current().materialShop.arcaneIntroPurchased).toBe(2);
     expect(gateway.current().materials.traitstones['arcane:blue:blue']).toBe(2);
     expect(gateway.current().currencies.gold).toBe(199_000_000);
+  });
+});
+
+describe('宝石组合递减优惠', () => {
+  it('传说整包依次按凑整价格成交，第七单起恢复3980', () => {
+    const s = fresh();
+    grantTroop(s, 6081);
+    const legacy = materialShopQuote(s, { kind: 'gems', troopId: 6081 });
+    if (!legacy.ok) throw new Error(legacy.message);
+    for (const [index, price, discount] of [[0, 780, 2], [1, 1580, 4], [2, 1980, 5], [3, 2380, 6], [4, 2780, 7], [5, 3180, 8], [6, 3980, 10]] as const) {
+      const quote = materialShopQuote(s, { kind: 'gems', troopId: 6081 });
+      if (!quote.ok) throw new Error(quote.message);
+      expect(quote).toMatchObject({ price, gemOffer: { regularPrice: 3980, discount, purchased: index } });
+      if (index > 0) expect(buyMaterialGoods(s, { kind: 'gems', troopId: 6081 }, legacy.signature)).toMatchObject({ ok: false, code: 'INVALID' });
+      expect(buyMaterialGoods(s, { kind: 'gems', troopId: 6081 }, quote.signature)).toMatchObject({ ok: true, spent: price });
+      expect(s.materialShop.gemBundlesPurchased).toBe(index + 1);
+    }
+    expect(materialShopQuote(s, { kind: 'gems', troopId: 6081 })).toMatchObject({ price: 3980, gemOffer: { discount: 10 } });
+    expect(s.materialShop.arcaneIntroPurchased).toBe(0);
+  });
+  it('账号次数跨组合共享，失败不推进，存档重载后接续下一档', () => {
+    const s = fresh();
+    grantTroop(s, 6081);
+    const first = { kind: 'gems' as const, troopId: 6000 };
+    const other = { kind: 'gems' as const, troopId: 6081 };
+    const old = materialShopQuote(s, other);
+    const quote = materialShopQuote(s, first);
+    if (!old.ok || !quote.ok) throw new Error('报价失败');
+    expect(buyMaterialGoods(s, first, quote.signature)).toMatchObject({ ok: true, spent: 180 });
+    const before = structuredClone(s);
+    expect(buyMaterialGoods(s, other, old.signature)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(s).toEqual(before);
+    const loaded = parseSaveJson(serializeSave(s), 30 * 86400_000);
+    expect(loaded.materialShop.gemBundlesPurchased).toBe(1);
+    expect(materialShopQuote(loaded, other)).toMatchObject({ price: 1580, gemOffer: { discount: 4 } });
+    loaded.currencies.gems = 0;
+    const poor = materialShopQuote(loaded, other);
+    if (!poor.ok) throw new Error(poor.message);
+    expect(buyMaterialGoods(loaded, other, poor.signature)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(loaded.materialShop.gemBundlesPurchased).toBe(1);
+    const legacy: Record<string, unknown> = { ...s }; delete legacy.materialShop;
+    expect(hydrateSave(legacy).materialShop.gemBundlesPurchased).toBe(0);
+    for (const [raw, expected] of [[-1, 0], [4.8, 4], ['6', 0], [null, 0], [Infinity, 0]] as const) {
+      expect(hydrateSave({ ...s, materialShop: { gemBundlesPurchased: raw } }).materialShop.gemBundlesPurchased).toBe(expected);
+    }
   });
 });

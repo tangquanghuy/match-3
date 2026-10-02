@@ -353,8 +353,8 @@ export interface MetaSave {
   materials: Materials;
   /** 有新素材入账且尚未进入材料库查看；加性 UI 状态，旧档默认为 false */
   materialsUnread: boolean;
-  /** 金币秘法优惠已购颗数；账号存档内累计，跨颜色共用，不按天/周重置。 */
-  materialShop: { arcaneIntroPurchased: number };
+  /** 商店账号优惠累计购买数，跨商品共用，不按天/周重置。 */
+  materialShop: { arcaneIntroPurchased: number; gemBundlesPurchased: number };
   /** 武器淬炼等级（加性字段，version 仍为 2） */
   weaponTempering: WeaponTempering;
   /** 入侵 PvP 赛季（加性字段，version 仍为 2） */
@@ -482,7 +482,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     gachaWishlist: emptyGachaWishlist(),
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
     materialsUnread: false,
-    materialShop: { arcaneIntroPurchased: 0 },
+    materialShop: { arcaneIntroPurchased: 0, gemBundlesPurchased: 0 },
     weaponTempering: {},
     invasion: { defenseProgress: { cursor: 0, rewards: { gold: 0, souls: 0, glory: 0 }, results: [] }, defenseTeam: null, defensePublishPending: false, lastDefensePublish: null, defenseLog: null, defenseOutbox: [], progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
     regional: freshRegionalState(),

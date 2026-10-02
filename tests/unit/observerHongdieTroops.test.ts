@@ -43,7 +43,7 @@ function setup(id: number, unlocked = false, seed = 10014) {
 describe('管理组重点观察对象与虹蝶：图鉴及战斗接入', () => {
   it.each([
     [GUANLI_OBSERVER_ID, '管理组重点观察对象', 'GuanliObserver', 'Legendary', 5, 26, GUANLI_OBSERVER_SPELL_ID, '灵泉凝露', 'guanli-observer.webp', ['waterheart', 'manashield', SURGE]],
-    [HONGDIE_ID, '虹蝶', 'HongDie', 'UltraRare', 3, 13, HONGDIE_SPELL_ID, '夜蝶迷踪', 'hongdie.webp', ['magiclink', 'alert', 'arcane']],
+    [HONGDIE_ID, '虹蝶', 'HongDie', 'UltraRare', 3, 12, HONGDIE_SPELL_ID, '夜蝶迷踪', 'hongdie.webp', ['magiclink', 'alert', 'arcane']],
   ] as const)('%s has a unique identity, portrait, traits, collection and spell', (id, name, ref, rarity, rarityIdx, cost, spellId, spellName, portrait, traits) => {
     const troop = getTroopById(id)!;
     expect(getTroopByRef(ref)).toBe(troop);
@@ -126,18 +126,33 @@ describe('管理组重点观察对象与虹蝶：图鉴及战斗接入', () => {
 
   it.each([0, 10, 25])('夜蝶迷踪 at magic %i damages/silences/drains only the last two enemies', magic => {
     const { caster, enemies, ctx } = setup(HONGDIE_ID);
+    const original = [...enemies];
     caster.magic = magic;
     executePrototype(SKILL_LIBRARY[HONGDIE_SPELL_ID], ctx);
-    expect(enemies.map(e => e.hp)).toEqual([100, 100, 100 - magic - 3, 100 - magic - 3]);
-    expect(enemies.map(e => e.mana)).toEqual([10, 10, 7, 7]);
-    expect(enemies.map(e => e.statuses.some(s => s.id === 'silence'))).toEqual([false, false, true, true]);
+    expect(original.map(e => e.hp)).toEqual([100, 100, 100 - magic - 3, 100 - magic - 3]);
+    expect(original.map(e => e.mana)).toEqual([10, 10, 7, 7]);
+    expect(original.map(e => e.statuses.some(s => s.id === 'silence'))).toEqual([false, false, true, true]);
+  });
+  it('在伤害和减益结算后打乱敌人位置', () => {
+    const { enemies, ctx, troop } = setup(HONGDIE_ID);
+    const original = [...enemies];
+    const prototype = SKILL_LIBRARY[HONGDIE_SPELL_ID];
+    expect(troop.spell.description).toContain('再打乱敌方队伍顺序');
+    expect(prototype.segments.at(-1)).toMatchObject({ kind: 'shuffleTeam', side: 'enemy' });
+    const events = executePrototype(prototype, ctx);
+    const shuffle = events.find(event => event.type === 'team-shuffle');
+    expect(shuffle).toMatchObject({ type: 'team-shuffle', player: PlayerSide.Right, order: enemies.map(enemy => enemy.id) });
+    expect(enemies.map(enemy => enemy.id)).not.toEqual(original.map(enemy => enemy.id));
+    expect(enemies.map(enemy => enemy.id).sort()).toEqual(original.map(enemy => enemy.id).sort());
+    expect(events.findIndex(event => event.type === 'team-shuffle')).toBeGreaterThan(events.findIndex(event => event.type === 'buff'));
   });
   it('does not redirect debuffs when the original rear targets die', () => {
     const { enemies, ctx } = setup(HONGDIE_ID);
+    const front = enemies.slice(0, 2);
     const rearTargets = enemies.slice(2);
     rearTargets.forEach(e => { e.hp = 1; });
     executePrototype(SKILL_LIBRARY[HONGDIE_SPELL_ID], ctx);
-    expect(enemies.slice(0, 2).map(e => [e.hp, e.mana, e.statuses.length])).toEqual([[100, 10, 0], [100, 10, 0]]);
+    expect(front.map(e => [e.hp, e.mana, e.statuses.length])).toEqual([[100, 10, 0], [100, 10, 0]]);
     expect(rearTargets.every(e => e.defeated)).toBe(true);
   });
   it('only debuffs the surviving original target when the other rear target dies', () => {
@@ -153,19 +168,21 @@ describe('管理组重点观察对象与虹蝶：图鉴及战斗接入', () => {
   it('handles one survivor and clamps mana drain at zero', () => {
     const { enemies, ctx } = setup(HONGDIE_ID);
     for (const e of enemies.slice(0, 3)) { e.hp = 0; e.defeated = true; }
-    enemies[3].mana = 2;
+    const survivor = enemies[3];
+    survivor.mana = 2;
     executePrototype(SKILL_LIBRARY[HONGDIE_SPELL_ID], ctx);
-    expect(enemies[3]).toMatchObject({ hp: 87, mana: 0 });
-    expect(enemies[3].statuses.some(s => s.id === 'silence')).toBe(true);
+    expect(survivor).toMatchObject({ hp: 87, mana: 0 });
+    expect(survivor.statuses.some(s => s.id === 'silence')).toBe(true);
   });
   it('respects silence and mana-drain immunities independently', () => {
     const { enemies, ctx } = setup(HONGDIE_ID);
-    enemies[2].traitIds = ['alert']; enemies[2].passive = resolvePassives(['alert']);
-    enemies[3].traitIds = ['manashield']; enemies[3].passive = resolvePassives(['manashield']);
+    const alert = enemies[2], shielded = enemies[3];
+    alert.traitIds = ['alert']; alert.passive = resolvePassives(['alert']);
+    shielded.traitIds = ['manashield']; shielded.passive = resolvePassives(['manashield']);
     executePrototype(SKILL_LIBRARY[HONGDIE_SPELL_ID], ctx);
-    expect(enemies[2]).toMatchObject({ hp: 87, mana: 7, statuses: [] });
-    expect(enemies[3]).toMatchObject({ hp: 87, mana: 10 });
-    expect(enemies[3].statuses.some(s => s.id === 'silence')).toBe(true);
+    expect(alert).toMatchObject({ hp: 87, mana: 7, statuses: [] });
+    expect(shielded).toMatchObject({ hp: 87, mana: 10 });
+    expect(shielded.statuses.some(s => s.id === 'silence')).toBe(true);
   });
   it('虹蝶 has working purple link and silence immunity', () => {
     const { caster, ctx, state, enemies } = setup(HONGDIE_ID, true);

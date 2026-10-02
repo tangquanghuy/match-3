@@ -505,8 +505,12 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     gachaWishlist: hydrateWishlist(raw.gachaWishlist),
     materials,
     materialsUnread: typeof raw.materialsUnread === 'boolean' ? raw.materialsUnread : false,
-    materialShop: { arcaneIntroPurchased: isObject(raw.materialShop)
-      ? num(raw.materialShop.arcaneIntroPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0 },
+    materialShop: {
+      arcaneIntroPurchased: isObject(raw.materialShop)
+        ? num(raw.materialShop.arcaneIntroPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0,
+      gemBundlesPurchased: isObject(raw.materialShop)
+        ? num(raw.materialShop.gemBundlesPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0,
+    },
     weaponTempering,
     invasion,
     regional: hydrateRegionalState(raw.regional),

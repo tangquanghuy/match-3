@@ -70,7 +70,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 844, height: 390 
       const app = (window as unknown as { __app: { getEngine(): { getState(): {
         teams: { Left: { characters: Array<{ name: string; skillId: string; manaCost: number }> } }
       } } } }).__app;
-      Object.assign(app.getEngine().getState().teams.Left.characters[0], { name: '灰鸠', skillId: '20019', manaCost: 16 });
+      Object.assign(app.getEngine().getState().teams.Left.characters[0], { name: '灰鸠', skillId: '20019', manaCost: 14 });
     });
     await page.getByTestId('card-0').locator('.gem').click();
     const pane = page.locator('.usw.open [data-pane="spell"]');

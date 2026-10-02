@@ -33,7 +33,7 @@ function pigFixture(red = 0, roll = 0.9) {
 
 describe('苹与zhuwang真实接入', () => {
   it.each([
-    [PING_ID, PING_SPELL_ID, 'Ping', '苹', 'Legendary', 5, 22, '夜色流转', 'ping.webp', ['firelink', 'ping_evernight', 'nightsong']],
+    [PING_ID, PING_SPELL_ID, 'Ping', '苹', 'Legendary', 5, 22, '夜色流转', 'ping.webp', ['firelink', 'ping_evernight', 'ping_nightsong']],
     [ZHUWANG_ID, ZHUWANG_SPELL_ID, 'Zhuwang', 'zhuwang', 'UltraRare', 3, 15, '猪猪变身术', 'zhuwang.webp', ['stonelink', 'frenzy', 'armored']],
   ] as const)('%s catalogue, collection, portrait and traits', (id, spellId, ref, name, rarity, rarityIdx, cost, spellName, art, traits) => {
     const troop = getTroopById(id)!;
@@ -50,6 +50,24 @@ describe('苹与zhuwang真实接入', () => {
     const record = getRecord(save, id)!;
     record.traits = [true, true, true];
     expect(troopToSnapshot(troop, record, ref)).toMatchObject({ name, skillId: String(spellId), manaCost: cost, traitIds: traits });
+  });
+
+  it('苹的夜曲只在己方回合开始给予紫色盟友原有的生命与魔力', () => {
+    expect(getTrait('ping_nightsong')).toMatchObject({
+      description: '所有紫色盟友在我的回合开始时获得 2 点生命值和魔力值。',
+      turnStartTypeAura: { scope: 'Purple', gains: { hp: 2, magic: 2 } },
+    });
+    const { caster, state, ctx } = pigFixture();
+    const allies = state.teams[PlayerSide.Left].characters;
+    caster.traitIds = ['ping_nightsong'];
+    caster.colors = [BaseColor.Purple];
+    allies[1]!.colors = [BaseColor.Purple];
+    const hp = allies[1]!.hp, magic = allies[1]!.magic;
+    const engine = new TurnEngine(state, ctx.rng, ctx.nextGemId, new ExtensionRegistry());
+    engine.passTurn();
+    expect(allies[1]).toMatchObject({ hp, magic });
+    engine.passTurn();
+    expect(allies[1]).toMatchObject({ hp: hp + 2, magic: magic + 2 });
   });
 
   it('夜色流转 requests a colour, not a branch or a unit', () => {

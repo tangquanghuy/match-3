@@ -57,10 +57,14 @@ export class MaterialShopScreen implements Screen {
     this.signature = quote.ok ? quote.signature : '';
     const troop = this.origin ? getTroopById(this.origin) : undefined;
     const line = quote.ok ? quote.goldLine : undefined;
-    const priceDetails = line ? `<div class="material-price" aria-label="价格明细">
-      ${line.limit ? `<p class="material-offer">账号优惠剩余 <span><b>${line.remaining} / ${line.limit}</b> 颗</span><small>所有秘法共用 · 不刷新</small></p>` : ''}
-      ${line.discountCount ? `<p>优惠价 <span>${line.discountUnit.toLocaleString()} 金币 × ${line.discountCount}</span></p>` : ''}
-      ${line.regularCount ? `<p>${line.limit ? '原价' : '单价'} <span>${line.regularUnit.toLocaleString()} 金币 × ${line.regularCount}</span></p>` : line.limit ? `<p class="material-original">原价 ${line.regularUnit.toLocaleString()} 金币 / 颗</p>` : ''}
+    const offer = quote.ok ? quote.gemOffer : undefined;
+    const priceDetails = quote.ok && quote.price !== null ? `<div class="material-price" aria-label="价格明细">
+      ${offer ? `<div class="material-price-heading"><span class="material-promo-badge ${offer.discount === 10 ? 'is-regular' : ''}">${offer.discount < 10 ? `${offer.purchased === 0 ? '首单' : `第 ${offer.purchased + 1} 单`} ${offer.discount} 折` : '日常价'}</span><span class="material-price-context">宝石组合专属优惠</span></div>
+        <div class="material-price-row"><strong>${quote.price.toLocaleString()}<small> 宝石</small></strong>${offer.discount < 10 ? `<del>${offer.regularPrice.toLocaleString()} 宝石</del>` : ''}</div>
+        ${offer.discount < 10 ? `<p class="material-price-foot">本单省 ${(offer.regularPrice - quote.price).toLocaleString()} 宝石${offer.nextDiscount ? ` · 下单后 ${offer.nextDiscount} 折` : ' · 下单后恢复日常价'}</p>` : ''}`
+      : line ? `<div class="material-price-heading">${line.discountCount ? '<span class="material-promo-badge">秘法优惠</span>' : '<span class="material-price-context">金币直购</span>'}</div>
+        <div class="material-price-row"><strong>${quote.price.toLocaleString()}<small> 金币</small></strong>${line.discountCount ? `<del>${(line.regularUnit * this.count).toLocaleString()} 金币</del>` : ''}</div>
+        ${line.discountCount ? `<p class="material-price-foot">本次 ${line.discountCount} 颗享 ${line.discountUnit.toLocaleString()} 金币优惠价${line.regularCount ? ` · ${line.regularCount} 颗按原价` : ''}</p>` : `<p class="material-price-foot">${line.regularUnit.toLocaleString()} 金币 / 颗</p>`}` : ''}
     </div>` : '';
     const rows = quote.ok ? Object.entries(quote.stones).sort(([a], [b]) => TIERS.findIndex(([tier]) => tier === parseStoneKey(a)?.tier) - TIERS.findIndex(([tier]) => tier === parseStoneKey(b)?.tier)).map(([key, n]) => `<li>${stoneMarkupForKey(key)}<span>${esc(stoneName(key))}<small>持有 ${(save.materials.traitstones[key] ?? 0).toLocaleString()}</small></span><b>×${n}</b></li>`).join('') : '';
     const title = gems ? this.bundle?.name ?? '请选择材料组合' : stoneName(this.key);

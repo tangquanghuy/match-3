@@ -1280,6 +1280,11 @@ export class TroopScreen implements Screen {
   private pageSize(): number {
     if (window.innerWidth <= 700) return PAGE_SIZE_MOBILE;
     if (window.innerWidth <= 1100) return PAGE_SIZE_TABLET;
+    if (window.innerWidth <= 1399) {
+      const gridWidth = window.innerWidth - 48;
+      const columns = Math.floor((gridWidth + 12) / (154 + 12));
+      return Math.min(PAGE_SIZE_DESKTOP, 2 * columns);
+    }
     return PAGE_SIZE_DESKTOP;
   }
 
