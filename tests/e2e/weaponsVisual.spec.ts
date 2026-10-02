@@ -196,7 +196,7 @@ test('词缀单列带图标且不重叠，达标精通武器可领取', async ({
   await page.locator('[data-weapon-search]').fill('王者偃月刀');
   await page.locator('.weapons-workspace--all .weapon-card').first().click();
   await expect(page.locator('.detail-acquire')).toContainText('水之精通 8');
-  await expect(page.locator('[data-weapon-action="goto-hero"]')).toContainText('前往法力精通');
+  await expect(page.locator('[data-weapon-action="claim"]')).toContainText('领取武器');
 });
 
 test('熔炉要求进入独立次级页，并明确显示等级与资源缺口', async ({ page }) => {

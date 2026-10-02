@@ -15,6 +15,7 @@ import { eventShopOf, eventsUnlocked, type EventShopRow } from '../systems/event
 import { eventsLockPanelHtml } from './eventsLock';
 import { bottomNavHtml, shopNavHtml, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey } from '../shell/materialArt';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 import { cssUrlVar, shopArt } from '../shell/artAssets';
@@ -89,12 +90,6 @@ function rewardEntries(goods: EventGoods, save?: MetaSave): RewardEntry[] {
   }
   if (goods.classXp) entries.push({ kind: 'classXp', key: 'classXp', label: '职业经验', amount: goods.classXp, owned: 0 });
   return entries;
-}
-
-function rewardText(goods: EventGoods): string {
-  return rewardEntries(goods)
-    .map((entry) => `${entry.label} ×${entry.amount}`)
-    .join(' · ');
 }
 
 function rewardIcon(entry: RewardEntry): string {
@@ -347,8 +342,9 @@ export class EventShopScreen implements Screen {
           return;
         }
         ctx.refresh();
-        const message = `已购入 ${cleanName(before.name)} · ${rewardText(before)} · 印记余额 ${result.tokensLeft}`;
-        setTimeout(() => toast(message), 0);
+        showAcquisitionDialog(`已兑换 ${cleanName(before.name)}`, rewardEntries(before).map(entry => ({
+          label: entry.label, amount: entry.amount, icon: entry.kind === 'troop' ? 'chest' : entry.kind === 'stone' ? 'crystal' : 'check',
+        })), `花费 ${before.cost} 印记 · 剩余 ${result.tokensLeft}`);
       });
     });
   }

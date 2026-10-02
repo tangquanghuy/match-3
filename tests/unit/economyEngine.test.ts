@@ -14,11 +14,13 @@ import { createGameState } from '@engine/GameState';
 import { ExtensionRegistry } from '@engine/registry';
 import { SeededRNG } from '@engine/rng';
 import { executePrototype } from '@engine/skills/prototypes';
+import { SKILL_LIBRARY } from '@engine/skills/library';
 import type { SkillPrototype } from '@engine/skills/prototypes';
 import { gainGold, gainSouls, gainGems, dmg } from '@engine/skills/builders';
 import type { EffectContext } from '@engine/skills/effects/context';
 import { BaseColor, PlayerSide, colorGem, specialGem } from '@engine/types';
 import type { Character, Team, Gem, GemType } from '@engine/types';
+import { damageFixture } from '../helpers/damageFixture';
 
 let gid = 0;
 function g(type: GemType): Gem {
@@ -56,6 +58,23 @@ function primitiveCtx(over: { magic?: number; seed?: number } = {}): { ctx: Effe
 }
 
 describe('gainEconomy 效果段（金币/灵魂/宝石）', () => {
+  it('小矮妖按施法前局内金币决定爆破数量，再获得 20 金币', () => {
+    const cast = (battleGold: number) => {
+      const f = damageFixture();
+      f.caster.magic = 0;
+      f.state.economy.gold = battleGold;
+      for (const [row, col] of [[1, 1], [4, 4], [6, 6]]) {
+        f.board.set({ row, col }, { id: 100 + row * 8 + col, type: colorGem(BaseColor.Green) });
+      }
+      const events = executePrototype(SKILL_LIBRARY[7967], f.ctx);
+      return {
+        exploded: events.filter(e => e.type === 'gem-explode').flatMap(e => e.cells).length,
+        gold: f.state.economy.gold,
+      };
+    };
+    expect(cast(0)).toEqual({ exploded: 9, gold: 20 });
+    expect(cast(20)).toEqual({ exploded: 26, gold: 40 });
+  });
   it('gainGold(10)：计数器 +10，发 economy-gain{gold,10,side:Left}', () => {
     const { ctx, state } = primitiveCtx();
     const events = executePrototype({ segments: [gainGold(10)] } as SkillPrototype, ctx);
@@ -175,8 +194,10 @@ describe('赃物宝石（Booty Gem）：摧毁 → +10 金币', () => {
       },
     });
     const before = state.economy.gold;
-    engine.resolveAction({ type: 'swap', from: { row: 4, col: 5 }, to: { row: 5, col: 5 } });
-    expect(state.economy.gold).toBe(before + 10);
+    const events = engine.resolveAction({ type: 'swap', from: { row: 4, col: 5 }, to: { row: 5, col: 5 } });
+    const matchGold = events.flatMap(e => e.type === 'elimination' && e.cells.length >= 4
+      ? [e.cells.length >= 5 ? 5 : 4] : []).reduce((sum, gain) => sum + gain, 0);
+    expect(state.economy.gold).toBe(before + 10 + matchGold);
   });
 
   it('赃物宝石不可匹配：不与任何宝石成组（MatchResolver 不可匹配集合）', () => {

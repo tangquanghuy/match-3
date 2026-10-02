@@ -1,5 +1,6 @@
 import classesCss from '../screens/classesScreen.css?raw';
 import heroTraitDialogCss from '../screens/heroTraitDialog.css?raw';
+import heroPortraitDialogCss from '../screens/heroPortraitDialog.css?raw';
 import regionalEntryCss from './styles/regional-entry.css?raw';
 import regionalCss from '../screens/regionalScreen.css?raw';
 import materialShopCss from './styles/material-shop.css?raw';
@@ -29,6 +30,7 @@ import eventsCss from './styles/events.css?raw';
 import eventsModesCss from './styles/events-modes.css?raw';
 import eventsTowerCss from './styles/events-tower.css?raw';
 import giftsCss from './styles/gifts.css?raw';
+import mailCss from './styles/mail.css?raw';
 
 interface PageCssSpec {
   css: string;
@@ -37,7 +39,7 @@ interface PageCssSpec {
 
 const PAGE_CSS: Record<string, PageCssSpec> = {
   classes: { css: classesCss + '\n' + heroTraitDialogCss, position: 'last' },
-  hero: { css: heroTraitDialogCss, position: 'last' },
+  hero: { css: heroTraitDialogCss + '\n' + heroPortraitDialogCss, position: 'last' },
   regional: { css: regionalCss, position: 'last' },
   map: { css: defenseRewardCss + regionalEntryCss, position: 'last' },
   character: { css: characterCss, position: 'last' },
@@ -53,6 +55,7 @@ const PAGE_CSS: Record<string, PageCssSpec> = {
   gems: { css: gemShopCss + marketCss, position: 'last' },
   hunt: { css: huntCss, position: 'last' },
   gifts: { css: giftsCss, position: 'last' },
+  mail: { css: mailCss, position: 'last' },
 };
 
 const STYLE_ID = 'meta-page-css';

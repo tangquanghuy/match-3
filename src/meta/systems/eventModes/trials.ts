@@ -67,7 +67,7 @@ export const TRIAL_POOL: readonly TrialDef[] = [
     goals: [{ kind: 'win' }, { kind: 'turns', n: 12 }, { kind: 'noLoss' }] },
   { id: 'bones', name: '骸骨狂潮', rule: '骷髅掉落率大幅提高（30%）——比拼攻防硬实力', enemies: ['elite', 'minion', 'minion'],
     goals: [{ kind: 'win' }, { kind: 'heroAlive' }, { kind: 'maxLoss', n: 1 }] },
-  { id: 'manaflood', name: '法力潮涌', rule: '双方每回合开始全员 +3 法力——技能满天飞', enemies: ['elite', 'elite', 'minion'],
+  { id: 'manaflood', name: '法力潮涌', rule: '双方每回合开始全员 +3 法力', enemies: ['elite', 'elite', 'minion'],
     goals: [{ kind: 'win' }, { kind: 'turns', n: 12 }, { kind: 'heroAlive' }] },
   { id: 'doomboard', name: '末日棋盘', rule: '开局 4 颗末日骷髅，补充时 3% 掉落末日骷髅', enemies: ['elite', 'elite', 'minion'],
     goals: [{ kind: 'win' }, { kind: 'noLoss' }, { kind: 'turns', n: 12 }] },

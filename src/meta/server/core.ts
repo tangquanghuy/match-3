@@ -4,6 +4,7 @@ import { buyMaterialGoods } from '../systems/materialShop';
 import { abandonExploreRun, advanceExploreRun, exploreBattleSeed, exploreRunMatches, maxExploreTier } from '../systems/explore';
 import { mirrorFromEntry } from '../systems/invasionMirrors';
 import { earn } from '../systems/wallet';
+import { readMail, claimMail, claimAllMail } from '../systems/mailbox';
 import { queueDefensePublish, accountDefenseLog, defenseEntryKey, validSnapshot, type DefenseLog } from '../systems/invasionDefense';
 /**
  * Meta 权威核心：执行一条命令，产出结果与新存档。
@@ -250,6 +251,13 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (!name || name.length > 128) return done(fail('FORBIDDEN', '请重新登录后创建角色'));
       if (!isCharacterGender(gender) || !isCharacterPortrait(portrait)) return done(fail('INVALID', '请选择性别和有效的角色立绘'));
       save.character = { name, gender, portrait };
+      return done({ ok: true });
+    }
+    case 'setCharacterPortrait': {
+      if (!save.character) return done(fail('PREREQ_LOCKED', '请先创建角色'));
+      const { portrait } = command.args;
+      if (!isCharacterPortrait(portrait)) return done(fail('INVALID', '请选择有效的角色立绘'));
+      save.character.portrait = portrait;
       return done({ ok: true });
     }
     case 'resetToNewGame':
@@ -504,6 +512,12 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       return withMaterials(claimGift(save, (command.args as CommandArgs<'claimGift'>).id, env.seed()));
     case 'claimAllGifts':
       return withMaterials(claimAllGifts(save, env.seed()));
+    case 'readMail':
+      return done(readMail(save, (command.args as CommandArgs<'readMail'>).id, now));
+    case 'claimMail':
+      return withMaterials(claimMail(save, (command.args as CommandArgs<'claimMail'>).id, now));
+    case 'claimAllMail':
+      return withMaterials(claimAllMail(save, now));
 
     // —— 每周活动 ——
     case 'abandonTowerRun':

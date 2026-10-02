@@ -45,6 +45,7 @@ import { roleNameZh } from '../data/roles';
 import { bottomNavHtml, COLOR_CN, gemSvg, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt } from '../shell/materialArt';
 import { isFailure } from '../gateway';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { renderSpell } from '../shell/spellText';
 import { bindTermTips } from '../shell/termTip';
@@ -804,7 +805,7 @@ export class WeaponsScreen implements Screen {
     this.selectedId = id;
     this.ctx.refreshChrome();
     this.render();
-    toast(`已领取「${weapon.name}」`);
+    showAcquisitionDialog('武器已解锁', [{ label: weapon.name, detail: '已加入武器库', icon: 'swords' }]);
   }
 
   private async forge(id: string): Promise<void> {
@@ -826,7 +827,7 @@ export class WeaponsScreen implements Screen {
     this.selectedId = id;
     this.ctx.refreshChrome();
     this.render();
-    toast(`已锻造「${weapon.name}」`);
+    showAcquisitionDialog('武器锻造成功', [{ label: weapon.name, detail: '已加入武器库', icon: 'swords' }]);
   }
 
   private async temper(id: string): Promise<void> {
@@ -840,7 +841,8 @@ export class WeaponsScreen implements Screen {
     this.selectedId = id;
     this.ctx.refreshChrome();
     this.render();
-    toast(`「${weapon.name}」已淬炼至 Lv.${update.result.level}`);
+    showAcquisitionDialog('武器淬炼完成', [{ label: weapon.name, detail: `淬炼等级 Lv.${update.result.level}`, icon: 'swords', status: '已提升' }],
+      `花费 ${update.result.cost.gold.toLocaleString('zh-CN')} 黄金${update.result.cost.ingots ? ` · 钢锭 ×${update.result.cost.ingots}` : ''}${update.result.cost.scrolls ? ` · 熔铸符卷 ×${update.result.cost.scrolls}` : ''}`);
   }
 
   dispose(): void {

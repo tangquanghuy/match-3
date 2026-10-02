@@ -30,6 +30,7 @@ import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_REWARD, INVASION, TRIBUTE, K
 import { eventMetricOf, eventShopOf, eventsUnlocked } from '../systems/events';
 import { giftsReady } from '../systems/gifts';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, dailyArt, kingdomArt, resultArt, regionalArt } from '../shell/artAssets';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
@@ -1708,9 +1709,9 @@ export class MapScreen implements Screen {
     if (isFailure(result)) {
       toast(result.message);
     } else {
-      toast(result >= KINGDOM_MAX_LEVEL
-        ? `${name} 达到 10 级！全体部队与主角${STAT_NAME[kingdomBonusStat(name)]} +1。`
-        : `${name} 提升至 ${result} 级：进贡几率与产出提高，旗帜主色法力精通 +1。`);
+      showAcquisitionDialog(`${name} 升至 ${result} 级`, result >= KINGDOM_MAX_LEVEL
+        ? [{ label: `全体部队与主角${STAT_NAME[kingdomBonusStat(name)]} +1`, icon: 'chevrons', status: '已提升' }]
+        : [{ label: '进贡几率与产出提高', icon: 'coin', status: '已提升' }, { label: '旗帜主色法力精通 +1', icon: 'crystal', status: '已提升' }]);
       const shield = $('#kingdomShield');
       shield.classList.remove('bump');
       void shield.offsetWidth;

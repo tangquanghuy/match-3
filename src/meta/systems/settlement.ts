@@ -95,6 +95,8 @@ export interface SettlementDetail {
   victory: boolean;
   lines: SettlementLine[];
   xpGained: number;
+  classXpGained?: number;
+  trialClassXpBonus?: number;
   /** 主角本次升级数（M5：经验会真正升级，解锁王国门槛） */
   heroLevelsGained: number;
   /** 主角编队且有职业时的职业升级 */
@@ -126,7 +128,7 @@ export function applySettlement(
     const key = `settled:${result.battleId}`;
     if (!week || week.eventData[key]) return {
       victory, lines: [{ key: 'event-progress', label: expired ? '上周活动已结束，本场周奖励已关闭' : '本场已结算', deltas: {} }],
-      xpGained: 0, heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
+      xpGained: 0, classXpGained: 0, trialClassXpBonus: 0, heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
       questProgress: null, troopRewards: [], firstWinClaimed: false,
     };
     week.eventData[key] = 1;
@@ -377,12 +379,20 @@ export function applySettlement(
   if (xpPct > 0) xpGained = Math.round(xpGained * (1 + xpPct / 100));
   const heroXpResult = addHeroXp(save, xpGained);
   let classLevelUp: { classId: string; newLevel: number } | null = null;
+  let classXpGained = 0;
+  let trialClassXpBonus = 0;
   if (victory && save.hero.classId) {
     const team = activeTeam(save);
     if (team?.members.some((m) => m.kind === 'hero')) {
       // 职业试炼：职业经验 ×2，本场三星全达成 ×3
       const trialMult = eventClassXpMultiplier(save, ctx.plan);
-      const r = addClassXp(save, save.hero.classId, CLASS_XP_PER_WIN * trialMult);
+      if (ctx.plan.source.kind === 'event' && ctx.plan.source.typeId === 'classTrials') {
+        trialClassXpBonus = 200 + new SeededRNG((result.seed ^ 0xc1a55e) >>> 0).nextInt(11) * 10;
+      }
+      const amount = CLASS_XP_PER_WIN * trialMult + trialClassXpBonus;
+      const r = addClassXp(save, save.hero.classId, amount);
+      if (r) classXpGained = amount;
+      else trialClassXpBonus = 0;
       if (r && r.levelsGained > 0) classLevelUp = { classId: save.hero.classId, newLevel: r.newLevel };
       addClassWin(save, save.hero.classId);
     }
@@ -397,6 +407,8 @@ export function applySettlement(
     victory,
     lines,
     xpGained,
+    classXpGained,
+    trialClassXpBonus,
     heroLevelsGained: heroXpResult.levelsGained,
     classLevelUp,
     classUnlocked,

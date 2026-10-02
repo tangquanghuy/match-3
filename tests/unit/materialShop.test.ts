@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { TROOP_PROGRESSION } from '../../src/data/leveling';
 import { getTroopById } from '../../src/data/troops';
 import { MATERIAL_SHOP_KEYS, MATERIAL_SHOP_PRICING, type MaterialShopPricing } from '../../src/meta/data/materialShop';
+import { materialBundleCatalog, materialBundleForTroop } from '../../src/meta/data/materialBundles';
 import { traitUnlockCost } from '../../src/meta/data/economy';
 import { hydrateSave, parseSaveJson, serializeSave } from '../../src/meta/state/save';
 import { LocalTransport } from '../../src/meta/gateway/transport';
@@ -49,7 +50,7 @@ describe('材料商店：实际配方、价格审核与原子成交', () => {
     expect(Object.keys(q.stones).some(k => k.startsWith('minor:'))).toBe(true);
     expect(Object.keys(q.stones).some(k => k.startsWith('major:'))).toBe(true);
     expect(Object.keys(q.stones).some(k => k.startsWith('runic:'))).toBe(true);
-    expect(q.price).toBe(2280);
+    expect(q.price).toBe(3480);
   });
   it('已解锁特质从整套剔除；现有库存不抵扣完整礼包', () => {
     const s = fresh(); s.collection['6000']!.traits = [true, true, false];
@@ -83,8 +84,8 @@ describe('材料商店：实际配方、价格审核与原子成交', () => {
   it('全套材料到账后可连续解锁全部特质，按真实配方扣完', () => {
     const s = fresh(); const request = { kind: 'gems' as const, troopId: 6169 };
     const q = materialShopQuote(s, request); if (!q.ok) throw new Error(q.message);
-    expect(buyMaterialGoods(s, request, q.signature)).toMatchObject({ ok: true, spent: 2280 });
-    expect(s.currencies.gems).toBe(17720);
+    expect(buyMaterialGoods(s, request, q.signature)).toMatchObject({ ok: true, spent: 3480 });
+    expect(s.currencies.gems).toBe(16520);
     expect(s.materialShop.arcaneIntroPurchased).toBe(0);
     expect(s.materialShop.gemBundlesPurchased).toBe(1);
     for (const slot of [1, 2, 3]) expect(unlockTrait(s, 6169, slot).ok).toBe(true);
@@ -194,46 +195,61 @@ describe('材料商店正式定价与账号优惠账本', () => {
 });
 
 describe('宝石组合递减优惠', () => {
-  it('传说整包依次按凑整价格成交，第七单起恢复3980', () => {
-    const s = fresh();
-    grantTroop(s, 6081);
-    const legacy = materialShopQuote(s, { kind: 'gems', troopId: 6081 });
-    if (!legacy.ok) throw new Error(legacy.message);
-    for (const [index, price, discount] of [[0, 780, 2], [1, 1580, 4], [2, 1980, 5], [3, 2380, 6], [4, 2780, 7], [5, 3180, 8], [6, 3980, 10]] as const) {
-      const quote = materialShopQuote(s, { kind: 'gems', troopId: 6081 });
+  it.each([
+    [6081, 3, 3980, [[780, 2], [1180, 3], [1980, 5], [3180, 8], [3980, 10]]],
+    [6065, 4, 5980, [[1180, 2], [2980, 5], [5980, 10]]],
+    [6169, 5, 11480, [[3480, 3], [5780, 5], [11480, 10]]],
+  ] as const)('档位 %i 按独立阶梯成交', (troopId, tier, regularPrice, steps) => {
+    const s = fresh(); s.currencies.gems = 100_000;
+    grantTroop(s, troopId);
+    const request = { kind: 'gems' as const, troopId };
+    const first = materialShopQuote(s, request);
+    if (!first.ok) throw new Error(first.message);
+    steps.forEach(([price, discount], index) => {
+      const quote = materialShopQuote(s, request);
       if (!quote.ok) throw new Error(quote.message);
-      expect(quote).toMatchObject({ price, gemOffer: { regularPrice: 3980, discount, purchased: index } });
-      if (index > 0) expect(buyMaterialGoods(s, { kind: 'gems', troopId: 6081 }, legacy.signature)).toMatchObject({ ok: false, code: 'INVALID' });
-      expect(buyMaterialGoods(s, { kind: 'gems', troopId: 6081 }, quote.signature)).toMatchObject({ ok: true, spent: price });
-      expect(s.materialShop.gemBundlesPurchased).toBe(index + 1);
-    }
-    expect(materialShopQuote(s, { kind: 'gems', troopId: 6081 })).toMatchObject({ price: 3980, gemOffer: { discount: 10 } });
-    expect(s.materialShop.arcaneIntroPurchased).toBe(0);
+      expect(quote).toMatchObject({ price, gemOffer: { regularPrice, discount, purchased: index, tier } });
+      if (index > 0) expect(buyMaterialGoods(s, request, first.signature)).toMatchObject({ ok: false, code: 'INVALID' });
+      expect(buyMaterialGoods(s, request, quote.signature)).toMatchObject({ ok: true, spent: price });
+      expect(s.materialShop.gemDiscountPurchases[String(tier)]).toBe(index + 1);
+    });
+    expect(materialShopQuote(s, request)).toMatchObject({ price: regularPrice, gemOffer: { discount: 10 } });
   });
-  it('账号次数跨组合共享，失败不推进，存档重载后接续下一档', () => {
-    const s = fresh();
-    grantTroop(s, 6081);
-    const first = { kind: 'gems' as const, troopId: 6000 };
-    const other = { kind: 'gems' as const, troopId: 6081 };
-    const old = materialShopQuote(s, other);
-    const quote = materialShopQuote(s, first);
-    if (!old.ok || !quote.ok) throw new Error('报价失败');
-    expect(buyMaterialGoods(s, first, quote.signature)).toMatchObject({ ok: true, spent: 180 });
-    const before = structuredClone(s);
-    expect(buyMaterialGoods(s, other, old.signature)).toMatchObject({ ok: false, code: 'INVALID' });
-    expect(s).toEqual(before);
+
+  it('低价档不消耗高价档优惠，同档不同阶段共用次数，失败不推进', () => {
+    const s = fresh(); grantTroop(s, 6081); grantTroop(s, 6169);
+    const common = { kind: 'gems' as const, troopId: 6000 };
+    const legendary = { kind: 'gems' as const, bundleId: materialBundleForTroop(6081)!.id, mask: 6 };
+    const mythic = { kind: 'gems' as const, troopId: 6169 };
+    const mythicBefore = materialShopQuote(s, mythic);
+    const commonQuote = materialShopQuote(s, common);
+    if (!mythicBefore.ok || !commonQuote.ok) throw new Error('报价失败');
+    expect(buyMaterialGoods(s, common, commonQuote.signature)).toMatchObject({ ok: true, spent: 180 });
+    expect(materialShopQuote(s, mythic)).toEqual(mythicBefore);
+    const partial = materialShopQuote(s, legendary);
+    if (!partial.ok) throw new Error(partial.message);
+    expect(buyMaterialGoods(s, legendary, partial.signature).ok).toBe(true);
+    expect(materialShopQuote(s, { kind: 'gems', troopId: 6081 })).toMatchObject({ price: 1180, gemOffer: { discount: 3, purchased: 1 } });
+    const anotherColor = materialBundleCatalog().find(f => f.name === '传说 · 双色')!.bundles[1]!;
+    expect(materialShopQuote(s, { kind: 'gems', bundleId: anotherColor.id, mask: 7 })).toMatchObject({ gemOffer: { discount: 3, purchased: 1 } });
     const loaded = parseSaveJson(serializeSave(s), 30 * 86400_000);
-    expect(loaded.materialShop.gemBundlesPurchased).toBe(1);
-    expect(materialShopQuote(loaded, other)).toMatchObject({ price: 1580, gemOffer: { discount: 4 } });
+    expect(loaded.materialShop.gemDiscountPurchases).toMatchObject({ 0: 1, 3: 1 });
+    expect(materialShopQuote(loaded, mythic)).toEqual(mythicBefore);
     loaded.currencies.gems = 0;
-    const poor = materialShopQuote(loaded, other);
+    const poor = materialShopQuote(loaded, mythic);
     if (!poor.ok) throw new Error(poor.message);
-    expect(buyMaterialGoods(loaded, other, poor.signature)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
-    expect(loaded.materialShop.gemBundlesPurchased).toBe(1);
-    const legacy: Record<string, unknown> = { ...s }; delete legacy.materialShop;
-    expect(hydrateSave(legacy).materialShop.gemBundlesPurchased).toBe(0);
-    for (const [raw, expected] of [[-1, 0], [4.8, 4], ['6', 0], [null, 0], [Infinity, 0]] as const) {
-      expect(hydrateSave({ ...s, materialShop: { gemBundlesPurchased: raw } }).materialShop.gemBundlesPurchased).toBe(expected);
-    }
+    expect(buyMaterialGoods(loaded, mythic, poor.signature)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(loaded.materialShop.gemDiscountPurchases['5']).toBeUndefined();
+  });
+
+  it('特殊高阶秘法走神话档；旧版总单数不挤占新档优惠', () => {
+    const special = materialBundleCatalog().find(f => f.name === '特殊 · 高阶秘法')!.bundles[0]!;
+    const old = fresh(); old.materialShop.gemBundlesPurchased = 6;
+    const raw = JSON.parse(serializeSave(old)); delete raw.materialShop.gemDiscountPurchases;
+    const loaded = hydrateSave(raw);
+    expect(loaded.materialShop.gemBundlesPurchased).toBe(6);
+    expect(loaded.materialShop.gemDiscountPurchases).toEqual({});
+    expect(materialShopQuote(loaded, { kind: 'gems', bundleId: special.id, mask: 7 })).toMatchObject({ gemOffer: { tier: 5, discount: 3 } });
+    expect(hydrateSave({ ...raw, materialShop: { gemDiscountPurchases: { '5': 1.9, '3': -1, 'evil': 4 } } }).materialShop.gemDiscountPurchases).toEqual({ '3': 0, '5': 1 });
   });
 });

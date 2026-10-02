@@ -17,6 +17,8 @@ import { INVASION_CITY_MAX, SQUAD_INFO } from '../../src/meta/systems/eventModes
 import { FACTION_COUNTER_EVERY, factionTargets } from '../../src/meta/systems/eventModes/faction';
 import { BOARD_SIZE } from '../../src/meta/systems/eventModes/world';
 import { TRIALS_PER_WEEK, evaluateGoals, trialById } from '../../src/meta/systems/eventModes/trials';
+import { classXpToNext } from '../../src/meta/data/classes';
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { buildBattleRequest } from '../../src/meta/systems/battleBridge';
 import { getTroopById } from '../../src/data/troops';
 import type { EncounterPlan } from '../../src/meta/systems/encounter';
@@ -185,8 +187,8 @@ describe('末日之塔 · 肉鸽爬塔', () => {
     expect(live.relics).toContain('curse_frailty');
     live.floor = 11;
     const glory = s.currencies.glory;
-    expect(abandonTowerRun(s, WEEK)).toMatchObject({ ok: true, floorReached: 11, glory: 22, scrolls: 2 });
-    expect(s.currencies.glory).toBe(glory + 22);
+    expect(abandonTowerRun(s, WEEK)).toMatchObject({ ok: true, floorReached: 11, glory: 44, scrolls: 4 });
+    expect(s.currencies.glory).toBe(glory + 44);
     expect(eventModeState(s, WEEK, 'towerOfDoom').run).toBeNull();
     expect(s.eventWeeks.towerOfDoom!.runTeam).toBeNull();
     expect(abandonTowerRun(s, WEEK)).toMatchObject({ ok: false });
@@ -356,6 +358,27 @@ describe('世界事件 · 庆典棋盘', () => {
 });
 
 describe('职业试炼 · 规则挑战', () => {
+  it('每次胜利额外结算 200–300 整十职业经验，战败及重放不发放', () => {
+    const s = fresh();
+    const id = eventModeState(s, WEEK, 'classTrials').trials[0]!;
+    const classId = s.hero.classId!;
+    const earned = (level: number, xp: number) =>
+      Array.from({ length: level - 1 }, (_, i) => classXpToNext(i + 1)).reduce((a, b) => a + b, 0) + xp;
+    const before = earned(s.hero.classLevels[classId]!, s.hero.classXp[classId] ?? 0);
+    const out = eventBattle(s, 'classTrials', WEEK, `trial:${id}`);
+    const result = fakeResult(out, true, 5);
+    const detail = settleEvent(s, out, result, WEEK);
+    expect(detail.trialClassXpBonus).toBeGreaterThanOrEqual(200);
+    expect(detail.trialClassXpBonus).toBeLessThanOrEqual(300);
+    expect(detail.trialClassXpBonus! % 10).toBe(0);
+    expect([50, 75]).toContain(detail.classXpGained! - detail.trialClassXpBonus!);
+    expect(earned(s.hero.classLevels[classId]!, s.hero.classXp[classId] ?? 0) - before).toBe(detail.classXpGained);
+    expect(battleIncomeView(detail).trialClassXpBonus).toBe(detail.trialClassXpBonus);
+    expect(settleEvent(s, out, result, WEEK).classXpGained).toBe(0);
+    const lost = eventBattle(s, 'classTrials', WEEK, `trial:${id}`);
+    expect(settleEvent(s, lost, fakeResult(lost, false), WEEK).trialClassXpBonus).toBe(0);
+  });
+
   it('每周 8 道试炼；规则改写战斗；新星才给大额积分', () => {
     const s = fresh();
     const state = eventModeState(s, WEEK, 'classTrials');

@@ -46,7 +46,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
       desc: COMMUNITY_TROOPS[4]!.spell.description,
       build: skill(
         reduce('enemyChosen', 'mana', 6, 0),
-        mana('allyLowestManaOther', 4, 0),
+        mana('allyHighestManaOther', 4, 0),
         transform(BaseColor.Yellow, BaseColor.Blue),
       ),
     },

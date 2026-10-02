@@ -15,6 +15,7 @@ import gameCss3 from './styles/tutorial.css?inline';
 import gameCss4 from './styles/battle-loading.css?inline';
 import gameCss5 from './styles/chest-items.css?inline';
 import gameCss6 from './styles/term-tip.css?inline';
+import acquisitionDialogCss from './styles/acquisition-dialog.css?inline';
 import { characterName } from '../state/character';
 import { setCharacterImage } from './characterImage';
 
@@ -53,6 +54,7 @@ const SCREEN_LOADERS: Record<string, () => Promise<Screen>> = {
   weapons: () => import('../screens/weaponsScreen').then((m) => new m.WeaponsScreen()),
   hunt: () => import('../screens/huntScreen').then((m) => new m.HuntScreen()),
   gifts: () => import('../screens/giftsScreen').then((m) => new m.GiftsScreen()),
+  mail: () => import('../screens/mailScreen').then((m) => new m.MailScreen()),
 };
 
 const screenCache = new Map<string, Promise<Screen>>();
@@ -90,7 +92,7 @@ export async function prepareGame(loginName?: string): Promise<() => Promise<voi
 async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: Awaited<ReturnType<typeof gateway.load>>, loginName?: string): Promise<void> {
   const style = document.createElement('style');
   style.id = 'meta-global-css';
-  style.textContent = gameCss0 + gameCss1 + gameCss2 + gameCss3 + gameCss4 + gameCss5 + gameCss6 + networkWaitCss + `
+  style.textContent = gameCss0 + gameCss1 + gameCss2 + gameCss3 + gameCss4 + gameCss5 + gameCss6 + networkWaitCss + acquisitionDialogCss + `
     html, body { min-height: 100dvh; }
     #battle-root { position: fixed; inset: 0; z-index: 50; background: #0e0e16; display: grid; place-items: center;
       box-sizing: border-box; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
@@ -116,6 +118,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
       refreshWallet();
       refreshPlayer();
       refreshMaterialsIndicator();
+      refreshMailIndicator();
     },
     launchQuest: (kingdom, node) => launcher.launchQuest(kingdom, node),
     launchExplore: (kingdom, tier) => launcher.launchExplore(kingdom, tier),
@@ -167,6 +170,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     weapons: '武 器 中 心',
     hunt: '寻 宝',
     gifts: '馈 赠',
+    mail: '邮 件',
   };
 
   /** 路由名 → 底部导航高亮项（result/settings 等无导航页不高亮） */
@@ -232,10 +236,13 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     if (settings) settings.onclick = () => ctx.navigate('#settings');
     const materialsBtn = $('#materialsBtn');
     if (materialsBtn) materialsBtn.onclick = () => ctx.navigate('#bag');
+    const mailBtn = $('#mailBtn');
+    if (mailBtn) mailBtn.onclick = () => ctx.navigate('#mail');
     $('#matVeil')?.remove(); // 兼容旧会话：切屏时清掉已挂载的旧材料弹层
     refreshWallet();
     refreshPlayer();
     refreshMaterialsIndicator();
+    refreshMailIndicator();
     // 货币来源说明弹层是地图屏专属；其它屏给轻量 toast
     if (!$('#moneyVeil')) {
       $$('[data-currency]').forEach((btn) => {
@@ -279,6 +286,11 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     const unread = ctx.save().materialsUnread;
     button.classList.toggle('has-new', unread);
     alert.hidden = !unread;
+  }
+
+  function refreshMailIndicator(): void {
+    const alert = $('#mailAlert');
+    if (alert) alert.hidden = !ctx.save().mailbox.items.some(item => item.claimedAt === null);
   }
 
   async function boot(): Promise<void> {

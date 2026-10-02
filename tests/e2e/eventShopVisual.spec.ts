@@ -116,13 +116,14 @@ test('活动商店兑换后同步余额、持有量和售罄状态', async ({ pa
   const ownedBefore = Number(rewardBefore.match(/持有 (\d+)/)?.[1]);
   await expect(featured.locator('[data-buy="invasion_celestial"]')).toBeEnabled();
   await featured.locator('[data-buy="invasion_celestial"]').click();
+  await expect(page.locator('.acquisition-dialog')).toContainText(name);
+  await page.locator('.acquisition-dialog footer button').click();
   await expect(page.locator('.shop-token-bar > strong')).toHaveText('40');
   await expect(featured).toHaveClass(/sold-out/);
   await expect(featured.locator('.shop-buy')).toHaveText('待补货');
   await featured.locator('.shop-goods-art').click();
   await expect(page.locator('#shopItemContent .shop-reward')).toContainText(`持有 ${ownedBefore + 1}`);
   await page.keyboard.press('Escape');
-  await expect(page.locator('#toast')).toContainText(`已购入 ${name}`);
   await page.screenshot({ path: 'artifacts/shop-review-2026-09-25/shop-purchased-1600.png' });
   const afterPurchase = await page.evaluate(()=>localStorage.getItem('gems.meta.save'));
   await featured.locator('.shop-atlas-link').click();
@@ -160,6 +161,8 @@ test('本周印记封顶后不再引导刷印记，余印兑换实际发放金�
   await expect(page.locator('[data-action="battle"]')).toHaveCount(0);
   const before = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gold);
   await page.locator('.shop-surplus [data-buy]').click();
+  await expect(page.locator('.acquisition-dialog')).toContainText('已兑换');
+  await page.locator('.acquisition-dialog footer button').click();
   await expect(page.locator('.shop-token-bar > strong')).toHaveText('0');
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gold);
   expect(after).toBe(before + 150);
@@ -276,6 +279,8 @@ for (const width of [1280,390]) {
     const oldName=await page.locator('.shop-goods.featured h3').innerText();
     await expect(page.locator('#shopRefreshLabel')).toHaveText('1分钟后刷新');
     await page.locator('[data-buy="invasion_celestial"]').click();
+    await expect(page.locator('.acquisition-dialog')).toBeVisible();
+    await page.locator('.acquisition-dialog footer button').click();
     await expect(page.locator('.shop-goods.featured .shop-buy')).toHaveText('待补货');
     await expect(page.locator('.shop-token-bar strong')).toHaveText('140');
     const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!).eventWeeks.invasion);
@@ -289,6 +294,8 @@ for (const width of [1280,390]) {
     await expect.poll(()=>page.locator('.shop-goods.featured img').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
     await page.screenshot({path:`artifacts/shop-two-day-refresh-2026-09-25/restocked-${width}.png`});
     await page.locator('[data-buy="invasion_celestial"]').click();
+    await expect(page.locator('.acquisition-dialog')).toBeVisible();
+    await page.locator('.acquisition-dialog footer button').click();
     await expect(page.locator('.shop-token-bar strong')).toHaveText('80');
     const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!));
     expect(after.eventWeeks.invasion).toMatchObject({points:120,wins:8,tokensEarned:360,claimed:[0],playRewards:2});

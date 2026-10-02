@@ -282,7 +282,7 @@ export const invasionMode: EventModeImpl<InvasionState> = {
       state.defense += 2;
       const week = ctx.week;
       if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.invasion) {
-        const mats: MaterialDelta = { traitstones: { 'runic:red': 2, 'runic:blue': 2 } };
+        const mats: MaterialDelta = { traitstones: { 'runic:red': 4, 'runic:blue': 4 } };
         earn(ctx.save, EVENT_DEFENSE_REWARD);
         earnMaterials(ctx.save, mats);
         week.playRewards += 1;

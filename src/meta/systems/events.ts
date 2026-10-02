@@ -20,7 +20,7 @@ import type { EventWeekState, MetaSave } from '../state/schema';
 import { getTroopById, TROOPS } from '../../data/troops';
 import type { EventGoods, EventMilestone, EventTheme, EventTypeId } from '../data/events';
 import {
-  EVENT_MILESTONES, EVENT_MILESTONE_CURRENCY_BONUS, EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS,
+  EVENT_MILESTONES, EVENT_MILESTONE_CURRENCY_BONUS, EVENT_WEEKLY_RULES, EVENT_LEGACY_GEMS_PAID, EVENT_SHARED_GOALS,
   EVENT_SHOP,
   EVENT_TOKEN_DIVISOR,
   EVENT_TOKEN_MIN_PER_WIN,
@@ -104,11 +104,7 @@ export function ensureEventWeek(save: MetaSave, weekStart: number, typeId: Event
   if (week.runTeam === undefined) week.runTeam = null;
   // 升级当周保留素材领取和购买记录，只为宝石补差；旧档不会重复领取素材。
   if (!week.eventData.revision) {
-    const legacy: Record<EventTypeId, readonly number[]> = {
-      invasion: [0,0,0,0,60,0], raidBoss: [0,0,0,40,0,0], towerOfDoom: [0,0,0,0,60,0],
-      factionAssault: [0,0,0,40,0,0], worldEvent: [0,0,0,30,80,0], classTrials: [0,0,0,40,0,0],
-    };
-    for (const i of week.claimed) week.eventData[`gemPaid${i}`] = legacy[typeId][i] ?? 0;
+    for (const i of week.claimed) week.eventData[`gemPaid${i}`] = EVENT_LEGACY_GEMS_PAID[typeId][i] ?? 0;
     if (typeId === 'towerOfDoom') week.eventData.towerPaidFloors = Math.min(EVENT_WEEKLY_RULES.towerFloors, week.eventData.floorBest ?? 0);
     week.eventData.revision = EVENT_WEEKLY_RULES.revision;
   }

@@ -5,6 +5,7 @@ import { parseStoneKey, STONE_COLORS, stoneName, type TraitstoneTier } from '../
 import { materialShopQuote, type MaterialShopRequest } from '../systems/materialShop';
 import { bottomNavHtml, shopNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { stoneMarkupForKey } from '../shell/materialArt';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import { cssUrlVar, shopArt } from '../shell/artAssets';
 import type { Screen, ShellCtx } from '../shell/screen';
 
@@ -59,7 +60,7 @@ export class MaterialShopScreen implements Screen {
     const line = quote.ok ? quote.goldLine : undefined;
     const offer = quote.ok ? quote.gemOffer : undefined;
     const priceDetails = quote.ok && quote.price !== null ? `<div class="material-price" aria-label="价格明细">
-      ${offer ? `<div class="material-price-heading"><span class="material-promo-badge ${offer.discount === 10 ? 'is-regular' : ''}">${offer.discount < 10 ? `${offer.purchased === 0 ? '首单' : `第 ${offer.purchased + 1} 单`} ${offer.discount} 折` : '日常价'}</span><span class="material-price-context">宝石组合专属优惠</span></div>
+      ${offer ? `<div class="material-price-heading"><span class="material-promo-badge ${offer.discount === 10 ? 'is-regular' : ''}">${offer.discount < 10 ? `${offer.tierName}${offer.purchased === 0 ? '首单' : `第 ${offer.purchased + 1} 单`} ${offer.discount} 折` : '日常价'}</span><span class="material-price-context">${offer.tierName}档独立优惠</span></div>
         <div class="material-price-row"><strong>${quote.price.toLocaleString()}<small> 宝石</small></strong>${offer.discount < 10 ? `<del>${offer.regularPrice.toLocaleString()} 宝石</del>` : ''}</div>
         ${offer.discount < 10 ? `<p class="material-price-foot">本单省 ${(offer.regularPrice - quote.price).toLocaleString()} 宝石${offer.nextDiscount ? ` · 下单后 ${offer.nextDiscount} 折` : ' · 下单后恢复日常价'}</p>` : ''}`
       : line ? `<div class="material-price-heading">${line.discountCount ? '<span class="material-promo-badge">秘法优惠</span>' : '<span class="material-price-context">金币直购</span>'}</div>
@@ -117,7 +118,11 @@ export class MaterialShopScreen implements Screen {
           const { result } = await ctx.gateway.buyMaterialGoods(this.request, this.signature);
           if (signal.aborted) return;
           this.busy = false;
-          ctx.refresh(); toast(result.ok ? '材料已入库' : result.message);
+          ctx.refresh();
+          if (result.ok) showAcquisitionDialog('材料已入库', Object.entries(result.mats.traitstones ?? {}).map(([key, amount]) => ({
+            label: stoneName(key), amount, art: stoneMarkupForKey(key),
+          })), `花费 ${result.spent.toLocaleString('zh-CN')} ${result.currency === 'gems' ? '宝石' : '黄金'}`);
+          else toast(result.message);
         } catch { if (!signal.aborted) toast('网络请求失败，请稍后重试'); }
         finally { this.busy = false; if (!signal.aborted) (target as HTMLButtonElement).disabled = false; }
       }

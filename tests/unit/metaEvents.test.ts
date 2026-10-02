@@ -99,7 +99,7 @@ describe('活动实例与出敌（systems/events）', () => {
       expect(other.claimed).toEqual([]);
       expect(other.tokens).toBe(0);
       expect(other.bought).toEqual({});
-      expect(other.eventData).toEqual({ revision: 2 });
+      expect(other.eventData).toEqual({ revision: 3 });
     }
     expect(eventPageState(s, WEEK, 'raidBoss').metric.value).toBe(0);
     expect(eventShopOf(s, WEEK, 'raidBoss').week.tokens).toBe(0);
@@ -333,6 +333,7 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
     const save = saveWithTeam();
     const week = ensureEventWeek(save, WEEK, 'classTrials');
     const goods = EVENT_SHOP.classTrials.find((entry) => entry.classXp)!;
+    expect(goods.classXp).toBe(5000);
     week.tokens = goods.cost;
     // 新档默认装备起始职业（2026-09-29），先卸下才能验「未装备职业」分支
     save.hero.classId = null;

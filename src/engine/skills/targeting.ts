@@ -62,6 +62,7 @@ export type TargetMode =
   | 'allyRandomPrefNotPrevN' // Native RandomAlly + (N-1) x RandomPrefNotPrevAlly in one segment (R007-3): each pick avoids only the previous pick; may repeat.
   | 'allyWeakest'
   | 'allyLowestManaOther' // Lowest current mana among living allies excluding the caster; ties follow team order.
+  | 'allyHighestManaOther' // Highest current mana among living allies excluding the caster; ties follow team order.
   | 'allyWeakestN'
   | 'allyHealthiest'
   | 'allyHealthiestN'
@@ -470,6 +471,9 @@ export function selectTargets(
 
     case 'allyLowestManaOther':
       return pickExtreme(aliveAll.filter((c) => c.id !== casterId), (c, best) => c.mana < best.mana);
+
+    case 'allyHighestManaOther':
+      return pickExtreme(aliveAll.filter((c) => c.id !== casterId), (c, best) => c.mana > best.mana);
 
     // R005：最弱/最强 = 当前生命 + 护甲；同分决定入选者时用 RNG 抽取。
     case 'enemyWeakest':

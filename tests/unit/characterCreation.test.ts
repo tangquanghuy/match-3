@@ -78,6 +78,17 @@ describe('character identity and authoritative creation', () => {
     await third.createCharacter(create('male').args);
     expect(third.current().character?.name).toBe('Next');
   });
+  it('changes only the portrait through an authoritative command', () => {
+    const created = runCommand(createFreshSave('new', now), create('female'), env).save;
+    const before = created.character!;
+    const command: MetaCommand<'setCharacterPortrait'> = { type: 'setCharacterPortrait', args: { portrait: 'https://images.example/new.webp' } };
+    const changed = runCommand(created, command, env);
+    expect(changed.result).toEqual({ ok: true });
+    expect(changed.save.character).toEqual({ ...before, portrait: command.args.portrait });
+    expect(created.character).toEqual(before);
+    expect(runCommand(changed.save, { ...command, args: { portrait: 'javascript:alert(1)' } }, env)).toMatchObject({ commit: false, result: { ok: false, code: 'INVALID' } });
+    expect(runCommand(createFreshSave('new', now), command, env).result).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+  });
 });
 
 describe('portrait validation and migration', () => {

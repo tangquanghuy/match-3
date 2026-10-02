@@ -232,9 +232,11 @@ describe('TurnEngine 集成：条件经济光环入账战场经济池', () => {
     expect(state.economy.gold).toBe(0);
     const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
     const gains = events.filter((e) => e.type === 'economy-gain' && e.currency === 'gold');
-    expect(gains).toHaveLength(1);
-    expect(gains[0]).toMatchObject({ amount: 2, side: PlayerSide.Left });
-    expect(engine.getState().economy.gold).toBe(2);
+    expect(gains).toMatchObject([
+      { amount: 4, side: PlayerSide.Left },
+      { amount: 2, side: PlayerSide.Left },
+    ]);
+    expect(engine.getState().economy.gold).toBe(6);
   });
 
   it('extremegreed / pillageandplunder：同一次 4 连按各自数额入账', () => {
@@ -242,7 +244,7 @@ describe('TurnEngine 集成：条件经济光环入账战场经济池', () => {
     const b = makeChar(1, { traitIds: ['pillageandplunder'] });
     const { engine, state } = buildWithNMatch(4, [a, b], [makeChar(4), makeChar(5)]);
     engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
-    expect(state.economy.gold).toBe(24);
+    expect(state.economy.gold).toBe(28);
   });
 
   it('darkensouls：三消骷髅 → economy.souls +3（骷髅匹配触发点，伤害结算之后）', () => {
@@ -256,10 +258,23 @@ describe('TurnEngine 集成：条件经济光环入账战场经济池', () => {
     expect(engine.getState().economy.souls).toBe(3);
   });
 
-  it('无新键特质的对局经济池保持不动', () => {
-    const { engine, state } = buildWithNMatch(4, [makeChar(0), makeChar(1)], [makeChar(4), makeChar(5)]);
-    engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
-    expect(state.economy).toEqual({ gold: 0, souls: 0, gems: 0, maps: 0 });
+  it.each([4, 5] as const)('%i 连的基础黄金进入局内计数', size => {
+    const { engine, state } = buildWithNMatch(size, [makeChar(0), makeChar(1)], [makeChar(4), makeChar(5)]);
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    expect(events.filter(e => e.type === 'economy-gain' && e.currency === 'gold')).toMatchObject([
+      { amount: size, side: PlayerSide.Left },
+    ]);
+    expect(state.economy).toEqual({ gold: size, souls: 0, gems: 0, maps: 0 });
+  });
+  it('敌方四连只增加敌方局内金币', () => {
+    const { engine, state } = buildWithNMatch(4, [makeChar(0)], [makeChar(4)]);
+    state.activePlayer = PlayerSide.Right;
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    expect(events.filter(e => e.type === 'economy-gain' && e.currency === 'gold')).toMatchObject([
+      { amount: 4, side: PlayerSide.Right },
+    ]);
+    expect(state.enemyGold).toBe(4);
+    expect(state.economy.gold).toBe(0);
   });
 });
 
@@ -303,7 +318,7 @@ describe('护栏 · 条件经济不消耗随机数、事件流差异恰为 econo
       // 经济入账不掷骰：随机流不受新键影响
       expect(greedy.rngState).toBe(plain.rngState);
       // 事件流差异恰为 economy-gain（其余事件逐条一致）
-      const plainWithoutEconomy = JSON.stringify(plain.events);
+      const plainWithoutEconomy = JSON.stringify(plain.events.filter((e) => e.type !== 'economy-gain'));
       const economyEvents = greedy.events.filter((e) => e.type === 'economy-gain');
       const greedyWithoutEconomy = JSON.stringify(
         greedy.events.filter((e) => e.type !== 'economy-gain'),

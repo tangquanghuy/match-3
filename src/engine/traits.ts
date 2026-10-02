@@ -1716,9 +1716,8 @@ export function applySelfDeathManaGift(
   rng: { nextInt(max: number): number },
 ): GameEvent[] {
   if (!dead.defeated || !passivesOf(dead).onSelfDeathFillAllyMana) return [];
-  const pool = allies.filter(c => c.id !== dead.id && !c.defeated && c.hp > 0);
+  const pool = allies.filter(c => c.id !== dead.id && !c.defeated && c.hp > 0 && c.mana < c.manaCost);
   if (pool.length === 0) return [];
-  // Full-mana allies remain valid: the trait promises a random ally, not smart targeting.
   const target = pool[rng.nextInt(pool.length)];
   const amount = grantStat(target, 'mana', Math.max(0, target.manaCost - target.mana));
   return amount > 0 ? [{ type: 'buff', source: 'trait', targetId: target.id, stat: 'mana', amount,

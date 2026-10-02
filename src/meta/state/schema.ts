@@ -15,6 +15,7 @@ import { STARTING_CURRENCIES, STARTING_KINGDOM } from '../data/economy';
 import { STARTER_WEAPON_ID } from '../data/weapons';
 import { STARTER_CLASS_ID } from '../data/classes';
 import type { EventTypeId } from '../data/events';
+import type { MaterialDelta } from '../data/materials';
 import type { EncounterEnemy, EncounterPlan } from '../systems/encounter';
 import type { InvasionMirror } from '../systems/invasion';
 import type { InvasionRoster, InvasionStandingsCache, MirrorRecord } from '../systems/invasionMirrors';
@@ -38,6 +39,24 @@ export interface Currencies {
   trophies: number;
   /** 荣耀（官方 Glory：排位 PvP 主产，20 荣耀=1 荣耀箱；2026-09-19 素材批加性字段） */
   glory: number;
+}
+
+export interface MailItem {
+  id: string;
+  title: string;
+  body: string;
+  sentAt: number;
+  readAt: number | null;
+  claimedAt: number | null;
+  currencies: Partial<Currencies>;
+  materials: MaterialDelta;
+  classXp?: number;
+}
+
+export interface MailboxState {
+  weeklyDoubleVersion: number;
+  classTrialXpVersion: number;
+  items: MailItem[];
 }
 
 /** 素材库存（钢锭 / 熔铸符卷 / 特质石 / 藏宝图） */
@@ -106,9 +125,9 @@ export interface HeroState {
   talentPicks: Record<string, (string | null)[]>;
   /** classId → 职业专属特质三槽解锁状态（顺序同 classes.json perks） */
   classTraits: Record<string, [boolean, boolean, boolean]>;
-  /** 个人法力精通（武器解锁只看此表；王国加成另计涌动） */
+  /** 升级分配的个人法力精通；武器解锁与涌动还会叠加王国精通。 */
   manaMastery: Record<ManaColor, number>;
-  /** 升级时排队的二选一：每次从两色中点一色 +1 */
+  /** 升级候选；两色相同时是落后颜色的补齐机会。 */
   masteryOffers: Array<[ManaColor, ManaColor]>;
 }
 
@@ -355,8 +374,8 @@ export interface MetaSave {
   materials: Materials;
   /** 有新素材入账且尚未进入材料库查看；加性 UI 状态，旧档默认为 false */
   materialsUnread: boolean;
-  /** 商店账号优惠累计购买数，跨商品共用，不按天/周重置。 */
-  materialShop: { arcaneIntroPurchased: number; gemBundlesPurchased: number };
+  /** 历史总单数保留；新版折扣按材料配方档位分别累计，不按天/周重置。 */
+  materialShop: { arcaneIntroPurchased: number; gemBundlesPurchased: number; gemDiscountPurchases: Record<string, number> };
   /** 武器淬炼等级（加性字段，version 仍为 2） */
   weaponTempering: WeaponTempering;
   /** 入侵 PvP 赛季（加性字段，version 仍为 2） */
@@ -378,6 +397,7 @@ export interface MetaSave {
   onboarding: OnboardingState;
   /** 馈赠里程碑（加性字段） */
   gifts: GiftState;
+  mailbox: MailboxState;
 }
 
 /** 新手引导步骤：试炼战 → 领取新手馈赠 → 新手十连 → 自由行动 */
@@ -487,7 +507,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     gachaWishlist: emptyGachaWishlist(),
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
     materialsUnread: false,
-    materialShop: { arcaneIntroPurchased: 0, gemBundlesPurchased: 0 },
+    materialShop: { arcaneIntroPurchased: 0, gemBundlesPurchased: 0, gemDiscountPurchases: {} },
     weaponTempering: {},
     invasion: { defenseProgress: { cursor: 0, rewards: { gold: 0, souls: 0, glory: 0 }, results: [] }, defenseTeam: null, defensePublishPending: false, lastDefensePublish: null, defenseLog: null, defenseOutbox: [], progressionVp: 0, claimedRanks: [], refreshCount: 0, league: 0, vp: 0, weekStart: 0, seed: 0, lastWinDay: 0, battles: 0, bestLeague: 0, seasonsPlayed: 0, roster: null, recentOpponents: [], lastPublish: null, standings: null },
     regional: freshRegionalState(),
@@ -499,6 +519,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
       ? { step: 'battle', noviceSummonUsed: false }
       : { step: 'done', noviceSummonUsed: true },
     gifts: { claimed: [], currencyBonusVersion: 2, eventWins: 0, towerBest: 0, invasionBattles: 0 },
+    mailbox: { weeklyDoubleVersion: 1, classTrialXpVersion: 1, items: [] },
   };
   const starters = options.starterTroopIds ?? [];
   for (const id of starters) {

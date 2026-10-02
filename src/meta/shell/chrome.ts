@@ -72,6 +72,7 @@ export function fitStage(): void {
     ['invasion-mobile', '.inv-screen'],
     ['events-responsive', '.ev-screen'],
     ['gifts-responsive', '.gift-screen'],
+    ['mail-responsive', '.mailbox-screen'],
     ['event-shop-responsive', '.event-shop-screen'],
     ['gem-shop-responsive', '.gem-shop-screen'],
     ['material-shop-responsive', '.material-shop-screen'],
@@ -187,6 +188,7 @@ export function topbarHtml(): string {
         <button class="money key" data-currency="key" type="button"><span data-icon="key"></span><div><small>金钥匙</small><b id="keyBalance">0</b></div></button>
         <button class="money" data-currency="glory" type="button"><span data-icon="glory"></span><div><small>荣耀</small><b id="gloryBalance">0</b></div></button>
         <button class="orb" id="materialsBtn" type="button" aria-label="材料库"><span data-icon="bag"></span><i id="materialsAlert" class="materials-alert" aria-label="有新材料" hidden></i></button>
+        <button class="orb mail-orb" id="mailBtn" type="button" aria-label="邮件" title="邮件"><span aria-hidden="true">✉</span><i id="mailAlert" class="materials-alert" aria-label="有待领取邮件" hidden></i></button>
         <button class="orb" id="settings" type="button" aria-label="设置"><span data-icon="gear"></span></button>
       </div>
     </header>`;

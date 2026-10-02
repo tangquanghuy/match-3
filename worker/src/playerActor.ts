@@ -9,6 +9,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { MetaHost, type RecordBatch, type SaveRepository } from '../../src/meta/server/host';
 import { defaultEnv } from '../../src/meta/server/env';
 import type { SaveRecords } from '../../src/meta/state/records';
+import type { MailItem } from '../../src/meta/state/schema';
 import type { CommandReply, LoadReply, MetaCommand } from '../../src/meta/server/protocol';
 import type { Env } from './env';
 import { D1MirrorPool } from './mirrorPool';
@@ -73,6 +74,11 @@ export class PlayerActor extends DurableObject<Env> {
   async load(preservePendingBattle = false, playerId?: string): Promise<LoadReply> {
     await this.bindPlayer(playerId);
     return this.host.load({ preservePendingBattle });
+  }
+
+  async receiveMail(items: MailItem[], playerId?: string): Promise<string[]> {
+    await this.bindPlayer(playerId);
+    return this.host.receiveMail(items);
   }
 
   override async alarm(): Promise<void> {

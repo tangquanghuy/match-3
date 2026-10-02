@@ -52,11 +52,11 @@ export const MONOLITHS: readonly { id: MonolithId; name: string; stat: 'hp' | 'a
 ];
 export const MONOLITH_LEVELS = [20,40,80,150,300] as const;
 export const REGION_REWARDS = [
-  { vp:150, gold:20000, gems:150, souls:3000, burning:5, cycles:0 },
-  { vp:400, gold:30000, gems:150, souls:4000, burning:8, cycles:0 },
-  { vp:800, gold:50000, gems:150, souls:5000, burning:12, cycles:1 },
-  { vp:1400, gold:75000, gems:100, souls:6000, burning:15, cycles:2 },
-  { vp:2200, gold:100000, gems:50, souls:8000, burning:20, cycles:3 },
+  { vp:150, gold:40000, gems:300, souls:6000, burning:5, cycles:0 },
+  { vp:400, gold:60000, gems:300, souls:8000, burning:8, cycles:0 },
+  { vp:800, gold:100000, gems:300, souls:10000, burning:12, cycles:1 },
+  { vp:1400, gold:150000, gems:200, souls:12000, burning:15, cycles:2 },
+  { vp:2200, gold:200000, gems:100, souls:16000, burning:20, cycles:3 },
 ] as const;
 /** Shared permanent currency; project adaptation, not official per-Immortal souls. */
 export function burningSoulCost(from: number, to: number): number {

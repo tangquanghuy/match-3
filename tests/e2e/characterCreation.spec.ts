@@ -62,6 +62,45 @@ test('compresses local artwork and persists it across documents', async ({ page 
   await expect(page.locator('.hero-art img')).toHaveAttribute('src', src!);
 });
 
+test('hero can replace an existing portrait with an uploaded image', async ({ page }) => {
+  await fixture(page, false);
+  await page.locator('#changeHeroPortrait').click();
+  await expect(page.locator('.hero-portrait-dialog')).toBeVisible();
+  await expect(page.locator('[data-portrait-save]')).toBeDisabled();
+  await page.locator('.hero-portrait-upload input').setInputFiles('game-assets/public/static/hero/character-female.webp');
+  await expect(page.locator('.hero-portrait-status')).toContainText('已压缩');
+  const src = await page.locator('.hero-portrait-preview img').getAttribute('src');
+  expect(src).toMatch(/^data:image\/webp;base64,/);
+  await page.screenshot({ path: 'artifacts/hero-portrait-dialog-desktop.png', fullPage: true });
+  await page.locator('[data-portrait-save]').click();
+  await expect(page.locator('.hero-portrait-dialog')).toHaveCount(0);
+  expect((await profile(page)).portrait).toBe(src);
+  await expect(page.locator('.hero-art img')).toHaveAttribute('src', src!);
+  await page.reload();
+  await expect(page.locator('.hero-art img')).toHaveAttribute('src', src!);
+});
+
+test('hero accepts a verified HTTPS portrait and the mobile dialog fits', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await fixture(page, false);
+  await page.route('https://images.example/new.webp', route => route.fulfill({ path: 'game-assets/public/static/hero/character-male.webp', contentType: 'image/webp' }));
+  await page.locator('#changeHeroPortrait').click();
+  await page.locator('#heroPortraitUrl').fill('http://images.example/new.webp');
+  await page.locator('[data-portrait-url]').click();
+  await expect(page.locator('.hero-portrait-status')).toContainText('HTTPS');
+  await page.locator('#heroPortraitUrl').fill('https://images.example/new.webp');
+  await page.locator('[data-portrait-url]').click();
+  await expect(page.locator('.hero-portrait-status')).toContainText('已准备好');
+  await expect(page.locator('[data-portrait-save]')).toBeEnabled();
+  const box = await page.locator('.hero-portrait-dialog').boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: 'artifacts/hero-portrait-dialog-mobile.png', fullPage: true });
+  await page.locator('[data-portrait-save]').click();
+  expect((await profile(page)).portrait).toBe('https://images.example/new.webp');
+  await expect(page.locator('.hero-art img')).toHaveAttribute('src', 'https://images.example/new.webp');
+});
+
 test('rejects invalid local files and invalid/failed URLs, then accepts a direct image URL', async ({ page }) => {
   await fixture(page);
   await page.locator('#characterFile').evaluate(input => {

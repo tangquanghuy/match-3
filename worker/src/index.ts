@@ -18,6 +18,7 @@ import {
 } from './session';
 
 import { TERMS_VERSION } from '../../src/legal/terms';
+import { deliverPendingSystemMail } from './systemMail';
 
 export { PlayerActor } from './playerActor';
 
@@ -174,6 +175,11 @@ async function handleMeta(request: Request, url: URL, env: Env): Promise<Respons
   const actor = env.PLAYERS.get(env.PLAYERS.idFromName(playerId));
 
   if (url.pathname === '/api/meta/save' && request.method === 'GET') {
+    try {
+      await deliverPendingSystemMail(env.DB, actor, playerId);
+    } catch (error) {
+      console.error('system mail delivery failed', playerId, error);
+    }
     return json(await actor.load(url.searchParams.get('sync') === '1', playerId));
   }
 

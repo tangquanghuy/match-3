@@ -70,8 +70,11 @@ describe('Gold side-owned counters and available-balance transfer (scoped)',()=>
   const f=fixture(id,side,11,7,enemy),request=id===7505?15:id===8087?50:id===8568||id===8859?12:id===8904?13:id===9783?5:Infinity,amount=Math.min(enemy,request);
   const ev=f.engine.castSkill(f.caster.id);
   expect(ev.filter(e=>e.type==='skill-cast')).toHaveLength(1);expect(f.state.actionLog).toHaveLength(1);
-  expect(goldPair(f)).toEqual([7+amount,enemy-amount]);
-  expect(ev.flatMap(e=>e.type==='economy-gain'&&e.currency==='gold'?[[e.side,e.amount]]:[])).toEqual(amount?[[side,amount]]:[]);
+  const matchGains=ev.flatMap(e=>e.type==='elimination'&&e.cells.length>=4?[e.cells.length>=5?5:4]:[]);
+  expect(goldPair(f)).toEqual([7+amount+matchGains.reduce((sum,gain)=>sum+gain,0),enemy-amount]);
+  expect(ev.flatMap(e=>e.type==='economy-gain'&&e.currency==='gold'?[[e.side,e.amount]]:[])).toEqual([
+   ...(amount?[[side,amount]]:[]),...matchGains.map(gain=>[side,gain]),
+  ]);
   expect(f.caster.mana).toBe(0);
   if(id===8087||id===8904){
    expect(f.enemies[2].hp).toBe(1000-(13+(id===8087?amount:Math.floor(amount/50))));

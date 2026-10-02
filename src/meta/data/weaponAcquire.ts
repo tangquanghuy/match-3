@@ -20,6 +20,7 @@ import {
   masteryAcquireLabel,
   masteryUnlockColors,
   meetsMasteryUnlock,
+  combatManaMastery,
   MASTERY_NAME,
 } from '../systems/manaMastery';
 import type { ManaColor } from '../state/schema';
@@ -179,12 +180,13 @@ export function acquireProgress(save: MetaSave, acquire: WeaponAcquire): Acquire
       const colors = acquire.masteryColors ?? [];
       const need = acquire.masteryNeed ?? 1;
       const ready = meetsMasteryUnlock(save, colors, need);
+      const total = combatManaMastery(save);
       const names = colors.length >= 6
         ? '全系精通'
         : colors.map((c) => MASTERY_NAME[c]).join(' · ');
       return {
         ready,
-        hint: ready ? acquire.label : `需要${names} ${need}`,
+        hint: ready ? acquire.label : `需要${names} ${need}（含王国加成，当前最低 ${colors.length ? Math.min(...colors.map((color) => total[color])) : 0}）`,
         short: ready ? '可领取' : acquire.label,
       };
     }

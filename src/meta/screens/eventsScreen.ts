@@ -16,6 +16,7 @@ import {
   type EventTypeId,
 } from '../data/events';
 import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
+import { doubleWeeklyMaterials } from '../data/weeklyRewards';
 import { raceName } from '../data/races';
 import {
   ensureEventWeek, eventModeState,
@@ -147,12 +148,12 @@ export class EventsScreen implements Screen {
           <p>每区每周首次击败首领，保底材料自动入账；失败、放弃及重复通关不重复发放。原有里程碑、符卷和高层特质奖励全部保留。</p>
           ${TOWER_BOSS_REWARDS.map(r => `<div class="ev-mile${week.eventData[towerBossRewardKey(r.floor)] ? ' done' : ''}">
             <div class="ev-mile-head"><b>第 ${r.zone} 区 · 第 ${r.floor} 层首领</b><span>${week.eventData[towerBossRewardKey(r.floor)] ? '本周已领' : '本周未领'}</span></div>
-            <div class="ev-mile-rewards">${rewardSummary(r)}</div></div>`).join('')}</section>`;
-        return bossRewards + `<section class="ev-howto ev-high-tier"><h2>高层挑战奖励</h2><ul>${EVENT_HIGH_TIER_REWARDS.tower.map(r => `<li>${r.floor} 层或以上首次战斗胜利：${stones}各 ×${r.amount}${r.celestial ? `，圣辉石 ×${r.celestial}` : ''} · ${week.eventData[`arcaneTower${r.floor}`] ? '本周已领' : '本周未领'}</li>`).join('')}<li>各档每周一次；营地、商人等非战斗层顺延至下一场胜利。</li></ul></section>`;
+            <div class="ev-mile-rewards">${rewardSummary({ ...r, mats: doubleWeeklyMaterials(r.mats) })}</div></div>`).join('')}</section>`;
+        return bossRewards + `<section class="ev-howto ev-high-tier"><h2>高层挑战奖励</h2><ul>${EVENT_HIGH_TIER_REWARDS.tower.map(r => `<li>${r.floor} 层或以上首次战斗胜利：${stones}各 ×${r.amount * 2}${r.celestial ? `，圣辉石 ×${r.celestial * 2}` : ''} · ${week.eventData[`arcaneTower${r.floor}`] ? '本周已领' : '本周未领'}</li>`).join('')}<li>各档每周一次；营地、商人等非战斗层顺延至下一场胜利。</li></ul></section>`;
       }
       if (typeId === 'raidBoss') {
         const r = EVENT_HIGH_TIER_REWARDS.raid;
-        return `<section class="ev-howto ev-high-tier"><h2>高阶首领奖励</h2><ul><li>击破 Lv.${r.minLevel}+ 首领血池：${EVENT_ARCANE_STONES[typeId].map(stoneName).join('、')}各 ×${r.amount} · 本周 ${week.eventData.arcaneRaidKills ?? 0} / ${r.weeklyKills}</li><li>击破 Lv.${r.celestialMinLevel}+ 首领额外获得圣辉石 ×1 · 本周 ${week.eventData.celestialRaidKills ?? 0} / ${r.celestialWeeklyKills}</li><li>两种额度独立；仅造成伤害或累计低阶积分不计入。</li></ul></section>`;
+        return `<section class="ev-howto ev-high-tier"><h2>高阶首领奖励</h2><ul><li>击破 Lv.${r.minLevel}+ 首领血池：${EVENT_ARCANE_STONES[typeId].map(stoneName).join('、')}各 ×${r.amount * 2} · 本周 ${week.eventData.arcaneRaidKills ?? 0} / ${r.weeklyKills}</li><li>击破 Lv.${r.celestialMinLevel}+ 首领额外获得圣辉石 ×2 · 本周 ${week.eventData.celestialRaidKills ?? 0} / ${r.celestialWeeklyKills}</li><li>两种额度独立；仅造成伤害或累计低阶积分不计入。</li></ul></section>`;
       }
       return '';
     })();

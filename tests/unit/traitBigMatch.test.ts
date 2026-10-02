@@ -484,7 +484,8 @@ describe('护栏 · 无新键特质的对局随机序列不变', () => {
       if (state.state === 'GameOver') break;
       const swap = chooseEnemySwap(state.board, rng);
       if (!swap) break;
-      count += engine.resolveAction({ type: 'swap', from: swap.a, to: swap.b }).length;
+      count += engine.resolveAction({ type: 'swap', from: swap.a, to: swap.b })
+        .filter(e => e.type !== 'economy-gain').length;
     }
     return { rngState: rng.getState(), eventCount: count };
   }

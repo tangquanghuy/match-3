@@ -120,9 +120,13 @@ export interface CommandTable {
   planRegionalBattle: { args: RegionalPlanArgs; result: BattleTicket | MetaFailure };
   // —— 系统 ——
   markMaterialsSeen: { args: object; result: boolean };
+  readMail: { args: { id: string }; result: Ok | MetaFailure };
+  claimMail: { args: { id: string }; result: Ok | MetaFailure };
+  claimAllMail: { args: object; result: Ok<{ count: number }> };
   markMapSeen: { args: { level: number }; result: number };
   resetToNewGame: { args: object; result: Ok };
   createCharacter: { args: import('../state/character').CreateCharacterInput; result: Ok | MetaFailure };
+  setCharacterPortrait: { args: { portrait: string }; result: Ok | MetaFailure };
 
   // —— 养成 ——
   levelUpTroop: { args: { troopId: number; targetLevel?: number }; result: LevelUpResult | MetaFailure };
@@ -263,6 +267,7 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'abandonKingdomExplore',
   'resetToNewGame',
   'createCharacter',
+  'setCharacterPortrait',
   'openChest',
   'settleBattle',
   'forfeitPendingBattle',
@@ -270,6 +275,8 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'collectAllTribute',
   'claimGift',
   'claimAllGifts',
+  'claimMail',
+  'claimAllMail',
   'buyEventGoods',
   'buyMaterialGoods',
   'eventAction',

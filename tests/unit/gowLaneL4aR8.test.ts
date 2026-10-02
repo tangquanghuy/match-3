@@ -293,12 +293,18 @@ describe('L4a R8 B11', () => {
   });
   // troop:6040 (7040): DestroyColor chosen 1+M ; GiveGold 100 at 40%.  troop:6084 (7154): chosen 4+M ; Gold 5 ; Map at 20%.
   it('troop:6040 / troop:6084 economy rolls', () => {
+    const matchGold = (r: ReturnType<typeof castSpell>) => r.events
+      .flatMap(e => e.type === 'elimination' && e.cells.length >= 4
+        ? [e.cells.length >= 5 ? 5 : 4] : []).reduce((sum, gain) => sum + gain, 0);
     let gold = 0;
-    for (let seed = 1; seed <= 60; seed++) gold += castSpell({ key: 'troop:6040', seed }).summary.economy.gold ?? 0;
+    for (let seed = 1; seed <= 60; seed++) {
+      const r = castSpell({ key: 'troop:6040', seed });
+      gold += (r.summary.economy.gold ?? 0) - matchGold(r);
+    }
     expect(gold % 100).toBe(0); expect(gold).toBeGreaterThan(0); expect(gold).toBeLessThan(6000);
     const r = castSpell({ key: 'troop:6084' });
     expect(r.summary.order[0]).toMatch(/^destroy 11 \(Blue x11\)$/);
-    expect(r.summary.economy.gold).toBe(5);
+    expect(r.summary.economy.gold).toBe(5 + matchGold(r));
   });
 });
 

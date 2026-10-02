@@ -3,6 +3,7 @@ import { EVENT_HIGH_TIER_REWARDS, TOWER_BOSS_REWARDS, eventArcaneBundle, towerBo
 import type { EventWeekState, MetaSave } from '../state/schema';
 import type { EventProgressLine } from './eventModes/common';
 import { earnMaterials } from './wallet';
+import { doubleWeeklyMaterials } from '../data/weeklyRewards';
 
 /** 只在对应区域首领胜利时调用；不按最高层补发，也不等待遗物选择。 */
 export function rewardTowerBoss(save: MetaSave, week: EventWeekState, floor: number): EventProgressLine[] {
@@ -10,7 +11,7 @@ export function rewardTowerBoss(save: MetaSave, week: EventWeekState, floor: num
   if (!reward) return [];
   const key = towerBossRewardKey(floor);
   if (week.eventData[key]) return [];
-  const mats = earnMaterials(save, reward.mats);
+  const mats = earnMaterials(save, doubleWeeklyMaterials(reward.mats));
   week.eventData[key] = 1;
   return [{
     key: 'tower-boss-clear',
@@ -25,10 +26,10 @@ export function rewardTowerHighTier(save: MetaSave, week: EventWeekState, floor:
     const key = `arcaneTower${reward.floor}`;
     if (week.eventData[key]) return [];
     week.eventData[key] = 1;
-    const mats = earnMaterials(save, { traitstones: {
+    const mats = earnMaterials(save, doubleWeeklyMaterials({ traitstones: {
       ...eventArcaneBundle('towerOfDoom', reward.amount),
       ...(reward.celestial ? { celestial: reward.celestial } : {}),
-    } });
+    } }));
     return [{ label: `${reward.floor} 层高阶特质奖励`, deltas: {}, mats, note: `本周首次在第 ${reward.floor} 层或以上战斗获胜` }];
   });
 }
@@ -45,9 +46,9 @@ export function rewardRaidHighTier(save: MetaSave, week: EventWeekState, level: 
   if (!arcane && !celestial) return [];
   if (arcane) week.eventData.arcaneRaidKills = arcaneCount + 1;
   if (celestial) week.eventData.celestialRaidKills = celestialCount + 1;
-  const mats = earnMaterials(save, { traitstones: {
+  const mats = earnMaterials(save, doubleWeeklyMaterials({ traitstones: {
     ...(arcane ? eventArcaneBundle('raidBoss', rules.amount) : {}),
     ...(celestial ? { celestial: 1 } : {}),
-  } });
+  } }));
   return [{ label: `Lv.${level} 首领高阶特质奖励`, deltas: {}, mats, note: '高难讨伐独立周奖励' }];
 }

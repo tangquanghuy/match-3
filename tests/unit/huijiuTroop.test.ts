@@ -218,12 +218,22 @@ describe('辞旧 death mana gift', () => {
     expect(rng.nextInt).toHaveBeenCalledWith(2); expect(events).toHaveLength(1);
     expect(events[0]).toMatchObject({ type: 'buff', source: 'trait', targetId: 2, stat: 'mana', amount: 12 });
   });
-  it('full-mana allies remain eligible without rerolling', () => {
+  it('chooses a non-full ally when another survivor already has full mana', () => {
     const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
     const full = damageCharacter(1); const empty = damageCharacter(2, { mana: 0 });
     const rng = { nextInt: vi.fn(() => 0) };
-    expect(applySelfDeathManaGift(f.caster, [full, empty], rng)).toEqual([]);
-    expect(rng.nextInt).toHaveBeenCalledTimes(1); expect(empty.mana).toBe(0);
+    expect(applySelfDeathManaGift(f.caster, [full, empty], rng)).toMatchObject([
+      { type: 'buff', source: 'trait', targetId: empty.id, stat: 'mana', amount: empty.manaCost },
+    ]);
+    expect(rng.nextInt).toHaveBeenCalledWith(1);
+    expect(full.mana).toBe(full.manaCost); expect(empty.mana).toBe(empty.manaCost);
+  });
+  it('does not consume RNG when all surviving allies have full mana', () => {
+    const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
+    const full = damageCharacter(1);
+    const rng = { nextInt: vi.fn(() => 0) };
+    expect(applySelfDeathManaGift(f.caster, [full], rng)).toEqual([]);
+    expect(rng.nextInt).not.toHaveBeenCalled();
   });
   it.each(['alive', 'locked', 'stunned', 'no-survivor'] as const)('no gift or RNG consumption when %s', mode => {
     const f = fixture(mode !== 'locked');

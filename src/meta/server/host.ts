@@ -14,6 +14,7 @@ import { defenseRecord, defensePublicationStamp, emptyDefenseLog } from '../syst
  * 自建 Node 服务则需按玩家 id 粘滞到单进程）。多个 Actor 写同一份存储会互相覆盖。
  */
 import type { MetaSave } from '../state/schema';
+import type { MailItem } from '../state/schema';
 import { MetaSaveError } from '../state/save';
 import { buildPatch, diffRecords, recordsToSave, saveToRecords, type RecordChanges, type SaveRecords } from '../state/records';
 import { INVASION } from '../data/economy';
@@ -24,6 +25,7 @@ import { weekStartOf } from '../gateway/clock';
 import { ensureInvasionSeason, invasionPlayerPower } from '../systems/invasion';
 import { invasionPoolQuery } from '../systems/invasionMirrors';
 import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type SaveLoadOptions, type MetaCommand } from './protocol';
+import { hydrateMailbox } from '../systems/mailbox';
 
 /** 一批原子写入：把存储从 fromRevision 推到 toRevision（null = 首次建档） */
 export interface RecordBatch {
@@ -93,6 +95,26 @@ export class MetaHost {
       this.createdFresh = false;
       this.loadWarning = null;
       return reply;
+    });
+  }
+
+  /** Called only by the authenticated Worker before a save load. Existing IDs acknowledge retries. */
+  receiveMail(incoming: MailItem[]): Promise<string[]> {
+    return this.serial(async () => {
+      await this.ensureLoaded();
+      const items = hydrateMailbox({ weeklyDoubleVersion: 1, classTrialXpVersion: 1, items: incoming }).items;
+      if (items.length !== incoming.length) throw new Error('invalid system mail batch');
+      const existing = new Set(this.save!.mailbox.items.map(item => item.id));
+      const added = items.filter(item => !existing.has(item.id));
+      if (added.length) {
+        const next = structuredClone(this.save!);
+        next.mailbox.items.push(...added);
+        next.revision += 1;
+        next.savedAt = this.env.now();
+        this.apply(next);
+      }
+      await this.flushNow();
+      return items.map(item => item.id);
     });
   }
 

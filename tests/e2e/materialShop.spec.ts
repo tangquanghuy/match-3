@@ -60,7 +60,7 @@ test('整套礼包按神话真实颜色配齐，已解锁特质退出配方，�
   await expect(receipt.locator('li').filter({ hasText: '圣辉石' })).toContainText('×4');
   await expect(page.locator('#materialStage')).toHaveValue('7');
   await page.locator('#materialBuy').scrollIntoViewIfNeeded();
-  await expect(page.locator('#materialBuy')).toHaveText('2,280 宝石 · 购买');
+  await expect(page.locator('#materialBuy')).toHaveText('3,480 宝石 · 购买');
   await expect(page.locator('#materialBuy')).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: 'artifacts/material-shop/mythic-390.png' });
   await page.evaluate(() => {
@@ -131,6 +131,9 @@ test('金币跨优惠额度正确扣费、重载保留并恢复原价', async ({
   await expect(page.locator('.material-price')).toContainText('本次 2 颗享 500,000 金币优惠价 · 3 颗按原价');
   await expect(page.locator('#materialBuy')).toHaveText('4,000,000 金币 · 购买');
   await page.locator('#materialBuy').click();
+  await expect(page.locator('.acquisition-dialog')).toContainText('材料已入库');
+  await expect(page.locator('.acquisition-dialog')).toContainText('×5');
+  await page.locator('.acquisition-dialog footer button').click();
   await expect(page.locator('.material-promo-badge')).toHaveCount(0);
   expect(await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);
@@ -148,23 +151,23 @@ test('宝石整套成交按真实配方入库，不消耗金币秘法优惠；�
   await openShop(page);
   await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);
-    s.currencies.gems = 3000;
+    s.currencies.gems = 5000;
     s.materials.traitstones = {};
     s.collection['6169'] = { copies: 1, level: 1, ascension: 0, traits: [false, false, false], locked: false };
     localStorage.setItem('gems.meta.save', JSON.stringify(s));
   });
   await page.goto('/game.html#materials/gems/6169'); await page.reload();
-  await expect(page.locator('#materialBuy')).toHaveText('2,280 宝石 · 购买');
-  await expect(page.locator('.material-promo-badge')).toHaveText('首单 2 折');
+  await expect(page.locator('#materialBuy')).toHaveText('3,480 宝石 · 购买');
+  await expect(page.locator('.material-promo-badge')).toHaveText('神话首单 3 折');
   await expect(page.locator('.material-price-row del')).toHaveText('11,480 宝石');
   await page.locator('#materialBuy').click();
   await expect(page.locator('#materialBuy')).toBeDisabled();
-  await expect(page.locator('.material-promo-badge')).toHaveText('第 2 单 4 折');
-  await expect(page.locator('#materialBuy')).toHaveText('4,580 宝石 · 购买');
+  await expect(page.locator('.material-promo-badge')).toHaveText('神话第 2 单 5 折');
+  await expect(page.locator('#materialBuy')).toHaveText('5,780 宝石 · 购买');
   expect(await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);
     return [s.currencies.gems, s.materialShop.arcaneIntroPurchased, s.materialShop.gemBundlesPurchased, s.materials.traitstones];
-  })).toEqual([720, 0, 1, { 'minor:blue': 24, 'major:blue': 64, 'runic:blue': 16, 'arcane:blue:green': 21, 'arcane:blue:red': 21, celestial: 4 }]);
+  })).toEqual([1520, 0, 1, { 'minor:blue': 24, 'major:blue': 64, 'runic:blue': 16, 'arcane:blue:green': 21, 'arcane:blue:red': 21, celestial: 4 }]);
 });
 
 for (const width of [1600, 768, 390, 320]) {
@@ -190,7 +193,7 @@ for (const width of [1600, 768, 390, 320]) {
     await expect(page.locator('.material-pages')).toContainText('2 /');
     expect(await page.locator('[data-bundle]').first().getAttribute('data-bundle')).not.toBe(first);
     await page.locator('[data-bundle]').first().click();
-    await expect(page.locator('#materialBuy')).toHaveText('2,280 宝石 · 购买');
+    await expect(page.locator('#materialBuy')).toHaveText('3,480 宝石 · 购买');
     const selected = await page.locator('[data-bundle][aria-pressed=true]').getAttribute('data-bundle');
     const contents = await page.locator('.material-contents').innerText();
     await page.reload();
@@ -206,7 +209,7 @@ for (const width of [1600, 768, 390, 320]) {
     await page.locator('#materialStage').selectOption('4');
     await expect(page.locator('#materialStage')).toHaveValue('4');
     await expect(page.locator('.material-contents')).not.toHaveText(contents, { useInnerText: true });
-    expect(await page.locator('#materialBuy').innerText()).not.toBe('2,280 宝石 · 购买');
+    expect(await page.locator('#materialBuy').innerText()).not.toBe('3,480 宝石 · 购买');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     for (const selector of ['.material-shop', '.material-catalog', '.material-detail']) {
       expect(await page.locator(selector).evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);

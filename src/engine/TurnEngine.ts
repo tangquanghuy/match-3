@@ -1220,6 +1220,7 @@ export class TurnEngine {
         // （createGem：wildtribe/wildmagic 族落子，避开本轮将被消除的匹配格）；
         // 旧特质路径零随机消耗、事件序不变。
         if (group.cells.length >= 4) {
+          events.push(...this.creditEconomy('gold', group.cells.length >= 5 ? 5 : 4, this.state.activePlayer));
           events.push(...applyBigMatchTriggers(
             this.state.teams[this.state.activePlayer].characters,
             {

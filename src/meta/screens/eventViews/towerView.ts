@@ -104,8 +104,8 @@ function rewardPreview(node: TowerNode, v: ViewCtx, run: TowerRun): string {
     case 'elite': return node.star ? `稀有遗物三选一 · 塔金 ${Math.round(el * m)}–${Math.round(eh * m)}` : `遗物三选一 · 塔金 ${el}–${eh}`;
     case 'boss': {
       const reward = TOWER_BOSS_REWARDS.find(r => r.floor === towerFloorOf(run.zone, node.row));
-      const materials = reward ? Object.entries(reward.mats.ingots ?? {}).map(([key, n]) => `${INGOT_NAMES[key as IngotKey]} ×${n}`).join('、')
-        + `、特质石 ×${Object.values(reward.mats.traitstones ?? {}).reduce((sum, n) => sum + (n ?? 0), 0)}` : '';
+      const materials = reward ? Object.entries(reward.mats.ingots ?? {}).map(([key, n]) => `${INGOT_NAMES[key as IngotKey]} ×${(n ?? 0) * 2}`).join('、')
+        + `、特质石 ×${Object.values(reward.mats.traitstones ?? {}).reduce((sum, n) => sum + (n ?? 0), 0) * 2}` : '';
       const status = reward && v.week.eventData[towerBossRewardKey(reward.floor)] ? '本周已领' : '本周首通保底';
       return `首领遗物三选一 · 塔金 ${TOWER_TUNING.goldBoss} · 全队回复 ${Math.round(TOWER_TUNING.bossHealPct * 100)}%${materials ? ` · ${status}：${materials}` : ''}`;
     }

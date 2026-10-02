@@ -1,6 +1,6 @@
 /** 职业试炼视图：本周 8 道规则试炼卡 + 星级目标 */
 import {
-  TRIALS_PER_WEEK, TRIAL_AFFIXES, TRIAL_FAST_TURNS, TRIAL_STAR_POINTS, TRIAL_WIN_POINTS, goalText, trialAffixOf, trialById, trialLevel, trialStarCount, type TrialsState,
+  TRIALS_PER_WEEK, TRIAL_AFFIXES, TRIAL_STAR_POINTS, goalText, trialAffixOf, trialById, trialLevel, trialStarCount, type TrialsState,
 } from '../../systems/eventModes/trials';
 import { activeTeam } from '../../systems/teamRules';
 import { cssUrlVar, eventArt } from '../../shell/artAssets';
@@ -29,7 +29,6 @@ export function trialsViewHtml(v: ViewCtx, state: TrialsState): string {
   const index = state.trials.indexOf(selId);
   const def = trialById(selId);
   const got = state.stars[selId] ?? [false, false, false];
-  const fresh = got.filter((g) => !g).length;
   const hero = activeTeam(v.save)?.members.some((m) => m.kind === 'hero') ?? false;
   const total = trialStarCount(state);
   const detail = def ? `<div class="ct-detail">
@@ -37,7 +36,7 @@ export function trialsViewHtml(v: ViewCtx, state: TrialsState): string {
       <p class="ct-rule-big"><span>规则</span>${esc(def.rule)}</p>
       <p class="ct-affix ${TRIAL_AFFIXES[trialAffixOf(v.weekStart, selId)].good ? 'good' : 'bad'}"><span>本周词条</span><b>${esc(TRIAL_AFFIXES[trialAffixOf(v.weekStart, selId)].name)}</b> ${esc(TRIAL_AFFIXES[trialAffixOf(v.weekStart, selId)].desc)}</p>
       <ol class="ct-goals">${def.goals.map((g, i) => `<li class="${got[i] ? 'on' : ''}"><i>★</i><span>${goalText(g)}</span>${got[i] ? '<em>已达成</em>' : `<em>+${TRIAL_STAR_POINTS} 分</em>`}</li>`).join('')}</ol>
-      <p class="ct-points">本场最多 <b>${TRIAL_WIN_POINTS + TRIAL_STAR_POINTS * fresh}</b> 分（胜利 ${TRIAL_WIN_POINTS} + 新星 ${fresh} × ${TRIAL_STAR_POINTS}）· 职业经验 ×2，三星 ×3 · 我方 ${TRIAL_FAST_TURNS} 回合内速胜 15% 钻石彩头</p>
+      <p class="ct-points">胜利额外获得 200–300 职业经验</p>
       ${hero ? '' : '<p class="ct-hero-lock"><span data-icon="lock"></span>主角未编入队伍 <a href="#team">去编队</a></p>'}
       ${fightButton(v, `trial:${selId}`)}
     </div>` : '';

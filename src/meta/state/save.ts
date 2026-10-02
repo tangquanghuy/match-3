@@ -26,6 +26,7 @@ import { GACHA_LOG_CAP } from './schema';
 import { STARTING_KINGDOM } from '../data/economy';
 import { todayStartOf } from '../gateway/clock';
 import { hydrateManaMastery } from '../systems/manaMastery';
+import { backfillClassTrialXpMail, backfillWeeklyRewardMail, hydrateMailbox } from '../systems/mailbox';
 
 export interface StorageLike {
   getItem(key: string): string | null | undefined;
@@ -510,10 +511,15 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
   const shared = eventWeeks.invasion?.eventData;
   if (shared) EVENT_SHARED_GOALS.forEach((goal, index) => {
     if (shared[`sharedClaim${index}`] !== 1 || shared[`sharedCurrencyPaid${index}`] === 1) return;
-    currencies.gold += goal.gold;
-    currencies.souls += goal.souls;
+    currencies.gold += goal.gold / 2;
+    currencies.souls += goal.souls / 2;
     shared[`sharedCurrencyPaid${index}`] = 1;
   });
+
+  const regional = hydrateRegionalState(raw.regional);
+  const mailbox = hydrateMailbox(raw.mailbox);
+  backfillWeeklyRewardMail(mailbox, eventWeeks, regional, invasion, now);
+  backfillClassTrialXpMail(mailbox, now);
 
   const claimedFirstWinAt = num(raw.dailyFirstWinAt, 0, 0);
   const resetFirstWin = num(raw.dailyFirstWinRewardVersion, 0, 0) < 1
@@ -553,10 +559,14 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
         ? num(raw.materialShop.arcaneIntroPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0,
       gemBundlesPurchased: isObject(raw.materialShop)
         ? num(raw.materialShop.gemBundlesPurchased, 0, 0, Number.MAX_SAFE_INTEGER) : 0,
+      gemDiscountPurchases: isObject(raw.materialShop) && isObject(raw.materialShop.gemDiscountPurchases)
+        ? Object.fromEntries(Object.entries(raw.materialShop.gemDiscountPurchases).flatMap(([key, value]) =>
+          /^[0-5]$/.test(key) ? [[key, num(value, 0, 0, Number.MAX_SAFE_INTEGER)]] : []))
+        : {},
     },
     weaponTempering,
     invasion,
-    regional: hydrateRegionalState(raw.regional),
+    regional,
     eventWeeks,
     eventShops,
     settings: { ...base.settings },
@@ -564,6 +574,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     character: hydrateCharacter(raw.character),
     onboarding: hydrateOnboarding(raw.onboarding, gachaLog),
     gifts,
+    mailbox,
   };
 }
 

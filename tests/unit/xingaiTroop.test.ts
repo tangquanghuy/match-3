@@ -44,7 +44,7 @@ describe('好想星艾 / 法力征调', () => {
     expect(troop.artUrl).toContain('haoxiang-xingai.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
 
-    const codes = ['xingai_star_charge', 'manashield', 'revered'];
+    const codes = ['xingai_star_charge', 'manashield', 'empowered'];
     expect(troop.traits.map((trait) => trait.code)).toEqual(codes);
     for (const code of codes) {
       expect(getTrait(code)).toBeDefined();
@@ -52,7 +52,7 @@ describe('好想星艾 / 法力征调', () => {
     }
     expect(getTrait('xingai_star_charge')).toMatchObject({ name: '星跃先机', battleStartManaRatio: 0.75 });
     expect(resolvePassives(codes).manaOpsImmunity).toBe(true);
-    expect(getTrait('revered')?.teamAura).toMatchObject({ scope: 'allies', stat: 'random', amount: 2 });
+    expect(getTrait('empowered')).toMatchObject({ battleStartManaRatio: 1 });
 
     const save = newSave({ now: 0, starterTroopIds: [] });
     grantTroop(save, XINGAI_ID);
@@ -66,7 +66,7 @@ describe('好想星艾 / 法力征调', () => {
     expect(snapshot.manaCost).toBe(13);
   });
 
-  it('drains at most 6 mana from the chosen enemy, grants 4 to the lowest-mana other ally, then converts yellow to blue', () => {
+  it('drains at most 6 mana from the chosen enemy, grants 4 to the highest-mana other ally, then converts yellow to blue', () => {
     const board = new BoardModel();
     let nextId = 1;
     for (let row = 0; row < BoardModel.ROWS; row++) {
@@ -77,7 +77,7 @@ describe('好想星艾 / 法力征调', () => {
     }
     const caster = character(0, 0);
     const allyA = character(1, 5);
-    const allyB = character(2, 1);
+    const allyB = character(2, 3);
     const allyC = character(3, 1);
     const enemyA = character(10, 12);
     const enemyB = character(11, 4);
@@ -94,8 +94,8 @@ describe('好想星艾 / 法力征调', () => {
     });
     expect(enemyA.mana).toBe(12);
     expect(enemyB.mana).toBe(0);
-    expect(allyA.mana).toBe(5);
-    expect(allyB.mana).toBe(5); // equal starting mana: earlier ally wins
+    expect(allyA.mana).toBe(9);
+    expect(allyB.mana).toBe(3);
     expect(allyC.mana).toBe(1);
     expect(caster.mana).toBe(0);
     expect(events.some((event) => event.type === 'gem-transform')).toBe(true);
@@ -108,28 +108,52 @@ describe('好想星艾 / 法力征调', () => {
   });
 
 
-  it('activates 75% start, random team skill points, and mana-operation immunity in battle', () => {
-    const caster = character(0, 0, { traitIds: ['xingai_star_charge', 'manashield', 'revered'] });
+  it('starts at full mana when the third trait is unlocked, and keeps mana-operation immunity', () => {
+    const caster = character(0, 0, { traitIds: ['xingai_star_charge', 'manashield', 'empowered'] });
     const ally = character(1, 0);
     const enemy = character(10, 10);
-    const total = (c: Character) => c.attack + c.armor + c.maxHp + c.magic;
-    const baseline = [total(caster), total(ally), total(enemy)];
     const state = createGameState(new BoardModel(),
       { player: PlayerSide.Left, characters: [caster, ally] },
       { player: PlayerSide.Right, characters: [enemy] },
     );
     let nextId = 1;
     new TurnEngine(state, new SeededRNG(10005), () => nextId++);
-    expect(caster.mana).toBe(9); // floor(13 * 75%)
-    expect(total(caster)).toBe(baseline[0]! + 2);
-    expect(total(ally)).toBe(baseline[1]! + 2);
-    expect(total(enemy)).toBe(baseline[2]);
+    expect(caster.mana).toBe(13);
+    expect(ally.mana).toBe(0);
+    expect(enemy.mana).toBe(10);
 
     executePrototype(skill(reduce('enemyChosen', 'mana', 6, 0)), {
       state, casterId: enemy.id, chosenTargetId: caster.id,
       rng: new SeededRNG(8), nextGemId: () => nextId++,
     });
-    expect(caster.mana).toBe(9); // manashield blocks enemy mana reduction
+    expect(caster.mana).toBe(13); // manashield blocks enemy mana reduction
+  });
+
+  it('uses team order to break a highest-mana tie and excludes the caster', () => {
+    const caster = character(0, 12);
+    const allyA = character(1, 5);
+    const allyB = character(2, 5);
+    const state = createGameState(new BoardModel(),
+      { player: PlayerSide.Left, characters: [caster, allyA, allyB] },
+      { player: PlayerSide.Right, characters: [character(10, 6)] },
+    );
+    executePrototype(SKILL_LIBRARY[XINGAI_SPELL_ID], {
+      state, casterId: caster.id, chosenTargetId: 10,
+      rng: new SeededRNG(10005), nextGemId: () => 1,
+    });
+    expect(caster.mana).toBe(12);
+    expect(allyA.mana).toBe(9);
+    expect(allyB.mana).toBe(5);
+  });
+
+  it('retains the first trait at 75% before the third trait is unlocked', () => {
+    const caster = character(0, 0, { traitIds: ['xingai_star_charge'] });
+    const state = createGameState(new BoardModel(),
+      { player: PlayerSide.Left, characters: [caster] },
+      { player: PlayerSide.Right, characters: [character(10, 0)] },
+    );
+    new TurnEngine(state, new SeededRNG(4), () => 1);
+    expect(caster.mana).toBe(9);
   });
 
   it('does not grant mana to the caster if no other ally survives', () => {

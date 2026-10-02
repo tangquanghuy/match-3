@@ -1,0 +1,76 @@
+.hero-portrait-trigger {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  min-height: 36px;
+  padding: 7px 13px;
+  border: 1px solid #d8c59a;
+  border-radius: 4px;
+  background: #111920d9;
+  color: #f4ead4;
+  font: 600 12px var(--body);
+  cursor: pointer;
+}
+.hero-portrait-trigger:hover { background: #273743; }
+.hero-portrait-trigger:focus-visible { outline: 2px solid #eed59c; outline-offset: 3px; }
+
+.hero-portrait-dialog {
+  box-sizing: border-box;
+  width: min(820px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid #93886f;
+  border-radius: 6px;
+  background: #172027;
+  color: #f1ebdf;
+  box-shadow: 0 24px 90px #000c;
+  font: 14px/1.5 var(--body);
+}
+.hero-portrait-dialog::backdrop { background: #03070dc9; backdrop-filter: blur(5px); }
+.hero-portrait-dialog * { box-sizing: border-box; }
+.hero-portrait-dialog > header,
+.hero-portrait-dialog > footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px; }
+.hero-portrait-dialog > header { border-bottom: 1px solid #ffffff20; }
+.hero-portrait-dialog header small { color: #9fb7bd; font-size: 11px; }
+.hero-portrait-dialog h2 { margin: 2px 0 0; font: 500 25px var(--display); }
+.hero-portrait-dialog h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; }
+.hero-portrait-dialog button { cursor: pointer; font: inherit; }
+.hero-portrait-dialog button:focus-visible,
+.hero-portrait-dialog input:focus-visible,
+.hero-portrait-upload:focus-within { outline: 2px solid #eed59c; outline-offset: 2px; }
+.hero-portrait-dialog button:disabled { opacity: .48; cursor: default; }
+.hero-portrait-dialog header button { width: 36px; height: 36px; padding: 7px; border: 0; background: transparent; color: #f1ebdf; }
+.hero-portrait-dialog header svg { width: 22px; height: 22px; }
+.hero-portrait-body { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 22px; padding: 20px 22px; }
+.hero-portrait-preview { height: 410px; overflow: hidden; border: 1px solid #83949a66; background: #101820; }
+.hero-portrait-preview img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.hero-portrait-controls { min-width: 0; }
+.hero-portrait-defaults { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.hero-portrait-defaults button { position: relative; height: 115px; padding: 0; overflow: hidden; border: 1px solid #657985; border-radius: 3px; background: #1e2d3d; }
+.hero-portrait-defaults button[aria-pressed=true] { border: 2px solid #e3c889; }
+.hero-portrait-defaults img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.hero-portrait-defaults span { position: absolute; inset: auto 0 0; padding: 12px 0 5px; background: linear-gradient(transparent, #09101ef0); color: #fff5db; font-size: 11px; }
+.hero-portrait-upload { position: relative; display: grid; place-items: center; min-height: 42px; margin-top: 20px; border: 1px solid #83949a; border-radius: 3px; cursor: pointer; }
+.hero-portrait-upload input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+.hero-portrait-url-label { display: block; margin: 18px 0 7px; color: #c5d0d0; font-size: 12px; }
+.hero-portrait-url { display: flex; gap: 7px; }
+.hero-portrait-url input { min-width: 0; flex: 1; padding: 9px; border: 1px solid #657985; border-radius: 3px; background: #0d161e; color: #fff; font: inherit; }
+.hero-portrait-url button,
+.hero-portrait-dialog footer button { min-height: 40px; padding: 7px 15px; border: 1px solid #83949a; border-radius: 3px; background: #283842; color: #f1ebdf; }
+.hero-portrait-status { min-height: 22px; margin: 14px 0 0; color: #b8d2bd; font-size: 12px; }
+.hero-portrait-status.is-error { color: #ffc5b5; }
+.hero-portrait-dialog > footer { justify-content: flex-end; border-top: 1px solid #ffffff20; }
+.hero-portrait-dialog [data-portrait-save] { border-color: #dfc48e; background: #c7ad78; color: #19232a; font-weight: 700; }
+@media (max-width: 620px) {
+  .hero-portrait-dialog h2 { font-size: 21px; }
+  .hero-portrait-body { grid-template-columns: 1fr; gap: 14px; padding: 14px 16px; }
+  .hero-portrait-preview { height: min(25dvh, 210px); }
+  .hero-portrait-defaults button { height: 78px; }
+  .hero-portrait-upload { margin-top: 12px; }
+  .hero-portrait-url-label { margin-top: 12px; }
+  .hero-portrait-dialog > header,
+  .hero-portrait-dialog > footer { padding: 11px 16px; }
+}

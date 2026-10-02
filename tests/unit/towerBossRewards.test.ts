@@ -7,6 +7,7 @@ import { newSave } from '../../src/meta/state/schema';
 import { recordsToSave, saveToRecords } from '../../src/meta/state/records';
 import { ensureEventWeek, eventAction, eventModeState, currentEventTheme } from '../../src/meta/systems/events';
 import { rewardTowerBoss } from '../../src/meta/systems/eventHighTierRewards';
+import { doubleWeeklyMaterials } from '../../src/meta/data/weeklyRewards';
 import { towerFloorOf } from '../../src/meta/systems/eventModes/tower';
 import { battleIncomeView, resultSubtitle } from '../../src/meta/screens/resultScreen';
 import { EventsScreen } from '../../src/meta/screens/eventsScreen';
@@ -43,12 +44,12 @@ describe('tower region boss guaranteed material rewards', () => {
     w.points = 99999; w.playRewards = 6; w.eventData.towerPaidFloors = 25;
     Object.assign(w.eventData, { arcaneTower16: 1, arcaneTower20: 1, arcaneTower25: 1 });
     const before = structuredClone(s.materials);
-    expect(rewardTowerBoss(s, w, row.floor)).toEqual([expect.objectContaining({ mats: row.mats })]);
+    expect(rewardTowerBoss(s, w, row.floor)).toEqual([expect.objectContaining({ mats: doubleWeeklyMaterials(row.mats) })]);
     for (const [key, n] of Object.entries(row.mats.ingots!)) {
-      expect(s.materials.ingots[key] - (before.ingots[key] ?? 0)).toBe(n);
+      expect(s.materials.ingots[key] - (before.ingots[key] ?? 0)).toBe(n! * 2);
     }
     for (const [key, n] of Object.entries(row.mats.traitstones!)) {
-      expect(s.materials.traitstones[key] - (before.traitstones[key] ?? 0)).toBe(n);
+      expect(s.materials.traitstones[key] - (before.traitstones[key] ?? 0)).toBe(n! * 2);
     }
     const after = structuredClone(s.materials);
     expect(w.eventData[towerBossRewardKey(row.floor)]).toBe(1);
@@ -76,7 +77,7 @@ describe('tower region boss guaranteed material rewards', () => {
     expect(s.materials).toEqual(paid);
     w = ensureEventWeek(s, WEEK + WEEK_MS, 'towerOfDoom');
     expect(rewardTowerBoss(s, w, 25)).toHaveLength(1);
-    expect(s.materials.ingots.mythic - paid.ingots.mythic).toBe(2);
+    expect(s.materials.ingots.mythic - paid.ingots.mythic).toBe(4);
   });
 
   it('real route pays only boss victories, not losses, noncombat travel, relic choices or repeat runs', () => {
@@ -108,14 +109,14 @@ describe('tower region boss guaranteed material rewards', () => {
         const detail = settleEvent(s, out, undefined, WEEK);
         const lines = detail.lines.filter(l => l.label.includes('区通关材料'));
         if (row && runNumber === 0) {
-          expect(lines).toEqual([expect.objectContaining({ key: 'tower-boss-clear', mats: row.mats })]);
+          expect(lines).toEqual([expect.objectContaining({ key: 'tower-boss-clear', mats: doubleWeeklyMaterials(row.mats) })]);
           const balanceBeforeDisplay = structuredClone(s.materials);
           const income = battleIncomeView(detail);
           for (const [key, amount] of Object.entries(row.mats.ingots!)) {
-            expect(income.materials).toContainEqual(expect.objectContaining({ key: `ingot:${key}`, amount }));
+            expect(income.materials).toContainEqual(expect.objectContaining({ key: `ingot:${key}`, amount: amount! * 2 }));
           }
           for (const [key, amount] of Object.entries(row.mats.traitstones!)) {
-            expect(income.materials).toContainEqual(expect.objectContaining({ key: `stone:${key}`, amount }));
+            expect(income.materials).toContainEqual(expect.objectContaining({ key: `stone:${key}`, amount: amount! * 2 }));
           }
           const subtitle = resultSubtitle(detail, { kingdom: '', sourceLabel: '末日之塔' });
           expect(subtitle).toContain(`第 ${row.zone} 区通关材料（第 ${floor} 层首领）`);
@@ -151,9 +152,9 @@ describe('tower region boss guaranteed material rewards', () => {
       expect(eventAction(s, WEEK, 'towerOfDoom', 'skip', 90).ok).toBe(true);
       expect(eventModeState(s, WEEK, 'towerOfDoom').run).toBeNull();
     }
-    expect(s.materials.ingots).toMatchObject({ rare: 6, ultraRare: 4, epic: 4, legendary: 6, mythic: 2 });
-    for (const key of EVENT_ARCANE_STONES.towerOfDoom) expect(s.materials.traitstones[key]).toBe(9); // Existing 6 + new 3.
-    for (const { key } of STONE_COLORS) expect(s.materials.traitstones[`runic:${key}`]).toBeGreaterThanOrEqual(6);
+    expect(s.materials.ingots).toMatchObject({ rare: 12, ultraRare: 8, epic: 8, legendary: 12, mythic: 4 });
+    for (const key of EVENT_ARCANE_STONES.towerOfDoom) expect(s.materials.traitstones[key]).toBe(18);
+    for (const { key } of STONE_COLORS) expect(s.materials.traitstones[`runic:${key}`]).toBeGreaterThanOrEqual(12);
   });
 
   it('rewards/rules pages and boss preview show the same bundle and weekly claim status', () => {
@@ -163,17 +164,17 @@ describe('tower region boss guaranteed material rewards', () => {
     const html = screen.html(ctx, 'towerOfDoom/rewards');
     expect(html).toContain('三区通关材料');
     for (const row of TOWER_BOSS_REWARDS) expect(html).toContain(`第 ${row.zone} 区 · 第 ${row.floor} 层首领`);
-    expect(html).toContain('稀有钢锭 ×6');
-    expect(html).toContain('神话钢锭 ×2');
+    expect(html).toContain('稀有钢锭 ×12');
+    expect(html).toContain('神话钢锭 ×4');
     expect(screen.html(ctx, 'towerOfDoom/rules')).toContain('第 8 / 16 / 25 层首领');
     towerNextBattle(s, week);
     const state = eventModeState(s, week, 'towerOfDoom');
     const boss = state.run!.rows.flat().find(n => n.kind === 'boss')!;
     const view = { save: s, week: w, weekStart: week, theme: currentEventTheme(week, 'towerOfDoom'),
       selected: `node:${boss.row}-${boss.col}`, ready: () => null, fightLabel: '出战' };
-    expect(towerViewHtml(view, state)).toContain('本周首通保底：稀有钢锭 ×6、超稀钢锭 ×4、特质石 ×24');
+    expect(towerViewHtml(view, state)).toContain('本周首通保底：稀有钢锭 ×12、超稀钢锭 ×8、特质石 ×48');
     rewardTowerBoss(s, w, 8);
-    expect(towerViewHtml(view, state)).toContain('本周已领：稀有钢锭 ×6');
+    expect(towerViewHtml(view, state)).toContain('本周已领：稀有钢锭 ×12');
     const claimed = screen.html(ctx, 'towerOfDoom/rewards');
     expect(claimed).toContain('<b>第 1 区 · 第 8 层首领</b><span>本周已领</span>');
     expect(claimed).toContain('<b>第 2 区 · 第 16 层首领</b><span>本周未领</span>');

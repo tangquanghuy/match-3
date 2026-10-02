@@ -19,10 +19,10 @@ const result = (request?: BattleRequest): BattleResult => ({
 describe('weekly VP ranks and claims', () => {
   it('30 ascending thresholds, 30 distinct assets and a bounded weekly gem budget', () => {
     expect(INVASION_RANKS).toHaveLength(30);
-    expect(INVASION_RANK_GEMS_TOTAL).toBe(6000);
+    expect(INVASION_RANK_GEMS_TOTAL).toBe(12000);
     expect(new Set(INVASION_RANKS.map(r => readFileSync(`game-assets/public${r.icon}`, 'utf8'))).size).toBe(30);
     for (const [i, rank] of INVASION_RANKS.entries()) {
-      expect(rank.gems).toBeGreaterThanOrEqual(50); expect(rank.gems).toBeLessThanOrEqual(375);
+      expect(rank.gems).toBeGreaterThanOrEqual(100); expect(rank.gems).toBeLessThanOrEqual(750);
       expect(invasionRankAt(rank.vp)).toEqual(rank);
       if (i > 0) { expect(rank.vp).toBeGreaterThan(INVASION_RANKS[i-1]!.vp); expect(invasionRankAt(rank.vp - 1).index).toBe(i-1); }
     }
@@ -34,7 +34,7 @@ describe('weekly VP ranks and claims', () => {
       expect(claimInvasionRank(s, rank.id)).toEqual({ ok: true, gems: rank.gems });
       expect(claimInvasionRank(s, rank.id).ok).toBe(false);
     }
-    expect(s.currencies.gems - before).toBe(6000);
+    expect(s.currencies.gems - before).toBe(12000);
     const hydrated = hydrateSave(JSON.parse(JSON.stringify(s)));
     expect(claimInvasionRank(hydrated, 'rank-0').ok).toBe(false);
     ensureInvasionSeason(hydrated, WEEK + WEEK_MS, WEEK + WEEK_MS);
@@ -42,7 +42,7 @@ describe('weekly VP ranks and claims', () => {
     expect(hydrated.invasion.claimedRanks).toHaveLength(0);
     expect(claimInvasionRank(hydrated, 'rank-29').ok).toBe(false);
     expect(claimInvasionRank(hydrated, 'rank-0').ok).toBe(true);
-    expect(hydrated.currencies.gems).toBe(s.currencies.gems + 50);
+    expect(hydrated.currencies.gems).toBe(s.currencies.gems + 100);
   });
   it('future, unknown, and locked-mode claims give nothing', () => {
     const s = fresh(); const before = s.currencies.gems;
@@ -147,7 +147,7 @@ describe('free unlimited rerolls and gateway persistence', () => {
 });
 
 
-describe('weekly 6000 gem pace', () => {
+describe('weekly 12000 gem pace', () => {
   it.each(['easy', 'normal', 'hard'] as const)('%s victories use fixed VP through every rank', difficulty => {
     const s = fresh(); const perWin = INVASION_VP_BY_DIFFICULTY[difficulty];
     const wins = Math.ceil(8000 / perWin);
@@ -163,7 +163,7 @@ describe('weekly 6000 gem pace', () => {
     expect(invasionRankAt(s.invasion.progressionVp).index).toBe(29);
     const before = s.currencies.gems;
     for (const rank of INVASION_RANKS) expect(claimInvasionRank(s, rank.id).ok).toBe(true);
-    expect(s.currencies.gems - before).toBe(6000);
+    expect(s.currencies.gems - before).toBe(12000);
   });
   it('resets a stale claims page once, persists it, and rejects backdated resets', async () => {
     let clock = WEEK;
@@ -186,7 +186,7 @@ describe('weekly 6000 gem pace', () => {
     expect(g.current().invasion.claimedRanks).toEqual(['rank-0']);
     const reloaded = new MockGateway(storage, { now: () => clock }); await reloaded.load();
     expect(reloaded.current().invasion.weekStart).toBe(WEEK + WEEK_MS);
-    expect(reloaded.current().currencies.gems).toBe(balance + 50);
+    expect(reloaded.current().currencies.gems).toBe(balance + 100);
   });
   it('a weekly sync during a launched battle retains new-week rewards and credits the original encounter once', async () => {
     let clock = WEEK;

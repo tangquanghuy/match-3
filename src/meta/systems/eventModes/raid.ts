@@ -259,8 +259,8 @@ export const raidMode: EventModeImpl<RaidState> = {
       const tier = state.tier;
       const week = ctx.week;
       if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.raidBoss) {
-        const mats: MaterialDelta = { ingots: { epic: 2, ...(tier >= 3 ? { legendary: 1 } : {}) } };
-        const glory = 30 + 20 * tier;
+        const mats: MaterialDelta = { ingots: { epic: 4, ...(tier >= 3 ? { legendary: 2 } : {}) } };
+        const glory = (30 + 20 * tier) * 2;
         earn(ctx.save, { glory });
         earnMaterials(ctx.save, mats);
         week.playRewards += 1;

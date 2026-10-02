@@ -1,0 +1,29 @@
+.acquisition-dialog {
+  width: min(440px, calc(100vw - 32px)); max-height: min(80dvh, 620px); padding: 0;
+  color: #f4ead8; background: #201d25; border: 1px solid #8e7958; border-radius: 6px;
+  box-shadow: 0 24px 70px #000b; overflow: auto;
+}
+.acquisition-dialog::backdrop { background: #0c0a12b8; }
+.acquisition-dialog header { display: flex; align-items: center; gap: 13px; padding: 22px 22px 18px; border-bottom: 1px solid #5a4e40; background: #29242d; }
+.acquisition-check { display: grid; place-items: center; width: 34px; height: 34px; flex: none; color: #17231d; background: #8ed6a3; border-radius: 50%; }
+.acquisition-check svg { width: 20px; height: 20px; stroke-width: 2.4; }
+.acquisition-dialog header div { min-width: 0; flex: 1; }
+.acquisition-dialog header small { display: block; margin-bottom: 3px; color: #a7d6af; font-size: 11px; }
+.acquisition-dialog h2 { margin: 0; font: 21px var(--display); overflow-wrap: anywhere; }
+.acquisition-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; color: #c9bdac; border: 0; background: transparent; cursor: pointer; }
+.acquisition-close svg { width: 18px; height: 18px; }
+.acquisition-dialog ul { display: grid; gap: 0; margin: 0; padding: 8px 22px; list-style: none; }
+.acquisition-dialog li { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 9px 0; border-bottom: 1px solid #ffffff17; }
+.acquisition-dialog li:last-child { border-bottom: 0; }
+.acquisition-art { display: grid; place-items: center; width: 42px; height: 42px; flex: none; color: #ddc68d; background: #37303b; border: 1px solid #6b5c51; border-radius: 4px; }
+.acquisition-art svg { width: 24px; height: 24px; }
+.acquisition-art img { width: 36px; height: 36px; object-fit: contain; }
+.acquisition-copy { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.acquisition-copy b { font-size: 15px; overflow-wrap: anywhere; }
+.acquisition-copy small { color: #aaa0a2; font-size: 12px; overflow-wrap: anywhere; }
+.acquisition-dialog li strong { color: #f4d58f; white-space: nowrap; font-size: 16px; }
+.acquisition-unlocked { color: #a7d6af; white-space: nowrap; font-size: 12px; }
+.acquisition-dialog p { margin: 0; padding: 0 22px 8px; color: #b8aeb2; font-size: 12px; }
+.acquisition-dialog footer { display: flex; justify-content: flex-end; padding: 14px 22px 20px; }
+.acquisition-dialog footer button { min-width: 104px; min-height: 38px; color: #221b18; border: 1px solid #d9bb76; border-radius: 4px; background: #e8c987; font: 14px var(--display); cursor: pointer; }
+.acquisition-dialog button:focus-visible { outline: 2px solid #a7d6af; outline-offset: 2px; }

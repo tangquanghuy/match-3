@@ -1,10 +1,11 @@
 /**
- * 六色法力精通：主角每升一级从随机两色中选一 +1；个人点数解锁武器，
- * 王国旗帜主色加成只提高战斗涌动概率。
+ * 六色法力精通：升级候选优先补齐低值；个人与已开放王国的精通共同用于
+ * 战斗涌动和武器解锁。
  */
 import { ALL_BASE_COLORS, BaseColor } from '../../engine/types';
 import { manaSurgeChance } from '../../engine/manaSurge';
 import { BANNERS } from '../data/banners';
+import { KINGDOM_ORDER, kingdomUnlockLevel } from '../data/kingdoms';
 import { fail, type MetaFailure } from '../types';
 import type { HeroState, ManaColor, MetaSave } from '../state/schema';
 
@@ -80,12 +81,12 @@ export function pendingMasteryCount(save: MetaSave): number {
   return save.hero.masteryOffers.length;
 }
 
-/** 王国等级给旗帜正加成色的涌动加成（上限 +10），不计入武器解锁。 */
+/** 已开放王国从 1 级起贡献精通；未写入存档的王国按初始 1 级计算。 */
 export function kingdomMasteryBonus(save: MetaSave): Record<ManaColor, number> {
   const out = emptyManaMastery();
-  for (const [kingdom, state] of Object.entries(save.kingdoms)) {
-    const add = Math.min(Math.max(0, Math.floor(state.level)), 10);
-    if (add <= 0) continue;
+  for (const kingdom of KINGDOM_ORDER) {
+    if (save.hero.level < kingdomUnlockLevel(kingdom)) continue;
+    const add = Math.min(Math.max(1, Math.floor(save.kingdoms[kingdom]?.level ?? 1)), 10);
     const banner = BANNERS[kingdom];
     if (!banner) continue;
     for (const [color, boost] of Object.entries(banner.boosts)) {
@@ -126,35 +127,52 @@ export function meetsMasteryUnlock(
   need: number,
 ): boolean {
   if (colors.length === 0 || need <= 0) return false;
-  const tracks = personalManaMastery(save);
+  const tracks = combatManaMastery(save);
   return colors.every((color) => tracks[color] >= need);
 }
 
-function offerPairAt(createdAt: number, grantIndex: number): [ManaColor, ManaColor] {
-  let t = ((createdAt >>> 0) ^ Math.imul(grantIndex + 1, 0x9e3779b9)) >>> 0;
-  const a = t % 6;
-  t = Math.imul(t ^ (t >>> 16), 0x85ebca6b) >>> 0;
-  let b = t % 6;
-  if (b === a) b = (b + 1) % 6;
-  return [MANA_COLORS[a]!, MANA_COLORS[b]!];
+function offerPairAt(createdAt: number, grantIndex: number, tracks: Record<ManaColor, number>): [ManaColor, ManaColor] {
+  const seed = ((createdAt >>> 0) ^ Math.imul(grantIndex + 1, 0x9e3779b9)) >>> 0;
+  const tie = (color: ManaColor): number => {
+    let x = seed ^ Math.imul(MANA_COLORS.indexOf(color) + 1, 0x85ebca6b);
+    x = Math.imul(x ^ (x >>> 16), 0xc2b2ae35);
+    return (x ^ (x >>> 16)) >>> 0;
+  };
+  const ranked = [...MANA_COLORS].sort((a, b) => tracks[a] - tracks[b] || tie(a) - tie(b));
+  const first = ranked[0]!;
+  const second = ranked[1]!;
+  // 只剩一种颜色明显落后时，本级固定补该色，防止长期回避造成无限差距。
+  return [first, tracks[second] - tracks[first] >= 2 ? first : second];
+}
+
+function replanMasteryOffers(hero: HeroState, createdAt: number): void {
+  const planned = emptyManaMastery();
+  for (const color of MANA_COLORS) planned[color] = Math.max(0, Math.floor(hero.manaMastery[color] ?? 0));
+  const spent = MANA_COLORS.reduce((sum, color) => sum + planned[color], 0);
+  for (let i = 0; i < hero.masteryOffers.length; i++) {
+    const offer = offerPairAt(createdAt, spent + i, planned);
+    hero.masteryOffers[i] = offer;
+    planned[offer[0]]++;
+  }
 }
 
 export function catchUpMasteryOffers(hero: HeroState, createdAt: number): void {
   const spent = MANA_COLORS.reduce((sum, color) => sum + Math.max(0, Math.floor(hero.manaMastery[color] ?? 0)), 0);
   const expected = expectedMasteryPoints(hero.level);
   while (hero.masteryOffers.length + spent < expected) {
-    hero.masteryOffers.push(offerPairAt(createdAt, spent + hero.masteryOffers.length));
+    hero.masteryOffers.push([MANA_COLORS[0]!, MANA_COLORS[0]!]);
   }
   const overflow = hero.masteryOffers.length + spent - expected;
   if (overflow > 0) hero.masteryOffers.splice(hero.masteryOffers.length - overflow, overflow);
+  replanMasteryOffers(hero, createdAt);
 }
 
 export function enqueueMasteryOffers(save: MetaSave, levelsGained: number): void {
   if (levelsGained <= 0) return;
-  const before = save.hero.level - levelsGained;
   for (let i = 0; i < levelsGained; i++) {
-    save.hero.masteryOffers.push(offerPairAt(save.createdAt, Math.max(0, before - 1) + i));
+    save.hero.masteryOffers.push([MANA_COLORS[0]!, MANA_COLORS[0]!]);
   }
+  replanMasteryOffers(save.hero, save.createdAt);
 }
 
 export function pickManaMastery(
@@ -169,6 +187,7 @@ export function pickManaMastery(
   }
   save.hero.manaMastery[color] = Math.max(0, Math.floor(save.hero.manaMastery[color] ?? 0)) + 1;
   save.hero.masteryOffers.shift();
+  replanMasteryOffers(save.hero, save.createdAt);
   return { ok: true, color, value: save.hero.manaMastery[color]! };
 }
 
@@ -191,7 +210,7 @@ export function hydrateManaMastery(hero: HeroState, rawHero: unknown, createdAt:
       if (!Array.isArray(entry) || entry.length < 2) continue;
       const a = String(entry[0]);
       const b = String(entry[1]);
-      if (!isManaColor(a) || !isManaColor(b) || a === b) continue;
+      if (!isManaColor(a) || !isManaColor(b)) continue;
       hero.masteryOffers.push([a, b]);
     }
   }

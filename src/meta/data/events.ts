@@ -10,7 +10,7 @@
  *  - 奖励 = 积分轨里程碑（官方结构），素材侧重按官方对应映射（Invasion 给特质石、
  *    Raid Boss 给钢锭、ToD 给符卷、Faction Assault 给钢锭+特质石、World Event 给钱钥、
  *    Class 系给荣耀与特质石）；
- *  - 周奖励 revision 2：每活动600宝石，任意活动累计胜场共享1800宝石；
+ *  - 周奖励 revision 3：每活动1200宝石，任意活动累计胜场共享3600宝石；
  *    前三档承载75%的单活动宝石，降低重复刷取负担；素材沿用独立预算。
  *  - 每活动印记周产出上限360；重复玩法奖励另设周额，塔按本周新高楼层结算。
  *  - 现代版的 Sigils 体力不引入（单机友好，差异已记录）。
@@ -22,6 +22,7 @@ import { TROOPS } from '../../data/troops';
 import { fnv1a32 } from './hash';
 import { isRaceType } from './races';
 import { STONE_COLORS, type MaterialDelta } from './materials';
+import { doubleWeeklyMaterials } from './weeklyRewards';
 
 /** 一周毫秒数（活动周历刻度） */
 export const WEEK_MS = 7 * 24 * 3_600_000;
@@ -178,8 +179,8 @@ export const EVENT_TYPES: readonly EventTypeDef[] = [
         '试炼按顺序变难：第 1 道敌人 Lv.20，每往后一道 +4 级。',
       ] },
       { title: '奖励', items: [
-        '积分 = 胜利 30 + 本场新获得的每颗星 50。已拿到的星不重复计分——把星拿满才是积分的主要来源。',
-        '主角须出战并装备已解锁职业；职业经验 ×2，本场三星全部达成则 ×3。',
+        '胜利和新达成的星级可获得试炼积分。',
+        '胜利额外获得 200–300 职业经验，三星还有加成。',
       ] },
     ],
     fightLabel: '挑 战',
@@ -244,7 +245,7 @@ export const EVENT_DIFFICULTY = {
 export const EVENT_RAID_POOL_POINTS = 400;
 
 /** 守土成功每次奖励，与经济模型共用。 */
-export const EVENT_DEFENSE_REWARD = { glory: 40, gems: 20 } as const;
+export const EVENT_DEFENSE_REWARD = { glory: 80, gems: 40 } as const;
 
 export const EVENT_WEEKLY_PLAY_REWARD_CAP: Record<EventTypeId, number> = {
   invasion: 4,
@@ -421,7 +422,7 @@ const BASE_EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
     { id: 'ct_glory', name: '试炼荣耀', cost: 10, stock: 12, glory: 30 },
     { id: 'ct_minor', name: '入门特质', cost: 12, stock: 4, mats: { traitstones: { 'minor:yellow': 3, 'minor:purple': 3 } } },
     { id: 'ct_major', name: '进阶特质', cost: 26, stock: 2, mats: { traitstones: { 'runic:yellow': 1, 'runic:brown': 1 } } },
-    { id: 'ct_runic', name: '职业研习', blurb: '当前装备职业获得经验', cost: 55, stock: 1, classXp: 450 },
+    { id: 'ct_runic', name: '职业研习', blurb: '当前装备职业获得经验', cost: 55, stock: 1, classXp: 5000 },
     { id: 'ct_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
     { id: 'ct_keys', name: '宝箱钥匙', cost: 28, stock: 2, goldKeys: 1 },
     { id: 'ct_ingots', name: '试炼锻材', cost: 10, stock: 6, mats: { ingots: { rare: 4 } } },
@@ -494,29 +495,37 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
   ],
 };
 
-/** 周常预算唯一来源：单活动600，共享周目标1800，守土额外80；合计5480。 */
+/** 周常预算唯一来源：单活动1200，共享周目标3600，守土额外160；合计10960。 */
 export const EVENT_WEEKLY_RULES = {
-  revision: 2, points: [100, 240, 420, 650, 900, 1200],
+  revision: 3, points: [100, 240, 420, 650, 900, 1200],
   supplies: [6, 15, 27, 42, 60, 84], gems: [150, 150, 150, 75, 75, 0],
   tokenCap: 360, towerFloors: 25,
 } as const;
-/** 每条活动轨的六档额外成长货币；满轨 +3,900 黄金、+1,750 灵魂。 */
+/** Older weekly saves predate the gem payment ledger. */
+export const EVENT_LEGACY_GEMS_PAID: Record<EventTypeId, readonly number[]> = {
+  invasion: [0, 0, 0, 0, 60, 0], raidBoss: [0, 0, 0, 40, 0, 0],
+  towerOfDoom: [0, 0, 0, 0, 60, 0], factionAssault: [0, 0, 0, 40, 0, 0],
+  worldEvent: [0, 0, 0, 30, 80, 0], classTrials: [0, 0, 0, 40, 0, 0],
+};
+/** 每条活动轨旧版六档成长货币；当前里程碑在组装时统一翻倍。 */
 export const EVENT_MILESTONE_CURRENCY_BONUS = {
   gold: [200, 300, 500, 700, 900, 1300],
   souls: [100, 150, 200, 300, 400, 600],
 } as const;
 export const EVENT_SHARED_GOALS = [
-  { wins: 6, gems: 300, gold: 400, souls: 200 }, { wins: 12, gems: 400, gold: 600, souls: 300 },
-  { wins: 20, gems: 500, gold: 800, souls: 400 }, { wins: 30, gems: 600, gold: 1200, souls: 600 },
+  { wins: 6, gems: 600, gold: 800, souls: 400 }, { wins: 12, gems: 800, gold: 1200, souls: 600 },
+  { wins: 20, gems: 1000, gold: 1600, souls: 800 }, { wins: 30, gems: 1200, gold: 2400, souls: 1200 },
 ] as const;
 export const EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = Object.fromEntries(
   Object.entries(BASE_EVENT_MILESTONES).map(([id, rows]) => [id, rows.map((row, index) => ({
     ...row, points: (id === 'worldEvent' ? EVENT_WEEKLY_RULES.supplies : EVENT_WEEKLY_RULES.points)[index]!,
-    gems: EVENT_WEEKLY_RULES.gems[index]!,
-    gold: (row.gold ?? 0) + EVENT_MILESTONE_CURRENCY_BONUS.gold[index]!,
-    souls: (row.souls ?? 0) + EVENT_MILESTONE_CURRENCY_BONUS.souls[index]!,
+    gems: EVENT_WEEKLY_RULES.gems[index]! * 2,
+    gold: ((row.gold ?? 0) + EVENT_MILESTONE_CURRENCY_BONUS.gold[index]!) * 2,
+    souls: ((row.souls ?? 0) + EVENT_MILESTONE_CURRENCY_BONUS.souls[index]!) * 2,
+    ...(row.goldKeys ? { goldKeys: row.goldKeys * 2 } : {}),
+    ...(row.glory ? { glory: row.glory * 2 } : {}),
     // 普通积分只增加基础材料；高阶挑战奖励按实际关卡单独结算。
-    ...(row.mats ? { mats: boostBasicStones(row.mats) } : {}),
+    ...(row.mats ? { mats: doubleWeeklyMaterials(boostBasicStones(row.mats)) } : {}),
   }))]),
 ) as unknown as Record<EventTypeId, readonly EventMilestone[]>;
 

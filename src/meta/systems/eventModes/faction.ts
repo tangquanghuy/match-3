@@ -87,7 +87,7 @@ export const DISTRICT_INFO: Record<DistrictKind, { name: string; bonus: string; 
   capital: { name: '王城', bonus: '攻陷即完成本轮征服', tiers: ['boss', 'elite', 'elite', 'elite'], levelBonus: 4 },
 };
 
-export const FACTION_CAPITAL_REWARD = { glory: 40 } as const;
+export const FACTION_CAPITAL_REWARD = { glory: 80 } as const;
 
 function kingdomOf(ctx: ModeCtx): string {
   const k = ctx.theme.kingdom ?? KINGDOM_ORDER[0]!;
@@ -261,7 +261,7 @@ export const factionMode: EventModeImpl<FactionState> = {
         state.conquered += 1;
         const week = ctx.week;
         if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.factionAssault) {
-          const mats: MaterialDelta = { traitstones: { 'runic:green': 1, 'runic:brown': 1 }, ingots: { epic: 1 } };
+          const mats: MaterialDelta = { traitstones: { 'runic:green': 2, 'runic:brown': 2 }, ingots: { epic: 2 } };
           earn(ctx.save, FACTION_CAPITAL_REWARD);
           earnMaterials(ctx.save, mats);
           week.playRewards += 1;

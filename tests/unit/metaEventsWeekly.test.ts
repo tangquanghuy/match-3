@@ -41,8 +41,8 @@ describe('周常奖励账本与迁移', () => {
     const bonusSouls = EVENT_MILESTONE_CURRENCY_BONUS.souls.reduce((sum, n) => sum + n, 0);
     expect(bonusGold).toBe(3900);
     expect(bonusSouls).toBe(1750);
-    expect(EVENT_TYPES.length * bonusGold + EVENT_SHARED_GOALS.reduce((sum, goal) => sum + goal.gold, 0)).toBe(26_400);
-    expect(EVENT_TYPES.length * bonusSouls + EVENT_SHARED_GOALS.reduce((sum, goal) => sum + goal.souls, 0)).toBe(12_000);
+    expect(EVENT_TYPES.length * bonusGold * 2 + EVENT_SHARED_GOALS.reduce((sum, goal) => sum + goal.gold, 0)).toBe(52_800);
+    expect(EVENT_TYPES.length * bonusSouls * 2 + EVENT_SHARED_GOALS.reduce((sum, goal) => sum + goal.souls, 0)).toBe(24_000);
     for (const { id } of EVENT_TYPES) for (const milestone of EVENT_MILESTONES[id]) {
       expect(milestone.gold).toBeGreaterThan(0);
       expect(milestone.souls).toBeGreaterThan(0);
@@ -68,8 +68,8 @@ describe('周常奖励账本与迁移', () => {
     oldWeek.eventData = Object.fromEntries(EVENT_SHARED_GOALS.map((_, i) => [`sharedClaim${i}`, 1]));
     const oldBefore = { ...oldSave.currencies };
     claimEventWeeklyGems(oldSave, WEEK, 'invasion');
-    expect(oldSave.currencies.gold - oldBefore.gold).toBe(3900 + 3000);
-    expect(oldSave.currencies.souls - oldBefore.souls).toBe(1750 + 1500);
+    expect(oldSave.currencies.gold - oldBefore.gold).toBe(3900 + 6000);
+    expect(oldSave.currencies.souls - oldBefore.souls).toBe(1750 + 3000);
     expect(claimEventWeeklyGems(oldSave, WEEK, 'invasion')).toEqual([]);
   });
   it('旧档已领周活动奖励在读档时补发，重复读档不重发', () => {
@@ -79,27 +79,33 @@ describe('周常奖励账本与迁移', () => {
     week.eventData.gemPaid0 = 150;
     week.eventData.gemPaid2 = 150;
     week.eventData.sharedClaim0 = 1;
-    const loaded = migrateSave(JSON.parse(JSON.stringify(old)));
-    expect(loaded.currencies.gold - old.currencies.gold).toBe(200 + 500 + EVENT_SHARED_GOALS[0]!.gold);
-    expect(loaded.currencies.souls - old.currencies.souls).toBe(100 + 200 + EVENT_SHARED_GOALS[0]!.souls);
+    const raw = JSON.parse(JSON.stringify(old));
+    delete raw.mailbox;
+    const loaded = migrateSave(raw);
+    expect(loaded.currencies.gold - old.currencies.gold).toBe(200 + 500 + EVENT_SHARED_GOALS[0]!.gold / 2);
+    expect(loaded.currencies.souls - old.currencies.souls).toBe(100 + 200 + EVENT_SHARED_GOALS[0]!.souls / 2);
+    expect(loaded.mailbox.items.map(item => item.id).sort()).toEqual([
+      'class-trials-xp:5000',
+      `weekly-double:invasion:${WEEK}`,
+    ].sort());
     expect(migrateSave(JSON.parse(JSON.stringify(loaded))).currencies).toEqual(loaded.currencies);
     expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toEqual([]);
   });
-  it('六轨3600+共享1800+守土80，且同一周奖励领取幂等', () => {
+  it('六轨7200+共享3600+守土160，且同一周奖励领取幂等', () => {
     const s = fresh();
     for (const { id } of EVENT_TYPES) {
       const w = ensureEventWeek(s, WEEK, id); w.points = 1200; w.wins = 5;
       if (id === 'worldEvent') eventModeState(s, WEEK, 'worldEvent').supplies = 84;
       claimEventWeeklyGems(s, WEEK, id);
-      expect(EVENT_MILESTONES[id].reduce((n, m) => n + (m.gems ?? 0), 0)).toBe(600);
+      expect(EVENT_MILESTONES[id].reduce((n, m) => n + (m.gems ?? 0), 0)).toBe(1200);
     }
-    expect(eventWeeklySummary(s, WEEK)).toMatchObject({ wins: 30, earned: 1800 });
-    expect(s.currencies.gems).toBe(5400);
+    expect(eventWeeklySummary(s, WEEK)).toMatchObject({ wins: 30, earned: 3600 });
+    expect(s.currencies.gems).toBe(10800);
     for (const { id } of EVENT_TYPES) expect(claimEventWeeklyGems(s, WEEK, id)).toEqual([]);
-    expect(EVENT_WEEKLY_GEM_CAP).toBe(5480);
+    expect(EVENT_WEEKLY_GEM_CAP).toBe(10960);
     const loaded = migrateSave(JSON.parse(JSON.stringify(s)));
     expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toEqual([]);
-    expect(eventWeeklySummary(loaded, WEEK).earned).toBe(1800);
+    expect(eventWeeklySummary(loaded, WEEK).earned).toBe(3600);
     for (const { id } of EVENT_TYPES) {
       const w = ensureEventWeek(loaded, WEEK + WEEK_MS, id);
       expect(w).toMatchObject({ points: 0, wins: 0, tokens: 0, claimed: [], bought: {}, runTeam: null });
@@ -111,8 +117,8 @@ describe('周常奖励账本与迁移', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'factionAssault');
     w.wins = 30; w.points = 3000;
     claimEventWeeklyGems(s, WEEK, 'factionAssault');
-    expect(s.currencies.gems).toBe(2400);
-    expect(eventWeeklySummary(s, WEEK).earned).toBe(1800);
+    expect(s.currencies.gems).toBe(4800);
+    expect(eventWeeklySummary(s, WEEK).earned).toBe(3600);
   });
   it('旧档只补宝石差额，不重复发已领取材料，不丢购买记录', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'invasion');
@@ -120,7 +126,7 @@ describe('周常奖励账本与迁移', () => {
     w.bought.invasion_celestial = 1; s.currencies.gems = 60;
     const before = structuredClone(s.materials);
     const out = battle(s, 'invasion'); settle(s, out, result(out, false));
-    expect(s.currencies.gems).toBe(2400);
+    expect(s.currencies.gems).toBe(4800);
     expect(s.materials).toEqual(before);
     expect(w.bought.invasion_celestial).toBe(1);
     expect(claimEventWeeklyGems(s, WEEK, 'invasion')).toEqual([]);
@@ -130,7 +136,7 @@ describe('周常奖励账本与迁移', () => {
     bonusGems = 0;
     // 每个活动按自己的玩法打到里程碑全部领完（塔会自己选路、世界事件会把骰子掷完）
     for (const { id } of EVENT_TYPES) for (let i = 0; i < 40 && (ensureEventWeek(s, WEEK, id).claimed.length < 6 || (id === 'invasion' && ensureEventWeek(s, WEEK, id).playRewards < 4)); i++) settle(s, battle(s, id));
-    expect(s.currencies.gems - bonusGems).toBe(5480);
+    expect(s.currencies.gems - bonusGems).toBe(10960);
     const out = battle(s, 'invasion'); const r = result(out); settle(s, out, r);
     const before = JSON.stringify(s); settle(s, out, r); expect(JSON.stringify(s)).toBe(before);
     s = migrateSave(JSON.parse(before)); const loaded = JSON.stringify(s);
@@ -199,14 +205,14 @@ describe('专精和宝石抽卡模型', () => {
     attacker.statuses = [{ id: 'stun', turns: 2 }]; expect(eventDamageMultiplier(attacker, boss)).toBe(1);
   });
   it('参与场次映射奖励、共享目标和时长；与运行表一致且避免重复计入', () => {
-    expect(projectEventParticipation('invasion', { wins: 5 })).toMatchObject({ metric: 500, gems: 450, minutes: 15 });
-    expect(projectEventParticipation('invasion', { wins: 8, route: 'risk' }).gems).toBe(600);
+    expect(projectEventParticipation('invasion', { wins: 5 })).toMatchObject({ metric: 500, gems: 900, minutes: 15 });
+    expect(projectEventParticipation('invasion', { wins: 8, route: 'risk' }).gems).toBe(1200);
     expect(projectEventParticipation('classTrials', { wins: 4, streakLength: 4 }).metric).toBe(590);
     expect(projectEventParticipation('classTrials', { wins: 4, streakLength: 4, route: 'risk' }).metric).toBe(728);
-    expect(projectEventParticipation('worldEvent', { wins: 4, matchingTroops: 4, route: 'risk' }).gems).toBe(600);
-    expect(gemBudget(BUDGET_SCENARIOS.weeklyFull!).events).toBe(5480);
-    expect(gemBudget(BUDGET_SCENARIOS.weeklyStandard!).events).toBe(3960);
-    expect(gemBudget(BUDGET_SCENARIOS.weeklyLight!).events).toBe(1640);
+    expect(projectEventParticipation('worldEvent', { wins: 4, matchingTroops: 4, route: 'risk' }).gems).toBe(1200);
+    expect(gemBudget(BUDGET_SCENARIOS.weeklyFull!).events).toBe(10960);
+    expect(gemBudget(BUDGET_SCENARIOS.weeklyStandard!).events).toBe(7920);
+    expect(gemBudget(BUDGET_SCENARIOS.weeklyLight!).events).toBe(3280);
     expect(() => gemBudget({ ...BUDGET_SCENARIOS.weeklyLight!, eventPoints: { invasion: 100 } })).toThrow();
     expect(() => projectEventParticipation('invasion', { wins: 1, route: 'invalid' as 'risk' })).toThrow();
   });

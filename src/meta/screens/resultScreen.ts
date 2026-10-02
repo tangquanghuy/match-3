@@ -115,6 +115,8 @@ export interface ResultMeta {
 export interface BattleIncomeView {
   victory: boolean;
   xp: number;
+  classXp?: number;
+  trialClassXpBonus?: number;
   levelsGained: number;
   gold: number;
   souls: number;
@@ -190,7 +192,10 @@ export function battleIncomeView(detail: SettlementView): BattleIncomeView {
   const battleLines = detail.lines.filter(line => BATTLE_INCOME_KEYS.includes(line.key));
   const sum = (key: 'gold' | 'souls' | 'gems' | 'glory' | 'goldKeys') =>
     battleLines.reduce((total, line) => total + (line.deltas[key] ?? 0), 0);
-  return { victory: detail.victory, xp: detail.xpGained, levelsGained: detail.heroLevelsGained,
+  return { victory: detail.victory, xp: detail.xpGained,
+    ...(detail.classXpGained ? { classXp: detail.classXpGained } : {}),
+    ...(detail.trialClassXpBonus ? { trialClassXpBonus: detail.trialClassXpBonus } : {}),
+    levelsGained: detail.heroLevelsGained,
     gold: sum('gold'), souls: sum('souls'), gems: sum('gems'),
     ...(sum('glory') > 0 ? { glory: sum('glory') } : {}),
     ...(sum('goldKeys') > 0 ? { goldKeys: sum('goldKeys') } : {}),
@@ -461,15 +466,20 @@ export class ResultScreen implements Screen {
         ${income.levelsGained > 0 ? '<em class="rs-levelup-tag">升级</em>' : ''}
       </div>`;
     const [souls, gold, ...extras] = rewards;
+    const classXp = (income.classXp ?? 0) > 0 ? `<div class="rs-reward reward-row rs-class-xp" data-battle-class-xp style="--i:3">
+        <span class="rs-reward-icon"><span data-icon="book"></span></span>
+        <p><strong data-count="${income.classXp}">+${fmt(income.classXp ?? 0)}</strong><span>职业经验</span>${income.trialClassXpBonus ? `<small>试炼奖励 +${fmt(income.trialClassXpBonus)}</small>` : ''}</p>
+      </div>` : '';
     const matCards = income.materials.map((m, i) =>
       `<div class="rs-reward reward-row rs-mat" data-battle-material="${escapeHtml(m.key)}" style="--i:${6 + i}">
         <span class="rs-reward-icon">${materialIconHtml(m.key)}</span>
         <p><strong data-count="${m.amount}">+${fmt(m.amount)}</strong><span>${escapeHtml(m.name)}</span></p>
       </div>`);
     $('#rewardRows').innerHTML = [
-      currency(souls!, 0), this.isHunt() ? '' : xp, currency(gold!, 2),
+      currency(souls!, 0), this.isHunt() ? '' : xp, currency(gold!, 2), classXp,
       ...extras.filter(r => r.amount > 0).map((r, i) => currency(r, 3 + i)), ...matCards,
     ].join('');
+    mountIcons($('#rewardRows'));
     screen.classList.toggle('has-many-rewards', $('#rewardRows').childElementCount > 4);
     this.particles(income.victory);
     this.animateSummary(income);
@@ -619,9 +629,10 @@ export class ResultScreen implements Screen {
     const band = $('#luBand');
     band.classList.toggle('is-done', !offer);
     const pending = save.hero.masteryOffers?.length ?? 0;
+    const forced = offer?.[0] === offer?.[1];
     $('#luPrompt').querySelector('b')!.textContent = offer ? '选择一项法力精通' : '法力精通已全部分配';
     $('#luPromptNote').textContent = offer
-      ? `二选一 · 永久提升该色三消涌动几率，并计入武器解锁${pending > 1 ? ` · 待分配 ${pending} 点` : ''}`
+      ? `${forced ? '优先补齐落后颜色' : '二选一'} · 永久提升该色三消涌动几率，并计入武器解锁${pending > 1 ? ` · 待分配 ${pending} 点` : ''}`
       : '可随时在英雄页查看精通与涌动几率';
     if (!offer) {
       $('#luChoices').innerHTML = '';
@@ -639,10 +650,10 @@ export class ResultScreen implements Screen {
             <span class="lu-card-check" aria-hidden="true"></span>
           </span></span>
           <b>+1 ${MASTERY_NAME[color]}</b>
-          <small><span>精通 ${mine} → ${mine + 1}</span><span>三消涌动 ${surgeChancePct(mine + extra)} → ${surgeChancePct(mine + 1 + extra)}</span></small>
+          <small><span>总精通 ${mine + extra} → ${mine + extra + 1}${extra ? `（王国 +${extra}）` : ''}</span><span>三消涌动 ${surgeChancePct(mine + extra)} → ${surgeChancePct(mine + 1 + extra)}</span></small>
         </button>`;
     };
-    $('#luChoices').innerHTML = `${card(offer[0], 0)}<span class="lu-or" aria-hidden="true"><span>或</span></span>${card(offer[1], 1)}`;
+    $('#luChoices').innerHTML = `${card(offer[0], 0)}${forced ? '' : `<span class="lu-or" aria-hidden="true"><span>或</span></span>${card(offer[1], 1)}`}`;
     this.syncContinue();
   }
 

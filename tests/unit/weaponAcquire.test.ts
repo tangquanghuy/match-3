@@ -5,6 +5,7 @@ import { acquireFilterKind, acquireOf, acquireProgress, CLASS_WEAPON_WINS, gemBu
 import { claimWeapon, canUseWeapon, forgeCatalogWeapon } from '../../src/meta/systems/hero';
 import { classByKingdom } from '../../src/meta/data/classes';
 import { findRecipe } from '../../src/meta/data/soulforge';
+import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
 
 const save = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
 
@@ -76,19 +77,28 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(acquireOf(anyWeaponById('gw_ImperialJewel')!).label).toBe('全系精通 32');
   });
 
-  it('个人精通达标后可免费领取，未达标拒绝；王国加成不算解锁', () => {
+  it('个人与王国精通合计达标后可免费领取', () => {
     const s = save();
     const blade = anyWeaponById('gw_FalchionOfKings')!;
     expect(acquireProgress(s, acquireOf(blade)).ready).toBe(false);
     expect(claimWeapon(s, blade.id)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.hero.level = 8;
+    s.hero.level = 16;
     s.kingdoms['风暴峡湾'] = { level: 10, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
-    expect(acquireProgress(s, acquireOf(blade)).ready).toBe(false);
-    s.hero.manaMastery.Blue = 8;
     expect(acquireProgress(s, acquireOf(blade)).ready).toBe(true);
     expect(claimWeapon(s, blade.id)).toEqual({ ok: true, weaponId: blade.id });
     expect(canUseWeapon(s, blade)).toBe(true);
     expect(claimWeapon(s, blade.id)).toMatchObject({ ok: false, code: 'INVALID' });
+  });
+
+  it('全系精通 21 可通过王国成长在 100 级前解锁', () => {
+    const s = save();
+    const orb = anyWeaponById('gw_PrismaticOrb')!;
+    s.hero.level = KINGDOM_ORDER.length;
+    for (const kingdom of KINGDOM_ORDER) {
+      s.kingdoms[kingdom] = { level: 5, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
+    }
+    expect(acquireProgress(s, acquireOf(orb)).ready).toBe(true);
+    expect(claimWeapon(s, orb.id)).toMatchObject({ ok: true, weaponId: orb.id });
   });
 
   it('职业神话在解锁对应职业且满 250 胜后可领取', () => {

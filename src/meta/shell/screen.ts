@@ -37,7 +37,7 @@ export type ScreenName =
   | 'character' | 'wishlist' | 'map' | 'team' | 'hero' | 'troop' | 'chests' | 'arena' | 'settings' | 'result'
   | 'materials' | 'events' | 'invasion' | 'shop' | 'weapons' | 'bag' | 'gems' | 'hunt' | 'gifts'
   /** 王国主线页 `#quest/<王国>`（M10） */
-  | 'quest' | 'explore' | 'regional' | 'classes';
+  | 'quest' | 'explore' | 'regional' | 'classes' | 'mail';
 
 /** 屏层上下文：网关 + 导航 + 战斗启动。屏层禁止绕过它直接摸路由/战斗层 */
 export interface ShellCtx {

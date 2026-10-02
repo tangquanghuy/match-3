@@ -9,6 +9,7 @@ import { COLOR_CN, bottomNavHtml, gemSvg, mountIcons, shopNavHtml, toast, toastH
 import { cssUrlVar, shopArt } from '../shell/artAssets';
 import { renderSpell } from '../shell/spellText';
 import { bindTermTips } from '../shell/termTip';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import type { Screen, ShellCtx } from '../shell/screen';
 import type { MetaSave } from '../state/schema';
 
@@ -161,6 +162,7 @@ export class GemShopScreen implements Screen {
         if (!buy?.dataset.buyWeapon || buy.disabled) return;
         buy.disabled = true;
         const purchaseHash = ctx.currentHash();
+        const weapon = ALL_CATALOG_WEAPONS.find(row => row.id === buy.dataset.buyWeapon);
         void ctx.gateway.claimHeroWeapon(buy.dataset.buyWeapon).then(({ result }) => {
           if (isFailure(result)) {
             buy.disabled = false;
@@ -169,7 +171,9 @@ export class GemShopScreen implements Screen {
           }
           // Refresh the active screen without forcing the player back to this detail.
           ctx.refresh();
-          setTimeout(() => toast('已购入，可在武器中心装备。'), 0);
+          if (weapon) showAcquisitionDialog('武器购买成功', [{
+            label: weapon.name, detail: '已加入武器库', icon: 'swords',
+          }], `花费 ${priceOf(weapon).toLocaleString('zh-CN')} 宝石`);
         }).catch(() => {
           if (ctx.currentHash() === purchaseHash) buy.disabled = false;
           toast('购买未完成，请稍后重试');

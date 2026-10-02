@@ -64,8 +64,8 @@ describe('秘法石真实需求与供给', () => {
         for (const key of keys) expect(row.mats?.traitstones?.[key] ?? 0).toBe(0);
       });
     }
-    expect(EVENT_WEEKLY_GEM_CAP).toBe(5480);
-    expect(EVENT_WEEKLY_RULES).toMatchObject({ revision: 2, tokenCap: 360 });
+    expect(EVENT_WEEKLY_GEM_CAP).toBe(10960);
+    expect(EVENT_WEEKLY_RULES).toMatchObject({ revision: 3, tokenCap: 360 });
   });
 
   it.each(EVENT_TYPES.map(t => t.id))('%s 兑换入库、两天补货、余额不足不扣除', type => {
@@ -113,12 +113,12 @@ describe('秘法石真实需求与供给', () => {
     const result = eventAction(s, WEEK, 'worldEvent', 'lucky:1', 42);
     expect(result.ok).toBe(true);
     expect(state.supplies).toBe(44);
-    expect(s.materials.traitstones['minor:yellow']).toBe(8);
+    expect(s.materials.traitstones['minor:yellow']).toBe(16);
     expect(week.claimed).toContain(3);
-    if (result.ok) expect(result.lines?.some(line => line.mats?.traitstones?.['minor:yellow'] === 8)).toBe(true);
+    if (result.ok) expect(result.lines?.some(line => line.mats?.traitstones?.['minor:yellow'] === 16)).toBe(true);
     state.board[2] = 'supply';
     expect(eventAction(s, WEEK, 'worldEvent', 'lucky:1', 43).ok).toBe(true);
-    expect(s.materials.traitstones['minor:yellow']).toBe(8);
+    expect(s.materials.traitstones['minor:yellow']).toBe(16);
   });
 
   it('已领过的旧里程碑不追补；下一周重置领取账本', () => {
@@ -133,7 +133,7 @@ describe('秘法石真实需求与供给', () => {
     ensureEventWeek(s, next, 'invasion').points = 1200;
     settleEvent(s, nextOut, undefined, next);
     expect(ensureEventWeek(s, next, 'invasion').claimed).toHaveLength(6);
-    expect(s.materials.traitstones['minor:red']).toBe(8);
+    expect(s.materials.traitstones['minor:red']).toBe(16);
   });
 
   it('兑换得到的秘法石用于真实解锁并按配方扣除', () => {

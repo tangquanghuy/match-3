@@ -27,7 +27,9 @@ describe('L3 fix sa-F1: colour / race gated mana', () => {
     const d = r.summary.order.find(o => o.startsWith('destroy'))!;
     expect(d).toMatch(/^destroy 14 \((\w+) x14\)$/);
     expect(colours).toContain(/\((\w+) x14\)/.exec(d)![1]);
-    expect(r.summary.economy.gold).toBe(10);
+    const matchGold = r.events.flatMap(e => e.type === 'elimination' && e.cells.length >= 4
+      ? [e.cells.length >= 5 ? 5 : 4] : []).reduce((sum, gain) => sum + gain, 0);
+    expect(r.summary.economy.gold).toBe(10 + matchGold);
   });
 
   // weapon:1177 CountMySouls 34 (R003: [3:1] = 34%) -> StealMana all -> Damage [Magic + 1] + floor(souls x 34%).

@@ -25,6 +25,7 @@ import {
 import { getRecord, levelCapOf, rarityTierOf, troopStatsOf } from '../systems/troopProgress';
 import { stoneColorKeyOf, stoneName } from '../data/materials';
 import { stoneMarkupForKey } from '../shell/materialArt';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import { BaseColor } from '../../engine/types';
 import { traitGlyphsFor } from '../shell/traitIcon';
 import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
@@ -1061,7 +1062,7 @@ export class TroopScreen implements Screen {
       if (result.ok) {
         modal.hidden = true;
         $('#stage').inert = false;
-        toast(`提升至 Lv.${result.to} · 灵魂 −${fmt(result.soulsSpent)}`);
+        showAcquisitionDialog('部队升级完成', [{ label: `Lv.${result.to}`, detail: this.troop()?.name ?? '部队', icon: 'chevrons', status: '已提升' }], `花费 ${fmt(result.soulsSpent)} 灵魂`);
         this.afterMutation();
         const opener = $('#upgrade') as HTMLButtonElement;
         (opener.disabled ? $('#portraitExpand') : opener).focus({ preventScroll: true });
@@ -1083,8 +1084,10 @@ export class TroopScreen implements Screen {
     if (slot <= 0) return;
     const { result } = await this.ctx.gateway.unlockTroopTrait(this.currentId, slot);
     if (result.ok) {
-      const stones = Object.entries(result.cost.stones).map(([key, n]) => `${stoneName(key)}×${n}`).join(' · ');
-      toast(`特质已解锁${stones ? ' · ' + stones : ''}${result.burningSpent ? ` · 燃烧灵魂×${result.burningSpent}` : ''}`);
+      const troop = getTroopById(this.currentId);
+      showAcquisitionDialog('部队特质已解锁', [{
+        label: troop?.traits[slot - 1]?.name ?? `特质 ${slot}`, detail: troop?.name, icon: 'sparkles', status: '已解锁',
+      }], Object.entries(result.cost.stones).map(([key, n]) => `${stoneName(key)} ×${n}`).join(' · ') + (result.burningSpent ? ` · 燃烧灵魂 ×${result.burningSpent}` : ''));
       this.afterMutation();
     } else {
       toast(result.message);
@@ -1094,7 +1097,7 @@ export class TroopScreen implements Screen {
   private async ascend(): Promise<void> {
     const { result } = await this.ctx.gateway.ascendTroop(this.currentId);
     if (result.ok) {
-      toast(`升阶成功：${result.ascension} 阶 · 等级上限 ${result.newCap}`);
+      showAcquisitionDialog('部队升阶成功', [{ label: `${result.ascension} 阶`, detail: `等级上限 ${result.newCap}`, icon: 'chevrons', status: '已提升' }]);
       this.afterMutation();
     } else {
       toast(result.message);

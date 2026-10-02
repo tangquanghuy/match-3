@@ -40,7 +40,7 @@ describe('宝石经济和抽卡模型',()=>{
  });
  it('活动里程碑、守土上限、入侵结算、寻宝终盘共享实际奖励表',()=>{
   const b=gemBudget({...BUDGET_SCENARIOS.light!,eventPoints:{invasion:2200,worldEvent:200},successfulDefenses:999,invasionDistribution:[.2,.5,.2,.1],hunt:{runs:2,meanFinalBoard:[60,0,0,0,0,2,1,1]}});
-  expect(b.events).toBe(600+600+80);expect(b.invasion).toBe(0);expect(b.hunt).toBeCloseTo(2*(2*14+70+210));
+  expect(b.events).toBe(1200+1200+160);expect(b.invasion).toBe(0);expect(b.hunt).toBeCloseTo(2*(2*14+70+210));
   expect(()=>gemBudget({...BUDGET_SCENARIOS.light!,hunt:{runs:1,meanFinalBoard:[1]}})).toThrow();
   expect(()=>gemBudget({...BUDGET_SCENARIOS.light!,invasionDistribution:[1,1,1,1]})).toThrow();
  });
@@ -107,9 +107,9 @@ describe('首通宝石有限预算', () => {
  });
 });
 
-it('weekly invasion rank income is explicitly budgeted and capped at 6000', () => {
-  expect(gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:8000}).invasion).toBe(6000);
-  expect(gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:999999}).invasion).toBe(6000);
-  expect(gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:0}).invasion).toBe(50);
+it('weekly invasion rank income is explicitly budgeted and capped at 12000', () => {
+  expect(gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:8000}).invasion).toBe(12000);
+  expect(gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:999999}).invasion).toBe(12000);
+  expect(gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:0}).invasion).toBe(100);
   expect(() => gemBudget({...BUDGET_SCENARIOS.light!, invasionWeeklyVp:-1})).toThrow();
 });

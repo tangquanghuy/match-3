@@ -1,9 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
-async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pve') {
+async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pve', classXp = 0) {
   await page.goto('/game.html#result', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.result-screen')).toBeVisible({ timeout: 15_000 });
-  await page.evaluate(async ({ gems, returnHash, kind }) => {
+  await page.evaluate(async ({ gems, returnHash, kind, classXp }) => {
     const path = '/src/meta/screens/resultScreen.ts';
     const { ResultScreen } = await import(/* @vite-ignore */ path);
     const screen = new ResultScreen();
@@ -18,7 +18,8 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
         { key: 'event-milestone', label: '周常奖励', deltas: { gems: 500, gold: 9999 } },
         { key: 'quest', label: '任务', deltas: { goldKeys: 1 } },
       ],
-      xpGained: 100, heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
+      xpGained: 100, classXpGained: classXp, trialClassXpBonus: classXp ? classXp - 50 : 0,
+      heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
       questProgress: { from: 3, to: 4 }, troopRewards: [{ troopId: 6169, note: '首通' }],
       firstWinClaimed: true,
     } : {
@@ -37,7 +38,7 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
     const { mountIcons } = await import(/* @vite-ignore */ chrome);
     mountIcons(document.querySelector('#stage')!);
     await document.fonts.ready;
-  }, { gems, returnHash, kind });
+  }, { gems, returnHash, kind, classXp });
 }
 
 /** 真实存档 + 真实精通逻辑的升级流程；navigate 记录到 window.__nav。 */
@@ -150,7 +151,7 @@ test('升级：必须先二选一法力精通，选择经网关入账后才离�
   const cards = page.locator('#luChoices .lu-card');
   await expect(cards).toHaveCount(2);
   await expect(cards.first()).toContainText('+1 水之精通');
-  await expect(cards.first()).toContainText('精通 2 → 3');
+  await expect(cards.first()).toContainText('总精通 4 → 5（王国 +2）');
   await expect(cards.nth(1)).toContainText('+1 火之精通');
   await expect(page.locator('#luStats .lu-stat')).toHaveCount(4);
   await expect(page.locator('#luStats .lu-stat.is-up').first()).toBeVisible();
@@ -173,6 +174,28 @@ test('升级：必须先二选一法力精通，选择经网关入账后才离�
   expect(hero.manaMastery.Blue).toBe(3);
   expect(hero.manaMastery.Red).toBe(0);
   expect(hero.masteryOffers).toHaveLength(0);
+});
+
+test('职业试炼经验在战斗结算显示，手机宽度不横向溢出', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mountResult(page, 0, '#events/classTrials', 'pve', 320);
+  await expect(page.locator('[data-battle-class-xp] strong')).toHaveText('+320');
+  await expect(page.locator('[data-battle-class-xp]')).toContainText('试炼奖励 +270');
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await expect(page.locator('[data-battle-class-xp]')).toBeInViewport();
+});
+
+test('落后颜色固定补齐时只显示一张精通卡', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mountLevelUp(page, 1, [['Green', 'Green']]);
+  await page.locator('#again').click();
+  await expect(page.locator('#luPromptNote')).toContainText('优先补齐落后颜色');
+  await expect(page.locator('#luChoices .lu-card')).toHaveCount(1);
+  await expect(page.locator('#luChoices .lu-or')).toHaveCount(0);
+  await page.locator('#luChoices .lu-card').click();
+  await page.locator('#luContinue').click();
+  await expect.poll(() => navigated(page)).toBe('#map');
+  expect(await page.evaluate(() => (window as unknown as { __save: { hero: { manaMastery: { Green: number } } } }).__save.hero.manaMastery.Green)).toBe(1);
 });
 
 test('连升两级逐页呈现，每页消耗一个精通点；无待分配点时可直接继续', async ({ page }) => {

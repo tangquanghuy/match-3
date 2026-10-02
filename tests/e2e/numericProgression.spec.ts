@@ -18,6 +18,8 @@ test('零黄金的1级玩家卡按逐槽配方解锁，预览与实际扣石一�
     await expect(page.locator('#unlock')).toBeEnabled();
     if (slot === 2) await expect(page.locator('#unlockCost')).toContainText('秘法坚毅属性石 ×1');
     await page.locator('#unlock').click();
+    await expect(page.locator('.acquisition-dialog')).toContainText('部队特质已解锁');
+    await page.locator('.acquisition-dialog footer button').click();
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).collection['6000'].traits.filter(Boolean).length)).toBe(slot + 1);
   }
   await expect(page.locator('#unlock')).toBeDisabled();

@@ -4,7 +4,7 @@ import { stoneName } from '../data/materials';
 import { stoneMarkupForKey } from '../shell/materialArt';
 import { escapeHtml as esc } from './troopCard';
 import { isFailure } from '../gateway';
-import { toast } from '../shell/chrome';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 
 export function heroTraitDialogBody(ctx: Pick<ShellCtx, 'save'>, classId: string, slot: number): string {
   const q = heroTraitQuote(ctx.save(), classId, slot);
@@ -56,7 +56,7 @@ export function openHeroTraitDialog(ctx: ShellCtx, classId: string, slot: number
       } else {
         close();
         onUnlocked();
-        toast('职业特质已解锁');
+        showAcquisitionDialog('职业特质已解锁', [{ label: q.perk.nameZh, detail: q.def.name, icon: 'sparkles', status: '已解锁' }]);
       }
     } catch {
       if (!disposed) {

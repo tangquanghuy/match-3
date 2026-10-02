@@ -46,6 +46,9 @@ test('宝石商店可从底栏进入、查看武器详情并按新价格购买',
     return style.borderTopWidth === '0px' && style.backgroundColor === 'rgba(0, 0, 0, 0)';
   }))).toBe(true);
   await detail.locator('[data-buy-weapon="gw_ShatteredBlade"]').click();
+  await expect(page.locator('.acquisition-dialog')).toContainText('武器购买成功');
+  await expect(page.locator('.acquisition-dialog')).toContainText('破碎之刃');
+  await page.locator('.acquisition-dialog footer button').click();
   await expect(page.locator('.gem-shop-balance')).toContainText('2,600');
   await expect(page.locator('[data-gem-detail="gw_ShatteredBlade"] .gem-shop-buy')).toHaveText('已拥有');
   await page.locator('.gem-shop-back').click();
@@ -147,6 +150,8 @@ test('purchase on a later page retains the page and selected weapon', async ({ p
   const id = await card.getAttribute('data-inspect-weapon');
   await card.click();
   await page.locator(`[data-buy-weapon="${id}"]`).click();
+  await expect(page.locator('.acquisition-dialog')).toContainText('武器购买成功');
+  await page.locator('.acquisition-dialog footer button').click();
   await expect(page.locator(`[data-gem-detail="${id}"] .gem-shop-buy`)).toBeDisabled();
   await page.locator('.gem-shop-back').click();
   await expect(page.locator(`[data-inspect-weapon="${id}"]`)).toHaveClass(/selected.*is-owned/);

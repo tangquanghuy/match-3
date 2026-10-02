@@ -74,7 +74,7 @@ const douglasDescription = '对所有敌人造成 [魔法 + 3] 点法术伤害�
 const cialloDescription = '给予首位盟友 [魔法 + 2] 点攻击力，创造 6 颗骷髅头，并使首位敌人陷入织网。';
 const chikoritaDescription = '首位盟友获得 [魔法 + 3] 点攻击力。创造 23 颗混合绿色宝石和骷髅头。';
 
-const xingaiDescription = '使一名选定敌人失去最多 6 点法力，给予法力最低的其他盟友 4 点法力，然后将所有黄色宝石转换为蓝色宝石。';
+const xingaiDescription = '使一名选定敌人失去最多 6 点法力，给予法力最高的其他盟友 4 点法力，然后将所有黄色宝石转换为蓝色宝石。';
 
 const liankaDescription = '对所有敌人造成 [魔法 + 4] 点法术伤害。棋盘上每有 4 颗红色或黄色普通宝石，对每个敌人的伤害增加 1 点。';
 
@@ -233,7 +233,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
       description: xingaiDescription,
       meta: buildSkillMetadata(xingaiDescription),
     },
-    traits: communityTraits(['xingai_star_charge', 'manashield', 'revered']),
+    traits: communityTraits(['xingai_star_charge', 'manashield', 'empowered']),
     portrait: null,
     artUrl: xingaiPortrait,
   },

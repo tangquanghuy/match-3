@@ -424,8 +424,8 @@ export function finishTowerRun(ctx: ModeCtx, state: TowerState, floorReached: nu
   week.eventData.floorBest = best;
   const paid = week.eventData.towerPaidFloors ?? 0;
   const reached = Math.min(TOWER_FLOORS, Math.max(paid, floorReached));
-  const scrolls = Math.floor(reached / 5) - Math.floor(paid / 5);
-  const glory = (reached - paid) * 2;
+  const scrolls = (Math.floor(reached / 5) - Math.floor(paid / 5)) * 2;
+  const glory = (reached - paid) * 4;
   week.eventData.towerPaidFloors = reached;
   if (reached > paid) {
     earn(ctx.save, { glory });

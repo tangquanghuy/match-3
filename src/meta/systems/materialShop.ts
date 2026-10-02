@@ -1,6 +1,7 @@
 import { getTroopById } from '../../data/troops';
-import { getMaterialBundle, materialBundleContents, materialBundleForTroop } from '../data/materialBundles';
+import { getMaterialBundle, materialBundleContents, materialBundleDiscountTier, materialBundleForTroop } from '../data/materialBundles';
 import { MATERIAL_SHOP_KEYS, MATERIAL_SHOP_PRICING, type MaterialShopPricing } from '../data/materialShop';
+import { RARITY_NAMES } from '../data/rarity';
 import { parseStoneKey, type MaterialDelta } from '../data/materials';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
@@ -15,7 +16,7 @@ export interface MaterialShopQuote {
   slots: number[];
   signature: string;
   goldLine?: { regularUnit: number; regularCount: number; discountUnit: number; discountCount: number; remaining: number; limit: number };
-  gemOffer?: { regularPrice: number; discount: number; purchased: number; nextDiscount: number | null };
+  gemOffer?: { regularPrice: number; discount: number; purchased: number; nextDiscount: number | null; tier: number; tierName: string };
 }
 export type MaterialShopBuyResult = { ok: true; currency: 'gold' | 'gems'; spent: number; mats: MaterialDelta } | MetaFailure;
 
@@ -23,6 +24,7 @@ export type MaterialShopBuyResult = { ok: true; currency: 'gold' | 'gems'; spent
 export function materialShopQuote(save: MetaSave, request: MaterialShopRequest, pricing: MaterialShopPricing = MATERIAL_SHOP_PRICING): MaterialShopQuote | MetaFailure {
   if (!request || typeof request !== 'object') return fail('INVALID', '请选择商品');
   let stones: Record<string, number> = {};
+  let discountTier = 0;
   const slots: number[] = [];
   if (request.kind === 'gold') {
     if (!MATERIAL_SHOP_KEYS.includes(request.key) || !Number.isSafeInteger(request.count) || request.count < 1 || request.count > 99) {
@@ -46,6 +48,7 @@ export function materialShopQuote(save: MetaSave, request: MaterialShopRequest, 
     }
     const bundle = typeof bundleId === 'string' ? getMaterialBundle(bundleId) : undefined;
     if (!bundle || !Number.isSafeInteger(mask) || mask < 1 || mask > 7) return fail('INVALID', '请选择有效的材料组合与特质阶段');
+    discountTier = materialBundleDiscountTier(bundle);
     for (let i = 0; i < 3; i++) if (mask & (1 << i)) {
       if (!Object.keys(bundle.stages[i]!).length) return fail('INVALID', '该组合没有此特质阶段');
       slots.push(i + 1);
@@ -67,14 +70,14 @@ export function materialShopQuote(save: MetaSave, request: MaterialShopRequest, 
     price = Math.ceil((price + 20) / step) * step - 20;
     if (!Number.isSafeInteger(price)) return fail('INVALID', '商品总价超出范围');
     const regularPrice = price;
-    const purchased = save.materialShop?.gemBundlesPurchased ?? 0;
-    const discounts = pricing.gemBundleDiscounts ?? [];
+    const purchased = save.materialShop?.gemDiscountPurchases?.[String(discountTier)] ?? 0;
+    const discounts = pricing.gemBundleDiscounts?.[discountTier] ?? [];
     const discount = discounts[purchased] ?? 10;
     if (!Number.isInteger(discount) || discount < 1 || discount > 10) return fail('INVALID', '商品价格配置异常');
     if (discount < 10) {
       price = Math.min(regularPrice, Math.max(80, Math.round((regularPrice * discount / 10 + 20) / 100) * 100 - 20));
     }
-    gemOffer = { regularPrice, discount, purchased, nextDiscount: discounts[purchased + 1] ?? null };
+    gemOffer = { regularPrice, discount, purchased, nextDiscount: discounts[purchased + 1] ?? null, tier: discountTier, tierName: RARITY_NAMES[discountTier] ?? '特殊' };
   }
   let goldLine: MaterialShopQuote['goldLine'];
   if (request.kind === 'gold' && price !== null) {
@@ -101,12 +104,15 @@ export function buyMaterialGoods(save: MetaSave, request: MaterialShopRequest, e
   if (!paid.ok) return paid;
   const mats = earnMaterials(save, { traitstones: quote.stones });
   if (quote.goldLine?.discountCount) {
-    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0 };
+    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0, gemDiscountPurchases: {} };
     save.materialShop.arcaneIntroPurchased += quote.goldLine.discountCount;
   }
   if (quote.currency === 'gems') {
-    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0 };
+    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0, gemDiscountPurchases: {} };
     save.materialShop.gemBundlesPurchased += 1;
+    save.materialShop.gemDiscountPurchases ??= {};
+    const tier = String(quote.gemOffer!.tier);
+    save.materialShop.gemDiscountPurchases[tier] = (save.materialShop.gemDiscountPurchases[tier] ?? 0) + 1;
   }
   return { ok: true, currency: quote.currency, spent: quote.price, mats };
 }

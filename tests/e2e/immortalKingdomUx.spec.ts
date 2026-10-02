@@ -18,7 +18,11 @@ for (const width of [1600, 390]) {
   await expect(rows.first()).toBeFocused();
   await rows.first().click();
   const upgrade = page.locator('#kingdomUpgrade');
-  if (await upgrade.isEnabled()) await upgrade.click();
+  if (await upgrade.isEnabled()) {
+   await upgrade.click();
+   await expect(page.locator('.acquisition-dialog')).toContainText('升至');
+   await page.locator('.acquisition-dialog footer button').click();
+  }
   await expect(page.locator('#kingdomBonusBack')).toBeVisible();
   await page.locator('#kingdomBonusBack').click();
   await expect(page.locator('#kingdomVeil')).toBeHidden();
@@ -66,6 +70,8 @@ for (const width of [1600, 390]) {
    await expect(page.locator('#unlockCost')).toContainText(`燃烧灵魂 ×${cost}`);
    await expect(page.locator('#unlock')).toBeEnabled();
    await page.locator('#unlock').click();
+   await expect(page.locator('.acquisition-dialog')).toContainText('部队特质已解锁');
+   await page.locator('.acquisition-dialog footer button').click();
    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).regional.burningSouls)).toBe(left);
   }
   await expect(page.locator('#unlockLabel')).toHaveText('特质全解锁');

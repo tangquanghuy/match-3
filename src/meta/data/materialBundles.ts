@@ -32,6 +32,7 @@ function contentId(text: string): string {
 let catalog: readonly MaterialBundleFamily[] | undefined;
 const byId = new Map<string, MaterialBundle>();
 const byTroop = new Map<number, string>();
+const discountTierByFamily = new Map<string, number>();
 
 export function materialBundleCatalog(): readonly MaterialBundleFamily[] {
   if (catalog) return catalog;
@@ -67,11 +68,13 @@ export function materialBundleCatalog(): readonly MaterialBundleFamily[] {
     const first = f.bundles[0]!;
     const kind = !totals[3] ? '圣辉组合' : first.artKeys.length > 1 ? '双秘法' : first.colors.length > 1 ? '双色' : '单色';
     const name = rarity === 0 && totals[3]! > 1 ? '特殊 · 高阶秘法' : `${rarityNameByIndex(rarity)} · ${kind}`;
+    discountTierByFamily.set(id, rarity === 0 && totals[3]! > 1 ? 5 : rarity);
     return { id, name, summary: totals.map((n, i) => n ? `${tierNames[i]} ${n}` : '').filter(Boolean).join(' · '), bundles: Object.freeze(f.bundles.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'))), rank: rarity * 1000 + totals[3]! };
   }).sort((a, b) => a.rank - b.rank || a.id.localeCompare(b.id)).map(({ rank: _rank, ...f }) => Object.freeze(f)));
   return catalog;
 }
 export function getMaterialBundle(id: string): MaterialBundle | undefined { materialBundleCatalog(); return byId.get(id); }
+export function materialBundleDiscountTier(bundle: MaterialBundle): number { materialBundleCatalog(); return discountTierByFamily.get(bundle.familyId) ?? 0; }
 /** 只用于特质页/旧链接定位商品，交易不以 troopId 为商品键。 */
 export function materialBundleForTroop(troopId: number): MaterialBundle | undefined { materialBundleCatalog(); const id = byTroop.get(troopId); return id ? byId.get(id) : undefined; }
 export function materialBundleContents(bundle: MaterialBundle, mask: number): Record<string, number> {

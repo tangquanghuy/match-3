@@ -1,6 +1,7 @@
 import { talentTreeMarkup } from './talentTreeView';
 import { CLASS_ICON } from '../data/classIcons';
 import { openHeroTraitDialog } from './heroTraitDialog';
+import { openHeroPortraitDialog } from './heroPortraitDialog';
 /**
  * 主角屏（v2 · 官方 38 职业）：等级/四维、职业圣殿（装备/解锁）、天赋树
  * （3 树 × 7 档，每档三树选一、可随时改配）、职业专属特质（3 槽特质石解锁）、
@@ -41,6 +42,7 @@ import { traitBadgeSvg } from '../../render/traitBadges';
 import { TALENT_DYNAMIC_CODES } from '../data/talentDefs';
 import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import { isFailure } from '../gateway';
+import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { formulaKind, formulaParts, formulaRule, renderSpell } from '../shell/spellText';
 import { bindTermTips } from '../shell/termTip';
@@ -96,6 +98,7 @@ function masteryChoiceHtml(color: ManaColor, from: number): string {
 export class HeroScreen implements Screen {
   private ctx!: ShellCtx;
   private closeTraitDialog?: () => void;
+  private closePortraitDialog?: () => void;
   private pickedWeaponId: string | null = null;
   private forgeMode = false;
   private pickedRecipeId: string | null = null;
@@ -112,6 +115,7 @@ export class HeroScreen implements Screen {
           <div class="hero-art">
             <img src="/static/hero/seiji.webp" alt="影织者">
             <div class="shade"></div>
+            <button id="changeHeroPortrait" class="hero-portrait-trigger" type="button" aria-haspopup="dialog">更改立绘</button>
           </div>
           <div class="hero-metrics">
             <div class="hero-stats" id="heroStats" role="group" aria-label="主角当前四维"></div>
@@ -246,6 +250,13 @@ export class HeroScreen implements Screen {
     this.ctx = ctx;
     const portrait = document.querySelector<HTMLImageElement>('.hero-art img');
     if (portrait) setCharacterImage(portrait, ctx.save().character);
+    this.bind('#changeHeroPortrait', 'click', () => {
+      this.closePortraitDialog?.();
+      this.closePortraitDialog = openHeroPortraitDialog(this.ctx, () => {
+        if (portrait) setCharacterImage(portrait, this.ctx.save().character);
+        this.ctx.refreshChrome();
+      });
+    });
     this.bind('#vaultClose', 'click', () => ($('#vaultVeil').hidden = true));
     this.bind('#vaultForge', 'click', () => {
       this.forgeMode = !this.forgeMode;
@@ -421,10 +432,9 @@ export class HeroScreen implements Screen {
     const pending = pendingMasteryCount(save);
     const gems = MANA_COLORS.map((color) => {
       const mine = personal[color];
-      const extra = combat[color] > mine ? `（战斗 ${combat[color]}）` : '';
-      return `<span class="mastery-mini${combat[color] <= 0 ? ' is-empty' : ''}" style="--mc:${MASTERY_HEX[color]}" title="${MASTERY_NAME[color]} ${mine}${extra}">
+      return `<span class="mastery-mini${combat[color] <= 0 ? ' is-empty' : ''}" style="--mc:${MASTERY_HEX[color]}" title="${MASTERY_NAME[color]} ${combat[color]}（个人 ${mine} + 王国 ${combat[color] - mine}）">
         ${gemSvg([MASTERY_GEM[color]])}
-        <b>${mine}</b>
+        <b>${combat[color]}</b>
       </span>`;
     }).join('');
     el.innerHTML = `<span class="mastery-compact-label">法力精通${pending > 0 ? `<em>${pending}</em>` : ''}</span><span class="mastery-minis">${gems}</span>`;
@@ -449,16 +459,15 @@ export class HeroScreen implements Screen {
       ? `<section class="mastery-rite">
           <div class="mastery-rite-head">
             <small>升阶仪式</small>
-            <b>从两色中择一</b>
+            <b>${offer[0] === offer[1] ? '补齐落后精通' : '从两色中择一'}</b>
             <em>还剩 ${pending} 点</em>
           </div>
-          <div class="mastery-rite-row">
+          <div class="mastery-rite-row${offer[0] === offer[1] ? ' is-single' : ''}">
             ${masteryChoiceHtml(offer[0], personal[offer[0]])}
-            <span class="mastery-or" aria-hidden="true"><span>或</span></span>
-            ${masteryChoiceHtml(offer[1], personal[offer[1]])}
+            ${offer[0] === offer[1] ? '' : `<span class="mastery-or" aria-hidden="true"><span>或</span></span>${masteryChoiceHtml(offer[1], personal[offer[1]])}`}
           </div>
         </section>`
-      : '<p class="mastery-idle">升级主角后，会从随机两色中择一加一点精通。</p>';
+      : '<p class="mastery-idle">升级主角后，优先从精通较低的颜色中获得加点机会。</p>';
     const sigils = MANA_COLORS.map((color) => {
       const mine = personal[color];
       const kingdom = bonus[color];
@@ -471,7 +480,7 @@ export class HeroScreen implements Screen {
         </div>
         <div class="mastery-sigil-meta">
           <b>${MASTERY_NAME[color]}</b>
-          <strong>${mine}</strong>
+          <strong>${value}</strong>
           <span class="mastery-surge">涌动 ${surgeChancePct(value)}</span>
           ${kingdom > 0 ? `<small class="mastery-kingdom">王国 +${kingdom}</small>` : ''}
         </div>
@@ -482,7 +491,7 @@ export class HeroScreen implements Screen {
         <span><i>3 消</i> 概率翻倍</span>
         <span><i>4 消</i> 永不涌动</span>
         <span><i>5 消</i> 必涌动</span>
-        <span>武器解锁只看个人精通</span>
+        <span>武器解锁计入王国精通</span>
       </footer>`;
   }
 
@@ -974,7 +983,7 @@ export class HeroScreen implements Screen {
           toast(result.message);
           return;
         }
-        toast(`锻造成功：「${name}」已入武器库，可直接装备。`);
+        showAcquisitionDialog('武器锻造成功', [{ label: name, detail: '已加入武器库', icon: 'swords' }]);
         this.renderAll();
         this.openVault();
         this.forgeMode = true;
@@ -1054,6 +1063,7 @@ export class HeroScreen implements Screen {
 
   dispose(): void {
     this.closeTraitDialog?.();
+    this.closePortraitDialog?.();
     this.termTips?.();
     for (const [target, type, fn] of this.listeners.splice(0)) {
       target.removeEventListener(type, fn);

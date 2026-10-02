@@ -3872,6 +3872,7 @@
   gap: 12px;
   align-items: stretch;
 }
+.mastery-rite-row.is-single { grid-template-columns: minmax(0, 280px); justify-content: center; }
 .mastery-or {
   align-self: center;
   width: 42px;

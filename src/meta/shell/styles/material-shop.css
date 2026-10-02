@@ -137,3 +137,7 @@
  .material-body-bundles .material-contents li>img,.material-body-bundles .material-contents li>svg { width: 26px; height: 26px; }
  .material-body-bundles .material-contents small { margin-top: 0; font-size: 10px; line-height: 12px; }
 }
+@media (min-width:641px) and (max-width:900px) {
+ .material-shop-responsive .wallet { gap: 4px; }
+ .material-shop-responsive .orb { width: 34px; height: 34px; margin-left: 0; }
+}
