@@ -2910,12 +2910,12 @@ export class TurnEngine {
         // 原生 spell Target 限制（Not<X>OrSkullGems / ManaGemsOnly…）交给选择器（AI 遵守）
         const choiceRule = choiceRuleOf(proto);
         const chosenColor = prototypeNeedsColor(proto)
-          ? this.colorChooser.choose(this.state, ch.id, choiceRule) ?? undefined
+          ? this.colorChooser.choose(this.state, ch.id, choiceRule, proto) ?? undefined
           : undefined;
         // chosenTargetId was validated before committing this action.
         // 含"点选一枚宝石"的段时先选格（引爆某格 / 摧毁其所在行列共用此选择）
         const chosenCell = prototypeNeedsCell(proto)
-          ? this.cellChooser.choose(this.state, ch.id, this.rng, choiceRule) ?? undefined
+          ? this.cellChooser.choose(this.state, ch.id, this.rng, choiceRule, proto, chosenColor) ?? undefined
           : undefined;
         // P-create-interleave: defer the settle of pure board rewrites to the end of the spell
         const settle = { pending: false };

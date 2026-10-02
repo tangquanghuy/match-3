@@ -31,6 +31,7 @@ import {
   planQuestEncounter,
   CLASS_KINGDOM_ORDER,
   classUnlockRule,
+  classUnlockText,
   eligibleClassIds,
   migrateSave,
   STARTER_CLASS_ID,
@@ -470,7 +471,7 @@ describe('职业解锁分五批（用户裁定 2026-09-29）', () => {
     expect(s.hero.unlockedClasses).toContain(cls.id);
   });
 
-  it('困难批：困难 3 关全通才解锁，主线全通不解锁', () => {
+  it('原困难批：首次通关探索 3 解锁，主线全通与探索 1/2 不解锁', () => {
     const cls = firstOf((r) => r.kind === 'hard');
     const s = save();
     expect(questSettle(s, cls.kingdom, 8).classUnlocked).toBeNull();
@@ -480,12 +481,32 @@ describe('职业解锁分五批（用户裁定 2026-09-29）', () => {
     expect(s.hero.unlockedClasses).toContain(cls.id);
   });
 
-  it('非常困难批：困难全通仍不解锁，非常困难 3 关全通才解锁', () => {
+  it('原非常困难批：首次通关探索 6 解锁，探索 1~5 不解锁', () => {
     const cls = firstOf((r) => r.kind === 'veryHard');
     const s = save();
     for (const tier of [1, 2, 3]) expect(exploreSettle(s, cls.kingdom, tier).classUnlocked).toBeNull();
     for (const tier of [4, 5]) expect(exploreSettle(s, cls.kingdom, tier).classUnlocked).toBeNull();
     expect(exploreSettle(s, cls.kingdom, 6).classUnlocked).toBe(cls.id);
+  });
+
+  it('探索 3/6 的首通记录独立满足对应职业门槛', () => {
+    for (const [kind, tier] of [['hard', 3], ['veryHard', 6]] as const) {
+      const cls = firstOf((rule) => rule.kind === kind);
+      const s = save();
+      s.kingdoms[cls.kingdom] = { level: 1, questsDone: 8, exploreTier: tier, lastTributeAt: 0,
+        clearedExploreTiers: [tier] };
+      expect(eligibleClassIds(s)).toContain(cls.id);
+      expect(classUnlockText(cls.id)).toContain(`探索难度 ${tier}`);
+    }
+  });
+
+  it('可直接首通探索 3/6 解锁对应职业，重复通关不重复解锁', () => {
+    for (const [kind, tier] of [['hard', 3], ['veryHard', 6]] as const) {
+      const cls = firstOf((rule) => rule.kind === kind);
+      const s = save();
+      expect(exploreSettle(s, cls.kingdom, tier).classUnlocked).toBe(cls.id);
+      expect(exploreSettle(s, cls.kingdom, tier).classUnlocked).toBeNull();
+    }
   });
 
   it('旧档载入补发起始职业；eligibleClassIds 与结算判定同源', () => {

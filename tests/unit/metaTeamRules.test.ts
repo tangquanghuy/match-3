@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { activeTeam, newSave, setTeamPreset, validateTeam } from '../../src/meta';
+import { activeTeam, buildPlayerSnapshots, newSave, setTeamPreset, validateTeam } from '../../src/meta';
 import type { TeamMember } from '../../src/meta';
 
 const OWNED = [6000, 6097, 6457]; // 破碎尖塔三张普通卡（新档 starter）
@@ -38,11 +38,30 @@ describe('编队 3~4 人校验（裁定①）', () => {
     ).toContainEqual(expect.objectContaining({ code: 'TOO_MANY' }));
   });
 
-  it('重复部队 / 未拥有 / 悬空 id 全部可见', () => {
+  it('普通部队按持有副本数上阵，不朽类仍每队最多一名', () => {
     const s = save();
     expect(
       validateTeam(s, { members: [troop(6000), troop(6000), troop(6097)] }).issues,
     ).toContainEqual(expect.objectContaining({ code: 'DUPLICATE_TROOP' }));
+    s.collection['6000']!.copies = 1;
+    const twoCopies = [troop(6000), troop(6000), troop(6097), hero()];
+    expect(validateTeam(s, { members: twoCopies }).ok).toBe(true);
+    expect(setTeamPreset(s, 0, { name: '双卡队', members: twoCopies, bannerKingdomId: null }).ok).toBe(true);
+    const built = buildPlayerSnapshots(s);
+    expect(built.ok).toBe(true);
+    if (built.ok) expect(new Set(built.playerTeam.map(member => member.externalId)).size).toBe(4);
+    s.collection['6000']!.copies = 0;
+    expect(buildPlayerSnapshots(s)).toMatchObject({ ok: false, message: expect.stringContaining('副本不足') });
+    s.collection['6000']!.copies = 1;
+    expect(validateTeam(s, { members: [troop(6000), troop(6000), troop(6000), hero()] }).issues)
+      .toContainEqual(expect.objectContaining({ code: 'DUPLICATE_TROOP' }));
+    s.collection['7571'] = { ...s.collection['6000']!, copies: 3 };
+    expect(validateTeam(s, { members: [troop(7571), troop(7571), troop(6097), hero()] }).issues)
+      .toContainEqual(expect.objectContaining({ code: 'IMMORTAL_LIMIT' }));
+  });
+
+  it('未拥有 / 悬空 id 全部可见', () => {
+    const s = save();
     expect(
       validateTeam(s, { members: [troop(6000), troop(6097), troop(UNOWNED)] }).issues,
     ).toContainEqual(expect.objectContaining({ code: 'NOT_OWNED' }));

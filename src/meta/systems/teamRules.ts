@@ -1,5 +1,5 @@
 /**
- * 编队规则（M1）——裁定①的落地：4 人、主角可编入也可不编入、部队不重复且已拥有。
+ * 编队规则（M1）——4 人、主角可选、普通部队按持有副本数重复编入。
  *
  * 校验**汇总全部问题**而不是见错即返：ASSETS-NEEDED.md §6.3 要求校验规则可见，
  * UI 层把 issues 全部列出来（人数、耗蓝、色覆盖、种族计数等可视化由屏层做，
@@ -63,7 +63,7 @@ export function validateTeam(
     issues.push({ code: 'TOO_MANY', message: `最多 ${MAX_TEAM_SIZE} 人（当前 ${members.length} 人）` });
   }
 
-  const seenTroops = new Set<number>();
+  const troopCounts = new Map<number, number>();
   let heroCount = 0;
   members.forEach((member, position) => {
     if (member.kind === 'hero') {
@@ -74,17 +74,20 @@ export function validateTeam(
       issues.push({ code: 'BAD_MEMBER', message: `第 ${position + 1} 号位成员无效` });
       return;
     }
-    if (seenTroops.has(member.troopId)) {
-      issues.push({ code: 'DUPLICATE_TROOP', message: `第 ${position + 1} 号位：同名部队不能重复编入` });
-      return;
-    }
-    seenTroops.add(member.troopId);
-    if (!getTroopById(member.troopId)) {
+    const troop = getTroopById(member.troopId);
+    if (!troop) {
       issues.push({ code: 'UNKNOWN_TROOP', message: `第 ${position + 1} 号位：部队 id ${member.troopId} 不存在` });
       return;
     }
-    if (!save.collection[String(member.troopId)]) {
+    const record = save.collection[String(member.troopId)];
+    if (!record) {
       issues.push({ code: 'NOT_OWNED', message: `第 ${position + 1} 号位：尚未拥有该部队` });
+      return;
+    }
+    const count = (troopCounts.get(member.troopId) ?? 0) + 1;
+    troopCounts.set(member.troopId, count);
+    if (count > record.copies + 1) {
+      issues.push({ code: 'DUPLICATE_TROOP', message: `第 ${position + 1} 号位：${troop.name}可用副本不足（持有 ${record.copies + 1} 张）` });
     }
   });
   if (heroCount > 1) {

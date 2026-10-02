@@ -70,6 +70,27 @@ describe('AiColorChooser（需求 2.3）', () => {
     const state = stateWith(boardWithColors({}));
     expect(new AiColorChooser().choose(state, 0)).toBeNull();
   });
+  it('全色转化时己方可用的四连优先于无用的五连', () => {
+    const board = new BoardModel();
+    [BaseColor.Red, BaseColor.Red, BaseColor.Blue, BaseColor.Red].forEach((color, col) =>
+      board.set({ row: 0, col }, g(colorGem(color))));
+    [BaseColor.Yellow, BaseColor.Yellow, BaseColor.Blue, BaseColor.Yellow, BaseColor.Yellow].forEach((color, col) =>
+      board.set({ row: 2, col }, g(colorGem(color))));
+    const state = stateWith(board);
+    state.teams[PlayerSide.Left].characters[0]!.mana = 0;
+    expect(new AiColorChooser().choose(state, 0, undefined,
+      skill(transform(BaseColor.Blue, CHOSEN)))).toBe(BaseColor.Red);
+  });
+  it('摧毁选定颜色优先己方缺法力颜色；青灰帝的附加效果优先命中敌方颜色', () => {
+    const state = stateWith(boardWithColors({ Red: 2, Blue: 8 }));
+    state.teams[PlayerSide.Left].characters[0]!.mana = 0;
+    state.teams[PlayerSide.Right].characters[0]!.colors = [BaseColor.Blue];
+    expect(new AiColorChooser().choose(state, 0, undefined, skill(destroyColor(CHOSEN)))).toBe(BaseColor.Red);
+    const grayKing = skill(destroyColor(CHOSEN), dmg('enemyAll', 9, 1, {
+      ifCond: { kind: 'targetColor', color: 'CHOSEN' },
+    }));
+    expect(new AiColorChooser().choose(state, 0, undefined, grayKing)).toBe(BaseColor.Blue);
+  });
 });
 
 describe('FixedColorChooser', () => {
@@ -90,7 +111,7 @@ describe('prototypeNeedsColor', () => {
 });
 
 describe('CHOSEN 段按选定色执行（端到端，需求 2.5）', () => {
-  it('destroyColor(CHOSEN) 摧毁 AI 选中的最多色', () => {
+  it('destroyColor(CHOSEN) 施法耗蓝后优先摧毁己方需要的颜色', () => {
     const board = boardWithColors({ Red: 4, Blue: 10 });
     const state = stateWith(board);
     const registry = new ExtensionRegistry();
@@ -105,9 +126,9 @@ describe('CHOSEN 段按选定色执行（端到端，需求 2.5）', () => {
     const events = engine.castSkill(0);
     const destroy = events.find((e) => e.type === 'gem-destroy');
     expect(destroy?.type).toBe('gem-destroy');
-    // 选中蓝(10)，摧毁的都是蓝
+    // 红色数量较少，但施法者消耗法力后需要红色。
     if (destroy?.type === 'gem-destroy') {
-      expect(destroy.cells.every((c) => c.gemType.kind === 'color' && c.gemType.color === BaseColor.Blue)).toBe(true);
+      expect(destroy.cells.every((c) => c.gemType.kind === 'color' && c.gemType.color === BaseColor.Red)).toBe(true);
     }
   });
 

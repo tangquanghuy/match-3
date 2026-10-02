@@ -155,14 +155,19 @@ describe('藏宝图单一区间随机软上限', () => {
     expect(hunt.softCap!.activeMoves).toBe(0);
   });
 
-  it('有效的四/五连仍原样奖励步数；不会强行削减存量步数', () => {
+  it('三个金库后的四/五连仍原样奖励步数，原有金库和局面状态不被改动', () => {
     for (const [best, expected] of [[4, 50], [5, 51]]) {
       const cells = checker(); cells[3] = 0; if (best === 4) cells[4] = 1;
-      const state: TreasureHuntState = { cells, turns: 50, moves: 100, rng: 2, softCap: { target: 3, peak: 9, activeMoves: 50 } };
+      cells[61] = 7; cells[62] = 7; cells[63] = 7;
+      const state: TreasureHuntState = { cells, turns: 50, moves: 160, rng: 2, softCap: { target: 3, peak: 9, activeMoves: 50 } };
+      const before = structuredClone(state);
       const result = applyMove(state, 1, 9);
       if (!result.ok) throw new Error(result.message);
       expect(result.best).toBe(best);
       expect(result.turns).toBe(expected);
+      expect(result.moves).toBe(161);
+      expect(result.cells.filter(tier => tier === 7)).toHaveLength(3);
+      expect(state).toEqual(before);
       expect(result.over).toBe(false);
     }
   });

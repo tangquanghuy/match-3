@@ -33,12 +33,19 @@ function greedyMove(cells: number[], strategy: 'turns' | 'loot' = 'turns'): [num
   return choice;
 }
 
-function simulate(seed: number, limit = 1200, strategy: 'turns' | 'loot' = 'turns') {
+function simulate(seed: number, limit = 1200, strategy: 'turns' | 'loot' = 'turns', threeVaultTail = false) {
   const save = newSave({ now: 0 }); save.materials.treasureMaps = 1;
   const start = beginHunt(save, seed);
   if (!start.ok) throw new Error(start.message);
   let state = start.state, bonuses = 0, cooledMoves = 0, cooledBonus = 0, maxTurns = state.turns;
-  let firstVaultMove: number | null = null;
+  let firstVaultMove: number | null = threeVaultTail ? 0 : null;
+  if (threeVaultTail) {
+    state = {
+      ...state, cells: state.cells.map((tier, index) => index >= 61 ? 7 : tier),
+      turns: 20, moves: 160, softCap: { target: 3, peak: 9, activeMoves: 12 },
+    };
+    maxTurns = state.turns;
+  }
   const loot = (cells: number[]) => ({
     vaults: cells.filter(tier => tier === 7).length,
     redChests: cells.filter(tier => tier === 6).length,
@@ -122,4 +129,18 @@ describe('藏宝图随机软上限模拟', () => {
       expect(stats.runsOver500).toBe(0);
     }
   }, 120_000);
+
+  it('三个金库后的续局不靠四连和五连无限延长', () => {
+    const seeds = Array.from({ length: 100 }, (_, i) => new SeededRNG(3000 + i).nextInt(0xffffffff));
+    for (const strategy of ['turns', 'loot'] as const) {
+      const runs = seeds.map(seed => simulate(seed, 300, strategy, true));
+      const tail = runs.map(run => run.moves - 160);
+      const average = tail.reduce((sum, moves) => sum + moves, 0) / tail.length;
+      console.log('Three-vault tail:', { strategy, completed: runs.filter(run => run.over).length,
+        average, max: Math.max(...tail), maxVaults: Math.max(...runs.map(run => run.vaults)) });
+      expect(runs.every(run => run.over)).toBe(true);
+      expect(average).toBeLessThan(55);
+      expect(tail.filter(moves => moves > 90).length).toBe(0);
+    }
+  }, 60_000);
 });

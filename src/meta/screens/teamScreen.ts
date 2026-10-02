@@ -11,6 +11,7 @@ import { characterName, characterPortrait, DEFAULT_CHARACTER_PORTRAITS, type Cha
 import { escapeHtml } from './troopCard';
 import type { TroopData } from '../../data/troops';
 import { getTroopById } from '../../data/troops';
+import { isImmortal } from '../../data/immortals';
 import type { TeamMember } from '../state/schema';
 import { troopStatsOf } from '../systems/troopProgress';
 import { buildPlayerSnapshots } from '../systems/battleBridge';
@@ -576,11 +577,11 @@ export class TeamScreen implements Screen {
       toast(b == null ? `「${name(a)}」移到 ${to + 1} 号位` : `站位互换：${to + 1} 号位「${name(a)}」↔ ${from + 1} 号位「${name(b)}」`);
       return;
     }
-    // 名册拖入：已在队伍里 = 挪位（与目标互换）；否则编入并顶替原成员
+    // 名册拖入：有可用副本时编入；副本用尽时移动已有成员。
     const existing = this.slots.indexOf(value);
     const occupant = this.slots[to] ?? null;
-    if (existing === to) return;
-    if (existing >= 0) {
+    if (occupant === value) return;
+    if (existing >= 0 && !this.canAddCopy(value)) {
       this.slots[existing] = occupant;
       this.slots[to] = value;
       toast(`「${name(value)}」移到 ${to + 1} 号位`);
@@ -642,6 +643,16 @@ export class TeamScreen implements Screen {
 
   private byKey(key: string): RosterEntry | undefined {
     return this.rosterCache.find((e) => e.key === key);
+  }
+
+  private slotCapacity(value: Exclude<SlotValue, null>): number {
+    if (value === 'hero') return 1;
+    const entry = this.byKey(String(value));
+    return entry ? isImmortal(entry.troop) ? 1 : entry.copies : 0;
+  }
+
+  private canAddCopy(value: Exclude<SlotValue, null>): boolean {
+    return this.slots.filter(slot => slot === value).length < this.slotCapacity(value);
   }
 
   private rosterCache: RosterEntry[] = [];
@@ -922,8 +933,10 @@ export class TeamScreen implements Screen {
     const rosterEl = $('#roster');
     rosterEl.innerHTML = slice
       .map((t) => {
-        const used = this.slots.includes(t.key === 'hero' ? 'hero' : Number(t.key));
-        return `<button class="mini${used ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${escapeHtml(t.name)} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ' · 已上阵' : ''} · 单击查看 / 双击编入" type="button">
+        const value = t.key === 'hero' ? 'hero' : Number(t.key);
+        const used = this.slots.filter(slot => slot === value).length;
+        const full = used >= this.slotCapacity(value);
+        return `<button class="mini${full ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${escapeHtml(t.name)} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ` · 已上阵 ${used}/${this.slotCapacity(value)}` : ''} · 单击查看 / 双击编入" type="button">
           <i class="rarity-edge" aria-hidden="true"></i>
           ${troopImg(t.troop, t.key === 'hero', `alt="${escapeHtml(t.name)}"`, this.ctx.save().character)}
           ${manaCorner('mini-mana', t.colors, t.cost)}
@@ -955,8 +968,9 @@ export class TeamScreen implements Screen {
     const troop = this.byKey(this.inspectedKey ?? '');
     if (!troop) return;
     const value: SlotValue = troop.key === 'hero' ? 'hero' : Number(troop.key);
-    if (this.slots.includes(value)) {
-      toast(troop.name + ' 已在编队中。');
+    if (this.slots[this.selected] === value) return;
+    if (!this.canAddCopy(value)) {
+      toast(troop.name + ' 没有可用副本。');
       return;
     }
     const occupantKey = this.slots[this.selected];
@@ -971,7 +985,8 @@ export class TeamScreen implements Screen {
   }
 
   private removeInspected(): void {
-    const index = this.slots.findIndex((s) => s != null && String(s) === this.inspectedKey);
+    const index = this.slots[this.selected] != null && String(this.slots[this.selected]) === this.inspectedKey
+      ? this.selected : this.slots.findIndex((s) => s != null && String(s) === this.inspectedKey);
     if (index < 0) return;
     this.dropSlot(index);
   }
@@ -984,11 +999,12 @@ export class TeamScreen implements Screen {
       return;
     }
     const slotValue: SlotValue = troop.key === 'hero' ? 'hero' : Number(troop.key);
-    const usedAt = this.slots.indexOf(slotValue);
+    const usedAt = this.slots[this.selected] === slotValue ? this.selected : this.slots.indexOf(slotValue);
+    const canAdd = this.canAddCopy(slotValue) && this.slots[this.selected] !== slotValue;
     const occupantKey = this.slots[this.selected];
     const occupant = occupantKey != null ? this.byKey(String(occupantKey)) : undefined;
     const action =
-      usedAt >= 0
+      usedAt >= 0 && !canAdd
         ? `<button class="inspect-act" id="inspectAct" type="button">卸下 · ${usedAt + 1}号位</button>`
         : occupant
           ? `<button class="inspect-act primary" id="inspectAct" type="button">替换 ${escapeHtml(occupant.name)}</button>`
@@ -1011,7 +1027,7 @@ export class TeamScreen implements Screen {
     mountIcons(dock);
     this.termTipsInspect?.();
     this.termTipsInspect = bindTermTips(dock);
-    $('#inspectAct').onclick = () => (usedAt >= 0 ? this.removeInspected() : this.assignInspected());
+    $('#inspectAct').onclick = () => (usedAt >= 0 && !canAdd ? this.removeInspected() : this.assignInspected());
     $('#inspectCodex').onclick = () => {
       // TM-11：主角图鉴统一进入壳内武器中心，不再打开独立网页或绕回英雄页。
       if (troop.key === 'hero') this.ctx.navigate('#weapons/owned');

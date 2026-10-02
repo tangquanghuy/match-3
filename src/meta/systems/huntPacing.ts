@@ -36,7 +36,7 @@ export function observeHuntProgress(cap: HuntSoftCap, cells: readonly number[]):
 
 /** Leave room to assemble chests before gradually cooling a long run, even if its random reward threshold is not reached.
  * Neither clock time nor accumulated turns is consumed; four/five matches keep their rewards. */
-export const HUNT_LONG_RUN = Object.freeze({ startMoves: 150, rampEveryMoves: 30 });
+export const HUNT_LONG_RUN = Object.freeze({ startMoves: 150, rampEveryMoves: 30, strongCoolingMoves: 210 });
 
 export function huntComboBias(cap: HuntSoftCap, moves = 0): number {
   const rewardPressure = cap.peak < cap.target ? 0

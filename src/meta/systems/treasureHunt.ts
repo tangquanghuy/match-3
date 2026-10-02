@@ -13,7 +13,7 @@ import { ARCANE_STONE_KEYS, STONE_COLORS, type TraitstoneTier } from '../data/ma
 import type { HuntSoftCap, MetaSave, TreasureHuntState } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { earn, earnMaterials, spendMaterials } from './wallet';
-import { createHuntSoftCap, hydrateHuntSoftCap, huntComboBias, observeHuntProgress } from './huntPacing';
+import { HUNT_LONG_RUN, createHuntSoftCap, hydrateHuntSoftCap, huntComboBias, observeHuntProgress } from './huntPacing';
 
 export const HUNT_SIZE = 8;
 export const HUNT_CELLS = HUNT_SIZE * HUNT_SIZE;
@@ -176,10 +176,11 @@ export function hasLegalMove(cells: readonly number[]): boolean {
 /** 基础补充自然随机（匹配强度 0），独立于 BATTLE_COMBO_BIAS。
  * 达到随机奖励软上限或进入长局后，由 fill 做负向择优；触发前每格只抽一次。 */
 const HUNT_DROP_WEIGHTS = [55, 30, 12, 3] as const;
-function rollDrop(rng: SeededRNG): number {
+const HUNT_COOL_DROP_WEIGHTS = [40, 30, 20, 10] as const;
+function rollDrop(rng: SeededRNG, weights: readonly number[] = HUNT_DROP_WEIGHTS): number {
   let roll = rng.nextInt(100);
-  for (let tier = 0; tier < HUNT_DROP_WEIGHTS.length; tier++) {
-    roll -= HUNT_DROP_WEIGHTS[tier]!;
+  for (let tier = 0; tier < weights.length; tier++) {
+    roll -= weights[tier]!;
     if (roll < 0) return tier;
   }
   return 3;
@@ -211,16 +212,15 @@ function swapMatchSize(cells: readonly number[], index: number): number {
   return horizontal >= 3 && vertical >= 3 ? horizontal + vertical - 1 : Math.max(horizontal, vertical);
 }
 
-/** Cooling targets only net-positive (5+) extra-turn loops made of copper/silver.
- * Triples, four-matches and gold/bag/chest upgrades carry no penalty, including cascades.
- * Score only; never change an existing piece or cancel an earned extra turn. */
-export function huntLowTierLoopScore(cells: number[]): number {
+/** Rank refill candidates by future bonus-turn opportunities. Once three vaults exist,
+ * include all tiers in that score. Existing pieces and
+ * earned four/five-match turns are never changed. */
+function huntLoopScore(cells: number[], afterThreeVaults: boolean): number {
   const groups = findGroups(cells);
   let score = 0;
   for (const group of groups) {
-    if (cells[group[0]!]! <= 1 && group.length >= 5) {
-      score += 10_000;
-    }
+    if (afterThreeVaults && group.length >= 4) score += group.length >= 5 ? 100_000 : 10_000;
+    else if (!afterThreeVaults && cells[group[0]!]! <= 1 && group.length >= 5) score += 10_000;
   }
   for (let a = 0; a < HUNT_CELLS; a++) {
     if (cells[a] === VAULT) continue;
@@ -228,31 +228,41 @@ export function huntLowTierLoopScore(cells: number[]): number {
       if (b < 0 || cells[b] === VAULT || cells[a] === cells[b]) continue;
       const av = cells[a]!, bv = cells[b]!;
       cells[a] = bv; cells[b] = av;
-      const best = Math.max(bv <= 1 ? swapMatchSize(cells, a) : 0, av <= 1 ? swapMatchSize(cells, b) : 0);
-      score += best >= 5 ? 1 : 0;
+      const best = Math.max(afterThreeVaults || bv <= 1 ? swapMatchSize(cells, a) : 0,
+        afterThreeVaults || av <= 1 ? swapMatchSize(cells, b) : 0);
+      score += afterThreeVaults ? best >= 5 ? 100 : best >= 4 ? 10 : 0 : best >= 5 ? 1 : 0;
       cells[a] = av; cells[b] = bv;
     }
   }
   return score;
 }
 
+export function huntLowTierLoopScore(cells: number[]): number {
+  return huntLoopScore(cells, false);
+}
+
+function huntBonusOpportunityScore(cells: number[]): number {
+  return huntLoopScore(cells, true);
+}
+
 function fill(cells: number[], rng: SeededRNG, cap: HuntSoftCap, moves: number): void {
   const empty = cells.flatMap((tier, i) => tier < 0 ? [i] : []);
   if (!empty.length) return;
-  const pressure = -huntComboBias(cap, moves);
+  const afterThreeVaults = cells.filter(tier => tier === VAULT).length >= 3;
+  const strongCooling = afterThreeVaults || moves >= HUNT_LONG_RUN.strongCoolingMoves;
+  const pressure = Math.max(-huntComboBias(cap, moves), strongCooling ? 5 : 0);
   // Before cooling this is exactly one draw per empty cell, without scoring.
   if (pressure === 0) {
     for (const i of empty) cells[i] = rollDrop(rng);
     return;
   }
   let best: number[] = [], bestScore = Infinity;
-  // Every candidate uses the natural drop pool; only low-tier bonus loops are scored.
-  // Bounded effort: at most 11 candidates, only while reward/long-run cooling is active.
-  for (let attempt = 0; attempt < 1 + pressure * 2; attempt++) {
+  // A long run or three-vault tail gets more candidate refills to avoid recurring bonus-turn lines.
+  for (let attempt = 0; attempt < 1 + pressure * (strongCooling ? 6 : 2); attempt++) {
     // Clear the previous trial, so later empty slots do not bias earlier draws.
     for (const i of empty) cells[i] = EMPTY;
-    for (const i of empty) cells[i] = rollDrop(rng);
-    const score = huntLowTierLoopScore(cells);
+    for (const i of empty) cells[i] = rollDrop(rng, afterThreeVaults ? HUNT_COOL_DROP_WEIGHTS : HUNT_DROP_WEIGHTS);
+    const score = strongCooling ? huntBonusOpportunityScore(cells) : huntLowTierLoopScore(cells);
     if (score < bestScore) {
       best = empty.map(i => cells[i]!);
       bestScore = score;

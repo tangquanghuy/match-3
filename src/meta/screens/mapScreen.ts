@@ -819,7 +819,7 @@ export class MapScreen implements Screen {
               </div>
               <div class="kingdom-section-kicker"><b>解锁后可获得</b><small>完成当前可推进的主线来提升等级</small></div>
               <ul class="kingdom-lock-benefits">
-                <li>主线 · HARD · VERY HARD</li>
+                <li>王国主线 · 王国探索</li>
                 <li id="kingdomLockTroops">王国部队收藏</li>
                 <li id="kingdomLockBonus">满级王国加成</li>
               </ul>
@@ -835,7 +835,7 @@ export class MapScreen implements Screen {
                   <span class="kingdom-action-go"><span id="questEntryAction">进入主线</span><span data-icon="arrow"></span></span>
                 </button>
                 <div class="entry-cards">
-                  <button class="entry" id="entryExplore" type="button"><span data-icon="compass"></span><span><b>HARD</b><small id="exploreState">通关后开放</small></span></button>
+                  <button class="entry" id="entryExplore" type="button"><span data-icon="compass"></span><span><b>王国探索</b><small id="exploreState">通关后开放</small></span></button>
                   <button class="entry" id="entryTroops" type="button"><span data-icon="book"></span><span><b>王国部队</b><small id="troopProgress">0 / 8</small></span></button>
                 </div>
               </section>
@@ -1052,7 +1052,7 @@ export class MapScreen implements Screen {
     const ways: Record<string, Array<[string, string]>> = {
       gold: [['战斗结算', '击杀与首胜'], ['王国进贡', '黄金之国产得最多，主城翻倍，最多攒 12 小时'], ['分解多余卡', '不回收已投入养成']],
       soul: [['战斗结算', '按敌人稀有度 × 等级'], ['幽魂宝石', '战斗内拾取'], ['王国进贡', '灵魂之国（盖塔尔、迈纳杰之罪等）产得最多']],
-      gem: [['王国逐关首通', `普通 ${KINGDOM_FIRST_CLEAR_GEMS.normal} / 困难 ${KINGDOM_FIRST_CLEAR_GEMS.hard} / 非常困难 ${KINGDOM_FIRST_CLEAR_GEMS.veryHard} 宝石，每关仅一次`], ['多国同时进贡', '宝库一键收取，同一小时 2 国以上进贡'], ['竞技场胜场', '按最终胜场结算'], ['每日首胜', '本地日期判定'], ['每周活动', '里程碑与守土奖励']],
+      gem: [['王国逐关首通', `主线 ${KINGDOM_FIRST_CLEAR_GEMS.normal} / 探索 1-3 ${KINGDOM_FIRST_CLEAR_GEMS.hard} / 探索 4-6 ${KINGDOM_FIRST_CLEAR_GEMS.veryHard} 宝石，每关仅一次`], ['多国同时进贡', '宝库一键收取，同一小时 2 国以上进贡'], ['竞技场胜场', '按最终胜场结算'], ['每日首胜', '本地日期判定'], ['每周活动', '里程碑与守土奖励']],
       key: [['多国同时进贡', '宝库一键收取，同一小时 3 国以上进贡另给金钥匙'], ['任务奖励', '王国主线 8/8'], ['竞技场 / 活动', '里程碑奖励']],
     };
     const titles: Record<string, string> = { gold: '黄金', soul: '灵魂', gem: '宝石', key: '金钥匙' };
@@ -1192,7 +1192,7 @@ export class MapScreen implements Screen {
       return `<button class="kl-row ko-card${n.home ? ' home' : ''}${maxed ? ' maxed' : ''}" type="button" data-id="${n.view.name}">
         <span class="kl-crest">${crest}</span>
         <span class="ko-main"><b>${n.view.name}${n.home ? '<i class="ko-home" title="主城"></i>' : ''}</b>
-          <small>任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · HARD' : ''}</small>
+          <small>任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · 探索已开放' : ''}</small>
           <i class="ko-bar" aria-hidden="true"><i style="width:${Math.round((n.questsDone / 8) * 100)}%"></i></i></span>
         <span class="ko-lv${maxed ? ' max' : ''}" title="王国等级 ${n.level}/${KINGDOM_MAX_LEVEL}"><small>Lv</small>${n.level}</span>
         ${tag}
@@ -1679,8 +1679,8 @@ export class MapScreen implements Screen {
       : vm.nextNode === null
         ? '8 / 8 已全通'
         : `${vm.questsDone}/8 · 下一关 第 ${vm.nextNode} 关`;
-    $('#questEntryTitle').textContent = vm.nextNode === null ? 'HARD / VERY HARD' : `王国任务 · 第 ${vm.nextNode} 关`;
-    $('#questEntryAction').textContent = vm.nextNode === null ? '前往 HARD' : '进入主线';
+    $('#questEntryTitle').textContent = vm.nextNode === null ? '王国探索' : `王国任务 · 第 ${vm.nextNode} 关`;
+    $('#questEntryAction').textContent = vm.nextNode === null ? '前往探索' : '进入主线';
     $('#exploreState').textContent = locked
       ? `需冒险者 Lv.${vm.unlockLevel}`
       : vm.exploreUnlocked
@@ -1796,7 +1796,7 @@ export class MapScreen implements Screen {
       return;
     }
     if (!vm.exploreUnlocked) {
-      toast(`主线通关后开放 HARD / VERY HARD（当前 ${vm.questsDone}/8）。`);
+      toast(`主线通关后开放王国探索（当前 ${vm.questsDone}/8）。`);
       return;
     }
     ctx.navigate('#explore/' + encodeURIComponent(vm.view.name));

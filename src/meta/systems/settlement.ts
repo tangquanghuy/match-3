@@ -327,7 +327,7 @@ export function applySettlement(
         const mode = tier <= HARD_NODE_COUNT ? 'hard' : 'veryHard';
         if (tier <= 6) earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS[mode] },
           `${ctx.plan.kingdom} · 探索难度 ${tier} · 仅一次`);
-        // 困难／非常困难批次的职业：该难度 3 关全通才解锁
+        // 原困难／非常困难批次的职业：首次通关探索难度 3／6 时解锁。
         classUnlocked = tryUnlockClassOnExplore(save, ctx.plan.kingdom) ?? classUnlocked;
       }
     }

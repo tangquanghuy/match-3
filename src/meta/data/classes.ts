@@ -10,9 +10,7 @@
  * 职业特质 3 条按槽解锁（本仓库沿用特质槽解锁费用，见 systems/talents.unlockHeroTrait）。
  */
 import { clampLevel, type LeveledStats, type StatKey } from '../../data/leveling';
-import {
-  HARD_NODE_COUNT, KINGDOM_ORDER, QUESTS_PER_KINGDOM, VERY_HARD_NODE_COUNT,
-} from './kingdoms';
+import { KINGDOM_ORDER, QUESTS_PER_KINGDOM } from './kingdoms';
 import classesJson from './classes.json';
 
 export const CHAMPION_TIERS = classesJson.championTiers as unknown as readonly [
@@ -95,8 +93,8 @@ export function classByKingdom(kingdom: string): ClassDef | undefined {
  * 解锁条件：
  *  - default   新档即解锁（破碎尖塔／督军，保证一开局就有职业可用）
  *  - quest     通关该王国主线第 N 关（N = 4 或 8）
- *  - hard      通关该王国**困难全 3 关**
- *  - veryHard  通关该王国**非常困难全 3 关**
+ *  - hard      首次通关该王国探索难度 3
+ *  - veryHard  首次通关该王国探索难度 6
  */
 export type ClassUnlockRule =
   | { kind: 'default' }
@@ -161,8 +159,8 @@ export function classUnlockText(classId: string): string {
   switch (rule.kind) {
     case 'default': return '初始职业 · 无需解锁';
     case 'quest': return `通关${kingdom}主线 ${rule.nodes} 关`;
-    case 'hard': return `通关${kingdom}困难 ${HARD_NODE_COUNT} 关`;
-    case 'veryHard': return `通关${kingdom}非常困难 ${VERY_HARD_NODE_COUNT} 关`;
+    case 'hard': return `通关${kingdom}探索难度 3`;
+    case 'veryHard': return `通关${kingdom}探索难度 6`;
   }
 }
 

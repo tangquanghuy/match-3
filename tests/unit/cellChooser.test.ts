@@ -7,7 +7,7 @@ import { SeededRNG } from '@engine/rng';
 import { AiCellChooser, FixedCellChooser, prototypeNeedsCell } from '@engine/skills/cellChooser';
 import { gemEffect } from '@engine/skills/effects/gems';
 import type { EffectContext } from '@engine/skills/effects/context';
-import { skill, explodeAt, CELL, dmg, destroyArea } from '@engine/skills/builders';
+import { skill, explodeAt, CELL, dmg, destroyArea, destroyAt, transform } from '@engine/skills/builders';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character, Team, Gem, GemType, CellPos } from '@engine/types';
 import type { GameState } from '@engine/GameState';
@@ -56,6 +56,25 @@ describe('AiCellChooser', () => {
   it('全空棋盘 → null', () => {
     const state = stateWith(new BoardModel());
     expect(new AiCellChooser().choose(state, 0, new SeededRNG(1))).toBeNull();
+  });
+  it('单格转化优先形成己方可用的五连', () => {
+    const board = new BoardModel();
+    [BaseColor.Red, BaseColor.Red, BaseColor.Blue, BaseColor.Red, BaseColor.Red]
+      .forEach((color, col) => board.set({ row: 0, col }, g(colorGem(color))));
+    board.set({ row: 4, col: 4 }, g(colorGem(BaseColor.Blue)));
+    const state = stateWith(board);
+    state.teams[PlayerSide.Left].characters[0]!.mana = 0;
+    expect(new AiCellChooser().choose(state, 0, new SeededRNG(1), undefined,
+      skill(transform(CELL, BaseColor.Red)))).toEqual({ row: 0, col: 2 });
+  });
+  it('单格摧毁优先选择己方需要的颜色', () => {
+    const board = new BoardModel();
+    board.set({ row: 0, col: 0 }, g(colorGem(BaseColor.Red)));
+    board.set({ row: 4, col: 4 }, g(colorGem(BaseColor.Blue)));
+    const state = stateWith(board);
+    state.teams[PlayerSide.Left].characters[0]!.mana = 0;
+    expect(new AiCellChooser().choose(state, 0, new SeededRNG(1), undefined,
+      skill(destroyAt(CELL)))).toEqual({ row: 0, col: 0 });
   });
 });
 

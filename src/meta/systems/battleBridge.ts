@@ -25,7 +25,7 @@ import { fallbackPrototype } from '../../engine/skills/prototypes';
 import { registerSkillLibrary } from '../../engine/skills/library';
 import { CATALOG_WEAPONS } from '../data/weaponCatalog';
 import { fail, type MetaFailure } from '../types';
-import { activeTeam, immortalTeamIssue } from './teamRules';
+import { activeTeam, immortalTeamIssue, validateTeam } from './teamRules';
 import { equippedBannerOf } from './banners';
 import { combatManaMastery, toEngineMastery } from './manaMastery';
 import { getRecord, rarityTierOf } from './troopProgress';
@@ -201,6 +201,10 @@ export function buildPlayerSnapshots(
 
   const immortalIssue = immortalTeamIssue(team.members);
   if (immortalIssue) return fail('INVALID', immortalIssue.message);
+  if (!chosenTeam) {
+    const validation = validateTeam(save, team);
+    if (!validation.ok) return fail('INVALID', validation.issues[0]!.message);
+  }
 
   const playerTeam: CombatantSnapshot[] = [];
   const statBonus = kingdomBonusOf(save);

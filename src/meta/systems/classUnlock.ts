@@ -4,11 +4,10 @@
  * 门槛表单一事实源在 data/classes.ts 的 CLASS_UNLOCK：
  *   default → 新档即有（破碎尖塔／督军，见 schema 初始存档）
  *   quest N → 通关该王国主线第 N 关（4 或 8）
- *   hard / veryHard → 通关该王国对应难度的全部 3 关
+ *   hard / veryHard → 分别首次通关该王国探索难度 3 / 6
  * 结算（systems/settlement）在推进主线与首通探索关时各调一次；已解锁则返回 null。
  */
 import { CLASSES, classByKingdom, classUnlockRule } from '../data/classes';
-import { HARD_NODE_COUNT, VERY_HARD_NODE_COUNT } from '../data/kingdoms';
 import type { KingdomState, MetaSave } from '../state/schema';
 
 function unlock(save: MetaSave, classId: string): string | null {
@@ -26,13 +25,9 @@ export function tryUnlockClassOnQuest(save: MetaSave, kingdom: string, node: num
   return unlock(save, cls.id);
 }
 
-/** 该王国某难度是否全 3 关通关（探索档位 1~3 = 困难，4~6 = 非常困难）。 */
+/** 仅看指定探索难度的首通记录；玩家可以直接选择已开放的难度。 */
 function difficultyCleared(entry: KingdomState | undefined, mode: 'hard' | 'veryHard'): boolean {
-  const cleared = new Set(entry?.clearedExploreTiers ?? []);
-  const offset = mode === 'hard' ? 0 : HARD_NODE_COUNT;
-  const count = mode === 'hard' ? HARD_NODE_COUNT : VERY_HARD_NODE_COUNT;
-  for (let node = 1; node <= count; node++) if (!cleared.has(offset + node)) return false;
-  return true;
+  return entry?.clearedExploreTiers?.includes(mode === 'hard' ? 3 : 6) ?? false;
 }
 
 /** 首通一个探索关后的解锁判定（hard / veryHard 批次）。返回本次新解锁的 classId。 */
