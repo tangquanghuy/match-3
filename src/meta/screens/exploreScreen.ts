@@ -1,6 +1,8 @@
 import { gameNow, isFailure } from '../gateway';
 import { EXPLORE_ENEMY_LEVELS, EXPLORE_MAX_TIER, exploreStageLabel, kingdomUnlockLevel, KINGDOM_ORDER } from '../data/kingdoms';
 import { enemyEncounterStats } from '../data/enemyDifficulty';
+import { buildPlayerSnapshots, encounterPower } from '../systems/battleBridge';
+import { teamPower } from '../systems/combatPower';
 import { getTroopById } from '../../data/troops';
 import { exploreUnlocked, explorePreviewSeed, kingdomNodeState } from '../systems/kingdomOps';
 import { planExploreEncounter } from '../systems/encounter';
@@ -40,6 +42,9 @@ ${CSS}</style>${topbarHtml()}<main class="screen explore-screen">${body}</main>$
     const view = kingdomViewOf(this.kingdom);
     const art = ART[view.biome] ?? ART.spire!;
     const plan = planExploreEncounter(this.kingdom, tier, run ? exploreBattleSeed(run) : explorePreviewSeed(this.kingdom, tier), stage, run?.id);
+    const player = buildPlayerSnapshots(save);
+    const playerPower = player.ok ? teamPower(player.playerTeam).toLocaleString() : '未编队';
+    const opponentPower = encounterPower(plan.enemies).toLocaleString();
     const arcane = kingdomArcaneKey(this.kingdom);
     const enemies = plan.enemies.map((enemy, index) => {
       const troop = getTroopById(enemy.troopId)!;
@@ -80,6 +85,7 @@ ${CSS}</style>${topbarHtml()}<main class="screen explore-screen">${body}</main>$
         </div>
       </section><aside class="ex-panel" aria-label="本场战斗">
         <div class="ex-section-heading"><h2>${exploreStageLabel(stage)}</h2><span>难度 ${tier}</span></div>
+        <div class="ex-power">敌方战力 <b>${opponentPower}</b><span>/</span>我方 <b>${playerPower}</b></div>
         <div class="ex-enemies">${enemies}</div><small class="ex-preview-note">${run ? '本场敌方阵容' : '阵容预览 · 开始探索时确定'}</small>
         <div class="ex-deploy">${!open ? `<p class="ex-gate">${save.hero.level < kingdomUnlockLevel(this.kingdom) ? `冒险者 Lv.${kingdomUnlockLevel(this.kingdom)} 开放王国` : '通关本王国主线后开放'}</p>` : ''}
         <button class="primary" id="exploreFight" type="button" ${open ? '' : 'disabled'}><span data-icon="swords"></span>${run ? '继续探索' : '开始探索'}</button>

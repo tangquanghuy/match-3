@@ -53,6 +53,8 @@
 .ex-material div>span { display:block; font-size:11px; line-height:1.7; color:#b0bcc0; margin-top:6px; }.ex-reward-amount { margin-left:auto; padding-left:8px; font:27px Georgia,serif; color:#e8d7b1; white-space:nowrap; }
 .ex-first-clear { margin:8px 0 0 84px; font-size:11px; color:#ddc994; }.ex-first-clear[data-first-clear="completed"] { color:#9aaea4; }
 .ex-panel { display:flex; flex-direction:column; padding:22px; background:linear-gradient(145deg,#1b2a31f5,#111c22f5); }.ex-panel>.ex-section-heading { padding-bottom:18px; border-bottom:1px solid #af9a6c36; margin-bottom:16px; }
+.ex-power { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 7px; margin:-4px 0 14px; color:#acbbc0; font-size:11px; font-variant-numeric:tabular-nums; }
+.ex-power b { color:#f0d393; font-size:13px; }.ex-power span { color:#677d84; }
 .ex-enemies { display:grid; gap:10px; }.ex-enemy { position:relative; display:flex; gap:13px; align-items:center; min-width:0; background:linear-gradient(100deg,#22313a,#142127); border:1px solid #82949730; border-radius:5px; overflow:hidden; }.ex-enemy.boss { border-color:#ac81967a; }
 .ex-enemy-slot { position:absolute; top:0; left:0; padding:3px 6px; background:#111b24dd; color:#dac599; font:10px Georgia,serif; border-radius:0 0 5px 0; z-index:1; }
 .ex-enemy>img { width:76px; height:91px; object-fit:cover; object-position:top; flex-shrink:0; mask-image:linear-gradient(90deg,#000 80%,#000a); }
@@ -68,7 +70,7 @@
 }
 @media(max-width:1000px) {
   .ex-layout { grid-template-columns:minmax(0,1fr); }.ex-panel { display:grid; grid-template-columns:minmax(0,1fr) 220px; column-gap:24px; }.ex-panel>.ex-section-heading { grid-column:1/-1; }
-  .ex-enemies { grid-column:1; grid-row:2/4; grid-template-columns:repeat(2,minmax(0,1fr)); }.ex-preview-note { grid-column:2; margin:6px 0 18px; align-self:end; }.ex-deploy { grid-column:2; margin-top:0; align-self:start; }
+  .ex-power { grid-column:1/-1; grid-row:2; }.ex-enemies { grid-column:1; grid-row:3/5; grid-template-columns:repeat(2,minmax(0,1fr)); }.ex-preview-note { grid-column:2; grid-row:3; margin:6px 0 18px; align-self:end; }.ex-deploy { grid-column:2; grid-row:4; margin-top:0; align-self:start; }
   .ex-enemy { gap:8px; }.ex-enemy>img { width:54px; height:88px; }.ex-enemy strong { font-size:12px; }.ex-stats { gap:5px; font-size:10px; }.ex-journey { padding-top:18px; }
 }
 @media(max-width:699px) {

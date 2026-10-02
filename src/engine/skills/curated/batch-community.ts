@@ -38,7 +38,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
       desc: COMMUNITY_TROOPS[3]!.spell.description,
       build: skill(
         attack('allyFront', 3),
-        createMix([BaseColor.Green, 'SKULL'], 20),
+        createMix([BaseColor.Green, 'SKULL'], 23),
       ),
     },
     {
@@ -109,7 +109,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         // Dispel only positive statuses; preserve existing debuffs and the chosen target.
         ...POSITIVE_STATUS_IDS.map((statusId, index) => dispelStatus(statusId, index === 0 ? 'enemyChosen' : 'lastTarget')),
         inflict('stun', 'lastTarget'),
-        inflict('freeze', 'lastTarget'),
+        inflict('frozen', 'lastTarget'),
         transform(BaseColor.Red, BaseColor.Blue),
       ),
     },

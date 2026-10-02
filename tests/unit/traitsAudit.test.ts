@@ -941,7 +941,7 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           report(`${tag(t)} enemyMasteryMult=${t.enemyMasteryMult} 与描述「${d}」不符`);
         }
       }
-      if (t.devourImmunity && !/对吞噬免疫/.test(d)) {
+      if (t.devourImmunity && !/吞噬.*免疫/.test(d)) {
         report(`${tag(t)} devourImmunity 但描述不是吞噬免疫句式`);
       }
       if (t.positionAura) {

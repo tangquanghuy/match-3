@@ -120,7 +120,7 @@ interface OpenSpec {
 
 /** 六枚开箱按钮的成交口径（数值全部来自 economy 单源） */
 /** 馈赠页领到部队卡后，借宝箱页的翻牌演出展示（奖励已入账）；关闭演出回到 returnHash */
-interface GiftReveal { cards: GachaCard[]; gems: number; returnHash: string }
+interface GiftReveal { cards: GachaCard[]; gems: number; gold: number; souls: number; returnHash: string }
 let pendingGiftReveal: GiftReveal | null = null;
 export function queueGiftReveal(reveal: GiftReveal): void {
   pendingGiftReveal = reveal;
@@ -478,8 +478,8 @@ export class ChestsScreen implements Screen {
     $('#summonCounter').textContent = `0 / ${rewards.length}`;
     const extra = $('#summonExtra');
     if (extra) {
-      extra.textContent = gift.gems > 0 ? `同时获得宝石 +${fmt(gift.gems)}` : '';
-      extra.hidden = gift.gems <= 0;
+      extra.textContent = `同时获得宝石 +${fmt(gift.gems)} · 黄金 +${fmt(gift.gold)} · 灵魂 +${fmt(gift.souls)}`;
+      extra.hidden = false;
     }
     $('#summonSkip').hidden = false;
     $('#legendSlam').hidden = true;

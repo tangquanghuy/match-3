@@ -85,6 +85,8 @@ export interface CombatantSnapshot {
   eventTarget?: 'boss' | 'tower';
   /** 当前品质0..5（基础品质+晋升），活动专精伤害使用。 */
   eventRarity?: number;
+  /** 当前稀有度档（含升阶）；仅用于队伍战力展示和镜像匹配，不改变战斗属性。 */
+  rarityIdx?: number;
   /** 关联法力颜色，任一色的匹配共同充能同一条法力条 */
   manaColors: BaseColor[];
   /** 释放技能所需法力总量 */

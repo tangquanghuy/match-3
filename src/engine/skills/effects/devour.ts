@@ -25,7 +25,7 @@ import { conditionMet } from './secondary';
 import type { Condition, ModifierSpec } from './secondary';
 import { modifierBonus } from './secondary';
 import { passivesOf } from '../../traits';
-import { hasStatus, isCursed } from './status';
+import { hasLethalImmunity, hasStatus, isCursed } from './status';
 
 export interface DevourParams {
   targets: Character[];
@@ -46,10 +46,9 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
       const caster = findCharacter(ctx.state, ctx.casterId);
       const boost = modifierBonus(params.chanceBoost, ctx) / 100;
       for (const target of params.targets) {
-        if (target.defeated) continue;
+        if (target.defeated || target.id === ctx.casterId) continue;
         // Official Blessed protects from Devour independently of trait immunity.
-        const invulnerable = target.traitIds?.includes('invulnerable') ?? false;
-        if (hasStatus(target, 'blessed') || invulnerable || (passivesOf(target).devourImmunity && !isCursed(target))) continue;
+        if (hasStatus(target, 'blessed') || hasLethalImmunity(target) || (passivesOf(target).devourImmunity && !isCursed(target))) continue;
         // 概率 = chance ×（条件倍率）+ 加成百分点，夹在 [0,1]；掷签恒发生（确定性）
         const mult = params.chanceMult && conditionMet(params.chanceMult.cond, ctx, target)
           ? params.chanceMult.times

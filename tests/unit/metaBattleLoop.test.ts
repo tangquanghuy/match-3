@@ -124,7 +124,7 @@ function runFullBattle(playerSeed: number): RunOutcome {
   if (detail.victory) {
     expect(save.stats.battlesWon).toBe(1);
     expect(save.kingdoms[KINGDOM]?.questsDone).toBe(1);
-    expect(save.currencies.gems).toBe(300); // 150 + 每日首胜 50 + 普通首通 100
+    expect(save.currencies.gems).toBe(550); // 150 + 每日首胜 300 + 普通首通 100
     expect(save.currencies.souls).toBeGreaterThan(800);
   } else {
     expect(save.stats.battlesLost).toBe(1);

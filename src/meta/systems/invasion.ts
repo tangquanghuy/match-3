@@ -9,7 +9,6 @@ import { grantBattleRewards, type BattleRewards } from './battleRewards';
 import { buildTieredDefense, buildFrenzyDefense, INVASION_DIFFICULTIES, type InvasionDifficulty } from '../data/invasionDifficulty';
 import { BANNERS } from '../data/banners';
 import { equippedBannerOf } from './banners';
-import { enemyEncounterStats } from '../data/enemyDifficulty';
 import { SeededRNG } from '../../engine/rng';
 import { getTroopById, knownTroopTypes } from '../../data/troops';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION } from '../../session/contract';
@@ -21,6 +20,7 @@ import {
   INVASION,
 } from '../data/economy';
 import { fnv1a32 } from '../data/hash';
+import { teamStatPower } from './combatPower';
 import { WEEK_MS } from '../data/events';
 import { buildMetaRegistry, buildPlayerSnapshots, enemyToSnapshot, metaKnownTraitIds } from './battleBridge';
 import { earn, earnMaterials } from './wallet';
@@ -47,6 +47,8 @@ export interface InvasionMirror {
   name: string;
   /** 防守评分（展示 + 宿敌判定的强度近似） */
   rating: number;
+  /** 入侵金币原有的四项属性评分；战力扩展不改动金币曲线。 */
+  statRating?: number;
   /** Enemy league snapshot; optional for saves created before the gold rebalance. */
   league?: number;
   /** Random strengthened encounter flag; the weekly leaderboard itself is not rerolled. */
@@ -107,17 +109,14 @@ export function buildBracket(weekStart: number, league: number): InvasionMirror[
     let suffix = 2;
     while (usedNames.has(name)) name = `${name}${suffix++}`;
     usedNames.add(name);
-    const rating = defense.reduce((sum, d) => {
-      const troop = getTroopById(d.troopId);
-      if (!troop) return sum;
-      const stats = enemyEncounterStats(troop, d.level);
-      return sum + stats.health + stats.armor + stats.attack * 2 + stats.magic * 3;
-    }, 0);
+    const snapshots = defense.map((d, index) => enemyToSnapshot(getTroopById(d.troopId)!, d, index));
+    const rating = teamPower(snapshots);
+    const statRating = teamStatPower(snapshots);
     const finalVp = Math.round((vpMin + (vpMax - vpMin) * strength) * (0.85 + rng.next() * 0.3));
     mirrors.push({
       id: `bot-${i + 1}`,
       name,
-      rating, league,
+      rating, statRating, league,
       frenzy: false, frenzyMultiplier: 1,
       vp: 0,
       finalVp,
@@ -234,7 +233,14 @@ export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: nu
 export function invasionCandidates(save: MetaSave, now: number, weekStart: number): InvasionMirror[] {
   const roster = save.invasion.roster;
   if (roster && invasionRosterFresh(save, weekStart)) {
-    return roster.mirrors.map(m => m.player ? { ...m } : { ...m, vp: mirrorVpAt(m, now, weekStart) });
+    return roster.mirrors.map(m => {
+      const snapshots = m.player?.team ?? m.defense.flatMap((d, index) => {
+        const troop = getTroopById(d.troopId);
+        return troop ? [enemyToSnapshot(troop, d, index)] : [];
+      });
+      return { ...m, rating: teamPower(snapshots), statRating: teamStatPower(snapshots),
+        vp: m.player ? m.vp : mirrorVpAt(m, now, weekStart) };
+    });
   }
   return botInvasionCandidates(save, now, weekStart);
 }
@@ -307,11 +313,10 @@ export function botInvasionCandidates(save: MetaSave, now: number, weekStart: nu
       const defense: MirrorDefender[] = template.troops.map((troopId, index) => ({
         troopId, level: template.level, tier: index === 0 ? 'elite' : 'minion', statMultiplier: INVASION_FRENZY.stats[frenzy.multiplier],
       }));
-      const rating = defense.reduce((sum, d) => {
-        const stats = enemyEncounterStats(getTroopById(d.troopId)!, d.level, d.statMultiplier);
-        return sum + stats.health + stats.armor + stats.attack * 2 + stats.magic * 3;
-      }, 0);
-      mirror = { ...mirror, defense, rating, frenzy: true, frenzyMultiplier: frenzy.multiplier,
+      const snapshots = defense.map((d, index) => enemyToSnapshot(getTroopById(d.troopId)!, d, index));
+      const rating = teamPower(snapshots);
+      const statRating = teamStatPower(snapshots);
+      mirror = { ...mirror, defense, rating, statRating, frenzy: true, frenzyMultiplier: frenzy.multiplier,
         archetypeId: template.id, archetypeName: template.name, strategy: template.strategy, roles: template.roles,
         sourceRow: null, provenance: template.provenance, bannerKingdom: template.bannerKingdom };
     }

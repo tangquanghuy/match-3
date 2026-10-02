@@ -258,6 +258,11 @@ export function isCursed(char: Character): boolean {
   return char.statuses.some((s) => s.turns > 0 && CURSE_STATUS_IDS.has(s.id));
 }
 
+/** These protections remain active even while cursed or stunned. */
+export function hasLethalImmunity(char: Character): boolean {
+  return !!char.traitIds?.some((id) => id === 'invulnerable' || id === 'indestructible');
+}
+
 /** Mana Drain/Steal are blocked by Blessed, Mana Shield and Invulnerable.
  * Impervious alone protects Mana Burn, not Mana Drain. Ordinary trait immunity
  * is bypassed by Curse or Stun; Invulnerable is retained. */

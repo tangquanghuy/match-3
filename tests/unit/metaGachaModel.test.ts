@@ -7,8 +7,8 @@ import { setWishlist } from '../../src/meta/systems/wishlist';
 import { TROOPS } from '../../src/data/troops';
 describe('宝石经济和抽卡模型',()=>{
  it('竞技场黄金报名与非宝石奖励不计入宝石预算',()=>{
-  const b=gemBudget(BUDGET_SCENARIOS.standard!);expect(b.firstWin).toBe(350);expect(b.arenaRewards).toBe(0);expect(b.arenaFees).toBe(0);expect(b.netWeekly).toBe(350);
-  const x=gemBudget({...BUDGET_SCENARIOS.standard!,otherWeeklySpending:100,gachaFraction:.5});expect(x.dailyGacha).toBeCloseTo(250*.5/7);
+  const b=gemBudget(BUDGET_SCENARIOS.standard!);expect(b.firstWin).toBe(2100);expect(b.arenaRewards).toBe(0);expect(b.arenaFees).toBe(0);expect(b.netWeekly).toBe(2100);
+  const x=gemBudget({...BUDGET_SCENARIOS.standard!,otherWeeklySpending:100,gachaFraction:.5});expect(x.dailyGacha).toBeCloseTo(2000*.5/7);
  });
  // 宝石箱当前权重：传说 10.7% / 史诗 2.5% / 神话 0.25%（占全部开箱，含 21.2% 材料抽）
  it('名单指定卡传说平均约105抽、史诗约514抽；不把卡池总数用在名单内',()=>{

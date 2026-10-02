@@ -67,6 +67,18 @@ describe('SaveStore（本地介质：双槽防损）', () => {
 });
 
 describe('存档序列化（本地与 D1 共用）', () => {
+  it('2026-10-02 已领取的旧档仅重置一次首胜，次日和新档不受影响', () => {
+    const day = Date.UTC(2026, 9, 1, 16);
+    const old = { ...seedSave(), dailyFirstWinAt: day } as Record<string, unknown>;
+    delete old.dailyFirstWinRewardVersion;
+    const reset = parseSaveJson(JSON.stringify(old), day + 1);
+    expect(reset.dailyFirstWinAt).toBe(0);
+    expect(reset.dailyFirstWinRewardVersion).toBe(1);
+    reset.dailyFirstWinAt = day;
+    expect(parseSaveJson(serializeSave(reset), day + 2).dailyFirstWinAt).toBe(day);
+    expect(parseSaveJson(JSON.stringify(old), day + 86_400_001).dailyFirstWinAt).toBe(day);
+  });
+
   it('serializeSave / parseSaveJson 往返一致', () => {
     const save = seedSave();
     expect(parseSaveJson(serializeSave(save))).toEqual(save);

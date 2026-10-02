@@ -29,6 +29,7 @@
 .ev-weekly header b { color: var(--ev-gold); font-size: 15px; letter-spacing: .08em; }
 .ev-weekly header strong { color: #f6ecd2; font: 26px var(--body); }
 .ev-weekly header strong small { color: var(--ev-muted); font: 13px var(--body); }
+.ev-weekly-currency { color: var(--ev-muted); font-size: 11px; line-height: 1.35; }
 .ev-weekly-rail { position: relative; height: 54px; margin: 0 40px 0 10px; }
 .ev-weekly-bar { position: absolute; top: 14px; left: 0; right: 0; height: 6px; border-radius: 99px; background: #2c2d36; }
 .ev-weekly-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #a47a36, #f0cf85); }
@@ -407,8 +408,9 @@
   .ev-overview-header p > span:last-child { display: none; }
   .ev-overview-track { grid-template-columns: 1fr; grid-auto-rows: 220px; gap: 12px; }
   .ev-weekly { grid-template-columns: 1fr; gap: 6px; padding: 12px 14px 8px; }
-  .ev-weekly header { flex-direction: row; align-items: baseline; justify-content: space-between; }
+  .ev-weekly header { flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: space-between; }
   .ev-weekly header strong { font-size: 20px; }
+  .ev-weekly-currency { flex-basis: 100%; }
   .ev-weekly-rail { height: 46px; margin: 0 26px 0 4px; }
   .ev-weekly-bar { top: 11px; }
   .ev-goal-pill { gap: 2px; height: 28px; padding: 0 6px 0 4px; }

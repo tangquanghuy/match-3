@@ -20,7 +20,7 @@ import type { EventWeekState, MetaSave } from '../state/schema';
 import { getTroopById, TROOPS } from '../../data/troops';
 import type { EventGoods, EventMilestone, EventTheme, EventTypeId } from '../data/events';
 import {
-  EVENT_MILESTONES, EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS,
+  EVENT_MILESTONES, EVENT_MILESTONE_CURRENCY_BONUS, EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS,
   EVENT_SHOP,
   EVENT_TOKEN_DIVISOR,
   EVENT_TOKEN_MIN_PER_WIN,
@@ -300,6 +300,7 @@ export function claimEventMilestones(save: MetaSave, weekStart: number, typeId: 
   const metric = eventMetricOf(save, weekStart, typeId).value;
   return eventMilestonesReached(typeId, metric, week.claimed).map(({ index, milestone: m }) => {
     week.claimed.push(index);
+    week.eventData[`currencyBonusPaid${index}`] = 1;
     const deltas = earn(save, {
       gold: m.gold ?? 0, souls: m.souls ?? 0, goldKeys: m.goldKeys ?? 0, glory: m.glory ?? 0,
     });
@@ -426,13 +427,18 @@ export function eventWeeklySummary(save: MetaSave, weekStart: number) {
   return { wins, goals, earned: goals.reduce((sum, g) => sum + (g.claimed ? g.gems : 0), 0) };
 }
 
-/** 宝石与素材分账，旧版已领里程碑只补宝石差额，不重复发材料。 */
+/** 宝石与素材分账；旧版已领里程碑只补新增货币与宝石差额。 */
 export function claimEventWeeklyGems(save: MetaSave, weekStart: number, typeId: EventTypeId): EventProgressLine[] {
   const week = ensureEventWeek(save, weekStart, typeId);
   const metric = eventMetricOf(save, weekStart, typeId).value;
   const lines: EventProgressLine[] = [];
   EVENT_MILESTONES[typeId].forEach((m, i) => {
     if (metric < m.points && !week.claimed.includes(i)) return;
+    if (week.claimed.includes(i) && week.eventData[`currencyBonusPaid${i}`] !== 1) {
+      const deltas = earn(save, { gold: EVENT_MILESTONE_CURRENCY_BONUS.gold[i]!, souls: EVENT_MILESTONE_CURRENCY_BONUS.souls[i]! });
+      week.eventData[`currencyBonusPaid${i}`] = 1;
+      lines.push({ label: `里程碑增补 · ${m.label}`, deltas });
+    }
     const paid = week.eventData[`gemPaid${i}`] ?? 0;
     const gems = Math.max(0, (m.gems ?? 0) - paid);
     if (gems > 0) {
@@ -443,9 +449,13 @@ export function claimEventWeeklyGems(save: MetaSave, weekStart: number, typeId: 
   const summary = eventWeeklySummary(save, weekStart);
   const ledger = ensureEventWeek(save, weekStart, 'invasion');
   summary.goals.forEach((g, i) => {
-    if (g.claimed || summary.wins < g.wins) return;
-    earn(save, { gems: g.gems }); ledger.eventData[`sharedClaim${i}`] = 1;
-    lines.push({ label: `每周远征 · 累计${g.wins}胜`, deltas: { gems: g.gems }, note: '六种活动共同推进，周一刷新' });
+    if (!g.claimed && summary.wins < g.wins) return;
+    const currencyPaid = ledger.eventData[`sharedCurrencyPaid${i}`] === 1;
+    if (g.claimed && currencyPaid) return;
+    const deltas = earn(save, { gems: g.claimed ? 0 : g.gems, gold: currencyPaid ? 0 : g.gold, souls: currencyPaid ? 0 : g.souls });
+    ledger.eventData[`sharedClaim${i}`] = 1;
+    ledger.eventData[`sharedCurrencyPaid${i}`] = 1;
+    lines.push({ label: `每周远征 · 累计${g.wins}胜`, deltas, note: '六种活动共同推进，周一刷新' });
   });
   return lines;
 }

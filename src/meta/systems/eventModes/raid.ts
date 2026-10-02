@@ -215,7 +215,8 @@ export const raidMode: EventModeImpl<RaidState> = {
         if (phase === 0) buffSnapshot(snap, { armorPct: 0.4 });
         if (phase === 1) buffSnapshot(snap, { attackPct: 0.3 });
         if (phase === 2) buffSnapshot(snap, { attackPct: 0.5 });
-        injectTraitsOn(snap, [...arch.boss, weakGiantCode(weak), ...(phase === 1 ? ['ev_phase_rage'] : phase === 2 ? ['ev_phase_doom'] : [])]);
+        injectTraitsOn(snap, ['indestructible', ...arch.boss, weakGiantCode(weak), ...(phase === 1 ? ['ev_phase_rage'] : phase === 2 ? ['ev_phase_doom'] : [])]);
+        snap.displayTraitIds = ['indestructible', ...(snap.displayTraitIds ?? []).filter((id) => id !== 'indestructible')];
       } else {
         if (phase === 2) buffSnapshot(snap, { attackPct: 0.2, armorPct: 0.2, hpPct: 0.2 });
         if (arch.guard.length) injectTraitsOn(snap, arch.guard);

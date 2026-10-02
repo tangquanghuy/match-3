@@ -83,7 +83,8 @@
     "troops": 85,
     "statusImmunities": [
       "*"
-    ]
+    ],
+    "devourImmunity": true
   },
   {
     "code": "accursed",
@@ -268,7 +269,8 @@
       "stun",
       "death-mark",
       "disease"
-    ]
+    ],
+    "devourImmunity": true
   },
   {
     "code": "bloodlust",
@@ -304,7 +306,8 @@
     "troops": 38,
     "statusImmunities": [
       "*"
-    ]
+    ],
+    "devourImmunity": true
   },
   {
     "code": "barkskin",

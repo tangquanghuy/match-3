@@ -17,6 +17,7 @@ import {
   invasionStandingsFresh,
   invasionVictoryVp,
   invasionStandings,
+  invasionPlayerPower,
   type StandingRow,
 } from '../systems/invasion';
 import { weekStartOf, gameNow } from '../gateway';
@@ -41,21 +42,8 @@ function leagueEmblem(index: number): string {
 function playerSummary(save: MetaSave): string {
   const team = save.teams[save.activeTeamIndex];
   if (!team || team.members.length === 0) return '<span class="inv-summary-empty">尚未编入队伍</span>';
-  const levels: number[] = [];
-  let hero = false;
-  for (const member of team.members) {
-    if (member.kind === 'hero') {
-      hero = true;
-      levels.push(save.hero.level);
-      continue;
-    }
-    const troop = getTroopById(member.troopId);
-    if (!troop) continue;
-    const rec = save.collection[String(member.troopId)];
-    levels.push(rec?.level ?? 1);
-  }
-  const average = levels.length ? (levels.reduce((sum, level) => sum + level, 0) / levels.length).toFixed(1) : '—';
-  return `<span>${team.members.length} 人${hero ? ' · 含主角' : ''}</span><span>平均 Lv.${average}</span>`;
+  const hero = team.members.some(member => member.kind === 'hero');
+  return `<span>${team.members.length} 人${hero ? ' · 含主角' : ''}</span><span>战力 ${invasionPlayerPower(save).toLocaleString()}</span>`;
 }
 
 export class InvasionScreen implements Screen {
@@ -150,7 +138,7 @@ export class InvasionScreen implements Screen {
               ${m.bannerKingdom ? `<span class="inv-rival-banner" title="${m.bannerKingdom}旗帜">${bannerArtHtml(m.bannerKingdom, { size: 58 })}</span>` : ''}
               <h3 class="inv-rival-name">${escapeHtml(m.name)}${m.player ? '<span class="inv-real-badge" title="其他指挥官实际出战过的队伍，由 AI 代为操作">真人镜像</span>' : ''}</h3>
               ${m.bannerKingdom ? `<span class="inv-rival-boosts" aria-label="${m.bannerKingdom}旗帜加成"><small>${m.bannerKingdom}</small><span class="kb-boosts">${bannerBoostChips(m.bannerKingdom)}</span></span>` : ''}
-              <span class="inv-rival-nums"><span>属性分 ${m.rating}</span>${m.frenzy ? `<span class="inv-frenzy-badge" title="基础属性提升 ${Math.round(((m.defense[0]?.statMultiplier ?? 1) - 1) * 100)}%，更强的敌方阵容"><i aria-hidden="true">◆</i>血怒 <b>VP ×${m.frenzyMultiplier}</b></span>` : ''}</span>
+              <span class="inv-rival-nums"><span>战力 ${m.rating.toLocaleString()}</span>${m.frenzy ? `<span class="inv-frenzy-badge" title="基础属性提升 ${Math.round(((m.defense[0]?.statMultiplier ?? 1) - 1) * 100)}%，更强的敌方阵容"><i aria-hidden="true">◆</i>血怒 <b>VP ×${m.frenzyMultiplier}</b></span>` : ''}</span>
             </div>
             <div class="inv-rival-defense" aria-label="防守队阵容">${defense}</div>
             <div class="inv-rival-footer">

@@ -4,7 +4,7 @@ import rawSource from '../../data/raw/troops.gow.zh.json?raw';
 import { TROOPS, getTroopById, troopToSummonTemplate } from '../../src/data/troops';
 import { TROOP_PROGRESSION, troopStatsAtLevel } from '../../src/data/leveling';
 import { enemyLevel, enemyStatsAtLevel, enemyTraitCount } from '../../src/meta/data/enemyDifficulty';
-import { enemyToSnapshot } from '../../src/meta/systems/battleBridge';
+import { enemyToSnapshot, encounterPower } from '../../src/meta/systems/battleBridge';
 import { traitUnlockCost, totalSoulCost } from '../../src/meta/data/economy';
 import { ARCANE_STONE_KEYS, parseStoneKey, stoneName } from '../../src/meta/data/materials';
 import { KINGDOM_ORDER, exploreEnemyLevel } from '../../src/meta/data/kingdoms';
@@ -155,10 +155,11 @@ describe('Mode progression', () => {
           expect(enemy.level).toBeGreaterThanOrEqual(base);
           expect(enemy.level).toBeLessThanOrEqual(base + 4);
         }
-        expect(mirror.rating).toBe(mirror.defense.reduce((sum, enemy) => {
+        expect(mirror.statRating).toBe(mirror.defense.reduce((sum, enemy) => {
           const stats = enemyStatsAtLevel(getTroopById(enemy.troopId)!, enemy.level);
           return sum + stats.health + stats.armor + stats.attack * 2 + stats.magic * 3;
         }, 0));
+        expect(mirror.rating).toBe(encounterPower(mirror.defense));
       }
     }
   });

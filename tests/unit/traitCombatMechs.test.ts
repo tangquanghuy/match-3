@@ -89,6 +89,10 @@ describe('编译正确性（新键 → 定义/resolvePassives 产物）', () => 
     expect(getTrait('indigestible')?.troops).toBe(18);
     expect(neutralPassives().devourImmunity).toBe(false);
     expect(resolvePassives(['indigestible']).devourImmunity).toBe(true);
+    for (const code of ['impervious', 'fortitude', 'invulnerable']) {
+      expect(getTrait(code)?.devourImmunity).toBe(true);
+      expect(resolvePassives([code]).devourImmunity).toBe(true);
+    }
   });
 
   it('goodtarot/badtarot：施法随机状态（randomAlly / randomEnemy，官方目标反向已按 EN 修正）', () => {

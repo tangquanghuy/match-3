@@ -23,7 +23,7 @@ import type { EffectContext, EffectPrimitive } from './context';
 import { casterMagic, findCharacter } from './context';
 import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
-import { isImmuneToManaDrain } from './status';
+import { hasLethalImmunity, isImmuneToManaDrain } from './status';
 import { applyBuffGain } from './buff';
 import type { BuffStat, LifeMode } from './buff';
 
@@ -145,6 +145,7 @@ export function reduceEffect(params: ReduceParams): EffectPrimitive {
           // 官方 DecreaseRandom：每步独立掷签四项技能其一（R007-2；可能重复掷中同一属性）
           const statNow: 'attack' | 'armor' | 'magic' | 'mana' | 'hp' =
             stat === 'random' ? RANDOM_REDUCE_STATS[ctx.rng.nextInt(RANDOM_REDUCE_STATS.length)] : stat;
+          if (statNow === 'hp' && (params.halve || params.fraction === 0.5) && hasLethalImmunity(target)) continue;
           let cAmount: number;
           if (params.halve) {
             // 比例减半：按该属性当前值 50% 下取整（逐目标现算，不走缩放/条件修饰）

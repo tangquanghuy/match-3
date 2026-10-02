@@ -155,8 +155,9 @@ export const VICTORY_BONUS = { gold: 60, souls: 30 } as const;
 /** 战败保底（设计值；防「打不过就彻底卡死」） */
 export const DEFEAT_CONSOLATION = { gold: 20, souls: 10 } as const;
 
-/** 每日首胜宝石（设计值；宝石=抽卡货币只产出于玩法，裁定③） */
-export const DAILY_FIRST_WIN_GEMS = 50;
+/** 每日首胜奖励。 */
+export const DAILY_FIRST_WIN_REWARD = { gems: 300, gold: 50_000, souls: 1_000 } as const;
+export const DAILY_FIRST_WIN_GEMS = DAILY_FIRST_WIN_REWARD.gems;
 
 /** 击杀经验（设计值）：敌人等级×10 + 稀有度档×20 */
 export function xpForEnemy(rarityIdx: number, level: number): number {
@@ -237,10 +238,10 @@ export function tributeGloryScale(level: number): number {
 
 /**
  * 王国黄金升级成本（设计值，lv2..lv10 共 9 档）：
- * 末级 4 万对齐计划 §1.2「末级约 4 万黄金量级」，总投入约 10.9 万（宁紧勿松）。
+ * 1→10 级总投入 20 万黄金；早期仍可推进，末级投入集中体现永久属性加成价值。
  */
 export const KINGDOM_UPGRADE_COSTS = [
-  1000, 2000, 3500, 5000, 7500, 10000, 15000, 25000, 40000,
+  2000, 4000, 7000, 10000, 15000, 20000, 28000, 44000, 70000,
 ] as const;
 
 /** 王国从当前等级升到下一级的黄金成本（已满级抛 RangeError） */

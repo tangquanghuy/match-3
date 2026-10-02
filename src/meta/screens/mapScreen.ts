@@ -26,7 +26,7 @@ import {
 import { BANNERS } from '../data/banners';
 import { EVENT_MILESTONES, EVENT_TYPES, EVENT_UNLOCK_HERO_LEVEL, type EventTypeId } from '../data/events';
 import { anyWeaponById } from '../data/weaponCatalog';
-import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_GEMS, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
+import { kingdomUpgradeCost, ARENA, DAILY_FIRST_WIN_REWARD, INVASION, TRIBUTE, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import { eventMetricOf, eventShopOf, eventsUnlocked } from '../systems/events';
 import { giftsReady } from '../systems/gifts';
 import { bottomNavHtml, fitStage, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
@@ -1004,7 +1004,7 @@ export class MapScreen implements Screen {
     });
     this.on($('#dailyWin'), 'click', () => {
       const claimed = ctx.save().dailyFirstWinAt >= todayStartOf(gameNow());
-      toast(claimed ? '今日首胜已领取，明天再来。' : '打赢任意一场战斗，结算时自动领取每日首胜宝石。');
+      toast(claimed ? '今日首胜已领取，明天再来。' : `打赢任意一场战斗，领取 ${DAILY_FIRST_WIN_REWARD.gems} 宝石、${DAILY_FIRST_WIN_REWARD.gold.toLocaleString()} 金币和 ${DAILY_FIRST_WIN_REWARD.souls.toLocaleString()} 灵魂。`);
     });
     // M-9：批量结算先进宝库看清收什么，再点「全部收取」
     this.on($('#dailyTribute'), 'click', () => this.openTreasury(ctx));
@@ -1495,9 +1495,9 @@ export class MapScreen implements Screen {
 
     const winReady = save.dailyFirstWinAt < todayStartOf(now);
     setDaily('dailyWin', winReady ? 'hot' : 'done',
-      winReady ? '赢一场即可领取' : '今日已领 · 明日重置',
-      winReady ? `${gem}${DAILY_FIRST_WIN_GEMS}` : '✓',
-      winReady ? `未领，赢一场得 ${DAILY_FIRST_WIN_GEMS} 宝石` : '今日已领');
+      winReady ? '胜利领三种货币' : '今日已领 · 明日重置',
+      winReady ? `${gem}${DAILY_FIRST_WIN_REWARD.gems}` : '✓',
+      winReady ? `未领，赢一场得 ${DAILY_FIRST_WIN_REWARD.gems} 宝石、${DAILY_FIRST_WIN_REWARD.gold.toLocaleString()} 金币和 ${DAILY_FIRST_WIN_REWARD.souls.toLocaleString()} 灵魂` : '今日已领');
 
     this.tributeSnapshot = tributeTreasury(save, now);
     this.tributeRevision = save.revision;

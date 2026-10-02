@@ -9,7 +9,7 @@ import type { BattleResult } from '../../src/session/contract';
 const WEEK = 1_700_000_000_000 - 1_700_000_000_000 % WEEK_MS;
 const low = buildBracket(WEEK, 0)[0]!;
 const fixture = (league = 0, level = 8, rating = 100): InvasionMirror => ({
-  ...low, league, rating, defense: low.defense.map(d => ({ ...d, level })),
+  ...low, league, rating, statRating: undefined, defense: low.defense.map(d => ({ ...d, level })),
 });
 
 describe('invasion victory gold', () => {

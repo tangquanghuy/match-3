@@ -1,7 +1,7 @@
 /**
  * 馈赠：一次性成长里程碑（按系统分组，达成后手动领取）。
  *
- * 奖励 = 宝石 + 可选的随机部队卡（按稀有度档：3 传说 / 4 史诗 / 5 神话，与宝石宝箱同池）。
+ * 奖励 = 宝石、黄金、灵魂 + 可选的随机部队卡（按稀有度档：3 传说 / 4 史诗 / 5 神话，与宝石宝箱同池）。
  * 阶梯刻意拉长：前期密、后期疏，覆盖从新手到满级的整个成长期。
  * 进度全部读存档里「只增不减」的字段；周活动账本每周清零，另用 gifts.eventWins / towerBest 累计。
  */
@@ -17,6 +17,8 @@ export interface GiftDef {
   target: number;
   label: string;
   gems: number;
+  gold: number;
+  souls: number;
   /** 随机部队卡的稀有度档（3 传说 / 4 史诗 / 5 神话） */
   troop?: 3 | 4 | 5;
 }
@@ -49,15 +51,20 @@ type Step = readonly [target: number, gems: number, troop?: 3 | 4 | 5];
 const GEM_SCALE = 0.6;
 
 function ladder(group: GiftGroupId, metric: GiftMetric, prefix: string, label: (n: number) => string, steps: readonly Step[]): GiftDef[] {
-  return steps.map(([target, weight, troop]) => ({
-    id: `${prefix}-${target}`, group, metric, target, label: label(target),
-    gems: Math.max(30, Math.round((weight * GEM_SCALE) / 10) * 10),
-    ...(troop ? { troop } : {}),
-  }));
+  return steps.map(([target, weight, troop], index) => {
+    const gems = Math.max(30, Math.round((weight * GEM_SCALE) / 10) * 10);
+    const kingdomMaxed = metric === 'kingdomsMaxed';
+    return {
+      id: `${prefix}-${target}`, group, metric, target, label: label(target), gems,
+      gold: kingdomMaxed ? 5000 + index * 1500 : 2000 + Math.floor(index / 3) * 1000,
+      souls: kingdomMaxed ? 750 + index * 250 : 500 + Math.floor(index / 3) * 250,
+      ...(troop ? { troop } : {}),
+    };
+  });
 }
 
 export const GIFTS: readonly GiftDef[] = [
-  { id: GIFT_STARTER_ID, group: 'starter', metric: 'always', target: 1, label: '冒险者见面礼', gems: 1000 },
+  { id: GIFT_STARTER_ID, group: 'starter', metric: 'always', target: 1, label: '冒险者见面礼', gems: 1000, gold: 5000, souls: 1000 },
 
   ...ladder('hero', 'heroLevel', 'hero', (n) => `主角达到 Lv.${n}`, [
     [3, 50], [5, 60], [8, 80], [10, 100, 3], [12, 100], [15, 120], [18, 120], [20, 150, 4], [25, 150], [30, 200],
@@ -86,7 +93,7 @@ export const GIFTS: readonly GiftDef[] = [
   ]),
 
   // 第一名传说部队：主角 20 级开放入侵后，打完第一场入侵发放
-  { id: 'invasion-first', group: 'invasion', metric: 'invasionBattles', target: 1, label: '完成第一次入侵', gems: 60, troop: 3 },
+  { id: 'invasion-first', group: 'invasion', metric: 'invasionBattles', target: 1, label: '完成第一次入侵', gems: 60, gold: 3000, souls: 750, troop: 3 },
   ...ladder('invasion', 'invasionLeague', 'invasion', (n) => `入侵晋升${LEAGUES[n]}`, [
     [1, 100], [2, 120], [3, 150], [4, 200, 4], [5, 220], [6, 250], [7, 300], [8, 350], [9, 500, 5],
   ]),
@@ -106,6 +113,8 @@ export const GIFTS: readonly GiftDef[] = [
 ];
 
 export const GIFT_TOTAL_GEMS = GIFTS.reduce((sum, g) => sum + g.gems, 0);
+export const GIFT_TOTAL_GOLD = GIFTS.reduce((sum, g) => sum + g.gold, 0);
+export const GIFT_TOTAL_SOULS = GIFTS.reduce((sum, g) => sum + g.souls, 0);
 /** 部队卡奖励张数（按稀有度档） */
 export const GIFT_TROOP_COUNTS: Readonly<Record<3 | 4 | 5, number>> = {
   3: GIFTS.filter((g) => g.troop === 3).length,

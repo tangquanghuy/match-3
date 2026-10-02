@@ -28,7 +28,8 @@ import { fail, type MetaFailure } from '../types';
 import { activeTeam, immortalTeamIssue } from './teamRules';
 import { equippedBannerOf } from './banners';
 import { combatManaMastery, toEngineMastery } from './manaMastery';
-import { getRecord } from './troopProgress';
+import { getRecord, rarityTierOf } from './troopProgress';
+import { teamPower } from './combatPower';
 import { kingdomBonusOf } from './kingdomOps';
 import type { KingdomStatBonus } from './kingdomOps';
 import { equippedClassOf, equippedWeaponOf, heroStatsOf } from './hero';
@@ -103,6 +104,7 @@ export function troopToSnapshot(
     templateId: String(troop.id),
     name: troop.name,
     levelLabel: `Lv.${rec.level}`,
+    rarityIdx: rarityTierOf(troop, rec),
     portraitUrl: troop.artUrl ?? `/static/portraits/${troop.portrait}.webp`,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
@@ -128,6 +130,7 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     templateId: String(troop.id),
     name: troop.name,
     levelLabel: `Lv.${enemyLevel(enemy.level)}`,
+    rarityIdx: troop.rarityIdx,
     portraitUrl: troop.artUrl ?? `/static/portraits/${troop.portrait}.webp`,
     tier: enemy.tier,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
@@ -144,6 +147,13 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     traitNames: Object.fromEntries(troop.traits.map((t) => [t.code, t.name])),
     displayTraitIds: displayTraits(troop, i => i < count),
   };
+}
+
+export function encounterPower(enemies: readonly EncounterEnemy[]): number {
+  return teamPower(enemies.flatMap((enemy, index) => {
+    const troop = getTroopById(enemy.troopId);
+    return troop ? [enemyToSnapshot(troop, enemy, index)] : [];
+  }));
 }
 
 /**
@@ -184,8 +194,9 @@ export interface BridgeOutcome {
  */
 export function buildPlayerSnapshots(
   save: MetaSave,
+  chosenTeam?: TeamPreset,
 ): { ok: true; playerTeam: CombatantSnapshot[]; team: TeamPreset } | MetaFailure {
-  const team = activeTeam(save);
+  const team = chosenTeam ?? activeTeam(save);
   if (!team) return fail('NO_TEAM', '没有可用队伍：先在编队页保存一支 4 人队');
 
   const immortalIssue = immortalTeamIssue(team.members);

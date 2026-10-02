@@ -136,6 +136,8 @@ describe('突袭首领 · 原型机制与战术补给', () => {
     const out = eventBattle(s, 'raidBoss', WEEK);
     expect(revalidateOutcome(out)).toBeNull();
     const boss = out.request.enemyTeam[0]!;
+    expect(boss.traitIds).toContain('indestructible');
+    expect(boss.displayTraitIds?.[0]).toBe('indestructible');
     expect(boss.traitIds?.some((c) => c.startsWith('ev_boss_weak_'))).toBe(true);
     expect(boss.traitIds?.some((c) => ['ev_boss_lava', 'ev_boss_lich', 'ev_boss_tempest', 'ev_boss_broodmother', 'ev_boss_frostwyrm'].includes(c))).toBe(true);
     // 打掉 20% 血池（未讨伐）

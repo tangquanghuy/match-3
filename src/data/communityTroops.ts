@@ -72,7 +72,7 @@ const erochikaDescription = '对一名敌人造成 [魔法 + 2] 点真实伤害�
 const bailuDescription = '对一名选定敌人造成 [魔法 + 7] 点法术伤害，并使其陷入织网状态。生命值最低的盟友获得屏障。';
 const douglasDescription = '对所有敌人造成 [魔法 + 3] 点法术伤害。然后爆破 3 颗随机宝石。';
 const cialloDescription = '给予首位盟友 [魔法 + 2] 点攻击力，创造 6 颗骷髅头，并使首位敌人陷入织网。';
-const chikoritaDescription = '首位盟友获得 [魔法 + 3] 点攻击力。创造 20 颗混合绿色宝石和骷髅头。';
+const chikoritaDescription = '首位盟友获得 [魔法 + 3] 点攻击力。创造 23 颗混合绿色宝石和骷髅头。';
 
 const xingaiDescription = '使一名选定敌人失去最多 6 点法力，给予法力最低的其他盟友 4 点法力，然后将所有黄色宝石转换为蓝色宝石。';
 

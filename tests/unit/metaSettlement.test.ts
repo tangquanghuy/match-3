@@ -84,16 +84,17 @@ describe('结算入账（胜利 · 任务）', () => {
     expect(detail.questProgress).toEqual({ from: 0, to: 1 });
     expect(detail.lines.map((l) => l.key)).toEqual(['kills', 'victory', 'first-win', 'kingdom-first-clear', 'quest']);
 
-    // 账本：击杀 + 胜利 60/30 + 首胜宝石 50
-    expect(save.currencies.gold).toBe(2000 + kills.gold + 60);
-    expect(save.currencies.souls).toBe(800 + kills.souls + 30);
-    expect(save.currencies.gems).toBe(150 + 50 + 100);
+    // 账本：击杀 + 胜利 60/30 + 首胜 300 宝石、5 万金币、1000 灵魂
+    expect(detail.lines.find(line => line.key === 'first-win')?.deltas).toEqual({ gems: 300, gold: 50_000, souls: 1_000 });
+    expect(save.currencies.gold).toBe(2000 + kills.gold + 60 + 50_000);
+    expect(save.currencies.souls).toBe(800 + kills.souls + 30 + 1_000);
+    expect(save.currencies.gems).toBe(150 + 300 + 100);
     expect(save.dailyFirstWinAt).toBe(DAY1);
 
     // stats 与 xp（M5：胜利加 60 主角经验，100 ≥ 首级 80 → 升 1 级）
     expect(save.stats.battlesWon).toBe(1);
-    expect(save.stats.goldEarned).toBe(kills.gold + 60);
-    expect(save.stats.soulsEarned).toBe(kills.souls + 30);
+    expect(save.stats.goldEarned).toBe(kills.gold + 60 + 50_000);
+    expect(save.stats.soulsEarned).toBe(kills.souls + 30 + 1_000);
     expect(detail.xpGained).toBe(kills.xp + WIN_BONUS_XP + HERO_XP_PER_WIN);
     expect(save.hero.level).toBe(1 + detail.heroLevelsGained);
     expect(detail.heroLevelsGained).toBeGreaterThanOrEqual(1);
@@ -115,7 +116,7 @@ describe('结算入账（胜利 · 任务）', () => {
     });
     expect(detail2.firstWinClaimed).toBe(false);
     expect(detail2.lines.map((l) => l.key)).not.toContain('first-win');
-    expect(save.currencies.gems).toBe(400); // 每日首胜一次 + 普通首通两关
+    expect(save.currencies.gems).toBe(650); // 每日首胜一次 + 普通首通两关
     expect(detail2.questProgress).toEqual({ from: 1, to: 2 });
   });
 
@@ -173,9 +174,9 @@ describe('结算入账（胜利 · 任务）', () => {
       { plan, enemyByExternalId: mapOf(plan), todayStart: DAY1 },
     );
     expect(detail.lines.map((l) => l.key)).toContain('battle-collect');
-    expect(save.currencies.gold).toBe(2000 + 60 + 60); // 收集 60 + 胜利 60（无击杀行）
-    expect(save.currencies.souls).toBe(800 + 85 + 30);
-    expect(save.currencies.gems).toBe(150 + 5 + 50 + 100);
+    expect(save.currencies.gold).toBe(2000 + 60 + 60 + 50_000); // 收集 60 + 胜利 60（无击杀行）
+    expect(save.currencies.souls).toBe(800 + 85 + 30 + 1_000);
+    expect(save.currencies.gems).toBe(150 + 5 + 300 + 100);
     expect(save.materials.treasureMaps).toBe(2);
   });
 
@@ -192,7 +193,7 @@ describe('结算入账（胜利 · 任务）', () => {
 });
 
 describe('结算入账（探索首胜双倍）', () => {
-  it('当日首场探索胜利：击杀奖励双倍并标注；首胜宝石照领', () => {
+  it('当日首场探索胜利：击杀奖励双倍并标注；首胜奖励照领', () => {
     const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
     const plan = planExploreEncounter(KINGDOM, 1, 21);
     const detail = applySettlement(save, mkResult('player', allDefeated(plan)), {
@@ -206,7 +207,7 @@ describe('结算入账（探索首胜双倍）', () => {
     expect(line.deltas.gold).toBe(kills.gold * 2);
     expect(line.note).toBe('每日首胜双倍');
     expect(detail.firstWinClaimed).toBe(true);
-    expect(save.currencies.gems).toBe(200); // regular battle: daily reward, no final-boss first clear yet
+    expect(save.currencies.gems).toBe(450); // 尚未击败最终首领，没有探索首通奖励
   });
 
   it('当日已领过首胜：探索击杀不双倍', () => {

@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave } from '../../src/meta/state/save';
-import { GIFTS, GIFT_TOTAL_GEMS, GIFT_STARTER_ID, GIFT_TROOP_COUNTS } from '../../src/meta/data/gifts';
+import { GIFTS, GIFT_TOTAL_GEMS, GIFT_TOTAL_GOLD, GIFT_TOTAL_SOULS, GIFT_STARTER_ID, GIFT_TROOP_COUNTS } from '../../src/meta/data/gifts';
 import { claimAllGifts, claimGift, giftRows } from '../../src/meta/systems/gifts';
 import { openGemChest, gemMultiCost, pickNoviceVisitor, NOVICE_SUMMON_COST } from '../../src/meta/systems/gacha';
 import { GEM_CHEST } from '../../src/meta/data/economy';
@@ -23,24 +23,34 @@ describe('馈赠里程碑', () => {
     expect(GIFTS.length).toBeGreaterThanOrEqual(100);
     expect(new Set(GIFTS.map((g) => g.id)).size).toBe(GIFTS.length);
     expect(GIFTS.find((g) => g.id === GIFT_STARTER_ID)?.gems).toBe(1000);
+    expect(GIFTS.find((g) => g.id === GIFT_STARTER_ID)).toMatchObject({ gold: 5000, souls: 1000 });
+    expect(Math.min(...GIFTS.map((gift) => gift.gold))).toBe(2000);
+    expect(Math.min(...GIFTS.map((gift) => gift.souls))).toBe(500);
+    expect(GIFT_TOTAL_GOLD).toBe(483_500);
+    expect(GIFT_TOTAL_SOULS).toBe(110_000);
+    expect(GIFTS.find((gift) => gift.id === 'kingdom10-42')).toMatchObject({ gold: 18_500, souls: 3_000 });
     expect(GIFT_TROOP_COUNTS[3]).toBeGreaterThan(0);
     expect(GIFT_TROOP_COUNTS[4]).toBeGreaterThan(0);
     expect(GIFT_TROOP_COUNTS[5]).toBeGreaterThan(0);
   });
 
-  it('未达成拒领，达成可领一次；一键领取发宝石与对应稀有度的部队卡', () => {
+  it('未达成拒领，达成可领一次；一键领取发三种货币与对应稀有度的部队卡', () => {
     const s = tutorialSave();
     s.hero.level = 12;
     expect(claimGift(s, 'hero-15')).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
     expect(claimGift(s, 'hero-5', 1)).toMatchObject({ ok: true });
     expect(claimGift(s, 'hero-5', 1)).toMatchObject({ ok: false });
     const expected = giftRows(s).filter((r) => r.status === 'ready');
-    const before = s.currencies.gems;
+    const before = { ...s.currencies };
     const all = claimAllGifts(s, 42);
     expect(all).toMatchObject({ ok: true });
     if (!all.ok) return;
     expect(all.ids.sort()).toEqual(expected.map((r) => r.gift.id).sort());
-    expect(s.currencies.gems - before).toBe(expected.reduce((sum, r) => sum + r.gift.gems, 0));
+    for (const currency of ['gems', 'gold', 'souls'] as const) {
+      const amount = expected.reduce((sum, r) => sum + r.gift[currency], 0);
+      expect(s.currencies[currency] - before[currency]).toBe(amount);
+      expect(all[currency]).toBe(amount);
+    }
     const troopGifts = expected.filter((r) => r.gift.troop);
     expect(all.cards.map((c) => c.rarityIdx)).toEqual(troopGifts.map((r) => r.gift.troop));
     for (const card of all.cards) expect(s.collection[String(card.troopId)]).toBeTruthy();
@@ -53,7 +63,33 @@ describe('馈赠里程碑', () => {
     const save = hydrateSave(raw);
     expect(save.onboarding.step).toBe('done');
     expect(save.onboarding.noviceSummonUsed).toBe(false);
-    expect(save.gifts).toEqual({ claimed: [], eventWins: 0, towerBest: 0, invasionBattles: 0 });
+    expect(save.gifts).toEqual({ claimed: [], currencyBonusVersion: 2, eventWins: 0, towerBest: 0, invasionBattles: 0 });
+  });
+
+  it('旧档已领馈赠只补发一次新增黄金和灵魂', () => {
+    const old = JSON.parse(JSON.stringify(tutorialSave()));
+    old.gifts.claimed = [GIFT_STARTER_ID, 'hero-5', 'hero-5', 'unknown-gift'];
+    delete old.gifts.currencyBonusVersion;
+    const first = hydrateSave(old);
+    const bonus = GIFTS.filter((gift) => [GIFT_STARTER_ID, 'hero-5'].includes(gift.id));
+    expect(first.currencies.gold - old.currencies.gold).toBe(bonus.reduce((sum, gift) => sum + gift.gold, 0));
+    expect(first.currencies.souls - old.currencies.souls).toBe(bonus.reduce((sum, gift) => sum + gift.souls, 0));
+    expect(first.gifts.currencyBonusVersion).toBe(2);
+    const again = hydrateSave(JSON.parse(JSON.stringify(first)));
+    expect(again.currencies).toEqual(first.currencies);
+    expect(again.gifts).toEqual(first.gifts);
+  });
+
+  it('已领取旧版低额奖励的存档只补发涨价差额', () => {
+    const old = JSON.parse(JSON.stringify(tutorialSave()));
+    old.gifts.claimed = [GIFT_STARTER_ID, 'hero-5'];
+    delete old.gifts.currencyBonusVersion;
+    old.gifts.currencyBonusGranted = true;
+    const loaded = hydrateSave(old);
+    const hero = GIFTS.find((gift) => gift.id === 'hero-5')!;
+    expect(loaded.currencies.gold - old.currencies.gold).toBe(5000 - 2000 + hero.gold - 300);
+    expect(loaded.currencies.souls - old.currencies.souls).toBe(1000 - 500 + hero.souls - 125);
+    expect(hydrateSave(JSON.parse(JSON.stringify(loaded))).currencies).toEqual(loaded.currencies);
   });
 });
 

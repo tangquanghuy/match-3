@@ -9,7 +9,7 @@ import { casterMagic, locate, findCharacter, findSide, setLastTarget, effectCast
 import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue, isTargetCondition } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf, eventDamageMultiplier, isImmuneToStatus, strongestTraitActivation } from '../../traits';
-import { consumeBarrier, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
+import { consumeBarrier, hasLethalImmunity, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
   REFLECT_STATUS_ID, isCursed } from './status';
 import { applyBuffGain } from './buff';
 import { reflectHit } from './reflect';
@@ -224,6 +224,7 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         && findSide(ctx.state, victim.id) !== null && findSide(ctx.state, victim.id) !== sourceSide;
       let stolenLife = 0;
       const hit = (victim: Character, points: number, hitRange: DamageRange, chain?: ChainMeta): GameEvent[] => {
+        if (params.execute && hasLethalImmunity(victim)) return [];
         const before = victim.hp;
         const produced = damageOne(victim, ctx.casterId, points, trueDamage || !!params.drain,
           hitRange, chain, caster, reflectAllowed(victim));

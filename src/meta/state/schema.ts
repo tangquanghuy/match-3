@@ -346,6 +346,8 @@ export interface MetaSave {
   stats: MetaStats;
   /** 最近一次领取每日首胜的「当日零点」epoch ms；0 = 从未领取。加性字段，version 仍为 1 */
   dailyFirstWinAt: number;
+  /** 2026-10-02 首胜奖励调整的一次性重置标记。 */
+  dailyFirstWinRewardVersion: number;
   /** 最近开箱记录（新的在前，最多 GACHA_LOG_CAP 条）。加性字段，version 仍为 1 */
   gachaLog: GachaLogEntry[];
   gachaWishlist: GachaWishlist;
@@ -390,6 +392,8 @@ export interface OnboardingState {
 /** 馈赠里程碑：已领 id + 跨周累计的活动统计（周活动账本每周清零，这里不清） */
 export interface GiftState {
   claimed: string[];
+  /** 馈赠成长货币奖励版本；读档时按已领里程碑补发差额。 */
+  currencyBonusVersion: number;
   eventWins: number;
   towerBest: number;
   /** 累计入侵场数（入侵赛季每周清零 battles，这里不清） */
@@ -478,6 +482,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     homeKingdom: STARTING_KINGDOM,
     stats: { battlesWon: 0, battlesLost: 0, soulsEarned: 0, goldEarned: 0 },
     dailyFirstWinAt: 0,
+    dailyFirstWinRewardVersion: 1,
     gachaLog: [],
     gachaWishlist: emptyGachaWishlist(),
     materials: { ingots: {}, forgeScrolls: 0, traitstones: {}, treasureMaps: 0 },
@@ -493,7 +498,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     onboarding: options.tutorial
       ? { step: 'battle', noviceSummonUsed: false }
       : { step: 'done', noviceSummonUsed: true },
-    gifts: { claimed: [], eventWins: 0, towerBest: 0, invasionBattles: 0 },
+    gifts: { claimed: [], currencyBonusVersion: 2, eventWins: 0, towerBest: 0, invasionBattles: 0 },
   };
   const starters = options.starterTroopIds ?? [];
   for (const id of starters) {

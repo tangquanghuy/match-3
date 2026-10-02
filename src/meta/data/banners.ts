@@ -8,9 +8,9 @@
  *    （风暴峡湾=蓝++ 冰霜、卡其尔=棕++ 矮人、白盔国=黄++ 圣骑、卡拉考斯=紫++ 亡灵…）。
  *  - 官方语义：加成按**每次匹配事件**平展生效（配 3 颗或 5 颗都 ±N），不是逐宝石；
  *    额外法力与匹配产出的法力走同一条分配管线（吃该色的未满员吸收）。
- *    官方在线版的旗帜加成还随 Kingdom Power 等级增长；本作旗帜恒定官方基础值（设计简化）。
+ *    官方在线版的旗帜加成还随 Kingdom Power 等级增长；本作旗帜不随等级增长。
  *  - 「天启」（天启四骑士等 5 张神话）在 gowhead 属 Sin of Maraj 同一 Kingdom 系
- *    （FileBase K34），与「迈纳杰之罪」共享官方旗帜——两王国都会解锁出这面旗。
+ *    （FileBase K34）；本作另设紫 +2、蓝 +1、黄 -1 的旗帜以区分「迈纳杰之罪」。
  *  - 「混沌」「藏宝库」是 gowhead 的事件伪王国（季节小鬼 / 宝库地精族），官方无旗帜；
  *    为让 42 王国任务链都有通关奖励，按主题补设计值（下表已标 注）。
  *
@@ -26,7 +26,7 @@ export interface BannerDef {
   /** 官方英文名（gowhead kingdoms.en.json），展示与对账用 */
   en: string;
   boosts: BannerBoosts;
-  /** true = gowhead 官方数据；false = 本作设计值（gowhead 无该王国条目） */
+  /** true = gowhead 收录的王国；false = 本作补设的事件王国 */
   official: boolean;
 }
 
@@ -56,7 +56,7 @@ export const BANNERS: Readonly<Record<string, BannerDef>> = {
   聚沙之地: { en: 'Drifting Sands', boosts: { [BaseColor.Yellow]: 1, [BaseColor.Brown]: 1 }, official: true },
   荒芜之地: { en: 'Blighted Lands', boosts: { [BaseColor.Red]: 1, [BaseColor.Yellow]: -1, [BaseColor.Purple]: 2 }, official: true },
   冰峰之巅: { en: 'Glacial Peaks', boosts: { [BaseColor.Blue]: 2, [BaseColor.Red]: -1, [BaseColor.Purple]: 1 }, official: true },
-  天启: { en: 'Sin of Maraj (Apocalypse)', boosts: { [BaseColor.Red]: 2, [BaseColor.Purple]: -1, [BaseColor.Brown]: 1 }, official: true },
+  天启: { en: 'Sin of Maraj (Apocalypse)', boosts: { [BaseColor.Purple]: 2, [BaseColor.Blue]: 1, [BaseColor.Yellow]: -1 }, official: true },
   狮心帝国: { en: 'Leonis Empire', boosts: { [BaseColor.Blue]: 2, [BaseColor.Green]: -1, [BaseColor.Yellow]: 1 }, official: true },
   龙爪: { en: "Dragon's Claw", boosts: { [BaseColor.Red]: 2, [BaseColor.Yellow]: 1, [BaseColor.Brown]: -1 }, official: true },
   守护者: { en: 'Hall of Guardians', boosts: { [BaseColor.Green]: -1, [BaseColor.Yellow]: 2, [BaseColor.Brown]: 1 }, official: true },

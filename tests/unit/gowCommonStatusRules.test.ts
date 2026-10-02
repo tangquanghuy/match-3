@@ -3,8 +3,10 @@ import { BaseColor, PlayerSide } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { applyBuffGain } from '@engine/skills/effects/buff';
 import { devourEffect } from '@engine/skills/effects/devour';
+import { damageEffect } from '@engine/skills/effects/damage';
+import { reduceEffect } from '@engine/skills/effects/debuff';
 import { applyStatus, tickStatuses, tickTeamStatuses } from '@engine/skills/effects/status';
-import { grantStat, neutralPassives } from '@engine/traits';
+import { attachPassives, grantStat, neutralPassives } from '@engine/traits';
 import { CombatResolver } from '@engine/CombatResolver';
 import { BoardModel } from '@engine/BoardModel';
 import { createGameState } from '@engine/GameState';
@@ -161,6 +163,63 @@ describe('official status shared-rule regression', () => {
     expect(immune.defeated).toBe(true);
     expect(invulnerable.defeated).toBe(false);
     expect(events.some(e => e.type === 'defeat' && e.characterId === immune.id)).toBe(true);
+  });
+
+  it.each(['impervious', 'fortitude'])('%s blocks Devour as its description promises', (traitId) => {
+    const caster = character(1), target = character(2);
+    target.traitIds = [traitId];
+    attachPassives(target);
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [target]));
+    const ctx = { state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 };
+    expect(devourEffect({ targets: [target], chance: 1 }).apply(ctx)).toEqual([]);
+    expect(target.defeated).toBe(false);
+  });
+
+  it('Indestructible blocks Devour and direct execution even while cursed or stunned', () => {
+    const caster = character(1), target = character(2);
+    target.traitIds = ['indestructible'];
+    target.statuses.push({ id: 'curse', turns: 3 }, { id: 'stun', turns: 3 });
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [target]));
+    const ctx = { state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 };
+    expect(devourEffect({ targets: [target], chance: 1 }).apply(ctx)).toEqual([]);
+    expect(damageEffect({ targets: [target], scaling: { base: 0, mult: 0 }, execute: true }).apply(ctx)).toEqual([]);
+    expect(target).toMatchObject({ hp: 50, armor: 10, defeated: false });
+  });
+
+  it('group execution skips protected targets and still kills unprotected targets', () => {
+    const caster = character(1), protectedTarget = character(2), other = character(3);
+    protectedTarget.traitIds = ['invulnerable'];
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [protectedTarget, other]));
+    const ctx = { state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 };
+    const events = damageEffect({ targets: [protectedTarget, other], scaling: { base: 0, mult: 0 }, range: 'all', execute: true }).apply(ctx);
+    expect(protectedTarget).toMatchObject({ hp: 50, armor: 10, defeated: false });
+    expect(other.defeated).toBe(true);
+    expect(events).toContainEqual({ type: 'defeat', characterId: other.id });
+  });
+
+  it('Devour cannot consume its own caster even if a skill passes self as its target', () => {
+    const caster = character(1);
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, []));
+    const ctx = { state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 };
+    expect(devourEffect({ targets: [caster], chance: 1 }).apply(ctx)).toEqual([]);
+    expect(caster).toMatchObject({ hp: 50, armor: 10, defeated: false });
+  });
+
+  it('Indestructible blocks direct half-Life reduction but still takes ordinary damage and fixed reductions', () => {
+    const caster = character(1), target = character(2);
+    target.traitIds = ['indestructible'];
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [target]));
+    const ctx = { state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 };
+    const params = { targets: [target], stat: 'hp' as const, scaling: { base: 0, mult: 0 } };
+    expect(reduceEffect({ ...params, halve: true }).apply(ctx)).toEqual([]);
+    expect(reduceEffect({ ...params, fraction: 0.5 }).apply(ctx)).toEqual([]);
+    expect(target.hp).toBe(50);
+    expect(reduceEffect({ ...params, scaling: { base: 5, mult: 0 } }).apply(ctx)).toContainEqual(
+      expect.objectContaining({ type: 'buff', targetId: target.id, stat: 'hp', amount: -5 }),
+    );
+    expect(damageEffect({ targets: [target], scaling: { base: 6, mult: 0 }, trueDamage: true }).apply(ctx))
+      .toContainEqual(expect.objectContaining({ type: 'skill-damage', targetId: target.id }));
+    expect(target.hp).toBe(39);
   });
 
   it('Barrier absorbs ordinary skull damage but not lethal skull damage; Invulnerable blocks lethal', () => {

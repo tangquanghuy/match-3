@@ -50,19 +50,23 @@ export function giftsReady(save: MetaSave): number {
   return giftRows(save).filter((row) => row.status === 'ready').length;
 }
 
-export type GiftClaimResult = { ok: true; ids: string[]; gems: number; cards: GachaCard[] } | MetaFailure;
+export type GiftClaimResult = { ok: true; ids: string[]; gems: number; gold: number; souls: number; cards: GachaCard[] } | MetaFailure;
 
 function markClaimed(save: MetaSave, rows: GiftRow[], seed: number): GiftClaimResult {
   let gems = 0;
+  let gold = 0;
+  let souls = 0;
   const cards: GachaCard[] = [];
   for (const row of rows) {
     save.gifts.claimed.push(row.gift.id);
     gems += row.gift.gems;
+    gold += row.gift.gold;
+    souls += row.gift.souls;
     if (row.gift.troop) cards.push(grantRandomTroop(save, row.gift.troop, new SeededRNG((seed ^ fnv1a32(row.gift.id)) >>> 0)));
   }
-  if (gems > 0) earn(save, { gems });
+  earn(save, { gems, gold, souls });
   if (rows.some((row) => row.gift.id === GIFT_STARTER_ID) && save.onboarding.step === 'gift') save.onboarding.step = 'summon';
-  return { ok: true, ids: rows.map((row) => row.gift.id), gems, cards };
+  return { ok: true, ids: rows.map((row) => row.gift.id), gems, gold, souls, cards };
 }
 
 /** seed 由网关注入（部队卡随机） */

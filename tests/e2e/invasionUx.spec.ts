@@ -174,7 +174,7 @@ for (const width of [1600, 390]) {
     expect(await page.locator('.inv-rival').evaluateAll(cards => cards.map(c => c.getAttribute('data-difficulty')))).toEqual(['easy', 'normal', 'hard']);
     await expect(page.locator('.inv-difficulty')).toHaveCount(0);
     await expect(page.locator('.inv-rival-head')).not.toContainText(['基础混编', '协同编队', '完整配队']);
-    for (const line of await page.locator('.inv-rival-nums > span:first-child').allTextContents()) expect(line).toMatch(/^属性分 \d+( · 血怒)?$/);
+    for (const line of await page.locator('.inv-rival-nums > span:first-child').allTextContents()) expect(line).toMatch(/^战力 [\d,]+$/);
     await expect(page.locator('.inv-rival').first()).toHaveClass(/recommended/);
     await page.evaluate(() => {
       const save = JSON.parse(localStorage.getItem('gems.meta.save')!);

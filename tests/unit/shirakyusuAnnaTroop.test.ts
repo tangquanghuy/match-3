@@ -64,7 +64,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     f.enemies.forEach(e => { e.statuses = statuses.map(s => ({ ...s })); });
     f.caster.statuses = [{ id: 'barrier', turns: 5 }];
     const events = executePrototype(proto, f.ctx);
-    expect(f.enemies[1].statuses.map(s => s.id)).toEqual(['poison', 'silence', 'web', 'stun', 'freeze']);
+    expect(f.enemies[1].statuses.map(s => s.id)).toEqual(['poison', 'silence', 'web', 'stun', 'frozen']);
     for (const index of [0, 2, 3]) expect(f.enemies[index].statuses).toEqual(statuses);
     expect(f.caster.statuses).toEqual([{ id: 'barrier', turns: 5 }]);
     expect(events.filter(e => e.type === 'status-expire')).toHaveLength(POSITIVE_STATUS_IDS.length);
@@ -95,7 +95,7 @@ describe('Shirakyusu Anna / 静海结界 / 冰潮共鸣', () => {
     expect(events[0].type).toBe('skill-cast');
     expect(f.caster.mana).toBe(0);
     expect(events.some(e => e.type === 'status-apply' && e.targetId === 11 && e.statusId === 'stun')).toBe(true);
-    expect(events.some(e => e.type === 'status-apply' && e.targetId === 11 && e.statusId === 'freeze')).toBe(true);
+    expect(events.some(e => e.type === 'status-apply' && e.targetId === 11 && e.statusId === 'frozen')).toBe(true);
     expect(f.enemies.every(e => e.hp === 1000 && e.mana === 16)).toBe(true);
   });
   it('resolves conversion matches into blue mana through the real battle engine', () => {

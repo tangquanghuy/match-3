@@ -50,6 +50,7 @@ export const EVENT_TRAIT_DEFS: readonly TraitDefinition[] = [
   { code: 'ev_bandit_cutpurse', name: '强盗·顺手牵羊', description: '造成骷髅伤害时窃取目标 1 点法力。', onSkullHitStealMana: 1 },
 
   // —— 突袭首领原型（敌方首领/护卫） ——
+  { code: 'indestructible', name: '坚不可摧', description: '免疫吞噬、即死和直接减半生命。', devourImmunity: true },
   { code: 'ev_boss_lava', name: '首领·熔岩之心', description: '回合开始时有 50% 几率创造 1 颗火山宝石。', turnStartCreateSpecialGem: { gem: 'volcanoGem', count: 1, chance: 0.5 } },
   { code: 'ev_boss_magma_skin', name: '首领·熔岩外壳', description: '降低来自骷髅头的伤害 20%。', skullDamageReduction: 0.2 },
   { code: 'ev_boss_lich', name: '首领·亡者之主', description: '回合开始时有 40% 几率把 1 颗骷髅变成末日骷髅。', turnStartColorToSpecial: { color: 'skull', gem: 'doomSkull', count: 1, chance: 0.4 } },

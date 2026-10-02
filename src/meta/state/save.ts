@@ -18,11 +18,13 @@ import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
  */
 import { hydrateCharacter } from './character';
 import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type PendingBattle, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
-import { EVENT_MILESTONES, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, type EventTypeId } from '../data/events';
+import { EVENT_MILESTONES, EVENT_MILESTONE_CURRENCY_BONUS, EVENT_SHARED_GOALS, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, type EventTypeId } from '../data/events';
+import { GIFTS, GIFT_STARTER_ID } from '../data/gifts';
 import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
 import { STARTER_CLASS_ID } from '../data/classes';
 import { GACHA_LOG_CAP } from './schema';
 import { STARTING_KINGDOM } from '../data/economy';
+import { todayStartOf } from '../gateway/clock';
 import { hydrateManaMastery } from '../systems/manaMastery';
 
 export interface StorageLike {
@@ -46,6 +48,7 @@ type Migration = (raw: Record<string, unknown>) => Record<string, unknown>;
 const MIGRATIONS: Migration[] = [];
 /** 最早仍可读取的版本；更旧的存档视为损坏（上线前不背历史包袱） */
 const OLDEST_READABLE_VERSION = META_SAVE_VERSION;
+const FIRST_WIN_REWARD_RESET_DAY = Date.UTC(2026, 9, 1, 16); // 2026-10-02 00:00 UTC+8
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return v != null && typeof v === 'object' && !Array.isArray(v);
@@ -478,6 +481,45 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     }
   }
 
+  const gifts = hydrateGifts(raw.gifts, eventWeeks, invasion);
+  if (gifts.currencyBonusVersion < 2) {
+    const claimed = new Set(gifts.claimed);
+    for (const gift of GIFTS) {
+      if (!claimed.has(gift.id)) continue;
+      let previous = { gold: 0, souls: 0 };
+      if (gifts.currencyBonusVersion === 1) {
+        if (gift.id === GIFT_STARTER_ID) previous = { gold: 2000, souls: 500 };
+        else if (gift.id === 'invasion-first') previous = { gold: 500, souls: 200 };
+        else previous = { gold: Math.round(gift.gems * 8 / 50) * 50, souls: Math.round(gift.gems * 3 / 25) * 25 };
+      }
+      currencies.gold += gift.gold - previous.gold;
+      currencies.souls += gift.souls - previous.souls;
+    }
+    gifts.currencyBonusVersion = 2;
+  }
+  for (const week of Object.values(eventWeeks)) {
+    if (!week) continue;
+    for (const index of week.claimed) {
+      const key = `currencyBonusPaid${index}`;
+      if (week.eventData[key] === 1) continue;
+      currencies.gold += EVENT_MILESTONE_CURRENCY_BONUS.gold[index]!;
+      currencies.souls += EVENT_MILESTONE_CURRENCY_BONUS.souls[index]!;
+      week.eventData[key] = 1;
+    }
+  }
+  const shared = eventWeeks.invasion?.eventData;
+  if (shared) EVENT_SHARED_GOALS.forEach((goal, index) => {
+    if (shared[`sharedClaim${index}`] !== 1 || shared[`sharedCurrencyPaid${index}`] === 1) return;
+    currencies.gold += goal.gold;
+    currencies.souls += goal.souls;
+    shared[`sharedCurrencyPaid${index}`] = 1;
+  });
+
+  const claimedFirstWinAt = num(raw.dailyFirstWinAt, 0, 0);
+  const resetFirstWin = num(raw.dailyFirstWinRewardVersion, 0, 0) < 1
+    && todayStartOf(now) === FIRST_WIN_REWARD_RESET_DAY
+    && claimedFirstWinAt === FIRST_WIN_REWARD_RESET_DAY;
+
   return {
     version: META_SAVE_VERSION,
     createdAt: num(raw.createdAt, now, 0),
@@ -500,7 +542,8 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
         ? raw.homeKingdom
         : STARTING_KINGDOM,
     stats,
-    dailyFirstWinAt: num(raw.dailyFirstWinAt, 0, 0),
+    dailyFirstWinAt: resetFirstWin ? 0 : claimedFirstWinAt,
+    dailyFirstWinRewardVersion: 1,
     gachaLog,
     gachaWishlist: hydrateWishlist(raw.gachaWishlist),
     materials,
@@ -520,7 +563,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     treasureHunt,
     character: hydrateCharacter(raw.character),
     onboarding: hydrateOnboarding(raw.onboarding, gachaLog),
-    gifts: hydrateGifts(raw.gifts, eventWeeks, invasion),
+    gifts,
   };
 }
 
@@ -588,10 +631,11 @@ function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks'], invasion
   const weekTower = eventWeeks.towerOfDoom?.eventData.floorBest ?? 0;
   // 旧档没有累计入侵场数：本周场数或打过赛季就至少算 1 场
   const knownInvasions = Math.max(invasion.battles, invasion.seasonsPlayed > 0 ? 1 : 0);
-  if (!isObject(raw)) return { claimed: [], eventWins: weekWins, towerBest: weekTower, invasionBattles: knownInvasions };
+  if (!isObject(raw)) return { claimed: [], currencyBonusVersion: 2, eventWins: weekWins, towerBest: weekTower, invasionBattles: knownInvasions };
   const claimed = Array.isArray(raw.claimed) ? [...new Set(raw.claimed.filter((id): id is string => typeof id === 'string'))] : [];
   return {
     claimed,
+    currencyBonusVersion: raw.currencyBonusVersion === 2 ? 2 : raw.currencyBonusGranted === true ? 1 : 0,
     eventWins: Math.max(num(raw.eventWins, 0, 0), weekWins),
     towerBest: Math.max(num(raw.towerBest, 0, 0), weekTower),
     invasionBattles: Math.max(num(raw.invasionBattles, 0, 0), knownInvasions),

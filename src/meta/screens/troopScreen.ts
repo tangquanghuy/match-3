@@ -703,7 +703,7 @@ export class TroopScreen implements Screen {
         ? isImmortal(troop) ? '已达不朽等级上限 · 30级' : '已达稀有度上限 · 升阶可提升'
         : diffs.length
           ? diffs.map((d) => `${d.label} <b>+${d.to - d.from}</b>`).join(' ')
-          : '下一级无属性变化（等级本身计入战力上限）';
+          : '下一级无属性变化';
     const btn = $('#upgrade') as HTMLButtonElement;
     const short = owned && !atCap && souls < cost;
     btn.disabled = !owned || atCap || short;

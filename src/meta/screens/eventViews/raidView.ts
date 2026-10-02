@@ -11,7 +11,7 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 function archetypeHtml(state: RaidState): string {
   const a = RAID_ARCHETYPES[state.archetype];
   return `<div class="rd-arch">${iconImg(a.icon, 'rd-arch-ico')}<div><small>首领机制</small><b>${esc(a.name)}</b><span>${esc(a.desc)}</span>
-      <span class="rd-arch-tip">首领受骷髅伤害会掉落破绽色巨型宝石；单场打掉 ≥${Math.round(RAID_HEAVY_HIT * 100)}% 血池有 20% 几率得钻石，亲手讨伐 50% 得藏宝图</span></div></div>`;
+      <span class="rd-arch-tip">坚不可摧：免疫吞噬、即死和直接减半生命。受骷髅伤害会掉落破绽色巨型宝石；单场打掉 ≥${Math.round(RAID_HEAVY_HIT * 100)}% 血池有 20% 几率得钻石，亲手讨伐 50% 得藏宝图</span></div></div>`;
 }
 
 function supplyIcon(id: string, icon: string, weak: string): string {

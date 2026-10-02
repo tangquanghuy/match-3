@@ -5,6 +5,7 @@ import { INVASION_RANKS, INVASION_VP_BY_DIFFICULTY } from '../../src/meta/data/i
 import { enemyStatsAtLevel, enemyEncounterStats, enemyTraitCount } from '../../src/meta/data/enemyDifficulty';
 import { invasionCandidates, invasionStandings, invasionVictoryVp, ensureInvasionSeason, planInvasionBattle, settleInvasionBattle } from '../../src/meta/systems/invasion';
 import { enemyToSnapshot } from '../../src/meta/systems/battleBridge';
+import { teamPower } from '../../src/meta/systems/combatPower';
 import { buildDemoSave, MockGateway, memoryStorage, weekStartOf } from '../../src/meta/gateway';
 import { SaveStore } from '../../src/meta/state/save';
 import { getTroopById } from '../../src/data/troops';
@@ -58,7 +59,7 @@ describe('random invasion frenzy', () => {
         expect(snapshot.stats).toEqual({hp:boosted.health,armor:boosted.armor,attack:boosted.attack,magic:boosted.magic});
         expect(snapshot.manaCost).toBe(troop.manaCost);
         expect(snapshot.traitIds).toHaveLength(enemyTraitCount(d.level));
-        rating+=boosted.health+boosted.armor+boosted.attack*2+boosted.magic*3;
+        rating+=teamPower([snapshot]);
       }
       expect(m.rating).toBe(rating);
       const ids=m.defense.map(d=>d.troopId);

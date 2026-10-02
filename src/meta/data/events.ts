@@ -500,14 +500,21 @@ export const EVENT_WEEKLY_RULES = {
   supplies: [6, 15, 27, 42, 60, 84], gems: [150, 150, 150, 75, 75, 0],
   tokenCap: 360, towerFloors: 25,
 } as const;
+/** 每条活动轨的六档额外成长货币；满轨 +3,900 黄金、+1,750 灵魂。 */
+export const EVENT_MILESTONE_CURRENCY_BONUS = {
+  gold: [200, 300, 500, 700, 900, 1300],
+  souls: [100, 150, 200, 300, 400, 600],
+} as const;
 export const EVENT_SHARED_GOALS = [
-  { wins: 6, gems: 300 }, { wins: 12, gems: 400 },
-  { wins: 20, gems: 500 }, { wins: 30, gems: 600 },
+  { wins: 6, gems: 300, gold: 400, souls: 200 }, { wins: 12, gems: 400, gold: 600, souls: 300 },
+  { wins: 20, gems: 500, gold: 800, souls: 400 }, { wins: 30, gems: 600, gold: 1200, souls: 600 },
 ] as const;
 export const EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = Object.fromEntries(
   Object.entries(BASE_EVENT_MILESTONES).map(([id, rows]) => [id, rows.map((row, index) => ({
     ...row, points: (id === 'worldEvent' ? EVENT_WEEKLY_RULES.supplies : EVENT_WEEKLY_RULES.points)[index]!,
     gems: EVENT_WEEKLY_RULES.gems[index]!,
+    gold: (row.gold ?? 0) + EVENT_MILESTONE_CURRENCY_BONUS.gold[index]!,
+    souls: (row.souls ?? 0) + EVENT_MILESTONE_CURRENCY_BONUS.souls[index]!,
     // 普通积分只增加基础材料；高阶挑战奖励按实际关卡单独结算。
     ...(row.mats ? { mats: boostBasicStones(row.mats) } : {}),
   }))]),

@@ -179,7 +179,7 @@ const SPELLS: CuratedBatch['spells'] = [
     desc: '吞噬一名盟友。若盟友被吞噬，则召唤一名恶魔。造成 [魔法 + 16] 点真实散射伤害，伤害值因自身的生命值而增强。 [3:1]',
     // EN "Devour an Ally, then summon a Daemon if the Ally is devoured. Deal
     // [Magic + 16] true scatter damage, boosted by my Life. [3:1]" 判读：
-    // - 咒语级 Target=Ally → allyChosen（施法方指定被吞噬的盟友）；「吞噬」= devour
+    // - 咒语级 Target=Ally → allyChosenOther（施法方指定除自身外的盟友）；「吞噬」= devour
     //   原语 chance 1（官方 Consume 无概率，必发）。
     // - 「若盟友被吞噬」= ifTargetDied（最近产目标段主目标身亡，吞噬即杀走 execute
     //   管线）；「召唤一名恶魔」= summonRandomOfRace（r27 卡点「无按种族召唤通道」
@@ -187,7 +187,7 @@ const SPELLS: CuratedBatch['spells'] = [
     // - 「真实散射伤害」= enemyAll + range all + trueDamage（裸散射官方重裁口径）；
     //   「因自身的生命值」= selfStat hp（当前生命）；[3:1] = 每 3 生命 +1，已被消费。
     build: skill(
-      devour('allyChosen', { chance: 1 }),
+      devour('allyChosenOther', { chance: 1 }),
       summonRandomOfRace('Daemon', { ifTargetDied: true }),
       dmg('enemyAll', 16, 1, {
         range: 'all',

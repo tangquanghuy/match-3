@@ -25,7 +25,7 @@ import type { MaterialDelta } from '../data/materials';
 import { INGOT_KEYS, STONE_COLORS, stoneKey } from '../data/materials';
 import {
   DEFEAT_CONSOLATION,
-  DAILY_FIRST_WIN_GEMS,
+  DAILY_FIRST_WIN_REWARD,
   KINGDOM_FIRST_CLEAR_GEMS,
   EXPLORE_DROPS,
   killGoldReward,
@@ -220,7 +220,7 @@ export function applySettlement(
   let firstWinClaimed = false;
   if (victory && firstWinClaimable) {
     save.dailyFirstWinAt = ctx.todayStart;
-    earnLine('first-win', '每日首胜', { gems: DAILY_FIRST_WIN_GEMS });
+    earnLine('first-win', '每日首胜', { ...DAILY_FIRST_WIN_REWARD });
     firstWinClaimed = true;
   }
 

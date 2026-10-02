@@ -38,11 +38,15 @@ test('普通主线保持八关与首通状态；王国探索为独立12档页面
   await expect(page.locator('.qpin')).toHaveCount(8);
   await expect(page.locator('#questFight')).toBeDisabled();
   await expect(page.locator('#questFight')).toContainText('已通关');
+  const initialPower = await page.locator('#qdSub').textContent();
+  expect(initialPower).toMatch(/^敌方战力 [\d,]+ \/ 我方 [\d,]+$/);
   await page.locator('.qpin[data-node="1"]').click();
+  await expect(page.locator('#qdSub')).not.toHaveText(initialPower!);
   await expect(page.locator('#qdRewards .qfirst-clear')).toHaveText('首通已完成');
   await openExplore(page);
   await expect(page.locator('#exploreFight')).toBeEnabled();
   await expect(page.locator('.ex-enemy')).toHaveCount(4);
+  await expect(page.locator('.ex-power')).toContainText(/敌方战力\s*[\d,]+\s*\/\s*我方\s*[\d,]+/);
   await expect(page.locator('#exploreDifficulty')).toHaveAttribute('max', '2');
   await expect(page.locator('#explorePrev')).toBeEnabled();
   await expect(page.locator('#exploreNext')).toBeDisabled();

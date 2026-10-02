@@ -27,6 +27,8 @@ import { getTroopById } from '../../data/troops';
 import { RULESET_VERSION, type CombatantSnapshot } from '../../session/contract';
 import type { MetaSave, TeamPreset } from '../state/schema';
 import type { InvasionMirror, MirrorDefender } from './invasion';
+import { teamPower, teamStatPower } from './combatPower';
+export { teamPower } from './combatPower';
 
 // ---------------------------------------------------------------------------
 // 形状
@@ -128,14 +130,9 @@ export interface MirrorPlayerInfo {
 // 录制
 // ---------------------------------------------------------------------------
 
-/** 强度：与人机镜像 rating 同口径（生命 + 护甲 + 2×攻击 + 3×魔法） */
-export function teamPower(team: readonly CombatantSnapshot[]): number {
-  return team.reduce((sum, c) => sum + c.stats.hp + c.stats.armor + c.stats.attack * 2 + c.stats.magic * 3, 0);
-}
-
 export function teamHash(team: readonly CombatantSnapshot[]): string {
   const shape = team.map(c => [c.templateId ?? 'hero', c.skillId ?? '', c.stats.hp, c.stats.attack, c.stats.armor, c.stats.magic,
-    [...(c.traitIds ?? [])].sort().join(','), c.temperingLevel ?? 0]);
+    [...(c.traitIds ?? [])].sort().join(','), c.rarityIdx ?? 0, c.temperingLevel ?? 0]);
   return fnv1a32(JSON.stringify(shape)).toString(16);
 }
 
@@ -237,7 +234,8 @@ export function mirrorFromEntry(entry: MirrorPoolEntry, difficulty: InvasionDiff
   return {
     id: `pl-${entry.ownerKey}${suffix}`,
     name: entry.name,
-    rating: entry.power,
+    rating: teamPower(entry.team),
+    statRating: teamStatPower(entry.team),
     league: entry.league,
     frenzy: false,
     frenzyMultiplier: 1,
@@ -302,7 +300,8 @@ export function buildInvasionRoster(input: RosterInput): InvasionMirror[] {
     if (key) taken.add(key);
   });
 
-  const usable = input.playerPower > 0 ? input.pool.filter(e => usableEntry(e, now)) : [];
+  const usable = input.playerPower > 0
+    ? input.pool.filter(e => usableEntry(e, now)).map(e => ({ ...e, power: teamPower(e.team) })) : [];
   // 同一玩家多个联赛都有快照时，只留离我方联赛最近、最新的一份
   const byOwner = new Map<string, MirrorPoolEntry>();
   for (const e of usable) {
@@ -365,7 +364,7 @@ function scaleMirror(mirror: InvasionMirror, scale: number): InvasionMirror {
     armor: Math.min(STAT_LIMITS.armor.max, Math.ceil(c.stats.armor * scale)),
     magic: Math.min(STAT_LIMITS.magic.max, Math.ceil(c.stats.magic * scale)),
   } }));
-  return { ...mirror, rating: teamPower(team),
+  return { ...mirror, rating: teamPower(team), statRating: teamStatPower(team),
     defense: mirror.defense.map(d => ({ ...d, statMultiplier: (d.statMultiplier ?? 1) * scale })),
     player: mirror.player ? { ...mirror.player, team } : mirror.player };
 }

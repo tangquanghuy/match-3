@@ -26,7 +26,7 @@ export function invasionGoldFactors(mirror: InvasionMirror) {
   const legacyLeague = PVP_LEVEL_BASES.reduce<number>((best, candidate, index) =>
     Math.abs(candidate - baseLevel) < Math.abs(PVP_LEVEL_BASES[best]! - baseLevel) ? index : best, 0);
   const league = Math.min(9, Math.max(0, Math.floor(finite(mirror.player?.league, finite(mirror.league, legacyLeague)))));
-  return { league, level, power: Math.max(0, finite(mirror.rating, 0)) };
+  return { league, level, power: Math.max(0, finite(mirror.statRating, finite(mirror.rating, 0))) };
 }
 
 export function invasionVictoryGold(mirror: InvasionMirror): number {

@@ -1,6 +1,6 @@
 /**
  * 馈赠：一次性成长里程碑（#gifts，可选 #gifts/<分组>）。
- * 左栏分组、右栏里程碑卡片（分页，不做长列表）；达成后手动领取宝石。
+ * 左栏分组、右栏里程碑卡片（分页，不做长列表）；达成后手动领取奖励。
  */
 import { isFailure } from '../gateway';
 import { GIFT_GROUPS, GIFT_STARTER_ID, GIFT_TOTAL_GEMS, type GiftGroupId, type GiftMetric } from '../data/gifts';
@@ -78,7 +78,6 @@ export class GiftsScreen implements Screen {
     if (group !== this.pageGroup) { this.pageGroup = group; this.page = 0; }
     const claimedGems = rows.filter((r) => r.status === 'claimed').reduce((sum, r) => sum + r.gift.gems, 0);
     const ready = rows.filter((r) => r.status === 'ready');
-    const readyGems = ready.reduce((sum, r) => sum + r.gift.gems, 0);
 
     const tabs = GIFT_GROUPS.map((g) => {
       const list = rows.filter((r) => r.gift.group === g.id);
@@ -110,7 +109,7 @@ export class GiftsScreen implements Screen {
             <p><span data-icon="crystal"></span><b>${fmt(claimedGems)}</b><span>/ ${fmt(GIFT_TOTAL_GEMS)} 宝石</span><span class="gift-hero-sep"></span><span data-icon="helmet"></span><b>${rows.filter((r) => r.gift.troop && r.status === 'claimed').length}</b><span>/ ${rows.filter((r) => r.gift.troop).length} 部队卡</span></p>
           </div>
           <button class="gift-claim-all" id="giftClaimAll" type="button"${ready.length ? '' : ' disabled'}>
-            ${ready.length ? `一键领取<small><span data-icon="crystal"></span>${fmt(readyGems)}</small>` : '暂无可领取'}
+            ${ready.length ? `一键领取<small>${ready.length} 项馈赠</small>` : '暂无可领取'}
           </button>
         </header>
         <div class="gift-body">
@@ -123,14 +122,17 @@ export class GiftsScreen implements Screen {
       </div>${bottomNavHtml('')}${toastHtml()}`;
   }
 
-  /** 一张里程碑卡：目标徽标 → 奖励（宝石 + 可选部队卡背）→ 底部统一的进度 / 领取条 */
+  /** 一张里程碑卡：目标徽标 → 奖励 → 底部统一的进度 / 领取条 */
   private cardHtml(row: GiftRow): string {
     const { gift, value, status } = row;
     const shown = Math.min(value, gift.target);
     const pct = Math.min(100, (shown / gift.target) * 100);
     const goal = goalOf(gift.metric, gift.target, gift.id);
-    const gems = gift.gems > 0
-      ? `<span class="gift-gem"><span data-icon="crystal"></span><b>${fmt(gift.gems)}</b></span>` : '';
+    const currencies = `<span class="gift-currencies">
+      <span class="gift-currency gem" title="宝石 ×${fmt(gift.gems)}"><span data-icon="crystal"></span><b>${fmt(gift.gems)}</b></span>
+      <span class="gift-currency gold" title="黄金 ×${fmt(gift.gold)}"><span data-icon="coin"></span><b>${fmt(gift.gold)}</b></span>
+      <span class="gift-currency souls" title="灵魂 ×${fmt(gift.souls)}"><span data-icon="soul"></span><b>${fmt(gift.souls)}</b></span>
+    </span>`;
     const troop = gift.troop
       ? `<span class="gift-troopcard r${gift.troop}" title="随机${rarityNameByIndex(gift.troop)}部队"><i aria-hidden="true"></i><small>${rarityNameByIndex(gift.troop)}</small></span>` : '';
     const foot = status === 'ready'
@@ -142,7 +144,7 @@ export class GiftsScreen implements Screen {
           : `<span class="gift-foot progress"><i style="width:${pct}%"></i><b>${fmt(shown)} / ${fmt(gift.target)}</b></span>`;
     return `<article class="gift-card ${status}">
         <header class="gift-goal" title="${gift.label}"><b>${goal}</b><small>${gift.metric === 'always' ? gift.label : METRIC_NOUN[gift.metric]}</small></header>
-        <div class="gift-prize">${gems}${troop}</div>
+        <div class="gift-prize">${currencies}${troop}</div>
         ${foot}
       </article>`;
   }
@@ -161,13 +163,13 @@ export class GiftsScreen implements Screen {
         if (!this.mountedRoot) return;
         if (isFailure(result)) { toast(result.message); return; }
         if (result.cards.length) {
-          queueGiftReveal({ cards: result.cards, gems: result.gems, returnHash });
+          queueGiftReveal({ cards: result.cards, gems: result.gems, gold: result.gold, souls: result.souls, returnHash });
           ctx.navigate('#chests/gems');
           return;
         }
         ctx.refresh();
         setTimeout(() => {
-          if (this.mountedRoot) toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)}`);
+          if (this.mountedRoot) toast(`已领取 ${result.ids.length} 项馈赠 · 宝石 +${fmt(result.gems)} · 黄金 +${fmt(result.gold)} · 灵魂 +${fmt(result.souls)}`);
         }, 0);
       } catch {
         // A lost reply may already have committed. Re-read authority, never replay a reward command.

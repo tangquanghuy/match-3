@@ -19,6 +19,7 @@ import {
   COMMUNITY_RACE,
   DOUGLAS_ID,
   DOUGLAS_SPELL_ID,
+  SHIRAKYUSU_ANNA_SPELL_ID,
 } from '../../src/data/communityTroops';
 import { getTroopById, getTroopByRef, knownTroopTypes, TROOPS } from '../../src/data/troops';
 import { allKingdoms, kingdomTroopPool } from '../../src/meta/data/kingdoms';
@@ -116,6 +117,20 @@ describe('白鹭依晞 · 时空裂隙', () => {
     );
     expect(state.teams[PlayerSide.Left].characters[0]!.statuses).toEqual([]);
     expect(state.teams[PlayerSide.Left].characters[2]!.statuses).toEqual([]);
+  });
+});
+
+describe('Anna · 时空裂隙', () => {
+  it('技能对选定敌人同时施加击晕和冻结', () => {
+    const state = createGameState(new BoardModel(),
+      { player: PlayerSide.Left, characters: [character(0)] },
+      { player: PlayerSide.Right, characters: [character(1), character(2)] },
+    );
+    executePrototype(SKILL_LIBRARY[SHIRAKYUSU_ANNA_SPELL_ID], {
+      state, casterId: 0, chosenTargetId: 1, rng: new SeededRNG(10003), nextGemId: () => 1,
+    });
+    expect(state.teams[PlayerSide.Right].characters[0]!.statuses.map(status => status.id)).toEqual(expect.arrayContaining(['stun', 'frozen']));
+    expect(state.teams[PlayerSide.Right].characters[1]!.statuses).toEqual([]);
   });
 });
 
@@ -340,7 +355,7 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
     expect(traits.skullDamageTaken).toBe(0.75);
   });
 
-  it('青草场地实际增加首位盟友魔法+3攻击并创造20颗混合绿色宝石与骷髅头', () => {
+  it('青草场地实际增加首位盟友魔法+3攻击并创造23颗混合绿色宝石与骷髅头', () => {
     const troop = getTroopById(CHIKORITA_ID)!;
     const board = new BoardModel();
     let nextId = 1;
@@ -360,7 +375,7 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
     expect(troop.spell.meta.scalings).toEqual([{ base: 3, mult: 1 }]);
     expect(prototype.segments).toMatchObject([
       { kind: 'buff', target: 'allyFront', stat: 'attack', scaling: { base: 3, mult: 1 } },
-      { kind: 'gem', params: { op: 'create', gem: { kind: 'mixAny', entries: [BaseColor.Green, 'SKULL'] }, count: { base: 20, mult: 0 } } },
+      { kind: 'gem', params: { op: 'create', gem: { kind: 'mixAny', entries: [BaseColor.Green, 'SKULL'] }, count: { base: 23, mult: 0 } } },
     ]);
     const events = executePrototype(prototype, {
       state, casterId: 1, rng: new SeededRNG(10004), nextGemId: () => nextId++,
@@ -375,6 +390,6 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
         if (gem?.kind === 'skull' || gem?.kind === 'color' && gem.color === BaseColor.Green) changed++;
       }
     }
-    expect(changed).toBe(20);
+    expect(changed).toBe(23);
   });
 });

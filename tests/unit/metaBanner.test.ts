@@ -43,10 +43,11 @@ describe('旗帜表完整性（官方 gowhead BannerColors）', () => {
     expect(Object.keys(BANNERS)).toHaveLength(allKingdoms().length);
   });
 
-  it('官方/设计值标注：仅混沌与藏宝库为设计值；天启与迈纳杰之罪共享 Sin of Maraj 官方旗', () => {
+  it('仅混沌与藏宝库为补设事件王国；天启采用独立旗帜加成', () => {
     const design = Object.entries(BANNERS).filter(([, d]) => !d.official).map(([k]) => k);
     expect(design.sort()).toEqual(['藏宝库', '混沌'].sort());
-    expect(BANNERS['天启']!.boosts).toEqual(BANNERS['迈纳杰之罪']!.boosts);
+    expect(BANNERS['天启']!.boosts).toEqual({ [BaseColor.Purple]: 2, [BaseColor.Blue]: 1, [BaseColor.Yellow]: -1 });
+    expect(BANNERS['天启']!.boosts).not.toEqual(BANNERS['迈纳杰之罪']!.boosts);
     expect(BANNERS['天启']!.official).toBe(true);
   });
 

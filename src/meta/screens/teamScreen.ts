@@ -13,6 +13,8 @@ import type { TroopData } from '../../data/troops';
 import { getTroopById } from '../../data/troops';
 import type { TeamMember } from '../state/schema';
 import { troopStatsOf } from '../systems/troopProgress';
+import { buildPlayerSnapshots } from '../systems/battleBridge';
+import { teamPower } from '../systems/combatPower';
 import { heroStatsOf } from '../systems/hero';
 import { anyWeaponById } from '../data/weaponCatalog';
 import { RARITY_NAMES as RARITY_CN_ROSTER } from '../data/rarity';
@@ -714,13 +716,16 @@ export class TeamScreen implements Screen {
       box.innerHTML = '<span class="gauge-summary">空编队 · 还差 4 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>';
       return;
     }
-    const averageLevel = Math.round(members.reduce((sum, member) => sum + member.level, 0) / members.length);
+    const draft = buildPlayerSnapshots(this.ctx.save(), {
+      name: this.currentTeam()?.name ?? '', members: this.slotsToMembers(), bannerKingdomId: this.banner,
+    });
+    const power = draft.ok ? teamPower(draft.playerTeam) : 0;
     const coverage = ROSTER_COLORS.map((c) => ({
       color: c,
       n: members.filter((m) => m.colors.some((x) => x.toLowerCase() === c)).length,
     }));
     box.innerHTML = `
-      <span class="gauge-summary">平均 Lv.${averageLevel} · 法力色覆盖</span>
+      <span class="gauge-summary">战力 ${power.toLocaleString()} · 法力色覆盖</span>
       <span class="gauge-count" title="已编入 ${members.length} 名，最多 4 名">${members.length} / 4</span>
       <span class="gauge-colors" aria-label="法力色覆盖" title="法力色覆盖">
         ${coverage.map((c) => `<span class="cov${c.n ? '' : ' zero'}" title="${COLOR_CN_ROSTER[c.color]}色：${c.n} 名">${gemSvg([c.color])}<i>${c.n}</i></span>`).join('')}

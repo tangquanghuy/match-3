@@ -23,10 +23,11 @@ const LATER = KINGDOM_ORDER[5]; // 推进序第 6 个王国（解锁门槛 > 1�
 const save = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
 
 describe('王国黄金升级', () => {
-  it('成本表递增、末级 4 万（对齐计划口径）', () => {
+  it('成本表递增，单个王国升满共需 20 万黄金', () => {
     expect(KINGDOM_UPGRADE_COSTS).toHaveLength(9);
-    expect(kingdomUpgradeCost(1)).toBe(1000);
-    expect(kingdomUpgradeCost(9)).toBe(40000);
+    expect(kingdomUpgradeCost(1)).toBe(2000);
+    expect(kingdomUpgradeCost(9)).toBe(70000);
+    expect(KINGDOM_UPGRADE_COSTS.reduce((sum, cost) => sum + cost, 0)).toBe(200_000);
     for (let lv = 1; lv < 9; lv++) {
       expect(kingdomUpgradeCost(lv + 1)).toBeGreaterThan(kingdomUpgradeCost(lv));
     }
@@ -35,13 +36,24 @@ describe('王国黄金升级', () => {
   it('升级扣黄金并写回等级；黄金不足原子拒绝', () => {
     const s = save();
     const r = upgradeKingdom(s, KINGDOM);
-    expect(r).toEqual({ ok: true, level: 2, cost: 1000 });
-    expect(s.currencies.gold).toBe(1000);
+    expect(r).toEqual({ ok: true, level: 2, cost: 2000 });
+    expect(s.currencies.gold).toBe(0);
     expect(s.kingdoms[KINGDOM]?.level).toBe(2);
 
-    const fail = upgradeKingdom(s, KINGDOM); // 1000 < 下级 2000
+    const fail = upgradeKingdom(s, KINGDOM); // 0 < 下级 4000
     expect(fail).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
     expect(s.kingdoms[KINGDOM]?.level).toBe(2);
+  });
+
+  it('从 1 级升到 10 级实际扣除 20 万黄金', () => {
+    const s = save();
+    s.currencies.gold = 200_000;
+    for (let level = 2; level <= KINGDOM_MAX_LEVEL; level++) {
+      expect(upgradeKingdom(s, KINGDOM)).toMatchObject({ ok: true, level });
+    }
+    expect(s.kingdoms[KINGDOM]?.level).toBe(KINGDOM_MAX_LEVEL);
+    expect(s.currencies.gold).toBe(0);
+    expect(upgradeKingdom(s, KINGDOM)).toMatchObject({ ok: false, code: 'MAXED' });
   });
 
   it('满级 10 级后再升 → MAXED', () => {

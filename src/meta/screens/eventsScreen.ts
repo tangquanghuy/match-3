@@ -280,18 +280,18 @@ export class EventsScreen implements Screen {
       </div>${bottomNavHtml('', '选择活动出战')}${toastHtml()}`;
   }
 
-  /** 每周远征：一条进度轴 + 四个宝石节点 */
+  /** 每周远征：一条进度轴 + 四个奖励节点 */
   private weeklySummaryHtml(save: MetaSave, weekStart: number): string {
     const summary = eventWeeklySummary(save, weekStart);
     const max = EVENT_SHARED_GOALS.at(-1)!.wins;
     const pct = Math.min(100, (summary.wins / max) * 100);
     return `<section class="ev-weekly" aria-label="每周远征">
-        <header><b>每周远征</b><strong>${summary.wins} <small>/ ${max} 胜</small></strong></header>
+        <header><b>每周远征</b><strong>${summary.wins} <small>/ ${max} 胜</small></strong><small class="ev-weekly-currency">黄金 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.gold, 0))} · 灵魂 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.souls, 0))}</small></header>
         <div class="ev-weekly-rail">
           <div class="ev-weekly-bar"><i style="width:${pct}%"></i></div>
           <div class="ev-weekly-goals">${summary.goals.map((g) => {
             const cls = g.claimed ? 'claimed' : summary.wins >= g.wins ? 'ready' : '';
-            return `<div class="${cls}" style="left:${(g.wins / max) * 100}%" title="${g.wins} 胜 · 宝石 ${g.gems}${g.claimed ? ' · 已入账' : ''}"><span class="ev-goal-pill"><span data-icon="${g.claimed ? 'check' : 'crystal'}"></span><b>${g.gems}</b></span><small>${g.wins}胜</small></div>`;
+            return `<div class="${cls}" style="left:${(g.wins / max) * 100}%" title="${g.wins} 胜 · 宝石 ${g.gems} · 黄金 ${g.gold} · 灵魂 ${g.souls}${g.claimed ? ' · 已入账' : ''}"><span class="ev-goal-pill"><span data-icon="${g.claimed ? 'check' : 'crystal'}"></span><b>${g.gems}</b></span><small>${g.wins}胜</small></div>`;
           }).join('')}</div>
         </div>
       </section>`;

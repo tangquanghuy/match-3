@@ -24,6 +24,9 @@ import {
   questLineupPreview,
 } from '../systems/kingdomOps';
 import type { KingdomState } from '../state/schema';
+import type { MetaSave } from '../state/schema';
+import { buildPlayerSnapshots, encounterPower } from '../systems/battleBridge';
+import { teamPower } from '../systems/combatPower';
 import { kingdomStageCleared } from '../systems/kingdomFirstClear';
 import type { EncounterEnemy } from '../systems/encounter';
 import { bottomNavHtml, mountIcons, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
@@ -147,6 +150,12 @@ function lineupOf(kingdom: string, mode: KingdomStageMode, node: number): Encoun
   } catch {
     return [];
   }
+}
+
+function powerSummary(save: MetaSave, enemies: EncounterEnemy[]): string {
+  const player = buildPlayerSnapshots(save);
+  const own = player.ok ? teamPower(player.playerTeam).toLocaleString() : '未编队';
+  return `敌方战力 ${encounterPower(enemies).toLocaleString()} / 我方 ${own}`;
 }
 
 function leadPortrait(enemies: EncounterEnemy[]): string {
@@ -285,7 +294,7 @@ export class QuestScreen implements Screen {
           <div class="qd-copy" aria-live="polite">
             <small id="qdMode">${MODE_LABEL[this.mode]} <i> / </i> ${String(this.selectedNode).padStart(2, '0')}</small>
             <b id="qdTitle">${this.kingdom} ${this.selectedNode}</b>
-            <span id="qdSub">Lv.${enemyLevel(this.kingdom, this.mode, this.selectedNode)}</span>
+            <span id="qdSub" title="敌方 Lv.${enemyLevel(this.kingdom, this.mode, this.selectedNode)}">${powerSummary(save, enemies)}</span>
           </div>
           <div class="qd-enemies"><span class="qd-label">敌方阵容</span><div class="qd-foes" id="qdFoes">${enemies.map(foeTile).join('')}</div></div>
           <div class="qd-loot"><span class="qd-label">${this.mode === 'normal' ? '关卡奖励' : '首通奖励 / 概率掉落'}</span><div class="qd-rewards" id="qdRewards">${questRewardsHtml(this.kingdom, this.mode, this.selectedNode, this.kingdomEntry)}</div></div>
@@ -395,7 +404,10 @@ export class QuestScreen implements Screen {
     const title = $('#qdTitle');
     if (title) title.textContent = `${this.kingdom} ${node}`;
     const sub = $('#qdSub');
-    if (sub) sub.textContent = `Lv.${enemyLevel(this.kingdom, this.mode, node)}`;
+    if (sub) {
+      sub.textContent = powerSummary(ctx.save(), lineupOf(this.kingdom, this.mode, node));
+      sub.title = `敌方 Lv.${enemyLevel(this.kingdom, this.mode, node)}`;
+    }
     const mode = $('#qdMode');
     if (mode) mode.innerHTML = `${MODE_LABEL[this.mode]} <i> / </i> ${String(node).padStart(2, '0')}`;
     const rewards = $('#qdRewards');

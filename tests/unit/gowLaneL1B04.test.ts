@@ -156,7 +156,7 @@ describe('L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, 
    TROOPS.find(t=>t.id===6700)!.spell.description);
   expect(native.get(8056).raw.Target).toBe('Ally');
   const p=registry.prototypes.get('8056') as unknown as {segments:Record<string,unknown>[]};
-  expect(p.segments[0]).toEqual({kind:'devour',target:'allyChosen',chance:1});
+  expect(p.segments[0]).toEqual({kind:'devour',target:'allyChosenOther',chance:1});
   expect(p.segments[1]).toMatchObject({kind:'summon',ifTargetDied:true});
   expect(p.segments[2]).toEqual({kind:'damage',target:'enemyAll',scaling:{base:16,mult:1},range:'scatter',trueDamage:true,modifier:{mod:{kind:'ratio',a:3,b:1},source:{kind:'selfStat',stat:'hp'}}});
   const raw=rawByType('Daemon');expect([...daemons()].sort()).toEqual(raw.filter(r=>ROSTER.has(r)).sort());
@@ -184,6 +184,13 @@ describe('L1 troop:6700/spell:8056 Devour an Ally, summon a Daemon if devoured, 
  it('Barrier on the ally blocks the devour: ally survives, Barrier consumed, no Daemon',()=>{
   const f=setup({...base,target:1,allies:[{statuses:[{id:'barrier',turns:3}]}]});const ev=f.cast();
   expect(f.allies[0].defeated).toBe(false);expect(f.allies[0].statuses.some(s=>s.id==='barrier')).toBe(false);expect(summons(ev)).toEqual([]);
+ });
+ it('cannot choose the caster as the ally to devour',()=>{
+  const f=setup({...base,target:0,allies:[{}]});
+  expect(f.cast()).toEqual([]);
+  expect(f.caster.mana).toBe(base.cost);
+  expect(f.caster.defeated).toBe(false);
+  expect(f.state.actionLog).toHaveLength(0);
  });
  refused({...base,allies:[{}],target:1});
 });
