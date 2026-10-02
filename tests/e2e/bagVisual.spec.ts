@@ -149,6 +149,9 @@ test('特质石详情列出对应王国并能进入探索', async ({ page }) => 
   const arcane = page.locator('.bag-detail-card:visible');
   await expect(arcane).toContainText('基础抽取每次有 1% 概率掉秘法石');
   await arcane.locator('.bag-farm summary').click();
+  await expect(arcane.locator('.bag-farm summary')).toContainText('旗帜加成王国');
+  expect(await arcane.locator('.bag-farm button').count()).toBeGreaterThan(1);
+  await expect(arcane.locator('.bag-farm button', { hasText: '破碎尖塔' })).toContainText('首通固定');
   await arcane.locator('.bag-farm button', { hasText: '破碎尖塔' }).click();
   await expect(page.locator('.explore-screen h1')).toHaveText('破碎尖塔');
 });

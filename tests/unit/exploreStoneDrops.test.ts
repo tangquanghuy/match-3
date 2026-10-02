@@ -6,7 +6,7 @@ import { MockGateway } from '../../src/meta/gateway';
 import { applySettlement } from '../../src/meta/systems/settlement';
 import { planExploreEncounter } from '../../src/meta/systems/encounter';
 import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
-import { STONE_COLORS } from '../../src/meta/data/materials';
+import { ARCANE_STONE_KEYS, STONE_COLORS } from '../../src/meta/data/materials';
 import { EXPLORE_DROPS, exploreStoneChances } from '../../src/meta/data/economy';
 import { kingdomArcaneKey, kingdomBoostedStoneColors, kingdomsForExploreStone, pickExploreStoneKey } from '../../src/meta/systems/explore';
 import { SeededRNG } from '../../src/engine/rng';
@@ -67,6 +67,22 @@ describe('探索特质石抽取与首通奖励', () => {
     expect(pickExploreStoneKey(kingdom, [keys[1]!], rng)).toBe(keys[1]);
     expect(pickExploreStoneKey(kingdom, [], rng)).toBeNull();
     expect(kingdomsForExploreStone(keys[0]!)).toContain(kingdom);
+  });
+  it('双色秘法石同时列出首通固定产地和其他旗帜匹配王国', () => {
+    const key = ARCANE_STONE_KEYS.find(stone => kingdomsForExploreStone(stone).some(k => kingdomArcaneKey(k) !== stone));
+    expect(key).toBeDefined();
+    const matches = kingdomsForExploreStone(key!);
+    expect(matches.some(k => kingdomArcaneKey(k) === key)).toBe(true);
+    expect(matches.some(k => kingdomArcaneKey(k) !== key)).toBe(true);
+    for (const k of matches) {
+      expect(key!.split(':').slice(1).some(color => kingdomBoostedStoneColors(k).includes(color))).toBe(true);
+    }
+    const boosted = kingdomBoostedStoneColors(kingdom);
+    const rng = new SeededRNG(17);
+    const picks = Array.from({ length: 4000 }, () => pickExploreStoneKey(kingdom, ARCANE_STONE_KEYS, rng));
+    const favored = picks.filter(key => key?.split(':').slice(1).some(color => boosted.includes(color))).length;
+    expect(favored / picks.length).toBeGreaterThan(0.72);
+    expect(favored / picks.length).toBeLessThan(0.78);
   });
   it.each(['hard', 'veryHard'] as const)('%s 奖励预览标明本王国更易掉落的颜色', mode => {
     for (const k of KINGDOM_ORDER) for (const node of [1, 2, 3]) {

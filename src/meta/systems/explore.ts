@@ -78,11 +78,12 @@ export function pickExploreStoneKey(kingdom: string, candidates: readonly string
   return pool[rng.nextInt(pool.length)]!;
 }
 
-/** Fixed Arcane source, or kingdoms where a basic stone's colour has banner affinity. */
+/** Kingdoms whose banner gives this stone a colour affinity. */
 export function kingdomsForExploreStone(key: string): string[] {
   const stone = parseStoneKey(key);
   if (!stone || stone.tier === 'celestial') return [];
-  return KINGDOM_ORDER.filter(kingdom => stone.tier === 'arcane'
-    ? kingdomArcaneKey(kingdom) === key
-    : kingdomBoostedStoneColors(kingdom).includes(stone.colorKey!));
+  return KINGDOM_ORDER.filter(kingdom => {
+    const boosted = kingdomBoostedStoneColors(kingdom);
+    return stone.colorKey!.split(':').some(color => boosted.includes(color));
+  });
 }
