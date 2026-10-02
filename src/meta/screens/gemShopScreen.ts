@@ -3,8 +3,9 @@ import { acquireOf, acquireProgress, gemBuyCost, listedInGemShop } from '../data
 import { ALL_CATALOG_WEAPONS, catalogIconUrl, ownsWeapon } from '../data/weaponCatalog';
 import type { WeaponDef } from '../data/weapons';
 import { rarityMetaByKey, rarityStyle } from '../data/rarity';
+import { roleNameZh } from '../data/roles';
 import { heroStatsOf } from '../systems/hero';
-import { bottomNavHtml, mountIcons, shopNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
+import { COLOR_CN, bottomNavHtml, gemSvg, mountIcons, shopNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { cssUrlVar, shopArt } from '../shell/artAssets';
 import { renderSpell } from '../shell/spellText';
 import { bindTermTips } from '../shell/termTip';
@@ -36,14 +37,21 @@ function priceOf(weapon: WeaponDef): number {
   return acquireOf(weapon).gems ?? gemBuyCost(weapon.rarity);
 }
 
+function manaColorsOf(weapon: WeaponDef): string[] {
+  return weapon.manaColors.map(color => String(color).toLowerCase());
+}
+
+function manaLabel(weapon: WeaponDef): string {
+  return manaColorsOf(weapon).map(color => COLOR_CN[color] ?? color).join('、');
+}
+
 function cardHtml(weapon: WeaponDef, save: MetaSave, selected: boolean): string {
   const owned = ownsWeapon(save, weapon.id);
   const art = catalogIconUrl(weapon);
   return `<button type="button" class="gem-shop-card${selected ? ' selected' : ''}${owned ? ' is-owned' : ''}"
     style="${rarityStyle(weapon.rarity)}" data-inspect-weapon="${escapeHtml(weapon.id)}" aria-pressed="${selected}" aria-label="查看${escapeHtml(weapon.name)}详情">
-    <span class="gem-shop-art">${art ? `<img src="${escapeHtml(art)}" alt="" loading="lazy">` : '<span data-icon="swords"></span>'}</span>
+    <span class="gem-shop-art">${art ? `<img src="${escapeHtml(art)}" alt="" loading="lazy">` : '<span data-icon="swords"></span>'}<span class="gem-shop-mana" title="${escapeHtml(manaLabel(weapon))}色法力，充能 ${weapon.manaCost}">${gemSvg(manaColorsOf(weapon))}<i>${weapon.manaCost}</i></span></span>
     <span class="gem-shop-body"><span class="gem-shop-title"><b>${escapeHtml(weapon.name)}</b><small>${escapeHtml(rarityMetaByKey(weapon.rarity).label)}</small></span>
-      <span class="gem-shop-blurb">${weapon.manaCost} 法力 · ${escapeHtml(weapon.roleName || '武器')}</span>
       <span class="gem-shop-foot"><span class="gem-shop-price"><span data-icon="crystal"></span><b>${fmt(priceOf(weapon))}</b></span><span class="gem-shop-status">${owned ? '已拥有' : '查看详情 →'}</span></span>
     </span>
   </button>`;
@@ -69,7 +77,7 @@ function detailHtml(weapon: WeaponDef, save: MetaSave): string {
       : `<button type="button" class="gem-shop-buy is-poor" disabled>还差 ${fmt(price - save.currencies.gems)} 宝石</button>`;
   return `<div class="gem-shop-detail-card" data-gem-detail="${escapeHtml(weapon.id)}" style="${rarityStyle(weapon.rarity)}">
     <div class="gem-shop-detail-hero"><div class="gem-shop-detail-art">${art ? `<img src="${escapeHtml(art)}" alt="">` : '<span data-icon="swords"></span>'}</div>
-      <div><small>${escapeHtml(rarityMetaByKey(weapon.rarity).label)} · ${escapeHtml(weapon.kingdom || '直购')}</small><h2 id="gemWeaponTitle" tabindex="-1">${escapeHtml(weapon.name)}</h2><span class="gem-shop-detail-mana">${weapon.manaCost} 法力 · ${escapeHtml(weapon.roleName || '武器')}</span></div></div>
+      <div><small>${escapeHtml(rarityMetaByKey(weapon.rarity).label)} · ${escapeHtml(weapon.kingdom || '直购')}</small><h2 id="gemWeaponTitle" tabindex="-1">${escapeHtml(weapon.name)}</h2><span class="gem-shop-detail-mana">${gemSvg(manaColorsOf(weapon))}<span><small>${escapeHtml(manaLabel(weapon))}色法力 · ${escapeHtml(roleNameZh(weapon.role) ?? (weapon.roleName || '武器'))}</small><b>充能 ${weapon.manaCost}</b></span></span></div></div>
     <div class="gem-shop-detail-info"><div class="gem-shop-detail-stats" role="group" aria-label="武器属性加成">${stats}</div>
     <section class="gem-shop-detail-spell" aria-label="武器技能"><h3>${escapeHtml(spellTitle && spellTitle !== weapon.name.trim() ? spellTitle : '武器技能')}</h3><p>${spell.html || '暂无技能描述'}</p></section></div>
     <div class="gem-shop-detail-purchase"><span>售价 <b>${fmt(price)}</b> 宝石</span>${button}</div>

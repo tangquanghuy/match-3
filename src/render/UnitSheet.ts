@@ -94,6 +94,8 @@ export interface UnitSheetData {
   portrait: string;
   colors: BaseColor[];
   shown: CardShownStats;
+  /** 定位（中文，如「坦克」）；空串不显示 */
+  role?: string;
   /** 种族 · 王国 · 稀有度；空串则不显示 */
   typeLine: string;
   /** 种族（中文）；空串不显示 */
@@ -483,10 +485,10 @@ export class UnitSheet {
   private headerSig = '';
   private termTips?: () => void;
 
-  constructor(parent: HTMLElement, private handlers: UnitSheetHandlers) {
+  constructor(parent: HTMLElement, private handlers: UnitSheetHandlers, private options: { layout?: 'fan' | 'columns' } = {}) {
     ensureStyles();
     this.root = document.createElement('section');
-    this.root.className = 'usw';
+    this.root.className = `usw${options.layout === 'columns' ? ' usw-columns' : ''}`;
     this.root.dataset.testid = 'unit-sheet';
     this.root.setAttribute('role', 'dialog');
     this.root.setAttribute('aria-modal', 'false');
@@ -522,6 +524,10 @@ export class UnitSheet {
   /** 覆盖区域（wrapper 布局坐标）：棋盘略向两侧扩展，按需让出 HUD 通道 */
   setBounds(b: UnitSheetBounds): void {
     const m = unitSheetMetrics(b.width, b.height);
+    if (this.options.layout === 'columns') {
+      m.cardW = Math.max(220, Math.min(320, Math.floor((b.width - 48) / 3)));
+      m.cardH = Math.round(m.cardW * 1.5);
+    }
     Object.assign(this.root.style, {
       left: `${b.left}px`, top: `${b.top}px`, width: `${b.width}px`, height: `${b.height}px`,
     });
@@ -558,7 +564,7 @@ export class UnitSheet {
   private applyLayout(): void {
     for (const el of this.root.querySelectorAll<HTMLElement>('.usw-pane')) {
       const pane = el.dataset.pane as SheetPane;
-      const pos = this.layout[pane];
+      const pos = this.options.layout === 'columns' ? 'center' : this.layout[pane];
       el.dataset.pos = pos;
       const front = pos === 'center';
       el.tabIndex = front ? -1 : 0;
@@ -573,7 +579,7 @@ export class UnitSheet {
   }
 
   /** 打开或切换到某个角色（整窗重绘；换角色时卡摞回到立绘在最前） */
-  open(data: UnitSheetData, opts: { focus?: boolean } = {}): void {
+  open(data: UnitSheetData, opts: { focus?: boolean; dismissOnOutside?: boolean } = {}): void {
     const wasOpen = this.isOpen();
     const switching = wasOpen && this.current?.charId !== data.charId;
     if (!wasOpen || switching) this.layout = { ...DEFAULT_PANE_POS };
@@ -597,7 +603,7 @@ export class UnitSheet {
         if (!target || this.root.contains(target) || target.closest('.gcard')) return;
         this.handlers.onClose();
       };
-      document.addEventListener('pointerdown', this.outsideHandler, true);
+      if (opts.dismissOnOutside !== false) document.addEventListener('pointerdown', this.outsideHandler, true);
     } else if (switching && motion) {
       this.root.querySelector('.usw-stack')?.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' });
     }
@@ -659,7 +665,7 @@ export class UnitSheet {
   // —— 渲染 ——
 
   private headerSigOf(d: UnitSheetData): string {
-    return [d.charId, d.ally, d.name, d.portrait, d.typeLine, d.race, d.kingdom, d.rarityLabel, d.rarity, d.rarityColor,
+    return [d.charId, d.ally, d.name, d.portrait, d.typeLine, d.race, d.kingdom, d.rarityLabel, d.role ?? '', d.rarity, d.rarityColor,
       d.skillName, d.skillTag, d.colors.join(','),
       d.traitSlots.map((t) => `${t.code}:${t.unlocked}:${t.implemented}`).join(',')].join('|');
   }
@@ -669,7 +675,7 @@ export class UnitSheet {
     this.root.setAttribute('aria-labelledby', nameId);
     this.root.dataset.side = d.ally ? 'ally' : 'enemy';
     this.root.dataset.charId = String(d.charId);
-    const nameSub = [d.race, d.kingdom, d.rarityLabel].filter(Boolean).join(' · ');
+    const nameSub = [d.role ?? '', d.race, d.kingdom, d.rarityLabel].filter(Boolean).join(' · ');
     const rarityAttr = d.rarityColor ? ` data-rc style="--rc:${esc(d.rarityColor)}"` : '';
     const unlocked = d.traitSlots.filter((t) => t.unlocked).length;
     this.root.innerHTML = `

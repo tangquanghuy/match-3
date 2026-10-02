@@ -64,6 +64,7 @@ import type { CastAvailability, UnitSheetData } from './UnitSheet';
 import { CastCutIn, castCutInReserveSeconds, registerCastCutInSide } from './CastCutIn';
 import { RARITY_TIERS } from '../meta/data/rarity';
 import { raceNames } from '../meta/data/races';
+import { roleNameZh } from '../meta/data/roles';
 import { SkillBranchPicker } from './SkillBranchPicker';
 import { AiBranchChooser, FixedBranchChooser, skillChoices, selectSkillBranch } from '../engine/skills/branchChooser';
 import { setSkipCastConfirm, skipCastConfirm } from './battlePrefs';
@@ -3901,6 +3902,7 @@ export class App {
       colors: [...ch.colors],
       shown,
       typeLine,
+      role: roleNameZh(troop?.role) ?? '',
       race: types.length ? raceNames(types) : '',
       kingdom,
       rarityLabel: tier?.label ?? '',

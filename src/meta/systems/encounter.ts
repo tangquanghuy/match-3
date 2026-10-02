@@ -1,7 +1,9 @@
 /** Seeded main-story encounters and fixed 4 + 1 + 1 kingdom Explore teams. */
 import { isImmortal } from '../../data/immortals';
-import { TROOPS, getTroopById } from '../../data/troops';
+import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
 import { enemyLevel, enemyTraitCount } from '../data/enemyDifficulty';
+import { ROLE_COMP_CHANCE, ROLE_COMPS, roleSlotAccepts, type CompSlot } from '../data/roleComps';
+import { troopStrategy } from '../data/troopStrategy';
 import { SeededRNG } from '../../engine/rng';
 import {
   BATTLE_TEAM_SIZE,
@@ -11,6 +13,7 @@ import {
   QUESTS_PER_KINGDOM,
   QUEST_TEAM_SIZES,
   questEnemyLevel,
+  questEnemyTraitCount,
 } from '../data/kingdoms';
 import type { MetaSave } from '../state/schema';
 import type { BattleBonusSpec } from './battleBonus';
@@ -75,6 +78,77 @@ function questTierPlan(node: number): EnemyTier[] {
   return squad('elite', 'elite', 'boss');
 }
 
+/** 档内稀有度加权：t = clamp(level/60)，n = 档内归一化位次，w = exp(−1.6·(n−t)²)。
+ *  钟形峰值随进度移动：早期关卡偏带内低稀有度、后期偏带内高稀有度；单稀有度池退化为均匀。 */
+function pickByRarityWeight<T extends { rarityIdx: number }>(
+  rng: SeededRNG,
+  pool: readonly T[],
+  min: number,
+  max: number,
+  level: number,
+): T {
+  if (pool.length === 1) return pool[0]!;
+  const t = Math.max(0, Math.min(1, level / 60));
+  const span = max - min;
+  const weights = pool.map((troop) => (span === 0 ? 1 : Math.exp(-1.6 * ((troop.rarityIdx - min) / span - t) ** 2)));
+  let roll = rng.next() * weights.reduce((sum, w) => sum + w, 0);
+  for (let i = 0; i < pool.length; i += 1) {
+    roll -= weights[i]!;
+    if (roll <= 0) return pool[i]!;
+  }
+  return pool[pool.length - 1]!;
+}
+
+/** 掷一次职责模板：≥3 槽的队伍半数成阵（偏好约束，槽位无合格者时调用方自行退回原池）。 */
+function rollRoleComp(rng: SeededRNG, slotCount: number) {
+  if (slotCount < 3 || rng.next() >= ROLE_COMP_CHANCE) return null;
+  return ROLE_COMPS[rng.nextInt(ROLE_COMPS.length)] ?? null;
+}
+
+/** 纯墙：0 攻击且技能无任何输出——可以当肉盾，但一队多面会锁死战斗节奏（叠甲互锁教训）。 */
+const isPureWall = (t: TroopData): boolean =>
+  t.attack === 0 && !troopStrategy(t.id).damage && !troopStrategy(t.id).skulls;
+
+/**
+ * 槽位资格筛选：官方卡不是单一职责，槽位看「卡实际会做什么」而非定位标签。
+ * 职责（duty）先按技能文本/相对坦度筛出合格者，官方 role 只在合格者内作风味偏好；
+ * 每层筛空都整层回落，绝不因筛选缺员。纯墙每队至多一面（墙已上过则剔除纯墙候选）。
+ */
+function qualifySlot(pool: readonly TroopData[], slot: CompSlot | undefined, wallUsed: boolean): readonly TroopData[] {
+  let out = pool;
+  if (slot) {
+    if (slot.duty === 'front') {
+      // 池内相对坦度：护甲+生命不低于中位数（Rowanne 型护甲输出也算合格前排）
+      const bulk = pool.map((t) => t.armor + t.health).sort((a, b) => a - b);
+      const mid = bulk[Math.floor(bulk.length / 2)] ?? 0;
+      const fronts = pool.filter((t) => t.armor + t.health >= mid);
+      if (fronts.length) out = fronts;
+    } else if (slot.duty === 'damage') {
+      const strikers = pool.filter((t) => {
+        const p = troopStrategy(t.id);
+        return p.damage || p.skulls;
+      });
+      if (strikers.length) out = strikers;
+    } else if (slot.duty === 'mana') {
+      const feeders = pool.filter((t) => troopStrategy(t.id).generator);
+      if (feeders.length) out = feeders;
+    } else if (slot.duty === 'sustain') {
+      const medics = pool.filter((t) => {
+        const p = troopStrategy(t.id);
+        return p.support || p.armorSupport;
+      });
+      if (medics.length) out = medics;
+    }
+    const flavored = out.filter((t) => roleSlotAccepts(slot.roles, t.role));
+    if (flavored.length) out = flavored;
+  }
+  if (wallUsed) {
+    const noWall = out.filter((t) => !isPureWall(t));
+    if (noWall.length) out = noWall;
+  }
+  return out;
+}
+
 /** 域外随机敌人统一排除不朽；王国稀有度带逐档放宽，活动与主线共用。 */
 export function pickEnemies(
   kingdom: string,
@@ -85,20 +159,23 @@ export function pickEnemies(
   const chosen = new Set<number>();
   if (!kingdomTroopPool(kingdom).length) throw new RangeError(`王国不存在: ${kingdom}`);
   const eligible = (t: (typeof TROOPS)[number]): boolean => !chosen.has(t.id) && !isImmortal(t);
-  return tiers.map((tier) => {
+  const comp = rollRoleComp(rng, tiers.length);
+  let wallUsed = false;
+  return tiers.map((tier, slot) => {
     const band = BAND_BY_TIER[tier];
     let min = band.min;
     let max = band.max;
-    let pool = kingdomTroopPool(kingdom, { min, max }).filter(eligible);
+    let pool = qualifySlot(kingdomTroopPool(kingdom, { min, max }).filter(eligible), comp?.slots[slot], wallUsed);
     while (pool.length === 0 && (min > 0 || max < 5)) {
       min = Math.max(0, min - 1);
       max = Math.min(5, max + 1);
-      pool = kingdomTroopPool(kingdom, { min, max }).filter(eligible);
+      pool = qualifySlot(kingdomTroopPool(kingdom, { min, max }).filter(eligible), comp?.slots[slot], wallUsed);
     }
     // Preserve exclusions even when the local rarity bands are exhausted.
     if (!pool.length) pool = TROOPS.filter(t => eligible(t) && !isImmortal(t) && t.rarityIdx >= band.min && t.rarityIdx <= band.max);
-    const troop = pool[rng.nextInt(pool.length)]!;
+    const troop = pickByRarityWeight(rng, pool, min, max, level);
     chosen.add(troop.id);
+    if (isPureWall(troop)) wallUsed = true;
     return { troopId: troop.id, level: enemyLevel(level), tier, traitCount: enemyTraitCount(level) };
   });
 }
@@ -123,7 +200,8 @@ export function planQuestEncounter(kingdom: string, node: number, seed: number):
     kingdom,
     source: { kind: 'quest', node },
     seed: seed >>> 0,
-    enemies: pickEnemies(kingdom, questEnemyLevel(kingdom, node), questTierPlan(node), new SeededRNG(seed)),
+    enemies: pickEnemies(kingdom, questEnemyLevel(kingdom, node), questTierPlan(node), new SeededRNG(seed))
+      .map(enemy => ({ ...enemy, traitCount: questEnemyTraitCount(kingdom, node) })),
   };
 }
 
@@ -141,11 +219,16 @@ export function planExploreEncounter(kingdom: string, tier: number, seed: number
   const all = kingdomPool.filter(t => !isImmortal(t));
   const chosen = new Set<number>();
   const level = exploreEnemyLevel(kingdom, tier);
+  const comp = rollRoleComp(rng, BATTLE_TEAM_SIZE);
+  let wallUsed = false;
   const enemies: EncounterEnemy[] = [];
   for (let slot = 0; slot < BATTLE_TEAM_SIZE; slot++) {
     const boss = stage >= 4 && slot === 0;
     const max = boss ? (stage === 4 ? 4 : 5) : 3;
-    let pool = all.filter(t => !chosen.has(t.id) && (boss ? t.rarityIdx === max : t.rarityIdx <= max));
+    // boss 槽按阶段锁稀有度（===4 / ===5），不吃职责资格，保持首领身份优先
+    let pool = boss
+      ? all.filter(t => !chosen.has(t.id) && t.rarityIdx === max)
+      : qualifySlot(all.filter(t => !chosen.has(t.id) && t.rarityIdx <= max), comp?.slots[slot], wallUsed);
     if (!pool.length) {
       const eligible = all.filter(t => !chosen.has(t.id) && t.rarityIdx <= max);
       const best = Math.max(...eligible.map(t => t.rarityIdx));
@@ -155,8 +238,9 @@ export function planExploreEncounter(kingdom: string, tier: number, seed: number
     if (!pool.length) pool = all.filter(t => t.rarityIdx <= (boss ? max : 3));
     // Event pseudo-kingdoms may have no regular troops: use global low-rarity fillers.
     if (!pool.length) pool = TROOPS.filter(t => !isImmortal(t) && t.rarityIdx <= max && !chosen.has(t.id));
-    const troop = pool[rng.nextInt(pool.length)]!;
+    const troop = pickByRarityWeight(rng, pool, 0, max, level);
     chosen.add(troop.id);
+    if (isPureWall(troop)) wallUsed = true;
     enemies.push({ troopId: troop.id, level, tier: boss ? 'boss' : troop.rarityIdx >= 2 ? 'elite' : 'minion', traitCount: enemyTraitCount(level) });
   }
   return { kingdom, source: { kind: 'explore', tier, stage, ...(runId ? { runId } : {}) }, seed: seed >>> 0, enemies };

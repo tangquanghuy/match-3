@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
+
 /**
  * Playwright 端到端配置（技能测试台验收用）。
  * 自动拉起 vite dev server，测试打开 /skills-test.html 逐类技能点验。
@@ -11,14 +13,14 @@ export default defineConfig({
   retries: 0,
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL,
     trace: 'off',
     screenshot: 'only-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173/skills-test.html',
+    url: `${baseURL}/skills-test.html`,
     reuseExistingServer: true,
     timeout: 60_000,
   },

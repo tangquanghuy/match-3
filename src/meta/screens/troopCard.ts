@@ -2,11 +2,16 @@
 import type { TroopData } from '../../data/troops';
 import type { TroopRecord } from '../state/schema';
 import { gemSvg, icon } from '../shell/chrome';
+import { ROLE_ICONS, roleNameZh } from '../data/roles';
 import { troopImg } from './teamScreen';
 export const escapeHtml = (s: string): string => s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export function troopCardFace(t: TroopData, rec?: TroopRecord): string {
+  const role = roleNameZh(t.role);
+  const roleBadge = role
+    ? `<span class="collection-role" title="定位：${escapeHtml(role)}" aria-label="定位${escapeHtml(role)}">${icon(ROLE_ICONS[t.role as keyof typeof ROLE_ICONS])}<b>${escapeHtml(role)}</b></span>`
+    : '';
   return `<i class="rarity-edge" aria-hidden="true"></i>${troopImg(t,false,'alt=""').replace('loading="lazy"','loading="eager"')}
     <span class="collection-mana">${gemSvg(t.manaColors.map(c=>c.toLowerCase()))}</span>
     ${!rec ? `<span class="locked-mark" aria-hidden="true">${icon('lock')}</span>` : ''}
-    <div class="collection-info"><h2>${escapeHtml(t.name)}</h2><span class="collection-level">${rec ? `Lv.${rec.level}` : '未获得'}</span></div>`;
+    <div class="collection-info"><h2>${escapeHtml(t.name)}</h2><span class="collection-level">${rec ? `Lv.${rec.level}` : '未获得'}</span>${roleBadge}</div>`;
 }

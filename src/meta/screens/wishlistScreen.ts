@@ -2,6 +2,7 @@ import { getTroopById } from '../../data/troops';
 import { RARITY_NAMES, RARITY_COLORS } from '../data/rarity';
 import { GACHA_RULES as R } from '../data/gachaRules';
 import { matchesTroopCatalog, type TroopCatalogFilter } from '../data/troopCatalog';
+import { ROLE_NAMES, ROLE_ORDER } from '../data/roles';
 import { reallyOwned, recommendWishlist, validateWishlist, WISHLIST_TROOPS, wishlistHitRate, wishlistKingdom } from '../systems/wishlist';
 import { bottomNavHtml, topbarHtml, toast, toastHtml } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
@@ -46,6 +47,7 @@ export class WishlistScreen implements Screen {
         ${this.select('kingdom','王国',kingdoms.map(k=>[k,k]),this.filter.kingdom??'')}
         ${this.select('color','颜色',Object.entries(colorLabels),this.filter.color??'')}
         ${this.select('type','种族',races.map(r=>[r,typeCn([r])]),this.filter.type??'')}
+        ${this.select('role','定位',ROLE_ORDER.map(r=>[r,ROLE_NAMES[r]!]),this.filter.role??'')}
         ${this.select('owned','持有',[['unowned','未拥有'],['owned','已拥有']],this.owned)}
         ${this.select('sort','排序',[['id','图鉴编号'],['name','名称'],['unowned','未拥有优先']],this.sort,false)}
         <label class="wl-check"><input id="wl-selected" type="checkbox" ${this.selectedOnly?'checked':''}>只看已选</label>
@@ -65,7 +67,7 @@ export class WishlistScreen implements Screen {
     root.addEventListener('change',e=>{
       const el=e.target as HTMLInputElement; const key=el.id.replace('wl-','');
       if(key==='rarity')this.filter.rarity=el.value?Number(el.value):null;
-      else if(key==='kingdom'||key==='color'||key==='type')this.filter[key]=el.value;
+      else if(key==='kingdom'||key==='color'||key==='type'||key==='role')this.filter[key]=el.value||null;
       else if(key==='owned')this.owned=el.value||'all'; else if(key==='sort')this.sort=el.value;
       else if(key==='selected')this.selectedOnly=el.checked;else if(key==='available')this.availableOnly=el.checked;
       else return;

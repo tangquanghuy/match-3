@@ -1,3 +1,4 @@
+import { regionalPortraitStats } from './regionalPresentation';
 import { bindTermTips } from '../shell/termTip';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { topbarHtml, toastHtml, toast, icon } from '../shell/chrome';
@@ -48,7 +49,15 @@ function team(ctx:RegionCtx, side:'player'|'enemy', kind:string,id:string):Comba
   return o?previewRegionalEnemy(o,ctx.gateway.now(),ctx.region):[];
 }
 function cards(list:CombatantSnapshot[],kind:string,id:string,side:string,region:RegionId):string {
-  return `<div class="rg-team">${list.map((c,i)=>`<a class="rg-troop" href="#regional/region/${region}/unit/${kind}/${id||'-'}/${side}/${i}">${troopImg(getTroopById(Number(c.templateId))??null,false,'alt=""')}<div><small>0${i+1}</small><h3>${esc(c.name)}</h3>${attributes(c)}<span>技能与特质 ›</span></div></a>`).join('')}</div>`;
+  return `<div class="rg-team" data-preview-side="${side}">${list.map((c,i)=>{
+    const troop=getTroopById(Number(c.templateId));
+    return `<a class="rg-troop" href="#regional/region/${region}/unit/${kind}/${id||'-'}/${side}/${i}" aria-label="查看${esc(c.name)}详情">
+      <div class="rg-troop-art">${troopImg(troop??null,c.templateId==='hero',`alt="${esc(c.name)}"`)}
+        ${regionalPortraitStats(c)}<span class="rg-troop-position" title="${i===0?'队首':`${i+1} 号位`}">${i+1}</span>
+      </div>
+      <div class="rg-troop-caption"><h3>${esc(c.name)}</h3>${c.levelLabel?`<small>${esc(c.levelLabel)}</small>`:''}<span aria-hidden="true">›</span></div>
+    </a>`;
+  }).join('')}</div>`;
 }
 function home(ctx:RegionCtx):string {
  const link=regionLinks(ctx.region);
@@ -67,8 +76,8 @@ function prepare(ctx:RegionCtx,kind:string,id:string):string {
  const save=ctx.save(),s=regionalState(save),issue=regionalTeamIssue(save,s.week,ctx.region),plan=planRegional(structuredClone(save),argsOf(ctx.region,kind,id),ctx.gateway.now(),0);
  const enemy=team(ctx,'enemy',kind,id), player=team(ctx,'player',kind,id);
  return `<div class="rg-heading"><div><small>战前准备 · ${regionalRule(s.week,ctx.region).name}${regionalRule(s.week,ctx.region).restriction.kind==='none'?'':'限定'}</small><h1>${esc(plan.ok?plan.context.opponent.name:'队伍准备')}</h1></div>${link(kind==='duel'?'opponents':kind==='citadel'?'citadel':'monolith/'+id,'返回')}</div>
- <section class="rg-panel"><h2>敌方队伍</h2>${enemy.length?cards(enemy,kind,id,'enemy',ctx.region):'<p>先配置符合本周规则的队伍，再查看本场敌方属性。</p>'}</section>
- <section class="rg-panel"><div class="rg-heading"><h2>我的队伍</h2><a class="rg-button" href="#team/regional/region/${ctx.region}/prepare/${esc(kind)}/${esc(id)}">调整编队 ›</a></div>${cards(player,kind,id,'player',ctx.region)}</section>
+ <section class="rg-panel rg-team-panel"><div class="rg-team-heading"><h2>敌方队伍</h2><span>${enemy.length} 人</span></div>${enemy.length?cards(enemy,kind,id,'enemy',ctx.region):'<p>先配置符合本周规则的队伍，再查看本场敌方属性。</p>'}</section>
+ <section class="rg-panel rg-team-panel"><div class="rg-heading"><h2>我的队伍</h2><a class="rg-button" href="#team/regional/region/${ctx.region}/prepare/${esc(kind)}/${esc(id)}">调整编队 ›</a></div>${cards(player,kind,id,'player',ctx.region)}</section>
  <div class="rg-launch"><p>${esc(issue??(!plan.ok?plan.message:'属性已计入本场血怒与有效巨石碑增益'))}</p><button class="rg-button rg-primary" data-fight="${esc(kind)}" data-id="${esc(id)}" ${!plan.ok?'disabled':''}>进入战斗${kind==='citadel'?' · 1 符印':kind==='monolith'?' · 1 碑能':''}</button></div>`;
 }
 function unit(ctx:RegionCtx,kind:string,id:string,side:string,index:string):string {

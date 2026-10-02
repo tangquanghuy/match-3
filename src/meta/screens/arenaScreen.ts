@@ -1,5 +1,6 @@
 import './arenaDraft.css';
-import { arenaStatsMarkup, arenaTroopDetailMarkup } from './arenaPresentation';
+import { arenaPortraitStatsMarkup, arenaUnitSheetData } from './arenaPresentation';
+import { UnitSheet } from '../../render/UnitSheet';
 import { escapeHtml } from './troopCard';
 /**
  * 竞技场 · 现开赛（计划 §5.9 三屏合一）：报名 → 四轮 3 选 1 → 编队连战。
@@ -10,7 +11,7 @@ import { RARITY_CLASS_NAMES as RARITY_CLS } from '../data/rarity';
 import { getTroopById } from '../../data/troops';
 import { currentDraftChoices, arenaOpponentPreview, arenaUnlocked } from '../systems/arena';
 import { isFailure } from '../gateway';
-import { bottomNavHtml, gemSvg, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
+import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import { bindTermTips } from '../shell/termTip';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopImg } from './teamScreen';
@@ -36,9 +37,10 @@ function manaConflict(ids: readonly number[], candidateId: number): string[] {
 
 export class ArenaScreen implements Screen {
   private ctx!: ShellCtx;
-  private selectedPick: number | null = null;
   private picking = false;
-  private termTipsDetail?: () => void;
+  private selectedPick: number | null = null;
+  private detailSheet?: UnitSheet;
+  private detailResize?: ResizeObserver;
   /** 编队阶段本地站位（draft 卡 id 序），展示与确认都用它 */
   private order: number[] = [];
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -158,10 +160,7 @@ export class ArenaScreen implements Screen {
                   <header><h3>本届阵容</h3><small id="pickedLabel">已锁定 0/${ARENA.rounds}</small></header>
                   <div class="picked-slots" id="pickedSlots"></div>
                 </aside>
-                <div class="draft-foot">
-                  <span id="draftSelectionHint" aria-live="polite">选择本轮部队</span>
-                  <button class="primary" id="nextDraft" type="button" disabled>确认选择</button>
-                </div>
+                <div class="draft-foot"><span id="draftSelectionHint" aria-live="polite">点击卡片选择并查看详情</span><button class="primary" id="nextDraft" type="button" disabled>确认选择</button></div>
               </div>
             </div>
           </div>
@@ -176,7 +175,7 @@ export class ArenaScreen implements Screen {
                 </div>
               </div>
               <div class="run-slots" id="draftTeam"></div>
-              <p class="lineup-hint">队首吃骷髅 · ▲▼ 调整站位（双方固定 15 级 · 无特质 · 无外部加成）</p>
+              <p class="lineup-hint">点击立绘查看详情 · ⇅ 与前一位交换（1 号位与 2 号位交换）<br>队首承受骷髅伤害 · 固定 15 级 · 无特质 · 无外部加成</p>
             </div>
             <div class="gauntlet-col">
               <div class="battle-head">
@@ -186,7 +185,6 @@ export class ArenaScreen implements Screen {
                 <span class="run-score">胜场 <b id="wins">0</b> / ${ARENA.winsToFinish} · 败场 <b id="losses">0</b> / ${ARENA.lossesToFinish}</span>
               </div>
               <div class="gauntlet" id="gauntlet">${matches}</div>
-              <div class="battle-note"><span data-icon="lock"></span>主角不出战 · 本场卡组将在赛毕清除</div>
               <div class="battle-actions">
                 <button class="secondary" id="clearDraft" type="button">弃赛</button>
                 <button class="primary" id="fight" type="button"><span data-icon="swords"></span><span id="fightLabel">开始第 1 场</span></button>
@@ -214,12 +212,13 @@ export class ArenaScreen implements Screen {
     this.mounted = true;
     if (param?.startsWith('detail/')) {
       this.bind('#arenaDetailBack', 'click', () => ctx.navigate('#arena'));
-      this.termTipsDetail = bindTermTips(root);
+      this.mountDetail(root, Number(param.slice(7)));
+      this.bind('#arenaDetailPick', 'click', () => void this.confirmPick(Number(param.slice(7))));
       root.querySelector<HTMLElement>('#arenaDetailTitle')?.focus({ preventScroll: true });
       return;
     }
     this.bind('#enter', 'click', () => void this.enter());
-    this.bind('#nextDraft', 'click', () => void this.confirmPick());
+    this.bind('#nextDraft', 'click', () => { if (this.selectedPick !== null) void this.confirmPick(this.selectedPick); });
     this.bind('#fight', 'click', () => void this.fight());
     this.bind('#clearDraft', 'click', () => this.openForfeitModal());
     this.bind('#forfeit', 'click', () => this.openForfeitModal());
@@ -300,11 +299,9 @@ export class ArenaScreen implements Screen {
 
   private renderDraft(): void {
     const state = currentDraftChoices(this.ctx.save());
-    this.selectedPick = null;
-    ($('#nextDraft') as HTMLButtonElement).disabled = true;
-    $('#draftSelectionHint').textContent = '选择本轮部队';
     const draft = this.draft();
     if (!state || !draft) return;
+    this.selectedPick = this.savedSelection();
     $('#round').textContent = String(draft.picked.length + 1);
     const band = ARENA.roundBands[Math.min(draft.picked.length, ARENA.roundBands.length - 1)]!;
     const bandNote = $('#bandNote');
@@ -317,53 +314,29 @@ export class ArenaScreen implements Screen {
         const cls = RARITY_CLS[o.rarityIdx] ?? 'common';
         const level = arenaDraftLevel(o.rarityIdx);
         const conflicts = manaConflict(draft.picked, troop.id);
-        return `<div class="arena-candidate"><button class="draft-card r-${cls}${conflicts.length ? ' has-conflict' : ''}" data-i="${i}" type="button" aria-pressed="false">
+        return `<div class="arena-candidate"><button class="draft-card r-${cls}${this.selectedPick === troop.id ? ' selected' : ''}${conflicts.length ? ' has-conflict' : ''}" data-i="${i}" data-candidate-troop="${troop.id}" type="button" aria-pressed="${this.selectedPick === troop.id}" aria-label="查看${escapeHtml(troop.name)}详情">
           <div class="draft-card-art">
             ${arenaTroopImg(troop, `alt="${troop.name}"`)}
             <span class="shade"></span>
-            <span class="mana">${gemSvg(troop.manaColors.map((c) => c.toLowerCase()))}<i>${troop.manaCost}</i></span>
-            <b class="rarity">${RARITY_CN[o.rarityIdx] ?? ''}</b>
-            <i class="pick-flag">已选</i>
+            ${arenaPortraitStatsMarkup(troop)}
           </div>
           <div class="draft-card-info">
             <h3>${troop.name}</h3>
             <small>${troop.kingdom ?? '无王国'} · Lv.${level} · 无特质</small>
-            ${arenaStatsMarkup(troop)}
             ${conflicts.length ? `<span class="mana-conflict" title="与已锁定部队共享法力颜色">同色法力：${conflicts.map((c) => MANA_CN[c] ?? c).join('、')}</span>` : ''}
           </div>
-        </button><button class="arena-candidate-detail" type="button" data-candidate-troop="${troop.id}" aria-label="查看${escapeHtml(troop.name)}详情">查看详情 <span aria-hidden="true">›</span></button></div>`;
+          <span class="arena-selection-mark" aria-hidden="true">✓</span>
+        </button><span class="arena-candidate-state" aria-hidden="true">${this.selectedPick === troop.id ? '已选中' : '点击选择 · 查看详情'}</span></div>`;
       })
       .join('');
     mountIcons(cardsEl);
     this.termTipsDraft?.();
     this.termTipsDraft = bindTermTips(cardsEl);
     this.renderPicked(draft.picked);
-    $$('#draftCards .draft-card').forEach((btn) =>
-      this.on(btn, 'click', (e) => {
-        // 术语点击不选卡：让解释面板独享这次点击
-        if (this.picking || (e.target as HTMLElement).closest('.spell-term')) return;
-        $$('#draftCards .draft-card').forEach((el) => {
-          el.classList.remove('selected');
-          el.setAttribute('aria-pressed', 'false');
-        });
-        btn.classList.add('selected');
-        btn.setAttribute('aria-pressed', 'true');
-        this.selectedPick = Number((btn as HTMLElement).dataset.i);
-        this.rememberSelection(state.options[this.selectedPick]!.troopId);
-        ($('#nextDraft') as HTMLButtonElement).disabled = false;
-        const troop = getTroopById(state.options[this.selectedPick]!.troopId);
-        $('#draftSelectionHint').textContent = troop ? `已选择 · ${troop.name}` : '确认加入本届阵容';
-      }),
-    );
     $$('#draftCards [data-candidate-troop]').forEach(btn => this.on(btn, 'click', () =>
       this.openTroopDetail(Number(btn.dataset.candidateTroop), `[data-candidate-troop="${btn.dataset.candidateTroop}"]`)));
-    try {
-      const remembered = JSON.parse(sessionStorage.getItem('arena.ui.selection') ?? 'null') as { key: string; id: number } | null;
-      if (remembered?.key === this.selectionKey()) {
-        const index = state.options.findIndex(option => option.troopId === remembered.id);
-        if (index >= 0) document.querySelector<HTMLButtonElement>(`#draftCards .draft-card[data-i="${index}"]`)?.click();
-      }
-    } catch { /* Ignore stale presentation state. */ }
+    ($('#nextDraft') as HTMLButtonElement).disabled = this.selectedPick === null;
+    $('#draftSelectionHint').textContent = this.selectedPick === null ? '点击卡片选择并查看详情' : `已选中 · ${getTroopById(this.selectedPick)?.name ?? ''}`;
   }
 
   private selectionKey(): string {
@@ -371,7 +344,18 @@ export class ArenaScreen implements Screen {
     return draft ? `${draft.seed}:${draft.picked.join(',')}` : '';
   }
 
-  private rememberSelection(id: number): void {
+  private savedSelection(): number | null {
+    const options = currentDraftChoices(this.ctx.save())?.options ?? [];
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('arena.ui.selection') ?? 'null') as { key: string; id: number } | null;
+      if (saved?.key === this.selectionKey() && options.some(option => option.troopId === saved.id)) return saved.id;
+    } catch { /* Selection is optional UI state. */ }
+    return options.some(option => option.troopId === this.selectedPick) ? this.selectedPick : null;
+  }
+
+  private selectCandidate(id: number): void {
+    if (!currentDraftChoices(this.ctx.save())?.options.some(option => option.troopId === id)) return;
+    this.selectedPick = id;
     try { sessionStorage.setItem('arena.ui.selection', JSON.stringify({ key: this.selectionKey(), id })); } catch { /* Optional UI state. */ }
   }
 
@@ -395,6 +379,7 @@ export class ArenaScreen implements Screen {
     if (this.picking || this.arranging || this.starting) return;
     const available = [...(this.draft()?.picked ?? []), ...(currentDraftChoices(this.ctx.save())?.options.map(option => option.troopId) ?? [])];
     if (!available.includes(id)) return;
+    this.selectCandidate(id);
     try { sessionStorage.setItem('arena.ui.focus', focus); } catch { /* Optional focus restoration. */ }
     this.ctx.navigate(`#arena/detail/${id}`);
   }
@@ -405,53 +390,87 @@ export class ArenaScreen implements Screen {
     const available = [...(draft?.picked ?? []), ...candidates];
     const troop = available.includes(id) ? getTroopById(id) : undefined;
     const index = draft?.picked.indexOf(id) ?? -1;
-    const peers = index >= 0 ? draft!.picked : candidates;
     return `${topbarHtml()}
       <main class="screen arena-screen arena-detail-page">
         <header class="arena-detail-nav"><button class="secondary" id="arenaDetailBack" type="button">‹ 返回${draft?.stage === 'picking' ? '选人' : '竞技场'}</button><h1 id="arenaDetailTitle" tabindex="-1">部队详情</h1><span>${troop ? index >= 0 ? `本届阵容 · 第 ${index + 1} 位` : '本轮候选' : ''}</span></header>
-        ${troop ? `<section class="arena-detail-body r-${RARITY_CLS[troop.rarityIdx] ?? 'common'}">
-          <div class="arena-detail-portrait">${arenaTroopImg(troop, `alt="${escapeHtml(troop.name)}"`)}<span>${RARITY_CN[troop.rarityIdx] ?? ''}</span></div>
-          <div class="arena-detail-copy">${arenaTroopDetailMarkup(troop)}</div>
-        </section>
-        <nav class="arena-detail-peers" aria-label="${index >= 0 ? '本届阵容' : '本轮候选'}">${peers.map(peerId => {
-          const peer = getTroopById(peerId);
-          return peer ? `<a href="#arena/detail/${peerId}" ${peerId === id ? 'aria-current="page"' : ''}>${arenaTroopImg(peer, 'alt=""')}<span>${escapeHtml(peer.name)}</span></a>` : '';
-        }).join('')}</nav>` : '<p class="arena-detail-expired">本轮阵容已更新，请返回竞技场。</p>'}
+        ${troop ? `<div class="arena-detail-sheet" id="arenaDetailSheet" data-troop="${troop.id}"></div>
+        <p class="arena-detail-scroll-hint">← 滑动查看技能 · 立绘 · 特质 →</p>
+        <div class="arena-detail-footer"><p>Lv.${arenaDraftLevel(troop.rarityIdx)} · 无特质 · 无外部加成<br><small>技能 · 立绘 · 特质</small></p>
+          ${index < 0 && candidates.includes(id) ? '<button class="primary" id="arenaDetailPick" type="button">✓ 确认选择</button>' : ''}</div>
+        ` : '<p class="arena-detail-expired">本轮阵容已更新，请返回竞技场。</p>'}
       </main>${bottomNavHtml('', '现开赛卡组独立')}`;
   }
 
-  private async confirmPick(): Promise<void> {
+  private mountDetail(root: HTMLElement, id: number): void {
+    const host = root.querySelector<HTMLElement>('#arenaDetailSheet');
+    const troop = getTroopById(id);
+    if (!host || !troop) return;
+    this.selectCandidate(id);
+    this.detailSheet = new UnitSheet(host, {
+      onClose: () => { if (!this.picking) this.ctx.navigate('#arena'); },
+      onCast: () => {}, onQuickCast: () => {},
+    }, { layout: 'columns' });
+    let lastWidth = -1;
+    const resize = () => {
+      this.detailSheet?.setBounds({ left: 0, top: 0, width: host.clientWidth, height: host.clientHeight });
+      // Start narrow screens on the middle portrait, retaining both adjacent cards.
+      // Only recenter for a width change, never while the user scrolls the details.
+      if (lastWidth !== host.clientWidth) {
+        lastWidth = host.clientWidth;
+        host.scrollLeft = Math.max(0, (host.scrollWidth - host.clientWidth) / 2);
+      }
+    };
+    resize();
+    this.detailResize = new ResizeObserver(resize);
+    this.detailResize.observe(host);
+    this.detailSheet.open(arenaUnitSheetData(troop), { dismissOnOutside: false });
+    lastWidth = -1;
+    resize();
+    // Keep the same portrait fallback chain as the draft and team cards.
+    const portrait = host.querySelector<HTMLImageElement>('.usw-portrait');
+    if (portrait) {
+      const template = document.createElement('template');
+      template.innerHTML = arenaTroopImg(troop, 'class="usw-portrait" alt="" draggable="false"');
+      const img = template.content.firstElementChild as HTMLImageElement;
+      img.addEventListener('load', () => img.closest('.usw-card')?.classList.remove('no-art'));
+      portrait.replaceWith(img);
+      if (img.complete && img.naturalWidth) img.closest('.usw-card')?.classList.remove('no-art');
+    }
+  }
+
+  private async confirmPick(id: number): Promise<void> {
     if (this.picking) return;
     const state = currentDraftChoices(this.ctx.save());
-    if (!state || this.selectedPick === null) return;
-    const option = state.options[this.selectedPick];
-    if (!option) return;
+    if (!state?.options.some(option => option.troopId === id)) return;
     this.picking = true;
-    const button = $('#nextDraft') as HTMLButtonElement;
-    button.disabled = true;
-    button.textContent = '正在确认…';
-    $('#draftCards').setAttribute('aria-busy', 'true');
+    const detail = !!this.detailSheet;
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('#nextDraft, [data-candidate-troop], #arenaDetailPick, #arenaDetailBack'));
+    buttons.forEach(button => { button.disabled = true; });
+    const region = document.querySelector('#draftCards, #arenaDetailSheet');
+    region?.setAttribute('aria-busy', 'true');
+    let done = false;
     try {
-      const { result } = await this.ctx.gateway.pickDraftCard(option.troopId);
+      const { result } = await this.ctx.gateway.pickDraftCard(id);
       if (!this.mounted) return;
-      if (isFailure(result)) {
-        toast(result.message);
-        return;
-      }
+      if (isFailure(result)) { toast(result.message); return; }
+      done = true;
+      this.selectedPick = null;
       const draft = this.draft();
       if (result.done || !draft || draft.stage !== 'picking') {
         this.order = draft?.picked ? [...draft.picked] : [];
         toast('牌组完成，进入编队连战。');
       }
     } catch {
-      try { await this.ctx.gateway.sync(); } catch { /* Preserve the acknowledged roster for retry. */ }
+      try { await this.ctx.gateway.sync(); } catch { /* Preserve acknowledged roster for retry. */ }
+      done = !currentDraftChoices(this.ctx.save())?.options.some(option => option.troopId === id);
       if (this.mounted) toast('选牌结果待确认，请核对本届阵容后重试。');
     } finally {
       this.picking = false;
       if (this.mounted) {
-        button.textContent = '确认选择';
-        $('#draftCards').removeAttribute('aria-busy');
-        this.render();
+        region?.removeAttribute('aria-busy');
+        if (detail && done) this.ctx.navigate('#arena');
+        else if (!detail) this.render();
+        else buttons.forEach(button => { button.disabled = false; });
       }
     }
   }
@@ -473,17 +492,12 @@ export class ArenaScreen implements Screen {
         const level = arenaDraftLevel(troop.rarityIdx);
         const rarity = RARITY_CLS[troop.rarityIdx] ?? 'common';
         return `<div class="run-slot r-${rarity}">
-          ${arenaTroopImg(troop, `alt="${troop.name}"`)}
-          <div class="slot-body">
-            <b>${troop.name}</b>
-            <span>${RARITY_CN[troop.rarityIdx] ?? ''} · 耗蓝 ${troop.manaCost} · Lv.${level} · 无特质</span>
-          </div>
-          <button class="arena-slot-detail" type="button" data-inspect-troop="${troop.id}" aria-label="查看${escapeHtml(troop.name)}详情"${busy ? ' disabled' : ''}>详情</button>
-          <span class="pos${i === 0 ? ' skull' : ''}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
-          <div class="shift" role="group" aria-label="${troop.name} 站位调整">
-            <button type="button" data-shift="up" data-i="${i}" aria-label="${troop.name} 前移一位" title="前移一位"${locked || i === 0 ? ' disabled' : ''}>▲</button>
-            <button type="button" data-shift="down" data-i="${i}" aria-label="${troop.name} 后移一位" title="后移一位"${locked || i === this.order.length - 1 ? ' disabled' : ''}>▼</button>
-          </div>
+          <button class="arena-lineup-card" type="button" data-inspect-troop="${troop.id}" aria-label="查看${escapeHtml(troop.name)}详情"${busy ? ' disabled' : ''}>
+            <span class="arena-lineup-art">${arenaTroopImg(troop, `alt="${escapeHtml(troop.name)}"`)}${arenaPortraitStatsMarkup(troop)}</span>
+            <span class="slot-body"><b>${escapeHtml(troop.name)}</b><span>Lv.${level}</span></span>
+          </button>
+          <span class="arena-position${i === 0 ? ' skull' : ''}" title="${i === 0 ? '队首承受骷髅伤害' : `${i + 1} 号位`}">${i + 1}${i === 0 ? '<span data-icon="skull"></span>' : ''}</span>
+          <button class="arena-swap" type="button" data-shift="${i === 0 ? 'down' : 'up'}" data-i="${i}" aria-label="${escapeHtml(troop.name)} 与 ${i === 0 ? 2 : i} 号位交换" title="与 ${i === 0 ? 2 : i} 号位交换"${locked ? ' disabled' : ''}>⇅</button>
         </div>`;
       })
       .join('');
@@ -501,10 +515,12 @@ export class ArenaScreen implements Screen {
         <div class="match-copy"><b>本场对手 · ${preview.policy.label}</b><small>固定 Lv.15 · 4 人 · 无特质</small>
           <div class="match-preview">${preview.enemies.map(enemy => {
             const troop = getTroopById(enemy.troopId)!;
-            return `<span class="match-enemy" title="${troop.name} · Lv.15">${arenaTroopImg(troop, `alt="${troop.name}"`)}<b>${troop.name}</b></span>`;
+            return `<span class="match-enemy" data-enemy-troop="${troop.id}" title="${escapeHtml(troop.name)} · Lv.15">
+              <span class="arena-enemy-art">${arenaTroopImg(troop, `alt="${escapeHtml(troop.name)}"`)}${arenaPortraitStatsMarkup(troop)}</span>
+              <b>${escapeHtml(troop.name)}</b></span>`;
           }).join('')}</div>
         </div>
-      </div><p>双方普通、稀有、超稀有、史诗各一张。等级不变，对手选牌与站位随胜场逐步改善，仍保留随机性。</p>`;
+      </div>`;
     $('#fightLabel').textContent = `开始第 ${wins + (draft.losses ?? 0) + 1} 场`;
     ($('#clearDraft') as HTMLButtonElement).textContent = '弃赛';
   }
@@ -634,7 +650,10 @@ export class ArenaScreen implements Screen {
   dispose(): void {
     this.mounted = false;
     this.termTipsDraft?.();
-    this.termTipsDetail?.();
+    this.detailResize?.disconnect();
+    this.detailSheet?.destroy();
+    this.detailSheet = undefined;
+    this.detailResize = undefined;
     if (this.ticketTimer !== null) {
       window.clearInterval(this.ticketTimer);
       this.ticketTimer = null;

@@ -10,6 +10,7 @@ import { validateWishlist } from '../systems/wishlist';
  */
 import { getTroopById, TROOPS, type TroopData } from '../../data/troops';
 import { matchesTroopCatalog } from '../data/troopCatalog';
+import { ROLE_ICONS, ROLE_NAMES, ROLE_ORDER, roleNameZh } from '../data/roles';
 import { KINGDOM_ORDER } from '../data/kingdoms';
 import { RARITY_NAMES as RARITY_CN } from '../data/rarity';
 import type { TeamPreset, TroopRecord } from '../state/schema';
@@ -44,7 +45,7 @@ const fmt = (n: number): string => n.toLocaleString('en-US');
 const COLOR_CN: Record<string, string> = { red: '红', green: '绿', blue: '蓝', yellow: '黄', purple: '紫', brown: '棕' };
 /** 稀有度中文（与品质 chip 文案同源） */
 /** 筛选维度（摘要 chip 撤销 / 空态逐条回退用） */
-type FilterDim = 'rarity' | 'color' | 'type' | 'kingdom' | 'search' | 'tab';
+type FilterDim = 'rarity' | 'color' | 'type' | 'kingdom' | 'role' | 'search' | 'tab';
 
 const COLOR_ORDER = ['red', 'green', 'blue', 'yellow', 'purple', 'brown'] as const;
 const chargeText = (colors: readonly string[]): string =>
@@ -84,11 +85,12 @@ export class TroopScreen implements Screen {
   /** Preserve the entry point across detail navigation and reloads. */
   private detailSource = '';
   private collectionMode: 'owned' | 'all' = 'owned';
-  /** 图鉴筛选：品质 / 魔法色 / 种族 / 王国（null 或空串 = 全部） */
+  /** 图鉴筛选：品质 / 魔法色 / 种族 / 王国 / 定位（null 或空串 = 全部） */
   private rarityFilter: number | null = null;
   private colorFilter: string | null = null;
   private typeFilter: string | null = null;
   private kingdomFilter: string | null = null;
+  private roleFilter: string | null = null;
   private sortKey: SortKey = DEFAULT_SORT;
   /** 'none' = 密排（默认，T-1）；'kingdom' = 王国分组（与王国筛选互斥） */
   private groupMode: 'none' | 'kingdom' = 'none';
@@ -218,6 +220,9 @@ export class TroopScreen implements Screen {
             <small class="filter-label">法力</small>
             <div class="color-chips" id="colorChips" role="group" aria-label="法力颜色筛选"></div>
             <span class="divider"></span>
+            <small class="filter-label">定位</small>
+            <div class="role-chips" id="roleChips" role="group" aria-label="定位筛选"></div>
+            <span class="divider"></span>
             <select id="typeSelect" aria-label="按种族筛选"><option value="">全部种族</option></select>
             <select id="kingdomSelect" aria-label="按王国筛选"><option value="">全部王国</option></select>
             <button class="filter-reset is-off" id="resetFilters" type="button" aria-label="重置全部筛选" title="重置全部筛选"><span data-icon="close"></span>重置</button>
@@ -293,6 +298,7 @@ export class TroopScreen implements Screen {
       this.collectionMode = 'owned'; this.rarityFilter = null; this.colorFilter = null;
       this.kingdomFilter = dimension === 'kingdom' ? value || null : null;
       this.typeFilter = dimension === 'race' ? value || null : null;
+      this.roleFilter = dimension === 'role' && (ROLE_ORDER as readonly string[]).includes(value) ? value : null;
       this.collectionPage = 1;
     }
 
@@ -392,6 +398,18 @@ export class TroopScreen implements Screen {
       const chip = (e.target as HTMLElement).closest('[data-color]') as HTMLElement | null;
       if (!chip) return;
       this.colorFilter = this.colorFilter === chip.dataset.color ? null : chip.dataset.color!;
+      this.renderCollection();
+    });
+    // 定位 9 项：官方 role 单选（含"全部"），chip 带小图标与命中数
+    const roleChips = $('#roleChips');
+    roleChips.innerHTML = `<button class="filter-chip selected" type="button" data-role="">全部 <i data-chip-count></i></button>` +
+      ROLE_ORDER.map(
+        (r) => `<button class="filter-chip" type="button" data-role="${r}" title="定位：${ROLE_NAMES[r]}">${icon(ROLE_ICONS[r])}${ROLE_NAMES[r]} <i data-chip-count></i></button>`,
+      ).join('');
+    this.on(roleChips, 'click', (e) => {
+      const chip = (e.target as HTMLElement).closest('[data-role]') as HTMLElement | null;
+      if (!chip) return;
+      this.roleFilter = chip.dataset.role === '' ? null : chip.dataset.role ?? null;
       this.renderCollection();
     });
     // 种族 34 项：按中文名排序（阶段 A：顺序 = 数据出现顺序，无序不可扫）
@@ -545,7 +563,7 @@ export class TroopScreen implements Screen {
     $('#unownedMark').hidden = owned;
     $('#cardName').textContent = troop.name;
     $('#portraitExpand').setAttribute('aria-label', `放大查看${troop.name}立绘`);
-    $('#cardType').textContent = typeCn(troop.troopTypes) + (troop.kingdom ? ' · ' + troop.kingdom : '') + ` · ${RARITY_CN[tier]}`;
+    $('#cardType').textContent = [roleNameZh(troop.role), typeCn(troop.troopTypes), troop.kingdom, RARITY_CN[tier]].filter(Boolean).join(' · ');
     $('#rarityLabel').textContent = RARITY_CN[tier] ?? '';
     const rarityBadge = $('#rarityBadge');
     rarityBadge.dataset.rarity = String(tier);
@@ -1171,6 +1189,7 @@ export class TroopScreen implements Screen {
       color: skip === 'color' ? null : this.colorFilter,
       type: skip === 'type' ? null : this.typeFilter,
       kingdom: skip === 'kingdom' ? null : this.kingdomFilter,
+      role: skip === 'role' ? null : this.roleFilter,
       query: skip === 'search' ? '' : query,
     });
   }
@@ -1211,7 +1230,7 @@ export class TroopScreen implements Screen {
   }
 
   private resetFilters(): void {
-    this.rarityFilter = this.colorFilter = this.typeFilter = this.kingdomFilter = null;
+    this.rarityFilter = this.colorFilter = this.typeFilter = this.kingdomFilter = this.roleFilter = null;
     this.collectionMode = 'owned';
     ($('#collectionSearch') as HTMLInputElement).value = '';
     this.syncFilterControls();
@@ -1223,6 +1242,7 @@ export class TroopScreen implements Screen {
     else if (dim === 'color') this.colorFilter = null;
     else if (dim === 'type') this.typeFilter = null;
     else if (dim === 'kingdom') this.kingdomFilter = null;
+    else if (dim === 'role') this.roleFilter = null;
     else if (dim === 'search') ($('#collectionSearch') as HTMLInputElement).value = '';
     else if (dim === 'tab') this.collectionMode = 'owned';
     this.syncFilterControls();
@@ -1238,6 +1258,11 @@ export class TroopScreen implements Screen {
     });
     $$('#colorChips [data-color]').forEach((x) => {
       const selected = x.dataset.color === this.colorFilter;
+      x.classList.toggle('selected', selected);
+      x.setAttribute('aria-pressed', String(selected));
+    });
+    $$('#roleChips [data-role]').forEach((x) => {
+      const selected = (x.dataset.role === '' ? null : x.dataset.role) === this.roleFilter;
       x.classList.toggle('selected', selected);
       x.setAttribute('aria-pressed', String(selected));
     });
@@ -1285,6 +1310,17 @@ export class TroopScreen implements Screen {
       if (!box) return;
       const raw = chip.dataset.rarity;
       box.textContent = raw === '' ? fmt(rarityBase.length) : fmt(perRarity[Number(raw)] ?? 0);
+    });
+
+    // 定位 chip 计数（口径与品质一致：忽略本维后的命中数）
+    const roleBase = pool.filter((t) => this.matches(t, query, 'role'));
+    const perRole = new Map<string, number>();
+    for (const t of roleBase) if (t.role) perRole.set(t.role, (perRole.get(t.role) ?? 0) + 1);
+    $$('#roleChips [data-role]').forEach((chip) => {
+      const box = chip.querySelector('[data-chip-count]');
+      if (!box) return;
+      const raw = chip.dataset.role;
+      box.textContent = raw === '' ? fmt(roleBase.length) : fmt(perRole.get(raw ?? '') ?? 0);
     });
 
     // 筛选摘要 chip 行 + 重置按钮（重置连 tab 一起，见 resetFilters）
@@ -1416,6 +1452,7 @@ export class TroopScreen implements Screen {
     if (this.colorFilter) out.push({ dim: 'color', label: (COLOR_CN[this.colorFilter] ?? this.colorFilter) + '色' });
     if (this.typeFilter) out.push({ dim: 'type', label: typeCn([this.typeFilter]) });
     if (this.kingdomFilter) out.push({ dim: 'kingdom', label: this.kingdomFilter });
+    if (this.roleFilter) out.push({ dim: 'role', label: roleNameZh(this.roleFilter) ?? this.roleFilter });
     if (query) out.push({ dim: 'search', label: `“${query}”` });
     return out;
   }

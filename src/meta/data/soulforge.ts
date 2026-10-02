@@ -1,9 +1,9 @@
 /**
  * 熔炉（Soulforge）配方表 —— 白名单制（设计文档 design/WEAPON-FORGE-DESIGN.md §3）。
  *
- * 官方口径：只有活动系武器进熔炉；王国武器包 / 精通·任务线武器永不进熔炉（论坛帖 55952 原文）。
- * 首批配方 = 官方目录中无王国包归属的纯活动武器 6 把 + 神话直购位（Dawnbringer，官方口径 130 万灵魂）
- * + Doomed 档样例 2 把。
+ * 武器白名单遵循官方活动武器口径；王国武器包 / 精通·任务线武器原则上不进熔炉
+ * （论坛帖 55952）。目录的 kingdom 字段不区分活动武器与王国包，须逐把核对。
+ * 本表含活动武器、Dawnbringer（130 万灵魂）和 Doomed 档样例。
  *
  * weaponId 使用目录命名空间 `gw_<referenceName>`（与 weaponCatalog.ts 一致；
  * 锻造成功即写入存档 unlockedWeapons，可在英雄页武器库装备）。
@@ -31,6 +31,10 @@ export const SOULFORGE_RECIPES: readonly SoulforgeStock[] = [
     source: '亡灵节活动' },
   { recipe: { weaponId: 'gw_SparkRocket2.0.16', name: '火花火箭 2.0.16', rarity: 'Epic', tier: 1, souls: 20_000, gold: 15_000 },
     source: '周年活动' },
+  { recipe: { weaponId: 'gw_RopeDart', name: '飞绳镖', rarity: 'Epic', tier: 1, souls: 20_000, gold: 15_000 },
+    source: '荣耀之地活动武器' },
+  { recipe: { weaponId: 'gw_EarthsFury', name: '大地之怒', rarity: 'Epic', tier: 1, souls: 20_000, gold: 15_000 },
+    source: '葛洛什奈克活动武器' },
   // —— Tier 2 · 神话直购位（官方 Dawnbringer 口径：130 万灵魂；主角 40 级解锁）——
   { recipe: { weaponId: 'gw_Dawnbringer', name: '黎明使者', rarity: 'Mythic', tier: 2, souls: 1_300_000, gold: 200_000 },
     source: '官方直购位（三色神话）' },

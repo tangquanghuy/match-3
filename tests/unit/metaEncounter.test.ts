@@ -1,4 +1,7 @@
-import { planTutorialEncounter } from '../../src/meta/systems/encounter';
+import { KINGDOM_ORDER, questEnemyTraitCount } from '../../src/meta/data/kingdoms';
+import { enemyTraitCount } from '../../src/meta/data/enemyDifficulty';
+import { SeededRNG } from '../../src/engine/rng';
+import { pickEnemies, planTutorialEncounter } from '../../src/meta/systems/encounter';
 import { describe, it, expect } from 'vitest';
 import { getTroopById } from '../../src/data/troops';
 import {
@@ -99,6 +102,43 @@ describe('固定新手敌队', () => {
       expect(plan.enemies.map(enemy => getTroopById(enemy.troopId)!.name))
         .toEqual(['堡垒大门', '食人魔', '火枪手', '女祭司']);
       expect(plan.enemies.every(enemy => enemy.level === 3 && enemy.traitCount === 0)).toBe(true);
+    }
+  });
+});
+
+
+describe('普通主线按王国和关卡解锁特质', () => {
+  it.each(KINGDOM_ORDER.map((kingdom, index) => [kingdom, index] as const))('%s 的所有普通关卡遵守特质规则', (kingdom, index) => {
+    for (let node = 1; node <= QUESTS_PER_KINGDOM; node++) {
+      const count = index < 10 ? 0 : node === 8 ? 2 : node === 7 ? 1 : 0;
+      expect(questEnemyTraitCount(kingdom, node)).toBe(count);
+      for (const seed of [1, 42, 999]) {
+        const plan = planQuestEncounter(kingdom, node, seed);
+        expect(plan.enemies).toHaveLength(4);
+        for (const enemy of plan.enemies) {
+          expect(enemy.traitCount).toBe(count);
+          expect(enemy.level).toBe(questEnemyLevel(kingdom, node));
+        }
+      }
+    }
+  });
+
+  it('仅覆盖普通主线特质，不改变抽出的兵种、等级和队序', () => {
+    const kingdom = KINGDOM_ORDER[10]!;
+    for (let node = 1; node <= QUESTS_PER_KINGDOM; node++) {
+      const plan = planQuestEncounter(kingdom, node, 42);
+      const original = pickEnemies(kingdom, questEnemyLevel(kingdom, node), plan.enemies.map(e => e.tier), new SeededRNG(42));
+      expect(plan.enemies).toEqual(original.map(e => ({ ...e, traitCount: questEnemyTraitCount(kingdom, node) })));
+      expect(original.every(e => e.traitCount === enemyTraitCount(e.level))).toBe(true);
+    }
+  });
+
+  it.each([KINGDOM_ORDER[0]!, KINGDOM_ORDER[9]!, KINGDOM_ORDER[10]!])('%s 的探索各档各阶段仍使用原等级特质规则', kingdom => {
+    for (let tier = 1; tier <= 12; tier++) {
+      for (let stage = 0; stage < 6; stage++) {
+        const plan = planExploreEncounter(kingdom, tier, 42, stage);
+        for (const enemy of plan.enemies) expect(enemy.traitCount).toBe(enemyTraitCount(enemy.level));
+      }
     }
   });
 });

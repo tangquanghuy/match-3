@@ -37,6 +37,14 @@ export const REGION_TIERS = [
   { name: '强敌', hp: 4, armor: 3, attack: 1.4, magic: 1.35, gold: 2400, vp: 45 },
   { name: '霸主', hp: 5, armor: 4, attack: 1.6, magic: 1.5, gold: 3000, vp: 60 },
 ] as const;
+/** 普通区域对战独立调档；城塞沿用 REGION_TIERS，避免连带降低守军与守护者难度。
+ * 倍率作用于已养成的快照，低档不再额外放大；血怒仍在此基础上统一 +50%。
+ */
+export const REGION_DUEL_SCALING = [
+  { hp: 1, armor: 1, attack: 1, magic: 1 },
+  { hp: 2, armor: 1.5, attack: 1.2, magic: 1.15 },
+  { hp: 5, armor: 4, attack: 1.6, magic: 1.5 },
+] as const;
 export const MONOLITHS: readonly { id: MonolithId; name: string; stat: 'hp' | 'armor' | 'magic'; description: string; icon: string }[] = [
   { id:'vigor', name:'生命之碑', stat:'hp', description:'生命每阶 +10%', icon:'heart' },
   { id:'ward', name:'庇护之碑', stat:'armor', description:'护甲每阶 +10%', icon:'shield' },

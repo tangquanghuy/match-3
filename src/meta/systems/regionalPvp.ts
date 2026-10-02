@@ -2,7 +2,7 @@ import { resolveBattleMaps } from './battleMaps';
 import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { levelCapFor } from '../data/economy';
-import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_REWARDS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
+import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_DUEL_SCALING, REGION_REWARDS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
 import { freshRegionalState, type RegionalState, type RegionalBattleContext, type RegionOpponent, type RegionBattleKind, type RegionTier, type MonolithId } from '../state/regional';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
@@ -74,8 +74,7 @@ export function ensureRegional(save: MetaSave, now: number): RegionalState {
   for(const buff of Object.values(s.monoliths)) if(buff.expires<=now) {buff.level=0;buff.expires=0;}
   return s;
 }
-function boost(team: CombatantSnapshot[], tier:RegionTier, frenzy:boolean, cycle=0): CombatantSnapshot[] {
-  const factors=REGION_TIERS[tier];
+function boost(team: CombatantSnapshot[], factors:CombatantSnapshot['stats'], frenzy:boolean, cycle=0): CombatantSnapshot[] {
   return team.map(c=>({...structuredClone(c),stats:Object.fromEntries(Object.entries(c.stats).map(([k,v])=>{
     const key=k as keyof CombatantSnapshot['stats'];
     return [key,Math.min(STAT_LIMITS[key].max,Math.ceil(v*factors[key]*(frenzy?1.5:1)*(1+Math.min(cycle,20)*.1)))];
@@ -106,7 +105,7 @@ export function buildRegionalOpponents(save: MetaSave, now:number, pool:readonly
   });
   return p.opponents;
 }
-export function previewRegionalEnemy(opponent:RegionOpponent, now:number,region:RegionId=REGION_ID):CombatantSnapshot[] {return boost(opponent.team,opponent.tier,regionalFrenzy(now,region));}
+export function previewRegionalEnemy(opponent:RegionOpponent, now:number,region:RegionId=REGION_ID):CombatantSnapshot[] {return boost(opponent.team,REGION_DUEL_SCALING[opponent.tier],regionalFrenzy(now,region));}
 export function regionalAction(save:MetaSave,args:RegionalAction,now:number,pool:readonly MirrorPoolEntry[]=[]):{ok:true}|MetaFailure {
   if(save.hero.level<REGION_UNLOCK_LEVEL) return fail('PREREQ_LOCKED',`永生战域在主角 ${REGION_UNLOCK_LEVEL} 级开放`);
   if(!args || typeof args !== 'object') return fail('INVALID','未知区域操作');
@@ -169,7 +168,8 @@ function prepareRegional(save:MetaSave,args:RegionalPlanArgs,now:number,seed:num
     opponent.team=npcTeam(s.week,fnv1a32(`${region}:${s.week}:citadel:${step}:${p.citadel.cycles}`),region);delete opponent.mirror;opponent.name='城塞守军';
   }
   const frenzy=args.kind!=='monolith'&&regionalFrenzy(now,region);
-  let enemy=boost(opponent.team,tier,frenzy,args.kind==='citadel'?p.citadel.cycles:0);
+  const factors=args.kind==='duel'?REGION_DUEL_SCALING[tier]:REGION_TIERS[tier];
+  let enemy=boost(opponent.team,factors,frenzy,args.kind==='citadel'?p.citadel.cycles:0);
   if(args.kind==='monolith') enemy=opponent.team.map((c,i)=>enemyToSnapshot(getTroopById(Number(c.templateId))!,{troopId:Number(c.templateId),level:MONOLITH_LEVELS[step]!,tier:'elite',traitCount:3},i));
   const player=structuredClone(built.playerTeam);
   if(args.kind!=='monolith') for(const def of MONOLITHS) {

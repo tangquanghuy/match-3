@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
 import { ALL_CATALOG_WEAPONS, anyWeaponById } from '../../src/meta/data/weaponCatalog';
 import { acquireFilterKind, acquireOf, acquireProgress, CLASS_WEAPON_WINS, gemBuyCost, listedInGemShop } from '../../src/meta/data/weaponAcquire';
-import { claimWeapon, canUseWeapon } from '../../src/meta/systems/hero';
+import { claimWeapon, canUseWeapon, forgeCatalogWeapon } from '../../src/meta/systems/hero';
 import { classByKingdom } from '../../src/meta/data/classes';
 import { findRecipe } from '../../src/meta/data/soulforge';
 
@@ -37,7 +37,7 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(kinds.get('starter')).toBe(22);
     expect(kinds.get('class')).toBe(38);
     expect(kinds.get('mastery')).toBeGreaterThan(80);
-    expect(kinds.get('forge')).toBe(9);
+    expect(kinds.get('forge')).toBe(11);
     expect(kinds.get('kingdom') ?? 0).toBe(0);
     expect((kinds.get('buy') ?? 0) + (kinds.get('placeholder') ?? 0)).toBeGreaterThan(500);
   });
@@ -54,6 +54,13 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(acquireOf(anyWeaponById('gw_Dragonator8000')!).label).toBe('机械师专属 · 职业 250 胜解锁');
     expect(acquireOf(anyWeaponById('gw_Dawnbringer')!).kind).toBe('forge');
     expect(findRecipe('gw_Dawnbringer')).toBeTruthy();
+    for (const id of ['gw_RopeDart', 'gw_EarthsFury']) {
+      const weapon = anyWeaponById(id)!;
+      expect(acquireOf(weapon).kind).toBe('forge');
+      expect(listedInGemShop(save(), weapon)).toBe(false);
+      expect(findRecipe(id)).toBeTruthy();
+      expect(claimWeapon(save(), id)).toMatchObject({ ok: false, code: 'INVALID' });
+    }
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).kind).toBe('buy');
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).gems).toBe(2_400);
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).kingdom).toBeUndefined();
@@ -129,5 +136,21 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(s.currencies.gems).toBe(0);
     expect(s.currencies.souls).toBe(souls);
     expect(s.hero.unlockedWeapons).toContain(weapon.id);
+  });
+
+  it('转入熔炉的活动武器只能锻造，成功后按配方扣费', () => {
+    const s = save();
+    const id = 'gw_RopeDart';
+    const recipe = findRecipe(id)!;
+    s.currencies.gems = 10_000;
+    s.currencies.souls = recipe.souls;
+    s.currencies.gold = recipe.gold;
+    expect(claimWeapon(s, id)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(forgeCatalogWeapon(s, id, 19)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    expect(forgeCatalogWeapon(s, id, 20)).toEqual({ ok: true, weaponId: id });
+    expect(s.currencies.souls).toBe(0);
+    expect(s.currencies.gold).toBe(0);
+    expect(s.currencies.gems).toBe(10_000);
+    expect(s.hero.unlockedWeapons).toContain(id);
   });
 });

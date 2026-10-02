@@ -72,6 +72,17 @@ export function questEnemyLevel(kingdom: string, node: number): number {
   return kingdomBaseLevel(kingdom) + Math.min(Math.max(node, 1), QUESTS_PER_KINGDOM) - 1;
 }
 
+/** 按王国推进序，前 10 国的普通主线全程无特质。 */
+export const QUEST_TRAITLESS_KINGDOM_COUNT = 10;
+
+/** 普通主线独立于等级解锁：后续王国仅倒数第二关 1 特质、最后一关 2 特质。 */
+export function questEnemyTraitCount(kingdom: string, node: number): 0 | 1 | 2 {
+  const index = KINGDOM_ORDER.indexOf(kingdom);
+  if (index < QUEST_TRAITLESS_KINGDOM_COUNT) return 0;
+  if (node === QUESTS_PER_KINGDOM) return 2;
+  return node === QUESTS_PER_KINGDOM - 1 ? 1 : 0;
+}
+
 /** Legacy first-clear gem budget and class unlock groups (tiers 1–3 / 4–6). */
 export const HARD_NODE_COUNT = 3;
 export const VERY_HARD_NODE_COUNT = 3;

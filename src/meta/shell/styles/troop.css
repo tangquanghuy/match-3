@@ -214,6 +214,13 @@
   margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .collection-info .collection-level { flex: none; color: #b9aa9c; font: 11px Georgia; white-space: nowrap; }
+/* 定位徽标：图标 + 两字码，小屏只留图标 */
+.collection-info .collection-role {
+  flex: none; display: inline-flex; align-items: center; gap: 3px;
+  height: 18px; padding: 0 5px; border: 1px solid #6b5a3c; border-radius: 3px;
+  background: #1d1a24; color: #cdb98a; font: 10px/1 var(--body); white-space: nowrap;
+}
+.collection-info .collection-role svg { width: 10px; height: 10px; }
 .collection-card.locked > img { filter: grayscale(.72) brightness(.78); }
 .collection-card .locked-mark {
   inset: auto; top: 5px; right: 5px; width: 25px; height: 25px;
@@ -228,6 +235,8 @@
   .collection-filter { margin: 0 16px 10px; }
   .collection-progress { margin: 0 16px 10px; }
   .kingdom-band { margin-left: 16px; margin-right: 16px; }
+  .collection-info .collection-role b { display: none; }
+  .collection-info .collection-role { padding: 0 3px; }
 }
 
 /* T-7：品质 chip 自带稀有度色点 = 全页缺失的稀有度图例（不额外占一行） */
@@ -375,6 +384,13 @@
   min-width: 1.5em; margin-left: 4px; color: #908e96; text-align: right;
 }
 .collection-filter .rarity-chips .filter-chip.selected i { color: #c2d1bb; }
+/* 定位筛选 chips：官方 role 九维（坦克/输出/供魔…），沿用基础 chip 金选中态 */
+.filter-row { flex-wrap: wrap; }
+.role-chips { display: flex; flex: none; align-items: center; gap: 4px; }
+.role-chips .filter-chip { display: inline-flex; align-items: center; gap: 4px; }
+.role-chips .filter-chip svg { width: 11px; height: 11px; flex: none; }
+.role-chips .filter-chip i { min-width: 1.2em; margin-left: 0; color: #908e96; text-align: right; }
+.role-chips .filter-chip.selected i { color: #f4e3b0; }
 .collection-filter .color-chips { align-items: center; gap: 4px; flex: none; }
 .collection-filter .color-chips .color-chip {
   width: 30px; height: 30px; padding: 5px; border: 1px solid #4b4d49;

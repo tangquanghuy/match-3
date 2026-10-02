@@ -37,8 +37,8 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('#round')).toHaveText('1');
 
-    await page.locator('#draftCards .draft-card').first().click();
-    await page.locator('#nextDraft').click();
+    await page.locator('.draft-card').first().click();
+    await page.locator('#arenaDetailPick').click();
     await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('#pickedLabel')).toHaveText('已锁定 1/4');
     await expect(page.locator('#pickedSlots .filled')).toHaveCount(1);
@@ -46,8 +46,8 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     await expect(page.locator('#pickedSlots .empty').first()).toHaveAttribute('aria-label', /第 2 张待选择/);
 
     for (let round = 1; round < 4; round += 1) {
-      await page.locator('#draftCards .draft-card').first().click();
-      await page.locator('#nextDraft').click();
+      await page.locator('.draft-card').first().click();
+    await page.locator('#arenaDetailPick').click();
       if (round < 3) await expect(page.locator('#draft')).toBeVisible({ timeout: 10_000 });
     }
     await expect(page.locator('#battle')).toBeVisible({ timeout: 10_000 });
@@ -91,20 +91,21 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
       const info = card.querySelector('.draft-card-info')!.getBoundingClientRect();
       return { cardWidth: card.getBoundingClientRect().width, artHeight: art.height, artBottom: art.bottom, infoTop: info.top };
     });
-    expect(cardGeometry.cardWidth).toBeGreaterThan(300);
-    expect(cardGeometry.artHeight).toBeGreaterThan(220);
+    expect(cardGeometry.cardWidth).toBeGreaterThan(90);
+    expect(cardGeometry.artHeight).toBeGreaterThan(140);
     expect(cardGeometry.infoTop).toBeGreaterThanOrEqual(cardGeometry.artBottom - 1);
     await page.locator('.draft-card').first().click();
-    await expect(page.locator('.draft-card').first()).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.usw-pane')).toHaveCount(3);
+    await page.locator('#arenaDetailBack').click();
     await page.locator('#nextDraft').scrollIntoViewIfNeeded();
     await expect(page.locator('#nextDraft')).toBeVisible();
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-draft-responsive.png' });
 
     for (let round = 0; round < 4; round += 1) {
-      await page.locator('#nextDraft').click();
+      await page.locator('.draft-card').first().click();
+    await page.locator('#arenaDetailPick').click();
       if (round < 3) {
         await expect(page.locator('#draft')).toBeVisible();
-        await page.locator('.draft-card').first().click();
         await page.locator('#nextDraft').scrollIntoViewIfNeeded();
       }
     }
@@ -125,7 +126,6 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
 
     await page.locator('#enter').click();
     const firstCard = page.locator('.draft-card').first();
-    await firstCard.click();
     const separation = await firstCard.evaluate((card) => {
       const art = card.querySelector('.draft-card-art')!.getBoundingClientRect();
       const info = card.querySelector('.draft-card-info')!.getBoundingClientRect();
@@ -136,8 +136,8 @@ test.describe('竞技场 A-6~A-9 UX 回归', () => {
     await page.screenshot({ path: 'artifacts/ux-phase-b/shots/pvp-arena-draft-desktop.png' });
 
     for (let round = 0; round < 4; round += 1) {
-      await page.locator('#nextDraft').click();
-      if (round < 3) await page.locator('.draft-card').first().click();
+      await page.locator('.draft-card').first().click();
+    await page.locator('#arenaDetailPick').click();
     }
     await expect(page.locator('#battle')).toBeVisible();
     const action = await page.locator('#fight').boundingBox();
@@ -196,7 +196,7 @@ test('胜场只递进对手选秀水平，刷新与首败保留同一档，手�
   await page.locator('#enter').click();
   for (let round = 0; round < 4; round++) {
     await page.locator('.draft-card').first().click();
-    await page.locator('#nextDraft').click();
+    await page.locator('#arenaDetailPick').click();
   }
   const tiers = ['初试选秀', '基础选牌', '输出意识', '兼顾供魔', '进阶编队', '熟练选秀'];
   for (let wins = 0; wins < tiers.length; wins++) {

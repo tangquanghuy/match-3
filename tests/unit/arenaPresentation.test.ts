@@ -2,7 +2,7 @@
 import { TROOPS } from '../../src/data/troops';
 import { troopStatsAtLevel } from '../../src/data/leveling';
 import { arenaDraftLevel } from '../../src/meta/data/economy';
-import { arenaStatsMarkup, arenaSpellMarkup, arenaTroopDetailMarkup } from '../../src/meta/screens/arenaPresentation';
+import { arenaStatsMarkup, arenaSpellMarkup, arenaTroopDetailMarkup, arenaPortraitStatsMarkup, arenaUnitSheetData } from '../../src/meta/screens/arenaPresentation';
 import { renderSpell } from '../../src/meta/shell/spellText';
 
 const representatives = [0, 1, 2, 3].map(rarity => TROOPS.find(t => t.rarityIdx === rarity)!);
@@ -37,5 +37,19 @@ describe('arena detail presentation', () => {
     expect(html).not.toContain('<script>');
     expect(html).toContain('&lt;script&gt;x&lt;/script&gt;');
     expect(html).toContain('&lt;b&gt;place&lt;/b&gt;');
+  });
+});
+
+describe('arena portrait and battle codex adapter', () => {
+  it.each(representatives)('$name exposes all five corner stats with tournament values', troop => {
+    const html = arenaPortraitStatsMarkup(troop);
+    expect(html.match(/data-stat=/g)).toHaveLength(5);
+    expect(html).toContain(`data-stat="mana" aria-label="法力消耗 ${troop.manaCost}"`);
+    const data = arenaUnitSheetData(troop);
+    const stats = troopStatsAtLevel(troop, 15);
+    expect(data.shown).toMatchObject({ attack: stats.attack, armor: stats.armor, hp: stats.health, magic: stats.magic, mana: 0, manaCost: troop.manaCost });
+    expect(data.traitSlots.every(trait => !trait.unlocked)).toBe(true);
+    expect(data.skillDescription).toBe(troop.spell.description);
+    expect(data.ally).toBe(false);
   });
 });

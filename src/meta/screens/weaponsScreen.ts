@@ -41,6 +41,7 @@ import { SOULFORGE_RECIPES, type SoulforgeStock } from '../data/soulforge';
 import type { WeaponDef } from '../data/weapons';
 import { INGOT_NAMES, ingotKeyForRarity, type IngotKey } from '../data/materials';
 import { rarityMetaByKey, rarityStyle } from '../data/rarity';
+import { roleNameZh } from '../data/roles';
 import { bottomNavHtml, COLOR_CN, gemSvg, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { ingotArt, materialImg, scrollArt } from '../shell/materialArt';
 import { isFailure } from '../gateway';
@@ -603,7 +604,7 @@ export class WeaponsScreen implements Screen {
     const equipped = anyWeaponById(save.hero.equippedWeapon)?.id === w.id;
     const level = temperingLevelOf(save, w.id);
     const spell = renderSpell(w.description, heroStatsOf(save).magic, { interactive: false });
-    const tags = [weaponTypeZh(w.weaponType), w.kingdom, w.roleName].filter(Boolean).map((text) => `<span class="detail-tag">${escapeHtml(text)}</span>`).join('');
+    const tags = [weaponTypeZh(w.weaponType), w.kingdom, roleNameZh(w.role) ?? w.roleName].filter(Boolean).map((text) => `<span class="detail-tag">${escapeHtml(text)}</span>`).join('');
     const affixLevels = w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS;
     const unlockedAffixes = affixUnlockedCount(w.rarity, level);
     const affixes = `<section class="detail-affixes${w.affixes.length ? '' : ' is-empty'}">

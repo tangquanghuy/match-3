@@ -703,8 +703,8 @@
   background: linear-gradient(90deg, #16141e, #0e0c14);
   border-left: 3px solid var(--rarity-line, #7e6849);
 }
-.run-slot b { display: block; color: #efd59d; font: 17px var(--display); letter-spacing: 1px; }
-.run-slot span { display: block; margin-top: 4px; color: #9a8e9c; font-size: 11px; }
+.run-slot > .slot-body > b { display: block; color: #efd59d; font: 17px var(--display); letter-spacing: 1px; }
+.run-slot > .slot-body > span { display: block; margin-top: 4px; color: #9a8e9c; font-size: 11px; }
 .run-slot .pos {
   position: absolute;
   top: 8px;
@@ -787,7 +787,7 @@
   color: #d8c290;
   font: 20px Georgia;
 }
-.match b { display: block; color: #e4d2ae; font: 15px var(--display); letter-spacing: 1px; }
+.match > div > b { display: block; color: #e4d2ae; font: 15px var(--display); letter-spacing: 1px; }
 .match small { color: #8c8190; font-size: 11px; }
 .match i { font-style: normal; font-size: 11px; color: #93b9e0; letter-spacing: 1px; }
 .match.pending {
@@ -857,7 +857,7 @@
   object-fit: cover;
   object-position: 50% 15%;
 }
-.match-enemy b {
+.match-enemy > b {
   max-width: 78px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -869,7 +869,7 @@
 .match:not(.pending) .match-preview { margin-top: 5px; min-height: 27px; }
 .match:not(.pending) .match-enemy { min-width: 27px; width: 27px; height: 27px; padding: 0; }
 .match:not(.pending) .match-enemy img { width: 27px; height: 27px; }
-.match:not(.pending) .match-enemy b { display: none; }
+.match:not(.pending) .match-enemy > b { display: none; }
 .match.done .match-preview { opacity: .5; }
 
 /* A-5：弃赛页内确认，列出当前胜场能拿到的实际奖励。 */
@@ -1031,7 +1031,7 @@
   .arena-responsive .run-slot { height: 112px; }
   .arena-responsive .run-slot img { width: 88px; }
   .arena-responsive .run-slot .slot-body { padding: 10px 36px 10px 9px; }
-  .arena-responsive .run-slot b { font-size: 14px; }
+  .arena-responsive .run-slot > .slot-body > b { font-size: 14px; }
   .arena-responsive .run-slot .slot-body span { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
   .arena-responsive .run-slot .shift { right: 5px; bottom: 5px; gap: 3px; }
   .arena-responsive .run-slot .shift button { width: 28px; height: 28px; }
@@ -1085,7 +1085,7 @@
   .arena-responsive .match-no { font-size: 16px; }
   .arena-responsive .match small { font-size: 10px; }
   .arena-responsive .match i { font-size: 9px; }
-  .arena-responsive .match-enemy b { display: none; }
+  .arena-responsive .match-enemy > b { display: none; }
   .arena-responsive .match-enemy { width: 36px; min-width: 36px; height: 39px; padding: 0; }
   .arena-responsive .match-enemy img { width: 36px; height: 39px; }
   .arena-responsive .battle-actions { display: grid; grid-template-columns: 92px minmax(0, 1fr); }
@@ -1124,13 +1124,13 @@
 .arena-screen .match-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; }
 .arena-screen .match-enemy { display: flex; flex-direction: column; width: auto; min-width: 0; height: 114px; padding: 0; gap: 0; }
 .arena-screen .match-enemy img { flex: 1; min-height: 0; width: 100%; height: 86px; object-fit: cover; object-position: 50% 20%; }
-.arena-screen .match-enemy b { display: block; flex-shrink: 0; width: 100%; max-width: none; padding: 5px 3px; box-sizing: border-box; text-align: center; }
+.arena-screen .match-enemy > b { display: block; flex-shrink: 0; width: 100%; max-width: none; padding: 5px 3px; box-sizing: border-box; text-align: center; }
 @media (max-width: 600px) {
   .arena-screen .match.pending { padding: 10px; gap: 5px; grid-template-columns: 16px minmax(0,1fr); }
   .arena-screen .match-preview { gap: 4px; }
   .arena-screen .match-enemy { height: 87px; }
   .arena-screen .match-enemy img { height: 60px; }
-  .arena-screen .match-enemy b { font-size: 9px; }
+  .arena-screen .match-enemy > b { font-size: 9px; }
 }
 
 .draft-spell strong.spell-couplet { white-space: pre-line; font-size: 16px; line-height: 1.6; letter-spacing: .04em; }

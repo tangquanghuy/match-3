@@ -1,3 +1,5 @@
+import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
+import { KNOWN_TRAIT_CODES } from '../../src/meta/data/traitIndex';
 import { describe, it, expect } from 'vitest';
 import { troopStatsAtLevel } from '../../src/data/leveling';
 import { stoneColorKeyOf } from '../../src/meta/data/materials';
@@ -91,6 +93,25 @@ describe('buildBattleRequest（存档 → BattleRequest）', () => {
       knownTroopTypes: knownTroopTypes(),
     });
     expect(check.ok).toBe(true);
+  });
+
+  it.each([
+    [0, 8, 0], [9, 7, 0], [9, 8, 0],
+    [10, 6, 0], [10, 7, 1], [10, 8, 2],
+    [KINGDOM_ORDER.length - 1, 1, 0],
+    [KINGDOM_ORDER.length - 1, 7, 1],
+    [KINGDOM_ORDER.length - 1, 8, 2],
+  ])('王国序号 %s 第 %s 关：战斗与卡面均只启用 %s 个特质槽', (index, node, count) => {
+    const plan = planQuestEncounter(KINGDOM_ORDER[index]!, node, 42);
+    const outcome = buildBattleRequest(save(), plan);
+    if (!outcome.ok) throw new Error(outcome.message);
+    for (const [i, snapshot] of outcome.request.enemyTeam.entries()) {
+      const enemy = plan.enemies[i]!;
+      const enabled = getTroopById(enemy.troopId)!.traits.slice(0, count).map(t => t.code);
+      expect(snapshot.displayTraitIds).toEqual(enabled);
+      expect(snapshot.traitIds).toEqual(enabled.filter(code => KNOWN_TRAIT_CODES.has(code)));
+      expect(outcome.enemyByExternalId.get(snapshot.externalId)!.traitCount).toBe(count);
+    }
   });
 
   it('探索计划也可桥接（requestId 带 x 档位）', () => {

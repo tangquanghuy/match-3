@@ -22,6 +22,32 @@ for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320
   const asset=await page.locator('.rg-world').evaluate(e=>getComputedStyle(e).backgroundImage);expect(asset).toContain('winter-map');
   await page.locator('a[href="#regional/region/WintersReach/opponents"]').click();await expect(page.locator('.rg-opponent')).toHaveCount(3);await noOverflow(page);
   await page.locator('.rg-opponent .rg-primary').first().click();await expect(page.locator('.rg-troop')).toHaveCount(8);await expect(page.locator('[data-fight]')).toBeEnabled();await noOverflow(page);
+  await expect(page.locator('.rg-troop [data-stat]')).toHaveCount(40);
+  expect(await page.locator('.rg-team').first().evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(viewport.width<=800?2:4);
+  const readable=await page.locator('.rg-troop').evaluateAll(nodes=>nodes.map(node=>{
+   const art=node.querySelector('.rg-troop-art')!.getBoundingClientRect();
+   const img=node.querySelector('img')!.getBoundingClientRect();
+   const name=node.querySelector('h3')!.getBoundingClientRect();
+   const stats=Array.from(node.querySelectorAll('[data-stat]')).map(stat=>stat.getBoundingClientRect());
+   const inside=stats.every(stat=>stat.left>=art.left-1&&stat.right<=art.right+1&&stat.top>=art.top-1&&stat.bottom<=art.bottom+1);
+   const overlap=stats.some((a,i)=>stats.slice(i+1).some(b=>Math.min(a.right,b.right)>Math.max(a.left,b.left)+1&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+1));
+   return inside&&!overlap&&Math.abs(img.width-art.width)<1&&Math.abs(img.height-art.height)<1&&name.height>10;
+  }));
+  expect(readable).toEqual(Array(8).fill(true));
+  const correctStats=await page.evaluate(async()=>{
+   const load=(p:string)=>import(/* @vite-ignore */p);
+   const {metaGateway}=await load('/src/meta/gateway/index.ts');
+   const {previewRegionalBattle}=await load('/src/meta/systems/regionalPvp.ts');
+   const gw=metaGateway(),id=location.hash.split('/').at(-1);
+   const plan=previewRegionalBattle(gw.current(),{region:'WintersReach',kind:'duel',opponentId:id},gw.now());
+   if(!plan.ok)return false;
+   return ['enemy','player'].every(side=>Array.from(document.querySelectorAll(`[data-preview-side="${side}"] .rg-troop`)).every((card,i)=>{
+    const snapshot=(side==='enemy'?plan.request.enemyTeam:plan.request.playerTeam)[i];
+    return ['mana','attack','armor','hp','magic'].every(key=>Number(card.querySelector(`[data-stat="${key}"] b`)!.textContent)===(key==='mana'?snapshot.manaCost:snapshot.stats[key]));
+   }));
+  });
+  expect(correctStats).toBe(true);
+  await page.screenshot({path:`artifacts/regional-${viewport.width}-prepare.png`,animations:'disabled'});
   await page.locator('.rg-troop').first().click();await expect(page.locator('.rg-detail')).toBeVisible();await expect(page.locator('.rg-detail .rg-attributes svg')).toHaveCount(4);await expect(page.locator('.rg-spell')).not.toBeEmpty();await noOverflow(page);
   await page.screenshot({path:`artifacts/regional-${viewport.width}-detail.png`,fullPage:true});
   await page.locator('.rg-heading .rg-button').click();await expect(page.locator('[data-fight]')).toBeEnabled();
