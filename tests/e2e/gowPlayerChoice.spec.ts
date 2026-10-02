@@ -70,3 +70,30 @@ test('branch choices do not depend on board colors and keyboard focus stays in d
  await page.keyboard.press('Tab'); await expect(dialog.getByRole('button').first()).toBeFocused();
  await page.keyboard.press('Escape');
 });
+
+test.describe('mobile quick cast choices', () => {
+ test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+ test('Azaleus opens a tappable choice dialog from a quick cast', async ({ page }) => {
+  await page.addInitScript(() => { localStorage.setItem('battle.skipCastConfirm', '1'); localStorage.setItem('battle.gestureHintShown', '1'); });
+  await page.goto('/index.html');
+  await page.waitForFunction(() => {
+   const app = (window as unknown as { __app: Runtime }).__app;
+   return !!app && !app.startupPlaying && !!document.querySelector('[data-testid="card-0"]');
+  });
+  await page.evaluate(() => {
+   const app = (window as unknown as { __app: Runtime }).__app;
+   const state = app.getEngine().getState();
+   const caster = state.teams.Left.characters[0];
+   caster.skillId = '9657'; caster.manaCost = 16; caster.mana = 16; caster.statuses = [];
+   state.activePlayer = 'Left' as typeof state.activePlayer;
+   app.refreshTeams();
+  });
+  await page.getByTestId('card-0').tap();
+  const dialog = page.getByRole('dialog', { name: '选择技能效果' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button').first().tap();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator('.cellaim-overlay')).toBeVisible();
+  await page.keyboard.press('Escape');
+ });
+});

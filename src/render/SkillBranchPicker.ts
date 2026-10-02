@@ -36,10 +36,24 @@ export class SkillBranchPicker {
       const add = (label: string, value: number | null) => {
         const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
         button.style.cssText = 'min-height:44px;padding:12px;cursor:pointer;white-space:normal;text-align:left;color:inherit;background:#302715;border:1px solid #c9a35c;border-radius:6px;font:inherit';
-        button.addEventListener('click', () => finish(value)); buttons.push(button); panel.append(button);
+        let pressed = false;
+        button.addEventListener('pointerdown', () => { pressed = true; });
+        button.addEventListener('pointercancel', () => { pressed = false; });
+        button.addEventListener('click', event => {
+          if (event.detail > 0 && !pressed) return;
+          finish(value);
+        });
+        buttons.push(button); panel.append(button);
       };
       labels.forEach((label, index) => add(label, index)); add('取消施放', null);
-      backdrop.addEventListener('click', event => { if (event.target === backdrop) finish(null); });
+      // A quick cast opens this layer during the card's pointerup. Its trailing
+      // synthesized click can hit the new backdrop without a press on it.
+      let backdropPress = false;
+      backdrop.addEventListener('pointerdown', event => { backdropPress = event.target === backdrop; });
+      backdrop.addEventListener('click', event => {
+        if (event.target === backdrop && backdropPress) finish(null);
+        backdropPress = false;
+      });
       backdrop.append(panel); parent.append(backdrop);
       this.finish = finish; document.addEventListener('keydown', keydown); buttons[0].focus();
     });

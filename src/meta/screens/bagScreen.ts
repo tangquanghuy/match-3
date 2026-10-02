@@ -5,6 +5,7 @@ import {
   TRAITSTONE_TIERS,
   ARCANE_STONE_KEYS,
   ingotKeyForRarity,
+  parseStoneKey,
   stoneColorKeyOf,
   stoneKey,
   stoneName,
@@ -14,8 +15,7 @@ import {
 import { ownedWeapons } from '../data/weaponCatalog';
 import { temperingCost, MAX_TEMPERING_LEVEL } from '../systems/forge';
 import { temperingLevelOf } from '../systems/forgeOps';
-import { EXPLORE_DROPS, exploreStoneChances, traitUnlockCost } from '../data/economy';
-import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
+import { traitUnlockCost } from '../data/economy';
 import { getRecord } from '../systems/troopProgress';
 import { kingdomArcaneKey, kingdomsForExploreStone } from '../systems/explore';
 import { TROOPS } from '../../data/troops';
@@ -68,6 +68,14 @@ interface BagItem {
 
 const escapeHtml = (value: string): string => value.replace(/&/g, '&amp;').replace(/</g, '&lt;')
   .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function sourceHtml(item: BagItem): string {
+  if (!parseStoneKey(item.id)) return `<p>${item.source}</p>`;
+  const explore = item.farmKingdoms?.length
+    ? `<details class="bag-farm"><summary>${item.source}</summary><div>${item.farmKingdoms.map(kingdom => `<button type="button" data-bag-nav="#explore/${encodeURIComponent(kingdom)}">${escapeHtml(kingdom)}${item.id.startsWith('arcane:') && kingdomArcaneKey(kingdom) === item.id ? '<small>首通固定</small>' : ''}</button>`).join('')}</div></details>`
+    : `<a href="#map">${item.source}</a>`;
+  return `<div class="bag-source-list">${explore}<a href="#materials/gems">宝石商城材料直购</a><a href="#shop">活动商店</a></div>`;
+}
 
 function tabOf(param?: string): BagTab {
   if (param?.split('/')[0] === 'stones') return 'stones';
@@ -127,7 +135,7 @@ export class BagScreen implements Screen {
             </div>
             <aside class="bag-detail" aria-label="材料详情">
               <button type="button" class="bag-detail-close" aria-label="关闭材料详情">×</button>
-              ${items.map((item) => `<div class="bag-detail-card" data-bag-detail="${item.id}" ${item.id === selected?.id ? '' : 'hidden'}><span class="bag-detail-kicker">${item.group}</span><div class="bag-detail-art" style="--mat:${item.tone}">${item.art}</div><h3>${item.name}</h3><p class="bag-detail-count">${item.id === 'arenaTicket' ? '本周剩余' : '持有'} <strong>${item.count.toLocaleString('en-US')}</strong></p><div class="bag-detail-section"><small>用途</small><p>${item.purpose}</p><em>${item.hint}</em></div><div class="bag-detail-section"><small>来源</small><p>${item.source}</p>${item.farmKingdoms?.length ? `<details class="bag-farm"><summary>旗帜加成王国 · ${item.farmKingdoms.length}</summary><div>${item.farmKingdoms.map(kingdom => `<button type="button" data-bag-nav="#explore/${encodeURIComponent(kingdom)}">${escapeHtml(kingdom)}${item.id.startsWith('arcane:') && kingdomArcaneKey(kingdom) === item.id ? '<small>首通固定</small>' : ''}</button>`).join('')}</div></details>` : ''}</div><button type="button" class="bag-detail-action" data-bag-nav="${item.destination}">${item.action} →</button></div>`).join('')}
+              ${items.map((item) => `<div class="bag-detail-card" data-bag-detail="${item.id}" ${item.id === selected?.id ? '' : 'hidden'}><span class="bag-detail-kicker">${item.group}</span><div class="bag-detail-art" style="--mat:${item.tone}">${item.art}</div><h3>${item.name}</h3><p class="bag-detail-count">${item.id === 'arenaTicket' ? '本周剩余' : '持有'} <strong>${item.count.toLocaleString('en-US')}</strong></p><div class="bag-detail-section"><small>用途</small><p>${item.purpose}</p><em>${item.hint}</em></div><div class="bag-detail-section"><small>来源</small>${sourceHtml(item)}</div><button type="button" class="bag-detail-action" data-bag-nav="${item.destination}">${item.action} →</button></div>`).join('')}
             </aside>
           </div>
           <div class="bag-detail-backdrop" hidden></div>
@@ -233,11 +241,7 @@ export class BagScreen implements Screen {
         id: key, name: stoneName(key), count, art: stoneMarkup(tier, color.key), tone: STONE_TONE[color.key],
         group: `${this.tierName(tier)} · ${color.name}`, purpose: `解锁${color.name}系部队特质`,
         hint: this.stoneHint(save, key, count),
-        source: tier === 'minor'
-          ? `探索每场额外抽取 ${EXPLORE_DROPS.extraBasicStoneRolls} 次初级或高级石，高级概率 ${EXPLORE_DROPS.majorStoneChance * 100}%，其余为初级；基础抽取未命中其他品阶时也会掉落。${EXPLORE_DROPS.bannerColorShare * 100}% 优先旗帜加成色。`
-          : tier === 'major'
-            ? `探索每次基础及额外抽取均有 ${EXPLORE_DROPS.majorStoneChance * 100}% 概率掉高级石；${EXPLORE_DROPS.bannerColorShare * 100}% 优先旗帜加成色。`
-            : `探索基础抽取每次掉符文石的概率从难度 1 的 ${exploreStoneChances(1).runic * 100}% 增至难度 ${EXPLORE_MAX_TIER} 的 ${exploreStoneChances(EXPLORE_MAX_TIER).runic * 100}%；${EXPLORE_DROPS.bannerColorShare * 100}% 优先旗帜加成色。`,
+        source: '特定王国探索掉落',
         farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
       };
     }));
@@ -246,13 +250,13 @@ export class BagScreen implements Screen {
       id: key, name: stoneName(key), count: save.materials.traitstones[key] ?? 0,
       art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '秘法',
       purpose: '高阶特质解锁', hint: this.stoneHint(save, key, save.materials.traitstones[key] ?? 0),
-      source: `探索基础抽取每次有 ${EXPLORE_DROPS.arcaneStoneChance * 100}% 概率掉秘法石；${EXPLORE_DROPS.bannerColorShare * 100}% 的颜色抽取优先旗帜匹配的双色石。${KINGDOM_ORDER.some(kingdom => kingdomArcaneKey(kingdom) === key) ? '标记王国的每个难度最终 Boss 首通固定获得 1 颗。' : ''}`,
+      source: '特定王国探索掉落',
       farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
     }));
     return [...stones, ...arcane, {
       id: 'celestial', name: '圣辉石', count, art: stoneMarkup('celestial'), tone: '#a5d8eb',
       group: '圣辉', purpose: '高阶部队特质解锁', hint: this.stoneHint(save, 'celestial', count),
-      source: `探索基础抽取每次掉圣辉石的概率从难度 1 的 ${exploreStoneChances(1).celestial * 100}% 增至难度 ${EXPLORE_MAX_TIER} 的 ${exploreStoneChances(EXPLORE_MAX_TIER).celestial * 100}%；也可从活动和宝箱获得。`, destination: '#troop', action: '查看部队特质',
+      source: '王国探索掉落', destination: '#troop', action: '查看部队特质',
     }];
   }
 

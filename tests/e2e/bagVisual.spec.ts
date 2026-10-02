@@ -139,7 +139,12 @@ test('特质石详情列出对应王国并能进入探索', async ({ page }) => 
   await page.goto('/game.html#bag/stones');
   await page.locator('[data-bag-item="minor:blue"]').click();
   const basic = page.locator('.bag-detail-card:visible');
-  await expect(basic).toContainText('75% 优先旗帜加成色');
+  await expect(basic).toContainText('特定王国探索掉落');
+  await expect(basic).not.toContainText('额外抽取');
+  await expect(basic).toContainText('宝石商城材料直购');
+  await expect(basic).toContainText('活动商店');
+  await expect(basic.locator('a[href="#materials/gems"]')).toHaveCount(1);
+  await expect(basic.locator('a[href="#shop"]')).toHaveCount(1);
   await basic.locator('.bag-farm summary').click();
   await expect(basic.locator('.bag-farm button')).not.toHaveCount(0);
   await page.locator('.bag-detail-close').click();
@@ -147,9 +152,9 @@ test('特质石详情列出对应王国并能进入探索', async ({ page }) => 
   await page.goto('/game.html#bag/stones/arcane');
   await page.locator('[data-bag-item="arcane:blue:brown"]').click();
   const arcane = page.locator('.bag-detail-card:visible');
-  await expect(arcane).toContainText('基础抽取每次有 1% 概率掉秘法石');
+  await expect(arcane).toContainText('特定王国探索掉落');
   await arcane.locator('.bag-farm summary').click();
-  await expect(arcane.locator('.bag-farm summary')).toContainText('旗帜加成王国');
+  await expect(arcane.locator('.bag-farm summary')).toContainText('特定王国探索掉落');
   expect(await arcane.locator('.bag-farm button').count()).toBeGreaterThan(1);
   await expect(arcane.locator('.bag-farm button', { hasText: '破碎尖塔' })).toContainText('首通固定');
   await arcane.locator('.bag-farm button', { hasText: '破碎尖塔' }).click();
