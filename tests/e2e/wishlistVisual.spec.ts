@@ -31,6 +31,18 @@ for (const viewport of [
     expect(shell.overflow).toBe(false);
     expect(shell.walletWithinScreen).toBe(true);
     expect(shell.cardWidth).toBeGreaterThanOrEqual(120);
+    const role = await page.locator('.wl-card .collection-role').first().evaluate(el => {
+      const card = el.closest('.collection-card')!.getBoundingClientRect();
+      const badge = el.getBoundingClientRect();
+      const svg = el.querySelector('svg')!.getBoundingClientRect();
+      return { badgeWidth: badge.width, badgeHeight: badge.height, iconWidth: svg.width, iconHeight: svg.height,
+        insideCard: badge.left >= card.left && badge.right <= card.right && badge.bottom <= card.bottom };
+    });
+    expect(role.badgeWidth).toBeLessThan(80);
+    expect(role.badgeHeight).toBeLessThanOrEqual(20);
+    expect(role.iconWidth).toBe(11);
+    expect(role.iconHeight).toBe(11);
+    expect(role.insideCard).toBe(true);
     await expect(page.locator('.wl-intro')).toHaveCount(0);
     await expect(page.locator('.wl-selection')).toBeHidden();
     await expect(page.locator('#wl-filters-dialog')).not.toBeVisible();
