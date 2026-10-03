@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SeededRNG } from '../../src/engine/rng';
 import { newSave } from '../../src/meta/state/schema';
 import { finishHunt, rollRewards, HUNT_FIXED_REWARDS } from '../../src/meta/systems/treasureHunt';
+import { TREASURE_HUNT_DAILY_CAP } from '../../src/meta/state/schema';
 import { CommandGateway, MockGateway } from '../../src/meta/gateway/commandGateway';
 import { HttpTransport, LocalTransport, memoryStorage } from '../../src/meta/gateway/transport';
 import { isCriticalCommand, type MetaCommand } from '../../src/meta/server/protocol';
@@ -19,13 +20,20 @@ describe('藏宝图主动结束', () => {
     const save = fixture(), before = structuredClone(save);
     const expected = rollRewards(save.treasureHunt!.cells, 37, new SeededRNG(2));
     const result = finishHunt(save);
-    expect(result).toMatchObject({ ok: true, over: true, moves: 37, turns: 0, grant: expected, events: [], cells: before.treasureHunt!.cells });
+    expect(result).toMatchObject({ ok: true, over: true, moves: 37, turns: 0, events: [], cells: before.treasureHunt!.cells });
+    if (!result.ok) throw new Error(result.message);
+    if (!result.grant) throw new Error('Expected treasure hunt grant');
+    expect(result.grant).toMatchObject({
+      ...expected,
+      gold: TREASURE_HUNT_DAILY_CAP.gold,
+      gems: TREASURE_HUNT_DAILY_CAP.gems,
+    });
     expect(save.treasureHunt).toBeNull();
     expect(save.materials.treasureMaps).toBe(3);
     for (const key of ['gold','gems','souls','glory','goldKeys'] as const)
-      expect(save.currencies[key] - before.currencies[key]).toBe(expected[key]);
+      expect(save.currencies[key] - before.currencies[key]).toBe(result.grant[key]);
     const stones = { ...before.materials.traitstones };
-    for (const [key, amount] of Object.entries(expected.traitstones)) stones[key] = (stones[key] ?? 0) + amount;
+    for (const [key, amount] of Object.entries(result.grant.traitstones)) stones[key] = (stones[key] ?? 0) + amount;
     expect(save.materials.traitstones).toEqual(stones);
     const settled = structuredClone(save);
     expect(finishHunt(save).ok).toBe(false);

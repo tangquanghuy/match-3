@@ -284,7 +284,7 @@
    "L10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => A1:mana+3  cascade",
    "R10": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => A1:mana+3  cascade",
    "L0": "convert Purple x3, skull x1, Red x1, Yellow x1, Brown x1 -> Blue x7 ; ~cascade~  => A1:mana+3  cascade",
-   "K": "convert Brown x2, skull x2, Red x3 -> Green x7 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+   "K": "convert Brown x2, skull x2, Red x3 -> Green x7 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:13:09.865Z"
@@ -381,10 +381,10 @@
  },
  "troop:6341": {
   "lines": {
-   "L10": "explode 54 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 54 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:arm-3  extra:match  cascade",
-   "L0": "explode 54 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:arm-3  extra:match  cascade",
-   "K": "explode 54 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "explode 54 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 54 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 54 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 54 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+8 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:48:46.892Z"
@@ -791,10 +791,10 @@
  },
  "troop:6629": {
   "lines": {
-   "L10": "destroy 40 (Green x7, Purple x6, skull x2, Red x6, Yellow x6, Brown x6, Blue x7) ; skulls E10 2 ; ~cascade~ ; gold+10 ; summon mine troop:6230 ; extra-turn match  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+10 | A1:mana+7 | E10:arm-2  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}",
-   "R10": "destroy 40 (Green x7, Purple x6, skull x2, Red x6, Yellow x6, Brown x6, Blue x7) ; skulls E10 2 ; ~cascade~ ; gold+10 ; summon mine troop:6230 ; extra-turn match  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+10 | A1:mana+7 | E10:arm-2  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}",
+   "L10": "destroy 40 (Green x7, Purple x6, skull x2, Red x6, Yellow x6, Brown x6, Blue x7) ; skulls E10 2 ; ~cascade~ ; gold+4 ; gold+10 ; summon mine troop:6230 ; extra-turn match  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+10 | A1:mana+7 | E10:arm-2  extra:match  cascade  eco:{\"gold\":14,\"goldMine\":14}",
+   "R10": "destroy 40 (Green x7, Purple x6, skull x2, Red x6, Yellow x6, Brown x6, Blue x7) ; skulls E10 2 ; ~cascade~ ; gold+4 ; gold+10 ; summon mine troop:6230 ; extra-turn match  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+10 | A1:mana+7 | E10:arm-2  extra:match  cascade  eco:{\"gold\":14,\"goldMine\":14}",
    "L0": "destroy 35 (Green x7, Purple x6, skull x2, Red x4, Yellow x5, Brown x6, Blue x5) ; skulls E10 2 ; ~cascade~ ; gold+10 ; summon mine troop:6230  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+8 | A1:mana+8 | E10:arm-2  cascade  eco:{\"gold\":10,\"goldMine\":10}",
-   "K": "destroy 40 (Green x7, Purple x6, skull x2, Red x6, Yellow x6, Brown x6, Blue x7) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+10 ; summon mine troop:6230 ; extra-turn match  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+10 | A1:mana+7 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}"
+   "K": "destroy 40 (Green x7, Purple x6, skull x2, Red x6, Yellow x6, Brown x6, Blue x7) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; gold+10 ; summon mine troop:6230 ; extra-turn match  => A14:new 龙蛋 hp26 atk0 arm21 mag14 | A2:mana+10 | A1:mana+7 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":14,\"goldMine\":14}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:53:48.435Z"
@@ -1301,10 +1301,10 @@
  },
  "troop:7031": {
   "lines": {
-   "L10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
-   "R10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
-   "L0": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
-   "K": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade"
+   "L10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; gold+4 ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; gold+4 ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; gold+4 ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Green x13 -> lycanthropyGem x13 ; convert Yellow x9 -> doomSkull x9 ; summon mine troop:6282 ; ~cascade~ ; gold+4 ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 瓦格 hp22 atk16 arm7 mag9 | E11:+lycanthropy | E13:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T05:52:06.635Z"
@@ -1321,10 +1321,10 @@
  },
  "troop:7033": {
   "lines": {
-   "L10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
-   "R10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
-   "L0": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade",
-   "K": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade"
+   "L10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; gold+5 ; gold+4 ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "R10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; gold+5 ; gold+4 ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "L0": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; gold+5 ; gold+4 ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "K": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x1 -> Green x6 ; convert Green x19 -> lycanthropyGem x19 ; summon mine troop:6196 ; ~cascade~ ; gold+5 ; gold+4 ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E13 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; trigger lycanthropyGem ; status E11 +lycanthropy ; trigger lycanthropyGem ; status E10 +lycanthropy ; trigger lycanthropyGem ; status E12 +lycanthropy ; extra-turn match  => A14:new 寒冬狼 hp26 atk15 arm7 mag10 | E13:+lycanthropy | E11:+lycanthropy | E10:+lycanthropy | E12:+lycanthropy  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T08:58:11.265Z"
@@ -1441,10 +1441,10 @@
  },
  "troop:7093": {
   "lines": {
-   "L10": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade",
-   "R10": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade",
-   "L0": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade",
-   "K": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade"
+   "L10": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; gold+4 ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; gold+4 ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; gold+4 ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Yellow x3, Purple x2 -> elementalStar x5 ; summon mine troop:-1 ; ~cascade~ ; gold+4 ; trigger elementalStar ; destroy 4 (Blue x2, Yellow x1, Brown x1) ; extra-turn match  => A14:new 火生战士 hp12 atk11 arm21 mag9 | A1:mana+3 | A2:mana+2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:13:09.865Z"
@@ -1481,10 +1481,10 @@
  },
  "troop:7124": {
   "lines": {
-   "L10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",
-   "R10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",
-   "L0": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade",
-   "K": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; defeat E10 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E11 2 ; defeat E11 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:hp-1 DEAD | E11:hp-1 DEAD  extra:match  cascade"
+   "L10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; gold+5 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; gold+5 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; gold+5 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E10 2 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Green x3, skull x1, Brown x2 -> umbralStar x6 ; summon mine troop:-1 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; skulls E10 1 ; defeat E10 ; gold+5 ; storm Purple set ; trigger umbralStar ; destroy 9 (Blue x4, Green x1, Yellow x2, Purple x1, Brown x1) ; trigger umbralStar ; destroy 11 (Green x4, Brown x2, Red x2, Blue x1, Yellow x1, skull x1) ; trigger umbralStar ; destroy 6 (Yellow x2, Green x2, Red x1, Blue x1) ; trigger umbralStar ; destroy 6 (Green x2, Blue x1, skull x1, Purple x1, Brown x1) ; skulls E11 2 ; defeat E11 ; extra-turn match  => A14:new 临界传送门 hp30 atk15 arm17 mag19 | A2:mana+16 | A1:mana+9 | E10:hp-1 DEAD | E11:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R5",
   "at": "2026-09-28T09:13:09.865Z"
@@ -2111,10 +2111,10 @@
  },
  "weapon:1222": {
   "lines": {
-   "L10": "explode 40 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:arm-3 | A1:mana+3  extra:match  cascade",
-   "R10": "explode 40 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:arm-3 | A1:mana+3  extra:match  cascade",
+   "L10": "explode 40 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:arm-3 | A1:mana+3  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "R10": "explode 40 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:arm-3 | A1:mana+3  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 奥眼能 hp22 atk19 arm9 mag11 | A2:mana+1 | E10:arm-1",
-   "K": "explode 40 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:hp-1 DEAD | A1:mana+3  extra:match  cascade"
+   "K": "explode 40 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 希罗达 hp17 atk17 arm26 mag14 | A2:mana+16 | E10:hp-1 DEAD | A1:mana+3  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:23:44.032Z"
@@ -2191,10 +2191,10 @@
  },
  "weapon:1354": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 熔浆蝎子 hp20 atk16 arm9 mag10",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 奈克丝 hp22 atk16 arm7 mag0 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
@@ -2211,20 +2211,20 @@
  },
  "weapon:1386": {
   "lines": {
-   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 鬼牙 hp14 atk12 arm10 mag10 | A2:mana+1",
-   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 科博骑士 hp18 atk13 arm23 mag9 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
  },
  "weapon:1392": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 赤箭 hp16 atk19 arm12 mag10 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
@@ -2251,10 +2251,10 @@
  },
  "weapon:1401": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 哨兵机器人 hp10 atk9 arm21 mag7 | A2:mana+1 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 电子八爪鱼 hp15 atk15 arm18 mag5 | A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
@@ -2281,20 +2281,20 @@
  },
  "weapon:1416": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 飞天公羊 hp24 atk16 arm5 mag12",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 地龙 hp18 atk11 arm16 mag8 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
  },
  "weapon:1424": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 拾荒怪 hp25 atk11 arm9 mag9 | A2:mana+1 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
@@ -2311,70 +2311,70 @@
  },
  "weapon:1448": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 哥布林轰炸机 hp24 atk15 arm9 mag0",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+13 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
  },
  "weapon:1450": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 坚持 hp20 atk13 arm7 mag11 | A2:mana+1 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 灵魂之门 hp28 atk0 arm33 mag7 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
  },
  "weapon:1462": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 夜箭 hp16 atk16 arm7 mag10",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 女法师 hp29 atk13 arm7 mag8 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:07:52.285Z"
  },
  "weapon:1463": {
   "lines": {
-   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 易多拉斯王子 hp17 atk17 arm19 mag11",
-   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 莫拉娜夫人 hp21 atk17 arm23 mag12 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:07:52.285Z"
  },
  "weapon:1469": {
   "lines": {
-   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 森林巨魔 hp28 atk15 arm11 mag0",
-   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 火成岩 hp13 atk17 arm22 mag12 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
  },
  "weapon:1470": {
   "lines": {
-   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 髅须船长 hp19 atk19 arm13 mag6 | A2:mana+1",
-   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 坎卓瑞拉·血珠宝 hp22 atk19 arm9 mag12 | A2:mana+7 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1484": {
   "lines": {
-   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 黑曜石龙 hp28 atk21 arm8 mag12 | A1:mana+1 | A2:mana+1",
-   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 黑玛瑙石像鬼 hp24 atk16 arm5 mag10 | A2:mana+16 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "kiro-surge-rule",
   "at": "2026-09-30T05:31:11.662Z"
@@ -2391,50 +2391,50 @@
  },
  "weapon:1492": {
   "lines": {
-   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 大审查官 hp22 atk17 arm13 mag8",
-   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 游荡的僧侣 hp26 atk13 arm11 mag8 | A1:mana+5 | A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
  },
  "weapon:1493": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 痘痘兔 hp20 atk14 arm7 mag10",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"
  },
  "weapon:1495": {
   "lines": {
-   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 欧格林 hp12 atk14 arm9 mag12 | A2:mana+1",
-   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; status A14 +rage  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match ; status A14 +rage  => A14:new 战狄洛克 hp28 atk15 arm11 mag10 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1496": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 矮人丧尸 hp16 atk14 arm11 mag9 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 矮人丧尸 hp16 atk14 arm11 mag9 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 矮人丧尸 hp16 atk14 arm11 mag9 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 矮人丧尸 hp16 atk14 arm11 mag9 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 高炉国王 hp30 atk17 arm13 mag10 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; buff A14 hp+4  => A14:new 矮人丧尸 hp20 atk14 arm11 mag9 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match ; buff A14 hp+4  => A14:new 矮人丧尸 hp20 atk14 arm11 mag9 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1510": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 树亲 hp14 atk12 arm16 mag7",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 雅思敏选使 hp33 atk15 arm22 mag15 | A2:mana+8 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
@@ -2451,70 +2451,70 @@
  },
  "weapon:1533": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 哥布林轰炸机 hp24 atk15 arm9 mag0",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 巴格贝尔 hp14 atk14 arm12 mag7 | A2:mana+16 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1535": {
   "lines": {
-   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 梦魇马 hp15 atk14 arm5 mag0 | A1:mana+1",
-   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 生死判官 hp28 atk21 arm8 mag12 | A2:mana+14 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1551": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 森林巨魔 hp28 atk15 arm11 mag0 | A2:mana+1 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Brown set  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match ; storm Brown set  => A14:new 怪兽咀嚼者 hp21 atk15 arm17 mag11 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1555": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 赤箭 hp16 atk19 arm12 mag10 | A2:mana+1 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 厄什卡骑兵 hp13 atk15 arm20 mag10 | A2:mana+8 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1558": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; summon mine troop:-1  => A14:new 拾荒怪 hp25 atk11 arm9 mag9 | E10:arm-1",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 天蝎王 hp26 atk22 arm15 mag10 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:11:07.326Z"
  },
  "weapon:1575": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 痘痘兔 hp20 atk14 arm7 mag10",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 美猴王 hp20 atk14 arm7 mag6 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
  },
  "weapon:1579": {
   "lines": {
-   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 神狮鬃 hp24 atk15 arm9 mag6 | A1:mana+1",
-   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match  => A14:new 地狱爪战士 hp17 atk18 arm16 mag4 | A2:mana+14 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
@@ -2551,20 +2551,20 @@
  },
  "weapon:1665": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; summon mine troop:-1  => A14:new 狐族幽灵 hp24 atk15 arm9 mag4",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; summon mine troop:-1 ; extra-turn match ; storm Green set  => A14:new 灵魂舞者 hp26 atk15 arm7 mag10 | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:14:27.201Z"
  },
  "weapon:1692": {
   "lines": {
-   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:arm-4  extra:match  cascade",
-   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:arm-4  extra:match  cascade",
+   "L10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 62 ; skulls E10 4 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; summon mine troop:-1  => A14:new 水神昂汀 hp30 atk16 arm23 mag9 | A2:mana+1",
-   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 62 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+4 ; summon mine troop:-1 ; extra-turn match  => A14:new 美人鱼 hp20 atk14 arm7 mag10 | A2:mana+11 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-E",
   "at": "2026-09-28T12:19:06.870Z"

@@ -10,7 +10,7 @@ import { HuntBoardTrace } from '../../engine/HuntBoard';
 import type { GameEvent } from '../../engine/events';
 import { SeededRNG } from '../../engine/rng';
 import { ARCANE_STONE_KEYS, STONE_COLORS, type TraitstoneTier } from '../data/materials';
-import type { HuntSoftCap, MetaSave, TreasureHuntState } from '../state/schema';
+import { TREASURE_HUNT_DAILY_CAP, type HuntSoftCap, type MetaSave, type TreasureHuntState } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 import { earn, earnMaterials, spendMaterials } from './wallet';
 import { HUNT_LONG_RUN, createHuntSoftCap, hydrateHuntSoftCap, huntComboBias, observeHuntProgress } from './huntPacing';
@@ -448,7 +448,7 @@ export function beginHunt(save: MetaSave, seed: number): { ok: true; state: Trea
   return { ok: true, state };
 }
 
-export function commitMove(save: MetaSave, from: number, to: number): HuntMoveOk | MetaFailure {
+export function commitMove(save: MetaSave, from: number, to: number, dayStart = 0): HuntMoveOk | MetaFailure {
   const hunt = save.treasureHunt;
   if (!hunt || hunt.turns <= 0) return fail('INVALID', '还没有开始的寻宝');
   const played = applyMove(hunt, from, to);
@@ -457,9 +457,9 @@ export function commitMove(save: MetaSave, from: number, to: number): HuntMoveOk
     const rng = new SeededRNG(1);
     rng.setState(played.rng);
     const grant = rollRewards(played.cells, played.moves, rng);
-    pay(save, grant);
+    const paid = pay(save, grant, dayStart);
     save.treasureHunt = null;
-    return { ...played, grant };
+    return { ...played, grant: paid };
   }
   save.treasureHunt = {
     cells: played.cells,
@@ -472,28 +472,40 @@ export function commitMove(save: MetaSave, from: number, to: number): HuntMoveOk
 }
 
 /** 主动结束与自然结束使用同一奖励表和支付路径；只读取权威存档里的棋盘/随机流。 */
-export function finishHunt(save: MetaSave): HuntMoveOk | MetaFailure {
+export function finishHunt(save: MetaSave, dayStart = 0): HuntMoveOk | MetaFailure {
   const hunt = save.treasureHunt;
   if (!hunt || hunt.turns <= 0) return fail('INVALID', '没有进行中的寻宝');
   const rng = new SeededRNG(1);
   rng.setState(hunt.rng);
   const grant = rollRewards(hunt.cells, hunt.moves, rng);
-  pay(save, grant);
+  const paid = pay(save, grant, dayStart);
   save.treasureHunt = null;
   return {
     ok: true, cells: hunt.cells.slice(), turns: 0, moves: hunt.moves,
     rng: rng.getState(), softCap: hydrateHuntSoftCap(hunt.softCap, hunt.rng, hunt.cells),
-    over: true, best: 0, shuffled: false, grant, events: [],
+    over: true, best: 0, shuffled: false, grant: paid, events: [],
   };
 }
 
-function pay(save: MetaSave, grant: HuntGrant): void {
+function pay(save: MetaSave, grant: HuntGrant, dayStart: number): HuntGrant {
+  const daily = save.treasureHuntDaily.dayStart === dayStart
+    ? save.treasureHuntDaily
+    : { dayStart, gold: 0, gems: 0 };
+  const paid: HuntGrant = {
+    ...grant,
+    gold: Math.min(grant.gold, Math.max(0, TREASURE_HUNT_DAILY_CAP.gold - daily.gold)),
+    gems: Math.min(grant.gems, Math.max(0, TREASURE_HUNT_DAILY_CAP.gems - daily.gems)),
+  };
+  daily.gold += paid.gold;
+  daily.gems += paid.gems;
+  save.treasureHuntDaily = daily;
   earn(save, {
-    gold: grant.gold,
-    souls: grant.souls,
-    gems: grant.gems,
-    glory: grant.glory,
-    goldKeys: grant.goldKeys,
+    gold: paid.gold,
+    souls: paid.souls,
+    gems: paid.gems,
+    glory: paid.glory,
+    goldKeys: paid.goldKeys,
   });
-  if (Object.keys(grant.traitstones).length > 0) earnMaterials(save, { traitstones: grant.traitstones });
+  if (Object.keys(paid.traitstones).length > 0) earnMaterials(save, { traitstones: paid.traitstones });
+  return paid;
 }

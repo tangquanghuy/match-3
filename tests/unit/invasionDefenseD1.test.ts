@@ -23,7 +23,7 @@ afterEach(() => { for (const db of databases.splice(0)) db.close(); });
 /** Real SQLite statements + transactional batch, no production services involved. */
 function database() {
   const db = new DatabaseSync(':memory:'); databases.push(db);
-  for (const file of ['0001_accounts.sql', '0003_invasion_mirrors.sql', '0004_invasion_weekly.sql', '0005_invasion_defenses.sql']) {
+  for (const file of ['0001_accounts.sql', '0003_invasion_mirrors.sql', '0004_invasion_weekly.sql', '0005_invasion_defenses.sql', '0007_mirror_dedup_and_write_monitor.sql']) {
     db.exec(readFileSync(new URL(`../../worker/migrations/${file}`, import.meta.url), 'utf8'));
   }
   for (const [id, name] of [['attacker', '甲'], ['defender', '乙'], ['other', '丙']]) {
@@ -115,6 +115,8 @@ describe('D1 invasion defense storage (real SQLite)', () => {
     await b.publish({ ...record, league: 3 });
     expect(db.prepare('SELECT league FROM invasion_mirrors WHERE player_id = ? ORDER BY league').all('defender')).toEqual([{ league: 0 }, { league: 1 }, { league: 3 }]);
     expect(db.prepare('SELECT COUNT(*) AS n FROM invasion_mirrors').get()).toEqual({ n: 4 });
+    expect(db.prepare('SELECT COUNT(*) AS n FROM mirror_snapshots').get()).toEqual({ n: 1 });
+    expect(db.prepare('SELECT COUNT(DISTINCT snapshot_ref) AS n FROM invasion_mirrors').get()).toEqual({ n: 1 });
     const found = await a.sample({ leagueMin: 0, leagueMax: 9, powerMin: 0, powerMax: 1000000, since: 0, ruleset: record.ruleset, limit: 30 });
     expect(found).toHaveLength(3); expect(found.every(entry => JSON.stringify(entry.team) === JSON.stringify(record.team))).toBe(true);
   });
@@ -151,10 +153,36 @@ describe('D1 invasion defense storage (real SQLite)', () => {
     await a.recordDefense({ ...report(), revenge: true, attackerSnapshot: snapshot });
     const entry = (await b.defenseLog(2000, 500)).entries[0]!;
     expect(entry.attackerSnapshot).toEqual(snapshot); expect(entry.revenge).toBe(true);
-    db.prepare('UPDATE invasion_defenses SET attacker_snapshot = ?').run('{broken');
+    db.prepare('UPDATE mirror_snapshots SET snapshot = ?').run('{broken');
     const log = await b.defenseLog(2000, 500);
     expect(log.total).toBe(1); expect(log.entries[0]?.attackerSnapshot).toBeUndefined();
     expect(log.pending?.[0]?.sequence).toBe(entry.sequence);
+  });
+
+  it('keeps only three days of defense history and removes unreferenced snapshots', async () => {
+    const { adapter, db } = database();
+    const a = new D1MirrorPool(adapter, () => 'attacker'); const b = new D1MirrorPool(adapter, () => 'defender');
+    const now = 10 * 24 * 60 * 60 * 1000;
+    const save = buildDemoSave(1000); save.invasion.defenseTeam = structuredClone(save.teams[0]!);
+    const record = defenseRecord(save, 1000)!;
+    await a.recordDefense({ ...report('expired'), at: now - 4 * 24 * 60 * 60 * 1000, attackerSnapshot: { ...record, teamHash: 'expired' } });
+    await a.recordDefense({ ...report('fresh'), at: now - 2 * 24 * 60 * 60 * 1000, attackerSnapshot: { ...record, teamHash: 'fresh' } });
+    expect((await b.defenseLog(now, now - 7 * 24 * 60 * 60 * 1000)).total).toBe(1);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM invasion_defenses').get()).toEqual({ n: 1 });
+    expect(db.prepare('SELECT COUNT(*) AS n FROM mirror_snapshots').get()).toEqual({ n: 1 });
+  });
+
+  it('records per-player writes by source for the rolling 24-hour monitor', async () => {
+    const { adapter, db } = database();
+    const a = new D1MirrorPool(adapter, () => 'attacker');
+    const save = buildDemoSave(1000); save.invasion.defenseTeam = structuredClone(save.teams[0]!);
+    const record = defenseRecord(save, 1000)!;
+    await a.publish({ ...record, league: 0 });
+    await a.reportVp({ weekStart: 1000, league: 0, vp: 12, at: 1000 });
+    await a.recordDefense({ ...report('monitor'), attackerSnapshot: record });
+    const row = db.prepare(`SELECT writes_24h, mirror_writes_24h, defense_writes_24h,
+      weekly_writes_24h, snapshot_writes_24h FROM player_writes_24h WHERE player_id = ?`).get('attacker');
+    expect(row).toMatchObject({ writes_24h: 5, mirror_writes_24h: 1, defense_writes_24h: 1, weekly_writes_24h: 1, snapshot_writes_24h: 2 });
   });
 
 });

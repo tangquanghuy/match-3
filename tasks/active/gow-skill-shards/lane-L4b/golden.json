@@ -34,7 +34,7 @@
    "L10": "dmg E11 11 ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x1 -> Blue x9 ; ~cascade~  => E11:hp-1 arm-10 | A1:mana+3  cascade",
    "R10": "dmg E11 11 ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x1 -> Blue x9 ; ~cascade~  => E11:hp-1 arm-10 | A1:mana+3  cascade",
    "L0": "dmg E11 1 ; convert Purple x3, skull x1, Red x1, Yellow x1, Brown x2, Green x1 -> Blue x9 ; ~cascade~  => E11:arm-1 | A1:mana+3  cascade",
-   "K": "dmg E11 11 ; defeat E11 ; convert Brown x2, skull x2, Red x4, Yellow x1 -> Green x9 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD  extra:match  cascade"
+   "K": "dmg E11 11 ; defeat E11 ; convert Brown x2, skull x2, Red x4, Yellow x1 -> Green x9 ; ~cascade~ ; gold+5 ; gold+5 ; extra-turn match  => E11:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}"
   },
   "by": "sa-J",
   "at": "2026-09-29T03:53:09.041Z"
@@ -91,10 +91,10 @@
  },
  "troop:6080": {
   "lines": {
-   "L10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 14 ; ~cascade~ ; extra-turn match  => E11:hp-4 arm-10 | A2:mana+7  extra:match  cascade",
-   "R10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 14 ; ~cascade~ ; extra-turn match  => E11:hp-4 arm-10 | A2:mana+7  extra:match  cascade",
-   "L0": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 4 ; ~cascade~ ; extra-turn match  => E11:arm-4 | A2:mana+7  extra:match  cascade",
-   "K": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 14 ; defeat E11 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD | A2:mana+7  extra:match  cascade"
+   "L10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 14 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-4 arm-10 | A2:mana+7  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 14 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-4 arm-10 | A2:mana+7  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 4 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:arm-4 | A2:mana+7  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Brown x1, Green x3, Red x2, Purple x1, Blue x2 -> Yellow x9 ; dmg E11 14 ; defeat E11 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-1 DEAD | A2:mana+7  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:52:23.142Z"
@@ -321,10 +321,10 @@
  },
  "troop:6238": {
   "lines": {
-   "L10": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "R10": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "L0": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "K": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+   "L10": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Green x3, Yellow x3, Blue x2, Purple x3 -> Brown x11 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T03:03:07.185Z"
@@ -351,20 +351,20 @@
  },
  "troop:6261": {
   "lines": {
-   "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A1 attack+6 ; buff A2 attack+6 ; ~cascade~ ; extra-turn match  => A1:hp+6 max+6 atk+6 mana+1 | A2:hp+6 max+6 atk+6  extra:match  cascade",
-   "R10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A1 attack+6 ; buff A2 attack+6 ; ~cascade~ ; extra-turn match  => A1:hp+6 max+6 atk+6 mana+1 | A2:hp+6 max+6 atk+6  extra:match  cascade",
-   "L0": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; buff A1 attack+1 ; buff A2 attack+1 ; ~cascade~ ; extra-turn match  => A1:hp+1 max+1 atk+1 mana+1 | A2:hp+1 max+1 atk+1  extra:match  cascade",
-   "K": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A1 attack+6 ; buff A2 attack+6 ; ~cascade~ ; extra-turn match  => A1:hp+6 max+6 atk+6 mana+1 | A2:hp+6 max+6 atk+6  extra:match  cascade"
+   "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A1 attack+6 ; buff A2 attack+6 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:hp+6 max+6 atk+6 mana+1 | A2:hp+6 max+6 atk+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A1 attack+6 ; buff A2 attack+6 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:hp+6 max+6 atk+6 mana+1 | A2:hp+6 max+6 atk+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; buff A1 attack+1 ; buff A2 attack+1 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:hp+1 max+1 atk+1 mana+1 | A2:hp+1 max+1 atk+1  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x15 ; buff A1 hp+6 max+6 ; buff A2 hp+6 max+6 ; buff A1 attack+6 ; buff A2 attack+6 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:hp+6 max+6 atk+6 mana+1 | A2:hp+6 max+6 atk+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:38:50.773Z"
  },
  "troop:6262": {
   "lines": {
-   "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; ~cascade~ ; extra-turn match  => A1:hp+11 max+11 | A2:hp+11 max+11  extra:match  cascade",
-   "R10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; ~cascade~ ; extra-turn match  => A1:hp+11 max+11 | A2:hp+11 max+11  extra:match  cascade",
-   "L0": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; ~cascade~ ; extra-turn match  => A1:hp+1 max+1 | A2:hp+1 max+1  extra:match  cascade",
-   "K": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; ~cascade~ ; extra-turn match  => A1:hp+11 max+11 | A2:hp+11 max+11  extra:match  cascade"
+   "L10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+11 max+11 | A2:hp+11 max+11  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+11 max+11 | A2:hp+11 max+11  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+1 max+1 | A2:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Purple x3, skull x1, Red x2, Yellow x2, Brown x3, Green x4 -> Blue x6, Green x9 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+11 max+11 | A2:hp+11 max+11  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:38:50.773Z"
@@ -451,10 +451,10 @@
  },
  "troop:6299": {
   "lines": {
-   "L10": "convert Green x13 -> Purple x13 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "R10": "convert Green x13 -> Purple x13 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "L0": "convert Green x13 -> Purple x13 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "K": "convert Green x13 -> Purple x13 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+   "L10": "convert Green x13 -> Purple x13 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Green x13 -> Purple x13 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Green x13 -> Purple x13 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Green x13 -> Purple x13 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:33:07.128Z"
@@ -531,10 +531,10 @@
  },
  "troop:6356": {
   "lines": {
-   "L10": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; extra-turn match  => A2:mana+13  extra:match  cascade",
-   "R10": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; extra-turn match  => A2:mana+13  extra:match  cascade",
-   "L0": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; extra-turn match  => A2:mana+13  extra:match  cascade",
-   "K": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; extra-turn match  => A2:mana+13  extra:match  cascade"
+   "L10": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Blue x5, Green x4, skull x1, Brown x1, Purple x1 -> Yellow x12 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T03:03:07.185Z"
@@ -603,8 +603,8 @@
   "lines": {
    "L10": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; convert Red x1, skull x1, Blue x3, Yellow x1, Purple x2, Brown x2 -> Green x10 ; ~cascade~  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3  cascade",
    "R10": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; convert Red x1, skull x1, Blue x3, Yellow x1, Purple x2, Brown x2 -> Green x10 ; ~cascade~  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3  cascade",
-   "L0": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert Brown x3, Yellow x3, Blue x2, Purple x2 -> Green x10 ; ~cascade~ ; extra-turn match  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3  extra:match  cascade",
-   "K": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x2, skull x1, Yellow x3, Purple x2, Red x1, Brown x1 -> Green x10 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+   "L0": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert Brown x3, Yellow x3, Blue x2, Purple x2 -> Green x10 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x2, skull x1, Yellow x3, Purple x2, Red x1, Brown x1 -> Green x10 ; ~cascade~ ; gold+4  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:42:55.747Z"
@@ -641,10 +641,10 @@
  },
  "troop:6419": {
   "lines": {
-   "L10": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "R10": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "L0": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "K": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade"
+   "L10": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Yellow x3, Brown x2, skull x2, Blue x2, Red x3, Purple x4 -> Green x16 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T03:03:07.185Z"
@@ -721,10 +721,10 @@
  },
  "troop:6520": {
   "lines": {
-   "L10": "buff E11 attack-15 ; buff C attack+15 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; extra-turn match  => E11:atk-15 | C:atk+15 | E10:hp-27 arm-5  extra:match  cascade",
-   "R10": "buff E11 attack-15 ; buff C attack+15 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; extra-turn match  => E11:atk-15 | C:atk+15 | E10:hp-27 arm-5  extra:match  cascade",
-   "L0": "buff E11 attack-5 ; buff C attack+5 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; extra-turn match  => E11:atk-5 | C:atk+5 | E10:hp-17 arm-5  extra:match  cascade",
-   "K": "buff E11 attack-15 ; buff C attack+15 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; defeat E10 ; extra-turn match  => E11:atk-15 | C:atk+15 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "buff E11 attack-15 ; buff C attack+15 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; gold+5 ; extra-turn match  => E11:atk-15 | C:atk+15 | E10:hp-27 arm-5  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "buff E11 attack-15 ; buff C attack+15 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; gold+5 ; extra-turn match  => E11:atk-15 | C:atk+15 | E10:hp-27 arm-5  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "buff E11 attack-5 ; buff C attack+5 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; gold+5 ; extra-turn match  => E11:atk-5 | C:atk+5 | E10:hp-17 arm-5  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "buff E11 attack-15 ; buff C attack+15 ; convert Purple x6, Brown x2, Red x2, Green x6, Yellow x3, Blue x3 -> Green x14, skull x8 ; ~cascade~ ; gold+5 ; defeat E10 ; extra-turn match  => E11:atk-15 | C:atk+15 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:50:46.168Z"
@@ -781,10 +781,10 @@
  },
  "troop:6564": {
   "lines": {
-   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x4, skull x1 -> Brown x7, Blue x12 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:58:29.642Z"
@@ -1031,20 +1031,20 @@
  },
  "troop:6733": {
   "lines": {
-   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; extra-turn match  => A2:mana+4  extra:match  cascade",
-   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; extra-turn match  => A2:mana+4  extra:match  cascade",
-   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; extra-turn match  => A2:mana+4  extra:match  cascade",
-   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; extra-turn match  => A2:mana+4  extra:match  cascade"
+   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x3 -> Red x11, Brown x6 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:58:29.642Z"
  },
  "troop:6743": {
   "lines": {
-   "L10": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "R10": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "L0": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "K": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+   "L10": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Brown x3, Blue x3, Red x2, Green x8, Yellow x4, skull x2 -> Green x14, Purple x8 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:58:29.642Z"
@@ -1171,10 +1171,10 @@
  },
  "troop:6846": {
   "lines": {
-   "L10": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; extra-turn match  => A1:mana+16  extra:match  cascade",
-   "R10": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; extra-turn match  => A1:mana+16  extra:match  cascade",
-   "L0": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; extra-turn match  => A1:mana+16  extra:match  cascade",
-   "K": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; extra-turn match  => A1:mana+16  extra:match  cascade"
+   "L10": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => A1:mana+16  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "R10": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => A1:mana+16  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "L0": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => A1:mana+16  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "K": "convert Brown x3, Blue x3, Red x2, Green x6, Yellow x4, skull x2 -> Blue x13, Purple x7 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => A1:mana+16  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:59:53.056Z"
@@ -1211,10 +1211,10 @@
  },
  "troop:6880": {
   "lines": {
-   "L10": "dmg E10 12 ; status E10 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  => E10:hp-7 arm-5 +marked  extra:match  cascade",
-   "R10": "dmg E10 12 ; status E10 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  => E10:hp-7 arm-5 +marked  extra:match  cascade",
-   "L0": "dmg E10 2 ; status E10 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  => E10:arm-2 +marked  extra:match  cascade",
-   "K": "dmg E10 12 ; defeat E10 ; status E11 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; extra-turn match  => E10:hp-1 DEAD | E11:+marked  extra:match  cascade"
+   "L10": "dmg E10 12 ; status E10 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-7 arm-5 +marked  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "dmg E10 12 ; status E10 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-7 arm-5 +marked  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "dmg E10 2 ; status E10 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:arm-2 +marked  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "dmg E10 12 ; defeat E10 ; status E11 +marked ; convert Brown x2, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x11 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-1 DEAD | E11:+marked  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-B",
   "at": "2026-09-28T13:12:54.322Z"
@@ -1231,10 +1231,10 @@
  },
  "troop:6888": {
   "lines": {
-   "L10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade",
-   "R10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade",
-   "L0": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade",
-   "K": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade"
+   "L10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; gold+5 ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade  eco:{\"gold\":18,\"goldMine\":18}",
+   "R10": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; gold+5 ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade  eco:{\"gold\":18,\"goldMine\":18}",
+   "L0": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; gold+5 ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade  eco:{\"gold\":18,\"goldMine\":18}",
+   "K": "convert Brown x3, skull x3, Red x4, Yellow x4, Purple x3, Blue x1 -> Blue x12, Green x6 ; status C +submerged ; ~cascade~ ; gold+5 ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => C:+submerged | A1:mana+10 | A2:mana+6  extra:match  cascade  eco:{\"gold\":18,\"goldMine\":18}"
   },
   "by": "sa-B",
   "at": "2026-09-28T13:10:31.361Z",
@@ -1373,10 +1373,10 @@
  },
  "troop:7037": {
   "lines": {
-   "L10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; remove E10 -rage ; status E10 +curse ; status E10 +burning ; ~cascade~ ; extra-turn match  => E10:+curse+burning -rage  extra:match  cascade",
-   "R10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; remove E10 -rage ; status E10 +curse ; status E10 +burning ; ~cascade~ ; extra-turn match  => E10:+curse+burning -rage  extra:match  cascade",
-   "L0": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; remove E10 -rage ; status E10 +curse ; status E10 +burning ; ~cascade~ ; extra-turn match  => E10:+curse+burning -rage  extra:match  cascade",
-   "K": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; status E10 +curse ; status E10 +burning ; ~cascade~ ; extra-turn match  => E10:+curse+burning  extra:match  cascade"
+   "L10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; remove E10 -rage ; status E10 +curse ; status E10 +burning ; ~cascade~ ; gold+4 ; extra-turn match  => E10:+curse+burning -rage  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; remove E10 -rage ; status E10 +curse ; status E10 +burning ; ~cascade~ ; gold+4 ; extra-turn match  => E10:+curse+burning -rage  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; remove E10 -rage ; status E10 +curse ; status E10 +burning ; ~cascade~ ; gold+4 ; extra-turn match  => E10:+curse+burning -rage  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Yellow x2, Purple x3, Blue x2, Green x2 -> Red x9 ; convert Red x6, Brown x1, Blue x1, Green x1 -> Purple x9 ; status E10 +curse ; status E10 +burning ; ~cascade~ ; gold+4 ; extra-turn match  => E10:+curse+burning  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:52:23.142Z"
@@ -1443,10 +1443,10 @@
  },
  "troop:7094": {
   "lines": {
-   "L10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade",
-   "R10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade",
-   "L0": "dmg E10 22 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; extra-turn match  => E10:hp-22 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade",
-   "K": "dmg E10 32 ; defeat E10 ; move E11 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; defeat E12 ; extra-turn match  => E10:hp-1 DEAD | A1:mana+5 | A2:mana+7 | E12:hp-1 DEAD  extra:match  cascade"
+   "L10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; gold+4 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "R10": "dmg E10 32 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; gold+4 ; extra-turn match  => E10:hp-32 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "L0": "dmg E10 22 ; move E10 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E11 1 ; gold+4 ; extra-turn match  => E10:hp-22 | A1:mana+5 | A2:mana+7 | E11:arm-1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "K": "dmg E10 32 ; defeat E10 ; move E11 back ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; defeat E12 ; gold+4 ; extra-turn match  => E10:hp-1 DEAD | A1:mana+5 | A2:mana+7 | E12:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:58:29.642Z",
@@ -1495,10 +1495,10 @@
  },
  "troop:7149": {
   "lines": {
-   "L10": "convert Purple x9 -> Green x9 ; dmg E11 22 ; ~cascade~ ; extra-turn match  => E11:hp-12 arm-10  extra:match  cascade",
-   "R10": "convert Purple x9 -> Green x9 ; dmg E11 22 ; ~cascade~ ; extra-turn match  => E11:hp-12 arm-10  extra:match  cascade",
-   "L0": "convert Purple x9 -> Green x9 ; dmg E11 12 ; ~cascade~ ; extra-turn match  => E11:hp-2 arm-10  extra:match  cascade",
-   "K": "convert Purple x9 -> Green x9 ; dmg E11 22 ; defeat E11 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD  extra:match  cascade"
+   "L10": "convert Purple x9 -> Green x9 ; dmg E11 22 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-12 arm-10  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Purple x9 -> Green x9 ; dmg E11 22 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-12 arm-10  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Purple x9 -> Green x9 ; dmg E11 12 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-2 arm-10  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Purple x9 -> Green x9 ; dmg E11 22 ; defeat E11 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:53:28.821Z"
@@ -1525,10 +1525,10 @@
  },
  "troop:7184": {
   "lines": {
-   "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; extra-turn match  => A1:+enchanted  extra:match  cascade",
-   "R10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; extra-turn match  => A1:+enchanted  extra:match  cascade",
-   "L0": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; extra-turn match  => A1:+enchanted  extra:match  cascade",
-   "K": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; extra-turn match  => A1:+enchanted  extra:match  cascade"
+   "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; gold+5 ; extra-turn match  => A1:+enchanted  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; gold+5 ; extra-turn match  => A1:+enchanted  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; gold+5 ; extra-turn match  => A1:+enchanted  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; status A1 +enchanted ; ~cascade~ ; gold+5 ; extra-turn match  => A1:+enchanted  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:42:55.747Z"
@@ -1565,10 +1565,10 @@
  },
  "troop:7199": {
   "lines": {
-   "L10": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "R10": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "L0": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; extra-turn match  extra:match  cascade",
-   "K": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; extra-turn match  extra:match  cascade"
+   "L10": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Blue x1, Green x2, skull x1, Brown x1 -> Yellow x5 ; convert Yellow x14 -> Brown x14 ; ~cascade~ ; gold+4 ; extra-turn match  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:45:56.271Z"
@@ -1625,10 +1625,10 @@
  },
  "troop:7225": {
   "lines": {
-   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade",
-   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade",
-   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade",
-   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; extra-turn match  => A2:mana+6  extra:match  cascade"
+   "L10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Purple x4, Blue x3, Yellow x5, Red x2, Green x5, skull x2 -> Brown x8, Green x13 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+6  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:59:53.056Z",
@@ -1787,10 +1787,10 @@
  },
  "troop:7277": {
   "lines": {
-   "L10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade",
-   "R10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade",
-   "L0": "dmg E12 22 (splash) ; dmg E11 16 (splash) ; dmg E13 16 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; extra-turn match  => E12:hp-11 arm-12 | E11:hp-6 arm-10 | E13:hp-13 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade",
-   "K": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | A2:mana+3 | A1:mana+3 | E10:hp-1 DEAD  cascade"
+   "L10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; gold+4 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "R10": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; gold+4 ; extra-turn match  => E12:hp-21 arm-12 | E11:hp-14 arm-10 | E13:hp-21 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "L0": "dmg E12 22 (splash) ; dmg E11 16 (splash) ; dmg E13 16 (splash) ; move E12 front ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E12 1 ; gold+4 ; extra-turn match  => E12:hp-11 arm-12 | E11:hp-6 arm-10 | E13:hp-13 arm-3 | A2:mana+9 | A1:mana+3  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "K": "dmg E12 32 (splash) ; dmg E11 24 (splash) ; dmg E13 24 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | A2:mana+3 | A1:mana+3 | E10:hp-1 DEAD  cascade  eco:{\"gold\":9,\"goldMine\":9}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:58:29.642Z",
@@ -1979,10 +1979,10 @@
  },
  "troop:7389": {
   "lines": {
-   "L10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade",
-   "R10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade",
-   "L0": "dmg E11 4 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; extra-turn match  => E11:arm-4 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade",
-   "K": "dmg E11 14 ; defeat E11 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; extra-turn match  => E11:hp-1 DEAD | A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; gold+4 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "R10": "dmg E11 14 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; gold+4 ; extra-turn match  => E11:hp-4 arm-10 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "L0": "dmg E11 4 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; gold+4 ; extra-turn match  => E11:arm-4 | A1:mana+5 | A2:mana+9 | E10:arm-1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "K": "dmg E11 14 ; defeat E11 ; convert Purple x2, Yellow x1 -> elementalStar x3 ; ~cascade~ ; gold+4 ; gold+5 ; trigger elementalStar ; destroy 4 (Blue x2, skull x1, Brown x1) ; trigger elementalStar ; destroy 2 (Yellow x1, Blue x1) ; skulls E10 1 ; defeat E10 ; gold+4 ; extra-turn match  => E11:hp-1 DEAD | A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}"
   },
   "by": "sa-B",
   "at": "2026-09-28T14:25:51.195Z",
@@ -2041,10 +2041,10 @@
  },
  "troop:7415": {
   "lines": {
-   "L10": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; extra-turn match  => E10:hp-27 arm-5 | E11:hp-22 arm-10 | E12:hp-20 arm-12 | E13:hp-29 arm-3  extra:match  cascade",
-   "R10": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; extra-turn match  => E10:hp-27 arm-5 | E11:hp-22 arm-10 | E12:hp-20 arm-12 | E13:hp-29 arm-3  extra:match  cascade",
-   "L0": "dmg E10 22 (all) ; dmg E11 22 (all) ; dmg E12 22 (all) ; dmg E13 22 (all) ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; extra-turn match  => E10:hp-17 arm-5 | E11:hp-12 arm-10 | E12:hp-10 arm-12 | E13:hp-19 arm-3  extra:match  cascade",
-   "K": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+   "L10": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-27 arm-5 | E11:hp-22 arm-10 | E12:hp-20 arm-12 | E13:hp-29 arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-27 arm-5 | E11:hp-22 arm-10 | E12:hp-20 arm-12 | E13:hp-29 arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "dmg E10 22 (all) ; dmg E11 22 (all) ; dmg E12 22 (all) ; dmg E13 22 (all) ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-17 arm-5 | E11:hp-12 arm-10 | E12:hp-10 arm-12 | E13:hp-19 arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x3, Blue x1, Red x2, Green x3, Yellow x3 -> Purple x12 ; ~cascade~ ; gold+5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:59:53.056Z"
@@ -2103,8 +2103,8 @@
   "lines": {
    "L10": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; convert Green x2, skull x1, Blue x3, Yellow x3, Brown x1 -> Purple x10  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3",
    "R10": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; convert Green x2, skull x1, Blue x3, Yellow x3, Brown x1 -> Purple x10  => E10:hp-4 arm-5 | E11:arm-6 | E12:arm-10 | E13:hp-2 arm-3",
-   "L0": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert skull x2, Green x3, Blue x2, Red x2, Yellow x1 -> Purple x10 ; ~cascade~ ; extra-turn match  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3 | A2:mana+3  extra:match  cascade",
-   "K": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x2, Red x2, skull x1, Green x3, Yellow x1, Brown x1 -> Purple x10 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+   "L0": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert skull x2, Green x3, Blue x2, Red x2, Yellow x1 -> Purple x10 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3 | A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "dmg E10 9 (scatter) ; dmg E11 6 (scatter) ; dmg E12 10 (scatter) ; dmg E13 5 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x2, Red x2, skull x1, Green x3, Yellow x1, Brown x1 -> Purple x10 ; ~cascade~ ; gold+4  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:42:55.747Z"
@@ -2171,10 +2171,10 @@
  },
  "troop:7487": {
   "lines": {
-   "L10": "dmg E11 24 ; dmg E12 24 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; extra-turn match  => E11:hp-24 | E12:hp-24  extra:match  cascade",
-   "R10": "dmg E11 24 ; dmg E12 24 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; extra-turn match  => E11:hp-24 | E12:hp-24  extra:match  cascade",
-   "L0": "dmg E11 4 ; dmg E12 4 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; extra-turn match  => E11:hp-4 | E12:hp-4  extra:match  cascade",
-   "K": "dmg E11 24 ; defeat E11 ; dmg E12 24 ; defeat E12 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD | E12:hp-1 DEAD  extra:match  cascade"
+   "L10": "dmg E11 24 ; dmg E12 24 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => E11:hp-24 | E12:hp-24  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "R10": "dmg E11 24 ; dmg E12 24 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => E11:hp-24 | E12:hp-24  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "L0": "dmg E11 4 ; dmg E12 4 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => E11:hp-4 | E12:hp-4  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "K": "dmg E11 24 ; defeat E11 ; dmg E12 24 ; defeat E12 ; convert skull x2, Brown x4, Purple x2, Yellow x6, Green x5, Red x1 -> Green x8, Blue x12 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => E11:hp-1 DEAD | E12:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}"
   },
   "by": "sa-B",
   "at": "2026-09-28T15:14:09.853Z"
@@ -2551,10 +2551,10 @@
  },
  "troop:7642": {
   "lines": {
-   "L10": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "R10": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "L0": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade",
-   "K": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; extra-turn match  => A2:mana+3  extra:match  cascade"
+   "L10": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Purple x3, Blue x3, Yellow x4 -> decayGem x6, Brown x4 ; move E10 back ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-B",
   "at": "2026-09-28T13:10:31.361Z"
@@ -2641,10 +2641,10 @@
  },
  "troop:7683": {
   "lines": {
-   "L10": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:arm-2 | A2:mana+3  extra:match  cascade",
-   "R10": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:arm-2 | A2:mana+3  extra:match  cascade",
-   "L0": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:arm-2 | A2:mana+3  extra:match  cascade",
-   "K": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; defeat E10 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:hp-1 DEAD | A2:mana+3  extra:match  cascade"
+   "L10": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; gold+4 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:arm-2 | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; gold+4 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:arm-2 | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; gold+4 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:arm-2 | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Yellow x1 -> umbralStar x1 ; convert Red x1, Green x1 -> umbralStar x2 ; ~cascade~ ; trigger umbralStar ; destroy 12 (Red x4, Blue x2, Brown x1, Green x2, Purple x2, skull x1) ; trigger umbralStar ; destroy 7 (Yellow x2, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 2 ; defeat E10 ; gold+4 ; trigger umbralStar ; destroy 10 (Green x3, Blue x1, Yellow x1, Brown x1, Purple x2, Red x2) ; extra-turn match  => A1:mana+5 | E10:hp-1 DEAD | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:37:56.126Z"
@@ -2671,9 +2671,9 @@
  },
  "troop:7699": {
   "lines": {
-   "L10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade",
-   "R10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade",
-   "L0": "dmg E12 14 (all) ; dmg E10 14 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; extra-turn match  => E12:hp-2 arm-12 +frozen | E10:hp-9 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade",
+   "L10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; gold+4 ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; gold+4 ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "dmg E12 14 (all) ; dmg E10 14 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; gold+4 ; extra-turn match  => E12:hp-2 arm-12 +frozen | E10:hp-9 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "K": "dmg E12 24 (all) ; dmg E11 24 (all) ; defeat E12 ; defeat E11 ; convert Red x1, Green x5, Yellow x1, Brown x4, Purple x3, Blue x4 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E13 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E13 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E10 +frozen  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:+frozen | E10:+frozen  cascade"
   },
   "by": "sa-R2",
@@ -2781,10 +2781,10 @@
  },
  "troop:7754": {
   "lines": {
-   "L10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade",
-   "R10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade",
-   "L0": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade",
-   "K": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade"
+   "L10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Brown x4, skull x4, Red x4, Yellow x5, Purple x4, Blue x3 -> Blue x14, Green x10 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+12 | A2:mana+3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:59:53.056Z",
@@ -2878,7 +2878,7 @@
    "L10": "dmg E11 13  => E11:hp-3 arm-10",
    "R10": "dmg E11 13  => E11:hp-3 arm-10",
    "L0": "dmg E11 3  => E11:arm-3",
-   "K": "dmg E11 13 ; defeat E11 ; convert Green x13 -> bleedGem x13 ; ~cascade~ ; trigger bleedGem ; status E12 +bleed ; trigger bleedGem ; status E12 +bleed ; trigger bleedGem ; status E13 +bleed ; extra-turn match  => E11:hp-1 DEAD | E12:+bleed | E13:+bleed  extra:match  cascade"
+   "K": "dmg E11 13 ; defeat E11 ; convert Green x13 -> bleedGem x13 ; ~cascade~ ; gold+4 ; trigger bleedGem ; status E12 +bleed ; trigger bleedGem ; status E12 +bleed ; trigger bleedGem ; status E13 +bleed ; extra-turn match  => E11:hp-1 DEAD | E12:+bleed | E13:+bleed  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-B",
   "at": "2026-09-28T10:14:20.863Z"
@@ -3027,7 +3027,7 @@
   "lines": {
    "L10": "dmg E10 11 (scatter) ; dmg E11 9 (scatter) ; dmg E12 10 (scatter) ; dmg E13 7 (scatter) ; convert Brown x1, Yellow x2, Red x5, Green x2, Purple x2, skull x1 -> lightningCol x6, lightningRow x7  => E10:hp-6 arm-5 | E11:arm-9 | E12:arm-10 | E13:hp-4 arm-3",
    "R10": "dmg E10 11 (scatter) ; dmg E11 9 (scatter) ; dmg E12 10 (scatter) ; dmg E13 7 (scatter) ; convert Brown x1, Yellow x2, Red x5, Green x2, Purple x2, skull x1 -> lightningCol x6, lightningRow x7  => E10:hp-6 arm-5 | E11:arm-9 | E12:arm-10 | E13:hp-4 arm-3",
-   "L0": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter) ; convert Red x2, Green x3, Blue x3, skull x2, Brown x2, Purple x1 -> lightningRow x8, lightningCol x5 ; ~cascade~ ; trigger lightningRow ; destroy 5 (Purple x2, Green x1, skull x1, Brown x1) ; trigger lightningRow ; skulls E10 1 ; trigger lightningCol ; destroy 5 (Green x1, Brown x1, lightningRow x1, Yellow x1, skull x1) ; trigger lightningRow ; destroy 5 (Red x2, Blue x1, Green x1, Purple x1) ; trigger lightningRow ; destroy 5 (Green x1, Yellow x1, skull x1, Red x1, lightningRow x1) ; trigger lightningCol ; destroy 5 (Yellow x2, Blue x2, Brown x1) ; trigger lightningRow ; destroy 6 (Purple x2, Brown x1, Red x1, Green x1, Yellow x1) ; trigger lightningRow ; skulls E10 2 ; trigger lightningRow ; destroy 4 (lightningCol x2, Purple x1, Brown x1) ; trigger lightningRow ; trigger lightningCol ; destroy 7 (Green x4, Purple x1, Yellow x1, Red x1) ; trigger lightningCol ; destroy 7 (Purple x1, Yellow x1, Green x3, Brown x1, lightningCol x1) ; trigger lightningCol ; extra-turn match  => E10:arm-5 | E11:arm-3 | E12:arm-4 | E13:arm-3 | A2:mana+13 | A1:mana+12  extra:match  cascade",
+   "L0": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter) ; convert Red x2, Green x3, Blue x3, skull x2, Brown x2, Purple x1 -> lightningRow x8, lightningCol x5 ; ~cascade~ ; trigger lightningRow ; destroy 5 (Purple x2, Green x1, skull x1, Brown x1) ; trigger lightningRow ; skulls E10 1 ; trigger lightningCol ; destroy 5 (Green x1, Brown x1, lightningRow x1, Yellow x1, skull x1) ; trigger lightningRow ; destroy 5 (Red x2, Blue x1, Green x1, Purple x1) ; trigger lightningRow ; destroy 5 (Green x1, Yellow x1, skull x1, Red x1, lightningRow x1) ; trigger lightningCol ; destroy 5 (Yellow x2, Blue x2, Brown x1) ; trigger lightningRow ; destroy 6 (Purple x2, Brown x1, Red x1, Green x1, Yellow x1) ; trigger lightningRow ; skulls E10 2 ; gold+5 ; trigger lightningRow ; destroy 4 (lightningCol x2, Purple x1, Brown x1) ; trigger lightningRow ; trigger lightningCol ; destroy 7 (Green x4, Purple x1, Yellow x1, Red x1) ; trigger lightningCol ; destroy 7 (Purple x1, Yellow x1, Green x3, Brown x1, lightningCol x1) ; trigger lightningCol ; extra-turn match  => E10:arm-5 | E11:arm-3 | E12:arm-4 | E13:arm-3 | A2:mana+13 | A1:mana+12  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "K": "dmg E10 11 (scatter) ; dmg E11 9 (scatter) ; dmg E12 10 (scatter) ; dmg E13 7 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x2, Brown x1, Purple x2, Red x3, Green x4, skull x1 -> lightningRow x7, lightningCol x6 ; ~cascade~ ; trigger lightningRow ; destroy 7 (skull x1, Blue x2, Green x1, Purple x1, Brown x1, Red x1) ; trigger lightningRow ; destroy 7 (Green x2, Purple x1, Red x1, Blue x1, lightningRow x1, Yellow x1) ; trigger lightningRow  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | A2:mana+2  cascade"
   },
   "by": "sa-B",
@@ -3218,7 +3218,7 @@
    "L10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert Purple x1, Green x3, Brown x1, Red x1 -> skull x3, Red x3 ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3 | C:mag+3 | A1:mag+3 | A2:mag+3",
    "R10": "dmg E10 4 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert Purple x1, Green x3, Brown x1, Red x1 -> skull x3, Red x3 ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:arm-4 | E11:arm-5 | E12:arm-8 | E13:arm-3 | C:mag+3 | A1:mag+3 | A2:mag+3",
    "L0": "dmg E10 1 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 2 (scatter) ; convert Green x4, Brown x1, Blue x1 -> skull x3, Red x3 ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3  => E10:arm-1 | E11:arm-3 | E12:arm-4 | E13:arm-2 | C:mag+3 | A1:mag+3 | A2:mag+3",
-   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert skull x2, Green x6, Blue x5, Brown x4, Yellow x3, Purple x4 -> skull x12, Red x12 ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:mag+3 | A1:mag+3 | A2:mag+3  cascade"
+   "K": "dmg E10 5 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert skull x2, Green x6, Blue x5, Brown x4, Yellow x3, Purple x4 -> skull x12, Red x12 ; buff C magic+3 ; buff A1 magic+3 ; buff A2 magic+3 ; ~cascade~ ; gold+4  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:mag+3 | A1:mag+3 | A2:mag+3  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "coord",
   "at": "2026-09-28T10:00:30.357Z"
@@ -3968,7 +3968,7 @@
    "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert skull x3, Blue x1, Purple x1, Yellow x2, Red x1 -> entangleGem x8 ; ~cascade~ ; trigger entangleGem ; status E10 +entangle ; trigger entangleGem ; status E13 +entangle  => E10:arm-3 +entangle | E11:arm-4 | E12:arm-8 | E13:arm-3 +entangle  cascade",
    "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 8 (scatter) ; dmg E13 3 (scatter) ; convert skull x3, Blue x1, Purple x1, Yellow x2, Red x1 -> entangleGem x8 ; ~cascade~ ; trigger entangleGem ; status E10 +entangle ; trigger entangleGem ; status E13 +entangle  => E10:arm-3 +entangle | E11:arm-4 | E12:arm-8 | E13:arm-3 +entangle  cascade",
    "L0": "dmg E10 1 (scatter) ; dmg E11 2 (scatter) ; dmg E12 4 (scatter) ; dmg E13 1 (scatter) ; convert Blue x1, Red x2, Brown x2, Yellow x1, skull x2 -> entangleGem x8  => E10:arm-1 | E11:arm-2 | E12:arm-4 | E13:arm-1",
-   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, skull x2, Blue x2, Yellow x2 -> entangleGem x8 ; ~cascade~ ; trigger entangleGem ; trigger entangleGem ; trigger entangleGem  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+   "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 7 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x2, skull x2, Blue x2, Yellow x2 -> entangleGem x8 ; ~cascade~ ; gold+5 ; trigger entangleGem ; trigger entangleGem ; trigger entangleGem  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-J",
   "at": "2026-09-29T04:23:37.110Z"
@@ -4225,20 +4225,20 @@
  },
  "troop:6340": {
   "lines": {
-   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade",
-   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade",
-   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+5 max+5 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+5 max+5 | A2:mana+7  extra:match  cascade",
-   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade"
+   "L10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; gold+4 ; gold+4 ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "R10": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; gold+4 ; gold+4 ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "L0": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+5 max+5 ; ~cascade~ ; gold+4 ; gold+4 ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+5 max+5 | A2:mana+7  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "K": "status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; convert Purple x4, Blue x4, Yellow x5, Red x2, Green x5, skull x2 -> Red x14, Brown x8 ; buff C hp+15 max+15 ; ~cascade~ ; gold+4 ; gold+4 ; extra-turn match  => E10:+stun+burning | E11:+stun+burning | E12:+stun+burning | E13:+stun+burning | C:hp+15 max+15 | A2:mana+7  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}"
   },
   "by": "sa-J",
   "at": "2026-09-29T03:56:18.581Z"
  },
  "troop:6760": {
   "lines": {
-   "L10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
-   "R10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
-   "L0": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}",
-   "K": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; extra-turn match  extra:match  cascade  eco:{\"gold\":100,\"goldMine\":100,\"goldTheirs\":-100}"
+   "L10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":105,\"goldMine\":105,\"goldTheirs\":-100}",
+   "R10": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":105,\"goldMine\":105,\"goldTheirs\":-100}",
+   "L0": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":105,\"goldMine\":105,\"goldTheirs\":-100}",
+   "K": "gold+100 ; convert Green x6, Brown x2, Blue x1, Red x3, Yellow x4 -> Purple x16 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":105,\"goldMine\":105,\"goldTheirs\":-100}"
   },
   "by": "sa-J",
   "at": "2026-09-29T03:58:48.944Z"

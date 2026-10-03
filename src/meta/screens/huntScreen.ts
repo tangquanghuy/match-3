@@ -9,7 +9,7 @@ import {
 } from '../systems/treasureHunt';
 import { HuntBoardScene } from '../../render/HuntBoardScene';
 import { dailyArt } from '../shell/artAssets';
-import type { TreasureHuntState } from '../state/schema';
+import { TREASURE_HUNT_DAILY_CAP, type TreasureHuntState } from '../state/schema';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
 
@@ -51,6 +51,7 @@ export class HuntScreen implements Screen {
             <img class="hunt-cover-art" src="${dailyArt('hunt')}" alt="藏宝图">
             <h2>合成宝物，探寻金库</h2>
             <p>交换相邻宝物，三连合成更高一级。<br>步数用完后，结算棋盘上的全部宝物。</p>
+            <div class="hunt-reserve"><span>宝藏储量：</span><b>${fmt(TREASURE_HUNT_DAILY_CAP.gold / 10_000)}万</b><em>金币</em><i>·</i><b>${fmt(TREASURE_HUNT_DAILY_CAP.gems)}</b><em>钻石</em></div>
             <button class="hunt-begin" id="huntBegin" type="button" disabled>棋盘加载中…</button>
             <small id="huntCost">每局消耗 1 张藏宝图</small>
           </div>

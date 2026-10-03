@@ -17,7 +17,7 @@ import { hydrateWishlist, hydrateGachaAudit } from '../systems/wishlist';
  *    服务端复用：D1 里存的就是 serializeSave 的产物。
  */
 import { hydrateCharacter } from './character';
-import { META_SAVE_VERSION, newSave, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type PendingBattle, type TeamMember, type TeamPreset, type TroopRecord } from './schema';
+import { META_SAVE_VERSION, newSave, TREASURE_HUNT_DAILY_CAP, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type PendingBattle, type TeamMember, type TeamPreset, type TroopRecord, type TreasureHuntDailyCap } from './schema';
 import { EVENT_MILESTONES, EVENT_MILESTONE_CURRENCY_BONUS, EVENT_SHARED_GOALS, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, type EventTypeId } from '../data/events';
 import { GIFTS, GIFT_STARTER_ID } from '../data/gifts';
 import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
@@ -71,6 +71,15 @@ function huntState(raw: unknown): MetaSave['treasureHunt'] {
   if (turns <= 0) return null;
   const rng = num(raw.rng, 1, 0, 0xffffffff);
   return { cells, turns, moves: num(raw.moves, 0, 0), rng, softCap: hydrateHuntSoftCap(raw.softCap, rng, cells) };
+}
+
+function huntDailyCap(raw: unknown): TreasureHuntDailyCap {
+  if (!isObject(raw)) return { dayStart: 0, gold: 0, gems: 0 };
+  return {
+    dayStart: num(raw.dayStart, 0, 0),
+    gold: num(raw.gold, 0, 0, TREASURE_HUNT_DAILY_CAP.gold),
+    gems: num(raw.gems, 0, 0, TREASURE_HUNT_DAILY_CAP.gems),
+  };
 }
 
 function bool(v: unknown, fallback: boolean): boolean {
@@ -246,6 +255,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
   }
 
   const treasureHunt = huntState(raw.treasureHunt);
+  const treasureHuntDaily = huntDailyCap(raw.treasureHuntDaily);
 
   // —— 武器淬炼等级（WEAPON-FORGE-DESIGN F2）：weaponId → 0..20 ——
   const weaponTempering: Record<string, number> = {};
@@ -571,6 +581,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     eventShops,
     settings: { ...base.settings },
     treasureHunt,
+    treasureHuntDaily,
     character: hydrateCharacter(raw.character),
     onboarding: hydrateOnboarding(raw.onboarding, gachaLog),
     gifts,

@@ -593,12 +593,12 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
 
     // —— 寻宝 ——
     case 'finishTreasureHunt':
-      return withMaterials(finishHunt(save));
+      return withMaterials(finishHunt(save, todayStart));
     case 'startTreasureHunt':
       return done(beginHunt(save, env.seed()));
     case 'playTreasureHunt': {
       const { from, to } = command.args as CommandArgs<'playTreasureHunt'>;
-      return withMaterials(commitMove(save, from, to));
+      return withMaterials(commitMove(save, from, to, todayStart));
     }
 
     // —— 开发者命令（runCommand 已按 env.allowDev 拦截） ——

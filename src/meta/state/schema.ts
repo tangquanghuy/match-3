@@ -393,6 +393,8 @@ export interface MetaSave {
    * 开局已扣掉的藏宝图记在这一局里，刷新后接着下。
    */
   treasureHunt: TreasureHuntState | null;
+  /** Daily treasure hunt currency credited so far; reset at the game-time day boundary. */
+  treasureHuntDaily: TreasureHuntDailyCap;
   /** 新手引导（加性字段；旧档缺省视为已完成） */
   onboarding: OnboardingState;
   /** 馈赠里程碑（加性字段） */
@@ -437,6 +439,15 @@ export interface TreasureHuntState {
   rng: number;
   /** 加性字段，旧局在读档/下一次有效操作时补齐。 */
   softCap?: HuntSoftCap;
+}
+
+/** Maximum gold and gems credited by treasure hunts in one game-time day. */
+export const TREASURE_HUNT_DAILY_CAP = Object.freeze({ gold: 1_000_000, gems: 2_000 });
+
+export interface TreasureHuntDailyCap {
+  dayStart: number;
+  gold: number;
+  gems: number;
 }
 
 export interface NewSaveOptions {
@@ -515,6 +526,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     eventShops: {},
     settings: { language: 'zh', battleDebug: false },
     treasureHunt: null,
+    treasureHuntDaily: { dayStart: 0, gold: 0, gems: 0 },
     onboarding: options.tutorial
       ? { step: 'battle', noviceSummonUsed: false }
       : { step: 'done', noviceSummonUsed: true },

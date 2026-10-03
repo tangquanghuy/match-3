@@ -71,10 +71,10 @@
  },
  "troop:6021": {
   "lines": {
-   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; status E10 +poison ; status E12 +poison ; extra-turn match  => A2:mana+16 | E10:arm-4 +poison | E12:+poison  extra:match  cascade",
-   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; status E10 +poison ; status E12 +poison ; extra-turn match  => A2:mana+16 | E10:arm-4 +poison | E12:+poison  extra:match  cascade",
+   "L10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; status E10 +poison ; status E12 +poison ; extra-turn match  => A2:mana+16 | E10:arm-4 +poison | E12:+poison  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; status E10 +poison ; status E12 +poison ; extra-turn match  => A2:mana+16 | E10:arm-4 +poison | E12:+poison  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "explode 6 ; status E12 +poison ; status E13 +poison  => E12:+poison | E13:+poison",
-   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; status E11 +poison ; status E13 +poison ; extra-turn match  => A2:mana+16 | E10:hp-1 DEAD | E11:+poison | E13:+poison  extra:match  cascade"
+   "K": "explode 52 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; status E11 +poison ; status E13 +poison ; extra-turn match  => A2:mana+16 | E10:hp-1 DEAD | E11:+poison | E13:+poison  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-A",
   "at": "2026-09-28T21:57:39.633Z"
@@ -413,10 +413,10 @@
  },
  "troop:6241": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-10 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-10 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all) ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-5 | E11:arm-3 | E12:arm-3 | E13:arm-3  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E11 ; defeat E12 ; defeat E13  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-10 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-10 arm-5 | E11:hp-3 arm-10 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all) ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-5 | E11:arm-3 | E12:arm-3 | E13:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E11 ; defeat E12 ; defeat E13  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:34:31.381Z"
@@ -493,10 +493,10 @@
  },
  "troop:6316": {
   "lines": {
-   "L10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; ~cascade~ ; extra-turn match  => A2:mana+4 | E10:hp-2 arm-5  extra:match  cascade",
-   "R10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; ~cascade~ ; extra-turn match  => A2:mana+4 | E10:hp-2 arm-5  extra:match  cascade",
+   "L10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+4 | E10:hp-2 arm-5  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+4 | E10:hp-2 arm-5  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 9 ; skulls E10 2 ; ~cascade~  => E10:arm-2  cascade",
-   "K": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; defeat E10 ; ~cascade~ ; extra-turn match  => A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "convert Green x1, Purple x2, Brown x1, Red x1 -> skull x5 ; explode 39 ; skulls E10 7 ; defeat E10 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-A",
   "at": "2026-09-28T11:21:07.693Z"
@@ -693,10 +693,10 @@
  },
  "troop:6421": {
   "lines": {
-   "L10": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; extra-turn match  => A2:mana+10 | E10:arm-1 | A1:mana+3  extra:match  cascade",
-   "R10": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; extra-turn match  => A2:mana+10 | E10:arm-1 | A1:mana+3  extra:match  cascade",
-   "L0": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; extra-turn match  => A2:mana+10 | E10:arm-1 | A1:mana+3  extra:match  cascade",
-   "K": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; defeat E10 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; extra-turn match  => A2:mana+10 | E10:hp-1 DEAD | A1:mana+3  extra:match  cascade"
+   "L10": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; gold+4 ; extra-turn match  => A2:mana+10 | E10:arm-1 | A1:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; gold+4 ; extra-turn match  => A2:mana+10 | E10:arm-1 | A1:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; gold+4 ; extra-turn match  => A2:mana+10 | E10:arm-1 | A1:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "destroy 7 (Green x1, Purple x3, skull x1, Red x1, Yellow x1) ; skulls E10 1 ; defeat E10 ; ~cascade~ ; convert Yellow x3, Red x1, Brown x2, Green x1 -> Purple x7 ; gold+4 ; extra-turn match  => A2:mana+10 | E10:hp-1 DEAD | A1:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "kiro-surge-rule",
   "at": "2026-09-30T05:31:16.490Z"
@@ -853,10 +853,10 @@
  },
  "troop:6540": {
   "lines": {
-   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade",
-   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade",
-   "L0": "explode 53 ; skulls E10 3 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; extra-turn match  => A1:hp+1 max+1 mana+4 -poison | E10:arm-3 | C:hp+1 max+1 -poison | A2:hp+1 max+1  extra:match  cascade",
-   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:hp-1 DEAD | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade"
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+4 ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+4 ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:arm-3 | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "L0": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+4 ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+1 max+1 ; buff A1 hp+1 max+1 ; buff A2 hp+1 max+1 ; extra-turn match  => A1:hp+1 max+1 mana+4 -poison | E10:arm-3 | C:hp+1 max+1 -poison | A2:hp+1 max+1  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; gold+4 ; cleanse C -poison ; cleanse A1 -poison ; buff C hp+11 max+11 ; buff A1 hp+11 max+11 ; buff A2 hp+11 max+11 ; extra-turn match  => A1:hp+11 max+11 mana+4 -poison | E10:hp-1 DEAD | C:hp+11 max+11 -poison | A2:hp+11 max+11  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}"
   },
   "by": "sa-A",
   "at": "2026-09-28T21:57:39.633Z"
@@ -943,10 +943,10 @@
  },
  "troop:6623": {
   "lines": {
-   "L10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; ~cascade~ ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:arm-2  extra:match  cascade",
-   "R10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; ~cascade~ ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:arm-2  extra:match  cascade",
-   "L0": "buff C hp+1 max+1 ; explode 24 ; skulls E10 2 ; ~cascade~ ; extra-turn match  => C:hp+1 max+1 | A2:mana+2 | E10:arm-2  extra:match  cascade",
-   "K": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "buff C hp+1 max+1 ; explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => C:hp+1 max+1 | A2:mana+2 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "buff C hp+11 max+11 ; explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => C:hp+11 max+11 | A2:mana+2 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-F2",
   "at": "2026-09-28T00:30:30.722Z"
@@ -973,20 +973,20 @@
  },
  "troop:6633": {
   "lines": {
-   "L10": "dmg E11 13 ; explode 61 ; skulls E10 4 ; ~cascade~ ; gold+10 ; extra-turn match  => E11:hp-3 arm-10 | A2:mana+14 | E10:arm-4  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}",
-   "R10": "dmg E11 13 ; explode 61 ; skulls E10 4 ; ~cascade~ ; gold+10 ; extra-turn match  => E11:hp-3 arm-10 | A2:mana+14 | E10:arm-4  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}",
-   "L0": "dmg E11 3 ; explode 61 ; skulls E10 4 ; ~cascade~ ; gold+10 ; extra-turn match  => E11:arm-3 | A2:mana+14 | E10:arm-4  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}",
-   "K": "dmg E11 13 ; defeat E11 ; explode 61 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+10 ; extra-turn match  => E11:hp-1 DEAD | A2:mana+14 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":10,\"goldMine\":10}"
+   "L10": "dmg E11 13 ; explode 61 ; skulls E10 4 ; ~cascade~ ; gold+5 ; gold+10 ; extra-turn match  => E11:hp-3 arm-10 | A2:mana+14 | E10:arm-4  extra:match  cascade  eco:{\"gold\":15,\"goldMine\":15}",
+   "R10": "dmg E11 13 ; explode 61 ; skulls E10 4 ; ~cascade~ ; gold+5 ; gold+10 ; extra-turn match  => E11:hp-3 arm-10 | A2:mana+14 | E10:arm-4  extra:match  cascade  eco:{\"gold\":15,\"goldMine\":15}",
+   "L0": "dmg E11 3 ; explode 61 ; skulls E10 4 ; ~cascade~ ; gold+5 ; gold+10 ; extra-turn match  => E11:arm-3 | A2:mana+14 | E10:arm-4  extra:match  cascade  eco:{\"gold\":15,\"goldMine\":15}",
+   "K": "dmg E11 13 ; defeat E11 ; explode 61 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; gold+5 ; gold+10 ; extra-turn match  => E11:hp-1 DEAD | A2:mana+14 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":15,\"goldMine\":15}"
   },
   "by": "sa-A",
   "at": "2026-09-28T11:12:46.111Z"
  },
  "troop:6638": {
   "lines": {
-   "L10": "explode 63 ; skulls E10 5 ; ~cascade~ ; gold+20 ; extra-turn match  => A2:mana+12 | A1:mana+5 | E10:arm-5  extra:match  cascade  eco:{\"gold\":20,\"goldMine\":20}",
-   "R10": "explode 63 ; skulls E10 5 ; ~cascade~ ; gold+20 ; extra-turn match  => A2:mana+12 | A1:mana+5 | E10:arm-5  extra:match  cascade  eco:{\"gold\":20,\"goldMine\":20}",
-   "L0": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+20 ; extra-turn match  => A2:mana+16 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":20,\"goldMine\":20}",
-   "K": "explode 63 ; skulls E10 5 ; defeat E10 ; ~cascade~ ; gold+20 ; extra-turn match  => A2:mana+12 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":20,\"goldMine\":20}"
+   "L10": "explode 63 ; skulls E10 5 ; ~cascade~ ; gold+5 ; gold+4 ; gold+20 ; extra-turn match  => A2:mana+12 | A1:mana+5 | E10:arm-5  extra:match  cascade  eco:{\"gold\":29,\"goldMine\":29}",
+   "R10": "explode 63 ; skulls E10 5 ; ~cascade~ ; gold+5 ; gold+4 ; gold+20 ; extra-turn match  => A2:mana+12 | A1:mana+5 | E10:arm-5  extra:match  cascade  eco:{\"gold\":29,\"goldMine\":29}",
+   "L0": "explode 52 ; skulls E10 4 ; ~cascade~ ; gold+5 ; gold+20 ; extra-turn match  => A2:mana+16 | A1:mana+5 | E10:arm-4  extra:match  cascade  eco:{\"gold\":25,\"goldMine\":25}",
+   "K": "explode 63 ; skulls E10 5 ; defeat E10 ; ~cascade~ ; gold+5 ; gold+4 ; gold+20 ; extra-turn match  => A2:mana+12 | A1:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":29,\"goldMine\":29}"
   },
   "by": "sa-A",
   "at": "2026-09-28T11:12:46.111Z"
@@ -1006,7 +1006,7 @@
    "L10": "dmg E11 12 ; destroy 5 (Blue x5)  => E11:hp-12 | A1:mana+5",
    "R10": "dmg E11 12 ; destroy 5 (Blue x5)  => E11:hp-12 | A1:mana+5",
    "L0": "dmg E11 2 ; destroy 5 (Blue x5)  => E11:hp-2 | A1:mana+5",
-   "K": "dmg E11 12 ; defeat E11 ; destroy 5 (Green x5) ; ~cascade~ ; extra-turn match ; jumble board  => E11:hp-1 DEAD  extra:match  cascade"
+   "K": "dmg E11 12 ; defeat E11 ; destroy 5 (Green x5) ; ~cascade~ ; gold+4 ; extra-turn match ; jumble board  => E11:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T23:32:56.615Z"
@@ -1063,10 +1063,10 @@
  },
  "troop:6693": {
   "lines": {
-   "L10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-1  extra:match  cascade",
-   "R10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-1  extra:match  cascade",
-   "L0": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-1  extra:match  cascade",
-   "K": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; defeat E10 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "destroy 15 (Red x2, Blue x4, Green x2, Yellow x3, Purple x1, Brown x2, skull x1) ; skulls E10 1 ; defeat E10 ; convert Brown x1, Green x4, Yellow x1, skull x1 -> Red x7 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T03:01:49.305Z"
@@ -1083,10 +1083,10 @@
  },
  "troop:6707": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-3 | E11:+disease+poison | E13:+disease+poison  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-3 | E11:+disease+poison | E13:+disease+poison  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-3 | E11:+disease+poison | E13:+disease+poison  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:arm-3 | E11:+disease+poison | E13:+disease+poison  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9 ; skulls E10 1 ; status E10 +disease ; status E10 +poison ; status E13 +disease ; status E13 +poison  => E10:arm-1 +disease+poison | E13:+disease+poison",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD | E11:+disease+poison | E13:+disease+poison  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; status E11 +disease ; status E11 +poison ; status E13 +disease ; status E13 +poison ; extra-turn match  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD | E11:+disease+poison | E13:+disease+poison  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T21:57:39.633Z"
@@ -1153,8 +1153,8 @@
  },
  "troop:6739": {
   "lines": {
-   "L10": "move E11 back ; explode 39 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+3 | A1:mana+3 | E10:arm-3  extra:match  cascade",
-   "R10": "move E11 back ; explode 39 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+3 | A1:mana+3 | E10:arm-3  extra:match  cascade",
+   "L10": "move E11 back ; explode 39 ; skulls E10 3 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3 | A1:mana+3 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "move E11 back ; explode 39 ; skulls E10 3 ; ~cascade~ ; gold+5 ; extra-turn match  => A2:mana+3 | A1:mana+3 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "move E11 back ; explode 9 ; skulls E10 1  => A2:mana+1 | E10:arm-1",
    "K": "move E11 back ; explode 37 ; skulls E10 3 ; defeat E10  => A2:mana+2 | A1:mana+3 | E10:hp-1 DEAD"
   },
@@ -1223,10 +1223,10 @@
  },
  "troop:6770": {
   "lines": {
-   "L10": "dmg E12 18 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; dmg E11 18 (splash) ; dmg E10 4 (splash) ; dmg E12 4 (splash) ; dmg E13 18 (splash) ; dmg E12 4 (splash) ; explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => E12:hp-14 arm-12 | E11:hp-12 arm-10 | E13:hp-19 arm-3 | E10:hp-3 arm-5 | A2:mana+10  extra:match  cascade",
-   "R10": "dmg E12 18 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; dmg E11 18 (splash) ; dmg E10 4 (splash) ; dmg E12 4 (splash) ; dmg E13 18 (splash) ; dmg E12 4 (splash) ; explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => E12:hp-14 arm-12 | E11:hp-12 arm-10 | E13:hp-19 arm-3 | E10:hp-3 arm-5 | A2:mana+10  extra:match  cascade",
-   "L0": "dmg E12 8 (splash) ; dmg E11 2 (splash) ; dmg E13 2 (splash) ; dmg E11 8 (splash) ; dmg E10 2 (splash) ; dmg E12 2 (splash) ; dmg E13 8 (splash) ; dmg E12 2 (splash) ; explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => E12:arm-12 | E11:arm-10 | E13:hp-7 arm-3 | E10:hp-1 arm-5 | A2:mana+10  extra:match  cascade",
-   "K": "dmg E12 18 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; dmg E10 18 (splash) ; defeat E10 ; explode 62 ; ~cascade~  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | E10:hp-1 DEAD | A2:mana+7  cascade"
+   "L10": "dmg E12 18 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; dmg E11 18 (splash) ; dmg E10 4 (splash) ; dmg E12 4 (splash) ; dmg E13 18 (splash) ; dmg E12 4 (splash) ; explode 62 ; skulls E10 4 ; ~cascade~ ; gold+5 ; extra-turn match  => E12:hp-14 arm-12 | E11:hp-12 arm-10 | E13:hp-19 arm-3 | E10:hp-3 arm-5 | A2:mana+10  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "dmg E12 18 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; dmg E11 18 (splash) ; dmg E10 4 (splash) ; dmg E12 4 (splash) ; dmg E13 18 (splash) ; dmg E12 4 (splash) ; explode 62 ; skulls E10 4 ; ~cascade~ ; gold+5 ; extra-turn match  => E12:hp-14 arm-12 | E11:hp-12 arm-10 | E13:hp-19 arm-3 | E10:hp-3 arm-5 | A2:mana+10  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "dmg E12 8 (splash) ; dmg E11 2 (splash) ; dmg E13 2 (splash) ; dmg E11 8 (splash) ; dmg E10 2 (splash) ; dmg E12 2 (splash) ; dmg E13 8 (splash) ; dmg E12 2 (splash) ; explode 62 ; skulls E10 4 ; ~cascade~ ; gold+5 ; extra-turn match  => E12:arm-12 | E11:arm-10 | E13:hp-7 arm-3 | E10:hp-1 arm-5 | A2:mana+10  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "dmg E12 18 (splash) ; dmg E11 4 (splash) ; dmg E13 4 (splash) ; defeat E12 ; defeat E11 ; defeat E13 ; dmg E10 18 (splash) ; defeat E10 ; explode 62 ; ~cascade~ ; gold+5  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:hp-1 DEAD | E10:hp-1 DEAD | A2:mana+7  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:59:20.634Z"
@@ -1316,7 +1316,7 @@
    "L10": "status E11 +curse ; status E11 +death-mark ; destroy 11 (Blue x11) ; ~cascade~  => E11:+curse+death-mark | A2:mana+3  cascade",
    "R10": "status E11 +curse ; status E11 +death-mark ; destroy 11 (Blue x11) ; ~cascade~  => E11:+curse+death-mark | A2:mana+3  cascade",
    "L0": "status E11 +curse ; status E11 +death-mark ; destroy 1 (Blue x1)  => E11:+curse+death-mark",
-   "K": "status E12 +curse ; status E12 +death-mark ; destroy 9 (Red x9) ; ~cascade~ ; extra-turn match  => E12:+curse+death-mark | A2:mana+9  extra:match  cascade"
+   "K": "status E12 +curse ; status E12 +death-mark ; destroy 9 (Red x9) ; ~cascade~ ; gold+5 ; extra-turn match  => E12:+curse+death-mark | A2:mana+9  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:30:57.645Z"
@@ -1443,20 +1443,20 @@
  },
  "troop:6927": {
   "lines": {
-   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; dmg E10 12 ; extra-turn match  => A2:mana+7 | E10:hp-10 arm-5  extra:match  cascade",
-   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; dmg E10 12 ; extra-turn match  => A2:mana+7 | E10:hp-10 arm-5  extra:match  cascade",
-   "L0": "explode 53 ; skulls E10 3 ; ~cascade~ ; dmg E10 2 ; extra-turn match  => A2:mana+7 | E10:arm-5  extra:match  cascade",
-   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; dmg E11 12 ; defeat E11 ; extra-turn match  => A2:mana+7 | E10:hp-1 DEAD | E11:hp-1 DEAD  extra:match  cascade"
+   "L10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+4 ; dmg E10 12 ; extra-turn match  => A2:mana+7 | E10:hp-10 arm-5  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "R10": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+4 ; dmg E10 12 ; extra-turn match  => A2:mana+7 | E10:hp-10 arm-5  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "L0": "explode 53 ; skulls E10 3 ; ~cascade~ ; gold+4 ; gold+4 ; dmg E10 2 ; extra-turn match  => A2:mana+7 | E10:arm-5  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}",
+   "K": "explode 53 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; gold+4 ; dmg E11 12 ; defeat E11 ; extra-turn match  => A2:mana+7 | E10:hp-1 DEAD | E11:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":8,\"goldMine\":8}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:36:51.061Z"
  },
  "troop:6938": {
   "lines": {
-   "L10": "buff A1 hp+11 max+11 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; extra-turn match  => A1:hp+11 max+11 | A2:mana+15  extra:match  cascade",
-   "R10": "buff A1 hp+11 max+11 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; extra-turn match  => A1:hp+11 max+11 | A2:mana+15  extra:match  cascade",
-   "L0": "buff A1 hp+1 max+1 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; extra-turn match  => A1:hp+1 max+1 | A2:mana+15  extra:match  cascade",
-   "K": "buff A1 hp+11 max+11 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; extra-turn match  => A1:hp+11 max+11 | A2:mana+15  extra:match  cascade"
+   "L10": "buff A1 hp+11 max+11 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; gold+4 ; extra-turn match  => A1:hp+11 max+11 | A2:mana+15  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "buff A1 hp+11 max+11 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; gold+4 ; extra-turn match  => A1:hp+11 max+11 | A2:mana+15  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "buff A1 hp+1 max+1 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; gold+4 ; extra-turn match  => A1:hp+1 max+1 | A2:mana+15  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "buff A1 hp+11 max+11 ; destroy 11 (Blue x11) ; ~cascade~ ; destroy 9 (Red x9) ; destroy 12 (Brown x12) ; gold+4 ; extra-turn match  => A1:hp+11 max+11 | A2:mana+15  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "kiro-surge-rule",
   "at": "2026-09-30T05:31:16.490Z"
@@ -1505,7 +1505,7 @@
   "lines": {
    "L10": "dmg E10 20 (scatter) ; dmg E11 14 (scatter) ; dmg E12 18 (scatter) ; dmg E13 11 (scatter) ; convert Brown x2, Green x3, skull x1, Purple x2, Red x2 -> Yellow x10 ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-15 arm-5 | E11:hp-4 arm-10 | E12:hp-6 arm-12 | E13:hp-8 arm-3  cascade",
    "R10": "dmg E10 20 (scatter) ; dmg E11 14 (scatter) ; dmg E12 18 (scatter) ; dmg E13 11 (scatter) ; convert Brown x2, Green x3, skull x1, Purple x2, Red x2 -> Yellow x10 ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-15 arm-5 | E11:hp-4 arm-10 | E12:hp-6 arm-12 | E13:hp-8 arm-3  cascade",
-   "L0": "dmg E10 16 (scatter) ; dmg E11 12 (scatter) ; dmg E12 17 (scatter) ; dmg E13 8 (scatter) ; convert Blue x2, skull x2, Brown x1, Red x2, Purple x2, Green x1 -> Yellow x10 ; destroy 9 (Blue x9) ; ~cascade~ ; extra-turn match  => E10:hp-11 arm-5 | E11:hp-2 arm-10 | E12:hp-5 arm-12 | E13:hp-5 arm-3  extra:match  cascade",
+   "L0": "dmg E10 16 (scatter) ; dmg E11 12 (scatter) ; dmg E12 17 (scatter) ; dmg E13 8 (scatter) ; convert Blue x2, skull x2, Brown x1, Red x2, Purple x2, Green x1 -> Yellow x10 ; destroy 9 (Blue x9) ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-11 arm-5 | E11:hp-2 arm-10 | E12:hp-5 arm-12 | E13:hp-5 arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "K": "dmg E10 21 (scatter) ; dmg E11 13 (scatter) ; dmg E12 18 (scatter) ; dmg E13 11 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert skull x2, Red x1, Green x3, Purple x3, Blue x1 -> Yellow x10 ; destroy 10 (Blue x10) ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
   "by": "sa-A",
@@ -1633,10 +1633,10 @@
  },
  "troop:7024": {
   "lines": {
-   "L10": "souls+9 ; explode 55 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"souls\":9}",
-   "R10": "souls+9 ; explode 55 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"souls\":9}",
-   "L0": "souls+9 ; explode 55 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"souls\":9}",
-   "K": "souls+9 ; explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"souls\":9}"
+   "L10": "souls+9 ; explode 55 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"souls\":9,\"gold\":4,\"goldMine\":4}",
+   "R10": "souls+9 ; explode 55 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"souls\":9,\"gold\":4,\"goldMine\":4}",
+   "L0": "souls+9 ; explode 55 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | E10:arm-3  extra:match  cascade  eco:{\"souls\":9,\"gold\":4,\"goldMine\":4}",
+   "K": "souls+9 ; explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"souls\":9,\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T10:41:06.754Z"
@@ -1683,8 +1683,8 @@
  },
  "troop:7058": {
   "lines": {
-   "L10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+8  extra:match  cascade",
-   "R10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+8  extra:match  cascade",
+   "L10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; gold+4 ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+8  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; destroy 11 (Blue x11) ; ~cascade~ ; gold+4 ; extra-turn match  => E10:hp-35 | E11:hp-31 | E12:hp-36 | E13:hp-28 | A1:mana+8  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "dmg E10 31 (scatter) ; dmg E11 30 (scatter) ; dmg E12 33 (scatter) ; dmg E13 26 (scatter) ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-31 | E11:hp-30 | E12:hp-33 | E13:hp-26 | A2:mana+3  cascade",
    "K": "dmg E10 35 (scatter) ; dmg E11 31 (scatter) ; dmg E12 36 (scatter) ; dmg E13 28 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; destroy 11 (Blue x11) ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
@@ -1907,7 +1907,7 @@
   "lines": {
    "L10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; ~cascade~  => A2:mana+10 | A1:mana+4 | E10:arm-4  cascade",
    "R10": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; ~cascade~  => A2:mana+10 | A1:mana+4 | E10:arm-4  cascade",
-   "L0": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 6 ; ~cascade~ ; extra-turn match  extra:match  cascade",
+   "L0": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 6 ; ~cascade~ ; gold+5 ; extra-turn match  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "K": "convert Green x3, Yellow x3, Blue x1, Purple x3 -> Brown x10 ; explode 57 ; skulls E10 4 ; defeat E10 ; ~cascade~  => A2:mana+10 | A1:mana+4 | E10:hp-1 DEAD  cascade"
   },
   "by": "sa-P",
@@ -2005,10 +2005,10 @@
  },
  "troop:7304": {
   "lines": {
-   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+6 | E10:arm-3 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade",
-   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+6 | E10:arm-3 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade",
-   "L0": "explode 55 ; skulls E10 3 ; ~cascade~ ; dmg E12 3 (all) ; dmg E13 3 (all) ; extra-turn match  => A2:mana+6 | E10:arm-3 | E12:arm-3 | E13:arm-3  extra:match  cascade",
-   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E12 ; defeat E13 ; extra-turn match  => A2:mana+6 | E10:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:match  cascade"
+   "L10": "explode 55 ; skulls E10 3 ; ~cascade~ ; gold+4 ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+6 | E10:arm-3 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 55 ; skulls E10 3 ; ~cascade~ ; gold+4 ; dmg E12 13 (all) ; dmg E13 13 (all) ; extra-turn match  => A2:mana+6 | E10:arm-3 | E12:hp-1 arm-12 | E13:hp-10 arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 55 ; skulls E10 3 ; ~cascade~ ; gold+4 ; dmg E12 3 (all) ; dmg E13 3 (all) ; extra-turn match  => A2:mana+6 | E10:arm-3 | E12:arm-3 | E13:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 55 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; dmg E12 13 (all) ; dmg E13 13 (all) ; defeat E12 ; defeat E13 ; extra-turn match  => A2:mana+6 | E10:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
@@ -2235,60 +2235,60 @@
  },
  "troop:7447": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:40:49.652Z"
  },
  "troop:7448": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:40:49.652Z"
  },
  "troop:7449": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:40:49.652Z"
  },
  "troop:7450": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+2 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:43:49.684Z"
  },
  "troop:7451": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:43:49.684Z"
  },
  "troop:7452": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+1 max+1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2 | C:hp+1 max+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+16 max+16 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD | C:hp+16 max+16  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:43:49.684Z"
@@ -2345,10 +2345,10 @@
  },
  "troop:7478": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; buff C armor+19 ; extra-turn match  => A2:mana+12 | E10:arm-3 | C:arm+19  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; buff C armor+19 ; extra-turn match  => A2:mana+12 | E10:arm-3 | C:arm+19  extra:match  cascade",
-   "L0": "explode 51 ; skulls E10 3 ; ~cascade~ ; buff C armor+9 ; extra-turn match  => A2:mana+12 | E10:arm-3 | C:arm+9  extra:match  cascade",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; buff C armor+19 ; extra-turn match  => A2:mana+12 | E10:hp-1 DEAD | C:arm+19  extra:match  cascade"
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+5 ; gold+4 ; buff C armor+19 ; extra-turn match  => A2:mana+12 | E10:arm-3 | C:arm+19  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+5 ; gold+4 ; buff C armor+19 ; extra-turn match  => A2:mana+12 | E10:arm-3 | C:arm+19  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "L0": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+5 ; gold+4 ; buff C armor+9 ; extra-turn match  => A2:mana+12 | E10:arm-3 | C:arm+9  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+5 ; gold+4 ; buff C armor+19 ; extra-turn match  => A2:mana+12 | E10:hp-1 DEAD | C:arm+19  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}"
   },
   "by": "sa-A",
   "at": "2026-09-28T10:31:14.444Z"
@@ -2725,9 +2725,9 @@
  },
  "troop:7761": {
   "lines": {
-   "L10": "dmg E11 12 ; explode 23 ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:hp-2 arm-10 | A1:mana+1 | A2:mana+1 | E10:arm-2  extra:match  cascade",
-   "R10": "dmg E11 12 ; explode 23 ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:hp-2 arm-10 | A1:mana+1 | A2:mana+1 | E10:arm-2  extra:match  cascade",
-   "L0": "dmg E11 2 ; explode 23 ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:arm-2 | A1:mana+1 | A2:mana+1 | E10:arm-2  extra:match  cascade",
+   "L10": "dmg E11 12 ; explode 23 ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-2 arm-10 | A1:mana+1 | A2:mana+1 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "dmg E11 12 ; explode 23 ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-2 arm-10 | A1:mana+1 | A2:mana+1 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "dmg E11 2 ; explode 23 ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:arm-2 | A1:mana+1 | A2:mana+1 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "K": "dmg E11 12 ; defeat E11 ; explode 21 ; skulls E10 1 ; defeat E10 ; ~cascade~  => E11:hp-1 DEAD | A1:mana+2 | A2:mana+2 | E10:hp-1 DEAD  cascade"
   },
   "by": "sa-A",
@@ -2765,10 +2765,10 @@
  },
  "troop:7787": {
   "lines": {
-   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 56 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 56 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "explode 9  => A1:mana+1 | A2:mana+1",
-   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 56 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:mana+5 | A2:mana+9 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:41:45.901Z",
@@ -2977,10 +2977,10 @@
  },
  "weapon:1056": {
   "lines": {
-   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
-   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:arm-3  extra:match  cascade",
+   "L10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 51 ; skulls E10 3 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:arm-3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "(no spell events)",
-   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "explode 51 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+10 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T21:57:39.633Z"
@@ -3047,10 +3047,10 @@
  },
  "weapon:1098": {
   "lines": {
-   "L10": "explode 29 ; skulls E10 2 ; ~cascade~ ; buff C hp+14 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:arm-2 | C:hp+14  extra:match  cascade",
-   "R10": "explode 29 ; skulls E10 2 ; ~cascade~ ; buff C hp+14 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:arm-2 | C:hp+14  extra:match  cascade",
-   "L0": "explode 29 ; skulls E10 2 ; ~cascade~ ; buff C hp+4 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:arm-2 | C:hp+4  extra:match  cascade",
-   "K": "explode 29 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; buff C hp+14 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:hp-1 DEAD | C:hp+14  extra:match  cascade"
+   "L10": "explode 29 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+14 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:arm-2 | C:hp+14  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 29 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+14 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:arm-2 | C:hp+14  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 29 ; skulls E10 2 ; ~cascade~ ; gold+4 ; buff C hp+4 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:arm-2 | C:hp+4  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 29 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; buff C hp+14 ; extra-turn match  => A2:mana+4 | A1:mana+2 | E10:hp-1 DEAD | C:hp+14  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:28:51.364Z"
@@ -3127,10 +3127,10 @@
  },
  "weapon:1150": {
   "lines": {
-   "L10": "dmg E11 11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:hp-1 arm-10 | A2:mana+8 | E10:arm-2  extra:match  cascade",
-   "R10": "dmg E11 11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:hp-1 arm-10 | A2:mana+8 | E10:arm-2  extra:match  cascade",
-   "L0": "dmg E11 1 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; extra-turn match  => E11:arm-1 | A2:mana+8 | E10:arm-2  extra:match  cascade",
-   "K": "dmg E11 11 ; defeat E11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; extra-turn match  => E11:hp-1 DEAD | A2:mana+8 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "dmg E11 11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-1 arm-10 | A2:mana+8 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "dmg E11 11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-1 arm-10 | A2:mana+8 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "dmg E11 1 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:arm-1 | A2:mana+8 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "dmg E11 11 ; defeat E11 ; destroy 30 (Green x6, Purple x4, skull x2, Red x3, Yellow x5, Brown x6, Blue x4) ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => E11:hp-1 DEAD | A2:mana+8 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-P",
   "at": "2026-09-28T23:25:49.658Z"
@@ -3247,18 +3247,18 @@
  },
  "weapon:1209": {
   "lines": {
-   "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; extra-turn match  => E10:arm-1 | A2:mana+13  extra:match  cascade",
-   "R10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; extra-turn match  => E10:arm-1 | A2:mana+13  extra:match  cascade",
-   "L0": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; extra-turn match  => E10:arm-1 | A2:mana+13  extra:match  cascade",
-   "K": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; defeat E10 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; extra-turn match  => E10:hp-1 DEAD | A2:mana+13  extra:match  cascade"
+   "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:arm-1 | A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:arm-1 | A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:arm-1 | A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; defeat E10 ; convert Blue x1, Brown x2, Yellow x4, Green x2, Purple x2, skull x1 -> Red x12 ; ~cascade~ ; gold+5 ; extra-turn match  => E10:hp-1 DEAD | A2:mana+13  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T03:07:00.542Z"
  },
  "weapon:1220": {
   "lines": {
-   "L10": "status E11 +curse ; status E11 +stun ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +lycanthropy ; status E11 +terror ; explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => E11:+curse+stun+poison+burning+bleed+silence+frozen+entangle+web+disease+death-mark+faerie-fire+marked+lycanthropy+terror | A2:mana+15 | A1:mana+8 | E10:arm-4  extra:match  cascade",
-   "R10": "status E11 +curse ; status E11 +stun ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +lycanthropy ; status E11 +terror ; explode 62 ; skulls E10 4 ; ~cascade~ ; extra-turn match  => E11:+curse+stun+poison+burning+bleed+silence+frozen+entangle+web+disease+death-mark+faerie-fire+marked+lycanthropy+terror | A2:mana+15 | A1:mana+8 | E10:arm-4  extra:match  cascade",
+   "L10": "status E11 +curse ; status E11 +stun ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +lycanthropy ; status E11 +terror ; explode 62 ; skulls E10 4 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => E11:+curse+stun+poison+burning+bleed+silence+frozen+entangle+web+disease+death-mark+faerie-fire+marked+lycanthropy+terror | A2:mana+15 | A1:mana+8 | E10:arm-4  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
+   "R10": "status E11 +curse ; status E11 +stun ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +lycanthropy ; status E11 +terror ; explode 62 ; skulls E10 4 ; ~cascade~ ; gold+5 ; gold+4 ; extra-turn match  => E11:+curse+stun+poison+burning+bleed+silence+frozen+entangle+web+disease+death-mark+faerie-fire+marked+lycanthropy+terror | A2:mana+15 | A1:mana+8 | E10:arm-4  extra:match  cascade  eco:{\"gold\":9,\"goldMine\":9}",
    "L0": "status E11 +curse ; status E11 +stun ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +lycanthropy ; status E11 +terror ; explode 9 ; skulls E10 1  => E11:+curse+stun+poison+burning+bleed+silence+frozen+entangle+web+disease+death-mark+faerie-fire+marked+lycanthropy+terror | A2:mana+1 | E10:arm-1",
    "K": "status E11 +curse ; status E11 +stun ; status E11 +poison ; status E11 +burning ; status E11 +bleed ; status E11 +silence ; status E11 +frozen ; status E11 +entangle ; status E11 +web ; status E11 +disease ; status E11 +death-mark ; status E11 +faerie-fire ; status E11 +marked ; status E11 +lycanthropy ; status E11 +terror ; explode 60 ; skulls E10 5 ; defeat E10 ; ~cascade~  => E11:+curse+stun+poison+burning+bleed+silence+frozen+entangle+web+disease+death-mark+faerie-fire+marked+lycanthropy+terror | A2:mana+13 | A1:mana+5 | E10:hp-1 DEAD  cascade"
   },
@@ -3287,10 +3287,10 @@
  },
  "weapon:1263": {
   "lines": {
-   "L10": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 39 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+3 +barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+5 | E10:arm-3  extra:match  cascade",
-   "R10": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 39 ; skulls E10 3 ; ~cascade~ ; extra-turn match  => A1:mana+3 +barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+5 | E10:arm-3  extra:match  cascade",
+   "L10": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 39 ; skulls E10 3 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+3 +barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+5 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 39 ; skulls E10 3 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+3 +barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+5 | E10:arm-3  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}",
    "L0": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 9 ; skulls E10 1  => A1:+barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+1 | E10:arm-1",
-   "K": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 39 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; extra-turn match  => A1:mana+3 +barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+5 | E10:hp-1 DEAD  extra:match  cascade"
+   "K": "status A1 +barrier ; status A1 +enchanted ; status A1 +enraged ; status A1 +reflect ; status A1 +submerged ; remove A1 -poison ; status A1 +blessed ; explode 39 ; skulls E10 3 ; defeat E10 ; ~cascade~ ; gold+5 ; extra-turn match  => A1:mana+3 +barrier+enchanted+enraged+reflect+submerged+blessed -poison | A2:mana+5 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:30:57.645Z"
@@ -3307,10 +3307,10 @@
  },
  "weapon:1276": {
   "lines": {
-   "L10": "explode 29 ; skulls E10 2 ; ~cascade~ ; dmg E11 11 (all) ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:arm-2 | E11:hp-1 arm-10  extra:match  cascade",
-   "R10": "explode 29 ; skulls E10 2 ; ~cascade~ ; dmg E11 11 (all) ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:arm-2 | E11:hp-1 arm-10  extra:match  cascade",
-   "L0": "explode 29 ; skulls E10 2 ; ~cascade~ ; dmg E11 1 (all) ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:arm-2 | E11:arm-1  extra:match  cascade",
-   "K": "explode 29 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "explode 29 ; skulls E10 2 ; ~cascade~ ; gold+4 ; dmg E11 11 (all) ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:arm-2 | E11:hp-1 arm-10  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 29 ; skulls E10 2 ; ~cascade~ ; gold+4 ; dmg E11 11 (all) ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:arm-2 | E11:hp-1 arm-10  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 29 ; skulls E10 2 ; ~cascade~ ; gold+4 ; dmg E11 1 (all) ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:arm-2 | E11:arm-1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 29 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; extra-turn match  => A2:mana+2 | A1:mana+2 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T22:28:51.364Z"
@@ -3430,7 +3430,7 @@
    "L10": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; explode 49 ; skulls E10 3 ; ~cascade~  => E11:hp-3 arm-10 | E10:hp-4 arm-5 | E12:arm-6 | A2:mana+7 | A1:mana+4  cascade",
    "R10": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; explode 49 ; skulls E10 3 ; ~cascade~  => E11:hp-3 arm-10 | E10:hp-4 arm-5 | E12:arm-6 | A2:mana+7 | A1:mana+4  cascade",
    "L0": "dmg E11 3 (splash) ; dmg E10 1 (splash) ; dmg E12 1 (splash) ; explode 49 ; skulls E10 3 ; ~cascade~  => E11:arm-3 | E10:arm-4 | E12:arm-1 | A2:mana+7 | A1:mana+4  cascade",
-   "K": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; explode 48 ; skulls E13 4 ; defeat E13 ; ~cascade~  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD | A2:mana+9 | A1:mana+5 | E13:hp-1 DEAD  cascade"
+   "K": "dmg E11 13 (splash) ; dmg E10 6 (splash) ; dmg E12 6 (splash) ; defeat E11 ; defeat E10 ; defeat E12 ; explode 48 ; skulls E13 4 ; defeat E13 ; ~cascade~ ; gold+4  => E11:hp-1 DEAD | E10:hp-1 DEAD | E12:hp-1 DEAD | A2:mana+9 | A1:mana+5 | E13:hp-1 DEAD  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-A",
   "at": "2026-09-28T23:13:51.191Z"
@@ -3499,10 +3499,10 @@
  },
  "weapon:1477": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; convert Blue x1 -> gargoyleGem x1 ; extra-turn match  => A2:mana+3 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:54:14.389Z"
@@ -3529,10 +3529,10 @@
  },
  "weapon:1516": {
   "lines": {
-   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2  extra:match  cascade",
-   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2  extra:match  cascade",
-   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2  extra:match  cascade",
-   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade"
+   "L10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "explode 24 ; skulls E10 2 ; ~cascade~ ; gold+4 ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:arm-2  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "explode 24 ; skulls E10 2 ; defeat E10 ; ~cascade~ ; gold+4 ; convert Brown x1 -> deathMarkGem x1 ; extra-turn match  => A2:mana+1 | A1:mana+4 | E10:hp-1 DEAD  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
   "by": "sa-R1",
   "at": "2026-09-28T02:54:14.389Z"

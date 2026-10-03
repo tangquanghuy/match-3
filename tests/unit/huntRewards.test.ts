@@ -4,7 +4,7 @@ import { ARCANE_STONE_KEYS, STONE_COLORS, parseStoneKey } from '../../src/meta/d
 import { newSave } from '../../src/meta/state/schema';
 import {
   HUNT_EXPECTED_GEMS, HUNT_FIXED_REWARDS, HUNT_STONE_BASE, HUNT_STONE_DROPS, HUNT_CHEST_STONE_DROPS,
-  LOOT_LADDER, commitMove, rollRewards,
+  LOOT_LADDER, commitMove, finishHunt, rollRewards,
 } from '../../src/meta/systems/treasureHunt';
 
 class FixedRoll extends SeededRNG {
@@ -153,5 +153,30 @@ describe('treasure hunt currency-first rewards', () => {
     const settled = structuredClone(save);
     expect(commitMove(save, 1, 9).ok).toBe(false);
     expect(save).toEqual(settled);
+  });
+
+  it('caps treasure hunt gold and gems per game-time day, then resets on the next day', () => {
+    const save = newSave({ now: 0 });
+    const cells = Array(8).fill(7);
+    save.treasureHunt = { cells, turns: 1, moves: 0, rng: 2 };
+    const first = finishHunt(save, 10_000);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    expect(first.grant).toMatchObject({ gold: 1_000_000, gems: 1_680 });
+    expect(save.treasureHuntDaily).toEqual({ dayStart: 10_000, gold: 1_000_000, gems: 1_680 });
+
+    save.treasureHunt = { cells, turns: 1, moves: 1, rng: 2 };
+    const second = finishHunt(save, 10_000);
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+    expect(second.grant).toMatchObject({ gold: 0, gems: 320 });
+    expect(save.treasureHuntDaily).toEqual({ dayStart: 10_000, gold: 1_000_000, gems: 2_000 });
+
+    save.treasureHunt = { cells, turns: 1, moves: 2, rng: 2 };
+    const nextDay = finishHunt(save, 86_410_000);
+    expect(nextDay.ok).toBe(true);
+    if (!nextDay.ok) return;
+    expect(nextDay.grant).toMatchObject({ gold: 1_000_000, gems: 1_680 });
+    expect(save.treasureHuntDaily).toEqual({ dayStart: 86_410_000, gold: 1_000_000, gems: 1_680 });
   });
 });
