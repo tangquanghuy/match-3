@@ -381,7 +381,7 @@ const DESC_ZH = {
   // —— 职业特质例外 ——
   spiritdrain: '当盟友施放法术时，耗掉一名随机敌人 2 点法力值。',
   infusestone: '所有建造盟友以 50% 法力值开始战斗。',
-  elementalforce: '匹配 4 颗或更多宝石时，击晕、冻结、燃烧并缠绕一名随机敌人。',
+  elementalforce: '匹配 4 颗或更多宝石时，随机选择一名敌人，并从其尚未拥有的击晕、冻结、燃烧、缠绕状态中随机施加一种。',
   doomsight: '匹配 4 颗或更多宝石时，有 25% 的几率使一名随机敌人陷入死亡标记。',
   barbaricfury: '匹配红色宝石时获得 3 点攻击力。',
   goodkarma: '匹配 4 颗或更多宝石时，获得 3 点法力值。',
@@ -683,7 +683,9 @@ const classes = raw.classes.map((cls) => {
       code: t.code,
       name: t.name,
       nameZh: PERK_NAME_ZH[t.code] ?? t.name,
-      description: t.description,
+      description: t.code === 'elementalforce'
+        ? 'Inflict one random Stun, Freeze, Burn, or Entangle status not already present on a random Enemy when matching 4 or more Gems.'
+        : t.description,
       descriptionZh: descZh ?? t.description,
       implemented,
     };

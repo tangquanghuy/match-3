@@ -18,6 +18,7 @@ import cialloPortrait from '@assets/community/ciallo.webp?url';
 import chikoritaPortrait from '@assets/community/chikorita.webp?url';
 import xingaiPortrait from '@assets/community/haoxiang-xingai.webp?url';
 import liankaPortrait from '@assets/community/lianka.webp?url';
+import cuixiangPortrait from '@assets/community/cuixiang-chixigua.webp?url';
 import { BaseColor } from '../engine/types';
 import { buildSkillMetadata } from '../engine/skills/scaling';
 import type { TroopData } from './troops';
@@ -64,8 +65,11 @@ export const EROCHIKA_ID = 10018;
 export const EROCHIKA_SPELL_ID = 20018;
 export const HUIJIU_ID = 10019;
 export const HUIJIU_SPELL_ID = 20019;
+export const CUIXIANG_CHIXIGUA_ID = 10020;
+export const CUIXIANG_CHIXIGUA_SPELL_ID = 20020;
 
 const huijiuDescription = '创造 3 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [3:1]';
+const cuixiangDescription = '除自身外，当前生命值最低的两名盟友各增加 [魔法 + 4] 点生命值。首位盟友再获得 [魔法] 点护甲值和屏障。';
 
 const erochikaDescription = '对一名敌人造成 [魔法 + 2] 点真实伤害，并窃取其 2 点魔力值。将所有蓝色宝石转换为黄色宝石。';
 
@@ -590,5 +594,31 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     traits: communityTraits(['huijiu_listen_rain', 'huijiu_refill_cup', 'huijiu_farewell']),
     portrait: null,
     artUrl: huijiuPortrait,
+  },
+  {
+    id: CUIXIANG_CHIXIGUA_ID,
+    name: '翠香吃西瓜',
+    referenceName: 'CuixiangChixigua',
+    rarity: 'UltraRare',
+    rarityIdx: 3,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Support',
+    attack: 13,
+    armor: 15,
+    health: 28,
+    magic: 8,
+    base: { attack: 3, armor: 3, health: 7, magic: 1 },
+    manaColors: [BaseColor.Green, BaseColor.Yellow],
+    manaCost: 13,
+    spell: {
+      id: CUIXIANG_CHIXIGUA_SPELL_ID,
+      name: '史莱姆抱枕',
+      description: cuixiangDescription,
+      meta: buildSkillMetadata(cuixiangDescription),
+    },
+    traits: communityTraits(['cuixiang_slime_care', 'cuixiang_vine_dream', 'cuixiang_green_nap']),
+    portrait: null,
+    artUrl: cuixiangPortrait,
   },
 ];

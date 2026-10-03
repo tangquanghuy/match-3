@@ -171,6 +171,8 @@ export interface TraitDefinition {
     randomPositive?: boolean;
     /** 随机负面池掷签（experiment「陷入一个随机的状态效果」，statuses 为负面池；仅 randomEnemy） */
     randomNegative?: boolean;
+    /** Pick one status the selected target does not currently have. */
+    randomMissingStatus?: boolean;
     minSize?: number;
     /**
      * 独立概率掷（maladycurse「Independent 25% chances to inflict Curse or Death Mark」）：
@@ -2466,7 +2468,10 @@ export function applyBigMatchTriggers(
         //（不退化为必发全池），命中时再消耗一次从负面池掷一条；
         // independentChance（maladycurse「独立 25% 几率施加诅咒或死亡标记」）：每条状态
         // 各自掷一次 chance（各中各的），每条各耗一次 rng，无 rng 时概率 <1 的不生效。
-        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
+        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated && (
+          !spec.randomMissingStatus || spec.statuses.some(st =>
+            !c.statuses.some(active => active.id === st.id && active.turns > 0))
+        ));
         if (foes.length === 0) continue;
         if (spec.randomNegative && !ctx.rng) continue;
         const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
@@ -2477,9 +2482,15 @@ export function applyBigMatchTriggers(
           }
           continue;
         }
-        const picks = spec.randomNegative
-          ? [spec.statuses[Math.floor(ctx.rng!.next() * spec.statuses.length)]]
+        const available = spec.randomMissingStatus
+          ? spec.statuses.filter(st => !foe.statuses.some(active => active.id === st.id && active.turns > 0))
           : spec.statuses;
+        if (available.length === 0) continue;
+        const picks = spec.randomMissingStatus
+          ? [available[ctx.rng ? Math.floor(ctx.rng.next() * available.length) : 0]]
+          : spec.randomNegative
+            ? [available[Math.floor(ctx.rng!.next() * available.length)]]
+            : available;
         events.push(...applySpecStatuses(foe, picks, spec.turns, ctx));
       } else if (spec.scope === 'allAllies') {
         for (const member of alive) {

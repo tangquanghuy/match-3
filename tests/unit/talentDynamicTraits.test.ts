@@ -26,6 +26,7 @@ import { BoardGenerator } from '@engine/boardGen';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
 import { ExtensionRegistry } from '@engine/registry';
+import { applyStatus } from '@engine/skills/effects/status';
 import { PlayerSide, BaseColor } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { TALENT_DYNAMIC_CODES, TALENT_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
@@ -220,6 +221,60 @@ describe('对局集成（TurnEngine）', () => {
     expect(foe.statuses.some((s) => s.id === 'barrier')).toBe(false); // 驱散
     expect(foe.hp).toBe(38); // 窃取 2
     expect(holder.statuses.some((s) => s.id === 'poison')).toBe(false); // 自净化
+  });
+
+  it('元素之力每次仅施加一种未持有的状态，四种齐全后不刷新', () => {
+    const holder = makeChar(1, { traitIds: ['elementalforce'] });
+    attachPassives(holder);
+    const foe = makeChar(2, { statuses: [{ id: 'burning', turns: 3, magnitude: 1 }] });
+    const rng = new SeededRNG(7);
+    const trigger = (size: number) => applyBigMatchTriggers([holder], {
+      size, enemyTeam: [foe], rng, applyStatus,
+    });
+
+    expect(trigger(3)).toEqual([]);
+    expect(foe.statuses.map(s => s.id)).toEqual(['burning']);
+    for (let expected = 2; expected <= 4; expected++) {
+      const events = trigger(4);
+      expect(events.filter(e => e.type === 'status-apply')).toHaveLength(1);
+      expect(foe.statuses).toHaveLength(expected);
+      expect(new Set(foe.statuses.map(s => s.id)).size).toBe(expected);
+      expect(foe.statuses.find(s => s.id === 'burning')).toMatchObject({ turns: 3, magnitude: 1 });
+    }
+    expect(new Set(foe.statuses.map(s => s.id))).toEqual(new Set(['stun', 'frozen', 'burning', 'entangle']));
+    expect(trigger(5).filter(e => e.type === 'status-apply')).toHaveLength(0);
+    expect(foe.statuses).toHaveLength(4);
+  });
+
+  it('元素之力随机选择敌人及可用状态，不会把同一状态发给全队', () => {
+    const holder = makeChar(1, { traitIds: ['elementalforce'] });
+    attachPassives(holder);
+    const outcomes = new Set<string>();
+    for (let seed = 1; seed <= 32; seed++) {
+      const foes = [makeChar(2), makeChar(3)];
+      const events = applyBigMatchTriggers([holder], {
+        size: 4, enemyTeam: foes, rng: new SeededRNG(seed), applyStatus,
+      });
+      const applied = events.filter(e => e.type === 'status-apply');
+      expect(applied).toHaveLength(1);
+      expect(foes.map(foe => foe.statuses.length).reduce((a, b) => a + b)).toBe(1);
+      outcomes.add(`${applied[0]!.targetId}:${applied[0]!.statusId}`);
+    }
+    expect(outcomes.size).toBeGreaterThan(2);
+  });
+
+  it('元素之力跳过四种状态齐全的敌人，仍可选其他敌人', () => {
+    const holder = makeChar(1, { traitIds: ['elementalforce'] });
+    attachPassives(holder);
+    const full = makeChar(2, { statuses: ['stun', 'frozen', 'burning', 'entangle'].map(id => ({ id, turns: 3 })) });
+    const open = makeChar(3, { statuses: [{ id: 'burning', turns: 3 }] });
+    const events = applyBigMatchTriggers([holder], {
+      size: 4, enemyTeam: [full, open], rng: new SeededRNG(1), applyStatus,
+    });
+    expect(events.filter(e => e.type === 'status-apply')).toHaveLength(1);
+    expect(full.statuses).toHaveLength(4);
+    expect(open.statuses).toHaveLength(2);
+    expect(open.statuses[1]!.id).not.toBe('burning');
   });
 
   it('死亡链：savior 盟友死→同队随机存活屏障；chillofdeath/risingshadows 走敌方死亡链不炸', () => {

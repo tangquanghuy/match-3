@@ -64,6 +64,7 @@ export type TargetMode =
   | 'allyLowestManaOther' // Lowest current mana among living allies excluding the caster; ties follow team order.
   | 'allyHighestManaOther' // Highest current mana among living allies excluding the caster; ties follow team order.
   | 'allyWeakestN'
+  | 'allyLowestHpOtherN' // Lowest current HP among living allies except caster; ties follow team order.
   | 'allyHealthiest'
   | 'allyHealthiestN'
   | 'allyFirstN'
@@ -483,6 +484,11 @@ export function selectTargets(
     case 'enemyWeakestN':
     case 'allyWeakestN':
       return pickByEffectiveLife(alive, 'asc', n, rng);
+
+    case 'allyLowestHpOtherN':
+      return aliveAll.filter(c => c.id !== casterId)
+        .sort((a, b) => a.hp - b.hp)
+        .slice(0, Math.max(0, n));
 
     case 'enemyHealthiest':
     case 'allyHealthiest':

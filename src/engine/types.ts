@@ -749,6 +749,8 @@ export interface PassiveModifiers {
     chance?: number;
     randomPositive?: boolean;
     randomNegative?: boolean;
+    /** Select one status absent from the chosen target; no effect when all are present. */
+    randomMissingStatus?: boolean;
     minSize?: number;
     /**
      * 独立概率掷（maladycurse「Independent 25% chances to inflict Curse or Death Mark」）：

@@ -4,6 +4,24 @@ import type { TraitDefinition } from '../engine/traits';
 /** 自定义单位特质独立维护，避免被官方图鉴生成脚本覆盖。 */
 export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
+    code: 'cuixiang_slime_care',
+    name: '软泥照护',
+    description: '当一名盟友施放法术时，所有盟友获得 1 点生命值。',
+    onAllyCastTypeAura: { troopType: 'all', gains: { hp: 1 } },
+  },
+  {
+    code: 'cuixiang_vine_dream',
+    name: '藤梦',
+    description: '在我的回合开始时，创造 1 颗缠绕宝石。',
+    turnStartCreateSpecialGem: { gem: 'entangleGem', count: 1 },
+  },
+  {
+    code: 'cuixiang_green_nap',
+    name: '绿意小憩',
+    description: '在配对绿色宝石时获得法印效果。',
+    onColorMatchStatus: { color: BaseColor.Green, scope: 'self', statuses: [{ id: 'enchanted' }], turns: 3 },
+  },
+  {
     code: 'bailu_tide_suppression',
     name: '潮汐压制',
     description: '配对 4 或 5 颗宝石时，所有敌人损失 2 点攻击力。',
