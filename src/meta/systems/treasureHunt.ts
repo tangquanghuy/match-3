@@ -490,14 +490,16 @@ export function finishHunt(save: MetaSave, dayStart = 0): HuntMoveOk | MetaFailu
 function pay(save: MetaSave, grant: HuntGrant, dayStart: number): HuntGrant {
   const daily = save.treasureHuntDaily.dayStart === dayStart
     ? save.treasureHuntDaily
-    : { dayStart, gold: 0, gems: 0 };
+    : { dayStart, gold: 0, gems: 0, glory: 0 };
   const paid: HuntGrant = {
     ...grant,
     gold: Math.min(grant.gold, Math.max(0, TREASURE_HUNT_DAILY_CAP.gold - daily.gold)),
     gems: Math.min(grant.gems, Math.max(0, TREASURE_HUNT_DAILY_CAP.gems - daily.gems)),
+    glory: Math.min(grant.glory, Math.max(0, TREASURE_HUNT_DAILY_CAP.glory - daily.glory)),
   };
   daily.gold += paid.gold;
   daily.gems += paid.gems;
+  daily.glory += paid.glory;
   save.treasureHuntDaily = daily;
   earn(save, {
     gold: paid.gold,

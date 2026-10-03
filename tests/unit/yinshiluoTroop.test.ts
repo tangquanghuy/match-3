@@ -65,11 +65,11 @@ describe('銀蒔蘿 / 花露秘酿', () => {
       troopTypes: [COMMUNITY_RACE, 'Elf'],
       role: 'Support',
       manaColors: [BaseColor.Green, BaseColor.Purple],
-      manaCost: 14,
+      manaCost: 12,
       spell: { name: '花露秘酿' },
     });
     expect(troop.spell.description).toBe(
-      '净化一名盟友，并给予其 [魔法 + 2] 点生命值。创造 1 颗绿色法力药水宝石和 1 颗紫色法力药水宝石。',
+      '净化一名盟友，并给予其 [魔法 + 2] 点生命值。创造 1 颗绿色法力药水宝石和 1 颗紫色法力药水宝石。魅惑首位敌人。',
     );
     expect(troop.spell.meta?.scalings).toContainEqual({ base: 2, mult: 1 });
     expect(troop.traits.map(trait => trait.code)).toEqual(TRAITS);
@@ -90,7 +90,7 @@ describe('銀蒔蘿 / 花露秘酿', () => {
       name: '銀蒔蘿',
       traitIds: TRAITS,
       skillId: String(YINSHILUO_SPELL_ID),
-      manaCost: 14,
+      manaCost: 12,
       portraitUrl: troop.artUrl,
     });
   });
@@ -115,10 +115,12 @@ describe('銀蒔蘿 / 花露秘酿', () => {
       ],
     });
     const untouched = character(2, { hp: 27, statuses: [{ id: 'poison', turns: 3 }] });
+    const enemyFront = character(10);
+    const enemyRear = character(11);
     const state = createGameState(
       board,
       { player: PlayerSide.Left, characters: [caster, chosen, untouched] },
-      { player: PlayerSide.Right, characters: [character(10)] },
+      { player: PlayerSide.Right, characters: [enemyFront, enemyRear] },
     );
     const prototype = SKILL_LIBRARY[YINSHILUO_SPELL_ID];
     expect(prototype).toBeDefined();
@@ -137,6 +139,8 @@ describe('銀蒔蘿 / 花露秘酿', () => {
     expect(untouched).toMatchObject({ hp: 27, maxHp: 50, statuses: [{ id: 'poison', turns: 3 }] });
     expect(caster).toMatchObject({ hp: 40, maxHp: 50 });
     expect(events).toContainEqual({ type: 'buff', targetId: chosen.id, stat: 'hp', amount: 12, maxHpGain: 12 });
+    expect(enemyFront.statuses).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'charm' })]));
+    expect(enemyRear.statuses).toEqual([]);
 
     const potions = potionGems(board);
     expect(potions).toHaveLength(2);

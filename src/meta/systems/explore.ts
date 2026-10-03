@@ -31,8 +31,7 @@ export function advanceExploreRun(save: MetaSave, kingdom: string, source: Encou
   const entry = save.kingdoms[kingdom]!;
   const run = entry.exploreRun!;
   if (!victory) {
-    // Regular encounters retry the same team. Boss defeat ends the run.
-    if (run.stage >= 4) entry.exploreRun = null;
+    // Defeat retries the current encounter, including mini-boss and final boss.
     return;
   }
   if (run.stage === 4) entry.exploreUnlockedTier = Math.max(entry.exploreUnlockedTier ?? 2, Math.min(EXPLORE_MAX_TIER, run.tier + 1));

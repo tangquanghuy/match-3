@@ -1,5 +1,6 @@
 import { resolveBattleMaps } from './battleMaps';
 import { invasionVictoryGold } from './invasionGold';
+import { rollPvpGlory } from '../data/pvpGlory';
 import { INVASION_FRENZY, rollInvasionFrenzy, type FrenzyMultiplier } from '../data/invasionFrenzy';
 import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../data/invasionRanks';
 import { grantBattleRewards, type BattleRewards } from './battleRewards';
@@ -524,7 +525,7 @@ export function settleInvasionBattle(
   if (victory) {
     vpBase = INVASION_VP_BY_DIFFICULTY[mirror.difficulty];
     vpDelta = invasionVictoryVp(mirror);
-    glory += INVASION.gloryPerWin;
+    glory += rollPvpGlory(INVASION_DIFFICULTIES.indexOf(mirror.difficulty), `${mirror.id}:${save.invasion.battles}`);
     if (rival) glory += INVASION.gloryRivalBonus;
     if (save.invasion.lastWinDay < todayStart) {
       glory += INVASION.gloryFirstWinOfDay;

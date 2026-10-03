@@ -109,7 +109,7 @@
 .iv-squad b { position: absolute; right: -6px; bottom: -6px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #1b0f12; border: 1px solid #ffb4be; color: #ffd9de; font: 700 12px var(--body); }
 .iv-squad.warlord { width: 66px; height: 66px; border-color: #ff5a6e !important; }
 .iv-squad.danger { box-shadow: 0 0 18px rgba(255, 70, 90, .8); }
-.iv-squad.selected { border-color: #fff !important; box-shadow: 0 0 0 4px rgba(255, 200, 120, .45), 0 0 24px rgba(255, 200, 120, .8); transform: translate(-50%, -50%) scale(1.12); }
+.iv-squad.selected { border-color: #fff !important; box-shadow: 0 0 0 4px rgba(255, 200, 120, .45), 0 0 24px rgba(255, 200, 120, .8); transform: translate(-50%, -50%); }
 .iv-city { position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px; transform: translate(-50%, 40px); padding: 8px 12px; border-radius: 10px; background: rgba(16, 10, 12, .8); }
 .iv-city b { color: #ffe9c8; font: 18px var(--display); letter-spacing: .12em; }
 .iv-hearts { display: flex; gap: 5px; }
@@ -344,3 +344,19 @@
 @media (min-width: 700px) and (max-width: 999px) {
   .ev-mode-page .ev-banner-art { flex: 0 0 42%; height: auto; min-height: 150px; }
 }
+
+/* 城防独立建设页与地图入口 */
+.iv-defense-link { display: flex; justify-content: space-between; padding: 12px; border: 1px solid rgba(255,210,140,.5); border-radius: 8px; color: #ffe0a8; text-decoration: none; background: rgba(76,45,24,.5); }
+.iv-defense-link:hover { background: rgba(100,60,26,.7); }
+.iv-build-page { display: grid; align-content: start; gap: 18px; overflow-y: auto; height: 100%; max-width: 780px; margin: auto; padding: 22px; color: #eee2d2; }
+.iv-build-page h2 { margin: 0; color: #ffe0a8; }
+.iv-build-page p { margin: 0; line-height: 1.65; }
+.iv-build-balance { padding: 12px; border-radius: 8px; background: rgba(76,45,24,.5); }
+.iv-build-balance b { color: #ffe0a8; }
+.iv-build-page .iv-defense li { padding: 12px; }
+.wd-roll-result { display: block; color: #fce293; font-size: 17px; text-shadow: 0 0 10px #e8b344; }
+@media (prefers-reduced-motion: reduce) { .wd-tile, .wd-pawn { transition: none !important; } }
+
+.wd-dice.rolling .wd-dice-img { animation: wd-roll .36s ease-in-out infinite; }
+@keyframes wd-roll { 50% { transform: rotate(120deg) scale(1.13); } }
+@media (prefers-reduced-motion: reduce) { .wd-dice.rolling .wd-dice-img { animation: none; } }

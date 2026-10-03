@@ -65,6 +65,8 @@ export type ModifierSource =
   | { kind: 'boardSpecial'; gem: SpecialGemKind; tier?: number; color?: BaseColor }
   /** 施法者自身属性（hp=当前生命；missingHp=已损失生命） */
   | { kind: 'selfStat'; stat: 'attack' | 'armor' | 'hp' | 'missingHp' | 'magic' | 'manaCost' }
+  /** Current stat of the first living ally (including the caster), after preceding spell segments. */
+  | { kind: 'allyFrontStat'; stat: 'attack' | 'armor' | 'hp' | 'magic' }
   /** 某方存活人数（ally=施法方含自身；enemy=敌方）。atCastStart（P-R1-count-at-native-step，本行至
    *  enemiesOfColor 的军队计数通用）：读施法开始时的存活单位（native Count* 位于 step 0） */
   | { kind: 'teamSize'; side: 'ally' | 'enemy'; atCastStart?: boolean }
@@ -855,6 +857,10 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
     case 'selfStat': {
       const caster = findCharacter(ctx.state, ctx.casterId);
       return caster ? statOf(caster, source.stat) : 0;
+    }
+    case 'allyFrontStat': {
+      const front = armyUnits(ctx, 'ally')[0];
+      return front ? statOf(front, source.stat) : 0;
     }
     // Army counts (native CountArmyColor / CountArmyType / CountArmyKingdom). atCastStart reads the units alive at
     // cast start (P-R1-count-at-native-step), otherwise the live roster when the consuming segment runs.

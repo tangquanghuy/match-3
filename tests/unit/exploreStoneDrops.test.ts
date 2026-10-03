@@ -128,9 +128,12 @@ describe('探索特质石抽取与首通奖励', () => {
     expect(Object.values(boss).reduce((sum, n) => sum + n, 0)).toBe(9);
     expect(boss[kingdomArcaneKey(kingdom)]).toBeGreaterThanOrEqual(1);
   });
-  it('难度 12 圣辉单次 0.96%，符文按每级基础概率增加 20%', () => {
-    expect(exploreStoneChances(1)).toMatchObject({ major: 0.15, runic: 0.02, arcane: 0.01, celestial: 0.002 });
-    expect(exploreStoneChances(12).celestial).toBeCloseTo(0.0096);
-    expect(exploreStoneChances(12).runic).toBeCloseTo(0.064);
+  it('难度 12 圣辉单次 1.44%，符文按每级基础概率增加 20%', () => {
+    expect(exploreStoneChances(1)).toMatchObject({ major: 0.15, runic: 0.03, arcane: 0.015, celestial: 0.003 });
+    expect(exploreStoneChances(6).runic).toBeCloseTo(0.06);
+    expect(exploreStoneChances(6).arcane).toBeCloseTo(0.015);
+    expect(exploreStoneChances(6).celestial).toBeCloseTo((0.002 + 5 * (0.0096 - 0.002) / 11) * 1.5);
+    expect(exploreStoneChances(12).celestial).toBeCloseTo(0.0144);
+    expect(exploreStoneChances(12).runic).toBeCloseTo(0.096);
   });
 });

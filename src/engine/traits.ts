@@ -632,7 +632,7 @@ export interface TraitDefinition {
    * front=编队首位、last=编队末位；进入该位次时一次性补授（位次在本引擎编队模型下
    * 只会因阵亡/召唤前移或追加，不回退），granted 集合由宿主按战斗持有防重复。
    */
-  positionAura?: { position: 'front' | 'last'; gains: Partial<StatGains> };
+  positionAura?: { position: 'front' | 'last'; scope?: 'self' | 'allAllies'; gains: Partial<StatGains> };
   /**
    * 盟友施法时的随机状态（goodtarot 随机盟友 / badtarot 官方目标=随机敌人）：池按 scope
    * 取阵营（randomAlly=正面池 / randomEnemy=负面池，消费端与技能 randomStatusEffect 同源）。
@@ -1698,9 +1698,12 @@ export function applyPositionAuras(
         const inPosition = aura.position === 'front' ? char === occupant : char === occupantLast;
         if (!inPosition) continue;
         didGrant = true;
-        for (const stat of GAIN_STAT_ORDER) {
-          const actual = grantStat(char, stat, aura.gains[stat] ?? 0);
-          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: char.id, stat, amount: actual });
+        for (const target of aura.scope === 'allAllies' ? team : [char]) {
+          if (target.defeated || target.hp <= 0) continue;
+          for (const stat of GAIN_STAT_ORDER) {
+            const actual = grantStat(target, stat, aura.gains[stat] ?? 0);
+            if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: target.id, stat, amount: actual });
+          }
         }
       }
       // 只有真正处于光环位次并授出过才登记：不在位次的持有者保留将来补授资格

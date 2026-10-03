@@ -1796,7 +1796,9 @@ export class App {
     this.syncPlayerInput();
     const generation = this.finiteVisuals.generation;
     let hudAdvanced = false;
-    this.player.onTurnEnd = () => {
+    this.player.onTurnEnd = nextPlayer => {
+      // 换手事件在敌方回合开始的宝石转化前播放；高亮必须同时交给下一方。
+      this.setTurn(nextPlayer);
       if (!hudAdvanced) { hudAdvanced = true; this.advanceTurnHud(events); }
     };
     try {

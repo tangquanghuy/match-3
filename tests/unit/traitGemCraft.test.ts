@@ -156,8 +156,22 @@ describe('回合开始创造特殊宝石（applyTurnStartBoardTraits）', () => 
       makeTeam(PlayerSide.Right, [theirs]),
     );
     const engine = new TurnEngine(state, rng, () => id++, new ExtensionRegistry());
-    return { engine, board };
+    return { engine, board, rng };
   }
+
+  it('水生随机造蓝也能覆盖骷髅，目标格不排除骷髅', () => {
+    const { engine, board, rng } = battle(['bornofwater']);
+    const pos = { row: 0, col: 0 };
+    const old = board.get(pos)!;
+    board.set(pos, { id: old.id, type: skullGem() });
+    const originalNextInt = rng.nextInt.bind(rng);
+    let rolls = 0;
+    rng.nextInt = max => ++rolls <= 2 ? 0 : originalNextInt(max); // 仅指定造蓝的行列，其余随机过程照常
+    const events = engine.passTurn();
+    const change = events.filter(e => e.type === 'gem-transform').flatMap(e => e.changes)
+      .find(ch => ch.gemId === old.id && ch.from.kind === 'skull');
+    expect(change).toMatchObject({ pos, gemId: old.id, to: { kind: 'color', color: BaseColor.Blue } });
+  });
 
   it('landmines：回合开始必发创造一颗炸弹宝石（不可匹配，盘面不留连锁）', () => {
     const { engine, board } = battle(['landmines']);

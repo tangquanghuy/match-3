@@ -68,7 +68,7 @@ describe('藏宝图单一区间随机软上限', () => {
     expect([...targets].sort()).toEqual([3, 4, 5, 6, 7, 8, 9]);
   });
 
-  it('红箱1、宝库3：混合计入同一进度，3红箱升级1宝库不重复累计', () => {
+  it('红箱1、宝库3：混合计入同一进度，3红箱升级1不重复累计', () => {
     const cap = { target: 7, peak: 0, activeMoves: 0 };
     expect(huntRewardProgress([0, 1, 2, 3, 4, 5])).toBe(0);
     observeHuntProgress(cap, [6, 6, 6]);

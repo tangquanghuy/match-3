@@ -1,6 +1,7 @@
 import type { BattleResult } from '../../src/session/contract';
 import { battleMapDrop } from '../../src/meta/systems/battleMaps';
 import { invasionVictoryVp } from '../../src/meta/systems/invasion';
+import { PVP_GLORY_RANGES, rollPvpGlory } from '../../src/meta/data/pvpGlory';
 import { heroXpToNext } from '../../src/meta/data/classes';
 /**
  * 入侵 PvP（素材批 2026-09-19）：镜像榜单确定性、首次定级、VP 官方计分表、
@@ -365,6 +366,32 @@ expect(INVASION_ZONES).toHaveLength(10);
     expect(s.hero.level).toBe(winner === 'player' ? 2 : 1);
     expect(s.stats.battlesWon).toBe(winner === 'player' ? 1 : 0);
     expect(s.stats.battlesLost).toBe(winner === 'enemy' ? 1 : 0);
+  });
+  it('pays and records a difficulty-scaled Glory roll in each PvP tier', () => {
+    for (const tier of [0, 1, 2]) {
+      const s = save(1);
+      ensureInvasionSeason(s, 0, WEEK);
+      const mirror = invasionCandidates(s, WEEK + 3_600_000, WEEK)[tier]!;
+      const result = { winner: 'player', turns: 7, combatants: [], eventSummary: [], defeatedExternalIds: [] } as unknown as Parameters<typeof settleInvasionBattle>[1];
+      const before = s.currencies.glory;
+      const settled = settleInvasionBattle(s, result, mirror.id, WEEK + 3_600_000, WEEK, TODAY);
+      if (!settled.ok) throw new Error('Settlement failed');
+      expect(s.currencies.glory - before).toBe(settled.glory);
+      const base = rollPvpGlory(tier, `${mirror.id}:1`);
+      expect(settled.glory - base).toBeGreaterThanOrEqual(0);
+      expect(settled.glory - base).toBeLessThanOrEqual(20); // daily first win + rival
+    }
+  });
+  it('base Glory fluctuates inside each opponent difficulty band', () => {
+    const rewards = [0, 1, 2].map(tier => Array.from({ length: 80 }, (_, i) => rollPvpGlory(tier, `opponent-${i}`)));
+    for (const [tier, values] of rewards.entries()) {
+      expect(new Set(values).size).toBeGreaterThan(1);
+      for (const value of values) {
+        expect(value).toBeGreaterThanOrEqual(PVP_GLORY_RANGES[tier]!.min);
+        expect(value).toBeLessThanOrEqual(PVP_GLORY_RANGES[tier]!.max);
+      }
+    }
+    expect(rollPvpGlory(2, 'opponent-1', 2)).toBe(rollPvpGlory(2, 'opponent-1') * 2);
   });
   it('surrender still grants participation rewards but discards collected loot', () => {
     const s = save(1);

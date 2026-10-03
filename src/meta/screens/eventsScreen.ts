@@ -32,9 +32,9 @@ import { activeTeam } from '../systems/teamRules';
 import type { ViewCtx } from './eventViews/shared';
 import { mountTowerBoard, towerViewHtml } from './eventViews/towerView';
 import { raidViewHtml } from './eventViews/raidView';
-import { invasionViewHtml } from './eventViews/invasionView';
+import { invasionDefenseHtml, invasionViewHtml } from './eventViews/invasionView';
 import { factionViewHtml } from './eventViews/factionView';
-import { worldViewHtml } from './eventViews/worldView';
+import { worldViewHtml, worldWalkPath } from './eventViews/worldView';
 import { trialsViewHtml } from './eventViews/trialsView';
 
 const TYPE_IDS: readonly EventTypeId[] = EVENT_ROTATION.map((t) => t.id);
@@ -91,7 +91,7 @@ function levelTag(level: { level: number; top: boolean }): string {
 }
 
 /** 玩法主板：分派到各活动自己的视图 */
-function modeBoardHtml(save: MetaSave, weekStart: number, typeId: EventTypeId): string {
+function modeBoardHtml(save: MetaSave, weekStart: number, typeId: EventTypeId, subpage?: string): string {
   const def = EVENT_ROTATION.find((t) => t.id === typeId)!;
   const week = ensureEventWeek(save, weekStart, typeId);
   const hasHero = activeTeam(save)?.members.some((m) => m.kind === 'hero') ?? false;
@@ -104,7 +104,10 @@ function modeBoardHtml(save: MetaSave, weekStart: number, typeId: EventTypeId): 
   switch (typeId) {
     case 'towerOfDoom': return towerViewHtml(v, eventModeState(save, weekStart, 'towerOfDoom'));
     case 'raidBoss': return raidViewHtml(v, eventModeState(save, weekStart, 'raidBoss'));
-    case 'invasion': return invasionViewHtml(v, eventModeState(save, weekStart, 'invasion'));
+    case 'invasion': {
+      const state = eventModeState(save, weekStart, 'invasion');
+      return subpage === 'defense' ? invasionDefenseHtml(state) : invasionViewHtml(v, state);
+    }
     case 'factionAssault': return factionViewHtml(v, eventModeState(save, weekStart, 'factionAssault'));
     case 'worldEvent': return worldViewHtml(v, eventModeState(save, weekStart, 'worldEvent'));
     case 'classTrials': return trialsViewHtml(v, eventModeState(save, weekStart, 'classTrials'));
@@ -115,6 +118,7 @@ export class EventsScreen implements Screen {
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   private countdownTimer: number | null = null;
   private busy = false;
+  private animationEpoch = 0;
 
   html(ctx: ShellCtx, param?: string): string {
     const now = gameNow();
@@ -232,7 +236,7 @@ export class EventsScreen implements Screen {
             ${progress}
             ${links}
           </aside>
-          <div class="ev-main ev-board">${modeBoardHtml(save, weekStart, typeId)}</div>
+          <div class="ev-main ev-board">${modeBoardHtml(save, weekStart, typeId, subpage)}</div>
         </section>
       </div>
       <div class="evm-confirm-veil" id="evConfirm" hidden>
@@ -316,10 +320,25 @@ export class EventsScreen implements Screen {
 
     this.on(board, 'click', (event) => {
       const el = (event.target as HTMLElement).closest<HTMLElement>('[data-act],[data-fight],[data-select]');
-      if (!el || (el as HTMLButtonElement).disabled || el.getAttribute('aria-disabled') === 'true') return;
+      if (this.busy || !el || (el as HTMLButtonElement).disabled || el.getAttribute('aria-disabled') === 'true') return;
       if (el.dataset.select !== undefined) {
         SELECTION.set(typeId, el.dataset.select);
-        ctx.refresh();
+        // 点选只换详情及选中态，不重新挂载地图/恢复滚动，也不移动光标下的图标。
+        if (typeId === 'towerOfDoom' || typeId === 'invasion') {
+          const template = document.createElement('div');
+          template.innerHTML = modeBoardHtml(ctx.save(), weekStartOf(gameNow()), typeId);
+          const cls = typeId === 'towerOfDoom' ? '.tw-node' : '.iv-squad';
+          const detail = typeId === 'towerOfDoom' ? '.tw-detail' : '.iv-detail';
+          const oldDetail = board.querySelector(detail);
+          const newDetail = template.querySelector(detail);
+          if (oldDetail && newDetail) oldDetail.replaceWith(newDetail);
+          const selected = el.dataset.select;
+          board.querySelectorAll<HTMLElement>(cls).forEach((node) => {
+            const active = node.dataset.select === selected;
+            node.classList.toggle('selected', active);
+            node.setAttribute('aria-pressed', String(active));
+          });
+        } else ctx.refresh();
         return;
       }
       if (el.dataset.fight !== undefined) {
@@ -353,8 +372,19 @@ export class EventsScreen implements Screen {
     if (this.busy) return;
     this.busy = true;
     try {
+      const isRoll = typeId === 'worldEvent' && (action === 'roll' || action.startsWith('lucky:'));
+      const from = isRoll ? eventModeState(ctx.save(), weekStartOf(gameNow()), 'worldEvent').pos : 0;
+      const epoch = this.animationEpoch;
+      const board = isRoll ? document.querySelector<HTMLElement>('.ev-board') : null;
+      board?.querySelector('.wd-dice')?.classList.add('rolling');
       const { result } = await ctx.gateway.eventAction(typeId, action);
+      board?.querySelector('.wd-dice')?.classList.remove('rolling');
       if (isFailure(result)) { toast(result.message); return; }
+      if (isRoll && board && epoch === this.animationEpoch) {
+        const state = eventModeState(ctx.save(), weekStartOf(gameNow()), 'worldEvent');
+        if (state.last) await this.playWorldRoll(board, from, state.last.roll, state.pos, epoch);
+      }
+      if (epoch !== this.animationEpoch) return;
       if (action.startsWith('go:') || action === 'start' || action === 'abandon') SELECTION.delete(typeId);
       ctx.refresh();
       ctx.refreshChrome();
@@ -362,6 +392,27 @@ export class EventsScreen implements Screen {
     } finally {
       this.busy = false;
     }
+  }
+
+  private async playWorldRoll(board: HTMLElement, from: number, roll: number, destination: number, epoch: number): Promise<void> {
+    const tiles = [...board.querySelectorAll<HTMLElement>('.wd-board > .wd-tile')];
+    if (tiles.length === 0 || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const pawn = board.querySelector<HTMLElement>('.wd-pawn');
+    if (!pawn) return;
+    const dice = board.querySelector<HTMLElement>('.wd-dice');
+    const result = document.createElement('strong');
+    result.className = 'wd-roll-result';
+    result.textContent = `掷出 ${roll} 点`;
+    dice?.append(result);
+    const pause = (ms: number): Promise<void> => new Promise((resolve) => window.setTimeout(resolve, ms));
+    for (const index of worldWalkPath(from, roll, destination)) {
+      if (epoch !== this.animationEpoch || !board.isConnected) return;
+      tiles.forEach((tile) => tile.classList.remove('here'));
+      tiles[index]?.classList.add('here');
+      tiles[index]?.append(pawn);
+      await pause(190);
+    }
+    await pause(260);
   }
 
   private startCountdown(ctx: ShellCtx, root: HTMLElement): void {
@@ -387,6 +438,7 @@ export class EventsScreen implements Screen {
   }
 
   dispose(): void {
+    this.animationEpoch += 1;
     if (this.countdownTimer !== null) {
       window.clearInterval(this.countdownTimer);
       this.countdownTimer = null;

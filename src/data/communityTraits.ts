@@ -35,9 +35,9 @@ export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   },
   {
     code: 'xingai_star_charge',
-    name: '星跃先机',
-    description: '战斗开始时获得 75% 法力值。',
-    battleStartManaRatio: 0.75,
+    name: '星跃后援',
+    description: '如果处于末位，所有盟友获得 2 点全部技能值。',
+    positionAura: { position: 'last', scope: 'allAllies', gains: { hp: 2, armor: 2, attack: 2, magic: 2 } },
   },
   {
     code: 'ping_nightsong',

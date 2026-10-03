@@ -186,6 +186,7 @@ export function battleIncomeView(detail: SettlementView): BattleIncomeView {
       gold: (base?.gold ?? 0) + (collected?.gold ?? 0) + (detail.kind === 'invasion' ? detail.settled.gold : 0),
       souls: (base?.souls ?? 0) + (collected?.souls ?? 0),
       gems: collected?.gems ?? 0,
+      ...(detail.kind === 'invasion' && detail.settled.glory > 0 ? { glory: detail.settled.glory } : {}),
       materials: collected?.maps ? [{ key: 'treasureMaps', name: '藏宝图', amount: collected.maps }] : [],
     };
   }

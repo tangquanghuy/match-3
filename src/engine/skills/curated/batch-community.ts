@@ -28,9 +28,10 @@ export const BATCH_COMMUNITY: CuratedBatch = {
       id: CIALLO_SPELL_ID,
       desc: COMMUNITY_TROOPS[2]!.spell.description,
       build: skill(
-        attack('allyFront', 2),
-        createSkulls(6),
-        inflict('web', 'enemyFront', { turns: 3 }),
+        attack('allyFront', 1),
+        armor('allyFront', 1),
+        dmg('enemyFront', 0, 0, { modifier: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'allyFrontStat', stat: 'attack' } } }),
+        createSkulls(8),
       ),
     },
     {
@@ -131,6 +132,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         gainLife('lastTarget', 2),
         createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Green }, 1),
         createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Purple }, 1),
+        inflict('charm', 'enemyFront'),
       ),
     },
     {

@@ -121,13 +121,22 @@ describe('12-tier six-battle Explore', () => {
     expect(gateway.current().pendingBattle!.requestId).toBe(retry.request.requestId);
     expect((await gateway.settleBattle(result(retry))).result.ok).toBe(true);
   });
-  it.each([4, 5])('defeat at boss stage %i ends run and keeps prior unlocks', async stage => {
+  it.each([4, 5])('defeat at boss stage %i keeps progress and retries the same enemy', async stage => {
     const { gateway } = await setup();
     for (let i = 0; i < stage; i++) await fight(gateway);
-    await fight(gateway, 'enemy');
-    expect(gateway.current().kingdoms[kingdom]!.exploreRun).toBeNull();
+    const first = await ticket(gateway);
+    expect((await gateway.settleBattle(result(first, 'enemy'))).result.ok).toBe(true);
+    expect(gateway.current().kingdoms[kingdom]!.exploreRun!.stage).toBe(stage);
     expect(maxExploreTier(gateway.current())).toBe(stage === 5 ? 3 : 2);
-    expect((await ticket(gateway)).source).toMatchObject({ stage: 0 });
+    const retry = await ticket(gateway);
+    expect(retry.source).toEqual(first.source);
+    expect(retry.request.enemyTeam).toEqual(first.request.enemyTeam);
+    expect(retry.request.seed).toBe(first.request.seed);
+    expect(retry.request.requestId).not.toBe(first.request.requestId);
+    expect((await gateway.settleBattle(result(first))).result.ok).toBe(false);
+    expect(gateway.current().pendingBattle!.requestId).toBe(retry.request.requestId);
+    expect((await gateway.settleBattle(result(retry))).result.ok).toBe(true);
+    expect(gateway.current().kingdoms[kingdom]!.exploreRun?.stage ?? null).toBe(stage === 4 ? 5 : null);
   });
   it('E12 grants its fixed kingdom Arcane only on first final Boss clear', async () => {
     const { gateway } = await setup(12);
@@ -139,20 +148,21 @@ describe('12-tier six-battle Explore', () => {
     expect(gateway.current().materials.traitstones[kingdomArcaneKey(kingdom)]).toBeGreaterThanOrEqual(1);
     expect(gateway.current().kingdoms[kingdom]!.clearedExploreTiers).toEqual([12]);
   });
-  it('completed stages survive reload; interrupted normal can retry, interrupted boss ends run', async () => {
+  it.each([4, 5])('completed stages survive reload; interrupted boss %i retries without losing progress', async stage => {
     const { gateway, storage } = await setup();
-    await fight(gateway);
+    for (let i = 0; i < stage; i++) await fight(gateway);
     const pending = await ticket(gateway);
     const reloaded = new MockGateway(storage);
     await reloaded.load();
-    expect(reloaded.current().kingdoms[kingdom]!.exploreRun!.stage).toBe(1);
+    expect(reloaded.current().kingdoms[kingdom]!.exploreRun!.stage).toBe(stage);
     const retry = await ticket(reloaded);
+    expect(retry.source).toMatchObject({ kind: 'explore', tier: 2, stage });
     expect(retry.request.enemyTeam).toEqual(pending.request.enemyTeam);
-    await reloaded.settleBattle(result(retry));
-    await fight(reloaded); await fight(reloaded);
-    await ticket(reloaded);
-    await reloaded.load();
-    expect(reloaded.current().kingdoms[kingdom]!.exploreRun).toBeNull();
+    expect(retry.request.seed).toBe(pending.request.seed);
+    expect(retry.request.requestId).not.toBe(pending.request.requestId);
+    expect((await reloaded.settleBattle(result(pending))).result.ok).toBe(false);
+    expect((await reloaded.settleBattle(result(retry))).result.ok).toBe(true);
+    expect(reloaded.current().kingdoms[kingdom]!.exploreRun?.stage ?? null).toBe(stage === 4 ? 5 : null);
   });
   it('abandon removes only this kingdom run and ticket, keeps earned rewards', async () => {
     const { gateway } = await setup();

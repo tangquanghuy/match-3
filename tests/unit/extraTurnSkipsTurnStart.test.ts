@@ -13,7 +13,7 @@ import { TurnEngine } from '@engine/TurnEngine';
 import { createGameState } from '@engine/GameState';
 import { ExtensionRegistry } from '@engine/registry';
 import { SeededRNG } from '@engine/rng';
-import { BaseColor, PlayerSide, colorGem } from '@engine/types';
+import { BaseColor, PlayerSide, colorGem, specialGem } from '@engine/types';
 import type { Character, Team, Gem, GemType } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 
@@ -112,5 +112,39 @@ describe('额外回合不触发回合开始结算', () => {
     const state = engine.getState();
     const enemy = state.teams[PlayerSide.Right].characters[0]!;
     expect(enemy.hp).toBe(50); // 49 + 1（回合开始再生）
+  });
+});
+
+describe('水生与大消的行动时序', () => {
+  it.each([4, 5])('%i 连的额外行动期间保留暗影星；真正换手后才创造蓝宝石', size => {
+    const { engine, state } = setup();
+    engine.takeInitialEvents();
+    state.teams[PlayerSide.Right].characters[0]!.traitIds = ['bornofwater'];
+    // 单独放一颗暗影星，验证敌方回合开始创造不会在我方额外行动时偷跑。
+    const starPos = { row: 7, col: 7 };
+    const starId = state.board.get(starPos)!.id;
+    state.board.set(starPos, { id: starId, type: specialGem('umbralStar') });
+    if (size === 5) {
+      state.board.set({ row: 7, col: 3 }, g(colorGem(BaseColor.Red)));
+      state.board.set({ row: 7, col: 4 }, g(colorGem(BaseColor.Green)));
+      state.board.set({ row: 6, col: 4 }, g(colorGem(BaseColor.Red)));
+      state.board.set({ row: 7, col: 5 }, g(colorGem(BaseColor.Blue)));
+    }
+    const col = size - 1;
+    const extraEvents = engine.resolveSwap({ row: 7, col }, { row: 6, col });
+    expect(extraEvents.some(e => e.type === 'extra-turn')).toBe(true);
+    expect(extraEvents.some(e => e.type === 'turn-end')).toBe(false);
+    expect(extraEvents.some(e => e.type === 'gem-transform' &&
+      e.changes.some(ch => ch.to.kind === 'color' && ch.to.color === BaseColor.Blue))).toBe(false);
+    expect(state.activePlayer).toBe(PlayerSide.Left);
+    expect(state.board.get(starPos)).toMatchObject({ id: starId, type: { kind: 'special', spec: { kind: 'umbralStar' } } });
+
+    const handoff = engine.passTurn();
+    const switchAt = handoff.findIndex(e => e.type === 'turn-end');
+    const blueAt = handoff.findIndex(e => e.type === 'gem-transform' &&
+      e.changes.some(ch => ch.to.kind === 'color' && ch.to.color === BaseColor.Blue));
+    expect(switchAt).toBeGreaterThanOrEqual(0);
+    expect(blueAt).toBeGreaterThan(switchAt);
+    expect(state.activePlayer).toBe(PlayerSide.Right);
   });
 });

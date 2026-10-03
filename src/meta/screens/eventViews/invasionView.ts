@@ -1,7 +1,7 @@
 /** 入侵视图：三路兵线地图（左侧来敌，右侧王都）+ 截击面板 */
 import { getTroopById } from '../../../data/troops';
 import {
-  DEFENSES, INVASION_CITY_MAX, INVASION_HOLD_TURNS, INVASION_LANES, INVASION_MAX_DIST, SQUAD_INFO, SQUAD_TRAIT_DESC,
+  DEFENSES, INVASION_READINESS_MAX, INVASION_CITY_MAX, INVASION_HOLD_TURNS, INVASION_LANES, INVASION_MAX_DIST, SQUAD_INFO, SQUAD_TRAIT_DESC,
   invasionSquadLevel, squadHoldable, squadInspired, type DefenseId, type InvasionState, type Squad, type SquadKind,
 } from '../../systems/eventModes/invasion';
 import { troopImg } from '../teamScreen';
@@ -24,7 +24,7 @@ function stepPos(lane: number, dist: number): { x: number; y: number } {
 
 function squadDetail(v: ViewCtx, state: InvasionState, squad: Squad | undefined): string {
   if (!squad) {
-    return `<div class="iv-detail empty"><span data-icon="compass"></span><p>点击地图上的敌军兵团，选择本场截击目标。<br><small>其余兵团会在战后向王都推进一步。</small></p></div>`;
+    return `<div class="iv-detail empty"><span data-icon="compass"></span><p>选一支敌军出战：胜利消灭该兵团；每打完一场，其余兵团都会向王都推进。<br><small>优先拦截离王都近的敌军！守住一波可领取奖励并获得城防点。</small></p></div>`;
   }
   const info = SQUAD_INFO[squad.kind];
   const tags = [
@@ -51,7 +51,7 @@ function defenseHtml(state: InvasionState): string {
     return `<li class="${built ? 'built' : ''}">${iconImg(d.icon, 'iv-def-ico')}<div><b>${esc(d.name)}</b><small>${esc(d.desc)}</small></div>
         ${built ? '<em>已建成</em>' : actButton(`${d.cost} 点`, `build:${id}`, { disabled: state.defense < d.cost, title: `建造${d.name}` })}</li>`;
   }).join('');
-  return `<div class="iv-defense"><h4>城防建设 <small>城防点 <b>${state.defense}</b> · 每胜 +1，守土 +2</small></h4><ul>${rows}</ul></div>`;
+  return `<div class="iv-defense"><h4>永久工事 <small>本周持续生效 · ${state.built.length}/${Object.keys(DEFENSES).length}</small></h4><ul>${rows}</ul></div>`;
 }
 
 export function invasionViewHtml(v: ViewCtx, state: InvasionState): string {
@@ -89,8 +89,23 @@ export function invasionViewHtml(v: ViewCtx, state: InvasionState): string {
       </section>
       <aside class="iv-side">
         ${squadDetail(v, state, selected)}
-        ${defenseHtml(state)}
+        <a class="iv-defense-link" href="#events/invasion/defense">城防建设 <b>${state.defense} 点</b> →</a>
         <ul class="iv-legend">${legend}</ul>
       </aside>
+    </div>`;
+}
+
+/** 独立城防建设页：永久工事之外，可重复修缮与储备下一场战斗的补给。 */
+export function invasionDefenseHtml(state: InvasionState): string {
+  return `<div class="iv-build-page">
+      <a class="ev-rewards-back" href="#events/invasion">← 返回入侵地图</a>
+      <h2>城防建设</h2>
+      <p>截击获胜获得 1 城防点；清除一波敌军后再获 2 点。城防点仅在本周有效。先建永久工事，再把多余点数投入修缮或战备。</p>
+      <div class="iv-build-balance">可用城防点 <b>${state.defense}</b> · 王都城防 ${state.city}/${INVASION_CITY_MAX}</div>
+      ${defenseHtml(state)}
+      <div class="iv-defense"><h4>持续投入</h4><ul>
+        <li><span data-icon="shield"></span><div><b>修缮王都</b><small>城防未满时恢复 1 点；新波次开始时城防也会回满。</small></div>${actButton('2 点', 'repair', { disabled: state.defense < 2 || state.city >= INVASION_CITY_MAX })}</li>
+        <li><span data-icon="swords"></span><div><b>战备补给 ${state.readiness}/${INVASION_READINESS_MAX}</b><small>下一场入侵战斗全队攻击 +2、护甲 +4；每场消耗 1 份，最多储备 ${INVASION_READINESS_MAX} 份。</small></div>${actButton('2 点', 'supply', { disabled: state.defense < 2 || state.readiness >= INVASION_READINESS_MAX })}</li>
+      </ul></div>
     </div>`;
 }

@@ -102,15 +102,25 @@ describe('本场收益与额外奖励隔离', () => {
     } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
     expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 64, souls: 32, gems: 1, materials: [] });
   });
-  it('入侵只带本场悬赏、基础与收集，不带荣耀及赛季积分', () => {
+  it('invasion victory Glory is displayed, defeat has no Glory card', () => {
+    const detail = { kind: 'invasion', battle: {}, settled: { victory: false, gold: 0, glory: 0,
+      battleRewards: { gold: 20, souls: 10, xpGained: 20 }, collected: { gold: 0, souls: 0, gems: 0, maps: 0 } }
+    } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
+    expect(battleIncomeView(detail)).not.toHaveProperty('glory');
+  });
+  it('regional PvP Glory from battle bonus is included in loot', () => {
+    const detail = { ...base, lines: [{ key: 'battle-bonus' as const, label: 'PvP', deltas: { glory: 20 } }] };
+    expect(battleIncomeView(detail).glory).toBe(20);
+  });
+  it('invasion loot contains the Glory awarded for this battle, without weekly VP', () => {
     const detail = {
       kind: 'invasion', battle: {}, frenzy: false, settled: {
-        victory: true, gold: 80, glory: 999, vpDelta: 100,
+        victory: true, gold: 80, glory: 25, vpDelta: 100,
         battleRewards: { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 0 },
         collected: { gold: 4, souls: 2, gems: 0, maps: 0 },
       },
     } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
-    expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 144, souls: 32, gems: 0, materials: [] });
+    expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 144, souls: 32, gems: 0, glory: 25, materials: [] });
   });
 });
 

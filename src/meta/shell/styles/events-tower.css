@@ -68,7 +68,7 @@
 .tw-node.done::after { content: "✓"; position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #3a2f16; color: var(--tw-gold); font: 700 11px var(--body); }
 .tw-node.current { border-color: var(--tw-gold) !important; box-shadow: 0 0 0 4px rgba(240, 207, 133, .25), 0 0 20px rgba(240, 207, 133, .55); }
 .tw-node.reach { border-color: var(--tw-teal) !important; box-shadow: 0 0 16px rgba(111, 226, 240, .6); animation: tw-pulse 1.8s ease-in-out infinite; }
-.tw-node.selected { z-index: 2; border-color: #fff !important; box-shadow: 0 0 0 4px rgba(255, 255, 255, .25), 0 0 26px rgba(255, 244, 201, .85); animation: none; transform: translate(-50%, -50%) scale(1.16); opacity: 1; filter: none; }
+.tw-node.selected { z-index: 2; border-color: #fff !important; box-shadow: 0 0 0 4px rgba(255, 255, 255, .25), 0 0 26px rgba(255, 244, 201, .85); animation: none; transform: translate(-50%, -50%); opacity: 1; filter: none; }
 .tw-node-affix { position: absolute; top: -6px; right: -10px; display: flex; gap: 1px; }
 .tw-node-affix-img { width: 20px; height: 20px; padding: 2px; border: 1px solid rgba(255, 140, 120, .6); border-radius: 50%; background: #2a1215; object-fit: contain; }
 .tw-pin { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); padding: 1px 7px; border-radius: 99px; background: var(--tw-gold); color: #231a08; font: 700 11px var(--body); white-space: nowrap; box-shadow: 0 2px 6px rgba(0, 0, 0, .6); }

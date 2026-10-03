@@ -118,6 +118,19 @@ describe('灰鸠 guaranteed mixed stars', () => {
     expect(made.some(p => gemKind(p.type) === 'umbralStar')).toBe(true);
     expect(events.filter(e => e.type === 'gem-create').flatMap(e => e.spawns)).toHaveLength(Math.min(empty, 3));
   });
+  it('随机造星可覆盖现存骷髅：满盘骷髅与其他占位格等权参与抽样', () => {
+    const f = fixture(); stableBoard(f);
+    const pos = { row: 0, col: 0 };
+    const old = f.board.get(pos)!;
+    f.board.set(pos, { id: old.id, type: skullGem() });
+    vi.spyOn(f.ctx.rng, 'nextInt').mockReturnValue(0);
+    const changes = executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx)
+      .filter(e => e.type === 'gem-transform').flatMap(e => e.changes);
+    expect(changes).toHaveLength(3);
+    expect(changes[0]).toMatchObject({ pos, gemId: old.id, from: { kind: 'skull' }, to: { kind: 'special' } });
+    expect(gemKind(changes[0].to)).toBe('elementalStar');
+  });
+
   it('scales a full blue board at 3:1; both stars remain represented', () => {
     const f = fixture(); f.board.forEach((g, p) => { if (g) f.board.set(p, { id: g.id, type: colorGem(BaseColor.Blue) }); });
     const made = placements(executePrototype(SKILL_LIBRARY[HUIJIU_SPELL_ID], f.ctx));
@@ -139,6 +152,44 @@ describe('灰鸠 guaranteed mixed stars', () => {
   it('13 mana does not cast', () => {
     const f = fixture(); stableBoard(f); const engine = engineFor(f); f.caster.mana = 13;
     expect(engine.castSkill(0).some(e => e.type === 'skill-cast')).toBe(false); expect(f.caster.mana).toBe(13);
+  });
+});
+
+describe('灰鸠造星与敌方水生的真实回合归属', () => {
+  it('暗影星在真正换手后被水生覆盖时，事件流明确先换手再变蓝', () => {
+    const f = fixture(true, 58); stableBoard(f);
+    f.enemies[0].traitIds = ['bornofwater'];
+    f.enemies[0].passive = resolvePassives(['bornofwater']);
+    const events = engineFor(f).castSkill(0);
+    const starIds = new Set(events.filter(e => e.type === 'gem-transform').flatMap(e => e.changes)
+      .filter(ch => gemKind(ch.to) === 'umbralStar').map(ch => ch.gemId));
+    expect(starIds.size).toBeGreaterThan(0);
+    const blueAt = events.findIndex(e => e.type === 'gem-transform' && e.changes.some(ch =>
+      starIds.has(ch.gemId) && ch.to.kind === 'color' && ch.to.color === BaseColor.Blue));
+    const switchAt = events.findIndex(e => e.type === 'turn-end');
+    expect(switchAt).toBeGreaterThanOrEqual(0);
+    expect(blueAt).toBeGreaterThan(switchAt);
+    expect(events.some(e => e.type === 'extra-turn')).toBe(false);
+    expect(f.state.activePlayer).toBe(PlayerSide.Right);
+  });
+
+  it.each([4, 5])('技能造星后触发 %i 连额外行动，不提前运行敌方水生', size => {
+    const f = fixture(true, 1); stableBoard(f);
+    f.enemies[0].traitIds = ['bornofwater'];
+    f.enemies[0].passive = resolvePassives(['bornofwater']);
+    for (let col = 0; col < size; col++) {
+      f.board.set({ row: 7, col }, { id: 200 + col, type: colorGem(BaseColor.Red) });
+    }
+    const events = engineFor(f).castSkill(0);
+    const stars = events.filter(e => e.type === 'gem-transform').flatMap(e => e.changes)
+      .filter(ch => gemKind(ch.to) === 'umbralStar');
+    expect(stars.length).toBeGreaterThan(0);
+    expect(events.some(e => e.type === 'extra-turn')).toBe(true);
+    expect(events.some(e => e.type === 'turn-end')).toBe(false);
+    expect(f.state.activePlayer).toBe(PlayerSide.Left);
+    const createdIds = new Set(stars.map(ch => ch.gemId));
+    expect(events.filter(e => e.type === 'gem-transform').flatMap(e => e.changes)
+      .filter(ch => createdIds.has(ch.gemId) && ch.to.kind === 'color' && ch.to.color === BaseColor.Blue)).toEqual([]);
   });
 });
 

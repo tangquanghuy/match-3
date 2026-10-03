@@ -269,7 +269,7 @@ describe('ciallo - community troop', () => {
     expect(snapshot.manaCost).toBe(15);
   });
 
-  it('buffs the front ally by magic + 2, creates six skulls, then webs the front enemy', () => {
+  it('buffs the first ally by magic + 1 attack and armor, hits the first enemy for a first ally attack, then creates eight skulls', () => {
     const troop = getTroopById(CIALLO_ID)!;
     const board = new BoardModel();
     let id = 1;
@@ -288,26 +288,29 @@ describe('ciallo - community troop', () => {
     );
     const prototype = SKILL_LIBRARY[CIALLO_SPELL_ID];
     expect(prototype).toBeDefined();
-    expect(troop.spell.meta.scalings).toEqual([{ base: 2, mult: 1 }]);
+    expect(troop.spell.meta.scalings).toEqual([{ base: 1, mult: 1 }]);
     expect(prototype.segments).toMatchObject([
-      { kind: 'buff', target: 'allyFront', stat: 'attack', scaling: { base: 2, mult: 1 } },
-      { kind: 'gem', params: { op: 'create', gem: { kind: 'skull' }, count: { base: 6, mult: 0 } } },
-      { kind: 'status', target: 'enemyFront', statusId: 'web' },
+      { kind: 'buff', target: 'allyFront', stat: 'attack', scaling: { base: 1, mult: 1 } },
+      { kind: 'buff', target: 'allyFront', stat: 'armor', scaling: { base: 1, mult: 1 } },
+      { kind: 'damage', target: 'enemyFront', scaling: { base: 0, mult: 0 }, modifier: { source: { kind: 'allyFrontStat', stat: 'attack' } } },
+      { kind: 'gem', params: { op: 'create', gem: { kind: 'skull' }, count: { base: 8, mult: 0 } } },
     ]);
     const events = executePrototype(prototype, {
       state, casterId: 1, rng: new SeededRNG(10003), nextGemId: () => id++,
     });
-    expect(front.attack).toBe(17);
+    expect(front.attack).toBe(16);
+    expect(front.armor).toBe(11);
     expect(caster.attack).toBe(7);
+    expect(enemyFront.hp).toBe(29);
+    expect(enemyRear.hp).toBe(45);
     let skulls = 0;
     for (let row = 0; row < BoardModel.ROWS; row++) {
       for (let col = 0; col < BoardModel.COLS; col++) {
         if (board.get({ row, col })?.type.kind === 'skull') skulls++;
       }
     }
-    expect(skulls).toBe(6);
-    expect(enemyFront.statuses).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'web' })]));
-    expect(enemyRear.statuses).toEqual([]);
+    expect(skulls).toBe(8);
+    expect(enemyFront.statuses).toEqual([]);
     expect(events.some((event) => event.type === 'gem-transform')).toBe(true);
   });
 });

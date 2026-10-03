@@ -27,6 +27,7 @@ describe('藏宝图主动结束', () => {
       ...expected,
       gold: TREASURE_HUNT_DAILY_CAP.gold,
       gems: TREASURE_HUNT_DAILY_CAP.gems,
+      glory: TREASURE_HUNT_DAILY_CAP.glory,
     });
     expect(save.treasureHunt).toBeNull();
     expect(save.materials.treasureMaps).toBe(3);

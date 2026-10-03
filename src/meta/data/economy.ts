@@ -423,14 +423,14 @@ export const EXPLORE_DROPS = {
   stoneRollsByStage: [1, 1, 1, 1, 3, 5] as const,
   /** 每场额外的初级 / 高级石抽取次数 */
   extraBasicStoneRolls: 3,
-  /** 基础抽取：高级 15%，符文 2%，秘法 1%，圣辉 0.2%；剩余给初级 */
+  /** 基础抽取：高级 15%，符文 3%，秘法 1.5%，圣辉 0.3%；剩余给初级 */
   majorStoneChance: 0.15,
-  runicStoneChance: 0.02,
-  arcaneStoneChance: 0.01,
-  celestialStoneChance: 0.002,
-  /** 符文每升一级增加初始概率的 20%；圣辉难度 12 按指定的 0.96% 终值 */
+  runicStoneChance: 0.03,
+  arcaneStoneChance: 0.015,
+  celestialStoneChance: 0.003,
+  /** 符文每升一级增加初始概率的 20%；圣辉难度 12 按指定的 1.44% 终值 */
   rareStoneGrowthPerTier: 0.2,
-  celestialStoneChanceAtMaxTier: 0.0096,
+  celestialStoneChanceAtMaxTier: 0.0144,
   /** 随机特质石落在王国旗帜正向加成色中的概率（存在两类候选时） */
   bannerColorShare: 0.75,
 } as const;
@@ -514,8 +514,6 @@ export const INVASION = {
   candidates: 3,
   /** 败北扣 VP（保底 0；官方败场会掉分） */
   vpLoss: 5,
-  /** 胜场荣耀基础（官方「排位主产荣耀」的设计值化） */
-  gloryPerWin: 10,
   /** 打榜单前 5「宿敌」的荣耀加成（官方复仇+2/宿敌+3 的合并） */
   gloryRivalBonus: 5,
   /** 每日入侵首胜荣耀加成（官方每日首胜语义） */

@@ -134,3 +134,10 @@ export function worldViewHtml(v: ViewCtx, state: WorldState): string {
       </aside>
     </div>`;
 }
+
+/** 掷骰逐格路径；传送门的最终落点作为额外一跳。 */
+export function worldWalkPath(from: number, roll: number, destination: number): number[] {
+  const steps = Array.from({ length: roll }, (_, i) => (from + i + 1) % BOARD_SIZE);
+  if (steps.length && steps[steps.length - 1] !== destination) steps.push(destination);
+  return steps;
+}

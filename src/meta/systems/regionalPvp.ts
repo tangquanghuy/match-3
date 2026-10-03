@@ -2,6 +2,7 @@ import { resolveBattleMaps } from './battleMaps';
 import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { levelCapFor } from '../data/economy';
+import { rollPvpGlory } from '../data/pvpGlory';
 import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_DUEL_SCALING, REGION_REWARDS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
 import { freshRegionalState, type RegionalState, type RegionalBattleContext, type RegionOpponent, type RegionBattleKind, type RegionTier, type MonolithId } from '../state/regional';
 import type { MetaSave } from '../state/schema';
@@ -190,7 +191,7 @@ function prepareRegional(save:MetaSave,args:RegionalPlanArgs,now:number,seed:num
   const gold=args.kind==='monolith'?400:guardian?5000:REGION_TIERS[tier].gold;
   const vp=args.kind==='monolith'?0:(guardian?100:REGION_TIERS[tier].vp)*(frenzy?2:1);
   const context:RegionalBattleContext={region,week:s.week,revision:s.revision,kind:args.kind,tier,opponent,frenzy,step,
-    ...(monolith?{monolith:monolith.id}:{}),reward:{gold,souls:guardian?600:args.kind==='monolith'?100:300,glory:guardian?60:20},vp,burning:guardian&&s.guardianWins<5?3:0};
+    ...(monolith?{monolith:monolith.id}:{}),reward:{gold,souls:guardian?600:args.kind==='monolith'?100:300,glory:rollPvpGlory(tier, request.requestId, guardian?6:2)},vp,burning:guardian&&s.guardianWins<5?3:0};
   if(!preview){if(args.kind==='monolith')s.energy--;if(args.kind==='citadel')s.sigils--;}
   return {ok:true,request,context};
 }

@@ -1,4 +1,5 @@
 import { battleMapDrop } from '../../src/meta/systems/battleMaps';
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { MetaHost, type SaveRepository, type RecordBatch } from '../../src/meta/server/host';
 import { saveToRecords, recordsToSave } from '../../src/meta/state/records';
 import { buildPlayerSnapshots } from '../../src/meta/systems/battleBridge';
@@ -48,10 +49,25 @@ describe('independent regional PvP',()=>{
   delete s.regional;expect(migrateSave(JSON.parse(JSON.stringify(s))).regional).toEqual(freshRegionalState());
  });
  it('grants fixed victory gold plus battle collections and energy after two duel wins',()=>{
-  const s=fixture(),gold=s.currencies.gold,energy=s.regional!.energy;
-  const p=duel(s);settleRegional(s,{...victory(),economy:{gold:17,souls:5,gems:2,maps:1}},p.context,NOW);
-  expect(s.currencies.gold-gold).toBe(1817);expect(s.regional!.energy).toBe(energy);
-  regionalAction(s,{action:'sync'},NOW);const q=duel(s);settleRegional(s,victory(),q.context,NOW);expect(s.regional!.energy).toBe(energy+1);
+  const s=fixture(),gold=s.currencies.gold,glory=s.currencies.glory,energy=s.regional!.energy;
+  const p=duel(s);const detail=settleRegional(s,{...victory(),economy:{gold:17,souls:5,gems:2,maps:1}},p.context,NOW);
+  expect(battleIncomeView(detail).glory).toBe(p.context.reward.glory);
+  expect(s.currencies.gold-gold).toBe(1817);expect(s.currencies.glory-glory).toBe(p.context.reward.glory);expect(s.regional!.energy).toBe(energy);
+  regionalAction(s,{action:'sync'},NOW);const q=duel(s);const second=settleRegional(s,victory(),q.context,NOW);expect(battleIncomeView(second).glory).toBe(q.context.reward.glory);expect(s.regional!.energy).toBe(energy+1);
+ });
+ it('PvP Glory scales across all three tiers and guardian retains a 3x legacy multiplier',()=>{
+  const s=fixture();
+  for(const tier of [0,1,2]){
+   const p=duel(s,NOW,tier),g=p.context.reward.glory ?? 0;
+   expect(g).toBeGreaterThanOrEqual([20,34,48][tier]!);
+   expect(g).toBeLessThanOrEqual([32,46,60][tier]!);
+   expect(g%2).toBe(0);
+  }
+  s.regional!.regions.WintersReach.citadel.stage=4;
+  const guardian=planRegional(s,{kind:'citadel'},NOW,1);
+  if(!guardian.ok)throw new Error(guardian.message);
+  expect(guardian.context.reward.glory).toBeGreaterThanOrEqual(144);
+  expect(guardian.context.reward.glory).toBeLessThanOrEqual(180);
  });
  it('unlocks five monolith stages, adds one hour per victory and excludes its own buff',()=>{
   const s=fixture();s.regional!.energy=10;let firstHp=0;

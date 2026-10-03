@@ -6,7 +6,7 @@ import { SeededRNG } from '@engine/rng';
 import { SKILL_LIBRARY } from '@engine/skills/library';
 import { reduce, skill } from '@engine/skills/builders';
 import { executePrototype } from '@engine/skills/prototypes';
-import { getTrait, resolvePassives } from '@engine/traits';
+import { applyPositionAuras, getTrait, resolvePassives } from '@engine/traits';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character } from '@engine/types';
 import { XINGAI_ID, XINGAI_SPELL_ID, COMMUNITY_KINGDOM, COMMUNITY_RACE } from '../../src/data/communityTroops';
@@ -50,7 +50,7 @@ describe('好想星艾 / 法力征调', () => {
       expect(getTrait(code)).toBeDefined();
       expect(metaKnownTraitIds()).toContain(code);
     }
-    expect(getTrait('xingai_star_charge')).toMatchObject({ name: '星跃先机', battleStartManaRatio: 0.75 });
+    expect(getTrait('xingai_star_charge')).toMatchObject({ positionAura: { position: 'last', scope: 'allAllies', gains: { hp: 2, armor: 2, attack: 2, magic: 2 } } });
     expect(resolvePassives(codes).manaOpsImmunity).toBe(true);
     expect(getTrait('empowered')).toMatchObject({ battleStartManaRatio: 1 });
 
@@ -146,14 +146,41 @@ describe('好想星艾 / 法力征调', () => {
     expect(allyB.mana).toBe(5);
   });
 
-  it('retains the first trait at 75% before the third trait is unlocked', () => {
-    const caster = character(0, 0, { traitIds: ['xingai_star_charge'] });
+  it('only when last in formation, the first trait grants all living allies +2 to each skill once', () => {
+    const front = character(1, 0, { magic: 3 });
+    const caster = character(0, 0, { traitIds: ['xingai_star_charge'], magic: 4 });
+    const enemy = character(10, 0);
     const state = createGameState(new BoardModel(),
-      { player: PlayerSide.Left, characters: [caster] },
+      { player: PlayerSide.Left, characters: [front, caster] },
+      { player: PlayerSide.Right, characters: [enemy] },
+    );
+    new TurnEngine(state, new SeededRNG(4), () => 1);
+    expect(caster.mana).toBe(0);
+    for (const ally of [front, caster]) {
+      expect(ally.maxHp).toBe(42);
+      expect(ally.hp).toBe(42);
+      expect(ally.armor).toBe(7);
+      expect(ally.attack).toBe(12);
+    }
+    expect(front.magic).toBe(5);
+    expect(caster.magic).toBe(6);
+    expect(enemy.attack).toBe(10);
+    // An already granted position aura never stacks on subsequent checks.
+    expect(applyPositionAuras([[front, caster]], new Set([caster.id]))).toEqual([]);
+    expect(front.attack).toBe(12);
+  });
+
+  it('does not grant team skills when the trait holder is not last', () => {
+    const caster = character(0, 0, { traitIds: ['xingai_star_charge'] });
+    const ally = character(1, 0);
+    const state = createGameState(new BoardModel(),
+      { player: PlayerSide.Left, characters: [caster, ally] },
       { player: PlayerSide.Right, characters: [character(10, 0)] },
     );
     new TurnEngine(state, new SeededRNG(4), () => 1);
-    expect(caster.mana).toBe(9);
+    expect(caster.mana).toBe(0);
+    expect(caster.attack).toBe(10);
+    expect(ally.attack).toBe(10);
   });
 
   it('does not grant mana to the caster if no other ally survives', () => {

@@ -53,3 +53,32 @@ describe('匹配当轮提示', () => {
     } finally { x.player.cancel(); }
   });
 });
+
+describe('回合交接与创造宝石演出', () => {
+  it('蓝宝石转化播放前，先把行动方切给敌方；额外回合不切换', () => {
+    const noop = new Proxy({}, { get: () => () => {} });
+    let active = PlayerSide.Left;
+    const seen: PlayerSide[] = [];
+    const board = {
+      cellCenter: () => ({ x: 32, y: 32 }), getSprite: () => undefined,
+      setGemType: () => seen.push(active),
+    };
+    const player = new EventStreamPlayer(board as never, noop as never, {} as never, noop as never);
+    const switches: PlayerSide[] = [];
+    player.onTurnEnd = next => { active = next; switches.push(next); };
+    const events: GameEvent[] = [
+      { type: 'extra-turn', player: PlayerSide.Left, source: 'match' },
+      { type: 'turn-end', nextPlayer: PlayerSide.Right },
+      { type: 'gem-transform', changes: [{ pos: { row: 0, col: 0 }, gemId: 1,
+        from: specialGem('umbralStar'), to: colorGem(BaseColor.Blue) }] },
+    ];
+    void player.play(events);
+    const timeline = (player as unknown as { timeline: gsap.core.Timeline }).timeline;
+    timeline.pause();
+    try {
+      timeline.totalTime(timeline.duration(), false);
+      expect(switches).toEqual([PlayerSide.Right]);
+      expect(seen).toEqual([PlayerSide.Right]);
+    } finally { player.cancel(); }
+  });
+});

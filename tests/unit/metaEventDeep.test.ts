@@ -6,6 +6,9 @@ import { newSave } from '../../src/meta/state/schema';
 import { EVENT_UNLOCK_HERO_LEVEL, WEEK_MS } from '../../src/meta/data/events';
 import { eventAction, eventModeState } from '../../src/meta/systems/events';
 import { BOARD_SIZE, WORLD_BLESSING_PRICE, type BoardTile } from '../../src/meta/systems/eventModes/world';
+import { worldWalkPath } from '../../src/meta/screens/eventViews/worldView';
+import { invasionDefenseHtml, invasionViewHtml } from '../../src/meta/screens/eventViews/invasionView';
+import { invasionMode } from '../../src/meta/systems/eventModes/invasion';
 import { revalidateOutcome } from '../../src/meta/systems/battleBridge';
 import { SPECIAL_TUNING } from '../../src/meta/systems/specialEncounters';
 import type { MetaSave } from '../../src/meta/state/schema';
@@ -265,5 +268,41 @@ describe('职业试炼 · 机制规则与每周词条', () => {
       if (def.id === 'behead') expect(out.request.rules?.objective?.killTargets).toEqual([out.request.enemyTeam.at(-1)!.externalId]);
       if (def.id === 'blitz') expect(out.request.rules?.turnLimit?.onExpire).toBe('enemyWins');
     }
+  });
+});
+
+describe('活动点选与步进、城防持续投入', () => {
+  it('世界事件沿棋盘逐格行走，跨起点并为传送门补上一跳', () => {
+    expect(worldWalkPath(18, 4, 2)).toEqual([19, 0, 1, 2]);
+    expect(worldWalkPath(5, 2, 14)).toEqual([6, 7, 14]);
+    expect(worldWalkPath(0, 1, 1)).toEqual([1]);
+  });
+
+  it('城防页承接主地图入口，永久工事建满后可持续购置战备补给', () => {
+    const s = fresh();
+    const state = eventModeState(s, WEEK, 'invasion');
+    // 旧存档没有 readiness 字段，加载后归零。
+    const legacy = invasionMode.sanitize!({ ...state, readiness: undefined }, {} as never)!;
+    expect(legacy.readiness).toBe(0);
+    state.defense = 12;
+    expect(eventAction(s, WEEK, 'invasion', 'supply', 1).ok).toBe(true);
+    expect(eventAction(s, WEEK, 'invasion', 'supply', 1).ok).toBe(true);
+    expect(state.readiness).toBe(2);
+    expect(state.defense).toBe(8);
+    const html = invasionDefenseHtml(state);
+    expect(html).toContain('战备补给 2/3');
+    expect(html).toContain('data-act="supply"');
+    expect(invasionViewHtml({ selected: undefined } as never, state)).toContain('#events/invasion/defense');
+    const squad = state.squads[0]!;
+    const baseline = eventBattle(fresh(), 'invasion', WEEK, `squad:${squad.id}`);
+    const out = eventBattle(s, 'invasion', WEEK, `squad:${squad.id}`);
+    expect(out.request.playerTeam[0]!.stats.attack).toBe(baseline.request.playerTeam[0]!.stats.attack + 2);
+    expect(out.request.playerTeam[0]!.stats.armor).toBe(baseline.request.playerTeam[0]!.stats.armor + 4);
+    settleEvent(s, out, fakeResult(out, false), WEEK);
+    expect(state.readiness).toBe(1);
+    state.city = 2;
+    expect(eventAction(s, WEEK, 'invasion', 'repair', 1).ok).toBe(true);
+    expect(state.city).toBe(3);
+    expect(eventAction(s, WEEK, 'invasion', 'repair', 1).ok).toBe(false);
   });
 });

@@ -55,7 +55,7 @@ export class EventStreamPlayer {
   private timeline: gsap.core.Timeline | null = null;
   private finishPending: (() => void) | null = null;
   private paused = false;
-  onTurnEnd?: () => void;
+  onTurnEnd?: (nextPlayer: PlayerSide) => void;
   onDetachedTween?: (tween: gsap.core.Animation) => void;
   private detachedTweens = new Set<gsap.core.Animation>();
   private frameClocks = new Set<FramePlaybackClock>();
@@ -524,7 +524,7 @@ export class EventStreamPlayer {
         tl.add(() => this.onBattleEvent?.(ev));
         break;
       case 'turn-end':
-        tl.add(() => this.onTurnEnd?.());
+        tl.add(() => this.onTurnEnd?.(ev.nextPlayer));
         break;
       case 'game-over':
         tl.add(() => this.onBattleEvent?.(ev));

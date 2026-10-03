@@ -49,6 +49,8 @@ export interface InvasionState {
   defense: number;
   /** 已建城防（本周永久） */
   built: DefenseId[];
+  /** 可重复购置的战备补给：每场消耗一份 */
+  readiness: number;
 }
 
 export type DefenseId = 'arrow' | 'oil' | 'catapult' | 'wall' | 'chapel';
@@ -67,6 +69,7 @@ export const INVASION_HOLD_TURNS = 7;
 export const INVASION_LANES = ['山道', '河谷', '平原'] as const;
 export const INVASION_CITY_MAX = 3;
 export const INVASION_MAX_DIST = 4;
+export const INVASION_READINESS_MAX = 3;
 
 export const SQUAD_INFO: Record<SquadKind, { name: string; desc: string; damage: number; tiers: EnemyTier[]; levelBonus: number }> = {
   raider: { name: '掠袭骑', desc: '每场推进 1 步，抵达王都城防 -1', damage: 1, tiers: ['minion', 'minion', 'minion'], levelBonus: 0 },
@@ -162,7 +165,7 @@ export function squadInspired(state: InvasionState, squad: Squad): boolean {
 
 export const invasionMode: EventModeImpl<InvasionState> = {
   init(ctx) {
-    const state: InvasionState = { v: 1, wave: 1, city: INVASION_CITY_MAX, squads: [], nextId: 1, tick: 0, repelled: 0, fallen: 0, defense: 0, built: [] };
+    const state: InvasionState = { v: 1, wave: 1, city: INVASION_CITY_MAX, squads: [], nextId: 1, tick: 0, repelled: 0, fallen: 0, defense: 0, built: [], readiness: 0 };
     spawnWave(ctx, state);
     return state;
   },
@@ -179,7 +182,7 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     return {
       v: 1, wave: int(raw.wave, 1, 1), city: int(raw.city, INVASION_CITY_MAX, 1, INVASION_CITY_MAX), squads,
       nextId: int(raw.nextId, squads.length + 1, 1), tick: int(raw.tick, 0, 0), repelled: int(raw.repelled, 0, 0), fallen: int(raw.fallen, 0, 0),
-      defense: int(raw.defense, 0, 0), built: strArr(raw.built).filter(isDefense),
+      defense: int(raw.defense, 0, 0), built: strArr(raw.built).filter(isDefense), readiness: int(raw.readiness, 0, 0, INVASION_READINESS_MAX),
     };
   },
 
@@ -222,6 +225,8 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     if (squad.kind === 'caravan') applySpecialEncounter('gnomeParty', outcome);
     else injectTraits(req.enemyTeam, SQUAD_TRAITS[squad.kind] ?? []);
     if (squad.kind === 'shaman') addRules(outcome, { turnStart: [{ side: 'enemy', mana: { amount: 2 } }] });
+    // 战备补给在下一场入侵战斗生效，战后消耗。
+    if (state.readiness > 0) for (const snap of req.playerTeam) buffSnapshot(snap, { armor: 4, attack: 2 });
     // 城防建设
     for (const id of state.built) {
       if (id === 'wall') for (const snap of req.playerTeam) buffSnapshot(snap, { armor: 6 });
@@ -242,6 +247,7 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     const target = squadOf(state, plan.source.kind === 'event' ? plan.source.choice : undefined);
     if (!target) return lines;
     const held = isHold(plan.source.kind === 'event' ? plan.source.choice : undefined);
+    if (state.readiness > 0) state.readiness -= 1;
     if (victory) {
       state.defense += 1;
       if (held) {
@@ -301,6 +307,20 @@ export const invasionMode: EventModeImpl<InvasionState> = {
   },
 
   act(_ctx, state, action) {
+    if (action === 'supply') {
+      if (state.readiness >= INVASION_READINESS_MAX) return fail('SOLD_OUT', '战备补给已储满');
+      if (state.defense < 2) return fail('INSUFFICIENT', '城防点不足（需要 2）');
+      state.defense -= 2;
+      state.readiness += 1;
+      return { ok: true, message: `战备补给 +1（${state.readiness}/${INVASION_READINESS_MAX}），下一场入侵战斗全队攻击 +2、护甲 +4` };
+    }
+    if (action === 'repair') {
+      if (state.city >= INVASION_CITY_MAX) return fail('SOLD_OUT', '王都城防已满');
+      if (state.defense < 2) return fail('INSUFFICIENT', '城防点不足（需要 2）');
+      state.defense -= 2;
+      state.city += 1;
+      return { ok: true, message: `修缮王都：城防 ${state.city}/${INVASION_CITY_MAX}` };
+    }
     const m = action.match(/^build:(\w+)$/);
     if (!m) return fail('INVALID', '未知操作');
     const id = m[1];
