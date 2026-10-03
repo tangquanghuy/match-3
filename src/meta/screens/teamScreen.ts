@@ -942,11 +942,10 @@ export class TeamScreen implements Screen {
         const full = used >= this.slotCapacity(value);
         return `<button class="mini${full ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${escapeHtml(t.name)} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ` · 已上阵 ${used}/${this.slotCapacity(value)}` : ''} · 单击查看 / 双击编入" type="button">
           <i class="rarity-edge" aria-hidden="true"></i>
-          ${favorites.has(Number(t.key)) ? `<span class="mini-favorite" aria-label="已收藏">${icon('star')}</span>` : ''}
           ${troopImg(t.troop, t.key === 'hero', `alt="${escapeHtml(t.name)}"`, this.ctx.save().character)}
           ${manaCorner('mini-mana', t.colors, t.cost)}
           <span class="mini-lv">Lv.${t.level}</span>
-          <span class="mini-shade"><b>${escapeHtml(t.name)}</b></span>
+          <span class="mini-shade">${favorites.has(Number(t.key)) ? `<span class="mini-favorite" aria-label="已收藏">${icon('star')}</span>` : ''}<b>${escapeHtml(t.name)}</b></span>
         </button>`;
       })
       .join('');

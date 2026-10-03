@@ -74,10 +74,11 @@
 .team-screen .slot,
 .team-screen .mini { touch-action: pan-y; -webkit-touch-callout: none; user-select: none; }
 .team-screen .mini-favorite {
-  position: absolute; left: 5px; top: 5px; z-index: 4; width: 21px; height: 21px;
-  display: grid; place-items: center; color: #ffda83; filter: drop-shadow(0 1px 3px #000);
+  flex: 0 0 14px; width: 14px; height: 14px; margin-right: 4px;
+  display: grid; place-items: center; color: #ffda83;
 }
-.team-screen .mini-favorite svg { width: 18px; height: 18px; fill: currentColor; stroke: #fff0be; }
+.team-screen .mini-favorite svg { width: 14px; height: 14px; fill: currentColor; }
+.team-screen .mini-shade > b { flex: 1; min-width: 0; }
 .team-screen .slot:not(.empty) { cursor: grab; }
 .team-screen .mini { cursor: grab; }
 .team-screen.drag-active, .team-screen.drag-active * { cursor: grabbing !important; user-select: none; }
