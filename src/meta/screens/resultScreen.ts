@@ -135,7 +135,7 @@ export interface MaterialIncome {
 }
 
 /** 本场收益口径：战斗行 + 通用额外奖励（周常/首胜/任务等账户奖励不并入） */
-const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus', 'tower-boss-clear'];
+const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus', 'tower-boss-clear', 'explore-drop'];
 
 function materialIncome(lines: readonly { mats?: MaterialDelta }[]): MaterialIncome[] {
   const sums = new Map<string, MaterialIncome>();

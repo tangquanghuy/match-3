@@ -14,6 +14,7 @@ import { heroStatsAt, heroXpToNext } from '../../src/meta/data/classes';
 import { addHeroXp } from '../../src/meta/systems/hero';
 import { pickManaMastery } from '../../src/meta/systems/manaMastery';
 import { newSave } from '../../src/meta/state/schema';
+import { stoneName } from '../../src/meta/data/materials';
 
 describe('结算屏奖励呈现', () => {
   it('使用六档部队稀有度口径并保留官方立绘入口', () => {
@@ -57,8 +58,9 @@ describe('本场收益与额外奖励隔离', () => {
       { key: 'kingdom-first-clear', label: '', deltas: { gems: 100 } },
       { key: 'quest', label: '', deltas: { gold: 1000, goldKeys: 1 } },
       { key: 'event-milestone', label: '', deltas: { gems: 500, souls: 500 } },
-      { key: 'explore-drop', label: '', deltas: { gold: 999 } },
-    ] })).toEqual({ victory: true, xp: 100, levelsGained: 1, gold: 103, souls: 40, gems: 0, materials: [] });
+      { key: 'explore-drop', label: '', deltas: {}, mats: { traitstones: { 'minor:red': 1 } } },
+    ] })).toEqual({ victory: true, xp: 100, levelsGained: 1, gold: 103, souls: 40, gems: 0,
+      materials: [{ key: 'stone:minor:red', name: stoneName('minor:red'), amount: 1 }] });
   });
   it('战斗额外奖励与本场收益并列：货币并入、素材单独成卡', () => {
     const view = battleIncomeView({ ...base, lines: [
