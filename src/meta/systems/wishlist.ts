@@ -1,5 +1,5 @@
 import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
-import { GACHA_RULES as RULES, emptyGachaWishlist, type GachaWishlist, type GachaAudit } from '../data/gachaRules';
+import { GACHA_RULES as RULES, emptyGachaWishlist, pursuitLimitFor, type GachaWishlist, type GachaAudit } from '../data/gachaRules';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 
@@ -43,7 +43,7 @@ export function setPursuitTarget(save: MetaSave, id: number | null): { ok: true 
   }
   const p = save.gachaWishlist.pursuit;
   // 无进度时采用当前参数；切换中途目标保留进度与当轮上限。
-  if (p.progress === 0) p.limit = p.completed === 0 ? RULES.firstPursuitLimit : RULES.repeatPursuitLimit;
+  if (p.progress === 0) p.limit = pursuitLimitFor(p.completed);
   p.targetId = id;
   return { ok: true };
 }
@@ -62,8 +62,10 @@ export function hydrateWishlist(raw: unknown): GachaWishlist {
   if (p && typeof p === 'object') {
     const integer = (n: unknown): n is number => typeof n === 'number' && Number.isSafeInteger(n) && n >= 0;
     value.pursuit.completed = integer(p.completed) ? p.completed : 0;
-    const fallback = value.pursuit.completed === 0 ? RULES.firstPursuitLimit : RULES.repeatPursuitLimit;
+    const fallback = pursuitLimitFor(value.pursuit.completed);
     value.pursuit.limit = integer(p.limit) && p.limit > 0 && p.limit <= 1_000_000 ? p.limit : fallback;
+    // 旧版后续轮次固定为 400 抽；只升级这一旧值，保留其他合法当轮快照。
+    if (value.pursuit.completed >= 1 && value.pursuit.limit === 400) value.pursuit.limit = fallback;
     value.pursuit.progress = integer(p.progress) ? Math.min(p.progress, value.pursuit.limit - 1) : 0;
     value.pursuit.targetId = value.troopIds.includes(p.targetId!) && getTroopById(p.targetId!)?.rarityIdx === RULES.pursuitRarity ? p.targetId : null;
   }

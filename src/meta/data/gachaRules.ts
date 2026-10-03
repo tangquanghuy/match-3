@@ -1,6 +1,6 @@
 /** 愿望单与追寻单源；调参后递增版本。运行时与经济模型共用。 */
 export const GACHA_RULES = {
-  version: 4,
+  version: 5,
   slotsPerRarity: 9,
   maxTroops: 27,
   minRarity: 3,
@@ -8,8 +8,15 @@ export const GACHA_RULES = {
   wishlistShares: [0, 0, 0, 0.8, 0.7, 1] as readonly number[],
   pursuitRarity: 5,
   firstPursuitLimit: 200,
-  repeatPursuitLimit: 400,
+  secondPursuitLimit: 250,
+  repeatPursuitLimit: 300,
 } as const;
+
+export function pursuitLimitFor(completed: number): number {
+  return completed <= 0 ? GACHA_RULES.firstPursuitLimit
+    : completed === 1 ? GACHA_RULES.secondPursuitLimit
+      : GACHA_RULES.repeatPursuitLimit;
+}
 
 export interface GachaPursuit {
   targetId: number | null;

@@ -47,9 +47,14 @@
 .wl-selection h2 { margin:0; font:22px var(--display); }
 .wl-selection h2 span { margin-left:8px; color:#748478; font:18px var(--body); }
 .wl-status { margin:6px 0 0; min-height:18px; font-size:12px; color:#426f65; }
-.wl-pursuit { display:flex; align-items:center; gap:28px; padding:20px 24px; background:#e8eee7; border:1px solid #d0dccf; border-radius:8px; margin-bottom:32px; }
+.wl-pursuit { display:flex; align-items:center; gap:28px; padding:20px 24px; background:#e8eee7; border:1px solid #d0dccf; border-radius:8px; margin-bottom:32px; scroll-margin:24px; }
+.wl-pursuit:focus-visible { outline:2px solid #4a887e; outline-offset:4px; }
+.wl-pursuit.is-empty { background:#f1eee5; border-color:#d8cfbd; }
+.wl-pursuit-copy { min-width:0; }
 .wl-pursuit h3 { font:13px var(--body); color:#527263; margin:0 0 8px; }
-.wl-pursuit b { font-size:16px; font-weight:500; }
+.wl-pursuit b { display:block; font-size:16px; font-weight:600; }
+.wl-pursuit-copy p { margin:7px 0 0; color:#68756d; font-size:12px; line-height:1.5; }
+.wl-pursuit-choose { margin-left:auto; flex:none; }
 .wl-pursuit-progress { flex:1; max-width:320px; margin-left:auto; font-size:13px; }
 .wl-pursuit progress { display:block; width:100%; height:6px; accent-color:#4a887e; margin-top:10px; }
 .wl-groups { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; }

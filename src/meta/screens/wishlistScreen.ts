@@ -25,20 +25,20 @@ export class WishlistScreen implements Screen {
   private controller?:AbortController;
   private modalInvoker?:HTMLButtonElement;
   html(_ctx:ShellCtx, param?:string):string {
-    this.view=param==='selected'?'selected':param==='rules'?'rules':'browse';
+    this.view=param==='pursuit'?'pursuit':param==='selected'?'selected':param==='rules'?'rules':'browse';
     return `${topbarHtml()}<main class="screen wishlist-screen" data-view="${this.view}">
       <header class="wl-head"><div><button class="wl-text-button" data-action="back">← 返回宝箱</button><h1>我的愿望单</h1></div><a class="wl-help" href="#wishlist/rules">召唤规则 <span aria-hidden="true">↗</span></a></header>
-      <nav class="wl-tabs" aria-label="愿望单页面"><a href="#wishlist" ${this.view==='browse'?'aria-current="page"':''}>选择角色</a><a href="#wishlist/selected" ${this.view==='selected'?'aria-current="page"':''}>已选角色 <span id="wl-mobile-count">0</span></a></nav>
+      <nav class="wl-tabs" aria-label="愿望单页面"><a href="#wishlist" ${this.view==='browse'?'aria-current="page"':''}>选择角色</a><a href="#wishlist/selected" ${this.view==='selected'||this.view==='pursuit'?'aria-current="page"':''}>已选角色 <span id="wl-mobile-count">0</span></a></nav>
       <div class="wl-layout">
         <section class="wl-browser" aria-label="选择角色" ${this.view!=='browse'?'hidden':''}>
           <div class="wl-toolbar"><label class="wl-search"><span class="wl-sr-only">搜索角色</span><input id="wl-query" type="search" placeholder="搜索名字、技能或特质" value="${esc(this.filter.query??'')}"></label><button data-action="filters" id="wl-filter-button">筛选</button><button class="wl-text-button" data-action="reset" id="wl-reset" hidden>重置</button></div>
           <div id="wl-results"></div>
         </section>
-        <section class="wl-selection" aria-label="已选愿望角色" ${this.view!=='selected'?'hidden':''}><div id="wl-selected-panel"></div></section>
+        <section class="wl-selection" aria-label="已选愿望角色" ${this.view!=='selected'&&this.view!=='pursuit'?'hidden':''}><div id="wl-selected-panel"></div></section>
         <section class="wl-rules-page" aria-label="召唤规则" ${this.view!=='rules'?'hidden':''}><a href="#wishlist" class="wl-help">← 返回选择</a><h2>召唤规则</h2>
           <section><h3>选择心仪角色</h3><p>愿望单用于宝石宝箱。传说、史诗、神话各可选 ${R.slotsPerRarity} 名，不限王国。随时更换，选择后自动保存。</p></section>
           <section><h3>愿望概率</h3><p>品质概率保持不变。抽到对应品质后，名单内角色有更高机会出现；少选角色不会集中概率。</p><div id="wl-rates"></div><p>每名角色占满名单概率的 1/${R.slotsPerRarity}，空位概率留给名单外角色。愿望角色可重复获得。</p></section>
-          <section><h3>神话追寻</h3><p>在已选角色中，指定一名尚未拥有的神话。首次最多 ${R.firstPursuitLimit} 抽获得，后续每轮最多 ${R.repeatPursuitLimit} 抽。</p><p>有目标时累计进度；更换或暂停保留进度。抽到目标即完成本轮，抽到其他神话不重置。保底在该次抽卡中生效，不额外增加卡片。</p></section>
+          <section><h3>神话追寻</h3><p>在已选角色中，指定一名尚未拥有的神话。首次最多 ${R.firstPursuitLimit} 抽获得，第二次最多 ${R.secondPursuitLimit} 抽，第三次起每轮最多 ${R.repeatPursuitLimit} 抽。</p><p>有目标时累计进度；更换或暂停保留进度。抽到目标即完成本轮，抽到其他神话不重置。保底在该次抽卡中生效，不额外增加卡片。</p></section>
           <section><h3>十连保障</h3><p>十连至少获得一张稀有或以上角色。</p></section>
         </section>
       </div>
@@ -78,6 +78,13 @@ export class WishlistScreen implements Screen {
       button?.focus({preventScroll:true});
     },options);
     this.render();
+    if(this.view==='pursuit') queueMicrotask(() => {
+      if(this.controller?.signal.aborted)return;
+      const pursuit=this.root.querySelector<HTMLElement>('#wl-pursuit');
+      if(!pursuit)return;
+      pursuit.scrollIntoView?.({block:'center',behavior:'smooth'});
+      pursuit.focus({preventScroll:true});
+    });
   }
   dispose():void { this.controller?.abort(); }
   private render():void {
@@ -109,7 +116,7 @@ export class WishlistScreen implements Screen {
     this.root.querySelector('#wl-filter-done')!.textContent=`查看 ${choices.length} 名角色`;
     this.root.querySelector('#wl-rates')!.innerHTML=`<table><thead><tr><th>品质</th><th>当前名单命中</th><th>满名单命中</th></tr></thead><tbody>${[3,4,5].map(r=>`<tr><th>${RARITY_NAMES[r]}</th><td>${(wishlistHitRate(ids,r)*100).toFixed(1)}%</td><td>${R.wishlistShares[r]!*100}%</td></tr>`).join('')}</tbody></table>`;
     this.root.querySelector('#wl-selected-panel')!.innerHTML=`<div class="wl-selection-head"><div><h2>已选角色 <span>${ids.length}</span></h2><p class="wl-status" role="status" aria-live="polite">${esc(this.notice)}</p></div><button data-action="recommend" ${this.busy?'disabled':''}>推荐角色</button></div>
-      ${active||ids.some(id=>getTroopById(id)?.rarityIdx===5&&!reallyOwned(save,id))||p.progress?`<section class="wl-pursuit"><div><h3>神话追寻</h3><b>${active?esc(getTroopById(p.targetId!)!.name):'选择一名神话角色开始追寻'}</b></div><div class="wl-pursuit-progress"><span>${active?`最多再 ${p.limit-p.progress} 抽`:`已保留 ${p.progress} 抽进度`}</span><progress aria-label="神话追寻进度" max="${p.limit}" value="${p.progress}"></progress></div>${active?`<button data-action="pause" ${this.busy?'disabled':''}>暂停</button>`:''}</section>`:''}
+      <section id="wl-pursuit" class="wl-pursuit ${active?'is-active':'is-empty'}" tabindex="-1" role="region" aria-labelledby="wl-pursuit-title"><div class="wl-pursuit-copy"><h3 id="wl-pursuit-title">神话追寻</h3><b>${active?esc(getTroopById(p.targetId!)!.name):p.progress?'等待选择新的神话目标':'尚未设置'}</b><p>${active?`当前目标 · 最多再 ${Math.max(0,p.limit-p.progress)} 抽`:p.progress?`已保留 ${p.progress} 抽进度，选择目标后继续`:'从愿望单中选择一名未拥有的神话角色'}</p></div>${active?`<div class="wl-pursuit-progress"><span>进度 ${p.progress} / ${p.limit} 抽</span><progress aria-label="神话追寻进度" max="${p.limit}" value="${p.progress}"></progress></div><button data-action="pause" ${this.busy?'disabled':''}>暂停追寻</button>`:`<button class="wl-pursuit-choose" data-action="choose-pursuit" ${this.busy?'disabled':''}>选择神话</button>`}</section>
       <div class="wl-groups">${groups.map(k=>`<section class="wl-group"><h3>${RARITY_NAMES[k]} ${ids.filter(id=>getTroopById(id)?.rarityIdx===k).length}/${R.slotsPerRarity}<button class="wl-clear-group wl-text-button" data-clear-rarity="${k}" ${this.busy?'disabled':''}>移除此组</button></h3><div class="wl-group-picks">${ids.filter(id=>getTroopById(id)?.rarityIdx===k).map(id=>{
         const t=getTroopById(id)!,rec=(save.collectionTruth??save.collection)[String(id)];
         return `<article class="wl-pick"><button class="collection-card r-${t.rarityIdx}" style="--rc:${RARITY_COLORS[t.rarityIdx]}" data-detail="${id}" aria-label="查看${esc(t.name)}详情">${troopCardFace(t,rec)}</button><div class="wl-pick-actions">
@@ -138,6 +145,10 @@ export class WishlistScreen implements Screen {
     else if(action==='encyclopedia')this.ctx.navigate('#troop');
     else if(action==='reset'||action==='reset-filters'){this.filter={};this.owned='all';this.selectedOnly=false;this.availableOnly=false;this.sort='id';this.page=1;this.ctx.refresh();if(action==='reset-filters')this.root.querySelector<HTMLDialogElement>('#wl-filters-dialog')!.showModal();}
     else if(action==='prev'||action==='next'){this.page+=action==='prev'?-1:1;this.render();this.root.querySelector('.wl-layout')!.scrollTop=0;}
+    else if(action==='choose-pursuit'){
+      this.filter={rarity:R.pursuitRarity};this.owned='unowned';this.selectedOnly=false;this.availableOnly=false;this.sort='unowned';this.page=1;
+      this.ctx.navigate('#wishlist');
+    }
     else if(action==='pause')await this.write(()=>this.ctx.gateway.setPursuitTarget(null));
     else if(action==='recommend'||action==='clear'){
       this.modalInvoker=btn;

@@ -46,6 +46,16 @@ describe('愿望单配额和持久化',()=>{
   s.gachaWishlist.pursuit.targetId=group[0]!.id;s.gachaWishlist.pursuit.progress=37;
   expect(hydrateSave(JSON.parse(JSON.stringify(s))).gachaWishlist).toEqual(s.gachaWishlist);
  });
+ it.each([{completed:1,limit:250},{completed:2,limit:300},{completed:7,limit:300}])('旧400抽档升级第$completed次完成后的上限，保留目标与低进度',({completed,limit})=>{
+  const s=setup();s.gachaWishlist.pursuit={targetId:target.id,progress:73,completed,limit:400};
+  const restored=hydrateSave(JSON.parse(JSON.stringify(s)));
+  expect(restored.gachaWishlist.pursuit).toEqual({targetId:target.id,progress:73,completed,limit});
+  expect(hydrateSave(JSON.parse(JSON.stringify(restored))).gachaWishlist).toEqual(restored.gachaWishlist);
+ });
+ it.each([{completed:0,limit:400},{completed:1,limit:275},{completed:2,limit:250}])('保留非旧版后续400抽的合法快照 $completed/$limit',({completed,limit})=>{
+  const s=setup();s.gachaWishlist.pursuit={targetId:target.id,progress:73,completed,limit};
+  expect(hydrateSave(JSON.parse(JSON.stringify(s))).gachaWishlist).toEqual(s.gachaWishlist);
+ });
  it('推荐补齐保留已选，重复执行稳定且通过所有配额',()=>{
   const s=fresh();const group=TROOPS.filter(t=>t.rarityIdx===3&&t.kingdom===target.kingdom).slice(0,2);
   setWishlist(s,[target.id,...group.map(t=>t.id)]);const ids=recommendWishlist(s);expect(ids).toEqual(expect.arrayContaining([target.id,...group.map(t=>t.id)]));expect(ids).toHaveLength(27);
@@ -63,11 +73,35 @@ describe('愿望单配额和持久化',()=>{
  });
 });
 describe('真实抽卡和神话首张追寻',()=>{
+ it.each([{completed:1,progress:300,limit:250},{completed:2,progress:350,limit:300}])('旧400抽档超过新$limit抽阈值，重载后下一抽触发保底',({completed,progress,limit})=>{
+  const old=setup();old.gachaWishlist.pursuit={targetId:target.id,progress,completed,limit:400};
+  const s=hydrateSave(JSON.parse(JSON.stringify(old)));
+  expect(s.gachaWishlist.pursuit).toEqual({targetId:target.id,progress:limit-1,completed,limit});
+  vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
+  const r=openGemChest(s,1);if(!r.ok)throw Error(r.message);
+  expect(r.cards).toHaveLength(1);expect(r.cards[0]).toMatchObject({troopId:target.id,pursuitGuaranteed:true});
+  expect(s.gachaWishlist.pursuit).toEqual({targetId:null,progress:0,completed:completed+1,limit:300});
+  expect(s.gachaLog[0]!.audit!.reasons).toEqual(['pursuit']);
+ });
+ it('第二轮250抽完成后，第三轮按300抽保底',()=>{
+  const s=setup();s.gachaWishlist.pursuit={targetId:target.id,progress:249,completed:1,limit:250};
+  vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
+  const second=openGemChest(s,1);if(!second.ok)throw Error(second.message);
+  expect(second.cards[0]).toMatchObject({troopId:target.id,pursuitGuaranteed:true});
+  expect(s.gachaWishlist.pursuit).toEqual({targetId:null,progress:0,completed:2,limit:300});
+  expect(setPursuitTarget(s,other.id).ok).toBe(true);
+  s.gachaWishlist.pursuit.progress=298;
+  const before=openGemChest(s,2);if(!before.ok)throw Error(before.message);
+  expect(before.cards[0]!.pursuitGuaranteed).toBe(false);expect(s.gachaWishlist.pursuit.progress).toBe(299);
+  const third=openGemChest(s,3);if(!third.ok)throw Error(third.message);
+  expect(third.cards[0]).toMatchObject({troopId:other.id,pursuitGuaranteed:true});
+  expect(s.gachaWishlist.pursuit).toEqual({targetId:null,progress:0,completed:3,limit:300});
+ });
  it('阈值替换本抽，仅发一张且完成后使用后续上限，审计经重载保留',()=>{
   const s=setup();s.gachaWishlist.pursuit.progress=199;vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
   const r=openGemChest(s,1);expect(r.ok).toBe(true);if(!r.ok)return;
   expect(r.cards).toHaveLength(1);expect(r.cards[0]).toMatchObject({troopId:target.id,pursuitGuaranteed:true,wishlistHit:true});
-  expect(s.gachaWishlist.pursuit).toEqual({targetId:null,progress:0,completed:1,limit:400});
+  expect(s.gachaWishlist.pursuit).toEqual({targetId:null,progress:0,completed:1,limit:250});
   expect(s.gachaLog[0]!.audit!.reasons).toEqual(['pursuit']);
   expect(hydrateSave(JSON.parse(JSON.stringify(s))).gachaLog[0]!.audit).toEqual(s.gachaLog[0]!.audit);
  });

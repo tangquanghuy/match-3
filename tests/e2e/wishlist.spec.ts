@@ -30,7 +30,7 @@ test('第200抽追寻在宝箱出卡、消耗、保存与记录一致',async({pa
  await page.locator('[data-action="filters"]').click();await page.locator('#wl-rarity').selectOption('5');await page.locator('#wl-owned').selectOption('unowned');await page.locator('#wl-filter-done').click();
  const id=Number(await page.locator('[data-toggle]').first().getAttribute('data-toggle'));await page.locator('[data-toggle]').first().click();await page.locator('.wl-tabs a[href="#wishlist/selected"]').click();await page.locator(`[data-pursue="${id}"]`).click();
  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('gems.meta.save')!);s.gachaWishlist.pursuit.progress=199;s.currencies.gems=150;localStorage.setItem('gems.meta.save',JSON.stringify(s));});
- await page.goto('/game.html#chests/gems');await page.reload();await page.locator('[data-open="gem-1"]').click();
+ await page.goto('/game.html#chests/gems');await page.reload();await page.locator('[data-open="gem-1"]').click();await page.locator('#wishlistReminderContinue').click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!).gachaWishlist.pursuit.completed)).toBe(1);
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!));expect(state.currencies.gems).toBe(0);expect(state.gachaLog[0].troops).toEqual([id]);expect(state.gachaLog[0].audit.reasons).toEqual(['pursuit']);
  await expect(page.locator('.summon-card .card-label').first()).toContainText('追寻保底');

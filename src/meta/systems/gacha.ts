@@ -9,7 +9,7 @@
  * 确定性：同 seed、规则和初始存档必出同一批结果；每次开箱记入 save.gachaLog（容量 50，新的在前），
  * 供对账脚本/测试审计概率与权重表一致。
  */
-import { GACHA_RULES, type GachaAudit } from '../data/gachaRules';
+import { GACHA_RULES, pursuitLimitFor, type GachaAudit } from '../data/gachaRules';
 import { reallyOwned } from './wishlist';
 import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
 import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
@@ -174,7 +174,7 @@ function rollBatch(
       pursuit.progress++;
       if (troopId === pursuit.targetId) {
         pursuit.targetId = null; pursuit.progress = 0; pursuit.completed++;
-        pursuit.limit = GACHA_RULES.repeatPursuitLimit;
+        pursuit.limit = pursuitLimitFor(pursuit.completed);
       }
     }
     const card = commit(save, troopId);

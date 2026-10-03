@@ -8,10 +8,12 @@ import {
   CHEST_LOOT_BASE, GACHA_PITY_MIN_IDX, GEM_CHEST, GEM_CHEST_BASE, GEM_CHEST_EXTRA, GEM_CHEST_WEIGHTS, GLORY_CHEST, GLORY_CHEST_LOOT, GOLD_CHEST, GOLD_CHEST_LOOT,
   type ChestLootRow,
 } from '../data/economy';
+import { GACHA_RULES } from '../data/gachaRules';
 import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
 import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { isFailure } from '../gateway';
+import { reallyOwned } from '../systems/wishlist';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { troopArt, troopArtFallback } from './teamScreen';
@@ -19,6 +21,16 @@ import { getPlayerPreferences, prefersReducedMotion } from '../../preferences/pl
 import { prepareTexture, SpriteFx, type Sprite } from './summonFx';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
+const WISHLIST_REMINDER_KEY = 'gems.gacha.wishlist-reminder.v1';
+
+function localDayKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+function escapeMarkup(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
+}
 
 const FX = {
   circle: { src: '/static/fx/gacha/gacha_circle_strip.webp', n: 18, w: 463, h: 360, ms: 900 },
@@ -234,6 +246,7 @@ export class ChestsScreen implements Screen {
   private phase: 'closed' | 'opening' | 'dealing' | 'ready' | 'revealing' | 'complete' = 'closed';
   private timers: ReturnType<typeof setTimeout>[] = [];
   private fxTimers = new Map<HTMLElement, number>();
+  private wishlistReminderResolve: ((proceed: boolean) => void) | null = null;
   private totalRewards = 0;
   private revealedCount = 0;
   /** 独占演出（传说及以上）进行中：锁定手动翻牌 */
@@ -295,7 +308,10 @@ export class ChestsScreen implements Screen {
                 <button class="chest-btn gem" data-open="gem-1" type="button"><span class="btn-label">召唤一次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.singleCost)}</b></small></button>
                 <button class="chest-btn gem featured" data-open="gem-10" type="button"><span class="btn-label">召唤十次</span><small><span data-icon="crystal"></span><b class="btn-cost">${fmt(GEM_CHEST.multiCost)}</b></small></button>
               </div>
-              <button class="dock-wish" id="openWishlist" type="button"><b>愿望单</b><small id="wishlistSummary">去设置</small></button>
+              <div class="wish-dock-actions">
+                <button class="dock-wish" id="openWishlist" type="button"><b>愿望单</b><small id="wishlistSummary">去设置</small></button>
+                <button class="dock-pursuit" id="openPursuit" type="button"><span data-icon="sparkles" aria-hidden="true"></span><span class="dock-pursuit-copy"><small>神话追寻</small><b id="pursuitSummary">未设置</b><em id="pursuitProgress">去设置 →</em></span></button>
+              </div>
             </div>`;
     return `
       ${topbarHtml()}
@@ -334,6 +350,22 @@ export class ChestsScreen implements Screen {
             <button class="chest-btn" id="partialConfirm" type="button"><span class="btn-label">只开 0 次</span><small><span data-icon="key"></span><b class="btn-cost">0</b></small></button>
           </div>
           <button class="cancel" id="partialCancel" type="button">取消</button>
+        </section>
+      </div>
+
+      <div class="wishlist-reminder" id="wishlistReminder" hidden>
+        <div class="wishlist-reminder-veil" id="wishlistReminderVeil"></div>
+        <section class="wishlist-reminder-sheet" role="dialog" aria-modal="true" aria-labelledby="wishlistReminderTitle">
+          <header class="wishlist-reminder-head">
+            <h2 id="wishlistReminderTitle">自选卡池范围</h2>
+            <button class="wishlist-reminder-close" id="wishlistReminderClose" type="button" aria-label="关闭提醒">×</button>
+          </header>
+          <div class="wishlist-reminder-content" id="wishlistReminderContent"></div>
+          <label class="wishlist-reminder-check"><input type="checkbox" id="wishlistReminderToday"><span>今日不再提醒</span></label>
+          <footer class="wishlist-reminder-foot">
+            <button class="wishlist-reminder-settings" id="wishlistReminderSettings" type="button">去设置</button>
+            <button class="wishlist-reminder-continue" id="wishlistReminderContinue" type="button">继续抽卡</button>
+          </footer>
         </section>
       </div>
 
@@ -409,6 +441,7 @@ export class ChestsScreen implements Screen {
     _root.classList.add('chests-responsive');
     this.page = chestPageOf(param);
     this.bind('#openWishlist', 'click', () => this.ctx.navigate('#wishlist'));
+    this.bind('#openPursuit', 'click', () => this.ctx.navigate('#wishlist/pursuit'));
     this.loadRecent();
     this.paintDrops();
     this.refreshBalances();
@@ -427,6 +460,20 @@ export class ChestsScreen implements Screen {
       if (plan && plan.keys > 0) void this.openSummon('gold', plan.keys);
     });
     this.bind('#partialCancel', 'click', () => this.closePartial());
+    this.bind('#wishlistReminderContinue', 'click', () => this.resolveWishlistReminder(true));
+    this.bind('#wishlistReminderSettings', 'click', () => {
+      this.resolveWishlistReminder(false);
+      const destination = ($('#wishlistReminderSettings') as HTMLElement | null)?.dataset.destination ?? '#wishlist/pursuit';
+      this.ctx.navigate(destination);
+    });
+    this.bind('#wishlistReminderContent', 'click', (event) => {
+      if ((event.target as HTMLElement).closest('#wishlistReminderPursuitSettings')) {
+        this.resolveWishlistReminder(false);
+        this.ctx.navigate('#wishlist/pursuit');
+      }
+    });
+    this.bind('#wishlistReminderClose', 'click', () => this.resolveWishlistReminder(false));
+    this.bind('#wishlistReminderVeil', 'click', () => this.resolveWishlistReminder(false));
     this.bind('#summonAction', 'click', () => this.handleActionBtn());
     this.bind('#summonSkip', 'click', () => this.revealAll());
     $$('[data-summon-close]').forEach((el) => this.on(el, 'click', () => this.closeSummon()));
@@ -547,7 +594,33 @@ export class ChestsScreen implements Screen {
       if (el) el.textContent = value;
     };
     const wish = this.ctx.save().gachaWishlist;
-    set('wishlistSummary', wish.troopIds.length ? `已选 ${wish.troopIds.length} 名` : '去设置');
+    const wishButton = $('#openWishlist');
+    const wishIncomplete = wish.troopIds.length < GACHA_RULES.maxTroops;
+    if (wishButton) {
+      wishButton.classList.toggle('is-incomplete', wishIncomplete);
+      wishButton.setAttribute('aria-label', wishIncomplete
+        ? `愿望单，已选 ${wish.troopIds.length} 名，还差 ${GACHA_RULES.maxTroops - wish.troopIds.length} 名`
+        : `愿望单，已选 ${wish.troopIds.length} 名`);
+    }
+    set('wishlistSummary', wishIncomplete
+      ? `还差 ${GACHA_RULES.maxTroops - wish.troopIds.length} 名`
+      : `已选 ${wish.troopIds.length} 名`);
+    const pursuitTarget = wish.pursuit.targetId !== null
+      && wish.troopIds.includes(wish.pursuit.targetId)
+      && !reallyOwned(this.ctx.save(), wish.pursuit.targetId)
+      ? getTroopById(wish.pursuit.targetId)
+      : null;
+    const pursuitButton = $('#openPursuit');
+    if (pursuitButton) {
+      pursuitButton.classList.toggle('is-missing', !pursuitTarget);
+      pursuitButton.setAttribute('aria-label', pursuitTarget
+        ? `神话追寻：${pursuitTarget.name}，最多再 ${Math.max(0, wish.pursuit.limit - wish.pursuit.progress)} 抽`
+        : '神话追寻未设置，前往设置');
+    }
+    set('pursuitSummary', pursuitTarget?.name ?? '未设置');
+    set('pursuitProgress', pursuitTarget
+      ? `${wish.pursuit.progress} / ${wish.pursuit.limit} 抽`
+      : wish.pursuit.progress > 0 ? `已保留 ${wish.pursuit.progress} 抽` : '去设置 →');
     set('dockKeyBalance', String(c.goldKeys));
     set('dockGoldBalance', fmt(c.gold));
     set('dockGemBalance', fmt(c.gems));
@@ -709,6 +782,71 @@ export class ChestsScreen implements Screen {
     if (modal) modal.hidden = true;
   }
 
+  private wishlistReminderSuppressed(): boolean {
+    try {
+      return localStorage.getItem(WISHLIST_REMINDER_KEY) === localDayKey();
+    } catch {
+      return false;
+    }
+  }
+
+  private resolveWishlistReminder(proceed: boolean): void {
+    const modal = $('#wishlistReminder');
+    const checkbox = $('#wishlistReminderToday') as HTMLInputElement | null;
+    if (checkbox?.checked) {
+      try { localStorage.setItem(WISHLIST_REMINDER_KEY, localDayKey()); } catch { /* private storage may be blocked */ }
+    }
+    if (modal) modal.hidden = true;
+    const resolve = this.wishlistReminderResolve;
+    this.wishlistReminderResolve = null;
+    resolve?.(proceed);
+  }
+
+  private showWishlistReminder(): Promise<boolean> {
+    const save = this.ctx.save();
+    const ids = save.gachaWishlist.troopIds;
+    const missing = Math.max(0, GACHA_RULES.maxTroops - ids.length);
+    const pursuit = save.gachaWishlist.pursuit;
+    const pursuitTarget = pursuit.targetId !== null
+      && ids.includes(pursuit.targetId)
+      && !reallyOwned(save, pursuit.targetId)
+      ? getTroopById(pursuit.targetId)
+      : null;
+    if (missing === 0 && pursuitTarget) return Promise.resolve(true);
+    const content = $('#wishlistReminderContent');
+    const settings = $('#wishlistReminderSettings');
+    if (!content || !settings) return Promise.resolve(true);
+    const pursuitName = pursuitTarget ? escapeMarkup(pursuitTarget.name) : '未设置';
+    const rarityRows = [3, 4, 5].map((rarity) => {
+      const selected = ids.filter((id) => getTroopById(id)?.rarityIdx === rarity).length;
+      const percent = Math.round((selected / GACHA_RULES.slotsPerRarity) * 100);
+      return `<div class="wishlist-reminder-rarity r-${rarity}"><div class="range-legend-item"><span>${rarityNameByIndex(rarity)}</span><b>${selected}<small> / ${GACHA_RULES.slotsPerRarity}</small></b></div><div class="range-meter-segment" style="--fill:${percent}%"></div></div>`;
+    });
+    content.innerHTML = `
+      <section class="wishlist-reminder-pursuit ${pursuitTarget ? 'is-active' : 'is-warning'}" aria-label="神话追寻状态">
+        <small class="wishlist-reminder-pursuit-label">神话追寻</small>
+        <strong class="wishlist-reminder-pursuit-name">${pursuitTarget ? pursuitName : '未设置'}</strong>
+        ${pursuitTarget || missing === 0 ? '' : '<button class="wishlist-reminder-inline-settings" id="wishlistReminderPursuitSettings" type="button">设置 <span aria-hidden="true">→</span></button>'}
+        <p class="wishlist-reminder-pursuit-hint">${pursuitTarget ? `进度 ${pursuit.progress} / ${pursuit.limit} 抽` : '未设置时，抽卡不计入追寻进度'}</p>
+        ${pursuitTarget ? `<span class="wishlist-reminder-pursuit-meter"><i style="width:${Math.min(100, Math.round((pursuit.progress / pursuit.limit) * 100))}%"></i></span>` : ''}
+      </section>
+      <section class="wishlist-reminder-range" aria-label="愿望单选择范围">
+        <div class="wishlist-reminder-range-head"><span>愿望单</span><em>${missing ? `还可选择 ${missing} 名` : '已选满'}</em></div>
+        <div class="wishlist-reminder-legend">${rarityRows.join('')}</div>
+      </section>`;
+    mountIcons(content);
+    settings.textContent = missing ? '完善愿望单' : '设置神话追寻';
+    settings.dataset.destination = missing ? '#wishlist' : '#wishlist/pursuit';
+    const modal = $('#wishlistReminder');
+    if (!modal) return Promise.resolve(true);
+    const checkbox = $('#wishlistReminderToday') as HTMLInputElement | null;
+    if (checkbox) checkbox.checked = false;
+    modal.hidden = false;
+    return new Promise<boolean>((resolve) => {
+      this.wishlistReminderResolve = resolve;
+    });
+  }
+
   // —— 抽卡主流程 ——
 
   /**
@@ -770,7 +908,16 @@ export class ChestsScreen implements Screen {
       return;
     }
     const balance = this.balanceOf(spec.pool);
-    if (balance >= spec.cost) return void (await this.openSummon(spec.pool, spec.count));
+    if (balance >= spec.cost) {
+      const noviceSummon = spec.pool === 'gem'
+        && spec.count === GEM_CHEST.multiCount
+        && noviceSummonAvailable(this.ctx.save());
+      if (spec.pool === 'gem' && !noviceSummon && !this.wishlistReminderSuppressed()) {
+        const proceed = await this.showWishlistReminder();
+        if (!proceed) return;
+      }
+      return void (await this.openSummon(spec.pool, spec.count));
+    }
     const cn = POOL_CN[spec.pool];
     toast(`${cn.currency}不足：需要 ${fmt(spec.cost)}，现有 ${fmt(balance)}`);
     this.refreshBalances();

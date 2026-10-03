@@ -4693,7 +4693,7 @@
 }
 
 /* ---- 宝箱底栏（2026-09-29 重排）：每个池 = 信息列（名称/余额/一句说明）+ 按钮组；宝石池右侧挂愿望单 ---- */
-.chest-dock.single-dock { grid-template-columns: minmax(0, 900px); }
+.chest-dock.single-dock { grid-template-columns: minmax(0, 1100px); }
 .chest-dock .dock-pool {
   min-width: 0;
   display: grid;
@@ -4701,7 +4701,7 @@
   align-items: center;
   gap: 16px;
 }
-.chest-dock .dock-pool.gem-pool { grid-template-columns: 190px minmax(0, 1fr) 136px; }
+.chest-dock .dock-pool.gem-pool { grid-template-columns: 190px minmax(0, 1fr) 280px; }
 .dock-info { min-width: 0; display: grid; gap: 4px; }
 .dock-info .chest-name { font: 17px var(--display); letter-spacing: 2px; color: #fff0cf; font-weight: 400; }
 .dock-info .pool-balance { margin: 0; gap: 4px; flex-wrap: wrap; }
@@ -4719,19 +4719,103 @@
 .chest-btn small .cost-keys:not([hidden]) + .cost-gold:not([hidden])::before { content: "+"; margin: 0 3px 0 1px; color: #bfa982; }
 .chest-btn small [hidden] { display: none; }
 .chest-btn.is-partial small .cost-gold { color: #ffd98a; }
-/* 愿望单：与开箱按钮同高的次级入口（描边 + 两行：标题 / 已选数） */
+/* 愿望单与追寻：统一入口高度，追寻文案作为完整的一组居中。 */
 .dock-wish {
   height: 52px; min-width: 0;
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  border: 1px solid #8f7ab0; border-radius: 0;
-  background: linear-gradient(#2c2538, #1d1826);
+  border: 1px solid #9c86b552; border-radius: 8px;
+  background: linear-gradient(#2c2538, #221d2c);
   box-shadow: inset 0 1px #ffffff14;
   color: #eadcff; cursor: pointer;
 }
-.dock-wish b { font: 14px var(--display); letter-spacing: 2px; font-weight: 400; }
-.dock-wish small { color: #b7a6cf; font-size: 10px; white-space: nowrap; }
+.dock-wish b { font: 14px/20px var(--display); letter-spacing: 2px; font-weight: 400; }
+.dock-wish small { color: #b7a6cf; font-size: 10px; line-height: 14px; white-space: nowrap; }
 .dock-wish:hover { border-color: #c9b0ef; background: linear-gradient(#3a3049, #241d30); }
 .dock-wish:focus-visible { outline: 2px solid #aadbd7; outline-offset: 3px; }
+.wish-dock-actions { min-width: 0; display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 10px; }
+.dock-pursuit {
+  min-width: 0; height: 52px; padding: 4px 12px; display: flex; align-items: center; gap: 10px;
+  border: 1px solid #7bb5b34a; border-radius: 8px; background: linear-gradient(#203237, #1a282d); color: #d5f2f0; cursor: pointer; text-align: left;
+}
+.dock-pursuit > [data-icon] { width: 18px; height: 18px; color: #7fd6d5; }
+.dock-pursuit-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.dock-pursuit small, .dock-pursuit em { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.dock-pursuit small { color: #90b9be; font-size: 10px; line-height: 12px; }
+.dock-pursuit b { overflow: hidden; color: #ebf5df; font: 600 12px/16px var(--body); text-overflow: ellipsis; white-space: nowrap; }
+.dock-pursuit em { color: #b9d7c8; font: 10px/12px var(--body); font-style: normal; }
+.dock-pursuit:hover { border-color: #83c9c9; background: linear-gradient(#294a56, #193039); }
+.dock-pursuit:focus-visible { outline: 2px solid #aadbd7; outline-offset: 3px; }
+.dock-pursuit.is-missing b { color: #ebd5ad; }
+
+/* 抽卡前提醒：用共同的左轴与留白区分状态，仅保留一条内容分隔线。 */
+.wishlist-reminder { position: absolute; inset: 0; z-index: 75; display: grid; place-items: center; padding: 24px; }
+.wishlist-reminder[hidden] { display: none; }
+.wishlist-reminder-veil { position: absolute; inset: 0; background: #070811cf; backdrop-filter: blur(8px) saturate(.7); }
+.wishlist-reminder-sheet { position: relative; width: min(480px, calc(100vw - 40px)); max-height: calc(100dvh - 40px); overflow: auto; padding: 24px 30px 26px; border: 1px solid #c8ae783b; border-radius: 16px; background: radial-gradient(ellipse at 0 0, #70573825, transparent 65%), linear-gradient(145deg, #242126, #17181e 80%); box-shadow: 0 28px 90px #000c, inset 0 1px #f8df9c12; }
+.wishlist-reminder-sheet:before { content: ''; position: absolute; top: 0; left: 30px; right: 30px; height: 1px; background: linear-gradient(90deg, transparent, #d1b67f99, transparent); }
+.wishlist-reminder-sheet:after { display: none; }
+.wishlist-reminder-head { display: flex; align-items: center; gap: 16px; }
+.wishlist-reminder-head h2 { margin: 0; color: #f1e5cb; font: 22px/32px var(--display); letter-spacing: 1px; }
+.wishlist-reminder-close { flex: none; margin: -4px -10px -4px auto; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #a99f91; font: 26px/1 var(--body); cursor: pointer; }
+.wishlist-reminder-close:hover { background: #fff1c90a; color: #fff0be; }
+.wishlist-reminder-content { margin-top: 24px; }
+.wishlist-reminder-pursuit { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 5px 20px; }
+.wishlist-reminder-pursuit-label { grid-column: 1 / -1; color: #b5ad9f; font-size: 12px; line-height: 18px; }
+.wishlist-reminder-pursuit-name { min-width: 0; grid-column: 1; color: #dbede4; font: 600 20px/28px var(--body); overflow-wrap: anywhere; }
+.wishlist-reminder-pursuit.is-warning .wishlist-reminder-pursuit-name { color: #e8c48b; }
+.wishlist-reminder-pursuit-hint { grid-column: 1 / -1; margin: 3px 0 0; color: #b2b9b4; font-size: 12px; line-height: 20px; }
+.wishlist-reminder-pursuit.is-warning .wishlist-reminder-pursuit-hint { color: #c3b3a1; }
+.wishlist-reminder-inline-settings { grid-column: 2; grid-row: 2; min-height: 32px; padding: 0; display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; color: #dfbf83; font-size: 12px; cursor: pointer; }
+.wishlist-reminder-inline-settings span { font-size: 16px; }
+.wishlist-reminder-inline-settings:hover { color: #ffe0a1; }
+.wishlist-reminder-pursuit-meter { grid-column: 1 / -1; display: block; height: 3px; margin-top: 6px; overflow: hidden; border-radius: 3px; background: #303b3b; }
+.wishlist-reminder-pursuit-meter i { display: block; height: 100%; background: #70bfb6; }
+.wishlist-reminder-range { margin-top: 24px; padding-top: 20px; border-top: 1px solid #b9a98c26; }
+.wishlist-reminder-range-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; line-height: 18px; }
+.wishlist-reminder-range-head > span { color: #b5ad9f; font-size: 12px; }
+.wishlist-reminder-range-head > em { color: #dfc496; font-size: 12px; font-style: normal; }
+.wishlist-reminder-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 16px; }
+.wishlist-reminder-rarity { min-width: 0; --range-color: #e6be58; }
+.wishlist-reminder-rarity.r-4 { --range-color: #d87d4c; }
+.wishlist-reminder-rarity.r-5 { --range-color: #55c8db; }
+.range-legend-item { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; color: #c2b9a9; font-size: 11px; line-height: 16px; }
+.range-legend-item b { color: #e4ddcd; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.range-legend-item small { color: #827c76; font-size: 10px; }
+.range-meter-segment { position: relative; height: 3px; margin-top: 7px; overflow: hidden; border-radius: 3px; background: #393439; }
+.range-meter-segment:after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--fill); border-radius: inherit; background: var(--range-color); }
+.wishlist-reminder-check { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; margin-top: 20px; color: #a9a295; font-size: 12px; cursor: pointer; }
+.wishlist-reminder-check input { appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 17px; height: 17px; margin: 0; border: 1px solid #897754; border-radius: 4px; background: #29252a; box-shadow: inset 0 1px #0004; cursor: pointer; }
+.wishlist-reminder-check input:after { content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border: solid #fff3c9; border-width: 0 2px 2px 0; opacity: 0; transform: rotate(45deg) scale(.7); transition: opacity .12s, transform .12s; }
+.wishlist-reminder-check input:checked { border-color: #c6a76c; background: #80683d; box-shadow: inset 0 1px #e8d5a433; }
+.wishlist-reminder-check input:checked:after { opacity: 1; transform: rotate(45deg) scale(1); }
+.wishlist-reminder-check input:focus-visible { outline: 2px solid #e3c58b; outline-offset: 3px; }
+.wishlist-reminder-foot { display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; margin-top: 14px; }
+.wishlist-reminder-settings, .wishlist-reminder-continue { min-width: 0; min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: #ffffff08; color: #c6bcaa; font: 600 13px/20px var(--body); cursor: pointer; box-shadow: inset 0 0 0 1px #d6c49d24; }
+.wishlist-reminder-settings { background: linear-gradient(145deg, #b99a60, #937643); color: #201a12; box-shadow: inset 0 1px #f9e3b344, 0 3px 12px #0003; }
+.wishlist-reminder-settings:hover { background: linear-gradient(145deg, #c5a56b, #a38650); }
+.wishlist-reminder-continue:hover { background: #ffffff0e; color: #eee1c6; }
+.dock-wish.is-incomplete small { color: #f0cf85; font-weight: 600; }
+.dock-wish.is-incomplete::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #2c2538;
+  border-radius: 50%;
+  background: #f06a6a;
+  box-shadow: 0 0 7px rgba(240, 106, 106, .4);
+  animation: dock-wish-dot 2.2s ease-out infinite;
+}
+@keyframes dock-wish-dot {
+  0%, 100% { transform: scale(.82); opacity: .78; }
+  45% { transform: scale(1.18); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dock-wish.is-incomplete, .dock-wish.is-incomplete::after { animation: none; }
+}
 /* 钥匙不足确认框：两个选项并排 */
 #partialVeil .partial-actions { margin-top: 18px; }
 #partialVeil .partial-actions .chest-btn { height: 52px; }
@@ -4740,18 +4824,33 @@
 @media (max-width: 1399px) {
   #stage.chests-responsive .chest-dock.single-dock { grid-template-columns: minmax(0, 820px); }
   #stage.chests-responsive .chest-dock .dock-pool { grid-template-columns: 150px minmax(0, 1fr); gap: 12px; }
-  #stage.chests-responsive .chest-dock .dock-pool.gem-pool { grid-template-columns: 170px minmax(0, 1fr) 120px; }
+  #stage.chests-responsive .chest-dock .dock-pool.gem-pool { grid-template-columns: 170px minmax(0, 1fr) 250px; }
 }
 @media (max-width: 900px) {
   /* 双池并排放不下信息列：信息压成一行（名称 + 余额），说明换到下一行，按钮占满 */
   #stage.chests-responsive .chest-dock .dock-pool,
   #stage.chests-responsive .chest-dock .dock-pool.gem-pool { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  #stage.chests-responsive .chest-dock .dock-pool.gem-pool { grid-template-columns: minmax(0, 1fr) 104px; }
+  #stage.chests-responsive .chest-dock .dock-pool.gem-pool { grid-template-columns: minmax(0, 1fr) 230px; }
+  #stage.chests-responsive .wish-dock-actions { gap: 8px; }
+  #stage.chests-responsive .dock-pursuit { height: 46px; padding: 3px 9px; gap: 7px; }
+  #stage.chests-responsive .dock-pursuit small,
+  #stage.chests-responsive .dock-pursuit em { line-height: 11px; }
+  #stage.chests-responsive .dock-pursuit b { line-height: 15px; }
   #stage.chests-responsive .dock-pool .dock-info { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 10px; row-gap: 2px; }
   #stage.chests-responsive .dock-info .chest-name { font-size: 15px; letter-spacing: 1px; }
   #stage.chests-responsive .dock-note { grid-column: 1 / -1; white-space: normal; font-size: 9px; }
   #stage.chests-responsive .dock-pool .chest-btn,
   #stage.chests-responsive .dock-wish { height: 46px; }
+}
+@media (max-width: 640px) {
+  #stage.chests-responsive .chest-dock .dock-pool.gem-pool { grid-template-columns: minmax(0, 1fr); }
+  #stage.chests-responsive .wish-dock-actions { width: 100%; }
+  #stage.chests-responsive .wishlist-reminder { padding: 16px; }
+  #stage.chests-responsive .wishlist-reminder-sheet { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 20px 22px 22px; }
+  #stage.chests-responsive .wishlist-reminder-head h2 { font-size: 20px; }
+  #stage.chests-responsive .wishlist-reminder-legend { gap: 14px; }
+  #stage.chests-responsive .wishlist-reminder-settings,
+  #stage.chests-responsive .wishlist-reminder-continue { padding-inline: 8px; }
 }
 
 .inspect-spell strong.spell-couplet { white-space: pre-line; font-size: 16px; line-height: 1.6; letter-spacing: .04em; }
