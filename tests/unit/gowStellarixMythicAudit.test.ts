@@ -82,7 +82,11 @@ describe('Stellarix 7446 stored mythic whole spell and traits', () => {
     const events = executePrototype(proto, f.ctx);
     expect(f.ctx.castTracking?.skullsAtCastStart).toBe(23);
     let remaining = 0; f.board.forEach(g => { if (g?.type.kind === 'skull') remaining++; });
-    expect(remaining).toBe(20);
+    expect(remaining).toBe(17);
+    const changes = events.filter(e => e.type === 'gem-transform').flatMap(e => e.changes);
+    expect(changes.filter(c => c.to.kind === 'special' && c.to.spec.kind === 'elementalStar')).toHaveLength(3);
+    expect(changes.filter(c => c.to.kind === 'special' && c.to.spec.kind === 'umbralStar')).toHaveLength(3);
+    expect(new Set(changes.map(c => `${c.pos.row}:${c.pos.col}`)).size).toBe(6);
     expect(events.some(e => e.type === 'extra-turn')).toBe(true);
   });
 

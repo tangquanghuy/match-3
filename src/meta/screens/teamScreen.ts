@@ -22,7 +22,7 @@ import { RARITY_NAMES as RARITY_CN_ROSTER } from '../data/rarity';
 import { bannerUnlocked } from '../systems/banners';
 import { MIN_TEAM_SIZE, validateTeam, type TeamIssue } from '../systems/teamRules';
 import { BANNERS, BANNER_COLOR_LABELS, bannerOf } from '../data/banners';
-import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, gemSvg, $, $$ } from '../shell/chrome';
+import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, gemSvg, icon, $, $$ } from '../shell/chrome';
 import { isFailure } from '../gateway';
 import { renderSpell } from '../shell/spellText';
 import { bindTermTips } from '../shell/termTip';
@@ -916,7 +916,10 @@ export class TeamScreen implements Screen {
       return true;
     });
     const key = this.sortKey;
+    const favorites = new Set(this.ctx.save().favoriteTroopIds);
     return list.sort((a, b) => {
+      const favoriteOrder = Number(favorites.has(Number(b.key))) - Number(favorites.has(Number(a.key)));
+      if (favoriteOrder) return favoriteOrder;
       if (key === 'name') return a.name.localeCompare(b.name, 'zh-Hans-CN');
       if (key === 'cost') return a.cost - b.cost || b.level - a.level;
       const val = (t: RosterEntry): number =>
@@ -931,6 +934,7 @@ export class TeamScreen implements Screen {
     this.page = Math.min(this.page, pages - 1);
     const slice = list.slice(this.page * PAGE_SIZE, this.page * PAGE_SIZE + PAGE_SIZE);
     const rosterEl = $('#roster');
+    const favorites = new Set(this.ctx.save().favoriteTroopIds);
     rosterEl.innerHTML = slice
       .map((t) => {
         const value = t.key === 'hero' ? 'hero' : Number(t.key);
@@ -938,6 +942,7 @@ export class TeamScreen implements Screen {
         const full = used >= this.slotCapacity(value);
         return `<button class="mini${full ? ' in' : ''}${this.inspectedKey === t.key ? ' look' : ''}${t.rarityIdx >= 0 ? ' r-' + t.rarityIdx : ' r-hero'}" data-id="${t.key}" title="${escapeHtml(t.name)} · ${t.rarityIdx >= 0 ? RARITY_CN_ROSTER[t.rarityIdx] : '主角'}${used ? ` · 已上阵 ${used}/${this.slotCapacity(value)}` : ''} · 单击查看 / 双击编入" type="button">
           <i class="rarity-edge" aria-hidden="true"></i>
+          ${favorites.has(Number(t.key)) ? `<span class="mini-favorite" aria-label="已收藏">${icon('star')}</span>` : ''}
           ${troopImg(t.troop, t.key === 'hero', `alt="${escapeHtml(t.name)}"`, this.ctx.save().character)}
           ${manaCorner('mini-mana', t.colors, t.cost)}
           <span class="mini-lv">Lv.${t.level}</span>

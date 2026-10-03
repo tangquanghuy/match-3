@@ -111,13 +111,13 @@
  },
  "troop:6181": {
   "lines": {
-   "L10": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Yellow x1, Red x3, Brown x1 -> Purple x5 ; buff C magic+11  => C:mag+11",
-   "R10": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Yellow x1, Red x3, Brown x1 -> Purple x5 ; buff C magic+11  => C:mag+11",
-   "L0": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Yellow x1, Red x3, Brown x1 -> Purple x5 ; buff C magic+1  => C:mag+1",
-   "K": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Yellow x1, Red x3, Brown x1 -> Purple x5 ; buff C magic+11  => C:mag+11"
+   "L10": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Green x3, Brown x2 -> Purple x5 ; buff C magic+11  => C:mag+11",
+   "R10": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Green x3, Brown x2 -> Purple x5 ; buff C magic+11  => C:mag+11",
+   "L0": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Green x3, Brown x2 -> Purple x5 ; buff C magic+1  => C:mag+1",
+   "K": "convert Yellow x1, Purple x1, Blue x2, Green x1 -> Red x5 ; convert Green x3, Brown x2 -> Purple x5 ; buff C magic+11  => C:mag+11"
   },
-  "by": "sa-R6",
-  "at": "2026-09-28T08:47:27.533Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:14.533Z"
  },
  "troop:6182": {
   "lines": {
@@ -521,13 +521,13 @@
  },
  "troop:6817": {
   "lines": {
-   "L10": "buff A1 hp+6 max+6 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+6 max+6 ; convert Green x2, Blue x3, Yellow x2, skull x1, Brown x1 -> Red x9 ; buff C armor+6 ; convert Red x3, Yellow x1, skull x1, Green x2, Purple x2 -> Blue x9 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+6 max+6 | A2:hp+6 max+6 | C:arm+6  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "R10": "buff A1 hp+6 max+6 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+6 max+6 ; convert Green x2, Blue x3, Yellow x2, skull x1, Brown x1 -> Red x9 ; buff C armor+6 ; convert Red x3, Yellow x1, skull x1, Green x2, Purple x2 -> Blue x9 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+6 max+6 | A2:hp+6 max+6 | C:arm+6  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "L0": "buff A1 hp+1 max+1 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+1 max+1 ; convert Green x2, Blue x3, Yellow x2, skull x1, Brown x1 -> Red x9 ; buff C armor+1 ; convert Red x3, Yellow x1, skull x1, Green x2, Purple x2 -> Blue x9 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+1 max+1 | A2:hp+1 max+1 | C:arm+1  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "K": "buff A1 hp+6 max+6 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+6 max+6 ; convert Green x2, Blue x3, Yellow x2, skull x1, Brown x1 -> Red x9 ; buff C armor+6 ; convert Red x3, Yellow x1, skull x1, Green x2, Purple x2 -> Blue x9 ; ~cascade~ ; gold+4 ; extra-turn match  => A1:hp+6 max+6 | A2:hp+6 max+6 | C:arm+6  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
+   "L10": "buff A1 hp+6 max+6 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+6 max+6 ; convert Green x4, Purple x2, skull x1, Brown x1, Blue x1 -> Red x9 ; buff C armor+6 ; convert Red x2, Purple x2, Brown x2, Yellow x1, Green x1, skull x1 -> Blue x9 ; ~cascade~ ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => A1:hp+6 max+6 | A2:hp+6 max+6 mana+8 | C:arm+6  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "R10": "buff A1 hp+6 max+6 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+6 max+6 ; convert Green x4, Purple x2, skull x1, Brown x1, Blue x1 -> Red x9 ; buff C armor+6 ; convert Red x2, Purple x2, Brown x2, Yellow x1, Green x1, skull x1 -> Blue x9 ; ~cascade~ ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => A1:hp+6 max+6 | A2:hp+6 max+6 mana+8 | C:arm+6  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "L0": "buff A1 hp+1 max+1 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+1 max+1 ; convert Green x4, Purple x2, skull x1, Brown x1, Blue x1 -> Red x9 ; buff C armor+1 ; convert Red x2, Purple x2, Brown x2, Yellow x1, Green x1, skull x1 -> Blue x9 ; ~cascade~ ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => A1:hp+1 max+1 | A2:hp+1 max+1 mana+8 | C:arm+1  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}",
+   "K": "buff A1 hp+6 max+6 ; convert skull x1, Brown x2, Purple x2, Yellow x3, Green x1 -> Blue x9 ; buff A2 hp+6 max+6 ; convert Green x4, Purple x2, skull x1, Brown x1, Blue x1 -> Red x9 ; buff C armor+6 ; convert Red x2, Purple x2, Brown x2, Yellow x1, Green x1, skull x1 -> Blue x9 ; ~cascade~ ; gold+4 ; gold+4 ; gold+5 ; extra-turn match  => A1:hp+6 max+6 | A2:hp+6 max+6 mana+8 | C:arm+6  extra:match  cascade  eco:{\"gold\":13,\"goldMine\":13}"
   },
-  "by": "sa-H",
-  "at": "2026-09-28T21:49:39.708Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:14.533Z"
  },
  "troop:6818": {
   "lines": {

@@ -51,13 +51,13 @@
  },
  "troop:6122": {
   "lines": {
-   "L10": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Blue x1, Red x1, Yellow x1, Green x1 -> web x4 ; summon mine troop:-1 ; ~cascade~  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17  cascade",
-   "R10": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Blue x1, Red x1, Yellow x1, Green x1 -> web x4 ; summon mine troop:-1 ; ~cascade~  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17  cascade",
-   "L0": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Blue x1, Red x1, Yellow x1, Green x1 -> web x4 ; summon mine troop:-1 ; ~cascade~  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17  cascade",
-   "K": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Blue x1, Red x1, Yellow x1, Green x1 -> web x4 ; summon mine troop:-1 ; ~cascade~  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17  cascade"
+   "L10": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Green x2, Yellow x2 -> web x4 ; summon mine troop:-1 ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E12 +web  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17 | E10:+web | E12:+web  cascade",
+   "R10": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Green x2, Yellow x2 -> web x4 ; summon mine troop:-1 ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E12 +web  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17 | E10:+web | E12:+web  cascade",
+   "L0": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Green x2, Yellow x2 -> web x4 ; summon mine troop:-1 ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E12 +web  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17 | E10:+web | E12:+web  cascade",
+   "K": "convert Yellow x1, Brown x2, skull x2, Blue x1, Red x2 -> Green x8 ; convert Green x2, Yellow x2 -> web x4 ; summon mine troop:-1 ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E12 +web  => A14:new 巨型蜘蛛 hp29 atk10 arm11 mag17 | E10:+web | E12:+web  cascade"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T09:02:30.889Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:6131": {
   "lines": {
@@ -71,13 +71,13 @@
  },
  "troop:6135": {
   "lines": {
-   "L10": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
-   "R10": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
-   "L0": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
-   "K": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Green x3, Red x2, Yellow x1, Purple x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1"
+   "L10": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Yellow x2, Blue x2, Purple x2, Red x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
+   "R10": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Yellow x2, Blue x2, Purple x2, Red x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
+   "L0": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Yellow x2, Blue x2, Purple x2, Red x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1",
+   "K": "dmg C 1 (all) ; dmg A1 1 (all) ; dmg A2 1 (all) ; convert Yellow x2, Purple x3, Blue x2, Green x1 -> Red x8 ; convert Yellow x2, Blue x2, Purple x2, Red x2 -> Brown x8 ; summon mine troop:-1  => A14:new 提克娜拉 hp26 atk17 arm9 mag0 | C:hp-1 | A1:hp-1 | A2:hp-1"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:29:52.740Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:6148": {
   "lines": {
@@ -91,13 +91,13 @@
  },
  "troop:6160": {
   "lines": {
-   "L10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
-   "R10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
-   "L0": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
-   "K": "dmg E11 1 devoured ; defeat E11 ; buff C attack+17 ; buff C hp+1 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x2, Green x3, Yellow x2, Blue x1 -> Brown x8  => E11:hp-1 DEAD | C:hp+1 atk+17"
+   "L10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "R10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "L0": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
+   "K": "dmg E11 1 devoured ; defeat E11 ; buff C attack+17 ; buff C hp+1 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-1 DEAD | C:hp+1 atk+17"
   },
-  "by": "sa-J",
-  "at": "2026-09-29T03:53:13.847Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:6161": {
   "lines": {
@@ -391,13 +391,13 @@
  },
  "troop:6349": {
   "lines": {
-   "L10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Green x3, Blue x2, Yellow x1, Purple x1, Red x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7",
-   "R10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Green x3, Blue x2, Yellow x1, Purple x1, Red x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7",
-   "L0": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Green x3, Blue x2, Yellow x1, Purple x1, Red x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7",
-   "K": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Green x3, Blue x2, Yellow x1, Purple x1, Red x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7"
+   "L10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x2, Blue x2, Purple x1, Red x2, Green x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7",
+   "R10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x2, Blue x2, Purple x1, Red x2, Green x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7",
+   "L0": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x2, Blue x2, Purple x1, Red x2, Green x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7",
+   "K": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x2, Blue x2, Purple x1, Red x2, Green x1 -> Brown x8 ; summon mine troop:-1  => A14:new 暗影巨龙 hp34 atk15 arm13 mag7"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T09:02:30.889Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:6363": {
   "lines": {
@@ -891,13 +891,13 @@
  },
  "troop:6696": {
   "lines": {
-   "L10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Green x3, Blue x1, Yellow x1, Purple x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7  cascade",
-   "R10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Green x3, Blue x1, Yellow x1, Purple x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7  cascade",
-   "L0": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Green x3, Blue x1, Yellow x1, Purple x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7  cascade",
-   "K": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Green x3, Blue x1, Yellow x1, Purple x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7  cascade"
+   "L10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Purple x2, Green x2, Blue x1, Yellow x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7 | A2:mana+3  cascade",
+   "R10": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Purple x2, Green x2, Blue x1, Yellow x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7 | A2:mana+3  cascade",
+   "L0": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Purple x2, Green x2, Blue x1, Yellow x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7 | A2:mana+3  cascade",
+   "K": "convert Yellow x1, Brown x1, skull x2, Blue x1, Red x2 -> Green x7 ; convert Purple x2, Green x2, Blue x1, Yellow x1, Brown x1 -> Red x7 ; summon mine troop:-1 ; ~cascade~  => A14:new 恐狼 hp21 atk10 arm7 mag7 | A2:mana+3  cascade"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T09:02:30.889Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:6701": {
   "lines": {
@@ -1561,13 +1561,13 @@
  },
  "troop:7177": {
   "lines": {
-   "L10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Blue x3, Brown x1, Yellow x1, Purple x1, skull x2 -> Green x8 ; summon mine troop:-1  => A14:new 图腾守护者 hp16 atk7 arm25 mag0",
-   "R10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Blue x3, Brown x1, Yellow x1, Purple x1, skull x2 -> Green x8 ; summon mine troop:-1  => A14:new 图腾守护者 hp16 atk7 arm25 mag0",
-   "L0": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Blue x3, Brown x1, Yellow x1, Purple x1, skull x2 -> Green x8 ; summon mine troop:-1  => A14:new 图腾守护者 hp16 atk7 arm25 mag0",
-   "K": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Blue x3, Brown x1, Yellow x1, Purple x1, skull x2 -> Green x8 ; summon mine troop:-1  => A14:new 图腾守护者 hp16 atk7 arm25 mag0"
+   "L10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x1, Red x2, Brown x2, Purple x1, Blue x1, skull x1 -> Green x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 图腾守护者 hp16 atk7 arm25 mag0  cascade",
+   "R10": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x1, Red x2, Brown x2, Purple x1, Blue x1, skull x1 -> Green x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 图腾守护者 hp16 atk7 arm25 mag0  cascade",
+   "L0": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x1, Red x2, Brown x2, Purple x1, Blue x1, skull x1 -> Green x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 图腾守护者 hp16 atk7 arm25 mag0  cascade",
+   "K": "convert Green x1, Purple x4, skull x1, Red x1, Yellow x1 -> Blue x8 ; convert Yellow x1, Red x2, Brown x2, Purple x1, Blue x1, skull x1 -> Green x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 图腾守护者 hp16 atk7 arm25 mag0  cascade"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T09:02:30.889Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:7222": {
   "lines": {
@@ -1951,13 +1951,13 @@
  },
  "troop:7671": {
   "lines": {
-   "L10": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, Brown x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill  => A14:new 时间之女 hp39 atk15 arm0 mag0  extra:skill",
-   "R10": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, Brown x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill  => A14:new 时间之女 hp39 atk15 arm0 mag0  extra:skill",
-   "L0": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, Brown x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill  => A14:new 时间之女 hp39 atk15 arm0 mag0  extra:skill",
-   "K": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, Brown x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill  => A14:new 时间之女 hp39 atk15 arm0 mag0  extra:skill"
+   "L10": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, skull x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill ; ~cascade~ ; gold+4 ; trigger faerieFireGem ; status E12 +faerie-fire ; trigger faerieFireGem ; status E13 +faerie-fire  => A14:new 时间之女 hp39 atk15 arm0 mag0 | E12:+faerie-fire | E13:+faerie-fire  extra:skill  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, skull x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill ; ~cascade~ ; gold+4 ; trigger faerieFireGem ; status E12 +faerie-fire ; trigger faerieFireGem ; status E13 +faerie-fire  => A14:new 时间之女 hp39 atk15 arm0 mag0 | E12:+faerie-fire | E13:+faerie-fire  extra:skill  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, skull x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill ; ~cascade~ ; gold+4 ; trigger faerieFireGem ; status E12 +faerie-fire ; trigger faerieFireGem ; status E13 +faerie-fire  => A14:new 时间之女 hp39 atk15 arm0 mag0 | E12:+faerie-fire | E13:+faerie-fire  extra:skill  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "convert Green x1, Purple x1, skull x1 -> freezeGem x3 ; convert Red x2, skull x1 -> faerieFireGem x3 ; summon mine troop:-1 ; extra-turn skill ; ~cascade~ ; gold+4 ; trigger faerieFireGem ; status E12 +faerie-fire ; trigger faerieFireGem ; status E13 +faerie-fire  => A14:new 时间之女 hp39 atk15 arm0 mag0 | E12:+faerie-fire | E13:+faerie-fire  extra:skill  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T09:02:30.889Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "troop:7677": {
   "lines": {
@@ -2071,13 +2071,13 @@
  },
  "weapon:1154": {
   "lines": {
-   "L10": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Brown x1, Green x3, Red x3, Purple x1 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade",
-   "R10": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Brown x1, Green x3, Red x3, Purple x1 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade",
-   "L0": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Brown x1, Green x3, Red x3, Purple x1 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade",
-   "K": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Brown x1, Green x3, Red x3, Purple x1 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade"
+   "L10": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Green x2, Blue x2, skull x1, Purple x1, Red x2 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade",
+   "R10": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Green x2, Blue x2, skull x1, Purple x1, Red x2 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade",
+   "L0": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Green x2, Blue x2, skull x1, Purple x1, Red x2 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade",
+   "K": "convert Purple x4, Blue x2, Yellow x1, Green x1 -> Red x8 ; convert Green x2, Blue x2, skull x1, Purple x1, Red x2 -> Yellow x8 ; summon mine troop:-1 ; ~cascade~  => A14:new 恶龙蛋 hp17 atk15 arm16 mag0 | A2:mana+3  cascade"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T09:02:30.889Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:12.554Z"
  },
  "weapon:1155": {
   "lines": {

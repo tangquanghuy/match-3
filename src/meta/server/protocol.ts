@@ -134,6 +134,7 @@ export interface CommandTable {
   unlockTroopTrait: { args: { troopId: number; slot: number }; result: UnlockTraitResult | MetaFailure };
   decomposeTroop: { args: { troopId: number }; result: DecomposeResult | MetaFailure };
   setTroopLocked: { args: { troopId: number; locked: boolean }; result: boolean | MetaFailure };
+  setTroopFavorite: { args: { troopId: number; favorite: boolean }; result: boolean | MetaFailure };
 
   // —— 编队 ——
   saveTeam: { args: { index: number; team: TeamInput }; result: SetTeamResult };

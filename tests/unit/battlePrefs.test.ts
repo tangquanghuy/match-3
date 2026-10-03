@@ -3,6 +3,8 @@ import {
   resetBattlePrefs,
   setSkipCastConfirm,
   skipCastConfirm,
+  autoBattleEnabled,
+  setAutoBattleEnabled,
 } from '../../src/render/battlePrefs';
 
 function storageStub(initial: Record<string, string> = {}): Storage {
@@ -51,5 +53,23 @@ describe('battle cast confirmation preference', () => {
 
     setSkipCastConfirm(true);
     expect(skipCastConfirm()).toBe(true);
+    setAutoBattleEnabled(true);
+    expect(autoBattleEnabled()).toBe(true);
+    setAutoBattleEnabled(false);
+    expect(autoBattleEnabled()).toBe(false);
+  });
+
+  it('defaults to manual battle, persists both directions, and clears on reset', () => {
+    expect(autoBattleEnabled()).toBe(false);
+    setAutoBattleEnabled(true);
+    expect(autoBattleEnabled()).toBe(true);
+    expect(window.localStorage.getItem('battle.autoBattle')).toBe('1');
+    setAutoBattleEnabled(false);
+    expect(autoBattleEnabled()).toBe(false);
+    expect(window.localStorage.getItem('battle.autoBattle')).toBe('0');
+    setAutoBattleEnabled(true);
+    resetBattlePrefs();
+    expect(autoBattleEnabled()).toBe(false);
+    expect(window.localStorage.getItem('battle.autoBattle')).toBeNull();
   });
 });

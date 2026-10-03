@@ -12,7 +12,7 @@ import { audioControlsHtml, bindAudioControls } from '../../preferences/audioCon
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { MetaSave } from '../state/schema';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { setSkipCastConfirm, skipCastConfirm } from '../../render/battlePrefs';
+import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled } from '../../render/battlePrefs';
 import { allKingdoms } from '../data/kingdoms';
 import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 import {
@@ -485,6 +485,10 @@ export class SettingsScreen implements Screen {
                 <div class="settings-group">
                   <h3>战斗与显示</h3>
                   <label class="check-row">
+                    <span class="setting-copy"><b>自动战斗</b><small>进入战斗后自动操作</small></span>
+                    <input type="checkbox" role="switch" id="autoBattle" aria-label="自动战斗"${autoBattleEnabled() ? ' checked' : ''}>
+                  </label>
+                  <label class="check-row">
                     <span class="setting-copy"><b>快速释放</b><small>点击法力值已满的角色直接释放技能；长按查看详情</small></span>
                     <input type="checkbox" id="skipCastConfirm" aria-label="快速释放"${skipCastConfirm() ? ' checked' : ''}>
                   </label>
@@ -590,6 +594,7 @@ export class SettingsScreen implements Screen {
     mountIcons(document);
     this.syncPlayerPreferenceControls();
     ($('#skipCastConfirm') as HTMLInputElement).checked = skipCastConfirm();
+    ($('#autoBattle') as HTMLInputElement).checked = autoBattleEnabled();
     const debugToggle = $('#battleDebug') as HTMLInputElement | null;
     if (debugToggle) debugToggle.checked = ctx.save().settings.battleDebug;
 
@@ -617,6 +622,9 @@ export class SettingsScreen implements Screen {
     this.bind('#soundEffectsVolume', 'change', () => this.updateSoundEffectsVolume(true));
     this.bind('#reducedMotion', 'change', () => this.toggleReducedMotion());
     this.bind('#skipCastConfirm', 'change', () => this.toggleCastConfirm());
+    this.bind('#autoBattle', 'change', () => {
+      setAutoBattleEnabled(($('#autoBattle') as HTMLInputElement).checked);
+    });
     this.bind('#battleDebug', 'change', () => void this.toggleDebug());
     this.bind('#collectionKingdom', 'change', () => {
       this.modifierKingdom = ($('#collectionKingdom') as HTMLSelectElement).value;

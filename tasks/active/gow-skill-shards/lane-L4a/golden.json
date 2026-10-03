@@ -1935,13 +1935,13 @@
  },
  "troop:7220": {
   "lines": {
-   "L10": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Green x2, Brown x1, Blue x1 -> gargoyleGem x4",
-   "R10": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Green x2, Brown x1, Blue x1 -> gargoyleGem x4",
-   "L0": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Green x2, Brown x1, Blue x1 -> gargoyleGem x4",
-   "K": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Green x2, Brown x1, Blue x1 -> gargoyleGem x4"
+   "L10": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Brown x2, Yellow x1, Blue x1 -> gargoyleGem x4",
+   "R10": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Brown x2, Yellow x1, Blue x1 -> gargoyleGem x4",
+   "L0": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Brown x2, Yellow x1, Blue x1 -> gargoyleGem x4",
+   "K": "jumble board ; convert Green x1, Red x1 -> stoneBlock x2 ; convert Brown x2, Yellow x1, Blue x1 -> gargoyleGem x4"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T22:53:17.184Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:19.755Z"
  },
  "troop:7224": {
   "lines": {
@@ -2645,13 +2645,13 @@
  },
  "troop:7692": {
   "lines": {
-   "L10": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Purple x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1",
-   "R10": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Purple x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1",
-   "L0": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Purple x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1",
-   "K": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Purple x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1"
+   "L10": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Green x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1",
+   "R10": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Green x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1",
+   "L0": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Green x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1",
+   "K": "convert Green x1, Brown x1, Blue x1 -> terrorGem x3 ; convert Blue x1, Green x1, Yellow x1 -> burningGem x3 ; explode 15 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning | A2:mana+2 | A1:mana+1"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T11:21:07.693Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:19.755Z"
  },
  "troop:7704": {
   "lines": {

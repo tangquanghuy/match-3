@@ -138,10 +138,10 @@ describe('装备校验（setTeamPreset 统一拦截）', () => {
 // ───────────────────────── 契约注入 ─────────────────────────
 
 describe('buildBattleRequest 携带 playerBanner', () => {
-  it('出战队装备已解锁旗帜 → 请求带 boosts；未装备/未解锁 → 不带（防御降级）', () => {
+  it('已解锁旗帜注入 boosts，未装备不注入，未解锁旗帜拒绝出战', () => {
     const s = saveWithProgress();
     s.teams = [
-      { name: '先锋队', members: [6000, 6097, 6457].map((troopId) => ({ kind: 'troop' as const, troopId })), bannerKingdomId: '破碎尖塔' },
+      { name: '先锋队', members: [{ kind: 'hero' }, ...[6000, 6097, 6457].map((troopId) => ({ kind: 'troop' as const, troopId }))], bannerKingdomId: '破碎尖塔' },
     ];
     s.kingdoms['破碎尖塔']!.questsDone = 0;
     const plan = planExploreEncounter('破碎尖塔', 1, 11);
@@ -157,12 +157,10 @@ describe('buildBattleRequest 携带 playerBanner', () => {
     if (!without.ok) throw new Error(without.message);
     expect(without.request.playerBanner).toBeUndefined();
 
-    // 存档被手改成未解锁旗帜 → 桥接静默降级，坏数据不进契约
+    // 存档被手改成未解锁旗帜 → 出战校验拒绝，坏数据不进契约
     s.teams[0]!.bannerKingdomId = '卡拉考斯';
     expect(equippedBannerOf(s, s.teams[0]!)).toBeNull();
-    const downgraded = buildBattleRequest(s, plan);
-    if (!downgraded.ok) throw new Error(downgraded.message);
-    expect(downgraded.request.playerBanner).toBeUndefined();
+    expect(buildBattleRequest(s, plan)).toMatchObject({ ok: false, code: 'INVALID' });
   });
 });
 

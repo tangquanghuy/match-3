@@ -8,6 +8,7 @@ import type { BattleNarrator } from '../../src/render/BattleNarrator';
 type Runtime = Omit<App, 'audio' | 'player' | 'session' | 'narrator'> & {
   audio: AudioManager; player: EventStreamPlayer; session: BattleSession; narrator: BattleNarrator;
   input: { enabled: boolean }; startupPlaying: boolean; afterResolve(): void;
+  autoBattleEnabled: boolean;
   resultCount: number; voicePools: string[];
 };
 declare global { interface Window { __settingsTestApp?: Runtime } }
@@ -19,7 +20,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function openBattle(page: Page): Promise<void> {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
     const app = (window as unknown as { __app: Runtime }).__app;
     if (!app || app.startupPlaying || !document.querySelector('.battle-settings-button')) return false;
@@ -27,6 +28,53 @@ async function openBattle(page: Page): Promise<void> {
     return true;
   });
 }
+
+async function nextBattle(page: Page): Promise<void> {
+  // 局外连续出战会在同一页面销毁旧 App 并创建新 App。
+  await page.evaluate(async () => {
+    const previous = window.__settingsTestApp!;
+    const request = previous.getBattleRequest();
+    const BattleApp = previous.constructor as new () => Runtime;
+    previous.destroy();
+    const next = new BattleApp();
+    await next.init(document.getElementById('app')!, request);
+    window.__settingsTestApp = next;
+  });
+}
+
+test('配置页自动战斗开关决定每场状态，战斗按钮同步设置', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/game.html#settings', { waitUntil: 'domcontentloaded' });
+  const setting = page.getByRole('switch', { name: '自动战斗', exact: true });
+  await expect(setting).not.toBeChecked();
+  await setting.check();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(setting).toBeChecked();
+  await setting.uncheck();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(setting).not.toBeChecked();
+  await setting.check();
+  await page.screenshot({ path: 'artifacts/settings-auto-battle.png', animations: 'disabled' });
+  await openBattle(page);
+  const auto = page.getByTestId('battle-auto-button');
+  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: '战斗设置', exact: true }).click();
+  await page.getByRole('button', { name: '放弃本局' }).click();
+  await page.getByRole('button', { name: '确认放弃' }).click();
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
+  expect(await page.evaluate(() => localStorage.getItem('battle.autoBattle'))).toBe('1');
+  await nextBattle(page);
+  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => window.__settingsTestApp!.autoBattleEnabled)).toBe(true);
+  await expect.poll(() => page.evaluate(() => window.__settingsTestApp!.getEngine().getState().actionLog.length)).toBeGreaterThan(0);
+  await auto.click();
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
+  await nextBattle(page);
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
+  await page.evaluate(() => window.__settingsTestApp!.destroy());
+  await page.goto('/game.html#settings', { waitUntil: 'domcontentloaded' });
+  await expect(setting).not.toBeChecked();
+});
 
 test('battle audio controls persist independently; cancellation preserves the match; surrender settles once', async ({ page }) => {
   const errors: string[] = [];

@@ -546,6 +546,10 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     currencies,
     hero,
     collection,
+    favoriteTroopIds: Array.isArray(raw.favoriteTroopIds)
+      ? [...new Set(raw.favoriteTroopIds.filter((id): id is number =>
+        typeof id === 'number' && Number.isInteger(id) && !!getTroopById(id)))]
+      : [],
     collectionTruth,
     teams,
     activeTeamIndex: num(raw.activeTeamIndex, 0, 0, Math.max(teams.length - 1, 0)),

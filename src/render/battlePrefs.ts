@@ -10,6 +10,7 @@
  * 失败时退回内存值——战斗层不能因为存储不可用而崩。
  */
 const KEY_SKIP_CONFIRM = 'battle.skipCastConfirm';
+const KEY_AUTO = 'battle.autoBattle';
 /** 已废弃的一次性手势引导标记（满法力文字提醒已删除）；只在 reset 时顺手清掉残留值 */
 const KEY_LEGACY_GESTURE_HINT = 'battle.gestureHintShown';
 
@@ -45,11 +46,22 @@ export function setSkipCastConfirm(skip: boolean): void {
   write(KEY_SKIP_CONFIRM, skip ? '1' : '0');
 }
 
+/** 全局自动战斗设置（默认关闭），配置页与战斗按钮共用。 */
+export function autoBattleEnabled(): boolean {
+  return read(KEY_AUTO) === '1';
+}
+
+/** 结算、投降和销毁时停止运行不会改变玩家设置。 */
+export function setAutoBattleEnabled(on: boolean): void {
+  write(KEY_AUTO, on ? '1' : '0');
+}
+
 /** 测试与调试用：清空本地偏好 */
 export function resetBattlePrefs(): void {
   memory.clear();
   try {
     window.localStorage.removeItem(KEY_SKIP_CONFIRM);
+    window.localStorage.removeItem(KEY_AUTO);
     window.localStorage.removeItem(KEY_LEGACY_GESTURE_HINT);
   } catch {
     // ignore

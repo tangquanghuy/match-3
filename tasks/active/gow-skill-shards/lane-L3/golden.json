@@ -741,13 +741,13 @@
  },
  "troop:6863": {
   "lines": {
-   "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Red x2, Yellow x2, Green x4, Blue x1 -> Brown x9 ; dmg E10 11 (scatter) ; dmg E11 6 (scatter) ; dmg E12 5 (scatter) ; dmg E13 4 (scatter) ; ~cascade~  => E10:hp-11 | E11:hp-6 | E12:hp-5 | E13:hp-4  cascade",
-   "R10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Red x2, Yellow x2, Green x4, Blue x1 -> Brown x9 ; dmg E10 11 (scatter) ; dmg E11 6 (scatter) ; dmg E12 5 (scatter) ; dmg E13 4 (scatter) ; ~cascade~  => E10:hp-11 | E11:hp-6 | E12:hp-5 | E13:hp-4  cascade",
-   "L0": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Red x2, Yellow x2, Green x4, Blue x1 -> Brown x9 ; dmg E10 3 (scatter) ; dmg E11 1 (scatter) ; dmg E12 1 (scatter) ; dmg E13 1 (scatter) ; extra-turn skill ; buff C mana+8 ; ~cascade~  => E10:hp-3 | E11:hp-1 | E12:hp-1 | E13:hp-1  extra:skill  cascade",
-   "K": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Red x2, Yellow x2, Green x4, Blue x1 -> Brown x9 ; dmg E10 11 (scatter) ; dmg E11 5 (scatter) ; dmg E12 6 (scatter) ; dmg E13 4 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; extra-turn skill ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  cascade"
+   "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Purple x3, Blue x2, Red x1, Green x3 -> Brown x9 ; dmg E10 11 (scatter) ; dmg E11 6 (scatter) ; dmg E12 5 (scatter) ; dmg E13 4 (scatter) ; ~cascade~  => E10:hp-11 | E11:hp-6 | E12:hp-5 | E13:hp-4  cascade",
+   "R10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Purple x3, Blue x2, Red x1, Green x3 -> Brown x9 ; dmg E10 11 (scatter) ; dmg E11 6 (scatter) ; dmg E12 5 (scatter) ; dmg E13 4 (scatter) ; ~cascade~  => E10:hp-11 | E11:hp-6 | E12:hp-5 | E13:hp-4  cascade",
+   "L0": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Purple x3, Blue x2, Red x1, Green x3 -> Brown x9 ; dmg E10 3 (scatter) ; dmg E11 1 (scatter) ; dmg E12 1 (scatter) ; dmg E13 1 (scatter) ; extra-turn skill ; buff C mana+8 ; ~cascade~  => E10:hp-3 | E11:hp-1 | E12:hp-1 | E13:hp-1  extra:skill  cascade",
+   "K": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2 -> Green x9 ; convert Purple x3, Blue x2, Red x1, Green x3 -> Brown x9 ; dmg E10 11 (scatter) ; dmg E11 5 (scatter) ; dmg E12 6 (scatter) ; dmg E13 4 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; extra-turn skill ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  cascade"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T21:13:41.008Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:6867": {
   "lines": {
@@ -1611,13 +1611,13 @@
  },
  "troop:7430": {
   "lines": {
-   "L10": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert skull x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill  extra:skill",
-   "R10": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert skull x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill  extra:skill",
-   "L0": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert skull x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill  extra:skill",
-   "K": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert skull x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill  extra:skill"
+   "L10": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert Yellow x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E13 +frozen  => A1:mana+3 | E10:+frozen | E13:+frozen  extra:skill  cascade",
+   "R10": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert Yellow x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E13 +frozen  => A1:mana+3 | E10:+frozen | E13:+frozen  extra:skill  cascade",
+   "L0": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert Yellow x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E13 +frozen  => A1:mana+3 | E10:+frozen | E13:+frozen  extra:skill  cascade",
+   "K": "convert Blue x1, Green x2, skull x1, Brown x1 -> hourglass x5 ; convert Yellow x1, Brown x2, Purple x1, Green x1 -> freezeGem x5 ; extra-turn skill ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E13 +frozen  => A1:mana+3 | E10:+frozen | E13:+frozen  extra:skill  cascade"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T16:28:20.991Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:7437": {
   "lines": {
@@ -1941,13 +1941,13 @@
  },
  "troop:7644": {
   "lines": {
-   "L10": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Yellow x1, Purple x3, Blue x1 -> burningGem x5 ; extra-turn skill  extra:skill",
-   "R10": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Yellow x1, Purple x3, Blue x1 -> burningGem x5 ; extra-turn skill  extra:skill",
-   "L0": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Yellow x1, Purple x3, Blue x1 -> burningGem x5 ; extra-turn skill  extra:skill",
-   "K": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Yellow x1, Purple x3, Blue x1 -> burningGem x5 ; extra-turn skill  extra:skill"
+   "L10": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Green x2, Yellow x2, Purple x1 -> burningGem x5 ; extra-turn skill ; ~cascade~ ; gold+5 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Green x2, Yellow x2, Purple x1 -> burningGem x5 ; extra-turn skill ; ~cascade~ ; gold+5 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Green x2, Yellow x2, Purple x1 -> burningGem x5 ; extra-turn skill ; ~cascade~ ; gold+5 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "convert Yellow x1, Brown x1, skull x1, Blue x1, Red x1 -> faerieFireGem x5 ; convert Green x2, Yellow x2, Purple x1 -> burningGem x5 ; extra-turn skill ; ~cascade~ ; gold+5 ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning ; trigger burningGem ; status E10 +burning ; status E11 +burning ; status E12 +burning ; status E13 +burning  => E10:+burning | E11:+burning | E12:+burning | E13:+burning  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T16:28:20.991Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:7657": {
   "lines": {
@@ -2001,13 +2001,13 @@
  },
  "troop:7697": {
   "lines": {
-   "L10": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert Brown x2, Red x2, Blue x1 -> poisonGem x5 ; extra-turn skill  extra:skill",
-   "R10": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert Brown x2, Red x2, Blue x1 -> poisonGem x5 ; extra-turn skill  extra:skill",
-   "L0": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert Brown x2, Red x2, Blue x1 -> poisonGem x5 ; extra-turn skill  extra:skill",
-   "K": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert Brown x2, Red x2, Blue x1 -> poisonGem x5 ; extra-turn skill  extra:skill"
+   "L10": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert skull x1, Red x2, Brown x1, Yellow x1 -> poisonGem x5 ; extra-turn skill ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+poison | E11:+poison | E12:+poison | E13:+poison  extra:skill  cascade",
+   "R10": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert skull x1, Red x2, Brown x1, Yellow x1 -> poisonGem x5 ; extra-turn skill ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+poison | E11:+poison | E12:+poison | E13:+poison  extra:skill  cascade",
+   "L0": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert skull x1, Red x2, Brown x1, Yellow x1 -> poisonGem x5 ; extra-turn skill ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+poison | E11:+poison | E12:+poison | E13:+poison  extra:skill  cascade",
+   "K": "convert Green x1, Purple x2, skull x1, Red x1 -> gargoyleGem x5 ; convert skull x1, Red x2, Brown x1, Yellow x1 -> poisonGem x5 ; extra-turn skill ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+poison | E11:+poison | E12:+poison | E13:+poison  extra:skill  cascade"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T16:28:20.991Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:7701": {
   "lines": {
@@ -2041,13 +2041,13 @@
  },
  "troop:7736": {
   "lines": {
-   "L10": "dmg E11 910 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Red x1, manaPotionGem/Blue x1, Green x1, Blue x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-900 arm-10 DEAD  extra:skill",
-   "R10": "dmg E11 910 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Red x1, manaPotionGem/Blue x1, Green x1, Blue x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-900 arm-10 DEAD  extra:skill",
-   "L0": "dmg E11 910 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Red x1, manaPotionGem/Blue x1, Green x1, Blue x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-900 arm-10 DEAD  extra:skill",
-   "K": "dmg E11 1 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Red x1, manaPotionGem/Blue x1, Green x1, Blue x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
+   "L10": "dmg E11 910 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Blue x2, Brown x1, Green x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-900 arm-10 DEAD  extra:skill",
+   "R10": "dmg E11 910 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Blue x2, Brown x1, Green x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-900 arm-10 DEAD  extra:skill",
+   "L0": "dmg E11 910 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Blue x2, Brown x1, Green x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-900 arm-10 DEAD  extra:skill",
+   "K": "dmg E11 1 ; defeat E11 ; convert Brown x1, skull x1, Red x2 -> manaPotionGem/Green x3, manaPotionGem/Blue x1 ; convert Yellow x1, Green x1, Brown x1, Blue x1 -> manaPotionGem/Red x1, manaPotionGem/Yellow x3 ; convert Blue x2, Brown x1, Green x1 -> manaPotionGem/Purple x4 ; extra-turn skill  => E11:hp-1 DEAD  extra:skill"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T21:46:47.023Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:7743": {
   "lines": {
@@ -2111,13 +2111,13 @@
  },
  "troop:7781": {
   "lines": {
-   "L10": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Yellow x1, Purple x2, Green x1, bleedGem x1 -> decayGem x5 ; extra-turn skill  extra:skill",
-   "R10": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Yellow x1, Purple x2, Green x1, bleedGem x1 -> decayGem x5 ; extra-turn skill  extra:skill",
-   "L0": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Yellow x1, Purple x2, Green x1, bleedGem x1 -> decayGem x5 ; extra-turn skill  extra:skill",
-   "K": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Yellow x1, Purple x2, Green x1, bleedGem x1 -> decayGem x5 ; extra-turn skill  extra:skill"
+   "L10": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Green x1, Yellow x3, Purple x1 -> decayGem x5 ; extra-turn skill  extra:skill",
+   "R10": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Green x1, Yellow x3, Purple x1 -> decayGem x5 ; extra-turn skill  extra:skill",
+   "L0": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Green x1, Yellow x3, Purple x1 -> decayGem x5 ; extra-turn skill  extra:skill",
+   "K": "convert Green x2, Brown x1, Blue x1, Red x1 -> bleedGem x5 ; convert Green x1, Yellow x3, Purple x1 -> decayGem x5 ; extra-turn skill  extra:skill"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T16:28:20.991Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:7796": {
   "lines": {
@@ -2271,13 +2271,13 @@
  },
  "troop:7872": {
   "lines": {
-   "L10": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Yellow x2, Brown x2, Blue x1 -> web x5 ; extra-turn skill  extra:skill",
-   "R10": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Yellow x2, Brown x2, Blue x1 -> web x5 ; extra-turn skill  extra:skill",
-   "L0": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Yellow x2, Brown x2, Blue x1 -> web x5 ; extra-turn skill  extra:skill",
-   "K": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Yellow x2, Brown x2, Blue x1 -> web x5 ; extra-turn skill  extra:skill"
+   "L10": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Green x2, Yellow x3 -> web x5 ; extra-turn skill  extra:skill",
+   "R10": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Green x2, Yellow x3 -> web x5 ; extra-turn skill  extra:skill",
+   "L0": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Green x2, Yellow x3 -> web x5 ; extra-turn skill  extra:skill",
+   "K": "convert Green x1, Purple x2, skull x1, Red x1 -> freezeGem x5 ; convert Green x2, Yellow x3 -> web x5 ; extra-turn skill  extra:skill"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T21:13:41.008Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "troop:7882": {
   "lines": {
@@ -2641,13 +2641,13 @@
  },
  "weapon:1490": {
   "lines": {
-   "L10": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, skull x1 -> dragonGem/Red x2 ; convert Purple x2 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill",
-   "R10": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, skull x1 -> dragonGem/Red x2 ; convert Purple x2 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill",
-   "L0": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, skull x1 -> dragonGem/Red x2 ; convert Purple x2 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill",
-   "K": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, skull x1 -> dragonGem/Red x2 ; convert Purple x2 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill"
+   "L10": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, Yellow x1 -> dragonGem/Red x2 ; convert Yellow x1, Purple x1 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill",
+   "R10": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, Yellow x1 -> dragonGem/Red x2 ; convert Yellow x1, Purple x1 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill",
+   "L0": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, Yellow x1 -> dragonGem/Red x2 ; convert Yellow x1, Purple x1 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill",
+   "K": "convert Green x1, Purple x1 -> dragonGem/Blue x2 ; convert skull x1, Red x1 -> dragonGem/Green x2 ; convert Purple x1, Yellow x1 -> dragonGem/Red x2 ; convert Yellow x1, Purple x1 -> dragonGem/Brown x2 ; extra-turn skill  extra:skill"
   },
-  "by": "sa-F",
-  "at": "2026-09-28T16:28:20.991Z"
+  "by": "codex-regression-review",
+  "at": "2026-10-03T07:51:17.771Z"
  },
  "weapon:1506": {
   "lines": {

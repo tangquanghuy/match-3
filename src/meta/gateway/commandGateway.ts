@@ -89,6 +89,7 @@ export class CommandGateway implements MetaGateway {
   unlockTroopTrait(troopId: number, slot: number) { return this.cmd('unlockTroopTrait', { troopId, slot }); }
   decomposeTroop(troopId: number) { return this.cmd('decomposeTroop', { troopId }); }
   setTroopLocked(troopId: number, locked: boolean) { return this.cmd('setTroopLocked', { troopId, locked }); }
+  setTroopFavorite(troopId: number, favorite: boolean) { return this.cmd('setTroopFavorite', { troopId, favorite }); }
 
   // —— 编队 ——
 

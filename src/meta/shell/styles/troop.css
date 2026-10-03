@@ -882,7 +882,18 @@
 #portraitZoomClose [data-icon] { width: 20px; height: 20px; }
 
 /* Detail actions live outside the decorative title: remain visible on mobile. */
-#detail .detail-header-actions { display: flex; align-items: center; gap: 20px; min-width: 0; }
+#detail .detail-header-actions { display: flex; align-items: center; gap: 12px; min-width: 0; }
+#detail .detail-favorite-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 40px; padding: 0 10px; border: 0; border-radius: 20px;
+  background: transparent; color: #b8ac98; font: 600 13px/1.3 var(--body); white-space: nowrap;
+}
+#detail .detail-favorite-button [data-icon] { width: 20px; height: 20px; }
+#detail .detail-favorite-button[aria-pressed="true"] { color: #f2cd7d; }
+#detail .detail-favorite-button[aria-pressed="true"] svg { fill: currentColor; stroke: #ffdf98; }
+#detail .detail-favorite-button:hover:not(:disabled) { background: #d9ba7320; filter: none; }
+#detail .detail-favorite-button:focus-visible { outline: 2px solid #a6dff9; outline-offset: 2px; }
+#detail .detail-favorite-button:disabled { opacity: .65; }
 #detail .detail-wishlist-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 40px; padding: 0 15px; border: 1px solid #8c7851; border-radius: 5px;
@@ -894,9 +905,10 @@
 #detail .detail-wishlist-button:focus-visible { outline: 2px solid #a6dff9; outline-offset: 3px; }
 #detail .detail-wishlist-button:disabled { opacity: .65; }
 @media (max-width: 700px) {
-  #stage.collection-responsive #detail .detail-header-actions { gap: 0; }
+  #stage.collection-responsive #detail .detail-header-actions { gap: 4px; }
   #stage.collection-responsive #detail .detail-header-actions .page-index { display: none; }
   #stage.collection-responsive #detail .detail-wishlist-button { min-height: 44px; padding: 0 12px; font-size: 12px; }
+  #stage.collection-responsive #detail .detail-favorite-button { min-height: 44px; padding: 0 8px; font-size: 12px; }
   #stage.collection-responsive #detail .back { min-height: 44px; gap: 6px; padding: 0; font-size: 12px; }
 }
 

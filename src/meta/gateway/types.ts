@@ -113,6 +113,7 @@ export interface MetaGateway {
   unlockTroopTrait(troopId: number, slot: number): Promise<GatewayUpdate<UnlockTraitResult | MetaFailure>>;
   decomposeTroop(troopId: number): Promise<GatewayUpdate<DecomposeResult | MetaFailure>>;
   setTroopLocked(troopId: number, locked: boolean): Promise<GatewayUpdate<boolean | MetaFailure>>;
+  setTroopFavorite(troopId: number, favorite: boolean): Promise<GatewayUpdate<boolean | MetaFailure>>;
 
   // —— 编队 ——
   saveTeam(index: number, team: TeamInput): Promise<GatewayUpdate<SetTeamResult>>;

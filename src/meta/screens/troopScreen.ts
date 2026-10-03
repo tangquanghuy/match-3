@@ -126,6 +126,7 @@ export class TroopScreen implements Screen {
           <div class="heading-center"><h1>部队详情</h1></div>
           <div class="detail-header-actions">
             <span class="page-index">图鉴 <b id="pageIndex">001</b> / <span id="pageTotal">000</span></span>
+            <button class="detail-favorite-button" id="detailFavorite" type="button" aria-pressed="false" title="收藏后优先显示在队伍列表"><span data-icon="star" aria-hidden="true"></span><span id="detailFavoriteLabel">收藏</span></button>
             <button class="detail-wishlist-button" id="detailWishlist" type="button"><span data-icon="sparkles" aria-hidden="true"></span><span id="detailWishlistLabel">愿望单</span></button>
           </div>
         </div>
@@ -342,6 +343,18 @@ export class TroopScreen implements Screen {
       catch { toast('保存失败，请重试'); }
       finally { button.disabled = false; }
     });
+    this.bind('#detailFavorite', 'click', async () => {
+      const id = this.currentId;
+      const favorite = !ctx.save().favoriteTroopIds.includes(id);
+      const button = $('#detailFavorite') as HTMLButtonElement;
+      button.disabled = true;
+      try {
+        const { result } = await ctx.gateway.setTroopFavorite(id, favorite);
+        if (typeof result === 'boolean') { if (button.isConnected) this.paintFavorite(); }
+        else toast(result.message);
+      } catch { toast('收藏保存失败，请重试'); }
+      finally { button.disabled = false; }
+    });
     this.bind('#previous', 'click', () => this.stepOwned(-1));
     this.bind('#next', 'click', () => this.stepOwned(1));
     this.bind('#portraitExpand', 'click', () => {
@@ -543,9 +556,16 @@ export class TroopScreen implements Screen {
 
   // —— 详情渲染 ——
 
+  private paintFavorite(): void {
+    const favorite = this.ctx.save().favoriteTroopIds.includes(this.currentId);
+    $('#detailFavorite').setAttribute('aria-pressed', String(favorite));
+    $('#detailFavoriteLabel').textContent = favorite ? '已收藏' : '收藏';
+  }
+
   private paintDetail(): void {
     const troop = this.troop();
     if (!troop) return;
+    this.paintFavorite();
     $('#detailWishlistLabel').textContent = troop.rarityIdx < 3 || this.ctx.save().gachaWishlist.troopIds.includes(troop.id) ? '管理愿望单' : '加入愿望单';
     const ownedRec = getRecord(this.ctx.save(), this.currentId);
     const rec = ownedRec ?? UNOWNED_REC;

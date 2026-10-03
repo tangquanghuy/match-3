@@ -15,6 +15,8 @@ export const $$ = (s: string, r: ParentNode = document): HTMLElement[] =>
 // ---------------------------------------------------------------------------
 
 const iconPaths: Record<string, string> = {
+  star: '<path d="m12 2.8 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.36l-5.7 3 1.09-6.36-4.62-4.49 6.38-.93z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6 8.5 7 8.5-7"/>',
   arrow: '<path d="M14 5l-7 7 7 7M7 12h14"/>',
   coin: '<circle cx="12" cy="12" r="9.5" fill="currentColor" fill-opacity=".18"/><circle cx="12" cy="12" r="7"/><path d="M8 7l4 11 4-11M10 6h4"/>',
   mark: '<path d="M12 2l8 4v8c0 4-3 6.5-8 8-5-1.5-8-4-8-8V6z" fill="currentColor" fill-opacity=".16"/><path d="M12 5l3 6-3 6-3-6zm-5 6h10"/>',
@@ -188,7 +190,7 @@ export function topbarHtml(): string {
         <button class="money key" data-currency="key" type="button"><span data-icon="key"></span><div><small>金钥匙</small><b id="keyBalance">0</b></div></button>
         <button class="money" data-currency="glory" type="button"><span data-icon="glory"></span><div><small>荣耀</small><b id="gloryBalance">0</b></div></button>
         <button class="orb" id="materialsBtn" type="button" aria-label="材料库"><span data-icon="bag"></span><i id="materialsAlert" class="materials-alert" aria-label="有新材料" hidden></i></button>
-        <button class="orb mail-orb" id="mailBtn" type="button" aria-label="邮件" title="邮件"><span aria-hidden="true">✉</span><i id="mailAlert" class="materials-alert" aria-label="有待领取邮件" hidden></i></button>
+        <button class="orb mail-orb" id="mailBtn" type="button" aria-label="邮件" title="邮件"><span data-icon="mail" aria-hidden="true"></span><i id="mailAlert" class="materials-alert" aria-label="有待领取邮件" hidden></i></button>
         <button class="orb" id="settings" type="button" aria-label="设置"><span data-icon="gear"></span></button>
       </div>
     </header>`;

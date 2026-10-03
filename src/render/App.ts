@@ -67,7 +67,7 @@ import { raceNames } from '../meta/data/races';
 import { roleNameZh } from '../meta/data/roles';
 import { SkillBranchPicker } from './SkillBranchPicker';
 import { AiBranchChooser, FixedBranchChooser, skillChoices, selectSkillBranch } from '../engine/skills/branchChooser';
-import { setSkipCastConfirm, skipCastConfirm } from './battlePrefs';
+import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled } from './battlePrefs';
 import { TargetPicker } from './TargetPicker';
 import { CellPicker } from './CellPicker';
 import type { CellAimCoords } from './CellPicker';
@@ -778,6 +778,7 @@ export class App {
       if (!this.destroyed) this.syncInteractionGate();
     }
     if (this.input.enabled) this.startIdle();
+    if (autoBattleEnabled()) this.setAutoBattle(true, false);
     // B-1 降级路径必须在布局完成后判断：refreshLayout() 才会按真实舞台缩放写入
     // name-compact。此前先 flash 再布局，移动横屏会因尚未进入紧凑态而直接跳过动画。
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
@@ -1661,11 +1662,12 @@ export class App {
   /**
    * 自动战斗开关（按钮回调），返回最终状态；战斗已结束时拒绝打开。
    * 打开：关掉手动交换，当前若是我方决策点则接管；关闭：下一个决策点起交还玩家
-   * （正在进行的一次行动照常播完，afterResolve 时交还）。不跨战斗保存。
+   * （正在进行的一次行动照常播完，afterResolve 时交还）。玩家切换同步保存为全局设置。
    */
-  private setAutoBattle(on: boolean): boolean {
+  private setAutoBattle(on: boolean, persist = true): boolean {
     if (on && (this.destroyed || this.surrendered || this.session.isFinished())) return false;
     this.autoBattleEnabled = on;
+    if (persist) setAutoBattleEnabled(on);
     this.battleControls?.setAutoPressed(on);
     this.syncPlayerInput();
     if (on) {

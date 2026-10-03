@@ -346,6 +346,8 @@ export interface MetaSave {
   hero: HeroState;
   /** key = troopId 十进制字符串 */
   collection: Record<string, TroopRecord>;
+  /** 玩家收藏的图鉴部队；编队候选优先显示，允许收藏尚未拥有的部队。 */
+  favoriteTroopIds: number[];
   /**
    * 真实收集备份。null = 当前 collection 就是真实收集。
    * 非 null = 修改器改过当前收藏，这里留着打开修改器之前的真实进度。
@@ -505,6 +507,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     currencies,
     hero: newHero(),
     collection: {},
+    favoriteTroopIds: [],
     collectionTruth: null,
     teams: [],
     activeTeamIndex: 0,

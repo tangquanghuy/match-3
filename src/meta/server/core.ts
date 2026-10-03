@@ -22,6 +22,7 @@ import { queueDefensePublish, accountDefenseLog, defenseEntryKey, validSnapshot,
  *    结算所需上下文全部取自票据而不是客户端。
  */
 import { isCharacterGender, isCharacterPortrait } from '../state/character';
+import { getTroopById } from '../../data/troops';
 import { BATTLE_SCHEMA_VERSION, RULESET_VERSION, type BattleResult } from '@session/contract';
 import { fail, type MetaFailure } from '../types';
 import type { MetaSave, PendingBattle } from '../state/schema';
@@ -284,6 +285,17 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       if (!rec) return done(fail('NOT_OWNED', '尚未拥有该部队'));
       rec.locked = locked === true;
       return done(rec.locked);
+    }
+
+    case 'setTroopFavorite': {
+      const { troopId, favorite } = command.args;
+      if (!Number.isInteger(troopId) || !getTroopById(troopId) || typeof favorite !== 'boolean') {
+        return done(fail('INVALID', '请选择有效的部队和收藏状态'));
+      }
+      const ids = new Set(save.favoriteTroopIds);
+      if (favorite) ids.add(troopId); else ids.delete(troopId);
+      save.favoriteTroopIds = [...ids];
+      return done(favorite);
     }
 
     // —— 编队 ——
