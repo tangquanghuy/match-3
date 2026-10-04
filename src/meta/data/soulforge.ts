@@ -38,6 +38,9 @@ export const SOULFORGE_RECIPES: readonly SoulforgeStock[] = [
   // —— Tier 2 · 神话直购位（官方 Dawnbringer 口径：130 万灵魂；主角 40 级解锁）——
   { recipe: { weaponId: 'gw_Dawnbringer', name: '黎明使者', rarity: 'Mythic', tier: 2, souls: 1_300_000, gold: 200_000 },
     source: '官方直购位（三色神话）' },
+  // —— Tier 2 · 珍藏配方 ——
+  { recipe: { weaponId: 'gw_WandOfStars', name: '紫微星魔法棒', rarity: 'Mythic', tier: 2, souls: 1_800_000, gold: 3_000_000 },
+    source: '珍藏配方' },
   // —— Tier 2 · Doomed 档样例（熔铸符卷通道二期开放）——
   { recipe: { weaponId: 'gw_DoomedTome', name: '劫数之卷', rarity: 'Doomed', tier: 2, souls: 400_000, gold: 150_000 },
     source: '末日战役·卡其尔' },

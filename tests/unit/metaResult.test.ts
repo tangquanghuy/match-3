@@ -43,13 +43,13 @@ describe('结算屏奖励呈现', () => {
 });
 
 
-describe('本场收益与额外奖励隔离', () => {
+describe('Settlement income includes all actual credited lines', () => {
   const base = {
     victory: true, xpGained: 100, heroLevelsGained: 1,
     classLevelUp: null, classUnlocked: null, questProgress: null,
     troopRewards: [], firstWinClaimed: true,
   };
-  it('只累计击杀、胜负基础和战斗收集，不混入首胜首通或活动奖励', () => {
+  it('sums first-win, first-clear and event currencies with base battle income', () => {
     expect(battleIncomeView({ ...base, lines: [
       { key: 'kills', label: '', deltas: { gold: 40, souls: 8 } },
       { key: 'victory', label: '', deltas: { gold: 60, souls: 30 } },
@@ -59,7 +59,7 @@ describe('本场收益与额外奖励隔离', () => {
       { key: 'quest', label: '', deltas: { gold: 1000, goldKeys: 1 } },
       { key: 'event-milestone', label: '', deltas: { gems: 500, souls: 500 } },
       { key: 'explore-drop', label: '', deltas: {}, mats: { traitstones: { 'minor:red': 1 } } },
-    ] })).toEqual({ victory: true, xp: 100, levelsGained: 1, gold: 103, souls: 40, gems: 0,
+    ] })).toEqual({ victory: true, xp: 100, levelsGained: 1, gold: 1103, souls: 540, gems: 650, goldKeys: 1,
       materials: [{ key: 'stone:minor:red', name: stoneName('minor:red'), amount: 1 }] });
   });
   it('战斗额外奖励与本场收益并列：货币并入、素材单独成卡', () => {
@@ -88,14 +88,14 @@ describe('本场收益与额外奖励隔离', () => {
     ]);
     expect(detail).toEqual(before);
   });
-  it('宝石仅展示本场真实收集；重复读取不修改结算明细', () => {
+  it('shows only credited gems and leaves the settlement unchanged on repeated reads', () => {
     const detail = { ...base, lines: [
       { key: 'battle-collect' as const, label: '', deltas: { gems: 2 } },
       { key: 'first-win' as const, label: '', deltas: { gems: 50 } },
     ] };
     const before = structuredClone(detail);
-    expect(battleIncomeView(detail).gems).toBe(2);
-    expect(battleIncomeView(detail).gems).toBe(2);
+    expect(battleIncomeView(detail).gems).toBe(52);
+    expect(battleIncomeView(detail).gems).toBe(52);
     expect(detail).toEqual(before);
   });
   it('战败照常呈现本场经验和保底', () => {
@@ -221,7 +221,7 @@ describe('寻宝复用战斗结算', () => {
     expect(detail).toEqual(before);
     expect(resultSubtitle(detail, { kingdom: '', sourceLabel: '寻宝' })).toBe('寻宝 · 已走 3,000 步');
   });
-  it('普通战斗额外奖励也展示荣耀和钥匙，不混入首胜收益', () => {
+  it('shows all credited glory and keys from battle bonuses and first win', () => {
     const view = battleIncomeView({ victory: true, xpGained: 0, heroLevelsGained: 0,
       classLevelUp: null, classUnlocked: null, questProgress: null, troopRewards: [], firstWinClaimed: true,
       lines: [
@@ -229,7 +229,7 @@ describe('寻宝复用战斗结算', () => {
         { key: 'first-win', label: '', deltas: { glory: 999, goldKeys: 999 } },
       ],
     });
-    expect(view.glory).toBe(25);
-    expect(view.goldKeys).toBe(2);
+    expect(view.glory).toBe(1024);
+    expect(view.goldKeys).toBe(1001);
   });
 });

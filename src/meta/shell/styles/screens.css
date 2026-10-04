@@ -4522,6 +4522,19 @@
   #stage.chests-responsive .card-label b { font-size: 12px; letter-spacing: 1px; }
 }
 
+/* 矮横屏/浏览器放大时保留宝箱主视觉，剩余内容在页面内部滚动。 */
+@media (min-width: 641px) and (max-width: 1399px) and (max-height: 700px) {
+  #stage.chests-responsive .chest-screen {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  #stage.chests-responsive .chest-panel {
+    height: auto;
+    min-height: 100%;
+    grid-template-rows: 68px minmax(300px, 1fr) 64px 126px;
+  }
+}
 @media (max-width: 640px) {
   :is(#stage.chests-responsive, #stage.bag-responsive) .topbar {
     height: 59px;

@@ -10,3 +10,5 @@
 4. 活动积分、周商店代币或尚未领取的预览奖励不是已经进入背包的物品，不得伪装成掉落。
 
 回归用例：`tests/unit/raidIngotChallenge.test.ts`、`tests/unit/metaResult.test.ts`、`tests/e2e/raidIngotResult.spec.ts`。
+
+Currency rule: sum all actual `SettlementDetail.lines[].deltas` in the battle result, including gems, first-win, milestone and weekly-event payouts. Do not limit currency cards to base-battle lines. The result and actual wallet increment must agree; replay/defeat must not fabricate rewards.

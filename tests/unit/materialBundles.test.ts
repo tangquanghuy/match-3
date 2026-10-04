@@ -52,17 +52,17 @@ describe('按真实配方组合销售', () => {
   });
   it('宝石组合按全价与首购折扣分别凑整，传说三特质整包全价3980', () => {
     const s = newSave({ now: 0, currencies: { gems: 20000 } });
-    for (const [troopId, regularPrice, price, discount] of [[6000, 980, 180, 2], [6001, 1480, 280, 2], [6003, 1980, 380, 2], [6081, 3980, 780, 2], [6065, 5980, 1180, 2], [6169, 11480, 3480, 3]] as const) {
+    for (const [troopId, regularPrice, price, discount] of [[6000, 980, 280, 3], [6001, 1480, 480, 3], [6003, 1980, 580, 3], [6081, 3980, 1180, 3], [6065, 5980, 1780, 3], [6169, 11480, 3480, 3]] as const) {
       expect(materialShopQuote(s, requestFor(troopId, 7))).toMatchObject({ ok: true, price, gemOffer: { regularPrice, discount } });
     }
-    expect(materialShopQuote(s, requestFor(6081, 6))).toMatchObject({ ok: true, price: 580, gemOffer: { regularPrice: 3080 } });
-    expect(materialShopQuote(s, requestFor(6081, 4))).toMatchObject({ ok: true, price: 280, gemOffer: { regularPrice: 1380 } });
+    expect(materialShopQuote(s, requestFor(6081, 6))).toMatchObject({ ok: true, price: 880, gemOffer: { regularPrice: 3080 } });
+    expect(materialShopQuote(s, requestFor(6081, 4))).toMatchObject({ ok: true, price: 380, gemOffer: { regularPrice: 1380 } });
     for (const bundle of materialBundleCatalog().flatMap(family => family.bundles)) {
       for (const mask of [7, 6, 4]) {
         const quote = materialShopQuote(s, { kind: 'gems', bundleId: bundle.id, mask });
         if (quote.ok) {
           expect(quote.gemOffer!.regularPrice % (mask === 7 ? 500 : 100)).toBe(mask === 7 ? 480 : 80);
-          expect(Math.abs(quote.price! / quote.gemOffer!.regularPrice - quote.gemOffer!.discount / 10), `${bundle.id}/${mask}`).toBeLessThanOrEqual(0.08);
+          expect(quote.price, `${bundle.id}/${mask}`).toBe(Math.min(quote.gemOffer!.regularPrice, Math.max(80, Math.round((quote.gemOffer!.regularPrice * quote.gemOffer!.discount / 10 + 20) / 100) * 100 - 20)));
         }
       }
     }

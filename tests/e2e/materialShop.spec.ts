@@ -79,12 +79,12 @@ test('整套礼包按神话真实颜色配齐，已解锁特质退出配方，�
   await expect(page.locator('[data-bundle][aria-pressed=true]')).toHaveCount(1);
 });
 
-test('背包秘法分类可看全21种，来源指向真实高难奖励', async ({ page }) => {
+test('arcane stone bag lists all 21 stones and current explore sources', async ({ page }) => {
   await openShop(page);
   await page.goto('/game.html#bag/stones/arcane');
   await expect(page.locator('.bag-stone-filters [aria-current]')).toHaveText('秘法');
   await expect(page.locator('.bag-item')).toHaveCount(19);
-  await expect(page.locator('.bag-detail-card:visible')).toContainText('高层登塔');
+  await expect(page.locator('.bag-detail-card:visible')).toContainText('王国探索掉落');
   await expect(page.locator('.bag-detail-card:visible')).not.toContainText('里程碑');
   await page.getByRole('link', { name: '下一页', exact: true }).click();
   await expect(page.locator('.bag-item')).toHaveCount(2);
@@ -105,10 +105,8 @@ test('活动奖励子页展示真实难度与独立周额度', async ({ page }) 
   await expect(page.locator('.ev-high-tier')).toContainText('本周 0 / 2');
   await page.goto('/game.html#events/towerOfDoom/rewards');
   const bossRewards = page.locator('.ev-high-tier').filter({ hasText: '三区通关材料' });
-  const challengeRewards = page.locator('.ev-high-tier').filter({ hasText: '高层挑战奖励' });
-  await expect(page.locator('.ev-high-tier')).toHaveCount(2);
+  await expect(page.locator('.ev-high-tier')).toHaveCount(1);
   for (const floor of [8, 16, 25]) await expect(bossRewards).toContainText(`第 ${floor} 层`);
-  for (const floor of [16, 20, 25]) await expect(challengeRewards).toContainText(`${floor} 层`);
 });
 
 
@@ -229,9 +227,9 @@ test('空收藏也能买组合；无效商品显示禁购且不回退为其他�
     localStorage.setItem('gems.meta.save', JSON.stringify(s));
   });
   await page.goto('/game.html#materials/gems'); await page.reload();
-  await expect(page.locator('#materialBuy')).toHaveText('180 宝石 · 购买');
+  await expect(page.locator('#materialBuy')).toHaveText('280 宝石 · 购买');
   await page.locator('#materialBuy').click();
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gems)).toBe(820);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gems)).toBe(720);
   await page.goto('/game.html#materials/gems/b-invalid/7');
   await expect(page.locator('#materialBuy')).toBeDisabled();
   await expect(page.locator('.material-contents li')).toHaveCount(0);

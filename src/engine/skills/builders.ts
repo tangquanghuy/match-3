@@ -629,14 +629,14 @@ export function explodeSkulls(opts?: SegmentOpts): GemSegment { return clearSeg(
 
 // 随机 N 颗宝石（include: 'color' 仅颜色 / 'all' 含骷髅 / 'skull' 仅普通骷髅，默认 all；
 // 可限定 color 或 colors 双色并集池（R22 批 8429）；opts.modifier 数量二次缩放、opts.countRange 区间）
-export function destroyRandomGems(base: number, mult = 0, include: 'color' | 'all' | 'skull' = 'all', color?: ColorSpec, opts?: SegmentOpts & { countRange?: { min: number; max: number }; colors?: ColorSpec[] }): GemSegment {
+export function destroyRandomGems(base: number, mult = 0, include: 'color' | 'all' | 'skull' | 'nonSkull' = 'all', color?: ColorSpec, opts?: SegmentOpts & { countRange?: { min: number; max: number }; colors?: ColorSpec[] }): GemSegment {
   const target: import('./effects/gems').ClearTarget = { kind: 'randomGems', count: scale(base, mult), include };
   if (color !== undefined) target.color = color;
   if (opts?.colors !== undefined) target.colors = opts.colors;
   if (opts?.countRange !== undefined) target.countRange = opts.countRange;
   return clearSeg('destroy', target, opts);
 }
-export function explodeRandomGems(base: number, mult = 0, include: 'color' | 'all' | 'skull' = 'all', color?: ColorSpec, opts?: SegmentOpts & { countRange?: { min: number; max: number }; colors?: ColorSpec[] }): GemSegment {
+export function explodeRandomGems(base: number, mult = 0, include: 'color' | 'all' | 'skull' | 'nonSkull' = 'all', color?: ColorSpec, opts?: SegmentOpts & { countRange?: { min: number; max: number }; colors?: ColorSpec[] }): GemSegment {
   const target: import('./effects/gems').ClearTarget = { kind: 'randomGems', count: scale(base, mult), include };
   if (color !== undefined) target.color = color;
   if (opts?.colors !== undefined) target.colors = opts.colors;

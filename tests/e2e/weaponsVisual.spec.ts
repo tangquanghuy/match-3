@@ -136,7 +136,7 @@ test('武器详情：立绘、四色属性和技能形成清晰主次，材料�
   await expect(page.locator('.upgrade-resource-head')).toContainText('需求');
   await expect(page.locator('.upgrade-resource-head')).toContainText('持有');
   await expect(page.locator('.upgrade-resource-head')).toContainText('缺口');
-  await expect(page.locator('.resource-row')).toHaveCount(2);
+  await expect(page.locator('.resource-row')).toHaveCount(1);
   await page.screenshot({ path: 'artifacts/ux-phase-b/shots/weapons-temper-final-1600.png' });
   await page.locator('[data-weapon-action="temper"]').click();
   await expect(page.locator('.upgrade-heading h2')).toContainText('升至 Lv.5');
@@ -144,9 +144,9 @@ test('武器详情：立绘、四色属性和技能形成清晰主次，材料�
 
 test('词缀单列带图标且不重叠，达标精通武器可领取', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
-  await page.goto('/game.html#weapons/owned');
-  await page.locator('[data-weapon-search]').fill('守护者之戟');
-  await page.locator('.weapons-workspace--owned .weapon-card').first().click();
+  await page.goto('/game.html#weapons/all');
+  await page.locator('[data-weapon-search]').fill('Dagger of the Void');
+  await page.locator('.weapons-workspace--all .weapon-card').first().click();
   await waitForWeaponArt(page);
   await expect(page.locator('.affix-card')).toHaveCount(1);
   await expect(page.locator('.affix-card .affix-icon svg')).toHaveCount(1);
@@ -167,7 +167,7 @@ test('词缀单列带图标且不重叠，达标精通武器可领取', async ({
   await page.locator('[data-weapon-search]').fill('神性长枪');
   await page.locator('.weapons-workspace--all .weapon-card').first().click();
   await waitForWeaponArt(page);
-  await expect(page.locator('.affix-card')).toHaveCount(2);
+  await expect(page.locator('.affix-card')).toHaveCount(1);
   await expect(page.locator('.affix-card .affix-icon[data-icon="orb"]')).toHaveCount(0);
   const lance = await page.evaluate(() => {
     const scroll = document.querySelector('.detail-scroll')!;
@@ -189,7 +189,7 @@ test('词缀单列带图标且不重叠，达标精通武器可领取', async ({
   });
   expect(lance.needsScroll).toBe(false);
   expect(lance.hits.every((row) => !row.overlap)).toBe(true);
-  expect(lance.hits.map((row) => row.iconName)).toEqual(['shield', 'swirl']);
+  expect(lance.hits.map((row) => row.iconName)).toEqual(['shield']);
   await page.screenshot({ path: 'artifacts/ux-phase-b/shots/weapons-detail-lance-1600.png' });
   await page.locator('[data-weapon-detail-close]').click();
 
@@ -202,7 +202,7 @@ test('词缀单列带图标且不重叠，达标精通武器可领取', async ({
 test('熔炉要求进入独立次级页，并明确显示等级与资源缺口', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/game.html#weapons/forge');
-  await expect(page.locator('.weapons-workspace--forge .weapon-card')).toHaveCount(9);
+  await expect(page.locator('.weapons-workspace--forge .weapon-card')).toHaveCount(12);
   await page.locator('.weapons-workspace--forge .weapon-card').last().click();
   await expect(page.locator('.detail-spell')).toBeVisible();
   await expect(page.locator('.resource-row')).toHaveCount(0);
@@ -271,5 +271,41 @@ for (const viewport of [{ width: 768, height: 1024 }, { width: 390, height: 844 
     expect(upgrade.rowOverflow).toBe(false);
     expect(upgrade.actionVisible).toBe(true);
     await page.screenshot({ path: `artifacts/ux-phase-b/shots/weapons-upgrade-final-${viewport.width}.png` });
+  });
+}
+
+test('forge collection recipe remains reachable in the scrolling list', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('/game.html#weapons/forge');
+  const list = page.locator('.weapons-workspace--forge .weapons-list');
+  await expect(list.locator('.weapon-card')).toHaveCount(12);
+  expect(await list.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  const last = list.locator('.weapon-card').last();
+  await last.scrollIntoViewIfNeeded();
+  await expect(last).toBeInViewport();
+  await expect(page.locator('.weapons-pagination')).toBeVisible();
+
+  const wand = list.locator('.weapon-card').filter({ hasText: '紫微星魔法棒' });
+  await wand.click();
+  await expect(page.locator('.weapon-detail-sheet')).toBeVisible();
+  await expect(page.locator('.affix-card')).toHaveCount(5);
+  await expect(page.locator('.affix-card').nth(3)).toContainText('获得 2 点护甲');
+  await expect(page.locator('.affix-card').nth(4)).toContainText('摧毁一颗非骷髅的随机宝石');
+  await page.locator('[data-weapon-action="open-upgrade"]').click();
+  await expect(page.locator('.weapon-upgrade-view')).toContainText('3,000,000');
+  await expect(page.locator('.weapon-upgrade-view')).toContainText('1,800,000');
+});
+
+for (const width of [768, 390]) {
+  test(`forge collection is reachable on ${width}px screens`, async ({ page }) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1024 });
+    await page.goto('/game.html#weapons/forge');
+    await page.locator('[data-weapon-search]').fill('Wand of Stars');
+    const wand = page.locator('.weapons-workspace--forge .weapon-card');
+    await wand.scrollIntoViewIfNeeded();
+    await expect(wand).toBeInViewport();
+    await wand.click();
+    await expect(page.locator('.weapon-detail-sheet')).toBeVisible();
+    await expect(page.locator('.affix-card')).toHaveCount(5);
   });
 }

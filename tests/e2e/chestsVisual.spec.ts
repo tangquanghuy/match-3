@@ -121,11 +121,36 @@ test.describe('宝箱视觉与批量入口', () => {
 });
 
 
+test('矮横屏的宝箱主视觉不会被压成零高度，操作区可滚动到达', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 400 });
+  for (const route of ['chests/gems', 'chests/keys']) {
+    await openFresh(page, route);
+    await expect.poll(() => page.locator('.chest-art')
+      .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    const layout = await page.evaluate(() => {
+      const screen = document.querySelector<HTMLElement>('.chest-screen')!;
+      const stage = document.querySelector<HTMLElement>('.chest-stage')!;
+      const recent = document.querySelector<HTMLElement>('.recent-bar')!;
+      return {
+        artHeight: stage.getBoundingClientRect().height,
+        recentTop: recent.getBoundingClientRect().top,
+        stageBottom: stage.getBoundingClientRect().bottom,
+        scrollable: screen.scrollHeight > screen.clientHeight,
+      };
+    });
+    expect(layout.artHeight).toBeGreaterThanOrEqual(300);
+    expect(layout.recentTop).toBeGreaterThanOrEqual(layout.stageBottom - 1);
+    expect(layout.scrollable).toBe(true);
+    await page.locator('.chest-dock').scrollIntoViewIfNeeded();
+    await expect(page.locator('.chest-dock')).toBeInViewport();
+  }
+});
+
 test('宝石宝箱概率公示：每种特质石1颗，高阶概率递减', async ({ page }) => {
   await openFresh(page, 'chests/gems');
   await page.locator('#showOdds').click();
   const rows = page.locator('#oddsDrawer .odds-row');
-  for (const [name, rate] of [['高级特质石 ×1', '10%'], ['符文特质石 ×1', '8%'], ['秘法特质石 ×1', '2%'], ['圣辉石 ×1', '0.5%']]) {
+  for (const [name, rate] of [['高级特质石 ×1', '5%'], ['符文特质石 ×1', '5%'], ['秘法特质石 ×1', '1%'], ['圣辉石 ×1', '0.2%']]) {
     const row = rows.filter({ has: page.getByText(name!, { exact: true }) });
     await expect(row).toHaveCount(1);
     await expect(row.locator('span').last()).toHaveText(rate!);

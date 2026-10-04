@@ -17,6 +17,10 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
         { key: 'kingdom-first-clear', label: '王国首通', deltas: { gems: 100 } },
         { key: 'event-milestone', label: '周常奖励', deltas: { gems: 500, gold: 9999 } },
         { key: 'quest', label: '任务', deltas: { goldKeys: 1 } },
+        ...(returnHash.startsWith('#events/') ? [
+          { key: 'event-progress', label: 'Tower loot', deltas: {}, mats: { traitstones: { 'arcane:blue:purple': 2 } } },
+          { key: 'event-milestone', label: 'Tower milestone', deltas: { gems: 150 }, mats: { traitstones: { 'runic:purple': 6 }, ingots: { epic: 3 } } },
+        ] : []),
       ],
       xpGained: 100, classXpGained: classXp, trialClassXpBonus: classXp ? classXp - 50 : 0,
       heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
@@ -85,16 +89,17 @@ test('直接进入结算页不伪造胜利或奖励', async ({ page }) => {
   await expect(page.locator('#again')).toHaveText('去世界地图');
 });
 
-test('仅展示本场经验金币灵魂，首胜50宝石等额外来源不计入', async ({ page }) => {
+test('battle result includes actual first-win, first-clear and milestone currency payouts', async ({ page }) => {
   await mountResult(page);
   await expect(page.locator('#resultTitle')).toHaveText('战斗胜利');
   await expect(page.locator('#resultSub')).toHaveText('任务 · 破碎尖塔 · 第 4 关 · 进度：4/8');
   await expect(page.locator('#xpGain')).toHaveText('+100');
   await expect(page.locator('#xpLevel')).toHaveText('等级 1');
-  await expect(amount(page, 'gold')).toHaveText('+100');
+  await expect(amount(page, 'gold')).toHaveText('+10,099');
   await expect(amount(page, 'souls')).toHaveText('+38');
-  await expect(amount(page, 'gems')).toHaveCount(0);
-  await expect(page.locator('.reward-row')).toHaveCount(2);
+  await expect(amount(page, 'gems')).toHaveText('+650');
+  await expect(amount(page, 'goldKeys')).toHaveText('+1');
+  await expect(page.locator('.reward-row')).toHaveCount(4);
   await expect(page.locator('#dropRow, #questRow, .pvp-settlement, #masteryRow')).toHaveCount(0);
   await expect(page.locator('.result-screen')).not.toContainText('每日首胜');
   await expect(page.locator('#again')).toHaveText('继续');
@@ -104,7 +109,7 @@ test('仅展示本场经验金币灵魂，首胜50宝石等额外来源不计入
 test('本场确有宝石时按实际数量显示，桌面和手机均无重叠', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await mountResult(page, 2);
-  await expect(amount(page, 'gems')).toHaveText('+2');
+  await expect(amount(page, 'gems')).toHaveText('+652');
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
@@ -127,6 +132,15 @@ test('活动返回入口保留，额外奖励面板移出结算', async ({ page 
   await expect(page.locator('#again')).toHaveAttribute('title', '返回活动页');
   await expect(page.locator('#again')).toHaveAccessibleName('继续：返回活动页');
   await expect(page.locator('.result-actions button:visible')).toHaveCount(2);
+});
+
+test('tower result shows actual milestone gems, traitstones and ingots as reward cards', async ({ page }) => {
+  await mountResult(page, 0, '#events/towerOfDoom');
+  await expect(amount(page, 'gems')).toHaveText('+800');
+  await expect(page.locator('[data-battle-material="stone:runic:purple"] strong')).toHaveText('+6');
+  await expect(page.locator('[data-battle-material="stone:arcane:blue:purple"] strong')).toHaveText('+2');
+  await expect(page.locator('[data-battle-material="ingot:epic"] strong')).toHaveText('+3');
+  await expect(page.locator('[data-battle-material="stone:celestial"]')).toHaveCount(0);
 });
 
 for (const kind of ['arena', 'invasion']) {

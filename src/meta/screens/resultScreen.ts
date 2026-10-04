@@ -134,9 +134,6 @@ export interface MaterialIncome {
   amount: number;
 }
 
-/** Currency cards use the base-battle subtotal; material cards include every actual settlement grant. */
-const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus', 'tower-boss-clear', 'explore-drop'];
-
 function materialIncome(lines: readonly { mats?: MaterialDelta }[]): MaterialIncome[] {
   const sums = new Map<string, MaterialIncome>();
   const add = (key: string, name: string, n: number | undefined): void => {
@@ -190,9 +187,8 @@ export function battleIncomeView(detail: SettlementView): BattleIncomeView {
       materials: collected?.maps ? [{ key: 'treasureMaps', name: '藏宝图', amount: collected.maps }] : [],
     };
   }
-  const battleLines = detail.lines.filter(line => BATTLE_INCOME_KEYS.includes(line.key));
   const sum = (key: 'gold' | 'souls' | 'gems' | 'glory' | 'goldKeys') =>
-    battleLines.reduce((total, line) => total + (line.deltas[key] ?? 0), 0);
+    detail.lines.reduce((total, line) => total + (line.deltas[key] ?? 0), 0);
   return { victory: detail.victory, xp: detail.xpGained,
     ...(detail.classXpGained ? { classXp: detail.classXpGained } : {}),
     ...(detail.trialClassXpBonus ? { trialClassXpBonus: detail.trialClassXpBonus } : {}),

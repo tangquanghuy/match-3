@@ -155,13 +155,12 @@ export class EventsScreen implements Screen {
 
     const highTierRewards = (() => {
       if (typeId === 'towerOfDoom') {
-        const stones = EVENT_ARCANE_STONES[typeId].map(stoneName).join('、');
         const bossRewards = `<section class="ev-howto ev-high-tier"><h2>三区通关材料</h2>
           <p>每区每周首次击败首领，保底材料自动入账；失败、放弃及重复通关不重复发放。原有里程碑、符卷和高层特质奖励全部保留。</p>
           ${TOWER_BOSS_REWARDS.map(r => `<div class="ev-mile${week.eventData[towerBossRewardKey(r.floor)] ? ' done' : ''}">
             <div class="ev-mile-head"><b>第 ${r.zone} 区 · 第 ${r.floor} 层首领</b><span>${week.eventData[towerBossRewardKey(r.floor)] ? '本周已领' : '本周未领'}</span></div>
             <div class="ev-mile-rewards">${rewardSummary({ ...r, mats: doubleWeeklyMaterials(r.mats) })}</div></div>`).join('')}</section>`;
-        return bossRewards + `<section class="ev-howto ev-high-tier"><h2>高层挑战奖励</h2><ul>${EVENT_HIGH_TIER_REWARDS.tower.map(r => `<li>${r.floor} 层或以上首次战斗胜利：${stones}各 ×${r.amount * 2}${r.celestial ? `，圣辉石 ×${r.celestial * 2}` : ''} · ${week.eventData[`arcaneTower${r.floor}`] ? '本周已领' : '本周未领'}</li>`).join('')}<li>各档每周一次；营地、商人等非战斗层顺延至下一场胜利。</li></ul></section>`;
+        return bossRewards;
       }
       if (typeId === 'raidBoss') {
         const r = EVENT_HIGH_TIER_REWARDS.raid;

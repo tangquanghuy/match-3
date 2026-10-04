@@ -15,6 +15,7 @@ import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID
   RANDOM_POSITIVE_STATUS_POOL, RANDOM_NEGATIVE_STATUS_POOL,
   hasStatus, ENCHANTED_STATUS_ID, endActionStatuses, hasLethalImmunity, lethalResistanceEvent } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
+import { armor, destroyRandomGems } from './skills/builders';
 import { damageOne } from './skills/effects/damage';
 import { devourEffect } from './skills/effects/devour';
 import { gemEffect } from './skills/effects/gems';
@@ -2923,8 +2924,14 @@ export class TurnEngine {
         this.spellBoardSettle = settle;
         let produced: GameEvent[];
         try {
+          // Append unlocked tempering effects after the selected branch without mutating the shared prototype.
+          // The troop spellId and lower tempering levels retain their existing behavior.
+          const wandAffixes = ch.skillId === 'gw_WandOfStars' ? [
+            ...(Math.max(0, ch.temperingLevel ?? 0) >= 9 ? [armor('allySelf', 2, 0)] : []),
+            ...(Math.max(0, ch.temperingLevel ?? 0) >= 10 ? [destroyRandomGems(1, 0, 'nonSkull')] : []),
+          ] : [];
           produced = executePrototype(
-            proto,
+            wandAffixes.length ? { ...proto, segments: [...proto.segments, ...wandAffixes] } : proto,
             this.makeEffectContext(ch.id, chosenColor, chosenTargetId, chosenCell, actionEndedStatusIds),
           );
         } finally {

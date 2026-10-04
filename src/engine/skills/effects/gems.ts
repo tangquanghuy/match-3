@@ -15,7 +15,7 @@
  */
 import { BoardModel } from '../../BoardModel';
 import { reshuffle } from '../../boardUtils';
-import { colorGem, skullGem, isSameMatchType, posKey, specialGem } from '../../types';
+import { colorGem, skullGem, isSameMatchType, matchJoinKey, posKey, specialGem } from '../../types';
 import type { BaseColor, CellPos, Gem, GemType, SpecialGemKind, SpecialGemSpec } from '../../types';
 import { PlayerSide, ALL_BASE_COLORS } from '../../types';
 import type {
@@ -268,7 +268,7 @@ export type ClearTarget =
   | { kind: 'allGems' }
   /** tier: only that special tier (gargoyleGem 1 = Good / 2 = Bad; missing tier on the gem counts as 1) */
   | { kind: 'special'; gem: SpecialGemKind; tier?: number }
-  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; specialTier?: number; countRange?: { min: number; max: number } }
+  | { kind: 'randomGems'; count: ScalingSpec; include?: 'color' | 'all' | 'skull' | 'nonSkull'; color?: ColorSpec; colors?: ColorSpec[]; special?: SpecialGemKind; specialTier?: number; countRange?: { min: number; max: number } }
   | { kind: 'cell'; cell: CellPos | 'CELL' }
   | { kind: 'area'; shape: AreaShape; center?: CellPos | 'CELL' | 'RANDOM' }
   | { kind: 'chosenCross' }
@@ -696,6 +696,7 @@ function resolveTargetCells(target: ClearTarget, ctx: EffectContext, modifier?: 
         if (target.special !== undefined && !(gem.type.kind === 'special' && gem.type.spec.kind === target.special
           && (target.specialTier === undefined || (gem.type.spec.tier ?? 1) === target.specialTier))) return;
         if (target.include === 'color' && gem.type.kind !== 'color') return;
+        if (target.include === 'nonSkull' && matchJoinKey(gem.type) === 'skull') return;
         // include 'skull'（7136/8504 native ExplodeColor Skull N）：P-A-random-skulls-variants / R013-5 —
         // skull variants (Doom / Uber Doom Skull) are Skulls too: pool = matchJoinKey 'skull'
         if (target.include === 'skull' && !isSameMatchType(gem.type, skullGem())) return;

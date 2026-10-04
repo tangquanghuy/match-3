@@ -27495,8 +27495,8 @@
     "name": "紫微星魔法棒",
     "nameEn": "Wand of Stars",
     "referenceName": "WandOfStars",
-    "rarity": "Epic",
-    "rarityIdx": 4,
+    "rarity": "Mythic",
+    "rarityIdx": 5,
     "kingdom": "诺斯",
     "weaponType": "Staff",
     "role": "Generator",
@@ -27544,9 +27544,14 @@
         "rarity": "Epic"
       },
       {
-        "name": "治愈",
-        "description": "净化自身",
+        "name": "护甲",
+        "description": "获得 2 点护甲",
         "rarity": "Legendary"
+      },
+      {
+        "name": "碎宝石",
+        "description": "摧毁一颗非骷髅的随机宝石",
+        "rarity": "Mythic"
       }
     ],
     "masteryRequirement": 1003,

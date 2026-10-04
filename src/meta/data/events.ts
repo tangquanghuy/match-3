@@ -432,7 +432,7 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
     { points: 600, label: '特质石包 Ⅲ', mats: { traitstones: { 'minor:purple': 6, 'major:blue': 3, 'major:green': 3 } }, gold: 2000 },
     { points: 1000, label: '精英石包', mats: { traitstones: { 'major:brown': 4, 'major:yellow': 4, 'runic:red': 2 } }, souls: 1500 },
     { points: 1500, label: '符文石包', mats: { traitstones: { 'runic:blue': 2, 'runic:green': 2, 'runic:purple': 2 } }, gems: 60 },
-    { points: 2200, label: '入侵大捷', mats: { traitstones: { 'runic:brown': 3, 'runic:yellow': 3, celestial: 1 } }, goldKeys: 1, glory: 40 },
+    { points: 2200, label: '入侵大捷', mats: { traitstones: { 'runic:brown': 3, 'runic:yellow': 3 } }, goldKeys: 1, glory: 40 },
   ],
   raidBoss: [
     { points: 100, label: '钢锭口粮', mats: { ingots: { common: 6 } } },
@@ -447,7 +447,7 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
     { points: 300, label: '中层酬卷', mats: { forgeScrolls: 2 } },
     { points: 600, label: '符文石包', mats: { traitstones: { 'runic:red': 2, 'runic:blue': 2 } }, souls: 1500 },
     { points: 1000, label: '高层酬卷', mats: { forgeScrolls: 3 } },
-    { points: 1500, label: '塔顶宝箱', mats: { traitstones: { 'runic:purple': 3, celestial: 1 } }, gems: 60 },
+    { points: 1500, label: '塔顶宝箱', mats: { traitstones: { 'runic:purple': 3 } }, gems: 60 },
     { points: 2200, label: '末日清剿', mats: { forgeScrolls: 4 } },
   ],
   factionAssault: [
@@ -473,7 +473,7 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
     { points: 600, label: '荣耀大包', glory: 50, souls: 1200 },
     { points: 1000, label: '进阶石包', mats: { traitstones: { 'major:purple': 2, 'major:green': 2 } }, gems: 40 },
     { points: 1500, label: '冠军礼遇', glory: 80, gold: 2500 },
-    { points: 2200, label: '宗师大典', mats: { traitstones: { celestial: 1, 'runic:yellow': 2, 'runic:brown': 2 } } },
+    { points: 2200, label: '宗师大典', mats: { traitstones: { 'runic:yellow': 2, 'runic:brown': 2 } } },
   ],
 };
 

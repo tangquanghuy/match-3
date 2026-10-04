@@ -6,6 +6,7 @@ import { claimWeapon, canUseWeapon, forgeCatalogWeapon } from '../../src/meta/sy
 import { classByKingdom } from '../../src/meta/data/classes';
 import { findRecipe } from '../../src/meta/data/soulforge';
 import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
+import { affixUnlockedCount, affixUnlockLevels, temperingMaxLevel } from '../../src/meta/systems/forge';
 
 const save = () => newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
 
@@ -38,7 +39,7 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(kinds.get('starter')).toBe(22);
     expect(kinds.get('class')).toBe(38);
     expect(kinds.get('mastery')).toBeGreaterThan(80);
-    expect(kinds.get('forge')).toBe(11);
+    expect(kinds.get('forge')).toBe(12);
     expect(kinds.get('kingdom') ?? 0).toBe(0);
     expect((kinds.get('buy') ?? 0) + (kinds.get('placeholder') ?? 0)).toBeGreaterThan(500);
   });
@@ -163,4 +164,34 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(s.currencies.gems).toBe(10_000);
     expect(s.hero.unlockedWeapons).toContain(id);
   });
+});
+
+it('Wand of Stars is a mythic collection recipe with five tempering affixes', () => {
+  const weapon = anyWeaponById('gw_WandOfStars')!;
+  const recipe = findRecipe(weapon.id)!;
+  expect(weapon.rarity).toBe('Mythic');
+  expect(weapon.rarityIdx).toBe(5);
+  expect(acquireOf(weapon).kind).toBe('forge');
+  expect(listedInGemShop(save(), weapon)).toBe(false);
+  expect(recipe).toMatchObject({ tier: 2, rarity: 'Mythic', gold: 3_000_000, souls: 1_800_000 });
+  expect(temperingMaxLevel(weapon.rarity)).toBe(10);
+  expect(affixUnlockLevels(weapon.rarity)).toEqual([6, 7, 8, 9, 10]);
+  expect([5, 6, 7, 8, 9, 10].map(level => affixUnlockedCount(weapon.rarity, level))).toEqual([0, 1, 2, 3, 4, 5]);
+  expect(weapon.affixes).toHaveLength(5);
+  expect(weapon.affixes[3]?.description).toBe('获得 2 点护甲');
+  expect(weapon.affixes[4]?.description).toBe('摧毁一颗非骷髅的随机宝石');
+
+  const s = save();
+  s.currencies.gems = 10_000;
+  s.currencies.gold = recipe.gold;
+  s.currencies.souls = recipe.souls - 1;
+  expect(claimWeapon(s, weapon.id)).toMatchObject({ ok: false, code: 'INVALID' });
+  expect(forgeCatalogWeapon(s, weapon.id, 40)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+  expect(s.currencies.gold).toBe(recipe.gold);
+  s.currencies.souls = recipe.souls;
+  expect(forgeCatalogWeapon(s, weapon.id, 39)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+  expect(forgeCatalogWeapon(s, weapon.id, 40)).toEqual({ ok: true, weaponId: weapon.id });
+  expect(s.currencies.gold).toBe(0);
+  expect(s.currencies.souls).toBe(0);
+  expect(s.currencies.gems).toBe(10_000);
 });

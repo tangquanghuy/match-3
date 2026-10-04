@@ -10,8 +10,11 @@ import { createGameState } from '@engine/GameState';
 import { ExtensionRegistry } from '@engine/registry';
 import { SeededRNG } from '@engine/rng';
 import { registerSkillLibrary, SKILL_LIBRARY } from '@engine/skills/library';
+import { FixedBranchChooser } from '@engine/skills/branchChooser';
+import { executePrototype } from '@engine/skills/prototypes';
+import { destroyRandomGems, skill } from '@engine/skills/builders';
 import { prototypeNeedsCell } from '@engine/skills/cellChooser';
-import { BaseColor, PlayerSide, colorGem } from '@engine/types';
+import { BaseColor, PlayerSide, colorGem, skullGem, specialGem } from '@engine/types';
 import type { Character, Team, GemType } from '@engine/types';
 import { TROOPS } from '../../src/data/troops';
 import { CATALOG_WEAPONS } from '../../src/meta/data/weaponCatalog';
@@ -91,5 +94,63 @@ describe('战斗层技能绑定（部队数字 id + 武器 gw_*）', () => {
     const proto = registry.prototypes.get('7094');
     expect(proto).toBeDefined();
     expect(prototypeNeedsCell(proto!)).toBe(true);
+  });
+
+  it('Wand of Stars tempering 9 and 10 activate for both branches only on the weapon', () => {
+    function cast(level: number, branch: number, skillId = 'gw_WandOfStars') {
+      let gid = 0;
+      const board = new BoardModel();
+      for (let r = 0; r < 6; r++) for (let c = 0; c < 8; c++) {
+        board.set({ row: r, col: c }, { id: gid++, type: colorGem([BaseColor.Red, BaseColor.Blue, BaseColor.Green, BaseColor.Yellow][(r + c) % 4]) });
+      }
+      const character = (id: number, over: Partial<Character> = {}): Character => ({
+        id, name: `C${id}`, maxHp: 50, hp: 50, attack: 5, armor: 0, magic: 0,
+        colors: [BaseColor.Red], manaCost: 8, mana: 8,
+        skillId: 'none', statuses: [], defeated: false, ...over,
+      });
+      const left: Team = { player: PlayerSide.Left, characters: [character(0, { skillId, temperingLevel: level }), character(1)] };
+      const right: Team = { player: PlayerSide.Right, characters: [character(4), character(5)] };
+      const state = createGameState(board, left, right, PlayerSide.Left);
+      const engine = new TurnEngine(state, new SeededRNG(8623), () => gid++, battleRegistry());
+      engine.setBranchChooser(new FixedBranchChooser(branch));
+      engine.skullChance = 0;
+      const events = engine.castSkill(0);
+      return { armor: left.characters[0].armor, destroys: events.filter(e => e.type === 'gem-destroy'), events };
+    }
+    for (const branch of [0, 1]) {
+      const lv8 = cast(8, branch);
+      const lv9 = cast(9, branch);
+      const lv10 = cast(10, branch);
+      expect(lv8.armor).toBe(0);
+      expect(lv9.armor).toBe(2);
+      expect(lv10.armor).toBe(2);
+      expect(lv8.destroys).toEqual(lv9.destroys);
+      expect(lv10.destroys).toHaveLength(lv9.destroys.length + 1);
+      const singleColors = (list: typeof lv9.destroys) => list.filter(e => e.cells.length === 1 && e.cells[0].gemType.kind === 'color').length;
+      expect(singleColors(lv10.destroys)).toBe(singleColors(lv9.destroys) + 1);
+      expect(lv10.events[0]).toMatchObject({ type: 'skill-cast', skillId: 'gw_WandOfStars' });
+    }
+    const troop = cast(10, 0, '8623');
+    expect(troop.armor).toBe(0);
+    expect(troop.destroys).toEqual(cast(8, 0, '8623').destroys);
+  });
+
+  it('nonSkull random gem targets include special gems but exclude all skull variants', () => {
+    const board = new BoardModel();
+    const gems = [skullGem(), specialGem('doomSkull'), specialGem('uberDoomSkull'),
+      colorGem(BaseColor.Blue), specialGem('elementalStar')];
+    gems.forEach((type, col) => board.set({ row: 0, col }, { id: col, type }));
+    const hero: Character = {
+      id: 0, name: 'hero', maxHp: 50, hp: 50, attack: 0, armor: 0, magic: 0,
+      colors: [BaseColor.Red], manaCost: 8, mana: 8,
+      skillId: 'gw_WandOfStars', statuses: [], defeated: false,
+    };
+    const state = createGameState(board,
+      { player: PlayerSide.Left, characters: [hero] },
+      { player: PlayerSide.Right, characters: [] }, PlayerSide.Left);
+    const events = executePrototype(skill(destroyRandomGems(2, 0, 'nonSkull')),
+      { state, casterId: 0, rng: new SeededRNG(7), nextGemId: () => 100 });
+    const cells = events.flatMap(e => e.type === 'gem-destroy' ? e.cells : []);
+    expect(cells.map(c => c.gemId).sort()).toEqual([3, 4]);
   });
 });

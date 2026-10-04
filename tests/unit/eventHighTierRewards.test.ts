@@ -1,5 +1,6 @@
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { describe, expect, it } from 'vitest';
-import { EVENT_ARCANE_STONES, EVENT_MILESTONES, WEEK_MS } from '../../src/meta/data/events';
+import { EVENT_ARCANE_STONES, EVENT_MILESTONES, EVENT_SHARED_GOALS, WEEK_MS } from '../../src/meta/data/events';
 import { newSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { ensureEventWeek, eventModeState } from '../../src/meta/systems/events';
@@ -9,13 +10,42 @@ const WEEK = 1_700_000_000_000 - (1_700_000_000_000 % WEEK_MS);
 const fresh = () => { const s = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] }); s.hero.level = 20; return s; };
 
 describe('高阶活动奖励按真实难度结算', () => {
+  it('same tower battle exposes milestone gems and shared weekly payout actually credited, never replayed', () => {
+    const s = fresh();
+    const w = ensureEventWeek(s, WEEK, 'towerOfDoom');
+    w.points = EVENT_MILESTONES.towerOfDoom[4]!.points - 1;
+    w.wins = EVENT_SHARED_GOALS[0]!.wins - 1;
+    w.claimed = [0, 1, 2, 3];
+    for (const i of w.claimed) w.eventData[`gemPaid${i}`] = EVENT_MILESTONES.towerOfDoom[i]!.gems ?? 0;
+    const out = eventBattle(s, 'towerOfDoom', WEEK);
+    const before = { ...s.currencies };
+    const beforeEpic = s.materials.ingots.epic ?? 0;
+    const result = fakeResult(out);
+    const detail = settleEvent(s, out, result, WEEK);
+    expect(w.claimed).toContain(4);
+    expect(detail.lines.some(l => l.key === 'event-milestone' && l.mats?.traitstones?.['runic:purple'])).toBe(true);
+    expect(detail.lines.some(l => l.key === 'event-milestone' && l.mats?.ingots?.epic === EVENT_SHARED_GOALS[0]!.epicIngots)).toBe(true);
+    expect(detail.lines.some(l => l.key === 'event-milestone' && l.deltas.gems === EVENT_MILESTONES.towerOfDoom[4]!.gems)).toBe(true);
+    const view = battleIncomeView(detail);
+    for (const key of ['gold', 'souls', 'gems'] as const) expect(view[key]).toBe(s.currencies[key] - before[key]);
+    expect(view.materials.find(m => m.key === 'ingot:epic')?.amount).toBe(s.materials.ingots.epic! - beforeEpic);
+    expect(s.materials.traitstones.celestial ?? 0).toBe(0);
+    const replay = settleEvent(s, out, result, WEEK);
+    expect(battleIncomeView(replay).gems).toBe(0);
+    expect(battleIncomeView(replay).materials).toEqual([]);
+    expect(s.currencies.gems - before.gems).toBe(view.gems);
+  });
   it('普通里程碑材料全部翻倍，零秘法积分奖励', () => {
     const sum = (prefix: string) => Object.values(EVENT_MILESTONES).flat().reduce((n, row) => n + Object.entries(row.mats?.traitstones ?? {}).filter(([key]) => key.startsWith(prefix)).reduce((m, [, a]) => m + (a ?? 0), 0), 0);
     expect(sum('minor:')).toBe(176);
     expect(sum('major:')).toBe(128);
     expect(sum('runic:')).toBe(108);
-    expect(sum('celestial')).toBe(6);
+    expect(sum('celestial')).toBe(0);
     expect(sum('arcane:')).toBe(0);
+    for (const [typeId, milestones] of Object.entries(EVENT_MILESTONES)) {
+      expect(milestones.at(-1)?.mats?.traitstones?.celestial ?? 0, typeId).toBe(0);
+    }
+    expect(EVENT_MILESTONES.towerOfDoom[4]?.mats?.traitstones?.celestial ?? 0).toBe(0);
   });
   it('普通讨伐额度已用尽不妨碍Lv50首领奖励；打伤不等于击破', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'raidBoss'); w.playRewards = 4;
