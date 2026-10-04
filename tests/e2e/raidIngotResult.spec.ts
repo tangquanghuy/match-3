@@ -26,7 +26,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
         rulesetVersion: '1', seed, winner: 'player', turns: 4, combatants: [],
         defeatedExternalIds: [], summonedCount: 0, actionLogDigest: '', eventSummary: [] };
       const detail = applySettlement(save, battle, { plan, todayStart: weekStart, enemyByExternalId: new Map() });
-      const ingots = detail.lines.find(line => line.mats?.ingots)?.mats?.ingots ?? {};
+      const ingots = detail.lines.find((line: { mats?: { ingots?: Record<string, number> } }) => line.mats?.ingots)?.mats?.ingots ?? {};
       const repeat = applySettlement(save, battle, { plan, todayStart: weekStart, enemyByExternalId: new Map() });
       const inventory = structuredClone(save.materials.ingots);
       const screen = new ResultScreen();
@@ -35,7 +35,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
       screen.mount({ save: () => save, navigate: () => {} });
       return { ingots: Object.entries(ingots).map(([key, amount]) => ({ key, name: INGOT_NAMES[key], amount })),
         inventory: Object.entries(ingots).every(([key, n]) => inventory[key] === n),
-        noReplayReward: repeat.lines.every(line => !line.mats?.ingots) };
+        noReplayReward: repeat.lines.every((line: { mats?: { ingots?: Record<string, number> } }) => !line.mats?.ingots) };
     });
     expect(awarded.ingots.length).toBeGreaterThan(1);
     expect(awarded.inventory).toBe(true);

@@ -258,6 +258,7 @@ export function buildPlayerSnapshots(
           armor: heroBase.armor + statBonus.armor + heroTalent.armor + heroAura.armor,
           magic: heroBase.magic + statBonus.magic + heroTalent.magic + heroAura.magic,
         },
+        role: weapon?.role ?? null,
         troopTypes: [heroClass?.troopType ?? 'Human'],
         manaColors: weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
         // 会话校验要求耗蓝 1~100：无武器按「1 蓝耗的空施法」处理（skillId 'none' 走兜底原型）

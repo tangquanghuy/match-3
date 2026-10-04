@@ -4,6 +4,12 @@
  * 天赋树细节见 metaTalent.test.ts；职业数据完整性见 metaClasses.test.ts。
  */
 import { describe, it, expect } from 'vitest';
+import { BoardModel } from '../../src/engine/BoardModel';
+import { createGameState } from '../../src/engine/GameState';
+import { chooseAiAction, firstCastableCharacter } from '../../src/engine/aiPolicy';
+import { SeededRNG } from '../../src/engine/rng';
+import { PlayerSide } from '../../src/engine/types';
+import { mapRequestToTeams } from '../../src/session/combatantMapping';
 import type { BattleResult } from '../../src/session/contract';
 import {
   addClassXp,
@@ -345,6 +351,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
     expect(hero.name).toBe('主角');
     expect(hero.skillId).toBe(STARTER_WEAPON_ID);
+    expect(hero.role).toBe('Striker');
     expect(hero.manaColors).toEqual(equippedWeaponOf(s)!.manaColors);
     // 督军采纳 Orc? 否——无字面证据保持 Human；天赋凶悍 = 攻击 +4
     expect(hero.troopTypes).toEqual(['Human']);
@@ -354,6 +361,32 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     // 武器原型注册为真实技能（非兜底空原型）
     const proto = outcome.registry.prototypes.get(STARTER_WEAPON_ID)!;
     expect(proto.segments.length).toBeGreaterThan(0);
+  });
+
+  it('供魔武器主角让已满法力队友先施法；队友未满时主角正常施法', () => {
+    const s = save();
+    teamWithHero(s);
+    expect(equipWeapon(s, 'gw_DustyTome')).toMatchObject({ ok: true });
+    const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
+    if (!outcome.ok) throw new Error(outcome.message);
+    expect(outcome.request.playerTeam[0]).toMatchObject({ skillId: 'gw_DustyTome', role: 'Generator' });
+
+    const mapped = mapRequestToTeams(outcome.request);
+    const hero = mapped.playerTeam.characters[0]!;
+    const ally = mapped.playerTeam.characters[2]!; // 6097: Defender，位于主角之后
+    expect(hero.role).toBe('Generator');
+    expect(ally.role).toBe('Defender');
+    const state = createGameState(new BoardModel(), mapped.playerTeam, mapped.enemyTeam);
+    hero.mana = hero.manaCost;
+    ally.mana = ally.manaCost;
+    expect(firstCastableCharacter(state, PlayerSide.Left, outcome.registry)?.id).toBe(ally.id);
+    expect(chooseAiAction({ state, side: PlayerSide.Left, rng: new SeededRNG(1), registry: outcome.registry })?.action)
+      .toEqual({ type: 'cast', characterId: ally.id });
+
+    ally.mana = 0;
+    expect(firstCastableCharacter(state, PlayerSide.Left, outcome.registry)?.id).toBe(hero.id);
+    expect(chooseAiAction({ state, side: PlayerSide.Left, rng: new SeededRNG(1), registry: outcome.registry })?.action)
+      .toEqual({ type: 'cast', characterId: hero.id });
   });
 
   it('天赋 trait 别名进主角 traitIds（携火者→firelink）；未实现天赋不带特质', () => {
@@ -380,6 +413,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     if (!outcome.ok) throw new Error(outcome.message);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
     expect(hero.skillId).toBe('none');
+    expect(hero.role).toBeNull();
     expect(hero.manaCost).toBe(1);
     expect(outcome.registry.prototypes.get('none')!.segments).toEqual([]);
   });

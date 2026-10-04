@@ -43,7 +43,9 @@ describe('repeatable raid boss ingot challenge', () => {
       expect(mats.ingots?.[reward.guaranteed.key]).toBe(reward.guaranteed.count);
       expect(detail.lines.find(line => line.mats?.ingots)?.mats).toEqual(mats);
       const shown = battleIncomeView(detail).materials;
-      for (const [key, count] of Object.entries(mats.ingots ?? {})) {
+      for (const key of INGOT_KEYS) {
+        const count = mats.ingots?.[key];
+        if (count === undefined) continue;
         const total = detail.lines.reduce((n, line) => n + (line.mats?.ingots?.[key] ?? 0), 0);
         expect(shown.find(item => item.key === `ingot:${key}`)?.amount).toBe(total);
         expect(total).toBeGreaterThanOrEqual(count);
