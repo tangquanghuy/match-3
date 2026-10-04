@@ -3,7 +3,7 @@ import { GACHA_RULES as RULES, emptyGachaWishlist, pursuitLimitFor, type GachaWi
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 
-export const BLOCKED_WISHLIST_IDS = new Set([7736, 6529]);
+export const BLOCKED_WISHLIST_IDS = new Set([7736, 6529, 7393]);
 export const hasBlockedWishlistIds = (raw: unknown): boolean => {
   if (!raw || typeof raw !== 'object') return false;
   const w = raw as Partial<GachaWishlist>;
@@ -45,7 +45,7 @@ export function setWishlist(save: MetaSave, ids: readonly number[]): { ok: true 
   return { ok: true };
 }
 export function setPursuitTarget(save: MetaSave, id: number | null): { ok: true } | MetaFailure {
-  if (id !== null && (!save.gachaWishlist.troopIds.includes(id)
+  if (id !== null && (BLOCKED_WISHLIST_IDS.has(id) || !save.gachaWishlist.troopIds.includes(id)
     || getTroopById(id)?.rarityIdx !== RULES.pursuitRarity || reallyOwned(save, id))) {
     return fail('INVALID', '追寻目标需为愿望单中尚未拥有的神话角色');
   }

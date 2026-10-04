@@ -28,7 +28,7 @@ import type { SeededRNG } from './rng';
  *   1. 能打出 4 连及以上 / L / T 的交换（争额外回合）。5 连、L/T 高于普通 4 连；
  *      同档比消除格数，再比法力有用度；
  *   Special case: cast WangFeng first when a summon slot is open.
- *   2. Cast a ready damage dealer before an earlier mana generator; otherwise use team order.
+ *   2. Cast ready non-generators before generators (team order within each group).
  *      Defer deterministic conversions that gift an opponent a big swap without a big match or extra turn.
  *   3. 骷髅匹配（骷髅越多越好）；
  *   4. 法力有用度最高的颜色匹配（按己方存活未满角色的剩余法力缺口加权）；
@@ -115,7 +115,7 @@ function readyWangfengWithOpenSlot(
   return team.find(ch => ch.skillId === WANGFENG_SKILL_ID && engineWouldAcceptCast(state, ch, registry)) ?? null;
 }
 
-/** Return the first safe caster, deferring a generator for a ready Striker. */
+/** Cast ready non-generators before generators, preserving team order within each group. */
 export function firstCastableCharacter(
   state: GameState,
   side: PlayerSide,
@@ -127,13 +127,10 @@ export function firstCastableCharacter(
   const team = state.teams[side].characters;
   const castable = team.filter(ch => engineWouldAcceptCast(state, ch, registry)
     && !giftsOpponentBigMatch(state, ch, registry));
-  // A generator should not monopolize the team's mana when a damage dealer is ready.
-  const damageReady = castable.find(ch => ch.role === 'Striker' || ch.role === '\u8f93\u51fa');
-  if (damageReady) {
-    const first = castable[0];
-    if (first?.role === 'Generator' || first?.role === '\u4f9b\u9b54') return damageReady;
-  }
-  return castable[0] ?? null;
+  // Full-mana allies should spend their skills before a generator refills them.
+  // If only generators are ready, preserve team order to avoid circular deferral.
+  return castable.find(ch => ch.role !== 'Generator' && ch.role !== '\u4f9b\u9b54')
+    ?? castable[0] ?? null;
 }
 
 /** Skip a deterministic conversion that creates an opponent 4+/L/T move without a big match or extra turn. */

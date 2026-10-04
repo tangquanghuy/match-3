@@ -7,7 +7,7 @@ import { chooseAiAction, evaluateSwaps, firstCastableCharacter } from '@engine/a
 import { chooseEnemySwap } from '@engine/ai';
 import { skill, transform, extraTurn } from '@engine/skills/builders';
 import { SKILL_LIBRARY } from '@engine/skills/library';
-import { COMMUNITY_TROOPS, HUIJIU_SPELL_ID, WANGFENG_SPELL_ID } from '../../src/data/communityTroops';
+import { COMMUNITY_TROOPS, HUIJIU_SPELL_ID, WANGFENG_SPELL_ID, YELUO_SPELL_ID } from '../../src/data/communityTroops';
 import { BaseColor, MatchState, PlayerSide, colorGem, skullGem } from '@engine/types';
 import type { BattleAction, CellPos, Character, GemType } from '@engine/types';
 import type { SkillPrototype } from '@engine/skills/prototypes';
@@ -161,6 +161,32 @@ describe('aiPolicy：决策优先级', () => {
       .toEqual({ type: 'cast', characterId: 1 });
     s.teams[PlayerSide.Left].characters[2]!.mana = 10;
     s.teams[PlayerSide.Left].characters[2]!.statuses = [{ id: 'silence', turns: 1 }];
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
+  });
+
+  it('Huijiu lets a full-mana Assassin cast first, then other non-generators, before refilling', () => {
+    const huijiu = COMMUNITY_TROOPS.find(t => t.spell.id === HUIJIU_SPELL_ID)!;
+    const assassin = COMMUNITY_TROOPS.find(t => t.spell.id === YELUO_SPELL_ID)!;
+    expect(huijiu.role).toBe('Generator');
+    expect(assassin.role).toBe('Assassin');
+    const s = stateOf([], [
+      char(1, { role: huijiu.role, skillId: String(HUIJIU_SPELL_ID), manaCost: huijiu.manaCost, mana: huijiu.manaCost }),
+      char(2, { role: assassin.role, skillId: String(YELUO_SPELL_ID), manaCost: assassin.manaCost, mana: assassin.manaCost }),
+      char(3, { role: 'Support', mana: 10 }),
+      char(4, { role: 'Generator', mana: 10 }),
+    ]);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set(String(HUIJIU_SPELL_ID), SKILL_LIBRARY[HUIJIU_SPELL_ID]);
+    registry.prototypes.set(String(YELUO_SPELL_ID), SKILL_LIBRARY[YELUO_SPELL_ID]);
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(2);
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action)
+      .toEqual({ type: 'cast', characterId: 2 });
+    s.teams[PlayerSide.Left].characters[1]!.mana = 0;
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(3);
+    s.teams[PlayerSide.Left].characters[2]!.mana = 0;
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
+    s.teams[PlayerSide.Left].characters[1]!.mana = assassin.manaCost;
+    s.teams[PlayerSide.Left].characters[1]!.statuses = [{ id: 'silence', turns: 1 }];
     expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
   });
 
