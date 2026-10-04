@@ -113,10 +113,10 @@ describe('tower region boss guaranteed material rewards', () => {
           const balanceBeforeDisplay = structuredClone(s.materials);
           const income = battleIncomeView(detail);
           for (const [key, amount] of Object.entries(row.mats.ingots!)) {
-            expect(income.materials).toContainEqual(expect.objectContaining({ key: `ingot:${key}`, amount: amount! * 2 }));
+            expect(income.materials.find(item => item.key === `ingot:${key}`)?.amount).toBeGreaterThanOrEqual(amount! * 2);
           }
           for (const [key, amount] of Object.entries(row.mats.traitstones!)) {
-            expect(income.materials).toContainEqual(expect.objectContaining({ key: `stone:${key}`, amount: amount! * 2 }));
+            expect(income.materials.find(item => item.key === `stone:${key}`)?.amount).toBeGreaterThanOrEqual(amount! * 2);
           }
           const subtitle = resultSubtitle(detail, { kingdom: '', sourceLabel: '末日之塔' });
           expect(subtitle).toContain(`第 ${row.zone} 区通关材料（第 ${floor} 层首领）`);

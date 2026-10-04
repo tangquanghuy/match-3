@@ -111,7 +111,7 @@ export interface ResultMeta {
   shopHash?: string;
 }
 
-/** Only this battle's income. Account/quest/weekly rewards stay in their own views. */
+/** Only this battle's income; materials include all actually granted settlement lines. */
 export interface BattleIncomeView {
   victory: boolean;
   xp: number;
@@ -134,7 +134,7 @@ export interface MaterialIncome {
   amount: number;
 }
 
-/** 本场收益口径：战斗行 + 通用额外奖励（周常/首胜/任务等账户奖励不并入） */
+/** Currency cards use the base-battle subtotal; material cards include every actual settlement grant. */
 const BATTLE_INCOME_KEYS: readonly string[] = ['kills', 'victory', 'defeat', 'battle-collect', 'battle-bonus', 'tower-boss-clear', 'explore-drop'];
 
 function materialIncome(lines: readonly { mats?: MaterialDelta }[]): MaterialIncome[] {
@@ -200,7 +200,7 @@ export function battleIncomeView(detail: SettlementView): BattleIncomeView {
     gold: sum('gold'), souls: sum('souls'), gems: sum('gems'),
     ...(sum('glory') > 0 ? { glory: sum('glory') } : {}),
     ...(sum('goldKeys') > 0 ? { goldKeys: sum('goldKeys') } : {}),
-    materials: [...materialIncome(battleLines), ...(detail.burningSouls ? [{ key: 'burningSouls', name: '燃烧灵魂', amount: detail.burningSouls }] : [])] };
+    materials: [...materialIncome(detail.lines), ...(detail.burningSouls ? [{ key: 'burningSouls', name: '燃烧灵魂', amount: detail.burningSouls }] : [])] };
 }
 
 /**

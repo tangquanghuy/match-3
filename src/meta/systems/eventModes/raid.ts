@@ -303,8 +303,8 @@ export const raidMode: EventModeImpl<RaidState> = {
       const tier = Number(plan.source.choice.slice(6));
       if (!Number.isInteger(tier) || tier < 1 || tier > RAID_INGOT_MAX_TIER) return [];
       const mats = rollRaidIngotReward(tier, result.seed);
-      earnMaterials(ctx.save, mats);
-      return [{ label: `首领锻材挑战胜利 · 难度 ${tier}`, deltas: {}, mats,
+      const applied = earnMaterials(ctx.save, mats);
+      return [{ label: `首领锻材挑战胜利 · 难度 ${tier}`, deltas: {}, mats: applied,
         note: '低级钢锭保底；高级钢锭按概率额外掉落' }];
     }
     const lines: EventProgressLine[] = [];

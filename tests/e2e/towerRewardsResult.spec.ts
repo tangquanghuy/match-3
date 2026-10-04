@@ -43,6 +43,7 @@ for (const viewport of [
           materials: [
             ...Object.entries(lines[0].mats.ingots).map(([key, n]) => ({ key: `ingot:${key}`, name: INGOT_NAMES[key], n })),
             ...Object.entries(lines[0].mats.traitstones).map(([key, n]) => ({ key: `stone:${key}`, name: stoneName(key), n })),
+            { key: 'forgeScrolls', name: '\u7194\u94f8\u7b26\u5377', n: 99 },
           ],
         };
       }, floor);

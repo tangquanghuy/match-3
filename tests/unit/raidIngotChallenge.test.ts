@@ -6,6 +6,7 @@ import { KINGDOM_ORDER } from '../../src/meta/data/kingdoms';
 import { eventAction, ensureEventWeek, planEventEncounter } from '../../src/meta/systems/events';
 import { RAID_INGOT_REWARDS, raidIngotKey, raidIngotLevel, rollRaidIngotReward, type RaidState } from '../../src/meta/systems/eventModes/raid';
 import { applySettlement } from '../../src/meta/systems/settlement';
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { planExploreEncounter } from '../../src/meta/systems/encounter';
 import type { BattleResult } from '../../src/session/contract';
 import type { EncounterPlan } from '../../src/meta/systems/encounter';
@@ -41,6 +42,12 @@ describe('repeatable raid boss ingot challenge', () => {
       const mats = rollRaidIngotReward(tier, tier);
       expect(mats.ingots?.[reward.guaranteed.key]).toBe(reward.guaranteed.count);
       expect(detail.lines.find(line => line.mats?.ingots)?.mats).toEqual(mats);
+      const shown = battleIncomeView(detail).materials;
+      for (const [key, count] of Object.entries(mats.ingots ?? {})) {
+        const total = detail.lines.reduce((n, line) => n + (line.mats?.ingots?.[key] ?? 0), 0);
+        expect(shown.find(item => item.key === `ingot:${key}`)?.amount).toBe(total);
+        expect(total).toBeGreaterThanOrEqual(count);
+      }
       for (const key of INGOT_KEYS) expect((s.materials.ingots[key] ?? 0) - (before[key] ?? 0)).toBeGreaterThanOrEqual(mats.ingots?.[key] ?? 0);
     }
     expect(eventAction(s, WEEK, 'raidBoss', 'ingot-tier:13', 1)).toMatchObject({ ok: false });
@@ -64,7 +71,7 @@ describe('repeatable raid boss ingot challenge', () => {
     expect(week.mode).toEqual(before);
     expect(week.points).toBe(90);
     const lost = planEventEncounter(s, WEEK, 114, 'raidBoss', 'ingot') as EncounterPlan;
-    settle(s, lost, 114, 'enemy');
+    expect(battleIncomeView(settle(s, lost, 114, 'enemy')).materials).toEqual([]);
     expect(s.materials.ingots.rare).toBe(15);
     expect(s.materials.ingots.ultraRare).toBe([110, 111, 112].reduce((sum, seed) => sum + (rollRaidIngotReward(7, seed).ingots?.ultraRare ?? 0), 0));
     expect(s.materials.ingots.epic).toBe([110, 111, 112].reduce((sum, seed) => sum + (rollRaidIngotReward(7, seed).ingots?.epic ?? 0), 0));

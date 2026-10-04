@@ -73,8 +73,20 @@ describe('本场收益与额外奖励隔离', () => {
     expect(view.gems).toBe(30);
     expect(view.materials).toEqual([
       { key: 'treasureMaps', name: '藏宝图', amount: 2 },
-      { key: 'forgeScrolls', name: '熔铸符卷', amount: 2 },
+      { key: 'forgeScrolls', name: '熔铸符卷', amount: 11 },
     ]);
+  });
+  it('shows exact materials awarded by activity progress and milestones without mutating settlement', () => {
+    const detail = { ...base, lines: [
+      { key: 'event-progress' as const, label: '', deltas: {}, mats: { ingots: { rare: 6, ultraRare: 1 } } },
+      { key: 'event-milestone' as const, label: '', deltas: {}, mats: { ingots: { epic: 2 }, forgeScrolls: 3 } },
+      { key: 'battle-bonus' as const, label: '', deltas: {}, mats: { ingots: { rare: 1 } } },
+    ] };
+    const before = structuredClone(detail);
+    expect(battleIncomeView(detail).materials.map(({ key, amount }) => [key, amount])).toEqual([
+      ['ingot:rare', 7], ['ingot:ultraRare', 1], ['forgeScrolls', 3], ['ingot:epic', 2],
+    ]);
+    expect(detail).toEqual(before);
   });
   it('宝石仅展示本场真实收集；重复读取不修改结算明细', () => {
     const detail = { ...base, lines: [
