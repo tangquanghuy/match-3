@@ -630,6 +630,8 @@ function hydrateInvasionRoster(raw: unknown): InvasionState['roster'] {
     weekStart: num(raw.weekStart, 0, 0),
     league: num(raw.league, 0, 0, 9),
     refresh: num(raw.refresh, 0, 0, Number.MAX_SAFE_INTEGER - 1),
+    builtAt: num(raw.builtAt, 0, 0),
+    playerPower: num(raw.playerPower, -1, -1),
     mirrors: mirrors as unknown as NonNullable<InvasionState['roster']>['mirrors'],
   };
 }

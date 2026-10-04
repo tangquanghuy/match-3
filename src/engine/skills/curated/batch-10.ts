@@ -7,7 +7,7 @@
  *   = 特殊宝石家族（SOP §4「特殊宝石」），是本批 SKIP 主因（14 条）。
  * - 「爆破一行」照 batch-01 7016「摧毁 1 行」→ destroyChosenRow 同口径 → explodeChosenRow()。
  * - 「魔力值」= magic 属性（SOP 措辞裁定）：8982 的「3 点魔力值」、9242 的「[魔法+1] 点魔力值」均加 magic。
- * - 种族英文名（troops.json 查询）：狼族 = Wargare、妖仙 = Fey、厄什卡 = Urska、哥布林 = Goblin、机械 = Mech。
+ * - 种族英文名（troops.json 查询）：狐人 = Wargare、妖仙 = Fey、厄什卡 = Urska、哥布林 = Goblin、机械 = Mech。
  * - 「随机书卷」= 书卷家族三兵种：罪恶宝典 TomeOfEvil / 秘密古卷 BookOfSecrets / 女王之书 BookOfWitches
  *   （排除「滚动编织者」Scrollweaver——野兽，「水生抄书吏」WaterbornScribe——抄书吏非书卷）。
  * - 「给予盟友」（8982，单数未限定）→ allyChosen（「若对方是妖仙」指向单一受益者）。
@@ -51,10 +51,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8864,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，再创造 2 颗绿色宝石，数量因狼族盟友数而增强。 [x2]',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，再创造 2 颗绿色宝石，数量因狐人盟友数而增强。 [x2]',
     build: skill(
       dmg('enemyChosen', 4),
-      // 「数量因狼族盟友数而增强」：modifier 点名「创造/宝石数」→ 挂创造段（狼族 = Wargare）
+      // 「数量因狐人盟友数而增强」：modifier 点名「创造/宝石数」→ 挂创造段（狐人 = Wargare）
       createGems(BaseColor.Green, 2, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'alliesOfRace', race: 'Wargare' } },
       }),

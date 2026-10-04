@@ -26,6 +26,7 @@
 .hunt-gate h2 { margin:0;font:25px var(--display);color:#edd5a5;letter-spacing:.08em; }
 .hunt-gate p { margin:0;font-size:13px;line-height:1.9;color:#c2b49b; }
 .hunt-reserve { display:flex;align-items:baseline;justify-content:center;gap:7px;padding:10px 14px;border:1px solid #b8985445;border-radius:7px;background:#16131ddd;color:#c9bda5;font-size:12px;flex-wrap:wrap; }
+.hunt-reserve-amount { display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap; }
 .hunt-reserve b { color:#efd38e;font:18px Georgia,serif; }
 .hunt-reserve em { color:#b8ab92;font-style:normal; }
 .hunt-reserve i { color:#756344;font-style:normal;margin:0 2px; }

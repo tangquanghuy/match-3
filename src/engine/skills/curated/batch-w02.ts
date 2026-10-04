@@ -1054,7 +1054,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8283,
-    desc: '对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。有 30% 个别几率获得一个额外回合和半数法力值。',
+    desc: '对一名敌人造成 [魔法 + 2] 点伤害，并魅惑敌人。额外回合与返还半数法力各有 30% 的独立几率。',
     // L1-1310-brown: English + native (ExtraTurnConditional 30, GenerateHalfMana PercentageChance 30) have no
     // Brown-gem boost; the zh snapshot clause 「几率因棕色宝石数而增强」 is dropped.
     build: skill(
@@ -1431,7 +1431,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8386,
-    desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狼族盟友数而增强。每有一名狼族盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]',
+    desc: '对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狐人盟友数而增强。每有一名狐人盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]',
     build: skill(
       dmg('enemyChosen', 7, 1, { modifier: { mod: { kind: 'multiplier', a: 6 }, source: { kind: 'alliesOfRace', race: 'Wargare' } } }),
       createMix([BaseColor.Green, BaseColor.Red], 0, 0, { modifier: { mod: { kind: 'multiplier', a: 6 }, sources: [{ kind: 'alliesOfRace', race: 'Wargare' }] } }),

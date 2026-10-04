@@ -5,6 +5,9 @@ import { defaultEnv } from '../../src/meta/server/env';
 import { MetaHost, type SaveRepository, type RecordBatch } from '../../src/meta/server/host';
 import { MemoryMirrorStore, mirrorOwnerKey, type InvasionMirrorPool } from '../../src/meta/server/mirrorPool';
 import { defenseRecord, hydrateDefenseLog, hydrateDefenseReports, defenseEntryKey, DEFENSE_REWARD, DEFENSE_VP, type DefenseReport } from '../../src/meta/systems/invasionDefense';
+import { invasionPlayerPower } from '../../src/meta/systems/invasion';
+import { INVASION_MATCHMAKING } from '../../src/meta/data/invasionMatchmaking';
+import { INVASION_RANKS } from '../../src/meta/data/invasionRanks';
 import { mirrorFromEntry } from '../../src/meta/systems/invasionMirrors';
 import { saveToRecords, recordsToSave, type SaveRecords } from '../../src/meta/state/records';
 import { weekStartOf } from '../../src/meta/gateway/clock';
@@ -22,7 +25,8 @@ function staged(): MetaSave {
   const save = configured();
   const record = defenseRecord(save, NOW)!;
   const mirror = mirrorFromEntry({ ...record, ownerKey: mirrorOwnerKey('defender'), name: '防守方' }, 'normal', `-w${WEEK}-l${save.invasion.league}-r0`);
-  save.invasion.roster = { weekStart: WEEK, league: save.invasion.league, refresh: 0, mirrors: [mirror] };
+  save.invasion.roster = { weekStart: WEEK, league: save.invasion.league, refresh: 0, builtAt: NOW,
+    playerPower: invasionPlayerPower(save), mirrors: [mirror] };
   const outcome = runCommand(save, { type: 'planInvasionBattle', args: { mirrorId: mirror.id } }, env);
   expect(outcome.result.ok).toBe(true);
   return outcome.save;
@@ -179,6 +183,82 @@ describe('incoming defense records', () => {
 });
 
 describe('durable cross-account delivery', () => {
+  it('publishes leveled defense units from PvE without opening the PvP page', async () => {
+    const store = new MemoryMirrorStore();
+    const pool = store.forOwner('defender');
+    const publish = vi.spyOn(pool, 'publish');
+    const defender = host(new Repo(buildDemoSave(NOW)), pool);
+    expect((await defender.execute({ type: 'setInvasionDefense', args: { index: 0 } })).result.ok).toBe(true);
+    expect(publish).toHaveBeenCalledTimes(1);
+    const troop = (await defender.load()).save.teams[0]!.members.find(m => m.kind === 'troop')!;
+    const before = (await defender.load()).save.collection[String(troop.troopId)]!.level;
+    expect((await defender.execute({ type: 'levelUpTroop', args: { troopId: troop.troopId } })).result.ok).toBe(true);
+    expect(publish).toHaveBeenCalledTimes(2);
+    const sampled = await store.forOwner('attacker').sample({ leagueMin: 0, leagueMax: 9,
+      powerMin: 0, powerMax: 1_000_000, since: 0, ruleset: RULESET_VERSION, limit: 10 });
+    expect(sampled).toHaveLength(1);
+    expect(sampled[0]!.defense.find(d => d.troopId === troop.troopId)?.level).toBe(before + 1);
+  });
+  it('looks beyond adjacent leagues when a strong remote-rank defense is the only compatible mirror', async () => {
+    const store = new MemoryMirrorStore();
+    const defender = host(new Repo(buildDemoSave(NOW)), store.forOwner('far-defender'));
+    expect((await defender.execute({ type: 'setInvasionDefense', args: { index: 0 } })).result.ok).toBe(true);
+    const attackerSave = buildDemoSave(NOW);
+    attackerSave.invasion.league = 9;
+    attackerSave.invasion.bestLeague = 9;
+    attackerSave.invasion.progressionVp = INVASION_RANKS.find(rank => rank.league === 9)!.vp;
+    const pool = store.forOwner('attacker');
+    const sample = vi.spyOn(pool, 'sample');
+    const attacker = host(new Repo(attackerSave), pool);
+    expect((await attacker.execute({ type: 'syncInvasionSeason', args: {} })).result.ok).toBe(true);
+    expect(sample).toHaveBeenCalledTimes(2);
+    expect(sample.mock.calls[0]![0]).toMatchObject({ leagueMin: 7, leagueMax: 9 });
+    expect(sample.mock.calls[1]![0]).toMatchObject({ leagueMin: 0, leagueMax: 9 });
+    const rivals = (await attacker.load()).save.invasion.roster!.mirrors;
+    expect(rivals.some(m => m.player?.ownerKey === mirrorOwnerKey('far-defender'))).toBe(true);
+    expect(rivals.filter(m => m.player).every(m => m.rating / invasionPlayerPower(attackerSave) >= 0.7
+      && m.rating / invasionPlayerPower(attackerSave) <= 1.4)).toBe(true);
+  });
+  it('replaces an opponent snapshot after defense deployment and the next roster refresh', async () => {
+    const store = new MemoryMirrorStore();
+    let now = NOW;
+    const clock = defaultEnv({ now: () => now, seed: () => 1234, allowDev: true });
+    const league = 9; // normal slot always tries an eligible real opponent at this league
+    const initial = () => {
+      const save = buildDemoSave(NOW);
+      save.hero.level = 83;
+      save.invasion.weekStart = WEEK;
+      save.invasion.progressionVp = INVASION_RANKS.find(rank => rank.league === league)!.vp;
+      save.invasion.league = league;
+      save.invasion.bestLeague = league;
+      return save;
+    };
+    const defenderSave = initial();
+    const members = defenderSave.teams[0]!.members;
+    defenderSave.teams.push({ ...structuredClone(defenderSave.teams[0]!), name: 'Second defense',
+      members: [members[0]!, members[2]!, members[1]!, members[3]!] });
+    const defender = new MetaHost(new Repo(defenderSave), clock,
+      { fresh: 'demo', mirrorPool: store.forOwner('defender'), schedule: vi.fn() });
+    const attacker = new MetaHost(new Repo(initial()), clock,
+      { fresh: 'demo', mirrorPool: store.forOwner('attacker'), schedule: vi.fn() });
+    expect((await defender.execute({ type: 'setInvasionDefense', args: { index: 0 } })).result.ok).toBe(true);
+    await attacker.execute({ type: 'syncInvasionSeason', args: {} });
+    const first = (await attacker.load()).save.invasion.roster!.mirrors.find(m => m.player?.heroLevel === 83);
+    expect(first?.player?.team.map(c => c.templateId ?? 'hero')).toEqual(
+      defenderSave.teams[0]!.members.map(m => m.kind === 'hero' ? 'hero' : String(m.troopId)));
+
+    now += 1000;
+    expect((await defender.execute({ type: 'setInvasionDefense', args: { index: 1 } })).result.ok).toBe(true);
+    // Previously served rosters remain a stable battle selection within their lifetime.
+    expect((await attacker.load()).save.invasion.roster!.mirrors.find(m => m.player)?.player?.team)
+      .toEqual(first?.player?.team);
+    now += INVASION_MATCHMAKING.republishMs;
+    await attacker.execute({ type: 'syncInvasionSeason', args: {} });
+    const updated = (await attacker.load()).save.invasion.roster!.mirrors.find(m => m.player?.heroLevel === 83);
+    expect(updated?.player?.team.map(c => c.templateId ?? 'hero')).toEqual(
+      defenderSave.teams[1]!.members.map(m => m.kind === 'hero' ? 'hero' : String(m.troopId)));
+    expect(updated?.player?.recordedAt).toBe(NOW + 1000);
+  });
   it('settles A, updates B on refresh, leaves currencies unclaimed and never reduces rank progress', async () => {
     const store = new MemoryMirrorStore();
     const s = staged(); const a = host(new Repo(s), store.forOwner('attacker', '进攻方'));

@@ -221,8 +221,8 @@ export class InvasionScreen implements Screen {
     }
     // 对手批次过期（首次进入 / 升联赛 / 旧档）→ 让服务端组一批（可能含真人镜像）；每个键只尝试一次
     // 周榜真人快照过期同理（键带上次取样时刻，取到新快照后自然换键）
-    const rosterKey = `${week}:${save.invasion.league}:${save.invasion.refreshCount}:${save.invasion.standings?.fetchedAt ?? 0}`;
-    const stale = !save.invasion.defenseTeam || !invasionRosterFresh(save, week) || !invasionStandingsFresh(save, week, now);
+    const rosterKey = `${week}:${save.invasion.league}:${save.invasion.refreshCount}:${save.invasion.roster?.builtAt ?? 0}:${invasionPlayerPower(save)}:${save.invasion.standings?.fetchedAt ?? 0}`;
+    const stale = !save.invasion.defenseTeam || !invasionRosterFresh(save, week, now) || !invasionStandingsFresh(save, week, now);
     if (save.hero.level >= INVASION.unlockHeroLevel && stale && rosterSyncKey !== rosterKey) {
       rosterSyncKey = rosterKey;
       void ctx.gateway.syncInvasionSeason().then(() => ctx.refresh()).catch(() => undefined);

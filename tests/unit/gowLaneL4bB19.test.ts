@@ -101,7 +101,7 @@ const RWS:RW[]=[
   zh:"对一名敌人造成 [魔法 + 7] 伤害，伤害值因人马盟友数而增强。每有一名人马盟友，则创建 6 颗混合绿色和黄色的宝石。 [x6]"},
  {id:1356,ref:"LupinesEdge",spell:8386,cost:14,colors:[BaseColor.Blue,BaseColor.Yellow],data:"wargare",race:"Wargare",enName:"Wargare",mix:[BaseColor.Green,BaseColor.Red],protoMix:[BaseColor.Green,BaseColor.Red],
   desc:"Deal [Magic + 7] damage to an Enemy boosted by Wargare Allies. Then create a mix of 6 Green and Red Gems for each Wargare Ally. [x6]",
-  zh:"对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狼族盟友数而增强。每有一名狼族盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]"},
+  zh:"对一名敌人造成 [魔法 + 7] 点伤害，伤害值因狐人盟友数而增强。每有一名狐人盟友，则创造混合绿色和红色的 6 颗宝石。 [x6]"},
 ];
 const ALL=[BaseColor.Blue,BaseColor.Green,BaseColor.Red,BaseColor.Yellow,BaseColor.Purple,BaseColor.Brown];
 for(const w of RWS)describe(`L4b weapon:${w.id}/spell:${w.spell} [Magic+7] +6 per ${w.enName} ally to an enemy, then a mix of 6 ${w.mix.join('/')} per ${w.enName} ally`,()=>{

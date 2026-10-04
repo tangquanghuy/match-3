@@ -444,7 +444,7 @@ export interface TreasureHuntState {
 }
 
 /** Maximum gold, gems and glory credited by treasure hunts in one game-time day. */
-export const TREASURE_HUNT_DAILY_CAP = Object.freeze({ gold: 800_000, gems: 1_000, glory: 2_500 });
+export const TREASURE_HUNT_DAILY_CAP = Object.freeze({ gold: 800_000, gems: 1_000, glory: 4_000 });
 
 export interface TreasureHuntDailyCap {
   dayStart: number;

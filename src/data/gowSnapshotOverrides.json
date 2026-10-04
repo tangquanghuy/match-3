@@ -223,8 +223,8 @@
     },
     "6863": {
       "spellId": 8282,
-      "reason": "sa-F: English Queen Beetrix 'independent 40% chances, to gain an extra turn and half my mana back' (native ExtraTurnConditional 40 / GenerateHalfMana, no Brown count step); old Chinese added 'boosted by Brown Gems'.",
-      "spellDescription": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。"
+      "reason": "User-specified Chinese gameplay rule: 40% base extra-turn chance + 1 percentage point per Brown Gem on board after creation (1:1); half-Mana refund remains an independent 40% roll. Native English steps do not encode the boost.",
+      "spellDescription": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 的基础几率获得额外回合，每颗棕色宝石额外增加 1 个百分点；另有独立的 40% 几率返还半数法力。"
     },
     "6867": {
       "spellId": 8289,
@@ -533,6 +533,10 @@
       "reason": "sa-F: English Desert Ox 'Create a mix of 10 Cursed Gems and Doomskulls' (native CreateGems2Colors 10 Cursed>Doomskull); old Chinese said 'use' instead of create.",
       "spellDescription": "创造 10 颗诅咒宝石和末日骷髅头（随机混合）。获得额外回合。"
     },
+    "7652": {
+      "traitDescriptions": { "oceanswell": "所有海族盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。" },
+      "reason": "Merfolk localization uses one shared race label; effects unchanged."
+    },
     "7724": {
       "spellId": 9716,
       "reason": "sa-J final: English The Sandstone Sentinel 'If the Enemy dies, triple the amount gained' (native IncreaseAllStats 10 + StatusAmount 20 AddForKill); old Chinese said the damage is tripled (获得伤害值增加三倍).",
@@ -563,6 +567,10 @@
       "spellId": 9784,
       "reason": "sa-F: English Blood Spore 'If they are Bleeding, then Dispel, Curse and drain 3 Mana from them' (native DispelConditional AddForBleed = remove positive statuses); old Chinese said dispel their Bleed.",
       "spellDescription": "对一名敌人造成 [魔法 + 4] 点伤害。如果该敌人处于流血状态，则驱散并诅咒该敌人，再吸取其 3 点法力值。"
+    },
+    "7833": {
+      "traitDescriptions": { "lifetide": "消除蓝色宝石时，所有海族盟友恢复 5 点生命值。" },
+      "reason": "Merfolk localization uses one shared race label; effects unchanged."
     },
     "7830": {
       "spellId": 9874,

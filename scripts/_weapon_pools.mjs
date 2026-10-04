@@ -153,7 +153,7 @@ const RACE_ALIAS = {
   骑士: 'Knight', 机械: 'Mech', 秘士: 'Mystic', 神秘: 'Mystic', 龙: 'Dragon', 龙族: 'Dragon', 野兽: 'Beast', 哥布林: 'Goblin', 妖仙: 'Fey', 精灵: 'Elf',
   怪兽: 'Monster', 怪物: 'Monster', 构装体: 'Construct',
   猫族: 'Raksha', 罗刹: 'Raksha', 金牛座: 'Tauros', 牛头族: 'Tauros',
-  狼族: 'Wargare', 战神: 'Wargare', 蛮族: 'Wildfolk', 厄什卡: 'Urska', 乌尔斯卡: 'Urska',
+  狐人: 'Wargare', 狼族: 'Wargare', 战神: 'Wargare', 蛮族: 'Wildfolk', 厄什卡: 'Urska', 乌尔斯卡: 'Urska',
   建造: 'Construct', 罗格: 'Rogue', 盗贼: 'Rogue', 冥河: 'Stryx', 猎鹰: 'Stryx', 鸟族: 'Stryx', Stryx: 'Stryx',
   美人鱼: 'Merfolk', 海族: 'Merfolk', 魔头: 'Boss',
 };
@@ -2992,7 +2992,9 @@ class Compiler {
     // 「有 N% 个别几率获得 A 和 B」＝多项独立掷签（8283；EN There are independent N% chances
     // to gain an extra turn and half my mana back）——各段各挂 chance，非 oneOf 二选一。
     // 「几率因X而增强」无量化倍率（模糊增幅）→ 增项略去（主效果照编，9720 vague 同款）。
-    m = /^有\s*(\d+)\s*%\s*的?(?:个别|分别|独立)?(?:几|机)率(?:地)?获得(.+)$/.exec(c);
+    // 新版显示文案强调两项效果独立判定，归一到旧解析格式以保持重生成兼容。
+    const independentClause = c.replace(/^额外回合与返还半数法力各有\s*(\d+)\s*%\s*的?独立几率/, '有 $1% 个别几率获得额外回合和半数法力值');
+    m = /^有\s*(\d+)\s*%\s*的?(?:个别|分别|独立)?(?:几|机)率(?:地)?获得(.+)$/.exec(independentClause);
     if (m && !/下列其一/.test(c)) { // 「获得下列其一」= 经济多选一（8153/7304 族），交 hEconomy
       const chance = Number(m[1]) / 100;
       let payload = m[2];
@@ -3048,7 +3050,7 @@ class Compiler {
     // K-B3：「召唤一条龙」9649 量词变体、「召唤地狱岩部队」9577 冠词省略变体（群体后缀锚定）、
     // 「随机召唤」前缀（9649 条件 payload）
     const SUMMON_HEAD = String.raw`(?:随机(?:的)?)?召唤`;
-    const GROUP_WORD_RE = /军队|部队|军团|盟友|恶魔|不死族|亡灵|元素|神祇|纳迦|半人马|人马|巨人|矮人|人类|兽人|骑士|龙族|龙|野兽|哥布林|妖仙|精灵|怪兽|怪物|构装体|建造|猫族|罗刹|金牛座|牛头族|狼族|战神|蛮族|厄什卡|乌尔斯卡|罗格|冥河|猎鹰|美人鱼|魔头|小鬼|科博|Stryx|Dhrak-Zum/;
+    const GROUP_WORD_RE = /军队|部队|军团|盟友|恶魔|不死族|亡灵|元素|神祇|纳迦|半人马|人马|巨人|矮人|人类|兽人|骑士|龙族|龙|野兽|哥布林|妖仙|精灵|怪兽|怪物|构装体|建造|猫族|罗刹|金牛座|牛头族|狐人|狼族|战神|蛮族|厄什卡|乌尔斯卡|罗格|冥河|猎鹰|美人鱼|魔头|小鬼|科博|Stryx|Dhrak-Zum/;
     // K-B 收官轮：群体词表之外的王国名（毒菇林/滴答洞穴等经 KINGDOM_ALIAS 归一后命中）
     // 亦可召唤 → isKingdomGroup 兜底（8529/8140/8816）
     m = (GROUP_WORD_RE.test(c) || isKingdomGroup(c))

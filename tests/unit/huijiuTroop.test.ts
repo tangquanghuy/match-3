@@ -236,7 +236,7 @@ describe('辞旧 death mana gift', () => {
     const engine = engineFor(f); f.caster.hp = 1;
     applyStatus(f.caster, { id: 'burning', turns: 3 });
     const events = engine.passTurn();
-    expect(f.caster.defeated).toBe(true); expect(ally.mana).toBe(16); expect(gifts(events)).toHaveLength(1);
+    expect(f.caster.defeated).toBe(true); expect(ally.mana).toBe(8); expect(gifts(events)).toHaveLength(1);
     expect(gifts(engine.passTurn())).toHaveLength(0);
   });
   it('successful self-revival cancels the defeat and its mana gift', () => {
@@ -265,21 +265,33 @@ describe('辞旧 death mana gift', () => {
     const dead = damageCharacter(3, { hp: 0, defeated: true, mana: 0 });
     const rng = { nextInt: vi.fn(() => 1) };
     const events = applySelfDeathManaGift(f.caster, [f.caster, a, dead, b], rng);
-    expect(a.mana).toBe(2); expect(b.mana).toBe(16); expect(dead.mana).toBe(0);
+    expect(a.mana).toBe(2); expect(b.mana).toBe(8); expect(dead.mana).toBe(0);
     expect(rng.nextInt).toHaveBeenCalledWith(2); expect(events).toHaveLength(1);
-    expect(events[0]).toMatchObject({ type: 'buff', source: 'trait', targetId: 2, stat: 'mana', amount: 12 });
+    expect(events[0]).toMatchObject({ type: 'buff', source: 'trait', targetId: 2, stat: 'mana', amount: 4 });
   });
   it('chooses a non-full ally when another survivor already has full mana', () => {
     const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
     const full = damageCharacter(1); const empty = damageCharacter(2, { mana: 0 });
     const rng = { nextInt: vi.fn(() => 0) };
     expect(applySelfDeathManaGift(f.caster, [full, empty], rng)).toMatchObject([
-      { type: 'buff', source: 'trait', targetId: empty.id, stat: 'mana', amount: empty.manaCost },
+      { type: 'buff', source: 'trait', targetId: empty.id, stat: 'mana', amount: Math.floor(empty.manaCost / 2) },
     ]);
     expect(rng.nextInt).toHaveBeenCalledWith(1);
-    expect(full.mana).toBe(full.manaCost); expect(empty.mana).toBe(empty.manaCost);
+    expect(full.mana).toBe(full.manaCost); expect(empty.mana).toBe(Math.floor(empty.manaCost / 2));
   });
-  it('does not consume RNG when all surviving allies have full mana', () => {
+  it('fills only to half mana (rounded down), skipping allies already at or above that threshold', () => {
+    const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
+    const aboveHalf = damageCharacter(1, { mana: 9 });
+    const odd = damageCharacter(2, { manaCost: 15, mana: 3 });
+    const rng = { nextInt: vi.fn(() => 0) };
+    expect(applySelfDeathManaGift(f.caster, [aboveHalf, odd], rng)).toMatchObject([
+      { type: 'buff', source: 'trait', targetId: odd.id, stat: 'mana', amount: 4 },
+    ]);
+    expect(aboveHalf.mana).toBe(9);
+    expect(odd.mana).toBe(7);
+    expect(rng.nextInt).toHaveBeenCalledWith(1);
+  });
+  it('does not consume RNG when all surviving allies already have at least half mana', () => {
     const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
     const full = damageCharacter(1);
     const rng = { nextInt: vi.fn(() => 0) };
@@ -304,7 +316,7 @@ describe('辞旧 death mana gift', () => {
     f.state.teams[attackerSide].characters = [attacker]; f.state.activePlayer = attackerSide;
     const registry = new ExtensionRegistry(); registry.prototypes.set('test-kill', skill(dmg('enemyFront', 10, 0)));
     const engine = engineFor(f, registry); const events = engine.castSkill(10);
-    expect(dying.defeated).toBe(true); expect(survivor.mana).toBe(16);
+    expect(dying.defeated).toBe(true); expect(survivor.mana).toBe(8);
     expect(events.filter(e => e.type === 'defeat' && e.characterId === dying.id)).toHaveLength(1);
     expect(gifts(events)).toHaveLength(1); expect(gifts(engine.passTurn())).toHaveLength(0);
     expect(attacker.statuses.some(s => s.id === 'silence')).toBe(false);
@@ -315,7 +327,7 @@ describe('辞旧 death mana gift', () => {
     f.state.teams[PlayerSide.Left].characters.push(caster);
     const registry = new ExtensionRegistry(); registry.prototypes.set('test-sacrifice', skill(sacrifice('allyFront')));
     const engine = engineFor(f, registry); const events = engine.castSkill(1);
-    expect(f.caster.defeated).toBe(true); expect(caster.mana).toBe(16); expect(gifts(events)).toHaveLength(1);
+    expect(f.caster.defeated).toBe(true); expect(caster.mana).toBe(8); expect(gifts(events)).toHaveLength(1);
   });
   it('real skull death silences attacker and fills a surviving ally once', () => {
     const f = fixture(); stableBoard(f); f.caster.hp = 1; f.caster.mana = 0;
@@ -325,7 +337,7 @@ describe('辞旧 death mana gift', () => {
       f.board.set(pos, { id: 100 + pos.row * 8 + pos.col, type: skullGem() });
     }
     const engine = engineFor(f); const events = engine.resolveSwap({ row: 7, col: 1 }, { row: 6, col: 1 });
-    expect(f.caster.defeated).toBe(true); expect(ally.mana).toBe(16); expect(gifts(events)).toHaveLength(1);
+    expect(f.caster.defeated).toBe(true); expect(ally.mana).toBe(8); expect(gifts(events)).toHaveLength(1);
     expect(events.some(e => e.type === 'status-apply' && e.targetId === 10 && e.statusId === 'silence')).toBe(true);
   });
 });

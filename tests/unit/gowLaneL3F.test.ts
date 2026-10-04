@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { castSpell, entitySkill, setupCast, sixColourBoard, withCells } from '../helpers/gowCast';
 import { BaseColor, colorGem } from '@engine/types';
+import { getTroopById } from '../../src/data/troops';
 import type { Character } from '@engine/types';
 type E = Partial<Character>;
 const st = (...ids: string[]) => ids.map(id => ({ id, turns: 3 })) as Character['statuses'];
@@ -64,15 +65,29 @@ describe('sa-F B02: create gems + extra turn / mana', () => {
     expect(order(selPurple)[0]).toBe('convert Purple x1 -> skull x1');
     expect(order(selPurple).filter(o => o.includes('mana'))).toEqual([]);
   });
-  it('troop:6863 QueenBeetrix (8282): extra turn and half Mana are independent 40% rolls', () => {
+  it('troop:6863 QueenBeetrix (8282): 40% base extra turn boosted 1:1 by post-create Brown gems, half Mana independently 40%', () => {
+    expect(getTroopById(6863)?.spell.description).toContain('每颗棕色宝石额外增加 1 个百分点');
     const half = Math.floor(entitySkill('troop:6863').cost / 2);
     const runs = Array.from({ length: 40 }, (_, i) => castSpell({ key: 'troop:6863', seed: i + 1 }));
     const mana = (x: ReturnType<typeof castSpell>) => order(x).includes(`buff C mana+${half}`);
     const extra = (x: ReturnType<typeof castSpell>) => x.summary.extraTurn === 'skill';
+    expect(runs.some(x => extra(x) && mana(x))).toBe(true);
+    expect(runs.some(x => extra(x))).toBe(true);
+    expect(runs.some(x => !extra(x))).toBe(true);
+    expect(runs.filter(extra).every(x => x.summary.turnKept)).toBe(true);
     expect(runs.some(x => extra(x) && !mana(x))).toBe(true);
     expect(runs.some(x => !extra(x) && mana(x))).toBe(true);
     expect(runs.some(x => !extra(x) && !mana(x))).toBe(true);
     for (const x of runs) expect(order(x).filter(o => o.startsWith('dmg')).reduce((s, o) => s + Number(o.split(' ')[2]), 0)).toBe(26);
+    // Brown count on the board after creation boosts extra turn, not the separate Mana roll.
+    const extraSegment = setupCast({ key: 'troop:6863' }).proto?.segments.find(s => s.kind === 'extraTurn');
+    expect(extraSegment?.chance).toBe(0.4);
+    expect(extraSegment?.chanceBoost).toEqual({ mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } });
+    const attempts = Array.from({ length: 100 }, (_, i) => i + 1);
+    const brown = attempts.map(seed => castSpell({ key: 'troop:6863', board: () => colorGem(BaseColor.Brown), seed }));
+    const purple = attempts.map(seed => castSpell({ key: 'troop:6863', board: () => colorGem(BaseColor.Purple), seed }));
+    expect(brown.filter(extra).length).toBeGreaterThan(purple.filter(extra).length + 20);
+    expect(brown.some(x => extra(x) && !mana(x))).toBe(true);
   });
   it('troop:6190 Tassarion (7331): one cast only (native DisableMySpell@Self)', () => {
     const f = setupCast({ key: 'troop:6190' });

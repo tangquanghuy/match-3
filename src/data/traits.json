@@ -1011,8 +1011,8 @@
   },
   {
     "code": "wargarebond",
-    "name": "狼族族亲",
-    "description": "狼族盟友获得 2 点生命值。",
+    "name": "狐人族亲",
+    "description": "狐人盟友获得 2 点生命值。",
     "troops": 13,
     "typeAura": {
       "troopType": "Wargare",
@@ -2236,8 +2236,8 @@
   },
   {
     "code": "wargareshield",
-    "name": "狼族之盾",
-    "description": "狼族盟友获得 2 点护甲值。",
+    "name": "狐人之盾",
+    "description": "狐人盟友获得 2 点护甲值。",
     "troops": 3,
     "typeAura": {
       "troopType": "Wargare",
@@ -3450,8 +3450,8 @@
   },
   {
     "code": "firstwargare",
-    "name": "狼族老大",
-    "description": "在配对 4 或更多颗宝石时给予狼族盟友 2 点攻击力和魔力值。",
+    "name": "狐人老大",
+    "description": "在配对 4 或更多颗宝石时给予狐人盟友 2 点攻击力和魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Wargare",
@@ -5160,7 +5160,7 @@
   {
     "code": "giftofpersistence",
     "name": "坚持之礼",
-    "description": "在配对 4 或更多颗宝石时给予所有狼族盟友 4 点全部技能值。",
+    "description": "在配对 4 或更多颗宝石时给予所有狐人盟友 4 点全部技能值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Wargare",
@@ -8203,7 +8203,7 @@
   {
     "code": "oceanswell",
     "name": "海洋涌浪",
-    "description": "所有人鱼盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。",
+    "description": "所有海族盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。",
     "troops": 1,
     "onBigMatchTypeAura": {
       "troopType": "Merfolk",
@@ -8736,7 +8736,7 @@
   {
     "code": "lifetide",
     "name": "生命之潮",
-    "description": "消除蓝色宝石时，所有美人鱼盟友恢复 5 点生命值。",
+    "description": "消除蓝色宝石时，所有海族盟友恢复 5 点生命值。",
     "troops": 1,
     "onColorMatchTypeAura": {
       "color": "Blue",

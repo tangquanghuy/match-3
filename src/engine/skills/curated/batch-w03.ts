@@ -1077,7 +1077,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8878,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和狼族盟友数而增强。 [x3]',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害，伤害值因绿色盟友和狐人盟友数而增强。 [x3]',
     build: skill(
       dmg('enemyChosen', 4, 1, { modifier: { mod: { kind: 'multiplier', a: 3 }, sources: [{ kind: 'alliesOfColor', color: BaseColor.Green }, { kind: 'alliesOfRace', race: 'Wargare' }] } }),
     ),

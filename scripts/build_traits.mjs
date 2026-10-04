@@ -63,6 +63,9 @@ const DUAL_STATUS_ALIAS = { 击败: 'disease' };
  * 只改描述文本——机制一律仍由句式规则从修正后的文本解析，保证「描述↔数值」对账成立。
  */
 const DESCRIPTION_OVERRIDES = {
+  // Merfolk 的本地化种族统一显示为「海族」（引擎仍匹配 Merfolk）。
+  oceanswell: '所有海族盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。',
+  lifetide: '消除蓝色宝石时，所有海族盟友恢复 5 点生命值。',
   // 「Gain 5 to a random Skill on 4 or 5 Gem matches」——dump 把两个数字都译错
   insanegrowth: '在配对 4 或 5 颗宝石时，随机一项技能获得 5 点。',
   // 「Inflict Freeze and Bleed to a random Enemy」——dump 把 Enemy 译成「盟友」（目标反向）
@@ -440,7 +443,7 @@ const NEGATIVE_STATUS_POOL = [
 const TROOP_TYPE_MAP = {
   野兽: 'Beast', 妖仙: 'Fey', 元素: 'Elemental', 龙族: 'Dragon', 人类: 'Human',
   恶魔: 'Daemon', 神祇: 'Divine', 怪物: 'Monster', 骑士: 'Knight', 建造: 'Construct',
-  蛮族: 'Wildfolk', 盗贼: 'Rogue', 精灵: 'Elf', 狼族: 'Wargare', 巨人: 'Giant',
+  蛮族: 'Wildfolk', 盗贼: 'Rogue', 精灵: 'Elf', 狐人: 'Wargare', 狼族: 'Wargare', 巨人: 'Giant',
   不死族: 'Undead', 人马: 'Centaur', 哥布林: 'Goblin', 猫族: 'Raksha', 秘士: 'Mystic',
   鸟族: 'Stryx', 纳迦: 'Naga', 海族: 'Merfolk', 厄仑卡: 'Urska', 矮人: 'Dwarf',
   牛头族: 'Tauros', 兽人: 'Orc', 机械: 'Mech', 石人: 'Construct', 侏儒: 'Gnome',
@@ -1431,7 +1434,7 @@ function parse(desc, code) {
       }
     }
   }
-  // 4+ 连团队增益·scope 前置变体（oceanswell「所有人鱼盟友在匹配 4 颗或更多宝石时获得
+  // 4+ 连团队增益·scope 前置变体（oceanswell「所有海族盟友在匹配 4 颗或更多宝石时获得
   // 2 点魔力值」）：受益范围写在触发头之前。
   if ((m = /^所有\s*(.*?)\s*盟友在?(?:配对|匹配|消除)\s*4\s*[颗个]?\s*或\s*(?:更?多|5|以上)\s*[颗个]?的?宝石的?时[，,]?(?:获得|提供|给予|赋予|恢复)?\s*(\d+)\s*点(.+?)[，,]?。?$/.exec(desc))) {
     const troopType = TROOP_TYPE_MAP[m[1]] ?? TROOP_TYPE_MAP[`${m[1]}族`] ?? TROOP_TYPE_MAP[m[1].replace(/族$/, '')] ?? pickColor(m[1]);

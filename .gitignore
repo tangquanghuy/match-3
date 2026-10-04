@@ -53,3 +53,8 @@ game-assets/public/static/hero/*
 !game-assets/public/static/hero/character-male.webp
 !game-assets/public/static/hero/character-female.webp
 !game-assets/public/static/hero/character-unknown.webp
+
+# Generated image previews and Python bytecode are local build artifacts.
+output/
+__pycache__/
+*.pyc

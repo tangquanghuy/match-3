@@ -71,13 +71,13 @@ describe('管理组重点观察对象与虹蝶：图鉴及战斗接入', () => {
       skillId: String(spellId), manaCost: cost, portraitUrl: troop.artUrl });
   });
 
-  it('灵泉凝露 first creates one blue and one purple potion, then explodes four random gems', () => {
+  it('灵泉凝露 first creates one blue and one purple potion, then explodes six random gems', () => {
     const { ctx } = setup(GUANLI_OBSERVER_ID);
     const prototype = SKILL_LIBRARY[GUANLI_OBSERVER_SPELL_ID];
     expect(prototype.segments).toMatchObject([
       { kind: 'gem', params: { op: 'create', gem: { kind: 'special', spec: { kind: 'manaPotionGem', color: BaseColor.Blue } }, count: { base: 1, mult: 0 } } },
       { kind: 'gem', params: { op: 'create', gem: { kind: 'special', spec: { kind: 'manaPotionGem', color: BaseColor.Purple } }, count: { base: 1, mult: 0 } } },
-      { kind: 'gem', params: { op: 'clear', mode: 'explode', target: { kind: 'randomGems', count: { base: 4, mult: 0 } } } },
+      { kind: 'gem', params: { op: 'clear', mode: 'explode', target: { kind: 'randomGems', count: { base: 6, mult: 0 } } } },
     ]);
     const events = executePrototype(prototype, ctx);
     const transforms = events.filter(e => e.type === 'gem-transform');

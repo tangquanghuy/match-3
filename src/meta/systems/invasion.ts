@@ -1,6 +1,7 @@
 import { resolveBattleMaps } from './battleMaps';
 import { invasionVictoryGold } from './invasionGold';
 import { rollPvpGlory } from '../data/pvpGlory';
+import { INVASION_MATCHMAKING } from '../data/invasionMatchmaking';
 import { INVASION_FRENZY, rollInvasionFrenzy, type FrenzyMultiplier } from '../data/invasionFrenzy';
 import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../data/invasionRanks';
 import { grantBattleRewards, type BattleRewards } from './battleRewards';
@@ -233,7 +234,7 @@ export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: nu
  */
 export function invasionCandidates(save: MetaSave, now: number, weekStart: number): InvasionMirror[] {
   const roster = save.invasion.roster;
-  if (roster && invasionRosterFresh(save, weekStart)) {
+  if (roster && invasionRosterFresh(save, weekStart, now)) {
     return roster.mirrors.map(m => {
       const snapshots = m.player?.team ?? m.defense.flatMap((d, index) => {
         const troop = getTroopById(d.troopId);
@@ -246,10 +247,13 @@ export function invasionCandidates(save: MetaSave, now: number, weekStart: numbe
   return botInvasionCandidates(save, now, weekStart);
 }
 
-export function invasionRosterFresh(save: MetaSave, weekStart: number): boolean {
+export function invasionRosterFresh(save: MetaSave, weekStart: number, now: number): boolean {
   const roster = save.invasion.roster;
   return !!roster && roster.weekStart === weekStart && roster.league === save.invasion.league
-    && roster.refresh === save.invasion.refreshCount;
+    && roster.refresh === save.invasion.refreshCount
+    && Number.isSafeInteger(roster.builtAt) && now >= roster.builtAt
+    && now - roster.builtAt < INVASION_MATCHMAKING.republishMs
+    && roster.playerPower === invasionPlayerPower(save);
 }
 
 /** 我方当前出战队的强度（与镜像 rating 同口径）；队伍不可用时为 0 */
@@ -270,7 +274,7 @@ export function rebuildInvasionRoster(
   seed: number,
   replaceSlots?: readonly number[],
 ): void {
-  const fresh = invasionRosterFresh(save, weekStart);
+  const fresh = invasionRosterFresh(save, weekStart, now);
   const mirrors = buildInvasionRoster({
     bots: botInvasionCandidates(save, now, weekStart),
     league: save.invasion.league,
@@ -281,7 +285,8 @@ export function rebuildInvasionRoster(
     seed,
     ...(fresh && replaceSlots ? { existing: save.invasion.roster!.mirrors, replaceSlots } : {}),
   });
-  save.invasion.roster = { weekStart, league: save.invasion.league, refresh: save.invasion.refreshCount, mirrors };
+  save.invasion.roster = { weekStart, league: save.invasion.league, refresh: save.invasion.refreshCount, builtAt: now,
+    playerPower: invasionPlayerPower(save), mirrors };
 }
 
 /** 周榜真人快照落档（rows = 宿主预取的同周同联赛真人，已排除本人；没有共享池时为空 → 全人机补位） */
@@ -300,11 +305,39 @@ export function invasionVpReport(save: MetaSave, now: number): VpReport {
   return { weekStart: save.invasion.weekStart, league: save.invasion.league, vp: save.invasion.vp, at: now };
 }
 
+/** Match simulated opponents on actual team strength; league still controls the draft and level floor. */
+function balanceBotToPlayer(mirror: InvasionMirror, playerPower: number, league: number): InvasionMirror {
+  if (playerPower <= 0) return mirror;
+  const [lo, hi] = INVASION_MATCHMAKING.powerBands[mirror.difficulty];
+  const frenzyScale = !mirror.frenzy ? 1 : mirror.frenzyMultiplier === 2 ? INVASION_FRENZY.stats[2] : INVASION_FRENZY.stats[1.5];
+  const target = playerPower * (lo + hi) / 2 * frenzyScale;
+  const evaluate = (level: number) => {
+    const defense = mirror.defense.map(d => ({ ...d, level }));
+    const snapshots = defense.map((d, i) => enemyToSnapshot(getTroopById(d.troopId)!, d, i));
+    return { defense, rating: teamPower(snapshots), statRating: teamStatPower(snapshots) };
+  };
+  // The rank limits how far a high-league opponent can be weakened; Lv.100 is
+  // the training ceiling. Levels are a result of matching strength, not a proxy for hero level.
+  const minLevel = 1 + Math.min(9, Math.max(0, Math.floor(league)));
+  let low = minLevel;
+  let high = 100;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (evaluate(middle).rating < target) low = middle + 1;
+    else high = middle;
+  }
+  const upper = evaluate(low);
+  const lower = evaluate(Math.max(minLevel, low - 1));
+  const chosen = Math.abs(lower.rating - target) <= Math.abs(upper.rating - target) ? lower : upper;
+  return { ...mirror, ...chosen };
+}
+
 /** 纯人机三档（确定性推演；真人池为空或本地模式时就是最终批次） */
 export function botInvasionCandidates(save: MetaSave, now: number, weekStart: number): InvasionMirror[] {
   const refresh = save.invasion.refreshCount;
   const draftSeed = refresh === 0 ? weekStart : fnv1a32(`reroll:${weekStart}:${refresh}`);
   const mirrors = hydrateMirrorVp(buildBracket(draftSeed, save.invasion.league), now, weekStart);
+  const playerPower = invasionPlayerPower(save);
   const frenzy = rollInvasionFrenzy(weekStart, save.invasion.league, refresh);
   return INVASION_DIFFICULTIES.map((difficulty, slot) => {
     const band = mirrors.filter(m => m.difficulty === difficulty);
@@ -321,6 +354,7 @@ export function botInvasionCandidates(save: MetaSave, now: number, weekStart: nu
         archetypeId: template.id, archetypeName: template.name, strategy: template.strategy, roles: template.roles,
         sourceRow: null, provenance: template.provenance, bannerKingdom: template.bannerKingdom };
     }
+    mirror = balanceBotToPlayer(mirror, playerPower, save.invasion.league);
     // Bind identity to the week, league and refresh batch so stale encounters stay invalid.
     return { ...mirror, id: `${mirror.id}-w${weekStart}-l${save.invasion.league}-r${refresh}` };
   });
@@ -434,7 +468,7 @@ export function afterInvasionSettle(
   const owner = pending.mirror.player?.ownerKey;
   if (owner) save.invasion.recentOpponents = pushRecentOpponent(save.invasion.recentOpponents, owner);
   if (pool) {
-    if (!invasionRosterFresh(save, weekStart)) rebuildInvasionRoster(save, now, weekStart, pool, seed);
+    if (!invasionRosterFresh(save, weekStart, now)) rebuildInvasionRoster(save, now, weekStart, pool, seed);
     else if (owner) {
       const slot = save.invasion.roster!.mirrors.findIndex(m => m.id === pending.mirror.id);
       if (slot >= 0) rebuildInvasionRoster(save, now, weekStart, pool, seed, [slot]);

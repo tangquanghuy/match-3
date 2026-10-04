@@ -359,8 +359,8 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7450,
-    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狼族盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]',
-    // 「狼族」= Wargare（troopTypes 取值域核实）[x4]；「如果敌方死亡，随机吞噬」= ifTargetDied
+    desc: '对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狐人盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]',
+    // 「狐人」= Wargare（troopTypes 取值域核实）[x4]；「如果敌方死亡，随机吞噬」= ifTargetDied
     // 辖必发吞噬段（R22 devour 原语回收）。
     build: skill(
     dmg('enemyChosen', 2, 1, { modifier: boostPer({ kind: 'alliesOfRace', race: 'Wargare' }, 4) }),

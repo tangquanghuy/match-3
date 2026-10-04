@@ -9,7 +9,7 @@
  * - 「魔力值」= magic 属性；「法力值」= mana（SOP 措辞裁定）。
  * - 「致命伤害」= 即杀 execute（batch-03 7789「处死」同款）；「摧毁一组行跟列」= 选定行 + 选定列
  *   （batch-01 7016「摧毁 1 行」同口径）；「爆破一行」= explodeChosenRow（batch-05/10 先例）。
- * - 种族核对（troops.json troopTypes）：野兽 = Beast、狼族 = Wargare（batch-10 8864 先例）、
+ * - 种族核对（troops.json troopTypes）：野兽 = Beast、狐人 = Wargare（batch-10 8864 先例）、
  *   人马 = Centaur（batch-11 9732 先例）、蛮族 = Wildfolk（6383 纳克斯特质 wildfolkbond「蛮族族亲」）。
  * - 召唤物核对（§6 命令）：雅嘎的小屋 = YagasHut(6373)、土狼 = Hyena(6465)、俄里翁 = Orion(6069)。
  * - 「召唤 3 只土狼」：summonRef 无数量参数 → 三个召唤段各召 1 只，死亡条件逐段挂（展开写法）。
@@ -153,10 +153,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 7514,
-    desc: '创造 7 颗指定颜色的宝石。盟友狼族获得屏障效果。',
+    desc: '创造 7 颗指定颜色的宝石。盟友狐人获得屏障效果。',
     build: skill(
       createGems(CHOSEN, 7, 0),
-      // 狼族 = Wargare（batch-10 8864「狼族盟友数」同款核对）
+      // 狐人 = Wargare（batch-10 8864「狐人盟友数」同款核对）
       inflict('barrier', 'allyAll', { targetRace: 'Wargare' }),
     ),
   },

@@ -7199,8 +7199,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "airspirit",
@@ -18653,7 +18653,7 @@
     "spell": {
       "id": 7450,
       "name": "尖牙利爪",
-      "description": "对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狼族盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]",
+      "description": "对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狐人盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]",
       "meta": {
         "scalings": [
           {
@@ -18661,7 +18661,7 @@
             "mult": 1
           }
         ],
-        "raw": "对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狼族盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]",
+        "raw": "对 1 名敌人造成 [魔法 + 2] 点伤害，伤害值因狐人盟友数而增强。如果敌方死亡，随机吞噬一名敌人。 [x4]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
@@ -18682,8 +18682,8 @@
       },
       {
         "code": "firstwargare",
-        "name": "狼族老大",
-        "description": "在配对 4 或更多颗宝石时给予狼族盟友 2 点攻击力和魔力值。"
+        "name": "狐人老大",
+        "description": "在配对 4 或更多颗宝石时给予狐人盟友 2 点攻击力和魔力值。"
       }
     ],
     "portrait": "Troop_K16_10"
@@ -22560,23 +22560,23 @@
     "spell": {
       "id": 7514,
       "name": "图腾防卫",
-      "description": "创造 7 颗指定颜色的宝石。盟友狼族获得屏障效果。",
+      "description": "创造 7 颗指定颜色的宝石。盟友狐人获得屏障效果。",
       "meta": {
         "scalings": [],
-        "raw": "创造 7 颗指定颜色的宝石。盟友狼族获得屏障效果。",
+        "raw": "创造 7 颗指定颜色的宝石。盟友狐人获得屏障效果。",
         "parsed": false
       }
     },
     "traits": [
       {
         "code": "wargareshield",
-        "name": "狼族之盾",
-        "description": "狼族盟友获得 2 点护甲值。"
+        "name": "狐人之盾",
+        "description": "狐人盟友获得 2 点护甲值。"
       },
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "barkskin",
@@ -31415,8 +31415,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "natureheart",
@@ -31477,8 +31477,8 @@
     "traits": [
       {
         "code": "wargareshield",
-        "name": "狼族之盾",
-        "description": "狼族盟友获得 2 点护甲值。"
+        "name": "狐人之盾",
+        "description": "狐人盟友获得 2 点护甲值。"
       },
       {
         "code": "armored",
@@ -45804,8 +45804,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "armored",
@@ -47532,7 +47532,7 @@
   },
   {
     "id": 6807,
-    "name": "狼族恶汉",
+    "name": "狐人恶汉",
     "referenceName": "WargareBrute",
     "rarity": "Rare",
     "rarityIdx": 2,
@@ -49154,7 +49154,7 @@
       {
         "code": "giftofpersistence",
         "name": "坚持之礼",
-        "description": "在配对 4 或更多颗宝石时给予所有狼族盟友 4 点全部技能值。"
+        "description": "在配对 4 或更多颗宝石时给予所有狐人盟友 4 点全部技能值。"
       }
     ],
     "portrait": "Troop_K33_14"
@@ -50869,7 +50869,7 @@
     "spell": {
       "id": 8280,
       "name": "闪电蛹壳",
-      "description": "对所有敌人造成 [(魔法 / 2) + 4] 点伤害。有 25% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]",
+      "description": "对所有敌人造成 [(魔法 / 2) + 4] 点伤害。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]",
       "meta": {
         "scalings": [
           {
@@ -50877,7 +50877,7 @@
             "mult": 0.5
           }
         ],
-        "raw": "对所有敌人造成 [(魔法 / 2) + 4] 点伤害。有 25% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]",
+        "raw": "对所有敌人造成 [(魔法 / 2) + 4] 点伤害。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
@@ -50935,7 +50935,7 @@
     "spell": {
       "id": 8281,
       "name": "圣甲虫之盾",
-      "description": "获得屏障效果和 [魔法 + 1] 点护甲值。有 25% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]",
+      "description": "获得屏障效果和 [魔法 + 1] 点护甲值。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]",
       "meta": {
         "scalings": [
           {
@@ -50943,7 +50943,7 @@
             "mult": 1
           }
         ],
-        "raw": "获得屏障效果和 [魔法 + 1] 点护甲值。有 25% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]",
+        "raw": "获得屏障效果和 [魔法 + 1] 点护甲值。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
@@ -51001,7 +51001,7 @@
     "spell": {
       "id": 8282,
       "name": "马蜂窝",
-      "description": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。",
+      "description": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 的基础几率获得额外回合，每颗棕色宝石额外增加 1 个百分点；另有独立的 40% 几率返还半数法力。",
       "meta": {
         "scalings": [
           {
@@ -51009,7 +51009,7 @@
             "mult": 2
           }
         ],
-        "raw": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。",
+        "raw": "创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 的基础几率获得额外回合，每颗棕色宝石额外增加 1 个百分点；另有独立的 40% 几率返还半数法力。",
         "parsed": true
       }
     },
@@ -51889,8 +51889,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "regeneration",
@@ -70522,8 +70522,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "undying",
@@ -77600,7 +77600,7 @@
     "spell": {
       "id": 8864,
       "name": "聪明一击",
-      "description": "对一名敌人造成 [魔法 + 4] 点伤害，再创造 2 颗绿色宝石，数量因狼族盟友数而增强。 [x2]",
+      "description": "对一名敌人造成 [魔法 + 4] 点伤害，再创造 2 颗绿色宝石，数量因狐人盟友数而增强。 [x2]",
       "meta": {
         "scalings": [
           {
@@ -77608,7 +77608,7 @@
             "mult": 1
           }
         ],
-        "raw": "对一名敌人造成 [魔法 + 4] 点伤害，再创造 2 颗绿色宝石，数量因狼族盟友数而增强。 [x2]",
+        "raw": "对一名敌人造成 [魔法 + 4] 点伤害，再创造 2 颗绿色宝石，数量因狐人盟友数而增强。 [x2]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
@@ -77812,8 +77812,8 @@
     "traits": [
       {
         "code": "wargareshield",
-        "name": "狼族之盾",
-        "description": "狼族盟友获得 2 点护甲值。"
+        "name": "狐人之盾",
+        "description": "狐人盟友获得 2 点护甲值。"
       },
       {
         "code": "armored",
@@ -78367,8 +78367,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "manashield",
@@ -87666,7 +87666,7 @@
     "spell": {
       "id": 9179,
       "name": "尖角冲刺",
-      "description": "对首位敌人造成 [魔法 + 3] 点真实伤害。有 25% 独立几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]",
+      "description": "对首位敌人造成 [魔法 + 3] 点真实伤害。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]",
       "meta": {
         "scalings": [
           {
@@ -87674,7 +87674,7 @@
             "mult": 1
           }
         ],
-        "raw": "对首位敌人造成 [魔法 + 3] 点真实伤害。有 25% 独立几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]",
+        "raw": "对首位敌人造成 [魔法 + 3] 点真实伤害。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
@@ -88124,8 +88124,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "agile",
@@ -88738,7 +88738,7 @@
     "spell": {
       "id": 9196,
       "name": "穿过无痕",
-      "description": "对一名敌人造成 [魔法 + 4] 点伤害。再创造 2 颗紫色宝石，数量因狼族盟友数而增强。 [x2]",
+      "description": "对一名敌人造成 [魔法 + 4] 点伤害。再创造 2 颗紫色宝石，数量因狐人盟友数而增强。 [x2]",
       "meta": {
         "scalings": [
           {
@@ -88746,7 +88746,7 @@
             "mult": 1
           }
         ],
-        "raw": "对一名敌人造成 [魔法 + 4] 点伤害。再创造 2 颗紫色宝石，数量因狼族盟友数而增强。 [x2]",
+        "raw": "对一名敌人造成 [魔法 + 4] 点伤害。再创造 2 颗紫色宝石，数量因狐人盟友数而增强。 [x2]",
         "parsed": true,
         "modifier": {
           "kind": "multiplier",
@@ -95292,8 +95292,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "foxcunning",
@@ -99223,7 +99223,7 @@
       {
         "code": "oceanswell",
         "name": "海洋涌浪",
-        "description": "所有人鱼盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。"
+        "description": "所有海族盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。"
       }
     ],
     "portrait": "Troop_K29_29"
@@ -100549,8 +100549,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "arcane",
@@ -105246,8 +105246,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "foxcunning",
@@ -109407,8 +109407,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "foxcunning",
@@ -109864,7 +109864,7 @@
       {
         "code": "lifetide",
         "name": "生命之潮",
-        "description": "消除蓝色宝石时，所有美人鱼盟友恢复 5 点生命值。"
+        "description": "消除蓝色宝石时，所有海族盟友恢复 5 点生命值。"
       }
     ],
     "portrait": "Troop_K29_39"
@@ -111033,8 +111033,8 @@
     "traits": [
       {
         "code": "wargarebond",
-        "name": "狼族族亲",
-        "description": "狼族盟友获得 2 点生命值。"
+        "name": "狐人族亲",
+        "description": "狐人盟友获得 2 点生命值。"
       },
       {
         "code": "invulnerable",

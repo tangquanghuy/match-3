@@ -1,5 +1,6 @@
 import type { BaseColor } from '../../engine/types';
 import { isRegionId, regionDefinition, type RegionId } from '../data/regionalPvp';
+import { raceNames } from '../data/races';
 import { regionLegal, regionalRule } from '../systems/regionalPvp';
 import { weekStartOf } from '../gateway/clock';
 import { isCoupletSpell, spellTitleText } from '../../data/spellPresentation';
@@ -89,18 +90,8 @@ export function troopImg(troop: TroopData | null, hero = false, attrs = '', char
   return `<img src="${escapeHtml(chain[0]!)}" ${attrs} referrerpolicy="no-referrer" loading="lazy" data-fb='${escapeHtml(fb)}' onerror="const fb=JSON.parse(this.dataset.fb||'[]');const i=fb.indexOf(this.getAttribute('src'));if(i+1<fb.length){this.src=fb[i+1]}else{this.onerror=null}">`;
 }
 
-const TYPE_CN: Record<string, string> = {
-  Knight: '骑士', Elf: '精灵', Beast: '野兽', Dragon: '龙', Dwarf: '矮人', Goblin: '地精',
-  Rogue: '盗贼', Mystic: '法师', Giant: '巨人', Orc: '兽人', Monster: '怪物', Human: '人类',
-  Divine: '神圣', Undead: '亡灵', Construct: '构装', Elemental: '元素', Fey: '妖精',
-  Wargare: '鱼人', Centaur: '半人马', Raksha: '罗刹', Stryx: '鸦人', Naga: '娜迦',
-  Merfolk: '人鱼', Urska: '熊族', Tauros: '牛族', Mech: '机械', Gnome: '侏儒', Immortal: '不朽',
-  OtherworldVisitor: '异界来客',
-  // 阶段 A T-筛选器表：种族下拉里 Daemon 等条目漏译，直接把英文抛给玩家
-  Daemon: '恶魔', Wildfolk: '野民', Boss: '首领', Doom: '厄祸', Castle: '城塞',
-};
 export function typeCn(types: readonly string[]): string {
-  return types.map((t) => TYPE_CN[t] ?? t).join('/');
+  return raceNames(types);
 }
 
 /** [魔法+N] 类公式按当前魔力值求值（共享渲染器，非交互粗体高亮） */

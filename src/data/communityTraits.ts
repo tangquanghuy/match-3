@@ -60,7 +60,7 @@ export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
     code: 'huijiu_farewell',
     name: '辞旧',
-    description: '自身身亡时，充满一名随机未满法力盟友的法力值。',
+    description: '自身身亡时，将一名随机盟友的法力值充至上限的一半。',
     onSelfDeathFillAllyMana: true,
   },
   {

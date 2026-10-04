@@ -79,6 +79,8 @@ export interface InvasionRoster {
   weekStart: number;
   league: number;
   refresh: number;
+  builtAt: number;
+  playerPower: number;
   mirrors: InvasionMirror[];
 }
 
@@ -185,6 +187,31 @@ export function shouldPublish(
 // ---------------------------------------------------------------------------
 // 取样条件
 // ---------------------------------------------------------------------------
+
+/** Request a wider rank window only when nearby ranks lack distinct, power-compatible players. */
+export function invasionPoolNeedsExpansion(
+  pool: readonly MirrorPoolEntry[], league: number, playerPower: number, now: number, recent: readonly string[],
+): boolean {
+  if (playerPower <= 0) return false;
+  const eligible = new Map<string, MirrorPoolEntry>();
+  for (const entry of pool) {
+    if (recent.includes(entry.ownerKey) || !usableEntry(entry, now)) continue;
+    const previous = eligible.get(entry.ownerKey);
+    if (!previous || Math.abs(entry.league - league) < Math.abs(previous.league - league)
+      || (Math.abs(entry.league - league) === Math.abs(previous.league - league) && entry.recordedAt > previous.recordedAt)) {
+      eligible.set(entry.ownerKey, entry);
+    }
+  }
+  if (eligible.size < 3) return true;
+  return INVASION_DIFFICULTIES.some(difficulty => {
+    const [lo, hi] = MM.powerBands[difficulty];
+    return ![...eligible.values()].some(entry => {
+      const ratio = teamPower(entry.team) / playerPower;
+      const scaled = ratio * lowerLeagueMultiplier(league, entry.league, ratio, lo);
+      return scaled >= lo && scaled <= hi;
+    });
+  });
+}
 
 /** 宿主据此向共享池取样；`leagueSlack` 给结算用（结算后可能升一个联赛） */
 export function invasionPoolQuery(league: number, playerPower: number, now: number, leagueSlack = 0): MirrorPoolQuery {
@@ -340,7 +367,11 @@ export function buildInvasionRoster(input: RosterInput): InvasionMirror[] {
       .filter((x): x is { e: MirrorPoolEntry; multiplier: number; score: number } => x !== null)
       .sort((a, b) => a.score - b.score || a.e.ownerKey.localeCompare(b.e.ownerKey));
     if (scored.length === 0) return bot;
-    const pick = scored[rng.nextInt(Math.min(MM.topPicks, scored.length))]!;
+    // Cross-rank samples are a fallback, not competition for available nearby opponents.
+    const nearby = scored.filter(x => x.e.league >= league + MM.queryLeagues[0]
+      && x.e.league <= league + MM.queryLeagues[1]);
+    const choices = nearby.length ? nearby : scored;
+    const pick = choices[rng.nextInt(Math.min(MM.topPicks, choices.length))]!;
     taken.add(pick.e.ownerKey);
     let mirror = mirrorFromEntry(pick.e, difficulty, suffix);
     if (pick.multiplier > 1) mirror = scaleMirror(mirror, pick.multiplier);
@@ -354,7 +385,8 @@ export function buildInvasionRoster(input: RosterInput): InvasionMirror[] {
  */
 function lowerLeagueMultiplier(own: number, rival: number, powerRatio: number, bandMin: number): number {
   if (rival >= own || powerRatio <= 0) return 1;
-  return Math.min(1.5, Math.max(1 + Math.min(2, own - rival) * 0.1, bandMin / powerRatio));
+  // A lower-rank team with sufficient real power needs no artificial boost.
+  return Math.min(1.5, Math.max(1, bandMin / powerRatio));
 }
 
 function scaleMirror(mirror: InvasionMirror, scale: number): InvasionMirror {

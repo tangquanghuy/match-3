@@ -9,7 +9,7 @@ import { BANNERS } from '../../src/meta/data/banners';
 import rawKingdoms from '../../data/raw/gow-2026-09-18/kingdoms.en.json';
 import { TROOPS, getTroopById } from '../../src/data/troops';
 import { planExploreEncounter } from '../../src/meta/systems/encounter';
-import { kingdomArcaneKey, maxExploreTier } from '../../src/meta/systems/explore';
+import { highestClearedExploreTier, kingdomArcaneKey, maxExploreTier } from '../../src/meta/systems/explore';
 import type { BattleResult } from '../../src/session/contract';
 import type { BattleTicket } from '../../src/meta/gateway';
 
@@ -78,6 +78,20 @@ describe('12-tier six-battle Explore', () => {
       const colors = Object.keys(JSON.parse(official.data).ManaColors).map(c => c.replace('Color', '').toLowerCase());
       expect(new Set(key.split(':').slice(1))).toEqual(new Set(colors));
     }
+  });
+  it('shows each kingdom highest completed Explore tier, not selected or globally unlocked tiers', () => {
+    const save = newSave();
+    save.kingdoms[kingdom] = { level: 1, questsDone: 8, exploreTier: 12, exploreUnlockedTier: 12, lastTributeAt: 0 };
+    save.kingdoms[other] = { level: 1, questsDone: 8, exploreTier: 1, lastTributeAt: 0 };
+    expect(highestClearedExploreTier(save.kingdoms[kingdom])).toBe(0);
+    expect(highestClearedExploreTier(save.kingdoms[other])).toBe(0);
+    expect(highestClearedExploreTier(undefined)).toBe(0);
+    save.kingdoms[kingdom]!.clearedExploreTiers = [1, 6];
+    save.kingdoms[other]!.clearedExploreTiers = [12];
+    expect(highestClearedExploreTier(save.kingdoms[kingdom])).toBe(6);
+    expect(highestClearedExploreTier(save.kingdoms[other])).toBe(12);
+    save.kingdoms[kingdom]!.clearedExploreTiers = [1, 6, 13, -1, 3.5];
+    expect(highestClearedExploreTier(save.kingdoms[kingdom])).toBe(6);
   });
   it('starts with 1/2, selected tier never fabricates progress, preserves old clears', () => {
     const save = newSave();

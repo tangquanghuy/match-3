@@ -205,14 +205,18 @@ export class D1MirrorPool implements InvasionMirrorPool {
         snapshot_ref = excluded.snapshot_ref, recorded_at = excluded.recorded_at`)
       .bind(self, mirrorOwnerKey(self), record.league, record.weekStart, record.ruleset,
         Math.round(record.power), Math.round(record.vp), ref, record.recordedAt);
+    // An explicit defense supersedes every historical attacking lineup, including other leagues.
+    // Keep deletion and insertion in one transaction so no other player sees a half-updated pool.
+    const replaceOld = record.explicitDefense
+      ? [this.db.prepare('DELETE FROM invasion_mirrors WHERE player_id = ? AND league != ?').bind(self, record.league)] : [];
     if (Math.random() * PRUNE_EVERY < 1) {
       const cutoff = record.recordedAt - INVASION_MATCHMAKING.maxAgeMs;
-      await this.db.batch([upsertSnapshot, mirror, this.db.prepare('DELETE FROM invasion_mirrors WHERE recorded_at < ?').bind(cutoff),
+      await this.db.batch([upsertSnapshot, ...replaceOld, mirror, this.db.prepare('DELETE FROM invasion_mirrors WHERE recorded_at < ?').bind(cutoff),
         this.db.prepare(`DELETE FROM mirror_snapshots
           WHERE NOT EXISTS (SELECT 1 FROM invasion_mirrors m WHERE m.snapshot_ref = mirror_snapshots.snapshot_key)
             AND NOT EXISTS (SELECT 1 FROM invasion_defenses d WHERE d.attacker_snapshot_ref = mirror_snapshots.snapshot_key)`) ]);
     } else {
-      await this.db.batch([upsertSnapshot, mirror]);
+      await this.db.batch([upsertSnapshot, ...replaceOld, mirror]);
     }
   }
 }

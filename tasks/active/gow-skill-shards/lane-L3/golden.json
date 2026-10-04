@@ -641,10 +641,10 @@
  },
  "troop:6759": {
   "lines": {
-   "L10": "convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; extra-turn skill ; ~cascade~ ; gold+5  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
-   "R10": "convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; extra-turn skill ; ~cascade~ ; gold+5  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
-   "L0": "convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; extra-turn skill ; ~cascade~ ; gold+5  => E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
-   "K": "convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; extra-turn skill ; ~cascade~ ; gold+5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}"
+   "L10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; extra-turn skill ; ~cascade~ ; gold+5  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "R10": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; extra-turn skill ; ~cascade~ ; gold+5  => E10:hp-7 arm-5 | E11:hp-2 arm-10 | E12:arm-12 | E13:hp-9 arm-3  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; extra-turn skill ; ~cascade~ ; gold+5  => E10:arm-2 | E11:arm-2 | E12:arm-2 | E13:arm-2  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}",
+   "K": "dmg E10 12 (all) ; dmg E11 12 (all) ; dmg E12 12 (all) ; dmg E13 12 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x3, skull x2, Red x4, Yellow x1, Purple x3, Blue x1 -> Green x7, Brown x7 ; extra-turn skill ; ~cascade~ ; gold+5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  extra:skill  cascade  eco:{\"gold\":5,\"goldMine\":5}"
   },
   "by": "sa-R7",
   "at": "2026-09-28T09:07:29.218Z"

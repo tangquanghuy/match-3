@@ -8,8 +8,8 @@
  *  - 区分**真种族**与**机制标记**（Boss/Castle/Doom 不是种族，是官方的战斗角色标记），
  *    让「按种族配队」的活动不会派一个 `Doom` 当加成种族。
  *
- * 台账：teamScreen.ts 的 TYPE_CN 待窗口 O 改为引用本文件（顺带修 Wargare 的误译
- * 「鱼人」→「狼族」；Merfolk 才是人鱼）。本窗口不改 O 的文件。
+ * 统一种族显示：Merfolk 涵盖鱼人、海洋生物与人鱼，显示为「海族」；
+ * Wargare 为「狐人」，部队名册复用此词表，避免同一种族在特质和筛选里异名。
  */
 
 /** 机制标记（官方把它们混在 troopTypes 里，但它们不是种族） */
@@ -20,10 +20,10 @@ export const RACE_NAMES: Record<string, string> = {
   Beast: '野兽', Centaur: '半人马', Construct: '构装', Daemon: '恶魔', Divine: '神圣',
   Dragon: '龙', Dwarf: '矮人', Elemental: '元素', Elf: '精灵', Fey: '妖精',
   Giant: '巨人', Gnome: '侏儒', Goblin: '地精', Human: '人类', Immortal: '不朽',
-  Knight: '骑士', Mech: '机械', Merfolk: '人鱼', Monster: '怪物', Mystic: '法师',
+  Knight: '骑士', Mech: '机械', Merfolk: '海族', Monster: '怪物', Mystic: '法师',
   Naga: '娜迦', Orc: '兽人', Raksha: '罗刹', Rogue: '盗贼', Stryx: '鸦人',
   OtherworldVisitor: '异界来客',
-  Tauros: '牛族', Undead: '亡灵', Urska: '熊族', Wargare: '狼族', Wildfolk: '野民',
+  Tauros: '牛族', Undead: '亡灵', Urska: '熊族', Wargare: '狐人', Wildfolk: '野民',
   // —— 机制标记（非种族，但会出现在 troopTypes 里，需要可显示） ——
   Boss: '首领', Castle: '城塞', Doom: '末日',
 };

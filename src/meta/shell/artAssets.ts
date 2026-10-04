@@ -19,12 +19,12 @@ export function eventArt(name: string): string {
   return pick(EVENTS, name);
 }
 
-const GEMS = import.meta.glob('@assets/gems/**/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const GEMS = import.meta.glob('@assets/gems/**/*.{png,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const STATUS_ICONS = import.meta.glob('@assets/status-icons/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 /** 棋盘宝石贴图 URL（`red` / `skull` / `special/doomSkull` / `status/burningGem`），与战斗层同一素材 */
 export function gemArt(path: string): string {
-  const hit = Object.entries(GEMS).find(([p]) => p.endsWith(`/gems/${path}.png`));
+  const hit = Object.entries(GEMS).find(([p]) => (p.endsWith(`/gems/${path}.webp`) || p.endsWith(`/gems/${path}.png`)));
   return hit?.[1] ?? '';
 }
 

@@ -92,11 +92,11 @@ const annaDescription = '消除一名敌人的所有正面增益效果，并将�
 
 const linkongluoDescription = '对一名敌人造成 [魔法 + 6] 点伤害。如果敌人的生命值全满，则造成双倍伤害。创造 3 颗红色龙宝石。';
 
-const yinshiluoDescription = '净化一名盟友，并给予其 [魔法 + 2] 点生命值。创造 1 颗绿色法力药水宝石和 1 颗紫色法力药水宝石。魅惑首位敌人。';
+const yinshiluoDescription = '净化一名盟友，并给予其 [魔法 + 2] 点生命值。创造 1 颗绿色法力药水宝石和 1 颗紫色法力药水宝石。魅惑一名随机敌人。';
 
 const wangfengDescription = '将所有红色宝石转换为紫色宝石，并将所有黄色宝石转换为棕色宝石。召唤一名触手之墙，并将其推至队首。';
 
-const guanliObserverDescription = '创造 1 颗蓝色法力药水宝石和 1 颗紫色法力药水宝石。再爆破 4 颗随机宝石。';
+const guanliObserverDescription = '创造 1 颗蓝色法力药水宝石和 1 颗紫色法力药水宝石。再爆破 6 颗随机宝石。';
 const hongdieDescription = '对最后两名敌人造成 [魔法 + 3] 点伤害，并使其陷入沉默状态。耗掉其各 3 点法力值，再打乱敌方队伍顺序。';
 
 const pingDescription = '摧毁所有选定颜色的宝石。对所有使用该颜色的敌人造成 [魔法 + 4] 点伤害，并耗掉其各 4 点法力值。若摧毁了至少 10 颗该色宝石，则获得一个额外回合。';
@@ -412,7 +412,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     magic: 10,
     base: { attack: 3, armor: 3, health: 7, magic: 1 },
     manaColors: [BaseColor.Green, BaseColor.Purple],
-    manaCost: 12,
+    manaCost: 13,
     spell: {
       id: YINSHILUO_SPELL_ID,
       name: '花露秘酿',

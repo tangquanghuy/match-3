@@ -224,7 +224,7 @@ const COLOR_ZH = {
 };
 const TYPE_ZH = {
   Daemon: '恶魔', Naga: '纳迦', Goblin: '哥布林', Rogue: '盗贼', Mystic: '秘士', Fey: '妖仙',
-  Wargare: '狼族', Elf: '精灵', Dwarf: '矮人', Dwarven: '矮人', Construct: '建造', Merfolk: '海族',
+  Wargare: '狐人', Elf: '精灵', Dwarf: '矮人', Dwarven: '矮人', Construct: '建造', Merfolk: '海族',
   Elemental: '元素', Giant: '巨人', Raksha: '猫族', Undead: '不死族', Tauros: '牛头族',
   Centaur: '人马族', Stryx: '鸟族', Urska: '厄什卡', Knight: '骑士', Mech: '机械',
   Divine: '神祇', Monster: '怪物', Dragon: '龙族', Wildfolk: '蛮族', Beast: '野兽',
@@ -288,7 +288,7 @@ const TALENT_NAME_ZH = {
 /** 职业特质名（97 条里出现的全部 code） */
 const PERK_NAME_ZH = {
   mysticbond: '秘士族亲', arcane: '秘法', nightsblessing: '夜之祝福',
-  wargarebond: '狼族族亲', spellarmor: '法术铠甲', spiritdrain: '灵魂汲取',
+  wargarebond: '狐人族亲', spellarmor: '法术铠甲', spiritdrain: '灵魂汲取',
   stoneheart: '岩石之心', stoneskin: '铁壁铜墙', infusestone: '灌岩',
   elementalbond: '元素族亲', elementalshield: '元素之盾', elementalforce: '元素之力',
   accursed: '诅咒', omenofdark: '暗黑预兆', doomsight: '末日视野',
@@ -454,7 +454,7 @@ const DESC_ZH = {
   mysticbond: '秘士盟友获得 2 点生命值。',
   arcane: '当一名盟友施放法术时获得 1 点魔力值。',
   knightbond: '骑士盟友获得 2 点生命值。',
-  wargarebond: '狼族盟友获得 2 点生命值。',
+  wargarebond: '狐人盟友获得 2 点生命值。',
   elementalbond: '元素盟友获得 2 点生命值。',
   elementalshield: '元素盟友获得 2 点护甲值。',
   spellarmor: '降低来自法术的伤害 25%。',

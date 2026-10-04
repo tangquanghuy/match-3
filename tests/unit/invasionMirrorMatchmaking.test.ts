@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { buildDemoSave } from '../../src/meta/server/demo';
 import { defenseRecord } from '../../src/meta/systems/invasionDefense';
-import { botInvasionCandidates } from '../../src/meta/systems/invasion';
+import { botInvasionCandidates, invasionPlayerPower, invasionRosterFresh, rebuildInvasionRoster } from '../../src/meta/systems/invasion';
 import { buildInvasionRoster, compatibleMirrorRuleset, invasionPoolQuery, teamPower, usableEntry } from '../../src/meta/systems/invasionMirrors';
 import { RULESET_VERSION } from '../../src/session/contract';
+import { INVASION_MATCHMAKING } from '../../src/meta/data/invasionMatchmaking';
 
 describe('thin-pool invasion matchmaking', () => {
   it('searches neighboring leagues and only reuses compatible older battle snapshots', () => {
@@ -13,6 +14,44 @@ describe('thin-pool invasion matchmaking', () => {
     expect(compatibleMirrorRuleset('1.0.0')).toBe(true);
     expect(compatibleMirrorRuleset('2.0.0')).toBe(false);
     expect(compatibleMirrorRuleset('corrupt')).toBe(false);
+  });
+
+
+  it('expires recorded opponents after 30 minutes and rematches when the player team changes', () => {
+    const now = Date.UTC(2026, 9, 4, 12);
+    const save = buildDemoSave(now);
+    const week = now;
+    rebuildInvasionRoster(save, now, week, [], 1);
+    expect(invasionRosterFresh(save, week, now)).toBe(true);
+    expect(invasionRosterFresh(save, week, now + INVASION_MATCHMAKING.republishMs - 1)).toBe(true);
+    expect(invasionRosterFresh(save, week, now + INVASION_MATCHMAKING.republishMs)).toBe(false);
+    rebuildInvasionRoster(save, now + INVASION_MATCHMAKING.republishMs, week, [], 2);
+    expect(invasionRosterFresh(save, week, now + INVASION_MATCHMAKING.republishMs)).toBe(true);
+    const oldPower = invasionPlayerPower(save);
+    save.hero.level += 10;
+    expect(invasionPlayerPower(save)).not.toBe(oldPower);
+    expect(invasionRosterFresh(save, week, now + INVASION_MATCHMAKING.republishMs)).toBe(false);
+    rebuildInvasionRoster(save, now + INVASION_MATCHMAKING.republishMs, week, [], 3);
+    expect(save.invasion.roster?.playerPower).toBe(invasionPlayerPower(save));
+    expect(invasionRosterFresh(save, week, now + INVASION_MATCHMAKING.republishMs)).toBe(true);
+    save.invasion.roster!.builtAt = 0; // pre-upgrade save must be refetched once
+    expect(invasionRosterFresh(save, week, now)).toBe(false);
+  });
+
+  it('keeps an eligible neighboring-rank rival ahead of full-range fallback samples', () => {
+    const save = buildDemoSave(1000);
+    save.invasion.defenseTeam = structuredClone(save.teams[0]!);
+    save.invasion.league = 9;
+    const record = defenseRecord(save, 1000)!;
+    const nearby = { ...record, ownerKey: 'nearby', name: 'Near', league: 9 };
+    const distant = { ...record, ownerKey: 'distant', name: 'Far', league: 0 };
+    const bots = botInvasionCandidates(save, 1000, 1000);
+    const picked = Array.from({ length: 30 }, (_, seed) => buildInvasionRoster({
+      bots, existing: bots, replaceSlots: [1], league: 9, playerPower: record.power,
+      pool: [distant, nearby], recent: [], now: 1000, seed,
+    })[1]!).filter(m => m.player);
+    expect(picked.length).toBeGreaterThan(0);
+    expect(picked.every(m => m.player!.ownerKey === 'nearby')).toBe(true);
   });
 
   it('uses a single lower-league player with a bounded boost reflected in the battle snapshot', () => {

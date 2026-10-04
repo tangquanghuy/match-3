@@ -136,7 +136,7 @@ describe('4/5 连种族光环（firstwargare/overclock 族）', () => {
     const nonWargare = makeChar(2, { troopTypes: ['Elf'] });
     const events = applyBigMatchTriggers([holder, wargareAlly, nonWargare]);
 
-    // 狼族盟友 +2 攻 +2 魔；持有者自身不是狼族，不吃；异族不吃
+    // 狐人盟友 +2 攻 +2 魔；持有者自身不是狐人，不吃；异族不吃
     expect(wargareAlly.attack).toBe(7);
     expect(wargareAlly.magic).toBe(10);
     expect(nonWargare.attack).toBe(5);

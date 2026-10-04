@@ -186,14 +186,14 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8282,
-    desc: '创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 个别几率获得一个额外回合和半数法力值。',
+    desc: '创造 9 颗绿色宝石和 9 颗棕色宝石，再造成 [(魔法 x 2) + 6] 点真实散射伤害。有 40% 的基础几率获得额外回合，每颗棕色宝石额外增加 1 个百分点；另有独立的 40% 几率返还半数法力。',
     // TrueScatterDamage Target=AllEnemies → trueDmg enemyAll range all（8639 口径）；
-    // 官方步骤无棕色宝石计数步（ZH「几率因棕色宝石数」无 [xN] 且官方无 UseCounter）→ 不挂 chanceBoost
+    // 用户指定中文口径：创造宝石后板面每颗棕色宝石给额外回合 +1 个百分点；半数法力保持独立 40%。
     build: skill(
       createGems(BaseColor.Green, 9),
       createGems(BaseColor.Brown, 9),
       trueDmg('enemyAll', 6, 2, { range: 'all' }),
-      extraTurn({ chance: 0.4 }),
+      extraTurn({ chance: 0.4, chanceBoost: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
       mana('allySelf', 0, 0, { halve: true, chance: 0.4 }),
     ),
   },

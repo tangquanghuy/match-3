@@ -132,7 +132,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         gainLife('lastTarget', 2),
         createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Green }, 1),
         createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Purple }, 1),
-        inflict('charm', 'enemyFront'),
+        inflict('charm', 'enemyRandom'),
       ),
     },
     {
@@ -150,7 +150,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
       build: skill(
         createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Blue }, 1),
         createSpecialGems({ kind: 'manaPotionGem', color: BaseColor.Purple }, 1),
-        explodeRandomGems(4),
+        explodeRandomGems(6),
       ),
     },
     {

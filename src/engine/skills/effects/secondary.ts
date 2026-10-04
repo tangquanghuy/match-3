@@ -91,7 +91,7 @@ export type ModifierSource =
   | { kind: 'enemiesOfColor'; color: BaseColor; atCastStart?: boolean }
   /** 敌方处于指定状态的存活人数；R22 批 statusId 可缺省 = 任意状态（「因身负状态效果的
    *  敌人数而增强」，8581「每有一名敌人陷入状态效果」） */
-  | { kind: 'enemyStatusCount'; statusId?: string }
+  | { kind: 'enemyStatusCount'; statusId?: string; atCastStart?: boolean }
   /** 己方处于指定状态的存活人数（「因下潜的盟友数而增强」） */
   | { kind: 'allyStatusCount'; statusId: string; excludeSelf?: boolean }
   /** 选定目标施法开始时带有的所列状态个数（P-R3-target-status-count，native 每个状态一步
@@ -884,13 +884,12 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）
       return armyUnits(ctx, 'enemy', source.atCastStart).filter((c) => matchesKingdom(c, source.kingdom)).length;
     case 'enemyStatusCount': {
-      const side = findSide(ctx.state, ctx.casterId);
-      if (side === null) return 0;
-      const enemySide = side === 'Left' ? 'Right' : 'Left';
-      return ctx.state.teams[enemySide].characters.filter(
-        (c) => !c.defeated && (source.statusId === undefined
+      // CountSpecificStatusEffect may precede damage: preserve affected enemies killed by that hit.
+      const enemies = armyUnits(ctx, 'enemy', source.atCastStart);
+      return enemies.filter(
+        (c) => source.statusId === undefined
           ? c.statuses.some((s) => s.turns > 0)
-          : c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0)),
+          : c.statuses.some((s) => sameStatus(s.id, source.statusId) && s.turns > 0),
       ).length;
     }
     case 'alliesOfColor':

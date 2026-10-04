@@ -153,7 +153,7 @@ export function commandPoolNeeds(save: MetaSave, command: MetaCommand, now: numb
     case 'refreshInvasionOpponents':
       return { mirrors: true, standings };
     case 'syncInvasionSeason':
-      return { mirrors: save.invasion.weekStart < week || !invasionRosterFresh(save, week), standings };
+      return { mirrors: save.invasion.weekStart < week || !invasionRosterFresh(save, week, now), standings };
     case 'settleBattle':
       return { mirrors: save.pendingBattle?.mode === 'invasion', standings: false };
     default:
@@ -193,6 +193,13 @@ export function runCommand<K extends CommandType>(
   if (isFailureResult(result)) return { result, save, commit: false };
   const sideEffects = Object.keys(effects).length > 0 ? { effects } : {};
   if (!hasGameplayChanges(save, next)) return { result, save, commit: false, ...sideEffects };
+  // PvE progression can change an already-configured defense without visiting the PvP page.
+  // The outbox publishes the latest snapshot after this save is durable.
+  if (save.invasion.defenseTeam && next.invasion.defenseTeam && !next.invasion.defensePublishPending
+    && (['hero', 'collection', 'kingdoms', 'character', 'homeKingdom'] as const)
+      .some(key => JSON.stringify(save[key]) !== JSON.stringify(next[key]))) {
+    queueDefensePublish(next, now);
+  }
   next.savedAt = now;
   next.revision = save.revision + 1;
   return { result, save: next, commit: true, ...sideEffects };
@@ -583,7 +590,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
         queueDefensePublish(save, now);
       }
       // 批次过期（跨周/升联赛/首次进入）→ 组新批次落档，客户端据此展示（含真人镜像）
-      if (!invasionRosterFresh(save, weekStart)) rebuildInvasionRoster(save, now, weekStart, io.mirrorPool ?? [], env.seed());
+      if (!invasionRosterFresh(save, weekStart, now)) rebuildInvasionRoster(save, now, weekStart, io.mirrorPool ?? [], env.seed());
       // 周榜：宿主取到了就换新；快照失效又没取到（无共享池）→ 空快照，全人机补位
       if (io.standings || !invasionStandingsFresh(save, weekStart, now)) refreshInvasionStandings(save, now, weekStart, io.standings ?? []);
       return done({ ok: true });

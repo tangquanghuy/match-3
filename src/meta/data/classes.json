@@ -597,7 +597,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }
@@ -609,9 +609,9 @@
     {
      "code": "wargarebond",
      "name": "Wargare Bond",
-     "nameZh": "狼族族亲",
+     "nameZh": "狐人族亲",
      "description": "Allied Wargare gain 2 Life.",
-     "descriptionZh": "狼族盟友获得 2 点生命值。",
+     "descriptionZh": "狐人盟友获得 2 点生命值。",
      "implemented": true
     },
     {
@@ -1731,7 +1731,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }
@@ -5328,7 +5328,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }
@@ -6559,7 +6559,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }
@@ -8748,7 +8748,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }
@@ -10269,7 +10269,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }
@@ -10890,7 +10890,7 @@
        "name": "Harvest Moon",
        "nameZh": "收获之月",
        "description": "All Wargare Allies gain 2 Life every turn.",
-       "descriptionZh": "每回合所有狼族盟友获得 2 点生命值。",
+       "descriptionZh": "每回合所有狐人盟友获得 2 点生命值。",
        "effect": {
         "kind": "unimplemented"
        }

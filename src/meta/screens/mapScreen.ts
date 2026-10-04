@@ -15,6 +15,7 @@ import {
   type KingdomFog,
 } from '../systems/kingdomOps';
 import { tributeTreasury, type TributeTreasury } from '../systems/tribute';
+import { highestClearedExploreTier } from '../systems/explore';
 import {
   ALL_KINGDOMS_UNLOCK_LEVEL,
   EXPLORE_MAX_TIER,
@@ -109,6 +110,7 @@ export interface NodeVm {
   questsDone: number;
   nextNode: number | null;
   exploreUnlocked: boolean;
+  highestExploreClear: number;
   /** 当前 Hard/VH 关（1~6；0=没设过，按 1 显示） */
   exploreTier: number;
   tributeHours: number;
@@ -144,6 +146,7 @@ function nodeVms(gateway: MetaGateway): NodeVm[] {
       questsDone: state.questsDone,
       nextNode: state.nextNode,
       exploreUnlocked: state.exploreUnlocked,
+      highestExploreClear: highestClearedExploreTier(save.kingdoms[view.name]),
       exploreTier: Math.min(EXPLORE_MAX_TIER, Math.max(1, save.kingdoms[view.name]?.exploreTier || 1)),
       tributeHours: state.tributeHours,
       tributeHits: state.tributeHits,
@@ -1133,10 +1136,11 @@ export class MapScreen implements Screen {
     });
   }
 
-  /** 每页张数：桌面 3×4、平板 2×4、手机 1×6（弹层不滚动，多出的翻页） */
+  /** Cards per page: desktop 3x4, tablet 2x4, phone 1x6 (1x4 on short screens). */
   private listPageSize(): number {
     const w = document.documentElement.clientWidth || window.innerWidth;
-    return w >= 1000 ? 12 : w >= 640 ? 8 : 6;
+    const h = document.documentElement.clientHeight || window.innerHeight;
+    return w >= 1000 ? 12 : w >= 640 ? 8 : h < 740 ? 4 : 6;
   }
 
   private renderKingdomList(): void {
@@ -1192,7 +1196,8 @@ export class MapScreen implements Screen {
       return `<button class="kl-row ko-card${n.home ? ' home' : ''}${maxed ? ' maxed' : ''}" type="button" data-id="${n.view.name}">
         <span class="kl-crest">${crest}</span>
         <span class="ko-main"><b>${n.view.name}${n.home ? '<i class="ko-home" title="主城"></i>' : ''}</b>
-          <small>任务 ${n.questsDone}/8${n.exploreUnlocked ? ' · 探索已开放' : ''}</small>
+          <small class="ko-progress"><span>任务:</span><span>${n.questsDone}/8</span></small>
+          <small class="ko-progress"><span>探索:</span><span>${n.highestExploreClear}/${EXPLORE_MAX_TIER}</span></small>
           <i class="ko-bar" aria-hidden="true"><i style="width:${Math.round((n.questsDone / 8) * 100)}%"></i></i></span>
         <span class="ko-lv${maxed ? ' max' : ''}" title="王国等级 ${n.level}/${KINGDOM_MAX_LEVEL}"><small>Lv</small>${n.level}</span>
         ${tag}

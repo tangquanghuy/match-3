@@ -4,7 +4,7 @@
  *
  * 语义裁定备注：
  * - 种族英文名经 troops.json troopTypes 核对：精灵 = Elf、龙族 = Dragon、野兽 = Beast、
- *   人马族 = Centaur、狼族 = Wargare（batch-10 8864「狼族盟友数」先例）、
+ *   人马族 = Centaur、狐人 = Wargare（batch-10 8864「狐人盟友数」先例）、
  *   秘士 = Mystic（施法者「制图师」Human/Mystic 自证）。
  * - 石像鬼宝石 / 石块 / 天使宝石 / 龙宝石 / 末日骷髅头 / 万能牌 / 赃物宝石 / 妖仙宝石 /
  *   狼人宝石均为特殊宝石（不在色宝石词汇内）→ 相关段整条 SKIP（SOP §4）。
@@ -144,10 +144,10 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9196,
-    desc: '对一名敌人造成 [魔法 + 4] 点伤害。再创造 2 颗紫色宝石，数量因狼族盟友数而增强。 [x2]',
+    desc: '对一名敌人造成 [魔法 + 4] 点伤害。再创造 2 颗紫色宝石，数量因狐人盟友数而增强。 [x2]',
     build: skill(
       dmg('enemyChosen', 4),
-      // 狼族 = Wargare（batch-10 8864 同款句式先例）
+      // 狐人 = Wargare（batch-10 8864 同款句式先例）
       createGems(BaseColor.Purple, 2, 0, {
         modifier: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'alliesOfRace', race: 'Wargare' } },
       }),

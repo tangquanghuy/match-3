@@ -1,17 +1,20 @@
 import { toast, toastHtml, topbarHtml } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { isFailure } from '../gateway';
+import { isFailure, todayStartOf } from '../gateway';
 import { LOOT_ART } from './huntArt';
 import {
   HUNT_START_TURNS,
+  huntDailyRemaining,
   LOOT_LADDER,
   type HuntMoveOk,
 } from '../systems/treasureHunt';
 import { HuntBoardScene } from '../../render/HuntBoardScene';
 import { dailyArt } from '../shell/artAssets';
-import { TREASURE_HUNT_DAILY_CAP, type TreasureHuntState } from '../state/schema';
+import type { TreasureHuntState } from '../state/schema';
 
 const fmt = (n: number): string => n.toLocaleString('en-US');
+// Keep the existing 万 unit without rounding away the last few available coins.
+const fmtGoldReserve = (n: number): string => `${(n / 10_000).toLocaleString('en-US', { maximumFractionDigits: 4 })}万`;
 
 function ladderHtml(): string {
   return LOOT_LADDER.map((row, index) => `
@@ -28,10 +31,12 @@ export class HuntScreen implements Screen {
   private generation = 0;
   private current: TreasureHuntState | null = null;
   private feedbackTimer: ReturnType<typeof setTimeout> | undefined;
+  private reserveTimer: ReturnType<typeof setInterval> | undefined;
   private abort = new AbortController();
 
   html(ctx: ShellCtx): string {
     const maps = ctx.save().materials.treasureMaps;
+    const remaining = huntDailyRemaining(ctx.save(), todayStartOf(ctx.gateway.now()));
     return `${topbarHtml()}
       <div class="screen hunt-screen">
         <header class="hunt-toolbar">
@@ -51,7 +56,7 @@ export class HuntScreen implements Screen {
             <img class="hunt-cover-art" src="${dailyArt('hunt')}" alt="藏宝图">
             <h2>合成宝物，探寻金库</h2>
             <p>交换相邻宝物，三连合成更高一级。<br>步数用完后，结算棋盘上的全部宝物。</p>
-            <div class="hunt-reserve"><span>宝藏储量：</span><b>${fmt(TREASURE_HUNT_DAILY_CAP.gold / 10_000)}万</b><em>金币</em><i>·</i><b>${fmt(TREASURE_HUNT_DAILY_CAP.gems)}</b><em>钻石</em><i>·</i><b>${fmt(TREASURE_HUNT_DAILY_CAP.glory)}</b><em>荣耀</em></div>
+            <div class="hunt-reserve"><span>宝藏储量：</span><span class="hunt-reserve-amount"><b id="huntReserveGold">${fmtGoldReserve(remaining.gold)}</b><em>金币</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveGems">${fmt(remaining.gems)}</b><em>钻石</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveGlory">${fmt(remaining.glory)}</b><em>荣耀</em></span></div>
             <button class="hunt-begin" id="huntBegin" type="button" disabled>棋盘加载中…</button>
             <small id="huntCost">每局消耗 1 张藏宝图</small>
           </div>
@@ -105,7 +110,15 @@ export class HuntScreen implements Screen {
     this.el('huntCloseRules').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => this.el('huntHelp').setAttribute('aria-expanded', 'false'));
     dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } });
-    document.addEventListener('visibilitychange', () => this.scene?.setSuspended(document.hidden), { signal: this.abort.signal });
+    document.addEventListener('visibilitychange', () => {
+      this.scene?.setSuspended(document.hidden);
+      if (!document.hidden) this.paintReserve(ctx);
+    }, { signal: this.abort.signal });
+    this.paintReserve(ctx);
+    clearInterval(this.reserveTimer);
+    // Re-read authoritative counters and calibrated time; also handles midnight
+    // while the gate stays open, without rebuilding the board or mutating saves.
+    this.reserveTimer = setInterval(() => this.paintReserve(ctx), 1000);
     void this.initialize(ctx);
   }
 
@@ -277,7 +290,21 @@ export class HuntScreen implements Screen {
     this.el('huntTreasures').textContent = `红箱 ${this.current.cells.filter(tier => tier === 6).length} · 金库 ${this.current.cells.filter(tier => tier === 7).length}`;
   }
 
-  private paint(ctx: ShellCtx): void { this.paintCounters(); ctx.refreshChrome(); }
+  private paintReserve(ctx: ShellCtx): void {
+    if (this.disposed) return;
+    const remaining = huntDailyRemaining(ctx.save(), todayStartOf(ctx.gateway.now()));
+    const values = [
+      ['huntReserveGold', fmtGoldReserve(remaining.gold)],
+      ['huntReserveGems', fmt(remaining.gems)],
+      ['huntReserveGlory', fmt(remaining.glory)],
+    ] as const;
+    for (const [id, text] of values) {
+      const node = this.el(id);
+      if (node.textContent !== text) node.textContent = text;
+    }
+  }
+
+  private paint(ctx: ShellCtx): void { this.paintCounters(); this.paintReserve(ctx); ctx.refreshChrome(); }
   private feedback(text: string): void {
     clearTimeout(this.feedbackTimer);
     this.el('huntFeedback').textContent = text;
@@ -287,6 +314,7 @@ export class HuntScreen implements Screen {
   dispose(): void {
     this.disposed = true;
     clearTimeout(this.feedbackTimer);
+    clearInterval(this.reserveTimer);
     this.abort.abort();
     this.el<HTMLDialogElement>('huntRules').close();
     this.el<HTMLDialogElement>('huntEndDialog').close();

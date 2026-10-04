@@ -4,9 +4,17 @@ import { BANNERS } from '../data/banners';
 import { EXPLORE_DROPS } from '../data/economy';
 import { parseStoneKey, STONE_COLORS } from '../data/materials';
 import type { SeededRNG } from '../../engine/rng';
-import type { ExploreRun, MetaSave } from '../state/schema';
+import type { ExploreRun, KingdomState, MetaSave } from '../state/schema';
 import type { EncounterSource } from './encounter';
 import { fail, type MetaFailure } from '../types';
+
+/** Highest full-run first clear in this kingdom; selected or unlocked tier is not progress. */
+export function highestClearedExploreTier(entry?: Pick<KingdomState, 'clearedExploreTiers'>): number {
+  return (entry?.clearedExploreTiers ?? []).reduce(
+    (highest, tier) => Number.isInteger(tier) && tier >= 1 && tier <= EXPLORE_MAX_TIER ? Math.max(highest, tier) : highest,
+    0,
+  );
+}
 
 /** Official account-wide unlocking; preserve genuine legacy clears, never selected tier. */
 export function maxExploreTier(save: Pick<MetaSave, 'kingdoms'>): number {

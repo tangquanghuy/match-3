@@ -227,7 +227,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8280,
-    desc: '对所有敌人造成 [(魔法 / 2) + 4] 点伤害。有 25% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]',
+    desc: '对所有敌人造成 [(魔法 / 2) + 4] 点伤害。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]',
     build: skill(
       dmg('enemyAll', 4, 0.5, { range: 'all' }),
       extraTurn({ chance: 0.25, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),
@@ -236,7 +236,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 8281,
-    desc: '获得屏障效果和 [魔法 + 1] 点护甲值。有 25% 个别几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]',
+    desc: '获得屏障效果和 [魔法 + 1] 点护甲值。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]',
     build: skill(
       inflict('barrier', 'allySelf'),
       armor('allySelf', 1, 1),
@@ -529,7 +529,7 @@ const SPELLS: CuratedBatch['spells'] = [
   },
   {
     id: 9179,
-    desc: '对首位敌人造成 [魔法 + 3] 点真实伤害。有 25% 独立几率获得一个额外回合和半数法力值，几率因棕色宝石数而增强。 [x2]',
+    desc: '对首位敌人造成 [魔法 + 3] 点真实伤害。额外回合与返还半数法力各有 25% 的独立几率，几率因棕色宝石数而增强。 [x2]',
     build: skill(
       trueDmg('enemyFront', 3),
       extraTurn({ chance: 0.25, chanceBoost: { mod: { kind: 'multiplier', a: 2 }, source: { kind: 'boardGems', color: BaseColor.Brown } } }),

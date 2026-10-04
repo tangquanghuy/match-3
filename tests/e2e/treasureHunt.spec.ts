@@ -388,3 +388,118 @@ test('manual finish lost receipt synchronizes paid state without keeping a stale
   await page.reload({waitUntil:'domcontentloaded'});
   expect((await snapshot(page)).currencies).toEqual(paid.currencies);
 });
+
+for (const width of [1280, 390]) {
+  test(`reserve keeps its wording and updates today's remaining amounts without reloading ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await setup(page, 8, true);
+    await expect(page.locator('.hunt-reserve > span:first-child')).toHaveText('宝藏储量：');
+    await expect(page.locator('.hunt-reserve em')).toHaveText(['金币', '钻石', '荣耀']);
+    await expect(page.locator('#huntReserveGold')).toHaveText('80万');
+    await expect(page.locator('#huntReserveGems')).toHaveText('1,000');
+    await expect(page.locator('#huntReserveGlory')).toHaveText('4,000');
+
+    await page.evaluate(async () => {
+      const gatewayPath = '/src/meta/gateway/index.ts';
+      const { metaGateway, todayStartOf } = await import(/* @vite-ignore */ gatewayPath);
+      const gateway = metaGateway();
+      const save = JSON.parse(gateway.exportSaveJson());
+      save.treasureHuntDaily = { dayStart: todayStartOf(gateway.now()), gold: 123456, gems: 321, glory: 2345 };
+      await gateway.dev.importSaveJson(JSON.stringify(save));
+    });
+    await expect(page.locator('#huntReserveGold')).toHaveText('67.6544万');
+    await expect(page.locator('#huntReserveGems')).toHaveText('679');
+    await expect(page.locator('#huntReserveGlory')).toHaveText('1,655');
+    await page.screenshot({ path: `artifacts/art-gen/treasure-v4/live-reserve-${width}.png` });
+    for (const amount of await page.locator('.hunt-reserve-amount').all()) {
+      const number = (await amount.locator('b').boundingBox())!;
+      const unit = (await amount.locator('em').boundingBox())!;
+      expect(unit.y).toBeLessThan(number.y + number.height);
+      expect(unit.x + unit.width).toBeLessThanOrEqual(width);
+    }
+
+    await page.evaluate(async () => {
+      const gatewayPath = '/src/meta/gateway/index.ts';
+      const { metaGateway, todayStartOf } = await import(/* @vite-ignore */ gatewayPath);
+      const gateway = metaGateway();
+      const save = JSON.parse(gateway.exportSaveJson());
+      save.treasureHuntDaily = { dayStart: todayStartOf(gateway.now()), gold: 799999, gems: 1000, glory: 4000 };
+      await gateway.dev.importSaveJson(JSON.stringify(save));
+    });
+    await expect(page.locator('#huntReserveGold')).toHaveText('0.0001万');
+    await expect(page.locator('#huntReserveGems')).toHaveText('0');
+    await expect(page.locator('#huntReserveGlory')).toHaveText('0');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#huntReserveGold')).toHaveText('0.0001万');
+    await expect(page.locator('#huntReserveGlory')).toHaveText('0');
+  });
+}
+
+test('reserve refreshes across the calibrated game-day boundary while the gate stays open', async ({ page }) => {
+  await setup(page, 8, true);
+  await page.evaluate(async () => {
+    const gatewayPath = '/src/meta/gateway/index.ts';
+    const { metaGateway, todayStartOf, DAY_MS } = await import(/* @vite-ignore */ gatewayPath);
+    const gateway = metaGateway();
+    const dayStart = todayStartOf(gateway.now());
+    const save = JSON.parse(gateway.exportSaveJson());
+    save.treasureHuntDaily = { dayStart, gold: 800000, gems: 1000, glory: 4000 };
+    await gateway.dev.importSaveJson(JSON.stringify(save));
+    gateway.now = () => dayStart + DAY_MS - 1;
+  });
+  await expect(page.locator('#huntReserveGold')).toHaveText('0万');
+  await expect(page.locator('#huntReserveGems')).toHaveText('0');
+  await expect(page.locator('#huntReserveGlory')).toHaveText('0');
+  const before = (await snapshot(page)).treasureHuntDaily;
+  await page.evaluate(async () => {
+    const gatewayPath = '/src/meta/gateway/index.ts';
+    const { metaGateway } = await import(/* @vite-ignore */ gatewayPath);
+    const gateway = metaGateway();
+    const nextDay = gateway.now() + 1;
+    gateway.now = () => nextDay;
+  });
+  await expect(page.locator('#huntReserveGold')).toHaveText('80万');
+  await expect(page.locator('#huntReserveGems')).toHaveText('1,000');
+  await expect(page.locator('#huntReserveGlory')).toHaveText('4,000');
+  expect((await snapshot(page)).treasureHuntDaily).toEqual(before);
+});
+
+test('approved treasure WebP assets load in the rule list and on the shared board', async ({ page }) => {
+  await setup(page);
+  await page.evaluate(async () => {
+    const gatewayPath = '/src/meta/gateway/index.ts';
+    const { metaGateway } = await import(/* @vite-ignore */ gatewayPath);
+    const gateway = metaGateway();
+    const save = JSON.parse(gateway.exportSaveJson());
+    save.treasureHunt.cells = Array.from({ length: 64 }, (_, i) => (i + Math.floor(i / 8)) % 8);
+    await gateway.dev.importSaveJson(JSON.stringify(save));
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready', 'true', { timeout: 25000 });
+  await page.screenshot({ path: 'artifacts/art-gen/treasure-v12/in-game-board.png' });
+  // Coin-heavy arrangement catches visual noise that an all-tier board hides.
+  await page.evaluate(async () => {
+    const gatewayPath = '/src/meta/gateway/index.ts';
+    const { metaGateway } = await import(/* @vite-ignore */ gatewayPath);
+    const gateway = metaGateway();
+    const save = JSON.parse(gateway.exportSaveJson());
+    save.treasureHunt.cells = [
+      1,0,0,1,1,2,3,3, 1,0,2,1,3,3,0,4,
+      2,2,1,3,3,0,0,3, 3,0,4,0,1,2,0,4,
+      4,0,4,1,3,0,4,2, 2,2,5,2,4,0,4,1,
+      2,0,4,1,0,2,5,1, 0,0,5,1,6,1,7,3,
+    ];
+    await gateway.dev.importSaveJson(JSON.stringify(save));
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready', 'true', { timeout: 25000 });
+  await page.screenshot({ path: 'artifacts/art-gen/treasure-v12/in-game-coin-board.png' });
+
+  await page.locator('#huntHelp').click();
+  const icons = page.locator('#huntRules li > img');
+  await expect(icons).toHaveCount(8);
+  await expect.poll(() => icons.evaluateAll(images => images.every(image => {
+    const img = image as HTMLImageElement;
+    return img.complete && img.naturalWidth === 256 && img.currentSrc.includes('.webp');
+  }))).toBe(true);
+});

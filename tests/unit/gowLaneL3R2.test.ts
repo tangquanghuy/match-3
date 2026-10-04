@@ -552,6 +552,8 @@ describe('L3 R2: B14 status-count boosts (counted before the hit)', () => {
     expect(n).toBe(17);
     expect(order(r).filter(o => o.startsWith('dmg '))).toEqual(['dmg E10 12 (all)', 'dmg E11 12 (all)', 'dmg E12 12 (all)']);
     expect(order(r)).toContain('defeat E10');
+    expect(order(r).findIndex(o => o.startsWith('dmg '))).toBeLessThan(order(r).findIndex(o => o.startsWith('convert ')));
+    expect(order(r).findIndex(o => o === 'defeat E10')).toBeLessThan(order(r).findIndex(o => o.startsWith('convert ')));
   });
   it('troop:6984 Scourge of Honor: 2 Mana per Cursed and per Diseased enemy, even if the hit kills them', () => {
     const r = castSpell({ key: 'troop:6984', enemies: [weak(st('curse', 'disease')), weak(st('curse')), en([])] });

@@ -23,7 +23,7 @@ import type { ServerEnv } from './env';
 import type { InvasionMirrorPool } from './mirrorPool';
 import { weekStartOf } from '../gateway/clock';
 import { ensureInvasionSeason, invasionPlayerPower } from '../systems/invasion';
-import { invasionPoolQuery } from '../systems/invasionMirrors';
+import { invasionPoolNeedsExpansion, invasionPoolQuery } from '../systems/invasionMirrors';
 import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type SaveLoadOptions, type MetaCommand } from './protocol';
 import { hydrateMailbox } from '../systems/mailbox';
 
@@ -188,10 +188,23 @@ export class MetaHost {
     const slack = command.type === 'settleBattle' ? 1 : 0; // 结算后可能升一个联赛
     const query = invasionPoolQuery(league, power, now, slack);
     if (command.type === 'regionalAction') Object.assign(query, { leagueMin: 0, leagueMax: 9, powerMin: 1, powerMax: 100000, limit: 60 });
-    const [mirrorPool, standings] = await Promise.all([
+    const [nearby, standings] = await Promise.all([
       !needs.mirrors ? undefined : power <= 0 ? [] : guard(pool.sample(query)),
       needs.standings ? guard(pool.standings({ weekStart: week, league, limit: INVASION.bracketSize })) : undefined,
     ]);
+    let mirrorPool = nearby;
+    if (nearby && (query.leagueMin > 0 || query.leagueMax < 9)
+      && invasionPoolNeedsExpansion(nearby, league, power, now, save.invasion.recentOpponents)) {
+      const expanded = await guard(pool.sample({ ...query, leagueMin: 0, leagueMax: 9 }));
+      if (expanded) {
+        const combined = new Map<string, (typeof expanded)[number]>();
+        for (const entry of [...nearby, ...expanded]) {
+          const key = `${entry.ownerKey}:${entry.league}`;
+          if (!combined.has(key) || entry.recordedAt > combined.get(key)!.recordedAt) combined.set(key, entry);
+        }
+        mirrorPool = [...combined.values()];
+      }
+    }
     return {
       ...(mirrorPool ? { mirrorPool } : {}),
       ...(standings ? { standings } : {}),

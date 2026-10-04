@@ -104,7 +104,7 @@ describe('D1 invasion defense storage (real SQLite)', () => {
     const save = buildDemoSave(1000); save.invasion.defenseTeam = structuredClone(save.teams[0]!);
     await expect(unbound.publish(defenseRecord(save, 1000)!)).rejects.toThrow('identity');
   });
-  it('publishes the independent roster while keeping recent snapshots from earlier leagues', async () => {
+  it('replaces historical attacking snapshots across all leagues when deploying a defense', async () => {
     const { adapter, db } = database();
     const b = new D1MirrorPool(adapter, () => 'defender'); const a = new D1MirrorPool(adapter, () => 'attacker');
     const save = buildDemoSave(1000); save.invasion.defenseTeam = structuredClone(save.teams[0]!);
@@ -112,21 +112,22 @@ describe('D1 invasion defense storage (real SQLite)', () => {
     await b.publish({ ...record, league: 0, explicitDefense: false });
     await b.publish({ ...record, league: 1, explicitDefense: false });
     await a.publish({ ...record, league: 2, explicitDefense: false });
-    await b.publish({ ...record, league: 3 });
-    expect(db.prepare('SELECT league FROM invasion_mirrors WHERE player_id = ? ORDER BY league').all('defender')).toEqual([{ league: 0 }, { league: 1 }, { league: 3 }]);
-    expect(db.prepare('SELECT COUNT(*) AS n FROM invasion_mirrors').get()).toEqual({ n: 4 });
-    expect(db.prepare('SELECT COUNT(*) AS n FROM mirror_snapshots').get()).toEqual({ n: 1 });
-    expect(db.prepare('SELECT COUNT(DISTINCT snapshot_ref) AS n FROM invasion_mirrors').get()).toEqual({ n: 1 });
+    const updated = { ...record, league: 3, heroLevel: 83, recordedAt: 2000 };
+    await b.publish(updated);
+    expect(db.prepare('SELECT league FROM invasion_mirrors WHERE player_id = ? ORDER BY league').all('defender')).toEqual([{ league: 3 }]);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM invasion_mirrors').get()).toEqual({ n: 2 });
+    expect(db.prepare('SELECT COUNT(*) AS n FROM mirror_snapshots').get()).toEqual({ n: 2 });
+    expect(db.prepare('SELECT COUNT(DISTINCT snapshot_ref) AS n FROM invasion_mirrors').get()).toEqual({ n: 2 });
     const found = await a.sample({ leagueMin: 0, leagueMax: 9, powerMin: 0, powerMax: 1000000, since: 0, ruleset: record.ruleset, limit: 30 });
-    expect(found).toHaveLength(3); expect(found.every(entry => JSON.stringify(entry.team) === JSON.stringify(record.team))).toBe(true);
+    expect(found).toHaveLength(1); expect(found[0]).toMatchObject({ league: 3, heroLevel: 83, recordedAt: 2000 });
   });
   it('accepts previous minor ruleset but rejects incompatible major rulesets', async () => {
     const { adapter } = database();
     const b = new D1MirrorPool(adapter, () => 'defender'); const a = new D1MirrorPool(adapter, () => 'attacker');
     const save = buildDemoSave(1000); save.invasion.defenseTeam = structuredClone(save.teams[0]!);
     const record = defenseRecord(save, 1000)!;
-    await b.publish({ ...record, ruleset: '1.0.0', league: 0 });
-    await b.publish({ ...record, ruleset: '2.0.0', league: 1 });
+    await b.publish({ ...record, ruleset: '1.0.0', league: 0, explicitDefense: false });
+    await b.publish({ ...record, ruleset: '2.0.0', league: 1, explicitDefense: false });
     const found = await a.sample({ leagueMin: 0, leagueMax: 9, powerMin: 0, powerMax: 1000000,
       since: 0, ruleset: record.ruleset, limit: 30 });
     expect(found.map(entry => entry.league)).toEqual([0]);

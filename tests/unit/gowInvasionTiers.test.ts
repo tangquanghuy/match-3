@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 // @ts-expect-error Node-only audit; this browser project does not install Node types.
 import { createHash } from 'node:crypto';
 import { COMMUNITY_DEFENSES } from '../../src/meta/data/communityDefenses';
-import { INVASION_DIFFICULTIES, invasionDefenseLevel, buildTieredDefense, invasionPoolLeague } from '../../src/meta/data/invasionDifficulty';
+import { INVASION_DIFFICULTIES, buildTieredDefense, invasionPoolLeague } from '../../src/meta/data/invasionDifficulty';
 import { buildBracket, invasionCandidates, planInvasionBattle } from '../../src/meta/systems/invasion';
 import { buildDemoSave } from '../../src/meta/server/demo';
 import { getTroopById, knownTroopTypes } from '../../src/data/troops';
@@ -75,7 +75,8 @@ describe('invasion daily low / middle / high choice', () => {
         const candidates = invasionCandidates(save, WEEK + day * DAY, WEEK);
         expect(candidates.map(m => m.difficulty)).toEqual(INVASION_DIFFICULTIES);
         expect(new Set(candidates.map(m => m.id)).size).toBe(3);
-        expect(candidates.map(m => m.defense[0]!.level)).toEqual(INVASION_DIFFICULTIES.map(d => invasionDefenseLevel(league, d)));
+        expect(candidates.every(m => m.defense.every(d => d.level >= league + 1 && d.level <= 100))).toBe(true);
+        expect(candidates.every(m => m.rating > 0 && (m.statRating ?? 0) > 0)).toBe(true);
         expect(candidates).toEqual(invasionCandidates(structuredClone(save), WEEK + day * DAY, WEEK));
       }
       const bracket = buildBracket(WEEK, league);
@@ -119,7 +120,9 @@ describe('invasion daily low / middle / high choice', () => {
       expect(mirror.bannerKingdom).not.toBeNull();
       expect(plan.request.enemyBanner?.boosts).toEqual(BANNERS[mirror.bannerKingdom!]!.boosts);
       if (mirror.difficulty === 'hard') {
-        expect(plan.request.enemyTeam.every(t => t.traitIds?.length === 3)).toBe(true);
+        // Training/trait unlocks follow the calibrated NPC level rather than a fixed league level.
+        expect(plan.request.enemyTeam.every((t, i) => (t.traitIds?.length ?? 0)
+          <= (mirror.defense[i]!.level < 10 ? 0 : mirror.defense[i]!.level < 15 ? 1 : mirror.defense[i]!.level < 20 ? 2 : 3))).toBe(true);
         const mapped = mapRequestToTeams(plan.request);
         let id = 900000;
         const board = new BoardGenerator(new SeededRNG(1), () => id++, .12).generate();
