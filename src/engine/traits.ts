@@ -92,7 +92,7 @@ export interface TraitDefinition {
   onDamagedCreateGem?: { gem: SpecialGemKind; tier?: number; color?: string; count: number };
   /** 自己身亡时向战场经济池入账（valuable「在自身身亡时获得 25 黄金」） */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
-  /** On actual death, fill one random surviving ally to half their mana cost (not the dead holder). */
+  /** On actual death, grant one random non-full surviving ally half their mana cost (capped at max). */
   onSelfDeathFillAllyMana?: boolean;
   /** 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」） */
   onDeathCreateGem?: { gem: SpecialGemKind; tier?: number; count: number };
@@ -1721,10 +1721,10 @@ export function applySelfDeathManaGift(
   rng: { nextInt(max: number): number },
 ): GameEvent[] {
   if (!dead.defeated || !passivesOf(dead).onSelfDeathFillAllyMana) return [];
-  const pool = allies.filter(c => c.id !== dead.id && !c.defeated && c.hp > 0 && c.mana < Math.floor(c.manaCost / 2));
+  const pool = allies.filter(c => c.id !== dead.id && !c.defeated && c.hp > 0 && c.mana < c.manaCost);
   if (pool.length === 0) return [];
   const target = pool[rng.nextInt(pool.length)];
-  const amount = grantStat(target, 'mana', Math.max(0, Math.floor(target.manaCost / 2) - target.mana));
+  const amount = grantStat(target, 'mana', Math.floor(target.manaCost / 2));
   return amount > 0 ? [{ type: 'buff', source: 'trait', targetId: target.id, stat: 'mana', amount,
     traitActivations: traitActivations(dead, def => !!def.onSelfDeathFillAllyMana),
   }] : [];

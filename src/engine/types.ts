@@ -930,7 +930,7 @@ export interface PassiveModifiers {
    * 编队），复用 creditEconomy 入账口（economy-gain 事件，side 记行动方）。
    */
   onDeathEconomy?: { currency: keyof TraitEconomyGain; amount: number };
-  /** On actual death, fill one random surviving ally to half their mana cost (not the dead holder). */
+  /** On actual death, grant one random non-full surviving ally half their mana cost (capped at max). */
   onSelfDeathFillAllyMana?: boolean;
   /**
    * 自己身亡时创造 N 颗特殊宝石（T4 批 unstablecore「在我身亡时创造 3 颗炸弹宝石」）。

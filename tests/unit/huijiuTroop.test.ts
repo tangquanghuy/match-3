@@ -265,9 +265,9 @@ describe('辞旧 death mana gift', () => {
     const dead = damageCharacter(3, { hp: 0, defeated: true, mana: 0 });
     const rng = { nextInt: vi.fn(() => 1) };
     const events = applySelfDeathManaGift(f.caster, [f.caster, a, dead, b], rng);
-    expect(a.mana).toBe(2); expect(b.mana).toBe(8); expect(dead.mana).toBe(0);
+    expect(a.mana).toBe(2); expect(b.mana).toBe(12); expect(dead.mana).toBe(0);
     expect(rng.nextInt).toHaveBeenCalledWith(2); expect(events).toHaveLength(1);
-    expect(events[0]).toMatchObject({ type: 'buff', source: 'trait', targetId: 2, stat: 'mana', amount: 4 });
+    expect(events[0]).toMatchObject({ type: 'buff', source: 'trait', targetId: 2, stat: 'mana', amount: 8 });
   });
   it('chooses a non-full ally when another survivor already has full mana', () => {
     const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
@@ -279,19 +279,27 @@ describe('辞旧 death mana gift', () => {
     expect(rng.nextInt).toHaveBeenCalledWith(1);
     expect(full.mana).toBe(full.manaCost); expect(empty.mana).toBe(Math.floor(empty.manaCost / 2));
   });
-  it('fills only to half mana (rounded down), skipping allies already at or above that threshold', () => {
+  it('adds half the mana cap (rounded down), even above half, and caps at full', () => {
     const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
     const aboveHalf = damageCharacter(1, { mana: 9 });
     const odd = damageCharacter(2, { manaCost: 15, mana: 3 });
     const rng = { nextInt: vi.fn(() => 0) };
     expect(applySelfDeathManaGift(f.caster, [aboveHalf, odd], rng)).toMatchObject([
-      { type: 'buff', source: 'trait', targetId: odd.id, stat: 'mana', amount: 4 },
+      { type: 'buff', source: 'trait', targetId: aboveHalf.id, stat: 'mana', amount: 7 },
     ]);
-    expect(aboveHalf.mana).toBe(9);
-    expect(odd.mana).toBe(7);
-    expect(rng.nextInt).toHaveBeenCalledWith(1);
+    expect(aboveHalf.mana).toBe(16);
+    expect(odd.mana).toBe(3);
+    expect(rng.nextInt).toHaveBeenCalledWith(2);
+    expect(applySelfDeathManaGift(f.caster, [odd], rng)).toMatchObject([
+      { type: 'buff', source: 'trait', targetId: odd.id, stat: 'mana', amount: 7 },
+    ]);
+    expect(odd.mana).toBe(10);
+    expect(applySelfDeathManaGift(f.caster, [odd], rng)).toMatchObject([
+      { type: 'buff', source: 'trait', targetId: odd.id, stat: 'mana', amount: 5 },
+    ]);
+    expect(odd.mana).toBe(15);
   });
-  it('does not consume RNG when all surviving allies already have at least half mana', () => {
+  it('skips RNG when all surviving allies are already full', () => {
     const f = fixture(); f.caster.defeated = true; f.caster.hp = 0;
     const full = damageCharacter(1);
     const rng = { nextInt: vi.fn(() => 0) };
@@ -316,7 +324,7 @@ describe('辞旧 death mana gift', () => {
     f.state.teams[attackerSide].characters = [attacker]; f.state.activePlayer = attackerSide;
     const registry = new ExtensionRegistry(); registry.prototypes.set('test-kill', skill(dmg('enemyFront', 10, 0)));
     const engine = engineFor(f, registry); const events = engine.castSkill(10);
-    expect(dying.defeated).toBe(true); expect(survivor.mana).toBe(8);
+    expect(dying.defeated).toBe(true); expect(survivor.mana).toBe(10);
     expect(events.filter(e => e.type === 'defeat' && e.characterId === dying.id)).toHaveLength(1);
     expect(gifts(events)).toHaveLength(1); expect(gifts(engine.passTurn())).toHaveLength(0);
     expect(attacker.statuses.some(s => s.id === 'silence')).toBe(false);
