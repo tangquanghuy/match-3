@@ -1,15 +1,71 @@
 import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { describe, expect, it } from 'vitest';
 import { EVENT_ARCANE_STONES, EVENT_MILESTONES, EVENT_SHARED_GOALS, WEEK_MS } from '../../src/meta/data/events';
+import { kingdomTroopPool } from '../../src/meta/data/kingdoms';
 import { newSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
-import { ensureEventWeek, eventModeState } from '../../src/meta/systems/events';
+import { currentEventTheme, ensureEventWeek, eventModeState } from '../../src/meta/systems/events';
 import { rewardRaidHighTier, rewardTowerHighTier } from '../../src/meta/systems/eventHighTierRewards';
 import { eventBattle, fakeResult, settleEvent } from './helpers/eventDriver';
 const WEEK = 1_700_000_000_000 - (1_700_000_000_000 % WEEK_MS);
 const fresh = () => { const s = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] }); s.hero.level = 20; return s; };
 
 describe('高阶活动奖励按真实难度结算', () => {
+  it('weekly raid kill shows its reduced Epic ingots in both settlement and actual inventory, once only', () => {
+    const s = fresh();
+    const raid = eventModeState(s, WEEK, 'raidBoss');
+    raid.hp = 1;
+    const out = eventBattle(s, 'raidBoss', WEEK);
+    const result = fakeResult(out);
+    const before = s.materials.ingots.epic ?? 0;
+    const detail = settleEvent(s, out, result, WEEK);
+    const kill = detail.lines.find(line => line.label.includes('\u8ba8\u4f10\u6210\u529f'));
+    expect(kill?.mats?.ingots?.epic).toBe(2);
+    expect(s.materials.ingots.epic! - before).toBe(2);
+    expect(battleIncomeView(detail).materials.find(item => item.key === 'ingot:epic')?.amount).toBe(2);
+    const repeat = settleEvent(s, out, result, WEEK);
+    expect(battleIncomeView(repeat).materials).toEqual([]);
+    expect(s.materials.ingots.epic! - before).toBe(2);
+  });
+
+  it('faction capital pays one Epic ingot in inventory and settlement, not on defeat or replay', () => {
+    const s = fresh();
+    const kingdom = currentEventTheme(WEEK, 'factionAssault').kingdom!;
+    const ids = kingdomTroopPool(kingdom).slice(0, 2).map(t => t.id);
+    for (const id of ids) s.collection[String(id)] = structuredClone(s.collection['6000']!);
+    s.teams[0]!.members.splice(1, 2, ...ids.map(troopId => ({ kind: 'troop' as const, troopId })));
+    const state = eventModeState(s, WEEK, 'factionAssault');
+    for (const tile of state.districts) if (tile.kind !== 'capital') tile.owner = 'player';
+    const failed = eventBattle(s, 'factionAssault', WEEK, 'tile:3-1');
+    const before = s.materials.ingots.epic ?? 0;
+    const defeat = settleEvent(s, failed, fakeResult(failed, false), WEEK);
+    expect(battleIncomeView(defeat).materials.find(m => m.key === 'ingot:epic')).toBeUndefined();
+    expect(s.materials.ingots.epic ?? 0).toBe(before);
+    const out = eventBattle(s, 'factionAssault', WEEK, 'tile:3-1');
+    const result = fakeResult(out);
+    const detail = settleEvent(s, out, result, WEEK);
+    expect(detail.lines.find(line => line.label.includes('\u653b\u9677\u738b\u57ce'))?.mats?.ingots?.epic).toBe(1);
+    expect(s.materials.ingots.epic! - before).toBe(1);
+    expect(battleIncomeView(detail).materials.find(m => m.key === 'ingot:epic')?.amount).toBe(1);
+    expect(battleIncomeView(settleEvent(s, out, result, WEEK)).materials).toEqual([]);
+    expect(s.materials.ingots.epic! - before).toBe(1);
+  });
+
+  it('faction milestone credits its actual reduced Epic ingots to settlement cards once', () => {
+    const s = fresh();
+    const week = ensureEventWeek(s, WEEK, 'factionAssault');
+    week.points = EVENT_MILESTONES.factionAssault[4]!.points - 1;
+    week.claimed = [0, 1, 2, 3];
+    const out = eventBattle(s, 'factionAssault', WEEK);
+    const result = fakeResult(out);
+    const before = s.materials.ingots.epic ?? 0;
+    const detail = settleEvent(s, out, result, WEEK);
+    expect(detail.lines.find(line => line.label.includes('\u9635\u8425\u91cd\u9524'))?.mats?.ingots?.epic).toBe(2);
+    expect(s.materials.ingots.epic! - before).toBe(2);
+    expect(battleIncomeView(detail).materials.find(item => item.key === 'ingot:epic')?.amount).toBe(2);
+    expect(battleIncomeView(settleEvent(s, out, result, WEEK)).materials).toEqual([]);
+  });
+
   it('same tower battle exposes milestone gems and shared weekly payout actually credited, never replayed', () => {
     const s = fresh();
     const w = ensureEventWeek(s, WEEK, 'towerOfDoom');

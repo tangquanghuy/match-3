@@ -152,7 +152,7 @@ describe('tower region boss guaranteed material rewards', () => {
       expect(eventAction(s, WEEK, 'towerOfDoom', 'skip', 90).ok).toBe(true);
       expect(eventModeState(s, WEEK, 'towerOfDoom').run).toBeNull();
     }
-    expect(s.materials.ingots).toMatchObject({ rare: 12, ultraRare: 8, epic: 46, mythic: 4 });
+    expect(s.materials.ingots).toMatchObject({ rare: 12, ultraRare: 8, epic: 28, mythic: 4 });
     for (const key of EVENT_ARCANE_STONES.towerOfDoom) expect(s.materials.traitstones[key]).toBe(18);
     for (const { key } of STONE_COLORS) expect(s.materials.traitstones[`runic:${key}`]).toBeGreaterThanOrEqual(12);
   });
@@ -166,6 +166,8 @@ describe('tower region boss guaranteed material rewards', () => {
     for (const row of TOWER_BOSS_REWARDS) expect(html).toContain(`第 ${row.zone} 区 · 第 ${row.floor} 层首领`);
     expect(html).toContain('稀有钢锭 ×12');
     expect(html).toContain('神话钢锭 ×4');
+    expect(html).toContain('史诗钢锭 ×8');
+    expect(html).toContain('史诗钢锭 ×4');
     expect(screen.html(ctx, 'towerOfDoom/rules')).toContain('第 8 / 16 / 25 层首领');
     towerNextBattle(s, week);
     const state = eventModeState(s, week, 'towerOfDoom');

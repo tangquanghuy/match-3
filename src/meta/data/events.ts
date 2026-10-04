@@ -248,6 +248,8 @@ export const EVENT_RAID_POOL_POINTS = 400;
 /** 守土成功每次奖励，与经济模型共用。 */
 export const EVENT_DEFENSE_REWARD = { glory: 80, gems: 40 } as const;
 
+export const EVENT_WEEKLY_EPIC_INGOTS = { raidKill: 2, factionCapital: 1 } as const;
+
 export const EVENT_WEEKLY_PLAY_REWARD_CAP: Record<EventTypeId, number> = {
   invasion: 4,
   raidBoss: 4,
@@ -350,11 +352,11 @@ export const TOWER_BOSS_REWARDS: readonly TowerBossReward[] = [
     traitstones: { ...towerColorStones('major', 3), ...towerColorStones('runic', 1) },
   } },
   { floor: 16, zone: 2, mats: {
-    ingots: { epic: 6 },
+    ingots: { epic: 4 },
     traitstones: { ...towerColorStones('runic', 2), ...eventArcaneBundle('towerOfDoom', 1) },
   } },
   { floor: 25, zone: 3, mats: {
-    ingots: { epic: 4, mythic: 2 },
+    ingots: { epic: 2, mythic: 2 },
     traitstones: { ...towerColorStones('runic', 3), ...eventArcaneBundle('towerOfDoom', 2), celestial: 1 },
   } },
 ];
@@ -381,11 +383,10 @@ const BASE_EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
     { id: 'raid_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
   ],
   towerOfDoom: [
-    { id: 'tod_gold', name: '登塔锻材', cost: 12, stock: 10, mats: { ingots: { epic: 1 } } },
+    { id: 'tod_gold', name: '黄金补给', cost: 10, stock: null, gold: 3000 },
     { id: 'tod_runic', name: '塔顶特质', cost: 24, stock: 2, mats: { traitstones: { 'runic:purple': 1, 'runic:green': 1 } } },
     { id: 'tod_scroll', name: '熔铸符卷', blurb: '末日武器淬炼', cost: 28, stock: 4, mats: { forgeScrolls: 1 } },
     { id: 'tod_celestial', name: '符卷匣', blurb: '末日武器淬炼补给', cost: 60, stock: 1, mats: { forgeScrolls: 3 } },
-    { id: 'tod_rare', name: '基础锻材', cost: 10, stock: 6, mats: { ingots: { rare: 4 } } },
     { id: 'tod_traits', name: '登塔特质', cost: 18, stock: 4, mats: { traitstones: { 'major:purple': 2, 'major:green': 1 } } },
   ],
   factionAssault: [
@@ -438,9 +439,9 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
     { points: 100, label: '钢锭口粮', mats: { ingots: { common: 6 } } },
     { points: 300, label: '钢锭袋', mats: { ingots: { rare: 4 } }, gold: 1500 },
     { points: 600, label: '钢锭匣', mats: { ingots: { ultraRare: 4 } }, souls: 1200 },
-    { points: 1000, label: '史诗锻材', mats: { ingots: { epic: 3 } }, gems: 40 },
+    { points: 1000, label: '史诗锻材', mats: { ingots: { epic: 2 } }, gems: 40 },
     { points: 1500, label: '神话锻材', mats: { ingots: { mythic: 1 } }, gold: 3000 },
-    { points: 2200, label: '屠神锦囊', mats: { ingots: { epic: 4, mythic: 1 }, forgeScrolls: 1 } },
+    { points: 2200, label: '屠神锦囊', mats: { ingots: { epic: 2, mythic: 1 }, forgeScrolls: 1 } },
   ],
   towerOfDoom: [
     { points: 100, label: '初登酬卷', mats: { forgeScrolls: 1 } },
@@ -455,7 +456,7 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
     { points: 300, label: '特质石包', mats: { traitstones: { 'major:red': 2, 'minor:red': 4 } }, gold: 1500 },
     { points: 600, label: '钢锭精炼包', mats: { ingots: { rare: 3, ultraRare: 2 } }, souls: 1200 },
     { points: 1000, label: '高级石包', mats: { traitstones: { 'major:blue': 3, 'major:brown': 3 } }, gems: 40 },
-    { points: 1500, label: '阵营重锤', mats: { ingots: { ultraRare: 3, epic: 2 } }, gold: 2500 },
+    { points: 1500, label: '阵营重锤', mats: { ingots: { ultraRare: 3, epic: 1 } }, gold: 2500 },
     { points: 2200, label: '攻城大赏', mats: { ingots: { epic: 2 }, traitstones: { 'runic:green': 2 } } },
   ],
   // 世界事件：points 字段此处 = 累计「事件物资」数（玩法见 systems/events.ts）
@@ -494,10 +495,10 @@ export const EVENT_MILESTONE_CURRENCY_BONUS = {
   gold: [200, 300, 500, 700, 900, 1300],
   souls: [100, 150, 200, 300, 400, 600],
 } as const;
-/** 六种活动共享的周胜场：30 胜共 26 史诗锭；成长馈赠 46 枚，共可淬满两把史诗 +8。 */
+/** 六种活动共享的周胜场：30 胜共 16 史诗锭；每周固定活动共 53 枚（不含商店和随机挑战）。 */
 export const EVENT_SHARED_GOALS = [
-  { wins: 6, gems: 600, gold: 800, souls: 400, epicIngots: 3 }, { wins: 12, gems: 800, gold: 1200, souls: 600, epicIngots: 5 },
-  { wins: 20, gems: 1000, gold: 1600, souls: 800, epicIngots: 8 }, { wins: 30, gems: 1200, gold: 2400, souls: 1200, epicIngots: 10 },
+  { wins: 6, gems: 600, gold: 800, souls: 400, epicIngots: 2 }, { wins: 12, gems: 800, gold: 1200, souls: 600, epicIngots: 4 },
+  { wins: 20, gems: 1000, gold: 1600, souls: 800, epicIngots: 4 }, { wins: 30, gems: 1200, gold: 2400, souls: 1200, epicIngots: 6 },
 ] as const;
 export const EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = Object.fromEntries(
   Object.entries(BASE_EVENT_MILESTONES).map(([id, rows]) => [id, rows.map((row, index) => ({

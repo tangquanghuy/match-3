@@ -45,6 +45,9 @@ describe('常驻活动与主题（data/events）', () => {
     expect(goods('raidBoss', 'raid_epic').mats?.ingots).toEqual({ mythic: 1 });
     expect(goods('raidBoss', 'raid_epic').stock).toBe(1);
     expect(EVENT_SHOP.towerOfDoom.filter(row => row.mats?.forgeScrolls).length).toBe(2);
+    expect(EVENT_SHOP.towerOfDoom.every(row => !row.mats?.ingots)).toBe(true);
+    expect(goods('towerOfDoom', 'tod_gold')).toMatchObject({ cost: 10, stock: null, gold: 3000 });
+    expect(EVENT_SHOP.towerOfDoom.some(row => row.id === 'tod_rare')).toBe(false);
     expect(goods('factionAssault', 'fa_scroll').mats?.ingots).toEqual({ common: 8 });
     expect(goods('worldEvent', 'we_ingots').mats?.ingots).toEqual({ common: 10 });
     expect(EVENT_SHOP.classTrials.every(row => !row.mats?.ingots)).toBe(true);
@@ -262,24 +265,26 @@ describe('活动结算（applySettlement 事件分支）', () => {
 });
 
 describe('活动商店与代币（2026-09-19 追补）', () => {
-  it('Event shelves contain only finite, distinctive non-currency rewards', () => {
+  it('Event shelves keep distinctive rewards, with one unlimited tower gold exchange', () => {
     const seen = new Set<string>();
-    const counts: Record<string, number> = { invasion: 7, raidBoss: 8, towerOfDoom: 7, factionAssault: 7, worldEvent: 6, classTrials: 6 };
+    const counts: Record<string, number> = { invasion: 7, raidBoss: 8, towerOfDoom: 6, factionAssault: 7, worldEvent: 6, classTrials: 6 };
     for (const [typeId, goods] of Object.entries(EVENT_SHOP)) {
       expect(goods, typeId).toHaveLength(counts[typeId]);
-      expect(goods.reduce((sum,g)=>sum+g.cost*g.stock!,0),typeId).toBeGreaterThan(360);
+      expect(goods.reduce((sum,g)=>sum+g.cost*(g.stock ?? 0),0),typeId).toBeGreaterThan(360);
       for (const g of goods) {
         expect(seen.has(g.id), g.id).toBe(false);
         seen.add(g.id);
         expect(g.cost).toBeGreaterThan(0);
-        expect(g.stock).not.toBeNull();
-        expect(g.stock!).toBeGreaterThanOrEqual(1);
+        if (g.id === 'tod_gold') expect(g.stock).toBeNull();
+        else expect(g.stock).toBeGreaterThanOrEqual(1);
         expect(g.id).not.toMatch(/_surplus$/);
-        for (const key of ['gold', 'souls', 'goldKeys', 'glory'] as const) expect(g[key], g.id).toBeUndefined();
+        for (const key of ['gold', 'souls', 'goldKeys', 'glory'] as const) {
+          if (g.id !== 'tod_gold') expect(g[key], g.id).toBeUndefined();
+        }
         expect(g.gems).toBeUndefined();
         const hasReward =
           Object.keys(g.mats?.ingots ?? {}).length + Object.keys(g.mats?.traitstones ?? {}).length > 0 ||
-          (g.mats?.forgeScrolls ?? 0) > 0 || !!g.troopRole || (g.classXp ?? 0) > 0;
+          (g.mats?.forgeScrolls ?? 0) > 0 || !!g.troopRole || (g.classXp ?? 0) > 0 || (g.gold ?? 0) > 0;
         expect(hasReward, g.id).toBe(true);
       }
     }
@@ -317,6 +322,31 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
         expect(next.week.bought).toEqual({});
       }
     }
+  });
+
+  it('event shop steel totals exclude tower after replacing its two steel offers', () => {
+    const totals = Object.fromEntries(Object.entries(EVENT_SHOP).map(([type, rows]) => [type,
+      rows.reduce((sum, goods) => sum + Object.values(goods.mats?.ingots ?? {}).reduce((n, amount) => n + (amount ?? 0), 0) * (goods.stock ?? 0), 0),
+    ]));
+    expect(totals).toEqual({ invasion: 32, raidBoss: 65, towerOfDoom: 0, factionAssault: 151, worldEvent: 156, classTrials: 0 });
+    expect(Object.values(totals).reduce((sum, amount) => sum + amount, 0)).toBe(404);
+  });
+
+  it('unlimited tower gold exchange spends ten tokens per 3000 gold with no steel credited', () => {
+    const save = saveWithTeam();
+    const week = ensureEventWeek(save, WEEK, 'towerOfDoom');
+    week.tokens = 40;
+    week.tokensEarned = 40;
+    const beforeGold = save.currencies.gold;
+    const beforeIngots = structuredClone(save.materials.ingots);
+    for (let i = 0; i < 4; i++) {
+      expect(buyEventGoods(save, 'tod_gold', WEEK, 'towerOfDoom')).toMatchObject({ ok: true, tokensSpent: 10, tokensLeft: 30 - i * 10, stockLeft: null });
+      expect(eventShopOf(save, WEEK, 'towerOfDoom').rows.find(row => row.goods.id === 'tod_gold')?.stockLeft).toBeNull();
+    }
+    expect(save.currencies.gold - beforeGold).toBe(12000);
+    expect(save.materials.ingots).toEqual(beforeIngots);
+    expect(buyEventGoods(save, 'tod_gold', WEEK, 'towerOfDoom')).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
+    expect(buyEventGoods(save, 'tod_rare', WEEK, 'towerOfDoom')).toMatchObject({ ok: false, code: 'INVALID' });
   });
 
   it('eventTokensFor：下限 3，按积分十分之一取整', () => {

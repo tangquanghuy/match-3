@@ -20,7 +20,7 @@
 import '../../data/eventTraits';
 import { KINGDOM_ORDER, kingdomTroopPool } from '../../data/kingdoms';
 import { fnv1a32 } from '../../data/hash';
-import { EVENT_WEEKLY_PLAY_REWARD_CAP } from '../../data/events';
+import { EVENT_WEEKLY_EPIC_INGOTS, EVENT_WEEKLY_PLAY_REWARD_CAP } from '../../data/events';
 import { getTroopById } from '../../../data/troops';
 import { BaseColor } from '../../../engine/types';
 import type { MaterialDelta } from '../../data/materials';
@@ -262,7 +262,7 @@ export const factionMode: EventModeImpl<FactionState> = {
         state.conquered += 1;
         const week = ctx.week;
         if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.factionAssault) {
-          const mats: MaterialDelta = { traitstones: { 'runic:green': 2, 'runic:brown': 2 }, ingots: { epic: 2 } };
+          const mats: MaterialDelta = { traitstones: { 'runic:green': 2, 'runic:brown': 2 }, ingots: { epic: EVENT_WEEKLY_EPIC_INGOTS.factionCapital } };
           earn(ctx.save, FACTION_CAPITAL_REWARD);
           earnMaterials(ctx.save, mats);
           week.playRewards += 1;

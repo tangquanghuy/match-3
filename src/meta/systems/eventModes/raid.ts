@@ -16,7 +16,7 @@ import { rewardRaidHighTier } from '../eventHighTierRewards';
 import '../../data/eventTraits';
 import { KINGDOM_ORDER, kingdomTroopPool } from '../../data/kingdoms';
 import { fnv1a32 } from '../../data/hash';
-import { EVENT_DIFFICULTY, EVENT_RAID_POOL_POINTS, EVENT_WEEKLY_PLAY_REWARD_CAP } from '../../data/events';
+import { EVENT_DIFFICULTY, EVENT_RAID_POOL_POINTS, EVENT_WEEKLY_EPIC_INGOTS, EVENT_WEEKLY_PLAY_REWARD_CAP } from '../../data/events';
 import { enemyLevel } from '../../data/enemyDifficulty';
 import { weakGiantCode } from '../../data/eventTraits';
 import { getTroopById } from '../../../data/troops';
@@ -327,7 +327,7 @@ export const raidMode: EventModeImpl<RaidState> = {
       const tier = state.tier;
       const week = ctx.week;
       if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.raidBoss) {
-        const mats: MaterialDelta = { ingots: { epic: 4, ...(tier >= 3 ? { mythic: 1 } : {}) } };
+        const mats: MaterialDelta = { ingots: { epic: EVENT_WEEKLY_EPIC_INGOTS.raidKill, ...(tier >= 3 ? { mythic: 1 } : {}) } };
         const glory = (30 + 20 * tier) * 2;
         earn(ctx.save, { glory });
         earnMaterials(ctx.save, mats);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GIFTS } from '../../src/meta/data/gifts';
-import { EVENT_SHARED_GOALS } from '../../src/meta/data/events';
+import { EVENT_SHARED_GOALS, EVENT_MILESTONES, EVENT_WEEKLY_EPIC_INGOTS, EVENT_WEEKLY_PLAY_REWARD_CAP, TOWER_BOSS_REWARDS } from '../../src/meta/data/events';
 import { temperingCost, temperingMaxLevel } from '../../src/meta/systems/forge';
 import { claimAllGifts, claimGift } from '../../src/meta/systems/gifts';
 import { claimEventWeeklyGems, ensureEventWeek } from '../../src/meta/systems/events';
@@ -27,13 +27,27 @@ describe('武器淬炼馈赠和每周远征预算', () => {
     });
   });
 
-  it('完整成长馈赠 + 一周 30 场活动胜利恰好够两把史诗 +8', () => {
+  it('fixed weekly Epic ingots retain source proportions at roughly sixty percent (90 -> 53)', () => {
+    const epic = {
+      shared: EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.epicIngots, 0),
+      raidMilestones: EVENT_MILESTONES.raidBoss.reduce((sum, m) => sum + (m.mats?.ingots?.epic ?? 0), 0),
+      raidKills: EVENT_WEEKLY_PLAY_REWARD_CAP.raidBoss * EVENT_WEEKLY_EPIC_INGOTS.raidKill,
+      towerBosses: TOWER_BOSS_REWARDS.reduce((sum, r) => sum + (r.mats.ingots?.epic ?? 0) * 2, 0),
+      factionMilestones: EVENT_MILESTONES.factionAssault.reduce((sum, m) => sum + (m.mats?.ingots?.epic ?? 0), 0),
+      factionCapitals: EVENT_WEEKLY_PLAY_REWARD_CAP.factionAssault * EVENT_WEEKLY_EPIC_INGOTS.factionCapital,
+    };
+    expect(epic).toEqual({ shared: 16, raidMilestones: 8, raidKills: 8, towerBosses: 12, factionMilestones: 6, factionCapitals: 3 });
+    expect(Object.values(epic).reduce((sum, amount) => sum + amount, 0)).toBe(53);
+  });
+
+  it('one-time hero gifts plus shared weekly wins pay for one, but not two, Epic +8 weapons', () => {
     const heroGifts = GIFTS.filter(g => g.metric === 'heroLevel' || g.id === 'starter');
     const giftEpic = heroGifts.reduce((sum, g) => sum + (g.mats?.ingots?.epic ?? 0), 0);
     const weeklyEpic = EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.epicIngots, 0);
     expect(giftEpic).toBe(46);
-    expect(weeklyEpic).toBe(26);
-    expect(giftEpic + weeklyEpic).toBeGreaterThanOrEqual(2 * ingotsToMax('Epic'));
+    expect(weeklyEpic).toBe(16);
+    expect(giftEpic + weeklyEpic).toBeGreaterThanOrEqual(ingotsToMax('Epic'));
+    expect(giftEpic + weeklyEpic).toBeLessThan(2 * ingotsToMax('Epic'));
   });
 
   it('单领、一键领以及读旧档补发均只入账一次', () => {
@@ -65,15 +79,15 @@ describe('武器淬炼馈赠和每周远征预算', () => {
     const goldBefore = save.currencies.gold;
     const first = claimEventWeeklyGems(save, 0, 'invasion');
     expect(first.filter(line => line.mats?.ingots?.epic)).toHaveLength(4);
-    expect(save.materials.ingots.epic).toBe(26);
+    expect(save.materials.ingots.epic).toBe(16);
     const goldAfter = save.currencies.gold;
     expect(goldAfter).toBeGreaterThan(goldBefore);
     expect(claimEventWeeklyGems(save, 0, 'invasion')).toHaveLength(0);
-    expect(save.materials.ingots.epic).toBe(26);
+    expect(save.materials.ingots.epic).toBe(16);
     week.eventData.sharedClaim0 = 1;
     week.eventData.sharedCurrencyPaid0 = 1;
     delete week.eventData.sharedIngotsPaid0;
-    expect(claimEventWeeklyGems(save, 0, 'invasion')).toMatchObject([{ mats: { ingots: { epic: 3 } } }]);
+    expect(claimEventWeeklyGems(save, 0, 'invasion')).toMatchObject([{ mats: { ingots: { epic: 2 } } }]);
     expect(save.currencies.gold).toBe(goldAfter);
     expect(claimEventWeeklyGems(save, 0, 'invasion')).toHaveLength(0);
     const now = 10 * 24 * 60 * 60 * 1000;
@@ -82,11 +96,11 @@ describe('武器淬炼馈赠和每周远征预算', () => {
     currentWeek.eventData.sharedClaim0 = 1;
     currentWeek.eventData.sharedCurrencyPaid0 = 1;
     const migrated = hydrateSave(JSON.parse(JSON.stringify(old)), now);
-    expect(migrated.materials.ingots.epic).toBe(3);
-    expect(hydrateSave(JSON.parse(JSON.stringify(migrated)), now).materials.ingots.epic).toBe(3);
+    expect(migrated.materials.ingots.epic).toBe(2);
+    expect(hydrateSave(JSON.parse(JSON.stringify(migrated)), now).materials.ingots.epic).toBe(2);
     const nextWeek = 7 * 24 * 60 * 60 * 1000;
     ensureEventWeek(save, nextWeek, 'invasion').wins = 6;
     claimEventWeeklyGems(save, nextWeek, 'invasion');
-    expect(save.materials.ingots.epic).toBe(32);
+    expect(save.materials.ingots.epic).toBe(20);
   });
 });

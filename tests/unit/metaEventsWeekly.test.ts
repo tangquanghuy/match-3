@@ -89,7 +89,7 @@ describe('周常奖励账本与迁移', () => {
       `weekly-double:invasion:${WEEK}`,
     ].sort());
     expect(migrateSave(JSON.parse(JSON.stringify(loaded))).currencies).toEqual(loaded.currencies);
-    expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toMatchObject([{ mats: { ingots: { epic: 3 } } }]);
+    expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toMatchObject([{ mats: { ingots: { epic: 2 } } }]);
     expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toEqual([]);
   });
   it('六轨7200+共享3600+守土160，且同一周奖励领取幂等', () => {
@@ -128,7 +128,7 @@ describe('周常奖励账本与迁移', () => {
     const before = structuredClone(s.materials);
     const out = battle(s, 'invasion'); settle(s, out, result(out, false));
     expect(s.currencies.gems).toBe(4800);
-    expect(s.materials).toEqual({ ...before, ingots: { ...before.ingots, epic: 26 } });
+    expect(s.materials).toEqual({ ...before, ingots: { ...before.ingots, epic: 16 } });
     expect(w.bought.invasion_celestial).toBe(1);
     expect(claimEventWeeklyGems(s, WEEK, 'invasion')).toEqual([]);
   });
@@ -152,7 +152,7 @@ describe('周常奖励账本与迁移', () => {
     settle(old, oldBattle, result(oldBattle), WEEK + WEEK_MS);
     expect(old.currencies.gems).toBe(0);
   });
-  it('Capped weekly tokens do not refresh after buying materials; no currency exchange', () => {
+  it('Capped weekly tokens stay capped after purchases; tower gold is the sole unlimited currency exchange', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'invasion');
     w.tokensEarned = 355; w.tokens = 100;
     settle(s, battle(s, 'invasion'));
@@ -165,11 +165,14 @@ describe('周常奖励账本与迁移', () => {
     expect(w.tokensEarned).toBe(360); expect(w.tokens).toBe(95);
     for (const rows of Object.values(EVENT_SHOP)) for (const row of rows) {
       expect(row.id).not.toMatch(/_surplus$/);
-      expect(row).not.toHaveProperty('gold');
+      if (row.id === 'tod_gold') expect(row).toMatchObject({ gold: 3000, cost: 10, stock: null });
+      else {
+        expect(row).not.toHaveProperty('gold');
+        expect(row.stock).not.toBeNull();
+      }
       expect(row).not.toHaveProperty('goldKeys');
       expect(row).not.toHaveProperty('glory');
       expect(row).not.toHaveProperty('souls');
-      expect(row.stock).not.toBeNull();
     }
   });
 });

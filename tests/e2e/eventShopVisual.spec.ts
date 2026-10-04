@@ -52,9 +52,17 @@ for (const viewport of [{width:1600,height:900},{width:1280,height:720},{width:7
   test(`六家兑换货架留白、等宽卡片与完整操作 ${viewport.width}`, async ({page}) => {
     await page.setViewportSize(viewport);
     await openCleanShop(page);
-    for(const [id, count] of Object.entries({invasion: 7, raidBoss: 8, towerOfDoom: 7, factionAssault: 7, worldEvent: 6, classTrials: 6})) {
+    for(const [id, count] of Object.entries({invasion: 7, raidBoss: 8, towerOfDoom: 6, factionAssault: 7, worldEvent: 6, classTrials: 6})) {
       await page.goto(`/game.html#shop/${id}`);
       await expect(page.locator('.shop-goods')).toHaveCount(count);
+      if (id === 'towerOfDoom') {
+        const gold = page.locator('[data-goods-card="tod_gold"]');
+        await expect(gold.locator('.shop-reward.gold')).toContainText(/3,?000/);
+        await expect(gold.locator('.shop-price')).toContainText('10');
+        await expect(gold.locator('.shop-stock')).toBeEmpty();
+        await expect(page.locator('[data-goods-card="tod_rare"]')).toHaveCount(0);
+        await expect(page.locator('.shop-reward.ingot')).toHaveCount(0);
+      }
       await expect(page.locator('.shop-goods.featured')).toHaveCount(1);
       const layout=await page.locator('.event-shop-panel').evaluate(panel=>({
         overflow:panel.scrollWidth-panel.clientWidth,
