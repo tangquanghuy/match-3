@@ -145,7 +145,14 @@ export function injectTraitsOn(snap: CombatantSnapshot | undefined, codes: reado
   injectTraits([snap], codes.map((code) => ({ code, on: 'lead' as const })));
 }
 
-/** 合并战斗规则（活动 modify 共用）：preset / createGems 队列 / turnStart 追加，其余覆盖 */
+/** Shield named event bosses from instant death, and show the immunity on their card. */
+export function protectEventBoss(snap: CombatantSnapshot | undefined): void {
+  if (!snap) return;
+  injectTraitsOn(snap, ['indestructible']);
+  snap.displayTraitIds = ['indestructible', ...(snap.displayTraitIds ?? []).filter(id => id !== 'indestructible')];
+}
+
+/** Merge event battle rules, appending queued board and turn-start rules. */
 export function addRules(outcome: BridgeOutcome, add: BattleRules): void {
   const r = (outcome.request.rules ??= {});
   if (add.board) {

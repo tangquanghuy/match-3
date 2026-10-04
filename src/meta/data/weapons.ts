@@ -42,7 +42,7 @@ export interface WeaponDef {
    * 官方 `Artifact` 在天赋侧的词是 `relic`，归一在 weaponCatalog 做，本字段已是归一结果。
    */
   weaponType: string | null;
-  /** 官方稀有度原文（Common/Uncommon/Rare/UltraRare/Epic/Mythic/Doomed） */
+  /** 武器稀有度（本作 Uncommon 武器按 Common 钢锭档淬炼） */
   rarity: string;
   /** 稀有度序（0=Common … 6=Doomed），排序用 */
   rarityIdx: number;

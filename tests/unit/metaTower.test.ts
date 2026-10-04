@@ -205,6 +205,23 @@ describe('遗物 → 战斗请求（applyRun）', () => {
 // 动态特质在真实引擎里生效
 // ---------------------------------------------------------------------------
 
+describe('tower boss lethal protection', () => {
+  it('protects boss-tier enemies only on boss nodes', () => {
+    const save = fresh();
+    eventBattle(save, 'towerOfDoom', WEEK);
+    const node = towerReachable(runOf(save))[0]!;
+    node.kind = 'boss';
+    const out = eventBattle(save, 'towerOfDoom', WEEK, `go:${node.row}-${node.col}`);
+    for (const [i, enemy] of out.request.enemyTeam.entries()) {
+      if (out.plan.enemies[i]?.tier === 'boss') {
+        expect(enemy.traitIds).toContain('indestructible');
+        expect(enemy.displayTraitIds).toContain('indestructible');
+      } else expect(enemy.traitIds ?? []).not.toContain('indestructible');
+    }
+    expect(out.plan.enemies.some(e => e.tier === 'boss')).toBe(true);
+  });
+});
+
 function engineFromRequest(save: MetaSave, relics: string[]): TurnEngine {
   eventBattle(save, 'towerOfDoom', WEEK);
   runOf(save).relics = relics;

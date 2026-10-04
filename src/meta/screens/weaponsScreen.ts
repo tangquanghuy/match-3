@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 武器中心屏（UX 阶段 B · 窗口 M）。
  *
  * 这块屏把英雄页旧武器弹层、武器图鉴和熔炉/淬炼入口收成一个可检索的
@@ -9,9 +9,8 @@
 import weaponsCss from './weaponsScreen.css?raw';
 import type { ForgeRecipe } from '../systems/forge';
 import {
-  AFFIX_UNLOCK_LEVELS,
-  DOOMED_AFFIX_UNLOCK_LEVELS,
-  MAX_TEMPERING_LEVEL,
+  affixUnlockLevels,
+  temperingMaxLevel,
   affixUnlockedCount,
   forgeTierUnlockLevel,
   temperingCost,
@@ -348,7 +347,7 @@ export class WeaponsScreen implements Screen {
     const ownedCount = ownedWeaponIds(save).length;
     const allCount = ALL_CATALOG_WEAPONS.length;
     const forgeCount = SOULFORGE_RECIPES.length;
-    const temperCount = ownedWeapons(save).filter((w) => temperingLevelOf(save, w.id) < MAX_TEMPERING_LEVEL).length;
+    const temperCount = ownedWeapons(save).filter((w) => temperingLevelOf(save, w.id) < temperingMaxLevel(w.rarity)).length;
     const tabs: Array<{ id: WeaponTab; label: string; count: number }> = [
       { id: 'owned', label: '我的武器', count: ownedCount },
       { id: 'all', label: '全部', count: allCount },
@@ -454,7 +453,7 @@ export class WeaponsScreen implements Screen {
         return `<div class="weapons-toolbar workbench-toolbar"><div class="workbench-heading"><span data-icon="soul"></span><div><h2>灵魂熔炉</h2><small>${fmt(resultCount)} 份配方 · ${ready} 份可锻造</small></div></div><div class="workbench-wallet"><span>灵魂 <b>${fmt(save.currencies.souls)}</b></span><span>黄金 <b>${fmt(save.currencies.gold)}</b></span></div><input class="weapons-search" data-weapon-search value="${query}" placeholder="搜索配方" aria-label="搜索配方"></div>`;
       }
       const ready = ownedWeapons(save).filter((w) => {
-        if (temperingLevelOf(save, w.id) >= MAX_TEMPERING_LEVEL) return false;
+        if (temperingLevelOf(save, w.id) >= temperingMaxLevel(w.rarity)) return false;
         const cost = temperingCost(w.rarity, temperingLevelOf(save, w.id));
         const key = ingotKeyForRarity(w.rarity);
         return save.currencies.gold >= cost.gold && (cost.scrolls ? save.materials.forgeScrolls >= cost.scrolls : key && (save.materials.ingots[key] ?? 0) >= cost.ingots);
@@ -513,7 +512,7 @@ export class WeaponsScreen implements Screen {
       const source = this.tab === 'owned' || this.tab === 'temper' ? ownedWeapons(save) : [...ALL_CATALOG_WEAPONS];
       cards = source.map((weapon) => ({ weapon, kind: 'weapon' as const }));
       cards = cards.filter((card) => this.matchesFilters(card.weapon, save));
-      if (this.tab === 'temper') cards = cards.filter((card) => temperingLevelOf(save, card.weapon.id) < MAX_TEMPERING_LEVEL);
+      if (this.tab === 'temper') cards = cards.filter((card) => temperingLevelOf(save, card.weapon.id) < temperingMaxLevel(card.weapon.rarity));
     }
     if (this.filters.query && this.tab === 'forge') {
       const q = this.filters.query.trim().toLocaleLowerCase();
@@ -585,7 +584,7 @@ export class WeaponsScreen implements Screen {
     const workbenchNote = card.kind === 'forge'
       ? `<span class="weapon-note">${fmt(card.recipe!.souls)} 魂 · ${fmt(card.recipe!.gold)} 金</span>`
       : this.tab === 'temper'
-        ? `<span class="weapon-note">淬炼 ${level}/${MAX_TEMPERING_LEVEL}</span>`
+        ? `<span class="weapon-note">淬炼 ${level}/${temperingMaxLevel(w.rarity)}</span>`
         : '';
     const mana = card.kind === 'weapon'
       ? `<span class="weapon-mana" title="法力值 ${w.manaCost}">${gemSvg(w.manaColors.map((c) => String(c).toLowerCase()))}<i>${w.manaCost}</i></span>`
@@ -606,12 +605,13 @@ export class WeaponsScreen implements Screen {
     const level = temperingLevelOf(save, w.id);
     const spell = renderSpell(w.description, heroStatsOf(save).magic, { interactive: false });
     const tags = [weaponTypeZh(w.weaponType), w.kingdom, roleNameZh(w.role) ?? w.roleName].filter(Boolean).map((text) => `<span class="detail-tag">${escapeHtml(text)}</span>`).join('');
-    const affixLevels = w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS;
-    const unlockedAffixes = affixUnlockedCount(w.rarity, level);
-    const affixes = `<section class="detail-affixes${w.affixes.length ? '' : ' is-empty'}">
-        <div class="detail-section-heading"><span data-icon="swirl"></span><div><small>淬炼词缀</small><h3>${w.affixes.length ? `${unlockedAffixes}/${w.affixes.length} 已解锁` : '尚未生成'}</h3></div></div>
-        ${w.affixes.length
-          ? `<ul class="affix-list">${w.affixes.map((affix, index) => {
+    const affixLevels = affixUnlockLevels(w.rarity);
+    const unlockedAffixes = Math.min(w.affixes.length, affixUnlockedCount(w.rarity, level));
+    const visibleAffixes = w.affixes.slice(0, affixLevels.length);
+    const affixes = `<section class="detail-affixes${visibleAffixes.length ? '' : ' is-empty'}">
+        <div class="detail-section-heading"><span data-icon="swirl"></span><div><small>淬炼词缀</small><h3>${visibleAffixes.length ? `${unlockedAffixes}/${visibleAffixes.length} 已解锁` : '无词缀'}</h3></div></div>
+        ${visibleAffixes.length
+          ? `<ul class="affix-list">${visibleAffixes.map((affix, index) => {
               const on = index < unlockedAffixes;
               const unlockAt = affixLevels[index] ?? 0;
               return `<li class="affix-card${on ? '' : ' is-locked'}">
@@ -620,7 +620,7 @@ export class WeaponsScreen implements Screen {
                 <span class="affix-state">${on ? '已解锁' : `淬炼 Lv.${unlockAt}`}</span>
               </li>`;
             }).join('')}</ul>`
-          : '<p class="affix-empty">这把武器还没有淬炼词缀。升级淬炼后会在这里解锁。</p>'}
+          : '<p class="affix-empty">这把武器没有可解锁的淬炼词缀。</p>'}
       </section>`;
     const acquire = acquireOf(w);
     const progress = acquireProgress(save, acquire);
@@ -632,7 +632,7 @@ export class WeaponsScreen implements Screen {
     } else if (owned) {
       const canEquip = canUseWeapon(save, w) && !equipped;
       actions = `<button class="primary-action" type="button" data-weapon-action="equip" data-weapon-id="${escapeHtml(w.id)}"${canEquip ? '' : ' disabled'}>${equipped ? '已装备' : w.equippable ? '装备' : '不可装备'}</button>
-        <button type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}"${level >= MAX_TEMPERING_LEVEL ? ' disabled' : ''}>${level >= MAX_TEMPERING_LEVEL ? '淬炼已满级' : '淬炼与升级'}</button>`;
+        <button type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}"${level >= temperingMaxLevel(w.rarity) ? ' disabled' : ''}>${level >= temperingMaxLevel(w.rarity) ? '淬炼已满级' : '淬炼与升级'}</button>`;
     } else if (acquire.kind === 'forge' || recipeOf(w)) {
       actions = `<button class="primary-action" type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}">查看锻造要求</button>`;
     } else if (acquire.kind === 'placeholder') {
@@ -696,8 +696,8 @@ export class WeaponsScreen implements Screen {
   private renderTemperUpgrade(w: WeaponDef): string {
     const save = this.ctx.save();
     const level = temperingLevelOf(save, w.id);
-    if (level >= MAX_TEMPERING_LEVEL) {
-      return `<div class="detail-scroll"><div class="upgrade-empty"><span data-icon="check"></span><h2>淬炼已满级</h2><p>「${escapeHtml(w.name)}」已达到 Lv.${MAX_TEMPERING_LEVEL}。</p></div></div><div class="detail-actions"><button type="button" data-weapon-action="back-detail">返回详情</button></div>`;
+    if (level >= temperingMaxLevel(w.rarity)) {
+      return `<div class="detail-scroll"><div class="upgrade-empty"><span data-icon="check"></span><h2>淬炼已满级</h2><p>「${escapeHtml(w.name)}」已达到 Lv.${temperingMaxLevel(w.rarity)}。</p></div></div><div class="detail-actions"><button type="button" data-weapon-action="back-detail">返回详情</button></div>`;
     }
     const cost = temperingCost(w.rarity, level);
     const ingotKey = ingotKeyForRarity(w.rarity);
@@ -707,15 +707,14 @@ export class WeaponsScreen implements Screen {
     const materialHeld = cost.scrolls > 0 ? heldScrolls : heldIngot;
     const materialLabel = cost.scrolls > 0 ? '熔铸符卷' : INGOT_NAMES[ingotKey as IngotKey] ?? '钢锭';
     const materialGap = Math.max(0, materialCost - materialHeld);
-    const goldGap = Math.max(0, cost.gold - save.currencies.gold);
-    const nextAffix = (w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS).find((unlock) => unlock > level);
-    const canTemper = materialGap === 0 && goldGap === 0;
+    const nextAffix = affixUnlockLevels(w.rarity).slice(0, w.affixes.length).find((unlock) => unlock > level);
+    const canTemper = materialGap === 0;
     return `<div class="detail-scroll"><div class="weapon-upgrade-view">
       ${this.renderUpgradeWeapon(w)}
       <section class="upgrade-ledger">
-        <div class="upgrade-heading"><span>淬炼进阶</span><h2>升至 Lv.${level + 1}</h2><p>${nextAffix ? `下一词缀将在 Lv.${nextAffix} 解锁` : '全部词缀已解锁，继续提升武器等级。'}</p></div>
-        <div class="upgrade-progress"><div><span>当前 Lv.${level}</span><b>${level + 1}</b><span>上限 Lv.${MAX_TEMPERING_LEVEL}</span></div><div class="progress-line"><i style="width:${Math.round(((level + 1) / MAX_TEMPERING_LEVEL) * 100)}%"></i></div></div>
-        <div class="upgrade-resources"><div class="upgrade-resource-head"><b>所需材料</b><span>需求</span><span>持有</span><span>缺口</span></div>${this.renderResourceRow(materialLabel, materialCost, materialHeld, cost.scrolls ? 'ticket' : 'bag', cost.scrolls ? scrollArt() : ingotKey ? ingotArt(ingotKey) : '')}${this.renderResourceRow('黄金', cost.gold, save.currencies.gold, 'coin')}</div>
+        <div class="upgrade-heading"><span>淬炼进阶</span><h2>升至 Lv.${level + 1}</h2><p>${nextAffix ? `下一词缀将在 Lv.${nextAffix} 解锁` : '继续提升武器属性。'}</p></div>
+        <div class="upgrade-progress"><div><span>当前 Lv.${level}</span><b>${level + 1}</b><span>上限 Lv.${temperingMaxLevel(w.rarity)}</span></div><div class="progress-line"><i style="width:${Math.round(((level + 1) / temperingMaxLevel(w.rarity)) * 100)}%"></i></div></div>
+        <div class="upgrade-resources"><div class="upgrade-resource-head"><b>所需材料</b><span>需求</span><span>持有</span><span>缺口</span></div>${this.renderResourceRow(materialLabel, materialCost, materialHeld, cost.scrolls ? 'ticket' : 'bag', cost.scrolls ? scrollArt() : ingotKey ? ingotArt(ingotKey) : '')}</div>
       </section>
     </div></div>
     <div class="detail-actions"><button type="button" data-weapon-action="back-detail">返回详情</button><button class="primary-action" type="button" data-weapon-action="temper" data-weapon-id="${escapeHtml(w.id)}"${canTemper ? '' : ' disabled'}>${canTemper ? `淬炼至 Lv.${level + 1}` : '材料尚未集齐'}</button></div>`;

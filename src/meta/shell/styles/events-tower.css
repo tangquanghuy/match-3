@@ -265,3 +265,5 @@
   .tw-detail-act { flex-basis: 100%; }
   .tw-hud-tools { margin-left: 0; }
 }
+
+.tw-node:active:not(:disabled) { transform: translate(-50%, -50%); }

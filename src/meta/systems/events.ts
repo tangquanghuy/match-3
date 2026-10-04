@@ -447,11 +447,14 @@ export function claimEventWeeklyGems(save: MetaSave, weekStart: number, typeId: 
   summary.goals.forEach((g, i) => {
     if (!g.claimed && summary.wins < g.wins) return;
     const currencyPaid = ledger.eventData[`sharedCurrencyPaid${i}`] === 1;
-    if (g.claimed && currencyPaid) return;
+    const ingotsPaid = ledger.eventData[`sharedIngotsPaid${i}`] === 1;
+    if (g.claimed && currencyPaid && ingotsPaid) return;
     const deltas = earn(save, { gems: g.claimed ? 0 : g.gems, gold: currencyPaid ? 0 : g.gold, souls: currencyPaid ? 0 : g.souls });
+    const mats = ingotsPaid ? {} : earnMaterials(save, { ingots: { epic: g.epicIngots } });
     ledger.eventData[`sharedClaim${i}`] = 1;
     ledger.eventData[`sharedCurrencyPaid${i}`] = 1;
-    lines.push({ label: `每周远征 · 累计${g.wins}胜`, deltas, note: '六种活动共同推进，周一刷新' });
+    ledger.eventData[`sharedIngotsPaid${i}`] = 1;
+    lines.push({ label: `每周远征 · 累计${g.wins}胜`, deltas, mats, note: '六种活动共同推进，周一刷新' });
   });
   return lines;
 }

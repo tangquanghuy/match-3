@@ -23,6 +23,15 @@ import { cssUrlVar, shopArt } from '../shell/artAssets';
 const TYPE_IDS: readonly EventTypeId[] = EVENT_ROTATION.map((type) => type.id);
 export const DEFAULT_EVENT_SHOP_TYPE: EventTypeId = 'invasion';
 
+const SHOP_SPECIALTIES: Record<EventTypeId, string> = {
+  invasion: '攻城 · 史诗锭 / 红蓝特质',
+  raidBoss: '首领 · 高阶钢锭 / 神话锭',
+  towerOfDoom: '末日塔 · 熔铸符卷',
+  factionAssault: '阵营 · 普通 / 稀有 / 精锻锭',
+  worldEvent: '世界活动 · 基础钢锭 / 特质石',
+  classTrials: '职业试炼 · 特质石 / 职业经验',
+};
+
 function parseTypeId(param: string | undefined): EventTypeId {
   return TYPE_IDS.includes(param as EventTypeId) ? (param as EventTypeId) : DEFAULT_EVENT_SHOP_TYPE;
 }
@@ -64,7 +73,7 @@ const STONE_COLOR: Record<string, string> = {
 };
 
 const INGOT_COLOR: Record<string, string> = {
-  common: '#aab2ad', uncommon: '#4caf6a', rare: '#9a4fd4', ultraRare: '#ffe24a', epic: '#c56b2d', legendary: '#56d8ff', mythic: '#f1a1ff',
+  common: '#aab2ad', rare: '#9a4fd4', ultraRare: '#ffe24a', epic: '#c56b2d', mythic: '#f1a1ff',
 };
 
 function rewardEntries(goods: EventGoods, save?: MetaSave): RewardEntry[] {
@@ -217,9 +226,8 @@ export class EventShopScreen implements Screen {
     this.displayedPeriod = shop.period.start;
     this.displayedWeek = weekStart;
     const def = shop.theme.type;
-    const featuredRow = shop.rows.find((row) => row.goods.stock === 1) ?? [...shop.rows].sort((a, b) => b.goods.cost - a.goods.cost)[0];
-    const surplus = shop.rows.find(row => row.goods.id.endsWith('_surplus'));
-    const regularRows = shop.rows.filter((row) => row !== featuredRow && row !== surplus);
+    const featuredRow = shop.rows.find((row) => row.goods.troopId || row.goods.troopRole) ?? shop.rows.find((row) => row.goods.stock === 1) ?? [...shop.rows].sort((a, b) => b.goods.cost - a.goods.cost)[0];
+    const regularRows = shop.rows.filter((row) => row !== featuredRow);
     const capped = shop.week.tokensEarned >= EVENT_WEEKLY_RULES.tokenCap;
     const tabs = EVENT_ROTATION.map((tab) => {
       const tabShop = eventShopOf(save, weekStart, tab.id, now);
@@ -233,18 +241,17 @@ export class EventShopScreen implements Screen {
           <header class="shop-page-head"><h1>商店</h1>${shopNavHtml('events')}</header>
           <nav class="shop-tabs" aria-label="活动商店页签">${tabs}</nav><label class="shop-mobile-picker"><span>活动兑换</span><select id="shopTypePicker" aria-label="选择活动商店">${EVENT_ROTATION.map(t=>`<option value="${t.id}" ${t.id===typeId?'selected':''}>${t.name}</option>`).join('')}</select></label>
           <div class="shop-hero">
-            <div class="shop-hero-copy"><h2>${def.name}</h2><p>${def.brief}</p></div>
+            <div class="shop-hero-copy"><h2>${def.name}<small class="shop-specialty">${SHOP_SPECIALTIES[typeId]}</small></h2><p>${def.brief}</p></div>
             <div class="shop-hero-side">
               <div class="shop-page-meta">${tokenBalanceHtml(shop.week.tokens, def.tokenName)}<span class="shop-reset"><span data-icon="time"></span><span id="shopRefreshLabel">${remainingLabel(now, shop.period.end)}后刷新</span></span></div>
               <a class="shop-earn-link" href="#events/${typeId}">前往活动 <span aria-hidden="true">→</span></a>
             </div>
           </div>
-          <section class="shop-catalog"><div class="shop-section-head"><div><h2>本期货架</h2><span class="shop-catalog-count">${shop.rows.length-1} 款</span></div></div>
-            <nav class="shop-categories" aria-label="商品分类">${SHOP_CATEGORIES.filter(category=>category.id==='all'||shop.rows.some(row=>row!==surplus&&goodsCategory(row.goods)===category.id)).map(category=>`<button type="button" data-shop-category="${category.id}" aria-pressed="${filter===category.id}"><span data-icon="${category.icon}"></span>${category.name}<span class="shop-category-count">${shop.rows.filter(row=>row!==surplus&&(category.id==='all'||goodsCategory(row.goods)===category.id)).length}</span></button>`).join('')}</nav>
+          <section class="shop-catalog"><div class="shop-section-head"><div><h2>本期货架</h2><span class="shop-catalog-count">${shop.rows.length} 款</span></div></div>
+            <nav class="shop-categories" aria-label="商品分类">${SHOP_CATEGORIES.filter(category=>category.id==='all'||shop.rows.some(row=>goodsCategory(row.goods)===category.id)).map(category=>`<button type="button" data-shop-category="${category.id}" aria-pressed="${filter===category.id}"><span data-icon="${category.icon}"></span>${category.name}<span class="shop-category-count">${shop.rows.filter(row=>(category.id==='all'||goodsCategory(row.goods)===category.id)).length}</span></button>`).join('')}</nav>
             <div class="shop-grid">${[...(featuredRow?[featuredRow]:[]),...regularRows].map(row=>goodsCard(row, save, shop.week.tokens, row===featuredRow, capped, typeId, filter)).join('')}</div>
           </section>
           <footer class="shop-week-budget"><button class="shop-details-link" type="button" data-shop-rules>兑换说明 ↗</button>
-            ${surplus ? `<span class="shop-surplus">${surplus.goods.cost} 印记 → ${surplus.goods.gold} 黄金 <button class="shop-buy" type="button" data-buy="${surplus.goods.id}" ${shop.week.tokens < surplus.goods.cost ? 'disabled' : ''}>兑换</button></span>` : ''}
           </footer>
         </section>
       </div>

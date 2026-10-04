@@ -21,15 +21,16 @@ import { enemyLevel } from '../../data/enemyDifficulty';
 import { weakGiantCode } from '../../data/eventTraits';
 import { getTroopById } from '../../../data/troops';
 import { BaseColor } from '../../../engine/types';
+import { SeededRNG } from '../../../engine/rng';
 import { STAT_LIMITS } from '../../../session/validateRequest';
-import type { MaterialDelta } from '../../data/materials';
+import { type IngotKey, type MaterialDelta } from '../../data/materials';
 import { fail } from '../../types';
 import { earn, earnMaterials } from '../wallet';
 import { repairLegacyRandomEnemyRoster, pickEnemies, type EncounterEnemy, type EncounterPlan } from '../encounter';
 import { SPECIAL_TUNING } from '../specialEncounters';
 import type { BattleResult } from '../../../session/contract';
 import {
-  EVENT_POINTS_CAP, addMastery, addRules, buffSnapshot, enemyExternalId, injectTraits, injectTraitsOn, int, isObj, memberKey,
+  EVENT_POINTS_CAP, addMastery, addRules, buffSnapshot, enemyExternalId, injectTraits, injectTraitsOn, protectEventBoss, int, isObj, memberKey,
   pickN, rngOf, str, strArr,
   type EventModeImpl, type EventProgressLine,
 } from './common';
@@ -40,6 +41,7 @@ export type RaidSupply = 'frost' | 'ink' | 'mark' | 'giant' | 'surge';
 export interface RaidState {
   v: 1;
   tier: number;
+  ingotTier: number;
   kingdom: string;
   /** [首领, 护卫, 护卫, 绝境增援] 的部队 id */
   lineup: number[];
@@ -81,6 +83,43 @@ export const RAID_SUPPLIES: Record<RaidSupply, { name: string; desc: string; ico
   giant: { name: '破绽情报', desc: '开局棋盘预置 3 颗破绽色巨人宝石', icon: 'gem:special/giantGemRed' },
   surge: { name: '法力涌泉', desc: '全色法力精通 +40（3 消也可能涌动翻倍）', icon: 'relic-surge_orb' },
 };
+
+export const RAID_INGOT_MAX_TIER = 12;
+/** Low-rarity ingots are guaranteed; UltraRare (legendary in UI) and above are independent bonus rolls. */
+type RaidIngotReward = {
+  guaranteed: { key: IngotKey; count: number };
+  bonus: readonly { key: IngotKey; chance: number }[];
+};
+export const RAID_INGOT_REWARDS = [
+  { guaranteed: { key: 'common', count: 1 }, bonus: [] },
+  { guaranteed: { key: 'common', count: 2 }, bonus: [] },
+  { guaranteed: { key: 'rare', count: 1 }, bonus: [] },
+  { guaranteed: { key: 'rare', count: 2 }, bonus: [] },
+  { guaranteed: { key: 'rare', count: 3 }, bonus: [{ key: 'ultraRare', chance: 0.25 }] },
+  { guaranteed: { key: 'rare', count: 4 }, bonus: [{ key: 'ultraRare', chance: 0.35 }] },
+  { guaranteed: { key: 'rare', count: 5 }, bonus: [{ key: 'ultraRare', chance: 0.38 }, { key: 'epic', chance: 0.12 }] },
+  { guaranteed: { key: 'rare', count: 6 }, bonus: [{ key: 'ultraRare', chance: 0.45 }, { key: 'epic', chance: 0.18 }] },
+  { guaranteed: { key: 'rare', count: 7 }, bonus: [{ key: 'ultraRare', chance: 0.48 }, { key: 'epic', chance: 0.20 }, { key: 'mythic', chance: 0.04 }] },
+  { guaranteed: { key: 'rare', count: 8 }, bonus: [{ key: 'ultraRare', chance: 0.52 }, { key: 'epic', chance: 0.22 }, { key: 'mythic', chance: 0.06 }] },
+  { guaranteed: { key: 'rare', count: 9 }, bonus: [{ key: 'ultraRare', chance: 0.56 }, { key: 'epic', chance: 0.24 }, { key: 'mythic', chance: 0.08 }] },
+  { guaranteed: { key: 'rare', count: 10 }, bonus: [{ key: 'ultraRare', chance: 0.60 }, { key: 'epic', chance: 0.30 }, { key: 'mythic', chance: 0.10 }] },
+] as const satisfies readonly RaidIngotReward[];
+
+/** Bonus rolls are independent; a higher tier may drop both its own and the preceding rarity. */
+export function rollRaidIngotReward(tier: number, seed: number): MaterialDelta {
+  const reward = RAID_INGOT_REWARDS[tier - 1];
+  if (!reward) return {};
+  const ingots: Partial<Record<IngotKey, number>> = { [reward.guaranteed.key]: reward.guaranteed.count };
+  const rng = new SeededRNG((seed ^ 0x1a607 ^ Math.imul(tier, 0x9e3779b9)) >>> 0);
+  for (const { key, chance } of reward.bonus) if (rng.next() < chance) ingots[key] = (ingots[key] ?? 0) + 1;
+  return { ingots };
+}
+export function raidIngotKey(tier: number) {
+  return (['common', 'rare', 'ultraRare', 'epic', 'mythic', 'mythic'] as const)[Math.min(5, Math.floor((Math.max(1, tier) - 1) / 2))]!;
+}
+export function raidIngotLevel(tier: number): number {
+  return enemyLevel(EVENT_DIFFICULTY.base + (tier - 1) * 4);
+}
 
 export const RAID_FATIGUE_ATTACK = -0.4;
 export const RAID_WEAKNESS_ATTACK = 0.3;
@@ -153,7 +192,7 @@ const isSupply = (v: unknown): v is RaidSupply => typeof v === 'string' && v in 
 export const raidMode: EventModeImpl<RaidState> = {
   init(ctx) {
     const state: RaidState = {
-      v: 1, tier: 1, kingdom: '', lineup: [], hp: 0, max: 0, slain: 0, fatigue: [], fatiguePhase: 0, bestHit: 0, attempts: 0,
+      v: 1, tier: 1, ingotTier: 1, kingdom: '', lineup: [], hp: 0, max: 0, slain: 0, fatigue: [], fatiguePhase: 0, bestHit: 0, attempts: 0,
       archetype: 'lava', offer: null, supply: null,
     };
     spawnBoss(state, ctx.weekStart);
@@ -169,7 +208,7 @@ export const raidMode: EventModeImpl<RaidState> = {
     const tier = int(raw.tier, 1, 1);
     const offer = Array.isArray(raw.offer) ? raw.offer.filter(isSupply) : [];
     return {
-      v: 1, tier, kingdom: str(raw.kingdom, KINGDOM_ORDER[0]!), lineup: repairLegacyRandomEnemyRoster(lineup, fnv1a32(`raid-legacy-${ctx.weekStart}-${tier}`)),
+      v: 1, tier, ingotTier: int(raw.ingotTier, 1, 1, RAID_INGOT_MAX_TIER), kingdom: str(raw.kingdom, KINGDOM_ORDER[0]!), lineup: repairLegacyRandomEnemyRoster(lineup, fnv1a32(`raid-legacy-${ctx.weekStart}-${tier}`)),
       hp: int(raw.hp, max, 0, max), max, slain: int(raw.slain, 0, 0), fatigue: strArr(raw.fatigue),
       fatiguePhase: int(raw.fatiguePhase, 0, 0, 2), bestHit: int(raw.bestHit, 0, 0), attempts: int(raw.attempts, 0, 0),
       archetype: typeof raw.archetype === 'string' && raw.archetype in RAID_ARCHETYPES ? raw.archetype as RaidArchetype : raidArchetypeOf(ctx.weekStart, tier),
@@ -178,7 +217,15 @@ export const raidMode: EventModeImpl<RaidState> = {
     };
   },
 
-  plan(_ctx, state) {
+  plan(_ctx, state, seed, action) {
+    if (action === 'ingot') {
+      const tier = state.ingotTier;
+      return {
+        kingdom: state.kingdom,
+        enemies: pickEnemies(state.kingdom, raidIngotLevel(tier), ['boss', 'elite', 'elite'], rngOf(seed ^ 0x1a607)),
+        choice: `ingot:${tier}`,
+      };
+    }
     const phase = raidPhaseOf(state.hp, state.max);
     const level = raidTierLevel(state.tier);
     const count = phase === 2 ? 4 : 3;
@@ -196,6 +243,17 @@ export const raidMode: EventModeImpl<RaidState> = {
   },
 
   modify(ctx, state, outcome) {
+    if (outcome.plan.source.kind === 'event' && outcome.plan.source.choice?.startsWith('ingot:')) {
+      const tier = Number(outcome.plan.source.choice.slice(6));
+      outcome.request.enemyTeam.forEach((snap, i) => {
+        if (i === 0) {
+          snap.eventTarget = 'boss';
+          buffSnapshot(snap, { hpPct: 0.15 + tier * 0.05, armorPct: tier * 0.025, attackPct: tier * 0.025 });
+          protectEventBoss(snap);
+        }
+      });
+      return;
+    }
     const phase = raidPhaseOf(state.hp, state.max);
     const weak = raidWeakColor(ctx.weekStart);
     const arch = RAID_ARCHETYPES[state.archetype];
@@ -215,8 +273,8 @@ export const raidMode: EventModeImpl<RaidState> = {
         if (phase === 0) buffSnapshot(snap, { armorPct: 0.4 });
         if (phase === 1) buffSnapshot(snap, { attackPct: 0.3 });
         if (phase === 2) buffSnapshot(snap, { attackPct: 0.5 });
-        injectTraitsOn(snap, ['indestructible', ...arch.boss, weakGiantCode(weak), ...(phase === 1 ? ['ev_phase_rage'] : phase === 2 ? ['ev_phase_doom'] : [])]);
-        snap.displayTraitIds = ['indestructible', ...(snap.displayTraitIds ?? []).filter((id) => id !== 'indestructible')];
+        injectTraitsOn(snap, [...arch.boss, weakGiantCode(weak), ...(phase === 1 ? ['ev_phase_rage'] : phase === 2 ? ['ev_phase_doom'] : [])]);
+        protectEventBoss(snap);
       } else {
         if (phase === 2) buffSnapshot(snap, { attackPct: 0.2, armorPct: 0.2, hpPct: 0.2 });
         if (arch.guard.length) injectTraitsOn(snap, arch.guard);
@@ -234,11 +292,21 @@ export const raidMode: EventModeImpl<RaidState> = {
     }
   },
 
-  points(_ctx, state, plan, result) {
+  points(_ctx, state, plan, result, victory) {
+    if (plan.source.kind === 'event' && plan.source.choice?.startsWith('ingot:')) return victory ? 30 : 0;
     return raidPointsFor(bossDamage(state, plan, result), state.max);
   },
 
-  progress(ctx, state, plan, result) {
+  progress(ctx, state, plan, result, victory) {
+    if (plan.source.kind === 'event' && plan.source.choice?.startsWith('ingot:')) {
+      if (!victory) return [];
+      const tier = Number(plan.source.choice.slice(6));
+      if (!Number.isInteger(tier) || tier < 1 || tier > RAID_INGOT_MAX_TIER) return [];
+      const mats = rollRaidIngotReward(tier, result.seed);
+      earnMaterials(ctx.save, mats);
+      return [{ label: `首领锻材挑战胜利 · 难度 ${tier}`, deltas: {}, mats,
+        note: '低级钢锭保底；高级钢锭按概率额外掉落' }];
+    }
     const lines: EventProgressLine[] = [];
     const damage = bossDamage(state, plan, result);
     const phaseBefore = raidPhaseOf(state.hp, state.max);
@@ -259,7 +327,7 @@ export const raidMode: EventModeImpl<RaidState> = {
       const tier = state.tier;
       const week = ctx.week;
       if (week.playRewards < EVENT_WEEKLY_PLAY_REWARD_CAP.raidBoss) {
-        const mats: MaterialDelta = { ingots: { epic: 4, ...(tier >= 3 ? { legendary: 2 } : {}) } };
+        const mats: MaterialDelta = { ingots: { epic: 4, ...(tier >= 3 ? { mythic: 1 } : {}) } };
         const glory = (30 + 20 * tier) * 2;
         earn(ctx.save, { glory });
         earnMaterials(ctx.save, mats);
@@ -290,6 +358,12 @@ export const raidMode: EventModeImpl<RaidState> = {
 
   act(_ctx, state, action) {
     const [verb, arg] = action.split(':');
+    if (verb === 'ingot-tier') {
+      const tier = Number(arg);
+      if (!Number.isInteger(tier) || tier < 1 || tier > RAID_INGOT_MAX_TIER) return fail('INVALID', '无效难度');
+      state.ingotTier = tier;
+      return { ok: true, message: `锻材挑战已选难度 ${tier}` };
+    }
     if (verb !== 'supply') return fail('INVALID', '未知操作');
     if (!state.offer) return fail('INVALID', '没有待选的补给');
     if (arg === 'skip') { state.offer = null; return { ok: true, message: '放弃了这批补给' }; }

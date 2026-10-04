@@ -25,7 +25,7 @@ import { conditionMet } from './secondary';
 import type { Condition, ModifierSpec } from './secondary';
 import { modifierBonus } from './secondary';
 import { passivesOf } from '../../traits';
-import { hasLethalImmunity, hasStatus, isCursed } from './status';
+import { hasLethalImmunity, lethalResistanceEvent, hasStatus, isCursed } from './status';
 
 export interface DevourParams {
   targets: Character[];
@@ -48,7 +48,8 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
       for (const target of params.targets) {
         if (target.defeated || target.id === ctx.casterId) continue;
         // Official Blessed protects from Devour independently of trait immunity.
-        if (hasStatus(target, 'blessed') || hasLethalImmunity(target) || (passivesOf(target).devourImmunity && !isCursed(target))) continue;
+        if (hasStatus(target, 'blessed')) continue;
+        if (passivesOf(target).devourImmunity && !isCursed(target)) continue;
         // 概率 = chance ×（条件倍率）+ 加成百分点，夹在 [0,1]；掷签恒发生（确定性）
         const mult = params.chanceMult && conditionMet(params.chanceMult.cond, ctx, target)
           ? params.chanceMult.times
@@ -56,6 +57,7 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
         const p = Math.min(1, Math.max(0, params.chance * mult + boost));
         const devoured = ctx.rng.next() < p;
         if (!devoured) continue;
+        if (hasLethalImmunity(target)) { events.push(lethalResistanceEvent(target)); continue; }
         // 即杀：走伤害管线（屏障与阵亡事件共用；吞噬不受普通法术减伤影响）
         const durability = target.hp + target.armor;
         const victimAttack = hasStatus(target, 'entangle') ? 0 : target.attack;

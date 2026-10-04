@@ -26,6 +26,7 @@ import { ensureInvasionSeason, invasionPlayerPower } from '../systems/invasion';
 import { invasionPoolNeedsExpansion, invasionPoolQuery } from '../systems/invasionMirrors';
 import { isCriticalCommand, PLAN_COMMANDS, type CommandReply, type CommandType, type LoadReply, type SaveLoadOptions, type MetaCommand } from './protocol';
 import { hydrateMailbox } from '../systems/mailbox';
+import { hasBlockedWishlistIds, purgeBlockedWishlist } from '../systems/wishlist';
 
 /** 一批原子写入：把存储从 fromRevision 推到 toRevision（null = 首次建档） */
 export interface RecordBatch {
@@ -151,6 +152,21 @@ export class MetaHost {
   }
 
   /** 立即落盘所有脏记录（下线 / 实例回收前调用） */
+  /** Production cleanup, serialized with live player commands. */
+  removeBlockedWishlist(): Promise<void> {
+    return this.serial(async () => {
+      await this.ensureLoaded();
+      if (hasBlockedWishlistIds(this.save!.gachaWishlist)) {
+        const next = structuredClone(this.save!);
+        purgeBlockedWishlist(next);
+        next.revision += 1;
+        next.savedAt = this.env.now();
+        this.apply(next);
+      }
+      await this.flushNow();
+    });
+  }
+
   flush(): Promise<void> {
     return this.serial(async () => { await this.flushNow(); await this.drainDefenseOutbox(); });
   }
@@ -225,12 +241,20 @@ export class MetaHost {
     if (records) {
       try {
         const save = recordsToSave(records, now);
+        const storedRevision = save.revision;
+        const oldWishlist = records.get('gachaWishlist');
+        // Bump the revision if hydration removes blocked troops; clients with an old cache resync.
+        if (oldWishlist && hasBlockedWishlistIds(JSON.parse(oldWishlist))) {
+          save.revision += 1;
+          save.savedAt = now;
+        }
         const normalized = saveToRecords(save);
         // 清洗改写过的记录（字段补默认等）随下一批落盘
         this.markDirty(diffRecords(records, normalized));
         this.records = normalized;
-        this.persistedRevision = save.revision;
+        this.persistedRevision = storedRevision;
         this.save = save;
+        if (save.revision !== storedRevision) await this.flushNow();
         return save;
       } catch (error) {
         if (!(error instanceof MetaSaveError)) throw error;

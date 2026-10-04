@@ -31,8 +31,7 @@ import { rarityMetaByKey } from '../data/rarity';
 import { acquireOf, CLASS_WEAPON_WINS } from '../data/weaponAcquire';
 import { SOULFORGE_RECIPES } from '../data/soulforge';
 import {
-  AFFIX_UNLOCK_LEVELS,
-  DOOMED_AFFIX_UNLOCK_LEVELS,
+  affixUnlockLevels,
   affixUnlockedCount,
   forgeTierUnlockLevel,
 } from '../systems/forge';
@@ -753,18 +752,17 @@ export class HeroScreen implements Screen {
    * 词缀与解锁档（H-5 的一部分）。
    *
    * 数据一直都在（`weapons.json` 侧 710/718 把有 affixes），此前被 `weaponCatalog.ts`
-   * 的 `affixes: []` 整列丢弃。解锁档走 `forge.affixUnlockedCount`（普通 4 档 5/10/15/20、
-   * Doomed 5 档 4/8/12/16/20）。
+   * 的 `affixes: []` 整列丢弃。解锁档走 `forge.affixUnlockedCount`（普通与末日均为 +6 起逐级解锁，受稀有度上限约束）。
    *
    * **诚实标注**：词缀的战斗语义是 `WEAPON-FORGE-DESIGN` 里程碑 F4，尚未实现——
    * 面板必须写明「展示口径」，不能让玩家以为已经在打（`06-forge.md` 的「确实缺源」第 2 项）。
    */
   private affixList(w: WeaponDef): string {
-    if (w.affixes.length === 0) return '';
+    const levels = affixUnlockLevels(w.rarity);
+    if (w.affixes.length === 0 || levels.length === 0) return '';
     const level = temperingLevelOf(this.ctx.save(), w.id);
-    const unlocked = affixUnlockedCount(w.rarity, level);
-    const levels = w.rarity === 'Doomed' ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS;
-    const rows = w.affixes
+    const unlocked = Math.min(w.affixes.length, affixUnlockedCount(w.rarity, level));
+    const rows = w.affixes.slice(0, levels.length)
       .map((affix, i) => {
         const need = levels[i];
         const on = i < unlocked;
@@ -776,7 +774,7 @@ export class HeroScreen implements Screen {
       })
       .join('');
     return `<section class="detail-affixes">
-      <div class="ink-rule"><i></i><span>淬炼词缀 ${unlocked} / ${w.affixes.length}</span><i></i></div>
+      <div class="ink-rule"><i></i><span>淬炼词缀 ${unlocked} / ${Math.min(w.affixes.length, levels.length)}</span><i></i></div>
       <ul>${rows}</ul>
       <small class="affix-note">词缀效果二期生效（当前仅解锁展示）</small>
     </section>`;

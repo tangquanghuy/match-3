@@ -43,6 +43,7 @@ export function snapshotToCharacter(snapshot: CombatantSnapshot, internalId: num
   return {
     id: internalId,
     name: snapshot.name,
+    ...(snapshot.role ? { role: snapshot.role } : {}),
     maxHp: snapshot.stats.hp,
     hp: snapshot.initialHp ?? snapshot.stats.hp,
     ...(snapshot.eventTarget ? { eventTarget: snapshot.eventTarget } : {}),

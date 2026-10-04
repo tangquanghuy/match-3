@@ -13,7 +13,7 @@ import {
   type TraitstoneTier,
 } from '../data/materials';
 import { ownedWeapons } from '../data/weaponCatalog';
-import { temperingCost, MAX_TEMPERING_LEVEL } from '../systems/forge';
+import { temperingCost, temperingMaxLevel } from '../systems/forge';
 import { temperingLevelOf } from '../systems/forgeOps';
 import { traitUnlockCost } from '../data/economy';
 import { getRecord } from '../systems/troopProgress';
@@ -26,11 +26,9 @@ import type { MetaSave } from '../state/schema';
 
 const INGOT_TONE: Record<IngotKey, string> = {
   common: '#aab2ad',
-  uncommon: '#4caf6a',
   rare: '#9a4fd4',
   ultraRare: '#ffe24a',
   epic: '#c56b2d',
-  legendary: '#f08a42',
   mythic: '#56d8ff',
 };
 
@@ -267,14 +265,14 @@ export class BagScreen implements Screen {
     let gap = Number.POSITIVE_INFINITY;
     for (const weapon of candidates) {
       const level = temperingLevelOf(save, weapon.id);
-      if (level >= MAX_TEMPERING_LEVEL) continue;
+      if (level >= temperingMaxLevel(weapon.rarity)) continue;
       const cost = temperingCost(weapon.rarity, level);
       const missing = Math.max(0, cost.ingots - held);
-      if (missing === 0 && save.currencies.gold >= cost.gold) ready += 1;
-      gap = Math.min(gap, missing || Math.max(0, cost.gold - save.currencies.gold));
+      if (missing === 0) ready += 1;
+      gap = Math.min(gap, missing);
     }
     if (ready > 0) return `可淬炼 ${ready} 把`;
-    return Number.isFinite(gap) && gap > 0 ? `还差 ${gap} ${gap === 1 ? '块' : '块或黄金'}` : '等待可淬炼武器';
+    return Number.isFinite(gap) && gap > 0 ? `还差 ${gap} 块` : '等待可淬炼武器';
   }
 
   private scrollHint(save: MetaSave, held: number): string {
@@ -282,9 +280,9 @@ export class BagScreen implements Screen {
     if (candidates.length === 0) return '暂无末日武器';
     const ready = candidates.filter((weapon) => {
       const level = temperingLevelOf(save, weapon.id);
-      return level < MAX_TEMPERING_LEVEL && held >= temperingCost(weapon.rarity, level).scrolls && save.currencies.gold >= temperingCost(weapon.rarity, level).gold;
+      return level < temperingMaxLevel(weapon.rarity) && held >= temperingCost(weapon.rarity, level).scrolls;
     }).length;
-    return ready > 0 ? `可淬炼 ${ready} 把` : `还差 1 卷或黄金`;
+    return ready > 0 ? `可淬炼 ${ready} 把` : `需要更多熔铸符卷`;
   }
 
   private stoneHint(save: MetaSave, key: string, held: number): string {

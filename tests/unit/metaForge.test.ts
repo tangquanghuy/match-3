@@ -4,6 +4,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   MAX_TEMPERING_LEVEL,
+  temperingMaxLevel,
+  affixUnlockLevels,
   temperingCost,
   affixUnlockedCount,
   temperWeapon,
@@ -15,42 +17,28 @@ import { newSave, planQuestEncounter, buildBattleRequest } from '../../src/meta'
 import { forgeCatalogWeapon, equipWeapon, equippedWeaponOf } from '../../src/meta/systems/hero';
 import { setTeamPreset } from '../../src/meta/systems/teamRules';
 
-describe('淬炼消耗表（设计值 §2）', () => {
-  it('每级消耗 = 钢锭基数 × ceil(下一级/2) + 黄金 200×下一级', () => {
-    // Common 基数 2：0→1 级 = ceil(1/2)=1 → 2 锭 200 金
-    expect(temperingCost('Common', 0)).toEqual({ ingots: 2, gold: 200, scrolls: 0 });
-    // Epic 基数 32：4→5 级 = ceil(5/2)=3 → 96 锭 1000 金
-    expect(temperingCost('Epic', 4)).toEqual({ ingots: 96, gold: 1000, scrolls: 0 });
-    // Legendary 基数 64：19→20 级 = 10 → 640 锭 4000 金
-    expect(temperingCost('Legendary', 19)).toEqual({ ingots: 640, gold: 4000, scrolls: 0 });
+describe('武器淬炼：普通武器 +5…+10，每级消耗目标等级枚钢锭', () => {
+  it('各档上限及满级总量', () => {
+    const caps: Record<string, number> = { Common: 5, Uncommon: 5, Rare: 6, UltraRare: 7,
+      Epic: 8, Legendary: 9, Mythic: 10, Doomed: 10 };
+    for (const [rarity, cap] of Object.entries(caps)) {
+      expect(temperingMaxLevel(rarity)).toBe(cap);
+      const costs = Array.from({ length: cap }, (_, n) => temperingCost(rarity, n));
+      expect(costs.map(c => rarity === 'Doomed' ? c.scrolls : c.ingots)).toEqual(Array.from({ length: cap }, (_, n) => n + 1));
+      expect(costs.reduce((sum, c) => sum + (rarity === 'Doomed' ? c.scrolls : c.ingots), 0)).toBe(cap * (cap + 1) / 2);
+      expect(costs.every(c => c.gold === 0)).toBe(true);
+    }
+    expect(MAX_TEMPERING_LEVEL).toBe(10);
   });
 
-  it('Doomed 系不耗普通钢锭，改为每级 1 熔铸符卷', () => {
-    expect(temperingCost('Doomed', 0)).toEqual({ ingots: 0, gold: 200, scrolls: 1 });
-    expect(temperingCost('Doomed', 9)).toEqual({ ingots: 0, gold: 2000, scrolls: 1 });
-  });
-
-  it('钢锭基数随稀有度阶梯递增', () => {
-    const ladder = ['Common', 'Uncommon', 'Rare', 'UltraRare', 'Epic', 'Legendary', 'Mythic'];
-    const bases = ladder.map((r) => temperingCost(r, 0).ingots);
-    for (let i = 1; i < bases.length; i++) expect(bases[i]).toBeGreaterThan(bases[i - 1]);
-  });
-});
-
-describe('词缀解锁档', () => {
-  it('普通武器 5/10/15/20 级解锁 4 条', () => {
-    expect(affixUnlockedCount('Rare', 0)).toBe(0);
-    expect(affixUnlockedCount('Rare', 4)).toBe(0);
-    expect(affixUnlockedCount('Rare', 5)).toBe(1);
-    expect(affixUnlockedCount('Rare', 15)).toBe(3);
-    expect(affixUnlockedCount('Rare', 20)).toBe(4);
-  });
-
-  it('Doomed 武器 4/8/12/16/20 级解锁 5 条', () => {
-    expect(affixUnlockedCount('Doomed', 4)).toBe(1);
-    expect(affixUnlockedCount('Doomed', 7)).toBe(1);
-    expect(affixUnlockedCount('Doomed', 8)).toBe(2);
-    expect(affixUnlockedCount('Doomed', 20)).toBe(5);
+  it('+6 起逐级解锁词缀，受稀有度上限约束', () => {
+    expect(affixUnlockLevels('Common')).toEqual([]);
+    expect(affixUnlockLevels('Rare')).toEqual([6]);
+    expect(affixUnlockLevels('Epic')).toEqual([6, 7, 8]);
+    expect(affixUnlockedCount('Rare', 5)).toBe(0);
+    expect(affixUnlockedCount('Rare', 6)).toBe(1);
+    expect(affixUnlockedCount('Doomed', 7)).toBe(2);
+    expect(affixUnlockedCount('Doomed', 10)).toBe(5);
   });
 });
 
@@ -59,22 +47,22 @@ describe('淬炼校验（issues 汇总风格）', () => {
 
   it('成功：返回新等级与实收消耗', () => {
     const r = temperWeapon({ ...base, currentLevel: 2 });
-    expect(r).toEqual({ ok: true, level: 3, cost: { ingots: 16, gold: 600, scrolls: 0 } });
+    expect(r).toEqual({ ok: true, level: 3, cost: { ingots: 3, gold: 0, scrolls: 0 } });
   });
 
   it('未拥有 / 已满级 → 汇总问题', () => {
-    const r = temperWeapon({ ...base, owned: false, currentLevel: MAX_TEMPERING_LEVEL });
+    const r = temperWeapon({ ...base, owned: false, currentLevel: temperingMaxLevel('Rare') });
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.issues.map((i) => i.code)).toEqual(['NOT_OWNED', 'MAX_LEVEL']);
     }
   });
 
-  it('材料不足 → 逐项列出缺口（钢锭/黄金）', () => {
-    const r = temperWeapon({ ...base, ingots: 3, gold: 100 });
+  it('材料不足 → 显示钢锭缺口', () => {
+    const r = temperWeapon({ ...base, ingots: 0, gold: 0 });
     expect(r.ok).toBe(false);
     if (!r.ok) {
-      expect(r.issues.map((i) => i.code)).toEqual(['MISSING_INGOTS', 'MISSING_GOLD']);
+      expect(r.issues.map((i) => i.code)).toEqual(['MISSING_INGOTS']);
     }
   });
 

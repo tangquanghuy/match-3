@@ -6,6 +6,8 @@ import { isFailure } from '../gateway';
 import { GIFT_GROUPS, GIFT_STARTER_ID, GIFT_TOTAL_GEMS, type GiftGroupId, type GiftMetric } from '../data/gifts';
 import { giftRows, type GiftRow } from '../systems/gifts';
 import { rarityNameByIndex } from '../data/rarity';
+import { INGOT_NAMES, type IngotKey } from '../data/materials';
+import { ingotArt, materialImg } from '../shell/materialArt';
 import { queueGiftReveal } from './chestsScreen';
 import { bottomNavHtml, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import { cssUrlVar, giftArt } from '../shell/artAssets';
@@ -133,6 +135,8 @@ export class GiftsScreen implements Screen {
       <span class="gift-currency gold" title="黄金 ×${fmt(gift.gold)}"><span data-icon="coin"></span><b>${fmt(gift.gold)}</b></span>
       <span class="gift-currency souls" title="灵魂 ×${fmt(gift.souls)}"><span data-icon="soul"></span><b>${fmt(gift.souls)}</b></span>
     </span>`;
+    const ingots = Object.entries(gift.mats?.ingots ?? {}).map(([key, amount]) =>
+      `<span class="gift-ingot" title="${INGOT_NAMES[key as IngotKey]} ×${fmt(amount ?? 0)}">${materialImg(ingotArt(key))}<b>${fmt(amount ?? 0)}</b></span>`).join('');
     const troop = gift.troop
       ? `<span class="gift-troopcard r${gift.troop}" title="随机${rarityNameByIndex(gift.troop)}部队"><i aria-hidden="true"></i><small>${rarityNameByIndex(gift.troop)}</small></span>` : '';
     const foot = status === 'ready'
@@ -144,7 +148,7 @@ export class GiftsScreen implements Screen {
           : `<span class="gift-foot progress"><i style="width:${pct}%"></i><b>${fmt(shown)} / ${fmt(gift.target)}</b></span>`;
     return `<article class="gift-card ${status}">
         <header class="gift-goal" title="${gift.label}"><b>${goal}</b><small>${gift.metric === 'always' ? gift.label : METRIC_NOUN[gift.metric]}</small></header>
-        <div class="gift-prize">${currencies}${troop}</div>
+        <div class="gift-prize">${currencies}${ingots ? `<span class="gift-ingots">${ingots}</span>` : ''}${troop}</div>
         ${foot}
       </article>`;
   }
@@ -163,7 +167,7 @@ export class GiftsScreen implements Screen {
         if (!this.mountedRoot) return;
         if (isFailure(result)) { toast(result.message); return; }
         if (result.cards.length) {
-          queueGiftReveal({ cards: result.cards, gems: result.gems, gold: result.gold, souls: result.souls, returnHash });
+          queueGiftReveal({ cards: result.cards, gems: result.gems, gold: result.gold, souls: result.souls, mats: result.mats, returnHash });
           ctx.navigate('#chests/gems');
           return;
         }

@@ -150,7 +150,7 @@ export function backfillWeeklyRewardMail(
     } else if (def.id === 'raidBoss') {
       for (let tier = 1; tier <= week.playRewards; tier++) {
         addCurrency(currencies, { glory: 30 + 20 * tier });
-        addMaterials(materials, { ingots: { epic: 2, ...(tier >= 3 ? { legendary: 1 } : {}) } });
+        addMaterials(materials, { ingots: { epic: 2, ...(tier >= 3 ? { mythic: 1 } : {}) } });
       }
       addMaterials(materials, { traitstones: {
         ...Object.fromEntries(Object.entries(eventArcaneBundle('raidBoss', EVENT_HIGH_TIER_REWARDS.raid.amount)).map(([key, amount]) => [key, amount * (week.eventData.arcaneRaidKills ?? 0)])),

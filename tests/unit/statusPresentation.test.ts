@@ -107,6 +107,8 @@ describe('拦截与移除的演出提示', () => {
     const label = (id: string) => statusBadge(id).label;
     expect(statusBlockedCue({ reason: 'immune', statusId: 'poison' }, label))
       .toMatchObject({ text: '免疫中毒', sfx: 'immune' });
+    expect(statusBlockedCue({ reason: 'lethal', statusId: 'lethal' }, label))
+      .toMatchObject({ text: '\u62b5\u6297', sfx: 'immune' });
     expect(statusBlockedCue({ reason: 'blessed', statusId: 'burning' }, label))
       .toMatchObject({ text: '赐福抵挡', sfx: 'immune' });
     expect(statusBlockedCue({ reason: 'submerged', statusId: 'submerged' }, label))

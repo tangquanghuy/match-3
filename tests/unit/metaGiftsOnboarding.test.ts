@@ -63,7 +63,7 @@ describe('馈赠里程碑', () => {
     const save = hydrateSave(raw);
     expect(save.onboarding.step).toBe('done');
     expect(save.onboarding.noviceSummonUsed).toBe(false);
-    expect(save.gifts).toEqual({ claimed: [], currencyBonusVersion: 2, eventWins: 0, towerBest: 0, invasionBattles: 0 });
+    expect(save.gifts).toEqual({ claimed: [], currencyBonusVersion: 2, materialBonusVersion: 1, eventWins: 0, towerBest: 0, invasionBattles: 0 });
   });
 
   it('旧档已领馈赠只补发一次新增黄金和灵魂', () => {

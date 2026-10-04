@@ -21,7 +21,7 @@ import { fail } from '../../types';
 import { pickEnemies, type EnemyTier } from '../encounter';
 import { SPECIAL_TUNING } from '../specialEncounters';
 import {
-  EVENT_BASE_LEVEL, addBanner, addMastery, addRules, buffSnapshot, injectTraits, int, isObj, pickN, rngOf,
+  EVENT_BASE_LEVEL, addBanner, addMastery, addRules, buffSnapshot, injectTraits, protectEventBoss, int, isObj, pickN, rngOf,
   type EventModeImpl, type ModeCtx,
 } from './common';
 
@@ -206,6 +206,11 @@ export const trialsMode: EventModeImpl<TrialsState> = {
     const t = trialOf(state, outcome.plan.source.kind === 'event' ? outcome.plan.source.choice : undefined);
     if (!t) return;
     const req = outcome.request;
+    if (t.def.id === 'giant' || t.def.id === 'behead') {
+      outcome.plan.enemies.forEach((enemy, i) => {
+        if (enemy.tier === 'boss') protectEventBoss(req.enemyTeam[i]);
+      });
+    }
     const isHero = (id: string): boolean => id.endsWith('-hero');
     const all = Object.values(BaseColor) as BaseColor[];
     // 本周词条

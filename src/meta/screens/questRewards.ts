@@ -1,15 +1,14 @@
 import { getTroopById } from '../../data/troops';
 import { EXPLORE_DROPS, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import {
-  kingdomBaseLevel,
   kingdomQuestRewardTroop,
   type KingdomStageMode,
 } from '../data/kingdoms';
-import { INGOT_KEYS, INGOT_NAMES, STONE_COLORS, stoneName } from '../data/materials';
+import { STONE_COLORS, stoneName } from '../data/materials';
 import type { KingdomState } from '../state/schema';
 import { kingdomStageCleared } from '../systems/kingdomFirstClear';
 import { kingdomBoostedStoneColors } from '../systems/explore';
-import { ingotArt, materialImg, stoneMarkup } from '../shell/materialArt';
+import { stoneMarkup } from '../shell/materialArt';
 
 function escapeAttr(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -34,15 +33,6 @@ function troopTile(kingdom: string, node: 4 | 8): string {
   return tile('troop', String(troop.id), `${troop.name} · 第 ${node} 关首次通关奖励`, symbol);
 }
 
-function ingotTile(kingdom: string): string {
-  // Keep the same index mapping as settlement.ts, including its final fallback.
-  const level = kingdomBaseLevel(kingdom);
-  const index = EXPLORE_DROPS.ingotTierByKingdomLevel.findIndex((cap) => level <= cap);
-  const key = INGOT_KEYS[index === -1 ? INGOT_KEYS.length - 2 : index]!;
-  const label = `${INGOT_NAMES[key]} · 胜利时 ${Math.round(EXPLORE_DROPS.ingotChance * 100)}% 概率掉落`;
-  return tile('ingot', key, label, `<span class="qloot-symbol ingot">${materialImg(ingotArt(key))}</span>`, key);
-}
-
 function stoneSymbol(color: string): string {
   return `<span class="qloot-symbol stone" data-tier="minor">${stoneMarkup('minor', color === 'neutral' ? 'blue' : color)}</span>`;
 }
@@ -64,11 +54,11 @@ export function questRewardsHtml(kingdom: string, mode: KingdomStageMode, node: 
       + (node === 4 || node === 8 ? troopTile(kingdom, node) : '')
       + (node === 8 ? currencyTile('key') : '') + gems;
   }
-  return ingotTile(kingdom) + STONE_COLORS.map(({ key }) => stoneTile(kingdom, key)).join('') + gems;
+  return STONE_COLORS.map(({ key }) => stoneTile(kingdom, key)).join('') + gems;
 }
 
 /** Compact tab artwork, reusing the same material silhouettes as reward tiles. */
 export function questModeLootHtml(kingdom: string, mode: KingdomStageMode): string {
   if (mode === 'normal') return troopTile(kingdom, 8) + currencyTile('key');
-  return ingotTile(kingdom) + tile('stone', 'minor', `初级特质石 · 每场额外抽取 ${EXPLORE_DROPS.extraBasicStoneRolls} 次初级或高级石；其中 75% 优先本王国旗帜加成色`, stoneSymbol('neutral'), 'minor');
+  return tile('stone', 'minor', `初级特质石 · 每场额外抽取 ${EXPLORE_DROPS.extraBasicStoneRolls} 次初级或高级石；其中 75% 优先本王国旗帜加成色`, stoneSymbol('neutral'), 'minor');
 }

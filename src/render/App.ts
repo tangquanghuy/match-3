@@ -1846,7 +1846,12 @@ export class App {
     const state = this.engine.getState();
     // Hit provenance fires inside the impact callback, not at projectile launch.
     if (ev.type !== 'skull-damage' && ev.type !== 'skill-damage' && ev.type !== 'attack-struggle') {
-      this.showTraitActivations(ev);
+      if (ev.type === 'status-blocked' && ev.reason === 'lethal') {
+        // Reuse the skull defense trait activation animation for lethal resistance.
+        for (const cue of ev.traitActivations ?? []) {
+          this.cardOfChar(cue.characterId)?.showTraitActivation(cue.traitId, '抵抗');
+        }
+      } else this.showTraitActivations(ev);
     }
     switch (ev.type) {
       case 'mana-gain': {
@@ -2136,6 +2141,7 @@ export class App {
         break;
       }
       case 'status-blocked': {
+        if (ev.reason === 'lethal') break; // Already rendered as a trait activation.
         // 免疫 / 赐福抵挡 / 潜水闪避 / 冰冻吞额外回合 / 沉默无法充能：
         // 光圈 + 飘字 + 轻提示音。同卡同原因短时间内只演一次（沉默会随每次同色匹配重复来）
         const card = this.cardOfChar(ev.targetId);

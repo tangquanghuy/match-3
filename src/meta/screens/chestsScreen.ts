@@ -9,7 +9,7 @@ import {
   type ChestLootRow,
 } from '../data/economy';
 import { GACHA_RULES } from '../data/gachaRules';
-import { INGOT_NAMES, stoneName, type IngotKey } from '../data/materials';
+import { INGOT_NAMES, stoneName, type IngotKey, type MaterialDelta } from '../data/materials';
 import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { isFailure } from '../gateway';
@@ -132,7 +132,7 @@ interface OpenSpec {
 
 /** 六枚开箱按钮的成交口径（数值全部来自 economy 单源） */
 /** 馈赠页领到部队卡后，借宝箱页的翻牌演出展示（奖励已入账）；关闭演出回到 returnHash */
-interface GiftReveal { cards: GachaCard[]; gems: number; gold: number; souls: number; returnHash: string }
+interface GiftReveal { cards: GachaCard[]; gems: number; gold: number; souls: number; mats: MaterialDelta; returnHash: string }
 let pendingGiftReveal: GiftReveal | null = null;
 export function queueGiftReveal(reveal: GiftReveal): void {
   pendingGiftReveal = reveal;
@@ -525,7 +525,7 @@ export class ChestsScreen implements Screen {
     $('#summonCounter').textContent = `0 / ${rewards.length}`;
     const extra = $('#summonExtra');
     if (extra) {
-      extra.textContent = `同时获得宝石 +${fmt(gift.gems)} · 黄金 +${fmt(gift.gold)} · 灵魂 +${fmt(gift.souls)}`;
+      extra.textContent = `同时获得宝石 +${fmt(gift.gems)} · 黄金 +${fmt(gift.gold)} · 灵魂 +${fmt(gift.souls)}${Object.entries(gift.mats.ingots ?? {}).map(([key, n]) => ` · ${INGOT_NAMES[key as IngotKey]} +${fmt(n ?? 0)}`).join('')}`;
       extra.hidden = false;
     }
     $('#summonSkip').hidden = false;

@@ -37,8 +37,27 @@ const saveWithTeam = () => {
 };
 
 describe('常驻活动与主题（data/events）', () => {
+
+  it('六家货架保留各自代币商品，锻材和特质石按活动定位分流', () => {
+    const goods = (type: keyof typeof EVENT_SHOP, id: string) => EVENT_SHOP[type].find(row => row.id === id)!;
+    expect(goods('invasion', 'invasion_major').mats?.ingots).toEqual({ epic: 2 });
+    expect(goods('invasion', 'invasion_scroll').mats?.ingots).toEqual({ ultraRare: 4 });
+    expect(goods('raidBoss', 'raid_epic').mats?.ingots).toEqual({ mythic: 1 });
+    expect(goods('raidBoss', 'raid_epic').stock).toBe(1);
+    expect(EVENT_SHOP.towerOfDoom.filter(row => row.mats?.forgeScrolls).length).toBe(2);
+    expect(goods('factionAssault', 'fa_scroll').mats?.ingots).toEqual({ common: 8 });
+    expect(goods('worldEvent', 'we_ingots').mats?.ingots).toEqual({ common: 10 });
+    expect(EVENT_SHOP.classTrials.every(row => !row.mats?.ingots)).toBe(true);
+    expect(goods('classTrials', 'ct_scroll').mats?.traitstones?.celestial).toBe(1);
+    expect(goods('classTrials', 'ct_runic').classXp).toBe(5000);
+    expect(goods('classTrials', 'ct_runic').stock).toBe(3);
+    expect(EVENT_TYPES.every(type => EVENT_SHOP[type.id].some(row => row.troopRole || row.classXp || row.mats?.forgeScrolls || row.mats?.ingots))).toBe(true);
+  });
+
   it('六种类型固定开放，单活动同周主题可复现', () => {
     expect(EVENT_TYPES).toHaveLength(6);
+    expect(EVENT_TYPES.find(type => type.id === 'raidBoss')?.brief).toMatch(/^主要产出：钢锭/);
+    expect(EVENT_TYPES.find(type => type.id === 'classTrials')?.brief).toMatch(/^主要产出：职业等级经验/);
     for (const def of EVENT_TYPES) {
       expect(eventThemeOf(def.id, WEEK)).toEqual(eventThemeOf(def.id, WEEK));
       expect(eventThemeOf(def.id, WEEK).type.id).toBe(def.id);
@@ -65,7 +84,7 @@ describe('常驻活动与主题（data/events）', () => {
         }
         for (const [key, n] of Object.entries(m.mats?.ingots ?? {})) {
           expect(n!).toBeGreaterThan(0);
-          expect(key).toMatch(/^(common|uncommon|rare|ultraRare|epic|legendary|mythic)$/);
+          expect(key).toMatch(/^(common|rare|ultraRare|epic|mythic)$/);
         }
       }
     }
@@ -149,6 +168,23 @@ describe('活动实例与出敌（systems/events）', () => {
 });
 
 describe('六活动页面', () => {
+  it('boss assault and ingot trial are separate routes with one fight each', () => {
+    const save = saveWithTeam();
+    const screen = new EventsScreen();
+    const ctx = { save: () => save } as ShellCtx;
+    const raid = screen.html(ctx, 'raidBoss');
+    expect(raid).toContain('href="#events/raidBoss/forge"');
+    expect([...raid.matchAll(/data-fight="([^"]+)"/g)].map(m => m[1])).toEqual(['raid']);
+    expect(raid).not.toContain('data-act="ingot-tier:');
+    const forge = screen.html(ctx, 'raidBoss/forge');
+    expect(forge).toContain('href="#events/raidBoss"');
+    expect([...forge.matchAll(/data-fight="([^"]+)"/g)].map(m => m[1])).toEqual(['ingot']);
+    expect(forge).toContain('class="rd-forge-range"');
+    expect(forge).toContain('max="12"');
+    expect([...forge.matchAll(/class="rd-forge-step"/g)]).toHaveLength(2);
+    expect(forge).not.toContain('class="rd-stage"');
+    expect(forge).not.toContain('class="rd-roster"');
+  });
   it('总览可进入六活动，六页均可出战，其他活动的领取状态不会误标', () => {
     const save = saveWithTeam();
     const week = weekStartOf(Date.now());
@@ -156,6 +192,16 @@ describe('六活动页面', () => {
     const ctx = { save: () => save } as ShellCtx;
     const screen = new EventsScreen();
     const overview = screen.html(ctx);
+    expect([...overview.matchAll(/<a class="ev-overview-main" href="#events\/([^"]+)"/g)].map(m => m[1]))
+      .toEqual(['raidBoss', 'classTrials', 'towerOfDoom', 'worldEvent', 'invasion', 'factionAssault']);
+    expect(overview).toContain('<div class="ev-overview-progress"><span>武器淬炼素材</span>');
+    expect(overview).toContain('<div class="ev-overview-progress"><span>职业等级加成</span>');
+    expect(screen.html(ctx, 'classTrials/rewards')).toContain('荣耀赏金');
+    const raid = screen.html(ctx, 'raidBoss');
+    expect(raid).toContain('\u989d\u5916\u6389\u843d\uff1a\u5b9d\u77f3\u3001\u85cf\u5b9d\u56fe');
+    expect(raid).not.toContain('rd-tired');
+    expect(raid).not.toContain('\u672c\u9636\u6bb5\u5df2\u75b2\u60eb');
+    expect(raid).not.toContain('\u5355\u573a\u6253\u6389');
     for (const { id } of EVENT_TYPES) {
       expect(overview).toContain(`href="#events/${id}"`);
       const page = screen.html(ctx, id);
@@ -216,20 +262,22 @@ describe('活动结算（applySettlement 事件分支）', () => {
 });
 
 describe('活动商店与代币（2026-09-19 追补）', () => {
-  it('货架数据合法：id 全局唯一、cost>0、限量≥1、奖励非空；每类 8 件限量商品与独立余印补给', () => {
+  it('Event shelves contain only finite, distinctive non-currency rewards', () => {
     const seen = new Set<string>();
+    const counts: Record<string, number> = { invasion: 7, raidBoss: 8, towerOfDoom: 7, factionAssault: 7, worldEvent: 6, classTrials: 6 };
     for (const [typeId, goods] of Object.entries(EVENT_SHOP)) {
-      expect(goods.filter(g => g.stock !== null), typeId).toHaveLength(9);
-      expect(goods.filter(g => g.stock === null), typeId).toHaveLength(1);
-      expect(goods.reduce((sum,g)=>sum+g.cost*(g.stock??0),0),typeId).toBeGreaterThan(360);
-      expect(goods.every(g => !g.gems),typeId).toBe(true);
+      expect(goods, typeId).toHaveLength(counts[typeId]);
+      expect(goods.reduce((sum,g)=>sum+g.cost*g.stock!,0),typeId).toBeGreaterThan(360);
       for (const g of goods) {
         expect(seen.has(g.id), g.id).toBe(false);
         seen.add(g.id);
         expect(g.cost).toBeGreaterThan(0);
-        expect(g.stock === null || g.stock >= 1).toBe(true);
+        expect(g.stock).not.toBeNull();
+        expect(g.stock!).toBeGreaterThanOrEqual(1);
+        expect(g.id).not.toMatch(/_surplus$/);
+        for (const key of ['gold', 'souls', 'goldKeys', 'glory'] as const) expect(g[key], g.id).toBeUndefined();
+        expect(g.gems).toBeUndefined();
         const hasReward =
-          (g.gold ?? 0) + (g.souls ?? 0) + (g.gems ?? 0) + (g.goldKeys ?? 0) + (g.glory ?? 0) > 0 ||
           Object.keys(g.mats?.ingots ?? {}).length + Object.keys(g.mats?.traitstones ?? {}).length > 0 ||
           (g.mats?.forgeScrolls ?? 0) > 0 || !!g.troopRole || (g.classXp ?? 0) > 0;
         expect(hasReward, g.id).toBe(true);
@@ -281,16 +329,15 @@ describe('活动商店与代币（2026-09-19 追补）', () => {
   it('购买：扣代币入素材、已购计数累加、限量售罄拒绝', () => {
     const s = saveWithTeam();
     ensureEventWeek(s, WEEK, TYPE).tokens = 100;
-    const unlimited = EVENT_SHOP[TYPE].find((g) => g.stock === null)!;
-    const limited = EVENT_SHOP[TYPE].find((g) => g.stock !== null && g.stock! >= 2)!;
+    const limited = EVENT_SHOP[TYPE].find((g) => g.stock !== null && g.stock >= 2)!;
 
-    const r1 = buyEventGoods(s, unlimited.id, WEEK, TYPE);
-    expect(r1).toMatchObject({ ok: true, tokensSpent: unlimited.cost });
-    expect(ensureEventWeek(s, WEEK, TYPE).bought[unlimited.id]).toBe(1);
+    const r1 = buyEventGoods(s, limited.id, WEEK, TYPE);
+    expect(r1).toMatchObject({ ok: true, tokensSpent: limited.cost });
+    expect(ensureEventWeek(s, WEEK, TYPE).bought[limited.id]).toBe(1);
 
     // 把限量货买到售罄
     const stock = limited.stock!;
-    for (let i = 0; i < stock; i++) {
+    for (let i = 1; i < stock; i++) {
       ensureEventWeek(s, WEEK, TYPE).tokens += limited.cost;
       const r = buyEventGoods(s, limited.id, WEEK, TYPE);
       expect(r.ok).toBe(true);

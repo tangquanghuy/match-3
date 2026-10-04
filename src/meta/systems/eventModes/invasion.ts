@@ -20,7 +20,7 @@ import { earn, earnMaterials } from '../wallet';
 import { repairLegacyRandomEnemyRoster, pickEnemies, type EnemyTier, type EncounterEnemy } from '../encounter';
 import { SPECIAL_INFO, applySpecialEncounter, specialEncounterPlan } from '../specialEncounters';
 import {
-  EVENT_BASE_LEVEL, EVENT_POINTS_CAP, addRules, buffSnapshot, injectTraits, int, isObj, pickN, rngOf, strArr,
+  EVENT_BASE_LEVEL, EVENT_POINTS_CAP, addRules, buffSnapshot, injectTraits, protectEventBoss, int, isObj, pickN, rngOf, strArr,
   type EventModeImpl, type EventProgressLine, type ModeCtx,
 } from './common';
 
@@ -222,6 +222,7 @@ export const invasionMode: EventModeImpl<InvasionState> = {
     }
     if (gates) for (const snap of req.playerTeam) buffSnapshot(snap, { armor: 8 });
     // 兵团特质 / 辎重队遭遇
+    if (squad.kind === 'warlord') protectEventBoss(req.enemyTeam[0]);
     if (squad.kind === 'caravan') applySpecialEncounter('gnomeParty', outcome);
     else injectTraits(req.enemyTeam, SQUAD_TRAITS[squad.kind] ?? []);
     if (squad.kind === 'shaman') addRules(outcome, { turnStart: [{ side: 'enemy', mana: { amount: 2 } }] });

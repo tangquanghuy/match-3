@@ -2,7 +2,7 @@ import { rollInvasionFrenzy } from '../../src/meta/data/invasionFrenzy';
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error Node-only audit; browser project omits Node type declarations.
 import { readFileSync } from 'node:fs';
-import { INVASION_RANKS, INVASION_RANK_GEMS_TOTAL, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../../src/meta/data/invasionRanks';
+import { INVASION_RANKS, INVASION_RANK_GEMS_TOTAL, INVASION_WEEKLY_VP_DECAY, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../../src/meta/data/invasionRanks';
 import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave } from '../../src/meta/state/save';
 import { MockGateway, memoryStorage, buildDemoSave, weekStartOf } from '../../src/meta/gateway';
@@ -38,11 +38,16 @@ describe('weekly VP ranks and claims', () => {
     const hydrated = hydrateSave(JSON.parse(JSON.stringify(s)));
     expect(claimInvasionRank(hydrated, 'rank-0').ok).toBe(false);
     ensureInvasionSeason(hydrated, WEEK + WEEK_MS, WEEK + WEEK_MS);
-    expect(hydrated.invasion.progressionVp).toBe(0);
+    expect(hydrated.invasion.progressionVp).toBe(5500);
+    expect(invasionRankAt(hydrated.invasion.progressionVp).id).toBe('rank-23');
+    expect(hydrated.invasion.league).toBe(7);
     expect(hydrated.invasion.claimedRanks).toHaveLength(0);
-    expect(claimInvasionRank(hydrated, 'rank-29').ok).toBe(false);
-    expect(claimInvasionRank(hydrated, 'rank-0').ok).toBe(true);
-    expect(hydrated.currencies.gems).toBe(s.currencies.gems + 100);
+    expect(claimInvasionRank(hydrated, 'rank-24').ok).toBe(false);
+    for (const rank of INVASION_RANKS.slice(0, 24)) {
+      expect(claimInvasionRank(hydrated, rank.id)).toEqual({ ok: true, gems: rank.gems });
+      expect(claimInvasionRank(hydrated, rank.id).ok).toBe(false);
+    }
+    expect(hydrated.currencies.gems).toBe(s.currencies.gems + INVASION_RANKS.slice(0, 24).reduce((sum, rank) => sum + rank.gems, 0));
   });
   it('future, unknown, and locked-mode claims give nothing', () => {
     const s = fresh(); const before = s.currencies.gems;
@@ -52,7 +57,7 @@ describe('weekly VP ranks and claims', () => {
     expect(claimInvasionRank(s, 'rank-0').ok).toBe(false);
     expect(s.currencies.gems).toBe(before);
   });
-  it('VP thresholds advance immediately, losses preserve progress, new weeks reset it', () => {
+  it('VP thresholds advance immediately, losses preserve progress, and new weeks decay it', () => {
     const s = fresh(); s.invasion.progressionVp = 199; s.invasion.vp = 10;
     const m = invasionCandidates(s, WEEK, WEEK)[0]!;
     expect(settleInvasionBattle(s, result(), m.id, WEEK, WEEK, WEEK).ok).toBe(true);
@@ -64,6 +69,39 @@ describe('weekly VP ranks and claims', () => {
     expect(s.invasion.progressionVp).toBe(earned);
     ensureInvasionSeason(s, WEEK + WEEK_MS, WEEK + WEEK_MS);
     expect(s.invasion.vp).toBe(0); expect(s.invasion.progressionVp).toBe(0); expect(s.invasion.league).toBe(0);
+  });
+  it('decays rank VP once per elapsed week, independently of weekly leaderboard VP', () => {
+    const s = fresh();
+    expect(INVASION_WEEKLY_VP_DECAY).toBe(2500);
+    s.invasion.progressionVp = 7500; s.invasion.vp = 9300; s.invasion.league = invasionRankAt(7500).league;
+    s.invasion.claimedRanks = INVASION_RANKS.map(rank => rank.id);
+    ensureInvasionSeason(s, WEEK + WEEK_MS, WEEK + WEEK_MS);
+    expect(s.invasion.progressionVp).toBe(5000);
+    expect(s.invasion.vp).toBe(0);
+    expect(invasionRankAt(s.invasion.progressionVp).id).toBe('rank-21');
+    expect(s.invasion.league).toBe(invasionRankAt(5000).league);
+    expect(s.invasion.claimedRanks).toEqual([]);
+    expect(claimInvasionRank(s, 'rank-21').ok).toBe(true);
+    expect(claimInvasionRank(s, 'rank-22').ok).toBe(false);
+    ensureInvasionSeason(s, WEEK + WEEK_MS, WEEK + WEEK_MS);
+    ensureInvasionSeason(s, WEEK, WEEK);
+    expect(s.invasion.progressionVp).toBe(5000);
+    expect(s.invasion.claimedRanks).toEqual(['rank-21']);
+    ensureInvasionSeason(s, WEEK + 3 * WEEK_MS, WEEK + 3 * WEEK_MS);
+    expect(s.invasion.progressionVp).toBe(0);
+    expect(s.invasion.claimedRanks).toEqual([]);
+    expect(s.invasion.league).toBe(0);
+  });
+  it('decays inactive players without a battle, preserving the reached rank and earlier claims', () => {
+    const s = fresh();
+    s.invasion.progressionVp = 2600; s.invasion.league = invasionRankAt(2600).league;
+    s.invasion.claimedRanks = ['rank-0', 'rank-1'];
+    ensureInvasionSeason(s, WEEK + WEEK_MS, WEEK + WEEK_MS);
+    expect(s.invasion.battles).toBe(0);
+    expect(s.invasion.progressionVp).toBe(100);
+    expect(invasionRankAt(s.invasion.progressionVp).id).toBe('rank-2');
+    for (const rank of INVASION_RANKS.slice(0, 3)) expect(claimInvasionRank(s, rank.id).ok).toBe(true);
+    expect(claimInvasionRank(s, 'rank-3').ok).toBe(false);
   });
   it('migrates legacy rank floors once; malformed fields are normalized and repeated loads stay stable', () => {
     const raw = JSON.parse(JSON.stringify(fresh()));

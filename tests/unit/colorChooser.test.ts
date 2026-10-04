@@ -90,6 +90,13 @@ describe('AiColorChooser（需求 2.3）', () => {
       ifCond: { kind: 'targetColor', color: 'CHOSEN' },
     }));
     expect(new AiColorChooser().choose(state, 0, undefined, grayKing)).toBe(BaseColor.Blue);
+    // Red covers the output slot, blue covers two non-damage slots and more board gems.
+    state.teams[PlayerSide.Right].characters = [
+      { ...makeChar(4), role: 'Striker', colors: [BaseColor.Red] },
+      { ...makeChar(5), role: 'Generator', colors: [BaseColor.Blue] },
+      { ...makeChar(6), role: 'Defender', colors: [BaseColor.Blue] },
+    ];
+    expect(new AiColorChooser().choose(state, 0, undefined, grayKing)).toBe(BaseColor.Red);
   });
 });
 

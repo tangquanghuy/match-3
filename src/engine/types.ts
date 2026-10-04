@@ -572,6 +572,8 @@ export interface Character {
   eventTarget?: 'boss' | 'tower';
   eventRarity?: number;
   id: number;
+  /** Official troop role (e.g. Generator / Striker); optional for old fixtures. */
+  role?: string | null;
   name: string;
   maxHp: number;
   hp: number;

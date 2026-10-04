@@ -22,6 +22,7 @@ import {
   isCurse, relicById, type RelicTraitRef, type TowerAffix, type TowerBlessingId, type TowerNodeKind, type TowerRuneId,
 } from '../../data/towerData';
 import '../../data/towerTraits';
+import '../../data/eventTraits';
 import { BaseColor } from '../../../engine/types';
 import type { SeededRNG } from '../../../engine/rng';
 import { fail, type MetaFailure } from '../../types';
@@ -31,7 +32,7 @@ import { pickEnemies, type EnemyTier } from '../encounter';
 import { activeTeam } from '../teamRules';
 import type { EventWeekState } from '../../state/schema';
 import {
-  EVENT_BASE_LEVEL, addBanner, addMastery, buffSnapshot, injectTraits, int, isObj, pickN, rngOf, str, strArr,
+  EVENT_BASE_LEVEL, addBanner, addMastery, buffSnapshot, injectTraits, protectEventBoss, int, isObj, pickN, rngOf, str, strArr,
   type EventActionResult, type EventModeImpl, type EventProgressLine, type ModeCtx, type ModePlan,
 } from './common';
 
@@ -758,6 +759,11 @@ export const towerMode: EventModeImpl<TowerState> = {
     const pos = parseNodeAction(outcome.plan.source.kind === 'event' ? outcome.plan.source.choice : undefined);
     const node = run && pos ? towerNodeAt(run, pos.row, pos.col) : undefined;
     if (!run || !node) return;
+    // Boss-tier enemies on tower boss nodes resist instant execution (normal hits still work).
+    if (node.kind === 'boss') outcome.request.enemyTeam.forEach((snap, i) => {
+      if (outcome.plan.enemies[i]?.tier !== 'boss') return;
+      protectEventBoss(snap);
+    });
     const week = ctx.week;
     if (!week.runTeam) {
       week.runTeam = outcome.request.playerTeam.map((snap) => ({ externalId: snap.externalId, hp: snap.stats.hp, maxHp: snap.stats.hp, defeated: false }));

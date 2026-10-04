@@ -77,6 +77,14 @@ function setup(damage = 3, region?: 'WintersReach', bannerBoost?: number) {
 }
 
 describe('BattleSession 生命周期（设计 §2）', () => {
+  it('passes troop roles from battle snapshots into the AI state', () => {
+    const request = makeRequest();
+    request.playerTeam[0]!.role = 'Generator';
+    request.enemyTeam[0]!.role = 'Striker';
+    const teams = mapRequestToTeams(request);
+    expect(teams.playerTeam.characters[0]?.role).toBe('Generator');
+    expect(teams.enemyTeam.characters[0]?.role).toBe('Striker');
+  });
   it('passes regional context into the engine and keeps ordinary battles regionless', () => {
     expect(setup(3, 'WintersReach').session.getState().region).toBe('WintersReach');
     expect(setup().session.getState().region).toBeUndefined();

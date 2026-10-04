@@ -71,7 +71,7 @@ export interface Materials {
   treasureMaps: number;
 }
 
-/** 武器淬炼等级：weaponId → level（0 起步，上限 20；WEAPON-FORGE-DESIGN §1 F2 接线） */
+/** 武器淬炼等级：weaponId → level（0 起步，各稀有度 +5…+10） */
 export type WeaponTempering = Record<string, number>;
 
 /** 单张卡（按 troopId 计）的养成记录 */
@@ -159,15 +159,15 @@ export interface InvasionState {
   defenseLog: import('../systems/invasionDefense').DefenseLog | null;
   /** Durable delivery queue; acknowledged only after shared storage accepts the result. */
   defenseOutbox: import('../systems/invasionDefense').DefenseReport[];
-  /** This week's earned VP; losses do not reduce it, weekly reset clears it. */
+  /** Rank VP: wins increase it, losses leave it intact; each elapsed week removes 2500 (floor 0). */
   progressionVp: number;
-  /** Reward IDs claimed this week; cleared on weekly reset. */
+  /** Reward IDs claimed this week; a new week reopens all ranks at/below the carried rank VP. */
   claimedRanks: string[];
   /** Persistent, free opponent reroll sequence. */
   refreshCount: number;
   /** 联赛 idx 0..9（0=青铜；INVASION_LEAGUES 词表） */
   league: number;
-  /** 本周 VP */
+  /** 本周榜单 VP；换周清零，与官阶 VP 分开 */
   vp: number;
   /** 当前赛季周锚点（weekStart；0 = 从未进入过入侵） */
   weekStart: number;
@@ -418,6 +418,8 @@ export interface GiftState {
   claimed: string[];
   /** 馈赠成长货币奖励版本；读档时按已领里程碑补发差额。 */
   currencyBonusVersion: number;
+  /** 已领馈赠钢锭补发版本。 */
+  materialBonusVersion: number;
   eventWins: number;
   towerBest: number;
   /** 累计入侵场数（入侵赛季每周清零 battles，这里不清） */
@@ -534,7 +536,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     onboarding: options.tutorial
       ? { step: 'battle', noviceSummonUsed: false }
       : { step: 'done', noviceSummonUsed: true },
-    gifts: { claimed: [], currencyBonusVersion: 2, eventWins: 0, towerBest: 0, invasionBattles: 0 },
+    gifts: { claimed: [], currencyBonusVersion: 2, materialBonusVersion: 1, eventWins: 0, towerBest: 0, invasionBattles: 0 },
     mailbox: { weeklyDoubleVersion: 1, classTrialXpVersion: 1, items: [] },
   };
   const starters = options.starterTroopIds ?? [];

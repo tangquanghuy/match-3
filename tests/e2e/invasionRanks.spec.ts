@@ -23,7 +23,7 @@ for (const width of [1600, 390, 320]) {
     await expect(page.locator('[data-claim-rank="rank-1"]')).toBeDisabled();
     const claim = page.locator('[data-claim-rank="rank-0"]');
     await expect(claim).toBeEnabled(); await claim.click(); await expect(claim).toHaveText('已领取');
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gems)).toBe(before.currencies.gems + 50);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gems)).toBe(before.currencies.gems + 100);
     await page.reload(); await expect(claim).toBeDisabled();
     for (let i=0; i<pageCount; i++) {
       await page.locator(`.inv-rank-pager a[href="#invasion/ranks/${i}"]`).click();
@@ -59,12 +59,13 @@ test('只有最高小阶显示周榜；直达地址也遵守门槛', async ({ pa
 });
 
 
-test('周刷新清空进度并重新开放领奖，对手卡显示固定三档 VP', async ({ page }) => {
+test('Weekly rank VP decays by 2500 while reached rewards reopen; opponents have fixed VP', async ({ page }) => {
   await page.goto('/game.html#invasion');
   for (const [i, card] of (await page.locator('.inv-rival').all()).entries()) {
     const multiplier = Number(await card.getAttribute('data-vp-multiplier'));
     await expect(card.locator('.inv-rival-expected b')).toHaveText(`+${[10,20,30][i]! * multiplier} VP`);
   }
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).invasion.weekStart)).toBeGreaterThan(0);
   const before = await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);
     s.invasion.weekStart -= 7 * 86400000;
@@ -73,16 +74,22 @@ test('周刷新清空进度并重新开放领奖，对手卡显示固定三档 V
     localStorage.setItem('gems.meta.save', JSON.stringify(s));
     return s.currencies.gems;
   });
-  await page.goto('/game.html#invasion/ranks');
   await page.reload();
-  await expect(page.locator('.inv-ranks-page header')).toContainText('每周 6,000 宝石');
-  await expect(page.locator('.inv-rank-overview')).toContainText('青铜 I');
-  await expect(page.locator('[data-claim-rank="rank-1"]')).toBeDisabled();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).invasion.progressionVp)).toBe(5500);
+  await page.goto('/game.html#invasion/ranks');
+  await expect(page.locator('.inv-ranks-page header')).toContainText('12,000');
+  await expect(page.locator('.inv-rank-overview')).toContainText('5,500 VP');
+  await expect(page.locator('[data-claim-rank="rank-1"]')).toBeEnabled();
+  await page.locator('.inv-rank-pager a[href="#invasion/ranks/4"]').click();
+  await expect(page.locator('[data-claim-rank="rank-24"]')).toBeDisabled();
+  await page.locator('.inv-rank-pager a[href="#invasion/ranks/0"]').click();
   const claim = page.locator('[data-claim-rank="rank-0"]');
   await expect(claim).toBeEnabled(); await claim.click(); await expect(claim).toBeDisabled();
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!));
-  expect(after.invasion.progressionVp).toBe(0);
+  expect(after.invasion.progressionVp).toBe(5500);
+  expect(after.invasion.vp).toBe(0);
+  expect(after.invasion.league).toBe(7);
   expect(after.invasion.claimedRanks).toEqual(['rank-0']);
-  expect(after.currencies.gems).toBe(before + 50);
+  expect(after.currencies.gems).toBe(before + 100);
   await page.reload(); await expect(claim).toBeDisabled();
 });

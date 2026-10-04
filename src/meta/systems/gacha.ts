@@ -82,7 +82,7 @@ export interface ChestItemDrop {
 /** 按开箱顺序逐张记录的结果：每箱恰好一项（部队或材料），演出按它发牌 */
 export type ChestDrop = { kind: 'troop'; card: GachaCard } | { kind: 'item'; item: ChestItemDrop };
 
-const INGOT_TIER: Record<string, 0 | 1 | 2> = { common: 0, rare: 0, ultraRare: 0, epic: 1, legendary: 2, mythic: 2 };
+const INGOT_TIER: Record<string, 0 | 1 | 2> = { common: 0, rare: 0, ultraRare: 0, epic: 1, mythic: 2 };
 const STONE_TIER: Record<string, 0 | 1 | 2> = { minor: 0, major: 1, runic: 1, arcane: 2, celestial: 2 };
 
 export interface GachaDrawResult {

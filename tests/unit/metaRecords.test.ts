@@ -35,6 +35,40 @@ class MemRepo implements SaveRepository {
   }
 }
 
+describe('restricted wishlist production records', () => {
+  it('migrates dormant records immediately without resetting pursuit progress', async () => {
+    const repo = new MemRepo();
+    const save = buildDemoSave(NOW);
+    save.gachaWishlist = { troopIds: [7736, 6169, 6529],
+      pursuit: { targetId: 7736, progress: 81, completed: 1, limit: 250 } };
+    repo.records = saveToRecords(save);
+    const host = new MetaHost(repo, env, { fresh: 'new' });
+    const loaded = await host.load({ preservePendingBattle: true });
+    expect(loaded.save.gachaWishlist).toEqual({ troopIds: [6169],
+      pursuit: { targetId: 6169, progress: 81, completed: 1, limit: 250 } });
+    expect(loaded.save.revision).toBe(save.revision + 1);
+    expect(repo.batches).toHaveLength(1);
+    expect([...repo.batches[0]!.set.keys()].sort()).toEqual(['gachaWishlist', 'meta']);
+    await host.removeBlockedWishlist();
+    expect(repo.batches).toHaveLength(1);
+  });
+
+  it('cleans a loaded actor in one serialized revision and is idempotent', async () => {
+    const repo = new MemRepo();
+    const host = new MetaHost(repo, env, { fresh: 'new' });
+    const loaded = await host.load({ preservePendingBattle: true });
+    const original = loaded.save.revision;
+    loaded.save.gachaWishlist.troopIds = [6529, 6169];
+    loaded.save.gachaWishlist.pursuit.targetId = 6529;
+    await host.removeBlockedWishlist();
+    expect((await host.load({ preservePendingBattle: true })).save.gachaWishlist)
+      .toMatchObject({ troopIds: [6169], pursuit: { targetId: 6169 } });
+    expect((await host.load({ preservePendingBattle: true })).save.revision).toBe(original + 1);
+    await host.removeBlockedWishlist();
+    expect((await host.load({ preservePendingBattle: true })).save.revision).toBe(original + 1);
+  });
+});
+
 function manualScheduler() {
   const queue: (() => void)[] = [];
   return {

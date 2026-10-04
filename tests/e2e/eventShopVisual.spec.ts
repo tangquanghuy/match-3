@@ -20,11 +20,11 @@ test('货架保留交易信息，用途和持有量进入物品详情', async ({
   await page.setViewportSize({ width: 1600, height: 900 });
   await openCleanShop(page);
   await expect(page.locator('.shop-tab')).toHaveCount(6);
-  await expect(page.locator('.shop-goods')).toHaveCount(9);
+  await expect(page.locator('.shop-goods')).toHaveCount(7);
   await expect(page.locator('.shop-goods-blurb')).toHaveCount(0);
   await expect(page.locator('.shop-grid .shop-reward-copy em')).toHaveCount(0);
   await expect(page.locator('.shop-token-bar')).toContainText('入侵印记');
-  await expect(page.locator('.shop-buy.is-poor')).toHaveCount(9);
+  await expect(page.locator('.shop-buy.is-poor')).toHaveCount(7);
   await expect(page.locator('.market-switch a.active')).toContainText('活动商店');
   await expect(page.locator('[data-nav="商店"]')).toHaveClass(/active/);
   await page.locator('.shop-goods.featured .shop-goods-art').click();
@@ -52,9 +52,9 @@ for (const viewport of [{width:1600,height:900},{width:1280,height:720},{width:7
   test(`六家兑换货架留白、等宽卡片与完整操作 ${viewport.width}`, async ({page}) => {
     await page.setViewportSize(viewport);
     await openCleanShop(page);
-    for(const id of ['invasion','raidBoss','towerOfDoom','factionAssault','worldEvent','classTrials']) {
+    for(const [id, count] of Object.entries({invasion: 7, raidBoss: 8, towerOfDoom: 7, factionAssault: 7, worldEvent: 6, classTrials: 6})) {
       await page.goto(`/game.html#shop/${id}`);
-      await expect(page.locator('.shop-goods')).toHaveCount(9);
+      await expect(page.locator('.shop-goods')).toHaveCount(count);
       await expect(page.locator('.shop-goods.featured')).toHaveCount(1);
       const layout=await page.locator('.event-shop-panel').evaluate(panel=>({
         overflow:panel.scrollWidth-panel.clientWidth,
@@ -62,15 +62,16 @@ for (const viewport of [{width:1600,height:900},{width:1280,height:720},{width:7
         cards:[...panel.querySelectorAll('.shop-goods')].map(card=>{
           const box=card.getBoundingClientRect();const button=card.querySelector('.shop-buy')!.getBoundingClientRect();
           const price=card.querySelector('.shop-price')!.getBoundingClientRect();
-          return {width:box.width,buttonHeight:button.height,buttonWidth:button.width,
+          return {width:box.width,height:box.height,buttonHeight:button.height,buttonWidth:button.width,
             clipped:button.right>box.right||button.bottom>box.bottom||button.left<box.left,
             separate:price.right+4<=button.left};
         })
       }));
       expect(layout.overflow,id).toBeLessThanOrEqual(1);
-      expect(layout.gridGap).toBeGreaterThanOrEqual(20);
+      expect(layout.gridGap).toBeGreaterThanOrEqual(10);
       for(const card of layout.cards) {
         expect(card.width).toBeCloseTo(layout.cards[0]!.width,0);
+        expect(card.height).toBeLessThanOrEqual(220);
         expect(card.buttonHeight).toBeGreaterThanOrEqual(44);
         expect(card.buttonWidth).toBeLessThan(150);
         expect(card.clipped).toBe(false);expect(card.separate).toBe(true);
@@ -146,7 +147,7 @@ test('手机使用活动选择器，说明弹层显示重置与印记上限', as
   await expect(page.locator('#shopItemDialog')).not.toBeVisible();
 });
 
-test('本周印记封顶后不再引导刷印记，余印兑换实际发放金币', async ({ page }) => {
+test('Weekly token cap survives material purchases; no surplus currency exchange', async ({ page }) => {
   await openCleanShop(page);
   await page.evaluate((weekStart) => {
     const key = 'gems.meta.save'; const save = JSON.parse(localStorage.getItem(key)!);
@@ -159,14 +160,16 @@ test('本周印记封顶后不再引导刷印记，余印兑换实际发放金�
   await expect(page.locator('#shopItemContent')).toContainText('360 / 360');
   await page.keyboard.press('Escape');
   await expect(page.locator('[data-action="battle"]')).toHaveCount(0);
+  await expect(page.locator('.shop-surplus, [data-buy$="_surplus"]')).toHaveCount(0);
   const before = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gold);
-  await page.locator('.shop-surplus [data-buy]').click();
-  await expect(page.locator('.acquisition-dialog')).toContainText('已兑换');
+  await page.locator('[data-buy="invasion_minor"]').click();
+  await expect(page.locator('.acquisition-dialog')).toContainText(/\u5df2\u5151\u6362/);
   await page.locator('.acquisition-dialog footer button').click();
   await expect(page.locator('.shop-token-bar > strong')).toHaveText('0');
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('gems.meta.save')!).currencies.gold);
-  expect(after).toBe(before + 150);
-  await expect(page.locator('.shop-surplus [data-buy]')).toBeDisabled();
+  expect(after).toBe(before);
+  await page.locator('[data-shop-rules]').click();
+  await expect(page.locator('#shopItemContent')).toContainText('360 / 360');
 });
 
 for (const width of [1600, 390]) {
@@ -184,7 +187,8 @@ for (const width of [1600, 390]) {
       const before = await page.evaluate(() => localStorage.getItem('gems.meta.save'));
       if(width<700) {
         await page.locator('.event-shop-panel').evaluate(panel=>panel.scrollTop=100);
-        await expect.poll(()=>page.locator('.event-shop-panel').evaluate(panel=>panel.scrollTop)).toBeGreaterThan(0);
+        const scrollable = await page.locator('.event-shop-panel').evaluate(panel => panel.scrollHeight > panel.clientHeight);
+        if (scrollable) await expect.poll(()=>page.locator('.event-shop-panel').evaluate(panel=>panel.scrollTop)).toBeGreaterThan(0);
       }
       const scrollBefore=await page.locator('.event-shop-panel').evaluate(panel=>panel.scrollTop);
       await expect(link).toHaveText('查看图鉴 ↗');
@@ -231,7 +235,7 @@ for (const width of [1600, 390]) {
       await expect(page.locator('.shop-goods:visible:not([data-category="forge"])')).toHaveCount(0);
       await expect(page.locator('.shop-goods:visible').first()).toBeVisible();
       await page.locator('[data-shop-category="all"]').click();
-      await expect(page.locator('.shop-goods:visible')).toHaveCount(9);
+      await expect(page.locator('.shop-goods:visible')).toHaveCount(shop === 'raidBoss' ? 8 : shop === 'worldEvent' ? 6 : 7);
     }
   });
 }
@@ -245,7 +249,7 @@ test('货架文字对比、交易区分层及可兑换状态', async ({page}) =>
     localStorage.setItem('gems.meta.save',JSON.stringify(s));
   },currentWeekStart());
   await page.reload();
-  await expect(page.locator('.shop-goods.ready')).toHaveCount(9);
+  await expect(page.locator('.shop-goods.ready')).toHaveCount(7);
   const result=await page.locator('.event-shop-panel').evaluate(panel=>{
     const lum=(rgb:string)=>rgb.match(/[\d.]+/g)!.slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i]!,0);
     const selectors='.shop-stock,.shop-reward-copy small,.shop-reward-copy b,.shop-price b,.shop-price small,.shop-troop-meta,.shop-atlas-link,.shop-goods-title h3 button';

@@ -89,6 +89,7 @@ describe('周常奖励账本与迁移', () => {
       `weekly-double:invasion:${WEEK}`,
     ].sort());
     expect(migrateSave(JSON.parse(JSON.stringify(loaded))).currencies).toEqual(loaded.currencies);
+    expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toMatchObject([{ mats: { ingots: { epic: 3 } } }]);
     expect(claimEventWeeklyGems(loaded, WEEK, 'invasion')).toEqual([]);
   });
   it('六轨7200+共享3600+守土160，且同一周奖励领取幂等', () => {
@@ -120,14 +121,14 @@ describe('周常奖励账本与迁移', () => {
     expect(s.currencies.gems).toBe(4800);
     expect(eventWeeklySummary(s, WEEK).earned).toBe(3600);
   });
-  it('旧档只补宝石差额，不重复发已领取材料，不丢购买记录', () => {
+  it('旧档补发新周胜场钢锭和宝石差额，不重发已领取里程碑材料，不丢购买记录', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'invasion');
     w.eventData = {}; w.points = 2200; w.claimed = [0, 1, 2, 3, 4, 5]; w.wins = 30;
     w.bought.invasion_celestial = 1; s.currencies.gems = 60;
     const before = structuredClone(s.materials);
     const out = battle(s, 'invasion'); settle(s, out, result(out, false));
     expect(s.currencies.gems).toBe(4800);
-    expect(s.materials).toEqual(before);
+    expect(s.materials).toEqual({ ...before, ingots: { ...before.ingots, epic: 26 } });
     expect(w.bought.invasion_celestial).toBe(1);
     expect(claimEventWeeklyGems(s, WEEK, 'invasion')).toEqual([]);
   });
@@ -151,18 +152,24 @@ describe('周常奖励账本与迁移', () => {
     settle(old, oldBattle, result(oldBattle), WEEK + WEEK_MS);
     expect(old.currencies.gems).toBe(0);
   });
-  it('印记累计周上限360，消费后也不恢复额度，限量材料与余印金币分开', () => {
+  it('Capped weekly tokens do not refresh after buying materials; no currency exchange', () => {
     const s = fresh(); const w = ensureEventWeek(s, WEEK, 'invasion');
     w.tokensEarned = 355; w.tokens = 100;
     settle(s, battle(s, 'invasion'));
     expect(w.tokensEarned).toBe(360); expect(w.tokens).toBe(105);
-    const sink = EVENT_SHOP.invasion.find(g => g.id.endsWith('_surplus'))!;
     const gold = s.currencies.gold;
-    expect(buyEventGoods(s, sink.id, WEEK, 'invasion').ok).toBe(true);
-    expect(s.currencies.gold).toBe(gold + 150);
-    settle(s, battle(s, 'invasion')); expect(w.tokens).toBe(95);
+    expect(buyEventGoods(s, 'invasion_minor', WEEK, 'invasion').ok).toBe(true);
+    expect(w.tokens).toBe(95);
+    expect(s.currencies.gold).toBe(gold);
+    settle(s, battle(s, 'invasion'));
+    expect(w.tokensEarned).toBe(360); expect(w.tokens).toBe(95);
     for (const rows of Object.values(EVENT_SHOP)) for (const row of rows) {
-      if (row.mats || row.classXp || row.troopRole) expect(row.stock).not.toBeNull();
+      expect(row.id).not.toMatch(/_surplus$/);
+      expect(row).not.toHaveProperty('gold');
+      expect(row).not.toHaveProperty('goldKeys');
+      expect(row).not.toHaveProperty('glory');
+      expect(row).not.toHaveProperty('souls');
+      expect(row.stock).not.toBeNull();
     }
   });
 });

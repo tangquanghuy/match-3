@@ -11,7 +11,7 @@
  * 结算时机由 TurnEngine 在固定时机（对即将行动方角色）调用 tickStatuses，保证确定性（需求 9.4）。
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isImmuneToStatus, passivesOf, traitActivations } from '../../traits';
+import { isImmuneToStatus, passivesOf, traitActivations, getTrait } from '../../traits';
 import { applyTransformTemplate } from './summon';
 import type { SummonTemplate } from './summon';
 // 治疗修正定义在 engine/healing.ts（特质模块也要用，放这里会形成循环 import）；
@@ -261,6 +261,14 @@ export function isCursed(char: Character): boolean {
 /** These protections remain active even while cursed or stunned. */
 export function hasLethalImmunity(char: Character): boolean {
   return !!char.traitIds?.some((id) => id === 'invulnerable' || id === 'indestructible');
+}
+
+/** Shared instant-death immunity cue (same portrait animation as defensive traits). */
+export function lethalResistanceEvent(char: Character): GameEvent {
+  const code = char.traitIds?.includes('invulnerable') ? 'invulnerable' : 'indestructible';
+  return { type: 'status-blocked', targetId: char.id, statusId: 'lethal', reason: 'lethal',
+    traitActivations: [{ characterId: char.id, traitId: code,
+      name: char.traitNames?.[code] ?? getTrait(code)?.name ?? '\u62b5\u6297' }] };
 }
 
 /** Mana Drain/Steal are blocked by Blessed, Mana Shield and Invulnerable.
@@ -547,6 +555,10 @@ export function tickStatuses(
       continue;
     }
     if (DEATH_MARK_STATUS_IDS.has(s.id) && rng && !char.defeated && rng.next() < 0.1) {
+      if (hasLethalImmunity(char)) {
+        events.push(lethalResistanceEvent(char));
+        continue;
+      }
       char.hp = 0;
       char.defeated = true;
       events.push({ type: 'status-tick', targetId: char.id, statusId: s.id });

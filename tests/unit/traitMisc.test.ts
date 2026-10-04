@@ -128,6 +128,19 @@ describe('编译正确性（新键 → 定义/resolvePassives 产物）', () => 
 // applyBigMatchTriggers 纯函数层
 // ============================================================
 
+describe('instant-death trait integration', () => {
+  it.each(['invulnerable', 'indestructible'])('match kill is resisted by %s', code => {
+    const target = makeChar(4, { traitIds: [code], armor: 25 });
+    const { engine } = buildWith4Red([makeChar(0)], [target, makeChar(5)]);
+    const kill = (engine as unknown as { traitKill: (victim: Character) => GameEvent[] }).traitKill;
+    expect(kill(target)).toContainEqual(expect.objectContaining({
+      type: 'status-blocked', reason: 'lethal', targetId: target.id,
+      traitActivations: [expect.objectContaining({ traitId: code })],
+    }));
+    expect(target).toMatchObject({ hp: 50, armor: 25, defeated: false });
+  });
+});
+
 describe('applyBigMatchTriggers：配对转换（trascend）', () => {
   it('生命 10 → 扣 2 加魔法 2（buff 事件 hp -2 / magic +2）', () => {
     const holder = makeChar(0, { traitIds: ['trascend'], hp: 10, magic: 8 });

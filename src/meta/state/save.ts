@@ -20,6 +20,9 @@ import { hydrateCharacter } from './character';
 import { META_SAVE_VERSION, newSave, TREASURE_HUNT_DAILY_CAP, type EventShopState, type EventWeekState, type GachaLogEntry, type InvasionState, type KingdomState, type MetaSave, type PendingBattle, type TeamMember, type TeamPreset, type TroopRecord, type TreasureHuntDailyCap } from './schema';
 import { EVENT_MILESTONES, EVENT_MILESTONE_CURRENCY_BONUS, EVENT_SHARED_GOALS, EVENT_SHOP, EVENT_TYPES, EVENT_WEEKLY_PLAY_REWARD_CAP, type EventTypeId } from '../data/events';
 import { GIFTS, GIFT_STARTER_ID } from '../data/gifts';
+import { temperingMaxLevel } from '../systems/forge';
+import { anyWeaponById } from '../data/weaponCatalog';
+import { weekStartOf } from '../gateway/clock';
 import { EXPLORE_MAX_TIER, KINGDOM_ORDER } from '../data/kingdoms';
 import { STARTER_CLASS_ID } from '../data/classes';
 import { GACHA_LOG_CAP } from './schema';
@@ -242,7 +245,10 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     if (isObject(raw.materials.ingots)) {
       for (const [key, value] of Object.entries(raw.materials.ingots)) {
         const n = num(value, 0, 0);
-        if (n > 0) materials.ingots[key] = n;
+        if (n > 0) {
+          const normalized = key === 'uncommon' ? 'common' : key === 'legendary' ? 'mythic' : key;
+          materials.ingots[normalized] = (materials.ingots[normalized] ?? 0) + n;
+        }
       }
     }
     if (isObject(raw.materials.traitstones)) {
@@ -258,11 +264,12 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
   const treasureHunt = huntState(raw.treasureHunt);
   const treasureHuntDaily = huntDailyCap(raw.treasureHuntDaily);
 
-  // —— 武器淬炼等级（WEAPON-FORGE-DESIGN F2）：weaponId → 0..20 ——
+  // —— 武器淬炼等级：旧 +20 存档归入各稀有度上限，不删除已有武器 ——
   const weaponTempering: Record<string, number> = {};
   if (isObject(raw.weaponTempering)) {
     for (const [key, value] of Object.entries(raw.weaponTempering)) {
-      const n = num(value, 0, 0, 20);
+      const cap = temperingMaxLevel(anyWeaponById(key)?.rarity ?? 'Mythic');
+      const n = num(value, 0, 0, cap);
       if (n > 0) weaponTempering[key] = n;
     }
   }
@@ -493,7 +500,26 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     }
   }
 
+  // 本周已领取的旧版远征节点，读档时补发一次钢锭；过期周不追溯，避免跨周重复。
+  const sharedWeek = eventWeeks.invasion;
+  if (sharedWeek?.weekStart === weekStartOf(now)) EVENT_SHARED_GOALS.forEach((goal, index) => {
+    if (sharedWeek.eventData[`sharedClaim${index}`] !== 1 || sharedWeek.eventData[`sharedIngotsPaid${index}`] === 1) return;
+    materials.ingots.epic = (materials.ingots.epic ?? 0) + goal.epicIngots;
+    sharedWeek.eventData[`sharedIngotsPaid${index}`] = 1;
+  });
+
   const gifts = hydrateGifts(raw.gifts, eventWeeks, invasion);
+  if (gifts.materialBonusVersion < 1) {
+    const claimed = new Set(gifts.claimed);
+    for (const gift of GIFTS) {
+      if (!claimed.has(gift.id)) continue;
+      for (const [key, amount] of Object.entries(gift.mats?.ingots ?? {})) {
+        const normalized = key === 'uncommon' ? 'common' : key === 'legendary' ? 'mythic' : key;
+        materials.ingots[normalized] = (materials.ingots[normalized] ?? 0) + (amount ?? 0);
+      }
+    }
+    gifts.materialBonusVersion = 1;
+  }
   if (gifts.currencyBonusVersion < 2) {
     const claimed = new Set(gifts.claimed);
     for (const gift of GIFTS) {
@@ -566,7 +592,7 @@ export function hydrateSave(raw: Record<string, unknown>, now = 0): MetaSave {
     dailyFirstWinAt: resetFirstWin ? 0 : claimedFirstWinAt,
     dailyFirstWinRewardVersion: 1,
     gachaLog,
-    gachaWishlist: hydrateWishlist(raw.gachaWishlist),
+    gachaWishlist: hydrateWishlist(raw.gachaWishlist, id => !!(collectionTruth ?? collection)[String(id)]),
     materials,
     materialsUnread: typeof raw.materialsUnread === 'boolean' ? raw.materialsUnread : false,
     materialShop: {
@@ -660,11 +686,12 @@ function hydrateGifts(raw: unknown, eventWeeks: MetaSave['eventWeeks'], invasion
   const weekTower = eventWeeks.towerOfDoom?.eventData.floorBest ?? 0;
   // 旧档没有累计入侵场数：本周场数或打过赛季就至少算 1 场
   const knownInvasions = Math.max(invasion.battles, invasion.seasonsPlayed > 0 ? 1 : 0);
-  if (!isObject(raw)) return { claimed: [], currencyBonusVersion: 2, eventWins: weekWins, towerBest: weekTower, invasionBattles: knownInvasions };
+  if (!isObject(raw)) return { claimed: [], currencyBonusVersion: 2, materialBonusVersion: 1, eventWins: weekWins, towerBest: weekTower, invasionBattles: knownInvasions };
   const claimed = Array.isArray(raw.claimed) ? [...new Set(raw.claimed.filter((id): id is string => typeof id === 'string'))] : [];
   return {
     claimed,
     currencyBonusVersion: raw.currencyBonusVersion === 2 ? 2 : raw.currencyBonusGranted === true ? 1 : 0,
+    materialBonusVersion: raw.materialBonusVersion === 1 ? 1 : 0,
     eventWins: Math.max(num(raw.eventWins, 0, 0), weekWins),
     towerBest: Math.max(num(raw.towerBest, 0, 0), weekTower),
     invasionBattles: Math.max(num(raw.invasionBattles, 0, 0), knownInvasions),

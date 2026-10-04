@@ -93,7 +93,7 @@ export function buildDemoSave(now: number): MetaSave {
 
   // —— 素材库存（素材批演示口径）：钢锭/符卷/特质石铺到「淬炼与特质解锁都能试一手」 ——
   earnMaterials(save, {
-    ingots: { common: 24, rare: 14, ultraRare: 8, epic: 4, legendary: 2 },
+    ingots: { common: 24, rare: 14, ultraRare: 8, epic: 4, mythic: 2 },
     forgeScrolls: 2,
     traitstones: {
       'minor:red': 10, 'minor:blue': 8, 'minor:green': 8, 'minor:yellow': 6, 'minor:purple': 5, 'minor:brown': 6,

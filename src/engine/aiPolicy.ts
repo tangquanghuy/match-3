@@ -1,7 +1,12 @@
 import { BoardModel } from './BoardModel';
+import { ALL_BASE_COLORS, colorGem, isSameMatchType, skullGem } from './types';
+import { AiColorChooser } from './skills/colorChooser';
+import { choiceRuleOf } from './skills/gowChoiceRules';
+import { sameGemType, transformOutput } from './skills/gemChoiceScore';
 import { MatchResolver } from './MatchResolver';
 import type { MatchGroup } from './MatchResolver';
 import { ManaDistributor } from './ManaDistributor';
+import { MAX_ACTIVE_TEAM_SIZE } from './teamRoster';
 import { bigTierOf } from './comboBias';
 import { canCastSkill, canGainMana } from './skills/effects/status';
 import { skillChoices, selectSkillBranch } from './skills/branchChooser';
@@ -22,8 +27,9 @@ import type { SeededRNG } from './rng';
  * 优先级（用户裁定 2026-09-28）：
  *   1. 能打出 4 连及以上 / L / T 的交换（争额外回合）。5 连、L/T 高于普通 4 连；
  *      同档比消除格数，再比法力有用度；
- *   2. 施放技能：己方按队伍顺序第一个引擎会受理的角色（存活、满法力、未沉默、
- *      未用尽「一场一次」，且技能的分支/手动选目标有合法候选）；
+ *   Special case: cast WangFeng first when a summon slot is open.
+ *   2. Cast a ready damage dealer before an earlier mana generator; otherwise use team order.
+ *      Defer deterministic conversions that gift an opponent a big swap without a big match or extra turn.
  *   3. 骷髅匹配（骷髅越多越好）；
  *   4. 法力有用度最高的颜色匹配（按己方存活未满角色的剩余法力缺口加权）；
  *   5. 任意合法交换。
@@ -65,6 +71,8 @@ export interface SwapEvaluation {
 }
 
 const resolver = new MatchResolver();
+// The community troop WangFeng's spell (see WANGFENG_SPELL_ID in communityTroops).
+const WANGFENG_SKILL_ID = '20013';
 
 /**
  * 列出并评估某方视角下的全部合法交换（只试右/下相邻对，覆盖所有相邻对）。
@@ -96,25 +104,107 @@ export function hasBigMatchSwap(state: GameState, side: PlayerSide): boolean {
   return evaluateSwaps(state, side).some((s) => s.bigTier > 0);
 }
 
-/**
- * 己方按队伍顺序第一个可被引擎受理的施法者；没有则 null。
- * 复刻 TurnEngine.castSkillAction 的前置校验（不消耗随机数、不改状态）。
- */
+/** WangFeng's summon takes precedence while a field slot is available. */
+function readyWangfengWithOpenSlot(
+  state: GameState, side: PlayerSide,
+  registry?: Pick<ExtensionRegistry, 'prototypes' | 'skills'>,
+): Character | null {
+  if (state.state !== MatchState.AwaitingInput || state.activePlayer !== side) return null;
+  const team = state.teams[side].characters;
+  if (team.length >= MAX_ACTIVE_TEAM_SIZE) return null;
+  return team.find(ch => ch.skillId === WANGFENG_SKILL_ID && engineWouldAcceptCast(state, ch, registry)) ?? null;
+}
+
+/** Return the first safe caster, deferring a generator for a ready Striker. */
 export function firstCastableCharacter(
   state: GameState,
   side: PlayerSide,
   registry?: Pick<ExtensionRegistry, 'prototypes' | 'skills'>,
 ): Character | null {
   if (state.state !== MatchState.AwaitingInput || state.activePlayer !== side) return null;
-  for (const ch of state.teams[side].characters) {
-    if (engineWouldAcceptCast(state, ch, registry)) return ch;
+  const summon = readyWangfengWithOpenSlot(state, side, registry);
+  if (summon) return summon;
+  const team = state.teams[side].characters;
+  const castable = team.filter(ch => engineWouldAcceptCast(state, ch, registry)
+    && !giftsOpponentBigMatch(state, ch, registry));
+  // A generator should not monopolize the team's mana when a damage dealer is ready.
+  const damageReady = castable.find(ch => ch.role === 'Striker' || ch.role === '\u8f93\u51fa');
+  if (damageReady) {
+    const first = castable[0];
+    if (first?.role === 'Generator' || first?.role === '\u4f9b\u9b54') return damageReady;
   }
-  return null;
+  return castable[0] ?? null;
 }
 
-/** 按优先级给出一次行动；无合法交换且无可施法角色时返回 null（引擎会自行洗牌兜底） */
+/** Skip a deterministic conversion that creates an opponent 4+/L/T move without a big match or extra turn. */
+function giftsOpponentBigMatch(
+  state: GameState, caster: Character,
+  registry?: Pick<ExtensionRegistry, 'prototypes' | 'skills'>,
+): boolean {
+  if (!registry || registry.skills.has(caster.skillId)) return false;
+  let proto = registry.prototypes.get(caster.skillId);
+  if (!proto) return false;
+  const choices = skillChoices(proto);
+  if (choices) {
+    const selected = selectSkillBranch(proto, choices.labels.length ? 0 : null);
+    if (!selected) return false;
+    proto = selected;
+  }
+  if (proto.segments.some(seg => seg.kind === 'extraTurn' && !seg.ifCond
+    && !seg.ifTargetDied && (seg.chance === undefined || seg.chance >= 1) && !seg.chanceBoost)) return false;
+  const transforms = proto.segments.filter(seg => seg.kind === 'gem' && seg.params.op === 'transform');
+  if (!transforms.length || proto.segments.some(seg => seg.kind === 'oneOf'
+    || seg.kind === 'gem' && seg.params.op !== 'transform')) return false;
+  const color = new AiColorChooser().choose(state, caster.id, choiceRuleOf(proto), proto);
+  const board = state.board.clone();
+  let changed = false;
+  for (const seg of transforms) {
+    if (seg.kind !== 'gem' || seg.params.op !== 'transform') continue;
+    const params = seg.params;
+    // Random/subset/conditional effects cannot be predicted without advancing battle RNG.
+    if (seg.ifCond || seg.chance !== undefined || seg.chanceBoost || params.count || params.countModifier
+      || params.diagonal || params.diagonalAnchor || params.tiers
+      || params.spiritColorFromSource || params.from === 'ANY' || params.from === 'CELL'
+      || (!params.from && !params.fromSpecial)) return false;
+    if ((params.from === 'CHOSEN' || params.to === 'CHOSEN') && !color) return false;
+    const output = transformOutput(params, caster, color ?? undefined);
+    const source = params.from === 'CHOSEN' ? colorGem(color!)
+      : params.from === 'SKULL' ? skullGem()
+        : ALL_BASE_COLORS.includes(params.from as BaseColor) ? colorGem(params.from as BaseColor) : null;
+    if (!output || (!source && !params.fromSpecial)) return false;
+    board.forEach((gem, pos) => {
+      if (!gem || sameGemType(gem.type, output)) return;
+      const matchesSource = params.fromSpecial
+        ? gem.type.kind === 'special' && gem.type.spec.kind === params.fromSpecial
+        : isSameMatchType(gem.type, source!);
+      if (matchesSource) {
+        board.get(pos)!.type = output;
+        changed = true;
+      }
+    });
+  }
+  // Any immediate match will resolve and refill before the opponent moves; that board is unknown.
+  if (!changed || resolver.findMatches(board).length > 0) return false;
+  for (let row = 0; row < BoardModel.ROWS; row++) for (let col = 0; col < BoardModel.COLS; col++) {
+    const a = { row, col };
+    for (const b of [{ row: row + 1, col }, { row, col: col + 1 }]) {
+      if (!BoardModel.inBounds(b)) continue;
+      board.swap(a, b);
+      const big = resolver.findMatches(board).some(group => bigTierOf(group) > 0);
+      board.swap(a, b);
+      if (big) return true;
+    }
+  }
+  return false;
+}
+
+/** Choose one action by priority; returns null if no cast or legal swap remains. */
 export function chooseAiAction(input: AiPolicyInput): AiDecision | null {
   const { state, side, rng } = input;
+  if (input.allowCast !== false) {
+    const summon = readyWangfengWithOpenSlot(state, side, input.registry);
+    if (summon) return { action: { type: 'cast', characterId: summon.id }, reason: 'cast' };
+  }
   const swaps = evaluateSwaps(state, side);
 
   // 1. 大消：档位 → 格数 → 有用度

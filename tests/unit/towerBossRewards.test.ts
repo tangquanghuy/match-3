@@ -152,7 +152,7 @@ describe('tower region boss guaranteed material rewards', () => {
       expect(eventAction(s, WEEK, 'towerOfDoom', 'skip', 90).ok).toBe(true);
       expect(eventModeState(s, WEEK, 'towerOfDoom').run).toBeNull();
     }
-    expect(s.materials.ingots).toMatchObject({ rare: 12, ultraRare: 8, epic: 8, legendary: 12, mythic: 4 });
+    expect(s.materials.ingots).toMatchObject({ rare: 12, ultraRare: 8, epic: 46, mythic: 4 });
     for (const key of EVENT_ARCANE_STONES.towerOfDoom) expect(s.materials.traitstones[key]).toBe(18);
     for (const { key } of STONE_COLORS) expect(s.materials.traitstones[`runic:${key}`]).toBeGreaterThanOrEqual(12);
   });
@@ -172,7 +172,7 @@ describe('tower region boss guaranteed material rewards', () => {
     const boss = state.run!.rows.flat().find(n => n.kind === 'boss')!;
     const view = { save: s, week: w, weekStart: week, theme: currentEventTheme(week, 'towerOfDoom'),
       selected: `node:${boss.row}-${boss.col}`, ready: () => null, fightLabel: '出战' };
-    expect(towerViewHtml(view, state)).toContain('本周首通保底：稀有钢锭 ×12、超稀钢锭 ×8、特质石 ×48');
+    expect(towerViewHtml(view, state)).toContain('本周首通保底：稀有钢锭 ×12、传说钢锭 ×8、特质石 ×48');
     rewardTowerBoss(s, w, 8);
     expect(towerViewHtml(view, state)).toContain('本周已领：稀有钢锭 ×12');
     const claimed = screen.html(ctx, 'towerOfDoom/rewards');

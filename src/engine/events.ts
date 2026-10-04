@@ -201,7 +201,7 @@ export interface StatusBlockedEvent extends TraitPresentation {
   type: 'status-blocked';
   targetId: number;
   statusId: string;
-  reason: 'immune' | 'blessed' | 'submerged' | 'extra-turn' | 'mana';
+  reason: 'immune' | 'blessed' | 'submerged' | 'extra-turn' | 'mana' | 'lethal';
 }
 
 /** 状态移除原因（纯演出元数据；缺省视为 expired）。 */

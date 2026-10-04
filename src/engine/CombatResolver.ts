@@ -4,7 +4,7 @@ import type { SeededRNG } from './rng';
 import {
   canAttack, isEnraged, isCharmed,
   applyStatus, consumeBarrier, RAGE_STATUS_IDS,
-  hasStatus, REFLECT_STATUS_ID, endActionStatuses,
+  hasStatus, REFLECT_STATUS_ID, endActionStatuses, hasLethalImmunity, lethalResistanceEvent,
 } from './skills/effects/status';
 import { grantStat, passivesOf, skullDamageMultiplier, strongestTraitActivation, traitActivations } from './traits';
 import { reflectHit } from './skills/effects/reflect';
@@ -138,11 +138,13 @@ export class CombatResolver {
         // Official status guide: Barrier absorbs ordinary skull damage, but
         // does not protect against the skull attack's independent lethal roll.
         const lethalChance = passivesOf(attacker).skullLethalChance ?? 0;
-        if (lethalChance > 0 && rng !== undefined && rng.next() < lethalChance
-          && !target.traitIds?.some(id => id === 'invulnerable' || id === 'indestructible')) {
-          target.hp = 0;
-          target.defeated = true;
-          events.push({ type: 'defeat', characterId: target.id });
+        if (lethalChance > 0 && rng !== undefined && rng.next() < lethalChance) {
+          if (hasLethalImmunity(target)) events.push(lethalResistanceEvent(target));
+          else {
+            target.hp = 0;
+            target.defeated = true;
+            events.push({ type: 'defeat', characterId: target.id });
+          }
         }
         return { events };
       }
@@ -315,20 +317,25 @@ export class CombatResolver {
     // 概率经同一条种子化 rng（无 rng 不生效，与闪避判定同口径）；目标已阵亡则跳过。
     if (!target.defeated && rng !== undefined) {
       const lethal = passivesOf(attacker).skullLethalChance ?? 0;
-      if (lethal > 0 && rng.next() < lethal
-        && !target.traitIds?.some(id => id === 'invulnerable' || id === 'indestructible')) {
-        target.hp = 0;
-        target.defeated = true;
-        events.push({ type: 'defeat', characterId: target.id });
+      if (lethal > 0 && rng.next() < lethal) {
+        if (hasLethalImmunity(target)) events.push(lethalResistanceEvent(target));
+        else {
+          target.hp = 0;
+          target.defeated = true;
+          events.push({ type: 'defeat', characterId: target.id });
+        }
       } else {
         const killSpec = passivesOf(attacker).onSkullHitKill;
         if (killSpec && rng.next() < killSpec.chance) {
           const foes = defenderTeam.characters.filter((c) => !c.defeated && c.id !== target.id);
           const last = foes[foes.length - 1];
-          if (last && !last.traitIds?.some(id => id === 'invulnerable' || id === 'indestructible')) {
-            last.hp = 0;
-            last.defeated = true;
-            events.push({ type: 'defeat', characterId: last.id });
+          if (last) {
+            if (hasLethalImmunity(last)) events.push(lethalResistanceEvent(last));
+            else {
+              last.hp = 0;
+              last.defeated = true;
+              events.push({ type: 'defeat', characterId: last.id });
+            }
           }
         }
       }

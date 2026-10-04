@@ -10,7 +10,7 @@
 import { isFailure, weekStartOf, gameNow } from '../gateway';
 import {
   EVENT_MILESTONES, EVENT_HIGH_TIER_REWARDS, EVENT_ARCANE_STONES, TOWER_BOSS_REWARDS, towerBossRewardKey,
-  EVENT_ROTATION,
+  EVENT_ROTATION, eventTypeById,
   EVENT_WEEKLY_RULES, EVENT_SHARED_GOALS,
   WEEK_MS,
   type EventTypeId,
@@ -31,13 +31,18 @@ import type { MetaSave } from '../state/schema';
 import { activeTeam } from '../systems/teamRules';
 import type { ViewCtx } from './eventViews/shared';
 import { mountTowerBoard, towerViewHtml } from './eventViews/towerView';
-import { raidViewHtml } from './eventViews/raidView';
+import { raidModeNav, raidViewHtml } from './eventViews/raidView';
+import { raidForgeViewHtml } from './eventViews/raidForgeView';
 import { invasionDefenseHtml, invasionViewHtml } from './eventViews/invasionView';
 import { factionViewHtml } from './eventViews/factionView';
 import { worldViewHtml, worldWalkPath } from './eventViews/worldView';
 import { trialsViewHtml } from './eventViews/trialsView';
 
 const TYPE_IDS: readonly EventTypeId[] = EVENT_ROTATION.map((t) => t.id);
+/** Overview card order only; keep weekly rotation and legacy indexes unchanged. */
+const OVERVIEW_ORDER: readonly EventTypeId[] = ['raidBoss', 'classTrials', 'towerOfDoom', 'worldEvent', 'invasion', 'factionAssault'];
+/** 总览页的活动产出提示；里程碑的实际奖励名称仍以 EVENT_MILESTONES 为准。 */
+const OVERVIEW_OUTPUT: Partial<Record<EventTypeId, string>> = { raidBoss: '武器淬炼素材', classTrials: '职业等级加成' };
 const EVENT_ICON: Record<EventTypeId, string> = {
   invasion: 'flag', raidBoss: 'skull', towerOfDoom: 'temple',
   factionAssault: 'swords', worldEvent: 'chest', classTrials: 'book',
@@ -103,7 +108,10 @@ function modeBoardHtml(save: MetaSave, weekStart: number, typeId: EventTypeId, s
   };
   switch (typeId) {
     case 'towerOfDoom': return towerViewHtml(v, eventModeState(save, weekStart, 'towerOfDoom'));
-    case 'raidBoss': return raidViewHtml(v, eventModeState(save, weekStart, 'raidBoss'));
+    case 'raidBoss': {
+      const state = eventModeState(save, weekStart, 'raidBoss');
+      return subpage === 'forge' ? raidForgeViewHtml(v, state) : raidViewHtml(v, state);
+    }
     case 'invasion': {
       const state = eventModeState(save, weekStart, 'invasion');
       return subpage === 'defense' ? invasionDefenseHtml(state) : invasionViewHtml(v, state);
@@ -220,9 +228,10 @@ export class EventsScreen implements Screen {
 
     return `
       ${topbarHtml()}
-      <div class="screen ev-screen ev-detail ev-mode-page ev-mode-${typeId}" ${style}>
+      <div class="screen ev-screen ev-detail ev-mode-page ev-mode-${typeId}${typeId === 'raidBoss' && subpage === 'forge' ? ' ev-raid-forge-page' : ''}" ${style}>
         ${tabBar}
         <section class="panel ev-panel ev-mode-panel">
+          ${typeId === 'raidBoss' ? raidModeNav(subpage === 'forge' ? 'forge' : 'boss') : ''}
           <aside class="ev-side">
             <header class="ev-banner">
               <div class="ev-banner-art"><img src="${eventArt(typeId)}" alt="${def.name}" /><span class="ev-banner-icon" data-icon="${EVENT_ICON[typeId]}"></span></div>
@@ -237,6 +246,7 @@ export class EventsScreen implements Screen {
             ${links}
           </aside>
           <div class="ev-main ev-board">${modeBoardHtml(save, weekStart, typeId, subpage)}</div>
+          ${typeId === 'raidBoss' ? `<div class="rd-week-mobile"><span>本周${page.metric.label} <b>${fmt(page.metric.value)}</b></span><a href="#events/raidBoss/rewards">里程碑 ${week.claimed.length}/${milestones.length}</a><a href="#shop/raidBoss">兑换 ${fmt(week.tokens)}</a></div>` : ''}
         </section>
       </div>
       <div class="evm-confirm-veil" id="evConfirm" hidden>
@@ -254,7 +264,8 @@ export class EventsScreen implements Screen {
   }
 
   private overviewHtml(save: MetaSave, weekStart: number, now: number): string {
-    const cards = EVENT_ROTATION.map((def, i) => {
+    const cards = OVERVIEW_ORDER.map((id, i) => {
+      const def = eventTypeById(id);
       const state = eventPageState(save, weekStart, def.id);
       const week = ensureEventWeek(save, weekStart, def.id);
       const goals = EVENT_MILESTONES[def.id];
@@ -269,7 +280,7 @@ export class EventsScreen implements Screen {
           <a class="ev-overview-main" href="#events/${def.id}"><span class="ev-overview-icon" data-icon="${EVENT_ICON[def.id]}"></span><span class="ev-overview-title"><b>${def.name}</b></span><span class="ev-overview-arrow" data-icon="arrow"></span></a>
           <p class="ev-overview-hook">${state.summary}</p>
           <p class="ev-overview-pitch">${def.brief}</p>
-          <div class="ev-overview-progress"><span>${next ? next.label : '里程碑已全部达成'}</span><b>${next ? toNext ? `差 ${fmt(toNext)} ${state.metric.label}` : '即将入账' : '已完成'}</b><i><em style="width:${pct}%"></em></i></div>
+          <div class="ev-overview-progress"><span>${next ? (OVERVIEW_OUTPUT[def.id] ?? next.label) : '里程碑已全部达成'}</span><b>${next ? toNext ? `差 ${fmt(toNext)} ${state.metric.label}` : '即将入账' : '已完成'}</b><i><em style="width:${pct}%"></em></i></div>
           <div class="ev-overview-foot"><span><span data-icon="crystal"></span><b>${fmt(gemsLeft)}</b>待领</span><span><span data-icon="mark"></span><b${i === 0 ? ' id="evTokenBalance"' : ''}>${fmt(week.tokens)}</b>${def.tokenName}</span></div>
         </div>
       </article>`;
@@ -291,12 +302,12 @@ export class EventsScreen implements Screen {
     const max = EVENT_SHARED_GOALS.at(-1)!.wins;
     const pct = Math.min(100, (summary.wins / max) * 100);
     return `<section class="ev-weekly" aria-label="每周远征">
-        <header><b>每周远征</b><strong>${summary.wins} <small>/ ${max} 胜</small></strong><small class="ev-weekly-currency">黄金 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.gold, 0))} · 灵魂 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.souls, 0))}</small></header>
+        <header><b>每周远征</b><strong>${summary.wins} <small>/ ${max} 胜</small></strong><small class="ev-weekly-currency">黄金 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.gold, 0))} · 灵魂 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.souls, 0))} · 史诗钢锭 +${fmt(EVENT_SHARED_GOALS.reduce((sum, g) => sum + g.epicIngots, 0))}</small></header>
         <div class="ev-weekly-rail">
           <div class="ev-weekly-bar"><i style="width:${pct}%"></i></div>
           <div class="ev-weekly-goals">${summary.goals.map((g) => {
             const cls = g.claimed ? 'claimed' : summary.wins >= g.wins ? 'ready' : '';
-            return `<div class="${cls}" style="left:${(g.wins / max) * 100}%" title="${g.wins} 胜 · 宝石 ${g.gems} · 黄金 ${g.gold} · 灵魂 ${g.souls}${g.claimed ? ' · 已入账' : ''}"><span class="ev-goal-pill"><span data-icon="${g.claimed ? 'check' : 'crystal'}"></span><b>${g.gems}</b></span><small>${g.wins}胜</small></div>`;
+            return `<div class="${cls}" style="left:${(g.wins / max) * 100}%" title="${g.wins} 胜 · 宝石 ${g.gems} · 黄金 ${g.gold} · 灵魂 ${g.souls} · 史诗钢锭 ${fmt(g.epicIngots)}${g.claimed ? ' · 已入账' : ''}"><span class="ev-goal-pill"><span data-icon="${g.claimed ? 'check' : 'crystal'}"></span><b>${g.gems}</b></span><small>${g.wins}胜</small></div>`;
           }).join('')}</div>
         </div>
       </section>`;
@@ -349,7 +360,16 @@ export class EventsScreen implements Screen {
       if (el.dataset.confirm) this.confirm(root, el.dataset.confirm, () => void this.act(ctx, typeId, action));
       else void this.act(ctx, typeId, action);
     });
-    const veil = root.querySelector<HTMLElement>('#evConfirm');
+    // Range input mirrors exploration: commit on release, not on every pointer movement.
+    if (typeId === 'raidBoss') this.on(board, 'change', (event) => {
+      const range = event.target as HTMLInputElement;
+      if (!range.matches('.rd-forge-range') || this.busy) return;
+      const tier = Number(range.value);
+      if (!Number.isInteger(tier) || tier < 1 || tier > 12) return;
+      void this.act(ctx, typeId, `ingot-tier:${tier}`).then(() => {
+        document.querySelector<HTMLInputElement>('.rd-forge-range')?.focus({ preventScroll: true });
+      });
+    });    const veil = root.querySelector<HTMLElement>('#evConfirm');
     if (veil) {
       this.on(veil, 'click', (event) => { if (event.target === veil) veil.hidden = true; });
       this.on(document, 'keydown', (event) => { if ((event as KeyboardEvent).key === 'Escape') veil.hidden = true; });

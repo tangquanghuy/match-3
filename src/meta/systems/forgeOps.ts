@@ -4,7 +4,7 @@
  * forge.ts 保持纯逻辑（不读 MetaSave）；本模块负责：
  *  - 武器稀有度解析（统一走 weaponCatalog.anyWeaponById → weapons.json 自带 rarity；
  *    首批 20 把自造 w_* 已退役，按解锁档推导稀有度的 weaponRarity() 一并作废）；
- *  - 淬炼的「校验 → 扣账（钢锭/符卷/黄金，原子） → 写回淬炼等级」闭环。
+ *  - 淬炼的「校验 → 扣账（钢锭/符卷） → 写回淬炼等级」闭环。
  */
 import { resolveWeaponId } from '../data/weapons';
 import { anyWeaponById, ownsWeapon } from '../data/weaponCatalog';

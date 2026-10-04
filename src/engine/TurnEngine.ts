@@ -13,7 +13,7 @@ import { SeededRNG } from './rng';
 import { reshuffle, hasLegalSwap } from './boardUtils';
 import { tickTeamStatuses, canCastSkill, applyStatus, canGainMana, WEB_STATUS_ID,
   RANDOM_POSITIVE_STATUS_POOL, RANDOM_NEGATIVE_STATUS_POOL,
-  hasStatus, ENCHANTED_STATUS_ID, endActionStatuses } from './skills/effects/status';
+  hasStatus, ENCHANTED_STATUS_ID, endActionStatuses, hasLethalImmunity, lethalResistanceEvent } from './skills/effects/status';
 import { executePrototype } from './skills/prototypes';
 import { damageOne } from './skills/effects/damage';
 import { devourEffect } from './skills/effects/devour';
@@ -238,6 +238,7 @@ export class TurnEngine {
    */
   private readonly traitKill = (target: Character): GameEvent[] => {
     if (target.defeated) return [];
+    if (hasLethalImmunity(target)) return [lethalResistanceEvent(target)];
     target.hp = 0;
     target.defeated = true;
     return resolveDefeatEvents(this.state, [{ type: 'defeat', characterId: target.id }]);

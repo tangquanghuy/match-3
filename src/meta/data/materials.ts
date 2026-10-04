@@ -9,40 +9,36 @@
  */
 import { BaseColor } from '../../engine/types';
 
-/** 钢锭档位键（与 systems/forge.ts INGOT_BASE、src/data/weapons.json 的 rarity 同词表） */
-export type IngotKey = 'common' | 'uncommon' | 'rare' | 'ultraRare' | 'epic' | 'legendary' | 'mythic';
+/** 钢锭档位键（Uncommon 武器与 Common 共用普通锭） */
+export type IngotKey = 'common' | 'rare' | 'ultraRare' | 'epic' | 'mythic';
 
 /** INGOT_KEYS 顺序 = 稀有度升序（勿改动，掉落/显示按档递进依赖它） */
 export const INGOT_KEYS: readonly IngotKey[] = [
   'common',
-  'uncommon',
   'rare',
   'ultraRare',
   'epic',
-  'legendary',
   'mythic',
 ] as const;
 
 /** 钢锭显示名（与稀有度框色一致的中文词） */
 export const INGOT_NAMES: Record<IngotKey, string> = {
   common: '普通钢锭',
-  uncommon: '优良钢锭',
   rare: '稀有钢锭',
-  ultraRare: '超稀钢锭',
+  ultraRare: '传说钢锭',
   epic: '史诗钢锭',
-  legendary: '传说钢锭',
   mythic: '神话钢锭',
 };
 
 /** 武器稀有度原文（weapons.json / WeaponDef.rarity 词表）→ 钢锭档键 */
 const RARITY_TO_INGOT: Record<string, IngotKey> = {
   Common: 'common',
-  Uncommon: 'uncommon',
+  Uncommon: 'common', // 项目特有的精良武器沿用普通钢锭（旧优良钢锭读档合并）
   Rare: 'rare',
   UltraRare: 'ultraRare',
   'Ultra-Rare': 'ultraRare',
   Epic: 'epic',
-  Legendary: 'legendary',
+  Legendary: 'mythic', // Catalog alias: same mythic rarity as Mythic
   Mythic: 'mythic',
   Doomed: 'mythic', // Doomed 武器淬炼耗符卷不耗锭；映射仅作兜底展示
 };

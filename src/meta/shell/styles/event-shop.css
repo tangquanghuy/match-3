@@ -214,9 +214,6 @@
 
 /* 限量养成货架之外，低价值余印单独收纳，避免抢占主货架。 */
 .shop-week-budget { display:flex; flex:none; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding:8px 16px; border-top:1px solid #586771; font-size:11px; color:#d6ddd9; }
-.shop-surplus { display:flex; align-items:center; gap:8px; }
-.shop-surplus .shop-buy { min-height:30px; min-width:72px; }
-.shop-surplus .shop-buy:disabled { opacity:.5; cursor:default; }
 
 /* Catalog redesign: equally sized merchandise; explanations belong to item details. */
 .event-shop-panel { border:0; border-radius:0; background:#26343d; }
@@ -258,7 +255,6 @@
 .event-shop-panel .shop-price b { font-size:18px; }
 .event-shop-panel .shop-price small { font-size:11px; }
 .event-shop-panel .shop-week-budget { gap:20px; padding:20px 0; font-size:13px; margin-top:auto; }
-.event-shop-panel .shop-surplus { gap:16px; }
 .shop-details-link { background:transparent; border:0; padding:0; min-height:44px; color:#c4cec9; font-size:13px; cursor:pointer; }
 .shop-mobile-picker { display:none; }
 .shop-item-dialog { margin:auto; width:460px; max-width:calc(100vw - 32px); max-height:85dvh; overflow:auto; padding:28px; border:1px solid #74837f; border-radius:12px; background:#293a43; color:#eee9dc; box-shadow:0 24px 80px #0007; }
@@ -384,7 +380,6 @@
 .shop-v2 .shop-goods.sold-out .shop-goods-art::after { color:#f7c4b6; background:#3b2828; }
 .shop-v2 .shop-week-budget { padding:20px 0; border-color:#43515d; color:#b8c7d2; font-size:13px; gap:20px; }
 .shop-v2 .shop-details-link { color:#b7dfec; }
-.shop-v2 .shop-surplus .shop-buy { background:transparent; border-color:#7693a6; color:#cde8f6; }
 @media(max-width:1399px) and (min-width:701px) { .shop-v2 .shop-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:1000px) and (min-width:641px) { .shop-v2 .shop-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:640px) {
@@ -605,7 +600,6 @@
 .shop-v3 .shop-goods.sold-out .shop-goods-art::after { background: rgba(60, 20, 20, .9); color: #ffcabd; }
 .shop-v3 .shop-week-budget { border-color: var(--v3-line); color: #b9ae9a; }
 .shop-v3 .shop-details-link { color: #b9dcf0; }
-.shop-v3 .shop-surplus .shop-buy { border: 1px solid rgba(185, 220, 240, .5); background: transparent; color: #d5ecf7; box-shadow: none; }
 
 /* 笔记本矮屏：横幅收窄、说明隐藏，保证首行交易在底栏之上 */
 @media (min-width: 1100px) and (max-height: 800px) {
@@ -663,4 +657,56 @@
   /* 底部留白：筛选后只剩一张卡时也有足够的滚动余量，返回时能准确还原位置 */
   .event-shop-panel.shop-v3 { padding-bottom: 48px; }
   .shop-v3 .shop-grid .shop-goods-art { height: 100%; min-height: 0; }
+}
+
+/* Compact v3: one vertical scroller, short merchandise rows and unobtrusive rails. */
+.event-shop-panel.shop-v3 { overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(210, 178, 119, .55) transparent; overscroll-behavior: contain; }
+.event-shop-panel.shop-v3::-webkit-scrollbar { width: 7px; }
+.event-shop-panel.shop-v3::-webkit-scrollbar-track { background: transparent; }
+.event-shop-panel.shop-v3::-webkit-scrollbar-thumb { background: rgba(210, 178, 119, .55); border-radius: 999px; }
+.shop-v3 .shop-page-head { min-height: 40px; padding-bottom: 7px; }
+.shop-v3 .shop-page-head h1 { font-size: 23px; }
+.shop-v3 .shop-tabs { padding-bottom: 8px; }
+.shop-v3 .shop-hero { min-height: 80px; margin-bottom: 8px; padding: 9px 16px; }
+.shop-v3 .shop-hero h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 14px; font-size: 24px; }
+.shop-v3 .shop-specialty { color: #f8d891; font: 600 12px var(--body); letter-spacing: 0; }
+.shop-v3 .shop-hero-side { padding: 6px 9px; }
+.shop-v3 .shop-catalog { gap: 8px 16px; padding-bottom: 12px; }
+.shop-v3 .shop-section-head h2 { font-size: 18px; }
+.shop-v3 .shop-categories { gap: 6px; }
+.shop-v3 .shop-categories button { min-height: 34px; padding: 3px 10px; }
+.event-shop-panel.shop-v3 .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.event-shop-panel.shop-v3 .shop-grid .shop-goods { display: grid; grid-template-columns: 90px minmax(0, 1fr); height: auto; min-height: 160px; }
+.event-shop-panel.shop-v3 .shop-grid .shop-goods-art { height: 100%; min-height: 0; padding: 6px; }
+.event-shop-panel.shop-v3 .shop-grid .shop-goods-symbol { width: 76px; height: 76px; }
+.event-shop-panel.shop-v3 .shop-grid .shop-goods-body { min-width: 0; min-height: 0; padding: 10px 11px; gap: 5px; }
+.event-shop-panel.shop-v3 .shop-goods-title { gap: 3px 8px; }
+.event-shop-panel.shop-v3 .shop-goods-title h3 { font-size: 15px; }
+.event-shop-panel.shop-v3 .shop-grid .shop-rewards { gap: 3px; }
+.event-shop-panel.shop-v3 .shop-grid .shop-goods-foot { min-height: 44px; margin: auto -11px -10px; padding: 5px 11px; gap: 4px; }
+.event-shop-panel.shop-v3 .shop-price small { display: none; }
+.event-shop-panel.shop-v3 .shop-price b { font-size: 16px; }
+.event-shop-panel.shop-v3 .shop-buy { min-width: 78px; padding: 0 8px; font-size: 12px; }
+.event-shop-panel.shop-v3 .shop-week-budget { padding: 12px 0; }
+@media (min-width: 701px) and (max-width: 1399px) {
+  .event-shop-panel.shop-v3 .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 701px) and (max-width: 1099px) {
+  .shop-v3 .shop-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; scrollbar-width: none; scroll-snap-type: x proximity; }
+  .shop-v3 .shop-tabs::-webkit-scrollbar { display: none; }
+  .shop-v3 .shop-tab { flex: 0 0 160px; min-height: 42px; scroll-snap-align: start; }
+  .event-shop-panel.shop-v3 .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .shop-v3 .shop-hero { padding: 10px 12px; }
+  .shop-v3 .shop-hero h2 { font-size: 20px; }
+  .shop-v3 .shop-specialty { font-size: 11px; }
+  .shop-v3 .shop-mobile-picker { padding-bottom: 6px; }
+  .shop-v3 .shop-categories { flex-wrap: wrap; }
+  .shop-v3 .shop-categories button { min-height: 36px; }
+  .event-shop-panel.shop-v3 .shop-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .event-shop-panel.shop-v3 .shop-grid .shop-goods { grid-template-columns: 80px minmax(0, 1fr); min-height: 148px; }
+  .event-shop-panel.shop-v3 .shop-grid .shop-goods-symbol { width: 65px; height: 65px; }
+  .event-shop-panel.shop-v3 .shop-grid .shop-goods-body { padding: 9px 10px; }
+  .event-shop-panel.shop-v3 .shop-grid .shop-goods-foot { margin: auto -10px -9px; padding: 4px 10px; }
 }

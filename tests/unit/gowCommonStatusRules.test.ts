@@ -181,8 +181,12 @@ describe('official status shared-rule regression', () => {
     target.statuses.push({ id: 'curse', turns: 3 }, { id: 'stun', turns: 3 });
     const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [target]));
     const ctx = { state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 };
-    expect(devourEffect({ targets: [target], chance: 1 }).apply(ctx)).toEqual([]);
-    expect(damageEffect({ targets: [target], scaling: { base: 0, mult: 0 }, execute: true }).apply(ctx)).toEqual([]);
+    expect(devourEffect({ targets: [target], chance: 1 }).apply(ctx)).toEqual([
+      expect.objectContaining({ type: 'status-blocked', targetId: target.id, reason: 'lethal' }),
+    ]);
+    expect(damageEffect({ targets: [target], scaling: { base: 0, mult: 0 }, execute: true }).apply(ctx))
+      .toEqual([{ type: 'status-blocked', targetId: target.id, statusId: 'lethal', reason: 'lethal',
+        traitActivations: [{ characterId: target.id, traitId: 'indestructible', name: expect.any(String) }] }]);
     expect(target).toMatchObject({ hp: 50, armor: 10, defeated: false });
   });
 
@@ -195,6 +199,19 @@ describe('official status shared-rule regression', () => {
     expect(protectedTarget).toMatchObject({ hp: 50, armor: 10, defeated: false });
     expect(other.defeated).toBe(true);
     expect(events).toContainEqual({ type: 'defeat', characterId: other.id });
+    expect(events).toContainEqual(expect.objectContaining({ type: 'status-blocked', targetId: protectedTarget.id, reason: 'lethal' }));
+  });
+
+  it('resists Devour only after its chance succeeds', () => {
+    const caster = character(1);
+    const target = character(2);
+    target.traitIds = ['indestructible'];
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [target]));
+    const ctx = { state, casterId: caster.id, rng: { next: () => 0.75 } as SeededRNG, nextGemId: () => 0 };
+    expect(devourEffect({ targets: [target], chance: 0.5 }).apply(ctx)).toEqual([]);
+    expect(devourEffect({ targets: [target], chance: 1 }).apply(ctx)).toContainEqual(
+      expect.objectContaining({ type: 'status-blocked', reason: 'lethal', targetId: target.id }));
+    expect(target.defeated).toBe(false);
   });
 
   it('Devour cannot consume its own caster even if a skill passes self as its target', () => {
@@ -234,6 +251,7 @@ describe('official status shared-rule regression', () => {
     defender.hp = 50;
     defender.statuses = [{ id: 'barrier', turns: 3 }];
     defender.traitIds = ['invulnerable'];
+    expect(resolve().events).toContainEqual(expect.objectContaining({ type: 'status-blocked', reason: 'lethal', targetId: defender.id }));
     expect(resolve().events.some(e => e.type === 'defeat')).toBe(false);
     expect(defender.defeated).toBe(false);
   });
@@ -248,5 +266,69 @@ describe('official status shared-rule regression', () => {
     attacker.statuses = [];
     CombatResolver.prototype.resolveSkullDamage.call(new CombatResolver(), team(PlayerSide.Left, [attacker]), team(PlayerSide.Right, [defender]), 3, rng);
     expect(defender.defeated).toBe(true);
+  });
+});
+
+
+describe('instant execution and lethal resistance', () => {
+  const cast = (target: Character, execute = true, trueDamage = false) => {
+    const caster = character(1);
+    const state = createGameState(new BoardModel(), team(PlayerSide.Left, [caster]), team(PlayerSide.Right, [target]));
+    return damageEffect({ targets: [target], scaling: { base: 0, mult: 0 }, execute, trueDamage })
+      .apply({ state, casterId: caster.id, rng: new SeededRNG(1), nextGemId: () => 0 });
+  };
+
+  it.each(['spellarmor', 'spellblock'])('execution bypasses %s without triggering spell resistance', code => {
+    const target = character(2);
+    target.traitIds = [code];
+    attachPassives(target);
+    const events = cast(target);
+    expect(target).toMatchObject({ hp: 0, armor: 0, defeated: true });
+    expect(events).toContainEqual({ type: 'defeat', characterId: target.id });
+    expect(events.flatMap(event => event.traitActivations ?? [])).toEqual([]);
+  });
+
+  it('true-damage execution bypasses spell reduction and leaves armor unchanged', () => {
+    const target = character(2);
+    target.traitIds = ['spellarmor'];
+    attachPassives(target);
+    expect(cast(target, true, true).some(event => event.type === 'defeat')).toBe(true);
+    expect(target).toMatchObject({ hp: 0, armor: 10, defeated: true });
+  });
+
+  it.each(['invulnerable', 'indestructible'])('%s resists while stunned and cursed and announces the holder', code => {
+    const target = character(2);
+    target.traitIds = [code, 'spellarmor'];
+    target.statuses = [{ id: 'stun', turns: 3 }, { id: 'curse', turns: 3 }];
+    attachPassives(target);
+    const events = cast(target);
+    expect(events).toEqual([expect.objectContaining({ type: 'status-blocked', reason: 'lethal', targetId: 2,
+      traitActivations: [expect.objectContaining({ characterId: 2, traitId: code })] })]);
+    expect(target).toMatchObject({ hp: 50, armor: 10, defeated: false });
+  });
+
+  it('a direct execution bypasses Barrier and Reflect as well as spell armor', () => {
+    const target = character(2);
+    target.traitIds = ['spellarmor'];
+    target.statuses = [{ id: 'barrier', turns: 1 }, { id: 'reflect', turns: 1 }];
+    attachPassives(target);
+    const events = cast(target);
+    expect(events).toContainEqual({ type: 'defeat', characterId: 2 });
+    expect(events).toHaveLength(2);
+    expect(target).toMatchObject({ hp: 0, armor: 0, defeated: true });
+  });
+});
+
+
+describe('status-triggered instant death', () => {
+  it.each(['invulnerable', 'indestructible'])('death mark respects %s and displays resistance', code => {
+    const target = character(8);
+    target.traitIds = [code];
+    target.statuses = [{ id: 'death-mark', turns: 4, graceTicks: 0 }];
+    const rng = { next: (() => { let n = 0; return () => n++ === 0 ? 0.9 : 0.01; })() } as SeededRNG;
+    const events = tickStatuses(target, rng);
+    expect(target).toMatchObject({ hp: 50, defeated: false });
+    expect(events).toContainEqual(expect.objectContaining({ type: 'status-blocked', reason: 'lethal',
+      targetId: 8, traitActivations: [expect.objectContaining({ traitId: code })] }));
   });
 });

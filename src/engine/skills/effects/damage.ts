@@ -9,7 +9,7 @@ import { casterMagic, locate, findCharacter, findSide, setLastTarget, effectCast
 import { hasTroopType, evaluateWithModifier, modifierBonus, DEFAULT_RACE_DOUBLE, condMultiplier, condBonusValue, isTargetCondition } from './secondary';
 import type { ModifierSpec, CondMult, CondBonus } from './secondary';
 import { passivesOf, eventDamageMultiplier, isImmuneToStatus, strongestTraitActivation } from '../../traits';
-import { consumeBarrier, hasLethalImmunity, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
+import { consumeBarrier, hasLethalImmunity, lethalResistanceEvent, hasStatus, FAERIE_FIRE_STATUS_ID, FAERIE_FIRE_SPELL_MULT,
   REFLECT_STATUS_ID, isCursed } from './status';
 import { applyBuffGain } from './buff';
 import { reflectHit } from './reflect';
@@ -63,7 +63,7 @@ export interface DamageParams {
   rangeSpec?: DamageRangeSpec;
   /** Native StealLife: bypass Armor, transfer only Life actually lost, increase maximum Life. */
   drain?: boolean;
-  /** 即杀（「摧毁/消灭该敌人」）：伤害额 = 目标当前有效耐久（屏障/法术减伤照常结算） */
+  /** Instant defeat on enemies bypasses spell mitigation; allied sacrifice keeps the damage pipeline. */
   execute?: boolean;
   /** 分摊（「伤害分摊给至多 {N} 名敌人」）：掷一次总额，均分给前 N 名存活敌人（余数给靠前者） */
   split?: number;
@@ -224,7 +224,24 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
         && findSide(ctx.state, victim.id) !== null && findSide(ctx.state, victim.id) !== sourceSide;
       let stolenLife = 0;
       const hit = (victim: Character, points: number, hitRange: DamageRange, chain?: ChainMeta): GameEvent[] => {
-        if (params.execute && hasLethalImmunity(victim)) return [];
+        if (victim.defeated) return [];
+        if (params.execute && hasLethalImmunity(victim)) return [lethalResistanceEvent(victim)];
+        if (params.execute && reflectAllowed(victim)) {
+          // Direct defeat is not a spell-damage hit: no resistance, barrier, amplification or reflect.
+          // Keep a damage event for the existing cast animation and on-kill/target tracking.
+          const damage = Math.max(0, victim.hp) + (trueDamage ? 0 : Math.max(0, victim.armor));
+          victim.hp = 0;
+          if (!trueDamage) victim.armor = 0;
+          victim.defeated = true;
+          const event: SkillDamageEvent = { type: 'skill-damage', casterId: ctx.casterId,
+            targetId: victim.id, range: hitRange, damage, resultingHp: 0, resultingArmor: victim.armor };
+          if (chain) {
+            event.chainIndex = chain.index;
+            event.chainCount = chain.count;
+            event.chainFromId = chain.fromId;
+          }
+          return [event, { type: 'defeat', characterId: victim.id }];
+        }
         const before = victim.hp;
         const produced = damageOne(victim, ctx.casterId, points, trueDamage || !!params.drain,
           hitRange, chain, caster, reflectAllowed(victim));

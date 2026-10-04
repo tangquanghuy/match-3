@@ -2,38 +2,32 @@
  * 武器淬炼 + 熔炉锻造（设计文档 design/WEAPON-FORGE-DESIGN.md 的纯逻辑落地）。
  *
  * 纯函数、零 DOM、零引擎依赖；不读 MetaSave（持久化三字段 weaponTempering/ingots/forgeScrolls
- * 由 save v2 提供，见设计文档 §1 接线点）。除注明「官方原文」外数值均为设计值（文档 §2/§3）。
+ * 由 save v2 提供，见设计文档 §1 接线点）。武器淬炼只消耗钢锭／符卷。
  *
  * 官方口径（考据见设计文档 §0/§6）：
  *  - 淬炼用「与武器稀有度对应」的钢锭；Doomed/Cursebreaker 改用熔铸符卷；
  *  - 词缀随等级解锁、战斗中在主效果之后触发（二期战斗化）；
  *  - 熔炉只造活动系武器（王国包/精通/任务线武器永不进熔炉），高档位需诅咒符文。
  */
-/** 淬炼等级上限（官方口径武器满级 20） */
-export const MAX_TEMPERING_LEVEL = 20;
+/** 官方普通武器上限：Common +5、Rare +6 … Mythic +10。项目特有的 Uncommon 归入 Common 档。 */
+export const MAX_TEMPERING_LEVEL = 10;
+const TEMPERING_CAPS: Record<string, number> = {
+  Common: 5, Uncommon: 5, Rare: 6, UltraRare: 7, 'Ultra-Rare': 7,
+  Epic: 8, Legendary: 9, Mythic: 10, Doomed: 10,
+};
+export function temperingMaxLevel(rarity: string): number {
+  return TEMPERING_CAPS[rarity] ?? MAX_TEMPERING_LEVEL;
+}
 
-/** 普通武器词缀解锁档（对应 affixes[0..3]） */
-export const AFFIX_UNLOCK_LEVELS = [5, 10, 15, 20] as const;
-/** Doomed/Cursebreaker 武器 5 词缀解锁档 */
-export const DOOMED_AFFIX_UNLOCK_LEVELS = [4, 8, 12, 16, 20] as const;
+/** 前五级提升属性，+6 起每级解锁一条词缀；低稀有度的可解锁条数受等级上限约束。 */
+export const AFFIX_UNLOCK_LEVELS = [6, 7, 8, 9, 10] as const;
+export const DOOMED_AFFIX_UNLOCK_LEVELS = AFFIX_UNLOCK_LEVELS;
+export function affixUnlockLevels(rarity: string): readonly number[] {
+  return AFFIX_UNLOCK_LEVELS.filter(level => level <= temperingMaxLevel(rarity));
+}
 
 /** 熔铸符卷专属稀有度（这些武器淬炼不消耗普通钢锭，改消耗符卷） */
 export const FORGE_SCROLL_RARITY = 'Doomed';
-
-/** 各稀有度钢锭基数（设计值：每级消耗 = 基数 × ceil(nextLevel/2)） */
-const INGOT_BASE: Record<string, number> = {
-  Common: 2,
-  Uncommon: 4,
-  Rare: 8,
-  UltraRare: 16,
-  Epic: 32,
-  Legendary: 64,
-  Mythic: 100,
-  Doomed: 100,
-};
-
-/** 每级黄金消耗（设计值） */
-const GOLD_PER_LEVEL = 200;
 
 export interface TemperingCost {
   /** 对应稀有度钢锭（Doomed 武器此值为 0，改耗 scrolls） */
@@ -43,25 +37,19 @@ export interface TemperingCost {
   scrolls: number;
 }
 
-/** 各稀有度钢锭基数（未知稀有度返回 null） */
-export function ingotBase(rarity: string): number | null {
-  return INGOT_BASE[rarity] ?? null;
-}
-
 /** 淬炼 currentLevel → nextLevel 的消耗（nextLevel = currentLevel+1 由调用方保证 ≤ 上限） */
 export function temperingCost(rarity: string, currentLevel: number): TemperingCost {
   const next = currentLevel + 1;
-  const base = INGOT_BASE[rarity] ?? INGOT_BASE.Common;
-  const ingots = base * Math.ceil(next / 2);
-  const gold = GOLD_PER_LEVEL * next;
-  const scrolls = rarity === FORGE_SCROLL_RARITY ? 1 : 0;
+  const ingots = next;
+  const gold = 0;
+  const scrolls = rarity === FORGE_SCROLL_RARITY ? next : 0;
   // Doomed 系：普通钢锭替换为符卷
   return { ingots: scrolls > 0 ? 0 : ingots, gold, scrolls };
 }
 
-/** level 级时已解锁的词缀数（普通 4 档 / Doomed 5 档） */
+/** level 级时已解锁的词缀数（从 +6 起每级一档） */
 export function affixUnlockedCount(rarity: string, level: number): number {
-  const table = rarity === FORGE_SCROLL_RARITY ? DOOMED_AFFIX_UNLOCK_LEVELS : AFFIX_UNLOCK_LEVELS;
+  const table = affixUnlockLevels(rarity);
   let n = 0;
   for (const lv of table) if (level >= lv) n += 1;
   return n;
@@ -112,7 +100,8 @@ export function temperWeapon(input: TemperInput): TemperResult {
   const level = input.currentLevel ?? 0;
   if (!input.owned) issues.push({ code: 'NOT_OWNED', message: '尚未拥有该武器' });
   if (!Number.isInteger(level) || level < 0) issues.push({ code: 'BAD_LEVEL', message: '淬炼等级非法' });
-  if (level >= MAX_TEMPERING_LEVEL) issues.push({ code: 'MAX_LEVEL', message: `已达淬炼上限 ${MAX_TEMPERING_LEVEL} 级` });
+  const cap = temperingMaxLevel(input.rarity);
+  if (level >= cap) issues.push({ code: 'MAX_LEVEL', message: `已达淬炼上限 ${cap} 级` });
   if (issues.length > 0) return { ok: false, issues };
 
   const cost = temperingCost(input.rarity, level);

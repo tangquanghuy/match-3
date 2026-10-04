@@ -3,8 +3,16 @@ import { GACHA_RULES as RULES, emptyGachaWishlist, pursuitLimitFor, type GachaWi
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 
+export const BLOCKED_WISHLIST_IDS = new Set([7736, 6529]);
+export const hasBlockedWishlistIds = (raw: unknown): boolean => {
+  if (!raw || typeof raw !== 'object') return false;
+  const w = raw as Partial<GachaWishlist>;
+  return (Array.isArray(w.troopIds) && w.troopIds.some(id => BLOCKED_WISHLIST_IDS.has(id)))
+    || BLOCKED_WISHLIST_IDS.has(w.pursuit?.targetId ?? -1);
+};
+
 export const wishlistKingdom = (t: TroopData): string => t.kingdom ?? '无王国';
-export const WISHLIST_TROOPS = TROOPS.filter((t) => t.rarityIdx >= RULES.minRarity);
+export const WISHLIST_TROOPS = TROOPS.filter((t) => t.rarityIdx >= RULES.minRarity && !BLOCKED_WISHLIST_IDS.has(t.id));
 /** 修改器临时收藏不影响首张资格。 */
 export const reallyOwned = (save: MetaSave, id: number): boolean => !!(save.collectionTruth ?? save.collection)[String(id)];
 
@@ -14,7 +22,7 @@ export function validateWishlist(ids: readonly number[]): MetaFailure | null {
   const bands = new Map<number, number>();
   for (const id of ids) {
     const t = Number.isInteger(id) ? getTroopById(id) : undefined;
-    if (!t || t.rarityIdx < RULES.minRarity) return fail('INVALID', '请选择传说、史诗或神话角色');
+    if (!t || t.rarityIdx < RULES.minRarity || BLOCKED_WISHLIST_IDS.has(id)) return fail('INVALID', '请选择传说、史诗或神话角色');
     if (seen.has(id)) return fail('INVALID', '同一角色只占一个愿望位置');
     seen.add(id);
     bands.set(t.rarityIdx, (bands.get(t.rarityIdx) ?? 0) + 1);
@@ -48,7 +56,7 @@ export function setPursuitTarget(save: MetaSave, id: number | null): { ok: true 
   return { ok: true };
 }
 /** 节级容错：去重、丢弃悬空/超配额项，保留合法进度。 */
-export function hydrateWishlist(raw: unknown): GachaWishlist {
+export function hydrateWishlist(raw: unknown, owned: (id: number) => boolean = () => false): GachaWishlist {
   const value = emptyGachaWishlist();
   if (!raw || typeof raw !== 'object') return value;
   const input = raw as Partial<GachaWishlist>;
@@ -68,11 +76,26 @@ export function hydrateWishlist(raw: unknown): GachaWishlist {
     if (value.pursuit.completed >= 1 && value.pursuit.limit === 400) value.pursuit.limit = fallback;
     value.pursuit.progress = integer(p.progress) ? Math.min(p.progress, value.pursuit.limit - 1) : 0;
     value.pursuit.targetId = value.troopIds.includes(p.targetId!) && getTroopById(p.targetId!)?.rarityIdx === RULES.pursuitRarity ? p.targetId : null;
+    if (BLOCKED_WISHLIST_IDS.has(p.targetId ?? -1)) value.pursuit.targetId = replacementPursuit(value.troopIds, owned);
   }
   return value;
 }
 
 /** 确定性补齐建议：每档各补至九名，仅添加不替换；偏好未拥有、当前队伍同色/同族。 */
+function replacementPursuit(ids: readonly number[], owned: (id: number) => boolean): number | null {
+  return ids.find(id => getTroopById(id)?.rarityIdx === RULES.pursuitRarity && !owned(id)) ?? null;
+}
+
+/** Idempotent cleanup for already-loaded saves; preserve pursuit progress and limit. */
+export function purgeBlockedWishlist(save: MetaSave): boolean {
+  const wishlist = save.gachaWishlist;
+  if (!hasBlockedWishlistIds(wishlist)) return false;
+  wishlist.troopIds = wishlist.troopIds.filter(id => !BLOCKED_WISHLIST_IDS.has(id));
+  if (BLOCKED_WISHLIST_IDS.has(wishlist.pursuit.targetId ?? -1))
+    wishlist.pursuit.targetId = replacementPursuit(wishlist.troopIds, id => reallyOwned(save, id));
+  return true;
+}
+
 export function recommendWishlist(save: MetaSave): number[] {
   const ids = [...save.gachaWishlist.troopIds];
   const team = save.teams[save.activeTeamIndex]?.members ?? [];

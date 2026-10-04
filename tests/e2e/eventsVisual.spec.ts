@@ -116,7 +116,10 @@ for (const size of [
     for (const id of ids) {
       await page.goto(`/game.html#events/${id}`);
       await expect(page.locator('.ev-banner h1')).toBeVisible();
-      await loadedArtwork(page, '.ev-banner-art img');
+      if (size.width <= 699 && id === 'raidBoss') {
+        await expect(page.locator('.ev-banner-art')).toBeHidden(); // 讨伐页手机端以首领立绘作主视觉
+        await loadedArtwork(page, '.rd-boss-art img');
+      } else await loadedArtwork(page, '.ev-banner-art img');
       await expect(page.locator('.ev-mile-track .ev-mile')).toHaveCount(0);
       await expect(page.locator(`.ev-rewards-entry[href="#events/${id}/rewards"]`)).toBeVisible();
       await expect(page.locator('.ev-board .evm')).toBeVisible();
@@ -137,8 +140,10 @@ for (const size of [
         };
       });
       expect(layout, `${id} ${size.label}`).toMatchObject({ horizontalOverflow: false, artOverlapsCopy: false, activeTabVisible: true });
-      expect(layout.artWidth).toBeGreaterThanOrEqual(80);
-      expect(layout.artHeight).toBeGreaterThanOrEqual(100);
+      if (!(size.width <= 699 && id === 'raidBoss')) {
+        expect(layout.artWidth).toBeGreaterThanOrEqual(80);
+        expect(layout.artHeight).toBeGreaterThanOrEqual(100);
+      }
       await page.screenshot({ path: `artifacts/visual-redesign/events-visual-${id}-${size.label}.png` });
 
       await page.locator('.ev-rewards-entry').click();
@@ -221,5 +226,5 @@ test('没有职业时试炼给出修复入口，跨周自动刷新共享目标�
   await expect(page.locator('.ev-weekly-goals .claimed')).toHaveCount(4);
   await page.clock.fastForward(20_000);
   await expect(page.locator('.ev-weekly-goals .claimed')).toHaveCount(0);
-  await expect(page.locator('.ev-overview-card').first()).toContainText('600');
+  await expect(page.locator('.ev-overview-card').first().locator('.ev-overview-progress')).toContainText('差 100 积分');
 });

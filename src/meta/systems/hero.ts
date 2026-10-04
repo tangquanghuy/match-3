@@ -32,12 +32,12 @@ import { enqueueMasteryOffers } from './manaMastery';
 
 const TEMPER_STAT_SEQUENCE = ['attack', 'armor', 'health', 'magic'] as const;
 
-/** 当前武器淬炼转成四维面板加成；每 2 级 +1，按攻/甲/生/魔轮转。 */
+/** 前五级每级 +1 属性，后续等级解锁词缀；属性按攻/甲/生/魔轮转。 */
 export function temperingBonusOf(save: MetaSave): LeveledStats {
   const weaponId = save.hero.equippedWeapon;
   const level = weaponId ? temperingLevelOf(save, weaponId) : 0;
   const bonus: LeveledStats = { health: 0, armor: 0, attack: 0, magic: 0 };
-  const points = Math.floor(level / 2);
+  const points = Math.min(Math.max(level, 0), 5);
   for (let i = 0; i < points; i++) {
     bonus[TEMPER_STAT_SEQUENCE[i % TEMPER_STAT_SEQUENCE.length]!] += 1;
   }

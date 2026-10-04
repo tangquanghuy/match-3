@@ -55,7 +55,10 @@
 .gift-goal { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 12px 10px; border-bottom: 1px solid rgba(255, 255, 255, .05); text-align: center; }
 .gift-goal b { color: #f6ecd2; font: 24px/1.15 var(--display); letter-spacing: .04em; }
 .gift-goal small { overflow: hidden; max-width: 100%; color: var(--gf-muted); font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
-.gift-prize { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; }
+.gift-prize { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 10px; }
+.gift-ingots { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.gift-ingot { display: inline-flex; align-items: center; gap: 3px; color: #f1ddb4; white-space: nowrap; font-size: 12px; }
+.gift-ingot .mat-art { width: 22px; height: 22px; object-fit: contain; }
 .gift-currencies { display: grid; gap: 4px; min-width: 0; }
 .gift-currency { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .gift-currency [data-icon] { flex: none; width: 16px; height: 16px; }

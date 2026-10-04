@@ -1,10 +1,13 @@
 /**
  * 馈赠：一次性成长里程碑（按系统分组，达成后手动领取）。
  *
- * 奖励 = 宝石、黄金、灵魂 + 可选的随机部队卡（按稀有度档：3 传说 / 4 史诗 / 5 神话，与宝石宝箱同池）。
+ * 奖励 = 宝石、黄金、灵魂、部分武器淬炼钢锭 + 可选的随机部队卡（按稀有度档：3 传说 / 4 史诗 / 5 神话，与宝石宝箱同池）。
  * 阶梯刻意拉长：前期密、后期疏，覆盖从新手到满级的整个成长期。
  * 进度全部读存档里「只增不减」的字段；周活动账本每周清零，另用 gifts.eventWins / towerBest 累计。
  */
+import { temperingCost } from '../systems/forge';
+import type { MaterialDelta } from './materials';
+
 export type GiftGroupId = 'starter' | 'hero' | 'battles' | 'kingdom' | 'arena' | 'invasion' | 'events' | 'collection';
 export type GiftMetric =
   | 'always' | 'heroLevel' | 'battlesWon' | 'questChains' | 'kingdomsMaxed' | 'arenaWins' | 'arenaBestRun'
@@ -19,6 +22,7 @@ export interface GiftDef {
   gems: number;
   gold: number;
   souls: number;
+  mats?: MaterialDelta;
   /** 随机部队卡的稀有度档（3 传说 / 4 史诗 / 5 神话） */
   troop?: 3 | 4 | 5;
 }
@@ -58,13 +62,18 @@ function ladder(group: GiftGroupId, metric: GiftMetric, prefix: string, label: (
       id: `${prefix}-${target}`, group, metric, target, label: label(target), gems,
       gold: kingdomMaxed ? 5000 + index * 1500 : 2000 + Math.floor(index / 3) * 1000,
       souls: kingdomMaxed ? 750 + index * 250 : 500 + Math.floor(index / 3) * 250,
+      // 前四档（含见面礼）给足普通/稀有武器升满；后 20 档循环史诗 +1…+8 的一半，周活动补足两把。
+      ...(group === 'hero' ? { mats: index < 4
+        ? { ingots: { common: [3, 3, 3, 4][index], rare: [4, 4, 4, 5][index] } }
+        : { ingots: { epic: Math.ceil(temperingCost('Epic', (index - 4) % 8).ingots * 0.5) } },
+      } : {}),
       ...(troop ? { troop } : {}),
     };
   });
 }
 
 export const GIFTS: readonly GiftDef[] = [
-  { id: GIFT_STARTER_ID, group: 'starter', metric: 'always', target: 1, label: '冒险者见面礼', gems: 1000, gold: 5000, souls: 1000 },
+  { id: GIFT_STARTER_ID, group: 'starter', metric: 'always', target: 1, label: '冒险者见面礼', gems: 1000, gold: 5000, souls: 1000, mats: { ingots: { common: 2, rare: 4 } } },
 
   ...ladder('hero', 'heroLevel', 'hero', (n) => `主角达到 Lv.${n}`, [
     [3, 50], [5, 60], [8, 80], [10, 100, 3], [12, 100], [15, 120], [18, 120], [20, 150, 4], [25, 150], [30, 200],

@@ -3,7 +3,7 @@ import { invasionVictoryGold } from './invasionGold';
 import { rollPvpGlory } from '../data/pvpGlory';
 import { INVASION_MATCHMAKING } from '../data/invasionMatchmaking';
 import { INVASION_FRENZY, rollInvasionFrenzy, type FrenzyMultiplier } from '../data/invasionFrenzy';
-import { INVASION_RANKS, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../data/invasionRanks';
+import { INVASION_RANKS, INVASION_WEEKLY_VP_DECAY, invasionRankAt, INVASION_VP_BY_DIFFICULTY } from '../data/invasionRanks';
 import { grantBattleRewards, type BattleRewards } from './battleRewards';
 /** Local PvP: weekly VP ranks, weekly gem claims, unlimited free rerolls.
  * Weekly leaderboard VP is separate. See docs/GOW-INVASION-RANKS.md.
@@ -199,7 +199,7 @@ export interface SeasonRollSummary {
   gems: number;
 }
 
-/** Lazy weekly reset of rank VP and claims; older week requests never rewind the ledger. */
+/** Weekly rank VP decay and fresh claims; older week requests never rewind the ledger. */
 export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: number): SeasonRollSummary | null {
   if (save.invasion.weekStart >= weekStart) return null;
 
@@ -208,8 +208,13 @@ export function ensureInvasionSeason(save: MetaSave, _now: number, weekStart: nu
   const played = !first && save.invasion.battles > 0;
   const placement = first ? 0 : 1 + opponentStandingRows(save, save.invasion.weekStart, fromLeague, _now, true)
     .filter(r => r.vp > save.invasion.vp).length;
-  // Each new week starts a fresh VP track and claim ledger, without automatic payouts.
-  if (!first) { save.invasion.progressionVp = 0; save.invasion.claimedRanks = []; }
+  // Rank VP loses 2500 per elapsed week. The separate weekly leaderboard VP resets below.
+  // A fresh claim ledger makes every rank at/below the carried VP claimable again.
+  if (!first) {
+    const elapsedWeeks = Math.max(1, Math.floor((weekStart - save.invasion.weekStart) / WEEK_MS));
+    save.invasion.progressionVp = Math.max(0, save.invasion.progressionVp - INVASION_WEEKLY_VP_DECAY * elapsedWeeks);
+    save.invasion.claimedRanks = [];
+  }
   save.invasion.league = invasionRankAt(save.invasion.progressionVp).league;
   save.invasion.bestLeague = Math.max(save.invasion.bestLeague, save.invasion.league);
   if (!first) save.invasion.seasonsPlayed += 1;

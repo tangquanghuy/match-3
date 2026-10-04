@@ -34,6 +34,8 @@ export interface CombatantSnapshot {
   externalId: string;
   /** 宿主侧模板/兵种标识，仅作追溯，客户端不依赖它取数值 */
   templateId?: string;
+  /** Official troop role for battle AI targeting/cast priority. */
+  role?: string | null;
   name: string;
   portraitUrl?: string;
   /** 等级文本仅供展示（需求 7.6：客户端不做永久升级） */

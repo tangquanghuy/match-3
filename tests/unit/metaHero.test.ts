@@ -149,10 +149,10 @@ describe('主角成长曲线（官方口径：职业基底 + 等级属性点）'
     s.weaponTempering[s.hero.equippedWeapon!] = 6;
     const base = heroStatsAt(s.hero.level, s.hero.classId);
     expect(heroStatsOf(s)).toEqual({
-      attack: base.attack + 1,
+      attack: base.attack + 2,
       armor: base.armor + 1,
       health: base.health + 1,
-      magic: base.magic,
+      magic: base.magic + 1,
     });
   });
 });
@@ -326,7 +326,7 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     if (!outcome.ok) throw new Error(outcome.message);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
     const base = heroStatsAt(s.hero.level, s.hero.classId);
-    expect(hero.stats.attack).toBe(base.attack + 1);
+    expect(hero.stats.attack).toBe(base.attack + 2);
     expect(hero.stats.armor).toBe(base.armor + 1);
     expect(hero.stats.hp).toBe(base.health + 1);
   });

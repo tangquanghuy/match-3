@@ -1,6 +1,6 @@
 /** 愿望单与追寻单源；调参后递增版本。运行时与经济模型共用。 */
 export const GACHA_RULES = {
-  version: 5,
+  version: 6,
   slotsPerRarity: 9,
   maxTroops: 27,
   minRarity: 3,

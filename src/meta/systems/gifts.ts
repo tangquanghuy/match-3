@@ -7,7 +7,8 @@ import { fnv1a32 } from '../data/hash';
 import { SeededRNG } from '../../engine/rng';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
-import { earn } from './wallet';
+import { earn, earnMaterials } from './wallet';
+import { addMaterialDelta, type MaterialDelta } from '../data/materials';
 import { grantRandomTroop, type GachaCard } from './gacha';
 
 export function giftMetricValue(save: MetaSave, metric: GiftMetric): number {
@@ -50,23 +51,26 @@ export function giftsReady(save: MetaSave): number {
   return giftRows(save).filter((row) => row.status === 'ready').length;
 }
 
-export type GiftClaimResult = { ok: true; ids: string[]; gems: number; gold: number; souls: number; cards: GachaCard[] } | MetaFailure;
+export type GiftClaimResult = { ok: true; ids: string[]; gems: number; gold: number; souls: number; mats: MaterialDelta; cards: GachaCard[] } | MetaFailure;
 
 function markClaimed(save: MetaSave, rows: GiftRow[], seed: number): GiftClaimResult {
   let gems = 0;
   let gold = 0;
   let souls = 0;
   const cards: GachaCard[] = [];
+  let mats: MaterialDelta = {};
   for (const row of rows) {
     save.gifts.claimed.push(row.gift.id);
     gems += row.gift.gems;
     gold += row.gift.gold;
     souls += row.gift.souls;
+    mats = addMaterialDelta(mats, row.gift.mats ?? {});
     if (row.gift.troop) cards.push(grantRandomTroop(save, row.gift.troop, new SeededRNG((seed ^ fnv1a32(row.gift.id)) >>> 0)));
   }
   earn(save, { gems, gold, souls });
+  mats = earnMaterials(save, mats);
   if (rows.some((row) => row.gift.id === GIFT_STARTER_ID) && save.onboarding.step === 'gift') save.onboarding.step = 'summon';
-  return { ok: true, ids: rows.map((row) => row.gift.id), gems, gold, souls, cards };
+  return { ok: true, ids: rows.map((row) => row.gift.id), gems, gold, souls, mats, cards };
 }
 
 /** seed 由网关注入（部队卡随机） */

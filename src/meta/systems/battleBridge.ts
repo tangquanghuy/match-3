@@ -102,6 +102,7 @@ export function troopToSnapshot(
   return {
     externalId,
     templateId: String(troop.id),
+    role: troop.role,
     name: troop.name,
     levelLabel: `Lv.${rec.level}`,
     rarityIdx: rarityTierOf(troop, rec),
@@ -128,6 +129,7 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
   return {
     externalId: `e${index}-${troop.id}`,
     templateId: String(troop.id),
+    role: troop.role,
     name: troop.name,
     levelLabel: `Lv.${enemyLevel(enemy.level)}`,
     rarityIdx: troop.rarityIdx,

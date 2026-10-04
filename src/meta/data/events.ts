@@ -83,12 +83,13 @@ export const EVENT_TYPES: readonly EventTypeDef[] = [
   {
     id: 'raidBoss', name: '突袭首领', shortName: '突袭首领', tagline: 'RAID BOSS',
     accent: '#d08a3a', tokenName: '突袭印记',
-    brief: '同一只首领反复讨伐：血池跨战斗保留，拼的是整个收藏的深度。',
+    brief: '主要产出：钢锭。其他奖励：特质石、熔铸符卷等。',
     howto: [
       { title: '核心玩法 · 讨伐血池', items: [
         '每阶首领与护卫固定，首领生命跨战斗保留——胜负都计入造成的伤害，血池见底即讨伐成功。',
         '按伤害计分：打空一条血池约 400 分，败场同样得分。讨伐成功发放钢锭与荣耀（每周 4 次），并刷新更强的下一阶首领。',
       ] },
+      { title: '首领锻材挑战', items: ['自选 1～12 档难度；胜利保底普通或稀有钢锭，传说、史诗、神话钢锭按难度额外抽取。', '可反复挑战，不消耗常规讨伐血池、战损、补给或每周讨伐奖励次数。'] },
       { title: '三个阶段', items: [
         '傲慢（血量 66% 以上）：首领护甲 +40%。',
         '狂怒（33%~66%）：首领攻击 +30%。',
@@ -171,7 +172,7 @@ export const EVENT_TYPES: readonly EventTypeDef[] = [
   {
     id: 'classTrials', name: '职业试炼', shortName: '职业试炼', tagline: 'CLASS TRIALS',
     accent: '#6f7fd0', tokenName: '试炼印记',
-    brief: '每周八道改写规则的试炼，针对规则配队，争取一次拿满三星。',
+    brief: '主要产出：职业等级经验。挑战试炼可获得额外奖励。',
     howto: [
       { title: '核心玩法 · 规则挑战', items: [
         '每周从挑战池抽出 8 道试炼，每道都改写战斗规则：孤身出战、玻璃大炮、巨人猎手、车轮战、法力潮汐……',
@@ -349,11 +350,11 @@ export const TOWER_BOSS_REWARDS: readonly TowerBossReward[] = [
     traitstones: { ...towerColorStones('major', 3), ...towerColorStones('runic', 1) },
   } },
   { floor: 16, zone: 2, mats: {
-    ingots: { epic: 4, legendary: 2 },
+    ingots: { epic: 6 },
     traitstones: { ...towerColorStones('runic', 2), ...eventArcaneBundle('towerOfDoom', 1) },
   } },
   { floor: 25, zone: 3, mats: {
-    ingots: { legendary: 4, mythic: 2 },
+    ingots: { epic: 4, mythic: 2 },
     traitstones: { ...towerColorStones('runic', 3), ...eventArcaneBundle('towerOfDoom', 2), celestial: 1 },
   } },
 ];
@@ -363,70 +364,51 @@ export const towerBossRewardKey = (floor: number): string => `towerBoss${floor}`
 
 const BASE_EVENT_SHOP: Record<EventTypeId, readonly EventGoods[]> = {
   invasion: [
-    { id: 'invasion_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
     { id: 'invasion_minor', name: '先锋补给', cost: 10, stock: 12, mats: { traitstones: { 'minor:red': 2, 'minor:blue': 2 } } },
-    { id: 'invasion_major', name: '攻城锻材', cost: 20, stock: 4, mats: { ingots: { epic: 2 } } },
+    { id: 'invasion_major', name: '攻城史诗锭', cost: 24, stock: 4, mats: { ingots: { epic: 2 } } },
     { id: 'invasion_runic', name: '破城特质', cost: 28, stock: 3, mats: { traitstones: { 'runic:red': 1, 'runic:blue': 1 } } },
     { id: 'invasion_celestial', name: '本期攻城手', cost: 60, stock: 1, troopRole: 'siegebreaker' },
-    { id: 'invasion_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
-    { id: 'invasion_keys', name: '宝箱钥匙', cost: 28, stock: 2, goldKeys: 1 },
-    { id: 'invasion_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
+    { id: 'invasion_scroll', name: '攻城精锻锭', cost: 22, stock: 6, mats: { ingots: { ultraRare: 4 } } },
     { id: 'invasion_traits', name: '进阶特质', cost: 18, stock: 4, mats: { traitstones: { 'major:red': 2, 'major:blue': 1 } } },
   ],
   raidBoss: [
-    { id: 'raid_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
-    { id: 'raid_common', name: '讨伐补给', cost: 8, stock: 12, mats: { ingots: { rare: 5 } } },
-    { id: 'raid_rare', name: '精锐锻材', cost: 16, stock: 4, mats: { ingots: { ultraRare: 3 } } },
-    { id: 'raid_ultra', name: '首领锻材', cost: 24, stock: 3, mats: { ingots: { epic: 2 } } },
-    { id: 'raid_epic', name: '传说锻材', cost: 38, stock: 2, mats: { ingots: { legendary: 1 } } },
+    { id: 'raid_common', name: '首领稀有锭', cost: 12, stock: 8, mats: { ingots: { rare: 6 } } },
+    { id: 'raid_rare', name: '首领传说锭', cost: 22, stock: 5, mats: { ingots: { ultraRare: 2 } } },
+    { id: 'raid_ultra', name: '首领史诗锭', cost: 38, stock: 3, mats: { ingots: { epic: 2 } } },
+    { id: 'raid_epic', name: '首领神话锭', cost: 60, stock: 1, mats: { ingots: { mythic: 1 } } },
     { id: 'raid_legend', name: '本期神祇杀手', cost: 60, stock: 1, troopRole: 'godslayer' },
-    { id: 'raid_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
     { id: 'raid_traits', name: '讨伐特质', cost: 28, stock: 2, mats: { traitstones: { 'runic:brown': 1, 'runic:yellow': 1 } } },
     { id: 'raid_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
   ],
   towerOfDoom: [
-    { id: 'tod_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
     { id: 'tod_gold', name: '登塔锻材', cost: 12, stock: 10, mats: { ingots: { epic: 1 } } },
     { id: 'tod_runic', name: '塔顶特质', cost: 24, stock: 2, mats: { traitstones: { 'runic:purple': 1, 'runic:green': 1 } } },
     { id: 'tod_scroll', name: '熔铸符卷', blurb: '末日武器淬炼', cost: 28, stock: 4, mats: { forgeScrolls: 1 } },
     { id: 'tod_celestial', name: '符卷匣', blurb: '末日武器淬炼补给', cost: 60, stock: 1, mats: { forgeScrolls: 3 } },
     { id: 'tod_rare', name: '基础锻材', cost: 10, stock: 6, mats: { ingots: { rare: 4 } } },
-    { id: 'tod_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
-    { id: 'tod_glory', name: '登塔荣耀', cost: 10, stock: 6, glory: 30 },
     { id: 'tod_traits', name: '登塔特质', cost: 18, stock: 4, mats: { traitstones: { 'major:purple': 2, 'major:green': 1 } } },
   ],
   factionAssault: [
-    { id: 'fa_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
-    { id: 'fa_rare', name: '阵营锻材', cost: 10, stock: 12, mats: { ingots: { rare: 4 } } },
+    { id: 'fa_rare', name: '阵营稀有锭', cost: 10, stock: 12, mats: { ingots: { rare: 6 } } },
     { id: 'fa_major', name: '阵营特质', cost: 18, stock: 4, mats: { traitstones: { 'major:red': 1, 'major:blue': 1, 'major:green': 1 } } },
-    { id: 'fa_ultra', name: '精锐锻材', cost: 24, stock: 3, mats: { ingots: { epic: 2 } } },
+    { id: 'fa_ultra', name: '阵营精锻锭', cost: 20, stock: 5, mats: { ingots: { ultraRare: 3 } } },
     { id: 'fa_epic', name: '本期阵营成员', cost: 55, stock: 1, troopRole: 'faction' },
-    { id: 'fa_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
     { id: 'fa_runic', name: '阵营符文', cost: 28, stock: 3, mats: { traitstones: { 'runic:red': 1, 'runic:blue': 1 } } },
-    { id: 'fa_keys', name: '宝箱钥匙', cost: 28, stock: 2, goldKeys: 1 },
-    { id: 'fa_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
+    { id: 'fa_scroll', name: '阵营普通锭', cost: 12, stock: 8, mats: { ingots: { common: 8 } } },
   ],
   worldEvent: [
-    { id: 'we_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
     { id: 'we_gold', name: '庆典特质', cost: 12, stock: 12, mats: { traitstones: { 'major:green': 2, 'major:yellow': 2 } } },
-    { id: 'we_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
-    { id: 'we_gems', name: '庆典宝箱钥匙', cost: 28, stock: 2, goldKeys: 1 },
     { id: 'we_key', name: '本期种族精选', cost: 55, stock: 1, troopRole: 'race' },
-    { id: 'we_glory', name: '庆典荣耀', cost: 10, stock: 8, glory: 30 },
-    { id: 'we_ingots', name: '庆典锻材', cost: 10, stock: 6, mats: { ingots: { rare: 4 } } },
+    { id: 'we_ingots', name: '庆典普通锭', cost: 8, stock: 10, mats: { ingots: { common: 10 } } },
     { id: 'we_runic', name: '庆典符文', cost: 28, stock: 3, mats: { traitstones: { 'runic:green': 1, 'runic:yellow': 1 } } },
-    { id: 'we_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
+    { id: 'we_scroll', name: '庆典普通锭', cost: 10, stock: 8, mats: { ingots: { common: 7 } } },
   ],
   classTrials: [
-    { id: 'ct_surplus', name: '余印补给', cost: 10, stock: null, gold: 150 },
-    { id: 'ct_glory', name: '试炼荣耀', cost: 10, stock: 12, glory: 30 },
     { id: 'ct_minor', name: '入门特质', cost: 12, stock: 4, mats: { traitstones: { 'minor:yellow': 3, 'minor:purple': 3 } } },
     { id: 'ct_major', name: '进阶特质', cost: 26, stock: 2, mats: { traitstones: { 'runic:yellow': 1, 'runic:brown': 1 } } },
-    { id: 'ct_runic', name: '职业研习', blurb: '当前装备职业获得经验', cost: 55, stock: 1, classXp: 5000 },
-    { id: 'ct_souls', name: '成长灵魂', cost: 14, stock: 4, souls: 1200 },
-    { id: 'ct_keys', name: '宝箱钥匙', cost: 28, stock: 2, goldKeys: 1 },
-    { id: 'ct_ingots', name: '试炼锻材', cost: 10, stock: 6, mats: { ingots: { rare: 4 } } },
-    { id: 'ct_scroll', name: '熔铸符卷', cost: 36, stock: 1, mats: { forgeScrolls: 1 } },
+    { id: 'ct_runic', name: '职业研习', blurb: '当前装备职业获得经验', cost: 55, stock: 3, classXp: 5000 },
+    { id: 'ct_ingots', name: '职业进阶特质', cost: 16, stock: 6, mats: { traitstones: { 'major:yellow': 3, 'major:purple': 3 } } },
+    { id: 'ct_scroll', name: '职业天界特质', cost: 48, stock: 1, mats: { traitstones: { celestial: 1 } } },
   ],
 };
 
@@ -457,7 +439,7 @@ const BASE_EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = {
     { points: 300, label: '钢锭袋', mats: { ingots: { rare: 4 } }, gold: 1500 },
     { points: 600, label: '钢锭匣', mats: { ingots: { ultraRare: 4 } }, souls: 1200 },
     { points: 1000, label: '史诗锻材', mats: { ingots: { epic: 3 } }, gems: 40 },
-    { points: 1500, label: '传说锻材', mats: { ingots: { legendary: 2 } }, gold: 3000 },
+    { points: 1500, label: '神话锻材', mats: { ingots: { mythic: 1 } }, gold: 3000 },
     { points: 2200, label: '屠神锦囊', mats: { ingots: { epic: 4, mythic: 1 }, forgeScrolls: 1 } },
   ],
   towerOfDoom: [
@@ -512,9 +494,10 @@ export const EVENT_MILESTONE_CURRENCY_BONUS = {
   gold: [200, 300, 500, 700, 900, 1300],
   souls: [100, 150, 200, 300, 400, 600],
 } as const;
+/** 六种活动共享的周胜场：30 胜共 26 史诗锭；成长馈赠 46 枚，共可淬满两把史诗 +8。 */
 export const EVENT_SHARED_GOALS = [
-  { wins: 6, gems: 600, gold: 800, souls: 400 }, { wins: 12, gems: 800, gold: 1200, souls: 600 },
-  { wins: 20, gems: 1000, gold: 1600, souls: 800 }, { wins: 30, gems: 1200, gold: 2400, souls: 1200 },
+  { wins: 6, gems: 600, gold: 800, souls: 400, epicIngots: 3 }, { wins: 12, gems: 800, gold: 1200, souls: 600, epicIngots: 5 },
+  { wins: 20, gems: 1000, gold: 1600, souls: 800, epicIngots: 8 }, { wins: 30, gems: 1200, gold: 2400, souls: 1200, epicIngots: 10 },
 ] as const;
 export const EVENT_MILESTONES: Record<EventTypeId, readonly EventMilestone[]> = Object.fromEntries(
   Object.entries(BASE_EVENT_MILESTONES).map(([id, rows]) => [id, rows.map((row, index) => ({

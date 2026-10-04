@@ -6,7 +6,7 @@ import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave } from '../../src/meta/state/save';
 import { openGemChest,openGoldChest,openGloryChest } from '../../src/meta/systems/gacha';
 import { grantTroop } from '../../src/meta/systems/troopProgress';
-import { validateWishlist,setWishlist,setPursuitTarget,recommendWishlist,hydrateWishlist,wishlistHitRate } from '../../src/meta/systems/wishlist';
+import { validateWishlist,setWishlist,setPursuitTarget,recommendWishlist,hydrateWishlist,wishlistHitRate,purgeBlockedWishlist,WISHLIST_TROOPS } from '../../src/meta/systems/wishlist';
 import { matchesTroopCatalog } from '../../src/meta/data/troopCatalog';
 import { MockGateway,memoryStorage } from '../../src/meta/gateway';
 const mythicRoll = (GEM_CHEST_WEIGHTS.slice(0, 5).reduce((a, b) => a + b, 0) + GEM_CHEST_WEIGHTS[5]! / 2) / GEM_CHEST_BASE;
@@ -147,4 +147,33 @@ it('图鉴共用编号、多词交集、王国、品质、颜色与种族过滤'
  expect(matchesTroopCatalog(target,{query:`${target.id} ${target.name}`,rarity:5,kingdom:target.kingdom,color:target.manaColors[0],type:target.troopTypes[0]})).toBe(true);
  expect(matchesTroopCatalog(target,{query:`${target.id} 不存在的词`})).toBe(false);
  expect(matchesTroopCatalog(target,{rarity:3})).toBe(false);
+});
+
+describe('retired mythics wishlist migration', () => {
+  const retired = [7736, 6529];
+  it.each(retired)('removes %i from selection and retargets to the first unowned listed mythic', id => {
+    const s = fresh();
+    const candidates = mythics.filter(t => !retired.includes(t.id)).slice(0, 2);
+    s.gachaWishlist.troopIds = [id, ...candidates.map(t => t.id)];
+    s.gachaWishlist.pursuit = { targetId: id, progress: 73, completed: 1, limit: 250 };
+    grantTroop(s, candidates[0]!.id, 1);
+    const expected = candidates[1]!.id;
+    expect(WISHLIST_TROOPS.some(t => t.id === id)).toBe(false);
+    expect(validateWishlist([id])).not.toBeNull();
+    expect(setWishlist(fresh(), [id]).ok).toBe(false);
+    expect(purgeBlockedWishlist(s)).toBe(true);
+    expect(purgeBlockedWishlist(s)).toBe(false);
+    expect(s.gachaWishlist.troopIds).toEqual(candidates.map(t => t.id));
+    expect(s.gachaWishlist.pursuit).toEqual({ targetId: expected, progress: 73, completed: 1, limit: 250 });
+    const raw = JSON.parse(JSON.stringify(s));
+    raw.gachaWishlist.troopIds.unshift(id);
+    raw.gachaWishlist.pursuit.targetId = id;
+    expect(hydrateSave(raw).gachaWishlist).toEqual(s.gachaWishlist);
+  });
+  it('keeps progress but clears pursuit if no eligible mythic remains', () => {
+    const s = fresh();
+    s.gachaWishlist = { troopIds: [7736, 6529], pursuit: { targetId: 6529, progress: 32, completed: 0, limit: 200 } };
+    expect(purgeBlockedWishlist(s)).toBe(true);
+    expect(s.gachaWishlist).toEqual({ troopIds: [], pursuit: { targetId: null, progress: 32, completed: 0, limit: 200 } });
+  });
 });

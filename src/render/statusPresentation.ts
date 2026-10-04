@@ -119,6 +119,7 @@ export interface StatusCue {
 export function statusBlockedCue(ev: Pick<StatusBlockedEvent, 'reason' | 'statusId'>, labelOf: (id: string) => string): StatusCue {
   switch (ev.reason) {
     case 'immune': return { text: `免疫${labelOf(ev.statusId)}`, color: '#e9edf2', sfx: 'immune', ring: 'pulse' };
+    case 'lethal': return { text: '抵抗', color: '#e9edf2', sfx: 'immune', ring: 'pulse' };
     case 'blessed': return { text: '赐福抵挡', color: '#ffd56a', sfx: 'immune', ring: 'pulse' };
     case 'submerged': return { text: '潜水闪避', color: '#7fd0f0', sfx: 'submergeDodge', ring: 'ripple' };
     // 两行：第一行说是谁干的，第二行说丢了什么（单行会挤出卡面）

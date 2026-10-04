@@ -5,6 +5,9 @@ import { SeededRNG } from '@engine/rng';
 import { ExtensionRegistry } from '@engine/registry';
 import { chooseAiAction, evaluateSwaps, firstCastableCharacter } from '@engine/aiPolicy';
 import { chooseEnemySwap } from '@engine/ai';
+import { skill, transform, extraTurn } from '@engine/skills/builders';
+import { SKILL_LIBRARY } from '@engine/skills/library';
+import { COMMUNITY_TROOPS, HUIJIU_SPELL_ID, WANGFENG_SPELL_ID } from '../../src/data/communityTroops';
 import { BaseColor, MatchState, PlayerSide, colorGem, skullGem } from '@engine/types';
 import type { BattleAction, CellPos, Character, GemType } from '@engine/types';
 import type { SkillPrototype } from '@engine/skills/prototypes';
@@ -122,6 +125,116 @@ describe('aiPolicy：决策优先级', () => {
     // 非行动方 / 非等待输入时不给施法
     s.activePlayer = PlayerSide.Right;
     expect(firstCastableCharacter(s, PlayerSide.Left, registry)).toBeNull();
+  });
+
+  it('lets a ready damage dealer cast before an earlier mana generator', () => {
+    const s = stateOf(['RR.R....'], [
+      char(1, { role: 'Generator', mana: 10 }),
+      char(2, { role: 'Striker', mana: 10 }),
+    ]);
+    expect(firstCastableCharacter(s, PlayerSide.Left)?.id).toBe(2);
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1) })?.action)
+      .toEqual({ type: 'cast', characterId: 2 });
+    s.teams[PlayerSide.Left].characters[1]!.mana = 0;
+    expect(firstCastableCharacter(s, PlayerSide.Left)?.id).toBe(1);
+  });
+
+  it('Huijiu yields to a ready Striker despite using a non-conversion generator spell', () => {
+    const id = String(HUIJIU_SPELL_ID);
+    const troop = COMMUNITY_TROOPS.find(t => t.spell.id === HUIJIU_SPELL_ID)!;
+    expect(troop.role).toBe('Generator');
+    const s = stateOf([], [
+      char(1, { name: troop.name, role: troop.role, mana: troop.manaCost, manaCost: troop.manaCost, skillId: id }),
+      char(2, { role: 'Generator', mana: 10 }),
+      char(3, { role: 'Striker', mana: 10 }),
+      char(4, { role: 'Striker', mana: 0 }),
+    ]);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set(id, SKILL_LIBRARY[HUIJIU_SPELL_ID]);
+    // Huijiu creates stars rather than converting colors; its role still yields to damage.
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(3);
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action)
+      .toEqual({ type: 'cast', characterId: 3 });
+    s.teams[PlayerSide.Left].characters[2]!.mana = 0;
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action)
+      .toEqual({ type: 'cast', characterId: 1 });
+    s.teams[PlayerSide.Left].characters[2]!.mana = 10;
+    s.teams[PlayerSide.Left].characters[2]!.statuses = [{ id: 'silence', turns: 1 }];
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
+  });
+
+  it('holds a conversion that gives a big swap to the opponent, unless it grants an extra turn', () => {
+    // B B . B, with a red gem below the gap: red->blue leaves a one-swap four-match.
+    const s = stateOf(['BB.B....', '..R.....', '........', '........', '........', 'RR.R....'], [
+      char(1, { mana: 10, skillId: 'convert' }),
+      char(2, { mana: 10, skillId: 'attack', role: 'Striker' }),
+    ]);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set('convert', skill(transform(BaseColor.Red, BaseColor.Blue)));
+    expect(evaluateSwaps(s, PlayerSide.Left).every(move => move.bigTier === 0)).toBe(true);
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(2);
+    expect(s.board.get({ row: 1, col: 2 })?.type).toEqual(colorGem(BaseColor.Red));
+    s.teams[PlayerSide.Left].characters[1]!.mana = 0;
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)).toBeNull();
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action.type)
+      .toBe('swap');
+    registry.prototypes.set('convert', skill(transform(BaseColor.Red, BaseColor.Blue), extraTurn()));
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
+    const big = stateOf(['BBRR....'], [char(3, { mana: 10, skillId: 'convert' })]);
+    registry.prototypes.set('convert', skill(transform(BaseColor.Red, BaseColor.Blue)));
+    expect(firstCastableCharacter(big, PlayerSide.Left, registry)?.id).toBe(3);
+  });
+
+  it('WangFeng summons into an open slot before big swaps and ready damage dealers', () => {
+    const id = String(WANGFENG_SPELL_ID);
+    const s = stateOf(['RR.R....', '..R.....'], [
+      char(1, { mana: 16, manaCost: 16, role: 'Generator', skillId: id }),
+      char(2, { mana: 10, role: 'Striker' }),
+    ]);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set(id, SKILL_LIBRARY[WANGFENG_SPELL_ID]);
+    expect(evaluateSwaps(s, PlayerSide.Left).some(move => move.bigTier > 0)).toBe(true);
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action)
+      .toEqual({ type: 'cast', characterId: 1 });
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry, allowCast: false })?.reason)
+      .toBe('big-match');
+    s.teams[PlayerSide.Left].characters[0]!.mana = 0;
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.reason)
+      .toBe('big-match');
+  });
+
+  it('WangFeng defers a risky conversion only with a full team', () => {
+    const id = String(WANGFENG_SPELL_ID);
+    const s = stateOf([], [
+      char(1, { mana: 16, manaCost: 16, role: 'Generator', skillId: id }),
+      char(2, { mana: 10, role: 'Striker' }),
+      char(3), char(4),
+    ]);
+    const palette = [BaseColor.Brown, BaseColor.Purple, BaseColor.Blue, BaseColor.Green];
+    let gemId = 1000;
+    for (let row = 0; row < BoardModel.ROWS; row++) for (let col = 0; col < BoardModel.COLS; col++) {
+      s.board.set({ row, col }, { id: gemId++, type: colorGem(palette[(row + 2 * col) % 4]) });
+    }
+    const set = (row: number, col: number, color: BaseColor) => {
+      s.board.set({ row, col }, { id: gemId++, type: colorGem(color) });
+    };
+    // Red->purple creates a one-swap four-match; no summon slot remains.
+    set(0, 0, BaseColor.Purple); set(0, 1, BaseColor.Purple);
+    set(0, 3, BaseColor.Purple); set(1, 2, BaseColor.Red);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set(id, SKILL_LIBRARY[WANGFENG_SPELL_ID]);
+    expect(evaluateSwaps(s, PlayerSide.Left).every(move => move.bigTier === 0)).toBe(true);
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(2);
+    s.teams[PlayerSide.Left].characters[1]!.mana = 0;
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)).toBeNull();
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action.type)
+      .not.toBe('cast');
+    s.teams[PlayerSide.Left].characters.pop();
+    expect(firstCastableCharacter(s, PlayerSide.Left, registry)?.id).toBe(1);
+    s.teams[PlayerSide.Left].characters[1]!.mana = 10;
+    expect(chooseAiAction({ state: s, side: PlayerSide.Left, rng: new SeededRNG(1), registry })?.action)
+      .toEqual({ type: 'cast', characterId: 1 });
   });
 
   it('3. 没有大消与施法时优先骷髅（骷髅多者优先）', () => {

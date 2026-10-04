@@ -347,7 +347,7 @@ export const GEM_CHEST_WEIGHTS: readonly number[] = Object.freeze([0, 0, 6535, 1
 export const GEM_CHEST_EXTRA: readonly ChestLootRow[] = [
   { group: 'ingot', weight: 8_000, loot: { type: 'ingot', key: 'ultraRare', amount: 1 } },
   { group: 'ingot', weight: 1_600, loot: { type: 'ingot', key: 'epic', amount: 1 } },
-  { group: 'ingot', weight: 320, loot: { type: 'ingot', key: 'legendary', amount: 1 } },
+  { group: 'ingot', weight: 320, loot: { type: 'ingot', key: 'epic', amount: 1 } },
   { group: 'ingot', weight: 80, loot: { type: 'ingot', key: 'mythic', amount: 1 } },
   { group: 'stone', weight: 5_000, loot: { type: 'stone', tier: 'major', amount: 1 } },
   { group: 'stone', weight: 5_000, loot: { type: 'stone', tier: 'runic', amount: 1 } },
@@ -384,7 +384,7 @@ export const ARENA = {
   level: 15,
   // Numeric source rarities: Common, Rare, Ultra-Rare, Epic (legacy English aliases differ).
   roundBands: [{ min: 0, max: 0 }, { min: 1, max: 1 }, { min: 2, max: 2 }, { min: 3, max: 3 }],
-  rarityLabels: ['普通', '稀有', '超稀有', '史诗'],
+  rarityLabels: ['普通', '稀有', '传说', '史诗'],
   opponentLevels: [15, 15, 15, 15, 15, 15],
   opponentSizes: [4, 4, 4, 4, 4, 4],
 } as const;
@@ -413,12 +413,8 @@ export function arenaDraftLevel(_rarityIdx: number): number {
 // 素材产出 · 探索掉落（2026-09-19 素材批；官方公会任务渠道的单机映射）
 // ---------------------------------------------------------------------------
 
-/** 探索胜利掉落（设计值）：官方「王国战斗掉特质石」+ 公会任务给钢锭的合并口径 */
+/** Explore victory traitstone drops; repeatable ingots come from the boss challenge. */
 export const EXPLORE_DROPS = {
-  /** 胜利掉钢锭概率 */
-  ingotChance: 0.3,
-  /** 钢锭档位随王国基数等级递进：≤10 普通 / ≤20 稀有 / ≤30 超稀 / ≤40 史诗 / 其余传说 */
-  ingotTierByKingdomLevel: [10, 20, 30, 40] as const,
   /** 每场基础抽取次数：小怪 / 首领 / 最终 Boss */
   stoneRollsByStage: [1, 1, 1, 1, 3, 5] as const,
   /** 每场额外的初级 / 高级石抽取次数 */
@@ -490,7 +486,7 @@ export const INVASION_SEASON_REWARDS = {
   relegate: { glory: 25, gems: 0 },
   /** 晋级材料包（对齐「周结大礼」手感）：钢锭 + 符卷 + 符文石 */
   promoteMats: {
-    ingots: { epic: 8, legendary: 2 },
+    ingots: { epic: 8, mythic: 1 },
     forgeScrolls: 2,
     traitstones: { 'runic:red': 2, 'runic:blue': 2, 'runic:purple': 2 },
   },

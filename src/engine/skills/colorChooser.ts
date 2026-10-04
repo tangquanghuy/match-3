@@ -46,6 +46,8 @@ export class AiColorChooser implements ColorChooser {
     const needs = side ? manaNeeds(state.teams[side].characters) : new Map<BaseColor, number>();
     const enemySide = side === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
     const enemyColors = teamColorCounts(state.teams[enemySide].characters);
+    const damageColors = teamColorCounts(state.teams[enemySide].characters.filter(ch =>
+      ch.role === 'Striker' || ch.role === '\u8f93\u51fa'));
     const targetsEnemyColor = proto?.segments.some(seg =>
       'target' in seg && typeof seg.target === 'string' && seg.target.startsWith('enemy')
       && seg.ifCond?.kind === 'targetColor' && seg.ifCond.color === 'CHOSEN') ?? false;
@@ -80,7 +82,8 @@ export class AiColorChooser implements ColorChooser {
       }
       const affected = targetsEnemyColor ? enemyColors.get(color) ?? 0 : needs.get(color) ?? 0;
       const score = matchScore[0]! > 0 ? [matchScore[0]! + 2, ...matchScore.slice(1), n]
-        : destroysChosenColor ? [affected > 0 ? 2 : 1, affected, n]
+        : targetsEnemyColor ? [2, damageColors.get(color) ?? 0, affected, n]
+          : destroysChosenColor ? [affected > 0 ? 2 : 1, affected, n]
           : [1, n];
       if (compareChoiceScores(score, bestScore) > 0) {
         bestScore = score;

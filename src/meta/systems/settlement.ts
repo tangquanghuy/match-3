@@ -21,7 +21,7 @@ import type { BattleResult } from '../../session/contract';
 import type { KingdomState, MetaSave } from '../state/schema';
 import type { CurrencyDelta } from '../types';
 import type { MaterialDelta } from '../data/materials';
-import { ARCANE_STONE_KEYS, INGOT_KEYS, STONE_COLORS, stoneKey } from '../data/materials';
+import { ARCANE_STONE_KEYS, STONE_COLORS, stoneKey } from '../data/materials';
 import {
   DEFEAT_CONSOLATION,
   DAILY_FIRST_WIN_REWARD,
@@ -37,7 +37,7 @@ import {
   HERO_XP_PER_WIN,
   CLASS_XP_PER_WIN,
 } from '../data/economy';
-import { EXPLORE_MAX_TIER, HARD_NODE_COUNT, KINGDOM_ORDER, kingdomBaseLevel, kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '../data/kingdoms';
+import { EXPLORE_MAX_TIER, HARD_NODE_COUNT, KINGDOM_ORDER, kingdomQuestRewardTroop, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { earn, earnMaterials } from './wallet';
 import { resolveBattleBonus } from './battleBonus';
 import { grantTroop } from './troopProgress';
@@ -266,16 +266,10 @@ export function applySettlement(
     }
   }
 
-  // —— 探索掉落（素材批）：官方「王国战斗掉特质石」+ 公会任务给钢锭的合并口径 ——
+  // Exploration drops traitstones; repeatable ingots are awarded by the boss challenge.
   if (victory && ctx.plan.source.kind === 'explore') {
     const dropRng = new SeededRNG((result.seed ^ 0x51f00d) >>> 0);
-    const mats: MaterialDelta = { ingots: {}, traitstones: {} };
-    const baseLevel = kingdomBaseLevel(ctx.plan.kingdom);
-    if (dropRng.next() < EXPLORE_DROPS.ingotChance) {
-      const tierIdx = EXPLORE_DROPS.ingotTierByKingdomLevel.findIndex((cap) => baseLevel <= cap);
-      const ingotKey = INGOT_KEYS[tierIdx === -1 ? INGOT_KEYS.length - 2 : tierIdx]!;
-      mats.ingots![ingotKey] = (mats.ingots![ingotKey] ?? 0) + 1;
-    }
+    const mats: MaterialDelta = { traitstones: {} };
     const source = ctx.plan.source;
     const stage = source.stage ?? 5;
     const chance = exploreStoneChances(source.tier);

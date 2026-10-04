@@ -30,7 +30,7 @@ import { pickEnemies, type EnemyTier } from '../encounter';
 import { applySpecialEncounter, specialEncounterPlan } from '../specialEncounters';
 import { activeTeam } from '../teamRules';
 import {
-  EVENT_BASE_LEVEL, EVENT_POINTS_CAP, addMastery, addRules, buffSnapshot, injectTraits, injectTraitsOn, int, isObj, pickN, rngOf,
+  EVENT_BASE_LEVEL, EVENT_POINTS_CAP, addMastery, addRules, buffSnapshot, injectTraits, injectTraitsOn, protectEventBoss, int, isObj, pickN, rngOf,
   type EventModeImpl, type EventProgressLine, type ModeCtx,
 } from './common';
 
@@ -216,6 +216,7 @@ export const factionMode: EventModeImpl<FactionState> = {
         if (d.kind === 'capital') {
           const boss = req.enemyTeam[0];
           injectTraitsOn(boss, ['ev_fac_warden', 'ev_fac_fort']);
+          protectEventBoss(boss);
           if (boss) addRules(outcome, { objective: { killTargets: [boss.externalId] } });
         } else if (affix?.trait) injectTraits(req.enemyTeam, [{ code: affix.trait, on: 'all' }]);
       }

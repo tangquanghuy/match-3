@@ -89,7 +89,6 @@
 .rd-roster em.weak { background: color-mix(in srgb, var(--c) 22%, transparent); color: #fff; }
 .rd-team-link, .fa-bonus a, .wd-race a, .ct-class { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; color: #d8cfb9 !important; font-size: 13px; }
 .rd-team-link [data-icon], .fa-bonus a [data-icon], .wd-race a [data-icon], .ct-class [data-icon] { width: 15px; height: 15px; color: var(--ev-gold); }
-.rd-tired p { margin: 0; color: #cfc8b8; font-size: 13px; line-height: 1.5; }
 .rd-stats { display: flex; justify-content: space-between; gap: 8px; color: var(--ev-muted); font-size: 12px; }
 .rd-stats b { color: #f6e3ae; font-size: 15px; }
 .rd-panel .evm-fight-wrap { margin-top: auto; }
@@ -360,3 +359,190 @@
 .wd-dice.rolling .wd-dice-img { animation: wd-roll .36s ease-in-out infinite; }
 @keyframes wd-roll { 50% { transform: rotate(120deg) scale(1.13); } }
 @media (prefers-reduced-motion: reduce) { .wd-dice.rolling .wd-dice-img { animation: none; } }
+
+.rd-ingot { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--ev-line-soft); border-radius: 10px; }
+.rd-ingot h4, .rd-ingot p { margin: 0; }
+.rd-ingot small, .rd-ingot p { color: var(--ev-muted); font-size: 12px; }
+.rd-ingot-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.rd-ingot-tiers .chosen { border-color: #e8bd70; color: #ffdea5; background: rgba(154, 95, 35, .4); }
+.iv-squad:active:not(:disabled) { transform: translate(-50%, -50%); }
+
+/* 突袭首领：两种玩法使用独立主板，切换入口不是战斗按钮。 */
+.ev-mode-raidBoss .ev-mode-panel { grid-template-rows: auto minmax(0, 1fr); padding-bottom: 18px; }
+.ev-mode-raidBoss .rd-mode-nav { grid-column: 1 / -1; }
+.evm-raid, .evm-raid-forge { display: block; min-width: 0; }
+.rd-mode-nav { display: flex; align-items: center; gap: 5px; width: fit-content; padding: 4px; border: 1px solid var(--ev-line-soft); border-radius: 10px; background: rgba(18, 19, 26, .94); }
+.rd-mode-link { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 20px; border-radius: 7px; color: var(--ev-muted) !important; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.rd-mode-link:hover { color: #fff3d8 !important; background: rgba(255, 255, 255, .06); }
+.rd-mode-link.active { color: #fff3d8 !important; background: rgba(198, 128, 63, .26); box-shadow: inset 0 0 0 1px rgba(241, 181, 98, .4); }
+.evm-raid .rd-content { height: 100%; }
+.rd-content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, 32%); gap: 12px; min-height: 0; }
+.rd-content .rd-panel { gap: 7px; padding: 10px; scrollbar-width: thin; }
+.rd-content .rd-stage { gap: 10px; padding: 14px; }
+.rd-stage-foot { display: grid; gap: 8px; }
+.rd-stage-foot .rd-guards { flex-wrap: wrap; gap: 6px; }
+.rd-stage-foot .rd-guard { padding: 3px 7px 3px 3px; font-size: 11px; }
+.rd-stage-foot .rd-guard img { width: 30px; height: 30px; }
+.rd-stage-foot .rd-stats { justify-content: flex-start; flex-wrap: wrap; gap: 5px 14px; }
+.rd-stage-foot .rd-stats b { font-size: 12px; }
+.rd-content .rd-phases li { padding: 7px; }
+.rd-content .rd-phases li b { font-size: 13px; }
+.rd-content .rd-phases li span { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 11px; }
+.rd-content .rd-arch { align-items: center; gap: 8px; padding: 8px 10px; }
+.rd-content .rd-arch-ico, .rd-content .rd-sup-ico { width: 30px; height: 30px; }
+.rd-content .rd-arch b { font-size: 14px; }
+.rd-content .rd-supply.on { padding: 7px 9px; }
+.rd-section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.rd-section-head h4 { margin: 0; }
+.rd-section-head .evm-btn { min-height: 28px; padding: 0 9px; font-size: 12px; }
+.rd-content .rd-sup-list { gap: 5px; margin: 0; }
+.rd-content .rd-sup { min-width: 0; min-height: 55px; padding: 5px 2px; font-size: 12px; }
+.rd-content .rd-sup b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rd-content .rd-weak { gap: 10px; padding: 8px 12px; }
+.rd-content .rd-gem { width: 18px; height: 18px; }
+.rd-content .rd-weak b { font-size: 12px; }
+.rd-roster ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.rd-content .rd-roster li { min-width: 0; gap: 5px; padding: 3px 6px; font-size: 11px; }
+.rd-content .rd-face { width: 27px; height: 27px; flex: none; }
+.rd-content .rd-roster em { padding: 1px 4px; font-size: 10px; }
+.rd-content .rd-team-link { margin: 0; white-space: nowrap; }
+.rd-boss-action { margin-top: auto; padding-top: 4px; border-top: 1px solid var(--ev-line-soft); }
+.rd-boss-action p { margin: 0 0 7px; color: #e8c67f; font-size: 12px; }
+.rd-boss-action .evm-fight-wrap { margin-top: 0; }
+
+/* 锻材挑战：场景与钢锭是主视觉，操作区只保留一套选档与一个挑战入口。 */
+.rd-mode-link.rd-forge-entry { gap: 7px; min-height: 40px; padding: 0 17px; border: 1px solid #ae793d; background: linear-gradient(180deg, #634020, #3b281d); color: #fff0cf !important; box-shadow: inset 0 1px rgba(255, 217, 141, .24), 0 2px 12px rgba(217, 118, 32, .18); }
+.rd-forge-entry .mat-art { width: 24px; height: 24px; object-fit: contain; filter: drop-shadow(0 1px 4px #e9a441); }
+.rd-mode-link.rd-forge-entry:hover, .rd-mode-link.rd-forge-entry.active { border-color: #f2c178; background: linear-gradient(180deg, #95602d, #553018); box-shadow: inset 0 1px rgba(255, 229, 168, .4), 0 0 18px rgba(227, 135, 42, .3); }
+.rd-forge { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-width: 0; min-height: 0; width: 100%; height: 100%; overflow: hidden; padding: clamp(16px, 2vw, 28px); border: 1px solid #995631; border-radius: 12px; background: #211919; box-shadow: inset 0 0 0 1px rgba(255, 192, 96, .15), 0 16px 32px rgba(0, 0, 0, .28); }
+.rd-forge::before { content: ''; position: absolute; z-index: -2; inset: 0; background: linear-gradient(90deg, rgba(15, 12, 18, .52), rgba(15, 12, 18, .13) 48%, rgba(15, 12, 18, .87)), linear-gradient(0deg, #151218 0%, transparent 40%), var(--rd-forge-bg) center 43% / cover no-repeat; }
+.rd-forge::after { content: ''; position: absolute; z-index: -1; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 24% 52%, rgba(255, 130, 32, .21), transparent 36%); }
+.rd-forge-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(310px, 44%); align-items: center; flex: 1 1 auto; min-height: 0; gap: 20px; }
+.rd-forge-hero { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-width: 0; min-height: 0; height: 100%; text-align: center; }
+.rd-forge-heading small { color: #ffcb80; font-size: 12px; letter-spacing: .13em; text-shadow: 0 2px 6px #1b0905; }
+.rd-forge-heading h2 { margin: 4px 0; color: #fff2d8; font: bold clamp(25px, 3vw, 38px)/1.2 Georgia, serif; text-shadow: 0 3px 12px #160d0c; }
+.rd-forge-heading p { margin: 0; color: #f8d8a7; font-size: 12px; text-shadow: 0 2px 5px #120b09; }
+.rd-forge-art { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 auto; min-height: 0; }
+.rd-forge-art img { width: min(21vw, 165px); height: min(21vw, 165px); object-fit: contain; filter: drop-shadow(0 0 25px #d96428) drop-shadow(0 8px 8px #170a0c); }
+.rd-forge-art span { padding: 4px 13px; border: 1px solid rgba(255, 194, 106, .45); border-radius: 99px; background: rgba(26, 16, 17, .78); color: #ffe5ac; font-size: 12px; white-space: nowrap; }
+.rd-forge-picker { width: 100%; min-width: 0; padding: 18px 20px 16px; border: 1px solid rgba(233, 166, 89, .48); border-radius: 12px; background: linear-gradient(145deg, rgba(27, 21, 24, .96), rgba(18, 16, 23, .94)); box-shadow: inset 0 1px rgba(255, 207, 132, .16), 0 8px 30px #100c0d99; }
+.rd-forge-stage { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 6px; }
+.rd-forge-step { display: grid; place-items: center; width: 44px; height: 50px; border: 1px solid #ae7a47; border-radius: 8px; background: linear-gradient(#583b27, #2f2530); color: #ffe0a4; cursor: pointer; box-shadow: inset 0 1px #f2bd8066; }
+.rd-forge-step span { font: 36px/1 Georgia, serif; margin-top: -4px; }
+.rd-forge-step:hover:not(:disabled) { border-color: #ffda99; background: #72502b; }
+.rd-forge-step:disabled { opacity: .38; cursor: default; }
+.rd-forge-step:focus-visible, .rd-forge-range:focus-visible { outline: 2px solid #f3bf73; outline-offset: 3px; }
+.rd-forge-feature { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; color: #f1cb90; }
+.rd-forge-feature small { color: #c7aa8e; font-size: 11px; letter-spacing: .1em; }
+.rd-forge-feature strong { font: bold 47px/1.1 Georgia, serif; color: #ffe2a0; text-shadow: 0 0 20px #e38542aa; }
+.rd-forge-feature strong span { font: 15px var(--body); color: #bda990; }
+.rd-forge-feature > span { font-size: 12px; }
+.rd-forge-scale { position: relative; height: 62px; margin: 14px 2px 0; }
+.rd-forge-track { position: absolute; top: 13px; left: 12px; right: 12px; height: 14px; border: 1px solid #9d714c; border-radius: 9px; background: linear-gradient(#292129, #4d3940 55%, #1d1820); box-shadow: 0 2px 8px #0009, inset 0 2px 3px #0008; }
+.rd-forge-track span { display: block; width: calc(100% * var(--rd-selected)); height: 100%; border-radius: 9px; background: linear-gradient(#ffda8d, #bd7229 48%, #81401e); box-shadow: 0 0 11px #e89e42; }
+.rd-forge-range { position: absolute; z-index: 2; inset: 0 0 auto; width: 100%; height: 42px; margin: 0; appearance: none; -webkit-appearance: none; background: transparent; cursor: pointer; touch-action: pan-y; }
+.rd-forge-range::-webkit-slider-runnable-track { height: 14px; background: transparent; }
+.rd-forge-range::-moz-range-track { height: 14px; background: transparent; }
+.rd-forge-range::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 25px; height: 25px; margin-top: -6px; border: 4px solid #53311f; border-radius: 6px; transform: rotate(45deg); background: #ffdb88; box-shadow: 0 0 0 1px #ffcd78, 0 0 12px #ef9f44; }
+.rd-forge-range::-moz-range-thumb { width: 25px; height: 25px; border: 4px solid #53311f; border-radius: 6px; transform: rotate(45deg); background: #ffdb88; box-shadow: 0 0 0 1px #ffcd78, 0 0 12px #ef9f44; box-sizing: border-box; }
+.rd-forge-labels { position: absolute; top: 43px; left: 12px; right: 12px; display: flex; justify-content: space-between; color: #c7a98a; font-size: 11px; }
+.rd-forge-labels span { position: relative; display: flex; justify-content: center; width: 0; }
+.rd-forge-labels span::before { content: ''; position: absolute; top: -15px; width: 2px; height: 7px; background: #f7cc8777; }
+.rd-forge-labels .selected { color: #ffdd94; font-weight: bold; text-shadow: 0 0 8px #f99d46; }
+.rd-forge-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 230px); align-items: center; gap: 16px; min-width: 0; padding: 12px 14px; border: 1px solid rgba(230, 152, 74, .45); border-radius: 10px; background: rgba(19, 16, 21, .94); box-shadow: inset 0 1px rgba(255, 206, 138, .15); }
+.rd-forge-rewards { display: grid; gap: 6px; min-width: 0; }
+.rd-bonus { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; }
+.rd-bonus > small { color: #c6ab95; font-size: 11px; }
+.rd-drop { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: #f1e3cc; font-size: 12px; white-space: nowrap; }
+.rd-drop img { width: 24px; height: 24px; object-fit: contain; }
+.rd-drop b { font-weight: 600; }
+.rd-drop small { color: #efc281; }
+.rd-drop.guaranteed b { font-size: 14px; }
+.rd-forge-bottom .evm-fight-wrap { margin: 0; }
+.rd-forge-bottom .ev-fight { min-height: 54px; font-size: 18px; letter-spacing: .12em; box-shadow: 0 0 18px rgba(240, 163, 71, .23); }
+@media (max-width: 1399px) {
+  .rd-content { grid-template-columns: minmax(0, 1fr) minmax(260px, 32%); }
+}
+@media (max-width: 999px) {
+  .ev-mode-raidBoss .ev-mode-panel { display: flex; flex-direction: column; padding-bottom: 0; }
+  .ev-mode-raidBoss .ev-board { order: 1; }
+  .ev-mode-raidBoss .ev-side { order: 2; overflow: visible; }
+  .ev-mode-raidBoss .rd-mode-nav { flex: none; }
+  .evm-raid .rd-content { height: auto; }
+  .rd-content { grid-template-columns: 1fr; }
+  .rd-content .rd-stage { min-height: 270px; }
+  .rd-content .rd-panel { overflow: visible; }
+  .rd-forge { height: auto; overflow: hidden; }
+}
+@media (max-width: 650px) {
+  .rd-mode-nav { width: 100%; }
+  .rd-mode-link { flex: 1; padding: 0 6px; }
+  .rd-content .rd-stage { min-height: 260px; }
+  .rd-content .rd-boss { gap: 9px; }
+  .rd-content .rd-boss-info h3 { font-size: 22px; }
+  .rd-content .rd-boss-info small { font-size: 11px; }
+  .rd-content .rd-phases { gap: 4px; }
+  .rd-content .rd-phases li { padding: 5px 3px; }
+  .rd-content .rd-phases li span { display: none; }
+  .rd-forge { padding: 12px; gap: 10px; }
+
+
+  .rd-forge-bottom { grid-template-columns: 1fr; gap: 7px; padding: 9px; }
+  .rd-forge-picker { padding: 10px 14px 2px; }
+}
+
+/* On phones the selected challenge comes first; shared weekly progression stays below it. */
+@media (max-width: 699px) {
+  .ev-mode-raidBoss .ev-banner-art { display: none; }
+  .ev-mode-raidBoss .ev-banner { min-height: 0; }
+  .ev-mode-raidBoss .ev-banner-copy { gap: 4px; padding: 9px 12px; }
+  .ev-mode-raidBoss .ev-title-row h1 { font-size: 18px; }
+  .ev-mode-raidBoss .ev-brief, .ev-mode-raidBoss .ev-tags { display: none; }
+  .ev-mode-raidBoss .ev-side { gap: 8px; }
+  .ev-mode-raidBoss .ev-progress { padding: 9px 12px; }
+  .ev-mode-raidBoss .ev-progress-bar { margin-top: 6px; }
+  .ev-mode-raidBoss .ev-secondary-links a { min-height: 46px; }
+}
+@media (min-width: 700px) {
+}
+/* The material challenge is its own screen: no boss banner or second scrollable rail. */
+.ev-raid-forge-page .ev-mode-panel { grid-template-columns: minmax(0, 1fr); }
+.ev-raid-forge-page .ev-side { display: none; }
+.ev-raid-forge-page .ev-board { grid-column: 1 / -1; }
+.rd-week-mobile { display: none; }
+.ev-raid-forge-page .rd-week-mobile { display: flex; grid-column: 1 / -1; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 20px; color: var(--ev-muted); font-size: 12px; }
+.rd-week-mobile b { color: #f1d192; }
+.rd-week-mobile a { color: #e6c583 !important; text-decoration: none; }
+.rd-week-mobile a:hover { text-decoration: underline; }
+@media (min-width: 1000px) {
+  .ev-raid-forge-page .ev-mode-panel { grid-template-rows: auto minmax(0, 1fr) auto; }
+  .ev-raid-forge-page .rd-forge { max-width: none; }
+}
+@media (max-width: 999px) {
+  .ev-raid-forge-page .rd-week-mobile { order: 2; }
+}
+@media (max-width: 999px) {
+  .rd-forge-main { grid-template-columns: minmax(0, 1fr) minmax(270px, 47%); }
+  .rd-forge-art img { width: 120px; height: 120px; }
+}
+@media (max-width: 650px) {
+  .rd-mode-link.rd-forge-entry { padding: 0 8px; }
+  .rd-forge::before { background: linear-gradient(90deg, #181218aa, #18121877), linear-gradient(0deg, #16131a 4%, transparent 95%), var(--rd-forge-bg) center / cover no-repeat; }
+  .rd-forge-main { display: flex; flex-direction: column; gap: 8px; }
+  .rd-forge-hero { flex-direction: row; justify-content: space-between; gap: 8px; width: 100%; height: auto; text-align: left; }
+  .rd-forge-heading small { font-size: 10px; }
+  .rd-forge-heading h2 { font-size: 23px; }
+  .rd-forge-heading p { font-size: 11px; }
+  .rd-forge-art { flex: none; width: 76px; }
+  .rd-forge-art img { width: 66px; height: 60px; }
+  .rd-forge-art span { padding: 2px 5px; font-size: 10px; }
+  .rd-forge-picker { width: 100%; }
+  .rd-forge-stage { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+  .rd-forge-feature strong { font-size: 38px; }
+  .rd-forge-scale { margin-top: 5px; height: 54px; }
+  .rd-forge-labels { font-size: 10px; }
+  .rd-forge-bottom .ev-fight { min-height: 48px; }
+  .rd-drop { font-size: 11px; }
+  .rd-drop.guaranteed b { font-size: 12px; }
+  .rd-drop img { width: 21px; height: 21px; }
+}
