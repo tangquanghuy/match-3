@@ -3,6 +3,7 @@ import type { ImpactPresentation } from './impactPlayback';
 import { BattleSettings } from './BattleSettings';
 import { BattleControls } from './BattleControls';
 import { attachBattleSpeed } from './battleSpeedRuntime';
+import { startBackgroundTicker } from './backgroundTicker';
 import { backgroundMusic } from '../audio/BackgroundMusic';
 import { musicForBattle } from '../audio/MusicCatalog';
 import { BattleNarrator } from './BattleNarrator';
@@ -67,7 +68,7 @@ import { raceNames } from '../meta/data/races';
 import { roleNameZh } from '../meta/data/roles';
 import { SkillBranchPicker } from './SkillBranchPicker';
 import { AiBranchChooser, FixedBranchChooser, skillChoices, selectSkillBranch } from '../engine/skills/branchChooser';
-import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled } from './battlePrefs';
+import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled, backgroundRunEnabled } from './battlePrefs';
 import { TargetPicker } from './TargetPicker';
 import { CellPicker } from './CellPicker';
 import type { CellAimCoords } from './CellPicker';
@@ -316,7 +317,7 @@ export class App {
   }
 
   private async waitForBattleReady(): Promise<boolean> {
-    while (!this.destroyed && !this.surrendered && (this.settingsOpen || this.pageHidden || this.orientationBlocked)) {
+    while (!this.destroyed && !this.surrendered && (this.settingsOpen || (this.pageHidden && !backgroundRunEnabled()) || this.orientationBlocked)) {
       await this.delay(100);
     }
     return !this.destroyed && !this.surrendered;
@@ -422,6 +423,7 @@ export class App {
   private baseH = 0;
   private orientationBlocked = false;
   private pageHidden = false;
+  private stopBackgroundTick: (() => void) | null = null;
   private lifecycleBound = false;
   private turnNumber = 1;
   private turnTextEl: HTMLSpanElement | null = null;
@@ -877,6 +879,7 @@ export class App {
     this.input?.destroy();
     this.stopIdle();
     this.audioLifecycle.abort();
+    this.stopBackgroundTicker();
     this.battleSettings?.dispose();
     this.player?.cancel();
     this.finiteVisuals.cancel();
@@ -1030,11 +1033,29 @@ export class App {
     }
   }
 
+  /** Hidden tabs suppress rAF: drive GSAP timelines using throttled timers instead. */
+  private syncBackgroundTicker(): void {
+    if (this.pageHidden && backgroundRunEnabled() && !this.destroyed) {
+      this.stopBackgroundTick ??= startBackgroundTicker();
+    } else this.stopBackgroundTicker();
+  }
+
+  private stopBackgroundTicker(): void {
+    this.stopBackgroundTick?.();
+    this.stopBackgroundTick = null;
+  }
+
   private bindPageLifecycle(): void {
     if (this.lifecycleBound) return;
     this.lifecycleBound = true;
+    window.addEventListener('battle-background-change', () => this.syncBackgroundTicker(), { signal: this.audioLifecycle.signal });
+    window.addEventListener('storage', e => {
+      if (e.key === 'battle.backgroundRun') this.syncBackgroundTicker();
+    }, { signal: this.audioLifecycle.signal });
     document.addEventListener('visibilitychange', () => {
       this.pageHidden = document.hidden;
+      this.syncBackgroundTicker();
+      this.audio.setMuted(this.pageHidden);
       this.syncInteractionGate();
       if (this.pageHidden) void this.audio.suspend();
       else {
@@ -1045,6 +1066,8 @@ export class App {
     }, { signal: this.audioLifecycle.signal });
     window.addEventListener('pageshow', () => {
       this.pageHidden = document.hidden;
+      this.syncBackgroundTicker();
+      this.audio.setMuted(this.pageHidden);
       this.syncInteractionGate();
       this.refreshLayout();
       if (!this.pageHidden) void this.audio.resume();
@@ -1820,7 +1843,14 @@ export class App {
           continue;
         }
         // Fence queued animationend/onfinish handlers and DOM removals before input.
-        if (!await this.finiteVisuals.raceCancellation(new Promise<void>(resolve => requestAnimationFrame(() => resolve())), generation)) break;
+        if (!await this.finiteVisuals.raceCancellation(new Promise<void>(resolve => {
+          if (this.pageHidden && backgroundRunEnabled()) setTimeout(resolve, 50);
+          else {
+            requestAnimationFrame(() => resolve());
+            // The tab can become hidden while the rAF is pending.
+            setTimeout(() => { if (this.pageHidden && backgroundRunEnabled()) resolve(); }, 200);
+          }
+        }), generation)) break;
         const remaining = this.wrapper.getAnimations({ subtree: true }).some(a => {
           const target = (a.effect as KeyframeEffect | null)?.target;
           if (target instanceof Element && target.closest('.trait-activation-lane')) return false;

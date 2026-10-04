@@ -9,9 +9,10 @@ type Runtime = Omit<App, 'audio' | 'player' | 'session' | 'narrator'> & {
   audio: AudioManager; player: EventStreamPlayer; session: BattleSession; narrator: BattleNarrator;
   input: { enabled: boolean }; startupPlaying: boolean; afterResolve(): void;
   autoBattleEnabled: boolean;
+  pageHidden: boolean;
   resultCount: number; voicePools: string[];
 };
-declare global { interface Window { __settingsTestApp?: Runtime } }
+declare global { interface Window { __settingsTestApp?: Runtime; __setHidden?: (value: boolean) => void } }
 
 // External font availability must not block navigation or battle startup in E2E.
 test.beforeEach(async ({ page }) => {
@@ -251,4 +252,45 @@ test('meta battle surrender returns through settlement without advancing quest p
   await expect(page.locator('.battle-settings-button')).toHaveCount(0);
   await page.waitForTimeout(1000);
   expect(errors).toEqual([]);
+});
+
+
+test('hidden tab stays paused by default, background setting lets auto battle advance', async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.addInitScript(() => {
+    let hidden = false;
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => hidden });
+    (window as unknown as { __setHidden: (value: boolean) => void }).__setHidden = value => {
+      hidden = value;
+      document.dispatchEvent(new Event('visibilitychange'));
+    };
+  });
+  await page.goto('/game.html#settings', { waitUntil: 'domcontentloaded' });
+  const background = page.getByRole('switch', { name: '后台运行', exact: true });
+  await expect(background).not.toBeChecked();
+  await background.check();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(background).toBeChecked();
+  await background.uncheck();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(background).not.toBeChecked();
+  await openBattle(page);
+  await page.evaluate(() => window.__setHidden?.(true));
+  // AI handoff must wait until the page becomes visible in the default mode.
+  const defaultWait = await page.evaluate(async () => {
+    const app = window.__settingsTestApp! as Runtime & { waitForBattleReady(): Promise<boolean> };
+    return Promise.race([app.waitForBattleReady().then(() => 'ready'), new Promise<string>(r => setTimeout(() => r('paused'), 400))]);
+  });
+  expect(defaultWait).toBe('paused');
+  await page.evaluate(() => window.__setHidden?.(false));
+  await page.goto('/game.html#settings', { waitUntil: 'domcontentloaded' });
+  await background.check();
+  await page.getByRole('switch', { name: '自动战斗', exact: true }).check();
+  await openBattle(page);
+  const before = await page.evaluate(() => window.__settingsTestApp!.getEngine().getState().actionLog.length);
+  await page.evaluate(() => window.__setHidden?.(true));
+  await expect.poll(() => page.evaluate(() => window.__settingsTestApp!.getEngine().getState().actionLog.length),
+    { timeout: 25_000 }).toBeGreaterThan(before);
+  await page.evaluate(() => window.__setHidden?.(false));
+  await expect.poll(() => page.evaluate(() => window.__settingsTestApp!.pageHidden)).toBe(false);
 });

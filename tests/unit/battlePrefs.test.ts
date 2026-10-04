@@ -5,6 +5,8 @@ import {
   skipCastConfirm,
   autoBattleEnabled,
   setAutoBattleEnabled,
+  backgroundRunEnabled,
+  setBackgroundRunEnabled,
 } from '../../src/render/battlePrefs';
 
 function storageStub(initial: Record<string, string> = {}): Storage {
@@ -42,6 +44,19 @@ describe('battle cast confirmation preference', () => {
     expect(window.localStorage.getItem('battle.skipCastConfirm')).toBe('0');
   });
 
+  it('defaults to pausing in hidden tabs, persists background choice, and resets it', () => {
+    expect(backgroundRunEnabled()).toBe(false);
+    setBackgroundRunEnabled(true);
+    expect(backgroundRunEnabled()).toBe(true);
+    expect(window.localStorage.getItem('battle.backgroundRun')).toBe('1');
+    setBackgroundRunEnabled(false);
+    expect(backgroundRunEnabled()).toBe(false);
+    setBackgroundRunEnabled(true);
+    resetBattlePrefs();
+    expect(backgroundRunEnabled()).toBe(false);
+    expect(window.localStorage.getItem('battle.backgroundRun')).toBeNull();
+  });
+
   it('keeps the setting available in memory when localStorage rejects writes', () => {
     vi.stubGlobal('window', {
       localStorage: {
@@ -55,6 +70,8 @@ describe('battle cast confirmation preference', () => {
     expect(skipCastConfirm()).toBe(true);
     setAutoBattleEnabled(true);
     expect(autoBattleEnabled()).toBe(true);
+    setBackgroundRunEnabled(true);
+    expect(backgroundRunEnabled()).toBe(true);
     setAutoBattleEnabled(false);
     expect(autoBattleEnabled()).toBe(false);
   });

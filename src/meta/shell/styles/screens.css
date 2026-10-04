@@ -1299,6 +1299,8 @@
   border: 1px solid #e9c879; box-shadow: 0 7px 20px #000a, inset 0 1px #ffefb65c;
   font: 15px var(--display); letter-spacing: 2px; cursor: pointer;
 }
+/* Preserve horizontal centering against the global button:active transform. */
+.summon-action:active:not(:disabled) { transform: translateX(-50%) translateY(1px); }
 .summon-action:disabled { opacity: .55; cursor: default; }
 .summon-modal.is-complete .summon-action { background: linear-gradient(#5a4c72, #322543); border-color: #baa0e0; }
 

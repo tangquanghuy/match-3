@@ -1,3 +1,4 @@
+import { startBackgroundTicker } from './backgroundTicker';
 import { Application, Container, Graphics } from 'pixi.js';
 import { gsap } from 'gsap';
 import { BoardView } from './BoardView';
@@ -78,11 +79,16 @@ export class HuntBoardScene {
   }
 
   set enabled(value: boolean) { if (this.input) this.input.enabled = value; }
-  setSuspended(value: boolean): void {
+  private stopBackgroundTick: (() => void) | null = null;
+
+  setSuspended(value: boolean, hidden = value): void {
     if (this.disposed || !this.initialized) return;
     this.player.setPaused(value);
+    if (hidden && !value) this.stopBackgroundTick ??= startBackgroundTicker();
+    else { this.stopBackgroundTick?.(); this.stopBackgroundTick = null; }
+    this.audio.setMuted(hidden);
     if (value) { this.app.stop(); void this.audio.suspend(); }
-    else { this.app.start(); void this.audio.resume(); }
+    else { this.app.start(); if (!hidden) void this.audio.resume(); }
   }
 
   startMusic(): void { this.musicActive = true; backgroundMusic.beginBattle('battle'); }
@@ -102,6 +108,8 @@ export class HuntBoardScene {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.stopBackgroundTick?.();
+    this.stopBackgroundTick = null;
     this.observer?.disconnect();
     this.input?.destroy();
     this.player.cancel();

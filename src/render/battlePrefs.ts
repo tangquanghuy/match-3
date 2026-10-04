@@ -11,6 +11,7 @@
  */
 const KEY_SKIP_CONFIRM = 'battle.skipCastConfirm';
 const KEY_AUTO = 'battle.autoBattle';
+const KEY_BACKGROUND = 'battle.backgroundRun';
 /** 已废弃的一次性手势引导标记（满法力文字提醒已删除）；只在 reset 时顺手清掉残留值 */
 const KEY_LEGACY_GESTURE_HINT = 'battle.gestureHintShown';
 
@@ -56,12 +57,23 @@ export function setAutoBattleEnabled(on: boolean): void {
   write(KEY_AUTO, on ? '1' : '0');
 }
 
+/** 后台运行默认关闭；手动操作仍需玩家在页面内进行。 */
+export function backgroundRunEnabled(): boolean {
+  return read(KEY_BACKGROUND) === '1';
+}
+
+export function setBackgroundRunEnabled(on: boolean): void {
+  write(KEY_BACKGROUND, on ? '1' : '0');
+  window.dispatchEvent?.(new Event('battle-background-change'));
+}
+
 /** 测试与调试用：清空本地偏好 */
 export function resetBattlePrefs(): void {
   memory.clear();
   try {
     window.localStorage.removeItem(KEY_SKIP_CONFIRM);
     window.localStorage.removeItem(KEY_AUTO);
+    window.localStorage.removeItem(KEY_BACKGROUND);
     window.localStorage.removeItem(KEY_LEGACY_GESTURE_HINT);
   } catch {
     // ignore

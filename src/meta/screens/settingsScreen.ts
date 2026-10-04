@@ -12,7 +12,7 @@ import { audioControlsHtml, bindAudioControls } from '../../preferences/audioCon
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { MetaSave } from '../state/schema';
 import type { Screen, ShellCtx } from '../shell/screen';
-import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled } from '../../render/battlePrefs';
+import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled, backgroundRunEnabled, setBackgroundRunEnabled } from '../../render/battlePrefs';
 import { allKingdoms } from '../data/kingdoms';
 import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 import {
@@ -489,6 +489,10 @@ export class SettingsScreen implements Screen {
                     <input type="checkbox" role="switch" id="autoBattle" aria-label="自动战斗"${autoBattleEnabled() ? ' checked' : ''}>
                   </label>
                   <label class="check-row">
+                    <span class="setting-copy"><b>后台运行</b><small>切换标签页后继续战斗（自动战斗需单独开启）；默认暂停，后台静音</small></span>
+                    <input type="checkbox" role="switch" id="backgroundRun" aria-label="后台运行"${backgroundRunEnabled() ? ' checked' : ''}>
+                  </label>
+                  <label class="check-row">
                     <span class="setting-copy"><b>快速释放</b><small>点击法力值已满的角色直接释放技能；长按查看详情</small></span>
                     <input type="checkbox" id="skipCastConfirm" aria-label="快速释放"${skipCastConfirm() ? ' checked' : ''}>
                   </label>
@@ -624,6 +628,9 @@ export class SettingsScreen implements Screen {
     this.bind('#skipCastConfirm', 'change', () => this.toggleCastConfirm());
     this.bind('#autoBattle', 'change', () => {
       setAutoBattleEnabled(($('#autoBattle') as HTMLInputElement).checked);
+    });
+    this.bind('#backgroundRun', 'change', () => {
+      setBackgroundRunEnabled(($('#backgroundRun') as HTMLInputElement).checked);
     });
     this.bind('#battleDebug', 'change', () => void this.toggleDebug());
     this.bind('#collectionKingdom', 'change', () => {

@@ -11,6 +11,32 @@ async function openFresh(page: Page, hash: string): Promise<void> {
 }
 
 test.describe('宝箱视觉与批量入口', () => {
+  test('summon action stays centered when pressed and starts revealing cards', async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await openFresh(page, 'chests/gems');
+    const ten = page.locator('[data-open="gem-10"]');
+    await expect(ten).toBeEnabled();
+    await ten.click();
+    await expect(page.locator('#summonModal')).toHaveClass(/is-ready/, { timeout: 15_000 });
+
+    const button = page.locator('#summonAction');
+    await expect(button).toBeVisible();
+    const sheet = await page.locator('.summon-sheet').boundingBox();
+    const before = await button.boundingBox();
+    expect(sheet).not.toBeNull();
+    expect(before).not.toBeNull();
+    expect(Math.abs(before!.x + before!.width / 2 - (sheet!.x + sheet!.width / 2))).toBeLessThan(2);
+
+    await page.mouse.move(before!.x + before!.width / 2, before!.y + before!.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(200); // let the shared button transform transition settle
+    const pressed = await button.boundingBox();
+    expect(pressed).not.toBeNull();
+    expect(Math.abs(pressed!.x - before!.x)).toBeLessThan(2);
+    await page.mouse.up();
+    await expect(page.locator('#summonCounter')).not.toHaveText('0 / 10', { timeout: 10_000 });
+  });
+
   test('荣耀宝箱常驻单抽与十连，余额不足时同时显示费用和缺口', async ({ page }) => {
     await openFresh(page, 'chests/keys');
     await page.evaluate(() => {

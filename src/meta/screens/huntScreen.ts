@@ -1,3 +1,4 @@
+import { backgroundRunEnabled } from '../../render/battlePrefs';
 import { toast, toastHtml, topbarHtml } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { isFailure, todayStartOf } from '../gateway';
@@ -110,8 +111,14 @@ export class HuntScreen implements Screen {
     this.el('huntCloseRules').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => this.el('huntHelp').setAttribute('aria-expanded', 'false'));
     dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } });
+    window.addEventListener('battle-background-change', () => {
+      this.scene?.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
+    }, { signal: this.abort.signal });
+    window.addEventListener('storage', e => {
+      if (e.key === 'battle.backgroundRun') this.scene?.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
+    }, { signal: this.abort.signal });
     document.addEventListener('visibilitychange', () => {
-      this.scene?.setSuspended(document.hidden);
+      this.scene?.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
       if (!document.hidden) this.paintReserve(ctx);
     }, { signal: this.abort.signal });
     this.paintReserve(ctx);
@@ -145,7 +152,7 @@ export class HuntScreen implements Screen {
         else if (best >= 5) this.feedback('五连 · 额外步数');
         else if (best === 4) this.feedback('四连 · 保留步数');
       };
-      scene.setSuspended(document.hidden);
+      scene.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
       if (this.current) this.showBoard(this.current);
       else {
         const maps = ctx.save().materials.treasureMaps;
