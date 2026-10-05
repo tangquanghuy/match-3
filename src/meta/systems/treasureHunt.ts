@@ -342,6 +342,28 @@ export function createOpeningBoard(rng: SeededRNG): number[] {
   return Array.from({ length: HUNT_CELLS }, (_, i) => ((Math.floor(i / HUNT_SIZE) + (i % HUNT_SIZE)) % 2 === 0 ? 0 : 1));
 }
 
+/** Select a legal swap from the visible board only. Do not advance RNG or resolve rewards here. */
+export function chooseHuntAutoMove(cells: readonly number[]): [number, number] | null {
+  let best: [number, number] | null = null;
+  let bestScore = -Infinity;
+  for (let from = 0; from < HUNT_CELLS; from++) {
+    if (cells[from] === VAULT) continue;
+    for (const to of [from % HUNT_SIZE < HUNT_SIZE - 1 ? from + 1 : -1, from + HUNT_SIZE < HUNT_CELLS ? from + HUNT_SIZE : -1]) {
+      if (to < 0 || cells[to] === VAULT || cells[from] === cells[to]) continue;
+      const trial = cells.slice();
+      [trial[from], trial[to]] = [trial[to]!, trial[from]!];
+      const groups = findGroups(trial);
+      if (!groups.length) continue;
+      // Favor bonus turns first, then high-tier merges; ties are deterministic.
+      const largest = Math.max(...groups.map(group => group.length));
+      const score = (largest >= 5 ? 1_000_000 : largest === 4 ? 100_000 : 0)
+        + groups.reduce((sum, group) => sum + group.length * (trial[group[0]!]! + 1) ** 2, 0);
+      if (score > bestScore) { bestScore = score; best = [from, to]; }
+    }
+  }
+  return best;
+}
+
 function adjacent(a: number, b: number): boolean {
   if (a < 0 || b < 0 || a >= HUNT_CELLS || b >= HUNT_CELLS || a === b) return false;
   const ar = Math.floor(a / HUNT_SIZE);

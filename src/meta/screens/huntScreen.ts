@@ -1,10 +1,13 @@
-import { backgroundRunEnabled } from '../../render/battlePrefs';
+import { autoBattleEnabled, backgroundRunEnabled, setAutoBattleEnabled } from '../../render/battlePrefs';
+import { attachBattleSpeed } from '../../render/battleSpeedRuntime';
+import { cycleBattleSpeed, getSelectedBattleSpeed, onBattleSpeedChange, restoreBattleSpeed, scaledMs, setBattleSpeedBoost } from '../../render/battleSpeed';
 import { toast, toastHtml, topbarHtml } from '../shell/chrome';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { isFailure, todayStartOf } from '../gateway';
 import { LOOT_ART } from './huntArt';
 import {
   HUNT_START_TURNS,
+  chooseHuntAutoMove,
   huntDailyRemaining,
   LOOT_LADDER,
   type HuntMoveOk,
@@ -34,6 +37,10 @@ export class HuntScreen implements Screen {
   private feedbackTimer: ReturnType<typeof setTimeout> | undefined;
   private reserveTimer: ReturnType<typeof setInterval> | undefined;
   private abort = new AbortController();
+  private auto = false;
+  private autoTimer: ReturnType<typeof setTimeout> | undefined;
+  private detachSpeed: (() => void) | undefined;
+  private unsubscribeSpeed: (() => void) | undefined;
 
   html(ctx: ShellCtx): string {
     const maps = ctx.save().materials.treasureMaps;
@@ -44,6 +51,8 @@ export class HuntScreen implements Screen {
           <a class="hunt-back" href="#map" aria-label="返回地图">‹ <span>地图</span></a>
           <div class="hunt-title"><img src="${dailyArt('hunt')}" alt=""><h1>寻宝</h1></div>
           <span class="hunt-maps" id="huntMaps">藏宝图 ${fmt(maps)}</span>
+          <button class="hunt-control hunt-speed" id="huntSpeed" type="button" aria-label="演出速度">1×</button>
+          <button class="hunt-control hunt-auto" id="huntAuto" type="button" aria-label="自动寻宝" aria-pressed="false">自动</button>
           <button class="hunt-help" id="huntHelp" type="button" aria-label="寻宝规则" aria-expanded="false">规则</button>
         </header>
         <div class="hunt-status" aria-live="polite">
@@ -95,17 +104,32 @@ export class HuntScreen implements Screen {
     this.abort = new AbortController();
     this.root = root;
     this.current = ctx.save().treasureHunt;
+    restoreBattleSpeed();
+    this.detachSpeed = attachBattleSpeed(root);
+    const speed = this.el('huntSpeed');
+    const paintSpeed = () => { speed.textContent = `${getSelectedBattleSpeed()}×`; };
+    paintSpeed();
+    this.unsubscribeSpeed = onBattleSpeedChange(() => { paintSpeed(); this.scheduleAuto(ctx); });
+    speed.addEventListener('click', () => cycleBattleSpeed(), { signal: this.abort.signal });
+    this.el('huntAuto').addEventListener('click', () => this.setAuto(ctx, !this.auto), { signal: this.abort.signal });
+    this.auto = autoBattleEnabled();
+    this.el('huntAuto').setAttribute('aria-pressed', String(this.auto));
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Space' && !(e.target instanceof HTMLElement && (e.target.isContentEditable || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)))) setBattleSpeedBoost(true);
+    }, { signal: this.abort.signal });
+    window.addEventListener('keyup', e => { if (e.code === 'Space') setBattleSpeedBoost(false); }, { signal: this.abort.signal });
+    window.addEventListener('blur', () => setBattleSpeedBoost(false), { signal: this.abort.signal });
     this.el('huntBegin').addEventListener('click', () => {
       if (!this.ready) void this.initialize(ctx); else void this.start(ctx);
     });
     const endDialog = this.el<HTMLDialogElement>('huntEndDialog');
     this.el('huntFinish').addEventListener('click', () => {
-      if (!this.busy && this.current) { this.scene!.enabled = false; endDialog.showModal(); }
+      if (!this.busy && this.current) { clearTimeout(this.autoTimer); this.scene!.enabled = false; endDialog.showModal(); }
     });
     this.el('huntEndCancel').addEventListener('click', () => endDialog.close());
     this.el('huntEndConfirm').addEventListener('click', () => void this.finish(ctx));
     endDialog.addEventListener('cancel', e => { if (this.busy) e.preventDefault(); });
-    endDialog.addEventListener('close', () => { if (this.scene) this.scene.enabled = !this.busy && this.current !== null; });
+    endDialog.addEventListener('close', () => { if (this.scene) this.scene.enabled = !this.busy && this.current !== null && !this.auto; this.scheduleAuto(ctx); });
     const dialog = this.el<HTMLDialogElement>('huntRules');
     this.el('huntHelp').addEventListener('click', () => { dialog.showModal(); this.el('huntHelp').setAttribute('aria-expanded', 'true'); });
     this.el('huntCloseRules').addEventListener('click', () => dialog.close());
@@ -113,6 +137,7 @@ export class HuntScreen implements Screen {
     dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } });
     window.addEventListener('battle-background-change', () => {
       this.scene?.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
+      this.scheduleAuto(ctx);
     }, { signal: this.abort.signal });
     window.addEventListener('storage', e => {
       if (e.key === 'battle.backgroundRun') this.scene?.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
@@ -120,6 +145,7 @@ export class HuntScreen implements Screen {
     document.addEventListener('visibilitychange', () => {
       this.scene?.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
       if (!document.hidden) this.paintReserve(ctx);
+      this.scheduleAuto(ctx);
     }, { signal: this.abort.signal });
     this.paintReserve(ctx);
     clearInterval(this.reserveTimer);
@@ -153,7 +179,7 @@ export class HuntScreen implements Screen {
         else if (best === 4) this.feedback('四连 · 保留步数');
       };
       scene.setSuspended(document.hidden && !backgroundRunEnabled(), document.hidden);
-      if (this.current) this.showBoard(this.current);
+      if (this.current) this.showBoard(this.current, ctx);
       else {
         const maps = ctx.save().materials.treasureMaps;
         this.el<HTMLButtonElement>('huntBegin').disabled = maps <= 0;
@@ -175,7 +201,7 @@ export class HuntScreen implements Screen {
       if (!this.isCurrent(generation)) return;
       ctx.refreshChrome();
       if (isFailure(begun.result)) { toast(begun.result.message); return; }
-      this.showBoard(begun.result.state);
+      this.showBoard(begun.result.state, ctx);
       this.el('huntMaps').textContent = `藏宝图 ${fmt(ctx.save().materials.treasureMaps)}`;
     } catch { if (this.isCurrent(generation)) toast('连接中断，请重试'); }
     finally {
@@ -197,7 +223,7 @@ export class HuntScreen implements Screen {
       if (!this.isCurrent(generation)) return;
       if (isFailure(played.result)) {
         await this.scene.reject(from, to);
-        if (this.isCurrent(generation)) this.feedback(played.result.message);
+        if (this.isCurrent(generation)) { this.feedback(played.result.message); if (this.auto) this.setAuto(ctx, false); }
         return;
       }
       accepted = played.result;
@@ -214,11 +240,12 @@ export class HuntScreen implements Screen {
           this.current = ctx.save().treasureHunt;
           if (this.current) { this.scene.sync(this.current.cells); this.paint(ctx); }
           this.feedback('连接中断，请重试');
+          if (this.auto) this.setAuto(ctx, false);
         }
       }
     } finally {
       if (this.isCurrent(generation)) this.busy = false;
-      if (this.isCurrent(generation)) { this.scene.enabled = this.current !== null; this.el('huntBoard').setAttribute('aria-busy', 'false'); this.el<HTMLButtonElement>('huntFinish').disabled = false; }
+      if (this.isCurrent(generation)) { this.scene.enabled = this.current !== null && !this.auto; this.el('huntBoard').setAttribute('aria-busy', 'false'); this.el<HTMLButtonElement>('huntFinish').disabled = false; this.scheduleAuto(ctx); }
     }
   }
 
@@ -274,20 +301,43 @@ export class HuntScreen implements Screen {
     this.paint(ctx);
     if (result.over && result.grant) {
       this.current = null;
+      clearTimeout(this.autoTimer);
       ctx.showResult({ kind: 'hunt', grant: result.grant, moves: result.moves }, {
         kingdom: '', sourceLabel: '寻宝', returnHash: '#hunt',
       });
     }
   }
 
-  private showBoard(state: TreasureHuntState): void {
+  private showBoard(state: TreasureHuntState, ctx: ShellCtx): void {
     this.current = state;
     this.el('huntGate').hidden = true;
     this.el('huntFinish').hidden = false;
     this.scene!.sync(state.cells);
-    this.scene!.enabled = true;
+    this.scene!.enabled = !this.auto;
     this.scene!.startMusic();
+    this.scheduleAuto(ctx);
     this.paintCounters();
+  }
+
+  private setAuto(ctx: ShellCtx, on: boolean): void {
+    this.auto = on;
+    setAutoBattleEnabled(on);
+    this.el('huntAuto').setAttribute('aria-pressed', String(on));
+    if (this.scene) this.scene.enabled = !!this.current && !this.busy && !on && !this.el<HTMLDialogElement>('huntEndDialog').open;
+    this.scheduleAuto(ctx);
+  }
+
+  private scheduleAuto(ctx: ShellCtx): void {
+    clearTimeout(this.autoTimer);
+    if (!this.auto || this.disposed || this.busy || !this.ready || !this.current || !this.scene
+      || this.el<HTMLDialogElement>('huntEndDialog').open || (document.hidden && !backgroundRunEnabled())) return;
+    this.autoTimer = setTimeout(() => {
+      this.autoTimer = undefined;
+      if (!this.current || this.disposed || !this.auto) return;
+      const move = chooseHuntAutoMove(this.current.cells);
+      if (move) void this.swap(ctx, ...move);
+      else { this.setAuto(ctx, false); this.feedback('暂无可交换的宝物'); }
+    }, scaledMs(400));
   }
 
   private paintCounters(): void {
@@ -322,6 +372,9 @@ export class HuntScreen implements Screen {
     this.disposed = true;
     clearTimeout(this.feedbackTimer);
     clearInterval(this.reserveTimer);
+    clearTimeout(this.autoTimer);
+    this.unsubscribeSpeed?.();
+    this.detachSpeed?.();
     this.abort.abort();
     this.el<HTMLDialogElement>('huntRules').close();
     this.el<HTMLDialogElement>('huntEndDialog').close();

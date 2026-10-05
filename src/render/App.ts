@@ -74,6 +74,7 @@ import { CellPicker } from './CellPicker';
 import type { CellAimCoords } from './CellPicker';
 
 import { TROOPS, troopToSummonTemplate } from '../data/troops';
+import { battleTroopOf } from './battleTroopIdentity';
 import { resolveTroopPortrait } from '../data/troopPortrait';
 import { setSummonTemplateResolver } from '@engine/traits';
 import { ManaDistributor } from '@engine/ManaDistributor';
@@ -687,6 +688,8 @@ export class App {
       portraits: Object.fromEntries(
         state.teams[PlayerSide.Left].characters.map((ch) => [ch.id, this.portraitFor(ch)]),
       ),
+      troopNames: Object.fromEntries(state.teams[PlayerSide.Left].characters.map((ch) =>
+        [ch.id, battleTroopOf(ch.name, this.idMap.snapshotOf(ch.id))?.name])),
       // 点卡任意位置：打开/切换详情窗；「快速释放」开且此刻可施放 → 直接进施法流程。
       // 长按只在快速释放可施放时存在（=打开详情窗），其余情况与点按相同、不画进度环。
       onShortPress: (id, via) => this.onCardTap(id, via),
@@ -700,6 +703,8 @@ export class App {
       portraits: Object.fromEntries(
         state.teams[PlayerSide.Right].characters.map((ch) => [ch.id, this.portraitFor(ch)]),
       ),
+      troopNames: Object.fromEntries(state.teams[PlayerSide.Right].characters.map((ch) =>
+        [ch.id, battleTroopOf(ch.name, this.idMap.snapshotOf(ch.id))?.name])),
       // 敌方卡：点按（按多久都一样）打开/切换详情窗，任何时候都可以，包括对手回合与演出中
       onShortPress: (id, via) => this.onCardTap(id, via),
     });
@@ -765,6 +770,7 @@ export class App {
     this.setTurn(PlayerSide.Left);
     this.bindPageLifecycle();
     this.pageHidden = document.hidden;
+    this.syncBackgroundTicker();
     this.syncInteractionGate();
     // 初始适配由统一布局入口处理；后续由 ResizeObserver/visualViewport 驱动。
     this.refreshLayout();
@@ -2292,6 +2298,7 @@ export class App {
           this.audio.play('summon');
           const card = this.viewOf(ev.player).addCharacterCard(ch, {
             portrait: this.portraitFor(ch),
+            troopName: battleTroopOf(ch.name, this.idMap.snapshotOf(ch.id))?.name,
           });
           const center = this.cardCenterInOverlay(card);
           if (center) this.playFrameFX('summon_rune', center.x, center.y);
@@ -3516,11 +3523,12 @@ export class App {
    * 当前形态角色/快照携带的文本 → 按名字匹配的兵种数据 → 分拣技能池（AIRP/独立模式角色）。
    */
   private skillDisplayTextOf(ch: Character): { name: string; description: string } {
-    const snapshot = currentFormSnapshot(ch, this.idMap.snapshotOf(ch.id));
+    const original = this.idMap.snapshotOf(ch.id);
+    const snapshot = currentFormSnapshot(ch, original);
     const name = ch.spellName ?? snapshot?.spellName;
     const description = ch.spellDescription ?? snapshot?.spellDescription;
     if (name) return { name, description: description ?? '' };
-    const troop = TROOPS.find((t) => t.name === ch.name);
+    const troop = battleTroopOf(ch.name, original);
     if (troop) return { name: troop.spell.name, description: troop.spell.description };
     const pool = skillDisplayOf(ch.skillId ?? '');
     if (pool) return { name: pool.name, description: pool.description };
@@ -3924,8 +3932,8 @@ export class App {
       statuses: (ch.statuses ?? []).map((s) => ({ id: s.id, turns: s.turns, ...(s.magnitude !== undefined ? { magnitude: s.magnitude } : {}) })),
     };
     // 演示/宿主角色多为原创名字，按名字匹配兵种数据取稀有度/种族/王国；匹配不到则按角色自带字段降级
-    const troop = TROOPS.find((t) => t.name === ch.name);
     const snapshot = currentFormSnapshot(ch, this.idMap.snapshotOf(charId));
+    const troop = battleTroopOf(ch.name, this.idMap.snapshotOf(charId));
     const display = snapshot
       ? { spellName: snapshot.spellName, spellDescription: snapshot.spellDescription, traitNames: snapshot.traitNames }
       : undefined;
@@ -3955,6 +3963,7 @@ export class App {
       targetNote: this.castTargetNote(ch, proto, ally),
       traitSlots: traitSlotsOf(ch, troop, display),
       traitNames: { ...(snapshot?.traitNames ?? {}), ...(ch.traitNames ?? {}) },
+      troopName: troop?.name,
       cast: ally ? this.castAvailability(ch, shown.mana) : undefined,
       quickCast: skipCastConfirm(),
     };

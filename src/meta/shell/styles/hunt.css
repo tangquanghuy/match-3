@@ -81,3 +81,10 @@
   .hunt-hint { bottom:65px; }
   .hunt-actions { position:absolute;left:10px;bottom:12px;width:128px; }
 }
+
+.hunt-control { flex:none;min-width:42px;height:36px;padding:0 8px;border:1px solid #a98b58;border-radius:7px;background:#211d18;color:#eddbb2;font:600 13px system-ui,sans-serif;cursor:pointer; }
+.hunt-control:focus-visible { outline:2px solid #f5d17f;outline-offset:2px; }
+.hunt-auto[aria-pressed="true"],.hunt-speed:not(:empty) { border-color:#caaa66; }
+.hunt-auto[aria-pressed="true"] { background:#5a4526;color:#fff3d0; }
+@media(max-width:600px) { .hunt-toolbar { gap:6px; } .hunt-maps { font-size:11px;white-space:nowrap; } .hunt-control { min-width:36px;padding:0 5px; } }
+@media(max-width:360px) { .hunt-toolbar { padding:0 8px;gap:5px; } .hunt-back span,.hunt-title img { display:none; } .hunt-title h1 { font-size:17px; } .hunt-maps { font-size:10px; } .hunt-control { min-width:34px;height:34px;padding:0 4px; } .hunt-help { width:34px;height:34px; } }

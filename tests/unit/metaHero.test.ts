@@ -150,6 +150,24 @@ describe('主角成长曲线（官方口径：职业基底 + 等级属性点）'
     expect(heroStatsOf(s).health).toBe(heroStatsAt(3, s.hero.classId).health);
   });
 
+  it('主角突破 100 后保持属性和精通，升级经验恒为 99→100 所需', () => {
+    const s = save();
+    s.hero.level = 99;
+    s.hero.xp = 11;
+    const need = heroXpToNext(99);
+    expect(heroXpToNext(100)).toBe(need);
+    expect(heroXpToNext(300)).toBe(need);
+    const result = addHeroXp(s, need * 4 + 7);
+    expect(result).toEqual({ levelsGained: 4, newLevel: 103 });
+    expect(s.hero.xp).toBe(18);
+    expect(heroStatsOf(s)).toEqual(heroStatsAt(100, s.hero.classId));
+    expect(heroLevelGain(103)).toEqual(heroLevelGain(100));
+    expect(s.hero.masteryOffers).toHaveLength(1);
+    const further = addHeroXp(s, need * 2 - 18);
+    expect(further.newLevel).toBe(105);
+    expect(s.hero.masteryOffers).toHaveLength(1);
+  });
+
   it('淬炼面板加成与战斗桥接共用单一口径', () => {
     const s = save();
     s.weaponTempering[s.hero.equippedWeapon!] = 6;

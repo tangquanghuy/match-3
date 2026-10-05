@@ -907,10 +907,13 @@ export class CharacterCard {
   private gemColors: BaseColor[] = [];
   private displayedMana = 0;
 
-  constructor(char: Character, side: PlayerSide, opts?: { portrait?: string; variant?: string }) {
+  private readonly troopName?: string;
+
+  constructor(char: Character, side: PlayerSide, opts?: { portrait?: string; variant?: string; troopName?: string }) {
     ensureStyles();
     this.charId = char.id;
     this.char = char;
+    this.troopName = opts?.troopName;
     this.displayedMana = char.mana;
 
     const skin = char.colors[0] !== undefined ? SKIN_CLASS[char.colors[0]] : 'skin-steel';
@@ -983,7 +986,7 @@ export class CharacterCard {
   /** 卡面三枚特质：与养成页同一套 game-icons，未实现 code 也按名称出图。 */
   private renderTraitRow(): void {
     const codes = [...new Set(this.char.displayTraitIds ?? this.char.traitIds ?? [])].slice(0, 3);
-    const glyphs = traitCardGlyphs(codes, this.char.traitNames, this.char.name, 1);
+    const glyphs = traitCardGlyphs(codes, this.char.traitNames, this.troopName, 1);
     this.traitRowEl.innerHTML = glyphs
       .map((glyph) => {
         const data = `data-trait-name="${escAttr(glyph.name)}" data-trait-desc="${escAttr(glyph.description)}"`;
@@ -2110,6 +2113,7 @@ export class TeamView {
     side: PlayerSide,
     opts?: {
       portraits?: Record<number, string>;
+      troopNames?: Record<number, string | undefined>;
       /** @deprecated Use onShortPress. */
       onCardClick?: (charId: number) => void;
       /** 点按卡面任意位置（含宝石/徽记），或卡片聚焦时按 Enter */
@@ -2137,6 +2141,7 @@ export class TeamView {
     team.characters.forEach((char, index) => {
       const card = new CharacterCard(char, side, {
         portrait: opts?.portraits?.[char.id],
+        troopName: opts?.troopNames?.[char.id],
         variant: VARIANTS[index % VARIANTS.length],
       });
       this.bindCard(card, char.id);
@@ -2232,11 +2237,12 @@ export class TeamView {
     return this.cards.get(charId);
   }
 
-  addCharacterCard(char: Character, opts?: { portrait?: string }): CharacterCard {
+  addCharacterCard(char: Character, opts?: { portrait?: string; troopName?: string }): CharacterCard {
     const existing = this.cards.get(char.id);
     if (existing) return existing;
     const card = new CharacterCard(char, this.side, {
       portrait: opts?.portrait,
+      troopName: opts?.troopName,
       variant: VARIANTS[this.cards.size % VARIANTS.length],
     });
     this.bindCard(card, char.id);

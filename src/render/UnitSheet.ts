@@ -117,6 +117,8 @@ export interface UnitSheetData {
   /** 图鉴同款 3 个特质槽 */
   traitSlots: TraitSlot[];
   traitNames?: Record<string, string>;
+  /** Only resolved troop identities can supply troop-specific glyph copy. */
+  troopName?: string;
   /** 我方：施放按钮状态 */
   cast?: CastAvailability;
   /** 我方：快速释放偏好（battle.skipCastConfirm） */
@@ -485,7 +487,7 @@ export class UnitSheet {
   private headerSig = '';
   private termTips?: () => void;
 
-  constructor(parent: HTMLElement, private handlers: UnitSheetHandlers, private options: { layout?: 'fan' | 'columns' } = {}) {
+  constructor(parent: HTMLElement, private handlers: UnitSheetHandlers, private options: { layout?: 'fan' | 'columns'; readOnly?: boolean } = {}) {
     ensureStyles();
     this.root = document.createElement('section');
     this.root.className = `usw${options.layout === 'columns' ? ' usw-columns' : ''}`;
@@ -721,7 +723,7 @@ export class UnitSheet {
           </div>
         </section>
       </div>
-      <div class="usw-actions">
+      <div class="usw-actions"${this.options.readOnly ? ' hidden' : ''}>
         ${d.ally
           ? `<button class="usw-cast" type="button" data-testid="unit-sheet-cast">释放技能</button>
              <label class="usw-quick"><input type="checkbox" class="usw-quick-box" data-testid="unit-sheet-quick"><span>快速释放</span><small>点满法力角色直接施放</small></label>`
@@ -836,7 +838,7 @@ export class UnitSheet {
   /** 图鉴同款 3 个特质槽：已解锁打勾；未解锁 / 未开槽上锁并压暗 */
   private traitsHtml(d: UnitSheetData): string {
     const real = d.traitSlots.filter((t) => t.code);
-    const glyphs = traitCardGlyphs(real.map((t) => t.code), d.traitNames, d.name, 2);
+    const glyphs = traitCardGlyphs(real.map((t) => t.code), d.traitNames, d.troopName, 2);
     let gi = 0;
     return d.traitSlots.map((t) => {
       const glyph = t.code ? glyphs[gi++]?.svg ?? '' : '';

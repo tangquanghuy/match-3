@@ -294,3 +294,39 @@ test('hidden tab stays paused by default, background setting lets auto battle ad
   await page.evaluate(() => window.__setHidden?.(false));
   await expect.poll(() => page.evaluate(() => window.__settingsTestApp!.pageHidden)).toBe(false);
 });
+
+test('background run drains frozen finite animations so auto battle keeps taking turns', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.addInitScript(() => {
+    let hidden = false;
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => hidden });
+    window.__setHidden = value => {
+      hidden = value;
+      document.dispatchEvent(new Event('visibilitychange'));
+    };
+  });
+  await page.goto('/game.html#settings', { waitUntil: 'domcontentloaded' });
+  await page.locator('#backgroundRun').check();
+  await page.locator('#autoBattle').check();
+  await openBattle(page);
+  const before = await page.evaluate(() => {
+    const app = window.__settingsTestApp! as Runtime & { wrapper: HTMLElement };
+    const wrapper = app.wrapper;
+    const native = wrapper.getAnimations.bind(wrapper);
+    let playState = 'running';
+    let unblock!: () => void;
+    const finished = new Promise<void>(resolve => { unblock = resolve; });
+    const frozen = {
+      get playState() { return playState; },
+      pending: false,
+      effect: { getComputedTiming: () => ({ endTime: 1000 }) },
+      finish: () => { playState = 'finished'; unblock(); },
+      finished,
+    } as unknown as Animation;
+    wrapper.getAnimations = () => [...native({ subtree: true }), ...(playState === 'running' ? [frozen] : [])];
+    window.__setHidden?.(true);
+    return app.getEngine().getState().actionLog.length;
+  });
+  await expect.poll(() => page.evaluate(() => window.__settingsTestApp!.getEngine().getState().actionLog.length),
+    { timeout: 25_000 }).toBeGreaterThan(before + 1);
+});

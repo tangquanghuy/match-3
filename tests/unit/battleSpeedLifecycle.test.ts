@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { Container } from 'pixi.js';
 import { attachBattleSpeed } from '@render/battleSpeedRuntime';
 import { setBattleSpeed, setBattleSpeedBoost } from '@render/battleSpeed';
+import { setBackgroundRunEnabled } from '@render/battlePrefs';
 
 let detach: (() => void) | undefined;
 beforeEach(() => {
@@ -61,6 +62,56 @@ describe('战斗倍速不复活已销毁的补间', () => {
       setBattleSpeed(speed);
       expect(loop.timeScale() * gsap.globalTimeline.timeScale()).toBe(1);
       expect(finite.timeScale() * gsap.globalTimeline.timeScale()).toBe(speed);
+    }
+  });
+});
+
+describe('hidden-tab animations', () => {
+  it('completes active finite visuals only when background running is enabled, even at 1x', () => {
+    const storage = new Map<string, string>();
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: (key: string, value: string) => storage.set(key, value),
+      },
+      dispatchEvent: vi.fn(),
+    });
+    const visibility = { hidden: true };
+    vi.stubGlobal('document', visibility);
+    const animation = (endTime: number, state: 'running' | 'paused') => {
+      const result = {
+        playState: state as string,
+        pending: false,
+        playbackRate: 1,
+        effect: { getComputedTiming: () => ({ endTime }) },
+        finish: vi.fn(),
+      };
+      result.finish.mockImplementation(() => { result.playState = 'finished'; });
+      return result;
+    };
+    const finite = animation(500, 'running');
+    const paused = animation(500, 'paused');
+    const infinite = animation(Infinity, 'running');
+    const root = { getAnimations: () => [finite, paused, infinite] } as unknown as Element;
+    const unmount = attachBattleSpeed(root);
+    try {
+      setBackgroundRunEnabled(false);
+      gsap.ticker.tick();
+      expect(finite.finish).not.toHaveBeenCalled();
+      setBackgroundRunEnabled(true);
+      visibility.hidden = false;
+      gsap.ticker.tick();
+      expect(finite.finish).not.toHaveBeenCalled();
+      visibility.hidden = true;
+      gsap.ticker.tick();
+      expect(finite.finish).toHaveBeenCalledOnce();
+      expect(paused.finish).not.toHaveBeenCalled();
+      expect(infinite.finish).not.toHaveBeenCalled();
+      gsap.ticker.tick();
+      expect(finite.finish).toHaveBeenCalledOnce();
+    } finally {
+      unmount();
+      setBackgroundRunEnabled(false);
     }
   });
 });

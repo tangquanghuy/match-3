@@ -74,7 +74,7 @@ export function spentMasteryPoints(save: MetaSave): number {
 }
 
 export function expectedMasteryPoints(level: number): number {
-  return Math.max(0, Math.floor(level) - 1);
+  return Math.max(0, Math.min(100, Math.floor(level)) - 1);
 }
 
 export function pendingMasteryCount(save: MetaSave): number {

@@ -11,7 +11,13 @@ import {
 import { GACHA_RULES } from '../data/gachaRules';
 import { INGOT_NAMES, stoneName, type IngotKey, type MaterialDelta } from '../data/materials';
 import { rarityClassByIndex, rarityNameByIndex } from '../data/rarity';
-import { getTroopById, type TroopData } from '../../data/troops';
+import { getTroopById, troopToCharacter, type TroopData } from '../../data/troops';
+import { traitSlotsOf } from '../../render/CharacterDetailPanel';
+import { UnitSheet, type UnitSheetData } from '../../render/UnitSheet';
+import { troopStatsOf, rarityTierOf, getRecord } from '../systems/troopProgress';
+import { RARITY_TIERS } from '../data/rarity';
+import { raceNames } from '../data/races';
+import { roleNameZh } from '../data/roles';
 import { isFailure } from '../gateway';
 import { reallyOwned } from '../systems/wishlist';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $, $$ } from '../shell/chrome';
@@ -257,6 +263,7 @@ export class ChestsScreen implements Screen {
   private autoQueue: HTMLElement[] = [];
   private autoRunning = false;
   private spriteFx?: SpriteFx;
+  private rewardSheet?: UnitSheet;
   private recent: RewardVm[] = [];
   private listeners: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
   /** 馈赠借用开箱演出时：关闭演出后返回的页面（null = 普通开箱，留在宝箱页） */
@@ -476,12 +483,14 @@ export class ChestsScreen implements Screen {
     this.bind('#wishlistReminderVeil', 'click', () => this.resolveWishlistReminder(false));
     this.bind('#summonAction', 'click', () => this.handleActionBtn());
     this.bind('#summonSkip', 'click', () => this.revealAll());
+    this.on(window, 'resize', () => this.sizeRewardSheet());
     $$('[data-summon-close]').forEach((el) => this.on(el, 'click', () => this.closeSummon()));
     this.bind('#partialVeil', 'click', (e) => {
       if ((e as MouseEvent).target === $('#partialVeil')) this.closePartial();
     });
     this.on(document, 'keydown', (e) => {
       if ((e as KeyboardEvent).key !== 'Escape') return;
+      if (this.rewardSheet?.isOpen()) return void this.rewardSheet.close();
       if (!$('#partialVeil').hidden) return void this.closePartial();
       if (!$('#oddsDrawer').hidden) return void this.closeOdds();
       if (!$('#gloryFeedback').hidden) return void this.closeGloryFeedback();
@@ -986,7 +995,7 @@ export class ChestsScreen implements Screen {
     cardsEl.innerHTML = rewards
       .map((d, i) => {
         const p = this.cardPosition(i, rewards.length);
-        return `<article class="summon-card ${rarityClassByIndex(d.rarityIdx)} fx-${d.fxClass}" data-rarity="${d.fxClass}" data-rarity-idx="${d.rarityIdx}" data-name="${d.name}" data-art="${d.art}" data-fb="${d.fb}" data-dup="${d.duplicate ? 1 : 0}" style="--x:${p.x}px;--y:${p.y}px;--rot:${p.rot}deg;">
+        return `<article class="summon-card ${rarityClassByIndex(d.rarityIdx)} fx-${d.fxClass}${d.troop ? ' has-detail' : ''}" data-rarity="${d.fxClass}" data-rarity-idx="${d.rarityIdx}" data-name="${d.name}" data-art="${d.art}" data-fb="${d.fb}" data-dup="${d.duplicate ? 1 : 0}" style="--x:${p.x}px;--y:${p.y}px;--rot:${p.rot}deg;">
           <div class="card-3d">
             <div class="card-back" aria-hidden="true"></div>
             <div class="card-face${d.item ? ' is-item' : ''}">
@@ -998,7 +1007,48 @@ export class ChestsScreen implements Screen {
       })
       .join('');
     mountIcons(cardsEl);
-    $$('.summon-card', cardsEl).forEach((card) => this.on(card, 'click', () => this.revealSingleCard(card as HTMLElement, false)));
+    $$('.summon-card', cardsEl).forEach((card, i) => this.on(card, 'click', () => {
+      const el = card as HTMLElement;
+      if (el.classList.contains('is-revealed')) {
+        if (!el.classList.contains('is-flipping') && !this.slamLocked && !this.autoRunning && rewards[i]?.troop) {
+          this.openRewardSheet(rewards[i].troop);
+        }
+      } else this.revealSingleCard(el, false);
+    }));
+  }
+
+  /** Reuse the exact battle codex cards, with the newly acquired troop's current collection stats. */
+  private openRewardSheet(troop: TroopData): void {
+    const rec = getRecord(this.ctx.save(), troop.id);
+    if (!rec) return;
+    const stats = troopStatsOf(troop, rec);
+    const char = troopToCharacter(troop, troop.id, rec.level);
+    char.traitIds = troop.traits.filter((_, i) => rec.traits[i]).map(t => t.code);
+    const tier = RARITY_TIERS[rarityTierOf(troop, rec)]!;
+    const race = raceNames(troop.troopTypes);
+    const data: UnitSheetData = {
+      charId: troop.id, ally: true, name: troop.name, portrait: troopArt(troop),
+      colors: [...char.colors],
+      shown: { attack: stats.attack, armor: stats.armor, hp: stats.health, maxHp: stats.health,
+        magic: stats.magic, mana: 0, manaCost: troop.manaCost, defeated: false, statuses: [] },
+      role: roleNameZh(troop.role) ?? '', race, kingdom: troop.kingdom ?? '',
+      typeLine: [race, troop.kingdom, tier.label].filter(Boolean).join(' · '),
+      rarityLabel: tier.label, rarity: rarityTierOf(troop, rec), rarityColor: tier.color,
+      skillName: troop.spell.name, skillDescription: troop.spell.description,
+      skillTag: troop.kingdom ? `${troop.kingdom} · 部队法术` : '部队法术', targetNote: '',
+      traitSlots: traitSlotsOf(char, troop), troopName: troop.name, quickCast: false,
+    };
+    this.rewardSheet ??= new UnitSheet($('#summonModal'), {
+      onCast: () => {}, onQuickCast: () => {}, onClose: () => this.rewardSheet?.close(),
+    }, { readOnly: true });
+    this.sizeRewardSheet();
+    this.rewardSheet.open(data, { focus: true, dismissOnOutside: false });
+  }
+
+  private sizeRewardSheet(): void {
+    if (!this.rewardSheet) return;
+    const modal = $('#summonModal');
+    this.rewardSheet.setBounds({ left: 0, top: 0, width: modal.clientWidth, height: modal.clientHeight });
   }
 
   private cardPosition(index: number, count: number): { x: number; y: number; rot: number } {
@@ -1349,6 +1399,8 @@ export class ChestsScreen implements Screen {
   }
 
   private closeSummon(): void {
+    this.rewardSheet?.destroy();
+    this.rewardSheet = undefined;
     this.clearSummonTimers();
     this.stopSfx();
     this.phase = 'closed';

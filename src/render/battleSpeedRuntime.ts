@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import { getBattleSpeed, onBattleSpeedChange, setBattleSpeedBoost } from './battleSpeed';
+import { backgroundRunEnabled } from './battlePrefs';
 
 /**
  * 战斗倍速的全局接线：按 battleSpeed 的生效倍速统一加速**全部**战斗演出，调用点一律按 1× 编写。
@@ -112,9 +113,24 @@ function pruneGsapLoops(): void {
   }
 }
 
+/** Hidden tabs may suspend CSS/WAAPI clocks even while timer-driven GSAP keeps running.
+ * Finish only finite, active visuals so their `finished` waits cannot stall a turn.
+ * Leave paused and infinite animations alone (e.g. settings and idle effects). */
+function finishHiddenVisuals(): void {
+  for (const root of roots) {
+    for (const animation of root.getAnimations({ subtree: true })) {
+      if (animation.playState !== 'running' && !animation.pending) continue;
+      if (!isFiniteAnimation(animation)) continue;
+      try { animation.finish(); } catch {
+        // An animation still resolving its timing can be retried on the next tick.
+      }
+    }
+  }
+}
+
 const onTick = (): void => {
-  if (appliedSpeed === 1) return;
-  compensateGsapLoops(appliedSpeed);
+  if (typeof document !== 'undefined' && document.hidden && backgroundRunEnabled()) finishHiddenVisuals();
+  if (appliedSpeed !== 1) compensateGsapLoops(appliedSpeed);
 };
 
 function frameLoop(): void {

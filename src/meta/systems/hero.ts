@@ -77,13 +77,14 @@ export function addClassWin(save: MetaSave, classId: string): number {
 /** 主角加经验：可能连升多级；返回 {levelsGained, newLevel} */
 export function addHeroXp(save: MetaSave, amount: number): { levelsGained: number; newLevel: number } {
   let gained = 0;
+  const before = save.hero.level;
   save.hero.xp += Math.max(0, Math.floor(amount));
-  while (save.hero.level < 100 && save.hero.xp >= heroXpToNext(save.hero.level)) {
+  while (save.hero.xp >= heroXpToNext(save.hero.level)) {
     save.hero.xp -= heroXpToNext(save.hero.level);
     save.hero.level += 1;
     gained += 1;
   }
-  enqueueMasteryOffers(save, gained);
+  enqueueMasteryOffers(save, Math.max(0, Math.min(100, save.hero.level) - Math.min(100, before)));
   return { levelsGained: gained, newLevel: save.hero.level };
 }
 

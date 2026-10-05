@@ -4,6 +4,7 @@ import { newSave } from '../../src/meta/state/schema';
 import {
   HUNT_START_TURNS,
   applyMove,
+  chooseHuntAutoMove,
   beginHunt,
   commitMove,
   createOpeningBoard,
@@ -34,6 +35,19 @@ describe('寻宝', () => {
       expect(hasLegalMove(cells)).toBe(true);
       expect(cells.every((tier) => tier >= 0 && tier <= 3)).toBe(true);
     }
+  });
+
+  it('自动寻宝只选合法交换，不修改棋盘或随机状态', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const cells = createOpeningBoard(new SeededRNG(seed));
+      const before = cells.slice();
+      const move = chooseHuntAutoMove(cells);
+      expect(move).not.toBeNull();
+      expect(cells).toEqual(before);
+      expect(chooseHuntAutoMove(cells)).toEqual(move);
+      expect(applyMove(state(cells), ...move!).ok).toBe(true);
+    }
+    expect(chooseHuntAutoMove(Array(64).fill(7))).toBeNull();
   });
 
   it('开局按种子生成不同宝物分布，而不是反复回退到固定双色盘', () => {

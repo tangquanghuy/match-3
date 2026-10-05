@@ -6,3 +6,7 @@
 .card-face .card-item-art [data-icon="crystal"] { color: #7fd1ff; }
 .card-face .card-item-art [data-icon="soul"] { color: #c9a3f0; }
 .card-face.is-item .card-label b { font-size: 14px; letter-spacing: 1px; }
+
+/* The reward codex sits over the pack opening without triggering cards underneath. */
+.summon-modal > .usw { pointer-events: auto; background: #080812ee; }
+.summon-card.has-detail.is-revealed:not(.is-flipping) { cursor: pointer; }

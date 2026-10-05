@@ -41,6 +41,13 @@ describe('法力精通存档与加点', () => {
     expect(pendingMasteryCount(s)).toBe(8);
   });
 
+  it('超过 100 级的旧档不再补发精通', () => {
+    const s = save();
+    s.hero.level = 500;
+    catchUpMasteryOffers(s.hero, s.createdAt);
+    expect(s.hero.masteryOffers).toHaveLength(99);
+  });
+
   it('水合缺字段时回填待分配，同 createdAt 确定', () => {
     const a = newSave({ now: 42 });
     a.hero.level = 5;

@@ -248,7 +248,7 @@ export function heroStatsAt(level: number, classId?: string | null): LeveledStat
  *  - 10~50 级：1.85 → 7 场（平缓爬升；Lv.42 全部王国开放）
  *  - 50 级以后：每级 +0.36 场，到 99 级约 25 场（长线养成期）
  * GoW 官方未公布主角经验表；社区观察是「需求按等级线性增长、每场经验基本恒定」，
- * 所以前期快、后期慢。本项目等级上限 100，按上面三段压缩。
+ * 所以前期快、后期慢。100 级后继续升级，每级固定沿用 99→100 的经验。
  */
 function heroBattlesPerLevel(level: number): number {
   const lv = Math.max(1, level);
@@ -264,7 +264,8 @@ function heroReferenceBattleXp(level: number): number {
 
 /** 主角升到下一级所需经验（设计值：目标场数 × 同级一场经验，就近取 10） */
 export function heroXpToNext(level: number): number {
-  const raw = heroBattlesPerLevel(level) * heroReferenceBattleXp(level);
+  const lv = Math.min(99, Math.max(1, level));
+  const raw = heroBattlesPerLevel(lv) * heroReferenceBattleXp(lv);
   return Math.max(10, Math.round(raw / 10) * 10);
 }
 

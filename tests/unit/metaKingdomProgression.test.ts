@@ -86,7 +86,9 @@ describe('王国等级收益轨道', () => {
 describe('主角经验曲线', () => {
   it('单调递增；前 50 级比旧曲线平缓，50 级后更陡', () => {
     const old = (lv: number) => Math.max(10, Math.round((80 * Math.pow(lv, 1.35)) / 10) * 10);
-    for (let lv = 1; lv < 100; lv++) expect(heroXpToNext(lv + 1)).toBeGreaterThan(heroXpToNext(lv));
+    for (let lv = 1; lv < 99; lv++) expect(heroXpToNext(lv + 1)).toBeGreaterThan(heroXpToNext(lv));
+    expect(heroXpToNext(100)).toBe(heroXpToNext(99));
+    expect(heroXpToNext(101)).toBe(heroXpToNext(99));
     for (const lv of [5, 10, 20, 30, 40]) expect(heroXpToNext(lv)).toBeLessThan(old(lv));
     for (const lv of [60, 75, 90]) expect(heroXpToNext(lv)).toBeGreaterThan(old(lv));
     let oldTotal = 0;

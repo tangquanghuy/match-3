@@ -503,3 +503,41 @@ test('approved treasure WebP assets load in the rule list and on the shared boar
     return img.complete && img.naturalWidth === 256 && img.currentSrc.includes('.webp');
   }))).toBe(true);
 });
+
+test('shared auto and speed controls play hunt, persist and stop when toggled off', async ({ page }) => {
+  await setup(page);
+  const speed = page.locator('#huntSpeed');
+  const auto = page.locator('#huntAuto');
+  await expect(speed).toHaveText('1×');
+  await speed.click();
+  await speed.click();
+  await expect(speed).toHaveText('3×');
+  expect(await page.evaluate(() => localStorage.getItem('battle.speed'))).toBe('3');
+  expect(await page.evaluate(async () => {
+    const path = '/src/render/battleSpeed.ts';
+    const { getBattleSpeed } = await import(/* @vite-ignore */ path);
+    return getBattleSpeed();
+  })).toBe(3);
+  await auto.click();
+  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#huntMoves')).not.toHaveText('已走 0 步', { timeout: 12000 });
+  await auto.click();
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#huntBoard')).toHaveAttribute('aria-busy', 'false', { timeout: 12000 });
+  const count = (await snapshot(page)).treasureHunt?.moves;
+  await page.waitForTimeout(750);
+  expect((await snapshot(page)).treasureHunt?.moves).toBe(count);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#huntBoard')).toHaveAttribute('data-ready', 'true', { timeout: 25000 });
+  await expect(speed).toHaveText('3×');
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
+  const move = await page.evaluate(async () => {
+    const path = '/src/meta/systems/treasureHunt.ts';
+    const { chooseHuntAutoMove } = await import(/* @vite-ignore */ path);
+    const state = JSON.parse(localStorage.getItem('gems.meta.save')!).treasureHunt;
+    return chooseHuntAutoMove(state.cells);
+  });
+  expect(move).not.toBeNull();
+  await swap(page, move![0], move![1]);
+  await expect(page.locator('#huntMoves')).not.toHaveText(`已走 ${count} 步`, { timeout: 12000 });
+});
