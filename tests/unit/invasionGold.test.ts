@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { buildBracket, ensureInvasionSeason, settleInvasionBattle, type InvasionMirror } from '../../src/meta/systems/invasion';
 import { invasionGoldFactors, invasionVictoryGold } from '../../src/meta/systems/invasionGold';
 import { newSave } from '../../src/meta/state/schema';
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
+import type { PvpSettlementView } from '../../src/meta/shell/screen';
 import { starterTroopIds } from '../../src/meta/data/economy';
 import { WEEK_MS } from '../../src/meta/data/events';
 import type { BattleResult } from '../../src/session/contract';
@@ -62,6 +64,26 @@ describe('invasion victory gold', () => {
     expect(save.currencies.gold - before).toBe(expected + 17);
     expect(save.stats.goldEarned - earned).toBe(expected + 17);
   });
+  it('shows only the class XP actually granted by an invasion victory', () => {
+    const mirror = fixture();
+    for (const [winner, heroPresent, expected] of [
+      ['player', true, 100], ['enemy', true, 0], ['player', false, 0],
+    ] as const) {
+      const save = newSave({ now: 0, starterTroopIds: starterTroopIds() });
+      ensureInvasionSeason(save, WEEK, WEEK);
+      const classId = save.hero.classId!;
+      const before = save.hero.classXp[classId] ?? 0;
+      const battle = { winner, turns: 5, combatants: heroPresent ? [{ side: 'player', externalId: 'p0-hero' }] : [],
+        eventSummary: [], economy: { gold: 0, souls: 0, gems: 0, maps: 0 } } as unknown as BattleResult;
+      const settled = settleInvasionBattle(save, battle, mirror.id, WEEK + 1000, WEEK, WEEK, mirror);
+      if (!settled.ok) throw new Error(settled.message);
+      expect(settled.battleRewards.classXpGained).toBe(expected);
+      expect((save.hero.classXp[classId] ?? 0) - before).toBe(expected);
+      const view: PvpSettlementView = { kind: 'invasion', battle, settled, frenzy: false };
+      expect(battleIncomeView(view).classXp ?? 0).toBe(expected);
+    }
+  });
+
   it.each(['defeat', 'surrender'])('%s does not pay victory gold', endReason => {
     const save = newSave({ now: 0, starterTroopIds: starterTroopIds() });
     ensureInvasionSeason(save, WEEK, WEEK);

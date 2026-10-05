@@ -30,7 +30,7 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
       kind, battle: { endReason: 'elimination' }, frenzy: false,
       settled: {
         victory: true, runOver: true, wins: 2, losses: 0, gold: 80, glory: 999, vpDelta: 100,
-        battleRewards: { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 0 },
+        battleRewards: { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 0, classXpGained: classXp },
         collected: { gold: 0, souls: 0, gems, maps: 0 },
         rewards: { gold: 4000, souls: 750, gems: 50 },
       },
@@ -150,8 +150,14 @@ for (const kind of ['arena', 'invasion']) {
     await expect(amount(page, 'gold')).toHaveText(kind === 'arena' ? '+60' : '+140');
     await expect(amount(page, 'souls')).toHaveText('+30');
     await expect(amount(page, 'gems')).toHaveCount(0);
+    await expect(page.locator('[data-battle-class-xp]')).toHaveCount(0);
   });
 }
+
+test('invasion result displays the credited 100 class XP', async ({ page }) => {
+  await mountResult(page, 0, '#invasion', 'invasion', 100);
+  await expect(page.locator('[data-battle-class-xp] strong')).toHaveText('+100');
+});
 
 test('升级：必须先二选一法力精通，选择经网关入账后才离开结算', async ({ page }) => {
   await mountLevelUp(page, 1, [['Blue', 'Red']]);

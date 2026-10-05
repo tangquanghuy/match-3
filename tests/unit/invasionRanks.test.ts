@@ -151,8 +151,12 @@ describe('free unlimited rerolls and gateway persistence', () => {
     const mirror = invasionCandidates(next.current(), WEEK, WEEK)[0]!;
     const plan = await next.planInvasionBattle(mirror.id);
     expect(plan.ok).toBe(true); if (!plan.ok) return;
-    const r = result(plan.request);
-    expect((await next.settleBattle(r)).result.ok).toBe(true);
+    const r = { ...result(plan.request), combatants: [{ side: 'player', externalId: 'p0-hero' }] } as BattleResult;
+    const classId = next.current().hero.classId!;
+    const beforeXp = next.current().hero.classXp[classId] ?? 0;
+    const receipt = await next.settleBattle(r);
+    expect(receipt.result).toMatchObject({ ok: true, kind: 'invasion', settled: { battleRewards: { classXpGained: 100 } } });
+    expect((next.current().hero.classXp[classId] ?? 0) - beforeXp).toBe(100);
     const after = structuredClone(next.current());
     expect((await next.settleBattle(r)).result.ok).toBe(false);
     expect(next.current()).toEqual(after);

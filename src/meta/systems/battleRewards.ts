@@ -12,6 +12,7 @@ export interface BattleRewards {
   souls: number;
   xpGained: number;
   heroLevelsGained: number;
+  classXpGained: number;
   classLevelUp: { classId: string; newLevel: number } | null;
 }
 
@@ -23,8 +24,10 @@ export function grantBattleRewards(save: MetaSave, result: BattleResult): Battle
     * (1 + xpBonusPct(save) / 100));
   const hero = addHeroXp(save, xpGained);
   let classLevelUp: BattleRewards['classLevelUp'] = null;
+  let classXpGained = 0;
   if (victory && save.hero.classId && result.combatants?.some(c => c.side === 'player' && c.externalId.endsWith('-hero'))) {
     const progress = addClassXp(save, save.hero.classId, CLASS_XP_PER_WIN);
+    if (progress) classXpGained = CLASS_XP_PER_WIN;
     if (progress && progress.levelsGained > 0) classLevelUp = { classId: save.hero.classId, newLevel: progress.newLevel };
     addClassWin(save, save.hero.classId);
   }
@@ -34,6 +37,6 @@ export function grantBattleRewards(save: MetaSave, result: BattleResult): Battle
   save.stats.soulsEarned += souls;
   if (victory) save.stats.battlesWon++;
   else save.stats.battlesLost++;
-  return { gold, souls, xpGained, heroLevelsGained: hero.levelsGained, classLevelUp };
+  return { gold, souls, xpGained, heroLevelsGained: hero.levelsGained, classXpGained, classLevelUp };
 }
 

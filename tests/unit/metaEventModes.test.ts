@@ -371,7 +371,7 @@ describe('职业试炼 · 规则挑战', () => {
     expect(detail.trialClassXpBonus).toBeGreaterThanOrEqual(200);
     expect(detail.trialClassXpBonus).toBeLessThanOrEqual(300);
     expect(detail.trialClassXpBonus! % 10).toBe(0);
-    expect([50, 75]).toContain(detail.classXpGained! - detail.trialClassXpBonus!);
+    expect([200, 300]).toContain(detail.classXpGained! - detail.trialClassXpBonus!);
     expect(earned(s.hero.classLevels[classId]!, s.hero.classXp[classId] ?? 0) - before).toBe(detail.classXpGained);
     expect(battleIncomeView(detail).trialClassXpBonus).toBe(detail.trialClassXpBonus);
     expect(settleEvent(s, out, result, WEEK).classXpGained).toBe(0);

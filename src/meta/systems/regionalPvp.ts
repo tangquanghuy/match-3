@@ -198,7 +198,7 @@ function prepareRegional(save:MetaSave,args:RegionalPlanArgs,now:number,seed:num
 export function settleRegional(save:MetaSave,result:BattleResult,c:RegionalBattleContext,now:number):SettlementDetail {
   const s=ensureRegional(save,now),region=c.region??REGION_ID,p=s.regions[region],win=result.winner==='player',current=!!p&&c.week===s.week&&(c.revision===s.revision||(c.revision===1&&!c.region));
   const base=grantBattleRewards(save,result);
-  const detail:SettlementDetail={victory:win,lines:[{key:win?'victory':'defeat',label:win?'战斗胜利':'战斗结束',deltas:{gold:base.gold,souls:base.souls}}],xpGained:base.xpGained,heroLevelsGained:base.heroLevelsGained,classLevelUp:base.classLevelUp,classUnlocked:null,questProgress:null,troopRewards:[],firstWinClaimed:false};
+  const detail:SettlementDetail={victory:win,lines:[{key:win?'victory':'defeat',label:win?'战斗胜利':'战斗结束',deltas:{gold:base.gold,souls:base.souls}}],xpGained:base.xpGained,classXpGained:base.classXpGained,heroLevelsGained:base.heroLevelsGained,classLevelUp:base.classLevelUp,classUnlocked:null,questProgress:null,troopRewards:[],firstWinClaimed:false};
   if(result.endReason!=='surrender') {
     const n=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)?Math.max(0,Math.floor(v)):0;
     const collected={gold:n(result.economy?.gold),souls:n(result.economy?.souls),gems:n(result.economy?.gems)};

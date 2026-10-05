@@ -114,6 +114,17 @@ describe('Settlement income includes all actual credited lines', () => {
     } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
     expect(battleIncomeView(detail)).toEqual({ victory: true, xp: 100, levelsGained: 0, gold: 64, souls: 32, gems: 1, materials: [] });
   });
+  it('invasion and arena render only their credited class XP', () => {
+    for (const kind of ['invasion', 'arena'] as const) {
+      const detail = { kind, battle: {}, settled: { victory: true, gold: 0, glory: 0,
+        battleRewards: { gold: 60, souls: 30, xpGained: 100, heroLevelsGained: 0, classXpGained: 100 },
+        collected: { gold: 0, souls: 0, gems: 0, maps: 0 } },
+      } as unknown as import('../../src/meta/shell/screen').PvpSettlementView;
+      expect(battleIncomeView(detail).classXp).toBe(100);
+      detail.settled.battleRewards.classXpGained = 0;
+      expect(battleIncomeView(detail)).not.toHaveProperty('classXp');
+    }
+  });
   it('invasion victory Glory is displayed, defeat has no Glory card', () => {
     const detail = { kind: 'invasion', battle: {}, settled: { victory: false, gold: 0, glory: 0,
       battleRewards: { gold: 20, souls: 10, xpGained: 20 }, collected: { gold: 0, souls: 0, gems: 0, maps: 0 } }

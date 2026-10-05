@@ -368,7 +368,7 @@ export const GACHA_PITY_MIN_IDX = 2;
 /** 每次胜利的主角经验加成（击杀经验之外） */
 export const HERO_XP_PER_WIN = 60;
 /** 主角编入队伍的胜场：当前职业经验 */
-export const CLASS_XP_PER_WIN = 25;
+export const CLASS_XP_PER_WIN = 100;
 
 // ---------------------------------------------------------------------------
 // 竞技场 · 现开赛（M7 设计值；2026-09-18 对照官方调研修正 draft 结构）

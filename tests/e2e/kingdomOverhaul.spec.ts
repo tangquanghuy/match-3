@@ -66,6 +66,48 @@ test('地图迷雾：只渲染已开放与已探明王国，探明王国是锁�
   await expect(page.locator('#mapFog')).toBeAttached();
 });
 
+test('map fog disappears when every kingdom unlocks and returns below the threshold', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await openMap(page);
+  const unlockLevel = await page.evaluate(async () => {
+    const load = (path: string) => import(/* @vite-ignore */ path);
+    const { ALL_KINGDOMS_UNLOCK_LEVEL } = await load('/src/meta/data/kingdoms.ts');
+    return ALL_KINGDOMS_UNLOCK_LEVEL;
+  });
+  const setHeroLevel = async (level: number) => {
+    await page.evaluate(async (lv) => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const { metaGateway } = await load('/src/meta/gateway/index.ts');
+      const gw = metaGateway() as { exportSaveJson(): string; dev: { importSaveJson(t: string): Promise<unknown> } };
+      const save = JSON.parse(gw.exportSaveJson()) as SaveLike;
+      save.hero.level = lv;
+      await gw.dev.importSaveJson(JSON.stringify(save));
+    }, level);
+  };
+
+  await setHeroLevel(unlockLevel - 1);
+  await page.reload();
+  await expect(page.locator('.map-shell')).toBeVisible();
+  await expect(page.locator('#mapFog')).toBeVisible();
+  await expect(page.locator('.knode.locked')).toHaveCount(1);
+
+  await setHeroLevel(unlockLevel);
+  await page.reload();
+  await expect(page.locator('#mapFog')).toBeHidden();
+  await expect(page.locator('.knode.locked')).toHaveCount(0);
+  await expect(page.locator('.knode')).toHaveCount(unlockLevel);
+  await page.reload();
+  await expect(page.locator('#mapFog')).toBeHidden();
+
+  await setHeroLevel(unlockLevel + 1);
+  await page.reload();
+  await expect(page.locator('#mapFog')).toBeHidden();
+
+  await setHeroLevel(unlockLevel - 1);
+  await page.reload();
+  await expect(page.locator('#mapFog')).toBeVisible();
+});
+
 test('宝库：攒满 12 小时后一键收取多国进贡并入账', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await openMap(page);

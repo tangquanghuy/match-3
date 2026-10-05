@@ -178,6 +178,7 @@ export function battleIncomeView(detail: SettlementView): BattleIncomeView {
     return {
       victory: detail.settled.victory,
       xp: base?.xpGained ?? 0,
+      ...(base?.classXpGained ? { classXp: base.classXpGained } : {}),
       levelsGained: base?.heroLevelsGained ?? 0,
       // Invasion's opponent bounty is earned in this match, unlike Arena run prizes.
       gold: (base?.gold ?? 0) + (collected?.gold ?? 0) + (detail.kind === 'invasion' ? detail.settled.gold : 0),

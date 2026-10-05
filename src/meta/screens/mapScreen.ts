@@ -745,7 +745,7 @@ export class MapScreen implements Screen {
           <div class="map-viewport" id="mapViewport">
             <div class="map-world" id="mapWorld">
               <img class="map-art" src="/static/map/world-map.webp" alt="克里斯塔拉大陆奇幻世界地图" draggable="false">
-              <canvas class="map-fog" id="mapFog" aria-hidden="true"></canvas>
+              <canvas class="map-fog" id="mapFog" aria-hidden="true"${ctx.save().hero.level >= ALL_KINGDOMS_UNLOCK_LEVEL ? ' hidden' : ''}></canvas>
               <div class="map-nodes" id="nodes"></div>
             </div>
             <div class="map-vignette" aria-hidden="true"></div>
@@ -941,7 +941,6 @@ export class MapScreen implements Screen {
     this.refreshDaily(save, ctx);
     this.tributeTimer = window.setInterval(() => this.tickTribute(), 1000);
     this.on(document, 'visibilitychange', () => this.tickTribute());
-    this.fog = new MapFog($('#mapFog') as HTMLCanvasElement, MAP_W, MAP_H);
     this.paintFog();
     if (this.justOpened.size) {
       toast(`迷雾散去 · 新王国开放：${[...this.justOpened].join('、')}`);
@@ -1583,6 +1582,7 @@ export class MapScreen implements Screen {
     const save = this.ctx.save();
     const now = gameNow();
     const changed = !this.tributeSnapshot || this.tributeRevision !== save.revision
+      || this.heroLevel !== save.hero.level
       || now >= this.tributeSnapshot.nextHourAt || now < this.tributeClockAt;
     const treasury = changed ? tributeTreasury(save, now) : this.tributeSnapshot!;
     this.tributeSnapshot = treasury;
@@ -1591,6 +1591,10 @@ export class MapScreen implements Screen {
     this.renderTributeCard(treasury, now);
     if (changed) {
       this.nodes = nodeVms(this.ctx.gateway);
+      if (this.heroLevel !== save.hero.level) {
+        this.heroLevel = save.hero.level;
+        this.paintFog();
+      }
       this.renderNodes(save);
       const selected = this.nodes.find(n => n.view.name === this.openName);
       if (selected) this.renderKingdomTribute(selected);
@@ -1815,8 +1819,11 @@ export class MapScreen implements Screen {
 
   /** 网关变更后：重算节点与弹层 + **同步顶栏钱包**（存档对象不变，重读视图即可） */
   private afterMutation(ctx: ShellCtx): void {
-    this.heroLevel = ctx.save().hero.level;
     this.nodes = nodeVms(ctx.gateway);
+    if (this.heroLevel !== ctx.save().hero.level) {
+      this.heroLevel = ctx.save().hero.level;
+      this.paintFog();
+    }
     this.renderNodes(ctx.save());
     this.refreshDaily(ctx.save(), ctx);
     if (this.openName) this.openKingdom(this.openName, this.kingdomFromBonus);
