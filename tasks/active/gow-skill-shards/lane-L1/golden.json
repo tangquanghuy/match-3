@@ -11,13 +11,13 @@
  },
  "troop:6047": {
   "lines": {
-   "L10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17",
-   "R10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17",
-   "L0": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17",
-   "K": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 arm+4 atk+17"
+   "L10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 max+500 arm+4 atk+17",
+   "R10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 max+500 arm+4 atk+17",
+   "L0": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 max+500 arm+4 atk+17",
+   "K": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; buff C hp+100 ; convert Purple x3, Brown x1, Red x1, Green x1 -> skull x6  => A1:hp-500 arm-4 DEAD | C:hp+600 max+500 arm+4 atk+17"
   },
-  "by": "sa-Q2",
-  "at": "2026-09-29T03:53:54.301Z"
+  "by": "devour maxHp display regression",
+  "at": "2026-10-06T16:49:22.830Z"
  },
  "troop:6076": {
   "lines": {
@@ -91,13 +91,13 @@
  },
  "troop:6160": {
   "lines": {
-   "L10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
-   "R10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
-   "L0": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 arm+10 atk+17",
-   "K": "dmg E11 1 devoured ; defeat E11 ; buff C attack+17 ; buff C hp+1 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-1 DEAD | C:hp+1 atk+17"
+   "L10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 max+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 max+900 arm+10 atk+17",
+   "R10": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 max+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 max+900 arm+10 atk+17",
+   "L0": "dmg E11 910 devoured ; defeat E11 ; buff C attack+17 ; buff C armor+10 ; buff C hp+900 max+900 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-900 arm-10 DEAD | C:hp+900 max+900 arm+10 atk+17",
+   "K": "dmg E11 1 devoured ; defeat E11 ; buff C attack+17 ; buff C hp+1 max+1 ; convert Green x2, skull x1, Brown x1, Purple x2, Blue x2 -> Yellow x8 ; convert Red x3, Blue x1, Purple x1, Green x2, Yellow x1 -> Brown x8  => E11:hp-1 DEAD | C:hp+1 max+1 atk+17"
   },
-  "by": "codex-regression-review",
-  "at": "2026-10-03T07:51:12.554Z"
+  "by": "devour maxHp display regression",
+  "at": "2026-10-06T16:49:22.830Z"
  },
  "troop:6161": {
   "lines": {
@@ -334,10 +334,10 @@
    "L10": "dmg E11 16  => E11:hp-6 arm-10",
    "R10": "dmg E11 16  => E11:hp-6 arm-10",
    "L0": "dmg E11 6  => E11:arm-6",
-   "K": "dmg E11 16 ; defeat E11 ; dmg E12 1 devoured ; defeat E12 ; buff C attack+17 ; buff C hp+1  => E11:hp-1 DEAD | E12:hp-1 DEAD | C:hp+1 atk+17"
+   "K": "dmg E11 16 ; defeat E11 ; dmg E12 1 devoured ; defeat E12 ; buff C attack+17 ; buff C hp+1 max+1  => E11:hp-1 DEAD | E12:hp-1 DEAD | C:hp+1 max+1 atk+17"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T06:01:52.428Z"
+  "by": "devour maxHp display regression",
+  "at": "2026-10-06T16:49:22.830Z"
  },
  "troop:6305": {
   "lines": {
@@ -1541,13 +1541,13 @@
  },
  "troop:7155": {
   "lines": {
-   "L10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
-   "R10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
-   "L0": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 arm+12 atk+17  cascade",
-   "K": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 1 devoured ; defeat E12 ; buff C attack+17 ; buff C hp+1 ; ~cascade~  => E12:hp-1 DEAD | C:hp+1 atk+17  cascade"
+   "L10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 max+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 max+300 arm+12 atk+17  cascade",
+   "R10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 max+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 max+300 arm+12 atk+17  cascade",
+   "L0": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 max+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 max+300 arm+12 atk+17  cascade",
+   "K": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 1 devoured ; defeat E12 ; buff C attack+17 ; buff C hp+1 max+1 ; ~cascade~  => E12:hp-1 DEAD | C:hp+1 max+1 atk+17  cascade"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:42:25.119Z"
+  "by": "devour maxHp display regression",
+  "at": "2026-10-06T16:49:22.830Z"
  },
  "troop:7157": {
   "lines": {
@@ -1911,13 +1911,13 @@
  },
  "troop:7609": {
   "lines": {
-   "L10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 ; dmg E12 13  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 arm+3 atk+17 | E12:hp-1 arm-12",
-   "R10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 ; dmg E12 13  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 arm+3 atk+17 | E12:hp-1 arm-12",
-   "L0": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 ; dmg E12 3  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 arm+3 atk+17 | E12:arm-3",
-   "K": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; defeat E10 ; dmg E13 1 devoured ; defeat E13 ; buff C attack+17 ; buff C hp+1 ; dmg E12 13 ; defeat E12  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD | E13:hp-1 DEAD | C:hp+1 atk+17 | E12:hp-1 DEAD"
+   "L10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 max+800 ; dmg E12 13  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 max+800 arm+3 atk+17 | E12:hp-1 arm-12",
+   "R10": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 max+800 ; dmg E12 13  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 max+800 arm+3 atk+17 | E12:hp-1 arm-12",
+   "L0": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; dmg E13 803 devoured ; defeat E13 ; buff C attack+17 ; buff C armor+3 ; buff C hp+800 max+800 ; dmg E12 3  => A2:mana+6 | A1:mana+4 | E10:arm-2 | E13:hp-800 arm-3 DEAD | C:hp+800 max+800 arm+3 atk+17 | E12:arm-3",
+   "K": "destroy 21 (Purple x2, Green x4, Red x4, Brown x3, Blue x4, skull x2, Yellow x2) ; skulls E10 2 ; defeat E10 ; dmg E13 1 devoured ; defeat E13 ; buff C attack+17 ; buff C hp+1 max+1 ; dmg E12 13 ; defeat E12  => A2:mana+6 | A1:mana+4 | E10:hp-1 DEAD | E13:hp-1 DEAD | C:hp+1 max+1 atk+17 | E12:hp-1 DEAD"
   },
-  "by": "sa-R5",
-  "at": "2026-09-28T08:42:25.119Z"
+  "by": "devour maxHp display regression",
+  "at": "2026-10-06T16:49:22.830Z"
  },
  "troop:7640": {
   "lines": {

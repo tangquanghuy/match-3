@@ -5,7 +5,7 @@
 | 目录 | 内容 | 怎么引用 | 进 git | 进 dist |
 |---|---|---|---|---|
 | `bundled/` | 代码 import 的资源：战斗特效条、宝石、音频、社区角色立绘、meta 界面图、活动图 | `import x from '@assets/fx/xxx.webp'`、`import.meta.glob('@assets/...')` | 是 | 是（文件名带 hash） |
-| `public/static/` | 按 URL 原样发布的静态资源：部队立绘、王国纹章、武器卡面、地图、宝箱、入侵官阶等 | 字符串 URL `/static/...` | 否（体积大，只在本机） | 是（原样复制） |
+| `public/static/` | 按 URL 原样发布的静态资源：部队立绘、王国纹章、武器卡面、地图、宝箱、入侵官阶等 | 字符串 URL `/static/...` | 是（压缩后的线上必需资源） | 是（原样复制） |
 | `source/` | 原图 / 源文件 / 生成提示词，以及没被代码引用的旧资源 | 不被代码引用 | 部分（见下） | 否 |
 
 `public/static/` 下的分类：
@@ -30,6 +30,6 @@ GoW 官方抓取的原始资料不在这里，在 `data/raw/`（只作参考，�
 ## 常用操作
 
 - 重新生成压缩产物：`python scripts/assets/compress.py`（只处理比原图旧的；`--force` 全部重做）
-- 检查代码引用的静态资源是否齐全：`node scripts/assets/check.mjs`
+- 检查代码引用的静态资源是否齐全：`node scripts/assets/check.mjs --tracked`（部署前同时检查 Git 跟踪状态）
 - 新增静态资源：原图放进 `source/static/<分类>/`，在 `compress.py` 的 `RULES` 里登记（若已有该分类则不用），运行脚本；代码里用 `/static/<分类>/<名字>.webp`
 - 新增打包资源：直接放进 `bundled/`（大图先压成 webp），代码里用 `@assets/...` 引用

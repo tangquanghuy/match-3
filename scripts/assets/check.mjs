@@ -2,6 +2,7 @@
 //   node scripts/assets/check.mjs
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, '$1')), '..', '..');
 const PUBLIC = path.join(ROOT, 'game-assets', 'public');
@@ -31,6 +32,19 @@ for (const t of list) {
 }
 for (let i = 0; i < 30; i++) {
   if (!fs.existsSync(path.join(PUBLIC, 'static', 'invasion-ranks', `rank-${i}.webp`))) missing.push(`invasion rank ${i}`);
+}
+
+// A local-only image still passes the existence check but vanishes on a fresh checkout.
+// The deployment path must validate the Git index as well as the local filesystem.
+if (process.argv.includes('--tracked')) {
+  const prefix = 'game-assets/public/static/';
+  const tracked = new Set(execFileSync('git', ['ls-files', '--cached', '-z', '--', prefix], { cwd: ROOT })
+    .toString('utf8').split('\0').filter(Boolean));
+  const staticRoot = path.join(PUBLIC, 'static');
+  const untracked = walk(staticRoot).map(file => `${prefix}${path.relative(staticRoot, file).replaceAll(path.sep, '/')}`)
+    .filter(file => !tracked.has(file));
+  if (untracked.length) missing.push(`${untracked.length} static assets missing from Git index (first 20): ${untracked.slice(0, 20).join(', ')}`);
+  console.log(`tracked static assets: ${tracked.size}`);
 }
 
 console.log(`literal /static paths: ${seen.size}, troop portraits: ${portraits}`);

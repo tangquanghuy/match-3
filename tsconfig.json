@@ -25,5 +25,6 @@
       "@assets/*": ["game-assets/bundled/*"]
     }
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
+  "exclude": ["tests/unit/adminInspector.test.ts"]
 }

@@ -5,9 +5,22 @@ import type { TraitDefinition } from '../engine/traits';
 export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
     code: 'old_meepo_skull_life',
-    name: '骸骨生机',
-    description: '配对骷髅头宝石时，自身获得 2 点生命值。',
-    onColorMatchGain: { color: 'skull', stat: 'hp', amount: 2 },
+    name: '洗劫',
+    description: '配对骷髅头宝石时，所有盟友获得 2 点生命值。',
+    onColorMatchTypeAura: { color: 'skull', scope: 'all', gains: { hp: 2 } },
+  },
+  {
+    code: 'old_meepo_earth_bind',
+    name: '地之束缚',
+    description: '在我的回合开始时，随机束缚一名敌人，并获得 20 黄金。',
+    turnStartStatus: { target: 'randomEnemy', statuses: [{ id: 'entangle' }], turns: 3 },
+    turnStartEconomy: { currency: 'gold', amount: 20 },
+  },
+  {
+    code: 'old_meepo_huyou',
+    name: '忽悠',
+    description: '将敌人的宝石灵力减半。',
+    enemyMasteryMult: 0.5,
   },
   {
     code: 'cuixiang_slime_care',

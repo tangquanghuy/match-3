@@ -1041,13 +1041,13 @@
  },
  "troop:6700": {
   "lines": {
-   "L10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 127 (scatter) ; dmg E12 140 (scatter) ; dmg E13 115 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-120 | E11:hp-127 | E12:hp-140 | E13:hp-115",
-   "R10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 127 (scatter) ; dmg E12 140 (scatter) ; dmg E13 115 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-120 | E11:hp-127 | E12:hp-140 | E13:hp-115",
-   "L0": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 117 (scatter) ; dmg E11 126 (scatter) ; dmg E12 137 (scatter) ; dmg E13 112 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-117 | E11:hp-126 | E12:hp-137 | E13:hp-112",
-   "K": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 128 (scatter) ; dmg E12 139 (scatter) ; dmg E13 115 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 arm+4 atk+17 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "L10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 127 (scatter) ; dmg E12 140 (scatter) ; dmg E13 115 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 max+500 arm+4 atk+17 | E10:hp-120 | E11:hp-127 | E12:hp-140 | E13:hp-115",
+   "R10": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 127 (scatter) ; dmg E12 140 (scatter) ; dmg E13 115 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 max+500 arm+4 atk+17 | E10:hp-120 | E11:hp-127 | E12:hp-140 | E13:hp-115",
+   "L0": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; summon mine troop:-1 ; dmg E10 117 (scatter) ; dmg E11 126 (scatter) ; dmg E12 137 (scatter) ; dmg E13 112 (scatter)  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 max+500 arm+4 atk+17 | E10:hp-117 | E11:hp-126 | E12:hp-137 | E13:hp-112",
+   "K": "dmg A1 504 devoured ; defeat A1 ; buff C attack+17 ; buff C armor+4 ; buff C hp+500 max+500 ; summon mine troop:-1 ; dmg E10 120 (scatter) ; dmg E11 128 (scatter) ; dmg E12 139 (scatter) ; dmg E13 115 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => A14:new 夜龙 hp32 atk13 arm19 mag11 | A1:hp-500 arm-4 DEAD | C:hp+500 max+500 arm+4 atk+17 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "coord",
-  "at": "2026-09-28T00:59:28.203Z"
+  "by": "devour maxHp display regression",
+  "at": "2026-10-06T16:49:20.495Z"
  },
  "troop:6711": {
   "lines": {

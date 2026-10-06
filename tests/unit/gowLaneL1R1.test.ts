@@ -105,7 +105,7 @@ describe('L1 R2 charm family (sa-R5)', () => {
     let dev = 0;
     for (let seed = 1; seed <= 300; seed++) {
       const o = castSpell({ key, seed, enemies: [{}, { hp: 900, maxHp: 900, armor: 10, attack: 20, colors: ['Red'], ...yes } as never] }).summary.order;
-      if (/^dmg E11 \d+ devoured$/.test(o[0])) { dev++; expect(o.filter(x => x.startsWith('dmg'))).toHaveLength(1); expect(o).toContain('buff C hp+900'); }
+      if (/^dmg E11 \d+ devoured$/.test(o[0])) { dev++; expect(o.filter(x => x.startsWith('dmg'))).toHaveLength(1); expect(o).toContain('buff C hp+900 max+900'); }
       else expect(o[0]).toBe(`dmg E11 ${dbl}`);
     }
     expect(dev / 300).toBeGreaterThan(p - 0.1); expect(dev / 300).toBeLessThan(p + 0.1);

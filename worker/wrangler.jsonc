@@ -14,7 +14,7 @@
   "assets": {
     "directory": "../dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/auth/*", "/"]
+    "run_worker_first": ["/api/*", "/auth/*", "/admin", "/"]
   },
 
   // 每个玩家一个 Durable Object（SQLite 存储）

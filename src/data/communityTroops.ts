@@ -644,11 +644,11 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     manaCost: 13,
     spell: {
       id: OLD_MEEPO_SPELL_ID,
-      name: '潜影分身',
+      name: '分则能成',
       description: oldMeepoDescription,
       meta: buildSkillMetadata(oldMeepoDescription),
     },
-    traits: communityTraits(['old_meepo_skull_life', 'goldenhoard', 'jinx']),
+    traits: communityTraits(['old_meepo_skull_life', 'old_meepo_earth_bind', 'old_meepo_huyou']),
     portrait: null,
     artUrl: oldMeepoPortrait,
   },

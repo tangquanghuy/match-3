@@ -19,6 +19,7 @@ import {
 
 import { TERMS_VERSION } from '../../src/legal/terms';
 import { deliverPendingSystemMail } from './systemMail';
+import { handleAdmin } from './admin';
 
 export { PlayerActor } from './playerActor';
 
@@ -44,6 +45,7 @@ export default {
     try {
       // 封面页（登录 + 用户协议）
       if (url.pathname === '/') return env.ASSETS.fetch(new Request(new URL('/cover', url), request));
+      if (url.pathname === '/admin' || url.pathname.startsWith('/api/admin/')) return await handleAdmin(request, url, env);
       if (url.pathname.startsWith('/auth/')) return await handleAuth(request, url, env);
       if (url.pathname.startsWith('/api/meta/')) return await handleMeta(request, url, env);
       return env.ASSETS.fetch(request);

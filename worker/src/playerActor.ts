@@ -8,7 +8,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { MetaHost, type RecordBatch, type SaveRepository } from '../../src/meta/server/host';
 import { defaultEnv } from '../../src/meta/server/env';
-import type { SaveRecords } from '../../src/meta/state/records';
+import { assembleRaw, type SaveRecords } from '../../src/meta/state/records';
 import type { MailItem } from '../../src/meta/state/schema';
 import type { CommandReply, LoadReply, MetaCommand } from '../../src/meta/server/protocol';
 import type { Env } from './env';
@@ -76,6 +76,11 @@ export class PlayerActor extends DurableObject<Env> {
     return this.host.load({ preservePendingBattle });
   }
 
+  /** Admin-only RPC: read the persisted records directly without loading/mutating the game host. */
+  async inspectSave(): Promise<Record<string, unknown> | null> {
+    const rows = this.ctx.storage.sql.exec<{ key: string; value: string }>('SELECT key, value FROM records').toArray();
+    return rows.length ? assembleRaw(new Map(rows.map(row => [row.key, row.value]))) : null;
+  }
   async receiveMail(items: MailItem[], playerId?: string): Promise<string[]> {
     await this.bindPlayer(playerId);
     return this.host.receiveMail(items);

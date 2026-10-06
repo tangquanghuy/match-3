@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Cloudflare Worker：静态资源 + Discord 登录 + 每玩家 Durable Object 存档",
   "scripts": {
-    "build:client": "cd .. && npx vite build --mode remote",
+    "build:client": "cd .. && node scripts/assets/check.mjs --tracked && npx vite build --mode remote",
     "build:worker": "cd .. && npx vite build --config worker/vite.worker.config.ts",
     "build": "npm run build:client && npm run build:worker",
     "dev": "npm run build && wrangler dev",

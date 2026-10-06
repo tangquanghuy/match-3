@@ -2066,7 +2066,7 @@ export function applyColorMatchTriggers(
         if (!scopeMatches(member, scope)) continue;
         for (const stat of GAIN_STAT_ORDER) {
           const actual = grantStat(member, stat, gains[stat]);
-          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual, traitActivations: traitActivations(holder, def => def.onColorMatchTypeAura?.color === color && def.onColorMatchTypeAura.scope === scope && !!def.onColorMatchTypeAura.gains[stat]) });
+          if (actual !== 0) events.push({ type: 'buff', source: 'trait', targetId: member.id, stat, amount: actual, ...(stat === 'hp' ? { maxHpGain: actual } : {}), traitActivations: traitActivations(holder, def => def.onColorMatchTypeAura?.color === color && def.onColorMatchTypeAura.scope === scope && !!def.onColorMatchTypeAura.gains[stat]) });
         }
       }
     }

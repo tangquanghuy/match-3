@@ -14,4 +14,6 @@ export interface Env {
   SESSION_SECRET: string;
   /** '1' = 本地开发：允许免 Discord 登录与开发者命令。线上必须为空 */
   DEV_LOGIN?: string;
+  /** Secret: long random bearer token for read-only admin player inspection. */
+  ADMIN_READ_TOKEN?: string;
 }

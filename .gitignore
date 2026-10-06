@@ -43,16 +43,12 @@ tmp-*
 tmp_*
 tmp-old/
 
-# Required compressed defaults supplied by the user; keep only these static assets in Git.
+# Runtime static assets are published by URL and must be committed for reproducible deploys.
+# Keep source images and other large local-only asset directories ignored above.
 !game-assets/public/
 game-assets/public/*
 !game-assets/public/static/
-game-assets/public/static/*
-!game-assets/public/static/hero/
-game-assets/public/static/hero/*
-!game-assets/public/static/hero/character-male.webp
-!game-assets/public/static/hero/character-female.webp
-!game-assets/public/static/hero/character-unknown.webp
+!game-assets/public/static/**
 
 # Generated image previews and Python bytecode are local build artifacts.
 output/

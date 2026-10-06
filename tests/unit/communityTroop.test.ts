@@ -413,7 +413,7 @@ describe('OldMeepo - community troop', () => {
     expect(troop.spell.meta.modifier).toEqual({ kind: 'ratio', a: 1, b: 1 });
     expect(troop.artUrl).toContain('old-meepo.webp');
     expect(troopArt(troop)).toBe(troop.artUrl);
-    const codes = ['old_meepo_skull_life', 'goldenhoard', 'jinx'];
+    const codes = ['old_meepo_skull_life', 'old_meepo_earth_bind', 'old_meepo_huyou'];
     expect(troop.traits.map(t => t.code)).toEqual(codes);
     const save = newSave({ now: 0, starterTroopIds: [] });
     grantTroop(save, OLD_MEEPO_ID);
@@ -422,39 +422,59 @@ describe('OldMeepo - community troop', () => {
     expect(troopToSnapshot(troop, record, 'old-meepo').traitIds).toEqual(codes);
   });
 
-  it('skull match grants life, turn grants gold, jinx halves enemy gem mana', () => {
-    expect(getTrait('old_meepo_skull_life')?.onColorMatchGain).toEqual({ color: 'skull', stat: 'hp', amount: 2 });
-    expect(getTrait('goldenhoard')?.turnStartEconomy).toEqual({ currency: 'gold', amount: 5 });
-    expect(resolvePassives(['jinx']).enemyMasteryMult).toBe(0.5);
-    const me = character(0, { traitIds: ['old_meepo_skull_life'], hp: 45 });
-    attachPassives(me);
-    expect(applyColorMatchTriggers([me], 'skull')).toEqual(expect.arrayContaining([
-      expect.objectContaining({ type: 'buff', targetId: 0, stat: 'hp', amount: 2 }),
-    ]));
-    expect(me.hp).toBe(47);
-    applyColorMatchTriggers([me], BaseColor.Brown);
-    expect(me.hp).toBe(47);
+  it('renames the spell and three traits without changing the third effect', () => {
+    expect(troop.spell.name).toBe('\u5206\u5219\u80fd\u6210');
+    expect(troop.traits.map(t => t.name)).toEqual(['\u6d17\u52ab', '\u5730\u4e4b\u675f\u7f1a', '\u5ffd\u60a0']);
+    expect(getTrait('old_meepo_skull_life')?.onColorMatchTypeAura).toEqual({ color: 'skull', scope: 'all', gains: { hp: 2 } });
+    expect(getTrait('old_meepo_earth_bind')?.turnStartStatus).toEqual({
+      target: 'randomEnemy', statuses: [{ id: 'entangle' }], turns: 3,
+    });
+    expect(getTrait('old_meepo_earth_bind')?.turnStartEconomy).toEqual({ currency: 'gold', amount: 20 });
+    expect(resolvePassives(['old_meepo_huyou']).enemyMasteryMult).toBe(0.5);
+    expect(getTrait('jinx')?.name).toBe('\u9709\u8fd0'); // other troops retain their original trait
   });
 
-  it('credits five gold at the start of its own turn, not the enemy turn', () => {
-    const me = character(0, { traitIds: ['goldenhoard'] });
+  it('skull match gives two Life and max Life to each living ally, not enemies', () => {
+    const me = character(0, { traitIds: ['old_meepo_skull_life'], hp: 45 });
+    const ally = character(1, { hp: 30 });
+    const defeated = character(2, { hp: 0, defeated: true });
+    const enemy = character(10, { hp: 25 });
+    attachPassives(me);
+    const buffs = applyColorMatchTriggers([me, ally, defeated], 'skull', { enemyTeam: [enemy] });
+    for (const id of [0, 1]) {
+      expect(buffs).toEqual(expect.arrayContaining([
+        expect.objectContaining({ type: 'buff', targetId: id, stat: 'hp', amount: 2, maxHpGain: 2 }),
+      ]));
+    }
+    expect([me.hp, me.maxHp, ally.hp, ally.maxHp]).toEqual([47, 52, 32, 52]);
+    expect([defeated.hp, defeated.maxHp, enemy.hp, enemy.maxHp]).toEqual([0, 50, 25, 50]);
+    expect(applyColorMatchTriggers([me, ally], BaseColor.Brown)).toEqual([]);
+  });
+
+  it('binds exactly one random enemy and credits 20 gold at the start of its own turn only', () => {
+    const me = character(0, { traitIds: ['old_meepo_earth_bind'] });
+    const enemies = [character(10), character(11), character(12)];
     const state = createGameState(new BoardModel(),
       { player: PlayerSide.Left, characters: [me] },
-      { player: PlayerSide.Right, characters: [character(10)] });
+      { player: PlayerSide.Right, characters: enemies });
     const engine = new TurnEngine(state, new SeededRNG(10002), () => 1000);
-    engine.passTurn();
+    const enemyTurn = engine.passTurn();
     expect(state.economy.gold).toBe(0);
+    expect(enemyTurn.some(e => e.type === 'economy-gain' && e.currency === 'gold')).toBe(false);
+    expect(enemies.every(enemy => !enemy.statuses.some(st => st.id === 'entangle'))).toBe(true);
     const events = engine.passTurn();
-    expect(state.economy.gold).toBe(5);
+    expect(state.economy.gold).toBe(20);
     expect(events).toEqual(expect.arrayContaining([
-      expect.objectContaining({ type: 'economy-gain', currency: 'gold', amount: 5 }),
+      expect.objectContaining({ type: 'economy-gain', currency: 'gold', amount: 20, side: PlayerSide.Left }),
     ]));
+    expect(enemies.filter(enemy => enemy.statuses.some(st => st.id === 'entangle'))).toHaveLength(1);
+    expect(events.filter(e => e.type === 'status-apply' && e.statusId === 'entangle')).toHaveLength(1);
   });
 
   function cast(gold: number, allies = 1, roll?: number) {
     const board = new BoardModel();
     const me = character(0, { name: 'OldMeepo', skillId: String(OLD_MEEPO_SPELL_ID),
-      colors: [...troop.manaColors], traitIds: ['old_meepo_skull_life', 'goldenhoard', 'jinx'],
+      colors: [...troop.manaColors], traitIds: ['old_meepo_skull_life', 'old_meepo_earth_bind', 'old_meepo_huyou'],
       statuses: [], hp: 25 });
     const state = createGameState(board,
       { player: PlayerSide.Left, characters: [me, ...Array.from({ length: allies - 1 }, (_, i) => character(i + 1))] },
