@@ -26,5 +26,5 @@
     }
   },
   "include": ["src", "tests"],
-  "exclude": ["tests/unit/adminInspector.test.ts"]
+  "exclude": ["tests/unit/adminInspector.test.ts", "tests/unit/siteMetrics.test.ts"]
 }

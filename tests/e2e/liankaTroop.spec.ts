@@ -14,6 +14,8 @@ test('Lianka is discoverable with the final spell, traits and original portrait'
   await expect(detail).toBeVisible();
   await expect(detail).toContainText('日轮坠灭');
   await expect(detail).toContainText('普通宝石');
+  await expect(detail).toContainText('13');
+  await expect(detail).toContainText('[3:1]');
   for (const name of ['不熄之躯', '黑曜法衣', '蚀日魔焰']) {
     await expect(page.locator('#traitList')).toContainText(name);
   }

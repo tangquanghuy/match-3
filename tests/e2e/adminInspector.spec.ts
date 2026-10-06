@@ -9,7 +9,7 @@ test('admin dashboard shows login/write overview and drills down to one player w
   await page.route('**/api/admin/**', async route => {
     const req = route.request(); requests.push(req.url());
     expect(req.headers().authorization).toBe('Bearer ' + 'a'.repeat(64));
-    const body = req.url().endsWith('/overview') ? {
+    const body = req.url().endsWith('/traffic') ? { inspectedAt: Date.now(), pages: { '/': { total: 24, recent: 6 }, '/game': { total: 10, recent: 3 } }, currentPlayers: 1, activePlayers24h: 1, activeMs24h: 60000, leaderboard: [{ player_id: playerId, username: '<img src=x>', total_ms: 60000, last_seen: Date.now() }] } : req.url().includes('/traffic/player/') ? { presence: { total_ms: 60000, last_seen: Date.now(), active: 1 }, hours: [{ hour_start: 3600000, active_ms: 60000 }] } : req.url().endsWith('/overview') ? {
       inspectedAt: Date.now(), accounts: { total: 30, loggedIn24h: 6 }, writes: { players: 2, count: 9, bytes: 5120 },
       leaderboard: [{ player_id: playerId, username: '<img src=x>', writes_24h: 9, payload_bytes_24h: 5120,
         mirror_writes_24h: 4, defense_writes_24h: 3, weekly_writes_24h: 1, snapshot_writes_24h: 1 }],
@@ -33,6 +33,8 @@ test('admin dashboard shows login/write overview and drills down to one player w
   await expect(page.locator('#name')).toContainText(playerId);
   await expect(page.locator('#writeSummary .card').nth(1)).toContainText('9');
   await expect(page.locator('#writeHours tr')).toHaveCount(1);
-  expect(requests).toHaveLength(3);
+  await expect(page.locator('#trafficSummary')).toContainText('24');
+  await expect(page.locator('#playerTrafficSummary')).toContainText('60');
+  expect(requests).toHaveLength(5);
   expect(requests.every(url => url.includes('/api/admin/'))).toBe(true);
 });

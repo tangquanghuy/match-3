@@ -29,6 +29,7 @@ import { applyPageCss } from './pageCss';
 import type { Screen, ScreenName, ShellCtx } from './screen';
 import type { ResultScreen } from '../screens/resultScreen';
 import { applyPlayerPreferences } from '../../preferences/playerPreferences';
+import { startPresence } from './presence';
 
 const SCREEN_LOADERS: Record<string, () => Promise<Screen>> = {
   character: () => import('../screens/characterScreen').then(m => new m.CharacterScreen()),
@@ -297,6 +298,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     applyPlayerPreferences();
     backgroundMusic.start();
     backgroundMusic.setScene('meta');
+    startPresence();
     window.addEventListener('hashchange', () => void render());
     window.addEventListener('resize', fitStage);
     window.visualViewport?.addEventListener('resize', fitStage);

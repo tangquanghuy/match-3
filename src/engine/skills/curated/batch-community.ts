@@ -54,10 +54,13 @@ export const BATCH_COMMUNITY: CuratedBatch = {
     {
       id: LIANKA_SPELL_ID,
       desc: COMMUNITY_TROOPS.find((troop) => troop.spell.id === LIANKA_SPELL_ID)!.spell.description,
-      build: skill({
-        ...dmgAll(4),
+      build: skill(
+        createGems(BaseColor.Yellow, 6),
+        createGems(BaseColor.Red, 6),
+        {
+        ...dmgAll(13, 0),
         modifier: {
-          mod: { kind: 'ratio', a: 4, b: 1 },
+          mod: { kind: 'ratio', a: 3, b: 1 },
           pooled: true, // 「每有 4 颗红色或黄色宝石」= 单一合并计数（非原生分步 Count）
           sources: [
             { kind: 'boardGems', color: BaseColor.Red },

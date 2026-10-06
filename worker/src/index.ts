@@ -20,6 +20,7 @@ import {
 import { TERMS_VERSION } from '../../src/legal/terms';
 import { deliverPendingSystemMail } from './systemMail';
 import { handleAdmin } from './admin';
+import { recordPageView, recordPresence } from './siteMetrics';
 
 export { PlayerActor } from './playerActor';
 
@@ -40,13 +41,23 @@ const redirect = (location: string, cookies: string[] = []): Response => {
 };
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     try {
       // 封面页（登录 + 用户协议）
-      if (url.pathname === '/') return env.ASSETS.fetch(new Request(new URL('/cover', url), request));
+      if (url.pathname === '/' || url.pathname === '/game') {
+        const response = await env.ASSETS.fetch(url.pathname === '/'
+          ? new Request(new URL('/cover', url), request) : request);
+        if (response.ok && request.method === 'GET' &&
+            (request.headers.get('accept') ?? '').includes('text/html') &&
+            !request.headers.has('purpose') && !request.headers.has('sec-purpose')) {
+          ctx.waitUntil(recordPageView(env.DB, url.pathname, Date.now()).catch(error => console.error('page metric failed', error)));
+        }
+        return response;
+      }
       if (url.pathname === '/admin' || url.pathname.startsWith('/api/admin/')) return await handleAdmin(request, url, env);
       if (url.pathname.startsWith('/auth/')) return await handleAuth(request, url, env);
+      if (url.pathname === '/api/presence' && request.method === 'POST') return await handlePresence(request, url, env);
       if (url.pathname.startsWith('/api/meta/')) return await handleMeta(request, url, env);
       return env.ASSETS.fetch(request);
     } catch (error) {
@@ -165,6 +176,21 @@ async function discordUser(accessToken: string): Promise<{ id: string; username:
   if (!response.ok) return null;
   const user = (await response.json()) as { id?: string; username?: string; global_name?: string | null };
   return user.id && user.username ? { id: user.id, username: user.username, global_name: user.global_name } : null;
+}
+
+async function handlePresence(request: Request, url: URL, env: Env): Promise<Response> {
+  if (!sameOrigin(request, url)) return json({ error: 'forbidden' }, 403);
+  const playerId = await currentPlayer(request, env);
+  if (!playerId) return json({ error: 'unauthorized' }, 401);
+  if (Number(request.headers.get('content-length') ?? 0) > 128) return json({ error: 'too large' }, 413);
+  const body = await request.text();
+  if (body.length > 128) return json({ error: 'too large' }, 413);
+  let data: unknown;
+  try { data = JSON.parse(body); } catch { return json({ error: 'bad json' }, 400); }
+  if (!data || typeof data !== 'object' || typeof (data as { active?: unknown }).active !== 'boolean')
+    return json({ error: 'invalid presence' }, 400);
+  await recordPresence(env.DB, playerId, (data as { active: boolean }).active);
+  return json({ ok: true });
 }
 
 // ---------------------------------------------------------------------------

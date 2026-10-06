@@ -21,11 +21,11 @@ table { width:100%; border-collapse:collapse; font-size:.9rem } .scroll table { 
 <form id="login"><input id="token" type="password" required autocomplete="off" placeholder="管理员查询令牌" aria-label="管理员查询令牌"><button type="submit">进入查询</button></form>
 <div id="status" role="status"></div>
 <div id="panel" hidden>
-<section id="overview"><div class="result-head"><h2>账号登录与 D1 写入概览</h2><button id="refreshOverview" class="secondary" type="button">刷新概览</button></div><p class="note">登录人数按账号最近一次登录时间统计；写入数据来自 PvP 镜像 / 防守 / 周榜 / 快照 D1 表（近 24 个整点小时桶），写入字节为估算值。它不代表全站访问量、游戏在线人数或 Durable Object 存档写入。</p><div id="overviewSummary" class="grid"></div><h3>玩家写入排行（前 50，按写入次数）</h3><div class="scroll"><table><thead><tr><th>玩家</th><th>写入次数</th><th>估算字节</th><th>镜像</th><th>防守</th><th>周榜</th><th>快照</th></tr></thead><tbody id="writeLeaders"></tbody></table></div><h3>最近登录（前 20）</h3><div class="scroll"><table><thead><tr><th>玩家</th><th>最近登录（香港时间）</th></tr></thead><tbody id="recentLogins"></tbody></table></div><small id="overviewTime"></small></section>
+<section id="traffic"><div class="result-head"><h2>全站访问与游戏活跃时长</h2><button id="refreshTraffic" class="secondary" type="button">刷新访问统计</button></div><p class="note">PV 为成功加载封面 / 与游戏页 /game 的页面请求次数（含匿名访问，不含图片、API 及管理页）；不是独立访客数。活跃时长按登录玩家在游戏页前台且最近有交互的服务端心跳累计，跨标签按账号去重；离线、后台、长时间闲置及未完成区间不计入。开始统计前的历史数据不可追溯。近 24 小时为当前整点及前 23 个整点小时桶。</p><div id="trafficSummary" class="grid"></div><h3>活跃时长排行榜（累计前 30）</h3><div class="scroll"><table><thead><tr><th>玩家</th><th>累计活跃</th><th>最后心跳（香港时间）</th></tr></thead><tbody id="trafficLeaders"></tbody></table></div></section><section id="overview"><div class="result-head"><h2>账号登录与 D1 写入概览</h2><button id="refreshOverview" class="secondary" type="button">刷新概览</button></div><p class="note">登录人数按账号最近一次登录时间统计；写入数据来自 PvP 镜像 / 防守 / 周榜 / 快照 D1 表（近 24 个整点小时桶），写入字节为估算值。它不代表全站访问量、游戏在线人数或 Durable Object 存档写入。</p><div id="overviewSummary" class="grid"></div><h3>玩家写入排行（前 50，按写入次数）</h3><div class="scroll"><table><thead><tr><th>玩家</th><th>写入次数</th><th>估算字节</th><th>镜像</th><th>防守</th><th>周榜</th><th>快照</th></tr></thead><tbody id="writeLeaders"></tbody></table></div><h3>最近登录（前 20）</h3><div class="scroll"><table><thead><tr><th>玩家</th><th>最近登录（香港时间）</th></tr></thead><tbody id="recentLogins"></tbody></table></div><small id="overviewTime"></small></section>
 <form id="search"><input id="query" type="search" maxlength="64" required placeholder="输入玩家昵称或 player_id" aria-label="玩家昵称或 player_id"><button type="submit">搜索</button></form>
 <section><strong>匹配账号</strong><div id="matches"></div></section>
 <section id="result" hidden><div class="result-head"><h2 id="name"></h2><button id="refresh" class="secondary" type="button">刷新当前存档</button></div><div id="summary" class="grid"></div>
-<h3>该玩家近 24 个小时桶的 D1 写入</h3><p class="note">仅列出有写入的小时；零记录表示未监测到这四类 PvP 表写入，不代表玩家没有登录或游玩。</p><div id="writeSummary" class="grid"></div><div class="scroll"><table><thead><tr><th>小时（香港时间）</th><th>写入次数</th><th>估算字节</th><th>镜像</th><th>防守</th><th>周榜</th><th>快照</th></tr></thead><tbody id="writeHours"></tbody></table></div><h3>系统邮件（投递记录 / 当前存档领取情况）</h3><div class="scroll"><table><thead><tr><th>邮件</th><th>发信时间</th><th>投递</th><th>附件</th></tr></thead><tbody id="mail"></tbody></table></div>
+<h3>该玩家的游戏活跃时长</h3><div id="playerTrafficSummary" class="grid"></div><div class="scroll"><table><thead><tr><th>小时（香港时间）</th><th>已确认活跃时长</th></tr></thead><tbody id="playerTrafficHours"></tbody></table></div><h3>该玩家近 24 个小时桶的 D1 写入</h3><p class="note">仅列出有写入的小时；零记录表示未监测到这四类 PvP 表写入，不代表玩家没有登录或游玩。</p><div id="writeSummary" class="grid"></div><div class="scroll"><table><thead><tr><th>小时（香港时间）</th><th>写入次数</th><th>估算字节</th><th>镜像</th><th>防守</th><th>周榜</th><th>快照</th></tr></thead><tbody id="writeHours"></tbody></table></div><h3>系统邮件（投递记录 / 当前存档领取情况）</h3><div class="scroll"><table><thead><tr><th>邮件</th><th>发信时间</th><th>投递</th><th>附件</th></tr></thead><tbody id="mail"></tbody></table></div>
 <details><summary>完整存档 JSON（原始持久化记录）</summary><button id="download" class="secondary" type="button">下载 JSON</button><pre id="raw"></pre></details></section>
 </div>
 <script nonce="__ADMIN_NONCE__">
@@ -37,6 +37,7 @@ table { width:100%; border-collapse:collapse; font-size:.9rem } .scroll table { 
   const text = value => value === null || value === undefined ? '—' : String(value);
   const number = value => Number(value || 0).toLocaleString('zh-CN');
   const bytes = value => number(value) + ' B';
+  const duration = ms => number(Math.floor(Number(ms || 0) / 1000)) + ' 秒';
   async function api(path, options = {}) {
     const res = await fetch(path, { ...options, cache: 'no-store', headers: { 'authorization': 'Bearer ' + token, ...(options.headers || {}) } });
     if (res.status === 401) { token = ''; byId('panel').hidden = true; byId('login').hidden = false; throw Error('查询令牌有误，请重新输入。'); }
@@ -50,6 +51,38 @@ table { width:100%; border-collapse:collapse; font-size:.9rem } .scroll table { 
     button.textContent = account.username || account.player_id;
     button.title = account.player_id;
     button.addEventListener('click', () => openPlayer(account.player_id)); return button;
+  }
+  async function refreshTraffic() {
+    byId('refreshTraffic').disabled = true;
+    try {
+      const data = await api('/api/admin/traffic');
+      byId('trafficSummary').replaceChildren();
+      card('全站累计 PV', number(data.pages['/'].total + data.pages['/game'].total), 'trafficSummary');
+      card('封面累计 PV', number(data.pages['/'].total), 'trafficSummary');
+      card('游戏页累计 PV', number(data.pages['/game'].total), 'trafficSummary');
+      card('全站近 24 小时 PV', number(data.pages['/'].recent + data.pages['/game'].recent), 'trafficSummary');
+      card('游戏活跃玩家（最近 45 秒心跳）', number(data.currentPlayers), 'trafficSummary');
+      card('近 24 小时活跃玩家', number(data.activePlayers24h), 'trafficSummary');
+      card('近 24 小时游戏活跃时长', duration(data.activeMs24h), 'trafficSummary');
+      byId('trafficLeaders').replaceChildren();
+      for (const item of data.leaderboard) {
+        const row = document.createElement('tr'), td = document.createElement('td');
+        td.append(playerButton(item)); row.append(td);
+        cell(row, duration(item.total_ms)); cell(row, time(item.last_seen));
+        byId('trafficLeaders').append(row);
+      }
+      if (!data.leaderboard.length) { const row = document.createElement('tr'); cell(row, '暂无活跃记录'); byId('trafficLeaders').append(row); }
+    } catch (err) { status(err.message); } finally { byId('refreshTraffic').disabled = false; }
+  }
+  async function loadPlayerTraffic(id) {
+    const data = await api('/api/admin/traffic/player/' + encodeURIComponent(id));
+    byId('playerTrafficSummary').replaceChildren(); byId('playerTrafficHours').replaceChildren();
+    card('累计游戏活跃', duration(data.presence && data.presence.total_ms), 'playerTrafficSummary');
+    card('最后心跳', data.presence ? time(data.presence.last_seen) : '无记录', 'playerTrafficSummary');
+    card('最近 24 小时', duration(data.hours.reduce((sum, hour) => sum + hour.active_ms, 0)), 'playerTrafficSummary');
+    for (const hour of data.hours) {
+      const row = document.createElement('tr'); cell(row, time(hour.hour_start)); cell(row, duration(hour.active_ms)); byId('playerTrafficHours').append(row);
+    }
   }
   async function refreshOverview() {
     byId('refreshOverview').disabled = true;
@@ -121,10 +154,11 @@ table { width:100%; border-collapse:collapse; font-size:.9rem } .scroll table { 
       if (!data.systemMail.length) { const row = document.createElement('tr'); cell(row, '无系统邮件'); byId('mail').append(row); }
       byId('raw').textContent = save ? JSON.stringify(save, null, 2) : '无存档';
       await loadWrites(id);
+      await loadPlayerTraffic(id);
       status('已读取线上持久化存档及 D1 写入数据，查询不会触发游戏操作。');
     } catch (err) { status(err.message); }
   }
-  byId('login').addEventListener('submit', event => { event.preventDefault(); token = byId('token').value.trim(); byId('token').value = ''; byId('login').hidden = true; byId('panel').hidden = false; byId('query').focus(); status('正在读取概览…'); refreshOverview(); });
+  byId('login').addEventListener('submit', event => { event.preventDefault(); token = byId('token').value.trim(); byId('token').value = ''; byId('login').hidden = true; byId('panel').hidden = false; byId('query').focus(); status('正在读取概览…'); refreshOverview(); refreshTraffic(); });
   byId('search').addEventListener('submit', async event => {
     event.preventDefault(); const query = byId('query').value.trim(); if (!query) return;
     status('正在搜索…');
@@ -136,6 +170,7 @@ table { width:100%; border-collapse:collapse; font-size:.9rem } .scroll table { 
     } catch (err) { status(err.message); }
   });
   byId('refreshOverview').addEventListener('click', refreshOverview);
+  byId('refreshTraffic').addEventListener('click', refreshTraffic);
   byId('refresh').addEventListener('click', () => { if (selected) openPlayer(selected); });
   byId('download').addEventListener('click', () => { if (!lastResult) return; const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: 'application/json' }); const href = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = href; link.download = lastResult.account.username + '-' + lastResult.account.player_id + '.json'; link.click(); setTimeout(() => URL.revokeObjectURL(href), 1000); });
 })();

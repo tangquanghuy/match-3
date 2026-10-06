@@ -2,6 +2,7 @@
 import type { Env } from './env';
 import { adminPage } from './adminPage';
 import { randomToken } from './session';
+import { siteMetrics } from './siteMetrics';
 
 const UUID = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' };
@@ -40,6 +41,22 @@ export async function handleAdmin(request: Request, url: URL, env: Env): Promise
   if (!url.pathname.startsWith('/api/admin/')) return json({ error: 'not found' }, 404);
   if (!env.ADMIN_READ_TOKEN || env.ADMIN_READ_TOKEN.length < 32) return json({ error: 'not found' }, 404);
   if (!adminTokenMatches(request, env.ADMIN_READ_TOKEN)) return json({ error: 'unauthorized' }, 401);
+
+  if (url.pathname === '/api/admin/traffic' && request.method === 'GET') {
+    return json({ inspectedAt: Date.now(), ...await siteMetrics(env.DB) });
+  }
+  if (url.pathname.startsWith('/api/admin/traffic/player/')) {
+    const playerId = url.pathname.slice('/api/admin/traffic/player/'.length);
+    if (request.method !== 'GET' || !UUID.test(playerId)) return json({ error: 'not found' }, 404);
+    const now = Date.now();
+    const presence = await env.DB.prepare(`SELECT total_ms, last_seen, active FROM player_presence WHERE player_id = ?`)
+      .bind(playerId).first<{ total_ms: number; last_seen: number; active: number }>();
+    const { results: hours } = await env.DB.prepare(`SELECT hour_start, active_ms FROM player_active_hourly
+      WHERE player_id = ? AND hour_start >= ? ORDER BY hour_start DESC LIMIT 24`)
+      .bind(playerId, Math.floor(now / 3600000) * 3600000 - 23 * 3600000)
+      .all<{ hour_start: number; active_ms: number }>();
+    return json({ presence, hours, inspectedAt: now });
+  }
 
   if (url.pathname === '/api/admin/overview' && request.method === 'GET') {
     const now = Date.now();

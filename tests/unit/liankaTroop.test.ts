@@ -74,34 +74,55 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
     });
   });
 
-  it.each([[0, 0, 14], [3, 0, 14], [3, 1, 15], [16, 16, 22], [32, 32, 30]])(
-    '%i red + %i yellow deal %i per enemy with combined flooring and no +6 cap', (red, yellow, damage) => {
+  it.each([[0, 0], [3, 0], [3, 1], [16, 16], [32, 32]])(
+    '%i red + %i yellow creates yellow then red and uses final normal gem count / 3', (red, yellow) => {
       const { ctx, enemies, board, caster } = setup(boardWith(red, yellow));
-      const before = JSON.stringify(board);
       const proto = SKILL_LIBRARY[LIANKA_SPELL_ID];
-      expect(proto.segments.map(s => s.kind)).toEqual(['damage']);
+      expect(proto.segments.map(s => s.kind)).toEqual(['gem', 'gem', 'damage']);
       const events = executePrototype(proto, ctx);
-      expect(enemies.map(e => e.hp)).toEqual([100 - damage, 100 - damage, 100 - damage, 100 - damage]);
+      expect(events.filter(e => e.type === 'gem-transform').slice(0, 2)
+        .map(e => e.changes[0]?.to)).toEqual([colorGem(BaseColor.Yellow), colorGem(BaseColor.Red)]);
+      const count = { [BaseColor.Red]: 0, [BaseColor.Yellow]: 0 } as Record<string, number>;
+      board.forEach(gem => {
+        if (gem?.type.kind === 'color' && gem.type.color in count) count[gem.type.color]!++;
+      });
+      const damage = 13 + Math.floor((count[BaseColor.Red]! + count[BaseColor.Yellow]!) / 3);
+      expect(enemies.map(e => e.hp)).toEqual(Array(4).fill(100 - damage));
       expect(events.filter(e => e.type === 'skill-damage')).toHaveLength(4);
-      expect(enemies.every(e => e.statuses.length === 0)).toBe(true);
+      if (red === 0 && yellow === 0) {
+        expect(count[BaseColor.Yellow]).toBe(6);
+        expect(count[BaseColor.Red]).toBe(6);
+        expect(damage).toBe(17);
+      }
       expect(caster.mana).toBe(15);
-      expect(JSON.stringify(board)).toBe(before);
     });
+
+  it('uses fixed base damage independently of the caster magic', () => {
+    const { ctx, enemies } = setup(boardWith(), character(0, { magic: 99 }));
+    executePrototype(SKILL_LIBRARY[LIANKA_SPELL_ID], ctx);
+    expect(enemies.map(e => e.hp)).toEqual([83, 83, 83, 83]);
+  });
 
   it('excludes colored special gems, respects armor, and skips defeated enemies', () => {
     const board = boardWith(3, 0);
     for (let i = 3; i < 8; i++) board.set({ row: 0, col: i }, {
       id: i + 1, type: specialGem('dragonGem', undefined, i % 2 ? BaseColor.Red : BaseColor.Yellow),
     });
-    const enemies = [character(10, { armor: 20 }), character(11, { armor: 5 }), character(12, { hp: 0, defeated: true })];
+    const enemies = [character(10, { armor: 50 }), character(11, { armor: 5 }), character(12, { hp: 0, defeated: true })];
     const { ctx } = setup(board, character(0), enemies);
     const events = executePrototype(SKILL_LIBRARY[LIANKA_SPELL_ID], ctx);
-    expect(enemies.map(e => [e.hp, e.armor])).toEqual([[100, 6], [91, 0], [0, 0]]);
+    let normal = 0;
+    board.forEach(gem => { if (gem?.type.kind === 'color' && [BaseColor.Red, BaseColor.Yellow].includes(gem.type.color)) normal++; });
+    const damage = 13 + Math.floor(normal / 3);
     expect(events.filter(e => e.type === 'skill-damage')).toHaveLength(2);
+    expect(enemies[0].hp).toBe(100);
+    expect(enemies[2].hp).toBe(0);
+    expect(enemies[0].armor).toBe(50 - damage);
+    expect(enemies[1].hp).toBe(100 - (damage - 5));
   });
 
-  it('casts the registered skill through TurnEngine, spends 17 mana and spends the turn', () => {
-    const { state, caster, enemies, ctx } = setup();
+  it('casts through TurnEngine, spends mana and spends the turn', () => {
+    const { state, caster, ctx } = setup();
     const registry = new ExtensionRegistry();
     registry.prototypes.set(String(LIANKA_SPELL_ID), SKILL_LIBRARY[LIANKA_SPELL_ID]);
     const engine = new TurnEngine(state, ctx.rng, ctx.nextGemId, registry);
@@ -109,8 +130,6 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
     expect(events[0]).toMatchObject({ type: 'skill-cast' });
     expect(events.filter(e => e.type === 'skill-damage')).toHaveLength(4);
     expect(caster.mana).toBe(0);
-    expect(enemies.map(e => e.hp)).toEqual([86, 86, 86, 86]);
-    // No extra-turn segment: hand off to the opponent and tick their Burning.
     expect(state.activePlayer).toBe(PlayerSide.Right);
     expect(events.some(e => e.type === 'turn-end')).toBe(true);
   });
