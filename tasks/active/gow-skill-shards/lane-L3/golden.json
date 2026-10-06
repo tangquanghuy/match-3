@@ -541,10 +541,10 @@
  },
  "troop:6600": {
   "lines": {
-   "L10": "gold+900 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":900,\"goldMine\":900}",
-   "R10": "gold+900 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":900,\"goldMine\":900}",
-   "L0": "gold+900 ; buff C hp+1 max+1 ; extra-turn skill  => C:hp+1 max+1  extra:skill  eco:{\"gold\":900,\"goldMine\":900}",
-   "K": "gold+900 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":900,\"goldMine\":900}"
+   "L10": "gold+400 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":400,\"goldMine\":400}",
+   "R10": "gold+400 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":400,\"goldMine\":400}",
+   "L0": "gold+400 ; buff C hp+1 max+1 ; extra-turn skill  => C:hp+1 max+1  extra:skill  eco:{\"gold\":400,\"goldMine\":400}",
+   "K": "gold+400 ; buff C hp+11 max+11 ; extra-turn skill  => C:hp+11 max+11  extra:skill  eco:{\"gold\":400,\"goldMine\":400}"
   },
   "by": "sa-R7",
   "at": "2026-09-28T08:59:04.419Z"

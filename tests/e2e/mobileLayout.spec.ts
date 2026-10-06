@@ -4,7 +4,7 @@ type MobileDebugWindow = Window & {
   __app: {
     app: { renderer: { resolution: number } };
     input: { enabled: boolean };
-    root: { y: number };
+    root: { x: number; y: number };
     board: { cellSize: number };
     idleTweens: unknown[];
     hintTimer: number | null;
@@ -111,6 +111,38 @@ async function readLayout(page: Page) {
     };
   });
 }
+
+test('battle HUD quietly shows live gold and souls against the balance caps', async ({ page }) => {
+  await page.goto('/');
+  await waitForBattle(page);
+  const hud = page.getByTestId('battle-economy');
+  await expect(hud).toBeVisible();
+  await expect(hud).toContainText('0/500');
+  await expect(hud).toContainText('0/300');
+  await expect(hud).toHaveCSS('pointer-events', 'none');
+  await page.evaluate(() => {
+    const app = (window as unknown as { __app: {
+      engine: { getState(): { economy: { gold: number; souls: number } } };
+      refreshTeams(): void;
+    } }).__app;
+    Object.assign(app.engine.getState().economy, { gold: 470, souls: 128 });
+    app.refreshTeams();
+  });
+  await expect(hud).toContainText('470/500');
+  await expect(hud).toContainText('128/300');
+  const rect = await hud.boundingBox();
+  const board = await page.evaluate(() => {
+    const app = (window as unknown as MobileDebugWindow).__app;
+    const wrapperEl = document.querySelector<HTMLElement>('[data-testid="battle-wrapper"]')!;
+    const wrapper = wrapperEl.getBoundingClientRect();
+    const scale = wrapper.width / wrapperEl.offsetWidth;
+    return { left: wrapper.left + app.root.x * scale,
+      right: wrapper.left + (app.root.x + app.board.cellSize * 8) * scale };
+  });
+  expect(rect).not.toBeNull();
+  expect(rect!.x).toBeGreaterThanOrEqual(board.left - 1);
+  expect(rect!.x + rect!.width).toBeLessThanOrEqual(board.right + 1);
+});
 
 test('portrait starts in the portrait layout: enemy row, board, ally row fit the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

@@ -161,13 +161,13 @@
  },
  "troop:6232": {
   "lines": {
-   "L10": "dmg E11 12 ; status E11 +curse ; status E11 +marked ; status E11 +web ; status E11 +curse  => E11:hp-2 arm-10 +curse+marked+web",
-   "R10": "dmg E11 12 ; status E11 +curse ; status E11 +marked ; status E11 +web ; status E11 +curse  => E11:hp-2 arm-10 +curse+marked+web",
-   "L0": "dmg E11 2 ; status E11 +curse ; status E11 +marked ; status E11 +web ; status E11 +curse  => E11:arm-2 +curse+marked+web",
+   "L10": "dmg E11 12 ; status E11 +curse ; status E11 +marked ; status E11 +entangle ; status E11 +disease  => E11:hp-2 arm-10 +curse+marked+entangle+disease",
+   "R10": "dmg E11 12 ; status E11 +curse ; status E11 +marked ; status E11 +entangle ; status E11 +disease  => E11:hp-2 arm-10 +curse+marked+entangle+disease",
+   "L0": "dmg E11 2 ; status E11 +curse ; status E11 +marked ; status E11 +entangle ; status E11 +disease  => E11:arm-2 +curse+marked+entangle+disease",
    "K": "dmg E11 12 ; defeat E11  => E11:hp-1 DEAD"
   },
-  "by": "sa-H",
-  "at": "2026-09-28T21:18:53.690Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:6237": {
   "lines": {
@@ -241,13 +241,13 @@
  },
  "troop:6313": {
   "lines": {
-   "L10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +barrier ; status A1 +barrier ; status A2 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:arm-3 | C:+barrier",
-   "R10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +barrier ; status A1 +barrier ; status A2 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:arm-3 | C:+barrier",
-   "L0": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +barrier ; status A1 +barrier ; status A2 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:arm-3 | C:+barrier",
-   "K": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; defeat E10 ; status C +barrier ; status A1 +barrier ; status A2 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:hp-1 DEAD | C:+barrier"
+   "L10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +barrier ; status A2 +barrier ; status A1 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:arm-3 | C:+barrier",
+   "R10": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +barrier ; status A2 +barrier ; status A1 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:arm-3 | C:+barrier",
+   "L0": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; status C +barrier ; status A2 +barrier ; status A1 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:arm-3 | C:+barrier",
+   "K": "destroy 14 (skull x3, Red x4, Green x2, Blue x1, Yellow x3, Brown x1) ; skulls E10 3 ; defeat E10 ; status C +barrier ; status A2 +barrier ; status A1 +barrier  => A2:mana+4 +barrier | A1:mana+1 +barrier | E10:hp-1 DEAD | C:+barrier"
   },
-  "by": "sa-R6",
-  "at": "2026-09-28T06:01:50.263Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:6332": {
   "lines": {
@@ -641,13 +641,13 @@
  },
  "troop:6947": {
   "lines": {
-   "L10": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-11 +curse+entangle+marked",
-   "R10": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-11 +curse+entangle+marked",
-   "L0": "buff E11 attack-1 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-1 +curse+entangle+marked",
-   "K": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +marked  => E11:atk-11 +curse+entangle+marked"
+   "L10": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +lycanthropy  => E11:atk-11 +curse+entangle+lycanthropy",
+   "R10": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +lycanthropy  => E11:atk-11 +curse+entangle+lycanthropy",
+   "L0": "buff E11 attack-1 ; status E11 +curse ; status E11 +entangle ; status E11 +lycanthropy  => E11:atk-1 +curse+entangle+lycanthropy",
+   "K": "buff E11 attack-11 ; status E11 +curse ; status E11 +entangle ; status E11 +lycanthropy  => E11:atk-11 +curse+entangle+lycanthropy"
   },
-  "by": "sa-H",
-  "at": "2026-09-28T21:18:53.690Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:6948": {
   "lines": {
@@ -1124,10 +1124,10 @@
    "L10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; status E13 +terror ; status E11 +terror ; status C +barrier  => A2:mana+3 | A1:mana+2 | E10:arm-1 | E13:+terror | E11:+terror | C:+barrier",
    "R10": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; status E13 +terror ; status E11 +terror ; status C +barrier  => A2:mana+3 | A1:mana+2 | E10:arm-1 | E13:+terror | E11:+terror | C:+barrier",
    "L0": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; status E13 +terror ; status E11 +terror ; status C +barrier  => A2:mana+3 | A1:mana+2 | E10:arm-1 | E13:+terror | E11:+terror | C:+barrier",
-   "K": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; defeat E10 ; status E13 +terror ; status E12 +terror ; status C +barrier  => A2:mana+3 | A1:mana+2 | E10:hp-1 DEAD | E13:+terror | E12:+terror | C:+barrier"
+   "K": "destroy 8 (Yellow x3, Green x1, Blue x2, Brown x1, skull x1) ; skulls E10 1 ; defeat E10 ; status E13 +terror ; status E11 +terror ; status C +barrier  => A2:mana+3 | A1:mana+2 | E10:hp-1 DEAD | E13:+terror | E11:+terror | C:+barrier"
   },
-  "by": "sa-R6",
-  "at": "2026-09-28T06:01:50.263Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:7427": {
   "lines": {
@@ -1211,13 +1211,13 @@
  },
  "troop:7556": {
   "lines": {
-   "L10": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E12 +disease ; status E10 +disease ; status E12 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease ; status E11 +disease ; gold+11  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":11,\"goldMine\":11}",
-   "R10": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E12 +disease ; status E10 +disease ; status E12 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease ; status E11 +disease ; gold+11  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":11,\"goldMine\":11}",
-   "L0": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E12 +disease ; status E10 +disease ; status E12 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease ; status E11 +disease ; gold+1  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":1,\"goldMine\":1}",
-   "K": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E12 +disease ; status E10 +disease ; status E12 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease ; status E11 +disease ; gold+11  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":11,\"goldMine\":11}"
+   "L10": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E10 +disease ; gold+11  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":11,\"goldMine\":11}",
+   "R10": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E10 +disease ; gold+11  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":11,\"goldMine\":11}",
+   "L0": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E10 +disease ; gold+1  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":1,\"goldMine\":1}",
+   "K": "convert Yellow x9 -> Brown x9 ; status E12 +disease ; status E11 +disease ; status E13 +disease ; status E10 +disease ; gold+11  => E12:+disease | E11:+disease | E13:+disease | E10:+disease  eco:{\"gold\":11,\"goldMine\":11}"
   },
-  "by": "sa-R6",
-  "at": "2026-09-28T08:43:08.033Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:7582": {
   "lines": {
@@ -1291,13 +1291,13 @@
  },
  "troop:7739": {
   "lines": {
-   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; status C +reflect ; status A1 +enraged ; status A2 +barrier ; status C +submerged ; status A1 +barrier ; status A2 +enraged ; remove C -poison ; status C +blessed ; status A1 +barrier ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3 | C:+reflect+submerged+blessed -poison | A1:+enraged+barrier | A2:+barrier+enraged+blessed",
-   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; status C +reflect ; status A1 +enraged ; status A2 +barrier ; status C +submerged ; status A1 +barrier ; status A2 +enraged ; remove C -poison ; status C +blessed ; status A1 +barrier ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3 | C:+reflect+submerged+blessed -poison | A1:+enraged+barrier | A2:+barrier+enraged+blessed",
-   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; remove C -poison ; status C +blessed ; status A1 +enraged ; status A2 +submerged ; status C +blessed ; status A1 +submerged ; status A2 +reflect ; status C +blessed ; status A1 +enraged ; status A2 +reflect  => E10:arm-1 | E11:arm-1 | E12:arm-3 | E13:arm-1 | C:+blessed -poison | A1:+enraged+submerged | A2:+submerged+reflect",
+   "L10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; status C +reflect ; status A1 +enraged ; status A2 +barrier ; status C +submerged ; status A1 +barrier ; status A2 +enraged ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3 | C:+reflect+submerged+blessed -poison | A1:+enraged+barrier+blessed -poison | A2:+barrier+enraged+blessed",
+   "R10": "dmg E10 3 (scatter) ; dmg E11 4 (scatter) ; dmg E12 6 (scatter) ; dmg E13 3 (scatter) ; status C +reflect ; status A1 +enraged ; status A2 +barrier ; status C +submerged ; status A1 +barrier ; status A2 +enraged ; remove C -poison ; status C +blessed ; remove A1 -poison ; status A1 +blessed ; status A2 +blessed  => E10:arm-3 | E11:arm-4 | E12:arm-6 | E13:arm-3 | C:+reflect+submerged+blessed -poison | A1:+enraged+barrier+blessed -poison | A2:+barrier+enraged+blessed",
+   "L0": "dmg E10 1 (scatter) ; dmg E11 1 (scatter) ; dmg E12 3 (scatter) ; dmg E13 1 (scatter) ; remove C -poison ; status C +blessed ; status A1 +enraged ; status A2 +submerged ; status C +enchanted ; status A1 +submerged ; status A2 +enraged ; status C +barrier ; status A1 +enchanted ; status A2 +enchanted  => E10:arm-1 | E11:arm-1 | E12:arm-3 | E13:arm-1 | C:+blessed+enchanted+barrier -poison | A1:+enraged+submerged+enchanted | A2:+submerged+enraged+enchanted",
    "K": "dmg E10 4 (scatter) ; dmg E11 4 (scatter) ; dmg E12 5 (scatter) ; dmg E13 3 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +enraged ; status A1 +reflect ; status A2 +enraged ; status C +enchanted ; status A1 +submerged ; status A2 +barrier  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+enraged+enchanted | A1:+reflect+submerged | A2:+enraged+barrier"
   },
-  "by": "sa-Q1",
-  "at": "2026-09-29T04:37:58.876Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:7740": {
   "lines": {
@@ -1314,10 +1314,10 @@
    "L10": "dmg E11 11  => E11:hp-11",
    "R10": "dmg E11 11  => E11:hp-11",
    "L0": "dmg E11 1  => E11:hp-1",
-   "K": "dmg E11 11 ; defeat E11 ; status E10 +curse ; status E12 +entangle ; status E13 +marked ; status E10 +web ; status E12 +frozen ; status E13 +curse  => E11:hp-1 DEAD | E10:+curse+web | E12:+entangle+frozen | E13:+marked+curse"
+   "K": "dmg E11 11 ; defeat E11 ; status E10 +curse ; status E12 +entangle ; status E13 +marked ; status E10 +web ; status E12 +silence ; status E13 +disease  => E11:hp-1 DEAD | E10:+curse+web | E12:+entangle+silence | E13:+marked+disease"
   },
-  "by": "sa-H",
-  "at": "2026-09-28T21:57:21.692Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "troop:7794": {
   "lines": {
@@ -1503,13 +1503,13 @@
  },
  "weapon:1237": {
   "lines": {
-   "L10": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+web | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
-   "R10": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+web | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
-   "L0": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+web | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
-   "K": "status E11 +curse ; status E11 +marked ; status E11 +web ; explode 30 ; skulls E10 1 ; defeat E10 ; ~cascade~  => E11:+curse+marked+web | A2:mana+2 | A1:mana+3 | E10:hp-1 DEAD  cascade"
+   "L10": "status E11 +curse ; status E11 +marked ; status E11 +entangle ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+entangle | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
+   "R10": "status E11 +curse ; status E11 +marked ; status E11 +entangle ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+entangle | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
+   "L0": "status E11 +curse ; status E11 +marked ; status E11 +entangle ; explode 30 ; skulls E10 2 ; ~cascade~  => E11:+curse+marked+entangle | A1:mana+2 | A2:mana+5 | E10:arm-2  cascade",
+   "K": "status E11 +curse ; status E11 +marked ; status E11 +entangle ; explode 30 ; skulls E10 1 ; defeat E10 ; ~cascade~  => E11:+curse+marked+entangle | A2:mana+2 | A1:mana+3 | E10:hp-1 DEAD  cascade"
   },
-  "by": "sa-H",
-  "at": "2026-09-28T21:51:47.368Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "weapon:1239": {
   "lines": {
@@ -1526,10 +1526,10 @@
    "L10": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
    "R10": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter)  => E10:hp-5 | E11:hp-5 | E12:hp-8 | E13:hp-4",
    "L0": "dmg E10 2 (scatter) ; dmg E11 3 (scatter) ; dmg E12 4 (scatter) ; dmg E13 3 (scatter)  => E10:hp-2 | E11:hp-3 | E12:hp-4 | E13:hp-3",
-   "K": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +barrier ; status C +enraged ; status A1 +barrier ; remove A1 -poison ; status A1 +blessed ; status A2 +barrier ; status A2 +blessed  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+barrier+enraged | A1:+barrier+blessed -poison | A2:+barrier+blessed"
+   "K": "dmg E10 5 (scatter) ; dmg E11 5 (scatter) ; dmg E12 8 (scatter) ; dmg E13 4 (scatter) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; status C +barrier ; status C +enraged ; status A1 +barrier ; status A1 +enchanted ; status A2 +barrier ; status A2 +blessed  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD | C:+barrier+enraged | A1:+barrier+enchanted | A2:+barrier+blessed"
   },
-  "by": "sa-Q1",
-  "at": "2026-09-29T04:42:38.237Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "weapon:1296": {
   "lines": {
@@ -1705,13 +1705,13 @@
  },
  "weapon:1686": {
   "lines": {
-   "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +web ; status E11 +death-mark ; status E12 +curse ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+web+poison | E11:+lycanthropy+death-mark+poison | E12:+faerie-fire+curse+poison | E13:+frozen+poison  cascade",
-   "R10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +web ; status E11 +death-mark ; status E12 +curse ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+web+poison | E11:+lycanthropy+death-mark+poison | E12:+faerie-fire+curse+poison | E13:+frozen+poison  cascade",
-   "L0": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +web ; status E11 +death-mark ; status E12 +curse ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+web+poison | E11:+lycanthropy+death-mark+poison | E12:+faerie-fire+curse+poison | E13:+frozen+poison  cascade",
-   "K": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +web ; status E11 +death-mark ; status E12 +curse ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+web+poison | E11:+lycanthropy+death-mark+poison | E12:+faerie-fire+curse+poison | E13:+frozen+poison  cascade"
+   "L10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +disease ; status E11 +curse ; status E12 +disease ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+disease+poison | E11:+lycanthropy+curse+poison | E12:+faerie-fire+disease+poison | E13:+frozen+poison  cascade",
+   "R10": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +disease ; status E11 +curse ; status E12 +disease ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+disease+poison | E11:+lycanthropy+curse+poison | E12:+faerie-fire+disease+poison | E13:+frozen+poison  cascade",
+   "L0": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +disease ; status E11 +curse ; status E12 +disease ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+disease+poison | E11:+lycanthropy+curse+poison | E12:+faerie-fire+disease+poison | E13:+frozen+poison  cascade",
+   "K": "convert Yellow x2, Brown x2, skull x2, Blue x1, Red x2, Purple x1 -> poisonGem x10 ; status E10 +silence ; status E11 +lycanthropy ; status E12 +faerie-fire ; status E13 +frozen ; status E10 +disease ; status E11 +curse ; status E12 +disease ; status E13 +poison ; ~cascade~ ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison ; trigger poisonGem ; status E10 +poison ; status E11 +poison ; status E12 +poison ; status E13 +poison  => E10:+silence+disease+poison | E11:+lycanthropy+curse+poison | E12:+faerie-fire+disease+poison | E13:+frozen+poison  cascade"
   },
-  "by": "sa-R6",
-  "at": "2026-09-28T08:54:46.622Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:45.051Z"
  },
  "weapon:1706": {
   "lines": {

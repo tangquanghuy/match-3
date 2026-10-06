@@ -12,3 +12,7 @@
 回归用例：`tests/unit/raidIngotChallenge.test.ts`、`tests/unit/metaResult.test.ts`、`tests/e2e/raidIngotResult.spec.ts`。
 
 Currency rule: sum all actual `SettlementDetail.lines[].deltas` in the battle result, including gems, first-win, milestone and weekly-event payouts. Do not limit currency cards to base-battle lines. The result and actual wallet increment must agree; replay/defeat must not fabricate rewards.
+
+## Battle economy collection caps
+
+During battle, gold is capped at the **current balance** of 500 per side, not lifetime gold earned: spending or losing gold frees room to collect it again. In-battle souls are capped at 300. Matches, skills, traits and special gems credit only the amount that fits; economy-gain events report that actual credited amount. At the first victory/defeat determination, gold/soul traits multiply only the capped battle balance. Separate PvP, invasion, kill and event settlement grants bypass these collection caps and do not receive the battle-trait multipliers. Battle HUD counters show the in-battle balance against these base caps; the settlement lines and visible currency cards must include all actually credited battle and extra grants, including on defeat, and avoid double-granting on replay.

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { BattleResult } from '../../src/session/contract';
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { getTroopById } from '../../src/data/troops';
 import {
   applySettlement,
@@ -244,5 +245,29 @@ describe('结算入账（战败）', () => {
     expect(save.stats.battlesLost).toBe(1);
     expect(save.hero.xp).toBe(20);
     expect(save.kingdoms[KINGDOM]).toBeUndefined();
+  });
+});
+
+
+describe('battle base cap and independent settlement grants', () => {
+  it.each(['player', 'enemy'] as const)('shows actual post-trait pool and independent %s grants', winner => {
+    const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
+    const before = { ...save.currencies };
+    const plan = planQuestEncounter(KINGDOM, 1, 5);
+    // Engine capped 500 / 300 BEFORE merchant +25% and necromancy +50%.
+    const detail = applySettlement(save, mkResult(winner, [], { gold: 625, souls: 450, gems: 0 }), {
+      plan, enemyByExternalId: mapOf(plan), todayStart: DAY1,
+    });
+    expect(detail.lines.find(line => line.key === 'battle-collect')?.deltas)
+      .toMatchObject({ gold: 625, souls: 450 });
+    const otherGold = detail.lines.filter(line => line.key !== 'battle-collect')
+      .reduce((total, line) => total + (line.deltas.gold ?? 0), 0);
+    const otherSouls = detail.lines.filter(line => line.key !== 'battle-collect')
+      .reduce((total, line) => total + (line.deltas.souls ?? 0), 0);
+    expect(otherGold).toBeGreaterThan(0);
+    expect(otherSouls).toBeGreaterThan(0);
+    expect(battleIncomeView(detail)).toMatchObject({ gold: 625 + otherGold, souls: 450 + otherSouls });
+    expect(save.currencies.gold - before.gold).toBe(625 + otherGold);
+    expect(save.currencies.souls - before.souls).toBe(450 + otherSouls);
   });
 });

@@ -9,6 +9,14 @@ export function setGoldForSide(state: GameState, side: PlayerSide, amount: numbe
   if (side === PlayerSide.Left) state.economy.gold = value;
   else state.enemyGold = value;
 }
-export function creditGoldForSide(state: GameState, side: PlayerSide, amount: number): void {
-  setGoldForSide(state, side, goldForSide(state, side) + amount);
+/** In-battle balance cap. Spending gold frees room to earn it again. */
+export const BATTLE_GOLD_BASE_CAP = 500;
+export function remainingBattleGold(state: GameState, side: PlayerSide): number {
+  return Math.max(0, BATTLE_GOLD_BASE_CAP - goldForSide(state, side));
+}
+/** Returns the amount actually credited, for truthful economy-gain events. */
+export function creditGoldForSide(state: GameState, side: PlayerSide, amount: number): number {
+  const gained = Math.min(Math.max(0, amount), remainingBattleGold(state, side));
+  if (gained > 0) setGoldForSide(state, side, goldForSide(state, side) + gained);
+  return gained;
 }

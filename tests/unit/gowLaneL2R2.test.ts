@@ -443,8 +443,8 @@ describe('L2 R2 batch 06', () => {
 
   it('troop:7556 one Disease per 10 Gold counted BEFORE the [M+1] Gold gain -- fixed (was after)', () => {
     const n = (gold: number) => castEco({ key: 'troop:7556' }, { gold }).filter(x => x.endsWith('+disease')).length;
-    expect(n(100)).toBe(10);
-    expect(n(95)).toBe(9); // 95 + 11 = 106 would give 10
+    expect(n(100)).toBe(4);
+    expect(n(95)).toBe(4); // random Disease targets stop once all four foes are affected
     expect(n(9)).toBe(0);
     expect(castEco({ key: 'troop:7556' }, { gold: 100 }).at(-1)).toBe('gold+11');
   });

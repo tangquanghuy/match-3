@@ -16,6 +16,8 @@ import { pickHintSwap } from '@engine/boardUtils';
 import { chooseAiAction } from '@engine/aiPolicy';
 import { BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS, BATTLE_SKULL_CHANCE } from '@engine/comboBias';
 import { createGameState } from '@engine/GameState';
+import { BATTLE_GOLD_BASE_CAP } from '@engine/battleGold';
+import { BATTLE_SOUL_BASE_CAP } from '@engine/battleSouls';
 import { SeededRNG } from '@engine/rng';
 import { TRAIT_LIBRARY, dynamicTraitCodes } from '@engine/traits';
 import { MatchState, PlayerSide, BaseColor } from '@engine/types';
@@ -345,6 +347,7 @@ export class App {
   private rightTeamView!: TeamView;
   /** 角色卡 DOM 覆盖层 */
   private overlay!: HTMLDivElement;
+  private economyHudEl: HTMLDivElement | null = null;
   private lastManaSurgeAt = 0;
   /**
    * 状态持续层（硬控/软控循环挂在角色卡上，直到状态解除）：
@@ -579,6 +582,21 @@ export class App {
     overlay.style.isolation = 'isolate';
     wrapper.appendChild(overlay);
     this.overlay = overlay;
+    // Small, non-interactive counter at the board edge; only in-battle base balances are shown.
+    const economyHud = document.createElement('div');
+    economyHud.dataset.testid = 'battle-economy';
+    economyHud.title = '\u6218\u6597\u5185\u57fa\u7840\u4e0a\u9650\uff1b\u6218\u540e\u7279\u8d28\u500d\u7387\u4e0e\u6d3b\u52a8\u5956\u52b1\u53e6\u7b97';
+    economyHud.style.cssText = [
+      'position:absolute', `right:${dimW - boardLeft - gridPx + 4}px`,
+      `top:${boardTop + gridPx - 19}px`, 'z-index:10', 'pointer-events:none',
+      'padding:2px 6px', 'border-radius:5px',
+      'background:rgba(7,11,22,.8)', 'border:1px solid rgba(177,156,105,.3)',
+      'color:#ecddb3', 'font:600 10px/13px system-ui,sans-serif',
+      'font-variant-numeric:tabular-nums', 'white-space:nowrap',
+      'text-shadow:0 1px 2px #000',
+    ].join(';');
+    overlay.appendChild(economyHud);
+    this.economyHudEl = economyHud;
 
     installStatusTooltips();
     this.createFullscreenButton(wrapper, pl ? { left: PORTRAIT_PAD, top: pl.barTop } : undefined);
@@ -650,6 +668,7 @@ export class App {
     }
     // 表现层一律通过 session 提交行动，事件流才会被完整累积进结果摘要与 digest
     this.session = new BattleSession({ request: battleRequest, idMap, engine: this.engine });
+    this.refreshEconomyHud();
     if (this.ruleHudHost) this.mountRuleHud(this.ruleHudHost.hud, this.ruleHudHost.hudHeight);
 
     // 视图
@@ -3819,11 +3838,19 @@ export class App {
     };
   }
 
+  /** Read the live player balance, not cumulative income or mode settlement grants. */
+  private refreshEconomyHud(): void {
+    if (!this.economyHudEl || !this.engine) return;
+    const { gold, souls } = this.engine.getState().economy;
+    this.economyHudEl.textContent = `\u91d1\u5e01 ${gold}/${BATTLE_GOLD_BASE_CAP} \u00b7 \u7075\u9b42 ${souls}/${BATTLE_SOUL_BASE_CAP}`;
+  }
+
   /** 回合结束刷新两队卡面 + 技能可释放高亮 */
   private refreshTeams(): void {
     const state = this.engine.getState();
     this.leftTeamView.refreshAll();
     this.rightTeamView.refreshAll();
+    this.refreshEconomyHud();
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       const view = this.viewOf(side);
       for (const ch of state.teams[side].characters) {

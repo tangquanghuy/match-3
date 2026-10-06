@@ -11,6 +11,10 @@ import { BoardModel } from '@engine/BoardModel';
 import { TurnEngine } from '@engine/TurnEngine';
 import { MatchResolver } from '@engine/MatchResolver';
 import { createGameState } from '@engine/GameState';
+import { BATTLE_GOLD_BASE_CAP, creditGoldForSide, goldForSide, setGoldForSide } from '@engine/battleGold';
+import { BATTLE_SOUL_BASE_CAP } from '@engine/battleSouls';
+import { registerDynamicTraits } from '@engine/traits';
+import { PVP_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
 import { ExtensionRegistry } from '@engine/registry';
 import { SeededRNG } from '@engine/rng';
 import { executePrototype } from '@engine/skills/prototypes';
@@ -321,5 +325,81 @@ describe('护栏：无经济内容的对局零经济事件', () => {
     const events2 = engine2.resolveAction({ type: 'swap', from: { row: 7, col: 1 }, to: { row: 7, col: 2 } });
     expect(JSON.stringify(events2)).toBe(JSON.stringify(events));
     void state2;
+  });
+});
+
+
+describe('per-battle base collection caps', () => {
+  it('clips gains and events at 500 gold / 300 souls without capping gems', () => {
+    const { ctx, state } = primitiveCtx();
+    const first = executePrototype({ segments: [gainGold(490), gainSouls(295), gainGems(3)] }, ctx);
+    expect(first.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
+      .toEqual([['gold', 490], ['souls', 295], ['gems', 3]]);
+    const clipped = executePrototype({ segments: [gainGold(100), gainSouls(100), gainGems(4)] }, ctx);
+    expect(clipped.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
+      .toEqual([['gold', 10], ['souls', 5], ['gems', 4]]);
+    expect(state.economy).toMatchObject({ gold: BATTLE_GOLD_BASE_CAP, souls: BATTLE_SOUL_BASE_CAP, gems: 7 });
+    expect(executePrototype({ segments: [gainGold(20), gainSouls(20)] }, ctx)).toEqual([]);
+  });
+
+  it('spending gold frees capacity again; opposing balances are independent', () => {
+    const { state } = primitiveCtx();
+    expect(creditGoldForSide(state, PlayerSide.Left, 500)).toBe(500);
+    setGoldForSide(state, PlayerSide.Left, 0);
+    expect(creditGoldForSide(state, PlayerSide.Left, 450)).toBe(450);
+    expect(creditGoldForSide(state, PlayerSide.Left, 100)).toBe(50);
+    expect(state.economy.gold).toBe(500);
+    expect(creditGoldForSide(state, PlayerSide.Right, 400)).toBe(400);
+    expect(goldForSide(state, PlayerSide.Right)).toBe(400);
+    expect(creditGoldForSide(state, PlayerSide.Right, 200)).toBe(100);
+    expect(goldForSide(state, PlayerSide.Right)).toBe(500);
+  });
+
+  it('post-battle PvP grants bypass the cap and the battle multiplier, once', () => {
+    registerDynamicTraits(PVP_DYNAMIC_DEFS);
+    const board = new BoardModel();
+    fillBoard(board, () => colorGem(BaseColor.Red));
+    const left: Team = { player: PlayerSide.Left, characters: [
+      makeChar(0, { traitIds: ['merchant', 'bloodandglory'], mana: 99, skillId: 'collect' }),
+      makeChar(1, { mana: 99, skillId: 'nuke' }),
+    ] };
+    const right: Team = { player: PlayerSide.Right, characters: [makeChar(4, { hp: 1 })] };
+    const state = createGameState(board, left, right);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set('collect', { segments: [gainGold(900)] });
+    registry.prototypes.set('nuke', { segments: [dmg('enemyFront', 50, 0)] });
+    const engine = new TurnEngine(state, new SeededRNG(3), () => 840000 + gid++, registry);
+    engine.skullChance = 0;
+    engine.pvpMode = true;
+    engine.resolveAction({ type: 'cast', characterId: 0 });
+    expect(state.economy.gold).toBe(500);
+    engine.passTurn();
+    engine.resolveAction({ type: 'cast', characterId: 1 });
+    expect(state.winner).toBe(PlayerSide.Left);
+    expect(state.economy.gold).toBe(626); // capped base 500 * 1.25, then independent +1
+  });
+
+  it('traits multiply the capped battle pool, not its uncapped raw gains', () => {
+    const board = new BoardModel();
+    fillBoard(board, () => colorGem(BaseColor.Red));
+    const left: Team = { player: PlayerSide.Left, characters: [
+      makeChar(0, { traitIds: ['merchant'], mana: 99, skillId: 'collect' }),
+      makeChar(1, { traitIds: ['necromancy'], mana: 99, skillId: 'nuke' }),
+    ] };
+    const right: Team = { player: PlayerSide.Right, characters: [makeChar(4, { hp: 1 })] };
+    const state = createGameState(board, left, right);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set('collect', { segments: [gainGold(2000), gainSouls(2000)] });
+    registry.prototypes.set('nuke', { segments: [dmg('enemyFront', 50, 0)] });
+    const engine = new TurnEngine(state, new SeededRNG(3), () => 830000 + gid++, registry);
+    engine.skullChance = 0;
+    const first = engine.resolveAction({ type: 'cast', characterId: 0 });
+    expect(first.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
+      .toEqual([['gold', 500], ['souls', 300]]);
+    expect(state.economy).toMatchObject({ gold: 500, souls: 300 });
+    engine.passTurn();
+    engine.resolveAction({ type: 'cast', characterId: 1 });
+    expect(state.winner).toBe(PlayerSide.Left);
+    expect(state.economy).toMatchObject({ gold: 625, souls: 450 });
   });
 });

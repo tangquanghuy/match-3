@@ -1363,13 +1363,13 @@
  },
  "troop:6963": {
   "lines": {
-   "L10": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E11 +web ; trigger web ; status E10 +web  => E12:+poison+web | E11:+web | E10:+web  cascade",
-   "R10": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E11 +web ; trigger web ; status E10 +web  => E12:+poison+web | E11:+web | E10:+web  cascade",
-   "L0": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E11 +web ; trigger web ; status E10 +web  => E12:+poison+web | E11:+web | E10:+web  cascade",
-   "K": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E11 +web ; trigger web ; status E10 +web  => E12:+poison+web | E11:+web | E10:+web  cascade"
+   "L10": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E11 +web  => E12:+poison+web | E10:+web | E11:+web  cascade",
+   "R10": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E11 +web  => E12:+poison+web | E10:+web | E11:+web  cascade",
+   "L0": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E11 +web  => E12:+poison+web | E10:+web | E11:+web  cascade",
+   "K": "convert Green x1, Purple x2, skull x1, Red x1, Yellow x1 -> Blue x6 ; convert Yellow x4, Green x1, Blue x1 -> web x6 ; status E12 +poison ; status E12 +web ; ~cascade~ ; trigger web ; status E10 +web ; trigger web ; status E11 +web  => E12:+poison+web | E10:+web | E11:+web  cascade"
   },
-  "by": "codex-regression-review",
-  "at": "2026-10-03T07:51:21.649Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:47.427Z"
  },
  "troop:6974": {
   "lines": {
@@ -2321,13 +2321,13 @@
  },
  "troop:7522": {
   "lines": {
-   "L10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; status E13 +curse ; trigger curseGem ; status E11 +curse  => E10:hp-10 arm-5 | E11:hp-5 arm-10 +curse | E12:hp-3 arm-12 | E13:hp-12 arm-3 +curse -rage  cascade",
-   "R10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; status E13 +curse ; trigger curseGem ; status E11 +curse  => E10:hp-10 arm-5 | E11:hp-5 arm-10 +curse | E12:hp-3 arm-12 | E13:hp-12 arm-3 +curse -rage  cascade",
-   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; status E13 +curse ; trigger curseGem ; status E11 +curse  => E10:arm-2 | E11:arm-2 +curse | E12:arm-2 | E13:arm-2 +curse -rage  cascade",
+   "L10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; status E13 +curse ; trigger curseGem ; status E10 +curse  => E10:hp-10 arm-5 +curse -rage | E11:hp-5 arm-10 | E12:hp-3 arm-12 | E13:hp-12 arm-3 +curse -rage  cascade",
+   "R10": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; status E13 +curse ; trigger curseGem ; status E10 +curse  => E10:hp-10 arm-5 +curse -rage | E11:hp-5 arm-10 | E12:hp-3 arm-12 | E13:hp-12 arm-3 +curse -rage  cascade",
+   "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; status E13 +curse ; trigger curseGem ; status E10 +curse  => E10:arm-2 +curse -rage | E11:arm-2 | E12:arm-2 | E13:arm-2 +curse -rage  cascade",
    "K": "dmg E10 15 (all) ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x3, skull x1, Red x2, Yellow x3, Brown x3, Green x4 -> freezeGem x6, curseGem x10 ; ~cascade~ ; trigger curseGem ; trigger curseGem  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T14:50:53.593Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:47.427Z"
  },
  "troop:7524": {
   "lines": {
@@ -2751,13 +2751,13 @@
  },
  "troop:7699": {
   "lines": {
-   "L10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; gold+4 ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "R10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; gold+4 ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "L0": "dmg E12 14 (all) ; dmg E10 14 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E11 +frozen ; gold+4 ; extra-turn match  => E12:hp-2 arm-12 +frozen | E10:hp-9 arm-5 +frozen | E11:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "K": "dmg E12 24 (all) ; dmg E11 24 (all) ; defeat E12 ; defeat E11 ; convert Red x1, Green x5, Yellow x1, Brown x4, Purple x3, Blue x4 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E13 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E13 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E10 +frozen  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:+frozen | E10:+frozen  cascade"
+   "L10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E11 +frozen ; trigger freezeGem ; status E13 +frozen ; gold+4 ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | E13:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "R10": "dmg E12 24 (all) ; dmg E10 24 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E11 +frozen ; trigger freezeGem ; status E13 +frozen ; gold+4 ; extra-turn match  => E12:hp-12 arm-12 +frozen | E10:hp-19 arm-5 +frozen | E11:+frozen | E13:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "L0": "dmg E12 14 (all) ; dmg E10 14 (all) ; convert Purple x5, Brown x2, Red x2, Green x6, Yellow x1, Blue x2 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; status E12 +frozen ; trigger freezeGem ; status E11 +frozen ; trigger freezeGem ; status E13 +frozen ; gold+4 ; extra-turn match  => E12:hp-2 arm-12 +frozen | E10:hp-9 arm-5 +frozen | E11:+frozen | E13:+frozen | A2:mana+3  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
+   "K": "dmg E12 24 (all) ; dmg E11 24 (all) ; defeat E12 ; defeat E11 ; convert Red x1, Green x5, Yellow x1, Brown x4, Purple x3, Blue x4 -> freezeGem x12, doomSkull x6 ; ~cascade~ ; trigger freezeGem ; status E13 +frozen ; trigger freezeGem ; status E10 +frozen ; trigger freezeGem ; trigger freezeGem ; trigger freezeGem ; trigger freezeGem  => E12:hp-1 DEAD | E11:hp-1 DEAD | E13:+frozen | E10:+frozen | A2:mana+3  cascade"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:59:53.056Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:47.427Z"
  },
  "troop:7705": {
   "lines": {
@@ -4215,13 +4215,13 @@
  },
  "weapon:1646": {
   "lines": {
-   "L10": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 | C:+enraged | A1:+enraged  cascade",
-   "R10": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 | C:+enraged | A1:+enraged  cascade",
-   "L0": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 | C:+enraged | A1:+enraged  cascade",
-   "K": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 | C:+enraged | A1:+enraged  cascade"
+   "L10": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged ; trigger enrageGem ; status A2 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 +enraged | C:+enraged | A1:+enraged  cascade",
+   "R10": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged ; trigger enrageGem ; status A2 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 +enraged | C:+enraged | A1:+enraged  cascade",
+   "L0": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged ; trigger enrageGem ; status A2 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 +enraged | C:+enraged | A1:+enraged  cascade",
+   "K": "status E12 +bleed ; status E11 +bleed ; status E13 +bleed ; status E12 +bleed ; convert Purple x1, skull x1, Brown x3, Green x1, Yellow x2, Blue x1 -> enrageGem x9 ; ~cascade~ ; trigger enrageGem ; status C +enraged ; trigger enrageGem ; status A1 +enraged ; trigger enrageGem ; status A2 +enraged  => E12:+bleed | E11:+bleed | E13:+bleed | A2:mana+3 +enraged | C:+enraged | A1:+enraged  cascade"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:43:22.659Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:47.427Z"
  },
  "weapon:1674": {
   "lines": {

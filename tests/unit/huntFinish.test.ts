@@ -26,6 +26,7 @@ describe('藏宝图主动结束', () => {
     expect(result.grant).toMatchObject({
       ...expected,
       gold: TREASURE_HUNT_DAILY_CAP.gold,
+      souls: TREASURE_HUNT_DAILY_CAP.souls,
       gems: TREASURE_HUNT_DAILY_CAP.gems,
       glory: TREASURE_HUNT_DAILY_CAP.glory,
     });

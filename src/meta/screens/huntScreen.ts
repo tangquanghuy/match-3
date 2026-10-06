@@ -66,7 +66,7 @@ export class HuntScreen implements Screen {
             <img class="hunt-cover-art" src="${dailyArt('hunt')}" alt="藏宝图">
             <h2>合成宝物，探寻金库</h2>
             <p>交换相邻宝物，三连合成更高一级。<br>步数用完后，结算棋盘上的全部宝物。</p>
-            <div class="hunt-reserve"><span>宝藏储量：</span><span class="hunt-reserve-amount"><b id="huntReserveGold">${fmtGoldReserve(remaining.gold)}</b><em>金币</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveGems">${fmt(remaining.gems)}</b><em>钻石</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveGlory">${fmt(remaining.glory)}</b><em>荣耀</em></span></div>
+            <div class="hunt-reserve"><span>宝藏储量：</span><span class="hunt-reserve-amount"><b id="huntReserveGold">${fmtGoldReserve(remaining.gold)}</b><em>金币</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveSouls">${fmt(remaining.souls)}</b><em>灵魂</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveGems">${fmt(remaining.gems)}</b><em>钻石</em></span><span class="hunt-reserve-amount"><i>·</i><b id="huntReserveGlory">${fmt(remaining.glory)}</b><em>荣耀</em></span></div>
             <button class="hunt-begin" id="huntBegin" type="button" disabled>棋盘加载中…</button>
             <small id="huntCost">每局消耗 1 张藏宝图</small>
           </div>
@@ -352,6 +352,7 @@ export class HuntScreen implements Screen {
     const remaining = huntDailyRemaining(ctx.save(), todayStartOf(ctx.gateway.now()));
     const values = [
       ['huntReserveGold', fmtGoldReserve(remaining.gold)],
+      ['huntReserveSouls', fmt(remaining.souls)],
       ['huntReserveGems', fmt(remaining.gems)],
       ['huntReserveGlory', fmt(remaining.glory)],
     ] as const;

@@ -86,21 +86,21 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
       board.forEach(gem => {
         if (gem?.type.kind === 'color' && gem.type.color in count) count[gem.type.color]!++;
       });
-      const damage = 13 + Math.floor((count[BaseColor.Red]! + count[BaseColor.Yellow]!) / 3);
+      const damage = caster.magic + 6 + Math.floor((count[BaseColor.Red]! + count[BaseColor.Yellow]!) / 3);
       expect(enemies.map(e => e.hp)).toEqual(Array(4).fill(100 - damage));
       expect(events.filter(e => e.type === 'skill-damage')).toHaveLength(4);
       if (red === 0 && yellow === 0) {
         expect(count[BaseColor.Yellow]).toBe(6);
         expect(count[BaseColor.Red]).toBe(6);
-        expect(damage).toBe(17);
+        expect(damage).toBe(20);
       }
       expect(caster.mana).toBe(15);
     });
 
-  it('uses fixed base damage independently of the caster magic', () => {
-    const { ctx, enemies } = setup(boardWith(), character(0, { magic: 99 }));
+  it('uses caster magic plus six as base damage', () => {
+    const { ctx, enemies } = setup(boardWith(), character(0, { magic: 21 }));
     executePrototype(SKILL_LIBRARY[LIANKA_SPELL_ID], ctx);
-    expect(enemies.map(e => e.hp)).toEqual([83, 83, 83, 83]);
+    expect(enemies.map(e => e.hp)).toEqual([69, 69, 69, 69]);
   });
 
   it('excludes colored special gems, respects armor, and skips defeated enemies', () => {
@@ -113,7 +113,7 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
     const events = executePrototype(SKILL_LIBRARY[LIANKA_SPELL_ID], ctx);
     let normal = 0;
     board.forEach(gem => { if (gem?.type.kind === 'color' && [BaseColor.Red, BaseColor.Yellow].includes(gem.type.color)) normal++; });
-    const damage = 13 + Math.floor(normal / 3);
+    const damage = 16 + Math.floor(normal / 3);
     expect(events.filter(e => e.type === 'skill-damage')).toHaveLength(2);
     expect(enemies[0].hp).toBe(100);
     expect(enemies[2].hp).toBe(0);
@@ -157,6 +157,18 @@ describe('Lianka / 日轮坠灭 / 蚀日魔焰', () => {
     applyBigMatchTriggers([holder], { size, enemyTeam: enemies, rng: new SeededRNG(5), applyStatus });
     expect(enemies.flatMap(e => e.statuses)).toEqual([{ id: 'faerie-fire', turns: 3 }]);
     expect(enemies[2].statuses).toEqual([]);
+  });
+
+  it('applies faerie-fire to a fresh enemy before any already affected enemy', () => {
+    const holder = character(0, { traitIds: codes });
+    attachPassives(holder);
+    const enemies = [character(10), character(11), character(12)];
+    applyStatus(enemies[0], { id: 'faerie-fire', turns: 3 });
+    applyStatus(enemies[1], { id: 'faerie-fire', turns: 3 });
+    const first = applyBigMatchTriggers([holder], { size: 4, enemyTeam: enemies, rng: new SeededRNG(5), applyStatus });
+    expect(first.filter(e => e.type === 'status-apply' && e.statusId === 'faerie-fire')).toMatchObject([{ targetId: 12 }]);
+    const exhausted = applyBigMatchTriggers([holder], { size: 4, enemyTeam: enemies, rng: new SeededRNG(5), applyStatus });
+    expect(exhausted.some(e => e.type === 'status-apply' && e.statusId === 'faerie-fire')).toBe(false);
   });
 
   it.each(['three-match', 'locked', 'defeated'])('%s does not trigger the trait', mode => {

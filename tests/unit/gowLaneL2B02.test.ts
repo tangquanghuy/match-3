@@ -240,13 +240,13 @@ describe('L2B02 weapon:1620 FloweringThorn spell 9523 Cleanse self + 9 random Bl
    expect(Math.max(...stacks(f))).toBeLessThanOrEqual(4);turnPassed(f);}
   expect([...seen].sort()).toEqual([10,11,12,13]);
  });
- it('fewer enemies: 2 living -> each 2-step hits both (distinct), 4-5 applications each; lone enemy -> 5 applications, capped at 4 stacks; dead never bleed',()=>{
+ it('fewer enemies: 2 living -> each 2-step hits both (distinct), 4 applications each; lone enemy -> 4 applications, capped at 4 stacks; dead never bleed',()=>{
   const two=setup({...C,enemies:[{},{hp:0,defeated:true},{},{hp:0,defeated:true}]});const i2=applied(two.cast(),'bleed');
-  expect(i2).toHaveLength(9);expect(i2.filter(x=>x===10).length+i2.filter(x=>x===12).length).toBe(9);
+  expect(i2).toHaveLength(8);expect(i2.filter(x=>x===10).length+i2.filter(x=>x===12).length).toBe(8);
   expect(Math.min(i2.filter(x=>x===10).length,i2.filter(x=>x===12).length)).toBe(4);
   const one=setup({...C,enemies:[{hp:0,defeated:true},{hp:0,defeated:true},{},{hp:0,defeated:true}]});const e1=one.cast();
-  expect(applied(e1,'bleed')).toEqual([12,12,12,12,12]);
-  const mags=(e1 as unknown as Array<{type:string;statusId:string;magnitude?:number}>).filter(e=>e.type==='status-apply'&&e.statusId==='bleed');expect(mags).toHaveLength(5);
+  expect(applied(e1,'bleed')).toEqual([12,12,12,12]);
+  const mags=(e1 as unknown as Array<{type:string;statusId:string;magnitude?:number}>).filter(e=>e.type==='status-apply'&&e.statusId==='bleed');expect(mags).toHaveLength(4);
  });
  it('Cleanse self removes negative statuses, keeps positive (R002); allies not cleansed; low mana / silence block',()=>{
   const f=setup({...C,allies:[{statuses:[{id:'poison',turns:3,magnitude:3}]}]});f.caster.statuses=[{id:'poison',turns:3,magnitude:3},{id:'barrier',turns:99}];f.cast();

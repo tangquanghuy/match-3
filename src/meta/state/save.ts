@@ -77,10 +77,11 @@ function huntState(raw: unknown): MetaSave['treasureHunt'] {
 }
 
 function huntDailyCap(raw: unknown): TreasureHuntDailyCap {
-  if (!isObject(raw)) return { dayStart: 0, gold: 0, gems: 0, glory: 0 };
+  if (!isObject(raw)) return { dayStart: 0, gold: 0, souls: 0, gems: 0, glory: 0 };
   return {
     dayStart: num(raw.dayStart, 0, 0),
     gold: num(raw.gold, 0, 0, TREASURE_HUNT_DAILY_CAP.gold),
+    souls: num(raw.souls, 0, 0, TREASURE_HUNT_DAILY_CAP.souls),
     gems: num(raw.gems, 0, 0, TREASURE_HUNT_DAILY_CAP.gems),
     glory: num(raw.glory, 0, 0, TREASURE_HUNT_DAILY_CAP.glory),
   };

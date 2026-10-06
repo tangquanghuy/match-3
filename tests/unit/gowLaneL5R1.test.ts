@@ -439,14 +439,14 @@ describe('L5 sa-R3 B12', () => {
   const A = (o: object) => [{ hp: 500, maxHp: 700, armor: 4, colors: [BaseColor.Blue], ...o }, { hp: 650, maxHp: 650, armor: 8, colors: [BaseColor.Red] }];
   const st = (id: string) => [{ id, turns: 99 }];
   const total = (o: string[]) => o.filter(x => x.startsWith('dmg')).reduce((s, x) => s + Number(x.split(' ')[2]), 0);
-  it('troop:6999 / troop:7489 three Burn / Disease rolls, each avoiding only the previous target', () => {
+  it('troop:6999 / troop:7489 three Burn / Disease rolls prefer distinct recipients while available', () => {
     let two = false, three = false;
     for (let seed = 1; seed <= 40; seed++) for (const [key, id] of [['troop:6999', 'burning'], ['troop:7489', 'disease']] as const) {
       const t = castSpell({ key, seed }).summary.order.filter(x => x.endsWith(`+${id}`)).map(x => x.split(' ')[1]);
       expect(t).toHaveLength(3); for (let i = 1; i < 3; i++) expect(t[i]).not.toBe(t[i - 1]);
       if (new Set(t).size === 2) two = true; if (new Set(t).size === 3) three = true;
     }
-    expect(two && three).toBe(true);
+    expect(three && !two).toBe(true);
   });
   it('troop:7262 / troop:7516 three splash centres chosen RandomPrefNotPrev (never the same centre twice in a row)', () => {
     for (let seed = 1; seed <= 30; seed++) for (const key of ['troop:7262', 'troop:7516']) {

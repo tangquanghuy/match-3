@@ -26,7 +26,7 @@ import { BoardGenerator } from '@engine/boardGen';
 import { createGameState } from '@engine/GameState';
 import { SeededRNG } from '@engine/rng';
 import { ExtensionRegistry } from '@engine/registry';
-import { applyStatus } from '@engine/skills/effects/status';
+import { applyStatus, RANDOM_POSITIVE_STATUS_POOL } from '@engine/skills/effects/status';
 import { PlayerSide, BaseColor } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { TALENT_DYNAMIC_CODES, TALENT_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
@@ -168,6 +168,17 @@ describe('对局集成（TurnEngine）', () => {
     expect(state.teams[PlayerSide.Right].characters[0]!.statuses.some((s) => s.id === 'entangle')).toBe(true);
     expect(state.teams[PlayerSide.Right].characters.filter((c) => c.statuses.some((s) => s.id === 'death-mark'))).toHaveLength(1);
     expect(events.filter((e) => e.type === 'status-apply').length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('battle-start random positive statuses choose an available effect and recipient', () => {
+    const filled = RANDOM_POSITIVE_STATUS_POOL.map(id => ({ id, turns: 3 }));
+    const holder = makeChar(1, { traitIds: ['serendipity'], statuses: filled.map(s => ({ ...s })) });
+    const ally = makeChar(2, { statuses: filled.filter(s => s.id !== 'enchanted').map(s => ({ ...s })) });
+    const state = createGameState(freshBoard(8), makeTeam(PlayerSide.Left, withPassives([holder, ally])),
+      makeTeam(PlayerSide.Right, [makeChar(3)]), PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(8), () => 0, new ExtensionRegistry());
+    expect(engine.takeInitialEvents().filter(e => e.type === 'status-apply' && e.statusId === 'enchanted'))
+      .toMatchObject([{ targetId: 2 }]);
   });
 
   it('开局法力光环：inspiration 全队 15% / windspeed 黄色盟友 10%（fill-up-to 取最大比例）', () => {

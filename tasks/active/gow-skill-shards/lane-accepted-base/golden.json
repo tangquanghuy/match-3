@@ -1561,13 +1561,13 @@
  },
  "troop:7326": {
   "lines": {
-   "L10": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
-   "R10": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
-   "L0": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
-   "K": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enraged ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged | A1:+enchanted+blessed -poison | A2:+submerged+enraged"
+   "L10": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enchanted ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged+enchanted | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
+   "R10": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enchanted ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged+enchanted | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
+   "L0": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enchanted ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged+enchanted | A1:+enchanted+blessed -poison | A2:+submerged+enraged",
+   "K": "convert Blue x11 -> Green x11 ; convert Purple x9 -> Yellow x9 ; status C +enraged ; status A1 +enchanted ; status A2 +submerged ; status C +enchanted ; remove A1 -poison ; status A1 +blessed ; status A2 +enraged  => C:+enraged+enchanted | A1:+enchanted+blessed -poison | A2:+submerged+enraged"
   },
-  "by": "coord (accepted before golden)",
-  "at": "2026-09-27T23:48:12.361Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:40.433Z"
  },
  "troop:7328": {
   "lines": {
@@ -1714,10 +1714,10 @@
    "L10": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; ~cascade~ ; gold+4 ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E12 +terror ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "R10": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; ~cascade~ ; gold+4 ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E12 +terror ; extra-turn match  => E12:arm-12 +terror | E11:+terror | E13:+terror  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
    "L0": "convert Green x13 -> terrorGem x13 ; dmg E12 2 ; ~cascade~ ; gold+4 ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E12 +terror ; extra-turn match  => E12:arm-2 +terror | E11:+terror | E13:+terror  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}",
-   "K": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; defeat E12 ; ~cascade~ ; gold+4 ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E13 +terror ; extra-turn match  => E12:hp-1 DEAD | E11:+terror | E13:+terror  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
+   "K": "convert Green x13 -> terrorGem x13 ; dmg E12 12 ; defeat E12 ; ~cascade~ ; gold+4 ; trigger terrorGem ; status E11 +terror ; trigger terrorGem ; status E13 +terror ; trigger terrorGem ; status E10 +terror ; extra-turn match  => E12:hp-1 DEAD | E11:+terror | E13:+terror | E10:+terror  extra:match  cascade  eco:{\"gold\":4,\"goldMine\":4}"
   },
-  "by": "coord (re-lock after P-create-interleave/R007-3)",
-  "at": "2026-09-28T01:06:36.864Z"
+  "by": "random-status-target-fix",
+  "at": "2026-10-06T20:20:40.433Z"
  },
  "troop:7459": {
   "lines": {

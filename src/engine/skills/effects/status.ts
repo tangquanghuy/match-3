@@ -12,6 +12,7 @@
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import { isImmuneToStatus, passivesOf, traitActivations, getTrait } from '../../traits';
+import { canReceiveRandomStatus, randomStatusCandidates } from '../../randomStatusTarget';
 import { applyTransformTemplate } from './summon';
 import type { SummonTemplate } from './summon';
 // 治疗修正定义在 engine/healing.ts（特质模块也要用，放这里会形成循环 import）；
@@ -692,7 +693,7 @@ function matchDestroyed(gemType: import('../../types').GemType, color: BaseColor
  * 叠层语义（SOP 裁定）：最终 magnitude = 每层值 × 层数（bleed 无显式值时每层 1）；
  * 同 id 已存在时按**累加**合并（仅 stacks 路径），非 stacks 施加维持 max 合并。
  * perDestroyed（Wave4 批）：施加次数改为「本次施放被摧毁的该类宝石数」，每次随机取
- * 存活目标池一名（可重复）；计数为 0 → 无事件且不消耗 rng（护栏同无新键零事件零随机）。
+ * 未拥有相同状态的存活目标一名；计数为 0 → 无事件且不消耗 rng（护栏同无新键零事件零随机）。
  */
 export function statusEffect(params: StatusApplyParams): EffectPrimitive {
   return {
@@ -710,7 +711,9 @@ export function statusEffect(params: StatusApplyParams): EffectPrimitive {
         const pool = targets.filter((t) => !t.defeated);
         if (count <= 0 || pool.length === 0) return [];
         for (let i = 0; i < count; i++) {
-          const target = pool[ctx.rng.nextInt(pool.length)];
+          const candidates = randomStatusCandidates(pool, [{ id: statusId }]);
+          if (candidates.length === 0) break;
+          const target = candidates[ctx.rng.nextInt(candidates.length)];
           const status: StatusInstance =
             mag !== undefined ? { id: statusId, turns, magnitude: mag } : { id: statusId, turns };
           events.push(...applyStatus(target, status, { stack }));
@@ -725,7 +728,9 @@ export function statusEffect(params: StatusApplyParams): EffectPrimitive {
         const pool = targets.filter((t) => !t.defeated);
         if (count <= 0 || pool.length === 0) return [];
         for (let i = 0; i < count; i++) {
-          const target = pool[ctx.rng.nextInt(pool.length)];
+          const candidates = randomStatusCandidates(pool, [{ id: statusId }]);
+          if (candidates.length === 0) break;
+          const target = candidates[ctx.rng.nextInt(candidates.length)];
           const status: StatusInstance =
             mag !== undefined ? { id: statusId, turns, magnitude: mag } : { id: statusId, turns };
           events.push(...applyStatus(target, status, { stack }));
@@ -796,7 +801,7 @@ export interface RandomStatusParams {
 
 /**
  * 随机状态（用户裁定 2026-09-17：盟友=正面池、敌方=负面池）：对每个存活目标掷签施加。
- * times > 1 时逐次独立掷签（可重复同一状态，走 applyStatus 合并口径）。
+ * times > 1 时逐次独立掷签（优先选未拥有的状态；出血可叠至 4 层）。
  * pool:'positive' 强制正面全集（官方 RandomPositiveStatusEffect，Wave3 批）。
  * DoT 量级走引擎默认（中毒/燃烧 3、出血 1，由 tick 结算侧的缺省口径接管）。
  */
@@ -822,7 +827,9 @@ export function randomStatusEffect(params: RandomStatusParams): EffectPrimitive 
         }
         const times = Math.max(1, params.times ?? 1);
         for (let i = 0; i < times; i++) {
-          const statusId = pool[ctx.rng.nextInt(pool.length)];
+          const available = pool.filter(id => canReceiveRandomStatus(target, id));
+          if (available.length === 0) break;
+          const statusId = available[ctx.rng.nextInt(available.length)];
           const status: StatusInstance = { id: statusId, turns: params.turns ?? 3 };
           events.push(...applyStatus(target, status));
         }

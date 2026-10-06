@@ -26,9 +26,9 @@ describe('L2-1620-random-bleed: InflictEffectOnRandomTroops bleed 2,2,2,2,1 = 9 
   const stacks=f.enemies.map(e=>e.statuses.find(s=>s.id==='bleed')?.magnitude??0);
   expect(stacks.reduce((a,b)=>a+b,0)).toBeLessThanOrEqual(9);expect(Math.max(...stacks)).toBeLessThanOrEqual(4);
  });
- it('lone enemy: each of the 5 steps hits it once -> 5 applications, capped at 4 stacks',()=>{
+ it('lone enemy: 4 applications reach the cap; the fifth step skips the full stack',()=>{
   const {f,applies}=cast('gw_FloweringThorn',16,[{},{hp:0,defeated:true},{hp:0,defeated:true},{hp:0,defeated:true}]);
-  expect(applies('bleed')).toBe(5);expect(f.enemies[0].statuses.find(s=>s.id==='bleed')?.magnitude).toBe(4);
+  expect(applies('bleed')).toBe(4);expect(f.enemies[0].statuses.find(s=>s.id==='bleed')?.magnitude).toBe(4);
  });
 });
 describe('L2-6958-order: native CauseStun precedes Damage (stun suppresses traits before the hit)',()=>{

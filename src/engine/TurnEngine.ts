@@ -1,6 +1,8 @@
 import type { SkullDropMix } from './skullDrops';
 import { BoardModel } from './BoardModel';
 import { creditGoldForSide } from './battleGold';
+import { creditBattleSouls } from './battleSouls';
+import { canReceiveRandomStatus, eligibleRandomStatuses, randomStatusCandidates } from './randomStatusTarget';
 import { MatchResolver, grantsExtraTurn } from './MatchResolver';
 import type { MatchGroup } from './MatchResolver';
 import { GravitySystem, STORM_DROP_WEIGHT, STORM_DOOMSKULL_DROP, STORM_UBER_DOOMSKULL_DROP } from './GravitySystem';
@@ -180,9 +182,10 @@ export class TurnEngine {
    * economy-gain 事件（不新增事件类型）；side 记录获得发生时的行动方。
    */
   private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number, side = this.state.activePlayer): GameEvent[] => {
-    if (currency === 'gold') creditGoldForSide(this.state, side, amount);
+    if (currency === 'gold') amount = creditGoldForSide(this.state, side, amount);
+    else if (currency === 'souls') amount = creditBattleSouls(this.state, amount);
     else this.state.economy[currency] += amount;
-    return [{ type: 'economy-gain', currency, amount, side }];
+    return amount > 0 ? [{ type: 'economy-gain', currency, amount, side }] : [];
   };
 
   /**
@@ -463,7 +466,8 @@ export class TurnEngine {
         for (const char of this.state.teams[PlayerSide.Left].characters) {
           if (char.defeated) continue;
           const gain = passivesOf(char).pvpEconomyGain;
-          if (gain && gain.amount > 0) this.creditEconomy(gain.currency, gain.amount);
+          // Post-battle PvP grant is separate from the capped, trait-multiplied battle pool.
+          if (gain && gain.amount > 0) this.state.economy[gain.currency] += gain.amount;
         }
       }
     }
@@ -566,8 +570,16 @@ export class TurnEngine {
         for (const code of activeTraitIds(char)) {
           const spec = getTrait(code)?.battleStartStatus;
           if (!spec) continue;
+          const positiveTargets = spec.target === 'self' ? [char]
+            : spec.target === 'firstEnemy' ? foes.filter(c => !c.defeated).slice(0, 1)
+            : spec.target === 'randomAlly' ? own : foes;
+          const availablePositive = spec.randomPositive
+            ? RANDOM_POSITIVE_STATUS_POOL.filter(id => positiveTargets.some(target =>
+                !target.defeated && canReceiveRandomStatus(target, id)))
+            : [];
+          if (spec.randomPositive && availablePositive.length === 0) continue;
           const statuses: readonly { id: string; magnitude?: number }[] = spec.randomPositive
-            ? [{ id: RANDOM_POSITIVE_STATUS_POOL[this.rng.nextInt(RANDOM_POSITIVE_STATUS_POOL.length)]! }]
+            ? [{ id: availablePositive[this.rng.nextInt(availablePositive.length)]! }]
             : spec.statuses;
           let target: Character | undefined;
           if (spec.target === 'self') {
@@ -575,11 +587,12 @@ export class TurnEngine {
           } else if (spec.target === 'firstEnemy') {
             target = foes.find((c) => !c.defeated);
           } else {
-            const pool = (spec.target === 'randomAlly' ? own : foes).filter((c) => !c.defeated);
+            const pool = randomStatusCandidates(spec.target === 'randomAlly' ? own : foes, statuses);
             target = pool.length === 0 ? undefined : pool[this.rng.nextInt(pool.length)];
           }
           if (!target) continue;
-          for (const st of statuses) {
+          for (const st of spec.target === 'randomAlly' || spec.target === 'randomEnemy'
+            ? eligibleRandomStatuses(target, statuses) : statuses) {
             const status: StatusInstance = { id: st.id, turns: spec.turns };
             if (st.magnitude !== undefined) status.magnitude = st.magnitude;
             events.push(...applyStatus(target, status));
@@ -906,14 +919,20 @@ export class TurnEngine {
           } else if (statusSpec.target === 'allEnemies') {
             targets = foes;
           } else {
-            const pool = statusSpec.target === 'randomAlly' ? allies : foes;
+            const pool = randomStatusCandidates(statusSpec.target === 'randomAlly' ? allies : foes,
+              statusSpec.randomPositive ? RANDOM_POSITIVE_STATUS_POOL.map(id => ({ id })) : statusSpec.statuses);
             if (pool.length === 0) continue;
             targets = [pool[this.rng.nextInt(pool.length)]];
           }
           const statuses: readonly { id: string; magnitude?: number }[] = statusSpec.randomPositive
-            ? [{ id: RANDOM_POSITIVE_STATUS_POOL[this.rng.nextInt(RANDOM_POSITIVE_STATUS_POOL.length)]! }]
+            ? (() => {
+                const available = RANDOM_POSITIVE_STATUS_POOL.filter(id =>
+                  targets.some(target => canReceiveRandomStatus(target, id)));
+                return available.length ? [{ id: available[this.rng.nextInt(available.length)]! }] : [];
+              })()
             : statusSpec.statuses;
-          for (const st of statuses) {
+          for (const st of statusSpec.target === 'randomAlly' || statusSpec.target === 'randomEnemy'
+            ? eligibleRandomStatuses(targets[0], statuses) : statuses) {
             // independentChance（sleepersbane「诅咒和/或恐怖」双独立概率）：每条各自掷一次
             // chance（各中各的），目标已先选出——与 onBigMatchStatus 的 independentChance 同口径
             if (statusSpec.independentChance && statusSpec.chance !== undefined
@@ -1549,8 +1568,9 @@ export class TurnEngine {
       ? opponentOf(this.state.activePlayer)
       : this.state.activePlayer;
     const pool = this.state.teams[side].characters.filter((c) => !c.defeated);
-    if (pool.length === 0) return;
-    const targets = spec.scope === 'all' ? pool : [pool[this.rng.nextInt(pool.length)]];
+    const candidates = spec.scope === 'all' ? pool : randomStatusCandidates(pool, [{ id: spec.statusId }]);
+    if (candidates.length === 0) return;
+    const targets = spec.scope === 'all' ? pool : [candidates[this.rng.nextInt(candidates.length)]];
     for (const target of targets) {
       const status: StatusInstance = { id: spec.statusId, turns: spec.turns };
       if (spec.magnitude !== undefined) status.magnitude = spec.magnitude;
@@ -1564,7 +1584,9 @@ export class TurnEngine {
     const enemies = this.state.teams[opponentOf(this.state.activePlayer)].characters
       .filter((c) => !c.defeated);
     if (enemies.length === 0) return events;
-    const target = enemies[this.rng.nextInt(enemies.length)];
+    const candidates = randomStatusCandidates(enemies, [{ id: WEB_STATUS_ID }]);
+    if (candidates.length === 0) return events;
+    const target = candidates[this.rng.nextInt(candidates.length)];
     events.push(...applyStatus(target, { id: WEB_STATUS_ID, turns: WEB_GEM_TURNS }));
     return events;
   }
@@ -1620,9 +1642,9 @@ export class TurnEngine {
         // 赃物宝石（官方 Booty Gem）：被摧毁时给摧毁方 +10 金币（战场经济池）。
         // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/至尊末日骷髅爆炸圈抵达这里。
         events.push({ type: 'special-gem-trigger', kind: 'bootyGem', pos: d.pos });
-        creditGoldForSide(this.state, this.state.activePlayer, BOOTY_GEM_GOLD);
-        events.push({
-          type: 'economy-gain', currency: 'gold', amount: BOOTY_GEM_GOLD, side: this.state.activePlayer,
+        const gained = creditGoldForSide(this.state, this.state.activePlayer, BOOTY_GEM_GOLD);
+        if (gained > 0) events.push({
+          type: 'economy-gain', currency: 'gold', amount: gained, side: this.state.activePlayer,
         });
       } else if (kind === 'dragonGem') {
         // 龙宝石（官方 matched/destroyed）：爆炸其所在列**下方**全部宝石（{row..ROWS-1}×col，
@@ -1668,8 +1690,8 @@ export class TurnEngine {
         // 狼化宝石（官方 "Removing Lycanthropy gems cast lycanthropy"）：被摧毁（含被匹配）
         // 时对随机敌人施加狼化状态
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color: BaseColor.Purple });
-        const enemies = this.state.teams[opponentOf(this.state.activePlayer)].characters
-          .filter((c) => !c.defeated);
+        const enemies = randomStatusCandidates(this.state.teams[opponentOf(this.state.activePlayer)].characters,
+          [{ id: 'lycanthropy' }]);
         if (enemies.length > 0) {
           const target = enemies[this.rng.nextInt(enemies.length)];
           events.push(...applyStatus(target, { id: 'lycanthropy', turns: LYCANTHROPY_GEM_TURNS }));
@@ -1678,8 +1700,8 @@ export class TurnEngine {
         // 天使宝石（官方 "give a random Ally the Bless Status Effect"）：随机己方获得祝福
         //（blessed 施加即净化负面 + 存续期全免疫，status.ts 已实现口径）
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
-        const allies = this.state.teams[this.state.activePlayer].characters
-          .filter((c) => !c.defeated);
+        const allies = randomStatusCandidates(this.state.teams[this.state.activePlayer].characters,
+          [{ id: 'blessed' }]);
         if (allies.length > 0) {
           const target = allies[this.rng.nextInt(allies.length)];
           events.push(...applyStatus(target, { id: 'blessed', turns: ANGEL_GEM_TURNS }));
@@ -1861,7 +1883,7 @@ export class TurnEngine {
    */
   private applyEnchantedGem(pos: CellPos, events: GameEvent[]): void {
     events.push({ type: 'special-gem-trigger', kind: 'enchantedGem', pos, color: BaseColor.Purple });
-    const allies = this.state.teams[this.state.activePlayer].characters.filter((c) => !c.defeated);
+    const allies = randomStatusCandidates(this.state.teams[this.state.activePlayer].characters, [{ id: 'enchanted' }]);
     if (allies.length > 0) {
       events.push(...applyStatus(allies[this.rng.nextInt(allies.length)], { id: 'enchanted', turns: 3 }));
     }
@@ -1892,7 +1914,9 @@ export class TurnEngine {
     const pool = evil ? GARGOYLE_NEGATIVE_STATUS_POOL : GARGOYLE_POSITIVE_STATUS_POOL;
     for (const target of this.state.teams[side].characters) {
       if (target.defeated) continue;
-      const statusId = pool[this.rng.nextInt(pool.length)];
+      const available = pool.filter(id => canReceiveRandomStatus(target, id));
+      if (available.length === 0) continue;
+      const statusId = available[this.rng.nextInt(available.length)];
       const status: StatusInstance = { id: statusId, turns: GARGOYLE_GEM_TURNS };
       // DoT 量级对齐状态搬运族口径（燃烧/中毒 3、出血 1）
       if (statusId === 'poison' || statusId === 'burning') status.magnitude = 3;

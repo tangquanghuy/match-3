@@ -172,7 +172,7 @@ describe('Wave4 · perDestroyed 逐颗摧毁驱动施加（7463/9287/8804 族）
     for (const e of applies) expect(allyIds.has(e.targetId)).toBe(true);
   });
 
-  it('可重复同目标：单一目标池 + 计数 3 → 同一目标连吃 3 次（放回掷选）', () => {
+  it('single target receives a non-stackable random status once despite multiple rolls', () => {
     const s2 = setup({ seed: 7, right: [{}] });
     s2.state.board.set({ row: 0, col: 0 }, g(colorGem(BaseColor.Green)));
     s2.state.board.set({ row: 0, col: 1 }, g(colorGem(BaseColor.Green)));
@@ -182,8 +182,8 @@ describe('Wave4 · perDestroyed 逐颗摧毁驱动施加（7463/9287/8804 族）
       inflict('poison', 'enemyAll', { perDestroyed: { color: BaseColor.Green } }),
     ), s2.ctx);
     const applies = ev2.filter((e) => e.type === 'status-apply' && e.statusId === 'poison') as { targetId: number }[];
-    expect(applies.length).toBe(3);
-    for (const e of applies) expect(e.targetId).toBe(4); // 唯一敌人 id=4
+    expect(applies.length).toBe(1);
+    for (const e of applies) expect(e.targetId).toBe(4); // only eligible foe id=4
   });
 
   it("'skull' 筛骷髅族：摧毁的骷髅计入、色宝石不计", () => {
@@ -195,7 +195,7 @@ describe('Wave4 · perDestroyed 逐颗摧毁驱动施加（7463/9287/8804 族）
       inflict('stun', 'enemyAll', { perDestroyed: { color: 'skull' }, turns: 1 }),
     ), ctx);
     const applies = events.filter((e) => e.type === 'status-apply' && e.statusId === 'stun');
-    expect(applies.length).toBe(2);
+    expect(applies.length).toBe(1);
     expect(state.teams[PlayerSide.Right].characters[0].statuses.some((s) => s.id === 'stun')).toBe(true);
   });
 

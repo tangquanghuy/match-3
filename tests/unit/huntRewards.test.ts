@@ -160,14 +160,18 @@ describe('treasure hunt currency-first rewards', () => {
     const old = newSave({ now: 10_000 });
     const raw = structuredClone(old) as unknown as { treasureHuntDaily: { dayStart: number; gold: number; gems: number; glory?: number } };
     delete raw.treasureHuntDaily.glory;
+    delete (raw.treasureHuntDaily as typeof raw.treasureHuntDaily & { souls?: number }).souls;
+    expect(migrateSave(raw).treasureHuntDaily.souls).toBe(0);
     expect(migrateSave(raw).treasureHuntDaily.glory).toBe(0);
     raw.treasureHuntDaily.glory = 99_999;
+    (raw.treasureHuntDaily as typeof raw.treasureHuntDaily & { souls?: number }).souls = 99_999;
+    expect(migrateSave(raw).treasureHuntDaily.souls).toBe(20_000);
     expect(migrateSave(raw).treasureHuntDaily.glory).toBe(4_000);
   });
 
   it('caps Glory independently and migrates saves without a Glory counter', () => {
     const save = newSave({ now: 0 });
-    save.treasureHuntDaily = { dayStart: 10_000, gold: 0, gems: 0, glory: 3_990 };
+    save.treasureHuntDaily = { dayStart: 10_000, gold: 0, souls: 0, gems: 0, glory: 3_990 };
     save.treasureHunt = { cells: Array(8).fill(7), turns: 1, moves: 0, rng: 2 };
     const reward = finishHunt(save, 10_000);
     expect(reward.ok).toBe(true);
@@ -183,21 +187,21 @@ describe('treasure hunt currency-first rewards', () => {
     const first = finishHunt(save, 10_000);
     expect(first.ok).toBe(true);
     if (!first.ok) return;
-    expect(first.grant).toMatchObject({ gold: 800_000, gems: 1_000, glory: 4_000 });
-    expect(save.treasureHuntDaily).toEqual({ dayStart: 10_000, gold: 800_000, gems: 1_000, glory: 4_000 });
+    expect(first.grant).toMatchObject({ gold: 800_000, souls: 20_000, gems: 1_000, glory: 4_000 });
+    expect(save.treasureHuntDaily).toEqual({ dayStart: 10_000, gold: 800_000, souls: 20_000, gems: 1_000, glory: 4_000 });
 
     save.treasureHunt = { cells, turns: 1, moves: 1, rng: 2 };
     const second = finishHunt(save, 10_000);
     expect(second.ok).toBe(true);
     if (!second.ok) return;
-    expect(second.grant).toMatchObject({ gold: 0, gems: 0, glory: 0 });
-    expect(save.treasureHuntDaily).toEqual({ dayStart: 10_000, gold: 800_000, gems: 1_000, glory: 4_000 });
+    expect(second.grant).toMatchObject({ gold: 0, souls: 0, gems: 0, glory: 0 });
+    expect(save.treasureHuntDaily).toEqual({ dayStart: 10_000, gold: 800_000, souls: 20_000, gems: 1_000, glory: 4_000 });
 
     save.treasureHunt = { cells, turns: 1, moves: 2, rng: 2 };
     const nextDay = finishHunt(save, 86_410_000);
     expect(nextDay.ok).toBe(true);
     if (!nextDay.ok) return;
-    expect(nextDay.grant).toMatchObject({ gold: 800_000, gems: 1_000, glory: 4_000 });
-    expect(save.treasureHuntDaily).toEqual({ dayStart: 86_410_000, gold: 800_000, gems: 1_000, glory: 4_000 });
+    expect(nextDay.grant).toMatchObject({ gold: 800_000, souls: 20_000, gems: 1_000, glory: 4_000 });
+    expect(save.treasureHuntDaily).toEqual({ dayStart: 86_410_000, gold: 800_000, souls: 20_000, gems: 1_000, glory: 4_000 });
   });
 });

@@ -58,7 +58,7 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         createGems(BaseColor.Yellow, 6),
         createGems(BaseColor.Red, 6),
         {
-        ...dmgAll(13, 0),
+        ...dmgAll(6, 1),
         modifier: {
           mod: { kind: 'ratio', a: 3, b: 1 },
           pooled: true, // 「每有 4 颗红色或黄色宝石」= 单一合并计数（非原生分步 Count）

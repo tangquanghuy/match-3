@@ -26,16 +26,16 @@ describe('L1 R2 charm family (sa-R5)', () => {
     expect(n).toBeGreaterThanOrEqual(kills[0]); expect(n).toBeLessThanOrEqual(kills[1]);
   });
   // troop:7793 Charm@RandomEnemy + drain 8 FromPrevious, Charm@RandomPrefNotPrevEnemy + drain 8 (R007-3).
-  it('troop:7793 a lone enemy is drained twice (16); two enemies get 8 each', () => {
+  it('troop:7793 a lone enemy is drained twice but Charm applies once; two enemies get 8 each', () => {
     const lone = castSpell({ key: 'troop:7793', enemies: [{ mana: 20 }] });
-    expect(lone.summary.order).toEqual(['status E10 +charm', 'buff E10 mana-8', 'status E10 +charm', 'buff E10 mana-8']);
+    expect(lone.summary.order).toEqual(['status E10 +charm', 'buff E10 mana-8', 'buff E10 mana-8']);
     for (let seed = 1; seed <= 30; seed++) {
       const r = castSpell({ key: 'troop:7793', seed, enemies: [{ mana: 20 }, { mana: 20 }] });
       expect(r.summary.units).toEqual({ E10: 'mana-8 +charm', E11: 'mana-8 +charm' });
     }
   });
-  // troop:6305 two independent Charm@RandomEnemy steps: the second may repeat the first.
-  it('troop:6305 charms one or two distinct enemies', () => {
+  // troop:6305 two Charm@RandomEnemy steps: the second chooses a foe without Charm.
+  it('troop:6305 charms two distinct enemies when available', () => {
     const seen = new Set<number>();
     for (let seed = 1; seed <= 60; seed++) {
       const r = castSpell({ key: 'troop:6305', seed });
@@ -43,7 +43,7 @@ describe('L1 R2 charm family (sa-R5)', () => {
       expect(hits).toHaveLength(2);
       seen.add(new Set(hits).size);
     }
-    expect([...seen].sort()).toEqual([1, 2]);
+    expect([...seen].sort()).toEqual([2]);
   });
   // troop:7515 native Summoning Incubus, Succubus 50%, Incubus 25% (independent): 1/2/3 = 37.5/50/12.5%.
   it('troop:7515 always summons an Incubus first; count distribution follows the native chances', () => {

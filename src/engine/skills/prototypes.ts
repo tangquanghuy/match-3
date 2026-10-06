@@ -37,7 +37,8 @@ import type { ReduceStat } from './effects/debuff';
 import type { ModifierSpec } from './effects/secondary';
 import { gemEffect } from './effects/gems';
 import type { GemParams } from './effects/gems';
-import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect } from './effects/status';
+import { cleanseEffect, statusEffect, dispelStatusEffect, randomStatusEffect, RANDOM_NEGATIVE_STATUS_POOL, RANDOM_POSITIVE_STATUS_POOL } from './effects/status';
+import { canReceiveRandomStatus } from '../randomStatusTarget';
 import { summonEffect, extraTurnEffect, transformTroopEffect, repositionEffect, shuffleTeamEffect, summonCopyEffect, swapPositionsEffect, selfReviveEffect, resolveDefeatAfterRevive } from './effects/summon';
 import { devourEffect } from './effects/devour';
 import { stormEffect, removeStormEffect } from './effects/storm';
@@ -588,6 +589,7 @@ function resolveTargets(
   segment: TargetSelection,
   ctx: EffectContext,
   overrideMode?: TargetMode,
+  randomTargetEligible?: (target: Character) => boolean,
 ): Character[] {
   // 目标数量区间（「使 1 到 4 名敌人中毒」）：掷选一次 n（种子化），随后照常走目标模式
   let n = segment.n ?? 1;
@@ -605,6 +607,7 @@ function resolveTargets(
     ctx.chosenTargetId,
     ctx.castTracking?.lastTarget?.id,
     ctx.castTracking?.formationAtCastStart,
+    randomTargetEligible,
   );
   return filterResolvedTargets(segment, ctx, picked);
 }
@@ -617,6 +620,7 @@ function resolveTargetsTracked(
   segment: TargetSelection,
   ctx: EffectContext,
   overrideMode?: TargetMode,
+  randomTargetEligible?: (target: Character) => boolean,
 ): Character[] {
   const mode = overrideMode ?? segment.target;
   // 跨段绑定：'lastTarget' 指向最近一个产目标段的主目标（不再消耗 rng 重抽）
@@ -665,7 +669,7 @@ function resolveTargetsTracked(
     }
     return targets;
   }
-  const targets = resolveTargets(segment, ctx, overrideMode);
+  const targets = resolveTargets(segment, ctx, overrideMode, randomTargetEligible);
   if (targets.length > 0 && ctx.castTracking) {
     setLastTarget(ctx, { id: targets[0].id, aliveBefore: !targets[0].defeated, unit: targets[0] });
     // R22 批：全目标列表快照（'lastTargets' 族读最近一段；allTargets 跨段累积供 anyTrackedDied）
@@ -790,7 +794,7 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
       });
     case 'status':
       return statusEffect({
-        targets: resolveTargetsTracked(segment, ctx),
+        targets: resolveTargetsTracked(segment, ctx, undefined, target => canReceiveRandomStatus(target, segment.statusId)),
         statusId: segment.statusId,
         turns: segment.turns,
         magnitude: segment.magnitude,
@@ -856,7 +860,13 @@ function compileSegment(segment: EffectSegment, ctx: EffectContext): EffectPrimi
     }
     case 'randomStatus':
       return randomStatusEffect({
-        targets: resolveTargetsTracked(segment, ctx),
+        targets: resolveTargetsTracked(segment, ctx, undefined, target => {
+          const casterSide = findSide(ctx.state, ctx.casterId);
+          const negative = casterSide !== null && findSide(ctx.state, target.id) !== casterSide;
+          const pool = segment.pool === 'positive' || !negative
+            ? RANDOM_POSITIVE_STATUS_POOL : RANDOM_NEGATIVE_STATUS_POOL;
+          return pool.some(id => canReceiveRandomStatus(target, id));
+        }),
         turns: segment.turns,
         times: segment.times,
         pool: segment.pool,

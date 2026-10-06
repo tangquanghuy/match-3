@@ -264,6 +264,7 @@ export function selectTargets(
   chosenId?: number,
   excludedId?: number,
   formation?: FormationSnapshot,
+  randomTargetEligible?: (target: Character) => boolean,
 ): Character[] {
   const casterSide = sideOf(state, casterId);
   if (casterSide === null) return [];
@@ -288,7 +289,15 @@ export function selectTargets(
   if (aliveAll.length === 0) return [];
 
   // 隐匿只挡「指定」：群体技能（enemyAll）照常命中全员，己方模式不受影响。
-  const alive = isAllyMode(mode) || (mode === 'enemyAll' || mode === 'enemyAllOther') ? aliveAll : targetableFrom(aliveAll);
+  const targetable = isAllyMode(mode) || (mode === 'enemyAll' || mode === 'enemyAllOther') ? aliveAll : targetableFrom(aliveAll);
+  // Status-only random picks exclude targets already carrying the applied effect.
+  // Non-random modes and other effect kinds keep their existing targeting rules.
+  const randomStatusMode = mode === 'enemyRandom' || mode === 'enemyRandomOther'
+    || mode === 'enemyRandomPrefNotPrev' || mode === 'enemyRandomN'
+    || mode === 'allyRandom' || mode === 'allyRandomN'
+    || mode === 'allyRandomPrefNotPrev' || mode === 'allyRandomPrefNotPrevN';
+  const alive = randomTargetEligible && randomStatusMode ? targetable.filter(randomTargetEligible) : targetable;
+  if (alive.length === 0) return [];
 
   switch (mode) {
     case 'enemyChosen':

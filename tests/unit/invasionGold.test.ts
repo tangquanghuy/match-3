@@ -97,3 +97,24 @@ describe('invasion victory gold', () => {
     expect(save.currencies.gold - before).toBe(20 + (endReason === 'surrender' ? 0 : 17));
   });
 });
+
+describe('invasion bonuses are separate from the battle collection cap', () => {
+  it('does not multiply the opponent gold reward when collection includes trait bonuses', () => {
+    const save = newSave({ now: 0, starterTroopIds: starterTroopIds() });
+    ensureInvasionSeason(save, WEEK, WEEK);
+    const mirror = fixture(7, 29, 550);
+    const expected = invasionVictoryGold(mirror);
+    const before = { ...save.currencies };
+    const result = { winner: 'player', turns: 5, combatants: [], eventSummary: [],
+      economy: { gold: 625, souls: 450, gems: 0, maps: 0 } } as unknown as BattleResult;
+    const out = settleInvasionBattle(save, result, mirror.id, WEEK + 1000, WEEK, WEEK, mirror);
+    if (!out.ok) throw new Error(out.message);
+    expect(out.collected).toMatchObject({ gold: 625, souls: 450 });
+    expect(out.gold + out.battleRewards.gold).toBe(expected);
+    expect(save.currencies.gold - before.gold).toBe(expected + 625);
+    expect(save.currencies.souls - before.souls).toBe(out.battleRewards.souls + 450);
+    expect(battleIncomeView({ kind: 'invasion', settled: out, battle: result, frenzy: false })).toMatchObject({
+      gold: expected + 625, souls: out.battleRewards.souls + 450,
+    });
+  });
+});

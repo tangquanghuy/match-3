@@ -33,6 +33,7 @@ import traitTable from '../data/traits.json';
 import { normalizeCombatText } from '../data/combatText';
 import { COMMUNITY_TRAITS } from '../data/communityTraits';
 import { effectiveHealing } from './healing';
+import { canReceiveRandomStatus, eligibleRandomStatuses, randomStatusCandidates } from './randomStatusTarget';
 import type { BuffEvent, GameEvent } from './events';
 import type { Character, PassiveModifiers, SpecialGemKind, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
 import { BaseColor } from './types';
@@ -1602,8 +1603,11 @@ export function applyCastRandomStatusTriggers(
     const targets = (spec.scope === 'randomAlly' ? casterTeam : opposingTeam)
       .filter((c) => !c.defeated);
     if (targets.length === 0) continue;
-    const target = targets[Math.floor(ctx.rng.next() * targets.length)];
-    const id = pool[Math.floor(ctx.rng.next() * pool.length)];
+    const candidates = randomStatusCandidates(targets, pool.map(id => ({ id })));
+    if (candidates.length === 0) continue;
+    const target = candidates[Math.floor(ctx.rng.next() * candidates.length)];
+    const availableIds = pool.filter(id => canReceiveRandomStatus(target, id));
+    const id = availableIds[Math.floor(ctx.rng.next() * availableIds.length)];
     events.push(...ctx.applyStatus(target, { id, turns: 3 }));
   }
   // —— 施法显式状态 ——显式目标（self）不耗随机数；随机目标各耗一次；概率 <1 先掷一次
@@ -1622,13 +1626,15 @@ export function applyCastRandomStatusTriggers(
     if (spec.scope === 'self') {
       target = holder;
     } else if (spec.scope === 'randomAlly') {
-      if (allies.length === 0) return;
-      target = ctx.rng ? allies[Math.floor(ctx.rng.next() * allies.length)] : allies[0];
+      const candidates = randomStatusCandidates(allies, spec.statuses);
+      if (candidates.length === 0) return;
+      target = ctx.rng ? candidates[Math.floor(ctx.rng.next() * candidates.length)] : candidates[0];
     } else {
-      if (foes.length === 0) return;
-      target = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
+      const candidates = randomStatusCandidates(foes, spec.statuses);
+      if (candidates.length === 0) return;
+      target = ctx.rng ? candidates[Math.floor(ctx.rng.next() * candidates.length)] : candidates[0];
     }
-    for (const st of spec.statuses) {
+    for (const st of spec.scope === 'self' ? spec.statuses : eligibleRandomStatuses(target, spec.statuses)) {
       events.push(...ctx.applyStatus!(target, { id: st.id, turns: spec.turns, ...(st.magnitude !== undefined ? { magnitude: st.magnitude } : {}) }));
     }
   };
@@ -1755,11 +1761,11 @@ export function applyDeathTriggers(
     if (holder.defeated) continue;
     const spec = passivesOf(holder).onAllyDeathStatus;
     if (!spec) continue;
-    const pool = (spec.target === 'randomAlly' ? deadTeam : opposingTeam).filter((c) => !c.defeated);
+    const pool = randomStatusCandidates(spec.target === 'randomAlly' ? deadTeam : opposingTeam, spec.statuses);
     if (pool.length === 0) continue;
     const target = ctx.rng ? pool[Math.floor(ctx.rng.next() * pool.length)] : pool[0];
     for (const st of spec.statuses) {
-      if (!ctx.applyStatus) continue;
+      if (!ctx.applyStatus || !canReceiveRandomStatus(target, st.id)) continue;
       const status: StatusInstance = { id: st.id, turns: spec.turns };
       if (st.magnitude !== undefined) status.magnitude = st.magnitude;
       events.push(...ctx.applyStatus(target, status));
@@ -2135,16 +2141,17 @@ export function applyColorMatchTriggers(
         events.push(...applySpecStatuses(holder, spec.statuses, spec.turns, opts));
         continue;
       }
-      const pool = spec.scope === 'randomAlly' ? allies : foes;
+      const pool = randomStatusCandidates(spec.scope === 'randomAlly' ? allies : foes, spec.statuses);
+      if (pool.length === 0) continue;
       const target = opts.rng ? pool[Math.floor(opts.rng.next() * pool.length)] : pool[0];
       if (spec.independentChance) {
         for (const st of spec.statuses) {
           if (!opts.rng || opts.rng.next() >= (spec.chance ?? 1)) continue;
-          events.push(...applySpecStatuses(target, [st], spec.turns, opts));
+          events.push(...applySpecStatuses(target, eligibleRandomStatuses(target, [st]), spec.turns, opts));
         }
         continue;
       }
-      events.push(...applySpecStatuses(target, spec.statuses, spec.turns, opts));
+      events.push(...applySpecStatuses(target, eligibleRandomStatuses(target, spec.statuses), spec.turns, opts));
     }
   }
   // 配色窃取生命（T5 窃取批 5 code：corruption/poisontide/justabite/darkesthunger/ladyofdesire）：
@@ -2471,41 +2478,38 @@ export function applyBigMatchTriggers(
         //（不退化为必发全池），命中时再消耗一次从负面池掷一条；
         // independentChance（maladycurse「独立 25% 几率施加诅咒或死亡标记」）：每条状态
         // 各自掷一次 chance（各中各的），每条各耗一次 rng，无 rng 时概率 <1 的不生效。
-        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated && (
-          !spec.randomMissingStatus || spec.statuses.some(st =>
-            !c.statuses.some(active => active.id === st.id && active.turns > 0))
-        ));
+        const foes = randomStatusCandidates(ctx.enemyTeam ?? [], spec.statuses);
         if (foes.length === 0) continue;
         if (spec.randomNegative && !ctx.rng) continue;
         const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
         if (spec.independentChance) {
           for (const st of spec.statuses) {
             if (!ctx.rng || ctx.rng.next() >= (spec.chance ?? 1)) continue;
-            events.push(...applySpecStatuses(foe, [st], spec.turns, ctx));
+            events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, [st]), spec.turns, ctx));
           }
           continue;
         }
-        const available = spec.randomMissingStatus
-          ? spec.statuses.filter(st => !foe.statuses.some(active => active.id === st.id && active.turns > 0))
-          : spec.statuses;
+        const available = eligibleRandomStatuses(foe, spec.statuses);
         if (available.length === 0) continue;
         const picks = spec.randomMissingStatus
           ? [available[ctx.rng ? Math.floor(ctx.rng.next() * available.length) : 0]]
           : spec.randomNegative
             ? [available[Math.floor(ctx.rng!.next() * available.length)]]
             : available;
-        events.push(...applySpecStatuses(foe, picks, spec.turns, ctx));
+        events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, picks), spec.turns, ctx));
       } else if (spec.scope === 'allAllies') {
         for (const member of alive) {
           events.push(...applySpecStatuses(member, spec.statuses, spec.turns, ctx));
         }
       } else {
         // randomAlly：有 rng 随机取（只在此消耗一次随机数），无 rng 退化为首个存活
-        if (alive.length === 0) continue;
-        const target = ctx.rng ? alive[Math.floor(ctx.rng.next() * alive.length)] : alive[0];
+        const candidates = randomStatusCandidates(alive, spec.statuses);
+        if (candidates.length === 0) continue;
+        const target = ctx.rng ? candidates[Math.floor(ctx.rng.next() * candidates.length)] : candidates[0];
+        const available = eligibleRandomStatuses(target, spec.statuses);
         const picks = spec.randomPositive && ctx.rng
-          ? [spec.statuses[Math.floor(ctx.rng.next() * spec.statuses.length)]]
-          : spec.statuses;
+          ? [available[Math.floor(ctx.rng.next() * available.length)]]
+          : available;
         events.push(...applySpecStatuses(target, picks, spec.turns, ctx));
       }
     }

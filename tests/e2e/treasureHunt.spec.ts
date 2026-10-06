@@ -394,8 +394,9 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await setup(page, 8, true);
     await expect(page.locator('.hunt-reserve > span:first-child')).toHaveText('宝藏储量：');
-    await expect(page.locator('.hunt-reserve em')).toHaveText(['金币', '钻石', '荣耀']);
+    await expect(page.locator('.hunt-reserve em')).toHaveText(['金币', '灵魂', '钻石', '荣耀']);
     await expect(page.locator('#huntReserveGold')).toHaveText('80万');
+    await expect(page.locator('#huntReserveSouls')).toHaveText('20,000');
     await expect(page.locator('#huntReserveGems')).toHaveText('1,000');
     await expect(page.locator('#huntReserveGlory')).toHaveText('4,000');
 
@@ -404,10 +405,11 @@ for (const width of [1280, 390]) {
       const { metaGateway, todayStartOf } = await import(/* @vite-ignore */ gatewayPath);
       const gateway = metaGateway();
       const save = JSON.parse(gateway.exportSaveJson());
-      save.treasureHuntDaily = { dayStart: todayStartOf(gateway.now()), gold: 123456, gems: 321, glory: 2345 };
+      save.treasureHuntDaily = { dayStart: todayStartOf(gateway.now()), gold: 123456, souls: 1234, gems: 321, glory: 2345 };
       await gateway.dev.importSaveJson(JSON.stringify(save));
     });
     await expect(page.locator('#huntReserveGold')).toHaveText('67.6544万');
+    await expect(page.locator('#huntReserveSouls')).toHaveText('18,766');
     await expect(page.locator('#huntReserveGems')).toHaveText('679');
     await expect(page.locator('#huntReserveGlory')).toHaveText('1,655');
     await page.screenshot({ path: `artifacts/art-gen/treasure-v4/live-reserve-${width}.png` });
@@ -423,14 +425,16 @@ for (const width of [1280, 390]) {
       const { metaGateway, todayStartOf } = await import(/* @vite-ignore */ gatewayPath);
       const gateway = metaGateway();
       const save = JSON.parse(gateway.exportSaveJson());
-      save.treasureHuntDaily = { dayStart: todayStartOf(gateway.now()), gold: 799999, gems: 1000, glory: 4000 };
+      save.treasureHuntDaily = { dayStart: todayStartOf(gateway.now()), gold: 799999, souls: 19999, gems: 1000, glory: 4000 };
       await gateway.dev.importSaveJson(JSON.stringify(save));
     });
     await expect(page.locator('#huntReserveGold')).toHaveText('0.0001万');
+    await expect(page.locator('#huntReserveSouls')).toHaveText('1');
     await expect(page.locator('#huntReserveGems')).toHaveText('0');
     await expect(page.locator('#huntReserveGlory')).toHaveText('0');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#huntReserveGold')).toHaveText('0.0001万');
+    await expect(page.locator('#huntReserveSouls')).toHaveText('1');
     await expect(page.locator('#huntReserveGlory')).toHaveText('0');
   });
 }
@@ -443,11 +447,12 @@ test('reserve refreshes across the calibrated game-day boundary while the gate s
     const gateway = metaGateway();
     const dayStart = todayStartOf(gateway.now());
     const save = JSON.parse(gateway.exportSaveJson());
-    save.treasureHuntDaily = { dayStart, gold: 800000, gems: 1000, glory: 4000 };
+    save.treasureHuntDaily = { dayStart, gold: 800000, souls: 20000, gems: 1000, glory: 4000 };
     await gateway.dev.importSaveJson(JSON.stringify(save));
     gateway.now = () => dayStart + DAY_MS - 1;
   });
   await expect(page.locator('#huntReserveGold')).toHaveText('0万');
+  await expect(page.locator('#huntReserveSouls')).toHaveText('0');
   await expect(page.locator('#huntReserveGems')).toHaveText('0');
   await expect(page.locator('#huntReserveGlory')).toHaveText('0');
   const before = (await snapshot(page)).treasureHuntDaily;
@@ -459,6 +464,7 @@ test('reserve refreshes across the calibrated game-day boundary while the gate s
     gateway.now = () => nextDay;
   });
   await expect(page.locator('#huntReserveGold')).toHaveText('80万');
+  await expect(page.locator('#huntReserveSouls')).toHaveText('20,000');
   await expect(page.locator('#huntReserveGems')).toHaveText('1,000');
   await expect(page.locator('#huntReserveGlory')).toHaveText('4,000');
   expect((await snapshot(page)).treasureHuntDaily).toEqual(before);

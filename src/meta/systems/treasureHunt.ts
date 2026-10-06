@@ -512,10 +512,11 @@ export function finishHunt(save: MetaSave, dayStart = 0): HuntMoveOk | MetaFailu
 /** Today's unclaimed hunt currency, using the same game-day boundary as settlement.
  * Read-only: opening the screen or crossing midnight must not modify the save.
  */
-export function huntDailyRemaining(save: Pick<MetaSave, 'treasureHuntDaily'>, dayStart: number): { gold: number; gems: number; glory: number } {
+export function huntDailyRemaining(save: Pick<MetaSave, 'treasureHuntDaily'>, dayStart: number): { gold: number; souls: number; gems: number; glory: number } {
   const daily = save.treasureHuntDaily.dayStart === dayStart ? save.treasureHuntDaily : null;
   return {
     gold: Math.max(0, TREASURE_HUNT_DAILY_CAP.gold - (daily?.gold ?? 0)),
+    souls: Math.max(0, TREASURE_HUNT_DAILY_CAP.souls - (daily?.souls ?? 0)),
     gems: Math.max(0, TREASURE_HUNT_DAILY_CAP.gems - (daily?.gems ?? 0)),
     glory: Math.max(0, TREASURE_HUNT_DAILY_CAP.glory - (daily?.glory ?? 0)),
   };
@@ -524,15 +525,17 @@ export function huntDailyRemaining(save: Pick<MetaSave, 'treasureHuntDaily'>, da
 function pay(save: MetaSave, grant: HuntGrant, dayStart: number): HuntGrant {
   const daily = save.treasureHuntDaily.dayStart === dayStart
     ? save.treasureHuntDaily
-    : { dayStart, gold: 0, gems: 0, glory: 0 };
+    : { dayStart, gold: 0, souls: 0, gems: 0, glory: 0 };
   const remaining = huntDailyRemaining(save, dayStart);
   const paid: HuntGrant = {
     ...grant,
     gold: Math.min(grant.gold, remaining.gold),
+    souls: Math.min(grant.souls, remaining.souls),
     gems: Math.min(grant.gems, remaining.gems),
     glory: Math.min(grant.glory, remaining.glory),
   };
   daily.gold += paid.gold;
+  daily.souls += paid.souls;
   daily.gems += paid.gems;
   daily.glory += paid.glory;
   save.treasureHuntDaily = daily;

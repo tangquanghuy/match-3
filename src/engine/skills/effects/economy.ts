@@ -8,7 +8,8 @@ import { creditBattleMaps } from '../../battleMaps';
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import { opponentOf } from '../../types';
-import { goldForSide, setGoldForSide, creditGoldForSide } from '../../battleGold';
+import { goldForSide, setGoldForSide, creditGoldForSide, remainingBattleGold } from '../../battleGold';
+import { creditBattleSouls } from '../../battleSouls';
 import type { GameEvent } from '../../events';
 import type { EconomyGainEvent } from '../../events';
 import type { ScalingSpec } from '../scaling';
@@ -38,7 +39,8 @@ export function economyGainEffect(params: EconomyGainParams): EffectPrimitive {
       );
       if (amount <= 0) return [];
       const side = effectCasterSide(ctx);
-      if (params.currency === 'gold') creditGoldForSide(ctx.state, side, amount);
+      if (params.currency === 'gold') amount = creditGoldForSide(ctx.state, side, amount);
+      else if (params.currency === 'souls') amount = creditBattleSouls(ctx.state, amount);
       else if (params.currency === 'maps') amount = creditBattleMaps(ctx.state, amount);
       else ctx.state.economy[params.currency] += amount;
       if (amount <= 0) return [];
@@ -76,18 +78,18 @@ export function stealGoldEffect(params: StealGoldParams): EffectPrimitive {
       const requested = params.all ? available : evaluateWithModifier(
         evaluateScaling(params.scaling, casterMagic(ctx)), params.modifier, ctx,
       );
-      const gain = Math.max(0, Math.min(available, requested, params.cap ?? Infinity));
+      const gain = Math.max(0, Math.min(available, requested, params.cap ?? Infinity, remainingBattleGold(ctx.state, side)));
       if (gain <= 0) return [];
       setGoldForSide(ctx.state, enemySide, available - gain);
-      if (!params.deferCredit) creditGoldForSide(ctx.state, side, gain);
+      const credited = params.deferCredit ? 0 : creditGoldForSide(ctx.state, side, gain);
       if (ctx.castTracking) {
         ctx.castTracking.goldStolen = (ctx.castTracking.goldStolen ?? 0) + gain;
       }
-      if (params.deferCredit) return [];
+      if (params.deferCredit || credited <= 0) return [];
       const event: EconomyGainEvent = {
         type: 'economy-gain',
         currency: 'gold',
-        amount: gain,
+        amount: credited,
         side,
       };
       return [event];

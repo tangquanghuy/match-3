@@ -446,11 +446,12 @@ export interface TreasureHuntState {
 }
 
 /** Maximum gold, gems and glory credited by treasure hunts in one game-time day. */
-export const TREASURE_HUNT_DAILY_CAP = Object.freeze({ gold: 800_000, gems: 1_000, glory: 4_000 });
+export const TREASURE_HUNT_DAILY_CAP = Object.freeze({ gold: 800_000, souls: 20_000, gems: 1_000, glory: 4_000 });
 
 export interface TreasureHuntDailyCap {
   dayStart: number;
   gold: number;
+  souls: number;
   gems: number;
   glory: number;
 }
@@ -532,7 +533,7 @@ export function newSave(options: NewSaveOptions = {}): MetaSave {
     eventShops: {},
     settings: { language: 'zh', battleDebug: false },
     treasureHunt: null,
-    treasureHuntDaily: { dayStart: 0, gold: 0, gems: 0, glory: 0 },
+    treasureHuntDaily: { dayStart: 0, gold: 0, souls: 0, gems: 0, glory: 0 },
     onboarding: options.tutorial
       ? { step: 'battle', noviceSummonUsed: false }
       : { step: 'done', noviceSummonUsed: true },
