@@ -103,6 +103,8 @@ describe('official status shared-rule regression', () => {
     expect(target.defeated).toBe(true);
     expect(events.some(e => e.type === 'skill-damage' && e.targetId === target.id && e.devoured)).toBe(true);
     expect([caster.attack, caster.armor, caster.magic, caster.hp, caster.maxHp]).toEqual([27, 33, 10, 33, 58]);
+    // Event-only projections must see the same maximum-Life growth as the engine state.
+    expect(events).toContainEqual({ type: 'buff', targetId: caster.id, stat: 'hp', amount: 8, maxHpGain: 8 });
   });
 
   it('Devour observes Entangle on both attacker and victim', () => {

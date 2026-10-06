@@ -1,8 +1,8 @@
 import type { CuratedBatch } from './index';
 import { BaseColor } from '../../types';
-import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_SPELL_ID, PING_SPELL_ID, ZHUWANG_SPELL_ID, EROCHIKA_SPELL_ID, HUIJIU_SPELL_ID, CUIXIANG_CHIXIGUA_SPELL_ID, COMMUNITY_RACE, COMMUNITY_TROOPS } from '../../../data/communityTroops';
+import { BAILU_YIXI_SPELL_ID, DOUGLAS_SPELL_ID, CIALLO_SPELL_ID, CHIKORITA_SPELL_ID, XINGAI_SPELL_ID, LIANKA_SPELL_ID, YELUO_SPELL_ID, RENOIR_SPELL_ID, SU_SPELL_ID, SHIRAKYUSU_ANNA_SPELL_ID, LINKONGLUO_SPELL_ID, YINSHILUO_SPELL_ID, WANGFENG_SPELL_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_SPELL_ID, PING_SPELL_ID, ZHUWANG_SPELL_ID, EROCHIKA_SPELL_ID, HUIJIU_SPELL_ID, CUIXIANG_CHIXIGUA_SPELL_ID, OLD_MEEPO_SPELL_ID, COMMUNITY_RACE, COMMUNITY_TROOPS } from '../../../data/communityTroops';
 import { POSITIVE_STATUS_IDS } from '../effects/status';
-import { createSpecialGems2, trueDmg, steal, CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, armor, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, shuffleTeam, skill, summonRef, transform } from '../builders';
+import { createSpecialGems2, trueDmg, steal, CHOSEN, destroyColor, extraTurn, createGems, transformTroop, dispelStatus, sacrifice, devour, attack, armor, cleanse, gainLife, createSpecialGems, createMix, createSkulls, dmg, dmgAll, explodeRandomGems, inflict, mana, reduce, shuffleTeam, skill, summonRef, summonCopy, transform } from '../builders';
 
 export const BATCH_COMMUNITY: CuratedBatch = {
   batch: 'community',
@@ -220,6 +220,19 @@ export const BATCH_COMMUNITY: CuratedBatch = {
         gainLife('allyLowestHpOtherN', 4, 1, { n: 2 }),
         armor('allyFront', 0),
         inflict('barrier', 'allyFront'),
+      ),
+    },
+    {
+      id: OLD_MEEPO_SPELL_ID,
+      desc: COMMUNITY_TROOPS.find(t => t.spell.id === OLD_MEEPO_SPELL_ID)!.spell.description,
+      build: skill(
+        summonCopy('allySelf'),
+        inflict('submerged', 'allySelf'),
+        // 1 gold = 1 percentage point for a single extra summon (clamped to 100%).
+        summonCopy('allySelf', {
+          chance: 0,
+          chanceBoost: { mod: { kind: 'ratio', a: 1, b: 1 }, source: { kind: 'battleGold' } },
+        }),
       ),
     },
   ],

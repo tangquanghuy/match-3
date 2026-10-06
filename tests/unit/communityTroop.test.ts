@@ -5,7 +5,7 @@ import { SeededRNG } from '@engine/rng';
 import { TurnEngine } from '@engine/TurnEngine';
 import { executePrototype } from '@engine/skills/prototypes';
 import { SKILL_LIBRARY } from '@engine/skills/library';
-import { applyBigMatchTriggers, getTrait, resolvePassives } from '@engine/traits';
+import { applyBigMatchTriggers, applyColorMatchTriggers, attachPassives, getTrait, resolvePassives } from '@engine/traits';
 import { BaseColor, PlayerSide, colorGem } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import {
@@ -19,6 +19,8 @@ import {
   COMMUNITY_RACE,
   DOUGLAS_ID,
   DOUGLAS_SPELL_ID,
+  OLD_MEEPO_ID,
+  OLD_MEEPO_SPELL_ID,
   SHIRAKYUSU_ANNA_SPELL_ID,
 } from '../../src/data/communityTroops';
 import { getTroopById, getTroopByRef, knownTroopTypes, TROOPS } from '../../src/data/troops';
@@ -394,5 +396,103 @@ describe('四脚萝卜怪 · 逆焰先锋', () => {
       }
     }
     expect(changed).toBe(23);
+  });
+});
+
+
+describe('OldMeepo - community troop', () => {
+  const troop = getTroopById(OLD_MEEPO_ID)!;
+  const prototype = SKILL_LIBRARY[OLD_MEEPO_SPELL_ID];
+
+  it('legendary brown/yellow troop is available with portrait and traits', () => {
+    expect(getTroopByRef('OldMeepo')).toBe(troop);
+    expect(kingdomTroopPool(COMMUNITY_KINGDOM)).toContain(troop);
+    expect(troop.rarity).toBe('UltraRare');
+    expect(rarityNameByIndex(troop.rarityIdx)).toBe('\u4f20\u8bf4');
+    expect(troop.manaColors).toEqual([BaseColor.Brown, BaseColor.Yellow]);
+    expect(troop.spell.meta.modifier).toEqual({ kind: 'ratio', a: 1, b: 1 });
+    expect(troop.artUrl).toContain('old-meepo.webp');
+    expect(troopArt(troop)).toBe(troop.artUrl);
+    const codes = ['old_meepo_skull_life', 'goldenhoard', 'jinx'];
+    expect(troop.traits.map(t => t.code)).toEqual(codes);
+    const save = newSave({ now: 0, starterTroopIds: [] });
+    grantTroop(save, OLD_MEEPO_ID);
+    const record = getRecord(save, OLD_MEEPO_ID)!;
+    record.traits = [true, true, true];
+    expect(troopToSnapshot(troop, record, 'old-meepo').traitIds).toEqual(codes);
+  });
+
+  it('skull match grants life, turn grants gold, jinx halves enemy gem mana', () => {
+    expect(getTrait('old_meepo_skull_life')?.onColorMatchGain).toEqual({ color: 'skull', stat: 'hp', amount: 2 });
+    expect(getTrait('goldenhoard')?.turnStartEconomy).toEqual({ currency: 'gold', amount: 5 });
+    expect(resolvePassives(['jinx']).enemyMasteryMult).toBe(0.5);
+    const me = character(0, { traitIds: ['old_meepo_skull_life'], hp: 45 });
+    attachPassives(me);
+    expect(applyColorMatchTriggers([me], 'skull')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'buff', targetId: 0, stat: 'hp', amount: 2 }),
+    ]));
+    expect(me.hp).toBe(47);
+    applyColorMatchTriggers([me], BaseColor.Brown);
+    expect(me.hp).toBe(47);
+  });
+
+  it('credits five gold at the start of its own turn, not the enemy turn', () => {
+    const me = character(0, { traitIds: ['goldenhoard'] });
+    const state = createGameState(new BoardModel(),
+      { player: PlayerSide.Left, characters: [me] },
+      { player: PlayerSide.Right, characters: [character(10)] });
+    const engine = new TurnEngine(state, new SeededRNG(10002), () => 1000);
+    engine.passTurn();
+    expect(state.economy.gold).toBe(0);
+    const events = engine.passTurn();
+    expect(state.economy.gold).toBe(5);
+    expect(events).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'economy-gain', currency: 'gold', amount: 5 }),
+    ]));
+  });
+
+  function cast(gold: number, allies = 1, roll?: number) {
+    const board = new BoardModel();
+    const me = character(0, { name: 'OldMeepo', skillId: String(OLD_MEEPO_SPELL_ID),
+      colors: [...troop.manaColors], traitIds: ['old_meepo_skull_life', 'goldenhoard', 'jinx'],
+      statuses: [], hp: 25 });
+    const state = createGameState(board,
+      { player: PlayerSide.Left, characters: [me, ...Array.from({ length: allies - 1 }, (_, i) => character(i + 1))] },
+      { player: PlayerSide.Right, characters: [character(10)] });
+    state.economy.gold = gold;
+    const events = executePrototype(prototype, { state, casterId: 0,
+      rng: roll === undefined ? new SeededRNG(10002) : new (class extends SeededRNG { override next() { return roll; } })(1),
+      nextGemId: () => 99 });
+    return { state, me, events };
+  }
+
+  it('summons a copy and submerges; 0 gold gives no bonus and 100 gold guarantees one', () => {
+    expect(prototype.segments.map(s => s.kind)).toEqual(['summonCopy', 'status', 'summonCopy']);
+    const zero = cast(0);
+    expect(zero.events.filter(e => e.type === 'summon')).toHaveLength(1);
+    expect(zero.me.statuses.some(s => s.id === 'submerged')).toBe(true);
+    const clone = zero.state.teams[PlayerSide.Left].characters[1]!;
+    expect(clone.name).toBe('OldMeepo');
+    expect(clone.hp).toBe(clone.maxHp);
+    expect(clone.mana).toBe(0);
+    expect(clone.statuses).toEqual([]);
+    const rich = cast(100);
+    expect(rich.events.filter(e => e.type === 'summon')).toHaveLength(2);
+    expect(cast(200).events.filter(e => e.type === 'summon')).toHaveLength(2);
+  });
+
+  it('each gold adds exactly one percentage point to the extra-copy roll', () => {
+    expect(cast(1, 1, 0.009).events.filter(e => e.type === 'summon')).toHaveLength(2);
+    expect(cast(1, 1, 0.01).events.filter(e => e.type === 'summon')).toHaveLength(1);
+    expect(cast(37, 1, 0.369).events.filter(e => e.type === 'summon')).toHaveLength(2);
+    expect(cast(37, 1, 0.37).events.filter(e => e.type === 'summon')).toHaveLength(1);
+  });
+
+  it('full team blocks summons but still submerges the caster', () => {
+    const full = cast(100, 4);
+    expect(full.events.filter(e => e.type === 'summon')).toHaveLength(0);
+    expect(full.state.teams[PlayerSide.Left].characters).toHaveLength(4);
+    expect(full.me.statuses.some(s => s.id === 'submerged')).toBe(true);
+    expect(full.state.economy.gold).toBe(100);
   });
 });

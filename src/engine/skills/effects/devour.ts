@@ -90,7 +90,7 @@ export function devourEffect(params: DevourParams): EffectPrimitive {
           }
           if (gh > 0) {
             const applied = applyBuffGain(caster, 'hp', gh, 'gain');
-            if (applied !== 0) events.push({ type: 'buff', targetId: caster.id, stat: 'hp', amount: applied });
+            if (applied !== 0) events.push({ type: 'buff', targetId: caster.id, stat: 'hp', amount: applied, maxHpGain: applied });
           }
         }
       }

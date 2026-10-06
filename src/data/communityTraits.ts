@@ -4,6 +4,12 @@ import type { TraitDefinition } from '../engine/traits';
 /** 自定义单位特质独立维护，避免被官方图鉴生成脚本覆盖。 */
 export const COMMUNITY_TRAITS: readonly TraitDefinition[] = [
   {
+    code: 'old_meepo_skull_life',
+    name: '骸骨生机',
+    description: '配对骷髅头宝石时，自身获得 2 点生命值。',
+    onColorMatchGain: { color: 'skull', stat: 'hp', amount: 2 },
+  },
+  {
     code: 'cuixiang_slime_care',
     name: '软泥照护',
     description: '当一名盟友施放法术时，所有盟友获得 1 点生命值。',

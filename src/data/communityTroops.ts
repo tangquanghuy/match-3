@@ -19,6 +19,7 @@ import chikoritaPortrait from '@assets/community/chikorita.webp?url';
 import xingaiPortrait from '@assets/community/haoxiang-xingai.webp?url';
 import liankaPortrait from '@assets/community/lianka.webp?url';
 import cuixiangPortrait from '@assets/community/cuixiang-chixigua.webp?url';
+import oldMeepoPortrait from '@assets/community/old-meepo.webp?url';
 import { BaseColor } from '../engine/types';
 import { buildSkillMetadata } from '../engine/skills/scaling';
 import type { TroopData } from './troops';
@@ -67,6 +68,10 @@ export const HUIJIU_ID = 10019;
 export const HUIJIU_SPELL_ID = 20019;
 export const CUIXIANG_CHIXIGUA_ID = 10020;
 export const CUIXIANG_CHIXIGUA_SPELL_ID = 20020;
+export const OLD_MEEPO_ID = 10021;
+export const OLD_MEEPO_SPELL_ID = 20021;
+
+const oldMeepoDescription = '召唤一个自己的复制体，并进入下潜状态。每拥有 1 黄金，额外召唤一个复制体的几率增加 1%。[1:1]';
 
 const huijiuDescription = '创造 3 颗混合的元素星和暗影星，数量因异界来客盟友数和蓝色宝石数而增强。至少创造 1 颗元素星和 1 颗暗影星。 [3:1]';
 const cuixiangDescription = '除自身外，当前生命值最低的两名盟友各增加 [魔法 + 4] 点生命值。首位盟友再获得 [魔法] 点护甲值和屏障。';
@@ -620,5 +625,31 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     traits: communityTraits(['cuixiang_slime_care', 'cuixiang_vine_dream', 'cuixiang_green_nap']),
     portrait: null,
     artUrl: cuixiangPortrait,
+  },
+  {
+    id: OLD_MEEPO_ID,
+    name: 'OldMeepo',
+    referenceName: 'OldMeepo',
+    rarity: 'UltraRare',
+    rarityIdx: 3,
+    kingdom: COMMUNITY_KINGDOM,
+    troopTypes: [COMMUNITY_RACE],
+    role: 'Support',
+    attack: 16,
+    armor: 22,
+    health: 28,
+    magic: 9,
+    base: { attack: 4, armor: 6, health: 10, magic: 1 },
+    manaColors: [BaseColor.Brown, BaseColor.Yellow],
+    manaCost: 13,
+    spell: {
+      id: OLD_MEEPO_SPELL_ID,
+      name: '潜影分身',
+      description: oldMeepoDescription,
+      meta: buildSkillMetadata(oldMeepoDescription),
+    },
+    traits: communityTraits(['old_meepo_skull_life', 'goldenhoard', 'jinx']),
+    portrait: null,
+    artUrl: oldMeepoPortrait,
   },
 ];
