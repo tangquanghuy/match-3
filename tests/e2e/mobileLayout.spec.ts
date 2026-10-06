@@ -118,7 +118,7 @@ test('battle HUD quietly shows live gold and souls against the balance caps', as
   const hud = page.getByTestId('battle-economy');
   await expect(hud).toBeVisible();
   await expect(hud).toContainText('0/500');
-  await expect(hud).toContainText('0/300');
+  await expect(hud).toContainText('0/200');
   await expect(hud).toHaveCSS('pointer-events', 'none');
   await page.evaluate(() => {
     const app = (window as unknown as { __app: {
@@ -129,7 +129,7 @@ test('battle HUD quietly shows live gold and souls against the balance caps', as
     app.refreshTeams();
   });
   await expect(hud).toContainText('470/500');
-  await expect(hud).toContainText('128/300');
+  await expect(hud).toContainText('128/200');
   const rect = await hud.boundingBox();
   const board = await page.evaluate(() => {
     const app = (window as unknown as MobileDebugWindow).__app;

@@ -330,11 +330,11 @@ describe('护栏：无经济内容的对局零经济事件', () => {
 
 
 describe('per-battle base collection caps', () => {
-  it('clips gains and events at 500 gold / 300 souls without capping gems', () => {
+  it('clips gains and events at 500 gold / 200 souls without capping gems', () => {
     const { ctx, state } = primitiveCtx();
-    const first = executePrototype({ segments: [gainGold(490), gainSouls(295), gainGems(3)] }, ctx);
+    const first = executePrototype({ segments: [gainGold(490), gainSouls(195), gainGems(3)] }, ctx);
     expect(first.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
-      .toEqual([['gold', 490], ['souls', 295], ['gems', 3]]);
+      .toEqual([['gold', 490], ['souls', 195], ['gems', 3]]);
     const clipped = executePrototype({ segments: [gainGold(100), gainSouls(100), gainGems(4)] }, ctx);
     expect(clipped.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
       .toEqual([['gold', 10], ['souls', 5], ['gems', 4]]);
@@ -395,11 +395,11 @@ describe('per-battle base collection caps', () => {
     engine.skullChance = 0;
     const first = engine.resolveAction({ type: 'cast', characterId: 0 });
     expect(first.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
-      .toEqual([['gold', 500], ['souls', 300]]);
-    expect(state.economy).toMatchObject({ gold: 500, souls: 300 });
+      .toEqual([['gold', 500], ['souls', 200]]);
+    expect(state.economy).toMatchObject({ gold: 500, souls: 200 });
     engine.passTurn();
     engine.resolveAction({ type: 'cast', characterId: 1 });
     expect(state.winner).toBe(PlayerSide.Left);
-    expect(state.economy).toMatchObject({ gold: 625, souls: 450 });
+    expect(state.economy).toMatchObject({ gold: 625, souls: 300 });
   });
 });
