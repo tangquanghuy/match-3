@@ -1,3 +1,4 @@
+import { portraitUrl as versionedPortraitUrl } from '../../data/portraitUrl';
 import { ExploreScreen } from './exploreScreen';
 /**
  * 王国关卡页 `#quest/<王国>` / `#quest/<王国>/hard` / `#quest/<王国>/veryhard`
@@ -140,7 +141,7 @@ function curvePath(pts: PinPt[], reached = pts.length): string {
 
 function portraitUrl(troopId: number): string | null {
   const troop = getTroopById(troopId);
-  return troop?.portrait ? `/static/portraits/${troop.portrait}.webp` : null;
+  return troop?.portrait ? versionedPortraitUrl(troop.portrait) : null;
 }
 
 function lineupOf(kingdom: string, mode: KingdomStageMode, node: number): EncounterEnemy[] {

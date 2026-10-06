@@ -1,3 +1,4 @@
+import { portraitUrl } from '../../data/portraitUrl';
 import type { BaseColor } from '../../engine/types';
 import { isRegionId, regionDefinition, type RegionId } from '../data/regionalPvp';
 import { raceNames } from '../data/races';
@@ -72,7 +73,7 @@ export function troopArtChain(troop: TroopData | null, hero = false): string[] {
   if (hero || !troop) return [troopArtFallback(troop, hero)];
   const chain: string[] = [];
   if (troop.artUrl) chain.push(troop.artUrl);
-  if (troop.portrait) chain.push(`/static/portraits/${troop.portrait}.webp`);
+  if (troop.portrait) chain.push(portraitUrl(troop.portrait));
   if (NAMED_ART[troop.name]) chain.push(NAMED_ART[troop.name]!);
   chain.push(troopCdnArt(troop.name), troopArtFallback(troop, hero));
   return chain;

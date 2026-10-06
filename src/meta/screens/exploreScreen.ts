@@ -1,3 +1,4 @@
+import { portraitUrl } from '../../data/portraitUrl';
 import { gameNow, isFailure } from '../gateway';
 import { EXPLORE_ENEMY_LEVELS, EXPLORE_MAX_TIER, exploreStageLabel, kingdomUnlockLevel, KINGDOM_ORDER } from '../data/kingdoms';
 import { enemyEncounterStats } from '../data/enemyDifficulty';
@@ -50,7 +51,7 @@ ${CSS}</style>${topbarHtml()}<main class="screen explore-screen">${body}</main>$
       const troop = getTroopById(enemy.troopId)!;
       const stats = enemyEncounterStats(troop, enemy.level, enemy.statMultiplier);
       return `<div class="ex-enemy ${enemy.tier === 'boss' ? 'boss' : ''}" data-enemy-id="${troop.id}"><span class="ex-enemy-slot" aria-label="队列 ${index + 1}">${index + 1}</span>
-        ${troop.artUrl || troop.portrait ? `<img src="${esc(troop.artUrl ?? `/static/portraits/${troop.portrait}.webp`)}" alt="" loading="lazy">` : ''}
+        ${troop.artUrl || troop.portrait ? `<img src="${esc(troop.artUrl ?? portraitUrl(troop.portrait))}" alt="" loading="lazy">` : ''}
         <div class="ex-enemy-info"><strong>${esc(troop.name)}</strong><small>Lv.${enemy.level}${enemy.tier === 'boss' ? ' · BOSS' : ''}</small>
         <div class="ex-stats"><span title="护甲"><i data-icon="shield"></i>${stats.armor}</span><span title="生命"><i data-icon="heart"></i>${stats.health}</span><span title="攻击"><i data-icon="swords"></i>${stats.attack}</span><span title="魔法">魔 ${stats.magic}</span></div></div>
       </div>`;

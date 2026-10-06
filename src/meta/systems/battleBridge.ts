@@ -1,3 +1,4 @@
+import { portraitUrl } from '../../data/portraitUrl';
 /**
  * 战斗桥接（M2）——存档 + 出敌计划 → 会话契约的 BattleRequest。
  *
@@ -106,7 +107,7 @@ export function troopToSnapshot(
     name: troop.name,
     levelLabel: `Lv.${rec.level}`,
     rarityIdx: rarityTierOf(troop, rec),
-    portraitUrl: troop.artUrl ?? `/static/portraits/${troop.portrait}.webp`,
+    portraitUrl: troop.artUrl ?? portraitUrl(troop.portrait),
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],
     kingdom: troop.kingdom ?? undefined,
@@ -133,7 +134,7 @@ export function enemyToSnapshot(troop: TroopData, enemy: EncounterEnemy, index: 
     name: troop.name,
     levelLabel: `Lv.${enemyLevel(enemy.level)}`,
     rarityIdx: troop.rarityIdx,
-    portraitUrl: troop.artUrl ?? `/static/portraits/${troop.portrait}.webp`,
+    portraitUrl: troop.artUrl ?? portraitUrl(troop.portrait),
     tier: enemy.tier,
     stats: { hp: stats.health, attack: stats.attack, armor: stats.armor, magic: stats.magic },
     troopTypes: [...troop.troopTypes],

@@ -1,3 +1,4 @@
+import { portraitUrl } from '../../../data/portraitUrl';
 /**
  * 末日之塔 · 爬塔地图视图（自下而上一层层爬；StS 式分叉路线）。
  *
@@ -60,7 +61,7 @@ function memberPortrait(externalId: string, character: CharacterProfile | null):
   const key = memberKey(externalId);
   if (key === 'hero') return character?.portrait === 'legacy' ? '/static/troops/hero.webp' : characterPortrait(character);
   const troop = getTroopById(Number(key));
-  return troop?.artUrl ?? (troop?.portrait ? `/static/portraits/${troop.portrait}.webp` : '');
+  return troop?.artUrl ?? (troop?.portrait ? portraitUrl(troop.portrait) : '');
 }
 
 function colorWord(c: BaseColor): string {

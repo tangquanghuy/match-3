@@ -1,3 +1,4 @@
+import { portraitUrl } from '../../../data/portraitUrl';
 /**
  * 活动玩法视图的共享约定（2026-09-29 玩法重做）。
  *
@@ -37,7 +38,7 @@ export function iconUrl(icon: string): string {
   if (icon.startsWith('status:')) return statusArt(icon.slice(7));
   if (icon.startsWith('troop:')) {
     const troop = getTroopById(Number(icon.slice(6)));
-    return troop ? troop.artUrl ?? `/static/portraits/${troop.portrait}.webp` : '';
+    return troop ? troop.artUrl ?? portraitUrl(troop.portrait) : '';
   }
   return eventArt(icon);
 }

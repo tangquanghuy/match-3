@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
@@ -5,6 +6,8 @@ import { defineConfig, type Plugin } from 'vite';
 // `base` 通过环境变量可配置，适配子路径部署（例如 VITE_BASE=/gems/ npm run build）
 const base = process.env.VITE_BASE ?? '/';
 const root = (p: string) => fileURLToPath(new URL(p, import.meta.url));
+// A new Git revision gives artwork a new browser cache key after each deployment.
+const portraitRevision = execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { cwd: root('.') }).toString().trim();
 
 /**
  * Cloudflare Workers 静态资源的缓存头（_headers 放在资源目录根，不会被当成文件发布）。
@@ -90,6 +93,7 @@ function deployManifest(): Plugin {
 export default defineConfig(({ mode }) => ({
   base,
   publicDir: root('./game-assets/public'),
+  define: { 'import.meta.env.VITE_PORTRAIT_REVISION': JSON.stringify(portraitRevision) },
   plugins: [deployManifest()],
   resolve: {
     alias: {

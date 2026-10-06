@@ -1,3 +1,4 @@
+import { portraitUrl } from '../../data/portraitUrl';
 import { getTroopById } from '../../data/troops';
 import { EXPLORE_DROPS, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
 import {
@@ -28,7 +29,7 @@ function troopTile(kingdom: string, node: 4 | 8): string {
   const troop = id === null ? null : getTroopById(id);
   if (!troop) return '';
   const symbol = troop.portrait
-    ? `<img class="qloot-portrait" src="/static/portraits/${escapeAttr(troop.portrait)}.webp" alt="" loading="lazy">`
+    ? `<img class="qloot-portrait" src="${escapeAttr(portraitUrl(troop.portrait))}" alt="" loading="lazy">`
     : '<span class="qloot-symbol" data-icon="helmet"></span>';
   return tile('troop', String(troop.id), `${troop.name} · 第 ${node} 关首次通关奖励`, symbol);
 }
