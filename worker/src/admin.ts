@@ -41,6 +41,51 @@ export async function handleAdmin(request: Request, url: URL, env: Env): Promise
   if (!env.ADMIN_READ_TOKEN || env.ADMIN_READ_TOKEN.length < 32) return json({ error: 'not found' }, 404);
   if (!adminTokenMatches(request, env.ADMIN_READ_TOKEN)) return json({ error: 'unauthorized' }, 401);
 
+  if (url.pathname === '/api/admin/overview' && request.method === 'GET') {
+    const now = Date.now();
+    const loginSince = now - 24 * 3600000;
+    // The existing view counts the current UTC hour plus the previous 23 buckets.
+    const accounts = await env.DB.prepare(`
+      SELECT COUNT(*) AS total, SUM(CASE WHEN last_login_at >= ? THEN 1 ELSE 0 END) AS logged_in_24h
+      FROM accounts
+    `).bind(loginSince).first<{ total: number; logged_in_24h: number | null }>();
+    const writes = await env.DB.prepare(`
+      SELECT COUNT(*) AS players, COALESCE(SUM(writes_24h), 0) AS count,
+             COALESCE(SUM(payload_bytes_24h), 0) AS bytes FROM player_writes_24h
+    `).first<{ players: number; count: number; bytes: number }>();
+    const { results: leaderboard } = await env.DB.prepare(`
+      SELECT player_id, username, writes_24h, payload_bytes_24h, mirror_writes_24h,
+             defense_writes_24h, weekly_writes_24h, snapshot_writes_24h
+      FROM player_writes_24h ORDER BY writes_24h DESC, player_id LIMIT 50
+    `).all();
+    const { results: recentLogins } = await env.DB.prepare(`
+      SELECT player_id, username, last_login_at FROM accounts
+      ORDER BY last_login_at DESC, player_id LIMIT 20
+    `).all();
+    return json({ inspectedAt: now, accounts: { total: accounts?.total ?? 0, loggedIn24h: accounts?.logged_in_24h ?? 0 },
+      writes: { players: writes?.players ?? 0, count: writes?.count ?? 0, bytes: writes?.bytes ?? 0 },
+      leaderboard, recentLogins });
+  }
+
+  if (url.pathname.startsWith('/api/admin/writes/')) {
+    const playerId = url.pathname.slice('/api/admin/writes/'.length);
+    if (request.method !== 'GET' || !UUID.test(playerId)) return json({ error: 'not found' }, 404);
+    const account = await env.DB.prepare(`SELECT player_id, username, last_login_at FROM accounts WHERE player_id = ?`)
+      .bind(playerId).first<Pick<AdminAccount, 'player_id' | 'username' | 'last_login_at'>>();
+    if (!account) return json({ error: 'not found' }, 404);
+    const hourStart = Math.floor(Date.now() / 3600000) * 3600000;
+    const { results: hours } = await env.DB.prepare(`
+      SELECT hour_start, SUM(write_count) AS writes, SUM(payload_bytes) AS bytes,
+             SUM(CASE WHEN source = 'mirror' THEN write_count ELSE 0 END) AS mirror,
+             SUM(CASE WHEN source = 'defense' THEN write_count ELSE 0 END) AS defense,
+             SUM(CASE WHEN source = 'weekly' THEN write_count ELSE 0 END) AS weekly,
+             SUM(CASE WHEN source = 'snapshot' THEN write_count ELSE 0 END) AS snapshot
+      FROM player_write_hourly WHERE player_id = ? AND hour_start >= ?
+      GROUP BY hour_start ORDER BY hour_start DESC LIMIT 24
+    `).bind(playerId, hourStart - 23 * 3600000).all();
+    return json({ account, hours, inspectedAt: Date.now() });
+  }
+
   if (url.pathname === '/api/admin/lookup' && request.method === 'POST') {
     if (!(request.headers.get('content-type') ?? '').startsWith('application/json')) return json({ error: 'json only' }, 415);
     if (Number(request.headers.get('content-length') ?? 0) > 512) return json({ error: 'too large' }, 413);
