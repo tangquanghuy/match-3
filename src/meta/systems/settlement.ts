@@ -16,6 +16,8 @@ import { PARTICIPATION_XP } from './battleRewards';
  *  - 主角/职业经验在胜利时结算（M5）：多级一次连升，职业经验只在主角编队时积累。
  */
 import { getTroopById } from '../../data/troops';
+import { CATALOG_WEAPONS, ownsWeapon } from '../data/weaponCatalog';
+import { acquireOf } from '../data/weaponAcquire';
 import { SeededRNG } from '../../engine/rng';
 import type { BattleResult } from '../../session/contract';
 import type { KingdomState, MetaSave } from '../state/schema';
@@ -26,6 +28,7 @@ import {
   DEFEAT_CONSOLATION,
   DAILY_FIRST_WIN_REWARD,
   KINGDOM_FIRST_CLEAR_GEMS,
+  EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS,
   EXPLORE_DROPS,
   exploreStoneChances,
   killGoldReward,
@@ -105,6 +108,8 @@ export interface SettlementDetail {
   classUnlocked: string | null;
   questProgress: { from: number; to: number } | null;
   troopRewards: { troopId: number; note: string }[];
+  /** Weapons actually unlocked by this battle (pre-clear ownership checked). */
+  weaponRewards?: { weaponId: string; note: string }[];
   firstWinClaimed: boolean;
 }
 
@@ -308,6 +313,9 @@ export function applySettlement(
   }
 
   let classUnlocked: string | null = null;
+  const weaponRewards: { weaponId: string; note: string }[] = [];
+  const newKingdomWeapons = (kingdom: string, kind: 'questUnlock' | 'exploreUnlock') =>
+    CATALOG_WEAPONS.filter(w => w.kingdom === kingdom && acquireOf(w).kind === kind && !ownsWeapon(save, w.id));
 
   // 探索可重复刷；仅实际首次胜利领取该档奖励，记录与钱包一起持久化。
   if (victory && ctx.plan.source.kind === 'explore' && (ctx.plan.source.stage === 5 || ctx.plan.source.stage === undefined) && KINGDOM_ORDER.includes(ctx.plan.kingdom)) {
@@ -317,9 +325,11 @@ export function applySettlement(
       const cleared = entry.clearedExploreTiers ?? [];
       if (!cleared.includes(tier)) {
         save.kingdoms[ctx.plan.kingdom] = entry;
+        const unlocked = tier === 6 ? newKingdomWeapons(ctx.plan.kingdom, 'exploreUnlock') : [];
         entry.clearedExploreTiers = [...cleared, tier].sort((a, b) => a - b);
+        for (const weapon of unlocked) weaponRewards.push({ weaponId: weapon.id, note: `${ctx.plan.kingdom} 探索 6 首通` });
         const mode = tier <= HARD_NODE_COUNT ? 'hard' : 'veryHard';
-        if (tier <= 6) earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS[mode] },
+        earnLine('kingdom-first-clear', '关卡首通', { gems: tier <= 6 ? KINGDOM_FIRST_CLEAR_GEMS[mode] : EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS },
           `${ctx.plan.kingdom} · 探索难度 ${tier} · 仅一次`);
         // 原困难／非常困难批次的职业：首次通关探索难度 3／6 时解锁。
         classUnlocked = tryUnlockClassOnExplore(save, ctx.plan.kingdom) ?? classUnlocked;
@@ -339,7 +349,9 @@ export function applySettlement(
       const entry = save.kingdoms[ctx.plan.kingdom] ?? newKingdomEntry();
       save.kingdoms[ctx.plan.kingdom] = entry;
       questProgress = { from: done, to: node };
+      const unlocked = node === QUESTS_PER_KINGDOM ? newKingdomWeapons(ctx.plan.kingdom, 'questUnlock') : [];
       entry.questsDone = node;
+      for (const weapon of unlocked) weaponRewards.push({ weaponId: weapon.id, note: `${ctx.plan.kingdom} 普通 8 首通` });
       earnLine('kingdom-first-clear', '关卡首通', { gems: KINGDOM_FIRST_CLEAR_GEMS.normal },
         `${ctx.plan.kingdom} · 普通 ${node} · 仅一次`);
       // 金钥匙经济收口（M6）：任务链全通发钥匙（来源=进贡/任务/竞技场，去向=金宝箱），
@@ -408,6 +420,7 @@ export function applySettlement(
     classUnlocked,
     questProgress,
     troopRewards,
+    weaponRewards,
     firstWinClaimed,
   };
 }

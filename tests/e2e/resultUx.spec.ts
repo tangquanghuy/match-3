@@ -1,9 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
-async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pve', classXp = 0) {
+async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pve', classXp = 0, weaponId = '') {
   await page.goto('/game.html#result', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.result-screen')).toBeVisible({ timeout: 15_000 });
-  await page.evaluate(async ({ gems, returnHash, kind, classXp }) => {
+  await page.evaluate(async ({ gems, returnHash, kind, classXp, weaponId }) => {
     const path = '/src/meta/screens/resultScreen.ts';
     const { ResultScreen } = await import(/* @vite-ignore */ path);
     const screen = new ResultScreen();
@@ -25,6 +25,7 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
       xpGained: 100, classXpGained: classXp, trialClassXpBonus: classXp ? classXp - 50 : 0,
       heroLevelsGained: 0, classLevelUp: null, classUnlocked: null,
       questProgress: { from: 3, to: 4 }, troopRewards: [{ troopId: 6169, note: '首通' }],
+      weaponRewards: weaponId ? [{ weaponId, note: '普通 8 首通' }] : [],
       firstWinClaimed: true,
     } : {
       kind, battle: { endReason: 'elimination' }, frenzy: false,
@@ -42,7 +43,7 @@ async function mountResult(page: Page, gems = 0, returnHash = '#map', kind = 'pv
     const { mountIcons } = await import(/* @vite-ignore */ chrome);
     mountIcons(document.querySelector('#stage')!);
     await document.fonts.ready;
-  }, { gems, returnHash, kind, classXp });
+  }, { gems, returnHash, kind, classXp, weaponId });
 }
 
 /** 真实存档 + 真实精通逻辑的升级流程；navigate 记录到 window.__nav。 */
@@ -337,3 +338,12 @@ for (const viewport of [
     expect(await navigated(page)).toBe('#map');
   });
 }
+
+
+test('kingdom first-clear weapon displays its exact name and quantity on the battle result', async ({ page }) => {
+  await mountResult(page, 0, '#map', 'pve', 0, 'gw_WhiteAegis');
+  const card = page.locator('[data-battle-weapon="gw_WhiteAegis"]');
+  await expect(card).toBeVisible();
+  await expect(card).toContainText('纯洁护盾');
+  await expect(card).toContainText('+1');
+});

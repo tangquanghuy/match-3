@@ -25,7 +25,13 @@
 .gem-shop-catalog { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; padding: 18px 22px 0; }
 .gem-shop-catalog-head { display: flex; flex: none; align-items: center; justify-content: space-between; margin-bottom: 15px; }
 .gem-shop-catalog-head h2 { color: #e4dfd3; font: 17px var(--display); letter-spacing: 2px; }
-.gem-shop-catalog-head > span { color: #8c9cac; font-size: 11px; }
+.gem-shop-catalog-tools { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
+.gem-shop-result-count { color: #8c9cac; font-size: 11px; white-space: nowrap; }
+.gem-shop-search { display: block; min-width: 0; }
+.gem-shop-search input { width: clamp(128px, 18vw, 245px); max-width: 100%; min-height: 34px; padding: 5px 10px; border: 1px solid #84765f; border-radius: 7px; background: #131b29; color: #fbf4e6; font: 13px var(--body); }
+.gem-shop-search input::placeholder { color: #adb5c2; }
+.gem-shop-search input:focus-visible { outline: 2px solid #b9e8f8; outline-offset: 2px; }
+
 .gem-shop-grid { --card-min-height: 120; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); flex: 1; min-height: 0; gap: 12px; }
 .gem-shop-card { position: relative; display: flex; align-items: center; gap: 13px; min-width: 0; min-height: 0; padding: 14px; border: 1px solid #384555; border-radius: 8px; background: linear-gradient(135deg, #24313f, #1b2734); color: #e9e4d9; text-align: left; transition: border-color .15s, background .15s; }
 .gem-shop-card:before { content: ''; position: absolute; left: 0; top: 18%; bottom: 18%; width: 3px; border-radius: 0 2px 2px 0; background: var(--rarity-line); }
@@ -164,7 +170,9 @@
   .gem-shop-catalog { padding: 12px 10px 0; }
   .gem-shop-catalog-head { margin-bottom: 10px; }
   .gem-shop-catalog-head h2 { font-size: 14px; }
-  .gem-shop-catalog-head > span { font-size: 10px; }
+  .gem-shop-catalog-tools { gap: 6px; }
+  .gem-shop-search input { width: 125px; min-height: 30px; padding: 4px 7px; font-size: 12px; }
+  .gem-shop-result-count { font-size: 10px; }
   .gem-shop-grid { --card-min-height: 135; gap: 8px; }
   .gem-shop-card { flex-direction: column; justify-content: center; padding: 9px; gap: 8px; }
   .gem-shop-art { width: 66px; height: 66px; }

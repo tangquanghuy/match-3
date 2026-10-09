@@ -6,7 +6,8 @@
  *  - 1002：38 把职业神话 → **{职业}专属 · 职业 250 胜解锁**；
  *  - 熔炉白名单：活动系与 Dawnbringer → **熔炉锻造**；
  *  - 1003 直购：无王国门槛 → **宝石商店 · N 宝石**；
- *  - 王国包 / 活动武器：通关所属王国后进入宝石商店，未通关不上架。
+ *  - 宝石商店原有稀有/传说武器：所属王国普通 8 / 探索 6 通关后直接解锁。
+ *  - 其他王国武器：通关所属王国后进入宝石商店。
  *
  * 屏层只读 `acquireOf` / `acquireProgress`；写入走 `systems/hero.claimWeapon`。
  */
@@ -30,6 +31,8 @@ export type WeaponAcquireKind =
   | 'mastery'
   | 'class'
   | 'kingdom'
+  | 'questUnlock'
+  | 'exploreUnlock'
   | 'forge'
   | 'buy'
   | 'placeholder';
@@ -73,6 +76,8 @@ export const ACQUIRE_FILTERS: ReadonlyArray<[WeaponAcquireKind, string]> = [
   ['mastery', '法力精通'],
   ['class', '职业专属'],
   ['kingdom', '王国商店'],
+  ['questUnlock', '普通任务解锁'],
+  ['exploreUnlock', '探索解锁'],
   ['forge', '熔炉锻造'],
   ['buy', '宝石商店'],
   ['placeholder', '占位不可装备'],
@@ -89,6 +94,10 @@ export function gemBuyCost(rarity: string): number {
 
 export function kingdomQuestCleared(save: MetaSave, kingdom: string): boolean {
   return (save.kingdoms[kingdom]?.questsDone ?? 0) >= QUESTS_PER_KINGDOM;
+}
+
+export function kingdomExploreSixCleared(save: MetaSave, kingdom: string): boolean {
+  return save.kingdoms[kingdom]?.clearedExploreTiers?.includes(6) ?? false;
 }
 
 function forgeAcquire(w: WeaponDef): WeaponAcquire {
@@ -145,6 +154,9 @@ export function acquireOf(w: WeaponDef): WeaponAcquire {
       masteryNeed: req,
     };
   }
+  // Only weapons formerly sold for gems are affected; mastery/class/forge routes above stay intact.
+  if (w.kingdom && w.rarity === 'Rare') return { kind: 'questUnlock', kingdom: w.kingdom, label: `通关${w.kingdom}普通第 8 关解锁` };
+  if (w.kingdom && w.rarity === 'UltraRare') return { kind: 'exploreUnlock', kingdom: w.kingdom, label: `通关${w.kingdom}探索 6 解锁` };
   if (req === FORGE_WEAPON_MASTERY) return buyAcquire(w);
   if (w.kingdom) return buyAcquire(w, w.kingdom);
   return buyAcquire(w);
@@ -204,6 +216,13 @@ export function acquireProgress(save: MetaSave, acquire: WeaponAcquire): Acquire
         short: ready ? '可领取' : `${wins}/${CLASS_WEAPON_WINS} 胜`,
       };
     }
+    case 'questUnlock':
+    case 'exploreUnlock': {
+      const ready = Boolean(acquire.kingdom && (acquire.kind === 'questUnlock'
+        ? kingdomQuestCleared(save, acquire.kingdom)
+        : kingdomExploreSixCleared(save, acquire.kingdom)));
+      return { ready, hint: acquire.label, short: ready ? '已解锁' : acquire.label };
+    }
     case 'kingdom':
     case 'buy': {
       if (acquire.kingdom && !kingdomQuestCleared(save, acquire.kingdom)) {
@@ -243,7 +262,7 @@ export function acquireIcon(kind: WeaponAcquireKind): string {
   if (kind === 'starter') return 'check';
   if (kind === 'mastery') return 'swirl';
   if (kind === 'class') return 'helmet';
-  if (kind === 'kingdom') return 'flag';
+  if (kind === 'kingdom' || kind === 'questUnlock' || kind === 'exploreUnlock') return 'flag';
   if (kind === 'forge') return 'soul';
   if (kind === 'buy') return 'crystal';
   return 'lock';

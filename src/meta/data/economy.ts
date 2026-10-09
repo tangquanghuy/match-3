@@ -20,6 +20,8 @@ import type { IngotKey, TraitstoneTier } from './materials';
 export const KINGDOM_FIRST_CLEAR_GEMS: Readonly<Record<KingdomStageMode, number>> = {
   normal: 100, hard: 200, veryHard: 300,
 };
+/** Gems for each first clear of Explore 7-12 per kingdom and tier. */
+export const EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS = 150;
 
 /** 稀有度档位顺序（与 troops.json 的 rarityIdx 严格一致，定义见共享稀有度模块） */
 export { RARITY_ORDER } from './rarity';

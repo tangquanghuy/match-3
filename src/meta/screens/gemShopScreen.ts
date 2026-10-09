@@ -97,6 +97,7 @@ export class GemShopScreen implements Screen {
   private page = 0;
   private pageSize = 9;
   private filter: RarityFilter = '';
+  private query = '';
   private selectedId = '';
   private restoreSelection = false;
   private resizeObserver?: ResizeObserver;
@@ -139,7 +140,7 @@ export class GemShopScreen implements Screen {
          <section class="gem-shop-detail" aria-label="武器详情">${detail ? detailHtml(detail, save) : '<p class="gem-shop-empty">该武器暂未上架，请返回商店选择其他武器。</p>'}</section>`
       : `<div class="gem-shop-toolbar"><nav class="gem-shop-tabs" aria-label="武器稀有度">${tabHtml}</nav><span class="gem-shop-tip">通关王国，解锁更多武器</span></div>
          <section class="gem-shop-catalog" aria-label="武器货架">
-           <div class="gem-shop-catalog-head"><h2>武器典藏</h2><span>共 ${rows.length} 件武器</span></div>
+           <div class="gem-shop-catalog-head"><h2>武器典藏</h2><div class="gem-shop-catalog-tools"><label class="gem-shop-search"><span class="sr-only">搜索武器名称</span><input type="search" aria-label="搜索武器名称" placeholder="搜索武器名称" autocomplete="off" value="${escapeHtml(this.query)}"></label><span class="gem-shop-result-count" role="status" aria-live="polite">共 ${rows.length} 件武器</span></div></div>
            <div class="gem-shop-grid"></div>
            <nav class="gem-shop-pagination" aria-label="商品分页"></nav>
          </section>`;
@@ -189,25 +190,39 @@ export class GemShopScreen implements Screen {
     const grid = root.querySelector<HTMLElement>('.gem-shop-grid')!;
     const pager = root.querySelector<HTMLElement>('.gem-shop-pagination')!;
     const rows = shopStock(ctx.save()).filter(weapon => !this.filter || weapon.rarity === this.filter);
+    const search = root.querySelector<HTMLInputElement>('.gem-shop-search input')!;
+    const resultCount = root.querySelector<HTMLElement>('.gem-shop-result-count')!;
+    const filteredRows = (): WeaponDef[] => {
+      const query = this.query.trim().normalize('NFKC').toLocaleLowerCase();
+      return query ? rows.filter(weapon => weapon.name.normalize('NFKC').toLocaleLowerCase().includes(query)) : rows;
+    };
     const returning = this.restoreSelection;
     if (returning) {
-      const index = rows.findIndex(weapon => weapon.id === this.selectedId);
+      const index = filteredRows().findIndex(weapon => weapon.id === this.selectedId);
       if (index >= 0) this.page = Math.floor(index / this.pageSize);
       this.restoreSelection = false;
     }
     const paint = (): void => {
-      const totalPages = Math.max(1, Math.ceil(rows.length / this.pageSize));
+      const matches = filteredRows();
+      resultCount.textContent = this.query.trim() ? `匹配 ${matches.length} / ${rows.length} 件` : `共 ${rows.length} 件武器`;
+      const totalPages = Math.max(1, Math.ceil(matches.length / this.pageSize));
       this.page = Math.max(0, Math.min(this.page, totalPages - 1));
       const start = this.page * this.pageSize;
-      const items = rows.slice(start, start + this.pageSize);
-      grid.innerHTML = items.length ? items.map(weapon => cardHtml(weapon, ctx.save(), weapon.id === this.selectedId)).join('') : '<p class="gem-shop-empty">该稀有度暂无上架武器</p>';
-      pager.innerHTML = `<span class="gem-shop-page-range">${rows.length ? start + 1 : 0}–${Math.min(start + this.pageSize, rows.length)} / ${rows.length} 件</span>
+      const items = matches.slice(start, start + this.pageSize);
+      grid.innerHTML = items.length ? items.map(weapon => cardHtml(weapon, ctx.save(), weapon.id === this.selectedId)).join('') : `<p class="gem-shop-empty">${this.query.trim() ? '没有找到匹配的武器，请试试其他名称' : '该稀有度暂无上架武器'}</p>`;
+      pager.innerHTML = `<span class="gem-shop-page-range">${matches.length ? start + 1 : 0}–${Math.min(start + this.pageSize, matches.length)} / ${matches.length} 件</span>
         <div class="gem-shop-page-controls"><button type="button" data-gem-page="${this.page - 1}" aria-label="上一页" ${this.page === 0 ? 'disabled' : ''}>&lsaquo;</button>
         <span class="gem-shop-page-label" role="status" aria-live="polite">第 <b>${this.page + 1}</b> / ${totalPages} 页</span>
         <button type="button" data-gem-page="${this.page + 1}" aria-label="下一页" ${this.page === totalPages - 1 ? 'disabled' : ''}>&rsaquo;</button></div>`;
       mountIcons(grid);
     };
     paint();
+    this.on(search, 'input', () => {
+      this.query = search.value;
+      this.page = 0;
+      this.selectedId = '';
+      paint();
+    });
     let initialResize = true;
     this.resizeObserver = new ResizeObserver(() => {
       const styles = getComputedStyle(grid);
@@ -219,7 +234,7 @@ export class GemShopScreen implements Screen {
       grid.dataset.pageSize = String(size);
       grid.style.gridTemplateRows = `repeat(${rowCount}, minmax(0, 1fr))`;
       if (size !== this.pageSize) {
-        const selectedIndex = rows.findIndex(weapon => weapon.id === this.selectedId);
+        const selectedIndex = filteredRows().findIndex(weapon => weapon.id === this.selectedId);
         this.page = Math.floor((selectedIndex >= 0 ? selectedIndex : this.page * this.pageSize) / size);
         this.pageSize = size;
         paint();

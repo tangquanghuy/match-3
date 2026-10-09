@@ -8,7 +8,7 @@ import { getTroopById } from '../../data/troops';
 import { exploreUnlocked, explorePreviewSeed, kingdomNodeState } from '../systems/kingdomOps';
 import { planExploreEncounter } from '../systems/encounter';
 import { exploreBattleSeed, kingdomArcaneKey, maxExploreTier } from '../systems/explore';
-import { EXPLORE_DROPS, KINGDOM_FIRST_CLEAR_GEMS } from '../data/economy';
+import { EXPLORE_DROPS, KINGDOM_FIRST_CLEAR_GEMS, EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS } from '../data/economy';
 import { stoneName } from '../data/materials';
 import { stoneMarkupForKey } from '../shell/materialArt';
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
@@ -82,7 +82,7 @@ ${CSS}</style>${topbarHtml()}<main class="screen explore-screen">${body}</main>$
         <div class="ex-section-heading ex-route-heading"><h2>${run ? '本轮进度' : '探索路线'}</h2><span>${stage} / 6</span></div>
         <ol class="ex-route">${Array.from({ length: 6 }, (_, i) => `<li class="${i < stage ? 'done' : i === stage ? 'current' : ''} ${i >= 4 ? 'boss' : ''}" ${i === stage ? 'aria-current="step"' : ''}><span class="ex-node"><i data-icon="${i < stage ? 'check' : i === 5 ? 'skull' : 'swords'}"></i><b>${i + 1}</b></span><span>${i < 4 ? `遭遇战 ${i + 1}` : i === 4 ? '首领' : '最终 Boss'}</span></li>`).join('')}</ol>
         <div class="ex-material"><span class="ex-stone">${stoneMarkupForKey(arcane)}</span><div><small class="ex-reward-label">本王国秘法石</small><b>${esc(stoneName(arcane))}</b><span>基础抽取每次 ${EXPLORE_DROPS.arcaneStoneChance * 100}% 掉秘法石 · 旗帜颜色更易出现</span></div></div>
-        <div class="ex-first-clear" data-first-clear="${entry?.clearedExploreTiers?.includes(tier) ? 'completed' : 'available'}">${entry?.clearedExploreTiers?.includes(tier) ? '本难度首通已完成' : `首通秘法石 ×1${tier <= 6 ? ` · +${KINGDOM_FIRST_CLEAR_GEMS[tier <= 3 ? 'hard' : 'veryHard']} 宝石` : ''}`}</div>
+        <div class="ex-first-clear" data-first-clear="${entry?.clearedExploreTiers?.includes(tier) ? 'completed' : 'available'}">${entry?.clearedExploreTiers?.includes(tier) ? '本难度首通已完成' : `首通秘法石 ×1 · +${tier <= 6 ? KINGDOM_FIRST_CLEAR_GEMS[tier <= 3 ? 'hard' : 'veryHard'] : EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS} 宝石`}</div>
         </div>
       </section><aside class="ex-panel" aria-label="本场战斗">
         <div class="ex-section-heading"><h2>${exploreStageLabel(stage)}</h2><span>难度 ${tier}</span></div>

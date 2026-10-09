@@ -210,9 +210,9 @@ export class WeaponsScreen implements Screen {
       if (kind === 'claim') void this.claim(id);
       if (kind === 'forge') void this.forge(id);
       if (kind === 'temper') void this.temper(id);
-      if (kind === 'goto-quest') {
+      if (kind === 'goto-quest' || kind === 'goto-explore') {
         const kingdom = action.dataset.kingdom;
-        if (kingdom) this.ctx.navigate(`#quest/${kingdom}`);
+        if (kingdom) this.ctx.navigate(`#${kind === 'goto-explore' ? 'explore' : 'quest'}/${encodeURIComponent(kingdom)}`);
       }
       if (kind === 'goto-hero') this.ctx.navigate('#hero');
       if (kind === 'goto-shop') this.ctx.navigate('#shop/gems');
@@ -637,6 +637,8 @@ export class WeaponsScreen implements Screen {
       actions = `<button class="primary-action" type="button" data-weapon-action="open-upgrade" data-weapon-id="${escapeHtml(w.id)}">查看锻造要求</button>`;
     } else if (acquire.kind === 'placeholder') {
       actions = `<button class="primary-action" type="button" disabled>不可领取</button>`;
+    } else if (acquire.kind === 'questUnlock' || acquire.kind === 'exploreUnlock') {
+      actions = `<button class="primary-action" type="button" data-weapon-action="${acquire.kind === 'exploreUnlock' ? 'goto-explore' : 'goto-quest'}" data-kingdom="${escapeHtml(acquire.kingdom ?? '')}">${acquire.kind === 'exploreUnlock' ? '前往王国探索' : '前往王国任务'}</button>`;
     } else if (acquire.kind === 'buy') {
       if (acquire.kingdom && !kingdomQuestCleared(save, acquire.kingdom)) {
         actions = `<button class="primary-action" type="button" data-weapon-action="goto-quest" data-kingdom="${escapeHtml(acquire.kingdom)}">前往王国任务</button>`;

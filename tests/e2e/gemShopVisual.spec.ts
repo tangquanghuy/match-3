@@ -184,11 +184,9 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await openCleanShop(page);
     await expect(page.locator('.gem-shop-detail')).toHaveCount(0);
-    if (await page.locator('[data-inspect-weapon="gw_FireSword"]').count() === 0) {
-      await page.locator('.gem-shop-page-controls button').last().click();
-    }
-    await page.locator('[data-inspect-weapon="gw_FireSword"]').click();
-    await expect(page).toHaveURL(/#shop\/gems\/weapon\/gw_FireSword$/);
+    await page.locator('.gem-shop-search input').fill('破碎');
+    await page.locator('[data-inspect-weapon="gw_ShatteredBlade"]').click();
+    await expect(page).toHaveURL(/#shop\/gems\/weapon\/gw_ShatteredBlade$/);
     await expect(page.locator('.gem-shop-catalog')).toHaveCount(0);
     await expect(page.locator('.gem-shop-detail')).toBeVisible();
     await expect(page.locator('.gem-shop-detail-spell h3')).toHaveText('武器技能');
@@ -202,7 +200,7 @@ for (const viewport of [
     await page.locator('.gem-shop-detail img').evaluateAll(images => Promise.all(images.map(image => (image as HTMLImageElement).decode().catch(() => undefined))));
     await page.screenshot({ path: `artifacts/gem-shop-pagination/detail-${viewport.width}x${viewport.height}.png` });
     await page.locator('.gem-shop-back').click();
-    await expect(page.locator('[data-inspect-weapon="gw_FireSword"]')).toBeFocused();
+    await expect(page.locator('[data-inspect-weapon="gw_ShatteredBlade"]')).toBeFocused();
   });
 }
 
@@ -257,3 +255,43 @@ test('余额不足时保留售价与缺口，技能标题不重复武器名', as
     await expect(page.locator(`.gem-shop-detail-stats [title="${label}"]`)).toBeInViewport();
   }
 });
+
+test('gem weapon search filters the entire stock and preserves the query on detail return', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openCleanShop(page);
+  await page.locator('.gem-shop-page-controls button').last().click();
+  const search = page.getByRole('searchbox', { name: '搜索武器名称' });
+  await search.fill('  破碎  ');
+  await expect(page.locator('.gem-shop-page-label b')).toHaveText('1');
+  await expect(page.locator('[data-inspect-weapon="gw_ShatteredBlade"]')).toBeVisible();
+  await expect(page.locator('.gem-shop-result-count')).toContainText('匹配');
+  await page.locator('[data-inspect-weapon="gw_ShatteredBlade"]').click();
+  await expect(page.locator('.gem-shop-detail')).toBeVisible();
+  await page.locator('.gem-shop-back').click();
+  await expect(search).toHaveValue('  破碎  ');
+  await expect(page.locator('[data-inspect-weapon="gw_ShatteredBlade"]')).toBeFocused();
+  await search.fill('not-a-weapon');
+  await expect(page.locator('.gem-shop-card')).toHaveCount(0);
+  await expect(page.locator('.gem-shop-empty')).toContainText('没有找到匹配的武器');
+  await expect(page.locator('.gem-shop-page-range')).toContainText('0 / 0');
+  await expect(page.locator('.gem-shop-page-controls button').last()).toBeDisabled();
+  await page.locator('.gem-shop-tab[href="#shop/gems/Epic"]').click();
+  await expect(search).toHaveValue('not-a-weapon');
+  await search.fill('');
+  await expect(page.locator('.gem-shop-card').first()).toBeVisible();
+  await expect(page.locator('.gem-shop-result-count')).toContainText('共');
+});
+
+for (const width of [320, 390, 768]) {
+  test(`gem weapon search fits a ${width}px screen`, async ({ page }) => {
+    await page.setViewportSize({ width, height: width === 320 ? 568 : 844 });
+    await openCleanShop(page);
+    const search = page.getByRole('searchbox', { name: '搜索武器名称' });
+    await expect(search).toBeInViewport();
+    await search.fill('破碎');
+    await expect(page.locator('[data-inspect-weapon="gw_ShatteredBlade"]')).toBeVisible();
+    await expect(page.locator('.gem-shop-pagination')).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await expect.poll(() => page.locator('.gem-shop-catalog').evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+  });
+}

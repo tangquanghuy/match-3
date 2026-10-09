@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newSave } from '../../src/meta/state/schema';
-import { ALL_CATALOG_WEAPONS, anyWeaponById } from '../../src/meta/data/weaponCatalog';
+import { ALL_CATALOG_WEAPONS, anyWeaponById, ownedWeaponIds, ownsWeapon } from '../../src/meta/data/weaponCatalog';
 import { acquireFilterKind, acquireOf, acquireProgress, CLASS_WEAPON_WINS, gemBuyCost, listedInGemShop } from '../../src/meta/data/weaponAcquire';
 import { claimWeapon, canUseWeapon, forgeCatalogWeapon } from '../../src/meta/systems/hero';
 import { classByKingdom } from '../../src/meta/data/classes';
@@ -41,7 +41,13 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(kinds.get('mastery')).toBeGreaterThan(80);
     expect(kinds.get('forge')).toBe(13);
     expect(kinds.get('kingdom') ?? 0).toBe(0);
-    expect((kinds.get('buy') ?? 0) + (kinds.get('placeholder') ?? 0)).toBeGreaterThan(500);
+    expect((kinds.get('buy') ?? 0) + (kinds.get('placeholder') ?? 0)).toBeGreaterThan(400);
+    expect(kinds.get('questUnlock')).toBeGreaterThan(0);
+    expect(kinds.get('exploreUnlock')).toBeGreaterThan(0);
+    for (const weapon of ALL_CATALOG_WEAPONS.filter(w => w.equippable && ['Rare', 'UltraRare'].includes(w.rarity))) {
+      expect(acquireOf(weapon).kind).not.toBe('buy');
+      expect(listedInGemShop(save(), weapon)).toBe(false);
+    }
   });
 
   it('起始 / 精通 / 职业 / 熔炉 / 商店 口径与官方字段对齐', () => {
@@ -67,10 +73,10 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).gems).toBe(2_400);
     expect(acquireOf(anyWeaponById('gw_ShatteredBlade')!).kingdom).toBeUndefined();
     const aegis = acquireOf(anyWeaponById('gw_WhiteAegis')!);
-    expect(aegis.kind).toBe('buy');
+    expect(aegis.kind).toBe('questUnlock');
     expect(aegis.kingdom).toBe('白盔国');
-    expect(aegis.label).toBe('宝石商店 · 通关白盔国后购买');
-    expect(acquireFilterKind(aegis)).toBe('kingdom');
+    expect(aegis.label).toBe('通关白盔国普通第 8 关解锁');
+    expect(acquireFilterKind(aegis)).toBe('questUnlock');
     expect(acquireOf(anyWeaponById('gw_CrudeClub')!).kind).toBe('mastery');
     expect(acquireOf(anyWeaponById('gw_CrudeClub')!).label).toBe('火之精通 6');
     expect(acquireOf(anyWeaponById('gw_GoldenCog')!).label).toBe('火·空气精通 8');
@@ -114,20 +120,34 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(claimWeapon(s, weapon.id)).toEqual({ ok: true, weaponId: weapon.id });
   });
 
-  it('王国包未通关不上宝石商店，通关后扣宝石购买；熔炉不能用领取绕过', () => {
+  it('稀有普通 8 与传说探索 6 直接解锁且旧存档生效', () => {
     const s = save();
-    const aegis = anyWeaponById('gw_WhiteAegis')!;
-    const acquire = acquireOf(aegis);
-    const cost = acquire.gems ?? 0;
-    expect(listedInGemShop(s, aegis)).toBe(false);
-    expect(claimWeapon(s, aegis.id)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
-    s.kingdoms['白盔国'] = { level: 1, questsDone: 8, exploreTier: 0, lastTributeAt: 0 };
-    expect(listedInGemShop(s, aegis)).toBe(true);
-    s.currencies.gems = cost - 1;
-    expect(claimWeapon(s, aegis.id)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
-    s.currencies.gems = cost;
-    expect(claimWeapon(s, aegis.id)).toEqual({ ok: true, weaponId: aegis.id });
-    expect(s.currencies.gems).toBe(0);
+    const rare = anyWeaponById('gw_WhiteAegis')!;
+    const legendary = anyWeaponById('gw_SilentNight')!;
+    expect(rare.rarity).toBe('Rare');
+    expect(legendary.rarity).toBe('UltraRare');
+    expect(acquireOf(rare).kind).toBe('questUnlock');
+    expect(acquireOf(legendary).kind).toBe('exploreUnlock');
+    expect(listedInGemShop(s, rare)).toBe(false);
+    expect(listedInGemShop(s, legendary)).toBe(false);
+    expect(claimWeapon(s, rare.id)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    expect(claimWeapon(s, legendary.id)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+    s.kingdoms[rare.kingdom!] = { level: 1, questsDone: 7, exploreTier: 6, lastTributeAt: 0, clearedExploreTiers: [5] };
+    expect(ownsWeapon(s, rare.id)).toBe(false);
+    s.kingdoms[rare.kingdom!]!.questsDone = 8;
+    expect(ownsWeapon(s, rare.id)).toBe(true);
+    expect(ownedWeaponIds(s)).toContain(rare.id);
+    expect(canUseWeapon(s, rare)).toBe(true);
+    expect(s.hero.unlockedWeapons).not.toContain(rare.id);
+    expect(claimWeapon(s, rare.id)).toMatchObject({ ok: false, code: 'INVALID' });
+    s.kingdoms[legendary.kingdom!] = { level: 1, questsDone: 8, exploreTier: 6, lastTributeAt: 0, clearedExploreTiers: [5] };
+    expect(ownsWeapon(s, legendary.id)).toBe(false);
+    s.kingdoms[legendary.kingdom!]!.clearedExploreTiers = [5, 6];
+    expect(ownsWeapon(s, legendary.id)).toBe(true);
+    expect(ownedWeaponIds(s)).toContain(legendary.id);
+    expect(canUseWeapon(s, legendary)).toBe(true);
+    expect(claimWeapon(s, legendary.id)).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(s.currencies.gems).toBe(save().currencies.gems);
     expect(claimWeapon(s, 'gw_Dawnbringer')).toMatchObject({ ok: false, code: 'INVALID' });
   });
 

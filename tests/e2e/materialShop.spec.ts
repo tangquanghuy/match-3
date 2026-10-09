@@ -72,11 +72,20 @@ test('整套礼包按神话真实颜色配齐，已解锁特质退出配方，�
   await expect(page.locator('#materialStage')).toHaveValue('4');
   await expect(receipt.locator('b').filter({ hasText: /^×21$/ })).toHaveCount(0);
   await page.locator('.material-back').click();
-  await expect(page.locator('.trait-material-link')).toHaveAttribute('href', '#materials/gems/6169');
-  await page.locator('.trait-material-link').click();
-  await expect(page.locator('#materialTroop')).toHaveCount(0);
-  await expect(page.locator('#materialFamily option:checked')).toHaveText('神话 · 双秘法');
-  await expect(page.locator('[data-bundle][aria-pressed=true]')).toHaveCount(1);
+  const materialLink = page.locator('.trait-material-link');
+  await expect(materialLink).toHaveText('查看特质材料 →');
+  await expect(materialLink).toHaveAttribute('href', '#bag/stones/arcane/for/6169');
+  await materialLink.click();
+  await expect(page).toHaveURL(/#bag\/stones\/arcane\/for\/6169$/);
+  await expect(page.locator('.bag-stone-filters [aria-current]')).toHaveText('秘法');
+  const required = page.locator('.bag-item.trait-required');
+  await expect(required).toHaveCount(2);
+  await expect(required.first()).toHaveAttribute('data-bag-item', 'arcane:blue:green');
+  await expect(required.nth(1)).toHaveAttribute('data-bag-item', 'arcane:blue:red');
+  await expect(required.nth(1)).toHaveClass(/selected/);
+  await expect(required.first()).toHaveCSS('animation-name', 'bag-trait-breathe');
+  await required.nth(1).click();
+  await expect(page.locator('.bag-detail-card:visible')).toContainText('秘法鲜血属性石');
 });
 
 test('arcane stone bag lists all 21 stones and current explore sources', async ({ page }) => {
@@ -91,6 +100,19 @@ test('arcane stone bag lists all 21 stones and current explore sources', async (
   await expect(page.locator('.bag-pagination')).toContainText('2 / 2');
   await page.locator('.bag-stone-filters a').filter({ hasText: '圣辉' }).click();
   await expect(page.locator('.bag-item')).toHaveCount(1);
+  await page.evaluate(() => {
+    const save = JSON.parse(localStorage.getItem('gems.meta.save')!);
+    save.collection['6008'] = { copies: 1, level: 1, ascension: 0, traits: [true, true, false], locked: false };
+    localStorage.setItem('gems.meta.save', JSON.stringify(save));
+  });
+  await page.goto('/game.html#bag/stones/arcane/for/6008');
+  await page.reload();
+  await expect(page.locator('.bag-pagination')).toContainText('2 / 2');
+  await expect(page.locator('[data-bag-item="arcane:brown:brown"]')).toHaveClass(/selected.*trait-required/);
+  await page.getByRole('link', { name: '上一页', exact: true }).click();
+  await expect(page).toHaveURL(/#bag\/stones\/arcane\/for\/6008\/1$/);
+  await page.getByRole('link', { name: '下一页', exact: true }).click();
+  await expect(page.locator('[data-bag-item="arcane:brown:brown"]')).toHaveClass(/trait-required/);
 });
 
 test('活动奖励子页展示真实难度与独立周额度', async ({ page }) => {

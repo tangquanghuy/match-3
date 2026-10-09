@@ -156,7 +156,7 @@ describe('12-tier six-battle Explore', () => {
     const { gateway } = await setup(12);
     for (let stage = 0; stage < 6; stage++) {
       const settled = await fight(gateway);
-      expect(settled.lines.some(l => l.key === 'kingdom-first-clear')).toBe(false);
+      expect(settled.lines.find(l => l.key === 'kingdom-first-clear')?.deltas.gems).toBe(stage === 5 ? 150 : undefined);
       if (stage === 4) expect(gateway.current().materials.traitstones[kingdomArcaneKey(kingdom)] ?? 0).toBe(0);
     }
     expect(gateway.current().materials.traitstones[kingdomArcaneKey(kingdom)]).toBeGreaterThanOrEqual(1);

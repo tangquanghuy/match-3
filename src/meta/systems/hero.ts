@@ -128,7 +128,7 @@ export function canUseWeapon(save: MetaSave, weapon: WeaponDef): boolean {
 }
 
 /**
- * 按获取途径领取武器（精通门槛、职业专属、宝石商店直购；王国包须先通关再买）。
+ * 按获取途径领取武器（精通、职业、直购等）。稀有/传说王国武器通关后会自动拥有。
  * 熔炉白名单仍走 `forgeCatalogWeapon`，这里会拒绝以免绕过消耗。
  */
 export function claimWeapon(save: MetaSave, weaponId: string): { ok: true; weaponId: string } | MetaFailure {

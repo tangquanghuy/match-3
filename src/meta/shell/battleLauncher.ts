@@ -41,6 +41,13 @@ function sourceLabelOf(source: EncounterSource): string {
       : `${exploreNodeLabel(source.tier)} · ${exploreStageLabel(source.stage ?? 0)}`;
 }
 
+/** Route back to the exact challenge subpage that launched the battle. */
+export function encounterReturnHash(source: EncounterSource, kingdom: string): string | undefined {
+  if (source.kind === 'explore') return `#explore/${encodeURIComponent(kingdom)}`;
+  if (source.kind !== 'event') return undefined;
+  return `#events/${source.typeId}${source.typeId === 'raidBoss' && source.choice?.startsWith('ingot:') ? '/forge' : ''}`;
+}
+
 export class BattleLauncher {
   private running = false;
   /** 在发出签票/难度保存请求前占位，慢网连点也只接受一次出战。 */
@@ -216,7 +223,7 @@ export class BattleLauncher {
     await this.ctx.showResult(settlement.detail, {
       kingdom: settlement.kingdom,
       sourceLabel: sourceLabelOf(source),
-      returnHash: source.kind === 'event' ? `#events/${source.typeId}` : source.kind === 'explore' ? `#explore/${encodeURIComponent(settlement.kingdom)}` : undefined,
+      returnHash: encounterReturnHash(source, settlement.kingdom),
       shopHash: source.kind === 'event' ? `#shop/${source.typeId}` : undefined,
     });
   }

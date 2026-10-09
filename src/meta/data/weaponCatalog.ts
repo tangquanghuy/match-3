@@ -20,6 +20,7 @@ import { spellDescription } from '../../data/combatText';
 import catalogJson from '../../data/weapons.json';
 import { BaseColor } from '../../engine/types';
 import type { MetaSave } from '../state/schema';
+import { acquireOf, acquireProgress } from './weaponAcquire';
 import { collectWeaponCurated } from '../../engine/skills/curated/index';
 import {
   LEGACY_WEAPON_REMAP,
@@ -188,7 +189,7 @@ export function anyWeaponById(id: string | null): WeaponDef | undefined {
 }
 
 /**
- * 玩家拥有的武器 id 集合（**去重 + 归一**）：起始池 ∪ 存档 `unlockedWeapons`。
+ * 玩家拥有的武器 id 集合：起始池 ∪ 存档 `unlockedWeapons` ∪ 已通关王国自动解锁武器。
  *
  * 起始池不写进存档（存档不膨胀、老档自动获得），所以「拥有」这件事必须过这个函数，
  * 不能直接读 `save.hero.unlockedWeapons`。返回顺序稳定：起始池按 STARTER_WEAPON_IDS 序，
@@ -202,6 +203,14 @@ export function ownedWeaponIds(save: MetaSave): string[] {
     if (!id || seen.has(id) || !byGwId.has(id)) continue;
     seen.add(id);
     out.push(id);
+  }
+  for (const weapon of CATALOG_WEAPONS) {
+    if (seen.has(weapon.id)) continue;
+    const acquire = acquireOf(weapon);
+    if ((acquire.kind === 'questUnlock' || acquire.kind === 'exploreUnlock') && acquireProgress(save, acquire).ready) {
+      seen.add(weapon.id);
+      out.push(weapon.id);
+    }
   }
   return out;
 }
@@ -219,7 +228,11 @@ export function ownsWeapon(save: MetaSave, id: string): boolean {
   const resolved = resolveWeaponId(id);
   if (!resolved) return false;
   if (isStarterWeapon(resolved)) return true;
-  return save.hero.unlockedWeapons.some((raw) => resolveWeaponId(raw) === resolved);
+  if (save.hero.unlockedWeapons.some((raw) => resolveWeaponId(raw) === resolved)) return true;
+  const weapon = byGwId.get(resolved);
+  if (!weapon?.equippable) return false;
+  const acquire = acquireOf(weapon);
+  return (acquire.kind === 'questUnlock' || acquire.kind === 'exploreUnlock') && acquireProgress(save, acquire).ready;
 }
 
 /** 目录武器的官方卡面（`public/static/weapons/`；718/718 零缺失，故不返回 null） */

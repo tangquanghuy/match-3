@@ -159,3 +159,15 @@
 .bag-stone-filters a { padding: 8px 14px; color: #635b50; font-size: 13px; text-decoration: none; border-bottom: 2px solid transparent; }
 .bag-stone-filters a[aria-current] { color: #40301a; border-color: #947447; font-weight: 700; }
 .bag-stone-filters a:focus-visible { outline: 2px solid #766241; outline-offset: -2px; }
+/* Deep links from troop traits emphasize each required stone, including zero-count stones. */
+.bag-item.trait-required {
+  border: 2px solid #9b6acf;
+  animation: bag-trait-breathe 1.9s ease-in-out infinite;
+}
+@keyframes bag-trait-breathe {
+  0%, 100% { border-color: #8960b5; box-shadow: 0 0 0 2px #ac82cf44, 0 0 8px #9450cb44; }
+  50% { border-color: #e2beff; box-shadow: 0 0 0 5px #ba79e088, 0 0 22px #a459dd88; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bag-item.trait-required { animation: none; border-color: #7444ac; box-shadow: 0 0 0 3px #b37be499; }
+}

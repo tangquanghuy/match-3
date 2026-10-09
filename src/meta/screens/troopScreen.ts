@@ -25,6 +25,7 @@ import {
 import { getRecord, levelCapOf, rarityTierOf, troopStatsOf } from '../systems/troopProgress';
 import { stoneColorKeyOf, stoneName } from '../data/materials';
 import { stoneMarkupForKey } from '../shell/materialArt';
+import { traitStoneBagRoute } from './traitMaterialNavigation';
 import { showAcquisitionDialog } from '../shell/acquisitionDialog';
 import { BaseColor } from '../../engine/types';
 import { traitGlyphsFor } from '../shell/traitIcon';
@@ -805,7 +806,8 @@ export class TroopScreen implements Screen {
       unlockBtn.disabled = shortfalls.length > 0;
       unlockBtn.title = shortfalls.join(' · ');
       unlockCost.hidden = false;
-      unlockCost.innerHTML = stoneRows.join('') + (burning ? '<a class="trait-material-link" href="#regional">燃烧灵魂 · 永生战域获取 →</a>' : '') + `<a class="trait-material-link" href="#materials/gems/${troop.id}">查看特质材料整套 →</a>`;
+      const materialRoute = traitStoneBagRoute(save, troop.id);
+      unlockCost.innerHTML = stoneRows.join('') + (burning ? '<a class="trait-material-link" href="#regional">燃烧灵魂 · 永生战域获取 →</a>' : '') + (materialRoute ? `<a class="trait-material-link" href="${materialRoute}">查看特质材料 →</a>` : '');
       mountIcons($('#unlockCost'));
     }
   }

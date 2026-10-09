@@ -20,6 +20,7 @@ import { heroStatsAt, heroXpToNext } from '../data/classes';
 import { ALL_KINGDOMS_UNLOCK_LEVEL, kingdomsUnlockedBetween, QUESTS_PER_KINGDOM } from '../data/kingdoms';
 import { getTroopById, type TroopData } from '../../data/troops';
 import { RARITY_NAMES } from '../data/rarity';
+import { anyWeaponById, catalogIconUrl } from '../data/weaponCatalog';
 import { temperingBonusOf } from '../systems/hero';
 import {
   isManaColor,
@@ -473,9 +474,18 @@ export class ResultScreen implements Screen {
         <span class="rs-reward-icon">${materialIconHtml(m.key)}</span>
         <p><strong data-count="${m.amount}">+${fmt(m.amount)}</strong><span>${escapeHtml(m.name)}</span></p>
       </div>`);
+    const weaponCards = 'kind' in detail ? [] : (detail.weaponRewards ?? []).flatMap((reward, i) => {
+      const weapon = anyWeaponById(reward.weaponId);
+      if (!weapon) return [];
+      const art = catalogIconUrl(weapon);
+      return [`<div class="rs-reward reward-row rs-mat" data-battle-weapon="${escapeHtml(weapon.id)}" style="--i:${6 + income.materials.length + i}">
+        <span class="rs-reward-icon">${art ? `<img src="${escapeHtml(art)}" alt="">` : icon('swords')}</span>
+        <p><strong>+1</strong><span>${escapeHtml(weapon.name)}（武器解锁）</span></p>
+      </div>`];
+    });
     $('#rewardRows').innerHTML = [
       currency(souls!, 0), this.isHunt() ? '' : xp, currency(gold!, 2), classXp,
-      ...extras.filter(r => r.amount > 0).map((r, i) => currency(r, 3 + i)), ...matCards,
+      ...extras.filter(r => r.amount > 0).map((r, i) => currency(r, 3 + i)), ...matCards, ...weaponCards,
     ].join('');
     mountIcons($('#rewardRows'));
     screen.classList.toggle('has-many-rewards', $('#rewardRows').childElementCount > 4);

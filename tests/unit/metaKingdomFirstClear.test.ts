@@ -4,8 +4,13 @@ import { hydrateSave, SaveStore } from '../../src/meta/state/save';
 import { MockGateway } from '../../src/meta/gateway';
 import { applySettlement } from '../../src/meta/systems/settlement';
 import { planQuestEncounter, planExploreEncounter, type EncounterPlan } from '../../src/meta/systems/encounter';
-import { KINGDOM_FIRST_CLEAR_GEMS, DAILY_FIRST_WIN_GEMS } from '../../src/meta/data/economy';
+import { KINGDOM_FIRST_CLEAR_GEMS, EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS, DAILY_FIRST_WIN_GEMS } from '../../src/meta/data/economy';
 import { KINGDOM_ORDER, QUESTS_PER_KINGDOM, EXPLORE_MAX_TIER } from '../../src/meta/data/kingdoms';
+import { battleIncomeView } from '../../src/meta/screens/resultScreen';
+import { ExploreScreen } from '../../src/meta/screens/exploreScreen';
+import type { ShellCtx } from '../../src/meta/shell/screen';
+import { kingdomArcaneKey } from '../../src/meta/systems/explore';
+import { anyWeaponById, ownsWeapon } from '../../src/meta/data/weaponCatalog';
 import { remainingKingdomFirstClears } from '../../src/meta/systems/kingdomFirstClear';
 import { questRewardsHtml } from '../../src/meta/screens/questRewards';
 import type { BattleResult } from '../../src/session/contract';
@@ -44,6 +49,53 @@ describe('王国逐关独立首通宝石', () => {
     expect(save.kingdoms[kingdom]!.clearedExploreTiers).toEqual([1, 2, 3, 4, 5, 6]);
     expect(save.currencies.gems).toBe(3 * 200 + 3 * 300 + 2 * DAILY_FIRST_WIN_GEMS);
   });
+  it('普通 8 / 探索 6 首通在当场结算列出新解锁武器', () => {
+    const rare = anyWeaponById('gw_WhiteAegis')!;
+    const legendary = anyWeaponById('gw_SilentNight')!;
+    const save = saveWithGems();
+    const normal = ctx(planQuestEncounter(rare.kingdom!, 8, 1));
+    save.kingdoms[rare.kingdom!] = { level: 1, questsDone: 7, exploreTier: 0, lastTributeAt: 0 };
+    expect(applySettlement(save, { ...win, winner: 'enemy' }, normal).weaponRewards).toEqual([]);
+    expect(ownsWeapon(save, rare.id)).toBe(false);
+    const first = applySettlement(save, win, normal);
+    expect(first.weaponRewards).toContainEqual({ weaponId: rare.id, note: `${rare.kingdom} 普通 8 首通` });
+    expect(ownsWeapon(save, rare.id)).toBe(true);
+    expect(applySettlement(save, win, normal).weaponRewards).toEqual([]);
+    const exploration = ctx(planExploreEncounter(legendary.kingdom!, 6, 1, 5));
+    save.kingdoms[legendary.kingdom!] = { level: 1, questsDone: 8, exploreTier: 6, lastTributeAt: 0, clearedExploreTiers: [5] };
+    expect(applySettlement(save, { ...win, winner: 'enemy' }, exploration).weaponRewards).toEqual([]);
+    expect(ownsWeapon(save, legendary.id)).toBe(false);
+    const explored = applySettlement(save, win, exploration);
+    expect(explored.weaponRewards).toContainEqual({ weaponId: legendary.id, note: `${legendary.kingdom} 探索 6 首通` });
+    expect(ownsWeapon(save, legendary.id)).toBe(true);
+    expect(applySettlement(save, win, exploration).weaponRewards).toEqual([]);
+  });
+  it('Explore 7 preview shows its first clear gems and stone', () => {
+    const save = saveWithGems();
+    save.kingdoms[kingdom] = { level: 1, questsDone: 8, exploreTier: 7, exploreUnlockedTier: 12, lastTributeAt: 0 };
+    const html = new ExploreScreen().html({ save: () => save } as ShellCtx, kingdom);
+    expect(html).toContain(`+${EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS} \u5b9d\u77f3`);
+    expect(html).toContain('\u9996\u901a\u79d8\u6cd5\u77f3');
+  });
+  it.each([7, 8, 9, 10, 11, 12])('explore %i final clear credits gems and an Arcane in the battle result', tier => {
+    const save = saveWithGems();
+    const context = ctx(planExploreEncounter(kingdom, tier, 1, 5));
+    const arcane = kingdomArcaneKey(kingdom);
+    const before = save.materials.traitstones[arcane] ?? 0;
+    expect(reward(applySettlement(save, { ...win, winner: 'enemy' }, context))).toBeUndefined();
+    expect(save.materials.traitstones[arcane] ?? 0).toBe(before);
+    const gemsBefore = save.currencies.gems;
+    const settled = applySettlement(save, win, context);
+    expect(reward(settled)?.deltas.gems).toBe(EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS);
+    expect(save.currencies.gems - gemsBefore).toBe(EXPLORE_HIGH_TIER_FIRST_CLEAR_GEMS + DAILY_FIRST_WIN_GEMS);
+    const drop = settled.lines.find(l => l.key === 'explore-drop');
+    expect(drop?.mats?.traitstones?.[arcane]).toBeGreaterThanOrEqual(1);
+    expect(battleIncomeView(settled).gems).toBe(save.currencies.gems);
+    expect(battleIncomeView(settled).materials.find(m => m.key === `stone:${arcane}`)?.amount).toBe(drop?.mats?.traitstones?.[arcane]);
+    expect(save.materials.traitstones[arcane]! - before).toBe(drop?.mats?.traitstones?.[arcane]);
+    expect(reward(applySettlement(save, win, { ...context, todayStart: 2000 }))).toBeUndefined();
+  });
+
   it('不同王国相同关号独立；活动胜利不借用王国首通奖励', () => {
     const save = saveWithGems();
     for (const k of KINGDOM_ORDER.slice(0, 2)) {

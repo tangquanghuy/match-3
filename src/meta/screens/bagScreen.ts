@@ -13,6 +13,7 @@ import {
   type TraitstoneTier,
 } from '../data/materials';
 import { ownedWeapons } from '../data/weaponCatalog';
+import { traitStoneBagFocus } from './traitMaterialNavigation';
 import { temperingCost, temperingMaxLevel } from '../systems/forge';
 import { temperingLevelOf } from '../systems/forgeOps';
 import { traitUnlockCost } from '../data/economy';
@@ -96,16 +97,21 @@ export class BagScreen implements Screen {
     const filter = tab === 'stones' && ['basic', 'arcane', 'celestial'].includes(parts[1]) ? parts[1] : 'all';
     const allItems = this.itemsFor(tab, save).filter(item => filter === 'all' || (filter === 'basic'
       ? /^(minor|major|runic):/.test(item.id) : filter === 'arcane' ? item.id.startsWith('arcane:') : item.id === 'celestial'));
-    const pageParam = filter === 'all' ? parts[1] : parts[2];
-    const pageRoute = `#bag/${tab}${filter === 'all' ? '' : `/${filter}`}`;
+    const troopId = filter !== 'all' && parts[2] === 'for' && /^\d+$/.test(parts[3] ?? '') ? Number(parts[3]) : null;
+    const traitFocus = troopId === null ? null : traitStoneBagFocus(save, troopId);
+    const target = traitFocus?.filter === filter ? traitFocus : null;
+    const pageParam = target ? parts[4] : filter === 'all' ? parts[1] : parts[2];
+    const pageRoute = `#bag/${tab}${filter === 'all' ? '' : `/${filter}`}${target ? `/for/${troopId}` : ''}`;
     const filters = tab === 'stones' ? `<nav class="bag-stone-filters" aria-label="特质石品阶">${[['all', '全部'], ['basic', '基础'], ['arcane', '秘法'], ['celestial', '圣辉']].map(([id, label]) => `<a href="#bag/stones${id === 'all' ? '' : `/${id}`}" ${filter === id ? 'aria-current="page"' : ''}>${label}</a>`).join('')}</nav>` : '';
     const sectionTitle = filter === 'arcane' ? '秘法属性石' : filter === 'celestial' ? '圣辉石' : filter === 'basic' ? '基础特质石' : '';
     const pageSize = 19;
     const pageCount = Math.ceil(allItems.length / pageSize);
-    const page = Math.min(pageCount, Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1));
+    const focusIndex = allItems.findIndex(item => item.id === target?.focus);
+    const focusPage = focusIndex < 0 ? 1 : Math.floor(focusIndex / pageSize) + 1;
+    const page = Math.min(Math.max(1, pageCount), Math.max(1, Number.parseInt(pageParam ?? String(focusPage), 10) || focusPage));
     const items = allItems.slice((page - 1) * pageSize, page * pageSize);
     const pager = pageCount > 1 ? `<nav class="bag-pagination" aria-label="材料分页"><a href="${pageRoute}/${Math.max(1, page - 1)}" aria-label="上一页" aria-disabled="${page === 1}">‹</a><span>${page} / ${pageCount}</span><a href="${pageRoute}/${Math.min(pageCount, page + 1)}" aria-label="下一页" aria-disabled="${page === pageCount}">›</a></nav>` : '';
-    const selected = items.find((item) => item.count > 0) ?? items[0];
+    const selected = items.find(item => item.id === target?.focus) ?? items.find(item => target?.keys.includes(item.id)) ?? items.find((item) => item.count > 0) ?? items[0];
     const tabCounts: Record<BagTab, number> = {
       ingots: Object.values(materials.ingots).filter((count) => count > 0).length,
       stones: Object.values(materials.traitstones).filter((count) => count > 0).length,
@@ -129,7 +135,7 @@ export class BagScreen implements Screen {
           <div class="bag-body">
             <div class="bag-content">
               ${filters}<div class="bag-section-head"><h2>${sectionTitle || tabs.find(([id]) => id === tab)?.[1]}</h2>${pager}<label class="bag-owned-toggle"><input id="bagOwnedOnly" type="checkbox">${pageCount > 1 ? '本页持有' : '只看持有'}</label></div>
-              <div class="bag-shelf"><div class="bag-grid" data-bag-category="${tab}">${items.map((item) => `<button type="button" class="bag-item${item.count === 0 ? ' empty' : ''}${item.id === selected?.id ? ' selected' : ''}" style="--mat:${item.tone}" data-bag-item="${item.id}" aria-label="${item.name}，${item.count > 0 ? `持有 ${item.count}` : '未获得'}" aria-pressed="${item.id === selected?.id}"><span class="bag-rarity-line"></span><span class="bag-item-art">${item.art}</span><span class="bag-item-name">${item.name}</span><span class="bag-item-count">${item.count > 0 ? `×${item.count.toLocaleString('en-US')}` : '未获得'}</span></button>`).join('')}</div><p class="bag-filter-empty" hidden>暂无持有材料</p></div>
+              <div class="bag-shelf"><div class="bag-grid" data-bag-category="${tab}">${items.map((item) => `<button type="button" class="bag-item${item.count === 0 ? ' empty' : ''}${item.id === selected?.id ? ' selected' : ''}${target?.keys.includes(item.id) ? ' trait-required' : ''}" style="--mat:${item.tone}" data-bag-item="${item.id}" aria-label="${item.name}，${item.count > 0 ? `持有 ${item.count}` : '未获得'}" aria-pressed="${item.id === selected?.id}"><span class="bag-rarity-line"></span><span class="bag-item-art">${item.art}</span><span class="bag-item-name">${item.name}</span><span class="bag-item-count">${item.count > 0 ? `×${item.count.toLocaleString('en-US')}` : '未获得'}</span></button>`).join('')}</div><p class="bag-filter-empty" hidden>暂无持有材料</p></div>
             </div>
             <aside class="bag-detail" aria-label="材料详情">
               <button type="button" class="bag-detail-close" aria-label="关闭材料详情">×</button>
@@ -146,6 +152,9 @@ export class BagScreen implements Screen {
   mount(ctx: ShellCtx, root: HTMLElement): void {
     root.classList.add('bag-responsive');
     mountIcons(root);
+    if (root.querySelector('.bag-item.trait-required.selected')) requestAnimationFrame(() => {
+      if (root.isConnected) root.querySelector('.bag-item.trait-required.selected')?.scrollIntoView({ block: 'center', inline: 'nearest' });
+    });
     if (ctx.save().materialsUnread) void ctx.gateway.markMaterialsSeen().then(() => ctx.refreshChrome());
     root.querySelectorAll<HTMLElement>('[data-bag-nav]').forEach((el) => {
       el.addEventListener('click', () => {
