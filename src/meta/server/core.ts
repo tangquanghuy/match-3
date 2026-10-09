@@ -34,7 +34,7 @@ import { todayStartOf, weekStartOf } from '../gateway/clock';
 import { claimGift, claimAllGifts } from '../systems/gifts';
 import { restoreInitialCollection, restoreRealCollection, unlockKingdomTroops } from '../systems/collectionModifier';
 import { levelUp, ascend, unlockTrait, decompose, getRecord } from '../systems/troopProgress';
-import { setTeamPreset, activeTeam, validateTeam } from '../systems/teamRules';
+import { setTeamPreset, activeTeam, validateTeam, resolvedTeamLoadout, teamLoadoutIssue } from '../systems/teamRules';
 import { claimWeapon, equipClass, equipWeapon, forgeCatalogWeapon } from '../systems/hero';
 import { clearTalent, pickTalent, unlockHeroTrait } from '../systems/talents';
 import { pickManaMastery } from '../systems/manaMastery';
@@ -309,14 +309,31 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
     // —— 编队 ——
     case 'saveTeam': {
       const { index, team } = command.args as CommandArgs<'saveTeam'>;
-      return done(setTeamPreset(save, index, team));
+      const result = setTeamPreset(save, index, team);
+      if (result.ok && index === save.activeTeamIndex && save.teams[index]!.members.some(m => m.kind === 'hero')) {
+        const loadout = resolvedTeamLoadout(save, save.teams[index]!);
+        save.hero.classId = loadout.heroClassId;
+        save.hero.equippedWeapon = loadout.heroWeaponId;
+      }
+      return done(result);
     }
     case 'activateTeam': {
       const { index } = command.args as CommandArgs<'activateTeam'>;
       if (!Number.isInteger(index) || index < 0 || index >= save.teams.length) {
         return done(fail('INVALID', '预设队序号不存在'));
       }
+      const preset = save.teams[index]!;
+      const loadout = resolvedTeamLoadout(save, preset);
+      const issue = preset.members.some(m => m.kind === 'hero') ? teamLoadoutIssue(save, loadout) : null;
+      if (issue) return done(fail('INVALID', issue.message));
       save.activeTeamIndex = index;
+      if (preset.members.some(m => m.kind === 'hero')) {
+        // First activation pins legacy presets, rather than inheriting later equipment changes.
+        preset.heroClassId = loadout.heroClassId;
+        preset.heroWeaponId = loadout.heroWeaponId;
+        save.hero.classId = loadout.heroClassId;
+        save.hero.equippedWeapon = loadout.heroWeaponId;
+      }
       return done(index);
     }
     case 'deleteTeam': {
@@ -570,7 +587,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       const check = validateTeam(save, team);
       if (!check.ok) return done(fail('INVALID', check.issues.map(i => i.message).join('；')));
       ensureInvasionSeason(save, now, weekStart);
-      save.invasion.defenseTeam = structuredClone(team);
+      save.invasion.defenseTeam = { ...structuredClone(team), ...resolvedTeamLoadout(save, team) };
       if (!queueDefensePublish(save, now)) return done(fail('INVALID', '防守队伍数据无效'));
       return done({ ok: true });
     }
@@ -593,7 +610,7 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       ensureInvasionSeason(save, now, weekStart);
       if (save.hero.level >= INVASION.unlockHeroLevel) {
         const team = activeTeam(save);
-        if (!save.invasion.defenseTeam && team && validateTeam(save, team).ok) save.invasion.defenseTeam = structuredClone(team);
+        if (!save.invasion.defenseTeam && team && validateTeam(save, team).ok) save.invasion.defenseTeam = { ...structuredClone(team), ...resolvedTeamLoadout(save, team) };
         queueDefensePublish(save, now);
       }
       // 批次过期（跨周/升联赛/首次进入）→ 组新批次落档，客户端据此展示（含真人镜像）

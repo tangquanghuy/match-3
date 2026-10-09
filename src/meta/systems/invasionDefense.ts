@@ -73,7 +73,9 @@ export function hydrateDefenseTeam(value: unknown): TeamPreset | null {
   if (typeof v.name !== 'string' || !Array.isArray(v.members) || v.members.length !== 4) return null;
   if (!v.members.every(m => m && (m.kind === 'hero' || (m.kind === 'troop' && Number.isInteger(m.troopId))))) return null;
   return { name: v.name.slice(0, 40), members: structuredClone(v.members),
-    bannerKingdomId: typeof v.bannerKingdomId === 'string' ? v.bannerKingdomId : null };
+    bannerKingdomId: typeof v.bannerKingdomId === 'string' ? v.bannerKingdomId : null,
+    ...(v.heroClassId === null || typeof v.heroClassId === 'string' ? { heroClassId: v.heroClassId } : {}),
+    ...(v.heroWeaponId === null || typeof v.heroWeaponId === 'string' ? { heroWeaponId: v.heroWeaponId } : {}) };
 }
 export function hydrateDefenseReports(value: unknown): DefenseReport[] {
   if (!Array.isArray(value)) return [];

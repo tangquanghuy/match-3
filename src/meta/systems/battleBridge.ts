@@ -26,7 +26,7 @@ import { fallbackPrototype } from '../../engine/skills/prototypes';
 import { registerSkillLibrary } from '../../engine/skills/library';
 import { CATALOG_WEAPONS } from '../data/weaponCatalog';
 import { fail, type MetaFailure } from '../types';
-import { activeTeam, immortalTeamIssue, validateTeam } from './teamRules';
+import { activeTeam, immortalTeamIssue, validateTeam, resolvedTeamLoadout } from './teamRules';
 import { equippedBannerOf } from './banners';
 import { combatManaMastery, toEngineMastery } from './manaMastery';
 import { getRecord, rarityTierOf } from './troopProgress';
@@ -210,6 +210,11 @@ export function buildPlayerSnapshots(
     if (!validation.ok) return fail('INVALID', validation.issues[0]!.message);
   }
 
+  // A copied defense preset keeps its own equipment, even when the owner's active hero changes.
+  if (team.members.some(member => member.kind === 'hero')) {
+    const loadout = resolvedTeamLoadout(save, team);
+    save = { ...save, hero: { ...save.hero, classId: loadout.heroClassId, equippedWeapon: loadout.heroWeaponId } };
+  }
   const playerTeam: CombatantSnapshot[] = [];
   const permanentBonus = kingdomBonusOf(save);
   const teamBonus = kingdomTeamBonusOf(save, team.members);

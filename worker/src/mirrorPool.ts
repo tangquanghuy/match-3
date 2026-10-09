@@ -29,7 +29,7 @@ interface Row {
   username: string | null;
 }
 
-type StoredSnapshot = Pick<MirrorRecord, 'team' | 'defense' | 'heroLevel' | 'bannerKingdom' | 'teamHash'>;
+type StoredSnapshot = Pick<MirrorRecord, 'team' | 'defense' | 'heroLevel' | 'bannerKingdom' | 'teamHash' | 'heroClassId' | 'heroWeaponId'>;
 
 const RECENT_WINDOW = 200;
 const PRUNE_EVERY = 50;
@@ -139,6 +139,8 @@ export class D1MirrorPool implements InvasionMirrorPool {
           team: snap.team,
           defense: snap.defense ?? [],
           heroLevel: snap.heroLevel ?? 0,
+          ...(typeof snap.heroClassId === 'string' || snap.heroClassId === null ? { heroClassId: snap.heroClassId } : {}),
+          ...(typeof snap.heroWeaponId === 'string' || snap.heroWeaponId === null ? { heroWeaponId: snap.heroWeaponId } : {}),
           bannerKingdom: snap.bannerKingdom ?? null,
           teamHash: snap.teamHash ?? '',
         });
@@ -192,6 +194,8 @@ export class D1MirrorPool implements InvasionMirrorPool {
       throw new Error('Retired troop in published mirror');
     const snapshot: StoredSnapshot = {
       team: record.team, defense: record.defense, heroLevel: record.heroLevel,
+      ...(record.heroClassId !== undefined ? { heroClassId: record.heroClassId } : {}),
+      ...(record.heroWeaponId !== undefined ? { heroWeaponId: record.heroWeaponId } : {}),
       bannerKingdom: record.bannerKingdom, teamHash: record.teamHash,
     };
     const serialized = JSON.stringify(snapshot);

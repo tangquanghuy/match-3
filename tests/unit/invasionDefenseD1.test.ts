@@ -51,6 +51,25 @@ function database() {
 const report = (id = 'ticket') => ({ id, defender: mirrorOwnerKey('defender'), at: 1000, defenderWon: false, surrendered: false, frenzy: false });
 
 describe('D1 invasion defense storage (real SQLite)', () => {
+  it('round-trips hero class and weapon in real-player mirror blobs and reads old blobs', async () => {
+    const { adapter } = database();
+    const publisher = new D1MirrorPool(adapter, () => 'defender');
+    const observer = new D1MirrorPool(adapter, () => 'attacker');
+    const save = buildDemoSave(1000);
+    save.invasion.defenseTeam = structuredClone(save.teams[0]!);
+    const record = defenseRecord(save, 1000)!;
+    expect(record.team.some(c => c.externalId.endsWith('-hero'))).toBe(true);
+    await publisher.publish(record);
+    const query = { leagueMin: 0, leagueMax: 9, powerMin: 0, powerMax: 1000000,
+      since: 0, ruleset: record.ruleset, limit: 10 };
+    expect((await observer.sample(query))[0]).toMatchObject({ heroClassId: save.hero.classId,
+      heroWeaponId: save.hero.equippedWeapon });
+    await publisher.publish({ ...record, heroClassId: undefined, heroWeaponId: undefined, recordedAt: 2000 });
+    const legacy = (await observer.sample(query))[0]!;
+    expect(legacy.team).toEqual(record.team);
+    expect(legacy.heroClassId).toBeUndefined();
+    expect(legacy.heroWeaponId).toBeUndefined();
+  });
   it('skips identical weekly upserts even after actor restart and preserves score tie time', async () => {
     const { adapter, db } = database();
     const report = { weekStart: 1000, league: 1, vp: 20, at: 2000 };

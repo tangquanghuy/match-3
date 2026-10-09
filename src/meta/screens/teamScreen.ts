@@ -19,7 +19,9 @@ import { troopStatsOf } from '../systems/troopProgress';
 import { buildPlayerSnapshots } from '../systems/battleBridge';
 import { teamPower } from '../systems/combatPower';
 import { heroKingdomOf, heroStatsOf, heroTroopTypeOf } from '../systems/hero';
-import { anyWeaponById } from '../data/weaponCatalog';
+import { anyWeaponById, CATALOG_WEAPONS, ownsWeapon } from '../data/weaponCatalog';
+import { CLASSES } from '../data/classes';
+import { resolvedTeamLoadout } from '../systems/teamRules';
 import { RARITY_NAMES as RARITY_CN_ROSTER } from '../data/rarity';
 import { bannerUnlocked } from '../systems/banners';
 import { MIN_TEAM_SIZE, validateTeam, type TeamIssue } from '../systems/teamRules';
@@ -173,6 +175,15 @@ export class TeamScreen implements Screen {
   /** 未能保存的编辑（不满 4 人等）按预设序号暂存：切换队伍 / 离开再回来都还在 */
   private drafts = new Map<number, { slots: SlotValue[]; banner: string | null }>();
   private saveSeq = 0;
+  private teamSaveQueue: Promise<unknown> = Promise.resolve();
+  private pendingLoadouts = new Map<number, { heroClassId: string | null; heroWeaponId: string | null }>();
+
+  /** Preserve request order so two quick selector changes cannot overwrite one another. */
+  private persistTeam(index: number, team: Parameters<ShellCtx['gateway']['saveTeam']>[1]) {
+    const request = this.teamSaveQueue.then(() => this.ctx.gateway.saveTeam(index, team));
+    this.teamSaveQueue = request.then(() => undefined, () => undefined);
+    return request;
+  }
   private drag: TeamDrag | null = null;
 
   html(ctx: ShellCtx, param?: string): string {
@@ -220,6 +231,11 @@ export class TeamScreen implements Screen {
                 <small class="bp-hit" id="bannerHit"></small>
                 <button class="bp-change banner-chip" id="banner" type="button"><span data-icon="banner"></span><span>更换旗帜</span></button>
               </aside>
+            </div>
+            <div class="team-hero-loadout" id="teamHeroLoadout" hidden>
+              <b>主角配置 <small>随队伍预设保存，设为出战时自动装备</small></b>
+              <label>职业 <select id="teamHeroClass" aria-label="队伍主角职业"></select></label>
+              <label>武器 <select id="teamHeroWeapon" aria-label="队伍主角武器"></select></label>
             </div>
             <ul class="team-checks" id="teamChecks"></ul>
             <div class="lineup-bar">
@@ -404,6 +420,8 @@ export class TeamScreen implements Screen {
     });
     this.bind('#deleteTeam', 'click', () => void this.deleteTeam());
     this.bind('#setActive', 'click', () => void this.setActive());
+    this.bind('#teamHeroClass', 'change', () => void this.saveHeroLoadout());
+    this.bind('#teamHeroWeapon', 'change', () => void this.saveHeroLoadout());
     this.drag = new TeamDrag($('.team-screen'), {
       source: (target) => this.dragSource(target),
       resolve: (x, y, src) => this.dropTarget(x, y, src),
@@ -440,6 +458,53 @@ export class TeamScreen implements Screen {
 
   private currentTeam() {
     return this.ctx.save().teams[this.selectedTeamIndex] ?? null;
+  }
+
+  private teamPreviewSave() {
+    const save = this.ctx.save();
+    const team = this.currentTeam();
+    if (!team || !this.slots.includes('hero')) return save;
+    const loadout = this.pendingLoadouts.get(this.selectedTeamIndex) ?? resolvedTeamLoadout(save, team);
+    return { ...save, hero: { ...save.hero, classId: loadout.heroClassId, equippedWeapon: loadout.heroWeaponId } };
+  }
+
+  private renderHeroLoadout(): void {
+    const row = $('#teamHeroLoadout');
+    const team = this.currentTeam();
+    const save = this.ctx.save();
+    row.hidden = !team || !this.slots.includes('hero');
+    if (row.hidden || !team) return;
+    const loadout = this.pendingLoadouts.get(this.selectedTeamIndex) ?? resolvedTeamLoadout(save, team);
+    const classes = CLASSES.filter(c => save.hero.unlockedClasses.includes(c.id));
+    ($('#teamHeroClass') as HTMLSelectElement).innerHTML = '<option value="">无职业</option>' + classes.map(c =>
+      `<option value="${escapeHtml(c.id)}"${c.id === loadout.heroClassId ? ' selected' : ''}>${escapeHtml(c.name)}</option>`).join('');
+    const weapons = CATALOG_WEAPONS.filter(w => ownsWeapon(save, w.id));
+    ($('#teamHeroWeapon') as HTMLSelectElement).innerHTML = '<option value="">无武器</option>' + weapons.map(w =>
+      `<option value="${escapeHtml(w.id)}"${w.id === loadout.heroWeaponId ? ' selected' : ''}>${escapeHtml(w.name)}</option>`).join('');
+  }
+
+  private async saveHeroLoadout(): Promise<void> {
+    const team = this.currentTeam();
+    if (!team || !this.slots.includes('hero')) return;
+    const index = this.selectedTeamIndex;
+    const loadout = {
+      heroClassId: ($('#teamHeroClass') as HTMLSelectElement).value || null,
+      heroWeaponId: ($('#teamHeroWeapon') as HTMLSelectElement).value || null,
+    };
+    this.pendingLoadouts.set(index, loadout);
+    const draftMembers = this.slotsToMembers();
+    const draft = validateTeam(this.ctx.save(), { members: draftMembers, bannerKingdomId: this.banner, ...loadout }).ok;
+    const { result } = await this.persistTeam(index, {
+      name: team.name, members: draft ? draftMembers : team.members,
+      bannerKingdomId: draft ? this.banner : team.bannerKingdomId,
+      ...loadout,
+    });
+    if (this.pendingLoadouts.get(index) === loadout) {
+      this.pendingLoadouts.delete(index);
+      if (!result.ok) toast(result.issues[0]?.message ?? '主角配置保存失败');
+      else toast('主角配置已保存到这支队伍。');
+      this.renderAll();
+    }
   }
 
   private membersToSlots(members: TeamMember[]): SlotValue[] {
@@ -490,10 +555,11 @@ export class TeamScreen implements Screen {
     const seq = ++this.saveSeq;
     this.setSaveState('saving');
     const team = this.currentTeam();
-    const { result } = await this.ctx.gateway.saveTeam(index, {
+    const { result } = await this.persistTeam(index, {
       name: team?.name ?? '新队伍',
       members,
       bannerKingdomId: this.banner,
+      ...(this.pendingLoadouts.get(index) ?? resolvedTeamLoadout(this.ctx.save(), team ?? { name: '', members, bannerKingdomId: this.banner })),
     });
     if (seq !== this.saveSeq) return; // 期间又有新改动，以最后一次为准
     if (result.ok) {
@@ -588,8 +654,8 @@ export class TeamScreen implements Screen {
   }
 
   private roster(): RosterEntry[] {
-    const save = this.ctx.save();
-    // 主角条目实时反映已装备武器：武器决定法术/法力色/耗蓝（官方口径）
+    const save = this.teamPreviewSave();
+    // 主角条目实时反映队伍预设的武器：武器决定法术/法力色/耗蓝（官方口径）
     const equipped = anyWeaponById(save.hero.equippedWeapon) ?? null;
     const list: RosterEntry[] = [{
       key: 'hero',
@@ -682,6 +748,7 @@ export class TeamScreen implements Screen {
     ($('#setActive') as HTMLButtonElement).disabled = count < MIN_TEAM_SIZE || !validation.ok;
     $('#setActive').title = count < MIN_TEAM_SIZE ? `至少编入 ${MIN_TEAM_SIZE} 名成员` : '将这支队伍设为当前出战队伍';
     this.renderBannerPost();
+    this.renderHeroLoadout();
     $('#ownedCount').textContent = String(Object.keys(save.collection).length);
     this.renderTeamTabs();
     this.renderRoster();
@@ -721,8 +788,9 @@ export class TeamScreen implements Screen {
       box.innerHTML = '<span class="gauge-summary">空编队 · 还差 4 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>' + this.kingdomBonusesDropdown(expanded);
       return;
     }
-    const draft = buildPlayerSnapshots(this.ctx.save(), {
+    const draft = buildPlayerSnapshots(this.teamPreviewSave(), {
       name: this.currentTeam()?.name ?? '', members: this.slotsToMembers(), bannerKingdomId: this.banner,
+      ...(this.pendingLoadouts.get(this.selectedTeamIndex) ?? resolvedTeamLoadout(this.ctx.save(), this.currentTeam() ?? { name: '', members: this.slotsToMembers(), bannerKingdomId: this.banner })),
     });
     const power = draft.ok ? teamPower(draft.playerTeam) : 0;
     const coverage = ROSTER_COLORS.map((c) => ({
@@ -741,7 +809,7 @@ export class TeamScreen implements Screen {
   /** 把永久王国与当前编队同王国加成收进一处，避免属性全满时撑开仪表栏。 */
   private kingdomBonusesDropdown(expanded: boolean): string {
     const permanent = kingdomBonusOf(this.ctx.save());
-    const entries = kingdomTeamEntries(this.ctx.save(), this.slotsToMembers());
+    const entries = kingdomTeamEntries(this.teamPreviewSave(), this.slotsToMembers());
     const keys = ['health', 'armor', 'attack', 'magic'] as const;
     const describe = (stats: typeof permanent): string =>
       keys.filter((key) => stats[key] > 0).map((key) => `${STAT_CN[key]}+${stats[key]}`).join('、') || '暂无';
@@ -1057,6 +1125,7 @@ export class TeamScreen implements Screen {
       await this.autosave();
       if (this.isDirty()) return;
     }
+    await this.teamSaveQueue;
     const { result } = await this.ctx.gateway.activateTeam(this.selectedTeamIndex);
     this.renderAll();
     if (isFailure(result)) return void toast(result.message);
@@ -1075,10 +1144,11 @@ export class TeamScreen implements Screen {
       return;
     }
     const name = `新队伍 ${save.teams.length + 1}`.slice(0, 12);
-    const { result } = await this.ctx.gateway.saveTeam(save.teams.length, {
+    const { result } = await this.persistTeam(save.teams.length, {
       name,
       members,
       bannerKingdomId: source ? source.bannerKingdomId : this.banner,
+      ...resolvedTeamLoadout(save, source ?? { name, members, bannerKingdomId: this.banner }),
     });
     if (result.ok) {
       this.selectedTeamIndex = result.index;
@@ -1093,10 +1163,11 @@ export class TeamScreen implements Screen {
     if (!team) return;
     const name = prompt('输入新的队伍名称', team.name)?.trim();
     if (!name || name === team.name) return;
-    await this.ctx.gateway.saveTeam(this.selectedTeamIndex, {
+    await this.persistTeam(this.selectedTeamIndex, {
       name: name.slice(0, 12),
       members: team.members,
       bannerKingdomId: team.bannerKingdomId,
+      ...resolvedTeamLoadout(this.ctx.save(), team),
     });
     this.renderAll();
   }

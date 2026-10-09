@@ -280,3 +280,11 @@
 .regional-team-context { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; margin-bottom:12px; border:1px solid #b6a17166; background:#142833; color:#d9c89d; font-size:13px; flex-shrink:0; }
 .regional-team-context a { color:#f3dfac; text-decoration:none; border:1px solid #b6a17166; border-radius:4px; padding:10px 14px; white-space:nowrap; }
 @media(max-width:700px) { .regional-team-context { flex-wrap:wrap; line-height:1.6; } .regional-team-context a { margin-left:auto; } }
+
+/* Hero equipment belongs to the selected team, not a global preview. */
+.team-screen .team-hero-loadout:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 16px; border-top: 1px solid #5e503a; background: #191a24; }
+.team-screen .team-hero-loadout > b { color: #e6d9b9; font-size: 13px; }
+.team-screen .team-hero-loadout small { font-weight: 400; color: #aca494; }
+.team-screen .team-hero-loadout label { display: flex; align-items: center; gap: 6px; color: #cfc2a5; font-size: 12px; }
+.team-screen .team-hero-loadout select { max-width: min(220px, 42vw); min-height: 34px; padding: 4px; color: #f4e5c4; background: #161620; border: 1px solid #816e49; border-radius: 4px; }
+.team-screen .team-hero-loadout select:focus-visible { outline: 2px solid #e6cf98; }

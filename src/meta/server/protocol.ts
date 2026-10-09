@@ -45,6 +45,8 @@ export interface TeamInput {
   name: string;
   members: TeamMember[];
   bannerKingdomId: string | null;
+  heroClassId?: string | null;
+  heroWeaponId?: string | null;
 }
 
 /** 进贡收取结果（tribute.collectTribute 的 collected） */

@@ -2,7 +2,9 @@ import { defenseEntryKey, defenseRewardsReady, validSnapshot } from '../systems/
 import type { MetaSave, TeamPreset } from '../state/schema';
 import { getTroopById } from '../../data/troops';
 import { troopImg } from './teamScreen';
-import { validateTeam } from '../systems/teamRules';
+import { resolvedTeamLoadout, validateTeam } from '../systems/teamRules';
+import { classById } from '../data/classes';
+import { anyWeaponById } from '../data/weaponCatalog';
 
 const esc = (value: string): string => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 function lineup(save: MetaSave, team: TeamPreset | null): string {
@@ -12,7 +14,9 @@ function lineup(save: MetaSave, team: TeamPreset | null): string {
     const troop = m.kind === 'troop' ? getTroopById(m.troopId) ?? null : null;
     const name = hero ? '主角' : troop?.name ?? '未知部队';
     const level = m.kind === 'troop' ? save.collection[String(m.troopId)]?.level ?? 1 : save.hero.level;
-    return `<li><span class="inv-defense-slot">${i + 1}</span>${troopImg(troop, hero, '', save.character)}<div><b>${esc(name)}</b><small>Lv.${level}</small></div></li>`;
+    const loadout = hero ? resolvedTeamLoadout(save, team) : null;
+    const details = loadout ? ` · ${esc(classById(loadout.heroClassId ?? '')?.name ?? '无职业')} · ${esc(anyWeaponById(loadout.heroWeaponId)?.name ?? '无武器')}` : '';
+    return `<li><span class="inv-defense-slot">${i + 1}</span>${troopImg(troop, hero, '', save.character)}<div><b>${esc(name)}</b><small>Lv.${level}${details}</small></div></li>`;
   }).join('')}</ol>`;
 }
 export function invasionDefensePanel(save: MetaSave): string {

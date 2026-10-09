@@ -143,6 +143,8 @@ function sanitizeTeam(v: unknown): TeamPreset | null {
     name: typeof v.name === 'string' ? v.name : '未命名队伍',
     members,
     bannerKingdomId: typeof v.bannerKingdomId === 'string' ? v.bannerKingdomId : null,
+    ...(v.heroClassId === null || typeof v.heroClassId === 'string' ? { heroClassId: v.heroClassId } : {}),
+    ...(v.heroWeaponId === null || typeof v.heroWeaponId === 'string' ? { heroWeaponId: v.heroWeaponId } : {}),
   };
 }
 

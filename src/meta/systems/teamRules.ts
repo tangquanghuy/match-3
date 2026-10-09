@@ -8,6 +8,9 @@
 import { getTroopById } from '../../data/troops';
 import { isImmortal, IMMORTAL_TEAM_LIMIT } from '../../data/immortals';
 import { bannerEquipIssue } from './banners';
+import { classById } from '../data/classes';
+import { anyWeaponById } from '../data/weaponCatalog';
+import { canUseWeapon } from './hero';
 import type { MetaSave, TeamMember, TeamPreset } from '../state/schema';
 
 export const MIN_TEAM_SIZE = 4;
@@ -22,7 +25,8 @@ export type TeamRuleCode =
   | 'BAD_MEMBER'
   | 'UNKNOWN_TROOP'
   | 'NOT_OWNED'
-  | 'BAD_BANNER';
+  | 'BAD_BANNER'
+  | 'BAD_HERO_LOADOUT';
 
 export interface TeamIssue {
   code: TeamRuleCode;
@@ -49,7 +53,7 @@ export function immortalTeamIssue(members: readonly TeamMember[]): TeamIssue | n
 
 export function validateTeam(
   save: MetaSave,
-  team: Pick<TeamPreset, 'members'> & Partial<Pick<TeamPreset, 'bannerKingdomId'>>,
+  team: Pick<TeamPreset, 'members'> & Partial<Pick<TeamPreset, 'bannerKingdomId' | 'heroClassId' | 'heroWeaponId'>>,
 ): TeamValidation {
   const issues: TeamIssue[] = [];
   const { members } = team;
@@ -100,7 +104,34 @@ export function validateTeam(
     issues.push({ code: 'BAD_BANNER', message: bannerIssue });
   }
 
+  if (team.members.some(m => m.kind === 'hero')) {
+    const problem = teamLoadoutIssue(save, team);
+    if (problem) issues.push(problem);
+  }
   return { ok: issues.length === 0, issues };
+}
+
+/** Old presets without loadout fields inherit the current hero; new presets freeze both fields. */
+export function resolvedTeamLoadout(save: MetaSave, team: TeamPreset) {
+  return {
+    heroClassId: team.heroClassId === undefined ? save.hero.classId : team.heroClassId,
+    heroWeaponId: team.heroWeaponId === undefined ? save.hero.equippedWeapon : team.heroWeaponId,
+  };
+}
+
+export function teamLoadoutIssue(save: MetaSave, team: Partial<Pick<TeamPreset, 'heroClassId' | 'heroWeaponId'>>): TeamIssue | null {
+  const { heroClassId, heroWeaponId } = team;
+  if (heroClassId !== undefined && heroClassId !== null
+    && (typeof heroClassId !== 'string' || !classById(heroClassId) || !save.hero.unlockedClasses.includes(heroClassId))) {
+    return { code: 'BAD_HERO_LOADOUT', message: '队伍预设的主角职业尚未解锁' };
+  }
+  if (heroWeaponId !== undefined && heroWeaponId !== null) {
+    const weapon = anyWeaponById(heroWeaponId);
+    if (typeof heroWeaponId !== 'string' || !weapon || !canUseWeapon(save, weapon)) {
+      return { code: 'BAD_HERO_LOADOUT', message: '队伍预设的主角武器尚未拥有或不可装备' };
+    }
+  }
+  return null;
 }
 
 export function memberLabel(member: TeamMember): string {
@@ -120,17 +151,25 @@ export type SetTeamResult = { ok: true; index: number } | { ok: false; issues: T
 export function setTeamPreset(
   save: MetaSave,
   index: number,
-  team: Pick<TeamPreset, 'name' | 'members' | 'bannerKingdomId'>,
+  team: Pick<TeamPreset, 'name' | 'members' | 'bannerKingdomId'> & Partial<Pick<TeamPreset, 'heroClassId' | 'heroWeaponId'>>,
 ): SetTeamResult {
   if (!Number.isInteger(index) || index < 0) {
     return { ok: false, issues: [{ code: 'BAD_MEMBER', message: '预设队序号非法' }] };
   }
-  const validation = validateTeam(save, team);
+  const previous = save.teams[index];
+  const fallback = previous ? resolvedTeamLoadout(save, previous)
+    : { heroClassId: save.hero.classId, heroWeaponId: save.hero.equippedWeapon };
+  const loadout = {
+    heroClassId: team.heroClassId === undefined ? fallback.heroClassId : team.heroClassId,
+    heroWeaponId: team.heroWeaponId === undefined ? fallback.heroWeaponId : team.heroWeaponId,
+  };
+  const validation = validateTeam(save, { ...team, ...loadout });
   if (!validation.ok) return { ok: false, issues: validation.issues };
   const preset: TeamPreset = {
     name: team.name,
     members: team.members.map((m) => (m.kind === 'hero' ? { kind: 'hero' } : { kind: 'troop', troopId: m.troopId })),
     bannerKingdomId: team.bannerKingdomId ?? null,
+    ...loadout,
   };
   save.teams[index] = preset;
   return { ok: true, index };

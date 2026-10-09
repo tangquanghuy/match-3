@@ -99,6 +99,9 @@ export interface TeamPreset {
   members: TeamMember[];
   /** 旗帜王国（null = 未选；两主色匹配给 +1 法力，M6 接引擎） */
   bannerKingdomId: string | null;
+  /** 主角在本预设中的职业/武器。旧档缺失时沿用当前装备。 */
+  heroClassId?: string | null;
+  heroWeaponId?: string | null;
 }
 
 // ---------------------------------------------------------------------------

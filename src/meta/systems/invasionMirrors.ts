@@ -28,6 +28,7 @@ import { RULESET_VERSION, type CombatantSnapshot } from '../../session/contract'
 import type { MetaSave, TeamPreset } from '../state/schema';
 import type { InvasionMirror, MirrorDefender } from './invasion';
 import { teamPower, teamStatPower } from './combatPower';
+import { resolvedTeamLoadout } from './teamRules';
 export { teamPower } from './combatPower';
 
 // ---------------------------------------------------------------------------
@@ -45,6 +46,9 @@ export interface MirrorRecord {
   /** 队伍强度（与人机 rating 同口径） */
   power: number;
   heroLevel: number;
+  /** Recorded hero class/weapon; legacy snapshots may omit these. */
+  heroClassId?: string | null;
+  heroWeaponId?: string | null;
   bannerKingdom: string | null;
   /** 我方视角的战斗快照（出战时原样） */
   team: CombatantSnapshot[];
@@ -165,10 +169,14 @@ export function captureMirrorRecord(
     vp: save.invasion.vp,
     power: teamPower(snapshots),
     heroLevel: save.hero.level,
+    ...(team.members.some(m => m.kind === 'hero') ? resolvedTeamLoadout(save, team) : {}),
     bannerKingdom,
     team: snapshots,
     defense,
-    teamHash: teamHash(snapshots),
+    // Equipment identities also distinguish otherwise identical battle snapshots.
+    teamHash: team.members.some(m => m.kind === 'hero')
+      ? fnv1a32(JSON.stringify([teamHash(snapshots), resolvedTeamLoadout(save, team)])).toString(16)
+      : teamHash(snapshots),
     recordedAt: now,
     ruleset: RULESET_VERSION,
   };

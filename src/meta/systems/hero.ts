@@ -111,6 +111,8 @@ export function equipClass(save: MetaSave, classId: string): { ok: true; classId
     return fail('PREREQ_LOCKED', `职业「${def.name}」未解锁：通关 ${def.kingdom} 任务链 8 关`);
   }
   save.hero.classId = classId;
+  const active = save.teams[save.activeTeamIndex] ?? save.teams[0];
+  if (active?.members.some(m => m.kind === 'hero')) active.heroClassId = classId;
   if (classLevelOf(save, classId) <= 0) save.hero.classLevels[classId] = 1;
   return { ok: true, classId };
 }
@@ -166,6 +168,8 @@ export function equipWeapon(save: MetaSave, weaponId: string): { ok: true; weapo
   }
   // 起始池不写进存档（ownedWeaponIds 隐式并入）；非起始池的所有权在获取时已写入
   save.hero.equippedWeapon = weapon.id;
+  const active = save.teams[save.activeTeamIndex] ?? save.teams[0];
+  if (active?.members.some(m => m.kind === 'hero')) active.heroWeaponId = weapon.id;
   return { ok: true, weaponId: weapon.id };
 }
 
