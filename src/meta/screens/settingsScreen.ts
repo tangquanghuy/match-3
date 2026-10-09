@@ -11,7 +11,6 @@ import { audioControlsHtml, bindAudioControls } from '../../preferences/audioCon
  */
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { MetaSave } from '../state/schema';
-import { hasRedeemedLikes9000 } from '../systems/redeemCodes';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled, backgroundRunEnabled, setBackgroundRunEnabled } from '../../render/battlePrefs';
 import { allKingdoms } from '../data/kingdoms';
@@ -196,8 +195,25 @@ const SETTINGS_CSS = `
   .settings-screen .s-btn.danger-btn:hover:not(:disabled) { color: #fff; border-color: #dc716a; background: linear-gradient(180deg, #452422, #2b171a); }
   .settings-screen .s-btn.danger-btn.armed { color: #fff; border-color: #ef8a82; background: linear-gradient(180deg, #6a2a26, #3b181c); box-shadow: 0 0 0 2px rgba(239, 138, 130, .22); }
   .settings-screen .settings-row { display: flex; flex-wrap: wrap; gap: 10px; }
-  .settings-screen .redeem-form { display: flex; flex-wrap: wrap; gap: 10px; }
-  .settings-screen .redeem-form input { flex: 1 1 160px; min-width: 0; padding: 9px 12px; color: var(--s-strong); background: #101018; border: 1px solid var(--s-edge); border-radius: 4px; font: 14px var(--body); }
+  .settings-screen .redeem-dialog {
+    position: fixed; inset: 0; width: min(440px, calc(100vw - 32px)); max-height: min(560px, calc(100dvh - 32px));
+    margin: auto; padding: 0; overflow: auto; color: var(--s-text);
+    background: linear-gradient(155deg, #1c1b25, #101018);
+    border: 1px solid #a78b59; border-radius: 8px; box-shadow: 0 20px 70px #000c;
+  }
+  .settings-screen .redeem-dialog::backdrop { background: rgba(4, 5, 10, .78); }
+  .settings-screen .redeem-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--s-rule); }
+  .settings-screen .redeem-dialog-head h2 { margin: 0; color: var(--s-gold); font: 21px var(--display); }
+  .settings-screen .redeem-dialog-body { display: flex; flex-direction: column; gap: 14px; padding: 20px; }
+  .settings-screen .redeem-entry { display: flex; gap: 8px; }
+  .settings-screen .redeem-entry input { flex: 1 1 auto; width: 0; }
+  .settings-screen .redeem-form { display: flex; flex-direction: column; gap: 14px; }
+  .settings-screen .redeem-form .s-btn[type="submit"] { align-self: flex-end; }
+  .settings-screen .redeem-feedback { margin: 0; padding: 10px 12px; border-radius: 4px; border: 1px solid; font: 13px/1.6 var(--body); }
+  .settings-screen .redeem-feedback.ok { color: #bfe3cd; border-color: #4f7d5f; background: rgba(36, 72, 48, .2); }
+  .settings-screen .redeem-feedback.bad { color: #f0c9c2; border-color: #b9504e; background: rgba(90, 35, 37, .2); }
+  .settings-screen .redeem-feedback a { color: #f0d9a4; }
+  .settings-screen .redeem-form input { min-width: 0; padding: 9px 12px; color: var(--s-strong); background: #101018; border: 1px solid var(--s-edge); border-radius: 4px; font: 14px var(--body); }
   .settings-screen .redeem-form input:focus-visible { outline: 2px solid #a6dff9; }
 
 
@@ -433,6 +449,8 @@ export class SettingsScreen implements Screen {
   private armed: 'demo' | 'new' | null = null;
   /** 修改器王国选择，刷新后还停在刚才那个王国 */
   private modifierKingdom: string | null = null;
+  private redeemDialogOpen = false;
+  private redeemFeedback: { kind: 'ok' | 'bad'; text: string } | null = null;
 
   html(ctx: ShellCtx): string {
     const cur = digestOf(ctx.save());
@@ -522,21 +540,11 @@ export class SettingsScreen implements Screen {
                 <div class="panel-inner settings-body">
                   ${account}
                   ${stats}
+                  <div class="settings-row"><button class="s-btn ghost" id="openRedeem" type="button">兑换码</button></div>
                   ${notice}
                 </div>
               </section>
 
-              <section class="panel settings-redeem-panel">
-                <div class="panel-head"><h2>兑换码</h2></div>
-                <div class="panel-inner settings-body">
-                  <p class="settings-note">每个兑换码在当前存档仅能使用一次。奖励以附件邮件送达；重置为全新档后可再次兑换。</p>
-                  <form class="redeem-form" id="redeemForm">
-                    <input id="redeemInput" type="text" maxlength="48" autocomplete="off" spellcheck="false" aria-label="输入兑换码" placeholder="输入兑换码" required>
-                    <button class="s-btn" id="redeemButton" type="submit">兑换</button>
-                  </form>
-                  ${hasRedeemedLikes9000(save) ? '<p class="settings-note" id="redeemStatus">9000赞邮件：该兑换码已经兑换过了</p>' : ''}
-                </div>
-              </section>
               <section class="panel danger-zone">
                 <div class="panel-head"><h2>危险操作</h2></div>
                 <div class="panel-inner settings-body">
@@ -600,6 +608,20 @@ export class SettingsScreen implements Screen {
             </div>
           </section>` : ''}
         </div>
+        <dialog class="redeem-dialog" id="redeemDialog" aria-labelledby="redeemTitle">
+          <div class="redeem-dialog-head"><h2 id="redeemTitle">兑换码</h2><button class="s-btn ghost" id="closeRedeem" type="button" aria-label="关闭兑换码窗口">关闭</button></div>
+          <div class="redeem-dialog-body">
+            <p class="settings-note">输入或粘贴兑换码，奖励将通过邮件发送。每个兑换码在当前存档限用一次。</p>
+            <form class="redeem-form" id="redeemForm">
+              <div class="redeem-entry">
+                <input id="redeemInput" type="text" maxlength="48" autocomplete="off" spellcheck="false" aria-label="输入兑换码" placeholder="输入兑换码" required>
+                <button class="s-btn ghost" id="pasteRedeem" type="button">粘贴</button>
+              </div>
+              <button class="s-btn" id="redeemButton" type="submit">确认兑换</button>
+            </form>
+            <p class="redeem-feedback ${this.redeemFeedback?.kind ?? ''}" id="redeemFeedback" role="status" ${this.redeemFeedback ? '' : 'hidden'}>${this.redeemFeedback?.text ?? ''}</p>
+          </div>
+        </dialog>
       </main>
       ${bottomNavHtml('', remote ? '进度已保存到云端' : '进度保存在本机浏览器')}
       ${toastHtml()}`;
@@ -655,7 +677,20 @@ export class SettingsScreen implements Screen {
     this.bind('#unlockKingdomBtn', 'click', () => void this.unlockKingdom());
     this.bind('#restoreRealBtn', 'click', () => void this.restoreCollection('restore-real'));
     this.bind('#restoreInitialBtn', 'click', () => void this.restoreCollection('restore-initial'));
+    const redeemDialog = $('#redeemDialog') as HTMLDialogElement;
+    this.bind('#openRedeem', 'click', () => this.openRedeem());
+    this.bind('#closeRedeem', 'click', () => { if (!this.redeeming) redeemDialog.close(); });
+    this.bind('#pasteRedeem', 'click', () => void this.pasteRedeem());
     this.bind('#redeemForm', 'submit', (event) => void this.redeem(event));
+    this.on(redeemDialog, 'cancel', (event) => { if (this.redeeming) event.preventDefault(); });
+    this.on(redeemDialog, 'close', () => { this.redeemDialogOpen = false; this.redeemFeedback = null; });
+    this.on(redeemDialog, 'click', (event) => {
+      if (event.target !== redeemDialog || this.redeeming) return;
+      const rect = redeemDialog.getBoundingClientRect();
+      const pointer = event as MouseEvent;
+      if (pointer.clientX < rect.left || pointer.clientX > rect.right || pointer.clientY < rect.top || pointer.clientY > rect.bottom) redeemDialog.close();
+    });
+    if (this.redeemDialogOpen) redeemDialog.showModal();
     this.bind('#resetNew', 'click', () => void this.reset(false));
     this.bind('#resetDemo', 'click', () => void this.reset(true));
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
@@ -885,6 +920,36 @@ export class SettingsScreen implements Screen {
 
   private redeeming = false;
 
+  private openRedeem(): void {
+    this.redeemFeedback = null;
+    this.redeemDialogOpen = true;
+    const dialog = $('#redeemDialog') as HTMLDialogElement;
+    this.showRedeemFeedback();
+    dialog.showModal();
+    ($('#redeemInput') as HTMLInputElement).focus();
+  }
+
+  private showRedeemFeedback(): void {
+    const feedback = $('#redeemFeedback');
+    if (!feedback) return;
+    feedback.hidden = !this.redeemFeedback;
+    feedback.className = `redeem-feedback ${this.redeemFeedback?.kind ?? ''}`;
+    feedback.innerHTML = this.redeemFeedback?.text ?? '';
+  }
+
+  private async pasteRedeem(): Promise<void> {
+    const input = $('#redeemInput') as HTMLInputElement;
+    try {
+      input.value = (await navigator.clipboard.readText()).trim();
+      this.redeemFeedback = null;
+      this.showRedeemFeedback();
+    } catch {
+      this.redeemFeedback = { kind: 'bad', text: '读取剪贴板失败，请在输入框中手动粘贴。' };
+      this.showRedeemFeedback();
+    }
+    input.focus();
+  }
+
   private async redeem(event: Event): Promise<void> {
     event.preventDefault();
     if (this.redeeming) return;
@@ -896,11 +961,16 @@ export class SettingsScreen implements Screen {
     button.disabled = true;
     try {
       const { result } = await this.ctx.gateway.redeemCode(code);
-      if (!result.ok) { this.showResult('bad', result.message); return; }
-      this.notice = { kind: 'ok', text: '<b>兑换成功！</b>奖励邮件已送达，请前往邮件领取附件。<a href="#mail">查看邮件</a>' };
+      if (!result.ok) {
+        this.redeemFeedback = { kind: 'bad', text: result.message };
+        this.showRedeemFeedback();
+        return;
+      }
+      this.redeemFeedback = { kind: 'ok', text: '兑换成功！奖励邮件已送达。<a href="#mail">前往邮件领取附件</a>' };
       this.ctx.refresh();
     } catch {
-      this.showResult('bad', '兑换失败，请稍后重试。');
+      this.redeemFeedback = { kind: 'bad', text: '兑换失败，请稍后重试。' };
+      this.showRedeemFeedback();
     } finally {
       this.redeeming = false;
       button.disabled = false;
