@@ -77,7 +77,7 @@ export function hydrateWishlist(raw: unknown, owned: (id: number) => boolean = (
     value.pursuit.limit = integer(p.limit) && p.limit > 0 && p.limit <= 1_000_000 ? p.limit : fallback;
     // 旧版后续轮次固定为 400 抽；只升级这一旧值，保留其他合法当轮快照。
     if (value.pursuit.completed >= 1 && value.pursuit.limit === 400) value.pursuit.limit = fallback;
-    value.pursuit.progress = integer(p.progress) ? Math.min(p.progress, value.pursuit.limit - 1) : 0;
+    value.pursuit.progress = integer(p.progress) ? Math.min(p.progress, value.pursuit.limit) : 0;
     value.pursuit.targetId = value.troopIds.includes(p.targetId!) && getTroopById(p.targetId!)?.rarityIdx === RULES.pursuitRarity ? p.targetId : null;
     if (BLOCKED_WISHLIST_IDS.has(p.targetId ?? -1)) value.pursuit.targetId = replacementPursuit(value.troopIds, owned);
   }
@@ -124,7 +124,7 @@ export function hydrateGachaAudit(raw: unknown, count: number): GachaAudit | und
     || a.reasons.some(r=>!['normal','ten-pity','pursuit','novice'].includes(r))) return undefined;
   for (const p of [a.pursuitBefore,a.pursuitAfter]) {
     if (!p || !Number.isSafeInteger(p.progress) || p.progress < 0 || !Number.isSafeInteger(p.completed) || p.completed < 0
-      || !Number.isSafeInteger(p.limit) || p.limit < 1 || p.progress >= p.limit
+      || !Number.isSafeInteger(p.limit) || p.limit < 1 || p.progress > p.limit
       || (p.targetId !== null && (!a.wishlistIds.includes(p.targetId) || getTroopById(p.targetId)?.rarityIdx !== RULES.pursuitRarity))) return undefined;
   }
   return { rulesVersion:a.rulesVersion,wishlistIds:[...a.wishlistIds],reasons:[...a.reasons],pursuitBefore:{...a.pursuitBefore},pursuitAfter:{...a.pursuitAfter} };

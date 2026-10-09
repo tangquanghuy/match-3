@@ -623,13 +623,13 @@ export class ChestsScreen implements Screen {
     if (pursuitButton) {
       pursuitButton.classList.toggle('is-missing', !pursuitTarget);
       pursuitButton.setAttribute('aria-label', pursuitTarget
-        ? `神话追寻：${pursuitTarget.name}，最多再 ${Math.max(0, wish.pursuit.limit - wish.pursuit.progress)} 抽`
-        : '神话追寻未设置，前往设置');
+        ? `神话追寻：${pursuitTarget.name}，${wish.pursuit.progress >= wish.pursuit.limit ? '下一抽必出' : `最多再 ${wish.pursuit.limit - wish.pursuit.progress} 抽`}`
+        : `神话追寻未设置，进度 ${wish.pursuit.progress} / ${wish.pursuit.limit} 抽，前往设置`);
     }
     set('pursuitSummary', pursuitTarget?.name ?? '未设置');
     set('pursuitProgress', pursuitTarget
       ? `${wish.pursuit.progress} / ${wish.pursuit.limit} 抽`
-      : wish.pursuit.progress > 0 ? `已保留 ${wish.pursuit.progress} 抽` : '去设置 →');
+      : wish.pursuit.progress >= wish.pursuit.limit ? '选定后下一抽必出' : `${wish.pursuit.progress} / ${wish.pursuit.limit} 抽`);
     set('dockKeyBalance', String(c.goldKeys));
     set('dockGoldBalance', fmt(c.gold));
     set('dockGemBalance', fmt(c.gems));
@@ -836,7 +836,7 @@ export class ChestsScreen implements Screen {
         <small class="wishlist-reminder-pursuit-label">神话追寻</small>
         <strong class="wishlist-reminder-pursuit-name">${pursuitTarget ? pursuitName : '未设置'}</strong>
         ${pursuitTarget || missing === 0 ? '' : '<button class="wishlist-reminder-inline-settings" id="wishlistReminderPursuitSettings" type="button">设置 <span aria-hidden="true">→</span></button>'}
-        <p class="wishlist-reminder-pursuit-hint">${pursuitTarget ? `进度 ${pursuit.progress} / ${pursuit.limit} 抽` : '未设置时，抽卡不计入追寻进度'}</p>
+        <p class="wishlist-reminder-pursuit-hint">进度 ${pursuit.progress} / ${pursuit.limit} 抽${pursuit.progress >= pursuit.limit ? `；${pursuitTarget ? '下一抽必出' : '选目标后下一抽必出'}` : pursuitTarget ? '' : '；未选择目标也累计'}</p>
         ${pursuitTarget ? `<span class="wishlist-reminder-pursuit-meter"><i style="width:${Math.min(100, Math.round((pursuit.progress / pursuit.limit) * 100))}%"></i></span>` : ''}
       </section>
       <section class="wishlist-reminder-range" aria-label="愿望单选择范围">

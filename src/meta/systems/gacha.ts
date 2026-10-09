@@ -163,7 +163,7 @@ function rollBatch(
     if (!guaranteed && band === EXTRA_BAND && extras) {
       // 材料抽：不出卡、不写 reasons（reasons 与日志里的部队逐张对齐），但照常计入追寻进度
       drops.push({ kind: 'item', item: addLoot(extras.acc, pickRow(extras.rows, rng).loot as Exclude<ChestLoot, { type: 'troop' }>, rng) });
-      if (pursuing) pursuit.progress++;
+      if (audit) pursuit.progress = Math.min(pursuit.limit, pursuit.progress + 1);
       continue;
     }
     let troopId: number;
@@ -175,9 +175,9 @@ function rollBatch(
       else if (selected.length) troopId = rng.pick(BY_RARITY_IDX[band]!.filter((t) => !selected.includes(t.id))).id;
       else troopId = pickTroopInBand(band, rng);
     } else troopId = pickTroopInBand(band, rng);
-    if (pursuing) {
-      pursuit.progress++;
-      if (troopId === pursuit.targetId) {
+    if (audit) {
+      pursuit.progress = Math.min(pursuit.limit, pursuit.progress + 1);
+      if (pursuing && troopId === pursuit.targetId) {
         pursuit.targetId = null; pursuit.progress = 0; pursuit.completed++;
         pursuit.limit = pursuitLimitFor(pursuit.completed);
       }
@@ -272,6 +272,15 @@ export function openGemChest(
     // 前 9 张与普通十连同概率；只把第 10 张固定换成异界来客
     cards = rollBatch(save, GEM_CHEST_WEIGHTS, rng, count - 1, false, audit, extras, drops).cards;
     const card = commit(save, pickNoviceVisitor(rng));
+    // The tenth novice draw is still a paid draw; the visitor guarantee takes precedence here.
+    const pursuit = save.gachaWishlist.pursuit;
+    pursuit.progress = Math.min(pursuit.limit, pursuit.progress + 1);
+    if (pursuit.targetId === card.troopId) {
+      pursuit.targetId = null;
+      pursuit.progress = 0;
+      pursuit.completed++;
+      pursuit.limit = pursuitLimitFor(pursuit.completed);
+    }
     card.wishlistHit = audit.wishlistIds.includes(card.troopId);
     card.noviceGuaranteed = true;
     audit.reasons.push('novice');

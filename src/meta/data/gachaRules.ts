@@ -1,6 +1,6 @@
 /** 愿望单与追寻单源；调参后递增版本。运行时与经济模型共用。 */
 export const GACHA_RULES = {
-  version: 6,
+  version: 7,
   slotsPerRarity: 9,
   maxTroops: 27,
   minRarity: 3,
@@ -20,6 +20,7 @@ export function pursuitLimitFor(completed: number): number {
 
 export interface GachaPursuit {
   targetId: number | null;
+  /** Paid gem draws since the last pursuit; capped at limit until a target is chosen. */
   progress: number;
   completed: number;
   /** 当轮快照：后续调参不追溯增加已经开始的追寻上限。 */

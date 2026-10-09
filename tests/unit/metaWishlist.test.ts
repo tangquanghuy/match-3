@@ -1,6 +1,7 @@
 import { GEM_CHEST_WEIGHTS, GEM_CHEST_BASE } from '../../src/meta/data/economy';
 import { describe,it,expect,vi,afterEach } from 'vitest';
-import { TROOPS } from '../../src/data/troops';
+import { TROOPS, getTroopById } from '../../src/data/troops';
+import { ROLE_NAMES } from '../../src/meta/data/roles';
 import { SeededRNG } from '../../src/engine/rng';
 import { newSave } from '../../src/meta/state/schema';
 import { hydrateSave } from '../../src/meta/state/save';
@@ -76,7 +77,7 @@ describe('真实抽卡和神话首张追寻',()=>{
  it.each([{completed:1,progress:300,limit:250},{completed:2,progress:350,limit:300}])('旧400抽档超过新$limit抽阈值，重载后下一抽触发保底',({completed,progress,limit})=>{
   const old=setup();old.gachaWishlist.pursuit={targetId:target.id,progress,completed,limit:400};
   const s=hydrateSave(JSON.parse(JSON.stringify(old)));
-  expect(s.gachaWishlist.pursuit).toEqual({targetId:target.id,progress:limit-1,completed,limit});
+  expect(s.gachaWishlist.pursuit).toEqual({targetId:target.id,progress:limit,completed,limit});
   vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
   const r=openGemChest(s,1);if(!r.ok)throw Error(r.message);
   expect(r.cards).toHaveLength(1);expect(r.cards[0]).toMatchObject({troopId:target.id,pursuitGuaranteed:true});
@@ -105,12 +106,12 @@ describe('真实抽卡和神话首张追寻',()=>{
   expect(s.gachaLog[0]!.audit!.reasons).toEqual(['pursuit']);
   expect(hydrateSave(JSON.parse(JSON.stringify(s))).gachaLog[0]!.audit).toEqual(s.gachaLog[0]!.audit);
  });
- it('十连追寻优先于稀有保底，完成后的余下抽数暂停追寻',()=>{
-  const s=setup();s.gachaWishlist.pursuit.progress=190;vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
+ it('十连追寻优先于稀有保底，完成后的余下抽数累计进下一轮',()=>{
+  const s=setup();s.onboarding.noviceSummonUsed=true;s.gachaWishlist.pursuit.progress=190;vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
   const r=openGemChest(s,1,10);if(!r.ok)throw Error(r.message);
   expect(r.cards).toHaveLength(10);expect(r.pityUsed).toBe(false);expect(r.cards[9]!.troopId).toBe(target.id);expect(s.gachaWishlist.pursuit.progress).toBe(0);
-  const s2=setup();s2.gachaWishlist.pursuit.progress=199;const r2=openGemChest(s2,1,10);if(!r2.ok)throw Error(r2.message);
-  expect(r2.cards[0]!.troopId).toBe(target.id);expect(r2.pityUsed).toBe(false);expect(s2.gachaWishlist.pursuit.progress).toBe(0);
+  const s2=setup();s2.onboarding.noviceSummonUsed=true;s2.gachaWishlist.pursuit.progress=199;const r2=openGemChest(s2,1,10);if(!r2.ok)throw Error(r2.message);
+  expect(r2.cards[0]!.troopId).toBe(target.id);expect(r2.pityUsed).toBe(false);expect(s2.gachaWishlist.pursuit.progress).toBe(9);
  });
  it('自然命中完成，其他神话不清零',()=>{
   const s=setup();s.gachaWishlist.pursuit.progress=50;
@@ -124,16 +125,52 @@ describe('真实抽卡和神话首张追寻',()=>{
   const s=fresh();setWishlist(s,[target.id]);vi.spyOn(SeededRNG.prototype,'next').mockReturnValueOnce(mythicRoll).mockReturnValueOnce(.9).mockReturnValueOnce(0);
   const r=openGemChest(s,1);if(!r.ok)throw Error(r.message);expect(r.cards[0]!.rarityIdx).toBe(5);expect(r.cards[0]!.troopId).not.toBe(target.id);
  });
- it('切换、移除、暂停保留进度和当轮快照；暂停抽卡不累计',()=>{
+ it('切换、移除、暂停保留进度和当轮快照；无目标抽卡继续累计',()=>{
   const s=setup();s.gachaWishlist.pursuit.progress=88;s.gachaWishlist.pursuit.limit=250;
   setPursuitTarget(s,other.id);expect(s.gachaWishlist.pursuit).toMatchObject({targetId:other.id,progress:88,limit:250});
-  setWishlist(s,[target.id]);expect(s.gachaWishlist.pursuit.targetId).toBeNull();openGemChest(s,8);expect(s.gachaWishlist.pursuit.progress).toBe(88);
+  setWishlist(s,[target.id]);expect(s.gachaWishlist.pursuit.targetId).toBeNull();openGemChest(s,8);expect(s.gachaWishlist.pursuit.progress).toBe(89);
   setPursuitTarget(s,target.id);expect(s.gachaWishlist.pursuit.limit).toBe(250);
  });
  it('真实已拥有目标不可追寻，外部获得后暂停并保留进度',()=>{
   const s=setup();s.gachaWishlist.pursuit.progress=30;grantTroop(s,target.id,1);expect(setPursuitTarget(s,target.id).ok).toBe(false);
-  openGemChest(s,9);expect(s.gachaWishlist.pursuit).toMatchObject({targetId:null,progress:30});
+  openGemChest(s,9);expect(s.gachaWishlist.pursuit).toMatchObject({targetId:null,progress:31});
   const s2=fresh();grantTroop(s2,target.id,1);s2.collectionTruth={};setWishlist(s2,[target.id]);expect(setPursuitTarget(s2,target.id).ok).toBe(true);
+ });
+ it('无目标单抽、十连和材料抽累计进度，满额封顶，选定后第一抽保底',()=>{
+   const s=fresh();s.gachaWishlist.pursuit.progress=198;
+   vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(.999999);
+   const material=openGemChest(s,1);if(!material.ok)throw Error(material.message);
+   expect(material.drops.some(d=>d.kind==='item')).toBe(true);
+   expect(s.gachaWishlist.pursuit.progress).toBe(199);
+   s.onboarding.noviceSummonUsed=true;
+   const ten=openGemChest(s,2,10);if(!ten.ok)throw Error(ten.message);
+   expect(s.gachaWishlist.pursuit).toEqual({targetId:null,progress:200,completed:0,limit:200});
+   expect(ten.cards.some(c=>c.pursuitGuaranteed)).toBe(false);
+   openGemChest(s,3);expect(s.gachaWishlist.pursuit.progress).toBe(200);
+   expect(setWishlist(s,[target.id]).ok).toBe(true);
+   expect(setPursuitTarget(s,target.id).ok).toBe(true);
+   const restored=hydrateSave(JSON.parse(JSON.stringify(s)));
+   expect(restored.gachaWishlist.pursuit.progress).toBe(200);
+   const hit=openGemChest(restored,4);if(!hit.ok)throw Error(hit.message);
+   expect(hit.cards[0]).toMatchObject({troopId:target.id,pursuitGuaranteed:true});
+   expect(restored.gachaLog[0]!.audit).toMatchObject({reasons:['pursuit'],pursuitBefore:{progress:200},pursuitAfter:{progress:0,completed:1}});
+   expect(hydrateSave(JSON.parse(JSON.stringify(restored))).gachaLog[0]!.audit).toEqual(restored.gachaLog[0]!.audit);
+ });
+ it('未设目标抽中神话不清空累计进度',()=>{
+   const s=fresh();s.gachaWishlist.pursuit.progress=99;
+   vi.spyOn(SeededRNG.prototype,'next').mockReturnValueOnce(mythicRoll).mockReturnValue(0);
+   const r=openGemChest(s,1);if(!r.ok)throw Error(r.message);
+   expect(r.cards[0]!.rarityIdx).toBe(5);
+   expect(s.gachaWishlist.pursuit).toMatchObject({targetId:null,progress:100,completed:0});
+ });
+ it('新手十连第十张计进度，异界来客优先于追寻阈值',()=>{
+   const s=setup();s.onboarding.noviceSummonUsed=false;s.gachaWishlist.pursuit.progress=190;
+   vi.spyOn(SeededRNG.prototype,'next').mockReturnValue(0);
+   const r=openGemChest(s,1,10);if(!r.ok)throw Error(r.message);
+   expect(r.cards[9]!.noviceGuaranteed).toBe(true);
+   expect(s.gachaWishlist.pursuit.progress).toBe(200);
+   const next=openGemChest(s,2);if(!next.ok)throw Error(next.message);
+   expect(next.cards[0]).toMatchObject({troopId:target.id,pursuitGuaranteed:true});
  });
  it('宝石不足或非法抽数无任何副作用；金币/荣耀不推进追寻',()=>{
   const s=setup();s.currencies.gems=0;const before=JSON.stringify(s);expect(openGemChest(s,1).ok).toBe(false);expect(openGemChest(s,1,7).ok).toBe(false);expect(JSON.stringify(s)).toBe(before);
@@ -199,4 +236,11 @@ describe('blocked mythics wishlist migration', () => {
     expect(purgeBlockedWishlist(s)).toBe(true);
     expect(s.gachaWishlist).toEqual({ troopIds: [], pursuit: { targetId: null, progress: 32, completed: 0, limit: 200 } });
   });
+});
+
+it('双鱼神定位为刺客',()=>{
+ const troop=getTroopById(7155)!;
+ expect(troop.name).toBe('双鱼神');
+ expect(troop.role).toBe('Assassin');
+ expect(ROLE_NAMES[troop.role!]).toBe('刺客');
 });
