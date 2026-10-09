@@ -5,6 +5,7 @@ import { abandonExploreRun, advanceExploreRun, exploreBattleSeed, exploreRunMatc
 import { mirrorFromEntry } from '../systems/invasionMirrors';
 import { earn } from '../systems/wallet';
 import { readMail, claimMail, claimAllMail, chooseMailMythic } from '../systems/mailbox';
+import { redeemCode } from '../systems/redeemCodes';
 import { queueDefensePublish, accountDefenseLog, defenseEntryKey, validSnapshot, type DefenseLog } from '../systems/invasionDefense';
 /**
  * Meta 权威核心：执行一条命令，产出结果与新存档。
@@ -531,6 +532,8 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       return withMaterials(claimGift(save, (command.args as CommandArgs<'claimGift'>).id, env.seed()));
     case 'claimAllGifts':
       return withMaterials(claimAllGifts(save, env.seed()));
+    case 'redeemCode':
+      return done(redeemCode(save, (command.args as CommandArgs<'redeemCode'>).code, now));
     case 'readMail':
       return done(readMail(save, (command.args as CommandArgs<'readMail'>).id, now));
     case 'claimMail':

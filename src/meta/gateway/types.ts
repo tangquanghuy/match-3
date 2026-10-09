@@ -97,6 +97,7 @@ export interface MetaGateway {
   // —— 系统 ——
   /** 进入材料库后清除“有新材料”提示 */
   markMaterialsSeen(): Promise<GatewayUpdate<boolean>>;
+  redeemCode(code: string): Promise<GatewayUpdate<Ok<{ mailId: string }> | MetaFailure>>;
   readMail(id: string): Promise<GatewayUpdate<Ok | MetaFailure>>;
   claimMail(id: string): Promise<GatewayUpdate<Ok | MetaFailure>>;
   claimAllMail(): Promise<GatewayUpdate<Ok<{ count: number }>>>;

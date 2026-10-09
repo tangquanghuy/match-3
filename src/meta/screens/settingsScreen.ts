@@ -11,6 +11,7 @@ import { audioControlsHtml, bindAudioControls } from '../../preferences/audioCon
  */
 import { bottomNavHtml, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
 import type { MetaSave } from '../state/schema';
+import { hasRedeemedLikes9000 } from '../systems/redeemCodes';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { setSkipCastConfirm, skipCastConfirm, autoBattleEnabled, setAutoBattleEnabled, backgroundRunEnabled, setBackgroundRunEnabled } from '../../render/battlePrefs';
 import { allKingdoms } from '../data/kingdoms';
@@ -195,6 +196,10 @@ const SETTINGS_CSS = `
   .settings-screen .s-btn.danger-btn:hover:not(:disabled) { color: #fff; border-color: #dc716a; background: linear-gradient(180deg, #452422, #2b171a); }
   .settings-screen .s-btn.danger-btn.armed { color: #fff; border-color: #ef8a82; background: linear-gradient(180deg, #6a2a26, #3b181c); box-shadow: 0 0 0 2px rgba(239, 138, 130, .22); }
   .settings-screen .settings-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .settings-screen .redeem-form { display: flex; flex-wrap: wrap; gap: 10px; }
+  .settings-screen .redeem-form input { flex: 1 1 160px; min-width: 0; padding: 9px 12px; color: var(--s-strong); background: #101018; border: 1px solid var(--s-edge); border-radius: 4px; font: 14px var(--body); }
+  .settings-screen .redeem-form input:focus-visible { outline: 2px solid #a6dff9; }
+
 
   /* ---------- 账号与存档 ---------- */
   .settings-screen .account-card {
@@ -521,6 +526,17 @@ export class SettingsScreen implements Screen {
                 </div>
               </section>
 
+              <section class="panel settings-redeem-panel">
+                <div class="panel-head"><h2>兑换码</h2></div>
+                <div class="panel-inner settings-body">
+                  <p class="settings-note">每个兑换码在当前存档仅能使用一次。奖励以附件邮件送达；重置为全新档后可再次兑换。</p>
+                  <form class="redeem-form" id="redeemForm">
+                    <input id="redeemInput" type="text" maxlength="48" autocomplete="off" spellcheck="false" aria-label="输入兑换码" placeholder="输入兑换码" required>
+                    <button class="s-btn" id="redeemButton" type="submit">兑换</button>
+                  </form>
+                  ${hasRedeemedLikes9000(save) ? '<p class="settings-note" id="redeemStatus">9000赞邮件：该兑换码已经兑换过了</p>' : ''}
+                </div>
+              </section>
               <section class="panel danger-zone">
                 <div class="panel-head"><h2>危险操作</h2></div>
                 <div class="panel-inner settings-body">
@@ -639,6 +655,7 @@ export class SettingsScreen implements Screen {
     this.bind('#unlockKingdomBtn', 'click', () => void this.unlockKingdom());
     this.bind('#restoreRealBtn', 'click', () => void this.restoreCollection('restore-real'));
     this.bind('#restoreInitialBtn', 'click', () => void this.restoreCollection('restore-initial'));
+    this.bind('#redeemForm', 'submit', (event) => void this.redeem(event));
     this.bind('#resetNew', 'click', () => void this.reset(false));
     this.bind('#resetDemo', 'click', () => void this.reset(true));
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
@@ -866,7 +883,31 @@ export class SettingsScreen implements Screen {
       : '已关闭快速释放：点击角色先打开详情，再从详情里释放。');
   }
 
-  /** S-5：页内两段式确认，取代跳出舞台的原生 confirm()（两条文案只差两字、默认焦点在"确定"） */
+  private redeeming = false;
+
+  private async redeem(event: Event): Promise<void> {
+    event.preventDefault();
+    if (this.redeeming) return;
+    const input = $('#redeemInput') as HTMLInputElement;
+    const button = $('#redeemButton') as HTMLButtonElement;
+    const code = input.value.trim();
+    if (!code) return;
+    this.redeeming = true;
+    button.disabled = true;
+    try {
+      const { result } = await this.ctx.gateway.redeemCode(code);
+      if (!result.ok) { this.showResult('bad', result.message); return; }
+      this.notice = { kind: 'ok', text: '<b>兑换成功！</b>奖励邮件已送达，请前往邮件领取附件。<a href="#mail">查看邮件</a>' };
+      this.ctx.refresh();
+    } catch {
+      this.showResult('bad', '兑换失败，请稍后重试。');
+    } finally {
+      this.redeeming = false;
+      button.disabled = false;
+    }
+  }
+
+  /** S-5：页内两段式确认，取代跳出舞台的原生 confirm()。 */
   private resetting = false;
 
   private async reset(demo: boolean): Promise<void> {

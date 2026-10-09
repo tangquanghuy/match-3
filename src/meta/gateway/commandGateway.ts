@@ -70,6 +70,7 @@ export class CommandGateway implements MetaGateway {
   regionalAction(args: RegionalAction) { return this.cmd('regionalAction', args); }
   planRegionalBattle(args: RegionalPlanArgs) { return this.plan('planRegionalBattle', args); }
   markMaterialsSeen() { return this.cmd('markMaterialsSeen', {}); }
+  redeemCode(code: string) { return this.cmd('redeemCode', { code }); }
   readMail(id: string) { return this.cmd('readMail', { id }); }
   claimMail(id: string) { return this.cmd('claimMail', { id }); }
   claimAllMail() { return this.cmd('claimAllMail', {}); }

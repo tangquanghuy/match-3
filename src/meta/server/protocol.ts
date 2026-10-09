@@ -120,6 +120,7 @@ export interface CommandTable {
   planRegionalBattle: { args: RegionalPlanArgs; result: BattleTicket | MetaFailure };
   // —— 系统 ——
   markMaterialsSeen: { args: object; result: boolean };
+  redeemCode: { args: { code: string }; result: Ok<{ mailId: string }> | MetaFailure };
   readMail: { args: { id: string }; result: Ok | MetaFailure };
   claimMail: { args: { id: string }; result: Ok | MetaFailure };
   claimAllMail: { args: object; result: Ok<{ count: number }> };
@@ -278,6 +279,7 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'claimGift',
   'claimAllGifts',
   'claimMail',
+  'redeemCode',
   'claimAllMail',
   'chooseMailMythic',
   'buyEventGoods',
