@@ -26,9 +26,9 @@ const DRAGONS = [['troop:7440', BaseColor.Blue], ['troop:7441', BaseColor.Green]
 
 describe('R009 giant gem dragons (spells 8844-8849)', () => {
   it('fixture board has 30 hot gems', () => { for (const [, c] of GIANTS) expect(countHot(hotBoard(c), c)).toBe(30); });
-  for (const [key, color] of GIANTS) it(`${key}: 5 ${color} -> giantGem/${color}, damage 15+6+2x30`, () => {
+  for (const [key, color] of GIANTS) it(`${key}: 5 ${color} -> giantGem/${color}, damage 16+6+2x30`, () => {
     const r = castSpell({ key, board: hotBoard(color) });
-    expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 81 (all)`));
+    expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 82 (all)`));
     expect(r.summary.order).toContain(`convert ${color} x5 -> giantGem/${color} x5`);
     // extra-turn roll precedes the conversion (same segment order as the dragon rows below, which prove it at 100%)
     expect(r.summary.order.at(-1)).toMatch(/^convert /);
@@ -39,7 +39,7 @@ describe('R009 dragon gem dragons (spells 9132-9137)', () => {
   for (const [key, color] of DRAGONS) it(`${key}: 5 ${color} -> dragonGem/${color}; 30 ${color} -> 10% + 3x30 = 100% extra turn`, () => {
     for (let seed = 1; seed <= 12; seed++) {
       const r = castSpell({ key, board: hotBoard(color), seed });
-      expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 31 (all)`));
+      expect(r.summary.order.filter(x => x.startsWith('dmg'))).toEqual(['E10', 'E11', 'E12', 'E13'].map(e => `dmg ${e} 23 (all)`));
       expect(r.summary.order).toContain(`convert ${color} x5 -> dragonGem/${color} x5`);
       expect(r.summary.order).toContain('extra-turn skill');
     }

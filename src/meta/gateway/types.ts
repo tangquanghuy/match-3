@@ -100,6 +100,7 @@ export interface MetaGateway {
   readMail(id: string): Promise<GatewayUpdate<Ok | MetaFailure>>;
   claimMail(id: string): Promise<GatewayUpdate<Ok | MetaFailure>>;
   claimAllMail(): Promise<GatewayUpdate<Ok<{ count: number }>>>;
+  chooseMailMythic(id: string, troopId: number): Promise<GatewayUpdate<Ok<{ troopId: number; duplicate: boolean }> | MetaFailure>>;
   /** 记录地图迷雾揭幕已播到的等级 */
   markMapSeen(level: number): Promise<GatewayUpdate<number | MetaFailure>>;
   /** 重开：全新档（新手引导起步） */

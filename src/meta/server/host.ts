@@ -16,7 +16,9 @@ import { defenseRecord, defensePublicationStamp, emptyDefenseLog } from '../syst
 import type { MetaSave } from '../state/schema';
 import type { MailItem } from '../state/schema';
 import { MetaSaveError } from '../state/save';
-import { buildPatch, diffRecords, recordsToSave, saveToRecords, type RecordChanges, type SaveRecords } from '../state/records';
+import { assembleRaw, buildPatch, diffRecords, recordsToSave, saveToRecords, type RecordChanges, type SaveRecords } from '../state/records';
+import { correctGraydoveRetirementMail, prepareTroopRetirementWithMail, retirementCompensations, updateGraydoveRetirementWording } from '../systems/retiredTroops';
+import { hydrateGachaAudit } from '../systems/wishlist';
 import { INVASION } from '../data/economy';
 import { commandPoolNeeds, createFreshSave, runCommand, type CommandEffects, type CommandIo, type FreshSaveKind } from './core';
 import type { ServerEnv } from './env';
@@ -153,6 +155,309 @@ export class MetaHost {
 
   /** 立即落盘所有脏记录（下线 / 实例回收前调用） */
   /** Production cleanup, serialized with live player commands. */
+  /** One-account pilot: serialized with live commands, CAS against locally backed-up RAW save. */
+  retireGraydove(expectedRevision: number, expectedRawSha256: string): Promise<
+    { status: 'retired'; revision: number; removed: number[]; mailId: string; affectedTeams: number[] }
+    | { status: 'stale' | 'pending-battle' | 'unexpected-owner' | 'already-retired'; revision: number | null }
+  > {
+    return this.serial(async () => {
+      const { records } = await this.repo.load();
+      if (!records) return { status: 'stale', revision: null };
+      const raw = assembleRaw(records);
+      const bytes = new TextEncoder().encode(JSON.stringify(raw));
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const storedRevision = JSON.parse(records.get('meta') ?? '{}').revision as number | undefined;
+      if (hash !== expectedRawSha256 || storedRevision !== expectedRevision ||
+          this.dirty.size > 0 || (this.save && this.save.revision !== expectedRevision))
+        return { status: 'stale', revision: storedRevision ?? null };
+      // Inspect the backed-up raw ticket before hydration: malformed/old tickets may be
+      // discarded by migration, but must not be silently treated as a settled battle.
+      if (raw.pendingBattle != null) return { status: 'pending-battle', revision: storedRevision };
+      const save = recordsToSave(records, this.env.now());
+      if (save.revision !== expectedRevision || save.pendingBattle)
+        return { status: 'stale', revision: save.revision };
+      const packages = retirementCompensations(save);
+      if (packages.length === 0 && save.mailbox.items.some(m => m.id === 'retirement-2026-10-09:7622'))
+        return { status: 'already-retired', revision: save.revision };
+      if (packages.length !== 1 || packages[0]!.troopId !== 7622 ||
+          save.mailbox.items.some(m => m.id === 'retirement-2026-10-09:7622'))
+        return { status: 'unexpected-owner', revision: save.revision };
+      const result = prepareTroopRetirementWithMail(save, this.env.now());
+      result.save.revision += 1;
+      result.save.savedAt = this.env.now();
+      const nextRecords = saveToRecords(result.save);
+      const changes = diffRecords(records, nextRecords);
+      // A failed write must not leave an in-memory mail or cleanup that a later
+      // unrelated player command could accidentally flush.
+      await this.repo.write({ fromRevision: expectedRevision, toRevision: result.save.revision,
+        set: changes.set, del: changes.del });
+      this.save = result.save;
+      this.records = nextRecords;
+      this.persistedRevision = result.save.revision;
+      return { status: 'retired', revision: result.save.revision, removed: result.removedCollection,
+        mailId: 'retirement-2026-10-09:7622', affectedTeams: result.affectedTeams };
+    });
+  }
+
+  /** Account-scoped retirement: caller first persists a local copy of the exact raw save.
+   *  Revision + SHA-256 are both checked under the player command serialization lock. */
+  retireBackedUpPlayer(expectedRevision: number, expectedRawSha256: string, allowPendingEncounterReferences = false): Promise<{
+    status: string; revision: number | null; removed?: number[]; mails?: string[]; affectedTeams?: number[];
+  }> {
+    return this.serial(async () => {
+      const { records } = await this.repo.load();
+      if (!records) return { status: 'stale', revision: null };
+      const raw = assembleRaw(records);
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(raw)));
+      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const storedRevision = JSON.parse(records.get('meta') ?? '{}').revision as number | undefined;
+      if (hash !== expectedRawSha256 || storedRevision !== expectedRevision || this.dirty.size > 0 ||
+          (this.save && this.save.revision !== expectedRevision))
+        return { status: 'stale', revision: storedRevision ?? null };
+      if (raw.pendingBattle != null) {
+        // This path is enabled solely for the designated deferred encounter account.
+        // Keep its battle ticket, rewards, collection and draw audits untouched.
+        if (!allowPendingEncounterReferences || (raw.pendingBattle as { mode?: string }).mode !== 'encounter')
+          return { status: 'pending-battle', revision: storedRevision ?? null };
+        const pendingSave = recordsToSave(records, this.env.now());
+        const retired = new Set([7446, 7622]);
+        if (Object.keys(pendingSave.collection).some(id => retired.has(Number(id))) ||
+            Object.keys(pendingSave.collectionTruth ?? {}).some(id => retired.has(Number(id))) ||
+            pendingSave.teams.some(team => team.members.some(m => m.kind === 'troop' && retired.has(m.troopId))) ||
+            pendingSave.invasion.defenseTeam?.members.some(m => m.kind === 'troop' && retired.has(m.troopId)) ||
+            pendingSave.favoriteTroopIds.some(id => retired.has(id)))
+          return { status: 'pending-battle', revision: storedRevision ?? null };
+        const wishlist = raw.gachaWishlist as { troopIds?: number[]; pursuit?: { targetId?: number | null } } | undefined;
+        const invasion = raw.invasion as { roster?: unknown } | undefined;
+        if (!wishlist || !Array.isArray(wishlist.troopIds) || !invasion ||
+            (!wishlist.troopIds.some(id => retired.has(id)) &&
+             !retired.has(wishlist.pursuit?.targetId ?? -1) &&
+             !/7446|7622/.test(JSON.stringify(invasion.roster ?? null))))
+          return { status: 'pending-battle', revision: storedRevision ?? null };
+        const cleaned = structuredClone(wishlist);
+        cleaned.troopIds = cleaned.troopIds!.filter(id => !retired.has(id));
+        if (cleaned.pursuit && retired.has(cleaned.pursuit.targetId ?? -1)) cleaned.pursuit.targetId = null;
+        const nextRevision = expectedRevision + 1;
+        const nextRecords = new Map(records);
+        nextRecords.set('gachaWishlist', JSON.stringify(cleaned));
+        nextRecords.set('invasion', JSON.stringify({ ...invasion, roster: null }));
+        nextRecords.set('meta', JSON.stringify({ ...JSON.parse(records.get('meta')!), savedAt: this.env.now(), revision: nextRevision }));
+        const changes = diffRecords(records, nextRecords);
+        await this.repo.write({ fromRevision: expectedRevision, toRevision: nextRevision, set: changes.set, del: changes.del });
+        this.save = recordsToSave(nextRecords, this.env.now());
+        this.records = nextRecords;
+        this.persistedRevision = nextRevision;
+        return { status: 'retired', revision: nextRevision, removed: [], mails: [], affectedTeams: [] };
+      }
+      const save = recordsToSave(records, this.env.now());
+      if (save.revision !== expectedRevision || save.pendingBattle)
+        return { status: 'stale', revision: save.revision };
+      const ids = new Set([7446, 7622]);
+      const references = [...Object.keys(save.collection), ...Object.keys(save.collectionTruth ?? {})].some(id => ids.has(Number(id))) ||
+        save.teams.some(team => team.members.some(m => m.kind === 'troop' && ids.has(m.troopId))) ||
+        !!save.invasion.defenseTeam?.members.some(m => m.kind === 'troop' && ids.has(m.troopId)) ||
+        save.favoriteTroopIds.some(id => ids.has(id)) || save.gachaWishlist.troopIds.some(id => ids.has(id)) ||
+        ids.has(save.gachaWishlist.pursuit.targetId ?? -1) ||
+        (save.invasion.roster !== null && /"(?:7446|7622)"/.test(JSON.stringify(save.invasion.roster)));
+      if (!references) {
+        // Hydration hides retired wishlist IDs, but the original records can still contain
+        // them. Persist the raw cleanup without rewriting any historical draw audits.
+        const wishlist = raw.gachaWishlist as { troopIds?: number[]; pursuit?: { targetId?: number | null } } | undefined;
+        if (!wishlist || (!wishlist.troopIds?.some(id => ids.has(id)) &&
+            !ids.has(wishlist.pursuit?.targetId ?? -1)))
+          return { status: 'already-retired', revision: save.revision };
+        const cleaned = structuredClone(wishlist);
+        if (Array.isArray(cleaned.troopIds)) cleaned.troopIds = cleaned.troopIds.filter(id => !ids.has(id));
+        if (ids.has(cleaned.pursuit?.targetId ?? -1) && cleaned.pursuit) cleaned.pursuit.targetId = null;
+        const nextRevision = expectedRevision + 1;
+        const nextRecords = new Map(records);
+        nextRecords.set('gachaWishlist', JSON.stringify(cleaned));
+        nextRecords.set('meta', JSON.stringify({ ...JSON.parse(records.get('meta')!), savedAt: this.env.now(), revision: nextRevision }));
+        const changes = diffRecords(records, nextRecords);
+        await this.repo.write({ fromRevision: expectedRevision, toRevision: nextRevision, set: changes.set, del: changes.del });
+        this.save = recordsToSave(nextRecords, this.env.now());
+        this.records = nextRecords;
+        this.persistedRevision = nextRevision;
+        return { status: 'retired', revision: nextRevision, removed: [], mails: [], affectedTeams: [] };
+      }
+      const packages = retirementCompensations(save);
+      if (packages.some(pkg => save.mailbox.items.some(m => m.id === `retirement-2026-10-09:${pkg.troopId}`)))
+        return { status: 'mail-mismatch', revision: save.revision };
+      const result = prepareTroopRetirementWithMail(save, this.env.now());
+      result.save.revision += 1;
+      result.save.savedAt = this.env.now();
+      const nextRecords = saveToRecords(result.save);
+      const changes = diffRecords(records, nextRecords);
+      await this.repo.write({ fromRevision: expectedRevision, toRevision: result.save.revision,
+        set: changes.set, del: changes.del });
+      this.save = result.save;
+      this.records = nextRecords;
+      this.persistedRevision = result.save.revision;
+      return { status: 'retired', revision: result.save.revision, removed: result.removedCollection,
+        mails: packages.map(pkg => `retirement-2026-10-09:${pkg.troopId}`), affectedTeams: result.affectedTeams };
+    });
+  }
+
+  /** CAS-backed repair of historical draw audits from locally captured pre-incident saves. */
+  restoreRetiredGachaAudits(expectedRevision: number, expectedRawSha256: string, originalLog: unknown): Promise<{ status: string; revision: number | null; restored?: number }> {
+    return this.serial(async () => {
+      const { records } = await this.repo.load();
+      if (!records) return { status: 'stale', revision: null };
+      const raw = assembleRaw(records);
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(raw)));
+      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const revision = JSON.parse(records.get('meta') ?? '{}').revision as number | undefined;
+      if (hash !== expectedRawSha256 || revision !== expectedRevision || this.dirty.size > 0 ||
+          (this.save && this.save.revision !== expectedRevision)) return { status: 'stale', revision: revision ?? null };
+      if (raw.pendingBattle != null) return { status: 'pending-battle', revision: revision ?? null };
+      if (!Array.isArray(originalLog) || !Array.isArray(raw.gachaLog) || originalLog.length > 50 || raw.gachaLog.length > 50)
+        return { status: 'audit-mismatch', revision: revision ?? null };
+      const previous = new Map<string, unknown>();
+      for (const entry of originalLog) {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return { status: 'audit-mismatch', revision: revision ?? null };
+        const { audit, ...identity } = entry as Record<string, unknown>;
+        const key = JSON.stringify(identity);
+        if (previous.has(key)) return { status: 'audit-mismatch', revision: revision ?? null };
+        if (audit !== undefined) {
+          const count = Array.isArray(identity.troops) ? identity.troops.length : -1;
+          if (!hydrateGachaAudit(audit, count)) return { status: 'audit-mismatch', revision: revision ?? null };
+        }
+        previous.set(key, audit);
+      }
+      let restored = 0;
+      const nextLog = (raw.gachaLog as Record<string, unknown>[]).map(entry => {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return null;
+        const { audit, ...identity } = entry;
+        const key = JSON.stringify(identity);
+        if (audit !== undefined || !previous.has(key) || previous.get(key) === undefined) return entry;
+        restored++;
+        return { ...entry, audit: previous.get(key) };
+      });
+      if (!restored || nextLog.includes(null)) return { status: 'audit-mismatch', revision: revision ?? null };
+      const nextRevision = expectedRevision + 1;
+      const nextRecords = new Map(records);
+      nextRecords.set('gachaLog', JSON.stringify(nextLog));
+      nextRecords.set('meta', JSON.stringify({ ...JSON.parse(records.get('meta')!), savedAt: this.env.now(), revision: nextRevision }));
+      const changes = diffRecords(records, nextRecords);
+      await this.repo.write({ fromRevision: expectedRevision, toRevision: nextRevision, set: changes.set, del: changes.del });
+      this.save = recordsToSave(nextRecords, this.env.now());
+      this.records = nextRecords;
+      this.persistedRevision = nextRevision;
+      return { status: 'audit-restored', revision: nextRevision, restored };
+    });
+  }
+
+  /** A second one-time mythic choice for Graydove; raw SHA-256 + revision CAS, one atomic commit. */
+  sendGraydoveMythicChoice(expectedRevision: number, expectedRawSha256: string): Promise<{
+    status: 'sent' | 'stale' | 'pending-battle' | 'mail-mismatch' | 'already-sent'; revision: number | null; mailId?: string;
+  }> {
+    return this.serial(async () => {
+      const { records } = await this.repo.load();
+      if (!records) return { status: 'stale', revision: null };
+      const raw = assembleRaw(records);
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(raw)));
+      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const revision = JSON.parse(records.get('meta') ?? '{}').revision as number | undefined;
+      if (hash !== expectedRawSha256 || revision !== expectedRevision || this.dirty.size > 0 ||
+          (this.save && this.save.revision !== expectedRevision)) return { status: 'stale', revision: revision ?? null };
+      if (raw.pendingBattle != null) return { status: 'pending-battle', revision: revision ?? null };
+      const save = recordsToSave(records, this.env.now());
+      if (save.revision !== expectedRevision || save.pendingBattle) return { status: 'stale', revision: save.revision };
+      const id = 'graydove-extra-mythic-choice-2026-10-09-2';
+      if (save.mailbox.items.some(mail => mail.id === id)) return { status: 'already-sent', revision: save.revision, mailId: id };
+      if (save.mailbox.items.filter(mail => mail.id === 'retirement-2026-10-09:7622').length !== 1 ||
+          save.mailbox.items.filter(mail => mail.id === 'graydove-extra-mythic-choice-2026-10-09').length !== 1 ||
+          save.collection['7622'] || save.collection['7446'] || save.collectionTruth?.['7622'] || save.collectionTruth?.['7446'])
+        return { status: 'mail-mismatch', revision: save.revision };
+      const next = structuredClone(save);
+      next.mailbox.items.push({ id, title: '\u7070\u9e20\u4e13\u5c5e\uff1a\u795e\u8bdd\u90e8\u961f\u81ea\u9009',
+        body: '\u4e3a\u7070\u9e20\u5355\u72ec\u8865\u53d1\u4e00\u4efd\u795e\u8bdd\u90e8\u961f\u81ea\u9009\u3002\u9886\u53d6\u9644\u4ef6\u540e\u53ef\u67e5\u770b\u795e\u8bdd\u90e8\u961f\u8be6\u60c5\u5e76\u786e\u8ba4\u9009\u62e9\uff1b\u9009\u62e9\u6210\u529f\u3001\u90e8\u961f\u8fdb\u5165\u6536\u85cf\u540e\u624d\u6d88\u8017\u81ea\u9009\u8d44\u683c\u3002',
+        sentAt: this.env.now(), readAt: null, claimedAt: null, currencies: {}, materials: {}, mythicChoice: 1 });
+      // Old opponent snapshots may still contain retired troops; discard only this cached matchmaking roster.
+      next.invasion.roster = null;
+      next.revision += 1;
+      next.savedAt = this.env.now();
+      const nextRecords = saveToRecords(next);
+      const changes = diffRecords(records, nextRecords);
+      await this.repo.write({ fromRevision: expectedRevision, toRevision: next.revision, set: changes.set, del: changes.del });
+      this.save = next;
+      this.records = nextRecords;
+      this.persistedRevision = next.revision;
+      return { status: 'sent', revision: next.revision, mailId: id };
+    });
+  }
+
+  /** One-account repair: CAS against a fresh raw backup, then atomically replace ONLY the unclaimed letter. */
+  correctGraydoveMail(expectedRevision: number, expectedRawSha256: string): Promise<
+    { status: 'corrected'; revision: number; mailId: string } |
+    { status: 'stale' | 'pending-battle' | 'mail-mismatch'; revision: number | null }
+  > {
+    return this.serial(async () => {
+      const { records } = await this.repo.load();
+      if (!records) return { status: 'stale', revision: null };
+      const raw = assembleRaw(records);
+      const bytes = new TextEncoder().encode(JSON.stringify(raw));
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const storedRevision = JSON.parse(records.get('meta') ?? '{}').revision as number | undefined;
+      if (hash !== expectedRawSha256 || storedRevision !== expectedRevision ||
+          this.dirty.size > 0 || (this.save && this.save.revision !== expectedRevision))
+        return { status: 'stale', revision: storedRevision ?? null };
+      if (raw.pendingBattle != null) return { status: 'pending-battle', revision: storedRevision ?? null };
+      const save = recordsToSave(records, this.env.now());
+      if (save.revision !== expectedRevision || save.pendingBattle)
+        return { status: 'stale', revision: save.revision };
+      let next: MetaSave;
+      try { next = correctGraydoveRetirementMail(save); }
+      catch { return { status: 'mail-mismatch', revision: save.revision }; }
+      next.revision += 1;
+      next.savedAt = this.env.now();
+      const nextRecords = saveToRecords(next);
+      const changes = diffRecords(records, nextRecords);
+      await this.repo.write({ fromRevision: expectedRevision, toRevision: next.revision,
+        set: changes.set, del: changes.del });
+      this.save = next;
+      this.records = nextRecords;
+      this.persistedRevision = next.revision;
+      return { status: 'corrected', revision: next.revision, mailId: 'retirement-2026-10-09:7622' };
+    });
+  }
+
+  /** Fixed player, one-time wording-only change; respects claimed attachment state. */
+  updateGraydoveMailWording(expectedRevision: number, expectedRawSha256: string): Promise<
+    { status: 'wording-updated'; revision: number; mailId: string } |
+    { status: 'stale' | 'pending-battle' | 'mail-mismatch'; revision: number | null }
+  > {
+    return this.serial(async () => {
+      const { records } = await this.repo.load();
+      if (!records) return { status: 'stale', revision: null };
+      const raw = assembleRaw(records);
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(raw)));
+      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      const storedRevision = JSON.parse(records.get('meta') ?? '{}').revision as number | undefined;
+      if (hash !== expectedRawSha256 || storedRevision !== expectedRevision ||
+          this.dirty.size > 0 || (this.save && this.save.revision !== expectedRevision))
+        return { status: 'stale', revision: storedRevision ?? null };
+      if (raw.pendingBattle != null) return { status: 'pending-battle', revision: storedRevision ?? null };
+      const save = recordsToSave(records, this.env.now());
+      if (save.revision !== expectedRevision || save.pendingBattle) return { status: 'stale', revision: save.revision };
+      let next: MetaSave;
+      try { next = updateGraydoveRetirementWording(save); }
+      catch { return { status: 'mail-mismatch', revision: save.revision }; }
+      next.revision += 1;
+      next.savedAt = this.env.now();
+      const nextRecords = saveToRecords(next);
+      const changes = diffRecords(records, nextRecords);
+      await this.repo.write({ fromRevision: expectedRevision, toRevision: next.revision,
+        set: changes.set, del: changes.del });
+      this.save = next;
+      this.records = nextRecords;
+      this.persistedRevision = next.revision;
+      return { status: 'wording-updated', revision: next.revision, mailId: 'retirement-2026-10-09:7622' };
+    });
+  }
+
   removeBlockedWishlist(): Promise<void> {
     return this.serial(async () => {
       await this.ensureLoaded();

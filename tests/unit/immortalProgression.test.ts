@@ -14,6 +14,7 @@ import { migrateSave } from '../../src/meta/state/save';
 import { levelCapOf, levelUp, troopStatsOf } from '../../src/meta/systems/troopProgress';
 import { validateTeam, setTeamPreset } from '../../src/meta/systems/teamRules';
 import { buildPlayerSnapshots } from '../../src/meta/systems/battleBridge';
+import { kingdomTeamBonusOf } from '../../src/meta/systems/kingdomTeamBonus';
 import { defenseRecord } from '../../src/meta/systems/invasionDefense';
 import { captureMirrorRecord, usableEntry } from '../../src/meta/systems/invasionMirrors';
 import { validateBattleRequest } from '../../src/session/validateRequest';
@@ -78,7 +79,8 @@ describe('Immortal project progression, shared by old records and new upgrades',
     const built = buildPlayerSnapshots(restored);
     expect(built.ok).toBe(true);
     if (!built.ok) throw new Error(built.message);
-    expect(built.playerTeam[0]!.stats).toMatchObject({ attack: 30, armor: 47, hp: 18, magic: 17 });
+    const teamBonus = kingdomTeamBonusOf(restored, restored.teams[0]!.members);
+    expect(built.playerTeam[0]!.stats).toMatchObject({ attack: 30 + teamBonus.attack, armor: 47 + teamBonus.armor, hp: 18 + teamBonus.health, magic: 17 + teamBonus.magic });
     restored.collection[troop.id]!.level = 30;
     expect(migrateSave(JSON.parse(JSON.stringify(restored))).collection[troop.id]!.level).toBe(30);
   });

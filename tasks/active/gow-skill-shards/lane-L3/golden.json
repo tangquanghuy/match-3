@@ -1331,73 +1331,73 @@
  },
  "troop:7245": {
   "lines": {
-   "L10": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-38 arm-5 | E11:hp-33 arm-10 | E12:hp-31 arm-12 | E13:hp-40 arm-3",
-   "R10": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-38 arm-5 | E11:hp-33 arm-10 | E12:hp-31 arm-12 | E13:hp-40 arm-3",
+   "L10": "dmg E10 44 (all) ; dmg E11 44 (all) ; dmg E12 44 (all) ; dmg E13 44 (all) ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-39 arm-5 | E11:hp-34 arm-10 | E12:hp-32 arm-12 | E13:hp-41 arm-3",
+   "R10": "dmg E10 44 (all) ; dmg E11 44 (all) ; dmg E12 44 (all) ; dmg E13 44 (all) ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-39 arm-5 | E11:hp-34 arm-10 | E12:hp-32 arm-12 | E13:hp-41 arm-3",
    "L0": "dmg E10 28 (all) ; dmg E11 28 (all) ; dmg E12 28 (all) ; dmg E13 28 (all) ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-23 arm-5 | E11:hp-18 arm-10 | E12:hp-16 arm-12 | E13:hp-25 arm-3",
-   "K": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 44 (all) ; dmg E11 44 (all) ; dmg E12 44 (all) ; dmg E13 44 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x5 -> giantGem/Blue x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
  "troop:7246": {
   "lines": {
-   "L10": "dmg E10 47 (all) ; dmg E11 47 (all) ; dmg E12 47 (all) ; dmg E13 47 (all) ; convert Green x5 -> giantGem/Green x5  => E10:hp-42 arm-5 | E11:hp-37 arm-10 | E12:hp-35 arm-12 | E13:hp-44 arm-3",
-   "R10": "dmg E10 47 (all) ; dmg E11 47 (all) ; dmg E12 47 (all) ; dmg E13 47 (all) ; convert Green x5 -> giantGem/Green x5  => E10:hp-42 arm-5 | E11:hp-37 arm-10 | E12:hp-35 arm-12 | E13:hp-44 arm-3",
+   "L10": "dmg E10 48 (all) ; dmg E11 48 (all) ; dmg E12 48 (all) ; dmg E13 48 (all) ; convert Green x5 -> giantGem/Green x5  => E10:hp-43 arm-5 | E11:hp-38 arm-10 | E12:hp-36 arm-12 | E13:hp-45 arm-3",
+   "R10": "dmg E10 48 (all) ; dmg E11 48 (all) ; dmg E12 48 (all) ; dmg E13 48 (all) ; convert Green x5 -> giantGem/Green x5  => E10:hp-43 arm-5 | E11:hp-38 arm-10 | E12:hp-36 arm-12 | E13:hp-45 arm-3",
    "L0": "dmg E10 32 (all) ; dmg E11 32 (all) ; dmg E12 32 (all) ; dmg E13 32 (all) ; convert Green x5 -> giantGem/Green x5  => E10:hp-27 arm-5 | E11:hp-22 arm-10 | E12:hp-20 arm-12 | E13:hp-29 arm-3",
-   "K": "dmg E10 47 (all) ; dmg E11 47 (all) ; dmg E12 47 (all) ; dmg E13 47 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Green x5 -> giantGem/Green x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 48 (all) ; dmg E11 48 (all) ; dmg E12 48 (all) ; dmg E13 48 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Green x5 -> giantGem/Green x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
  "troop:7247": {
   "lines": {
-   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; convert Red x5 -> giantGem/Red x5  => E10:hp-34 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3",
-   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; convert Red x5 -> giantGem/Red x5  => E10:hp-34 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3",
+   "L10": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; convert Red x5 -> giantGem/Red x5  => E10:hp-35 arm-5 | E11:hp-30 arm-10 | E12:hp-28 arm-12 | E13:hp-37 arm-3",
+   "R10": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; convert Red x5 -> giantGem/Red x5  => E10:hp-35 arm-5 | E11:hp-30 arm-10 | E12:hp-28 arm-12 | E13:hp-37 arm-3",
    "L0": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Red x5 -> giantGem/Red x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
-   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x5 -> giantGem/Red x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x5 -> giantGem/Red x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
  "troop:7248": {
   "lines": {
-   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-34 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3",
-   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-34 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3",
+   "L10": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-35 arm-5 | E11:hp-30 arm-10 | E12:hp-28 arm-12 | E13:hp-37 arm-3",
+   "R10": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-35 arm-5 | E11:hp-30 arm-10 | E12:hp-28 arm-12 | E13:hp-37 arm-3",
    "L0": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
-   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x5 -> giantGem/Yellow x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
  "troop:7249": {
   "lines": {
-   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-34 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3",
-   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-34 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3",
+   "L10": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-35 arm-5 | E11:hp-30 arm-10 | E12:hp-28 arm-12 | E13:hp-37 arm-3",
+   "R10": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-35 arm-5 | E11:hp-30 arm-10 | E12:hp-28 arm-12 | E13:hp-37 arm-3",
    "L0": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
-   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 40 (all) ; dmg E11 40 (all) ; dmg E12 40 (all) ; dmg E13 40 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x5 -> giantGem/Purple x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
  "troop:7250": {
   "lines": {
-   "L10": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-32 arm-5 | E11:hp-27 arm-10 | E12:hp-25 arm-12 | E13:hp-34 arm-3",
-   "R10": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-32 arm-5 | E11:hp-27 arm-10 | E12:hp-25 arm-12 | E13:hp-34 arm-3",
+   "L10": "dmg E10 38 (all) ; dmg E11 38 (all) ; dmg E12 38 (all) ; dmg E13 38 (all) ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-33 arm-5 | E11:hp-28 arm-10 | E12:hp-26 arm-12 | E13:hp-35 arm-3",
+   "R10": "dmg E10 38 (all) ; dmg E11 38 (all) ; dmg E12 38 (all) ; dmg E13 38 (all) ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-33 arm-5 | E11:hp-28 arm-10 | E12:hp-26 arm-12 | E13:hp-35 arm-3",
    "L0": "dmg E10 22 (all) ; dmg E11 22 (all) ; dmg E12 22 (all) ; dmg E13 22 (all) ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-17 arm-5 | E11:hp-12 arm-10 | E12:hp-10 arm-12 | E13:hp-19 arm-3",
-   "K": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 38 (all) ; dmg E11 38 (all) ; dmg E12 38 (all) ; dmg E13 38 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x5 -> giantGem/Brown x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
   "by": "sa-R2",
   "at": "2026-09-28T02:31:29.756Z"
  },
  "troop:7251": {
   "lines": {
-   "L10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; convert skull x5 -> doomSkull x5  => E10:hp-36 arm-5 | E11:hp-31 arm-10 | E12:hp-29 arm-12 | E13:hp-38 arm-3",
-   "R10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; convert skull x5 -> doomSkull x5  => E10:hp-36 arm-5 | E11:hp-31 arm-10 | E12:hp-29 arm-12 | E13:hp-38 arm-3",
+   "L10": "dmg E10 38 (all) ; dmg E11 38 (all) ; dmg E12 38 (all) ; dmg E13 38 (all) ; convert skull x5 -> doomSkull x5  => E10:hp-33 arm-5 | E11:hp-28 arm-10 | E12:hp-26 arm-12 | E13:hp-35 arm-3",
+   "R10": "dmg E10 38 (all) ; dmg E11 38 (all) ; dmg E12 38 (all) ; dmg E13 38 (all) ; convert skull x5 -> doomSkull x5  => E10:hp-33 arm-5 | E11:hp-28 arm-10 | E12:hp-26 arm-12 | E13:hp-35 arm-3",
    "L0": "dmg E10 21 (all) ; dmg E11 21 (all) ; dmg E12 21 (all) ; dmg E13 21 (all) ; convert skull x5 -> doomSkull x5  => E10:hp-16 arm-5 | E11:hp-11 arm-10 | E12:hp-9 arm-12 | E13:hp-18 arm-3",
-   "K": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert skull x5 -> doomSkull x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 38 (all) ; dmg E11 38 (all) ; dmg E12 38 (all) ; dmg E13 38 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert skull x5 -> doomSkull x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7264": {
   "lines": {
@@ -1631,63 +1631,63 @@
  },
  "troop:7440": {
   "lines": {
-   "L10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
-   "R10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
+   "L10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
+   "R10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x5 -> dragonGem/Blue x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:31:29.756Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7441": {
   "lines": {
-   "L10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Green x5 -> dragonGem/Green x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
-   "R10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Green x5 -> dragonGem/Green x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
+   "L10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Green x5 -> dragonGem/Green x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
+   "R10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Green x5 -> dragonGem/Green x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Green x5 -> dragonGem/Green x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Green x5 -> dragonGem/Green x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Green x5 -> dragonGem/Green x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:31:29.756Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7442": {
   "lines": {
-   "L10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Red x5 -> dragonGem/Red x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
-   "R10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Red x5 -> dragonGem/Red x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
+   "L10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Red x5 -> dragonGem/Red x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
+   "R10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Red x5 -> dragonGem/Red x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Red x5 -> dragonGem/Red x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x5 -> dragonGem/Red x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x5 -> dragonGem/Red x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:31:29.756Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7443": {
   "lines": {
-   "L10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
-   "R10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
+   "L10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
+   "R10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x5 -> dragonGem/Yellow x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:31:29.756Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7444": {
   "lines": {
-   "L10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
-   "R10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
+   "L10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
+   "R10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x5 -> dragonGem/Purple x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:31:29.756Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7445": {
   "lines": {
-   "L10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
-   "R10": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-26 arm-5 | E11:hp-21 arm-10 | E12:hp-19 arm-12 | E13:hp-28 arm-3",
+   "L10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
+   "R10": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-18 arm-5 | E11:hp-13 arm-10 | E12:hp-11 arm-12 | E13:hp-20 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 31 (all) ; dmg E11 31 (all) ; dmg E12 31 (all) ; dmg E13 31 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 23 (all) ; dmg E11 23 (all) ; dmg E12 23 (all) ; dmg E13 23 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x5 -> dragonGem/Brown x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:31:29.756Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7462": {
   "lines": {
@@ -1811,73 +1811,73 @@
  },
  "troop:7616": {
   "lines": {
-   "L10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
-   "R10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Blue x5 -> spiritGem/Blue x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7617": {
   "lines": {
-   "L10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Green x5 -> faerieFireGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
-   "R10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Green x5 -> faerieFireGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Green x5 -> faerieFireGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Green x5 -> faerieFireGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Green x5 -> faerieFireGem x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Green x5 -> faerieFireGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Green x5 -> faerieFireGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7618": {
   "lines": {
-   "L10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Red x5 -> burningGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
-   "R10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Red x5 -> burningGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Red x5 -> burningGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Red x5 -> burningGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Red x5 -> burningGem x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x5 -> burningGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Red x5 -> burningGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7619": {
   "lines": {
-   "L10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Yellow x5 -> barrierGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
-   "R10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Yellow x5 -> barrierGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Yellow x5 -> barrierGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Yellow x5 -> barrierGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Yellow x5 -> barrierGem x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x5 -> barrierGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x5 -> barrierGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7620": {
   "lines": {
-   "L10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Purple x5 -> enchantedGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
-   "R10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Purple x5 -> enchantedGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Purple x5 -> enchantedGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Purple x5 -> enchantedGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Purple x5 -> enchantedGem x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x5 -> enchantedGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Purple x5 -> enchantedGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7621": {
   "lines": {
-   "L10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Brown x5 -> stunGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
-   "R10": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; convert Brown x5 -> stunGem x5  => E10:hp-29 arm-5 | E11:hp-24 arm-10 | E12:hp-22 arm-12 | E13:hp-31 arm-3",
+   "L10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Brown x5 -> stunGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
+   "R10": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; convert Brown x5 -> stunGem x5  => E10:hp-19 arm-5 | E11:hp-14 arm-10 | E12:hp-12 arm-12 | E13:hp-21 arm-3",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; convert Brown x5 -> stunGem x5  => E10:hp-1 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3",
-   "K": "dmg E10 34 (all) ; dmg E11 34 (all) ; dmg E12 34 (all) ; dmg E13 34 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x5 -> stunGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 24 (all) ; dmg E11 24 (all) ; dmg E12 24 (all) ; dmg E13 24 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Brown x5 -> stunGem x5  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7622": {
   "lines": {
-   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; explode 37 ; skulls E10 5 ; ~cascade~  => E10:hp-39 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3  cascade",
-   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; explode 37 ; skulls E10 5 ; ~cascade~  => E10:hp-39 arm-5 | E11:hp-29 arm-10 | E12:hp-27 arm-12 | E13:hp-36 arm-3  cascade",
+   "L10": "dmg E10 26 (all) ; dmg E11 26 (all) ; dmg E12 26 (all) ; dmg E13 26 (all) ; explode 37 ; skulls E10 5 ; ~cascade~  => E10:hp-26 arm-5 | E11:hp-16 arm-10 | E12:hp-14 arm-12 | E13:hp-23 arm-3  cascade",
+   "R10": "dmg E10 26 (all) ; dmg E11 26 (all) ; dmg E12 26 (all) ; dmg E13 26 (all) ; explode 37 ; skulls E10 5 ; ~cascade~  => E10:hp-26 arm-5 | E11:hp-16 arm-10 | E12:hp-14 arm-12 | E13:hp-23 arm-3  cascade",
    "L0": "dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; explode 37 ; skulls E10 5 ; ~cascade~  => E10:hp-6 arm-5 | E11:arm-6 | E12:arm-6 | E13:hp-3 arm-3  cascade",
-   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; explode 37 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
+   "K": "dmg E10 26 (all) ; dmg E11 26 (all) ; dmg E12 26 (all) ; dmg E13 26 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; explode 37 ; ~cascade~  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:35:11.787Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7625": {
   "lines": {
@@ -2191,73 +2191,73 @@
  },
  "troop:7839": {
   "lines": {
-   "L10": "dmg E10 45 (all) ; dmg E11 45 (all) ; dmg E12 45 (all) ; dmg E13 45 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +frozen ; status E11 +frozen ; status E12 +frozen ; status E13 +frozen  => E10:hp-40 arm-5 +curse+frozen -rage | E11:hp-35 arm-10 +curse+frozen | E12:hp-33 arm-12 +curse+frozen | E13:hp-42 arm-3 +curse+frozen -rage",
-   "R10": "dmg E10 45 (all) ; dmg E11 45 (all) ; dmg E12 45 (all) ; dmg E13 45 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +frozen ; status E11 +frozen ; status E12 +frozen ; status E13 +frozen  => E10:hp-40 arm-5 +curse+frozen -rage | E11:hp-35 arm-10 +curse+frozen | E12:hp-33 arm-12 +curse+frozen | E13:hp-42 arm-3 +curse+frozen -rage",
+   "L10": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +frozen ; status E11 +frozen ; status E12 +frozen ; status E13 +frozen  => E10:hp-38 arm-5 +curse+frozen -rage | E11:hp-33 arm-10 +curse+frozen | E12:hp-31 arm-12 +curse+frozen | E13:hp-40 arm-3 +curse+frozen -rage",
+   "R10": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +frozen ; status E11 +frozen ; status E12 +frozen ; status E13 +frozen  => E10:hp-38 arm-5 +curse+frozen -rage | E11:hp-33 arm-10 +curse+frozen | E12:hp-31 arm-12 +curse+frozen | E13:hp-40 arm-3 +curse+frozen -rage",
    "L0": "dmg E10 25 (all) ; dmg E11 25 (all) ; dmg E12 25 (all) ; dmg E13 25 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +frozen ; status E11 +frozen ; status E12 +frozen ; status E13 +frozen  => E10:hp-20 arm-5 +curse+frozen -rage | E11:hp-15 arm-10 +curse+frozen | E12:hp-13 arm-12 +curse+frozen | E13:hp-22 arm-3 +curse+frozen -rage",
-   "K": "dmg E10 45 (all) ; dmg E11 45 (all) ; dmg E12 45 (all) ; dmg E13 45 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 43 (all) ; dmg E11 43 (all) ; dmg E12 43 (all) ; dmg E13 43 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7840": {
   "lines": {
-   "L10": "dmg E10 49 (all) ; dmg E11 49 (all) ; dmg E12 49 (all) ; dmg E13 49 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun  => E10:hp-44 arm-5 +curse+stun -rage | E11:hp-39 arm-10 +curse+stun | E12:hp-37 arm-12 +curse+stun | E13:hp-46 arm-3 +curse+stun -rage",
-   "R10": "dmg E10 49 (all) ; dmg E11 49 (all) ; dmg E12 49 (all) ; dmg E13 49 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun  => E10:hp-44 arm-5 +curse+stun -rage | E11:hp-39 arm-10 +curse+stun | E12:hp-37 arm-12 +curse+stun | E13:hp-46 arm-3 +curse+stun -rage",
+   "L10": "dmg E10 47 (all) ; dmg E11 47 (all) ; dmg E12 47 (all) ; dmg E13 47 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun  => E10:hp-42 arm-5 +curse+stun -rage | E11:hp-37 arm-10 +curse+stun | E12:hp-35 arm-12 +curse+stun | E13:hp-44 arm-3 +curse+stun -rage",
+   "R10": "dmg E10 47 (all) ; dmg E11 47 (all) ; dmg E12 47 (all) ; dmg E13 47 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun  => E10:hp-42 arm-5 +curse+stun -rage | E11:hp-37 arm-10 +curse+stun | E12:hp-35 arm-12 +curse+stun | E13:hp-44 arm-3 +curse+stun -rage",
    "L0": "dmg E10 29 (all) ; dmg E11 29 (all) ; dmg E12 29 (all) ; dmg E13 29 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +stun ; status E11 +stun ; status E12 +stun ; status E13 +stun  => E10:hp-24 arm-5 +curse+stun -rage | E11:hp-19 arm-10 +curse+stun | E12:hp-17 arm-12 +curse+stun | E13:hp-26 arm-3 +curse+stun -rage",
-   "K": "dmg E10 49 (all) ; dmg E11 49 (all) ; dmg E12 49 (all) ; dmg E13 49 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 47 (all) ; dmg E11 47 (all) ; dmg E12 47 (all) ; dmg E13 47 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7841": {
   "lines": {
-   "L10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => E10:hp-36 arm-5 +curse+bleed -rage | E11:hp-31 arm-10 +curse+bleed | E12:hp-29 arm-12 +curse+bleed | E13:hp-38 arm-3 +curse+bleed -rage",
-   "R10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => E10:hp-36 arm-5 +curse+bleed -rage | E11:hp-31 arm-10 +curse+bleed | E12:hp-29 arm-12 +curse+bleed | E13:hp-38 arm-3 +curse+bleed -rage",
+   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => E10:hp-34 arm-5 +curse+bleed -rage | E11:hp-29 arm-10 +curse+bleed | E12:hp-27 arm-12 +curse+bleed | E13:hp-36 arm-3 +curse+bleed -rage",
+   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => E10:hp-34 arm-5 +curse+bleed -rage | E11:hp-29 arm-10 +curse+bleed | E12:hp-27 arm-12 +curse+bleed | E13:hp-36 arm-3 +curse+bleed -rage",
    "L0": "dmg E10 21 (all) ; dmg E11 21 (all) ; dmg E12 21 (all) ; dmg E13 21 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +bleed ; status E11 +bleed ; status E12 +bleed ; status E13 +bleed  => E10:hp-16 arm-5 +curse+bleed -rage | E11:hp-11 arm-10 +curse+bleed | E12:hp-9 arm-12 +curse+bleed | E13:hp-18 arm-3 +curse+bleed -rage",
-   "K": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7842": {
   "lines": {
-   "L10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence  => E10:hp-36 arm-5 +curse+silence -rage | E11:hp-31 arm-10 +curse+silence | E12:hp-29 arm-12 +curse+silence | E13:hp-38 arm-3 +curse+silence -rage",
-   "R10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence  => E10:hp-36 arm-5 +curse+silence -rage | E11:hp-31 arm-10 +curse+silence | E12:hp-29 arm-12 +curse+silence | E13:hp-38 arm-3 +curse+silence -rage",
+   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence  => E10:hp-34 arm-5 +curse+silence -rage | E11:hp-29 arm-10 +curse+silence | E12:hp-27 arm-12 +curse+silence | E13:hp-36 arm-3 +curse+silence -rage",
+   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence  => E10:hp-34 arm-5 +curse+silence -rage | E11:hp-29 arm-10 +curse+silence | E12:hp-27 arm-12 +curse+silence | E13:hp-36 arm-3 +curse+silence -rage",
    "L0": "dmg E10 21 (all) ; dmg E11 21 (all) ; dmg E12 21 (all) ; dmg E13 21 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +silence ; status E11 +silence ; status E12 +silence ; status E13 +silence  => E10:hp-16 arm-5 +curse+silence -rage | E11:hp-11 arm-10 +curse+silence | E12:hp-9 arm-12 +curse+silence | E13:hp-18 arm-3 +curse+silence -rage",
-   "K": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7843": {
   "lines": {
-   "L10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +death-mark ; status E11 +death-mark ; status E12 +death-mark ; status E13 +death-mark  => E10:hp-36 arm-5 +curse+death-mark -rage | E11:hp-31 arm-10 +curse+death-mark | E12:hp-29 arm-12 +curse+death-mark | E13:hp-38 arm-3 +curse+death-mark -rage",
-   "R10": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +death-mark ; status E11 +death-mark ; status E12 +death-mark ; status E13 +death-mark  => E10:hp-36 arm-5 +curse+death-mark -rage | E11:hp-31 arm-10 +curse+death-mark | E12:hp-29 arm-12 +curse+death-mark | E13:hp-38 arm-3 +curse+death-mark -rage",
+   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +death-mark ; status E11 +death-mark ; status E12 +death-mark ; status E13 +death-mark  => E10:hp-34 arm-5 +curse+death-mark -rage | E11:hp-29 arm-10 +curse+death-mark | E12:hp-27 arm-12 +curse+death-mark | E13:hp-36 arm-3 +curse+death-mark -rage",
+   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +death-mark ; status E11 +death-mark ; status E12 +death-mark ; status E13 +death-mark  => E10:hp-34 arm-5 +curse+death-mark -rage | E11:hp-29 arm-10 +curse+death-mark | E12:hp-27 arm-12 +curse+death-mark | E13:hp-36 arm-3 +curse+death-mark -rage",
    "L0": "dmg E10 21 (all) ; dmg E11 21 (all) ; dmg E12 21 (all) ; dmg E13 21 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +death-mark ; status E11 +death-mark ; status E12 +death-mark ; status E13 +death-mark  => E10:hp-16 arm-5 +curse+death-mark -rage | E11:hp-11 arm-10 +curse+death-mark | E12:hp-9 arm-12 +curse+death-mark | E13:hp-18 arm-3 +curse+death-mark -rage",
-   "K": "dmg E10 41 (all) ; dmg E11 41 (all) ; dmg E12 41 (all) ; dmg E13 41 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7844": {
   "lines": {
-   "L10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease  => E10:hp-34 arm-5 +curse+disease -rage | E11:hp-29 arm-10 +curse+disease | E12:hp-27 arm-12 +curse+disease | E13:hp-36 arm-3 +curse+disease -rage",
-   "R10": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease  => E10:hp-34 arm-5 +curse+disease -rage | E11:hp-29 arm-10 +curse+disease | E12:hp-27 arm-12 +curse+disease | E13:hp-36 arm-3 +curse+disease -rage",
+   "L10": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease  => E10:hp-32 arm-5 +curse+disease -rage | E11:hp-27 arm-10 +curse+disease | E12:hp-25 arm-12 +curse+disease | E13:hp-34 arm-3 +curse+disease -rage",
+   "R10": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease  => E10:hp-32 arm-5 +curse+disease -rage | E11:hp-27 arm-10 +curse+disease | E12:hp-25 arm-12 +curse+disease | E13:hp-34 arm-3 +curse+disease -rage",
    "L0": "dmg E10 19 (all) ; dmg E11 19 (all) ; dmg E12 19 (all) ; dmg E13 19 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +disease ; status E11 +disease ; status E12 +disease ; status E13 +disease  => E10:hp-14 arm-5 +curse+disease -rage | E11:hp-9 arm-10 +curse+disease | E12:hp-7 arm-12 +curse+disease | E13:hp-16 arm-3 +curse+disease -rage",
-   "K": "dmg E10 39 (all) ; dmg E11 39 (all) ; dmg E12 39 (all) ; dmg E13 39 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7845": {
   "lines": {
-   "L10": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +terror ; status E11 +terror ; status E12 +terror ; status E13 +terror  => E10:hp-32 arm-5 +curse+terror -rage | E11:hp-27 arm-10 +curse+terror | E12:hp-25 arm-12 +curse+terror | E13:hp-34 arm-3 +curse+terror -rage",
-   "R10": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +terror ; status E11 +terror ; status E12 +terror ; status E13 +terror  => E10:hp-32 arm-5 +curse+terror -rage | E11:hp-27 arm-10 +curse+terror | E12:hp-25 arm-12 +curse+terror | E13:hp-34 arm-3 +curse+terror -rage",
+   "L10": "dmg E10 33 (all) ; dmg E11 33 (all) ; dmg E12 33 (all) ; dmg E13 33 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +terror ; status E11 +terror ; status E12 +terror ; status E13 +terror  => E10:hp-28 arm-5 +curse+terror -rage | E11:hp-23 arm-10 +curse+terror | E12:hp-21 arm-12 +curse+terror | E13:hp-30 arm-3 +curse+terror -rage",
+   "R10": "dmg E10 33 (all) ; dmg E11 33 (all) ; dmg E12 33 (all) ; dmg E13 33 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +terror ; status E11 +terror ; status E12 +terror ; status E13 +terror  => E10:hp-28 arm-5 +curse+terror -rage | E11:hp-23 arm-10 +curse+terror | E12:hp-21 arm-12 +curse+terror | E13:hp-30 arm-3 +curse+terror -rage",
    "L0": "dmg E10 13 (all) ; dmg E11 13 (all) ; dmg E12 13 (all) ; dmg E13 13 (all) ; remove E10 -rage ; status E10 +curse ; status E11 +curse ; status E12 +curse ; remove E13 -rage ; status E13 +curse ; status E10 +terror ; status E11 +terror ; status E12 +terror ; status E13 +terror  => E10:hp-8 arm-5 +curse+terror -rage | E11:hp-3 arm-10 +curse+terror | E12:hp-1 arm-12 +curse+terror | E13:hp-10 arm-3 +curse+terror -rage",
-   "K": "dmg E10 37 (all) ; dmg E11 37 (all) ; dmg E12 37 (all) ; dmg E13 37 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "K": "dmg E10 33 (all) ; dmg E11 33 (all) ; dmg E12 33 (all) ; dmg E13 33 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R7",
-  "at": "2026-09-28T08:31:32.712Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:30.221Z"
  },
  "troop:7868": {
   "lines": {

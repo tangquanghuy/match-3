@@ -1,3 +1,4 @@
+import { kingdomTeamBonusOf } from '../../src/meta/systems/kingdomTeamBonus';
 import { describe, it, expect } from 'vitest';
 import { troopStatsAtLevel } from '../../src/data/leveling';
 import { getTroopById } from '../../src/data/troops';
@@ -69,13 +70,14 @@ describe('王国黄金升级', () => {
     const bonus = kingdomBonusOf(s);
     expect(bonus).toEqual({ health: 1, armor: 0, attack: 0, magic: 0 });
 
-    // 桥接接线：玩家快照 hp +1，敌人不吃加成
+    // 桥接接线：玩家快照叠加永久 hp +1 与同王国编队加成，敌人不吃加成
     const troop = getTroopById(6000)!;
     const baseline = troopStatsAtLevel(troop, 1);
     const outcome = buildBattleRequest(s, planQuestEncounter(KINGDOM, 1, 7));
     if (!outcome.ok) throw new Error(outcome.message);
     // 新手队主角在第一位，6000 在第二位
-    expect(outcome.request.playerTeam[1]!.stats.hp).toBe(baseline.health + 1);
+    const teamBonus = kingdomTeamBonusOf(s, s.teams[s.activeTeamIndex]!.members);
+    expect(outcome.request.playerTeam[1]!.stats.hp).toBe(baseline.health + 1 + teamBonus.health);
   });
 });
 

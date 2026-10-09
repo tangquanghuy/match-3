@@ -748,8 +748,8 @@
    "L0": "explode 60 ; skulls E10 4 ; ~cascade~ ; dmg E10 5 (all) ; dmg E11 5 (all) ; dmg E12 5 (all) ; dmg E13 5 (all)  => A1:mana+5 | E10:hp-4 arm-5 | E11:arm-5 | E12:arm-5 | E13:hp-2 arm-3  cascade",
    "K": "explode 60 ; skulls E10 4 ; defeat E10 ; ~cascade~ ; dmg E11 15 (all) ; dmg E12 15 (all) ; dmg E13 15 (all) ; defeat E11 ; defeat E12 ; defeat E13  => A1:mana+5 | E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD  cascade"
   },
-  "by": "sa-J",
-  "at": "2026-09-29T03:56:22.864Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:32.594Z"
  },
  "troop:6476": {
   "lines": {
@@ -2475,13 +2475,13 @@
  },
  "troop:7573": {
   "lines": {
-   "L10": "explode 38 ; skulls E10 3 ; remove E10 -rage ; remove E13 -rage ; dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all)  => E10:hp-6 arm-3 -rage | E13:hp-6 -rage | E11:hp-6 | E12:hp-6",
-   "R10": "explode 38 ; skulls E10 3 ; remove E10 -rage ; remove E13 -rage ; dmg E10 6 (all) ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all)  => E10:hp-6 arm-3 -rage | E13:hp-6 -rage | E11:hp-6 | E12:hp-6",
-   "L0": "explode 38 ; skulls E10 3 ; remove E10 -rage ; remove E13 -rage ; dmg E10 3 (all) ; dmg E11 3 (all) ; dmg E12 3 (all) ; dmg E13 3 (all)  => E10:hp-3 arm-3 -rage | E13:hp-3 -rage | E11:hp-3 | E12:hp-3",
-   "K": "explode 38 ; skulls E10 3 ; defeat E10 ; dmg E11 6 (all) ; dmg E12 6 (all) ; dmg E13 6 (all) ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
+   "L10": "explode 38 ; skulls E10 3 ; remove E10 -rage ; remove E13 -rage ; dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all)  => E10:hp-17 arm-3 -rage | E13:hp-17 -rage | E11:hp-17 | E12:hp-17",
+   "R10": "explode 38 ; skulls E10 3 ; remove E10 -rage ; remove E13 -rage ; dmg E10 17 (all) ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all)  => E10:hp-17 arm-3 -rage | E13:hp-17 -rage | E11:hp-17 | E12:hp-17",
+   "L0": "explode 38 ; skulls E10 3 ; remove E10 -rage ; remove E13 -rage ; dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all)  => E10:hp-2 arm-3 -rage | E13:hp-2 -rage | E11:hp-2 | E12:hp-2",
+   "K": "explode 38 ; skulls E10 3 ; defeat E10 ; dmg E11 17 (all) ; dmg E12 17 (all) ; dmg E13 17 (all) ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-A",
-  "at": "2026-09-28T22:36:25.428Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:32.594Z"
  },
  "troop:7574": {
   "lines": {

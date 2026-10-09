@@ -563,12 +563,7 @@ export interface TraitDefinition {
      *  onBigMatchStatus 的 independentChance 同口径）。 */
     independentChance?: boolean;
   };
-  /**
-   * 战后经济加成（merchant/necromancy/necromaster/moneybags 族，DECISIONS 四项拍板①）：
-   * 「从战斗中获得 N% 额外灵魂/黄金」「在战斗中获得 N% 黄金加成」。
-   * 战斗结束时对战场经济池的对应币种总额按 (1 + ratio) 放大；多条特质比率累加
-   * （编译进 PassiveModifiers.battleEconomyGain）。
-   */
+  /** Gold and Soul gains are multiplied and capped in battle; ratios stack additively. */
   battleEconomyGain?: { currency: 'gold' | 'souls'; ratio: number };
   /**
    * 条件经济光环·大连版（条件经济批：greedy/extremegreed/pillageandplunder
@@ -1279,7 +1274,7 @@ export function resolvePassives(
       && (passive.selfRevive === undefined || (trait.selfRevive.chance ?? 1) > (passive.selfRevive.chance ?? 1))) {
       passive.selfRevive = { ...trait.selfRevive };
     }
-    // 战后经济加成（merchant/necromancy 族）：同类比率累加（与增益类"累加"口径一致）。
+    // Additive economy ratios apply to every in-battle credit.
     if (trait.battleEconomyGain) {
       passive.battleEconomyGain ??= { gold: 0, souls: 0 };
       passive.battleEconomyGain[trait.battleEconomyGain.currency] += trait.battleEconomyGain.ratio;

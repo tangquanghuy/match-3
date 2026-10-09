@@ -327,12 +327,16 @@ export class TroopScreen implements Screen {
       });
     }
 
-    const [, source, shopType] = param?.split('/') ?? [];
-    const fromShop = source === 'shop' && EVENT_ROTATION.some(type => type.id === shopType);
-    this.detailSource = fromShop ? `/shop/${shopType}` : param?.endsWith('/wishlist') ? '/wishlist' : '';
+    const [, source, sourceArg] = param?.split('/') ?? [];
+    const fromShop = source === 'shop' && EVENT_ROTATION.some(type => type.id === sourceArg);
+    const fromChoice = source === 'choice' && !!sourceArg;
+    this.detailSource = fromShop ? `/shop/${sourceArg}` : fromChoice ? `/choice/${sourceArg}` : source === 'wishlist' ? '/wishlist' : '';
     if (fromShop) $('#detailBackLabel').textContent = '返回活动商店';
-    else if (param?.endsWith('/wishlist')) $('#detailBackLabel').textContent = '返回愿望单';
-    this.bind('#back', 'click', () => fromShop ? ctx.navigate(`#shop/${shopType}`) : param?.endsWith('/wishlist') ? ctx.navigate('#wishlist') : this.showView('collection', true));
+    else if (fromChoice) $('#detailBackLabel').textContent = '返回神话自选';
+    else if (source === 'wishlist') $('#detailBackLabel').textContent = '返回愿望单';
+    this.bind('#back', 'click', () => fromShop ? ctx.navigate(`#shop/${sourceArg}`)
+      : fromChoice ? ctx.navigate(`#wishlist/choice/${sourceArg}`)
+      : source === 'wishlist' ? ctx.navigate('#wishlist') : this.showView('collection', true));
     this.bind('#detailWishlist', 'click', async () => {
       const ids = ctx.save().gachaWishlist.troopIds;
       if (ids.includes(this.currentId) || (this.troop()?.rarityIdx ?? 0) < 3) { ctx.navigate('#wishlist'); return; }

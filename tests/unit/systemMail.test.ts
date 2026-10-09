@@ -55,6 +55,12 @@ describe('database system mail', () => {
     });
   });
 
+  it('delivers mythic selections from a campaign without putting them in materials', () => {
+    expect(decodeSystemMail({ ...row, id: 'mythic-2026', mythic_choice: 2, materials_json: '{"traitstones":{"celestial":36}}' })).toMatchObject({
+      mythicChoice: 2, materials: { traitstones: { celestial: 36 } }, claimedAt: null,
+    });
+  });
+
   it('persists once and can retry after D1 acknowledgement fails', async () => {
     const repo = new Repo();
     const host = new MetaHost(repo, defaultEnv({ now: () => row.sent_at }), { fresh: 'new' });
@@ -68,6 +74,35 @@ describe('database system mail', () => {
     expect(d1.delivered).toEqual([row.id]);
     const restarted = new MetaHost(repo, defaultEnv({ now: () => row.sent_at }), { fresh: 'new' });
     expect((await restarted.load()).save.mailbox.items).toHaveLength(1);
+  });
+
+  it('commits a mythic grant and consumes its mail entitlement together across host restarts', async () => {
+    const repo = new Repo();
+    const now = row.sent_at;
+    const host = new MetaHost(repo, defaultEnv({ now: () => now }), { fresh: 'new' });
+    const mail = decodeSystemMail({ ...row, id: 'mythic-host-test', currencies_json: '{}',
+      materials_json: '{"traitstones":{"celestial":18}}', mythic_choice: 1 });
+    await host.receiveMail([mail]);
+    expect((await host.execute({ type: 'chooseMailMythic', args: { id: mail.id, troopId: 7440 } })).result.ok).toBe(false);
+    await host.execute({ type: 'claimMail', args: { id: mail.id } });
+    const beforeChoice = new MetaHost(repo, defaultEnv({ now: () => now }), { fresh: 'new' });
+    expect((await beforeChoice.load()).save.mailbox.items[0]).toMatchObject({ mythicChoice: 1 });
+    expect((await beforeChoice.load()).save.materials.traitstones.celestial).toBe(18);
+    repo.failWrite = true;
+    await expect(host.execute({ type: 'chooseMailMythic', args: { id: mail.id, troopId: 7440 } })).rejects.toThrow('write failed');
+    const afterFailedWrite = new MetaHost(repo, defaultEnv({ now: () => now }), { fresh: 'new' });
+    expect((await afterFailedWrite.load()).save.mailbox.items[0]).toMatchObject({ mythicChoice: 1 });
+    expect((await afterFailedWrite.load()).save.collection['7440']).toBeUndefined();
+    repo.failWrite = false;
+    expect((await afterFailedWrite.execute({ type: 'chooseMailMythic', args: { id: mail.id, troopId: 7440 } })).result)
+      .toMatchObject({ ok: true, duplicate: false });
+    const restarted = new MetaHost(repo, defaultEnv({ now: () => now }), { fresh: 'new' });
+    const saved = (await restarted.load()).save;
+    expect(saved.mailbox.items[0]!.mythicChoice ?? 0).toBe(0);
+    expect(saved.collection['7440']).toBeDefined();
+    expect(saved.materials.traitstones.celestial).toBe(18);
+    expect((await restarted.execute({ type: 'chooseMailMythic', args: { id: mail.id, troopId: 7440 } })).result.ok).toBe(false);
+    expect((await restarted.load()).save.collection['7440']?.copies).toBe(0);
   });
 
   it('does not acknowledge until a failed save write succeeds', async () => {

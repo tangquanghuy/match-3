@@ -311,10 +311,10 @@ describe('L3 R2: B07 Tarot tail + Dragon "10% extra turn, boosted by <colour> ge
     ['troop:7841', BaseColor.Red, 2], ['troop:7843', BaseColor.Purple, 2], ['troop:7844', BaseColor.Brown, 2],
     ['troop:7839', BaseColor.Blue, 2], ['troop:7842', BaseColor.Yellow, 2], ['troop:7840', BaseColor.Green, 2], ['troop:7845', 'skull', 2.4],
   ];
-  it.each(dragons)('%s: damage 3 + Magic x mult + 2 per %s gem; 10%% base chance; 45 gems -> always', (key, c, mult) => {
+  it.each(dragons)('%s: damage 3 + Magic x mult + 2 per %s gem; 10%% base chance; 45 gems -> always', (key, c) => {
     const other = c === BaseColor.Brown ? BaseColor.Red : BaseColor.Brown;
     const r = castSpell({ key, board: only(c, 10, other), enemies: [en([]), en([])] });
-    const d = 3 + Math.round(10 * mult) + 20;
+    const d = 3 + Math.round(10 * (key === 'troop:7845' ? 2 : 1.8)) + 20;
     expect(order(r).filter(o => o.startsWith('dmg '))).toEqual([`dmg E10 ${d} (all)`, `dmg E11 ${d} (all)`]);
     const base = seeds(60).map(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill');
     expect(base.some(Boolean) && !base.every(Boolean)).toBe(true);
@@ -344,9 +344,9 @@ describe('L3 R2: B08 Elemental-Dragon "10% extra turn + 3%/gem, counted before t
     const base = seeds(60).map(seed => castSpell({ key, seed, board: only(c, 0, other) }).summary.extraTurn === 'skill');
     expect(base.some(Boolean) && !base.every(Boolean)).toBe(true);
   });
-  it('troop:7251 Diamantina: damage 6 + Magic x 2 + 3 per Skull', () => {
+  it('troop:7251 Diamantina: temporary damage 6 + Magic x 1.7 + 3 per Skull', () => {
     const r = castSpell({ key: 'troop:7251', board: only('skull', 10, BaseColor.Red), enemies: [en([])] });
-    expect(order(r)[0]).toBe('dmg E10 56 (all)');
+    expect(order(r)[0]).toBe('dmg E10 53 (all)');
   });
   it('troop:7429 Tempurath: +3 per Hourglass gem; kill -> 4 Hourglass gems + extra turn, no kill -> neither', () => {
     const hg = (r: number, c: number) => (r === 0 && c < 2 ? specialGem('hourglass') : colorGem(BaseColor.Red));

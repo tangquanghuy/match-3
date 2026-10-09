@@ -10,6 +10,7 @@ import { migrateSave } from '../../src/meta/state/save';
 import { traitUnlockCost } from '../../src/meta/data/economy';
 import { unlockTrait, troopStatsOf } from '../../src/meta/systems/troopProgress';
 import { buildPlayerSnapshots } from '../../src/meta/systems/battleBridge';
+import { kingdomTeamBonusOf } from '../../src/meta/systems/kingdomTeamBonus';
 
 function fixture(id = 7580, fuel = 198) {
   const save = newSave({ now: 0, starterTroopIds: [id, 6000, 6004, 6028] });
@@ -72,7 +73,8 @@ describe('Immortal traits and existing owned stats', () => {
     expect(stats).toEqual({ attack: 26, armor: 36, health: 14, magic: 11 });
     expect(stats).not.toEqual(troopStatsAtLevel(troop, 30));
     const built = buildPlayerSnapshots(restored); if (!built.ok) throw new Error(built.message);
-    expect(built.playerTeam[0]!.stats).toEqual({ attack: 26, armor: 36, hp: 14, magic: 11 });
+    const teamBonus = kingdomTeamBonusOf(restored, restored.teams[0]!.members);
+    expect(built.playerTeam[0]!.stats).toEqual({ attack: 26 + teamBonus.attack, armor: 36 + teamBonus.armor, hp: 14 + teamBonus.health, magic: 11 + teamBonus.magic });
     expect(restored.collection['7580']!.level).toBe(8);
   });
 });

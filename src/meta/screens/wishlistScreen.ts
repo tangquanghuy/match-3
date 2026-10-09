@@ -1,3 +1,5 @@
+import { isFailure } from '../gateway';
+import { queueGiftReveal } from './chestsScreen';
 import { getTroopById } from '../../data/troops';
 import { RARITY_NAMES, RARITY_COLORS } from '../data/rarity';
 import { GACHA_RULES as R } from '../data/gachaRules';
@@ -23,8 +25,21 @@ export class WishlistScreen implements Screen {
   private page=1; private busy=false; private notice=''; private preview:number[]=[];
   private view='browse';
   private controller?:AbortController;
+  private choiceMailId: string | null = null;
+  private choiceTroopId: number | null = null;
+  private choiceQuery = '';
+  private choicePage = 1;
   private modalInvoker?:HTMLButtonElement;
   html(_ctx:ShellCtx, param?:string):string {
+    if (param?.startsWith('choice/')) {
+      let nextId: string | null;
+      try { nextId = decodeURIComponent(param.slice(7)); } catch { nextId = null; }
+      if (this.choiceMailId !== nextId) { this.choiceQuery = ''; this.choicePage = 1; this.choiceTroopId = null; }
+      this.choiceMailId = nextId;
+      this.view = 'choice';
+      return `${topbarHtml()}<main class="screen wishlist-screen mythic-choice-screen"><header class="wl-head"><div><a class="wl-text-button" href="#mail">← 返回邮件</a><h1>神话自选</h1><p>仅可选择神话部队。确认后将直接写入收藏并展示开箱演出。</p></div></header><div class="wl-layout"><section class="wl-browser"><label class="wl-search">搜索神话部队 <input id="choice-query" type="search" placeholder="输入部队名称"></label><div id="choice-results"></div></section></div><dialog id="choice-confirm" class="wl-dialog"><h2>确认领取神话部队？</h2><p id="choice-name"></p><button type="button" data-choice-cancel>取消</button><button type="button" data-choice-confirm>确认领取</button></dialog></main>${bottomNavHtml('')}${toastHtml()}`;
+    }
+    this.choiceMailId = null;
     this.view=param==='pursuit'?'pursuit':param==='selected'?'selected':param==='rules'?'rules':'browse';
     return `${topbarHtml()}<main class="screen wishlist-screen" data-view="${this.view}">
       <header class="wl-head"><div><button class="wl-text-button" data-action="back">← 返回宝箱</button><h1>我的愿望单</h1></div><a class="wl-help" href="#wishlist/rules">召唤规则 <span aria-hidden="true">↗</span></a></header>
@@ -61,6 +76,7 @@ export class WishlistScreen implements Screen {
   }
   mount(ctx:ShellCtx,root:HTMLElement):void {
     this.ctx=ctx;this.root=root;this.controller=new AbortController();
+    if (this.view === 'choice') { this.mountChoice(ctx, root); return; }
     const options={signal:this.controller.signal};
     root.addEventListener('click',e=>void this.click(e),options);
     root.addEventListener('input',e=>{if((e.target as HTMLElement).id==='wl-query'){this.filter.query=(e.target as HTMLInputElement).value;this.page=1;this.render();}},options);
@@ -85,6 +101,72 @@ export class WishlistScreen implements Screen {
       pursuit.scrollIntoView?.({block:'center',behavior:'smooth'});
       pursuit.focus({preventScroll:true});
     });
+  }
+  private mountChoice(ctx: ShellCtx, root: HTMLElement): void {
+    const mailId = this.choiceMailId;
+    const item = ctx.save().mailbox.items.find(mail => mail.id === mailId);
+    if (!item || !item.mythicChoice || item.claimedAt === null) {
+      root.querySelector('#choice-results')!.textContent = '这封邮件没有待使用的神话自选，请返回邮件查看。';
+      return;
+    }
+    const query = root.querySelector<HTMLInputElement>('#choice-query')!;
+    const dialog = root.querySelector<HTMLDialogElement>('#choice-confirm')!;
+    query.value = this.choiceQuery;
+    let page = this.choicePage;
+    const draw = () => {
+      const matches = WISHLIST_TROOPS.filter(t => t.rarityIdx === 5 && t.id !== 7446 && t.id !== 7622
+        && (t.name.includes(query.value.trim()) || !query.value.trim()));
+      const pages = Math.max(1, Math.ceil(matches.length / SIZE));
+      page = Math.min(page, pages);
+      this.choicePage = page;
+      root.querySelector('#choice-results')!.innerHTML = `<div class="wl-result-head"><span>${matches.length} 名神话角色 · 剩余 ${item.mythicChoice} 次自选</span><span>${page} / ${pages}</span></div>
+        <div class="wl-grid">${matches.slice((page - 1) * SIZE, page * SIZE).map(t => {
+          const rec = (ctx.save().collectionTruth ?? ctx.save().collection)[String(t.id)];
+          return `<article class="wl-card"><button type="button" class="collection-card r-5${rec ? '' : ' locked'}" style="--rc:${RARITY_COLORS[5]}" data-choice-detail="${t.id}" aria-label="查看${esc(t.name)}详情">${troopCardFace(t, rec)}</button>
+            <small>${esc(wishlistKingdom(t))} · 神话${rec ? ' · 已拥有，领取后成为副本' : ''}</small>
+            <div class="wl-choice-actions"><button type="button" data-choice-detail="${t.id}">查看详情</button>
+            <button type="button" data-choice-id="${t.id}">选择 ${esc(t.name)}</button></div></article>`;
+        }).join('')}</div><div class="wl-pages"><button type="button" data-choice-page="prev" ${page === 1 ? 'disabled' : ''}>上一页</button><span>${page} / ${pages}</span><button type="button" data-choice-page="next" ${page === pages ? 'disabled' : ''}>下一页</button></div>`;
+    };
+    query.addEventListener('input', () => { this.choiceQuery = query.value; page = 1; draw(); });
+    root.addEventListener('click', event => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button');
+      if (!button) return;
+      if (button.dataset.choicePage) { page += button.dataset.choicePage === 'next' ? 1 : -1; draw(); }
+      if (button.dataset.choiceDetail && mailId) {
+        ctx.navigate(`#troop/${button.dataset.choiceDetail}/choice/${encodeURIComponent(mailId)}`);
+        return;
+      }
+      if (button.dataset.choiceId) {
+        this.choiceTroopId = Number(button.dataset.choiceId);
+        root.querySelector('#choice-name')!.textContent = getTroopById(this.choiceTroopId)?.name ?? '';
+        dialog.showModal();
+      }
+      if (button.hasAttribute('data-choice-cancel')) dialog.close();
+    });
+    root.querySelector<HTMLButtonElement>('[data-choice-confirm]')!.onclick = async () => {
+      if (this.busy || !mailId || !this.choiceTroopId) return;
+      this.busy = true;
+      const troopId = this.choiceTroopId;
+      root.querySelector<HTMLButtonElement>('[data-choice-confirm]')!.disabled = true;
+      try {
+        const { result } = await ctx.gateway.chooseMailMythic(mailId, troopId);
+        if (isFailure(result)) { toast(result.message); dialog.close(); return; }
+        // The authoritative save has already committed both the grant and entitlement consumption.
+        // The reveal is cosmetic and can safely be interrupted or skipped.
+        queueGiftReveal({ cards: [{ troopId: result.troopId, rarityIdx: 5, duplicate: result.duplicate }],
+          gems: 0, gold: 0, souls: 0, mats: {}, returnHash: '#mail', label: '神话自选' });
+        ctx.navigate('#chests/gems');
+      } catch {
+        dialog.close();
+        toast('领取结果待同步，请返回邮件核对后重试');
+      } finally {
+        this.busy = false;
+        const confirm = root.querySelector<HTMLButtonElement>('[data-choice-confirm]');
+        if (confirm) confirm.disabled = false;
+      }
+    };
+    draw();
   }
   dispose():void { this.controller?.abort(); }
   private render():void {

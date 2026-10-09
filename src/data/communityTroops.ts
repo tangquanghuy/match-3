@@ -228,7 +228,7 @@ export const COMMUNITY_TROOPS: readonly TroopData[] = [
     rarityIdx: 3,
     kingdom: COMMUNITY_KINGDOM,
     troopTypes: [COMMUNITY_RACE],
-    role: null,
+    role: 'Generator',
     attack: 15,
     armor: 13,
     health: 29,

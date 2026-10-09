@@ -13,6 +13,7 @@ import { XINGAI_ID, XINGAI_SPELL_ID, COMMUNITY_KINGDOM, COMMUNITY_RACE } from '.
 import { getTroopById, getTroopByRef, TROOPS } from '../../src/data/troops';
 import { kingdomTroopPool } from '../../src/meta/data/kingdoms';
 import { rarityNameByIndex } from '../../src/meta/data/rarity';
+import { roleNameZh } from '../../src/meta/data/roles';
 import { troopArt } from '../../src/meta/screens/teamScreen';
 import { newSave } from '../../src/meta/state/schema';
 import { metaKnownTraitIds, troopToSnapshot } from '../../src/meta/systems/battleBridge';
@@ -27,6 +28,13 @@ function character(id: number, mana: number, overrides: Partial<Character> = {})
 }
 
 describe('好想星艾 / 法力征调', () => {
+  it('displays Queen Beetrix as damage and Xingai as mana generator', () => {
+    const queen = getTroopById(6863)!;
+    expect(queen.role).toBe('Striker');
+    expect(roleNameZh(queen.role)).toBe('\u8f93\u51fa');
+    expect(roleNameZh(getTroopById(XINGAI_ID)!.role)).toBe('\u4f9b\u9b54');
+  });
+
   it('registers a yellow-red UltraRare troop with a real portrait and three active traits', () => {
     const troop = getTroopById(XINGAI_ID)!;
     expect(getTroopByRef('HaoXiangXingAi')).toBe(troop);

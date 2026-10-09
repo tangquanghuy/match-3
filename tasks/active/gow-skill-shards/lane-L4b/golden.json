@@ -2466,8 +2466,8 @@
    "L0": "convert Blue x11 -> doomSkull x11 ; dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all)  => E10:hp-2 | E11:hp-2 | E12:hp-2 | E13:hp-2",
    "K": "convert Blue x11 -> doomSkull x11 ; dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-R2",
-  "at": "2026-09-28T02:40:29.307Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:34.945Z"
  },
  "troop:7587": {
   "lines": {
@@ -2746,8 +2746,8 @@
    "L0": "dmg E10 2 (all) ; dmg E11 2 (all) ; dmg E12 2 (all) ; dmg E13 2 (all) ; convert Yellow x6 -> dragonGem/Green x6  => E10:hp-2 | E11:hp-2 | E12:hp-2 | E13:hp-2",
    "K": "dmg E10 10 (all) ; dmg E11 10 (all) ; dmg E12 10 (all) ; dmg E13 10 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13 ; convert Yellow x6 -> dragonGem/Green x6  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-B",
-  "at": "2026-09-28T15:14:09.853Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:34.945Z"
  },
  "troop:7699": {
   "lines": {

@@ -3,7 +3,10 @@ import { GACHA_RULES as RULES, emptyGachaWishlist, pursuitLimitFor, type GachaWi
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
 
-export const BLOCKED_WISHLIST_IDS = new Set([7736, 6529, 7393]);
+export const BLOCKED_WISHLIST_IDS = new Set([7736, 6529, 7393, 7446, 7622]);
+// Historical gacha audits record the rules in effect when the draw happened.
+// Retiring a troop must not erase the original signed draw context on hydration.
+const HISTORICAL_AUDIT_BLOCKED_IDS = new Set([7736, 6529, 7393]);
 export const hasBlockedWishlistIds = (raw: unknown): boolean => {
   if (!raw || typeof raw !== 'object') return false;
   const w = raw as Partial<GachaWishlist>;
@@ -16,13 +19,13 @@ export const WISHLIST_TROOPS = TROOPS.filter((t) => t.rarityIdx >= RULES.minRari
 /** 修改器临时收藏不影响首张资格。 */
 export const reallyOwned = (save: MetaSave, id: number): boolean => !!(save.collectionTruth ?? save.collection)[String(id)];
 
-export function validateWishlist(ids: readonly number[]): MetaFailure | null {
+export function validateWishlist(ids: readonly number[], blockedIds: ReadonlySet<number> = BLOCKED_WISHLIST_IDS): MetaFailure | null {
   if (ids.length > RULES.maxTroops) return fail('INVALID', '已达愿望单上限，请先移除一名角色');
   const seen = new Set<number>();
   const bands = new Map<number, number>();
   for (const id of ids) {
     const t = Number.isInteger(id) ? getTroopById(id) : undefined;
-    if (!t || t.rarityIdx < RULES.minRarity || BLOCKED_WISHLIST_IDS.has(id)) return fail('INVALID', '请选择传说、史诗或神话角色');
+    if (!t || t.rarityIdx < RULES.minRarity || blockedIds.has(id)) return fail('INVALID', '请选择传说、史诗或神话角色');
     if (seen.has(id)) return fail('INVALID', '同一角色只占一个愿望位置');
     seen.add(id);
     bands.set(t.rarityIdx, (bands.get(t.rarityIdx) ?? 0) + 1);
@@ -117,7 +120,7 @@ export function hydrateGachaAudit(raw: unknown, count: number): GachaAudit | und
   if (!raw || typeof raw !== 'object') return undefined;
   const a = raw as GachaAudit;
   if (!Number.isSafeInteger(a.rulesVersion) || a.rulesVersion < 1 || !Array.isArray(a.wishlistIds)
-    || validateWishlist(a.wishlistIds) || !Array.isArray(a.reasons) || a.reasons.length !== count
+    || validateWishlist(a.wishlistIds, HISTORICAL_AUDIT_BLOCKED_IDS) || !Array.isArray(a.reasons) || a.reasons.length !== count
     || a.reasons.some(r=>!['normal','ten-pity','pursuit','novice'].includes(r))) return undefined;
   for (const p of [a.pursuitBefore,a.pursuitAfter]) {
     if (!p || !Number.isSafeInteger(p.progress) || p.progress < 0 || !Number.isSafeInteger(p.completed) || p.completed < 0

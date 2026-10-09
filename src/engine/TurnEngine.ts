@@ -145,17 +145,10 @@ export class TurnEngine {
   /** 构造阶段产生的开局事件，交给 BattleSession 记录并由表现层首屏消费。 */
   private readonly initialEvents: GameEvent[] = [];
   /**
-   * 玩家侧（Left）战后经济加成比率合计（merchant/necromancy 族特质，DECISIONS 四项拍板①）。
-   * 构造期从开局编队的编译被动汇总一次（阵亡移出编队后读不到，快照保住全场效力）；
-   * GameOver 时对共用经济池 gold/souls 一次性乘 (1 + Σratio)。敌方（Right）比率不计入：
-   * GoW 的战斗奖励归玩家，共用池只按玩家侧特质放大。
-   */
-  private readonly economyGainRatios: { gold: number; souls: number };
-  /**
    * 宝石灵力抑制快照（战斗机制批 jinx「将敌人的宝石灵力减半」）：对某方生效的宝石法力
    * 倍率 = 其敌方队伍存活持有人中最强的 enemyMasteryMult（min）。官方 Activation=
    * start_battle 是对玩家 Gem Masteries 的一次性修正——开局生效、全场持续（持有者
-   * 阵亡不解除），与 economyGainRatios 同款的构造期快照口径。
+   * 阵亡不解除），与 battleGoldGainRatios 同款的构造期快照口径。
    */
   private readonly masterySuppress: Readonly<Record<PlayerSide, number>>;
   /** 位次光环已补授的角色 id（战斗机制批 leader 族，applyPositionAuras 防重复授出） */
@@ -324,17 +317,17 @@ export class TurnEngine {
       ...state.teams[PlayerSide.Right].characters,
     ];
     for (const char of all) attachPassives(char);
-    // 战后经济加成快照（玩家侧开局编队）：GameOver 时放大共用经济池。
-    const gainRatios = { gold: 0, souls: 0 };
-    for (const char of state.teams[PlayerSide.Left].characters) {
-      const g = char.passive?.battleEconomyGain;
-      if (g) {
-        gainRatios.gold += g.gold;
-        gainRatios.souls += g.souls;
+    // Snapshot both sides before battle-start effects; later deaths do not remove bonuses.
+    const goldRatios = { [PlayerSide.Left]: 0, [PlayerSide.Right]: 0 };
+    for (const side of [PlayerSide.Left, PlayerSide.Right]) {
+      for (const char of state.teams[side].characters) {
+        goldRatios[side] += char.passive?.battleEconomyGain?.gold ?? 0;
       }
     }
-    this.economyGainRatios = gainRatios;
-    // 宝石灵力抑制快照（jinx）：对 Left 生效 = Right 队持有人的最强 enemyMasteryMult，反之亦然。
+    state.battleGoldGainRatios = goldRatios;
+    state.battleSoulGainRatio = state.teams[PlayerSide.Left].characters.reduce(
+      (total, char) => total + (char.passive?.battleEconomyGain?.souls ?? 0), 0,
+    );
     const masteryMultOf = (side: PlayerSide): number => {
       let mult = 1;
       for (const foe of state.teams[side].characters) {
@@ -454,12 +447,9 @@ export class TurnEngine {
     return this.ruleTargets.length > 0 && this.ruleTargets.every((c) => c.defeated && !c.fled);
   }
 
-  /** 判出胜负的统一收尾：首次判定时放大经济池、发 game-over */
+  /** Resolve the winner and emit game-over once; battle bonuses were already credited. */
   private declareWinner(winner: PlayerSide, events: GameEvent[], reason?: RuleEndReason): void {
     if (this.state.winner === null) {
-      const { gold, souls } = this.economyGainRatios;
-      if (gold > 0) this.state.economy.gold = Math.floor(this.state.economy.gold * (1 + gold));
-      if (souls > 0) this.state.economy.souls = Math.floor(this.state.economy.souls * (1 + souls));
       // PvP 荣耀映射（职业天赋 bloodandglory「PvP 战斗中获得 1 点荣耀」）：本作无
       // 荣耀币种，设计值映射为黄金按持有者入账（官方单场荣耀个位数，量级一致）。
       if (this.pvpMode) {
@@ -640,37 +630,53 @@ export class TurnEngine {
   }
 
   /**
-   * kind 感知宝石爆破（特质收尾批：'random' 任意宝石 / 'skull' 普通骷髅头 / 特殊宝石
-   * kind，tier 为善神石像鬼等分层宝石的层号）。落子口径与 explodeGemsOfColor 完全一致
-   * （命中格移除后走 resolveBoardChange，side 归结算方；候选唯一不掷骰、多候选每颗耗
-   * 一次 rng、无候选安全跳过）。
+   * Trait explosions share the random-gem spell semantics: pick distinct centers
+   * from the current board, then explode their combined 3x3 neighborhoods once.
+   * A gem-explode event for the centers alone would only clear individual gems.
    */
   private explodeGemsBySpec(
     spec: { kind: 'random' | 'skull' | SpecialGemKind; tier?: number; color?: string; count: number },
     side: PlayerSide,
   ): GameEvent[] {
-    const events: GameEvent[] = [];
-    for (let i = 0; i < spec.count; i++) {
-      const candidates: CellPos[] = [];
-      for (let row = 0; row < BoardModel.ROWS; row++) {
-        for (let col = 0; col < BoardModel.COLS; col++) {
-          const gem = this.state.board.get({ row, col });
-          if (!gem) continue;
-          if (spec.kind === 'random') candidates.push({ row, col });
-          else if (spec.kind === 'skull') {
-            if (gem.type.kind === 'skull') candidates.push({ row, col });
-          } else if (gem.type.kind === 'special' && gem.type.spec.kind === spec.kind) {
-            if (spec.tier === undefined || gem.type.spec.tier === spec.tier) candidates.push({ row, col });
-          }
+    if (spec.count <= 0) return [];
+    const candidates: CellPos[] = [];
+    for (let row = 0; row < BoardModel.ROWS; row++) {
+      for (let col = 0; col < BoardModel.COLS; col++) {
+        const gem = this.state.board.get({ row, col });
+        if (!gem) continue;
+        if (spec.kind === 'random'
+          || (spec.kind === 'skull' && gem.type.kind === 'skull')
+          || (gem.type.kind === 'special' && gem.type.spec.kind === spec.kind
+            && (spec.tier === undefined || gem.type.spec.tier === spec.tier))) {
+          candidates.push({ row, col });
         }
       }
-      if (candidates.length === 0) break;
-      const pos = candidates.length === 1 ? candidates[0] : candidates[this.rng.nextInt(candidates.length)];
-      const gem = this.state.board.get(pos)!;
-      events.push({ type: 'gem-explode', cells: [{ pos, gemId: gem.id, gemType: gem.type }] });
-      this.state.board.set(pos, null);
-      this.resolveBoardChange([{ gemType: gem.type, pos }], events, side, 'explode');
     }
+    const centers: CellPos[] = [];
+    for (let i = 0; i < spec.count && candidates.length > 0; i++) {
+      const idx = this.rng.nextInt(candidates.length);
+      centers.push(candidates.splice(idx, 1)[0]);
+    }
+    const cells: GemClearEvent['cells'] = [];
+    const destroyed: DestroyedGem[] = [];
+    const seen = new Set<string>();
+    for (const center of centers) {
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          const pos = { row: center.row + dr, col: center.col + dc };
+          if (!BoardModel.inBounds(pos) || seen.has(posKey(pos))) continue;
+          seen.add(posKey(pos));
+          const gem = this.state.board.get(pos);
+          if (!gem) continue;
+          cells.push({ pos, gemId: gem.id, gemType: gem.type });
+          destroyed.push({ gemType: gem.type, pos });
+          this.state.board.set(pos, null);
+        }
+      }
+    }
+    if (cells.length === 0) return [];
+    const events: GameEvent[] = [{ type: 'gem-explode', cells }];
+    this.resolveBoardChange(destroyed, events, side, 'explode');
     return events;
   }
 
@@ -2664,7 +2670,6 @@ export class TurnEngine {
   private checkVictory(events: GameEvent[]): boolean {
     for (const side of [PlayerSide.Left, PlayerSide.Right]) {
       if (CombatResolver.isWipedOut(this.state.teams[side])) {
-        // 战后经济钩子（merchant/necromancy 族）：只在本场首次判出胜负时放大一次（declareWinner）。
         this.declareWinner(opponentOf(side), events);
         return true;
       }

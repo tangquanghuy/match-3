@@ -291,7 +291,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
 
   function refreshMailIndicator(): void {
     const alert = $('#mailAlert');
-    if (alert) alert.hidden = !ctx.save().mailbox.items.some(item => item.claimedAt === null);
+    if (alert) alert.hidden = !ctx.save().mailbox.items.some(item => item.claimedAt === null || !!item.mythicChoice);
   }
 
   async function boot(): Promise<void> {

@@ -196,7 +196,7 @@ describe('L4b R6 B06', () => {
     expect([...counts].sort()).toEqual([1, 2]);
     expect([...tiers].sort()).toEqual([1, 2]);
   });
-  it('troop:7689: 10 true damage to all, 20 in Southwild; 6 Yellow -> Green Dragon Gems (R009)', () => {
+  it('troop:7689: original 10 true damage to all, 20 in Southwild; 6 Yellow -> Green Dragon Gems (R009)', () => {
     const s = castSpell({ key: 'troop:7689' }).summary;
     expect(dmgs(s.order)).toEqual(['dmg E10 10 (all)', 'dmg E11 10 (all)', 'dmg E12 10 (all)', 'dmg E13 10 (all)']);
     expect(s.order).toContain('convert Yellow x6 -> dragonGem/Green x6');

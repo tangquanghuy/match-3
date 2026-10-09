@@ -1,6 +1,9 @@
 import { EVENT_HIGH_TIER_REWARDS, EVENT_LEGACY_GEMS_PAID, EVENT_MILESTONES, EVENT_SHARED_GOALS, EVENT_TYPES, EVENT_WEEKLY_RULES, TOWER_BOSS_REWARDS, eventArcaneBundle, towerBossRewardKey, type EventTypeId } from '../data/events';
 import { INVASION_RANKS } from '../data/invasionRanks';
 import { REGION_REWARDS } from '../data/regionalPvp';
+import { getTroopById } from '../../data/troops';
+import { grantTroop } from './troopProgress';
+import { BLOCKED_WISHLIST_IDS } from './wishlist';
 import type { MaterialDelta } from '../data/materials';
 import type { EventWeekState, InvasionState, MailboxState, MailItem, MetaSave } from '../state/schema';
 import type { RegionalState } from '../state/regional';
@@ -50,6 +53,7 @@ export function hydrateMailbox(value: unknown): MailboxState {
       currencies: Object.fromEntries(Object.entries(currencies).filter(([key]) => ['gold', 'souls', 'gems', 'goldKeys', 'glory', 'gloryKeys', 'trophies'].includes(key))),
       materials: cleanMaterials(item.materials),
       ...(positive(item.classXp) ? { classXp: positive(item.classXp) } : {}),
+      ...(Math.min(10, positive(item.mythicChoice)) ? { mythicChoice: Math.min(10, positive(item.mythicChoice)) } : {}),
     });
   }
   return { weeklyDoubleVersion: positive(raw.weeklyDoubleVersion), classTrialXpVersion: positive(raw.classTrialXpVersion), items };
@@ -206,6 +210,20 @@ export function claimMail(save: MetaSave, id: string, now: number): { ok: true }
   item.readAt ??= now;
   item.claimedAt = now;
   return { ok: true };
+}
+
+/** Materials are claimed independently. Selecting a troop is an atomic, durable command. */
+export function chooseMailMythic(save: MetaSave, id: string, troopId: number, now: number): { ok: true; troopId: number; duplicate: boolean } | MetaFailure {
+  const item = save.mailbox.items.find(mail => mail.id === id);
+  if (!item || !item.mythicChoice || item.claimedAt === null) return fail('INVALID', '神话自选附件尚未领取或已使用');
+  const troop = Number.isInteger(troopId) ? getTroopById(troopId) : undefined;
+  if (!troop || troop.rarityIdx !== 5 || BLOCKED_WISHLIST_IDS.has(troopId) || troopId === 7446 || troopId === 7622)
+    return fail('INVALID', '请选择可获取的神话部队');
+  const duplicate = !!(save.collectionTruth ?? save.collection)[String(troopId)];
+  if (!grantTroop(save, troopId)) return fail('INVALID', '部队领取失败');
+  item.mythicChoice -= 1;
+  item.readAt ??= now;
+  return { ok: true, troopId, duplicate };
 }
 
 export function claimAllMail(save: MetaSave, now: number): { ok: true; count: number } {

@@ -9,7 +9,7 @@ import { createGameState } from '../../src/engine/GameState';
 import { TurnEngine } from '../../src/engine/TurnEngine';
 import { ExtensionRegistry } from '../../src/engine/registry';
 import { registerSkillLibrary } from '../../src/engine/skills/library';
-import { skill, dmg, inflict, devour, drainMana, summonRef } from '../../src/engine/skills/builders';
+import { skill, dmg, inflict, devour, drainMana, summonRef, gainGold, gainSouls } from '../../src/engine/skills/builders';
 import { FixedTargetChooser } from '../../src/engine/skills/targetChooser';
 import { SeededRNG } from '../../src/engine/rng';
 import { BaseColor, PlayerSide, colorGem, skullGem, specialGem, type Character, type GemType } from '../../src/engine/types';
@@ -17,6 +17,8 @@ import type { GameEvent } from '../../src/engine/events';
 
 const registry = new ExtensionRegistry(); registerSkillLibrary(registry.prototypes);
 registry.prototypes.set('audit-hit', skill(dmg('enemyChosen', 12, 0)));
+// Economy multipliers now apply to in-battle gains, not a post-victory payout.
+registry.prototypes.set('audit-economy-victory', skill(gainGold(10), gainSouls(10), dmg('enemyChosen', 12, 0)));
 registry.prototypes.set('audit-devour', skill(devour('enemyChosen', {chance: 1})));
 registry.prototypes.set('audit-drain', skill(drainMana('enemyChosen')));
 registry.prototypes.set('audit-summon', skill(summonRef('Skeleton')));
@@ -152,7 +154,7 @@ export function traitFixture(c: TraitCase, seed = 42, control = false) {
       case 'ally-summon': {
         return cast(PlayerSide.Left,left[1],right[0],'audit-summon');
       }
-      case 'victory': return cast(PlayerSide.Left,left[1],right[0]);
+      case 'victory': return cast(PlayerSide.Left,left[1],right[0],'audit-economy-victory');
       case 'targeting': {
         registry.prototypes.set('audit-target',skill(dmg('enemyRandom',12,0)));
         return cast(PlayerSide.Right,right[1],holder,'audit-target');

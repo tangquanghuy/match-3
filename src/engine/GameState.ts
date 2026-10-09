@@ -36,6 +36,10 @@ export interface GameState {
   economy: BattleEconomy;
   /** Right-side battle Gold; optional only for legacy state fixtures (defaults to zero). */
   enemyGold?: number;
+  /** Battle-start gold trait ratios, retained after a trait holder leaves the roster. */
+  battleGoldGainRatios?: Record<PlayerSide, number>;
+  /** Left team battle-start soul bonus; applies to the shared reward pool. */
+  battleSoulGainRatio?: number;
   /**
    * 战斗上下文·发生王国（武器原语批 K-E，用户裁定口径）：探索/入侵模式 = 当前王国名，
    * 竞技场 = null；字段缺省（undefined）= 旧请求兼容口径，与 null 同效。

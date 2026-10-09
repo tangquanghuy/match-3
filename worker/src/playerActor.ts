@@ -81,6 +81,37 @@ export class PlayerActor extends DurableObject<Env> {
     const rows = this.ctx.storage.sql.exec<{ key: string; value: string }>('SELECT key, value FROM records').toArray();
     return rows.length ? assembleRaw(new Map(rows.map(row => [row.key, row.value]))) : null;
   }
+  /** Single-account pilot; only reachable through a separately authenticated Worker route. */
+  async retireGraydove(expectedRevision: number, expectedRawSha256: string, playerId: string) {
+    if (playerId !== 'b072954c-914d-4e38-bf87-c4ed70aa7343') throw new Error('Wrong pilot player');
+    await this.bindPlayer(playerId);
+    return this.host.retireGraydove(expectedRevision, expectedRawSha256);
+  }
+
+  async retireBackedUpPlayer(expectedRevision: number, expectedRawSha256: string, playerId: string) {
+    await this.bindPlayer(playerId);
+    return this.host.retireBackedUpPlayer(expectedRevision, expectedRawSha256,
+      playerId === '1a757956-a0b9-41ac-9de1-5c2245103977');
+  }
+
+  async sendGraydoveMythicChoice(expectedRevision: number, expectedRawSha256: string, playerId: string) {
+    if (playerId !== 'b072954c-914d-4e38-bf87-c4ed70aa7343') throw new Error('Wrong pilot player');
+    await this.bindPlayer(playerId);
+    return this.host.sendGraydoveMythicChoice(expectedRevision, expectedRawSha256);
+  }
+
+  async correctGraydoveMail(expectedRevision: number, expectedRawSha256: string, playerId: string) {
+    if (playerId !== 'b072954c-914d-4e38-bf87-c4ed70aa7343') throw new Error('Wrong pilot player');
+    await this.bindPlayer(playerId);
+    return this.host.correctGraydoveMail(expectedRevision, expectedRawSha256);
+  }
+
+  async updateGraydoveMailWording(expectedRevision: number, expectedRawSha256: string, playerId: string) {
+    if (playerId !== 'b072954c-914d-4e38-bf87-c4ed70aa7343') throw new Error('Wrong pilot player');
+    await this.bindPlayer(playerId);
+    return this.host.updateGraydoveMailWording(expectedRevision, expectedRawSha256);
+  }
+
   async receiveMail(items: MailItem[], playerId?: string): Promise<string[]> {
     await this.bindPlayer(playerId);
     return this.host.receiveMail(items);

@@ -41,6 +41,8 @@ export const SOULFORGE_RECIPES: readonly SoulforgeStock[] = [
   // —— Tier 2 · 珍藏配方 ——
   { recipe: { weaponId: 'gw_WandOfStars', name: '紫微星魔法棒', rarity: 'Mythic', tier: 2, souls: 1_800_000, gold: 3_000_000 },
     source: '珍藏配方' },
+  { recipe: { weaponId: 'gw_TheRubyMacaque', name: '红宝石猕猴', rarity: 'Mythic', tier: 2, souls: 1_500_000, gold: 2_000_000 },
+    source: '珍藏配方' },
   // —— Tier 2 · Doomed 档样例（熔铸符卷通道二期开放）——
   { recipe: { weaponId: 'gw_DoomedTome', name: '劫数之卷', rarity: 'Doomed', tier: 2, souls: 400_000, gold: 150_000 },
     source: '末日战役·卡其尔' },

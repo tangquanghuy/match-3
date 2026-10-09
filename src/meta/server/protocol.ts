@@ -123,6 +123,7 @@ export interface CommandTable {
   readMail: { args: { id: string }; result: Ok | MetaFailure };
   claimMail: { args: { id: string }; result: Ok | MetaFailure };
   claimAllMail: { args: object; result: Ok<{ count: number }> };
+  chooseMailMythic: { args: { id: string; troopId: number }; result: Ok<{ troopId: number; duplicate: boolean }> | MetaFailure };
   markMapSeen: { args: { level: number }; result: number };
   resetToNewGame: { args: object; result: Ok };
   createCharacter: { args: import('../state/character').CreateCharacterInput; result: Ok | MetaFailure };
@@ -278,6 +279,7 @@ const CRITICAL_COMMANDS: ReadonlySet<CommandType> = new Set<CommandType>([
   'claimAllGifts',
   'claimMail',
   'claimAllMail',
+  'chooseMailMythic',
   'buyEventGoods',
   'buyMaterialGoods',
   'eventAction',

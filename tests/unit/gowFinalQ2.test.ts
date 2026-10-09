@@ -182,7 +182,7 @@ describe('sa-Q2 B06: Anubite Warrior order, Mudwalker, Khaomani, Assassin Vine (
     const bl = [{ id: 'blessed', turns: 3 }] as never;
     const s = castSpell({ key: 'troop:7791', caster: { statuses: bl }, allies: [{ hp: 100, maxHp: 100, statuses: bl }],
       enemies: [{ hp: 500, maxHp: 500, statuses: bl }, { hp: 500, maxHp: 500 }] }).summary;
-    // 2 + round(7.5) = 10 base, +1.5 x 2 = 13
+    // Original Khaomani damage: 2 + round(7 * 0.75) = 7 base, +3 x 2 = 13
     expect(s.order.filter(x => x.startsWith('dmg '))).toEqual(['dmg E10 13 (all)', 'dmg E11 13 (all)']);
   });
   it('troop:7797 Assassin Vine: 30% kill only if already Entangled, rolled before the hit (R016-2)', () => {

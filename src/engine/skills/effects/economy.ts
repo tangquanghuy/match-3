@@ -8,7 +8,7 @@ import { creditBattleMaps } from '../../battleMaps';
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import { opponentOf } from '../../types';
-import { goldForSide, setGoldForSide, creditGoldForSide, remainingBattleGold } from '../../battleGold';
+import { goldForSide, setGoldForSide, creditGoldForSide, remainingBattleGold, battleGoldMultiplier } from '../../battleGold';
 import { creditBattleSouls } from '../../battleSouls';
 import type { GameEvent } from '../../events';
 import type { EconomyGainEvent } from '../../events';
@@ -78,7 +78,8 @@ export function stealGoldEffect(params: StealGoldParams): EffectPrimitive {
       const requested = params.all ? available : evaluateWithModifier(
         evaluateScaling(params.scaling, casterMagic(ctx)), params.modifier, ctx,
       );
-      const gain = Math.max(0, Math.min(available, requested, params.cap ?? Infinity, remainingBattleGold(ctx.state, side)));
+      const gain = Math.max(0, Math.min(available, requested, params.cap ?? Infinity,
+        Math.ceil(remainingBattleGold(ctx.state, side) / battleGoldMultiplier(ctx.state, side))));
       if (gain <= 0) return [];
       setGoldForSide(ctx.state, enemySide, available - gain);
       const credited = params.deferCredit ? 0 : creditGoldForSide(ctx.state, side, gain);

@@ -5,6 +5,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { BoardModel } from '../../src/engine/BoardModel';
+import { kingdomTeamBonusOf } from '../../src/meta/systems/kingdomTeamBonus';
 import { createGameState } from '../../src/engine/GameState';
 import { chooseAiAction, firstCastableCharacter } from '../../src/engine/aiPolicy';
 import { SeededRNG } from '../../src/engine/rng';
@@ -350,9 +351,10 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     if (!outcome.ok) throw new Error(outcome.message);
     const hero = outcome.request.playerTeam.find((c) => c.externalId.endsWith('-hero'))!;
     const base = heroStatsAt(s.hero.level, s.hero.classId);
-    expect(hero.stats.attack).toBe(base.attack + 2);
-    expect(hero.stats.armor).toBe(base.armor + 1);
-    expect(hero.stats.hp).toBe(base.health + 1);
+    const bonus = kingdomTeamBonusOf(s, s.teams[0]!.members);
+    expect(hero.stats.attack).toBe(base.attack + 2 + bonus.attack);
+    expect(hero.stats.armor).toBe(base.armor + 1 + bonus.armor);
+    expect(hero.stats.hp).toBe(base.health + 1 + bonus.health);
   });
 
   it('天赋自身静态加成入快照；主角采纳职业兵种类型', () => {
@@ -373,8 +375,9 @@ describe('主角入队桥接与结算（天赋真实入战）', () => {
     expect(hero.manaColors).toEqual(equippedWeaponOf(s)!.manaColors);
     // 督军采纳 Orc? 否——无字面证据保持 Human；天赋凶悍 = 攻击 +4
     expect(hero.troopTypes).toEqual(['Human']);
-    expect(hero.stats.attack).toBe(heroStatsAt(s.hero.level, s.hero.classId).attack + 4);
-    expect(hero.stats.hp).toBe(heroStatsAt(s.hero.level, s.hero.classId).health); // 破碎尖塔未满级，无王国加成
+    const bonus = kingdomTeamBonusOf(s, s.teams[0]!.members);
+    expect(hero.stats.attack).toBe(heroStatsAt(s.hero.level, s.hero.classId).attack + 4 + bonus.attack);
+    expect(hero.stats.hp).toBe(heroStatsAt(s.hero.level, s.hero.classId).health + bonus.health); // 无永久王国加成，但计入同王国编队加成
 
     // 武器原型注册为真实技能（非兜底空原型）
     const proto = outcome.registry.prototypes.get(STARTER_WEAPON_ID)!;

@@ -1106,8 +1106,8 @@
    "L0": "dmg E10 92 (all) ; dmg E11 92 (all) ; dmg E12 92 (all) ; dmg E13 92 (all)  => E10:hp-92 | E11:hp-92 | E12:hp-92 | E13:hp-92",
    "K": "dmg E10 100 (all) ; dmg E11 100 (all) ; dmg E12 100 (all) ; dmg E13 100 (all) ; defeat E10 ; defeat E11 ; defeat E12 ; defeat E13  => E10:hp-1 DEAD | E11:hp-1 DEAD | E12:hp-1 DEAD | E13:hp-1 DEAD"
   },
-  "by": "sa-D",
-  "at": "2026-09-28T10:30:15.421Z"
+  "by": "temporary-aoe-2026-10-09",
+  "at": "2026-10-08T19:32:41.892Z"
  },
  "weapon:1000": {
   "lines": {

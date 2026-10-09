@@ -73,6 +73,7 @@ export class CommandGateway implements MetaGateway {
   readMail(id: string) { return this.cmd('readMail', { id }); }
   claimMail(id: string) { return this.cmd('claimMail', { id }); }
   claimAllMail() { return this.cmd('claimAllMail', {}); }
+  chooseMailMythic(id: string, troopId: number) { return this.cmd('chooseMailMythic', { id, troopId }); }
   markMapSeen(level: number) { return this.cmd('markMapSeen', { level }); }
   createCharacter(input: import('../state/character').CreateCharacterInput) { return this.cmd('createCharacter', input); }
   setCharacterPortrait(portrait: string) { return this.cmd('setCharacterPortrait', { portrait }); }

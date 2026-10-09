@@ -11,6 +11,7 @@
  */
 import { GACHA_RULES, pursuitLimitFor, type GachaAudit } from '../data/gachaRules';
 import { reallyOwned } from './wishlist';
+import { RETIRING_TROOP_IDS } from './retiredTroops';
 import { TROOPS, getTroopById, type TroopData } from '../../data/troops';
 import { COMMUNITY_KINGDOM } from '../../data/communityTroops';
 import { SeededRNG } from '../../engine/rng';
@@ -35,7 +36,10 @@ import { earn, earnMaterials, spend } from './wallet';
 /** 稀有度档 → 该档全部兵种（数据只读派生，一次构建） */
 const BY_RARITY_IDX: TroopData[][] = (() => {
   const bands: TroopData[][] = [[], [], [], [], [], []];
-  for (const troop of TROOPS) bands[Math.min(Math.max(troop.rarityIdx, 0), 5)]!.push(troop);
+  for (const troop of TROOPS) {
+    if ((RETIRING_TROOP_IDS as readonly number[]).includes(troop.id)) continue;
+    bands[Math.min(Math.max(troop.rarityIdx, 0), 5)]!.push(troop);
+  }
   return bands;
 })();
 
@@ -144,7 +148,8 @@ function rollBatch(
     // 先正常掷稀有度，再在整批未达标时抬底；保底不覆盖自然抽出的高档卡。
     // 最终结果只入册一次，既不额外发卡，也不吞掉第十张自然出高档的机会。
     const pursuit = save.gachaWishlist.pursuit;
-    if (audit && pursuit.targetId !== null && reallyOwned(save, pursuit.targetId)) pursuit.targetId = null;
+    if (audit && pursuit.targetId !== null &&
+        (reallyOwned(save, pursuit.targetId) || (RETIRING_TROOP_IDS as readonly number[]).includes(pursuit.targetId))) pursuit.targetId = null;
     const pursuing = !!audit && pursuit.targetId !== null;
     const guaranteed = pursuing && pursuit.progress + 1 >= pursuit.limit;
     let reason: GachaAudit['reasons'][number] = 'normal';
@@ -164,7 +169,7 @@ function rollBatch(
     let troopId: number;
     if (guaranteed) { troopId = pursuit.targetId!; reason = 'pursuit'; }
     else if (audit) {
-      const selected = audit.wishlistIds.filter((id) => getTroopById(id)?.rarityIdx === band);
+      const selected = audit.wishlistIds.filter((id) => !(RETIRING_TROOP_IDS as readonly number[]).includes(id) && getTroopById(id)?.rarityIdx === band);
       const chance = (GACHA_RULES.wishlistShares[band] ?? 0) * selected.length / GACHA_RULES.slotsPerRarity;
       if (selected.length && rng.next() < chance) troopId = rng.pick(selected);
       else if (selected.length) troopId = rng.pick(BY_RARITY_IDX[band]!.filter((t) => !selected.includes(t.id))).id;
@@ -254,7 +259,8 @@ export function openGemChest(
   const paid = spend(save, { gems: cost });
   if (!paid.ok) return paid;
   const rng = new SeededRNG(seed);
-  const audit: GachaAudit = { rulesVersion: GACHA_RULES.version, wishlistIds: [...save.gachaWishlist.troopIds],
+  const audit: GachaAudit = { rulesVersion: GACHA_RULES.version,
+    wishlistIds: save.gachaWishlist.troopIds.filter(id => !(RETIRING_TROOP_IDS as readonly number[]).includes(id)),
     pursuitBefore: { ...save.gachaWishlist.pursuit }, pursuitAfter: { ...save.gachaWishlist.pursuit }, reasons: [] };
   let cards: GachaCard[];
   let pityUsed = false;

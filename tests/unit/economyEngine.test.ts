@@ -3,7 +3,7 @@
  *
  * 覆盖：金币/灵魂/宝石计数器、gainEconomy 效果段（数值缩放 + 二次缩放）、economy-gain 事件、
  * battleGold/battleSouls/battleGems 二次缩放来源、赃物宝石摧毁 +10 金币（技能清除与末日骷髅
- * 爆炸圈两路）、赃物不可匹配、merchant/necromancy 战后经济钩子、
+ * 爆炸圈两路）、赃物不可匹配、merchant/necromancy live economy bonuses、
  * 以及「无经济内容对局事件流零经济事件」护栏。
  */
 import { describe, it, expect } from 'vitest';
@@ -11,8 +11,8 @@ import { BoardModel } from '@engine/BoardModel';
 import { TurnEngine } from '@engine/TurnEngine';
 import { MatchResolver } from '@engine/MatchResolver';
 import { createGameState } from '@engine/GameState';
-import { BATTLE_GOLD_BASE_CAP, creditGoldForSide, goldForSide, setGoldForSide } from '@engine/battleGold';
-import { BATTLE_SOUL_BASE_CAP } from '@engine/battleSouls';
+import { BATTLE_GOLD_BASE_CAP, battleGoldCap, creditGoldForSide, goldForSide, setGoldForSide } from '@engine/battleGold';
+import { BATTLE_SOUL_BASE_CAP, battleSoulCap } from '@engine/battleSouls';
 import { registerDynamicTraits } from '@engine/traits';
 import { PVP_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
 import { ExtensionRegistry } from '@engine/registry';
@@ -20,7 +20,8 @@ import { SeededRNG } from '@engine/rng';
 import { executePrototype } from '@engine/skills/prototypes';
 import { SKILL_LIBRARY } from '@engine/skills/library';
 import type { SkillPrototype } from '@engine/skills/prototypes';
-import { gainGold, gainSouls, gainGems, dmg } from '@engine/skills/builders';
+import { gainGold, gainSouls, gainGems, dmg, stealGold } from '@engine/skills/builders';
+import { getTroopById } from '../../src/data/troops';
 import type { EffectContext } from '@engine/skills/effects/context';
 import { BaseColor, PlayerSide, colorGem, specialGem } from '@engine/types';
 import type { Character, Team, Gem, GemType } from '@engine/types';
@@ -251,8 +252,8 @@ describe('织网双路径（官方 matched or destroyed，DECISIONS 四项拍板
   });
 });
 
-describe('merchant/necromancy 战后经济钩子', () => {
-  it('GameOver 时玩家侧比率放大共用池：merchant(+25% gold)；同 code 两条比率累加', () => {
+describe('merchant/necromancy live battle economy bonuses', () => {
+  it('merchant boosts Gold on cast, without multiplying the victory balance twice', () => {
     const board = new BoardModel();
     fillBoard(board, () => colorGem(BaseColor.Red));
     const left: Team = {
@@ -270,15 +271,16 @@ describe('merchant/necromancy 战后经济钩子', () => {
     const engine = new TurnEngine(state, new SeededRNG(3), () => 810000 + gid++, registry);
     engine.skullChance = 0;
 
-    engine.resolveAction({ type: 'cast', characterId: 0 });
-    expect(state.economy.gold).toBe(10);
-    // 击杀敌方唯一角色 → 战斗结束 → gold ×1.25
+    const first = engine.resolveAction({ type: 'cast', characterId: 0 });
+    expect(state.economy.gold).toBe(12);
+    expect(first).toContainEqual({ type: 'economy-gain', currency: 'gold', amount: 12, side: PlayerSide.Left });
+    // Victory does not multiply the already-enhanced live balance.
     // First cast hands off; opponent passes before the second allied cast.
     expect(state.activePlayer).toBe(PlayerSide.Right);
     engine.passTurn();
     engine.resolveAction({ type: 'cast', characterId: 1 });
     expect(state.winner).toBe(PlayerSide.Left);
-    expect(state.economy.gold).toBe(Math.floor(10 * 1.25));
+    expect(state.economy.gold).toBe(12);
     expect(state.economy.souls).toBe(0); // 灵魂零入账时乘法不产生灵魂
   });
 
@@ -372,7 +374,7 @@ describe('per-battle base collection caps', () => {
     engine.skullChance = 0;
     engine.pvpMode = true;
     engine.resolveAction({ type: 'cast', characterId: 0 });
-    expect(state.economy.gold).toBe(500);
+    expect(state.economy.gold).toBe(625);
     engine.passTurn();
     engine.resolveAction({ type: 'cast', characterId: 1 });
     expect(state.winner).toBe(PlayerSide.Left);
@@ -395,11 +397,97 @@ describe('per-battle base collection caps', () => {
     engine.skullChance = 0;
     const first = engine.resolveAction({ type: 'cast', characterId: 0 });
     expect(first.filter(e => e.type === 'economy-gain').map(e => [e.currency, e.amount]))
-      .toEqual([['gold', 500], ['souls', 200]]);
-    expect(state.economy).toMatchObject({ gold: 500, souls: 200 });
+      .toEqual([['gold', 625], ['souls', 300]]);
+    expect(state.economy).toMatchObject({ gold: 625, souls: 300 });
     engine.passTurn();
     engine.resolveAction({ type: 'cast', characterId: 1 });
     expect(state.winner).toBe(PlayerSide.Left);
     expect(state.economy).toMatchObject({ gold: 625, souls: 300 });
+  });
+});
+
+
+describe('battle-start economy traits apply during battle', () => {
+  it('Cedric moneybags doubles every credited Gold gain and the 500 cap, but only when unlocked', () => {
+    const boosted = makeEngineHarness({ left: [{ traitIds: ['moneybags'], skillId: 'collect' }],
+      prototypes: { collect: { segments: [gainGold(10), gainGold(500)] } } });
+    expect(battleGoldCap(boosted.state, PlayerSide.Left)).toBe(1000);
+    const events = boosted.engine.resolveAction({ type: 'cast', characterId: 0 });
+    expect(events.filter(e => e.type === 'economy-gain').map(e => e.amount)).toEqual([20, 980]);
+    expect(boosted.state.economy.gold).toBe(1000);
+    setGoldForSide(boosted.state, PlayerSide.Left, 995);
+    expect(creditGoldForSide(boosted.state, PlayerSide.Left, 10)).toBe(5);
+    expect(boosted.state.economy.gold).toBe(1000);
+    const locked = makeEngineHarness({ left: [{ skillId: 'collect' }],
+      prototypes: { collect: { segments: [gainGold(10)] } } });
+    expect(battleGoldCap(locked.state, PlayerSide.Left)).toBe(500);
+    locked.engine.resolveAction({ type: 'cast', characterId: 0 });
+    expect(locked.state.economy.gold).toBe(10);
+  });
+
+  it('soul bonus changes live gain and cap, with additive traits and no victory doubling', () => {
+    const board = new BoardModel();
+    fillBoard(board, () => colorGem(BaseColor.Red));
+    const left: Team = { player: PlayerSide.Left, characters: [
+      makeChar(0, { traitIds: ['necromancy', 'necromaster'], mana: 99, skillId: 'collect' }),
+      makeChar(1, { mana: 99, skillId: 'nuke' }),
+    ] };
+    const right: Team = { player: PlayerSide.Right, characters: [makeChar(4, { hp: 1 })] };
+    const state = createGameState(board, left, right);
+    const registry = new ExtensionRegistry();
+    registry.prototypes.set('collect', { segments: [gainSouls(10), gainSouls(1000)] });
+    registry.prototypes.set('nuke', { segments: [dmg('enemyFront', 50, 0)] });
+    const engine = new TurnEngine(state, new SeededRNG(3), () => 850000 + gid++, registry);
+    engine.skullChance = 0;
+    const mult = 1 + (state.battleSoulGainRatio ?? 0);
+    expect(mult).toBe(3);
+    expect(battleSoulCap(state)).toBe(Math.floor(200 * mult));
+    const gains = engine.resolveAction({ type: 'cast', characterId: 0 }).filter(e => e.type === 'economy-gain');
+    expect(gains.map(e => e.amount)).toEqual([Math.floor(10 * mult), battleSoulCap(state) - Math.floor(10 * mult)]);
+    expect(state.economy.souls).toBe(battleSoulCap(state));
+    engine.passTurn();
+    engine.resolveAction({ type: 'cast', characterId: 1 });
+    expect(state.winner).toBe(PlayerSide.Left);
+    expect(state.economy.souls).toBe(battleSoulCap(state));
+  });
+
+  it('enemy Gold traits affect only enemy Gold, not player reward balance', () => {
+    const { state } = makeEngineHarness({ right: [{ traitIds: ['moneybags'] }] });
+    expect(battleGoldCap(state, PlayerSide.Right)).toBe(1000);
+    expect(battleGoldCap(state, PlayerSide.Left)).toBe(500);
+    expect(creditGoldForSide(state, PlayerSide.Right, 10)).toBe(20);
+    expect(creditGoldForSide(state, PlayerSide.Left, 10)).toBe(10);
+    state.teams[PlayerSide.Right].characters.splice(0);
+    expect(creditGoldForSide(state, PlayerSide.Right, 5)).toBe(10);
+    expect(state.economy.gold).toBe(10);
+  });
+
+  it('booty gems grant trait-enhanced Gold on the same turn', () => {
+    const { engine, state } = makeEngineHarness({
+      left: [{ traitIds: ['moneybags'], skillId: 'clear' }],
+      prototypes: { clear: { segments: [{ kind: 'gem', params: { op: 'clear', mode: 'destroy', target: { kind: 'special', gem: 'bootyGem' } } }] } },
+      setGems: (board, g) => board.set({ row: 3, col: 3 }, g(specialGem('bootyGem'))),
+    });
+    const events = engine.resolveAction({ type: 'cast', characterId: 0 });
+    expect(events).toContainEqual({ type: 'economy-gain', currency: 'gold', amount: 20, side: PlayerSide.Left });
+    expect(state.economy.gold).toBe(20);
+  });
+});
+
+
+describe('trait-enhanced Gold theft and troop definition', () => {
+  it('Cedric Sparklesack has moneybags in the third trait slot', () => {
+    expect(getTroopById(6498)?.traits[2]?.code).toBe('moneybags');
+  });
+
+  it('Gold theft removes only the raw amount needed to fill boosted capacity', () => {
+    const { ctx, state } = primitiveCtx();
+    state.battleGoldGainRatios = { [PlayerSide.Left]: 1, [PlayerSide.Right]: 0 };
+    state.economy.gold = 995;
+    state.enemyGold = 100;
+    const events = executePrototype({ segments: [stealGold(10)] }, ctx);
+    expect(events).toContainEqual({ type: 'economy-gain', currency: 'gold', amount: 5, side: PlayerSide.Left });
+    expect(state.economy.gold).toBe(1000);
+    expect(state.enemyGold).toBe(97);
   });
 });

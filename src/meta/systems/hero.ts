@@ -206,3 +206,13 @@ export function equippedWeaponOf(save: MetaSave): WeaponDef | null {
 export function equippedClassOf(save: MetaSave): ClassDef | null {
   return (save.hero.classId && classById(save.hero.classId)) || null;
 }
+
+/** 主角种族取当前职业，未装备职业时默认人类；与冠军等级无关。 */
+export function heroTroopTypeOf(save: MetaSave): string {
+  return equippedClassOf(save)?.troopType ?? 'Human';
+}
+
+/** 主角王国取当前装备武器的目录字段，与职业及冠军等级无关。 */
+export function heroKingdomOf(save: MetaSave): string | undefined {
+  return equippedWeaponOf(save)?.kingdom || undefined;
+}

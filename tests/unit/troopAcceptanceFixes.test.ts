@@ -1,6 +1,7 @@
 ﻿import { describe, it, expect, vi } from 'vitest';
 import { TROOPS, SOURCE_TROOPS, troopToSummonTemplate } from '../../src/data/troops';
 import { normalizeCombatText, spellDescription } from '../../src/data/combatText';
+import { temporaryAoeDescription } from '../../src/data/temporaryAoeMultipliers';
 import { evalMagicExpr, normalizeText } from '../../src/meta/shell/spellText';
 import { BoardModel } from '@engine/BoardModel';
 import { createGameState } from '@engine/GameState';
@@ -30,7 +31,7 @@ function fixture(spellId: number) {
 describe('unified project combat wording', () => {
   it('normalizes every displayed troop, trait and fallback definition idempotently while retaining source anchors', () => {
     for (const t of TROOPS) {
-      expect(t.spell.description).toBe(spellDescription(t.spell.id, SOURCE_TROOPS.find(s => s.id === t.id)!.spell.description));
+      expect(t.spell.description).toBe(temporaryAoeDescription(t.id, spellDescription(t.spell.id, SOURCE_TROOPS.find(s => s.id === t.id)!.spell.description)));
       for (const text of [t.spell.description, ...t.traits.map(x => x.description)]) {
         expect(normalizeText(text)).toBe(text);
         expect(text).not.toMatch(/(?:严重|轻微)(?:的)?\s*溅射|溅射上海/);

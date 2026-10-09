@@ -40,6 +40,9 @@
 .wishlist-screen .locked-mark { position:absolute; top:8px; right:8px; color:#fff; width:16px; height:16px; }
 .wishlist-screen .rarity-edge { position:absolute; inset:0; border:2px solid var(--rc); border-radius:8px; pointer-events:none; }
 .wl-card > button:last-child { width:100%; min-height:40px; border-color:#d7d1c1; background:transparent; font-size:13px; }
+.mythic-choice-screen .wl-choice-actions { display:flex; gap:6px; min-width:0; }
+.mythic-choice-screen .wl-choice-actions button { flex:1; min-width:0; padding:0 5px; font-size:12px; white-space:normal; }
+.mythic-choice-screen .wl-choice-actions button[data-choice-id] { background:#405f59; border-color:#405f59; color:#fff; }
 .wl-card.is-selected > button:last-child { background:#e1ebe2; color:#31594c; border-color:#91ac9a; }
 .wl-pages { display:flex; align-items:center; justify-content:center; gap:24px; margin-top:32px; color:var(--wl-muted); font-size:13px; }
 .wl-pages button { min-width:92px; }

@@ -8,7 +8,7 @@ import { ManaDistributor } from '@engine/ManaDistributor';
 import { executePrototype } from '@engine/skills/prototypes';
 import { SKILL_LIBRARY } from '@engine/skills/library';
 import { getTrait, resolvePassives, applyBigMatchTriggers, applyBattleStartTraits } from '@engine/traits';
-import { BaseColor, PlayerSide, colorGem, type Character } from '@engine/types';
+import { BaseColor, PlayerSide, colorGem, skullGem, type Character } from '@engine/types';
 import { inflict, reduce, skill } from '@engine/skills/builders';
 import { GUANLI_OBSERVER_ID, GUANLI_OBSERVER_SPELL_ID, HONGDIE_ID, HONGDIE_SPELL_ID, COMMUNITY_KINGDOM, COMMUNITY_RACE } from '../../src/data/communityTroops';
 import { getTroopById, getTroopByRef, TROOPS } from '../../src/data/troops';
@@ -122,6 +122,32 @@ describe('管理组重点观察对象与虹蝶：图鉴及战斗接入', () => {
     executePrototype(skill(reduce('enemyChosen', 'mana', 7, 0)), { ...ctx, casterId: enemies[0].id, chosenTargetId: caster.id });
     expect(caster.mana).toBe(manaBefore);
     expect(caster.passive?.manaOpsImmunity).toBe(true);
+  });
+
+  it.each([4, 5])('a real %i-match explodes both random centers and their neighboring gems', size => {
+    const { board, state, ctx, enemies } = setup(GUANLI_OBSERVER_ID, true);
+    board.set({ row: 0, col: 2 }, { id: 3, type: skullGem() });
+    for (let col = 0; col < size; col++) board.set({ row: 7, col },
+      { id: 57 + col, type: colorGem(col === 2 ? BaseColor.Green : BaseColor.Red) });
+    board.set({ row: 6, col: 2 }, { id: 51, type: colorGem(BaseColor.Red) });
+    board.set({ row: 5, col: 2 }, { id: 43, type: colorGem(BaseColor.Blue) });
+    // The first two available centers are (0,0) and (0,1); their 3x3
+    // neighborhoods overlap and must be cleared together, exactly once each.
+    const nextInt = ctx.rng.nextInt.bind(ctx.rng);
+    let draws = 0;
+    vi.spyOn(ctx.rng, 'nextInt').mockImplementation(n => draws++ < 2 ? 0 : nextInt(n));
+    const engine = new TurnEngine(state, ctx.rng, ctx.nextGemId, new ExtensionRegistry());
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    const explosion = events.find(e => e.type === 'gem-explode');
+    expect(explosion?.type).toBe('gem-explode');
+    if (explosion?.type === 'gem-explode') {
+      expect(explosion.cells.map(cell => [cell.pos.row, cell.pos.col]).sort()).toEqual([
+        [0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2],
+      ]);
+      expect(new Set(explosion.cells.map(cell => cell.gemId)).size).toBe(6);
+      expect(explosion.cells.find(cell => cell.gemId === 3)?.gemType.kind).toBe('skull');
+      expect(enemies[0].hp).toBe(99); // adjacent skull is exploded, not merely visually cleared
+    }
   });
 
   it.each([0, 10, 25])('夜蝶迷踪 at magic %i damages/silences/drains only the last two enemies', magic => {

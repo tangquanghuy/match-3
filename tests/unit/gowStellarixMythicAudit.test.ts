@@ -65,7 +65,7 @@ describe('Stellarix 7446 stored mythic whole spell and traits', () => {
     engine.skullChance = 0;
     const events = engine.castSkill(f.caster.id);
     expect(events.filter(e => e.type === 'skill-damage').map(e => e.targetId)).toEqual(f.enemies.map(e => e.id));
-    expect(f.enemies.map(e => e.hp)).toEqual([961, 961, 961, 961]);
+    expect(f.enemies.map(e => e.hp)).toEqual([974, 974, 974, 974]);
     const changes = events.filter(e => e.type === 'gem-transform').flatMap(e => e.changes);
     expect(changes.filter(c => c.to.kind === 'special' && c.to.spec.kind === 'elementalStar')).toHaveLength(3);
     expect(changes.filter(c => c.to.kind === 'special' && c.to.spec.kind === 'umbralStar')).toHaveLength(3);
@@ -96,12 +96,12 @@ describe('Stellarix 7446 stored mythic whole spell and traits', () => {
   });
 
   for (const magic of [0, 11, 20]) for (const count of [1, 2, 4]) {
-    it(`M=${magic}, ${count} enemies: exactly M*3+6 ordinary damage per living enemy`, () => {
+    it(`M=${magic}, ${count} enemies: temporary M*1.8+6 ordinary damage per living enemy`, () => {
       const f = setup(); f.caster.magic = magic;
       f.state.teams.Right.characters = f.enemies.slice(0, count);
       f.ctx.rng = new SeededRNG(1);
       const events = executePrototype(proto, f.ctx);
-      const amount = magic * 3 + 6;
+      const amount = Math.round(magic * 1.8) + 6;
       expect(f.enemies.slice(0, count).map(c => c.hp)).toEqual(Array(count).fill(1000 - amount));
       expect(events.filter(e => e.type === 'skill-damage').map(e => e.targetId)).toEqual(f.enemies.slice(0, count).map(c => c.id));
     });
@@ -115,7 +115,7 @@ describe('Stellarix 7446 stored mythic whole spell and traits', () => {
     expect(events.filter(e => e.type === 'skill-damage').map(e => e.targetId)).toEqual([10, 12, 13]);
     expect(guarded.hp).toBe(1000);
     expect(guarded.statuses).toEqual([]);
-    expect(last.hp).toBe(961);
+    expect(last.hp).toBe(974);
   });
 
   for (const block of ['silence', 'low-mana'] as const) {

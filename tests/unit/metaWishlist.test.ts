@@ -150,7 +150,7 @@ it('图鉴共用编号、多词交集、王国、品质、颜色与种族过滤'
 });
 
 describe('blocked mythics wishlist migration', () => {
-  const retired = [7736, 6529, 7393];
+  const retired = [7736, 6529, 7393, 7446, 7622];
   it.each(retired)('removes %i from selection and retargets to the first unowned listed mythic', id => {
     const s = fresh();
     const candidates = mythics.filter(t => !retired.includes(t.id)).slice(0, 2);
@@ -169,6 +169,19 @@ describe('blocked mythics wishlist migration', () => {
     raw.gachaWishlist.troopIds.unshift(id);
     raw.gachaWishlist.pursuit.targetId = id;
     expect(hydrateSave(raw).gachaWishlist).toEqual(s.gachaWishlist);
+  });
+  it('retains historical draw audits that list a now-retired troop', () => {
+    const s = fresh();
+    s.gachaWishlist.troopIds = [7446];
+    s.gachaLog = [{ at: 12345, kind: 'gem', seed: 123, troops: [7251], audit: {
+      rulesVersion: 6, wishlistIds: [7446], reasons: ['normal'],
+      pursuitBefore: { targetId: 7446, progress: 10, completed: 0, limit: 200 },
+      pursuitAfter: { targetId: 7446, progress: 11, completed: 0, limit: 200 },
+    } }];
+    const loaded = hydrateSave(JSON.parse(JSON.stringify(s)));
+    expect(loaded.gachaWishlist.troopIds).not.toContain(7446);
+    expect(loaded.gachaLog[0]?.audit).toEqual(s.gachaLog[0]?.audit);
+    expect(validateWishlist([7446])).not.toBeNull();
   });
   it('keeps Ctharrasque available as a troop, but never in wishlist or pursuit', () => {
     const troop = TROOPS.find(t => t.id === 7393)!;

@@ -16,8 +16,8 @@ import { pickHintSwap } from '@engine/boardUtils';
 import { chooseAiAction } from '@engine/aiPolicy';
 import { BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS, BATTLE_SKULL_CHANCE } from '@engine/comboBias';
 import { createGameState } from '@engine/GameState';
-import { BATTLE_GOLD_BASE_CAP } from '@engine/battleGold';
-import { BATTLE_SOUL_BASE_CAP } from '@engine/battleSouls';
+import { battleGoldCap } from '@engine/battleGold';
+import { battleSoulCap } from '@engine/battleSouls';
 import { SeededRNG } from '@engine/rng';
 import { TRAIT_LIBRARY, dynamicTraitCodes } from '@engine/traits';
 import { MatchState, PlayerSide, BaseColor } from '@engine/types';
@@ -3842,7 +3842,7 @@ export class App {
   private refreshEconomyHud(): void {
     if (!this.economyHudEl || !this.engine) return;
     const { gold, souls } = this.engine.getState().economy;
-    this.economyHudEl.textContent = `\u91d1\u5e01 ${gold}/${BATTLE_GOLD_BASE_CAP} \u00b7 \u7075\u9b42 ${souls}/${BATTLE_SOUL_BASE_CAP}`;
+    this.economyHudEl.textContent = `\u91d1\u5e01 ${gold}/${battleGoldCap(this.engine.getState(), PlayerSide.Left)} \u00b7 \u7075\u9b42 ${souls}/${battleSoulCap(this.engine.getState())}`;
   }
 
   /** 回合结束刷新两队卡面 + 技能可释放高亮 */

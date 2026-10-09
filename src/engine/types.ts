@@ -965,11 +965,7 @@ export interface PassiveModifiers {
   summonOnAllyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
   /** 敌方角色身亡时召唤（darkdeath 族） */
   summonOnEnemyDeath?: { chance: number; troopId: number; referenceName: string; displayName: string; storm?: StormSummon };
-  /**
-   * 战后经济加成（merchant/necromancy/necromaster/moneybags 族，DECISIONS 四项拍板①）：
-   * 战斗结束时对战场经济池的 gold/souls 总额按 (1 + Σratio) 一次性放大。
-   * 多条特质同类比率相加；gems 无对应官方句式不设键。
-   */
+  /** Additive Gold/Soul ratios increase each in-battle gain and its balance cap. */
   battleEconomyGain?: { gold: number; souls: number };
   /**
    * 条件经济光环·大连版（greedy/extremegreed/pillageandplunder 族）：
@@ -1014,7 +1010,7 @@ export interface PassiveModifiers {
    * 「匹配宝石产出的法力」作为 Gem Masteries 的落地模型——持有者的**敌方**队伍经
    * ManaDistributor 分得的宝石法力按此倍率折减（向下取整、保底 1，与疾病的法力减半
    * 同口径；法力灵链等直接法力 grant 不受影响）。多条并存取最强抑制（min）。
-   * TurnEngine 构造期快照（开局生效全场持续，与 economyGainRatios 同口径）。
+   * TurnEngine 构造期快照（开局生效全场持续，与 battleGoldGainRatios 同口径）。
    */
   enemyMasteryMult: number;
   /**

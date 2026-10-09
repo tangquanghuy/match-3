@@ -5,7 +5,7 @@ import { REGION_REWARDS } from '../../src/meta/data/regionalPvp';
 import { newSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { ensureEventWeek } from '../../src/meta/systems/events';
-import { claimAllMail, claimMail, readMail } from '../../src/meta/systems/mailbox';
+import { claimAllMail, claimMail, chooseMailMythic, readMail } from '../../src/meta/systems/mailbox';
 
 const WEEK = Date.UTC(2026, 8, 28, 16);
 
@@ -94,5 +94,40 @@ describe('周奖励补发邮件', () => {
     expect(mail.currencies.gems).toBe(EVENT_MILESTONES.towerOfDoom[4]!.gems! - 60);
     expect(loaded.eventWeeks.towerOfDoom!.eventData.gemPaid4).toBe(EVENT_MILESTONES.towerOfDoom[4]!.gems);
     expect(loaded.eventWeeks.towerOfDoom!.eventData.towerPaidFloors).toBe(10);
+  });
+  it('claims traitstones exactly once while a cancelled or interrupted mythic choice stays pending', () => {
+    const save = newSave({ now: WEEK });
+    save.mailbox.items.push({ id: 'retirement-star', title: '神话自选', body: '补偿', sentAt: WEEK,
+      readAt: null, claimedAt: null, currencies: {}, materials: { traitstones: { 'minor:yellow': 90, celestial: 18 } }, mythicChoice: 1 });
+    const before = save.materials.traitstones['minor:yellow'] ?? 0;
+    expect(chooseMailMythic(save, 'retirement-star', 7440, WEEK + 1).ok).toBe(false);
+    expect(claimMail(save, 'retirement-star', WEEK + 2)).toEqual({ ok: true });
+    expect(save.materials.traitstones['minor:yellow']).toBe(before + 90);
+    expect(claimAllMail(save, WEEK + 3).count).toBe(0);
+    expect(claimMail(save, 'retirement-star', WEEK + 3).ok).toBe(false);
+    const restarted = migrateSave(JSON.parse(JSON.stringify(save)), WEEK + 4);
+    expect(restarted.mailbox.items[0]).toMatchObject({ claimedAt: WEEK + 2, mythicChoice: 1 });
+    expect(restarted.materials.traitstones['minor:yellow']).toBe(before + 90);
+    expect(chooseMailMythic(restarted, 'retirement-star', 6000, WEEK + 5).ok).toBe(false);
+    expect(chooseMailMythic(restarted, 'retirement-star', 7446, WEEK + 5).ok).toBe(false);
+    expect(restarted.mailbox.items[0]!.mythicChoice).toBe(1);
+    expect(restarted.collection['7440']).toBeUndefined();
+    expect(chooseMailMythic(restarted, 'retirement-star', 7440, WEEK + 6)).toMatchObject({ ok: true, troopId: 7440, duplicate: false });
+    expect(restarted.collection['7440']).toBeDefined();
+    expect(restarted.mailbox.items[0]!.mythicChoice).toBe(0);
+    expect(chooseMailMythic(restarted, 'retirement-star', 7440, WEEK + 7).ok).toBe(false);
+    expect(restarted.materials.traitstones['minor:yellow']).toBe(before + 90);
+  });
+
+  it('two separate mails each grant exactly one mythic, including duplicates', () => {
+    const save = newSave({ now: WEEK });
+    for (const id of ['star', 'flower']) save.mailbox.items.push({ id, title: '自选', body: '', sentAt: WEEK,
+      readAt: null, claimedAt: null, currencies: {}, materials: { traitstones: { celestial: 18 } }, mythicChoice: 1 });
+    expect(claimAllMail(save, WEEK + 1)).toEqual({ ok: true, count: 2 });
+    expect(save.materials.traitstones.celestial).toBe(36);
+    expect(chooseMailMythic(save, 'star', 7440, WEEK + 2)).toMatchObject({ ok: true, duplicate: false });
+    expect(chooseMailMythic(save, 'flower', 7440, WEEK + 3)).toMatchObject({ ok: true, duplicate: true });
+    expect(save.collection['7440']!.copies).toBe(1);
+    expect(claimAllMail(save, WEEK + 4).count).toBe(0);
   });
 });

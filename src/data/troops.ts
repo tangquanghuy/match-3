@@ -1,3 +1,4 @@
+import { temporaryAoeDescription } from './temporaryAoeMultipliers';
 /**
  * 兵种数据加载器（数据来源：Gems of War / gowhead 导出，经 scripts/build_troops.mjs 精简）。
  *
@@ -94,7 +95,7 @@ export interface TroopData {
 /** 全部兵种（只读）：官方数据与独立维护的异界部队。 */
 export const SOURCE_TROOPS: readonly TroopData[] = [...(raw as unknown as TroopData[]), ...COMMUNITY_TROOPS];
 export const TROOPS: readonly TroopData[] = SOURCE_TROOPS.map(t => {
-  const description = spellDescription(t.spell.id, t.spell.description);
+  const description = temporaryAoeDescription(t.id, spellDescription(t.spell.id, t.spell.description));
   return { ...t,
     spell: { ...t.spell, description, meta: description === t.spell.description ? t.spell.meta : buildSkillMetadata(description) },
     traits: t.traits.map(trait => ({ ...trait, description: normalizeCombatText(trait.description) })),

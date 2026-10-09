@@ -14,6 +14,7 @@ export interface SystemMailRow {
   currencies_json: string;
   materials_json: string;
   class_xp: number;
+  mythic_choice?: number;
 }
 
 export function decodeSystemMail(row: SystemMailRow): MailItem {
@@ -22,7 +23,7 @@ export function decodeSystemMail(row: SystemMailRow): MailItem {
     readAt: null, claimedAt: null,
     currencies: JSON.parse(row.currencies_json) as unknown,
     materials: JSON.parse(row.materials_json) as unknown,
-    classXp: row.class_xp,
+    classXp: row.class_xp, mythicChoice: row.mythic_choice ?? 0,
   };
   const mail = hydrateMailbox({ weeklyDoubleVersion: 1, classTrialXpVersion: 1, items: [raw] }).items[0];
   if (!mail || mail.sentAt <= 0) throw new Error(`invalid system mail: ${row.id}`);
@@ -32,7 +33,7 @@ export function decodeSystemMail(row: SystemMailRow): MailItem {
 export async function deliverPendingSystemMail(db: D1Database, receiver: MailReceiver, playerId: string): Promise<void> {
   const { results } = await db.prepare(`
     SELECT campaign.id, campaign.title, campaign.body, campaign.sent_at,
-           campaign.currencies_json, campaign.materials_json, campaign.class_xp
+           campaign.currencies_json, campaign.materials_json, campaign.class_xp, campaign.mythic_choice
     FROM system_mail_recipients AS recipient
     JOIN system_mail_campaigns AS campaign ON campaign.id = recipient.campaign_id
     WHERE recipient.player_id = ? AND recipient.delivered_at IS NULL

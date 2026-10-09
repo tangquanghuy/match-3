@@ -138,7 +138,7 @@ interface OpenSpec {
 
 /** 六枚开箱按钮的成交口径（数值全部来自 economy 单源） */
 /** 馈赠页领到部队卡后，借宝箱页的翻牌演出展示（奖励已入账）；关闭演出回到 returnHash */
-interface GiftReveal { cards: GachaCard[]; gems: number; gold: number; souls: number; mats: MaterialDelta; returnHash: string }
+interface GiftReveal { cards: GachaCard[]; gems: number; gold: number; souls: number; mats: MaterialDelta; returnHash: string; label?: string }
 let pendingGiftReveal: GiftReveal | null = null;
 export function queueGiftReveal(reveal: GiftReveal): void {
   pendingGiftReveal = reveal;
@@ -527,15 +527,15 @@ export class ChestsScreen implements Screen {
     const modal = $('#summonModal');
     modal.hidden = false;
     modal.className = `summon-modal is-opening${rewards.length > 1 ? ' batch-10' : ''}`;
-    $('#summonTitle').textContent = '馈赠';
-    $('#summonPool').textContent = '成长馈赠';
+    $('#summonTitle').textContent = gift.label ?? '馈赠';
+    $('#summonPool').textContent = gift.label ?? '成长馈赠';
     const sceneArt = $('#summonSceneArt') as HTMLImageElement | null;
     if (sceneArt) sceneArt.src = '/static/chests/gem-pool.webp';
     $('#summonCounter').textContent = `0 / ${rewards.length}`;
     const extra = $('#summonExtra');
     if (extra) {
       extra.textContent = `同时获得宝石 +${fmt(gift.gems)} · 黄金 +${fmt(gift.gold)} · 灵魂 +${fmt(gift.souls)}${Object.entries(gift.mats.ingots ?? {}).map(([key, n]) => ` · ${INGOT_NAMES[key as IngotKey]} +${fmt(n ?? 0)}`).join('')}`;
-      extra.hidden = false;
+      extra.hidden = gift.label === '神话自选';
     }
     $('#summonSkip').hidden = false;
     $('#legendSlam').hidden = true;

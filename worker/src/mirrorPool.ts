@@ -186,6 +186,10 @@ export class D1MirrorPool implements InvasionMirrorPool {
   async publish(record: MirrorRecord): Promise<void> {
     const self = this.playerId();
     if (!self) throw new Error('Missing player actor identity');
+    // Pending pre-retirement battles may finish after rollout; they must not republish retired units.
+    if (record.team.some(unit => unit.templateId === '7446' || unit.templateId === '7622') ||
+        record.defense.some(unit => unit.troopId === 7446 || unit.troopId === 7622))
+      throw new Error('Retired troop in published mirror');
     const snapshot: StoredSnapshot = {
       team: record.team, defense: record.defense, heroLevel: record.heroLevel,
       bannerKingdom: record.bannerKingdom, teamHash: record.teamHash,

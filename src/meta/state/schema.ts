@@ -51,6 +51,8 @@ export interface MailItem {
   currencies: Partial<Currencies>;
   materials: MaterialDelta;
   classXp?: number;
+  /** Remaining mythic selections; consumed only in the same committed save as the troop grant. */
+  mythicChoice?: number;
 }
 
 export interface MailboxState {

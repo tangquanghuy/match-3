@@ -24,6 +24,35 @@ import {
 const save = (gems = 0, goldKeys = 0) =>
   newSave({ now: 0, starterTroopIds: [6000, 6097, 6457], currencies: { gems, goldKeys } });
 
+describe('retired mythics excluded from every chest draw', () => {
+  it('ignores a legacy wishlist and an almost-complete pursuit of a retired troop', () => {
+    const s = save(150);
+    s.gachaWishlist.troopIds = [7446, 7622];
+    s.gachaWishlist.pursuit = { targetId: 7446, progress: 249, completed: 0, limit: 250 };
+    const draw = openGemChest(s, 18, 1);
+    if (!draw.ok) throw new Error(draw.message);
+    expect(draw.cards.map(card => card.troopId)).not.toContain(7446);
+    expect(draw.cards.map(card => card.troopId)).not.toContain(7622);
+    expect(s.gachaWishlist.pursuit.targetId).toBeNull();
+    expect(s.gachaLog[0]!.audit?.wishlistIds).toEqual([]);
+  });
+
+  it('excludes both IDs from gem, gold, and glory chest pools', () => {
+    for (let seed = 1; seed <= 120; seed++) {
+      const gem = openGemChest(save(1500), seed, 10);
+      const gold = openGoldChest(save(0, 10), seed, 10);
+      const glorySave = save();
+      glorySave.currencies.glory = GLORY_CHEST.cost;
+      const glory = openGloryChest(glorySave, seed, 1);
+      for (const draw of [gem, gold, glory]) {
+        if (!draw.ok) throw new Error(draw.message);
+        expect(draw.cards.map(card => card.troopId)).not.toContain(7446);
+        expect(draw.cards.map(card => card.troopId)).not.toContain(7622);
+      }
+    }
+  });
+});
+
 describe('宝石宝箱（150 单抽 / 1500 十连保底稀有或以上）', () => {
   afterEach(() => vi.restoreAllMocks());
   it('养成供给权重：部队 78.8%（史诗 2.5%、神话 0.25%）+ 金属锭 10% + 特质石 11.2%', () => {

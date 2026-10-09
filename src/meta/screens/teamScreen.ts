@@ -18,7 +18,7 @@ import type { TeamMember } from '../state/schema';
 import { troopStatsOf } from '../systems/troopProgress';
 import { buildPlayerSnapshots } from '../systems/battleBridge';
 import { teamPower } from '../systems/combatPower';
-import { heroStatsOf } from '../systems/hero';
+import { heroKingdomOf, heroStatsOf, heroTroopTypeOf } from '../systems/hero';
 import { anyWeaponById } from '../data/weaponCatalog';
 import { RARITY_NAMES as RARITY_CN_ROSTER } from '../data/rarity';
 import { bannerUnlocked } from '../systems/banners';
@@ -31,6 +31,7 @@ import { bindTermTips } from '../shell/termTip';
 import type { Screen, ShellCtx } from '../shell/screen';
 import { BANNER_ART_CSS, bannerArtHtml, bannerBoostChips } from '../shell/bannerArt';
 import { kingdomBonusOf } from '../systems/kingdomOps';
+import { kingdomTeamEntries } from '../systems/kingdomTeamBonus';
 import { TeamDrag, type DragSource, type DropTarget } from './teamDrag';
 import TEAM_CSS from './teamScreen.css?inline';
 
@@ -594,7 +595,7 @@ export class TeamScreen implements Screen {
       key: 'hero',
       troop: null,
       name: save.character?.portrait === 'legacy' ? '主角' : characterName(save.character),
-      typeLabel: '主角',
+      typeLabel: `${typeCn([heroTroopTypeOf(save)])} · ${heroKingdomOf(save) ?? '无所属王国'}`,
       typeRaw: 'hero',
       level: save.hero.level,
       cost: equipped?.manaCost ?? 1,
@@ -711,12 +712,13 @@ export class TeamScreen implements Screen {
   private renderGauge(): void {
     const box = $('#teamGauge');
     if (!box) return;
+    const expanded = (box.querySelector('.kingdom-bonus-details') as HTMLDetailsElement | null)?.open ?? false;
     const members = this.slots
       .filter((s): s is Exclude<SlotValue, null> => s !== null)
       .map((s) => this.byKey(String(s)))
       .filter((t): t is RosterEntry => !!t);
     if (!members.length) {
-      box.innerHTML = '<span class="gauge-summary">空编队 · 还差 4 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>';
+      box.innerHTML = '<span class="gauge-summary">空编队 · 还差 4 人 · 法力色覆盖</span><span class="gauge-count">0 / 4</span>' + this.kingdomBonusesDropdown(expanded);
       return;
     }
     const draft = buildPlayerSnapshots(this.ctx.save(), {
@@ -733,14 +735,29 @@ export class TeamScreen implements Screen {
       <span class="gauge-colors" aria-label="法力色覆盖" title="法力色覆盖">
         ${coverage.map((c) => `<span class="cov${c.n ? '' : ' zero'}" title="${COLOR_CN_ROSTER[c.color]}色：${c.n} 名">${gemSvg([c.color])}<i>${c.n}</i></span>`).join('')}
       </span>
-      ${this.kingdomBonusChip()}`;
+      ${this.kingdomBonusesDropdown(expanded)}`;
   }
 
-  /** 满 10 级王国的全队加成（地图王国页升级得来；对全体部队与主角生效） */
-  private kingdomBonusChip(): string {
-    const bonus = kingdomBonusOf(this.ctx.save());
-    const parts = (['health', 'armor', 'attack', 'magic'] as const).filter((k) => bonus[k] > 0).map((k) => `${STAT_CN[k]}+${bonus[k]}`);
-    return `<span class="gauge-kbonus${parts.length ? '' : ' zero'}" title="王国升到 10 级后，对全体部队与主角永久生效">王国加成 ${parts.length ? parts.join(' ') : '—'}</span>`;
+  /** 把永久王国与当前编队同王国加成收进一处，避免属性全满时撑开仪表栏。 */
+  private kingdomBonusesDropdown(expanded: boolean): string {
+    const permanent = kingdomBonusOf(this.ctx.save());
+    const entries = kingdomTeamEntries(this.ctx.save(), this.slotsToMembers());
+    const keys = ['health', 'armor', 'attack', 'magic'] as const;
+    const describe = (stats: typeof permanent): string =>
+      keys.filter((key) => stats[key] > 0).map((key) => `${STAT_CN[key]}+${stats[key]}`).join('、') || '暂无';
+    const combined = { ...permanent };
+    for (const entry of entries) for (const key of keys) combined[key] += entry.stats[key];
+    const kingdomLines = entries.length
+      ? entries.map((entry) => `<li><strong>${escapeHtml(entry.kingdom)}（${entry.count}/4）</strong><span>${describe(entry.stats)}</span></li>`).join('')
+      : '<li><span>至少 2 名同王国成员才会激活；主角按装备武器所属王国计数。</span></li>';
+    return `<details class="kingdom-bonus-details"${expanded ? ' open' : ''}>
+      <summary>属性加成 <span aria-hidden="true">▾</span></summary>
+      <div class="kingdom-bonus-menu">
+        <div class="kingdom-bonus-section"><strong>王国满级 · 永久</strong><span>${describe(permanent)}</span></div>
+        <div class="kingdom-bonus-section"><strong>同王国编队 · 当前队伍</strong><ul>${kingdomLines}</ul></div>
+        <div class="kingdom-bonus-section total"><strong>本队合计</strong><span>${describe(combined)}</span></div>
+      </div>
+    </details>`;
   }
 
   /** 常驻列出编队校验状态；通过项也给出明确的可出战反馈。 */
@@ -899,9 +916,9 @@ export class TeamScreen implements Screen {
   /** 名册筛选 + 排序（TM-6：阶段 A 只有"全部/主角/5 个种族 tab"和按名字搜） */
   private visiblePool(): RosterEntry[] {
     const list = this.rosterCache.filter((t) => {
-      if (this.regionalMode && !regionLegal({ templateId: t.key, troopTypes: t.troop?.troopTypes, manaColors:t.colors as BaseColor[], kingdom:t.troop?.kingdom??undefined }, weekStartOf(this.ctx.gateway.now()),this.regionalId)) return false;
+      if (this.regionalMode && !regionLegal({ templateId: t.key, troopTypes: t.key === 'hero' ? [heroTroopTypeOf(this.ctx.save())] : t.troop?.troopTypes, manaColors:t.colors as BaseColor[], kingdom:t.key === 'hero' ? heroKingdomOf(this.ctx.save()) : t.troop?.kingdom??undefined }, weekStartOf(this.ctx.gateway.now()),this.regionalId)) return false;
       if (this.filter === 'hero' && t.key !== 'hero') return false;
-      if (this.typeFilter && !(t.troop?.troopTypes ?? []).includes(this.typeFilter)) return false;
+      if (this.typeFilter && !(t.key === 'hero' ? [heroTroopTypeOf(this.ctx.save())] : t.troop?.troopTypes ?? []).includes(this.typeFilter)) return false;
       if (this.rarityFilter !== '' && t.rarityIdx !== Number(this.rarityFilter)) return false;
       if (this.colorFilter && !t.colors.some((c) => c.toLowerCase() === this.colorFilter)) return false;
       if (this.search && !t.name.includes(this.search) && !t.typeLabel.includes(this.search) && !t.spellName.includes(this.search)) return false;

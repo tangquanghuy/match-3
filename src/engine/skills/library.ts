@@ -1,3 +1,5 @@
+import { SOURCE_TROOPS } from '../../data/troops';
+import { TEMPORARY_AOE_MANA_TIERS, temporaryAoeMultiplier } from '../../data/temporaryAoeMultipliers';
 import { applyGowLifeRule } from './gowLifeRules';
 import { applyGowDamageRule } from './gowDamageRules';
 import { applyGowChoiceRule } from './gowChoiceRules';
@@ -62,6 +64,28 @@ const curated = collectCurated();
 export const SKILL_LIBRARY: Record<number, SkillPrototype> = {};
 for (const [id, proto] of curated.byId) SKILL_LIBRARY[id] = proto;
 for (const [id, proto] of Object.entries(SKILL_OVERRIDES)) SKILL_LIBRARY[Number(id)] = applyGowChoiceRule(Number(id), applyGowLifeRule(Number(id), applyGowDamageRule(Number(id), applyGowRemoveRule(Number(id), proto))));
+
+// Clone each affected prototype before changing it: only the all-enemy DAMAGE segment
+// is rebalanced; healing, buffs, conditional bonuses and other spells are unchanged.
+for (const troop of SOURCE_TROOPS) {
+  const tier = TEMPORARY_AOE_MANA_TIERS[troop.id];
+  if (!tier) continue;
+  if (troop.manaCost !== tier) throw new Error(`Temporary AoE tier mismatch: ${troop.id}`);
+  const id = troop.spell.id;
+  const proto = SKILL_LIBRARY[id];
+  if (!proto) throw new Error(`Temporary AoE skill missing: ${id}`);
+  const next = structuredClone(proto);
+  const damage = next.segments.filter(segment => segment.kind === 'damage' && segment.target === 'enemyAll');
+  if (damage.length !== 1 || damage[0]!.kind !== 'damage')
+    throw new Error(`Expected one all-enemy damage segment for ${id}`);
+  damage[0].scaling.mult = temporaryAoeMultiplier(troop.id)!;
+  // Lucifer no longer rolls from 3 to the upper bound: use (magic x 1.5) + 2.
+  if (troop.id === 7573) {
+    if (!damage[0].rangeSpec || damage[0].scaling.base !== 2) throw new Error('Lucifer random interval mismatch');
+    delete damage[0].rangeSpec;
+  }
+  SKILL_LIBRARY[id] = next;
+}
 
 /** 核对后放弃的条目（覆盖率报告用） */
 export function curatedSkipped(): { id: number; batch: string; reason: string }[] {

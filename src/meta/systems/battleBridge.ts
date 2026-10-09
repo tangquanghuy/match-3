@@ -32,8 +32,9 @@ import { combatManaMastery, toEngineMastery } from './manaMastery';
 import { getRecord, rarityTierOf } from './troopProgress';
 import { teamPower } from './combatPower';
 import { kingdomBonusOf } from './kingdomOps';
+import { kingdomTeamBonusOf } from './kingdomTeamBonus';
 import type { KingdomStatBonus } from './kingdomOps';
-import { equippedClassOf, equippedWeaponOf, heroStatsOf } from './hero';
+import { equippedClassOf, equippedWeaponOf, heroKingdomOf, heroStatsOf, heroTroopTypeOf } from './hero';
 import { allyStatBonus, heroStatBonus, heroTraitCodes, selectedTalents } from './talents';
 import { dynamicTraitCodes } from '../../engine/traits';
 import { CLASSES } from '../data/classes';
@@ -86,7 +87,7 @@ function displayTraits(troop: TroopData, enabled: (index: number) => boolean): s
   return troop.traits.filter((_, i) => enabled(i)).map((t) => t.code);
 }
 
-/** 玩家部队 → 战斗快照（养成等级决定四维；特质只带已解锁槽；statBonus = 王国 10 级加成） */
+/** 玩家部队 → 战斗快照（养成等级决定四维；特质只带已解锁槽；statBonus = 王国 10 级加成 + 同王国编队加成） */
 export function troopToSnapshot(
   troop: TroopData,
   rec: TroopRecord,
@@ -210,9 +211,17 @@ export function buildPlayerSnapshots(
   }
 
   const playerTeam: CombatantSnapshot[] = [];
-  const statBonus = kingdomBonusOf(save);
+  const permanentBonus = kingdomBonusOf(save);
+  const teamBonus = kingdomTeamBonusOf(save, team.members);
+  const statBonus = {
+    health: permanentBonus.health + teamBonus.health,
+    armor: permanentBonus.armor + teamBonus.armor,
+    attack: permanentBonus.attack + teamBonus.attack,
+    magic: permanentBonus.magic + teamBonus.magic,
+  };
   const weapon = equippedWeaponOf(save);
-  const heroClass = equippedClassOf(save);
+  const heroType = heroTroopTypeOf(save);
+  const heroKingdom = heroKingdomOf(save);
   const talentEffects = selectedTalents(save);
   const talentCodes = heroTraitCodes(save);
   const heroBase = heroStatsOf(save);
@@ -222,7 +231,7 @@ export function buildPlayerSnapshots(
   const countType = (type: string): void => {
     allyTypeCounts.set(type, (allyTypeCounts.get(type) ?? 0) + 1);
   };
-  if (heroClass) countType(heroClass.troopType);
+  if (team.members.some((member) => member.kind === 'hero')) countType(heroType);
   for (const member of team.members.values()) {
     if (member.kind !== 'troop') continue;
     const troop = getTroopById(member.troopId);
@@ -244,7 +253,7 @@ export function buildPlayerSnapshots(
       );
       const heroAura = allyStatBonus(
         talentEffects,
-        heroClass ? [heroClass.troopType] : ['Human'],
+        [heroType],
         weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
       );
       const displayTraitIds = heroDisplayTraitIds(save);
@@ -260,7 +269,8 @@ export function buildPlayerSnapshots(
           magic: heroBase.magic + statBonus.magic + heroTalent.magic + heroAura.magic,
         },
         role: weapon?.role ?? null,
-        troopTypes: [heroClass?.troopType ?? 'Human'],
+        troopTypes: [heroType],
+        ...(heroKingdom ? { kingdom: heroKingdom } : {}),
         manaColors: weapon?.manaColors.length ? [...weapon.manaColors] : [BaseColor.Brown],
         // 会话校验要求耗蓝 1~100：无武器按「1 蓝耗的空施法」处理（skillId 'none' 走兜底原型）
         manaCost: weapon?.manaCost ?? 1,

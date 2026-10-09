@@ -4,7 +4,7 @@ import { buyMaterialGoods } from '../systems/materialShop';
 import { abandonExploreRun, advanceExploreRun, exploreBattleSeed, exploreRunMatches, maxExploreTier } from '../systems/explore';
 import { mirrorFromEntry } from '../systems/invasionMirrors';
 import { earn } from '../systems/wallet';
-import { readMail, claimMail, claimAllMail } from '../systems/mailbox';
+import { readMail, claimMail, claimAllMail, chooseMailMythic } from '../systems/mailbox';
 import { queueDefensePublish, accountDefenseLog, defenseEntryKey, validSnapshot, type DefenseLog } from '../systems/invasionDefense';
 /**
  * Meta 权威核心：执行一条命令，产出结果与新存档。
@@ -537,6 +537,10 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
       return withMaterials(claimMail(save, (command.args as CommandArgs<'claimMail'>).id, now));
     case 'claimAllMail':
       return withMaterials(claimAllMail(save, now));
+    case 'chooseMailMythic': {
+      const { id, troopId } = command.args as CommandArgs<'chooseMailMythic'>;
+      return done(chooseMailMythic(save, id, troopId, now));
+    }
 
     // —— 每周活动 ——
     case 'abandonTowerRun':

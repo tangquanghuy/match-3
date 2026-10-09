@@ -39,7 +39,7 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(kinds.get('starter')).toBe(22);
     expect(kinds.get('class')).toBe(38);
     expect(kinds.get('mastery')).toBeGreaterThan(80);
-    expect(kinds.get('forge')).toBe(12);
+    expect(kinds.get('forge')).toBe(13);
     expect(kinds.get('kingdom') ?? 0).toBe(0);
     expect((kinds.get('buy') ?? 0) + (kinds.get('placeholder') ?? 0)).toBeGreaterThan(500);
   });
@@ -164,6 +164,27 @@ describe('武器获取途径（官方 MasteryRequirement 接线）', () => {
     expect(s.currencies.gems).toBe(10_000);
     expect(s.hero.unlockedWeapons).toContain(id);
   });
+});
+
+it('红宝石猕猴从宝石商店转入熔炉珍藏，只按 150 万灵魂和 200 万金币解锁', () => {
+  const weapon = anyWeaponById('gw_TheRubyMacaque')!;
+  const recipe = findRecipe(weapon.id)!;
+  expect(weapon.name).toBe('红宝石猕猴');
+  expect(weapon.equippable).toBe(true);
+  expect(acquireOf(weapon)).toMatchObject({ kind: 'forge', heroLevel: 40, souls: 1_500_000, gold: 2_000_000 });
+  expect(recipe).toMatchObject({ weaponId: weapon.id, name: weapon.name, tier: 2, rarity: 'Mythic', souls: 1_500_000, gold: 2_000_000 });
+  const s = save();
+  s.kingdoms[weapon.kingdom!] = { ...s.kingdoms[weapon.kingdom!]!, questsDone: 100 };
+  s.currencies.gems = 10_000;
+  s.currencies.souls = recipe.souls;
+  s.currencies.gold = recipe.gold;
+  expect(listedInGemShop(s, weapon)).toBe(false);
+  expect(claimWeapon(s, weapon.id)).toMatchObject({ ok: false, code: 'INVALID' });
+  expect(forgeCatalogWeapon(s, weapon.id, 39)).toMatchObject({ ok: false, code: 'PREREQ_LOCKED' });
+  expect(forgeCatalogWeapon(s, weapon.id, 40)).toEqual({ ok: true, weaponId: weapon.id });
+  expect(s.currencies).toMatchObject({ souls: 0, gold: 0, gems: 10_000 });
+  expect(s.hero.unlockedWeapons).toContain(weapon.id);
+  expect(forgeCatalogWeapon(s, weapon.id, 40)).toMatchObject({ ok: false, code: 'INVALID' });
 });
 
 it('Wand of Stars is a mythic collection recipe with five tempering affixes', () => {

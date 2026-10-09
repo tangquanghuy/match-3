@@ -16,4 +16,6 @@ export interface Env {
   DEV_LOGIN?: string;
   /** Secret: long random bearer token for read-only admin player inspection. */
   ADMIN_READ_TOKEN?: string;
+  /** Separate secret required for the single-account retirement pilot. */
+  ADMIN_MAINTENANCE_TOKEN?: string;
 }
