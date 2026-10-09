@@ -644,7 +644,7 @@ export class TurnEngine {
       for (let col = 0; col < BoardModel.COLS; col++) {
         const gem = this.state.board.get({ row, col });
         if (!gem) continue;
-        if (spec.kind === 'random'
+        if ((spec.kind === 'random' && (!spec.color || (gem.type.kind === 'color' && gem.type.color === spec.color)))
           || (spec.kind === 'skull' && gem.type.kind === 'skull')
           || (gem.type.kind === 'special' && gem.type.spec.kind === spec.kind
             && (spec.tier === undefined || gem.type.spec.tier === spec.tier))) {
@@ -680,31 +680,9 @@ export class TurnEngine {
     return events;
   }
 
-  /**
-   * 爆破关联色宝石（职业天赋 lightningstrike「配对时爆破一颗黄色宝石」，注入大匹配
-   * ctx.explodeGem）：候选格从棋盘移除后走 resolveBoardChange——法力/骷髅结算归当前
-   * 行动方（持有者一方）、重力连锁照常。候选唯一不掷骰、多候选每颗耗一次 rng、
-   * 无候选安全跳过（与开局爆破 omenof* 同口径）。
-   */
-  private explodeGemsOfColor(color: string, count: number): GameEvent[] {
-    const events: GameEvent[] = [];
-    for (let i = 0; i < count; i++) {
-      const candidates: CellPos[] = [];
-      for (let row = 0; row < BoardModel.ROWS; row++) {
-        for (let col = 0; col < BoardModel.COLS; col++) {
-          const gem = this.state.board.get({ row, col });
-          if (!gem) continue;
-          if (gem.type.kind === 'color' && gem.type.color === color) candidates.push({ row, col });
-        }
-      }
-      if (candidates.length === 0) break;
-      const pos = candidates.length === 1 ? candidates[0] : candidates[this.rng.nextInt(candidates.length)];
-      const gem = this.state.board.get(pos)!;
-      events.push({ type: 'gem-explode', cells: [{ pos, gemId: gem.id, gemType: gem.type }] });
-      this.state.board.set(pos, null);
-      this.resolveBoardChange([{ gemType: gem.type, pos }], events, this.state.activePlayer, 'explode');
-    }
-    return events;
+  /** Color-restricted explosions use the same 3x3 blast, cascade and reward pipeline. */
+  private explodeGemsOfColor(color: string, count: number, side: PlayerSide): GameEvent[] {
+    return this.explodeGemsBySpec({ kind: 'random', color, count }, side);
   }
 
   /**
@@ -1358,7 +1336,7 @@ export class TurnEngine {
     if (queue.length === 0) return;
     this.pendingTraitExplosions = [];
     for (const entry of queue) {
-      if (entry.kind === 'color') events.push(...this.explodeGemsOfColor(entry.color, entry.count));
+      if (entry.kind === 'color') events.push(...this.explodeGemsOfColor(entry.color, entry.count, entry.side));
       else events.push(...this.explodeGemsBySpec(entry.spec, entry.side));
     }
   }

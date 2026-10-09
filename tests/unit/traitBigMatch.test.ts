@@ -13,6 +13,7 @@ import {
   getTrait,
   attachPassives,
   applyBigMatchTriggers,
+  registerDynamicTraits,
 } from '@engine/traits';
 import { TurnEngine } from '@engine/TurnEngine';
 import { BoardModel } from '@engine/BoardModel';
@@ -25,6 +26,7 @@ import { PlayerSide, BaseColor } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import type { GameEvent } from '@engine/events';
 import { colorGem, skullGem } from '@engine/types';
+import { TALENT_DYNAMIC_DEFS, PERK_DYNAMIC_DEFS } from '../../src/meta/data/talentDefs';
 
 function makeChar(id: number, over: Partial<Character> = {}): Character {
   return {
@@ -328,6 +330,72 @@ function buildWithNMatch(nRed: 4 | 5, playerChars: Character[], enemyChars: Char
 }
 
 describe('TurnEngine 集成：真实对局中的条件光环', () => {
+  it('lightningstrike/crashingwave: 4/5 matches explode the full 3x3 around the chosen color', () => {
+    for (const [code, color] of [
+      ['lightningstrike', BaseColor.Yellow],
+      ['crashingwave', BaseColor.Blue],
+    ] as const) {
+      const talent = [...TALENT_DYNAMIC_DEFS, ...PERK_DYNAMIC_DEFS].find((def) => def.code === code);
+      expect(talent).toBeDefined();
+      registerDynamicTraits([talent!]);
+      for (const size of [4, 5] as const) {
+        const hero = makeChar(0, { traitIds: [code] });
+        attachPassives(hero);
+        const { engine, board } = buildWithNMatch(size, [hero, makeChar(1)], [makeChar(4)]);
+        const candidates = [] as { row: number; col: number }[];
+        for (let row = 0; row < BoardModel.ROWS; row++) for (let col = 0; col < BoardModel.COLS; col++) {
+          const gem = board.get({ row, col });
+          if (gem?.type.kind === 'color' && gem.type.color === color) candidates.push({ row, col });
+        }
+        const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+        const explodeIndex = events.findIndex((event) => event.type === 'gem-explode');
+        expect(explodeIndex).toBeGreaterThanOrEqual(0);
+        const first = events[explodeIndex];
+        if (first.type !== 'gem-explode') throw new Error('expected explosion');
+        const eliminated = new Set(events.slice(0, explodeIndex)
+          .filter((event) => event.type === 'elimination')
+          .flatMap((event) => event.cells.map((cell) => `${cell.pos.row},${cell.pos.col}`)));
+        const actual = new Set(first.cells.map((cell) => `${cell.pos.row},${cell.pos.col}`));
+        expect(actual.size).toBeGreaterThan(1);
+        // Any eligible center must remove all existing neighbors, not only the center gem.
+        expect(candidates.some((center) => {
+          if (eliminated.has(`${center.row},${center.col}`)) return false;
+          const expected = new Set<string>();
+          for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+            const row = center.row + dr, col = center.col + dc;
+            if (row >= 0 && row < 8 && col >= 0 && col < 8 && !eliminated.has(`${row},${col}`))
+              expected.add(`${row},${col}`);
+          }
+          return expected.size === actual.size && [...expected].every((pos) => actual.has(pos));
+        })).toBe(true);
+      }
+    }
+  });
+
+  it('color-restricted explosion skips safely when the board has no eligible center', () => {
+    registerDynamicTraits([{
+      code: 'test-no-brown-explosion', name: 'no brown', description: 'Explode a Brown Gem on big matches.',
+      onBigMatchExplodeGem: { color: BaseColor.Brown, count: 1 },
+    }]);
+    const holder = makeChar(0, { traitIds: ['test-no-brown-explosion'] });
+    attachPassives(holder);
+    const withTrait = buildWithNMatch(4, [holder, makeChar(1)], [makeChar(4)]);
+    const plain = buildWithNMatch(4, [makeChar(0), makeChar(1)], [makeChar(4)]);
+    const from = { row: 7, col: 2 }, to = { row: 6, col: 2 };
+    expect(withTrait.engine.resolveSwap(from, to)).toEqual(plain.engine.resolveSwap(from, to));
+    expect(withTrait.rng.getState()).toBe(plain.rng.getState());
+  });
+
+  it('unstablepossession: two random explosion centers blast more than two gems', () => {
+    const holder = makeChar(0, { traitIds: ['unstablepossession'] });
+    attachPassives(holder);
+    const { engine } = buildWithNMatch(4, [holder, makeChar(1)], [makeChar(4)]);
+    const events = engine.resolveSwap({ row: 7, col: 2 }, { row: 6, col: 2 });
+    const explosions = events.filter((event) => event.type === 'gem-explode');
+    expect(explosions.length).toBeGreaterThan(0);
+    expect(explosions[0].cells.length).toBeGreaterThan(2);
+  });
+
   it('4 连红 → celestialshield 自身获得屏障（status-apply 事件 + 状态在身）', () => {
     const hero = makeChar(0, { traitIds: ['celestialshield'] });
     attachPassives(hero);
