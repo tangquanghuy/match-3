@@ -1258,8 +1258,8 @@
      "code": "elementalforce",
      "name": "Elemental Force",
      "nameZh": "元素之力",
-     "description": "Inflict one random Stun, Freeze, Burn, or Entangle status not already present on a random Enemy when matching 4 or more Gems.",
-     "descriptionZh": "匹配 4 颗或更多宝石时，随机选择一名敌人，并从其尚未拥有的击晕、冻结、燃烧、缠绕状态中随机施加一种。",
+     "description": "When matching 4 or more Gems, inflict up to two different random Stun, Freeze, Burn, or Entangle statuses not already present on one random Enemy.",
+     "descriptionZh": "匹配 4 颗或更多宝石时，随机选择一名敌人，并从其尚未拥有的击晕、冻结、燃烧、缠绕状态中随机施加最多两种不同状态。",
      "implemented": false
     }
    ]

@@ -20,8 +20,9 @@ describe('Piscea: select two foes, resolve the spell, then settle the board', ()
         const devoured = r.events.findIndex(e => e.type === 'skill-damage' && e.devoured);
         const settled = r.events.map(e => e.type).lastIndexOf('skill-phase-boundary');
         expect(created).toBeGreaterThanOrEqual(0);
-        expect(devoured).toBeGreaterThan(created);
-        expect(settled).toBeGreaterThan(devoured);
+        expect(created).toBeGreaterThan(devoured);
+        expect(r.events.slice(devoured + 1, created).some(e => e.type === 'skill-phase-boundary')).toBe(true);
+        expect(settled).toBeGreaterThan(created);
       }
       wins += Number(devours.length > 0);
     }
@@ -45,7 +46,7 @@ describe('Piscea: select two foes, resolve the spell, then settle the board', ()
     expect(both).toBeLessThan(60);
   });
 
-  it('shows green clear and blue creation before devour, then gravity and cascades', () => {
+  it('resolves devour before green clear and blue creation, then gravity and cascades', () => {
     let checked = 0;
     let settled = 0;
     for (let seed = 1; seed <= 60; seed++) {
@@ -57,8 +58,9 @@ describe('Piscea: select two foes, resolve the spell, then settle the board', ()
       const gravity = events.findIndex(e => e.type === 'gravity');
       const cascade = events.findIndex(e => e.type === 'elimination');
       expect(clear).toBeGreaterThanOrEqual(0);
+      expect(clear).toBeGreaterThan(devour);
+      expect(events.slice(devour + 1, clear).some(e => e.type === 'skill-phase-boundary')).toBe(true);
       expect(blue).toBeGreaterThan(clear);
-      expect(devour).toBeGreaterThan(blue);
       if (gravity >= 0) expect(gravity).toBeGreaterThan(devour);
       if (cascade >= 0) { expect(cascade).toBeGreaterThan(devour); settled++; }
       checked++;

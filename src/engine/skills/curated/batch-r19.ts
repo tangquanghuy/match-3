@@ -113,10 +113,10 @@ const SPELLS: CuratedBatch['spells'] = [
     // 蓝宝石数量 = destroyedGems Green ×1（官方 UseCounterForAmount CreateGems）；「个别 30%」=
     // Pick two distinct enemies without replacement, then roll 30% independently for each.
     build: skill(
-      destroyColor(BaseColor.Green),
-      createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
       // Pick up to two distinct living foes BEFORE rolling; immunity on one never affects the other's 30% roll.
       devour('enemyRandomN', { chance: 0.3, n: 2 }),
+      destroyColor(BaseColor.Green),
+      createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
     ),
   },
   {

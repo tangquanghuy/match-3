@@ -473,8 +473,11 @@ function execute(save: MetaSave, command: MetaCommand, env: ServerEnv, now: numb
         entry.exploreTier = tier;
       }
       const run = entry.exploreRun;
-      return done(issueEncounter(save, buildBattleRequest(save,
-        planExploreEncounter(kingdom, run.tier, exploreBattleSeed(run), run.stage, run.id)), 'explore', now));
+      // The run seed controls only the stable enemy roster. Each new ticket gets its
+      // own crypto-backed battle seed so board generation and combat rolls vary on retry.
+      const plan = planExploreEncounter(kingdom, run.tier, exploreBattleSeed(run), run.stage, run.id);
+      plan.seed = env.seed() >>> 0;
+      return done(issueEncounter(save, buildBattleRequest(save, plan), 'explore', now));
     }
     case 'planEventBattle': {
       const { typeId, choice } = command.args as CommandArgs<'planEventBattle'>;
@@ -687,7 +690,7 @@ function issueEncounter(
   now: number,
 ): BattleTicket | MetaFailure {
   if (!outcome.ok) return outcome;
-  // A retry keeps its enemy seed, but must never reuse a consumed ticket identity.
+  // Enemy roster remains stable across retries; every new ticket has its own battle seed and identity.
   if (outcome.plan.source.kind === 'explore') outcome.request.requestId += `-r${save.revision + 1}`;
   const enemies: Record<string, EncounterEnemy> = {};
   for (const [id, enemy] of outcome.enemyByExternalId) enemies[id] = enemy;

@@ -155,6 +155,136 @@ describe('动态特质注册表', () => {
 // 真实对局集成（TurnEngine）
 // ============================================================
 
+/** Stable board: exactly one 4/5 match, made by a vertical swap into row 4. */
+function bigMatchBoard(size: 4 | 5, color: BaseColor = BaseColor.Red): { board: BoardModel; swapCol: number; nextId: () => number } {
+  const board = new BoardModel();
+  const colors = [BaseColor.Blue, BaseColor.Green, BaseColor.Yellow];
+  let id = 1;
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      board.set({ row, col }, { id: id++, type: { kind: 'color', color: colors[(row + col) % 3]! } });
+    }
+  }
+  for (let col = 0; col < size - 1; col++) {
+    board.set({ row: 4, col }, { id: id++, type: { kind: 'color', color } });
+  }
+  board.set({ row: 5, col: size - 1 }, { id: id++, type: { kind: 'color', color } });
+  return { board, swapCol: size - 1, nextId: () => id++ };
+}
+
+describe('matching-side trait ownership', () => {
+  it('enemy-owned board changes keep enemy ownership for resulting four-matches', () => {
+    const { board, swapCol, nextId } = bigMatchBoard(4, BaseColor.Purple);
+    board.set({ row: 4, col: swapCol }, { id: nextId(), type: { kind: 'color', color: BaseColor.Purple } });
+    const left = makeChar(1, { traitIds: ['elementalforce'] });
+    const right = makeChar(2, { traitIds: ['hunt', 'darkvenom'] });
+    const state = createGameState(board, makeTeam(PlayerSide.Left, [left]),
+      makeTeam(PlayerSide.Right, [right]), PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(5), nextId, new ExtensionRegistry());
+    engine.takeInitialEvents();
+    const events: ReturnType<typeof engine.resolveAction> = [];
+    engine.resolveBoardChange([], events, PlayerSide.Right, 'remove');
+    expect(events.some(e => e.type === 'elimination' && e.cells.length >= 4)).toBe(true);
+    expect(events.filter(e => e.type === 'status-apply').map(e => [e.targetId, e.statusId]))
+      .toEqual([[left.id, 'marked'], [left.id, 'poison']]);
+    expect(right.statuses).toEqual([]);
+    expect(events.some(e => e.type === 'extra-turn')).toBe(false);
+  });
+
+  it('after a real turn switch, the new matching side owns big and color status effects', () => {
+    const { board, swapCol, nextId } = bigMatchBoard(4, BaseColor.Purple);
+    const left = makeChar(1, { traitIds: ['elementalforce', 'hunt', 'darkvenom'] });
+    const right = makeChar(2, { traitIds: ['hunt', 'darkvenom'] });
+    const state = createGameState(board, makeTeam(PlayerSide.Left, [left]),
+      makeTeam(PlayerSide.Right, [right]), PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(5), nextId, new ExtensionRegistry());
+    engine.takeInitialEvents();
+    engine.passTurn();
+    expect(state.activePlayer).toBe(PlayerSide.Right);
+    const events = engine.resolveAction({ type: 'swap', from: { row: 4, col: swapCol }, to: { row: 5, col: swapCol } });
+    expect(events.some(e => e.type === 'elimination' && e.cells.length >= 4)).toBe(true);
+    const statuses = events.filter(e => e.type === 'status-apply');
+    expect(statuses.map(e => e.statusId).sort()).toEqual(['marked', 'poison']);
+    expect(statuses.every(e => e.targetId === left.id)).toBe(true);
+    expect(right.statuses).toEqual([]);
+  });
+
+  for (const size of [4, 5] as const) {
+    for (const matchingSide of [PlayerSide.Left, PlayerSide.Right]) {
+      it(`${matchingSide} side ${size}-match triggers only its own holder, targeting the opposite team`, () => {
+        const { board, swapCol, nextId } = bigMatchBoard(size);
+        const left = makeChar(1, { traitIds: ['elementalforce'] });
+        const right = makeChar(2, { traitIds: ['elementalforce'] });
+        const state = createGameState(board, makeTeam(PlayerSide.Left, [left]),
+          makeTeam(PlayerSide.Right, [right]), matchingSide);
+        const engine = new TurnEngine(state, new SeededRNG(5), nextId, new ExtensionRegistry());
+        engine.takeInitialEvents();
+        const events = engine.resolveAction({ type: 'swap', from: { row: 4, col: swapCol }, to: { row: 5, col: swapCol } });
+        expect(events.some(e => e.type === 'elimination' && e.cells.length >= size)).toBe(true);
+        const statuses = events.filter(e => e.type === 'status-apply');
+        expect(statuses).toHaveLength(2);
+        const target = matchingSide === PlayerSide.Left ? right : left;
+        const holder = matchingSide === PlayerSide.Left ? left : right;
+        expect(statuses.every(e => e.targetId === target.id)).toBe(true);
+        expect(holder.statuses).toEqual([]);
+      });
+    }
+  }
+
+  for (const size of [4, 5] as const) {
+    for (const matchingSide of [PlayerSide.Left, PlayerSide.Right]) {
+      it(`${matchingSide} side ${size}-match never triggers the opponent's big/color-match status traits`, () => {
+        const { board, swapCol, nextId } = bigMatchBoard(size, BaseColor.Purple);
+        const holderSide = matchingSide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left;
+        const holder = makeChar(holderSide === PlayerSide.Left ? 1 : 2, { traitIds: ['elementalforce', 'hunt', 'darkvenom'] });
+        const other = makeChar(holderSide === PlayerSide.Left ? 2 : 1);
+        const state = createGameState(board,
+          makeTeam(PlayerSide.Left, [holderSide === PlayerSide.Left ? holder : other]),
+          makeTeam(PlayerSide.Right, [holderSide === PlayerSide.Right ? holder : other]), matchingSide);
+        const engine = new TurnEngine(state, new SeededRNG(5), nextId, new ExtensionRegistry());
+        engine.takeInitialEvents();
+        const events = engine.resolveAction({ type: 'swap', from: { row: 4, col: swapCol }, to: { row: 5, col: swapCol } });
+        expect(events.some(e => e.type === 'elimination' && e.cells.length >= size)).toBe(true);
+        expect(events.filter(e => e.type === 'status-apply' && ['stun', 'frozen', 'burning', 'entangle', 'marked', 'poison'].includes(e.statusId)))
+          .toEqual([]);
+        expect(other.statuses).toEqual([]);
+      });
+    }
+  }
+});
+
+describe('TurnEngine real match integration', () => {
+  it('elementalforce: a real four-gem swap applies two effects before board cascades', () => {
+    const board = new BoardModel();
+    const colors = [BaseColor.Blue, BaseColor.Green, BaseColor.Yellow];
+    let nextId = 1;
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        board.set({ row, col }, { id: nextId++, type: { kind: 'color', color: colors[(row + col) % 3]! } });
+      }
+    }
+    for (let col = 0; col < 3; col++) {
+      board.set({ row: 4, col }, { id: nextId++, type: { kind: 'color', color: BaseColor.Red } });
+    }
+    board.set({ row: 5, col: 3 }, { id: nextId++, type: { kind: 'color', color: BaseColor.Red } });
+    const foe = makeChar(2);
+    const state = createGameState(board,
+      makeTeam(PlayerSide.Left, [makeChar(1, { traitIds: ['elementalforce'] })]),
+      makeTeam(PlayerSide.Right, [foe]), PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(5), () => nextId++, new ExtensionRegistry());
+    engine.takeInitialEvents();
+    const events = engine.resolveAction({ type: 'swap', from: { row: 4, col: 3 }, to: { row: 5, col: 3 } });
+    const firstBigMatch = events.findIndex(e => e.type === 'elimination' && e.cells.length >= 4);
+    expect(firstBigMatch).toBeGreaterThanOrEqual(0);
+    const firstStatuses = events.slice(firstBigMatch + 1).filter(e => e.type === 'status-apply').slice(0, 2);
+    expect(firstStatuses).toHaveLength(2);
+    expect(firstStatuses.every(e => e.targetId === foe.id)).toBe(true);
+    expect(new Set(firstStatuses.map(e => e.statusId)).size).toBe(2);
+    const nextElimination = events.findIndex((e, i) => i > firstBigMatch && e.type === 'elimination');
+    expect(nextElimination === -1 || events.indexOf(firstStatuses[1]!) < nextElimination).toBe(true);
+  });
+});
+
 describe('对局集成（TurnEngine）', () => {
   it('开局施加状态：vanguard 自身屏障 / roottrap 缠绕首敌 / swiftcurse 死亡标记随机敌', () => {
     const left = makeTeam(PlayerSide.Left, withPassives([makeChar(1, { traitIds: ['vanguard', 'roottrap', 'swiftcurse'] })]));
@@ -234,7 +364,44 @@ describe('对局集成（TurnEngine）', () => {
     expect(holder.statuses.some((s) => s.id === 'poison')).toBe(false); // 自净化
   });
 
-  it('元素之力每次仅施加一种未持有的状态，四种齐全后不刷新', () => {
+  it('elementalist hero keeps Elemental Force when the level-40 Deluge talent is selected', () => {
+    const save = newSave({ now: 0, starterTroopIds: [7375, 6554, 6329] });
+    save.character!.name = '叶落';
+    save.hero.unlockedClasses.push('elementalist');
+    expect(equipClass(save, 'elementalist')).toMatchObject({ ok: true });
+    save.hero.classLevels.elementalist = 100;
+    save.hero.classTraits.elementalist = [true, true, true];
+    expect(pickTalent(save, 'elementalist', 4, 'deluge')).toMatchObject({ ok: true });
+    for (const id of [7375, 6554, 6329]) save.collection[String(id)]!.traits = [true, true, true];
+    expect(setTeamPreset(save, 0, {
+      name: '叶落队',
+      members: [{ kind: 'troop', troopId: 7375 }, { kind: 'hero' },
+        { kind: 'troop', troopId: 6554 }, { kind: 'troop', troopId: 6329 }],
+      bannerKingdomId: null,
+    })).toMatchObject({ ok: true });
+    const outcome = buildBattleRequest(save, planQuestEncounter('破碎尖塔', 1, 7));
+    if (!outcome.ok) throw new Error(outcome.message);
+    const hero = outcome.request.playerTeam[1]!;
+    expect(hero.traitIds).toEqual(expect.arrayContaining(['deluge', 'elementalforce']));
+
+    const { board, swapCol, nextId } = bigMatchBoard(4, BaseColor.Red);
+    const allies = outcome.request.playerTeam.map((unit, i) =>
+      makeChar(i + 1, { name: unit.name, traitIds: unit.traitIds }));
+    const foe = makeChar(9);
+    const state = createGameState(board, makeTeam(PlayerSide.Left, allies),
+      makeTeam(PlayerSide.Right, [foe]), PlayerSide.Left);
+    const engine = new TurnEngine(state, new SeededRNG(5), nextId, new ExtensionRegistry());
+    engine.takeInitialEvents();
+    const events = engine.resolveAction({ type: 'swap',
+      from: { row: 4, col: swapCol }, to: { row: 5, col: swapCol } });
+    expect(events.some(e => e.type === 'elimination' && e.cells.length >= 4)).toBe(true);
+    expect(events.filter(e => e.type === 'status-apply' && e.targetId === foe.id
+      && ['stun', 'frozen', 'burning', 'entangle'].includes(e.statusId))).toHaveLength(2);
+    expect(events.some(e => e.type === 'status-apply' && e.statusId === 'submerged'
+      && allies.some(ally => ally.id === e.targetId))).toBe(true);
+  });
+
+  it('elementalforce: 4+ match applies two distinct missing statuses, never refreshes existing ones', () => {
     const holder = makeChar(1, { traitIds: ['elementalforce'] });
     attachPassives(holder);
     const foe = makeChar(2, { statuses: [{ id: 'burning', turns: 3, magnitude: 1 }] });
@@ -245,47 +412,66 @@ describe('对局集成（TurnEngine）', () => {
 
     expect(trigger(3)).toEqual([]);
     expect(foe.statuses.map(s => s.id)).toEqual(['burning']);
-    for (let expected = 2; expected <= 4; expected++) {
-      const events = trigger(4);
-      expect(events.filter(e => e.type === 'status-apply')).toHaveLength(1);
-      expect(foe.statuses).toHaveLength(expected);
-      expect(new Set(foe.statuses.map(s => s.id)).size).toBe(expected);
-      expect(foe.statuses.find(s => s.id === 'burning')).toMatchObject({ turns: 3, magnitude: 1 });
-    }
+    const first = trigger(4).filter(e => e.type === 'status-apply');
+    expect(first).toHaveLength(2);
+    expect(new Set(first.map(e => e.statusId)).size).toBe(2);
+    expect(foe.statuses).toHaveLength(3);
+    expect(foe.statuses.find(s => s.id === 'burning')).toMatchObject({ turns: 3, magnitude: 1 });
+
+    const last = trigger(5).filter(e => e.type === 'status-apply');
+    expect(last).toHaveLength(1);
     expect(new Set(foe.statuses.map(s => s.id))).toEqual(new Set(['stun', 'frozen', 'burning', 'entangle']));
-    expect(trigger(5).filter(e => e.type === 'status-apply')).toHaveLength(0);
+    expect(trigger(4).filter(e => e.type === 'status-apply')).toHaveLength(0);
     expect(foe.statuses).toHaveLength(4);
   });
 
-  it('元素之力随机选择敌人及可用状态，不会把同一状态发给全队', () => {
+  it('elementalforce: chooses one eligible enemy then draws two statuses without replacement', () => {
     const holder = makeChar(1, { traitIds: ['elementalforce'] });
     attachPassives(holder);
     const outcomes = new Set<string>();
     for (let seed = 1; seed <= 32; seed++) {
       const foes = [makeChar(2), makeChar(3)];
-      const events = applyBigMatchTriggers([holder], {
+      const applied = applyBigMatchTriggers([holder], {
         size: 4, enemyTeam: foes, rng: new SeededRNG(seed), applyStatus,
-      });
-      const applied = events.filter(e => e.type === 'status-apply');
-      expect(applied).toHaveLength(1);
-      expect(foes.map(foe => foe.statuses.length).reduce((a, b) => a + b)).toBe(1);
-      outcomes.add(`${applied[0]!.targetId}:${applied[0]!.statusId}`);
+      }).filter(e => e.type === 'status-apply');
+      expect(applied).toHaveLength(2);
+      expect(new Set(applied.map(e => e.targetId)).size).toBe(1);
+      expect(new Set(applied.map(e => e.statusId)).size).toBe(2);
+      expect(foes.map(foe => foe.statuses.length).sort()).toEqual([0, 2]);
+      outcomes.add(`${applied[0]!.targetId}:${applied.map(e => e.statusId).join(',')}`);
     }
     expect(outcomes.size).toBeGreaterThan(2);
   });
 
-  it('元素之力跳过四种状态齐全的敌人，仍可选其他敌人', () => {
+  it('elementalforce: skips a fully affected enemy, grants only remaining statuses', () => {
     const holder = makeChar(1, { traitIds: ['elementalforce'] });
     attachPassives(holder);
     const full = makeChar(2, { statuses: ['stun', 'frozen', 'burning', 'entangle'].map(id => ({ id, turns: 3 })) });
     const open = makeChar(3, { statuses: [{ id: 'burning', turns: 3 }] });
-    const events = applyBigMatchTriggers([holder], {
+    const applied = applyBigMatchTriggers([holder], {
       size: 4, enemyTeam: [full, open], rng: new SeededRNG(1), applyStatus,
-    });
-    expect(events.filter(e => e.type === 'status-apply')).toHaveLength(1);
+    }).filter(e => e.type === 'status-apply');
+    expect(applied).toHaveLength(2);
+    expect(applied.every(e => e.targetId === 3 && e.statusId !== 'burning')).toBe(true);
     expect(full.statuses).toHaveLength(4);
-    expect(open.statuses).toHaveLength(2);
-    expect(open.statuses[1]!.id).not.toBe('burning');
+    expect(open.statuses).toHaveLength(3);
+
+    const almostFull = makeChar(4, { statuses: ['stun', 'frozen', 'burning'].map(id => ({ id, turns: 3 })) });
+    expect(applyBigMatchTriggers([holder], { size: 4, enemyTeam: [almostFull], rng: new SeededRNG(1), applyStatus })
+      .filter(e => e.type === 'status-apply')).toMatchObject([{ targetId: 4, statusId: 'entangle' }]);
+    expect(applyBigMatchTriggers([holder], { size: 4, enemyTeam: [full], rng: new SeededRNG(1), applyStatus }))
+      .toEqual([]);
+  });
+
+  it('elementalforce: blocking effects emit blocked events rather than silently selecting a full target', () => {
+    const holder = makeChar(1, { traitIds: ['elementalforce'] });
+    attachPassives(holder);
+    const blessed = makeChar(2, { statuses: [{ id: 'blessed', turns: 3 }] });
+    const events = applyBigMatchTriggers([holder], {
+      size: 4, enemyTeam: [blessed], rng: new SeededRNG(1), applyStatus,
+    });
+    expect(events.filter(e => e.type === 'status-blocked' && e.reason === 'blessed')).toHaveLength(2);
+    expect(blessed.statuses.map(s => s.id)).toEqual(['blessed']);
   });
 
   it('死亡链：savior 盟友死→同队随机存活屏障；chillofdeath/risingshadows 走敌方死亡链不炸', () => {

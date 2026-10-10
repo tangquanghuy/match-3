@@ -819,6 +819,10 @@ function ensureStyles(): void {
   .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
+  /* Portrait cards are much narrower: keep multi-stack counts in the corner instead of over the art.
+     A single bleed stack is implicit; its exact value remains in the accessible status label/detail. */
+  .gcard.status-portrait-compact .status-badge .sb-turns{right:-3px;bottom:-3px;
+    min-width:8px;height:8px;padding:0;border-radius:4px;font-size:6px;line-height:6px}
   /* 增益 / 减益形状区分（不只靠颜色）：增益=圆顶盾形 + 左上 ▲；减益=方形 + 右上 ◣（沿用既有三角） */
   .gcard .status-badge.sb-pos{border-radius:50% 50% ${os(5)}px ${os(5)}px / 42% 42% ${os(5)}px ${os(5)}px;
     background:linear-gradient(180deg,rgba(40,34,18,.9),rgba(11,10,9,.84))}
@@ -1201,7 +1205,8 @@ export class CharacterCard {
         // 角标只给有意义的数：出血层数 / 仍倒计时的辅助状态回合。官方无时限状态不显示
         //（它们的 turns 从不递减，显示出来是个永远不动的误导数字）。
         const corner = statusBadgeCorner(s);
-        const cornerHtml = corner ? `<span class="sb-turns">${corner}</span>` : '';
+        const cornerHtml = corner && !(this.portraitCompactStatuses && s.id === 'bleed' && corner === '1')
+          ? `<span class="sb-turns">${corner}</span>` : '';
         const positive = isPositiveStatus(s.id);
         // 说明浮层读 data-live（实例实际数值行，单一口径见 statusPresentation.statusLiveLines）
         const live = statusLiveLines(s, recovery).join(' · ');

@@ -28,7 +28,8 @@ async function setup(tier = 2) {
   for (const k of [kingdom, other]) save.kingdoms[k] = { level: 1, questsDone: 8, exploreTier: tier, exploreUnlockedTier: tier, lastTributeAt: 0 };
   for (const troop of Object.values(save.collection)) troop.traits = [true, true, true];
   new SaveStore(storage).persist(save);
-  const gateway = new MockGateway(storage);
+  let nextSeed = 100;
+  const gateway = new MockGateway(storage, { seed: () => nextSeed++ });
   await gateway.load();
   return { gateway, storage };
 }
@@ -129,7 +130,8 @@ describe('12-tier six-battle Explore', () => {
     await gateway.settleBattle(result(first, 'enemy'));
     const retry = await ticket(gateway);
     expect(retry.request.enemyTeam).toEqual(first.request.enemyTeam);
-    expect(retry.request.seed).toBe(first.request.seed);
+    expect(retry.request.seed).not.toBe(first.request.seed);
+    expect(gateway.current().pendingBattle).toMatchObject({ plan: { seed: retry.request.seed } });
     expect(retry.request.requestId).not.toBe(first.request.requestId);
     expect((await gateway.settleBattle(result(first))).result.ok).toBe(false);
     expect(gateway.current().pendingBattle!.requestId).toBe(retry.request.requestId);
@@ -145,7 +147,7 @@ describe('12-tier six-battle Explore', () => {
     const retry = await ticket(gateway);
     expect(retry.source).toEqual(first.source);
     expect(retry.request.enemyTeam).toEqual(first.request.enemyTeam);
-    expect(retry.request.seed).toBe(first.request.seed);
+    expect(retry.request.seed).not.toBe(first.request.seed);
     expect(retry.request.requestId).not.toBe(first.request.requestId);
     expect((await gateway.settleBattle(result(first))).result.ok).toBe(false);
     expect(gateway.current().pendingBattle!.requestId).toBe(retry.request.requestId);
@@ -166,13 +168,13 @@ describe('12-tier six-battle Explore', () => {
     const { gateway, storage } = await setup();
     for (let i = 0; i < stage; i++) await fight(gateway);
     const pending = await ticket(gateway);
-    const reloaded = new MockGateway(storage);
+    const reloaded = new MockGateway(storage, { seed: () => 0xfedcba98 });
     await reloaded.load();
     expect(reloaded.current().kingdoms[kingdom]!.exploreRun!.stage).toBe(stage);
     const retry = await ticket(reloaded);
     expect(retry.source).toMatchObject({ kind: 'explore', tier: 2, stage });
     expect(retry.request.enemyTeam).toEqual(pending.request.enemyTeam);
-    expect(retry.request.seed).toBe(pending.request.seed);
+    expect(retry.request.seed).not.toBe(pending.request.seed);
     expect(retry.request.requestId).not.toBe(pending.request.requestId);
     expect((await reloaded.settleBattle(result(pending))).result.ok).toBe(false);
     expect((await reloaded.settleBattle(result(retry))).result.ok).toBe(true);

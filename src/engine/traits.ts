@@ -172,8 +172,8 @@ export interface TraitDefinition {
     randomPositive?: boolean;
     /** 随机负面池掷签（experiment「陷入一个随机的状态效果」，statuses 为负面池；仅 randomEnemy） */
     randomNegative?: boolean;
-    /** Pick one status the selected target does not currently have. */
-    randomMissingStatus?: boolean;
+    /** Draw up to this many distinct missing statuses for one random target. */
+    randomMissingStatusCount?: number;
     minSize?: number;
     /**
      * 独立概率掷（maladycurse「Independent 25% chances to inflict Curse or Death Mark」）：
@@ -2445,67 +2445,80 @@ export function applyBigMatchTriggers(
   if (ctx.applyStatus) {
     for (const holder of matchingTeam) {
       if (holder.defeated) continue;
-      const spec = passivesOf(holder).onBigMatchStatus;
-      if (!spec) continue;
-      if ((spec.minSize ?? 4) > size) continue;
-      // 独立概率掷（maladycurse）不在入口整体判定——每条状态在目标选出后各掷各的
-      if (spec.chance !== undefined && !spec.independentChance) {
-        // 概率判定走种子化 rng；纯逻辑环境（无 rng）按召唤口径不生效
-        if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
-      }
-      const alive = matchingTeam.filter((c) => !c.defeated);
-      if (spec.scope === 'self') {
-        events.push(...applySpecStatuses(holder, spec.statuses, spec.turns, ctx));
-      } else if (spec.scope === 'allEnemies') {
-        // 敌方全队（bloodmark「使所有敌人陷入出血状态」）：目标为对方存活队列
-        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
-        for (const foe of foes) {
-          events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, ctx));
+      // Independent traits on the same character must each resolve. The compiled
+      // single-value passive retains a compatibility view, but must not suppress
+      // a class perk when a selected talent (e.g. Deluge) uses the same hook.
+      for (const code of activeTraitIds(holder)) {
+        const spec = getTrait(code)?.onBigMatchStatus;
+        if (!spec) continue;
+        if ((spec.minSize ?? 4) > size) continue;
+        // 独立概率掷（maladycurse）不在入口整体判定——每条状态在目标选出后各掷各的
+        if (spec.chance !== undefined && !spec.independentChance) {
+          // 概率判定走种子化 rng；纯逻辑环境（无 rng）按召唤口径不生效
+          if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
         }
-      } else if (spec.scope === 'firstEnemy') {
-        // 首位敌人（dragonvines「缠绕第一名敌人」）：队伍序首个存活，确定性、不耗随机数
-        const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
-        if (foes.length === 0) continue;
-        events.push(...applySpecStatuses(foes[0], spec.statuses, spec.turns, ctx));
-      } else if (spec.scope === 'randomEnemy') {
-        // 随机一名敌人（winterveil「冻结一名随机敌人」）：消耗一次随机数，无 rng 退化为首个存活；
-        // randomNegative（experiment「陷入一个随机的状态效果」）为概率语义：无 rng 整条跳过
-        //（不退化为必发全池），命中时再消耗一次从负面池掷一条；
-        // independentChance（maladycurse「独立 25% 几率施加诅咒或死亡标记」）：每条状态
-        // 各自掷一次 chance（各中各的），每条各耗一次 rng，无 rng 时概率 <1 的不生效。
-        const foes = randomStatusCandidates(ctx.enemyTeam ?? [], spec.statuses);
-        if (foes.length === 0) continue;
-        if (spec.randomNegative && !ctx.rng) continue;
-        const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
-        if (spec.independentChance) {
-          for (const st of spec.statuses) {
-            if (!ctx.rng || ctx.rng.next() >= (spec.chance ?? 1)) continue;
-            events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, [st]), spec.turns, ctx));
+        const alive = matchingTeam.filter((c) => !c.defeated);
+        if (spec.scope === 'self') {
+          events.push(...applySpecStatuses(holder, spec.statuses, spec.turns, ctx));
+        } else if (spec.scope === 'allEnemies') {
+          // 敌方全队（bloodmark「使所有敌人陷入出血状态」）：目标为对方存活队列
+          const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
+          for (const foe of foes) {
+            events.push(...applySpecStatuses(foe, spec.statuses, spec.turns, ctx));
           }
-          continue;
-        }
-        const available = eligibleRandomStatuses(foe, spec.statuses);
-        if (available.length === 0) continue;
-        const picks = spec.randomMissingStatus
-          ? [available[ctx.rng ? Math.floor(ctx.rng.next() * available.length) : 0]]
-          : spec.randomNegative
-            ? [available[Math.floor(ctx.rng!.next() * available.length)]]
+        } else if (spec.scope === 'firstEnemy') {
+          // 首位敌人（dragonvines「缠绕第一名敌人」）：队伍序首个存活，确定性、不耗随机数
+          const foes = (ctx.enemyTeam ?? []).filter((c) => !c.defeated);
+          if (foes.length === 0) continue;
+          events.push(...applySpecStatuses(foes[0], spec.statuses, spec.turns, ctx));
+        } else if (spec.scope === 'randomEnemy') {
+          // 随机一名敌人（winterveil「冻结一名随机敌人」）：消耗一次随机数，无 rng 退化为首个存活；
+          // randomNegative（experiment「陷入一个随机的状态效果」）为概率语义：无 rng 整条跳过
+          //（不退化为必发全池），命中时再消耗一次从负面池掷一条；
+          // independentChance（maladycurse「独立 25% 几率施加诅咒或死亡标记」）：每条状态
+          // 各自掷一次 chance（各中各的），每条各耗一次 rng，无 rng 时概率 <1 的不生效。
+          const foes = randomStatusCandidates(ctx.enemyTeam ?? [], spec.statuses);
+          if (foes.length === 0) continue;
+          if (spec.randomNegative && !ctx.rng) continue;
+          const foe = ctx.rng ? foes[Math.floor(ctx.rng.next() * foes.length)] : foes[0];
+          if (spec.independentChance) {
+            for (const st of spec.statuses) {
+              if (!ctx.rng || ctx.rng.next() >= (spec.chance ?? 1)) continue;
+              events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, [st]), spec.turns, ctx));
+            }
+            continue;
+          }
+          const available = eligibleRandomStatuses(foe, spec.statuses);
+          if (available.length === 0) continue;
+          if (spec.randomMissingStatusCount) {
+            // Sample without replacement: one target, at most N distinct missing effects.
+            const remaining = [...available];
+            for (let i = 0; i < spec.randomMissingStatusCount && remaining.length > 0; i++) {
+              const index = ctx.rng ? Math.floor(ctx.rng.next() * remaining.length) : 0;
+              const [pick] = remaining.splice(index, 1);
+              events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, [pick!]), spec.turns, ctx));
+            }
+          } else {
+            const picks = spec.randomNegative
+              ? [available[Math.floor(ctx.rng!.next() * available.length)]]
+              : available;
+            events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, picks), spec.turns, ctx));
+          }
+        } else if (spec.scope === 'allAllies') {
+          for (const member of alive) {
+            events.push(...applySpecStatuses(member, spec.statuses, spec.turns, ctx));
+          }
+        } else {
+          // randomAlly：有 rng 随机取（只在此消耗一次随机数），无 rng 退化为首个存活
+          const candidates = randomStatusCandidates(alive, spec.statuses);
+          if (candidates.length === 0) continue;
+          const target = ctx.rng ? candidates[Math.floor(ctx.rng.next() * candidates.length)] : candidates[0];
+          const available = eligibleRandomStatuses(target, spec.statuses);
+          const picks = spec.randomPositive && ctx.rng
+            ? [available[Math.floor(ctx.rng.next() * available.length)]]
             : available;
-        events.push(...applySpecStatuses(foe, eligibleRandomStatuses(foe, picks), spec.turns, ctx));
-      } else if (spec.scope === 'allAllies') {
-        for (const member of alive) {
-          events.push(...applySpecStatuses(member, spec.statuses, spec.turns, ctx));
+          events.push(...applySpecStatuses(target, picks, spec.turns, ctx));
         }
-      } else {
-        // randomAlly：有 rng 随机取（只在此消耗一次随机数），无 rng 退化为首个存活
-        const candidates = randomStatusCandidates(alive, spec.statuses);
-        if (candidates.length === 0) continue;
-        const target = ctx.rng ? candidates[Math.floor(ctx.rng.next() * candidates.length)] : candidates[0];
-        const available = eligibleRandomStatuses(target, spec.statuses);
-        const picks = spec.randomPositive && ctx.rng
-          ? [available[Math.floor(ctx.rng.next() * available.length)]]
-          : available;
-        events.push(...applySpecStatuses(target, picks, spec.turns, ctx));
       }
     }
   }

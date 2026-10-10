@@ -192,6 +192,41 @@ test('portrait battle keeps compact status icons and no dotted enchanted ellipse
   expect(curseStyle).toBe('solid');
 });
 
+test('portrait bleed badge leaves its icon visible while still showing stacked counts', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openBattle(page);
+  const setBleed = (stacks: number) => page.evaluate((value) => {
+    const app = (window as unknown as BattleWindow).__app;
+    const character = app.getEngine().getState().teams.Left.characters[0];
+    character.statuses.splice(0, character.statuses.length, { id: 'bleed', turns: 3, magnitude: value });
+    app.setAllManaCost(character.manaCost);
+  }, stacks);
+  const card = page.locator('.gcard.ally').first();
+  await setBleed(1);
+  const badge = card.locator('.status-badge[data-status-id="bleed"]');
+  await expect(badge).toBeVisible();
+  await expect(badge.locator('img')).toBeVisible();
+  await expect(badge).toHaveAttribute('aria-label', /1 ?/);
+  await expect(badge.locator('.sb-turns')).toHaveCount(0);
+  await page.screenshot({ path: 'artifacts/ux-phase-b/shots/bleed-single-390x844.png' });
+
+  await setBleed(3);
+  const count = badge.locator('.sb-turns');
+  await expect(count).toHaveText('3');
+  await expect(badge).toHaveAttribute('aria-label', /3 ?/);
+  const sizes = await badge.evaluate((el) => {
+    const icon = el.querySelector('img')!.getBoundingClientRect();
+    const number = el.querySelector('.sb-turns')!.getBoundingClientRect();
+    const frame = el.getBoundingClientRect();
+    return { iconWidth: icon.width, countWidth: number.width, countHeight: number.height,
+      countRight: number.right, frameRight: frame.right };
+  });
+  expect(sizes.countWidth).toBeLessThan(sizes.iconWidth * 0.7);
+  expect(sizes.countHeight).toBeLessThan(sizes.iconWidth * 0.7);
+  expect(sizes.countRight).toBeGreaterThan(sizes.frameRight - 1);
+  await page.screenshot({ path: 'artifacts/ux-phase-b/shots/bleed-stacked-390x844.png' });
+});
+
 test('desktop battle cards keep magic and traits without the rejected name or mana rows', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await openBattle(page);

@@ -1194,7 +1194,9 @@ export class TurnEngine {
   }
 
   /** 连锁主循环（需求 8.5-8.9, 18.2, 18.3） */
-  private runCascades(events: GameEvent[]): void {
+  private runCascades(events: GameEvent[], matchingSide: PlayerSide = this.state.activePlayer): void {
+    // A board effect may belong to the other side (e.g. battle-start enemy gems).
+    // Carry its owner into resulting matches rather than borrowing the active turn.
     this.state.chainCount = 0;
     /** 冰冻吞掉额外回合的归因单位（整轮连锁结束后才发演出事件，不打断消除批次） */
     let frozenDeniedBy: number | undefined;
@@ -1212,11 +1214,11 @@ export class TurnEngine {
         const elimination = this.makeEliminationEvent(group, chain);
         events.push(elimination);
         if (grantsExtraTurn(group.shape)) {
-          const frozenBy = this.matchExtraTurnFrozenBy(group);
+          const frozenBy = this.matchExtraTurnFrozenBy(group, matchingSide);
           if (!frozenBy) {
             // 每轮连锁就地登记，后续重力/特质嵌套连锁不推迟或覆盖该行动的奖励。
             this.pendingExtraTurnSource ??= 'match';
-            elimination.extraTurnPlayer = this.state.activePlayer;
+            elimination.extraTurnPlayer = matchingSide;
           } else frozenDeniedBy ??= frozenBy.id;
         }
 
@@ -1225,49 +1227,49 @@ export class TurnEngine {
         // （createGem：wildtribe/wildmagic 族落子，避开本轮将被消除的匹配格）；
         // 旧特质路径零随机消耗、事件序不变。
         if (group.cells.length >= 4) {
-          events.push(...this.creditEconomy('gold', group.cells.length >= 5 ? 5 : 4, this.state.activePlayer));
+          events.push(...this.creditEconomy('gold', group.cells.length >= 5 ? 5 : 4, matchingSide));
           events.push(...applyBigMatchTriggers(
-            this.state.teams[this.state.activePlayer].characters,
+            this.state.teams[matchingSide].characters,
             {
               size: group.cells.length,
               rng: this.rng,
               applyStatus: (char, status) => applyStatus(char, status),
-              enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
-              gainEconomy: this.creditEconomy,
+              enemyTeam: this.state.teams[opponentOf(matchingSide)].characters,
+              gainEconomy: (currency, amount) => this.creditEconomy(currency, amount, matchingSide),
               damage: this.traitDamage,
               drainLife: this.traitDrainLife,
               explodeGem: (color, count) => {
-                this.pendingTraitExplosions.push({ kind: 'color', color, count, side: this.state.activePlayer });
+                this.pendingTraitExplosions.push({ kind: 'color', color, count, side: matchingSide });
                 return [];
               },
               explodeSpec: (spec) => {
-                this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+                this.pendingTraitExplosions.push({ kind: 'spec', spec, side: matchingSide });
                 return [];
               },
               createPlainGem: (color, count) => this.spawnPlainGems(color as BaseColor, count),
               createGem: (kind, tier, count, color) =>
                 this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells), color as BaseColor | undefined),
               summon: (spec) => {
-                const produced = this.traitSummon(spec);
+                const produced = this.traitSummon(spec, matchingSide);
                 // 大连召唤完成后的 self-summon 触发（hauntedweave）：召唤事件发生后，
                 // 对行动方存活持有者各触发一次。
                 return [...produced, ...this.appendSelfSummonStatusForDeathSummons(
                   produced,
-                  this.state.teams[this.state.activePlayer].characters,
+                  this.state.teams[matchingSide].characters,
                 )];
               },
-              setStorm: this.traitSetStorm,
+              setStorm: (storm, troopId) => this.setTraitStorm(storm, troopId, matchingSide),
               kill: this.traitKill,
             },
           ));
         }
 
         // 结算法力 / 骷髅伤害（颜色组含通配倍率；骷髅组含末日骷髅加伤）
-        this.applyGroupEffects(group, events);
+        this.applyGroupEffects(group, events, matchingSide);
 
         // 特殊宝石"被匹配"触发：织网/沙漏即时结算；至尊末日骷髅/闪电的破坏登记到
         // destroyTriggers，统一在全部组移除后引爆（避免提前清掉同迭代其他组的宝石造成双重结算）
-        this.collectMatchTriggers(group, destroyTriggers, events);
+        this.collectMatchTriggers(group, destroyTriggers, events, matchingSide);
       }
 
       // 2. 从棋盘移除被消除的宝石
@@ -1280,7 +1282,7 @@ export class TurnEngine {
       // 3. 特殊宝石破坏链：至尊末日骷髅引爆相邻一圈 / 闪电清整行整列，
       //    以及连带的炸弹/闪电/许愿连锁；链上摧毁照常结算法力/骷髅
       const manaPotions: BaseColor[] = [];
-      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events, manaPotions), events);
+      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events, manaPotions), events, matchingSide);
 
       // 3.5 特质爆破统一落地（收尾批延迟队列）：本轮组已全部遍历完，此处改盘安全——
       // 爆破自带重力+连锁吸收，内层连锁跑完后再做本轮胜负/重力。
@@ -1305,8 +1307,8 @@ export class TurnEngine {
 
   /** 冻结只抑制关联颜色的匹配额外回合；骷髅看当前第一名存活部队。 */
   /** 返回吞掉该组额外回合的冻结单位（演出归因用；无则 undefined）。 */
-  private matchExtraTurnFrozenBy(group: MatchGroup): Character | undefined {
-    const living = this.state.teams[this.state.activePlayer].characters.filter((c) => !c.defeated);
+  private matchExtraTurnFrozenBy(group: MatchGroup, side: PlayerSide): Character | undefined {
+    const living = this.state.teams[side].characters.filter((c) => !c.defeated);
     const settle = group.settle;
     if (settle.kind === 'skull') return living[0] && hasStatus(living[0], 'frozen') ? living[0] : undefined;
     if (settle.kind === 'color') {
@@ -1397,21 +1399,21 @@ export class TurnEngine {
    *   - 骷髅族组：一次普攻，末日骷髅每颗 +5 加伤
    *   - 全通配组：无归属色，只消除不结算
    */
-  private applyGroupEffects(group: MatchGroup, events: GameEvent[]): void {
+  private applyGroupEffects(group: MatchGroup, events: GameEvent[], matchingSide: PlayerSide): void {
     const settle = group.settle;
-    const activeTeam = this.state.teams[this.state.activePlayer];
+    const activeTeam = this.state.teams[matchingSide];
     if (settle.kind === 'color') {
       // 颜色 → 产生法力：3 消按基础几率涌动翻倍、4 消几率 ×2 且至少 35%、5+ 必翻倍，
       // 基础几率含连锁加成（见 manaSurge.ts），再乘通配倍率。
       // jinx 抑制在 distributeGemMana；旗帜 ±N 在抑制之后平展。
       const gemCount = group.cells.length;
-      const mastery = this.masteryOf(this.state.activePlayer, settle.color);
+      const mastery = this.masteryOf(matchingSide, settle.color);
       const chain = Math.max(1, this.state.chainCount);
       // 旧规则本来就掷的（精通 > 0 的 3 消）仍用主随机流；新规则新增的掷骰走 surgeRng
       const roll = gemCount === 3 && mastery > 0 ? this.rng.next()
         : surgeNeedsRoll(gemCount, mastery, chain) ? this.surgeRng.next() : 1;
       const { amount, surged } = matchManaWithSurge(gemCount, settle.manaMultiplier, mastery, roll, chain);
-      const gained = this.distributeGemMana(activeTeam, this.state.activePlayer, settle.color, amount);
+      const gained = this.distributeGemMana(activeTeam, matchingSide, settle.color, amount);
       if (surged) {
         for (const ev of gained) {
           if (ev.type === 'mana-gain') ev.surge = true;
@@ -1422,7 +1424,7 @@ export class TurnEngine {
       // colors"）：组归属色按其余宝石的颜色计（settle.color），星色法力逐色另发
       if (settle.bonusColors) {
         for (const c of settle.bonusColors) {
-          events.push(...this.distributeGemMana(activeTeam, this.state.activePlayer, c, 1));
+          events.push(...this.distributeGemMana(activeTeam, matchingSide, c, 1));
         }
       }
       // 配色触发特质（食人魔之怒/阳光…）：匹配到关联色时给匹配方全队加值。
@@ -1432,24 +1434,24 @@ export class TurnEngine {
       // 无新键特质零随机消耗、事件序不变）；drainLife 供配色窃取生命（corruption 族）；
       // damage 供配色伤害（lumpofcoal/dawnslayer/sleetstorm 族）。
       events.push(...applyColorMatchTriggers(activeTeam.characters, settle.color, {
-        enemyTeam: this.state.teams[opponentOf(this.state.activePlayer)].characters,
+        enemyTeam: this.state.teams[opponentOf(matchingSide)].characters,
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
         explodeSpec: (spec) => {
-          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: matchingSide });
           return [];
         },
       }));
     } else if (settle.kind === 'starOnly') {
       // 纯星组（星与星互连、无基色依附）：只发星族各色 +1，宝石本体不产法力
       for (const c of settle.bonusColors) {
-        events.push(...this.distributeGemMana(activeTeam, this.state.activePlayer, c, 1));
+        events.push(...this.distributeGemMana(activeTeam, matchingSide, c, 1));
       }
     } else if (settle.kind === 'skull') {
       // 骷髅 → 物理伤害（需求 14），不产生法力（需求 11.2）
-      const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)];
+      const enemyTeam = this.state.teams[opponentOf(matchingSide)];
       // 传入 rng：闪避特质（敏捷/轻巧）需要随机判定，且必须走同一条确定性随机源
       // 骷髅附加护甲比（职业天赋 razorarmor「骷髅头伤害附加 20% 的护甲值」）：攻击方队首
       // 持有者按 自身护甲 × ratio 附加固定伤害（与末日骷髅加伤同一 bonus 通道）。
@@ -1477,13 +1479,13 @@ export class TurnEngine {
       //（onColorMatchStatus 定义允许 'skull' 色键，现无数据、注入零消耗）；drainLife/damage 同配色点。
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
-        gainEconomy: this.creditEconomy,
+        gainEconomy: (currency, amount) => this.creditEconomy(currency, amount, matchingSide),
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
         explodeSpec: (spec) => {
-          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: matchingSide });
           return [];
         },
       }));
@@ -1504,6 +1506,7 @@ export class TurnEngine {
     group: MatchGroup,
     destroyTriggers: { gemType: GemType; pos: CellPos; viaMatch: boolean }[],
     events: GameEvent[],
+    matchingSide: PlayerSide,
   ): void {
     for (const cell of group.cells) {
       const gem = this.state.board.get(cell);
@@ -1515,7 +1518,7 @@ export class TurnEngine {
         events.push(...this.applyWebGem(cell));
       } else if (kind === 'hourglass') {
         events.push({ type: 'special-gem-trigger', kind: 'hourglass', pos: cell });
-        if (this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'match';
+        if (matchingSide === this.state.activePlayer && this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'match';
       } else if (isStatusGemKind(kind)) {
         if (MATCH_STATUS_GEMS.has(kind)) {
           this.applyStatusGem(kind, cell, events);
@@ -2120,7 +2123,7 @@ export class TurnEngine {
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
         explodeSpec: (spec) => {
-          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side });
           return [];
         },
       }));
@@ -2136,13 +2139,13 @@ export class TurnEngine {
       // 配对骷髅触发（diamondaura/powerofstars/rancor/darkensouls 族），在伤害结算之后（同 applyGroupEffects 口径）
       events.push(...applyColorMatchTriggers(activeTeam.characters, 'skull', {
         enemyTeam: enemyTeam.characters,
-        gainEconomy: this.creditEconomy,
+        gainEconomy: (currency, amount) => this.creditEconomy(currency, amount, side),
         rng: this.rng,
         applyStatus: (char, status) => applyStatus(char, status),
         drainLife: this.traitDrainLife,
         damage: this.traitDamage,
         explodeSpec: (spec) => {
-          this.pendingTraitExplosions.push({ kind: 'spec', spec, side: this.state.activePlayer });
+          this.pendingTraitExplosions.push({ kind: 'spec', spec, side });
           return [];
         },
       }));
@@ -2187,7 +2190,7 @@ export class TurnEngine {
     this.scatterManaPotionGems(manaPotions, events);
 
     // 3. 解析由此产生的连锁
-    this.runCascades(events);
+    this.runCascades(events, side);
   }
 
   /**
@@ -2927,7 +2930,7 @@ export class TurnEngine {
           ? this.cellChooser.choose(this.state, ch.id, this.rng, choiceRule, proto, chosenColor) ?? undefined
           : undefined;
         // P-create-interleave: defer the settle of pure board rewrites to the end of the spell
-        // Piscea's green clear and blue creation are spell steps; board gravity/cascades follow BOTH devour rolls.
+        // Piscea devours first; its green clear and blue creation are spell steps before gravity/cascades.
         const settle = {
           pending: false, deferRemoval: ch.skillId === '8715',
           destroyed: [] as DestroyedGem[], mode: 'destroy' as 'destroy' | 'explode' | 'remove',
@@ -2949,7 +2952,14 @@ export class TurnEngine {
           this.spellBoardSettle = null;
         }
         if (settle.pending) {
-          if (settle.deferRemoval) produced.push({ type: 'skill-phase-boundary' });
+          if (settle.deferRemoval) {
+            // Card and board events otherwise play in parallel even when ordered in the
+            // stream. Finish successful devour feedback before clearing any gems.
+            const firstBoard = produced.findIndex(e => e.type === 'gem-destroy' || e.type === 'gem-create' || e.type === 'gem-transform');
+            if (firstBoard > 0 && produced.slice(0, firstBoard).some(e => e.type === 'skill-damage' && e.devoured))
+              produced.splice(firstBoard, 0, { type: 'skill-phase-boundary' });
+            produced.push({ type: 'skill-phase-boundary' });
+          }
           this.resolveBoardChange(settle.destroyed, produced, this.state.activePlayer, settle.mode);
         }
         events.push(...this.resolveDefeatWithRevive(produced));
@@ -2995,12 +3005,12 @@ export class TurnEngine {
         // P-create-interleave (lane-L1 L1-6160): a pure board rewrite (create / transform / jumble,
         // nothing removed) does not settle mid-spell — native SpellSteps all run first, then the
         // board resolves. Other spells still settle removals immediately; Piscea defers its green
-        // clear too, so blue creation and both devour rolls precede gravity/cascades.
+        // clear too, so devour, green clearing and blue creation precede gravity/cascades.
         if (this.spellBoardSettle && (destroyed.length === 0 || this.spellBoardSettle.deferRemoval)) {
           this.spellBoardSettle.pending = true;
           this.spellBoardSettle.destroyed.push(...destroyed);
-          // Separate Piscea's gem creation from its devour animation as well as from
-          // the later board settlement (impact windows otherwise overlap board and cards).
+          // Separate Piscea's devour from the subsequent board settlement
+          // (impact windows otherwise overlap board and cards).
           if (this.spellBoardSettle.deferRemoval && destroyed.length === 0)
             events.push({ type: 'skill-phase-boundary' });
           if (destroyed.length > 0) this.spellBoardSettle.mode = mode ?? 'destroy';
