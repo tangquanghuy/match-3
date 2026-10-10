@@ -81,14 +81,18 @@
 .rg-stat { position: absolute; display: flex; align-items: center; gap: 4px; color: #f3dfb0; text-shadow: 0 2px 3px #000, 0 0 6px #000; }
 .rg-stat b { font: bold clamp(18px, 7.5cqw, 28px)/1 Georgia, serif; }
 .rg-stat svg { width: clamp(16px, 7cqw, 25px); height: clamp(16px, 7cqw, 25px); flex: none; }
-.rg-stat-mana { left: 0; top: 0; width: 23%; max-width: 62px; aspect-ratio: 1; padding: 5px; background: #0c1c2bce; border-radius: 0 0 14px 0; }
-.rg-stat-mana > svg { width: 82%; height: 82%; }
-.rg-stat-mana b { position: absolute; right: 2px; bottom: 2px; padding: 2px 4px; border: 1px solid #b4a176; border-radius: 12px; background: #102335; font-size: clamp(11px, 4.8cqw, 16px); }
+.rg-stat-mana { left: 0; top: 0; width: clamp(29px,23cqw,50px); aspect-ratio: 1; padding: clamp(2px,2cqw,5px); background: linear-gradient(135deg,rgba(20,18,15,.74),rgba(11,10,9,.6)); border: 1px solid rgba(216,194,144,.5); border-radius: 8px 0 12px 0; box-shadow: 1px 1px 4px #0008; }
+.rg-team-panel .rg-stat.rg-stat-mana > svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 2px #000d); }
+.rg-stat-mana .seat { fill: rgba(11,10,9,.25); }
+.rg-stat-mana .dim { opacity: .9; }
+.rg-stat-mana .facets { fill: none; stroke: rgba(255,255,255,.22); stroke-width: 5; }
+.rg-gem-mana { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; font: 800 clamp(11px, 8cqw, 23px)/1 Georgia,serif; color: rgba(243,234,214,.72); text-shadow: 1px 0 #0a0806,-1px 0 #0a0806,0 1px #0a0806,0 -1px #0a0806,0 1px 3px #000; }
+.rg-gem-mana b { font: inherit; }
+.rg-gem-mana small { font-size: .72em; font-weight: 700; color: inherit; }
 .rg-stat-magic { top: 0; right: 0; padding: 7px 9px; background: #2c1d39d9; border-radius: 0 0 0 12px; color: #e5d1ff; }
 .rg-stat-attack { bottom: 12px; left: 10px; }
 .rg-stat-armor { bottom: 48px; right: 10px; color: #dae4e9; flex-direction: row-reverse; }
 .rg-stat-hp { bottom: 12px; right: 10px; color: #ff999b; flex-direction: row-reverse; }
-.rg-troop-position { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #c1ab7466; border-radius: 4px; background: #0d1724c9; color: #e4cf9d; font: 13px Georgia, serif; }
 .regional-screen .rg-troop-caption { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; column-gap: 8px; min-height: 61px; padding: 10px 12px; border-top: 1px solid #b29d6940; background: linear-gradient(120deg, #192833, #0c1822); }
 .regional-screen .rg-troop-caption h3 { margin: 0; font-size: 17px; line-height: 1.35; color: #efdeb7; }
 .rg-troop-caption small { grid-column: 1; margin-top: 3px; font-size: 11px; }
@@ -100,16 +104,108 @@
   .rg-troop-art { height: auto; aspect-ratio: .76; }
   .rg-stat b { font-size: clamp(16px, 10cqw, 24px); }
   .rg-stat svg { width: clamp(13px, 9cqw, 21px); height: clamp(13px, 9cqw, 21px); }
-  .rg-stat-mana { width: 29%; padding: 3px; }
-  .rg-stat-mana > svg { width: 82%; height: 82%; }
-  .rg-stat-mana b { font-size: 11px; }
+  .rg-stat-mana { width: clamp(29px,22cqw,40px); }
   .rg-stat-magic { padding: 5px; }
   .rg-stat-attack { left: 6px; bottom: 8px; }
   .rg-stat-armor { right: 6px; bottom: 36px; }
   .rg-stat-hp { right: 6px; bottom: 8px; }
-  .rg-troop-position { width: 21px; height: 21px; top: 7px; font-size: 11px; }
   .regional-screen .rg-troop-caption { padding: 8px; min-height: 56px; column-gap: 4px; }
   .regional-screen .rg-troop-caption h3 { font-size: 14px; }
   .rg-team-heading, .rg-team-panel > .rg-heading { margin-bottom: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .regional-screen .rg-troop { transition: none; } }
+
+/* Keep the atlas and battle preparation within a typical desktop viewport. */
+.rg-content { padding-top: 16px; padding-bottom: 16px; }
+.rg-atlas-heading { margin-bottom: 14px; }
+.rg-atlas-heading h1 { margin: 4px 0; font-size: 36px; }
+.rg-active-regions { gap: 14px; }
+.rg-active-regions .rg-destination { min-height: 220px; padding: 18px; }
+.rg-destination h2 { margin: 7px 0; font-size: 24px; }
+.rg-destination p { margin-bottom: 9px; }
+.rg-destination>div>span { padding-top: 8px; }
+.rg-rest-heading { margin: 16px 0 10px; }
+.rg-rest-regions { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.rg-resting { min-height: 116px; padding: 12px 14px; }
+.rg-resting .rg-destination-state { left: 12px; top: 10px; }
+.rg-resting h2 { font-size: 18px; margin: 6px 0; }
+.rg-resting small, .rg-resting p, .rg-resting>div>span { display: none; }
+.rg-content:has(> .rg-team-panel) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; align-content: start; }
+.rg-content:has(> .rg-team-panel) > .rg-heading,
+.rg-content:has(> .rg-team-panel) > .rg-launch { grid-column: 1 / -1; }
+.rg-content:has(> .rg-team-panel) > .rg-heading { margin: 0; }
+.rg-content:has(> .rg-team-panel) > .rg-heading h1 { margin: 3px 0 0; font-size: 28px; }
+.rg-team-panel { margin: 0; padding: 12px; min-width: 0; }
+.rg-team-heading, .rg-team-panel > .rg-heading { margin-bottom: 8px; }
+.rg-team-panel .rg-team { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.rg-team-panel .rg-troop-art { height: clamp(110px, 19vh, 180px); }
+.rg-team-panel .rg-troop-caption { min-height: 40px; padding: 5px 8px; }
+.rg-team-panel .rg-troop-caption h3 { font-size: 14px; }
+.rg-team-panel .rg-troop-caption > span { font-size: 18px; }
+.rg-content:has(> .rg-team-panel) > .rg-launch { padding: 2px 0 0; }
+.rg-opponent-art { height: clamp(130px, 22vh, 190px); }
+.rg-opponent-copy { padding: 14px; }
+.rg-opponent-copy h2 { font-size: 21px; margin: 4px 0; }
+.rg-opponent-copy p { min-height: 0; line-height: 1.4; margin: 6px 0; }
+.rg-opponent-copy > .rg-button { margin-top: 10px; }
+.rg-world { min-height: 0; }
+.rg-sanctum { min-height: min(650px, 100%); padding: 24px; }
+.rg-steps { margin: 12px 0; }
+.rg-steps li { padding: 6px 0; }
+.rg-region-intro { min-height: min(660px, 100%); }
+
+@media (max-width: 1000px) {
+  .rg-rest-regions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .rg-content:has(> .rg-team-panel) { display: block; padding: 10px 12px; }
+  .rg-content:has(> .rg-team-panel) > .rg-heading { margin-bottom: 8px; }
+  .rg-team-panel { margin-bottom: 8px; padding: 8px; }
+  .rg-team-panel .rg-troop-art { height: clamp(90px, 14vh, 120px); }
+  .rg-team-panel .rg-troop-caption { min-height: 34px; padding: 4px 6px; }
+  .rg-team-panel .rg-troop-caption h3 { font-size: 12px; }
+  .rg-team-panel .rg-troop-caption small { font-size: 10px; }
+  .rg-team-panel .rg-stat b { font-size: clamp(12px, 8cqw, 20px); }
+  .rg-team-panel .rg-stat svg { width: clamp(11px, 7cqw, 18px); height: clamp(11px, 7cqw, 18px); }
+  .rg-team-panel .rg-stat-armor { bottom: 29px; }
+  .rg-content:has(> .rg-team-panel) > .rg-launch { flex-direction: row; gap: 8px; padding: 0; }
+  .rg-launch > p { line-height: 1.3; margin: 0; }
+  .rg-active-regions .rg-destination { min-height: 160px; }
+  .rg-rest-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rg-resting { min-height: 100px; }
+  .rg-sanctum { padding: 110px 18px 18px; background-size: auto 260px; }
+}
+@media (max-width: 600px) {
+  .rg-team-panel .rg-troop-art { height: 78px; }
+  .rg-team-panel .rg-troop-caption { min-height: 28px; padding: 2px 6px; }
+  .rg-team-heading, .rg-team-panel > .rg-heading { min-height: 34px; margin-bottom: 5px; }
+  .rg-content:has(> .rg-team-panel) > .rg-heading h1 { font-size: 23px; }
+  .rg-content:has(> .rg-team-panel) > .rg-heading { margin-bottom: 4px; }
+  .rg-team-panel .rg-team { gap: 5px; }
+  .rg-atlas-heading { margin-bottom: 10px; }
+  .rg-active-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .rg-active-regions .rg-central { min-height: 120px; }
+  .rg-active-regions .rg-destination:not(.rg-central) { min-height: 125px; padding: 12px; }
+  .rg-destination .rg-destination-state { left: 10px; top: 8px; padding: 3px 6px; font-size: 10px; }
+  .rg-destination h2 { font-size: 18px; margin: 4px 0; }
+  .rg-active-regions .rg-destination small, .rg-active-regions .rg-destination p,
+  .rg-active-regions .rg-destination>div>span { display: none; }
+  .rg-rest-heading { margin: 10px 0 7px; }
+  .rg-rest-heading h2 { font-size: 17px; margin: 0; }
+  .rg-rest-heading p { display: none; }
+  .rg-rest-regions { gap: 7px; }
+  .rg-resting { min-height: 77px; padding: 8px; }
+  .rg-resting h2 { font-size: 15px; }
+  .rg-resting .rg-destination-state { font-size: 9px; }
+  .rg-opponent-art { min-height: 125px; }
+  .rg-opponent-copy { padding: 9px; }
+  .rg-opponent-copy h2 { font-size: 17px; }
+  .rg-opponent-copy p { font-size: 11px; }
+  .rg-opponents { gap: 8px; }
+}
+@media (min-width: 370px) and (max-width: 600px) {
+  .rg-rest-regions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rg-resting { min-height: 77px; }
+  .rg-resting .rg-destination-state { left: 5px; padding: 3px 4px; font-size: 9px; }
+  .rg-resting h2 { font-size: 13px; }
+}

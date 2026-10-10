@@ -45,6 +45,8 @@ export const REGION_DUEL_SCALING = [
   { hp: 2, armor: 1.5, attack: 1.2, magic: 1.15 },
   { hp: 5, armor: 4, attack: 1.6, magic: 1.5 },
 ] as const;
+/** Applied to the final enemy snapshot for every regional battle mode. */
+export const REGION_ENEMY_STAT_FACTOR = 0.7;
 export const MONOLITHS: readonly { id: MonolithId; name: string; stat: 'hp' | 'armor' | 'magic'; description: string; icon: string }[] = [
   { id:'vigor', name:'生命之碑', stat:'hp', description:'生命每阶 +10%', icon:'heart' },
   { id:'ward', name:'庇护之碑', stat:'armor', description:'护甲每阶 +10%', icon:'shield' },

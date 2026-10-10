@@ -3,7 +3,7 @@ import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { levelCapFor } from '../data/economy';
 import { rollPvpGlory } from '../data/pvpGlory';
-import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_DUEL_SCALING, REGION_REWARDS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
+import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_DUEL_SCALING, REGION_ENEMY_STAT_FACTOR, REGION_REWARDS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
 import { freshRegionalState, type RegionalState, type RegionalBattleContext, type RegionOpponent, type RegionBattleKind, type RegionTier, type MonolithId } from '../state/regional';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
@@ -78,7 +78,7 @@ export function ensureRegional(save: MetaSave, now: number): RegionalState {
 function boost(team: CombatantSnapshot[], factors:CombatantSnapshot['stats'], frenzy:boolean, cycle=0): CombatantSnapshot[] {
   return team.map(c=>({...structuredClone(c),stats:Object.fromEntries(Object.entries(c.stats).map(([k,v])=>{
     const key=k as keyof CombatantSnapshot['stats'];
-    return [key,Math.min(STAT_LIMITS[key].max,Math.ceil(v*factors[key]*(frenzy?1.5:1)*(1+Math.min(cycle,20)*.1)))];
+    return [key,Math.min(STAT_LIMITS[key].max,Math.ceil(v*factors[key]*(frenzy?1.5:1)*(1+Math.min(cycle,20)*.1)*REGION_ENEMY_STAT_FACTOR))];
   })) as CombatantSnapshot['stats']}));
 }
 function npcTeam(week:number, seed:number, region:RegionId): CombatantSnapshot[] {
@@ -171,7 +171,7 @@ function prepareRegional(save:MetaSave,args:RegionalPlanArgs,now:number,seed:num
   const frenzy=args.kind!=='monolith'&&regionalFrenzy(now,region);
   const factors=args.kind==='duel'?REGION_DUEL_SCALING[tier]:REGION_TIERS[tier];
   let enemy=boost(opponent.team,factors,frenzy,args.kind==='citadel'?p.citadel.cycles:0);
-  if(args.kind==='monolith') enemy=opponent.team.map((c,i)=>enemyToSnapshot(getTroopById(Number(c.templateId))!,{troopId:Number(c.templateId),level:MONOLITH_LEVELS[step]!,tier:'elite',traitCount:3},i));
+  if(args.kind==='monolith') enemy=boost(opponent.team.map((c,i)=>enemyToSnapshot(getTroopById(Number(c.templateId))!,{troopId:Number(c.templateId),level:MONOLITH_LEVELS[step]!,tier:'elite',traitCount:3},i)),{hp:1,armor:1,attack:1,magic:1},false);
   const player=structuredClone(built.playerTeam);
   if(args.kind!=='monolith') for(const def of MONOLITHS) {
     const b=s.monoliths[def.id];

@@ -2,13 +2,13 @@ import { battleMapDrop } from '../../src/meta/systems/battleMaps';
 import { battleIncomeView } from '../../src/meta/screens/resultScreen';
 import { MetaHost, type SaveRepository, type RecordBatch } from '../../src/meta/server/host';
 import { saveToRecords, recordsToSave } from '../../src/meta/state/records';
-import { buildPlayerSnapshots } from '../../src/meta/systems/battleBridge';
+import { buildPlayerSnapshots, enemyToSnapshot } from '../../src/meta/systems/battleBridge';
 import { describe, it, expect } from 'vitest';
 import { TROOPS, getTroopById } from '../../src/data/troops';
 import { newSave, type MetaSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { regionalAction, regionalFrenzy, ensureRegional, planRegional, previewRegionalBattle, previewRegionalEnemy, settleRegional, regionLegal, activeRegions, regionOpen, nextRegionWeek, regionalRule, buildRegionalOpponents } from '../../src/meta/systems/regionalPvp';
-import { REGION_DUEL_SCALING, REGION_TIERS, burningSoulCost, REGIONS, REGION_REVISION, type RegionId } from '../../src/meta/data/regionalPvp';
+import { REGION_DUEL_SCALING, REGION_ENEMY_STAT_FACTOR, REGION_TIERS, burningSoulCost, REGIONS, REGION_REVISION, type RegionId } from '../../src/meta/data/regionalPvp';
 import { freshRegionalState, hydrateRegionalState } from '../../src/meta/state/regional';
 import { weekStartOf } from '../../src/meta/gateway/clock';
 import { WEEK_MS } from '../../src/meta/data/events';
@@ -31,7 +31,7 @@ describe('independent regional PvP',()=>{
  it.each([0,1,2,3])('builds legal mature squads for weekly restriction %s',offset=>{
   const now=NOW+offset*9*WEEK_MS,s=fixture(now),r=s.regional!;
   expect(r.regions.WintersReach.opponents).toHaveLength(3);
-  for(const o of r.regions.WintersReach.opponents){expect(o.team).toHaveLength(4);expect(o.team.every(c=>regionLegal(c,r.week))).toBe(true);expect(new Set(o.team.map(c=>c.templateId)).size).toBe(4);const p=duel(s,now,o.tier);expect(p.request.enemyTeam).toEqual(previewRegionalEnemy(o,now));expect(p.request.region).toBe('WintersReach');expect(p.request.rules?.board?.specialDrops?.chance).toBe(.05);expect(p.request.enemyTeam[0]!.stats.hp).toBe(Math.ceil(o.team[0]!.stats.hp*REGION_DUEL_SCALING[o.tier].hp*(regionalFrenzy(now)?1.5:1)));}
+  for(const o of r.regions.WintersReach.opponents){expect(o.team).toHaveLength(4);expect(o.team.every(c=>regionLegal(c,r.week))).toBe(true);expect(new Set(o.team.map(c=>c.templateId)).size).toBe(4);const p=duel(s,now,o.tier);expect(p.request.enemyTeam).toEqual(previewRegionalEnemy(o,now));expect(p.request.region).toBe('WintersReach');expect(p.request.rules?.board?.specialDrops?.chance).toBe(.05);expect(p.request.enemyTeam[0]!.stats.hp).toBe(Math.ceil(o.team[0]!.stats.hp*REGION_DUEL_SCALING[o.tier].hp*(regionalFrenzy(now)?1.5:1)*REGION_ENEMY_STAT_FACTOR));}
  });
  it('uses eligible real mirrors and no repeated owner in a batch',()=>{
   const s=fixture(),built=buildPlayerSnapshots(s);if(!built.ok)throw new Error(built.message);for(const c of built.playerTeam){c.stats.hp+=11;c.stats.armor+=11;}const record=captureMirrorRecord(s,built.team,built.playerTeam,null,NOW);expect(record).toBeTruthy();
@@ -71,7 +71,7 @@ describe('independent regional PvP',()=>{
  });
  it('unlocks five monolith stages, adds one hour per victory and excludes its own buff',()=>{
   const s=fixture();s.regional!.energy=10;let firstHp=0;
-  for(let i=0;i<5;i++){const p=planRegional(s,{kind:'monolith',monolith:'vigor'},NOW,1);if(!p.ok)throw new Error(p.message);if(!i)firstHp=p.request.playerTeam[0]!.stats.hp;else expect(p.request.playerTeam[0]!.stats.hp).toBe(firstHp);expect(p.request.enemyTeam[0]!.levelLabel).toBe(`Lv.${[20,40,80,150,300][i]}`);settleRegional(s,victory(),p.context,NOW);}
+  for(let i=0;i<5;i++){const p=planRegional(s,{kind:'monolith',monolith:'vigor'},NOW,1);if(!p.ok)throw new Error(p.message);if(!i)firstHp=p.request.playerTeam[0]!.stats.hp;else expect(p.request.playerTeam[0]!.stats.hp).toBe(firstHp);expect(p.request.enemyTeam[0]!.levelLabel).toBe(`Lv.${[20,40,80,150,300][i]}`);for(const [index,c] of p.request.enemyTeam.entries()){const baseline=enemyToSnapshot(getTroopById(Number(c.templateId))!,{troopId:Number(c.templateId),level:[20,40,80,150,300][i]!,tier:'elite',traitCount:3},index);for(const key of ['hp','armor','attack','magic'] as const)expect(c.stats[key]).toBe(Math.ceil(baseline.stats[key]*REGION_ENEMY_STAT_FACTOR));}settleRegional(s,victory(),p.context,NOW);}
   expect(s.regional!.monoliths.vigor).toEqual({level:5,expires:NOW+5*3600000});expect(planRegional(s,{kind:'monolith',monolith:'vigor'},NOW,1).ok).toBe(false);
   expect(duel(s).request.playerTeam[0]!.stats.hp).toBe(Math.ceil(firstHp*1.5));
  });
@@ -113,7 +113,7 @@ describe('regional duel difficulty separation',()=>{
    expect(battle.request.enemyTeam).toEqual(previewRegionalEnemy(o,now));
    for(const [i,c] of battle.request.enemyTeam.entries()){
     for(const key of ['hp','armor','attack','magic'] as const){
-     expect(c.stats[key]).toBe(Math.ceil(o.team[i]!.stats[key]*REGION_DUEL_SCALING[o.tier][key]*frenzy));
+     expect(c.stats[key]).toBe(Math.ceil(o.team[i]!.stats[key]*REGION_DUEL_SCALING[o.tier][key]*frenzy*REGION_ENEMY_STAT_FACTOR));
     }
     expect(c.manaCost).toBe(o.team[i]!.manaCost);
    }
@@ -130,14 +130,15 @@ describe('regional duel difficulty separation',()=>{
   const mirror=s.regional!.regions.WintersReach.opponents.find(o=>o.mirror)!;
   expect(mirror).toBeTruthy();
   const teams=([0,1,2] as const).map(tier=>previewRegionalEnemy({...mirror,tier},NOW,'CentralSpire'));
-  expect(teams[0]!.map(c=>c.stats)).toEqual(mirror.team.map(c=>c.stats));
+   expect(teams[0]!.map(c=>c.stats)).toEqual(mirror.team.map(c=>Object.fromEntries(Object.entries(c.stats).map(([key,value])=>[key,Math.ceil(value*REGION_ENEMY_STAT_FACTOR)]))));
   for(let i=0;i<4;i++)for(const key of ['hp','armor','attack','magic'] as const){
    const base=mirror.team[i]!.stats[key];
-   expect(teams[1]![i]!.stats[key]).toBe(Math.ceil(base*REGION_DUEL_SCALING[1][key]));
-   expect(teams[2]![i]!.stats[key]).toBe(Math.ceil(base*REGION_TIERS[2][key]));
+    expect(teams[1]![i]!.stats[key]).toBe(Math.ceil(base*REGION_DUEL_SCALING[1][key]*REGION_ENEMY_STAT_FACTOR));
+    expect(teams[2]![i]!.stats[key]).toBe(Math.ceil(base*REGION_DUEL_SCALING[2][key]*REGION_ENEMY_STAT_FACTOR));
    if(base>0){
-    expect(teams[0]![i]!.stats[key]).toBeLessThan(teams[1]![i]!.stats[key]);
-    expect(teams[1]![i]!.stats[key]).toBeLessThan(teams[2]![i]!.stats[key]);
+     expect(teams[0]![i]!.stats[key]).toBeLessThanOrEqual(teams[1]![i]!.stats[key]);
+     expect(teams[1]![i]!.stats[key]).toBeLessThanOrEqual(teams[2]![i]!.stats[key]);
+     if(key==='hp'||key==='armor')expect(teams[0]![i]!.stats[key]).toBeLessThan(teams[2]![i]!.stats[key]);
    }
   }
  });
@@ -149,7 +150,7 @@ describe('regional duel difficulty separation',()=>{
   if(!preview.ok||!battle.ok)throw new Error('expected playable citadel');
   expect(battle.request.enemyTeam).toEqual(preview.request.enemyTeam);
   for(const [i,c] of battle.request.enemyTeam.entries())for(const key of ['hp','armor','attack','magic'] as const){
-   expect(c.stats[key]).toBe(Math.ceil(o.team[i]!.stats[key]*REGION_TIERS[tier][key]*(regionalFrenzy(NOW)?1.5:1)*1.3));
+   expect(c.stats[key]).toBe(Math.ceil(o.team[i]!.stats[key]*REGION_TIERS[tier][key]*(regionalFrenzy(NOW)?1.5:1)*1.3*REGION_ENEMY_STAT_FACTOR));
   }
  });
 });

@@ -16,6 +16,32 @@ async function setup(page:Page,region='WintersReach'){
  await expect.poll(()=>page.evaluate(region=>JSON.parse(localStorage.getItem('gems.meta.save')!).regional?.regions?.[region]?.opponents?.length,region)).toBe(3);
 }
 async function noOverflow(page:Page){expect(await page.locator('.rg-content').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);const box=await page.locator('#stage').boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.width).toBeLessThanOrEqual(page.viewportSize()!.width);}
+test('desktop regional atlas and preparation fit without vertical scrolling',async({page})=>{
+ await page.setViewportSize({width:1600,height:900});await setup(page);
+ const fits=async()=>expect(await page.locator('.rg-content').evaluate(el=>el.scrollHeight<=el.clientHeight+1)).toBe(true);
+ await page.goto('/game.html#regional');await expect(page.locator('.rg-atlas')).toBeVisible();await fits();
+ await page.goto('/game.html#regional/region/WintersReach/opponents');await expect(page.locator('.rg-opponent')).toHaveCount(3);await fits();
+ await page.locator('.rg-opponent .rg-primary').first().click();await expect(page.locator('.rg-troop')).toHaveCount(8);await fits();
+});
+test('mobile regional atlas and preparation fit a tall phone',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await setup(page);
+ const fits=async()=>expect(await page.locator('.rg-content').evaluate(el=>el.scrollHeight<=el.clientHeight+1)).toBe(true);
+ await page.goto('/game.html#regional');await expect(page.locator('.rg-atlas')).toBeVisible();await fits();
+ await page.screenshot({path:'artifacts/regional-390-compact-atlas.png'});
+ await page.goto('/game.html#regional/region/WintersReach/opponents');await page.locator('.rg-opponent .rg-primary').first().click();
+ await expect(page.locator('.rg-troop')).toHaveCount(8);await fits();
+ await expect(page.locator('.rg-troop-position')).toHaveCount(0);
+ await expect(page.locator('.rg-stat-mana .rg-gem-mana')).toHaveCount(8);
+ for(const gem of await page.locator('.rg-stat-mana').all()){
+  const cost=await gem.locator('.rg-gem-mana small').textContent();
+  await expect(gem).toHaveAttribute('aria-label',`法力 0${cost}`);
+  await expect(gem.locator('svg .dim')).toBeVisible();
+  const frame=await gem.boundingBox(),art=await gem.locator('svg').boundingBox();
+  expect(art!.width).toBeGreaterThan(frame!.width*.7);
+  expect(art!.height).toBeGreaterThan(frame!.height*.7);
+ }
+ await page.screenshot({path:'artifacts/regional-390-compact-prepare.png'});
+});
 for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320,height:568},{width:844,height:390}]){
  test(`region map, opponent preview and dedicated unit page ${viewport.width}x${viewport.height}`,async({page})=>{
   await page.setViewportSize(viewport);await setup(page);await noOverflow(page);
@@ -23,7 +49,7 @@ for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320
   await page.locator('a[href="#regional/region/WintersReach/opponents"]').click();await expect(page.locator('.rg-opponent')).toHaveCount(3);await noOverflow(page);
   await page.locator('.rg-opponent .rg-primary').first().click();await expect(page.locator('.rg-troop')).toHaveCount(8);await expect(page.locator('[data-fight]')).toBeEnabled();await noOverflow(page);
   await expect(page.locator('.rg-troop [data-stat]')).toHaveCount(40);
-  expect(await page.locator('.rg-team').first().evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(viewport.width<=800?2:4);
+   expect(await page.locator('.rg-team').first().evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);
   const readable=await page.locator('.rg-troop').evaluateAll(nodes=>nodes.map(node=>{
    const art=node.querySelector('.rg-troop-art')!.getBoundingClientRect();
    const img=node.querySelector('img')!.getBoundingClientRect();
@@ -43,7 +69,7 @@ for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320
    if(!plan.ok)return false;
    return ['enemy','player'].every(side=>Array.from(document.querySelectorAll(`[data-preview-side="${side}"] .rg-troop`)).every((card,i)=>{
     const snapshot=(side==='enemy'?plan.request.enemyTeam:plan.request.playerTeam)[i];
-    return ['mana','attack','armor','hp','magic'].every(key=>Number(card.querySelector(`[data-stat="${key}"] b`)!.textContent)===(key==='mana'?snapshot.manaCost:snapshot.stats[key]));
+    return ['mana','attack','armor','hp','magic'].every(key=>Number(card.querySelector(key==='mana'?'[data-stat="mana"] .rg-gem-mana small':`[data-stat="${key}"] b`)!.textContent?.replace('/',''))===(key==='mana'?snapshot.manaCost:snapshot.stats[key]));
    }));
   });
   expect(correctStats).toBe(true);
