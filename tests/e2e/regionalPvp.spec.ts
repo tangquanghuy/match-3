@@ -16,6 +16,33 @@ async function setup(page:Page,region='WintersReach'){
  await expect.poll(()=>page.evaluate(region=>JSON.parse(localStorage.getItem('gems.meta.save')!).regional?.regions?.[region]?.opponents?.length,region)).toBe(3);
 }
 async function noOverflow(page:Page){expect(await page.locator('.rg-content').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);const box=await page.locator('#stage').boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.width).toBeLessThanOrEqual(page.viewportSize()!.width);}
+for (const viewport of [{width:2523,height:1212},{width:1600,height:900},{width:390,height:844}]) {
+ test(`citadel art fills the view and preparation separates sides ${viewport.width}x${viewport.height}`,async({page})=>{
+  await page.setViewportSize(viewport);await setup(page,'CentralSpire');
+  await page.goto('/game.html#regional/region/CentralSpire/citadel');
+  await expect(page.locator('.rg-fortress')).toBeVisible();
+  const bounds=await page.locator('.rg-content').boundingBox();
+  const art=await page.locator('.rg-fortress').boundingBox();
+  expect(art!.x).toBeCloseTo(bounds!.x,0);
+  expect(art!.width).toBeCloseTo(bounds!.width,0);
+  expect(art!.height).toBeGreaterThanOrEqual(bounds!.height-1);
+  await page.screenshot({path:`artifacts/regional-${viewport.width}-citadel-full.png`});
+  await page.locator('.rg-fortress .rg-button').first().click();
+  await expect(page.locator('.rg-team-panel')).toHaveCount(2);
+  const [enemy,player]=await Promise.all([page.locator('.rg-team-panel').first().boundingBox(),page.locator('.rg-team-panel').last().boundingBox()]);
+  const gap=viewport.width>800?player!.x-(enemy!.x+enemy!.width):player!.y-(enemy!.y+enemy!.height);
+  expect(gap).toBeGreaterThanOrEqual(viewport.width>800?24:8);
+  const colors=await page.locator('.rg-team-panel').evaluateAll(panels=>panels.map(panel=>getComputedStyle(panel).borderLeftColor));
+  expect(colors[0]).not.toBe(colors[1]);
+  expect(await page.locator('.rg-content').evaluate(el=>el.scrollHeight<=el.clientHeight+1)).toBe(true);
+  if(viewport.width>800){
+   const portrait=await page.locator('.rg-team-panel .rg-troop-art').first().boundingBox();
+   expect(portrait!.height).toBeGreaterThan(viewport.height*.22);
+   expect(enemy!.height).toBeGreaterThan(bounds!.height*.65);
+  }
+  await page.screenshot({path:`artifacts/regional-${viewport.width}-citadel-prepare.png`});
+ });
+}
 test('desktop regional atlas and preparation fit without vertical scrolling',async({page})=>{
  await page.setViewportSize({width:1600,height:900});await setup(page);
  const fits=async()=>expect(await page.locator('.rg-content').evaluate(el=>el.scrollHeight<=el.clientHeight+1)).toBe(true);
