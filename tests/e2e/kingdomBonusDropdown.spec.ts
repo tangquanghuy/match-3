@@ -71,6 +71,10 @@ test('主角种族随职业、王国随装备武器改变，编队界面即时�
     save.hero.classLevels.bard = 1;
     if (!save.hero.unlockedClasses.includes('bard')) save.hero.unlockedClasses.push('bard');
     save.hero.equippedWeapon = 'gw_GiantsMace';
+    // Team presets keep their own hero loadout; changing only the global hero
+    // is overwritten by the active preset when the team screen opens.
+    save.teams[save.activeTeamIndex].heroClassId = 'bard';
+    save.teams[save.activeTeamIndex].heroWeaponId = 'gw_GiantsMace';
     save.teams[save.activeTeamIndex].members = [
       { kind: 'hero' }, { kind: 'troop', troopId: 6000 },
       { kind: 'troop', troopId: 6097 }, { kind: 'troop', troopId: 6457 },
@@ -90,6 +94,7 @@ test('主角种族随职业、王国随装备武器改变，编队界面即时�
     await gateway.load();
     const save = JSON.parse(gateway.exportSaveJson());
     save.hero.equippedWeapon = null;
+    save.teams[save.activeTeamIndex].heroWeaponId = null;
     await gateway.dev?.importSaveJson(JSON.stringify(save));
   });
   await page.reload();

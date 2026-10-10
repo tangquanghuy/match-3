@@ -809,6 +809,13 @@ function ensureStyles(): void {
     color:#f0e2bf;background:rgba(11,10,9,.88);border:1px solid rgba(216,194,144,.62);
     font-family:"Oswald",sans-serif;font-weight:700;font-size:${ofs(10)}px;line-height:1;white-space:nowrap}
   .gcard .status-more:hover{color:#fff3d2;border-color:#e0c98a}
+  /* Only a narrow portrait viewport uses the compact status treatment. */
+  .gcard.status-portrait-compact .status-strip{flex-wrap:nowrap}
+  .gcard.status-landscape-compact .status-strip{left:auto;right:var(--card-inset);justify-content:flex-end}
+  .gcard.status-portrait-compact .status-more{color:#ead8f0;background:rgba(36,25,48,.8);border-color:rgba(205,167,224,.68);font-size:clamp(10px,.65em,12px)}
+  .gcard.status-portrait-compact.status-accent-enchanted .status-accent-layer::before,
+  .gcard.status-portrait-compact.status-accent-curse .status-accent-layer::before{inset:2px;border:1px solid rgba(206,155,255,.4);border-radius:inherit;transform:none;box-shadow:inset 0 0 8px rgba(224,140,255,.25);animation:statusBlessGlow 3s ease-in-out infinite}
+
   .gcard .status-badge .sb-turns{position:absolute;right:-3px;bottom:-3px;min-width:11px;height:11px;
     padding:0 1px;box-sizing:border-box;border-radius:6px;background:#0b0a09;border:1px solid var(--sb);
     font-family:"Oswald",sans-serif;font-size:8px;line-height:9px;text-align:center;color:#f0e2bf}
@@ -848,7 +855,7 @@ function ensureStyles(): void {
   .gcard .trait-row{position:absolute;z-index:6;left:var(--trait-inset);top:43%;transform:translateY(-50%);
     display:flex;flex-direction:column;align-items:center;gap:var(--trait-gap);pointer-events:none;
     padding:0}
-  .gcard.portrait-compact.has-statuses .trait-row{top:var(--compact-trait-top);transform:none;flex-direction:row}
+  .gcard.portrait-compact.has-statuses .trait-row{top:var(--compact-trait-top);transform:none;flex-direction:column}
   .gcard .trait-row:empty{display:none}
   .gcard .trait-badge{display:inline-flex;flex:none;width:var(--trait-size);height:var(--trait-size);pointer-events:auto;cursor:pointer;
     filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 4px rgba(0,0,0,.65))}
@@ -901,6 +908,7 @@ export class CharacterCard {
   private stageScale = 1;
   private statusBadgeSize = 24;
   private statusCollapsed = false;
+  private portraitCompactStatuses = false;
   private magicEl!: HTMLElement;   // 魔力（法术强度）数值
   private statusStripEl!: HTMLElement; // 状态图标栏（中毒/燃烧…）
   private traitRowEl!: HTMLElement; // 特质图标列
@@ -1042,17 +1050,22 @@ export class CharacterCard {
     // 阶段 A 实测的 17×17 就是"CSS 20px × 0.68 舞台缩放"的结果——只抬 CSS 尺寸不够，
     // 必须按舞台缩放反推，同时不许吃掉卡面（封顶卡宽 30%）。
     const stage = Math.max(0.2, this.stageScale);
-    const wanted = Math.ceil(24 / stage);
+    this.portraitCompactStatuses = window.innerWidth <= 700 && window.innerHeight > window.innerWidth;
+    this.el.classList.toggle('status-portrait-compact', this.portraitCompactStatuses);
+    this.el.classList.toggle('status-landscape-compact', window.innerWidth <= 740 && window.innerWidth > window.innerHeight);
+    const wanted = Math.ceil((this.portraitCompactStatuses ? 12 : 24) / stage);
     const cap = Math.max(20, Math.round(width * 0.3));
-    const badge = Math.min(Math.max(Math.round(20 * ratio), wanted), cap);
+    const badge = this.portraitCompactStatuses
+      ? Math.min(Math.max(12, wanted), cap)
+      : Math.min(Math.max(Math.round(20 * ratio), wanted), cap);
     this.statusBadgeSize = badge;
     this.el.style.setProperty('--sbz', `${badge}px`);
     this.el.style.setProperty('--sbiz', `${Math.max(12, Math.round(badge * 0.84))}px`);
     // 折叠后的单一汇总入口不再受「单枚徽记最多占卡宽 30%」限制，确保仍有 24px 屏幕高度。
-    this.el.style.setProperty('--ssz', `${wanted}px`);
+    this.el.style.setProperty('--ssz', `${this.portraitCompactStatuses ? badge : wanted}px`);
     // 连 30% 封顶都达不到 24 屏幕 px 时，改"状态条折叠 → 一次点开全部状态"
     // （`15-battle.md` B-7 给的备选方案）：收成一个汇总入口，避免 1~3 个状态仍以小徽记残留。
-    const collapsed = badge * stage < 23.5 || width * stage < 120;
+    const collapsed = !this.portraitCompactStatuses && (badge * stage < 23.5 || width * stage < 120);
     this.statusCollapsed = collapsed;
     this.el.classList.toggle('status-collapsed', collapsed);
     if (this.statusStripEl) this.renderStatuses();
@@ -1172,11 +1185,17 @@ export class CharacterCard {
     // 仍保留被压小的徽记，恰好绕开了触控下限。小卡上即使单枚已到 24px，若整行会
     // 遮住大半立绘也同样汇总，保持角色识别优先。
     // 折叠态「+N」与徽记一样只是卡面的一部分：点它就是点卡片（打开详情窗，全部状态在窗内）。
-    if ((this.statusCollapsed || visuallyDense) && all.length > 0) {
+    // Preserve the original desktop and landscape status counts and sizes.
+    const slots = Math.max(1, Math.floor((availableScreenWidth + gapScreen) / (this.statusBadgeSize * stage + gapScreen)));
+    const visibleCount = this.portraitCompactStatuses && all.length > 0
+      ? Math.min(all.length, 2, Math.max(1, slots - (all.length > slots ? 1 : 0)))
+      : all.length;
+    const remaining = all.length - visibleCount;
+    if (!this.portraitCompactStatuses && (this.statusCollapsed || visuallyDense) && all.length > 0) {
       this.statusStripEl.innerHTML = `<span class="status-more" role="img" aria-label="${all.length} 个状态">+${all.length}</span>`;
     } else {
       const recovery = statusRecoveryChance(this.char);
-      this.statusStripEl.innerHTML = all
+      this.statusStripEl.innerHTML = all.slice(0, visibleCount)
       .map((s) => {
         const b = statusBadge(s.id);
         // 角标只给有意义的数：出血层数 / 仍倒计时的辅助状态回合。官方无时限状态不显示
@@ -1192,7 +1211,9 @@ export class CharacterCard {
         const aria = `${positive ? '增益' : '减益'}：${b.label}${live ? ' · ' + live : ''}`;
         return `<span class="status-badge ${positive ? 'sb-pos' : 'sb-neg'}" data-status-id="${escAttr(s.id)}" data-status-label="${escAttr(b.label)}" data-live="${escAttr(live)}" role="img" aria-label="${escAttr(aria)}" style="--sb:${b.color}">${statusBadgeIcon(s.id)}${cornerHtml}</span>`;
       })
-      .join('');
+      .join('') + (remaining > 0
+        ? `<span class="status-more" role="img" aria-label="+${remaining}">+${remaining}</span>`
+        : '');
     }
     if (!statusDiscoveryShown && all.length > 0) {
       const first = this.statusStripEl.querySelector('.status-badge,.status-more');

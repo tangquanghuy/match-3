@@ -9,6 +9,9 @@
   grid-template-columns: minmax(0, 1fr) 124px;
   gap: 12px;
 }
+/* Keep intrinsic portrait sizes from stretching their existing grid cells. */
+.team-screen .slot-wrap { min-width: 0; }
+.team-screen .slot-art img { display: block; }
 .team-screen .lineup-body .slots { min-height: 0; }
 
 /* ---- 旗帜展示位：彩绘旗面挂在四名成员旁边 ---- */
@@ -50,6 +53,8 @@
 .banner-post.is-empty .bp-change { background: linear-gradient(180deg, #5a4318, #2c200c); border-color: #f0cf78; }
 
 /* ---- 队伍仪表：永久王国与同王国编队加成收进下拉面板 ---- */
+/* The switcher menu must stay above the gauge trigger when both details are open. */
+.team-screen .team-switcher { z-index: 30; }
 .team-screen .team-gauge { position: relative; z-index: 12; }
 .team-screen .kingdom-bonus-details { position: relative; flex: none; margin-left: auto; }
 .team-screen .kingdom-bonus-details summary {

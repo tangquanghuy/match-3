@@ -132,7 +132,64 @@ test('667x375 4v4 aggregates statuses without covering the character art', async
   await expect(cards.first().locator('.status-badge')).toHaveCount(0);
   expect((await summary.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(23.5);
   await expectRestoredCard(cards.first());
+  const traits = await cards.first().evaluate((el) => {
+    const icons = [...el.querySelectorAll('.trait-badge')].map((node) => node.getBoundingClientRect());
+    const more = el.querySelector('.status-more')!.getBoundingClientRect();
+    return { icons: icons.map((r) => ({ x: r.x, y: r.y, right: r.right })), moreLeft: more.left };
+  });
+  expect(traits.icons.length).toBeGreaterThanOrEqual(2);
+  expect(Math.abs(traits.icons[0].x - traits.icons[1].x)).toBeLessThan(2);
+  expect(traits.icons[1].y).toBeGreaterThan(traits.icons[0].y);
+  expect(Math.max(...traits.icons.map((icon) => icon.right))).toBeLessThanOrEqual(traits.moreLeft + 1);
+  await page.mouse.move(660, 360);
   await page.screenshot({ path: 'artifacts/ux-phase-b/shots/battle-card-restored-4v4-667x375.png' });
+});
+
+test('portrait battle keeps compact status icons and no dotted enchanted ellipse', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openBattle(page);
+  await addStatuses(page, 3);
+  const card = page.locator('.gcard.ally').first();
+  const badges = card.locator('.status-badge');
+  await expect.poll(() => badges.count()).toBeGreaterThanOrEqual(1);
+  const count = await badges.count();
+  expect(count).toBeLessThanOrEqual(2);
+  await expect(card.locator('.status-more')).toHaveText(`+${3 - count}`);
+  const sizes = await card.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    const badge = el.querySelector('.status-badge')!.getBoundingClientRect();
+    const more = el.querySelector('.status-more')!.getBoundingClientRect();
+    return { cardRight: rect.right, badgeRight: badge.right, moreRight: more.right, badgeWidth: badge.width };
+  });
+  expect(sizes.badgeWidth).toBeLessThanOrEqual(17);
+  expect(sizes.badgeRight).toBeLessThanOrEqual(sizes.cardRight + 1);
+  expect(sizes.moreRight).toBeLessThanOrEqual(sizes.cardRight + 1);
+  const layout = await card.evaluate((el) => {
+    const badge = el.querySelector('.status-badge')!.getBoundingClientRect();
+    const more = el.querySelector('.status-more')!.getBoundingClientRect();
+    const traits = Array.from(el.querySelectorAll('.trait-badge')).map((node) => node.getBoundingClientRect());
+    return { badgeTop: badge.top, moreTop: more.top, moreLeft: more.left, badgeRight: badge.right,
+      traits: traits.map((r) => ({ x: r.x, y: r.y })) };
+  });
+  expect(Math.abs(layout.badgeTop - layout.moreTop)).toBeLessThan(2);
+  expect(layout.moreLeft).toBeGreaterThanOrEqual(layout.badgeRight - 1);
+  expect(layout.traits.length).toBeGreaterThanOrEqual(2);
+  expect(Math.abs(layout.traits[0].x - layout.traits[1].x)).toBeLessThan(2);
+  expect(layout.traits[1].y).toBeGreaterThan(layout.traits[0].y);
+  await page.screenshot({ path: 'artifacts/ux-phase-b/shots/battle-card-portrait-390x844.png' });
+  await page.evaluate(() => {
+    const card = document.querySelector('.gcard.ally');
+    card?.classList.add('status-accent-enchanted');
+  });
+  await expect(card.locator('.status-accent-layer')).toHaveCSS('opacity', '1');
+  const style = await card.locator('.status-accent-layer').evaluate((el) => getComputedStyle(el, '::before').borderTopStyle);
+  expect(style).toBe('solid');
+  await card.evaluate((el) => {
+    el.classList.remove('status-accent-enchanted');
+    el.classList.add('status-accent-curse');
+  });
+  const curseStyle = await card.locator('.status-accent-layer').evaluate((el) => getComputedStyle(el, '::before').borderTopStyle);
+  expect(curseStyle).toBe('solid');
 });
 
 test('desktop battle cards keep magic and traits without the rejected name or mana rows', async ({ page }) => {
