@@ -1029,8 +1029,9 @@ export function createGemsMixAny(
  * 百分点）在原语内部掷签——掷签失败时目标解析照常入跨段追踪，后段 dmg('lastTarget') 在
  * 成功时自动空转（目标已死）、失败时正常生效（8573「否则则造成伤害」无需额外条件）。
  */
-export function devour(target: TargetMode, opts: SegmentOpts & { chance: number; chanceMult?: { times: number; cond: import('./effects/secondary').Condition }; gain?: { attack?: number; armor?: number; magic?: number; hp?: number } }): DevourSegment {
+export function devour(target: TargetMode, opts: SegmentOpts & { chance: number; n?: number; chanceMult?: { times: number; cond: import('./effects/secondary').Condition }; gain?: { attack?: number; armor?: number; magic?: number; hp?: number } }): DevourSegment {
   const seg = attach({ kind: 'devour', target, chance: opts.chance } as DevourSegment, opts);
+  if (opts.n !== undefined) seg.n = opts.n;
   if (opts.chanceMult !== undefined) seg.chanceMult = opts.chanceMult;
   return seg;
 }

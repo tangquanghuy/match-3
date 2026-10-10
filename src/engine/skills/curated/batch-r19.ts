@@ -111,13 +111,12 @@ const SPELLS: CuratedBatch['spells'] = [
     id: 8715,
     desc: '摧毁所有绿色宝石。创造蓝色宝石，数量等同于被摧毁的宝石数。有个别 30% 的几率吞噬 2 名随机敌人。 [1:1]',
     // 蓝宝石数量 = destroyedGems Green ×1（官方 UseCounterForAmount CreateGems）；「个别 30%」=
-    // 两次独立掷签（官方 Consume + Consume RandomPrefNotPrevEnemy，8063 独立随机口径）
+    // Pick two distinct enemies without replacement, then roll 30% independently for each.
     build: skill(
       destroyColor(BaseColor.Green),
       createGems(BaseColor.Blue, 0, 0, { modifier: { mod: { kind: 'multiplier', a: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Green } } }),
-      // sa-R5 L1-7155: native Consume@RandomEnemy 30% + Consume@RandomPrefNotPrevEnemy 30% (real Devours, R007-3).
-      devour('enemyRandom', { chance: 0.3 }),
-      devour('enemyRandomPrefNotPrev', { chance: 0.3 }),
+      // Pick up to two distinct living foes BEFORE rolling; immunity on one never affects the other's 30% roll.
+      devour('enemyRandomN', { chance: 0.3, n: 2 }),
     ),
   },
   {

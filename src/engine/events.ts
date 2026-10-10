@@ -96,6 +96,11 @@ export interface AttackStruggleEvent extends TraitPresentation {
   targetId?: number;
 }
 
+/** Presentation-only barrier: finish the preceding spell step before the next phase starts. */
+export interface SkillPhaseBoundaryEvent {
+  type: 'skill-phase-boundary';
+}
+
 export interface SkillCastEvent {
   type: 'skill-cast';
   characterId: number;
@@ -412,6 +417,7 @@ export type GameEvent = (
   | SkullDamageEvent
   | AttackStruggleEvent
   | SkillCastEvent
+  | SkillPhaseBoundaryEvent
   | SkillDamageEvent
   | GemCreateEvent
   | GemTransformEvent

@@ -418,6 +418,8 @@ export interface TransformTroopSegment extends SegmentOptions {
 export interface DevourSegment extends SegmentOptions {
   kind: 'devour';
   target: TargetMode;
+  /** Random distinct targets are selected as a group before independent per-target rolls. */
+  n?: number;
   /** 基础概率（0~1） */
   chance: number;
   /** 概率条件倍率（「若敌人是纳迦族则几率翻倍」） */

@@ -1541,13 +1541,13 @@
  },
  "troop:7155": {
   "lines": {
-   "L10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 max+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 max+300 arm+12 atk+17  cascade",
-   "R10": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 max+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 max+300 arm+12 atk+17  cascade",
-   "L0": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 312 devoured ; defeat E12 ; buff C attack+17 ; buff C armor+12 ; buff C hp+300 max+300 ; ~cascade~  => E12:hp-300 arm-12 DEAD | C:hp+300 max+300 arm+12 atk+17  cascade",
-   "K": "destroy 13 (Green x13) ; convert skull x1, Brown x2, Red x2, Yellow x3, Purple x4, Green x1 -> Blue x13 ; dmg E12 1 devoured ; defeat E12 ; buff C attack+17 ; buff C hp+1 max+1 ; ~cascade~  => E12:hp-1 DEAD | C:hp+1 max+1 atk+17  cascade"
+   "L10": "destroy 13 (Green x13) ; create Blue x13",
+   "R10": "destroy 13 (Green x13) ; create Blue x13",
+   "L0": "destroy 13 (Green x13) ; create Blue x13",
+   "K": "destroy 13 (Green x13) ; create Blue x13"
   },
-  "by": "devour maxHp display regression",
-  "at": "2026-10-06T16:49:22.830Z"
+  "by": "Piscea independent devour and post-spell board settlement",
+  "at": "2026-10-10T07:19:45.858Z"
  },
  "troop:7157": {
   "lines": {
