@@ -381,7 +381,7 @@ export interface MetaSave {
   materials: Materials;
   /** 有新素材入账且尚未进入材料库查看；加性 UI 状态，旧档默认为 false */
   materialsUnread: boolean;
-  /** 历史总单数保留；新版折扣按材料配方档位分别累计，不按天/周重置。 */
+  /** 金币秘法旧优惠计数仅为存档兼容保留；宝石组合折扣按档位分别累计。 */
   materialShop: { arcaneIntroPurchased: number; gemBundlesPurchased: number; gemDiscountPurchases: Record<string, number> };
   /** 武器淬炼等级（加性字段，version 仍为 2） */
   weaponTempering: WeaponTempering;

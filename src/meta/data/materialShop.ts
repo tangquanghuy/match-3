@@ -8,15 +8,13 @@ export interface MaterialShopPricing {
   revision: number;
   gold: Record<TraitstoneTier, number | null>;
   gems: Record<TraitstoneTier, number | null>;
-  arcaneIntro?: { limit: number; unitGold: number };
   gemBundleDiscounts?: Readonly<Record<number, readonly number[]>>;
 }
 /** 金币为高价补缺渠道；宝石按真实配方合计。null 仍可用于暂停某品阶销售。 */
 export const MATERIAL_SHOP_PRICING: MaterialShopPricing = {
-  revision: 7,
-  gold: { minor: 3_000, major: 12_000, runic: 60_000, arcane: 1_000_000, celestial: 2_000_000 },
+  revision: 8,
+  gold: { minor: 3_000, major: 12_000, runic: 60_000, arcane: 500_000, celestial: 2_000_000 },
   gems: { minor: 5, major: 15, runic: 55, arcane: 180, celestial: 490 },
-  arcaneIntro: { limit: 84, unitGold: 500_000 },
   gemBundleDiscounts: {
     0: [3, 4, 5, 6, 7, 8],
     1: [3, 4, 5, 6, 7, 8],

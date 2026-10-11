@@ -132,13 +132,13 @@ test('活动奖励子页展示真实难度与独立周额度', async ({ page }) 
 });
 
 
-test('金币跨优惠额度正确扣费、重载保留并恢复原价', async ({ page }) => {
+test('秘法石金币固定50万，旧优惠额度用完也不涨价', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openShop(page);
   await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);
     s.currencies.gold = 10_000_000;
-    s.materialShop = { arcaneIntroPurchased: 82, gemBundlesPurchased: 0 };
+    s.materialShop = { arcaneIntroPurchased: 84, gemBundlesPurchased: 0 };
     s.materials.traitstones['arcane:blue:blue'] = 0;
     localStorage.setItem('gems.meta.save', JSON.stringify(s));
   });
@@ -147,9 +147,9 @@ test('金币跨优惠额度正确扣费、重载保留并恢复原价', async ({
   await page.locator('[data-stone="arcane:blue:blue"]').click();
   await page.locator('#materialCount').fill('5');
   await page.locator('#materialCount').press('Tab');
-  await expect(page.locator('.material-promo-badge')).toHaveText('秘法优惠');
-  await expect(page.locator('.material-price')).toContainText('本次 2 颗享 500,000 金币优惠价 · 3 颗按原价');
-  await expect(page.locator('#materialBuy')).toHaveText('4,000,000 金币 · 购买');
+  await expect(page.locator('.material-promo-badge')).toHaveCount(0);
+  await expect(page.locator('.material-price')).toContainText('500,000 金币 / 颗');
+  await expect(page.locator('#materialBuy')).toHaveText('2,500,000 金币 · 购买');
   await page.locator('#materialBuy').click();
   await expect(page.locator('.acquisition-dialog')).toContainText('材料已入库');
   await expect(page.locator('.acquisition-dialog')).toContainText('×5');
@@ -158,16 +158,16 @@ test('金币跨优惠额度正确扣费、重载保留并恢复原价', async ({
   expect(await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);
     return [s.currencies.gold, s.materialShop.arcaneIntroPurchased, s.materials.traitstones['arcane:blue:blue']];
-  })).toEqual([6_000_000, 84, 5]);
+  })).toEqual([7_500_000, 84, 5]);
   await page.reload();
   await page.locator('[data-tier="arcane"]').click();
   await page.locator('#materialBuy').scrollIntoViewIfNeeded();
   await expect(page.locator('.material-promo-badge')).toHaveCount(0);
-  await expect(page.locator('#materialBuy')).toHaveText('1,000,000 金币 · 购买');
+  await expect(page.locator('#materialBuy')).toHaveText('500,000 金币 · 购买');
   await page.screenshot({ path: 'artifacts/material-shop/priced-390.png' });
 });
 
-test('宝石整套成交按真实配方入库，不消耗金币秘法优惠；余额不足禁购', async ({ page }) => {
+test('宝石整套成交按真实配方入库，不改变金币秘法历史计数；余额不足禁购', async ({ page }) => {
   await openShop(page);
   await page.evaluate(() => {
     const s = JSON.parse(localStorage.getItem('gems.meta.save')!);

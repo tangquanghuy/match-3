@@ -15,7 +15,7 @@ export interface MaterialShopQuote {
   stones: Record<string, number>;
   slots: number[];
   signature: string;
-  goldLine?: { regularUnit: number; regularCount: number; discountUnit: number; discountCount: number; remaining: number; limit: number };
+  goldLine?: { regularUnit: number };
   gemOffer?: { regularPrice: number; discount: number; purchased: number; nextDiscount: number | null; tier: number; tierName: string };
 }
 export type MaterialShopBuyResult = { ok: true; currency: 'gold' | 'gems'; spent: number; mats: MaterialDelta } | MetaFailure;
@@ -82,14 +82,7 @@ export function materialShopQuote(save: MetaSave, request: MaterialShopRequest, 
   let goldLine: MaterialShopQuote['goldLine'];
   if (request.kind === 'gold' && price !== null) {
     const regularUnit = pricing.gold[parseStoneKey(request.key)!.tier]!;
-    const intro = parseStoneKey(request.key)?.tier === 'arcane' ? pricing.arcaneIntro : undefined;
-    const purchased = save.materialShop?.arcaneIntroPurchased ?? 0;
-    const remaining = intro ? Math.max(0, intro.limit - purchased) : 0;
-    const discountCount = Math.min(request.count, remaining);
-    const discountUnit = intro?.unitGold ?? regularUnit;
-    if (!Number.isSafeInteger(discountUnit) || discountUnit <= 0 || discountUnit > regularUnit) return fail('INVALID', '商品价格配置异常');
-    price = discountCount * discountUnit + (request.count - discountCount) * regularUnit;
-    goldLine = { regularUnit, regularCount: request.count - discountCount, discountUnit, discountCount, remaining, limit: intro?.limit ?? 0 };
+    goldLine = { regularUnit };
   }
   const signature = JSON.stringify([pricing.revision, request, slots, stones, price, goldLine, gemOffer]);
   return { ok: true, currency: request.kind, stones, slots, price, signature, ...(goldLine ? { goldLine } : {}), ...(gemOffer ? { gemOffer } : {}) };
@@ -103,10 +96,6 @@ export function buyMaterialGoods(save: MetaSave, request: MaterialShopRequest, e
   const paid = spend(save, { [quote.currency]: quote.price });
   if (!paid.ok) return paid;
   const mats = earnMaterials(save, { traitstones: quote.stones });
-  if (quote.goldLine?.discountCount) {
-    save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0, gemDiscountPurchases: {} };
-    save.materialShop.arcaneIntroPurchased += quote.goldLine.discountCount;
-  }
   if (quote.currency === 'gems') {
     save.materialShop ??= { arcaneIntroPurchased: 0, gemBundlesPurchased: 0, gemDiscountPurchases: {} };
     save.materialShop.gemBundlesPurchased += 1;

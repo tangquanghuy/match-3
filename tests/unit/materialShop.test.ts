@@ -107,7 +107,7 @@ describe('材料商店：实际配方、价格审核与原子成交', () => {
 });
 
 
-describe('材料商店正式定价与账号优惠账本', () => {
+describe('材料商店金币固定定价', () => {
   const funded = () => { const s = fresh(); s.currencies.gold = 200_000_000; return s; };
   const order = (s: ReturnType<typeof fresh>, key: string, count: number) => {
     const request = { kind: 'gold' as const, key, count };
@@ -115,7 +115,7 @@ describe('材料商店正式定价与账号优惠账本', () => {
     if (!quote.ok) throw new Error(quote.message);
     return { request, quote };
   };
-  it('40种材料均有正式价格，金币高价补缺，秘法首次五折', () => {
+  it('40种材料均有正式价格，秘法固定50万一颗', () => {
     const s = funded();
     const prices: Record<string, number> = { minor: 3000, major: 12000, runic: 60000, arcane: 500000, celestial: 2000000 };
     for (const key of MATERIAL_SHOP_KEYS) {
@@ -124,40 +124,38 @@ describe('材料商店正式定价与账号优惠账本', () => {
       expect(buyMaterialGoods(s, request, quote.signature).ok).toBe(true);
       expect(s.materials.traitstones[key]).toBe(1);
     }
-    expect(s.materialShop.arcaneIntroPurchased).toBe(21);
+    expect(s.materialShop.arcaneIntroPurchased).toBe(0);
   });
-  it('前84颗跨颜色共享；跨额度批量订单拆价，第85颗起原价', () => {
+  it('跨原优惠额度批量购买仍按每颗50万，颜色不影响价格', () => {
     const s = funded();
-    for (const [key, count, price] of [['arcane:blue:blue', 82, 41_000_000], ['arcane:blue:red', 5, 4_000_000], ['arcane:red:red', 1, 1_000_000]] as const) {
+    s.materialShop.arcaneIntroPurchased = 82;
+    for (const [key, count, price] of [['arcane:blue:blue', 82, 41_000_000], ['arcane:blue:red', 5, 2_500_000], ['arcane:red:red', 1, 500_000]] as const) {
       const { request, quote } = order(s, key, count);
       expect(quote.price).toBe(price);
-      if (count === 5) expect(quote.goldLine).toMatchObject({ remaining: 2, discountCount: 2, regularCount: 3 });
+      expect(quote.goldLine).toEqual({ regularUnit: 500_000 });
       expect(buyMaterialGoods(s, request, quote.signature)).toMatchObject({ ok: true, spent: price });
     }
-    expect(s.materialShop.arcaneIntroPurchased).toBe(84);
-    expect(s.currencies.gold).toBe(154_000_000);
+    expect(s.materialShop.arcaneIntroPurchased).toBe(82);
+    expect(s.currencies.gold).toBe(156_000_000);
   });
-  it('优惠消耗后其他颜色旧报价失效；失败不扣款、不扣额度', () => {
+  it('其他颜色报价不因购买失效；余额不足不扣款', () => {
     const s = funded();
     const old = order(s, 'arcane:blue:red', 3);
     const first = order(s, 'arcane:blue:blue', 1);
     expect(buyMaterialGoods(s, first.request, first.quote.signature).ok).toBe(true);
-    const before = structuredClone(s);
-    expect(buyMaterialGoods(s, old.request, old.quote.signature)).toMatchObject({ ok: false, code: 'INVALID' });
-    expect(s).toEqual(before);
+    expect(buyMaterialGoods(s, old.request, old.quote.signature)).toMatchObject({ ok: true, spent: 1_500_000 });
     s.currencies.gold = 499_999;
     const next = order(s, 'arcane:blue:red', 1);
     const poor = structuredClone(s);
     expect(buyMaterialGoods(s, next.request, next.quote.signature)).toMatchObject({ ok: false, code: 'INSUFFICIENT' });
     expect(s).toEqual(poor);
   });
-  it('跨日周、序列化、旧档加载保留正确额度；畸形账本清洗', () => {
+  it('旧档优惠计数只保留兼容，不参与跨日周和重载后的定价；畸形账本清洗', () => {
     const s = funded();
-    const { request, quote } = order(s, 'arcane:blue:blue', 84);
-    buyMaterialGoods(s, request, quote.signature);
+    s.materialShop.arcaneIntroPurchased = 84;
     const loaded = parseSaveJson(serializeSave(s), 30 * 86400_000);
     expect(loaded.materialShop.arcaneIntroPurchased).toBe(84);
-    expect(order(loaded, 'arcane:blue:red', 1).quote.price).toBe(1_000_000);
+    expect(order(loaded, 'arcane:blue:red', 1).quote.price).toBe(500_000);
     const legacy: Record<string, unknown> = { ...s };
     delete legacy.materialShop;
     expect(hydrateSave(legacy).materialShop.arcaneIntroPurchased).toBe(0);
@@ -175,7 +173,7 @@ describe('材料商店正式定价与账号优惠账本', () => {
     expect(buyMaterialGoods(s, request, q.signature, paused).ok).toBe(false);
     expect(s).toEqual(before);
   });
-  it('优惠订单重复请求按过期报价拦截；跨网关重载持久化优惠和材料', async () => {
+  it('固定价允许相同报价重复购买；跨网关重载持久化材料和扣款', async () => {
     const s = funded(); const storage = memoryStorage();
     storage.setItem('gems.meta.save', serializeSave(s));
     const authority = new LocalTransport(storage, { now: () => 1234 });
@@ -185,12 +183,12 @@ describe('材料商店正式定价与账号优惠账本', () => {
     const first = await authority.send(command);
     expect(first.result).toMatchObject({ ok: true, spent: 1_000_000 });
     const retry = await authority.send(command);
-    expect(retry.result).toMatchObject({ ok: false, code: 'INVALID' });
+    expect(retry.result).toMatchObject({ ok: true, spent: 1_000_000 });
     const gateway = new MockGateway(storage, { now: () => 10 * 86400_000 });
     await gateway.load();
-    expect(gateway.current().materialShop.arcaneIntroPurchased).toBe(2);
-    expect(gateway.current().materials.traitstones['arcane:blue:blue']).toBe(2);
-    expect(gateway.current().currencies.gold).toBe(199_000_000);
+    expect(gateway.current().materialShop.arcaneIntroPurchased).toBe(0);
+    expect(gateway.current().materials.traitstones['arcane:blue:blue']).toBe(4);
+    expect(gateway.current().currencies.gold).toBe(198_000_000);
   });
 });
 
