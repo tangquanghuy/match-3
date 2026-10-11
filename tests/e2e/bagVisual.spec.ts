@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { INGOT_KEYS } from '../../src/meta/data/materials';
 
 // Layout assertions should not wait for the optional third-party font CDN.
 test.beforeEach(async ({ page }) => {
@@ -8,16 +9,20 @@ test.beforeEach(async ({ page }) => {
 test('材料库以物品格展示，并在桌面侧栏切换详情', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/game.html#bag/ingots');
-  await expect(page.locator('.bag-item')).toHaveCount(7);
+  await expect(page.locator('.bag-item')).toHaveCount(INGOT_KEYS.length);
   await expect(page.locator('.bag-detail-card:visible')).toHaveCount(1);
 
   const first = page.locator('.bag-item').first();
+  const second = page.locator('.bag-item').nth(1);
   const last = page.locator('.bag-item').last();
   const firstBox = await first.boundingBox();
+  const secondBox = await second.boundingBox();
   const lastBox = await last.boundingBox();
   expect(firstBox).not.toBeNull();
+  expect(secondBox).not.toBeNull();
   expect(lastBox).not.toBeNull();
-  expect(lastBox!.x - firstBox!.x).toBeGreaterThan(200);
+  expect(secondBox!.x).toBeGreaterThan(firstBox!.x);
+  expect(lastBox!.y).toBeGreaterThan(firstBox!.y);
 
   await last.click();
   await expect(last).toHaveAttribute('aria-pressed', 'true');
@@ -124,7 +129,7 @@ test('新增秘法石分页展示，手机详情和返回页正常', async ({ pa
   await expect(page.locator('.bag-item')).toHaveCount(19);
   await page.locator('[data-bag-item="arcane:blue:green"]').click();
   await expect(page.locator('.bag-detail-card:visible h3')).toHaveText('秘法沼泽属性石');
-  await expect(page.locator('.bag-detail-card:visible')).toContainText('探索');
+  await expect(page.locator('.bag-detail-card:visible')).toContainText('首通固定王国 · 可重复掉落');
   await page.locator('.bag-detail-close').click();
   await page.getByRole('link', { name: '下一页', exact: true }).click();
   await expect(page.locator('.bag-item')).toHaveCount(2);
@@ -152,9 +157,9 @@ test('特质石详情列出对应王国并能进入探索', async ({ page }) => 
   await page.goto('/game.html#bag/stones/arcane');
   await page.locator('[data-bag-item="arcane:blue:brown"]').click();
   const arcane = page.locator('.bag-detail-card:visible');
-  await expect(arcane).toContainText('特定王国探索掉落');
+  await expect(arcane).toContainText('首通固定王国 · 可重复掉落');
   await arcane.locator('.bag-farm summary').click();
-  await expect(arcane.locator('.bag-farm summary')).toContainText('特定王国探索掉落');
+  await expect(arcane.locator('.bag-farm summary')).toContainText('首通固定王国 · 可重复掉落');
   expect(await arcane.locator('.bag-farm button').count()).toBeGreaterThan(1);
   await expect(arcane.locator('.bag-farm button', { hasText: '破碎尖塔' })).toContainText('首通固定');
   await arcane.locator('.bag-farm button', { hasText: '破碎尖塔' }).click();

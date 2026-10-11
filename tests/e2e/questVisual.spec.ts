@@ -73,6 +73,7 @@ test('难度刻度支持键盘与边界，刷新后保持操作焦点', async ({
   await expect(page.locator('#exploreNext')).toBeDisabled();
   await page.keyboard.press('Home');
   await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '1');
+  await expect(page.locator('.ex-material')).toContainText('难度 1 基础抽取每次 1.5% 掉任意秘法石 · 其中 75% 为本王国秘法石');
   await expect(page.locator('#explorePrev')).toBeDisabled();
 });
 
@@ -108,7 +109,7 @@ test('全12档可选且保存，已通关可重复探索，旧路由导入新页
     await expect(page.locator('#exploreFight')).toBeEnabled();
     if (tier <= 6) await expect(page.locator('.ex-first-clear')).toHaveText('本难度首通已完成');
   }
-  await expect(page.locator('.ex-material')).toContainText('基础抽取每次 1% 掉秘法石');
+  await expect(page.locator('.ex-material')).toContainText('难度 12 基础抽取每次 7.2% 掉任意秘法石 · 其中 75% 为本王国秘法石');
   await page.reload();
   await expect(page.locator('.ex-difficulty-feature')).toHaveAttribute('data-tier', '12');
     await expect(page.locator('.ex-level')).toContainText('Lv.150');

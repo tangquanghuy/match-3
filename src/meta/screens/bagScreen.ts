@@ -257,7 +257,7 @@ export class BagScreen implements Screen {
       id: key, name: stoneName(key), count: save.materials.traitstones[key] ?? 0,
       art: stoneMarkup('arcane', key.slice(7)), tone: '#b487df', group: '秘法',
       purpose: '高阶特质解锁', hint: this.stoneHint(save, key, save.materials.traitstones[key] ?? 0),
-      source: '特定王国探索掉落',
+      source: '首通固定王国 · 可重复掉落',
       farmKingdoms: kingdomsForExploreStone(key), destination: '#map', action: '查看王国地图',
     }));
     return [...stones, ...arcane, {

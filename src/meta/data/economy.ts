@@ -426,21 +426,22 @@ export const EXPLORE_DROPS = {
   runicStoneChance: 0.03,
   arcaneStoneChance: 0.015,
   celestialStoneChance: 0.003,
-  /** 符文每升一级增加初始概率的 20%；圣辉难度 12 按指定的 1.44% 终值 */
+  /** 符文每升一级增加初始概率的 20%；秘法与圣辉共用难度倍率，圣辉难度 12 为 1.44% */
   rareStoneGrowthPerTier: 0.2,
   celestialStoneChanceAtMaxTier: 0.0144,
-  /** 随机特质石落在王国旗帜正向加成色中的概率（存在两类候选时） */
+  /** 基础石偏向旗帜颜色、秘法石偏向本王国首通秘法的概率 */
   bannerColorShare: 0.75,
 } as const;
 
 export function exploreStoneChances(tier: number) {
   const steps = Math.max(0, Math.min(EXPLORE_MAX_TIER - 1, tier - 1));
+  const celestial = EXPLORE_DROPS.celestialStoneChance
+    + steps * (EXPLORE_DROPS.celestialStoneChanceAtMaxTier - EXPLORE_DROPS.celestialStoneChance) / (EXPLORE_MAX_TIER - 1);
   return {
     major: EXPLORE_DROPS.majorStoneChance,
     runic: EXPLORE_DROPS.runicStoneChance * (1 + steps * EXPLORE_DROPS.rareStoneGrowthPerTier),
-    arcane: EXPLORE_DROPS.arcaneStoneChance,
-    celestial: EXPLORE_DROPS.celestialStoneChance
-      + steps * (EXPLORE_DROPS.celestialStoneChanceAtMaxTier - EXPLORE_DROPS.celestialStoneChance) / (EXPLORE_MAX_TIER - 1),
+    arcane: EXPLORE_DROPS.arcaneStoneChance * (celestial / EXPLORE_DROPS.celestialStoneChance),
+    celestial,
   };
 }
 

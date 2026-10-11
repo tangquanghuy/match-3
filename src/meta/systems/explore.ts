@@ -73,9 +73,14 @@ export function kingdomArcaneKey(kingdom: string): string {
   return `arcane:${first}:${colors[1] ?? first}`;
 }
 
-/** Prefer banner colours while preserving a route to every other eligible stone. */
+/** Arcane stones favor the kingdom's first-clear stone; lower tiers favor banner colours. */
 export function pickExploreStoneKey(kingdom: string, candidates: readonly string[], rng: SeededRNG): string | null {
   if (!candidates.length) return null;
+  const kingdomArcane = kingdomArcaneKey(kingdom);
+  if (candidates.length > 1 && candidates.every(key => key.startsWith('arcane:')) && candidates.includes(kingdomArcane)) {
+    const others = candidates.filter(key => key !== kingdomArcane);
+    return rng.next() < EXPLORE_DROPS.bannerColorShare ? kingdomArcane : others[rng.nextInt(others.length)]!;
+  }
   const boosted = new Set(kingdomBoostedStoneColors(kingdom));
   const preferred = candidates.filter(key => parseStoneKey(key)?.colorKey?.split(':').some(color => boosted.has(color)));
   const others = candidates.filter(key => !preferred.includes(key));
@@ -85,10 +90,11 @@ export function pickExploreStoneKey(kingdom: string, candidates: readonly string
   return pool[rng.nextInt(pool.length)]!;
 }
 
-/** Kingdoms whose banner gives this stone a colour affinity. */
+/** Preferred Explore sources: fixed first-clear kingdoms for Arcane, banner colours otherwise. */
 export function kingdomsForExploreStone(key: string): string[] {
   const stone = parseStoneKey(key);
   if (!stone || stone.tier === 'celestial') return [];
+  if (stone.tier === 'arcane') return KINGDOM_ORDER.filter(kingdom => kingdomArcaneKey(kingdom) === key);
   return KINGDOM_ORDER.filter(kingdom => {
     const boosted = kingdomBoostedStoneColors(kingdom);
     return stone.colorKey!.split(':').some(color => boosted.includes(color));

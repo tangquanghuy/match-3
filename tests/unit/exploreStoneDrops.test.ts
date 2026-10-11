@@ -68,21 +68,19 @@ describe('探索特质石抽取与首通奖励', () => {
     expect(pickExploreStoneKey(kingdom, [], rng)).toBeNull();
     expect(kingdomsForExploreStone(keys[0]!)).toContain(kingdom);
   });
-  it('双色秘法石同时列出首通固定产地和其他旗帜匹配王国', () => {
-    const key = ARCANE_STONE_KEYS.find(stone => kingdomsForExploreStone(stone).some(k => kingdomArcaneKey(k) !== stone));
-    expect(key).toBeDefined();
-    const matches = kingdomsForExploreStone(key!);
-    expect(matches.some(k => kingdomArcaneKey(k) === key)).toBe(true);
-    expect(matches.some(k => kingdomArcaneKey(k) !== key)).toBe(true);
-    for (const k of matches) {
-      expect(key!.split(':').slice(1).some(color => kingdomBoostedStoneColors(k).includes(color))).toBe(true);
+  it('秘法石只将首通固定王国列为优先产地，随机抽中秘法后 75% 为该石', () => {
+    for (const key of ARCANE_STONE_KEYS) {
+      const matches = kingdomsForExploreStone(key);
+      expect(matches.length).toBeGreaterThan(0);
+      expect(matches.every(k => kingdomArcaneKey(k) === key)).toBe(true);
     }
     const boosted = kingdomBoostedStoneColors(kingdom);
     const rng = new SeededRNG(17);
     const picks = Array.from({ length: 4000 }, () => pickExploreStoneKey(kingdom, ARCANE_STONE_KEYS, rng));
-    const favored = picks.filter(key => key?.split(':').slice(1).some(color => boosted.includes(color))).length;
+    const favored = picks.filter(key => key === kingdomArcaneKey(kingdom)).length;
     expect(favored / picks.length).toBeGreaterThan(0.72);
     expect(favored / picks.length).toBeLessThan(0.78);
+    expect(picks.some(key => key !== kingdomArcaneKey(kingdom) && key?.split(':').slice(1).every(color => !boosted.includes(color)))).toBe(true);
   });
   it.each(['hard', 'veryHard'] as const)('%s 奖励预览标明本王国更易掉落的颜色', mode => {
     for (const k of KINGDOM_ORDER) for (const node of [1, 2, 3]) {
@@ -128,12 +126,34 @@ describe('探索特质石抽取与首通奖励', () => {
     expect(Object.values(boss).reduce((sum, n) => sum + n, 0)).toBe(9);
     expect(boss[kingdomArcaneKey(kingdom)]).toBeGreaterThanOrEqual(1);
   });
-  it('难度 12 圣辉单次 1.44%，符文按每级基础概率增加 20%', () => {
+  it('秘法和圣辉使用相同难度倍率，符文每级增加基础概率的 20%', () => {
     expect(exploreStoneChances(1)).toMatchObject({ major: 0.15, runic: 0.03, arcane: 0.015, celestial: 0.003 });
     expect(exploreStoneChances(6).runic).toBeCloseTo(0.06);
-    expect(exploreStoneChances(6).arcane).toBeCloseTo(0.015);
+    for (const tier of [1, 2, 6, 11, 12]) {
+      const chances = exploreStoneChances(tier);
+      expect(chances.arcane / EXPLORE_DROPS.arcaneStoneChance).toBeCloseTo(chances.celestial / EXPLORE_DROPS.celestialStoneChance);
+    }
     expect(exploreStoneChances(6).celestial).toBeCloseTo((0.002 + 5 * (0.0096 - 0.002) / 11) * 1.5);
     expect(exploreStoneChances(12).celestial).toBeCloseTo(0.0144);
+    expect(exploreStoneChances(12).arcane).toBeCloseTo(0.072);
     expect(exploreStoneChances(12).runic).toBeCloseTo(0.096);
+  });
+  it('高难度提升实际秘法掉落，结算明细与背包入账一致', () => {
+    const arcaneTotal = (tier: number) => Array.from({ length: 200 }, (_, i) => stoneDrop(i + 1, undefined, 5, tier))
+      .reduce((sum, drops) => sum + Object.entries(drops).reduce((n, [key, amount]) => n + (key.startsWith('arcane:') ? amount : 0), 0), 0);
+    expect(arcaneTotal(12)).toBeGreaterThan(arcaneTotal(1));
+
+    const save = newSave({ now: 0, starterTroopIds: [6000] });
+    const plan = planExploreEncounter(kingdom, 12, 29, 5);
+    const detail = applySettlement(save, result(29), { plan, todayStart: 0, enemyByExternalId: new Map() });
+    const drops = detail.lines.find(line => line.key === 'explore-drop')?.mats?.traitstones ?? {};
+    for (const [key, amount] of Object.entries(drops)) expect(save.materials.traitstones[key]).toBe(amount);
+    expect(drops[kingdomArcaneKey(kingdom)]).toBeGreaterThanOrEqual(1);
+
+    const defeated = newSave({ now: 0, starterTroopIds: [6000] });
+    const loss = applySettlement(defeated, { ...result(29), winner: 'enemy' },
+      { plan, todayStart: 0, enemyByExternalId: new Map() });
+    expect(loss.lines.some(line => line.key === 'explore-drop')).toBe(false);
+    expect(Object.values(defeated.materials.traitstones).every(amount => amount === 0)).toBe(true);
   });
 });
