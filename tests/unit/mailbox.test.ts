@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EVENT_MILESTONES, EVENT_SHARED_GOALS } from '../../src/meta/data/events';
 import { INVASION_RANKS } from '../../src/meta/data/invasionRanks';
-import { REGION_REWARDS } from '../../src/meta/data/regionalPvp';
+import { REGION_REWARDS, REGION_LEGACY_GEMS } from '../../src/meta/data/regionalPvp';
 import { newSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { ensureEventWeek } from '../../src/meta/systems/events';
@@ -36,7 +36,7 @@ describe('周奖励补发邮件', () => {
     });
     expect(event.materials.traitstones).toMatchObject({ 'runic:red': 2, 'runic:blue': 2 });
     const regional = loaded.mailbox.items.find(item => item.id.startsWith('weekly-double:regional:'))!;
-    expect(regional.currencies).toMatchObject({ gold: REGION_REWARDS[0]!.gold / 2, gems: REGION_REWARDS[0]!.gems / 2, souls: REGION_REWARDS[0]!.souls / 2 });
+    expect(regional.currencies).toMatchObject({ gold: REGION_REWARDS[0]!.gold / 2, gems: REGION_LEGACY_GEMS[0] / 2, souls: REGION_REWARDS[0]!.souls / 2 });
     expect(JSON.stringify(regional)).not.toContain('burning');
     const rank = loaded.mailbox.items.find(item => item.id.startsWith('weekly-double:invasion-ranks:'))!;
     expect(rank.currencies.gems).toBe(INVASION_RANKS[0]!.gems / 2);

@@ -6,12 +6,13 @@ import { regionalArt, eventArt } from '../shell/artAssets';
 import { escapeHtml as esc } from './troopCard';
 import { troopImg } from './teamScreen';
 import { getTroopById } from '../../data/troops';
+import { CURRENCY_ICON } from './kingdomSheet';
 import { renderSpell } from '../shell/spellText';
 import { isFailure } from '../gateway';
 import { weekStartOf, todayStartOf } from '../gateway/clock';
 import { regionalState, regionalProgress, activeRegions, regionOpen, nextRegionWeek, regionalRule, regionalFrenzy, regionalTeamIssue, previewRegionalEnemy, previewRegionalBattle, planRegional, type RegionalPlanArgs, type RegionalAction } from '../systems/regionalPvp';
 import { buildPlayerSnapshots } from '../systems/battleBridge';
-import { REGIONS, regionDefinition, isRegionId, type RegionId, REGION_UNLOCK_LEVEL, REGION_REWARDS, REGION_TIERS, MONOLITHS, MONOLITH_LEVELS } from '../data/regionalPvp';
+import { REGIONS, regionDefinition, isRegionId, type RegionId, REGION_UNLOCK_LEVEL, REGION_REWARDS, REGION_LEGACY_GEMS, REGION_TIERS, MONOLITHS, MONOLITH_LEVELS } from '../data/regionalPvp';
 import type { CombatantSnapshot } from '../../session/contract';
 import type { MonolithId } from '../state/regional';
 
@@ -32,7 +33,7 @@ function atlas(ctx:ShellCtx):string {
   const def=regionDefinition(id)!,r=regionalRule(resting?nextRegionWeek(id,week):week,id),p=s.regions[id];
   return `<a class="rg-destination ${id==='CentralSpire'?'rg-central':''} ${resting?'rg-resting':''}" data-region-card="${id}" href="#regional/region/${id}" style="--rg-scene:url('${scene(id)}');--rg-accent:${def.accent}"><span class="rg-destination-state">${resting?dateText(nextRegionWeek(id,week))+' 开放':id==='CentralSpire'?'常驻战场':regionalFrenzy(now,id)?'血怒 · 积分 ×2':'本周开放'}</span><div><small>${def.subtitle}</small><h2>${def.name}</h2><p>${r.name}${r.restriction.kind==='none'?'':'限定'}${r.gem?' · '+r.gem.name:''}</p><span>${resting?'查看战区 ›':p.citadel.stage?`城塞进军 ${p.citadel.stage} / 4 · 进入战区 ›`:'进入战区 ›'}</span></div></a>`;
  };
- return `<section class="rg-atlas"><div class="rg-atlas-heading"><div><small>IMMORTAL REALMS</small><h1>永生战域</h1><p>中央尖塔常驻 · 每周两处特色战区</p></div><div class="rg-atlas-wallet"><b>${n(s.vp)}</b><span>本周总积分</span><small>城塞符印 ${s.sigils} / 6</small></div></div><div class="rg-active-regions">${open.map(id=>card(id)).join('')}</div><div class="rg-heading rg-rest-heading"><div><h2>休整中的疆域</h2><p>每周一轮换 · ${dateText(week+7*86400000)} 更新</p></div>${link('rules','战域规则')}</div><div class="rg-rest-regions">${REGIONS.filter(r=>!open.includes(r.id)).map(r=>card(r.id,true)).join('')}</div></section>`;
+ return `<section class="rg-atlas"><div class="rg-atlas-heading"><div><small>IMMORTAL REALMS</small><h1>永生战域</h1><p>中央尖塔常驻 · 每周两处特色战区</p></div><div class="rg-atlas-wallet"><b>${n(s.vp)}</b><span>本周总积分</span><small>各战区符印与碑能独立</small></div></div><div class="rg-active-regions">${open.map(id=>card(id)).join('')}</div><div class="rg-heading rg-rest-heading"><div><h2>休整中的疆域</h2><p>每周一轮换 · ${dateText(week+7*86400000)} 更新</p></div>${link('rules','战域规则')}</div><div class="rg-rest-regions">${REGIONS.filter(r=>!open.includes(r.id)).map(r=>card(r.id,true)).join('')}</div></section>`;
 }
 function closedRegion(ctx:RegionCtx):string {
  const def=regionDefinition(ctx.region)!,week=nextRegionWeek(ctx.region,weekStartOf(ctx.gateway.now())),rule=regionalRule(week,ctx.region);
@@ -78,7 +79,7 @@ function prepare(ctx:RegionCtx,kind:string,id:string):string {
  return `<div class="rg-heading"><div><small>战前准备 · ${regionalRule(s.week,ctx.region).name}${regionalRule(s.week,ctx.region).restriction.kind==='none'?'':'限定'}</small><h1>${esc(plan.ok?plan.context.opponent.name:'队伍准备')}</h1></div>${link(kind==='duel'?'opponents':kind==='citadel'?'citadel':'monolith/'+id,'返回')}</div>
  <section class="rg-panel rg-team-panel"><div class="rg-team-heading"><h2>敌方队伍</h2><span>${enemy.length} 人</span></div>${enemy.length?cards(enemy,kind,id,'enemy',ctx.region):'<p>先配置符合本周规则的队伍，再查看本场敌方属性。</p>'}</section>
  <section class="rg-panel rg-team-panel"><div class="rg-heading"><h2>我的队伍</h2><a class="rg-button" href="#team/regional/region/${ctx.region}/prepare/${esc(kind)}/${esc(id)}">调整编队 ›</a></div>${cards(player,kind,id,'player',ctx.region)}</section>
- <div class="rg-launch"><p>${esc(issue??(!plan.ok?plan.message:'属性已计入本场血怒与有效巨石碑增益'))}</p><button class="rg-button rg-primary" data-fight="${esc(kind)}" data-id="${esc(id)}" ${!plan.ok?'disabled':''}>进入战斗${kind==='citadel'?' · 1 符印':kind==='monolith'?' · 1 碑能':''}</button></div>`;
+ <div class="rg-launch"><p>${esc(issue??(!plan.ok?plan.message:'属性已计入本场血怒与有效巨石碑增益'))}</p><button class="rg-button rg-primary" data-fight="${esc(kind)}" data-id="${esc(id)}" ${!plan.ok?'disabled':''}>进入战斗${kind==='citadel'?' · 胜利消耗 1 符印':kind==='monolith'?' · 1 碑能':''}</button></div>`;
 }
 function unit(ctx:RegionCtx,kind:string,id:string,side:string,index:string):string {
  const link=regionLinks(ctx.region);
@@ -89,12 +90,27 @@ function monolith(ctx:RegionCtx,id:string):string {
  const link=regionLinks(ctx.region);
  const m=MONOLITHS.find(m=>m.id===id);if(!m)return '<p>巨石碑不存在。</p>';
  const s=regionalState(ctx.save()),b=s.monoliths[m.id],active=b.expires>ctx.gateway.now(),level=active?b.level:0;
- return `<div class="rg-sanctum" style="--rg-art:url('${regionalArt('winter-sanctum')}')"><div class="rg-sanctum-copy"><small>区域备战 · 巨石碑</small><h1>${m.name}</h1><p>${m.description}，最多五阶。</p><p>${active?`当前 ${level} 阶 · 剩余 ${Math.ceil((b.expires-ctx.gateway.now())/60000)} 分钟`:'击败守卫，点亮巨石碑'}</p><ol class="rg-steps">${MONOLITH_LEVELS.map((lv,i)=>`<li class="${i<level?'complete':i===level?'current':''}"><span>${i+1}</span><div><b>第 ${i+1} 阶</b><small>守卫 Lv.${lv} · ${m.description.replace('每阶 ', '累计 ').replace('10%',`${(i+1)*10}%`)}</small></div></li>`).join('')}</ol><p>每次胜利延长 1 小时；增益用于区域对战与城塞。</p>${level<5?link('prepare/monolith/'+id,'挑战守卫 · 1 碑能','rg-primary'):'<strong>巨石碑已完全点亮</strong>'}<small>碑能 ${s.energy} / 10 · 每赢两场区域对战恢复 1 点</small></div></div>`;
+ return `<div class="rg-sanctum" style="--rg-art:url('${regionalArt('winter-sanctum')}')"><div class="rg-sanctum-copy"><small>区域备战 · 巨石碑</small><h1>${m.name}</h1><p>${m.description}，最多五阶。</p><p>${active?`当前 ${level} 阶 · 剩余 ${Math.ceil((b.expires-ctx.gateway.now())/60000)} 分钟`:'击败守卫，点亮巨石碑'}</p><ol class="rg-steps">${MONOLITH_LEVELS.map((lv,i)=>`<li class="${i<level?'complete':i===level?'current':''}"><span>${i+1}</span><div><b>第 ${i+1} 阶</b><small>守卫 Lv.${lv} · ${m.description.replace('每阶 ', '累计 ').replace('10%',`${(i+1)*10}%`)}</small></div></li>`).join('')}</ol><p>每次胜利延长 1 小时；增益用于区域对战与城塞。</p>${level<5?link('prepare/monolith/'+id,'挑战守卫 · 1 碑能','rg-primary'):'<strong>巨石碑已完全点亮</strong>'}<small>本区碑能 ${s.regions[ctx.region].energy} / 10 · 本区每赢两场区域对战恢复 1 点</small></div></div>`;
 }
 function citadel(ctx:RegionCtx):string {
- const link=regionLinks(ctx.region);const s=regionalState(ctx.save()),p=s.regions[ctx.region],def=regionDefinition(ctx.region)!;return `<div class="rg-sanctum rg-fortress" style="--rg-art:url('${scene(ctx.region)}')"><div class="rg-sanctum-copy"><small>个人城塞挑战</small><h1>${def.name}城塞</h1><p>突破四支守军，再迎战区域守护者。</p><ol class="rg-steps">${['外围巡卫','城门守军','要塞防线','内城近卫','区域守护者'].map((label,i)=>`<li class="${i<p.citadel.stage?'complete':i===p.citadel.stage?'current':''}"><span>${i===4?'Ⅴ':i+1}</span><div><b>${label}</b><small>${i===4?'胜利：燃烧灵魂 ×3（各区合计每周前五轮）':'区域积分与战利品'}</small></div></li>`).join('')}</ol><p>已完成 ${p.citadel.cycles} 轮 · 今日符印 ${s.sigils} / 6</p>${p.citadel.stage===4?link('prepare/citadel/-','挑战守护者 ›','rg-primary'):p.opponents.map(o=>link('prepare/citadel/'+o.id,`${REGION_TIERS[o.tier].name} · ${esc(o.name)} ›`)).join(' ')}<small>守护者战后开启新一轮；每次成功突破提升敌方强度。</small></div></div>`;}
-function rewards(ctx:ShellCtx):string {const s=regionalState(ctx.save());return `<div class="rg-heading"><div><small>每周奖励</small><h1>战域战利品</h1></div><span>${s.vp} 区域积分</span></div><div class="rg-rewards">${REGION_REWARDS.map((r,i)=>`<article class="rg-panel"><div><h2>${r.vp} 区域积分</h2><p>${r.cycles?`突破城塞 ${r.cycles} 轮`:'参与区域对战'}</p></div><p>黄金 ${n(r.gold)} · 宝石 ${r.gems}<br>灵魂 ${n(r.souls)} · 燃烧灵魂 ${r.burning}</p><button class="rg-button" data-claim="${i}" ${s.claimed.includes(i)||s.vp<r.vp||s.guardianWins<r.cycles?'disabled':''}>${s.claimed.includes(i)?'已领取':'领取奖励'}</button></article>`).join('')}</div>`;}
-const RULES=`<h1>永生战域规则</h1><h2>区域与周轮换</h2><p>中央尖塔常驻，不限制配队。其他九个战区每周开放两个：内环限定法力颜色（主角按装备武器判断），外环轮换种族或王国。主场不朽仅自身豁免限制，每队仍至多一名不朽。战区名称对应技能的主场条件。</p><h2>对手与血怒</h2><p>优先匹配合规指挥官镜像，不足时由成熟养成的区域守卫补位。敌方队伍在各战斗模式中最终属性统一下调约 30%；精锐、强敌、霸主有不同倍率，城塞另随突破轮数强化。两处特色战区每日轮换血怒：敌方四维额外 +50%，积分翻倍。中央尖塔不出现血怒。</p><h2>共享资源，独立进军</h2><p>各区分别保存对手、城塞进度和战绩。周总积分、周奖励、燃烧灵魂、碑能、巨石碑增益和每日符印由所有区域共用。城塞每天补满 6 枚符印，每战消耗 1 枚；四胜后挑战守护者，守护者战结束重开一轮，胜利提高本区下一轮强度。</p><p>全战域每周前五次击败守护者各得 3 个燃烧灵魂，周奖励另有合计 60 个。高级周奖励要求各区累计守护者胜场；切换区域不重置奖励额度。</p><h2>巨石碑</h2><p>每阶提升对应属性 10%，最多五阶，每胜延长 1 小时。增益用于所有区域对战和城塞，巨石碑自身不享受。每两场区域对战胜利恢复 1 点碑能，上限 10。</p><h2>周更与中断</h2><p>每周一重置各区进军、总积分和周奖励；燃烧灵魂、碑能及尚未到期的巨石碑增益保留。跨周战斗结算基础战利品，不计新周进度。战斗中刷新或离场按放弃处理，不退回消耗。</p><h2>当前范围</h2><p>城塞为个人挑战，不包含联盟占领、投票与区域全服排行。镜像战记录在进攻方战报，不改变对方普通入侵防守奖励及复仇记录。</p>`;
+ const link=regionLinks(ctx.region);const s=regionalState(ctx.save()),p=s.regions[ctx.region],def=regionDefinition(ctx.region)!;return `<div class="rg-sanctum rg-fortress" style="--rg-art:url('${scene(ctx.region)}')"><div class="rg-sanctum-copy"><small>个人城塞挑战</small><h1>${def.name}城塞</h1><p>突破四支守军，再迎战区域守护者。</p><ol class="rg-steps">${['外围巡卫','城门守军','要塞防线','内城近卫','区域守护者'].map((label,i)=>`<li class="${i<p.citadel.stage?'complete':i===p.citadel.stage?'current':''}"><span>${i===4?'Ⅴ':i+1}</span><div><b>${label}</b><small>${i===4?'胜利：燃烧灵魂 ×3（各区合计每周前五轮）':'区域积分与战利品'}</small></div></li>`).join('')}</ol><p>已完成 ${p.citadel.cycles} 轮 · 本区今日符印 ${p.sigils} / 6（胜利消耗）</p>${p.citadel.stage===4?link('prepare/citadel/-','挑战守护者 ›','rg-primary'):p.opponents.map(o=>link('prepare/citadel/'+o.id,`${REGION_TIERS[o.tier].name} · ${esc(o.name)} ›`)).join(' ')}<small>守护者战后开启新一轮；每次成功突破提升敌方强度。</small></div></div>`;}
+function rewards(ctx:ShellCtx):string {return weeklyRewards(ctx);}
+function weeklyRewards(ctx:ShellCtx):string {
+ const s=regionalState(ctx.save());
+ const item=(label:string,count:number,art:string)=>`<span class="rg-reward-item"><img src="${art}" alt=""><span>${label}</span><b>${n(count)}</b></span>`;
+ const tiers=REGION_REWARDS.map((r,i)=>{
+  const claimed=s.claimed.includes(i),pending=claimed&&!s.upgradedClaims.includes(i),locked=s.vp<r.vp||s.guardianWins<r.cycles;
+  return `<article class="rg-weekly-tier ${claimed&&!pending?'rg-weekly-claimed':''}"><div class="rg-weekly-goal"><small>第 ${i+1} 档</small><h2>${n(r.vp)} 积分</h2><span>${r.cycles?`守护者胜利 ${r.cycles} 次`:'累计区域积分'}</span></div><div class="rg-weekly-items">${pending?'':item('黄金',r.gold,CURRENCY_ICON.gold)}${item('宝石',pending?r.gems-REGION_LEGACY_GEMS[i]!:r.gems,CURRENCY_ICON.gems)}${item('荣耀',r.glory,CURRENCY_ICON.glory)}${pending?'':item('灵魂',r.souls,CURRENCY_ICON.souls)+`<span class="rg-reward-item rg-burning">${icon('soul')}<span>燃烧灵魂</span><b>${r.burning}</b></span>`}</div><button class="rg-button ${!locked&&(!claimed||pending)?'rg-primary':''}" data-claim="${i}" ${locked||claimed&&!pending?'disabled':''}>${pending?'领取新增奖励':claimed?'已领取':locked?'尚未解锁':'领取奖励'}</button></article>`;
+ }).join('');
+ return `<section class="rg-weekly"><div class="rg-heading"><div><small>每周奖励</small><h1>战域战利品</h1></div><span>本周积分 <b>${n(s.vp)}</b></span></div><div class="rg-weekly-totals">${item('宝石',REGION_REWARDS.reduce((total,r)=>total+r.gems,0),CURRENCY_ICON.gems)}${item('荣耀',REGION_REWARDS.reduce((total,r)=>total+r.glory,0),CURRENCY_ICON.glory)}<span>完成全部五档可获得</span></div><div class="rg-weekly-list">${tiers}</div></section>`;
+}
+const RULES=`<h1>永生战域规则</h1>
+<h2>区域与周轮换</h2><p>中央尖塔常驻，不限制配队。其他九个战区每周开放两个：内环限定法力颜色（主角按装备武器判断），外环轮换种族或王国。主场不朽仅自身豁免限制，每队仍至多一名不朽。战区名称对应技能的主场条件。</p>
+<h2>对手与血怒</h2><p>优先匹配合规指挥官镜像，不足时由成熟养成的区域守卫补位。敌方队伍在各战斗模式中最终属性统一下调约 30%；精锐、强敌、霸主有不同倍率，城塞另随突破轮数强化。两处特色战区每日轮换血怒：敌方四维额外 +50%，积分翻倍。中央尖塔不出现血怒。</p>
+<h2>独立资源，累计周奖励</h2><p>各区分别保存对手、城塞进度、战绩、每日符印与碑能。周总积分、周奖励、燃烧灵魂和巨石碑增益由所有区域共用。每区城塞每天补满 6 枚符印，只有胜利才消耗 1 枚；失败或放弃不扣符印。四胜后挑战守护者，守护者战结束重开一轮，胜利提高本区下一轮强度。</p><p>全战域每周前五次击败守护者各得 3 个燃烧灵魂，周奖励另有合计 60 个。高级周奖励要求各区累计守护者胜场；切换区域不重置奖励额度。</p>
+<h2>巨石碑</h2><p>每阶提升对应属性 10%，最多五阶，每胜延长 1 小时。增益用于所有区域对战和城塞，巨石碑自身不享受。本区每两场区域对战胜利恢复 1 点本区碑能，上限 10。</p>
+<h2>周更与中断</h2><p>每周一重置各区进军、总积分和周奖励；燃烧灵魂、各区碑能及尚未到期的巨石碑增益保留。跨周战斗结算基础战利品，不计新周进度。战斗中刷新或离场按放弃处理；城塞符印保留，挑战巨石碑已投入的碑能不返还。</p>
+<h2>当前范围</h2><p>城塞为个人挑战，不包含联盟占领、投票与区域全服排行。镜像战记录在进攻方战报，不改变对方普通入侵防守奖励及复仇记录。</p>`;
 function route(param:string|undefined):{region:RegionId|null;page:string;parts:string[];invalid:boolean} {
  const parts=(param??'').split('/');
  if(parts[0]==='region') {const id=parts[1];return {region:isRegionId(id)?id:null,page:parts[2]??'',parts:parts.slice(3),invalid:!isRegionId(id)};}

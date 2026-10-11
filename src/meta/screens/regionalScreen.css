@@ -231,3 +231,45 @@
   .rg-resting .rg-destination-state { left: 5px; padding: 3px 4px; font-size: 9px; }
   .rg-resting h2 { font-size: 13px; }
 }
+
+/* Weekly payout: compact rows with recognizable in-game currencies. */
+.rg-weekly { max-width: 1100px; margin: 0 auto; }
+.rg-weekly > .rg-heading { margin-bottom: 12px; }
+.rg-weekly > .rg-heading h1 { margin: 3px 0 0; font-size: 29px; }
+.rg-weekly > .rg-heading > span { color: #aebfc4; white-space: nowrap; }
+.rg-weekly > .rg-heading > span b { color: #efce94; }
+.rg-weekly-totals { display: flex; align-items: center; gap: 26px; padding: 10px 16px; margin-bottom: 12px; border-block: 1px solid #aa98674f; background: #1d3236; }
+.rg-weekly-totals > span:last-child { margin-left: auto; color: #adbdc0; font-size: 12px; }
+.rg-weekly-list { display: grid; gap: 8px; }
+.rg-weekly-tier { display: grid; grid-template-columns: 160px minmax(0,1fr) 120px; align-items: center; gap: 16px; min-height: 86px; padding: 10px 16px; border: 1px solid #a9946461; border-left: 3px solid #d5b775; border-radius: 4px; background: #192932; }
+.rg-weekly-claimed { border-left-color: #658782; opacity: .72; }
+.rg-weekly-goal h2 { margin: 1px 0; color: #f3dcaa; font-size: 20px; }
+.rg-weekly-goal small,.rg-weekly-goal > span { display: block; color: #aabdc3; font-size: 11px; line-height: 1.35; }
+.rg-weekly-items { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 16px; min-width: 0; }
+.rg-reward-item { display: inline-flex; align-items: center; gap: 5px; min-width: 105px; color: #aabdc3; font-size: 12px; white-space: nowrap; }
+.rg-reward-item img,.rg-reward-item svg { width: 25px; height: 25px; flex: none; object-fit: contain; }
+.rg-reward-item svg { color: #e5a569; fill: currentColor; }
+.rg-reward-item b { color: #f0e5c8; font-size: 15px; }
+.rg-weekly-tier > .rg-button { min-height: 38px; padding: 6px 8px; font-size: 12px; white-space: nowrap; }
+@media (max-width: 800px) {
+ .rg-weekly-tier { grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 9px 11px; }
+ .rg-weekly-items { grid-column: 1 / -1; grid-row: 2; }
+ .rg-weekly-tier > .rg-button { grid-column: 2; grid-row: 1; }
+ .rg-weekly-totals { flex-wrap: wrap; gap: 5px 15px; padding: 8px 10px; }
+ .rg-weekly-totals > span:last-child { width: 100%; margin: 0; }
+ .rg-reward-item { min-width: 95px; }
+}
+@media (max-width: 600px) {
+ .rg-weekly > .rg-heading { margin-bottom: 8px; }
+ .rg-weekly > .rg-heading h1 { font-size: 24px; }
+ .rg-weekly-totals { margin-bottom: 8px; }
+ .rg-weekly-list { gap: 6px; }
+ .rg-weekly-tier { min-height: 0; gap: 5px; padding: 7px 9px; }
+ .rg-weekly-goal h2 { font-size: 17px; }
+ .rg-weekly-goal small,.rg-weekly-goal > span { font-size: 10px; }
+ .rg-weekly-items { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 3px; }
+ .rg-reward-item { min-width: 0; gap: 2px; font-size: 10px; }
+ .rg-reward-item img,.rg-reward-item svg { width: 18px; height: 18px; }
+ .rg-reward-item b { font-size: 12px; }
+ .rg-weekly-tier > .rg-button { min-height: 30px; font-size: 11px; }
+}

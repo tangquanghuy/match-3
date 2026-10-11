@@ -8,7 +8,7 @@ import { TROOPS, getTroopById } from '../../src/data/troops';
 import { newSave, type MetaSave } from '../../src/meta/state/schema';
 import { migrateSave } from '../../src/meta/state/save';
 import { regionalAction, regionalFrenzy, ensureRegional, planRegional, previewRegionalBattle, previewRegionalEnemy, settleRegional, regionLegal, activeRegions, regionOpen, nextRegionWeek, regionalRule, buildRegionalOpponents } from '../../src/meta/systems/regionalPvp';
-import { REGION_DUEL_SCALING, REGION_ENEMY_STAT_FACTOR, REGION_TIERS, burningSoulCost, REGIONS, REGION_REVISION, type RegionId } from '../../src/meta/data/regionalPvp';
+import { REGION_DUEL_SCALING, REGION_ENEMY_STAT_FACTOR, REGION_TIERS, REGION_REWARDS, REGION_LEGACY_GEMS, burningSoulCost, REGIONS, REGION_REVISION, type RegionId } from '../../src/meta/data/regionalPvp';
 import { freshRegionalState, hydrateRegionalState } from '../../src/meta/state/regional';
 import { weekStartOf } from '../../src/meta/gateway/clock';
 import { WEEK_MS } from '../../src/meta/data/events';
@@ -40,8 +40,8 @@ describe('independent regional PvP',()=>{
  });
  it('rejects low-level/illegal teams and resource shortages without a partial charge',()=>{
   const s=fixture();s.hero.level=49;expect(planRegional(s,{kind:'citadel'},NOW,1).ok).toBe(false);s.hero.level=100;
-  s.regional!.sigils=0;const before=structuredClone(s);expect(planRegional(s,{kind:'citadel'},NOW,1).ok).toBe(false);expect(s).toEqual(before);
-  s.regional!.energy=0;expect(planRegional(s,{kind:'monolith',monolith:'ward'},NOW,1).ok).toBe(false);
+  s.regional!.regions.WintersReach.sigils=0;const before=structuredClone(s);expect(planRegional(s,{kind:'citadel'},NOW,1).ok).toBe(false);expect(s).toEqual(before);
+  s.regional!.regions.WintersReach.energy=0;expect(planRegional(s,{kind:'monolith',monolith:'ward'},NOW,1).ok).toBe(false);
   s.teams[0]!.members[0]={kind:'troop',troopId:6000};expect(planRegional(s,{kind:'duel',opponentId:s.regional!.regions.WintersReach.opponents[0]!.id},NOW,1).ok).toBe(false);
  });
  it('persists region state; old saves get defaults without granting fuel',()=>{
@@ -49,11 +49,11 @@ describe('independent regional PvP',()=>{
   delete s.regional;expect(migrateSave(JSON.parse(JSON.stringify(s))).regional).toEqual(freshRegionalState());
  });
  it('grants fixed victory gold plus battle collections and energy after two duel wins',()=>{
-  const s=fixture(),gold=s.currencies.gold,glory=s.currencies.glory,energy=s.regional!.energy;
+  const s=fixture(),gold=s.currencies.gold,glory=s.currencies.glory,energy=s.regional!.regions.WintersReach.energy;
   const p=duel(s);const detail=settleRegional(s,{...victory(),economy:{gold:17,souls:5,gems:2,maps:1}},p.context,NOW);
   expect(battleIncomeView(detail).glory).toBe(p.context.reward.glory);
-  expect(s.currencies.gold-gold).toBe(1817);expect(s.currencies.glory-glory).toBe(p.context.reward.glory);expect(s.regional!.energy).toBe(energy);
-  regionalAction(s,{action:'sync'},NOW);const q=duel(s);const second=settleRegional(s,victory(),q.context,NOW);expect(battleIncomeView(second).glory).toBe(q.context.reward.glory);expect(s.regional!.energy).toBe(energy+1);
+  expect(s.currencies.gold-gold).toBe(1817);expect(s.currencies.glory-glory).toBe(p.context.reward.glory);expect(s.regional!.regions.WintersReach.energy).toBe(energy);
+  regionalAction(s,{action:'sync'},NOW);const q=duel(s);const second=settleRegional(s,victory(),q.context,NOW);expect(battleIncomeView(second).glory).toBe(q.context.reward.glory);expect(s.regional!.regions.WintersReach.energy).toBe(energy+1);
  });
  it('PvP Glory scales across all three tiers and guardian retains a 3x legacy multiplier',()=>{
   const s=fixture();
@@ -70,18 +70,61 @@ describe('independent regional PvP',()=>{
   expect(guardian.context.reward.glory).toBeLessThanOrEqual(180);
  });
  it('unlocks five monolith stages, adds one hour per victory and excludes its own buff',()=>{
-  const s=fixture();s.regional!.energy=10;let firstHp=0;
+  const s=fixture();s.regional!.regions.WintersReach.energy=10;let firstHp=0;
   for(let i=0;i<5;i++){const p=planRegional(s,{kind:'monolith',monolith:'vigor'},NOW,1);if(!p.ok)throw new Error(p.message);if(!i)firstHp=p.request.playerTeam[0]!.stats.hp;else expect(p.request.playerTeam[0]!.stats.hp).toBe(firstHp);expect(p.request.enemyTeam[0]!.levelLabel).toBe(`Lv.${[20,40,80,150,300][i]}`);for(const [index,c] of p.request.enemyTeam.entries()){const baseline=enemyToSnapshot(getTroopById(Number(c.templateId))!,{troopId:Number(c.templateId),level:[20,40,80,150,300][i]!,tier:'elite',traitCount:3},index);for(const key of ['hp','armor','attack','magic'] as const)expect(c.stats[key]).toBe(Math.ceil(baseline.stats[key]*REGION_ENEMY_STAT_FACTOR));}settleRegional(s,victory(),p.context,NOW);}
   expect(s.regional!.monoliths.vigor).toEqual({level:5,expires:NOW+5*3600000});expect(planRegional(s,{kind:'monolith',monolith:'vigor'},NOW,1).ok).toBe(false);
   expect(duel(s).request.playerTeam[0]!.stats.hp).toBe(Math.ceil(firstHp*1.5));
  });
  it.each(['player','enemy'] as const)('guardian %s cycles after four wins and uses a distinct guardian, not an Immortal',winner=>{
   const s=fixture();for(let i=0;i<5;i++){const p=planRegional(s,{kind:'citadel'},NOW,1);if(!p.ok)throw new Error(p.message);if(i===4)expect(getTroopById(Number(p.request.enemyTeam[0]!.templateId))!.troopTypes).not.toContain('Immortal');settleRegional(s,victory('fixture',i===4?winner:'player'),p.context,NOW);}
-  expect(s.regional!.regions.WintersReach.citadel.stage).toBe(0);expect(s.regional!.regions.WintersReach.citadel.cycles).toBe(winner==='player'?1:0);expect(s.regional!.burningSouls).toBe(winner==='player'?3:0);expect(s.regional!.sigils).toBe(1);
+  expect(s.regional!.regions.WintersReach.citadel.stage).toBe(0);expect(s.regional!.regions.WintersReach.citadel.cycles).toBe(winner==='player'?1:0);expect(s.regional!.burningSouls).toBe(winner==='player'?3:0);expect(s.regional!.regions.WintersReach.sigils).toBe(winner==='player'?1:2);
+ });
+ it('charges a citadel sigil only for a same-day win; losses and surrender leave all regions unchanged',()=>{
+  const s=fixture(),winter=s.regional!.regions.WintersReach,central=s.regional!.regions.CentralSpire;
+  for(const reason of ['defeat','surrender'] as const){
+   const p=planRegional(s,{kind:'citadel'},NOW,1);if(!p.ok)throw new Error(p.message);
+   expect(winter.sigils).toBe(6);
+   settleRegional(s,{...victory(reason,'enemy'),...(reason==='surrender'?{endReason:'surrender' as const}:{})},p.context,NOW);
+   expect(winter.sigils).toBe(6);expect(central.sigils).toBe(6);
+   regionalAction(s,{action:'sync'},NOW);
+  }
+  const p=planRegional(s,{kind:'citadel'},NOW,1);if(!p.ok)throw new Error(p.message);
+  settleRegional(s,victory('win'),p.context,NOW);
+  expect(winter.sigils).toBe(5);expect(central.sigils).toBe(6);
+ });
+ it('does not debit tomorrow or next week for a battle started today',()=>{
+  const s=fixture(),p=planRegional(s,{kind:'citadel'},NOW,1);if(!p.ok)throw new Error(p.message);
+  settleRegional(s,victory('tomorrow'),p.context,NOW+86400000);
+  expect(s.regional!.regions.WintersReach.sigils).toBe(6);
+  const next=planRegional(s,{kind:'citadel'},NOW+86400000,1);if(!next.ok)throw new Error(next.message);
+  settleRegional(s,victory('next-week'),next.context,NOW+WEEK_MS);
+  expect(s.regional!.regions.WintersReach.sigils).toBe(6);
  });
  it('gates high rewards on real guardian wins and claims exactly once',()=>{
   const s=fixture();s.regional!.vp=99999;expect(regionalAction(s,{action:'claim',index:2},NOW).ok).toBe(false);s.regional!.guardianWins=1;
   expect(regionalAction(s,{action:'claim',index:2},NOW).ok).toBe(true);const after=structuredClone(s);expect(regionalAction(s,{action:'claim',index:2},NOW).ok).toBe(false);expect(s).toEqual(after);
+ });
+ it('pays 4500 gems and 30000 glory over five claims, without paying twice',()=>{
+  const s=fixture(),before=structuredClone(s.currencies);
+  s.regional!.vp=2200;s.regional!.guardianWins=3;
+  expect(REGION_REWARDS.reduce((total,r)=>total+r.gems,0)).toBe(4500);
+  expect(REGION_REWARDS.reduce((total,r)=>total+r.glory,0)).toBe(30000);
+  for(let i=0;i<5;i++)expect(regionalAction(s,{action:'claim',index:i},NOW)).toEqual({ok:true});
+  expect(s.currencies.gems-before.gems).toBe(4500);
+  expect(s.currencies.glory-before.glory).toBe(30000);
+  const paid=structuredClone(s);for(let i=0;i<5;i++)expect(regionalAction(s,{action:'claim',index:i},NOW).ok).toBe(false);
+  expect(s).toEqual(paid);
+ });
+ it('lets legacy weekly claims collect only new gems and glory once',()=>{
+  const s=fixture(),regional=s.regional!;regional.vp=2200;regional.guardianWins=3;
+  regional.claimed=[0,1,2,3,4];regional.upgradedClaims=[];
+  const loaded=migrateSave(JSON.parse(JSON.stringify(s)));
+  const gems=loaded.currencies.gems,glory=loaded.currencies.glory,burning=loaded.regional!.burningSouls;
+  for(let i=0;i<5;i++)expect(regionalAction(loaded,{action:'claim',index:i},NOW)).toEqual({ok:true});
+  expect(loaded.currencies.gems-gems).toBe(4500-REGION_LEGACY_GEMS.reduce((a,b)=>a+b,0));
+  expect(loaded.currencies.glory-glory).toBe(30000);
+  expect(loaded.regional!.burningSouls).toBe(burning);
+  const paid=structuredClone(loaded);expect(regionalAction(loaded,{action:'claim',index:0},NOW).ok).toBe(false);expect(loaded).toEqual(paid);
  });
  it('preserves permanent fuel but not progress across week; old ticket gives no new-week VP',()=>{
   const s=fixture(),p=duel(s);s.regional!.burningSouls=12;s.regional!.vp=900;settleRegional(s,victory(),p.context,NOW+WEEK_MS);expect(s.regional!.burningSouls).toBe(12);expect(s.regional!.vp).toBe(0);expect(s.regional!.history[0]!.vp).toBe(0);
@@ -91,7 +134,7 @@ describe('independent regional PvP',()=>{
   expect(runCommand(p.save,{type:'settleBattle',args:{result:victory('wrong')}},env).commit).toBe(false);
   const result=victory(p.save.pendingBattle!.requestId),out=runCommand(p.save,{type:'settleBattle',args:{result}},env);expect(out.result.ok).toBe(true);expect(out.save.pendingBattle).toBeNull();expect(out.save.regional!.regions.WintersReach.citadel.stage).toBe(1);expect(runCommand(out.save,{type:'settleBattle',args:{result}},env).commit).toBe(false);
  });
- it('daily reset tops up sigils without resetting ongoing city progress',()=>{const s=fixture();s.regional!.sigils=1;s.regional!.regions.WintersReach.citadel.stage=3;ensureRegional(s,NOW+86400000);expect(s.regional!.sigils).toBe(6);expect(s.regional!.regions.WintersReach.citadel.stage).toBe(3);});
+ it('daily reset tops up every region without resetting ongoing city progress',()=>{const s=fixture();s.regional!.regions.WintersReach.sigils=1;s.regional!.regions.CentralSpire.sigils=0;s.regional!.regions.WintersReach.citadel.stage=3;ensureRegional(s,NOW+86400000);expect(s.regional!.regions.WintersReach.sigils).toBe(6);expect(s.regional!.regions.CentralSpire.sigils).toBe(6);expect(s.regional!.regions.WintersReach.citadel.stage).toBe(3);});
  it('burning souls are additional atomic upgrade costs, ordinary troops unaffected',()=>{
   const s=fixture();s.collection['7581']={level:1,ascension:0,copies:0,traits:[false,false,false],locked:false};const before=structuredClone(s);expect(levelUp(s,7581,30).ok).toBe(false);expect(s).toEqual(before);expect(burningSoulCost(1,30)).toBe(99);
   s.regional!.burningSouls=99;expect(levelUp(s,7581,30)).toMatchObject({ok:true,burningSpent:99});expect(s.regional!.burningSouls).toBe(0);
@@ -162,12 +205,12 @@ describe('regional persistence and preview boundaries',()=>{
   async write(batch:RecordBatch){for(const k of batch.del)this.records.delete(k);for(const [k,v] of batch.set)this.records.set(k,v);}
  }
  const host=(repo:Repo)=>new MetaHost(repo,defaultEnv({now:()=>NOW,seed:()=>123}),{fresh:'new',schedule:()=>{}});
- it('writes a ticket and sigil atomically; revision sync preserves it, refresh forfeits once',async()=>{
+ it('writes a ticket without a sigil charge; abandoning after restart preserves it',async()=>{
   const repo=new Repo(),a=host(repo);
   expect((await a.execute({type:'planRegionalBattle',args:{kind:'citadel'}})).result.ok).toBe(true);
-  let disk=recordsToSave(repo.records);expect(disk.pendingBattle?.mode).toBe('regional');expect(disk.regional!.sigils).toBe(5);
+  let disk=recordsToSave(repo.records);expect(disk.pendingBattle?.mode).toBe('regional');expect(disk.regional!.regions.WintersReach.sigils).toBe(6);
   const restarted=host(repo);expect((await restarted.load({preservePendingBattle:true})).save.pendingBattle?.mode).toBe('regional');
-  await restarted.load();disk=recordsToSave(repo.records);expect(disk.pendingBattle).toBeNull();expect(disk.regional!.history).toHaveLength(1);expect(disk.regional!.sigils).toBe(5);
+  await restarted.load();disk=recordsToSave(repo.records);expect(disk.pendingBattle).toBeNull();expect(disk.regional!.history).toHaveLength(1);expect(disk.regional!.regions.WintersReach.sigils).toBe(6);
   await host(repo).load();expect(recordsToSave(repo.records).regional!.history).toHaveLength(1);
  });
  it('serializes concurrent reward claims and persists permanent fuel across restart',async()=>{
@@ -181,7 +224,7 @@ describe('regional persistence and preview boundaries',()=>{
  });
  it('can inspect enemies with an incompatible team and no entry currency, without mutating the save',()=>{
   const s=fixture(),bad=TROOPS.find(t=>!regionLegal({templateId:String(t.id),troopTypes:t.troopTypes},s.regional!.week))!;
-  s.collection[bad.id]={level:20,ascension:3,copies:0,traits:[true,true,true],locked:false};s.teams[0]!.members[0]={kind:'troop',troopId:bad.id};s.regional!.sigils=0;
+  s.collection[bad.id]={level:20,ascension:3,copies:0,traits:[true,true,true],locked:false};s.teams[0]!.members[0]={kind:'troop',troopId:bad.id};s.regional!.regions.WintersReach.sigils=0;
   const before=structuredClone(s);expect(planRegional(s,{kind:'citadel'},NOW,1).ok).toBe(false);const preview=previewRegionalBattle(s,{kind:'citadel'},NOW);expect(preview.ok).toBe(true);expect(s).toEqual(before);
  });
 });
@@ -253,7 +296,7 @@ describe('multi-region atlas and shared progression',()=>{
   expect(planRegional(s,{kind:'citadel',region:'CentralSpire',opponentId:s.regional!.regions.WintersReach.opponents[0]!.id},NOW,1).ok).toBe(false);
   expect(s).toEqual(before);
  });
- it('settles to the ticket region, retains other opponents and shares energy and weekly claims',()=>{
+ it('settles to the ticket region, keeps fuel separate and shares weekly claims',()=>{
   const s=fixture();regionalAction(s,{action:'sync',region:'CentralSpire'},NOW);
   const central=structuredClone(s.regional!.regions.CentralSpire),p=duel(s);
   settleRegional(s,victory('winter'),p.context,NOW);
@@ -261,12 +304,32 @@ describe('multi-region atlas and shared progression',()=>{
   expect(s.regional!.regions.WintersReach.wins).toBe(1);
   const p2=planRegional(s,{region:'CentralSpire',kind:'duel',opponentId:central.opponents[0]!.id},NOW,1);
   if(!p2.ok)throw new Error(p2.message);settleRegional(s,victory('central'),p2.context,NOW);
-  expect(s.regional!.duelWins).toBe(2);expect(s.regional!.energy).toBe(7);
+  expect(s.regional!.duelWins).toBe(2);expect(s.regional!.regions.WintersReach.energy).toBe(6);expect(s.regional!.regions.CentralSpire.energy).toBe(6);
+  expect(s.regional!.regions.WintersReach.duelWins).toBe(1);expect(s.regional!.regions.CentralSpire.duelWins).toBe(1);
   expect(s.regional!.history.map(h=>h.region)).toEqual(['CentralSpire','WintersReach']);
   s.regional!.vp=150;expect(regionalAction(s,{action:'claim',index:0},NOW).ok).toBe(true);
   expect(regionalAction(s,{action:'claim',index:0},NOW).ok).toBe(false);
  });
- it('shares sigils and caps guardian fuel across regions, while tracking separate citadels',()=>{
+ it('spends monolith energy only in its region and restores only after two wins there',()=>{
+  const s=fixture();regionalAction(s,{action:'sync',region:'CentralSpire'},NOW);
+  const winter=s.regional!.regions.WintersReach,central=s.regional!.regions.CentralSpire;
+  winter.energy=1;
+  const first=planRegional(s,{kind:'monolith',monolith:'ward'},NOW,1);
+  if(!first.ok)throw new Error(first.message);
+  expect(winter.energy).toBe(0);expect(central.energy).toBe(6);
+  settleRegional(s,victory('failed','enemy'),first.context,NOW);
+  expect(winter.energy).toBe(0);expect(central.energy).toBe(6);
+  expect(planRegional(s,{kind:'monolith',monolith:'ward'},NOW,1).ok).toBe(false);
+  for(let i=0;i<2;i++){
+   regionalAction(s,{action:'sync'},NOW);
+   const p=duel(s);settleRegional(s,victory(`duel-${i}`),p.context,NOW);
+  }
+  expect(winter.energy).toBe(1);expect(central.energy).toBe(6);
+  ensureRegional(s,NOW+WEEK_MS);
+  expect(s.regional!.regions.WintersReach.energy).toBe(1);
+  expect(s.regional!.regions.CentralSpire.energy).toBe(6);
+ });
+ it('keeps sigils separate and caps guardian fuel across regions',()=>{
   const s=fixture();
   for(let i=0;i<6;i++){
    const region:RegionId=i%2?'CentralSpire':'WintersReach';
@@ -274,9 +337,9 @@ describe('multi-region atlas and shared progression',()=>{
    const p=planRegional(s,{region,kind:'citadel'},NOW,1);if(!p.ok)throw new Error(p.message);
    settleRegional(s,victory(`guardian-${i}`),p.context,NOW);
   }
-  expect(s.regional!.sigils).toBe(0);expect(s.regional!.guardianWins).toBe(6);expect(s.regional!.burningSouls).toBe(15);
+  expect(s.regional!.regions.WintersReach.sigils).toBe(3);expect(s.regional!.regions.CentralSpire.sigils).toBe(3);expect(s.regional!.guardianWins).toBe(6);expect(s.regional!.burningSouls).toBe(15);
   expect(s.regional!.regions.CentralSpire.citadel.cycles).toBe(3);expect(s.regional!.regions.WintersReach.citadel.cycles).toBe(3);
-  expect(planRegional(s,{region:'CentralSpire',kind:'citadel'},NOW,1).ok).toBe(false);
+  expect(planRegional(s,{region:'CentralSpire',kind:'citadel'},NOW,1).ok).toBe(true);
  });
  it('migrates legacy winter progress, claims, fuel and tickets without resetting the shared cap',()=>{
   const s=fixture(),p=duel(s),raw={...s.regional!,revision:1,...s.regional!.regions.WintersReach,regions:undefined,guardianWins:undefined,burningSouls:11,claimed:[0],citadel:{stage:3,cycles:4,best:4}};
@@ -287,6 +350,17 @@ describe('multi-region atlas and shared progression',()=>{
   const context={...p.context,revision:1,region:undefined};settleRegional(s,victory(),context,NOW);
   expect(s.regional.regions.WintersReach.wins).toBe(1);
   expect(hydrateRegionalState(JSON.parse(JSON.stringify(s.regional)))).toEqual(s.regional);
+ });
+ it('seeds each region with old shared fuel when migrating either legacy save shape',()=>{
+  const old=fixture().regional!;
+  const multi={...old,regions:old.regions,sigils:2,energy:4};
+  const hydrated=hydrateRegionalState(multi);
+  for(const region of REGIONS){expect(hydrated.regions[region.id].sigils).toBe(6);expect(hydrated.regions[region.id].energy).toBe(6);}
+  const legacyRegions=Object.fromEntries(Object.entries(old.regions).map(([id,p])=>[id,{...p,sigils:undefined,energy:undefined}]));
+  const migrated=hydrateRegionalState({...multi,regions:legacyRegions});
+  for(const region of REGIONS){expect(migrated.regions[region.id].sigils).toBe(2);expect(migrated.regions[region.id].energy).toBe(4);}
+  const single=hydrateRegionalState({...multi,revision:1,regions:undefined});
+  for(const region of REGIONS){expect(single.regions[region.id].sigils).toBe(2);expect(single.regions[region.id].energy).toBe(4);}
  });
  it('keeps unexpired buffs on weekly reset and does not invalidate new-week opponents for an old ticket',()=>{
   const s=fixture(),p=duel(s);s.regional!.monoliths.vigor={level:2,expires:NOW+2*WEEK_MS};

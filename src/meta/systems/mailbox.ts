@@ -1,6 +1,6 @@
 import { EVENT_HIGH_TIER_REWARDS, EVENT_LEGACY_GEMS_PAID, EVENT_MILESTONES, EVENT_SHARED_GOALS, EVENT_TYPES, EVENT_WEEKLY_RULES, TOWER_BOSS_REWARDS, eventArcaneBundle, towerBossRewardKey, type EventTypeId } from '../data/events';
 import { INVASION_RANKS } from '../data/invasionRanks';
-import { REGION_REWARDS } from '../data/regionalPvp';
+import { REGION_REWARDS, REGION_LEGACY_GEMS } from '../data/regionalPvp';
 import { getTroopById } from '../../data/troops';
 import { grantTroop } from './troopProgress';
 import { BLOCKED_WISHLIST_IDS } from './wishlist';
@@ -177,7 +177,7 @@ export function backfillWeeklyRewardMail(
   const regionalCurrencies: CurrencyDelta = {};
   for (const index of regional.claimed) {
     const row = REGION_REWARDS[index];
-    if (row) addCurrency(regionalCurrencies, { gold: row.gold / 2, gems: row.gems / 2, souls: row.souls / 2 });
+    if (row) addCurrency(regionalCurrencies, { gold: row.gold / 2, gems: REGION_LEGACY_GEMS[index] / 2, souls: row.souls / 2 });
   }
   enqueue(mailbox, `weekly-double:regional:${regional.week}`, '永生战域奖励补发', '已领取周奖励的黄金、宝石和灵魂差额。燃烧灵魂数量不变。', now, regionalCurrencies);
   const rankCurrencies: CurrencyDelta = {};

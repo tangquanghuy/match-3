@@ -3,7 +3,7 @@ import { getTroopById } from '../../data/troops';
 import { troopStatsAtLevel } from '../../data/leveling';
 import { levelCapFor } from '../data/economy';
 import { rollPvpGlory } from '../data/pvpGlory';
-import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_DUEL_SCALING, REGION_ENEMY_STAT_FACTOR, REGION_REWARDS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
+import { REGION_ID, REGION_UNLOCK_LEVEL, REGION_TIERS, REGION_DUEL_SCALING, REGION_ENEMY_STAT_FACTOR, REGION_REWARDS, REGION_LEGACY_GEMS, MONOLITHS, MONOLITH_LEVELS, regionDefinition, isRegionId, type RegionId } from '../data/regionalPvp';
 import { freshRegionalState, type RegionalState, type RegionalBattleContext, type RegionOpponent, type RegionBattleKind, type RegionTier, type MonolithId } from '../state/regional';
 import type { MetaSave } from '../state/schema';
 import { fail, type MetaFailure } from '../types';
@@ -68,10 +68,15 @@ export function regionalTeamIssue(save:MetaSave,week:number,region:RegionId=REGI
 export function ensureRegional(save: MetaSave, now: number): RegionalState {
   const old=save.regional ?? freshRegionalState(), week=weekStartOf(now), day=todayStartOf(now);
   if(old.week!==week) {
-    save.regional={...freshRegionalState(),week, burningSouls:old.burningSouls,energy:old.energy, day:old.day,sigils:old.sigils,history:old.history,recent:old.recent,monoliths:old.monoliths};
+    const next=freshRegionalState();
+    for(const region of Object.keys(next.regions) as RegionId[]) {
+      next.regions[region].energy=old.regions[region].energy;
+      next.regions[region].sigils=old.regions[region].sigils;
+    }
+    save.regional={...next,week,burningSouls:old.burningSouls,day:old.day,history:old.history,recent:old.recent,monoliths:old.monoliths};
   } else save.regional=old;
   const s=save.regional;
-  if(s.day<day) {s.day=day;s.sigils=6;}
+  if(s.day<day) {s.day=day;for(const p of Object.values(s.regions))p.sigils=6;}
   for(const buff of Object.values(s.monoliths)) if(buff.expires<=now) {buff.level=0;buff.expires=0;}
   return s;
 }
@@ -114,10 +119,15 @@ export function regionalAction(save:MetaSave,args:RegionalAction,now:number,pool
   if(args.action==='claim') {
     const reward=REGION_REWARDS[args.index];
     if(!Number.isInteger(args.index)||!reward) return fail('INVALID','奖励不存在');
-    if(s.claimed.includes(args.index)) return fail('ALREADY_UNLOCKED','本周奖励已领取');
+    if(s.claimed.includes(args.index)) {
+      if(s.upgradedClaims.includes(args.index)) return fail('ALREADY_UNLOCKED','本周奖励已领取');
+      earn(save,{gems:reward.gems-REGION_LEGACY_GEMS[args.index]!,glory:reward.glory});
+      s.upgradedClaims.push(args.index);
+      return {ok:true};
+    }
     if(s.vp<reward.vp||s.guardianWins<reward.cycles) return fail('PREREQ_LOCKED','区域积分或城塞挑战尚未达成');
-    earn(save,{gold:reward.gold,gems:reward.gems,souls:reward.souls});
-    s.burningSouls+=reward.burning;s.claimed.push(args.index);return {ok:true};
+    earn(save,{gold:reward.gold,gems:reward.gems,glory:reward.glory,souls:reward.souls});
+    s.burningSouls+=reward.burning;s.claimed.push(args.index);s.upgradedClaims.push(args.index);return {ok:true};
   }
   if(args.action!=='sync'&&args.action!=='refresh') return fail('INVALID','未知区域操作');
   const region=args.region??REGION_ID;
@@ -148,8 +158,8 @@ function prepareRegional(save:MetaSave,args:RegionalPlanArgs,now:number,seed:num
   const selected=p.opponents.find(o=>o.id===args.opponentId);
   const monolith=MONOLITHS.find(m=>m.id===args.monolith);
   if((args.kind==='duel'||(args.kind==='citadel'&&p.citadel.stage<4&&args.opponentId!==undefined))&&!selected) return fail('INVALID','对手已变化，请重新选择');
-  if(!preview&&args.kind==='citadel'&&s.sigils<1) return fail('INSUFFICIENT','今日城塞符印已用完');
-  if(args.kind==='monolith'&&(!monolith||(!preview&&s.energy<1))) return fail('INSUFFICIENT','选择巨石碑并准备至少 1 点碑能');
+  if(!preview&&args.kind==='citadel'&&p.sigils<1) return fail('INSUFFICIENT','今日城塞符印已用完');
+  if(args.kind==='monolith'&&(!monolith||(!preview&&p.energy<1))) return fail('INSUFFICIENT','选择巨石碑并准备至少 1 点碑能');
   const step=args.kind==='monolith'?s.monoliths[monolith!.id].level:args.kind==='citadel'?p.citadel.stage:0;
   if(args.kind==='monolith'&&step>=5) return fail('MAXED','此巨石碑已达到最高阶');
   const guardian=args.kind==='citadel'&&step===4;
@@ -190,9 +200,9 @@ function prepareRegional(save:MetaSave,args:RegionalPlanArgs,now:number,seed:num
   if(!check.ok)return fail('INVALID',`区域战斗校验失败：${check.issues[0]?.message??''}`);
   const gold=args.kind==='monolith'?400:guardian?5000:REGION_TIERS[tier].gold;
   const vp=args.kind==='monolith'?0:(guardian?100:REGION_TIERS[tier].vp)*(frenzy?2:1);
-  const context:RegionalBattleContext={region,week:s.week,revision:s.revision,kind:args.kind,tier,opponent,frenzy,step,
+  const context:RegionalBattleContext={region,week:s.week,revision:s.revision,kind:args.kind,tier,opponent,frenzy,step,sigilDay:s.day,
     ...(monolith?{monolith:monolith.id}:{}),reward:{gold,souls:guardian?600:args.kind==='monolith'?100:300,glory:rollPvpGlory(tier, request.requestId, guardian?6:2)},vp,burning:guardian&&s.guardianWins<5?3:0};
-  if(!preview){if(args.kind==='monolith')s.energy--;if(args.kind==='citadel')s.sigils--;}
+  if(!preview&&args.kind==='monolith')p.energy--;
   return {ok:true,request,context};
 }
 export function settleRegional(save:MetaSave,result:BattleResult,c:RegionalBattleContext,now:number):SettlementDetail {
@@ -209,10 +219,11 @@ export function settleRegional(save:MetaSave,result:BattleResult,c:RegionalBattl
   if(win) {
     const reward={...c.reward,gold:Math.max(0,(c.reward.gold??0)-base.gold),souls:Math.max(0,(c.reward.souls??0)-base.souls)};
     earn(save,reward);detail.lines.push({key:'battle-bonus',label:c.opponent.name,deltas:reward});
-    if(current){s.vp+=c.vp;s.wins++;p.vp+=c.vp;p.wins++;if(c.kind==='duel'){s.duelWins++;if(s.duelWins%2===0)s.energy=Math.min(10,s.energy+1);}}
+    if(current){s.vp+=c.vp;s.wins++;p.vp+=c.vp;p.wins++;if(c.kind==='duel'){s.duelWins++;p.duelWins++;if(p.duelWins%2===0)p.energy=Math.min(10,p.energy+1);}}
   }
   if(current&&c.kind==='monolith'&&win&&c.monolith){const b=s.monoliths[c.monolith];b.level=Math.min(5,c.step+1);b.expires=Math.max(now,b.expires)+HOUR;}
   if(current&&c.kind==='citadel') {
+    if(win&&c.sigilDay===s.day)p.sigils=Math.max(0,p.sigils-1);
     if(c.step===4){if(win){p.citadel.cycles++;s.guardianWins++;p.citadel.best=Math.max(p.citadel.best,p.citadel.cycles);}p.citadel.stage=0;}
     else if(win)p.citadel.stage=Math.min(4,p.citadel.stage+1);
   }

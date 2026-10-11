@@ -4,9 +4,10 @@ async function setup(page:Page,region='WintersReach'){
  await page.goto(`/game.html#regional/region/${region}`);await expect(page.locator('.regional-screen')).toBeVisible({timeout:20000});
  await page.evaluate(async region=>{
   const load=(p:string)=>import(/* @vite-ignore */ p);
-  const {metaGateway}=await load('/src/meta/gateway/index.ts');const {TROOPS}=await load('/src/data/troops.ts');
+  const {metaGateway,initMetaGateway}=await load('/src/meta/gateway/index.ts');const {TROOPS}=await load('/src/data/troops.ts');
   const {regionLegal}=await load('/src/meta/systems/regionalPvp.ts');const {weekStartOf}=await load('/src/meta/gateway/clock.ts');
-  const gw=metaGateway(),s=JSON.parse(gw.exportSaveJson()),week=weekStartOf(gw.now());
+  let gw;try{gw=metaGateway();}catch{gw=initMetaGateway();await gw.load();}
+  const s=JSON.parse(gw.exportSaveJson()),week=weekStartOf(gw.now());
   const ids=TROOPS.filter((t:{id:number;troopTypes:string[];rarityIdx:number})=>regionLegal({templateId:String(t.id),troopTypes:t.troopTypes},week,region)&&!t.troopTypes.includes('Immortal')&&t.rarityIdx>=3).slice(0,4).map((t:{id:number})=>t.id);
   s.hero.level=100;s.hero.xp=0;s.hero.masteryOffers=[];
   s.teams=[{name:'寒冬远征',members:ids.map((troopId:number)=>({kind:'troop',troopId})),bannerKingdomId:null}];s.activeTeamIndex=0;
@@ -71,6 +72,7 @@ test('mobile regional atlas and preparation fit a tall phone',async({page})=>{
 });
 for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320,height:568},{width:844,height:390}]){
  test(`region map, opponent preview and dedicated unit page ${viewport.width}x${viewport.height}`,async({page})=>{
+  test.setTimeout(90000);
   await page.setViewportSize(viewport);await setup(page);await noOverflow(page);
   const asset=await page.locator('.rg-world').evaluate(e=>getComputedStyle(e).backgroundImage);expect(asset).toContain('winter-map');
   await page.locator('a[href="#regional/region/WintersReach/opponents"]').click();await expect(page.locator('.rg-opponent')).toHaveCount(3);await noOverflow(page);
@@ -89,9 +91,10 @@ for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320
   expect(readable).toEqual(Array(8).fill(true));
   const correctStats=await page.evaluate(async()=>{
    const load=(p:string)=>import(/* @vite-ignore */p);
-   const {metaGateway}=await load('/src/meta/gateway/index.ts');
+   const {metaGateway,initMetaGateway}=await load('/src/meta/gateway/index.ts');
    const {previewRegionalBattle}=await load('/src/meta/systems/regionalPvp.ts');
-   const gw=metaGateway(),id=location.hash.split('/').at(-1);
+   let gw;try{gw=metaGateway();}catch{gw=initMetaGateway();await gw.load();}
+   const id=location.hash.split('/').at(-1);
    const plan=previewRegionalBattle(gw.current(),{region:'WintersReach',kind:'duel',opponentId:id},gw.now());
    if(!plan.ok)return false;
    return ['enemy','player'].every(side=>Array.from(document.querySelectorAll(`[data-preview-side="${side}"] .rg-troop`)).every((card,i)=>{
@@ -117,13 +120,29 @@ for(const viewport of [{width:1600,height:900},{width:390,height:844},{width:320
 }
 test('region reward claims persist, fuel visible in bag, mobile map artwork loads',async({page})=>{
  await page.setViewportSize({width:390,height:844});await setup(page);await page.screenshot({path:'artifacts/regional-mobile-map.png'});
- await page.evaluate(async()=>{const path='/src/meta/gateway/index.ts';const {metaGateway}=await import(/* @vite-ignore */ path);const gw=metaGateway(),s=JSON.parse(gw.exportSaveJson());s.regional.vp=150;await gw.dev.importSaveJson(JSON.stringify(s));});
- await page.locator('a[href="#regional/rewards"]').click();await page.locator('[data-claim="0"]').click();await expect(page.locator('[data-claim="0"]')).toHaveText('已领取');await expect(page.locator('.rg-balance')).toContainText('5');
+ await page.evaluate(async()=>{const path='/src/meta/gateway/index.ts';const {metaGateway,initMetaGateway}=await import(/* @vite-ignore */ path);let gw;try{gw=metaGateway();}catch{gw=initMetaGateway();await gw.load();}const s=JSON.parse(gw.exportSaveJson());s.regional.vp=150;await gw.dev.importSaveJson(JSON.stringify(s));});
+ await page.reload();await expect(page.locator('.rg-world')).toBeVisible();
+ await page.locator('a[href="#regional/rewards"]').click();
+ const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!).currencies);
+ await page.locator('[data-claim="0"]').click();await expect(page.locator('[data-claim="0"]')).toHaveText('已领取');await expect(page.locator('.rg-balance')).toContainText('5');
+ const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!).currencies);
+ expect(after.gems-before.gems).toBe(500);expect(after.glory-before.glory).toBe(3000);
  await page.goto('/game.html#bag/supplies');await expect(page.locator('[data-bag-item="burningSouls"]')).toBeVisible();
  await page.locator('[data-bag-item="burningSouls"]').click();await expect(page.locator('[data-bag-detail="burningSouls"]')).toContainText('永生战域');
 });
+for(const width of [1600,390])test(`weekly regional rewards render currencies at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await setup(page);
+ await page.goto('/game.html#regional/rewards');await expect(page.locator('.rg-weekly-tier')).toHaveCount(5);
+ await expect(page.locator('.rg-weekly-totals')).toContainText('4,500');
+ await expect(page.locator('.rg-weekly-totals')).toContainText('30,000');
+ const images=await page.locator('.rg-weekly img').evaluateAll(nodes=>nodes.map(node=>({loaded:(node as HTMLImageElement).complete&&(node as HTMLImageElement).naturalWidth>0,width:node.getBoundingClientRect().width})));
+ expect(images).toHaveLength(22);expect(images.every(image=>image.loaded&&image.width>=18)).toBe(true);
+ await noOverflow(page);
+ await page.screenshot({path:`artifacts/regional-${width}-weekly-rewards.png`});
+ expect(await page.locator('.rg-content').evaluate(el=>el.scrollHeight<=el.clientHeight+1)).toBe(true);
+});
 
-test('citadel battle launches and surrender settles once without refunding a sigil',async({page})=>{
+test('citadel battle launches and surrender settles once without spending a sigil',async({page})=>{
  test.setTimeout(90000);
  await page.route('**/fonts.googleapis.com/**',route=>route.abort());
  await page.route('**/fonts.gstatic.com/**',route=>route.abort());
@@ -139,10 +158,10 @@ test('citadel battle launches and surrender settles once without refunding a sig
  await expect(page.locator('#battle-root')).toBeHidden();
  const read=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!));
  await expect.poll(async()=>(await read()).pendingBattle).toBeNull();
- const save=await read();expect(save.regional.sigils).toBe(5);expect(save.regional.history).toHaveLength(1);expect(save.regional.history[0].victory).toBe(false);expect(save.regional.regions.WintersReach.citadel.stage).toBe(0);
+ const save=await read();expect(save.regional.regions.WintersReach.sigils).toBe(6);expect(save.regional.history).toHaveLength(1);expect(save.regional.history[0].victory).toBe(false);expect(save.regional.regions.WintersReach.citadel.stage).toBe(0);
  await page.locator('#again').click();await expect(page.locator('.regional-screen')).toBeVisible();
  await page.reload();await expect(page.locator('.regional-screen')).toBeVisible();
- const loaded=await read();expect(loaded.regional.sigils).toBe(5);expect(loaded.regional.history).toHaveLength(1);
+ const loaded=await read();expect(loaded.regional.regions.WintersReach.sigils).toBe(6);expect(loaded.regional.history).toHaveLength(1);
 });
 
 for(const width of [1600,390,320]) test(`world map entry opens the independent region ${width}`,async({page})=>{
@@ -190,7 +209,7 @@ for(const region of ['CentralSpire','Aidania'])test(`${region} has a dedicated t
  await page.getByRole('button',{name:'战斗设置',exact:true}).click();await page.getByRole('button',{name:'放弃本局',exact:true}).click();await page.getByRole('button',{name:'确认放弃',exact:true}).click();
  await expect(page.locator('.result-screen')).toBeVisible({timeout:20000});
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!).pendingBattle)).toBeNull();
- const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!));expect(saved.regional.history[0].region).toBe(region);expect(saved.regional.sigils).toBe(5);
+ const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('gems.meta.save')!));expect(saved.regional.history[0].region).toBe(region);expect(saved.regional.regions[region].sigils).toBe(6);
  await page.locator('#again').click();await expect(page.locator('.regional-screen')).toHaveAttribute('data-region',region);await expect(page.locator('.rg-world')).toBeVisible();
  await page.locator('.rg-back').click();await expect(page.locator('.rg-atlas')).toBeVisible();
 });
@@ -203,8 +222,9 @@ for (const width of [1600, 390]) for (const level of [49, 50]) {
   await expect(page.locator('.regional-entry')).toBeVisible();
   await page.evaluate(async level => {
    const path = '/src/meta/gateway/index.ts';
-   const { metaGateway } = await import(/* @vite-ignore */ path);
-   const gw = metaGateway(), s = JSON.parse(gw.exportSaveJson());
+   const { metaGateway, initMetaGateway } = await import(/* @vite-ignore */ path);
+   let gw;try{gw=metaGateway();}catch{gw=initMetaGateway();await gw.load();}
+   const s = JSON.parse(gw.exportSaveJson());
    s.hero.level = level; s.hero.xp = 0;
    await gw.dev.importSaveJson(JSON.stringify(s));
   }, level);
