@@ -63,6 +63,7 @@ const DUAL_STATUS_ALIAS = { 击败: 'disease' };
  * 只改描述文本——机制一律仍由句式规则从修正后的文本解析，保证「描述↔数值」对账成立。
  */
 const DESCRIPTION_OVERRIDES = {
+  impervious: '对所有负面状态效果、吞噬、狼化和法力燃烧免疫',
   // Merfolk 的本地化种族统一显示为「海族」（引擎仍匹配 Merfolk）。
   oceanswell: '所有海族盟友在匹配 4 颗或更多宝石时获得 2 点魔力值。',
   lifetide: '消除蓝色宝石时，所有海族盟友恢复 5 点生命值。',
@@ -858,9 +859,11 @@ function parse(desc, code) {
   // 免疫：对 X、Y 免疫（T1 批：warded/cunning/brave/immune——「对疾病和狼化免疫」的
   // 狼化引擎未实现，按映射表只收疾病，不做缺状态半解析）
   if (/免疫/.test(desc)) {
-    if (/所有状态效果/.test(desc)) return { effects: { statusImmunities: ['*'] } };
+    const devour = /吞噬/.test(desc) ? { devourImmunity: true } : {};
+    if (code === 'impervious') return { effects: { statusImmunities: ['negative'], ...devour } };
+    if (/所有状态效果/.test(desc)) return { effects: { statusImmunities: ['*'], ...devour } };
     const ids = RESCUE_FULL_STATUS_MAP.filter(([re]) => re.test(desc)).map(([, id]) => id);
-    if (ids.length > 0) return { effects: { statusImmunities: [...new Set(ids)] } };
+    if (ids.length > 0) return { effects: { statusImmunities: [...new Set(ids)], ...devour } };
     return null; // 全是引擎没有的状态
   }
   // 开局法力：战斗开始时获得 N% 法力值 / 全满法力值

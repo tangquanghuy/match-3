@@ -79,10 +79,10 @@
   {
     "code": "impervious",
     "name": "无坚不摧",
-    "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫",
+    "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫",
     "troops": 85,
     "statusImmunities": [
-      "*"
+      "negative"
     ],
     "devourImmunity": true
   },

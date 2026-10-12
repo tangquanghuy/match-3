@@ -11,7 +11,8 @@
  * 结算时机由 TurnEngine 在固定时机（对即将行动方角色）调用 tickStatuses，保证确定性（需求 9.4）。
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
-import { isImmuneToStatus, passivesOf, traitActivations, getTrait } from '../../traits';
+import { isImmuneToStatus, passivesOf, traitActivations, getTrait, NEGATIVE_STATUSES } from '../../traits';
+import { NEGATIVE_STATUS_IDS, POSITIVE_STATUS_IDS as POSITIVE_STATUS_SET } from '../../statusCategories';
 import { canReceiveRandomStatus, randomStatusCandidates } from '../../randomStatusTarget';
 import { applyTransformTemplate } from './summon';
 import type { SummonTemplate } from './summon';
@@ -102,13 +103,6 @@ export const REFLECT_STATUS_ID = 'reflect';
 export const REFLECT_RATIO = 0.5;
 /** 反射伤害下限（官方至少 1 点） */
 export const REFLECT_MIN = 1;
-
-/** 负面状态 id 全集（赐福净化口径）：负面 + 诅咒族（官方「净化目标」含解除诅咒）。 */
-const NEGATIVE_STATUS_IDS = new Set([
-  'poison', 'burning', 'bleed', 'silence', 'frozen', 'stun', 'entangle', 'web', 'disease',
-  'curse', 'cursed', 'death-mark', 'death_mark', 'charm', 'charmed', 'mana-burn', 'mana_burn',
-  'faerie-fire', 'terror', 'wolf', 'wolf-form', 'lycanthropy',
-]);
 
 /**
  * 可自愈负面状态（rulings/R004）：无固定回合上限；持有者回合开始共用**一个**累积自愈
@@ -390,7 +384,7 @@ export function applyStatus(
   // exception; its trait id is retained on Character for this distinction.
   const invulnerable = char.traitIds?.includes('invulnerable') ?? false;
   if (isImmuneToStatus(char, status.id) && (invulnerable || (!isCursed(char) && !isStunned(char) && !CURSE_STATUS_IDS.has(status.id)))) {
-    return [{ type: 'status-blocked', targetId: char.id, statusId: status.id, reason: 'immune', traitActivations: traitActivations(char, def => !!def.statusImmunities?.some(id => id === '*' || id === status.id)) }];
+    return [{ type: 'status-blocked', targetId: char.id, statusId: status.id, reason: 'immune', traitActivations: traitActivations(char, def => !!def.statusImmunities?.some(id => id === '*' || id === status.id || (id === NEGATIVE_STATUSES && NEGATIVE_STATUS_IDS.has(status.id)))) }];
   }
 
   const cancelledByOpposite = (CURSE_STATUS_IDS.has(status.id) && char.statuses.some(s => BLESS_STATUS_IDS.has(s.id) && s.turns > 0))
@@ -776,13 +770,10 @@ export const RANDOM_POSITIVE_STATUS_POOL: readonly string[] = [
  * 正面状态 id 全集（原语 Wave3 批，官方 RandomPositiveStatusEffect——Book of Secrets 8369
  * 「Cause a random status effect on all Enemies or Allies」的盟友分支步骤
  * {Target: AllAllies, Type: RandomPositiveStatusEffect}）：与 traits.ts 的
- * POSITIVE_STATUS_IDS 同集（净化口径的正面状态；traits 内为私有常量，此处镜像、
- * 改动需两处同步）。仅作净化/驱散的「正面」判定集（含 rage 别名）；随机掷签一律用
+ * POSITIVE_STATUS_IDS 与免疫判定共用状态分类。仅作净化/驱散的「正面」判定集；随机掷签一律用
  * RANDOM_POSITIVE_STATUS_POOL（L2-random-status-pools，官方 6 项各一次）。
  */
-export const POSITIVE_STATUS_IDS: readonly string[] = [
-  'barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged',
-];
+export const POSITIVE_STATUS_IDS: readonly string[] = [...POSITIVE_STATUS_SET];
 
 export interface RandomStatusParams {
   targets: Character[];

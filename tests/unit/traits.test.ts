@@ -11,7 +11,6 @@ import { SeededRNG } from '@engine/rng';
 import { applyStatus, hasStatus } from '@engine/skills/effects/status';
 import { damageEffect } from '@engine/skills/effects/damage';
 import {
-  ALL_STATUSES,
   TRAIT_LIBRARY,
   applyTurnStartPassives,
   attachPassives,
@@ -112,11 +111,11 @@ describe('被动编译 · resolvePassives', () => {
     expect(p.skullDamageTaken).toBeCloseTo(0.5, 5);
   });
 
-  it('免疫取并集，通配符覆盖一切', () => {
+  it('免疫取并集，无坚不摧只编译为负面状态免疫', () => {
     // fireproof 官方「Immunity to Burning and Faerie Fire」：妖火是独立状态（修正前只免 burning）
     expect([...resolvePassives(['fireproof', 'insulated']).statusImmunities].sort())
       .toEqual(['burning', 'faerie-fire', 'frozen']);
-    expect(resolvePassives(['impervious']).statusImmunities).toContain(ALL_STATUSES);
+    expect(resolvePassives(['impervious']).statusImmunities).toEqual(['negative']);
   });
 
   it('再生与狂暴同类累加', () => {
@@ -199,14 +198,20 @@ describe('状态免疫特质', () => {
     expect(hasStatus(ch, 'poison')).toBe(true);
   });
 
-  it('无坚不摧免疫全部状态', () => {
+  it('无坚不摧只免疫负面状态，仍可获得正面状态', () => {
     const ch = makeChar(0, { traitIds: ['impervious'] });
     attachPassives(ch);
     for (const id of ['burning', 'poison', 'frozen', 'silence', 'entangle', 'stun']) {
       expect(applyStatus(ch, { id, turns: 2 })).toEqual([expect.objectContaining({ type: 'status-blocked' })]);
       expect(isImmuneToStatus(ch, id)).toBe(true);
     }
-    expect(ch.statuses).toEqual([]);
+    expect(applyStatus(ch, { id: 'barrier', turns: 2 })).toEqual([expect.objectContaining({ type: 'status-apply' })]);
+    expect(applyStatus(ch, { id: 'blessed', turns: 2 })).toEqual([expect.objectContaining({ type: 'status-apply' })]);
+    expect(applyStatus(ch, { id: 'submerged', turns: 2 })).toEqual([expect.objectContaining({ type: 'status-apply' })]);
+    expect(isImmuneToStatus(ch, 'barrier')).toBe(false);
+    expect(isImmuneToStatus(ch, 'blessed')).toBe(false);
+    expect(isImmuneToStatus(ch, 'submerged')).toBe(false);
+    expect(ch.statuses.map((status) => status.id).sort()).toEqual(['barrier', 'blessed', 'submerged']);
   });
 
   it('未编译被动的角色不免疫任何状态', () => {

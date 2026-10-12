@@ -43,7 +43,7 @@ const OFFICIAL_TROOP_NAMES = new Set<string>(
   (troopsJson as { name?: string }[]).map((t) => t.name ?? '').filter((n) => n !== ''),
 );
 
-/** 引擎认识的状态 id（免疫/命中附状态/大连施加状态只允许这些；与 build_traits.mjs STATUS_MAP + AURA_STATUS_MAP 对齐） */
+/** 引擎认识的状态 id（免疫/命中附状态/大连施加状态只允许这些；与 build_traits.mjs STATUS_MAP + AURA_STATUS_MAP 对齐）。 */
 const ENGINE_STATUS_IDS = new Set([
   'poison', 'burning', 'frozen', 'silence', 'entangle', 'web', 'stun',
   // 条件光环批可施加的状态本体（barrier/bleed 等已在引擎落地，见 skills/effects/status.ts）
@@ -265,7 +265,8 @@ describe('A · 数据完整性', () => {
 
       // 引用真实性
       for (const id of t.statusImmunities ?? []) {
-        if (id !== '*' && !ENGINE_STATUS_IDS.has(id)) report(`${tag} 免疫了引擎不存在/未实现的状态「${id}」`);
+        // negative 是免疫编译器的类别标记，不是可施加的状态 id。
+        if (id !== '*' && id !== 'negative' && !ENGINE_STATUS_IDS.has(id)) report(`${tag} 免疫了引擎不存在/未实现的状态「${id}」`);
       }
       for (const inf of [t.inflictOnSkullHit, t.inflictOnSkullDamaged]) {
         if (!inf) continue;

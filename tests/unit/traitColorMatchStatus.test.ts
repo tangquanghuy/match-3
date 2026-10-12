@@ -7,7 +7,7 @@
  *   - 纯函数层：applyColorMatchTriggers + ctx（随机目标 rng、foxfire 50% 概率、无 ctx 安全跳过、
  *     非命中色零消耗、双状态、真实 applyStatus 的免疫拦截）。
  *   - 真实对局：TurnEngine 手工棋盘红/紫匹配触发（deepwounds 出血 / webbedbranches 织网 /
- *     impervious 全免拦截）。
+ *     impervious 负面状态免疫拦截）。
  *   - 护栏：无新键特质的 legacy 配色族对局，随机数消耗与事件数与**改动前**基线逐字节一致。
  */
 import { describe, it, expect } from 'vitest';
@@ -238,7 +238,7 @@ describe('applyColorMatchTriggers + ctx（纯函数层）', () => {
     expect(events.filter((e) => e.type === 'status-apply')).toHaveLength(2);
   });
 
-  it('免疫拦截走真实 applyStatus：impervious（全免）敌人不被上状态', () => {
+  it('免疫拦截走真实 applyStatus：impervious 敌人不被施加负面状态', () => {
     const holder = makeChar(0, { traitIds: ['sunfire'] });
     attachPassives(holder);
     const immune = makeChar(9, { traitIds: ['impervious'] });
@@ -333,7 +333,7 @@ describe('TurnEngine 集成：真实对局中的配色施加状态', () => {
     expect(hero.statuses).toHaveLength(0);
   });
 
-  it('impervious 敌人全免：sunfire 红匹配后无任何燃烧落地', () => {
+  it('impervious 敌人免疫燃烧：sunfire 红匹配后无燃烧落地', () => {
     const hero = makeChar(0, { traitIds: ['sunfire'] });
     attachPassives(hero);
     const immuneA = makeChar(4, { traitIds: ['impervious'] });

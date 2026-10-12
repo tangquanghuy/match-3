@@ -2494,7 +2494,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K09_03"
@@ -2554,7 +2554,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K10_00"
@@ -2738,7 +2738,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K10_03"
@@ -4172,7 +4172,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "spikearmor",
@@ -4483,7 +4483,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "thorns",
@@ -4844,7 +4844,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "immense",
@@ -6099,7 +6099,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_Gate"
@@ -7831,7 +7831,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K16_04"
@@ -12307,7 +12307,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "aspectofplague",
@@ -13214,7 +13214,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K20_05"
@@ -13336,7 +13336,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K15_06"
@@ -14008,7 +14008,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "fast",
@@ -15181,7 +15181,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "voracious",
@@ -15671,7 +15671,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "technomancy",
@@ -15792,7 +15792,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K08_08"
@@ -17054,7 +17054,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_Quest_K25"
@@ -17999,7 +17999,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K02_08"
@@ -18678,7 +18678,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "firstwargare",
@@ -21266,7 +21266,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K18_10"
@@ -22701,7 +22701,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "darkness",
@@ -23927,7 +23927,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "wildmana",
@@ -24816,7 +24816,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K20_09"
@@ -25122,7 +25122,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K29_03"
@@ -28091,7 +28091,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "desertking",
@@ -28221,7 +28221,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "darkfury",
@@ -28289,7 +28289,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "adagio",
@@ -28592,7 +28592,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "experiment",
@@ -30885,7 +30885,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "manifestation",
@@ -32488,7 +32488,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "creepingdoom",
@@ -33460,7 +33460,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "deathbelow",
@@ -35443,7 +35443,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K34_10"
@@ -41061,7 +41061,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "curseofmadness",
@@ -41497,7 +41497,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K43_01"
@@ -42565,7 +42565,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "siegebreaker",
@@ -44565,7 +44565,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K47_02"
@@ -46125,7 +46125,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "siegebreaker",
@@ -47076,7 +47076,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_Vault_12"
@@ -49902,7 +49902,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K53_01"
@@ -50216,7 +50216,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K20_19"
@@ -53012,7 +53012,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "trollblood",
@@ -54485,7 +54485,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "curseofruin",
@@ -55810,7 +55810,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "astronomy",
@@ -58073,7 +58073,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "totemofthevale",
@@ -58258,7 +58258,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "armorsupply",
@@ -59016,7 +59016,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "artillerysupport",
@@ -60859,7 +60859,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K63_02"
@@ -61477,7 +61477,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "feralinspiration",
@@ -61594,7 +61594,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "lunarinspiration",
@@ -61652,7 +61652,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "solarinspiration",
@@ -63191,7 +63191,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "poolofstars",
@@ -66791,7 +66791,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "creepinggloom",
@@ -68685,7 +68685,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "tinselterror",
@@ -69334,7 +69334,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "goldenhoard",
@@ -70291,7 +70291,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "maladycurse",
@@ -71484,7 +71484,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "stonecurse",
@@ -72157,7 +72157,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "stoneskin",
@@ -73834,7 +73834,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "landmines",
@@ -80738,7 +80738,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "holyarmor",
@@ -81620,7 +81620,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K50_03"
@@ -83774,7 +83774,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "manifestation",
@@ -84945,7 +84945,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K77_09"
@@ -85317,7 +85317,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K05_31"
@@ -87701,7 +87701,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K54_03"
@@ -90707,7 +90707,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K05_33"
@@ -90962,7 +90962,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K18_32"
@@ -91221,7 +91221,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "icyterror",
@@ -93009,7 +93009,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "creepingvines",
@@ -94093,7 +94093,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K63_03"
@@ -97590,7 +97590,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "venomofanu",
@@ -99352,7 +99352,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "shroudofskulls",
@@ -101572,7 +101572,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "burningfury",
@@ -101818,7 +101818,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "stoneskin",
@@ -102937,7 +102937,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "godslayer",
@@ -103980,7 +103980,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "clairvoyance",
@@ -104108,7 +104108,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "ancientguardian",
@@ -105711,7 +105711,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "sicknessaura",
@@ -107673,7 +107673,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "terrifyingaura",
@@ -107995,7 +107995,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "kingoftheherd",
@@ -108712,7 +108712,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "spellblock",
@@ -109300,7 +109300,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       }
     ],
     "portrait": "Troop_K70_32"
@@ -109932,7 +109932,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "huntersclaw",
@@ -111234,7 +111234,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "brambleheart",
@@ -111748,7 +111748,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "stoneskin",
@@ -112645,7 +112645,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "darksight",
@@ -112770,7 +112770,7 @@
       {
         "code": "impervious",
         "name": "无坚不摧",
-        "description": "对所有状态效果、吞噬、狼化和法力燃烧免疫"
+        "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
       },
       {
         "code": "spellblock",

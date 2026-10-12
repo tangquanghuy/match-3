@@ -38,9 +38,12 @@ import type { BuffEvent, GameEvent } from './events';
 import type { Character, PassiveModifiers, SpecialGemKind, StatGains, PlayerSide, StatusInstance, StormSummon, TraitEconomyGain } from './types';
 import { BaseColor } from './types';
 import { SeededRNG } from './rng';
+import { NEGATIVE_STATUS_IDS, POSITIVE_STATUS_IDS } from './statusCategories';
 
 /** 状态免疫通配符：免疫所有状态 */
 export const ALL_STATUSES = '*';
+/** Immunity to negative statuses only. */
+export const NEGATIVE_STATUSES = 'negative';
 /** 法力灵链通配符：所有颜色 */
 export const ALL_COLORS = '*';
 
@@ -1445,7 +1448,8 @@ function gainAffects(gain: { stat: PassiveStat; amount: number; alsoStats?: Pass
 /** 角色是否免疫某状态。 */
 export function isImmuneToStatus(char: Character, statusId: string): boolean {
   const immunities = passivesOf(char).statusImmunities;
-  return immunities.includes(ALL_STATUSES) || immunities.includes(statusId);
+  return immunities.includes(ALL_STATUSES) || immunities.includes(statusId)
+    || (immunities.includes(NEGATIVE_STATUSES) && NEGATIVE_STATUS_IDS.has(statusId));
 }
 
 /**
@@ -2211,12 +2215,6 @@ export function applyColorMatchTriggers(
 
 /** 触发增益循环的属性序（统一 hp→armor→attack→magic→mana，保证事件顺序确定性） */
 const GAIN_STAT_ORDER = ['hp', 'armor', 'attack', 'magic', 'mana'] as const;
-
-/**
- * 正面状态清单（净化时保留）。与 skills/effects/status.ts 诅咒剥正面的清单一致；
- * 不直接 import——status 依赖本模块（passivesOf/isImmuneToStatus），反向 import 会成环。
- */
-const POSITIVE_STATUS_IDS = new Set(['barrier', 'blessed', 'enchanted', 'enraged', 'rage', 'reflect', 'submerged']);
 
 /** 净化（adagio/royalhoney「净化所有盟友」）：移除全部负面状态，正面状态保留。 */
 function cleanseNegative(char: Character): GameEvent[] {
