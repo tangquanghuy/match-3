@@ -1282,7 +1282,7 @@ export class TurnEngine {
       // 3. 特殊宝石破坏链：至尊末日骷髅引爆相邻一圈 / 闪电清整行整列，
       //    以及连带的炸弹/闪电/许愿连锁；链上摧毁照常结算法力/骷髅
       const manaPotions: BaseColor[] = [];
-      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events, manaPotions), events, matchingSide);
+      this.settleDestroyed(this.expandSpecialDestruction(destroyTriggers, events, manaPotions, matchingSide), events, matchingSide);
 
       // 3.5 特质爆破统一落地（收尾批延迟队列）：本轮组已全部遍历完，此处改盘安全——
       // 爆破自带重力+连锁吸收，内层连锁跑完后再做本轮胜负/重力。
@@ -1515,13 +1515,13 @@ export class TurnEngine {
       if (kind === 'uberDoomSkull' || kind === 'lightningRow' || kind === 'lightningCol') {
         destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
       } else if (kind === 'web') {
-        events.push(...this.applyWebGem(cell));
+        events.push(...this.applyWebGem(cell, matchingSide));
       } else if (kind === 'hourglass') {
         events.push({ type: 'special-gem-trigger', kind: 'hourglass', pos: cell });
         if (matchingSide === this.state.activePlayer && this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'match';
       } else if (isStatusGemKind(kind)) {
         if (MATCH_STATUS_GEMS.has(kind)) {
-          this.applyStatusGem(kind, cell, events);
+          this.applyStatusGem(kind, cell, events, matchingSide);
         } else {
           // 「被摧毁」型被匹配同样视为被摧毁（GEMS-SEMANTICS-2 A 组共性）：登记进摧毁链统一施加
           destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
@@ -1535,9 +1535,9 @@ export class TurnEngine {
         destroyTriggers.push({ gemType: gem.type, pos: cell, viaMatch: true });
       } else if (kind === 'candyGem') {
         // 糖果匹配入口：己方该色存活盟友各 +1 法力；摧毁入口共用 applyCandyGem。
-        this.applyCandyGem(gem.type.spec, cell, events);
+        this.applyCandyGem(gem.type.spec, cell, events, matchingSide);
       } else if (kind === 'enchantedGem') {
-        this.applyEnchantedGem(cell, events);
+        this.applyEnchantedGem(cell, events, matchingSide);
       }
       // decayGem/stoneBlock/mimicGem：无被移除时的独立效果。
     }
@@ -1548,12 +1548,12 @@ export class TurnEngine {
    * 织网宝石先例的推广：special-gem-trigger 事件在前、status-apply 在后（表现层触发环 +
    * 状态施加演出全套白得）；随机目标经本引擎同一条 rng，且仅宝石实际触发时消耗。
    */
-  private applyStatusGem(kind: StatusGemKind, pos: CellPos, events: GameEvent[]): void {
+  private applyStatusGem(kind: StatusGemKind, pos: CellPos, events: GameEvent[], triggeringSide: PlayerSide): void {
     events.push({ type: 'special-gem-trigger', kind, pos });
     const spec = STATUS_GEM_EFFECTS[kind];
     const side = spec.side === 'enemy'
-      ? opponentOf(this.state.activePlayer)
-      : this.state.activePlayer;
+      ? opponentOf(triggeringSide)
+      : triggeringSide;
     const pool = this.state.teams[side].characters.filter((c) => !c.defeated);
     const candidates = spec.scope === 'all' ? pool : randomStatusCandidates(pool, [{ id: spec.statusId }]);
     if (candidates.length === 0) return;
@@ -1566,9 +1566,9 @@ export class TurnEngine {
   }
 
   /** 织网宝石（被匹配时）：随机一名存活敌人获得 web 状态（魔力归零，见 status.ts） */
-  private applyWebGem(pos: CellPos): GameEvent[] {
+  private applyWebGem(pos: CellPos, triggeringSide: PlayerSide): GameEvent[] {
     const events: GameEvent[] = [{ type: 'special-gem-trigger', kind: 'web', pos }];
-    const enemies = this.state.teams[opponentOf(this.state.activePlayer)].characters
+    const enemies = this.state.teams[opponentOf(triggeringSide)].characters
       .filter((c) => !c.defeated);
     if (enemies.length === 0) return events;
     const candidates = randomStatusCandidates(enemies, [{ id: WEB_STATUS_ID }]);
@@ -1592,6 +1592,7 @@ export class TurnEngine {
     initial: ReadonlyArray<{ gemType: GemType; pos?: CellPos; viaMatch?: boolean }>,
     events: GameEvent[],
     manaPotions: BaseColor[],
+    triggeringSide: PlayerSide = this.state.activePlayer,
   ): DestroyedGem[] {
     const chain: DestroyedGem[] = [];
     const queue = initial.slice();
@@ -1622,16 +1623,16 @@ export class TurnEngine {
         // 织网双路径（官方 matched **or destroyed**，DECISIONS 四项拍板②）：
         // 匹配路径在 collectMatchTriggers 已结算（匹配宝石不入本队列），此处只接摧毁路径
         //（技能清除/爆破波及/炸弹圈/闪电行列链上摧毁）——同一次操作内两路互斥，不会重复施加。
-        events.push(...this.applyWebGem(d.pos));
+        events.push(...this.applyWebGem(d.pos, triggeringSide));
       } else if (kind === 'wish') {
-        this.applyWish(d.pos, events);
+        this.applyWish(d.pos, events, triggeringSide);
       } else if (kind === 'bootyGem') {
         // 赃物宝石（官方 Booty Gem）：被摧毁时给摧毁方 +10 金币（战场经济池）。
         // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/至尊末日骷髅爆炸圈抵达这里。
         events.push({ type: 'special-gem-trigger', kind: 'bootyGem', pos: d.pos });
-        const gained = creditGoldForSide(this.state, this.state.activePlayer, BOOTY_GEM_GOLD);
+        const gained = creditGoldForSide(this.state, triggeringSide, BOOTY_GEM_GOLD);
         if (gained > 0) events.push({
-          type: 'economy-gain', currency: 'gold', amount: gained, side: this.state.activePlayer,
+          type: 'economy-gain', currency: 'gold', amount: gained, side: triggeringSide,
         });
       } else if (kind === 'dragonGem') {
         // 龙宝石（官方 matched/destroyed）：爆炸其所在列**下方**全部宝石（{row..ROWS-1}×col，
@@ -1646,11 +1647,11 @@ export class TurnEngine {
         const color = d.gemType.spec.color ?? BaseColor.Red;
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color });
         events.push(...this.distributeGemMana(
-          this.state.teams[this.state.activePlayer], this.state.activePlayer, color, MANA_BONUS_GIANT,
+          this.state.teams[triggeringSide], triggeringSide, color, MANA_BONUS_GIANT,
         ));
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
       } else if (kind === 'spiritGem') {
-        this.applySpiritGem(d.gemType.spec, d.pos, events);
+        this.applySpiritGem(d.gemType.spec, d.pos, events, triggeringSide);
       } else if (kind === 'manaPotionGem') {
         const color = d.gemType.spec.color ?? BaseColor.Red;
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color });
@@ -1677,7 +1678,7 @@ export class TurnEngine {
         // 狼化宝石（官方 "Removing Lycanthropy gems cast lycanthropy"）：被摧毁（含被匹配）
         // 时对随机敌人施加狼化状态
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos, color: BaseColor.Purple });
-        const enemies = randomStatusCandidates(this.state.teams[opponentOf(this.state.activePlayer)].characters,
+        const enemies = randomStatusCandidates(this.state.teams[opponentOf(triggeringSide)].characters,
           [{ id: 'lycanthropy' }]);
         if (enemies.length > 0) {
           const target = enemies[this.rng.nextInt(enemies.length)];
@@ -1687,7 +1688,7 @@ export class TurnEngine {
         // 天使宝石（官方 "give a random Ally the Bless Status Effect"）：随机己方获得祝福
         //（blessed 施加即净化负面 + 存续期全免疫，status.ts 已实现口径）
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
-        const allies = randomStatusCandidates(this.state.teams[this.state.activePlayer].characters,
+        const allies = randomStatusCandidates(this.state.teams[triggeringSide].characters,
           [{ id: 'blessed' }]);
         if (allies.length > 0) {
           const target = allies[this.rng.nextInt(allies.length)];
@@ -1700,19 +1701,19 @@ export class TurnEngine {
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
         events.push(...this.summonRandomDaemon());
       } else if (kind === 'gargoyleGem') {
-        this.applyGargoyleGem(d.gemType.spec, d.pos, events);
+        this.applyGargoyleGem(d.gemType.spec, d.pos, events, triggeringSide);
       } else if (kind === 'trapGem') {
         this.applyTrapGem(d.pos, events);
       } else if (kind === 'hourglass' && !d.viaMatch) {
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
-        if (this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'destroy';
+        if (triggeringSide === this.state.activePlayer && this.pendingExtraTurnSource === null) this.pendingExtraTurnSource = 'destroy';
       } else if (kind === 'candyGem') {
-        this.applyCandyGem(d.gemType.spec, d.pos, events);
+        this.applyCandyGem(d.gemType.spec, d.pos, events, triggeringSide);
       } else if (kind === 'enchantedGem') {
-        this.applyEnchantedGem(d.pos, events);
+        this.applyEnchantedGem(d.pos, events, triggeringSide);
       } else if (isStatusGemKind(kind) && DESTROY_STATUS_GEMS.has(kind)) {
         // 13 种状态宝石均可被摧毁触发；匹配时即时施加的 5 种不会重复进队列。
-        this.applyStatusGem(kind, d.pos, events);
+        this.applyStatusGem(kind, d.pos, events, triggeringSide);
       }
       // ghost/wildcard/stoneBlock/mimicGem 未定义被移除时可复用的触发效果；
       // wildcard 的匹配倍率仍只在匹配组结算，幽魂/宝箱怪的原版效果另列缺口。
@@ -1752,10 +1753,10 @@ export class TurnEngine {
    * 0..2 = 随机 1/2/3 名己方，3 = 己方全员，4 = 双方全员（20% 的坑）。
    * 沉默者不可充能（与法力分配器同口径），阵亡不受益。
    */
-  private applyWish(pos: CellPos, events: GameEvent[]): void {
+  private applyWish(pos: CellPos, events: GameEvent[], triggeringSide: PlayerSide): void {
     const option = Math.min(4, Math.floor(this.rng.next() * 5));
-    const myTeam = this.state.teams[this.state.activePlayer].characters;
-    const enemyTeam = this.state.teams[opponentOf(this.state.activePlayer)].characters;
+    const myTeam = this.state.teams[triggeringSide].characters;
+    const enemyTeam = this.state.teams[opponentOf(triggeringSide)].characters;
 
     let targets: Character[];
     if (option <= 2) {
@@ -1829,9 +1830,9 @@ export class TurnEngine {
    * 官方 "drain" 无转移语义）。沉默**不影响**被汲取方（法力汲取不是充能）；法力操作免疫
    *（manashield）按引擎削减口既有口径拦截（debuff.ts stat==='mana' 同款）。
    */
-  private applySpiritGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+  private applySpiritGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[], triggeringSide: PlayerSide): void {
     events.push({ type: 'special-gem-trigger', kind: 'spiritGem', pos, color: spec.color });
-    for (const foe of this.state.teams[opponentOf(this.state.activePlayer)].characters) {
+    for (const foe of this.state.teams[opponentOf(triggeringSide)].characters) {
       if (foe.defeated || passivesOf(foe).manaOpsImmunity) continue;
       const loss = Math.min(SPIRIT_GEM_DRAIN, foe.mana);
       if (loss <= 0) continue;
@@ -1868,18 +1869,18 @@ export class TurnEngine {
    *（collectMatchTriggers 登记口）。己方全体该色存活盟友各 +1——直接授予不走分配器
    *（官方是"给每个该色盟友"而非产出到池），但保持 canGainMana 沉默拦截 + manaCost 夹取口径。
    */
-  private applyEnchantedGem(pos: CellPos, events: GameEvent[]): void {
+  private applyEnchantedGem(pos: CellPos, events: GameEvent[], triggeringSide: PlayerSide): void {
     events.push({ type: 'special-gem-trigger', kind: 'enchantedGem', pos, color: BaseColor.Purple });
-    const allies = randomStatusCandidates(this.state.teams[this.state.activePlayer].characters, [{ id: 'enchanted' }]);
+    const allies = randomStatusCandidates(this.state.teams[triggeringSide].characters, [{ id: 'enchanted' }]);
     if (allies.length > 0) {
       events.push(...applyStatus(allies[this.rng.nextInt(allies.length)], { id: 'enchanted', turns: 3 }));
     }
   }
 
-  private applyCandyGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+  private applyCandyGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[], triggeringSide: PlayerSide): void {
     const color = spec.color ?? BaseColor.Red;
     events.push({ type: 'special-gem-trigger', kind: 'candyGem', pos, color });
-    for (const ally of this.state.teams[this.state.activePlayer].characters) {
+    for (const ally of this.state.teams[triggeringSide].characters) {
       if (ally.defeated || !ally.colors.includes(color) || !canGainMana(ally)) continue;
       const gain = Math.min(CANDY_GEM_MANA, ally.manaCost - ally.mana);
       if (gain <= 0) continue;
@@ -1894,10 +1895,10 @@ export class TurnEngine {
    * tier 1=善（己方全体）/ 2=恶（敌方全体），每个存活角色独立掷一条随机状态
    *（池=引擎已实现状态集，见 GARGOYLE_*_STATUS_POOL；DoT 带标准 magnitude）。
    */
-  private applyGargoyleGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[]): void {
+  private applyGargoyleGem(spec: SpecialGemSpec, pos: CellPos, events: GameEvent[], triggeringSide: PlayerSide): void {
     const evil = spec.tier === 2;
     events.push({ type: 'special-gem-trigger', kind: 'gargoyleGem', pos });
-    const side = evil ? opponentOf(this.state.activePlayer) : this.state.activePlayer;
+    const side = evil ? opponentOf(triggeringSide) : triggeringSide;
     const pool = evil ? GARGOYLE_NEGATIVE_STATUS_POOL : GARGOYLE_POSITIVE_STATUS_POOL;
     for (const target of this.state.teams[side].characters) {
       if (target.defeated) continue;
@@ -2173,7 +2174,7 @@ export class TurnEngine {
     // 摧毁链（proposal rulings/R010-remove-special-gems.md）；重力补充与连锁照常。
     if (mode !== 'remove') {
       // 1. 特殊宝石摧毁触发链（可匹配宝石匹配时亦触发，单颗只处理一次）
-      const chain = this.expandSpecialDestruction(destroyed, events, manaPotions);
+      const chain = this.expandSpecialDestruction(destroyed, events, manaPotions, side);
 
       // 2. 被直接摧毁宝石的法力/骷髅结算：按类型归并数量（含链上新摧毁的）
       this.settleDestroyed(destroyed, events, side, mode === 'explode', chain);
