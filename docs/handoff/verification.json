@@ -1,0 +1,28 @@
+{
+  "checked_on": "2026-10-28",
+  "result": "passed",
+  "user_turns_compared_to_original_logs": 95,
+  "source_segments": 8,
+  "image_occurrences_verified": 9,
+  "unique_original_image_files": 8,
+  "external_snapshots_byte_equal_to_sources": 4,
+  "relative_links_and_turn_anchors_checked": 330,
+  "broken_links": 0,
+  "sillytavern_documents_in_file_guide": 31,
+  "command_file_paths_checked": 19,
+  "scope": "原始归档检查覆盖原文、用户附件、外部快照及路径；后续补充本地部署、安装页下载与浏览器跨来源模块验证，详见 local-deployment-verification.json。完整真实聊天功能验收仍沿用既有记录。",
+  "local_deployment_follow_up": {
+    "checked_on": "2026-10-28",
+    "result": "passed",
+    "guide": "local-deployment.md",
+    "runtime_report": "local-deployment-verification.json",
+    "documentation_checks": {
+      "result": "passed",
+      "markdown_files": 8,
+      "relative_links_checked": 343,
+      "anchors_checked": 166,
+      "unchanged_external_snapshots": 4,
+      "errors": []
+    }
+  }
+}

@@ -1,4 +1,4 @@
-﻿// Ragnagord 6105: source-anchored chosen-colour random explosions through TurnEngine.
+// Ragnagord 6105: source-anchored chosen-colour random explosions through TurnEngine.
 // @ts-expect-error Node fixture typings are absent from the browser TypeScript build.
 import fs from 'node:fs';
 import {describe,expect,it,vi} from 'vitest';
@@ -14,7 +14,7 @@ const troop=TROOPS.find(t=>t.id===6105)!;
 const english=JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json','utf8')).troops.find((x:{Id:number})=>x.Id===6105);
 const nativeRow=JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells.find((x:{Id:number})=>x.Id===7171);
 const native=JSON.parse(nativeRow.RawData??nativeRow.data);
-const guide=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html','utf8');
+const guide=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html','utf8');
 const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 function setup(color:BaseColor,magic=11,side=PlayerSide.Left){
  const f=damageFixture();f.caster.skillId='7171';f.caster.manaCost=f.caster.mana=14;

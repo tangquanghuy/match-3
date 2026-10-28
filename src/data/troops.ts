@@ -200,8 +200,10 @@ export function draftCharacters(troops: TroopData[], baseId: number): Character[
  */
 export function troopToSummonTemplate(
   referenceName: string,
-  arenaRules = false,
+  arenaRulesOrSource: boolean | Character = false,
 ): Omit<Character, 'id' | 'defeated' | 'statuses'> | null {
+  // Context-aware resolvers pass an actor; only an explicit boolean enables arena rules.
+  const arenaRules = typeof arenaRulesOrSource === 'boolean' ? arenaRulesOrSource : false;
   const troop = getTroopByRef(referenceName);
   if (!troop) return null;
   const colors = troop.manaColors.length > 0 ? troop.manaColors : [BaseColor.Brown];

@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-24",
+  "scope": "公开部署、真实酒馆助手安装及实际战斗写回闭环；不构成整版产品验收",
+  "functionalCandidateVersion": "f3ef8203-4170-42e6-ab4e-ddaae95c5416",
+  "base": "https://match3-tavern-playtest.linjiang-workshop.workers.dev/",
+  "runtime": {
+    "sillyTavern": "1.19.0",
+    "tavernHelper": "4.11.3",
+    "mvuBuild": "7574d47",
+    "mvuSha256": "a5d6166d43a78c7fad05669864efd76852f58eea905814dcd89f8e1b29fa4b27"
+  },
+  "hostSha256": "0a6cb64be61cbf7c70f048a88d9623a183fd92e4fdb48eb1ff1caf6d3fa111c1",
+  "realBattleStatus": "passed",
+  "checks": {
+    "visibleTopRoot": true,
+    "classifiedInput": true,
+    "storyStarted": true,
+    "storyFullscreen": true,
+    "storyActualUiAutoBattle": true,
+    "storyQueueLength": 0,
+    "realMvuStoryMarker": true,
+    "realChatStoryMirror": true,
+    "reloadIdempotent": true,
+    "replayQueueLength": 0,
+    "replaySameClassifiedEncounter": true,
+    "replayPreservedHostHP": true,
+    "replayFullHealthStart": true,
+    "replayDidNotAddStoryMarker": true,
+    "companionColorsRetained": true,
+    "totalFragmentGrants": 2,
+    "actualUiReplayVictoryScreenshot": true,
+    "finalReloadIdempotent": true,
+    "finalTwoReceiptsUnchanged": true
+  },
+  "defeatChecks": {
+    "noOldPendingBeforeNewStart": true,
+    "resumedSameNewDefeatTicket": true,
+    "classifiedCompiledTicket": true,
+    "newBattleId": true,
+    "autoPreferenceInitiallyEnabled": true,
+    "actualUiUsedPersistedAuto": true,
+    "actualEnemyVictory": true,
+    "nonzeroMvuHpWriteback": true,
+    "hpBefore": 1,
+    "hpAfter": 0,
+    "zeroGrants": true,
+    "noNewVictoryEncounter": true,
+    "noSourceWinIncrement": true,
+    "originalVictoryReplayPreserved": true,
+    "actualBattleReportCorrect": true,
+    "visibleReportMatchesActual": true,
+    "mvuStoryMarker": true,
+    "chatStoryMirror": true,
+    "outboxEmpty": true,
+    "defeatReloadIdempotent": true,
+    "playableFixtureRestored": true
+  },
+  "battleSummary": {
+    "storyWinner": "player",
+    "replayWinner": "player",
+    "defeatWinner": "enemy",
+    "defeatHpBefore": 1,
+    "defeatHpAfter": 0,
+    "defeatMaxHp": 80,
+    "defeatGrants": [],
+    "defeatReport": {
+      "version": 1,
+      "battleId": "1952fbcc-ad97-44be-a615-f967c4f7c689",
+      "winner": "enemy",
+      "turns": 2,
+      "units": [
+        {
+          "externalId": "/人物",
+          "name": "联调主角",
+          "side": "player",
+          "initialHp": 1,
+          "initialMaxHp": 80,
+          "finalHp": 0,
+          "finalMaxHp": 80,
+          "initialHpPercent": 1.25,
+          "finalHpPercent": 0,
+          "hpLostPercentagePoints": 1.25,
+          "fellCount": 1,
+          "revivedCount": 0,
+          "finallyDefeated": true,
+          "fled": false,
+          "hpDamage": 1,
+          "hpHealing": 0,
+          "hpGrowth": 0
+        },
+        {
+          "externalId": "enemy-1",
+          "name": "输出 enemy-1",
+          "side": "enemy",
+          "initialHp": 185,
+          "initialMaxHp": 185,
+          "finalHp": 185,
+          "finalMaxHp": 185,
+          "initialHpPercent": 100,
+          "finalHpPercent": 100,
+          "hpLostPercentagePoints": 0,
+          "fellCount": 0,
+          "revivedCount": 0,
+          "finallyDefeated": false,
+          "fled": false,
+          "hpDamage": 0,
+          "hpHealing": 0,
+          "hpGrowth": 0
+        }
+      ],
+      "defeatedEnemyIds": [],
+      "fallenAllyIds": [
+        "/人物"
+      ],
+      "revivedAllyIds": []
+    }
+  },
+  "fixtureScope": {
+    "victory": "Before real combat, MVU fixed weapon damage 500 -> actual attack503; HP63/80. Real auto battle victory with 0 HP loss validates marker/current-HP preservation and idempotence.",
+    "defeat": "Before real combat, MVU fixed weapon damage0 -> actual attack3; HP1/80; classified enemy level50/difficulty5 -> HP185/attack80/armor125. Real auto battle loss in two turns writes HP0.",
+    "restored": "After completed loss and reload verification, only fixture HP/temp/weapon panel and chat encounter were restored. Three actual receipts and both MVU story markers remain."
+  },
+  "finalState": {
+    "settlementCount": 3,
+    "winners": [
+      "player",
+      "player",
+      "enemy"
+    ],
+    "victoryEncounterCount": 1,
+    "sourceWins": [
+      2
+    ],
+    "hostHp": 63,
+    "hostMaxHp": 80,
+    "fixedWeaponDamage": 500,
+    "storyMarkerCount": 2,
+    "outboxLength": 0
+  },
+  "remaining": [
+    "AIRP 实际模型对话自动提交遭遇未联测",
+    "缺失 MVU 超时提示补充探针未通过，原因未确定",
+    "ST-04 规则交互行为证明及五档平衡",
+    "ST-06 临时 HP 吸收与转换标定",
+    "ST-07 逐行动及选择恢复",
+    "ST-08 完整学习、装配与学会后关闭再现",
+    "ST-09 淬炼与材料产品流程",
+    "ST-10 整版体验标定及验收"
+  ],
+  "evidence": [
+    {
+      "path": ".tmp/st-real-integration/artifacts/published-final-report.json",
+      "sha256": "70c742bcdfef8af6a39c23f61d64137fd7ba7a0b2440ade10f3b170bfb0c19ce"
+    },
+    {
+      "path": ".tmp/st-real-integration/artifacts/published-defeat-report.json",
+      "sha256": "e5d0b612d24ab795f3d27890b2ebc1d41667307f3a6c210248027e5dbf3cce29"
+    },
+    {
+      "path": ".tmp/st-real-integration/artifacts/published-classified-provenance.json",
+      "sha256": "417dfeaa051690ab680d7c4a8788274e5419f0575af2b810f69ed907e6590a1c"
+    },
+    {
+      "path": ".tmp/st-real-integration/artifacts/published-defeat-settlement.png",
+      "sha256": "635fffd57fd9ff608b03749f9f1447f6011bbdbd7a99a95cf1abd1ea8361c1fe"
+    },
+    {
+      "path": ".tmp/st-real-integration/artifacts/published-replay-settlement.png",
+      "sha256": "d66fb4da3d19022c3855af5602a02dac90b8fbd9873c5055f3de1b4533631202"
+    },
+    {
+      "path": ".tmp/st-real-integration/artifacts/published-final-bestiary.png",
+      "sha256": "adc49dd6ac6cd1ce8957edbec1dccfb16c81d394cb45212dd103f92548c962d2"
+    }
+  ],
+  "deployedVersion": "8f81076b-e90a-4069-a6f1-d84bb5280e11",
+  "finalDeploymentChanges": [
+    "sillytavern-install.html",
+    "sillytavern-host-integration.md",
+    "sillytavern-manual-test.md",
+    "sillytavern-release-20261024.md"
+  ],
+  "finalPublicVerification": {
+    "status": "passed",
+    "path": ".tmp/st-published-delivery-verify.json"
+  }
+}

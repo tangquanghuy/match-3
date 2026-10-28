@@ -15,6 +15,8 @@ import { statusBadge } from './statusBadges';
 /** 面板展示用的纯数据模型（与 DOM 无关，便于测试） */
 export interface DetailViewModel {
   name: string;
+  race?: string;
+  levelLabel?: string;
   hp: number;
   maxHp: number;
   armor: number;
@@ -48,6 +50,11 @@ export interface CharacterDisplay {
   spellDescription?: string;
   /** 库外特质 code 的中文名兜底（职业天赋/专属特质） */
   traitNames?: Record<string, string>;
+}
+
+/** 本场显示等级优先；派生形态只有缩放快照时复用其实际等级。 */
+export function characterLevelLabel(char: Character): string | undefined {
+  return char.levelLabel ?? (char.battleScaling ? `Lv.${char.battleScaling.level}` : undefined);
 }
 
 /**
@@ -109,6 +116,8 @@ export function buildDetailViewModel(
 
   return {
     name: char.name,
+    race: char.race,
+    levelLabel: characterLevelLabel(char),
     hp: Math.max(0, Math.min(char.hp, char.maxHp)),
     maxHp: char.maxHp,
     armor: Math.max(0, char.armor),

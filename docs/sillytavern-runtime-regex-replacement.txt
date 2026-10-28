@@ -1,0 +1,14 @@
+```html
+<body>
+<div id='match3-message' style='min-height:64px;color:#e5e7eb;font:14px/1.5 system-ui,sans-serif'><p role='status'>正在加载三消战斗入口…</p></div>
+<script type='module'>
+const root=document.getElementById('match3-message');
+try{
+  const{mountMessageEncounter}=await import('https://match3-tavern-playtest.linjiang-workshop.workers.dev/sillytavern-message.js');
+  await mountMessageEncounter({runtimeWindow:window,messageId:getCurrentMessageId(),root});
+}catch(error){
+  root.textContent='三消战斗入口加载失败：'+(error instanceof Error?error.message:String(error));
+}
+</script>
+</body>
+```

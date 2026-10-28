@@ -4,11 +4,12 @@ import { createGameState } from '@engine/GameState';
 import { TurnEngine } from '@engine/TurnEngine';
 import { ExtensionRegistry } from '@engine/registry';
 import { SeededRNG } from '@engine/rng';
-import { BaseColor, MatchState, PlayerSide, colorGem, type Character } from '@engine/types';
+import { BaseColor, MatchState, PlayerSide, colorGem, snapshotCharacterForm, type Character } from '@engine/types';
 import { registerSkillLibrary } from '@engine/skills/library';
-import { applyTransformTemplate, transformTroopEffect } from '@engine/skills/effects/summon';
+import { applyTransformTemplate, summonEffect, summonCopyEffect, transformTroopEffect } from '@engine/skills/effects/summon';
 import { getTroopByRef, troopToCharacter, troopToSummonTemplate } from '../../src/data/troops';
 import { currentFormSnapshot } from '../../src/render/currentFormSnapshot';
+import { tickStatuses } from '@engine/skills/effects/status';
 import type { CombatantSnapshot } from '@session/contract';
 
 function fixture() {
@@ -113,5 +114,69 @@ describe('transformation replaces the complete current form', () => {
     expect(next).toContainEqual(expect.objectContaining({ type: 'skill-cast', skillId: String(dragon.spell.id) }));
     expect(next.some(e => e.type === 'troop-transform')).toBe(false);
     expect(f.caster.hp).toBeGreaterThan(1);
+  });
+});
+
+
+describe('event-time character forms', () => {
+  it('keeps each form independent through repeated transforms, nested mutations and death', () => {
+    const f = fixture();
+    const first = transformTroopEffect({ targets: [f.caster], ref: 'Emperina', fullMana: true }).apply(f.ctx)[0];
+    expect(first.type).toBe('troop-transform');
+    if (first.type !== 'troop-transform') throw new Error('missing transform');
+    const expected = snapshotCharacterForm(f.caster);
+    const second = transformTroopEffect({ targets: [f.caster], ref: 'BabyDragon' }).apply(f.ctx)[0];
+    f.caster.colors.push(BaseColor.Brown);
+    f.caster.traitIds!.push('later-trait');
+    f.caster.hp = 0; f.caster.defeated = true;
+    expect(first.form).toEqual(expected);
+    expect(second.type === 'troop-transform' && second.form?.defeated).toBe(false);
+    expect(first.form).not.toHaveProperty('passive');
+    expect(first.form).not.toBe(f.caster);
+    expect(first.form?.colors).not.toBe(f.caster.colors);
+  });
+
+  it.each(['ordinary', 'copy'] as const)('captures %s summon before transformation and removal', kind => {
+    const f = fixture();
+    const events = kind === 'ordinary'
+      ? summonEffect({ source: { ref: 'Emperina' } }).apply(f.ctx)
+      : summonCopyEffect({ targets: [f.enemy] }).apply(f.ctx);
+    const event = events.find(e => e.type === 'summon')!;
+    if (event.type !== 'summon') throw new Error('missing summon');
+    const summoned = f.state.teams.Left.characters.find(c => c.id === event.characterId)!;
+    expect(event.form).toEqual(snapshotCharacterForm(summoned));
+    const expected = structuredClone(event.form);
+    transformTroopEffect({ targets: [summoned], ref: 'BabyDragon' }).apply(f.ctx);
+    summoned.hp = 0; summoned.defeated = true;
+    f.state.teams.Left.characters.splice(f.state.teams.Left.characters.indexOf(summoned), 1);
+    expect(event.form).toEqual(expected);
+    expect(event.form?.defeated).toBe(false);
+    expect(event.form?.hp).toBeGreaterThan(0);
+  });
+
+  it('captures wolf transformation through the status producer', () => {
+    const f = fixture();
+    f.caster.statuses = [{ id: 'lycanthropy', turns: 3 }];
+    const events = tickStatuses(f.caster, { next: () => 0.12 } as SeededRNG,
+      () => troopToSummonTemplate('Emperina')!);
+    const event = events.find(e => e.type === 'troop-transform');
+    expect(event).toMatchObject({ form: { id: f.caster.id, name: f.caster.name, statuses: [], hp: f.caster.hp } });
+    f.caster.hp = 0;
+    expect(event?.type === 'troop-transform' && event.form?.hp).toBeGreaterThan(0);
+  });
+
+  it('deeply detaches presentation collections and scaling', () => {
+    const f = fixture();
+    f.caster.battleScaling = { level: 20, difficulty: 1 };
+    f.caster.statuses = [{ id: 'poison', turns: 3, magnitude: 2 }];
+    const form = snapshotCharacterForm(f.caster);
+    f.caster.battleScaling.level = 30;
+    f.caster.statuses[0].magnitude = 9;
+    f.caster.traitNames!['old-hero-only'] = 'changed';
+    f.caster.displayTraitIds!.push('later');
+    expect(form.battleScaling?.level).toBe(20);
+    expect(form.statuses[0].magnitude).toBe(2);
+    expect(form.traitNames!['old-hero-only']).not.toBe('changed');
+    expect(form.displayTraitIds).toEqual(['old-hero-only']);
   });
 });

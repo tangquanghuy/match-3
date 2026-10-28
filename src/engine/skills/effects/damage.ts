@@ -172,6 +172,7 @@ export function damageOne(
     target.armor -= absorbed;
     remaining -= absorbed;
   }
+  const hpBeforeHit = target.hp;
   target.hp = Math.max(0, target.hp - remaining);
 
   const damageEvent: SkillDamageEvent = {
@@ -180,6 +181,7 @@ export function damageOne(
     targetId: target.id,
     range,
     damage: amount,
+    hpLoss: hpBeforeHit - target.hp,
     resultingHp: target.hp,
     resultingArmor: target.armor,
     ...(!ignoreSpellModifiers && amount < Math.round(amplified)
@@ -230,11 +232,12 @@ export function damageEffect(params: DamageParams): EffectPrimitive {
           // Direct defeat is not a spell-damage hit: no resistance, barrier, amplification or reflect.
           // Keep a damage event for the existing cast animation and on-kill/target tracking.
           const damage = Math.max(0, victim.hp) + (trueDamage ? 0 : Math.max(0, victim.armor));
+          const hpLoss = victim.hp;
           victim.hp = 0;
           if (!trueDamage) victim.armor = 0;
           victim.defeated = true;
           const event: SkillDamageEvent = { type: 'skill-damage', casterId: ctx.casterId,
-            targetId: victim.id, range: hitRange, damage, resultingHp: 0, resultingArmor: victim.armor };
+            targetId: victim.id, range: hitRange, damage, hpLoss, resultingHp: 0, resultingArmor: victim.armor };
           if (chain) {
             event.chainIndex = chain.index;
             event.chainCount = chain.count;

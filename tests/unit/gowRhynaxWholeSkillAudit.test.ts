@@ -1,4 +1,4 @@
-﻿// Rhynax 6001: whole stored-snapshot spell review; the historical guide has an older flat-adjacent wording.
+// Rhynax 6001: whole stored-snapshot spell review; the historical guide has an older flat-adjacent wording.
 // @ts-expect-error Node fixture typings are absent from the browser TypeScript build.
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -15,7 +15,7 @@ const troop = TROOPS.find(t => t.id === 6001)!;
 const english = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops.find((t: { id: number }) => t.id === 6001);
 const nativeRow = JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json', 'utf8')).spells.find((s: { Id: number }) => s.Id === 7132);
 const native = JSON.parse(nativeRow.RawData ?? nativeRow.data);
-const guide = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html', 'utf8');
+const guide = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html', 'utf8');
 const registry = new ExtensionRegistry(); registerSkillLibrary(registry.prototypes);
 function setup(magic = 11, center = 11, side = PlayerSide.Left, armor = 0) {
   const fixture = damageFixture(0, 0, Array.from({ length: 4 }, () => ({ armor })));

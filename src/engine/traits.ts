@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 被动特质系统（需求 7.1；原 GAP-4）。
  *
  * ## 设计
@@ -1895,6 +1895,8 @@ export type DeathSummonSpec = NonNullable<TraitDefinition['summonOnDeath']>;
 
 /** 死亡召唤的执行环境：由 TurnEngine 注入，避免 traits 直接依赖 GameState/编队容量逻辑 */
 export interface DeathSummonContext {
+  /** Per-battle or environment-specific resolver; omitted callers retain the legacy resolver. */
+  resolveTemplate?: (spec: DeathSummonSpec, owner?: Character) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null;
   /** 阵亡者 id（供宿主侧判定等元数据；配对召唤等无死者来源的变体可省略） */
   deadId?: number;
   /** 分配新角色 id（TurnEngine 注入，确定性）；缺省时该次召唤跳过 */
@@ -1956,11 +1958,11 @@ export function collectBattleStartStorms(
  * 概率判定经种子化 rng（确定性）；召唤物模板由生成器按兵种数据预解析（troopId/referenceName）。
  */
 export function applyDeathSummons(
-  specs: { spec: DeathSummonSpec; side: PlayerSide }[],
+  specs: { spec: DeathSummonSpec; side: PlayerSide; owner?: Character }[],
   ctx: DeathSummonContext,
 ): GameEvent[] {
   const events: GameEvent[] = [];
-  for (const { spec, side } of specs) {
+  for (const { spec, side, owner } of specs) {
     if (ctx.rng && ctx.rng.next() >= spec.chance) continue;
     // 风暴变体：不是兵种，不入队——交给宿主设置 team.storm（不需要 nextCharId/模板）
     if (spec.storm) {
@@ -1968,7 +1970,7 @@ export function applyDeathSummons(
       continue;
     }
     if (!ctx.nextCharId) continue; // 无 id 分配器则安全跳过（纯单测环境）
-    const template = resolveSummonTemplate(spec);
+    const template = ctx.resolveTemplate ? ctx.resolveTemplate(spec, owner) : resolveSummonTemplate(spec, owner);
     if (!template) continue;
     const id = ctx.nextCharId();
     // 复活族（immortal/deepsoul/rebirth「resurrect with full Mana」）：fullMana 时召唤物
@@ -1985,17 +1987,17 @@ export function applyDeathSummons(
  * TurnEngine 注入的 enqueue 回调负责查兵种数据装配真实属性；这里只提供兜底骨架，
  * 让"解析失败但troopId 有效"的场景也能以占位属性进场（AI 对局不因数据缺口崩溃）。
  */
-let summonTemplateResolver: ((spec: DeathSummonSpec) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null) | null = null;
+let summonTemplateResolver: ((spec: DeathSummonSpec, owner?: Character) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null) | null = null;
 
 /** 由装配层（TurnEngine/App）注入召唤模板解析器：兵种数据 → 属性模板 */
 export function setSummonTemplateResolver(
-  resolver: (spec: DeathSummonSpec) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null,
+  resolver: (spec: DeathSummonSpec, owner?: Character) => Omit<Character, 'id' | 'defeated' | 'statuses'> | null,
 ): void {
   summonTemplateResolver = resolver;
 }
 
-function resolveSummonTemplate(spec: DeathSummonSpec): Omit<Character, 'id' | 'defeated' | 'statuses'> | null {
-  return summonTemplateResolver ? summonTemplateResolver(spec) : null;
+function resolveSummonTemplate(spec: DeathSummonSpec, owner?: Character): Omit<Character, 'id' | 'defeated' | 'statuses'> | null {
+  return summonTemplateResolver ? summonTemplateResolver(spec, owner) : null;
 }
 
 /**
@@ -2289,7 +2291,7 @@ export interface BigMatchTriggerContext {
    * applyDeathSummons——概率走注入的 rng、模板按兵种数据装配、入队走容量/FIFO 规则）；
    * 缺省时召唤跳过（纯逻辑环境零事件、零随机消耗）。
    */
-  summon?: (spec: { chance: number; troopId: number; referenceName: string; displayName: string }) => GameEvent[];
+  summon?: (spec: { chance: number; troopId: number; referenceName: string; displayName: string }, owner?: Character) => GameEvent[];
   /**
    * 风暴设置口（T5 杂项批 deadlywaters，TurnEngine 注入：全局唯一「后召顶替先召」裁定，
    * 与技能造风暴同一 storm-change 事件形态）；缺省时风暴跳过。
@@ -2617,7 +2619,7 @@ export function applyBigMatchTriggers(
       if (spec.chance < 1) {
         if (!ctx.rng || ctx.rng.next() >= spec.chance) continue;
       }
-      events.push(...ctx.summon(spec));
+      events.push(...ctx.summon(spec, holder));
     }
   }
 
@@ -2857,8 +2859,8 @@ export function applyBattleStartTraits(
   // 3.5 束带计数光环（缺口清扫批 bandinglife/bandingmagic/bandingarmor/bandingattack/
   // truebanding，官方 Filter=traitbanding「Gain N … for each Ally with a Banding Trait」）：
   // 数同队存活持有束带特质的盟友（含自己，与 perAllyColor 同口径），gains×count 一次性授出。
-  // 束带家族 = banding* 前缀 + truebanding（官方 traitbanding 过滤器的全集）。
-  const isBandingTrait = (code: string) => code.startsWith('banding') || code === 'truebanding';
+  // Family membership follows the registered mechanics, so adapted/dynamic codes keep it.
+  const isBandingTrait = (code: string) => lookup(code)?.perAllyTrait?.trait === 'banding';
   for (const team of [allies, enemies]) {
     for (const char of team) {
       if (char.defeated) continue;

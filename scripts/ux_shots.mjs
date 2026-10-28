@@ -1,4 +1,4 @@
-// UX 审查截图工具（TASK-UX.md 阶段 A · §2.1 截图规程）
+// UX 审查截图工具（tasks/reference/TASK-UX.md 阶段 A · §2.1 截图规程）
 //
 // 两种用法：
 //

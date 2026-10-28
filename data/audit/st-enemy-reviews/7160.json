@@ -1,0 +1,647 @@
+{
+  "version": 1,
+  "enemyId": 7160,
+  "reviewer": "codex-independent-random-family-product-20261024",
+  "reviewerName": "Codex independent random-family product and enemy-behavior reviewer",
+  "reviewedAt": "2026-10-23T18:45:10.037Z",
+  "decision": "accepted",
+  "scope": "enemy-behavior",
+  "obligations": [
+    "portrait",
+    "active",
+    "traits",
+    "target",
+    "mana-cost",
+    "mana-colors",
+    "scaling",
+    "context",
+    "description",
+    "role",
+    "refresh",
+    "determinism",
+    "invalid-action"
+  ],
+  "subjectDigest": "8d2b64131e5ee8b202a67563e9cfe16b06b2f4355e1620d9ce680d96ff37e329",
+  "testDigest": "223a04e70ecb2c9093db77204f24a4705172140d7e6c98845432cb2a32d956c3",
+  "implementationDigest": "060b6777e2643ac0e93848d2e80392fd2739f86e067924b200cdcea47a062a47",
+  "portraitDigest": "049163a424b6a859945ee4a768fe26036502f1a2a83fd7516bc77d3a5a3ff985",
+  "contractDigest": "d45a8e722480569bf4cd8255e2aa13fb70e1c74849c8d0e12cf43893e3fa0542",
+  "runDigest": "362f95a10aad7b4115523b2d9ade167a073047ada41d3a4a3b702edef8d47781",
+  "evidence": {
+    "sourceRefs": [
+      "data/raw/troops.gow.en.json#troops[id=7160]",
+      "data/raw/spells.gow.en.json#spells[Id=8735]",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=frenzy",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=airheart",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=sturdy",
+      "src/data/troop-progression.json#7160",
+      "src/data/troops.json#7160",
+      "src/data/traits.json#frenzy",
+      "src/data/traits.json#airheart",
+      "src/data/traits.json#sturdy",
+      "src/sillytavern/data/portraits.json#entries[troopId=7160]",
+      "game-assets/public/static/portraits/Troop_K15_27.webp",
+      "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+    ],
+    "sourceFixture": "tests/fixtures/stEnemyRandomDamageExpectations.json",
+    "sourceFixtureSha256": "4b3ff6a71bf9c66068ee97cb7d358934f43295627e7fb6308b2c9143c6623b31",
+    "sourceRowDigest": "98832241f0e3aa5b336a4c49c725c28d2bbaffa13725c2d44c827d17059161f0",
+    "sourceReviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+    "sourceReview": "8735: Blue/Yellow, cost 7, first living enemy, inclusive native random damage round(Magic/2+1)..Magic+2. Endpoints, both sides, scaling and seeded replay reviewed.",
+    "ordinaryTraits": [
+      {
+        "code": "frenzy",
+        "executionReview": "Actual skull damage grants +1 Attack; spell damage does not. Same inherited native boundary as old6026."
+      },
+      {
+        "code": "airheart",
+        "executionReview": "Opening HP counts actual living same-team Yellow allies including self."
+      },
+      {
+        "code": "sturdy",
+        "executionReview": "Native poison immunity, with positive/negative status controls."
+      }
+    ],
+    "obligationAssertions": [
+      {
+        "id": "portrait",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          }
+        ]
+      },
+      {
+        "id": "active",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "traits",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior counts only living allied heart colors including self once on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior counts only living allied heart colors including self once on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes Frenzy from a real skull hit and records the raw spell-damage scope gap on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes Frenzy from a real skull hit and records the raw spell-damage scope gap on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior Sturdy blocks real poison with a plain control and yields to stun on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior Sturdy blocks real poison with a plain control and yields to stun on side Right"
+          }
+        ]
+      },
+      {
+        "id": "target",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior excludes dead slots and preserves the source target rule on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior excludes dead slots and preserves the source target rule on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-cost",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-colors",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Red three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Green three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Blue three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Yellow three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Purple three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Brown three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Red three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Green three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Blue three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Yellow three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Purple three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior routes a real Brown three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "scaling",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          }
+        ]
+      },
+      {
+        "id": "context",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior counts only living allied heart colors including self once on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior counts only living allied heart colors including self once on side Right"
+          }
+        ]
+      },
+      {
+        "id": "description",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          }
+        ]
+      },
+      {
+        "id": "role",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          }
+        ]
+      },
+      {
+        "id": "refresh",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Right"
+          }
+        ]
+      },
+      {
+        "id": "determinism",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Right"
+          }
+        ]
+      },
+      {
+        "id": "invalid-action",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          }
+        ]
+      }
+    ],
+    "publicCompiler": "compileEnemyBlueprint -> prepareStBattle -> mapRequestToTeams -> TurnEngine/configureEngine -> BattleSession.resolve",
+    "independentBrowser": {
+      "provenance": "Reviewer personally exercised the seven real form/save/full-BP/reload/formation flows.7159 was independently repeated after the description patch.",
+      "input": {
+        "seed": 0,
+        "colors": "Blue,Yellow",
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Striker"
+      },
+      "sourceRecipe": "enemy:7160",
+      "fullAndSemanticBpPreserved": true,
+      "formationSourceFieldsPreserved": true,
+      "pageErrors": []
+    },
+    "independentRandomFamily20261024": {
+      "reviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+      "reviewedAt": "2026-10-23T18:45:10.037Z",
+      "kind": "new-source-acceptance",
+      "execution": {
+        "author": "codex-main-random-family-20261024",
+        "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+        "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+        "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+        "sharedFiles": 24,
+        "sharedPassedAssertions": 2525,
+        "failed": 0,
+        "pending": 0,
+        "todo": 0,
+        "projectedSourceAssertions": 80,
+        "projectionDigest": "4ec1649b5d8dd1ab2cbb3dcfe93dc2289991f28e8e518767a04267d8d08a2715",
+        "obligationReferences": 113,
+        "all13ReferencesVerified": true,
+        "provenance": "Shared execution by main agent; reviewer independently inspected original report, exact assertion projection, live fingerprints and contracts. Reviewer ran earlier random-target70 and seven real browser flows, then independently reran7159 browser after the patch; no claim to executing the shared batch."
+      },
+      "productionDelta": {
+        "changedFile": "src/sillytavern/traitDescription.ts",
+        "descriptionException": "没有其他可选目标时仍可被选择",
+        "postFixSha256": "d9742b89ded7ba0c81c33ca431d302e63faa856839fc6a84eb9bad3e4ea1f53c",
+        "preFixSha256": "7e99eba08f9aed4f138a9af61a2c46a366c1aa192c1c6dafa9c9446c1f4aa2d3",
+        "proofFile": ".tmp/st-random-family-implementation-delta.json",
+        "proofSha256": "746d58739971c848b971dd593a49e925125aaf4416d0849d281e6e7f4b5bd057",
+        "independentlyReconstructedOld33": 33,
+        "otherSrcScriptsUnchangedFiles": 683,
+        "otherSrcScriptsDigest": "62411395e7250de383897fe53be6d8532892370e71d11b1e3b1a7db4e95308f1",
+        "engineFilesUnchanged": 142
+      },
+      "buildEvidence": {
+        "provenance": "Main agent build/dist smoke logs inspected; not independently rerun.",
+        "validationFile": ".tmp/st-random-family-validation.json",
+        "validationSha256": "268b7b2a942962e95c6455d74e22deb3fc7a22a54275915b27568dc3654589a1",
+        "buildExit": 0,
+        "distSmokeExit": 0
+      }
+    }
+  },
+  "boundaries": [
+    "Random-family 2026-10-24 acceptance covers only registered source enemy-behavior and its 13 obligations. Shared tests/build/browser evidence grant no additional source or whole-directory/ST-04 completion credit;7038/6341 are outside this batch of new behaviors.",
+    "Persistence scope is canonical full battle-setup BP/semantic design/formation save and reload, plus deterministic seeded replay; no arbitrary mid-battle snapshot-resume claim is made.",
+    "The current shared execution is batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3: 24 files and 2525 passing assertions. Per-source projections overlap and must not be added. Earlier execution statements retained in this receipt are historical.",
+    "Old33 renewal preserves source/portrait/contract semantics. Its conservative implementationDigest update is independently isolated to the ST untargetable last-target exception text; tests and registry/report bindings are renewed. Existing evidence/history/native boundaries remain in force.",
+    "Native Frenzy currently gains Attack from skull damage only. Spell damage does not trigger it despite the broader stored source clause. ST preserves this preexisting discrepancy; this review does not claim full correction of original-source text. Acceptance uses the same complete-ST-assembly/native-reuse scope as existing6026."
+  ]
+}

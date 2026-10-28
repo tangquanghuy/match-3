@@ -1,0 +1,356 @@
+{
+  "version": 1,
+  "purpose": "Verified exact native assertion references for reuse in ST assembly. Records are mapping only and grant no whole-enemy acceptance.",
+  "records": [
+    {
+      "enemyId": 6016,
+      "referenceName": "CentaurScout",
+      "sourceRefs": [
+        "src/data/troops.json#6016",
+        "src/data/troop-progression.json#6016",
+        "data/raw/troops.gow.en.json#troops[Id=6016]",
+        "data/raw/spells.gow.en.json#spells[Id=7016]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+          "clausesCovered": [
+            "row destruction followed by first-living-enemy Magic+1 damage",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+          "clausesCovered": [
+            "specific native battle boundary: Web suppresses only Magic scaling; fixed +1 still hits"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    },
+    {
+      "enemyId": 6026,
+      "referenceName": "Owlbear",
+      "sourceRefs": [
+        "src/data/troops.json#6026",
+        "src/data/troop-progression.json#6026",
+        "data/raw/troops.gow.en.json#troops[Id=6026]",
+        "data/raw/spells.gow.en.json#spells[Id=7026]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowOwlbearScreechAudit.test.ts",
+          "fullName": "Owlbear 6026 / Screech 7026 whole-spell source and battle review English, two native steps, registered prototype, binding and display match",
+          "clausesCovered": [
+            "chosen-enemy Magic+3 damage followed by independent Attack -2",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowOwlbearScreechAudit.test.ts",
+          "fullName": "Owlbear 6026 / Screech 7026 whole-spell source and battle review Barrier prevents the damage but not the later, independent Attack reduction",
+          "clausesCovered": [
+            "specific native battle boundary: Barrier prevents the damage but not the later, independent Attack reduction"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    },
+    {
+      "enemyId": 6027,
+      "referenceName": "Treant",
+      "sourceRefs": [
+        "src/data/troops.json#6027",
+        "src/data/troop-progression.json#6027",
+        "data/raw/troops.gow.en.json#troops[Id=6027]",
+        "data/raw/spells.gow.en.json#spells[Id=7027]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowTreantBarkskinAudit.test.ts",
+          "fullName": "Treant 6027 / Barkskin 7027 source and real-battle audit the historical guide, English snapshot and all four native steps agree on both boosted Skills",
+          "clausesCovered": [
+            "remove Brown; both self Armor and Attack gain Magic+floor(Brown/4)",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowTreantBarkskinAudit.test.ts",
+          "fullName": "Treant 6027 / Barkskin 7027 source and real-battle audit Web disables Magic scaling while retaining the Brown boost to both stats",
+          "clausesCovered": [
+            "specific native battle boundary: Web disables Magic scaling while retaining the Brown boost to both stats"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    },
+    {
+      "enemyId": 6029,
+      "referenceName": "Paladin",
+      "sourceRefs": [
+        "src/data/troops.json#6029",
+        "src/data/troop-progression.json#6029",
+        "data/raw/troops.gow.en.json#troops[Id=6029]",
+        "data/raw/spells.gow.en.json#spells[Id=7029]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowPaladinJusticeAudit.test.ts",
+          "fullName": "Paladin 6029 / Justice 7029 full skill snapshot audit English, two native steps, historical guide and display agree on cost, colors, self Armor and single enemy",
+          "clausesCovered": [
+            "single enemy damage Magic+self Armor",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowPaladinJusticeAudit.test.ts",
+          "fullName": "Paladin 6029 / Justice 7029 full skill snapshot audit Web suppresses only Magic; self Armor is still counted",
+          "clausesCovered": [
+            "specific native battle boundary: Web suppresses only Magic; self Armor is still counted"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    },
+    {
+      "enemyId": 6074,
+      "referenceName": "KeeperOfSouls",
+      "sourceRefs": [
+        "src/data/troops.json#6074",
+        "src/data/troop-progression.json#6074",
+        "data/raw/troops.gow.en.json#troops[Id=6074]",
+        "data/raw/spells.gow.en.json#spells[Id=7144]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowKeeperOfSoulsWholeSkillAudit.test.ts",
+          "fullName": "Keeper of Souls 6074: complete selected-colour Skull transform (stored snapshot) corroborates full English/native clause and notes historical official cost change",
+          "clausesCovered": [
+            "transform all chosen-color gems into Skulls; stored cost 15",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowKeeperOfSoulsWholeSkillAudit.test.ts",
+          "fullName": "Keeper of Souls 6074: complete selected-colour Skull transform (stored snapshot) an absent color changes zero gems but still spends the cast, without a fabricated extra turn",
+          "clausesCovered": [
+            "specific native battle boundary: an absent color changes zero gems but still spends the cast, without a fabricated extra turn"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    },
+    {
+      "enemyId": 6098,
+      "referenceName": "Peasant",
+      "sourceRefs": [
+        "src/data/troops.json#6098",
+        "src/data/troop-progression.json#6098",
+        "data/raw/troops.gow.en.json#troops[Id=6098]",
+        "data/raw/spells.gow.en.json#spells[Id=7000]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowPeasantWholeSkillAudit.test.ts",
+          "fullName": "Peasant 6098: Pitchfork complete stored-snapshot review cross-checks source, official historical wording, native geometry and final registered spell",
+          "clausesCovered": [
+            "destroy chosen gem and horizontal neighbors; source cost 3",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowPeasantWholeSkillAudit.test.ts",
+          "fullName": "Peasant 6098: Pitchfork complete stored-snapshot review center with no Blue gems in the row destroys three and spends exactly 3 mana",
+          "clausesCovered": [
+            "specific native battle boundary: center with no Blue gems in the row destroys three and spends exactly 3 mana"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    },
+    {
+      "enemyId": 6105,
+      "referenceName": "Ragnagord",
+      "sourceRefs": [
+        "src/data/troops.json#6105",
+        "src/data/troop-progression.json#6105",
+        "data/raw/troops.gow.en.json#troops[Id=6105]",
+        "data/raw/spells.gow.en.json#spells[Id=7171]"
+      ],
+      "evidenceFiles": [
+        "data/raw/troops.gow.en.json",
+        "data/raw/spells.gow.en.json",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html"
+      ],
+      "nativeEvidence": [
+        {
+          "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+          "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review cross-checks current stored English/native step, final registry and historical official randomized wording",
+          "clausesCovered": [
+            "explode random Magic+2 gems of chosen color, capped by pool",
+            "source cost, colors and registered native prototype"
+          ],
+          "limits": [
+            "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+          ]
+        },
+        {
+          "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+          "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review absent chosen color explodes nothing but spends the cast",
+          "clausesCovered": [
+            "specific native battle boundary: absent chosen color explodes nothing but spends the cast"
+          ],
+          "limits": [
+            "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+          ]
+        }
+      ],
+      "remainingStObligations": [
+        "source portrait, rarity and complete ordinary traits",
+        "ST context, identity and source affinities",
+        "multi-level and difficulty panel scaling",
+        "actual assembled cast including required target/color/board choice",
+        "trait-plus-active interaction and family boundaries",
+        "descriptions and tactical role",
+        "save/reopen deterministic continuation",
+        "invalid-action atomicity",
+        "independent per-source review"
+      ],
+      "reviewState": "mapped-not-accepted"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "checked_on": "2026-10-28",
+  "result": "passed",
+  "node": "v24.18.0",
+  "vite": "6.4.3",
+  "build_command": "npm run build:tavern",
+  "build_result": "passed (existing chunk-size advisory)",
+  "preview_command": "npm run preview -- --config deploy/sillytavern.local.vite.config.ts",
+  "base": "http://127.0.0.1:5185/",
+  "responses": [
+    {
+      "path": "sillytavern-install.html",
+      "status": 200,
+      "type": "text/html;charset=utf-8",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern-host.js",
+      "status": 200,
+      "type": "text/javascript",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern-panel.js",
+      "status": 200,
+      "type": "text/javascript",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern-message.js",
+      "status": 200,
+      "type": "text/javascript",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern-encounter.html",
+      "status": 200,
+      "type": "text/html;charset=utf-8",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern-loader.js",
+      "status": 200,
+      "type": "text/javascript",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern-battle.html",
+      "status": 200,
+      "type": "text/html;charset=utf-8",
+      "cors": "*"
+    },
+    {
+      "path": "sillytavern.html",
+      "status": 200,
+      "type": "text/html;charset=utf-8",
+      "cors": "*"
+    },
+    {
+      "path": "mvuzod.js",
+      "status": 200,
+      "type": "text/javascript",
+      "cors": "*"
+    },
+    {
+      "path": "assets/sillytavernInstall-BHVNrq4y.css",
+      "status": 200,
+      "type": "text/css",
+      "cors": "*"
+    },
+    {
+      "path": "assets/angelGem-1-oXTO_Q.png",
+      "status": 200,
+      "type": "image/png",
+      "cors": "*"
+    }
+  ],
+  "downloads": [
+    "runtime-regex.json",
+    "runtime-regex-replacement.txt",
+    "runtime-ai.md"
+  ],
+  "cross_origin_exports": {
+    "host": "function",
+    "panel": "function",
+    "message": "function"
+  },
+  "opaque_iframe": {
+    "origin": "null",
+    "message": "function",
+    "panel": "function"
+  },
+  "browser_errors": [],
+  "scope": "本地构建、静态页面/模块/样式/图片、安装页三类下载及跨来源和隔离 iframe 的 ESM 导入；没有连接真实玩家聊天，没有新增完整战斗、结算或战报回传验收。"
+}

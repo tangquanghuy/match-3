@@ -6,8 +6,8 @@
  * - 本地加载很快：至少停留 MIN_VISIBLE_MS，避免一闪而过；
  * - 调试慢网：localStorage `gems.debug.slowLoad = <毫秒>` 为每个资源追加延迟。
  */
-import type { BattleRequest, CombatantSnapshot } from '@session/index';
-import { tutorialArt } from './artAssets';
+import type { BattleRequest } from '@session/index';
+import { createBattleLoadingView } from './battleLoadingView';
 
 const MIN_VISIBLE_MS = 700;
 
@@ -23,60 +23,38 @@ const TIPS = [
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-function escapeHtml(text: string): string {
-  return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
-}
-
-function lineup(team: CombatantSnapshot[], side: 'player' | 'enemy'): string {
-  return team.map((unit, i) => `<figure class="bl-unit${unit.tier === 'boss' ? ' boss' : ''}" style="--i:${i}">
-      ${unit.portraitUrl ? `<img src="${escapeHtml(unit.portraitUrl)}" alt="" decoding="async" data-bl-portrait>` : '<span class="bl-unit-blank"></span>'}
-      <figcaption><b>${escapeHtml(unit.name)}</b>${unit.levelLabel ? `<small>${escapeHtml(unit.levelLabel)}</small>` : ''}</figcaption>
-    </figure>`).join('') || `<p class="bl-empty">${side === 'player' ? '我方' : '敌方'}</p>`;
-}
-
 export interface BattleLoadingOptions {
   title: string;
   subtitle?: string;
+  tips?: readonly string[];
 }
 
 export class BattleLoadingScreen {
   private el: HTMLElement;
+  private disposed = false;
+  private cancelRetry?: () => void;
   private tipTimer: number | null = null;
+  private tips: readonly string[];
   private shownAt = performance.now();
 
   constructor(private readonly request: BattleRequest, options: BattleLoadingOptions) {
-    const tip = Math.floor(Math.random() * TIPS.length);
-    this.el = document.createElement('div');
-    this.el.className = 'bl-screen';
+    this.tips = options.tips ?? TIPS;
+    const tip = Math.floor(Math.random() * this.tips.length);
+    this.el = createBattleLoadingView({ ...options, playerTeam: request.playerTeam, enemyTeam: request.enemyTeam });
     this.el.setAttribute('role', 'dialog');
     this.el.setAttribute('aria-modal', 'true');
-    this.el.setAttribute('aria-labelledby', 'blTitle');
-    const bg = tutorialArt('battle-loading');
-    if (bg) this.el.style.setProperty('--bl-bg', `url("${bg}")`);
-    this.el.innerHTML = `
-      <div class="bl-backdrop" aria-hidden="true"></div>
-      <header class="bl-head"><small>即将开战</small><h1 id="blTitle">${escapeHtml(options.title)}</h1>${options.subtitle ? `<p>${escapeHtml(options.subtitle)}</p>` : ''}</header>
-      <div class="bl-versus" style="--bl-n:${Math.max(1, request.playerTeam.length, request.enemyTeam.length)}">
-        <section class="bl-side bl-side--player" aria-label="我方阵容">${lineup(request.playerTeam, 'player')}</section>
-        <div class="bl-vs" aria-hidden="true"><span>VS</span></div>
-        <section class="bl-side bl-side--enemy" aria-label="敌方阵容">${lineup(request.enemyTeam, 'enemy')}</section>
-      </div>
-      <footer class="bl-foot">
+    if (options.title) this.el.setAttribute('aria-labelledby', 'blTitle');
+    else this.el.setAttribute('aria-label', '战斗资源加载');
+    this.el.querySelector('.bl-foot')!.innerHTML = `
         <div class="bl-progress" role="progressbar" aria-label="战斗资源加载" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
         <div class="bl-status"><span id="blStatus">准备资源</span><b id="blPct">0%</b></div>
-        <p class="bl-tip"><span>提示</span><em id="blTip">${TIPS[tip]}</em></p>
-      </footer>`;
-    for (const img of this.el.querySelectorAll<HTMLImageElement>('[data-bl-portrait]')) {
-      const mark = (): void => { img.dataset.loaded = '1'; };
-      if (img.complete && img.naturalWidth > 0) mark();
-      else img.addEventListener('load', mark, { once: true });
-    }
+        ${this.tips.length ? `<p class="bl-tip"><span>提示</span><em id="blTip">${this.tips[tip]}</em></p>` : ''}`;
     document.body.appendChild(this.el);
     let index = tip;
-    this.tipTimer = window.setInterval(() => {
-      index = (index + 1) % TIPS.length;
+    if (this.tips.length) this.tipTimer = window.setInterval(() => {
+      index = (index + 1) % this.tips.length;
       const node = this.el.querySelector('#blTip');
-      if (node) node.textContent = TIPS[index]!;
+      if (node) node.textContent = this.tips[index]!;
     }, 4000);
   }
 
@@ -98,23 +76,27 @@ export class BattleLoadingScreen {
    * 返回 loadModules 的结果 = 全部就绪可以开战；返回 null = 玩家放弃。
    */
   async preload<T>(loadModules: () => Promise<T>): Promise<T | null> {
-    for (;;) {
+    while (!this.disposed) {
       try {
         this.setProgress(0, '加载战斗模块');
         const [{ BATTLE_ASSET_LABEL, preloadBattleAssets }, modules] = await Promise.all([
           import('@render/battleAssets'),
           loadModules(),
         ]);
+        if (this.disposed) return null;
         await preloadBattleAssets(this.request, ({ done, total, kind }) => {
           this.setProgress(done / total * 0.92, `${BATTLE_ASSET_LABEL[kind]} ${done} / ${total}`);
         });
+        if (this.disposed) return null;
         this.setProgress(0.92, '布置战场');
         return modules;
       } catch (error) {
+        if (this.disposed) return null;
         console.error(error);
         if (!(await this.askRetry())) return null;
       }
     }
+    return null;
   }
 
   /** 加载失败：显示「重试」/「返回」，等玩家选择 */
@@ -127,9 +109,11 @@ export class BattleLoadingScreen {
     this.el.querySelector('.bl-foot')!.appendChild(actions);
     actions.querySelector<HTMLButtonElement>('[data-act="retry"]')!.focus();
     return new Promise((resolve) => {
+      this.cancelRetry = () => resolve(false);
       actions.addEventListener('click', (e) => {
         const act = (e.target as HTMLElement).closest<HTMLElement>('[data-act]')?.dataset.act;
         if (!act) return;
+        this.cancelRetry = undefined;
         actions.remove();
         this.el.classList.remove('is-failed');
         resolve(act === 'retry');
@@ -148,6 +132,9 @@ export class BattleLoadingScreen {
   }
 
   dispose(): void {
+    this.disposed = true;
+    this.cancelRetry?.();
+    this.cancelRetry = undefined;
     if (this.tipTimer !== null) window.clearInterval(this.tipTimer);
     this.tipTimer = null;
     this.el.remove();

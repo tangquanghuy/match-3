@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 
@@ -17,9 +17,30 @@ const portraitRevision = execFileSync('git', ['rev-parse', '--short=12', 'HEAD']
  *               需要立刻生效时改文件名）。
  *  - 页面与预载清单保持默认（每次校验），保证发版后立刻拿到新入口。
  */
-const HEADERS = `/assets/*
+const headerBase = new URL(base, 'https://assets.invalid').pathname.replace(/\/?$/, '/');
+const HEADERS = `${headerBase}sillytavern-host.js
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
+${headerBase}sillytavern-panel.js
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
+${headerBase}sillytavern-message.js
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
+${headerBase}sillytavern-encounter.html
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
+${headerBase}sillytavern-battle.html
+  Cache-Control: no-cache
+${headerBase}sillytavern-install.html
+  Cache-Control: no-cache
+${headerBase}sillytavern-loader.js
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
+${headerBase}assets/*
+  Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
-/static/*
+${headerBase}static/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
 `;
 
@@ -57,6 +78,10 @@ function deployManifest(): Plugin {
     apply: 'build',
     generateBundle(_options, bundle) {
       this.emitFile({ type: 'asset', fileName: '_headers', source: HEADERS });
+      this.emitFile({type:'asset',fileName:'sillytavern-loader.js',source:readFileSync(root('./scripts/sillytavern-loader.js'),'utf8').replace("'https://YOUR_MATCH3_HOST/'", "new URL('./', import.meta.url).href")});
+      for(const file of ['sillytavern-host-integration.md','sillytavern-runtime-ai.md','sillytavern-runtime-ai-prompt.md','sillytavern-manual-deployment.md','战斗规则.md','sillytavern-manual-test.md','sillytavern-release-20261024.md','mvuzod.js']) {
+        this.emitFile({type:'asset',fileName:file,source:readFileSync(root(`./docs/${file}`),'utf8')});
+      }
       const entry = Object.values(bundle).find((c) => c.type === 'chunk' && c.isEntry && c.name === 'game');
       if (!entry) return;
       const code = new Set<string>();
@@ -95,6 +120,8 @@ export default defineConfig(({ mode }) => ({
   publicDir: root('./game-assets/public'),
   define: { 'import.meta.env.VITE_PORTRAIT_REVISION': JSON.stringify(portraitRevision) },
   plugins: [deployManifest()],
+  // Browser integration profiles contain locked Cookies files on Windows.
+  server: {watch: {ignored: ['**/.tmp/**', '**/dist-tavern/**']}},
   resolve: {
     alias: {
       '@engine': root('./src/engine'),
@@ -105,23 +132,32 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'es2022',
-    outDir: 'dist',
+    outDir: mode === 'tavern' ? 'dist-tavern' : 'dist',
     assetsDir: 'assets',
     sourcemap: false,
     // game 主包里约 5 MB 是静态数据 JSON（部队/武器/成长表…）；单独成块并行下载，
     // 且只改代码的版本不会让玩家重新下载数据（反之亦然）
     chunkSizeWarningLimit: 4096,
     rollupOptions: {
+      preserveEntrySignatures: 'exports-only',
       // 线上（--mode remote）只发布游戏外壳；单机对局页与技能测试台只在开发时构建
-      input: mode === 'remote'
-        ? { cover: root('./cover.html'), game: root('./game.html') }
+      input: mode === 'tavern'
+        ? {sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'),sillytavern:root('./sillytavern.html'),sillytavernHost:root('./src/sillytavern/hostEntry.ts'),sillytavernPanel:root('./src/sillytavern/panelEntry.ts'),sillytavernBattle:root('./sillytavern-battle.html')}
+        : mode === 'remote'
+        ? { sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'), cover: root('./cover.html'), game: root('./game.html'), sillytavernHost: root('./src/sillytavern/hostEntry.ts'), sillytavernPanel: root('./src/sillytavern/panelEntry.ts'), sillytavernBattle: root('./sillytavern-battle.html') }
         : {
             main: root('./index.html'),
+            sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'),
             skillsTest: root('./skills-test.html'),
+            sillytavern: root('./sillytavern.html'),
+            sillytavernPlaytest: root('./sillytavern-playtest.html'),
+            sillytavernHost: root('./src/sillytavern/hostEntry.ts'), sillytavernPanel: root('./src/sillytavern/panelEntry.ts'),
+            sillytavernBattle: root('./sillytavern-battle.html'),
             cover: root('./cover.html'),
             game: root('./game.html'),
           },
       output: {
+        entryFileNames: chunk => chunk.name === 'sillytavernMessage' ? 'sillytavern-message.js' : chunk.name === 'sillytavernHost' ? 'sillytavern-host.js' : chunk.name === 'sillytavernPanel' ? 'sillytavern-panel.js' : 'assets/[name]-[hash].js',
         manualChunks(id) {
           if (/[\\/]src[\\/].+\.json$/.test(id.split('?')[0]!)) return 'data';
           return undefined;

@@ -6,9 +6,13 @@ export function battleTroopOf(name: string, snapshot?: CombatantSnapshot): Troop
   // A transformed character retains its battle ID, but can take another form.
   // The original snapshot identifies only the form still bearing its name.
   if (snapshot?.name === name && /-hero$/.test(snapshot.externalId)) return undefined;
+  if (snapshot?.name === name && snapshot.skillId?.startsWith('st:')) return undefined;
   if (snapshot?.name === name && snapshot.templateId !== undefined) {
     const id = Number(snapshot.templateId);
     return Number.isInteger(id) ? getTroopById(id) : undefined;
   }
+  // A supplied snapshot without a native template owns its spell/traits, even
+  // when its display name happens to match an official troop.
+  if (snapshot?.name === name) return undefined;
   return TROOPS.find(t => t.name === name);
 }

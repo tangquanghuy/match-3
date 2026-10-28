@@ -8,8 +8,10 @@ import { creditBattleMaps } from '../../battleMaps';
  * 纯逻辑：无 pixi/gsap/dom 依赖。
  */
 import { opponentOf } from '../../types';
-import { goldForSide, setGoldForSide, creditGoldForSide, remainingBattleGold, battleGoldMultiplier } from '../../battleGold';
+import { goldForSide, debitGoldForSide, creditGoldForSide, remainingBattleGold, battleGoldMultiplier } from '../../battleGold';
 import { creditBattleSouls } from '../../battleSouls';
+import { creditUncappedEconomy } from '../../battleEconomyLedger';
+import type { EconomyAuditContext } from '../../battleEconomyLedger';
 import type { GameEvent } from '../../events';
 import type { EconomyGainEvent } from '../../events';
 import type { ScalingSpec } from '../scaling';
@@ -39,10 +41,11 @@ export function economyGainEffect(params: EconomyGainParams): EffectPrimitive {
       );
       if (amount <= 0) return [];
       const side = effectCasterSide(ctx);
-      if (params.currency === 'gold') amount = creditGoldForSide(ctx.state, side, amount);
-      else if (params.currency === 'souls') amount = creditBattleSouls(ctx.state, amount);
-      else if (params.currency === 'maps') amount = creditBattleMaps(ctx.state, amount);
-      else ctx.state.economy[params.currency] += amount;
+      const context: EconomyAuditContext = { source: 'skill-gain', side, actorId: ctx.casterId };
+      if (params.currency === 'gold') amount = creditGoldForSide(ctx.state, side, amount, context);
+      else if (params.currency === 'souls') amount = creditBattleSouls(ctx.state, amount, context);
+      else if (params.currency === 'maps') amount = creditBattleMaps(ctx.state, amount, context);
+      else amount = creditUncappedEconomy(ctx.state, params.currency, amount, context);
       if (amount <= 0) return [];
       const event: EconomyGainEvent = {
         type: 'economy-gain',
@@ -81,8 +84,10 @@ export function stealGoldEffect(params: StealGoldParams): EffectPrimitive {
       const gain = Math.max(0, Math.min(available, requested, params.cap ?? Infinity,
         Math.ceil(remainingBattleGold(ctx.state, side) / battleGoldMultiplier(ctx.state, side))));
       if (gain <= 0) return [];
-      setGoldForSide(ctx.state, enemySide, available - gain);
-      const credited = params.deferCredit ? 0 : creditGoldForSide(ctx.state, side, gain);
+      const transferId = ctx.state.economyAudit ? ctx.state.economyAudit.entries.length + 1 : undefined;
+      const context: EconomyAuditContext = { source: 'skill-theft', side, actorId: ctx.casterId, ...(transferId !== undefined ? { transferId } : {}) };
+      debitGoldForSide(ctx.state, enemySide, gain, { ...context, operation: 'steal-debit' });
+      const credited = params.deferCredit ? 0 : creditGoldForSide(ctx.state, side, gain, { ...context, operation: 'steal-credit' });
       if (ctx.castTracking) {
         ctx.castTracking.goldStolen = (ctx.castTracking.goldStolen ?? 0) + gain;
       }
@@ -124,8 +129,8 @@ export function spendEconomyEffect(params: SpendEconomyParams): EffectPrimitive 
       const side = effectCasterSide(ctx);
       const available = goldForSide(ctx.state, side);
       const actual = Math.min(available, requested);
+      debitGoldForSide(ctx.state, side, params.all ? available : Math.max(0, requested), { source: 'skill-spend', side, actorId: ctx.casterId, operation: 'spend' });
       if (actual <= 0) return [];
-      setGoldForSide(ctx.state, side, available - actual);
       if (params.currency === 'gold' && ctx.castTracking) {
         ctx.castTracking.goldSpent = (ctx.castTracking.goldSpent ?? 0) + actual;
       }

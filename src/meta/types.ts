@@ -1,7 +1,7 @@
 /**
  * Meta 层共享类型：统一的结果/错误码与货币词表。
  *
- * 约定（对齐 META-GAME-PLAN.md §3.2）：
+ * 约定（对齐 docs/archive/meta-game-plan-2026-09.md §3.2）：
  *  - meta/systems 全部是纯逻辑，禁 DOM，随机一律种子化；
  *  - 所有会改存档的操作都返回显式结果对象，失败必须带机器可读 code + 中文文案，
  *    供 UI 层做「校验规则可见」的展示（ASSETS-NEEDED.md §6.3），不许只靠 alert。

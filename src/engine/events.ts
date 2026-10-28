@@ -1,4 +1,4 @@
-import type { CellPos, GemType, BaseColor, PlayerSide, SpecialGemKind, SkullStormDropKind } from './types';
+import type { CharacterFormSnapshot, CellPos, GemType, BaseColor, PlayerSide, SpecialGemKind, SkullStormDropKind } from './types';
 import type { MatchShape } from './MatchResolver';
 import type { GemMove, GemSpawn } from './GravitySystem';
 
@@ -73,6 +73,8 @@ export interface SkullDamageEvent extends TraitPresentation {
   attackerId: number; // 队首存活攻击者（需求 14.5）
   targetId: number;
   damage: number;
+  /** Actual HP lost on this hit, excluding Armor and overkill. */
+  hpLoss?: number;
   resultingHp: number;
   resultingArmor: number;
   /**
@@ -133,6 +135,8 @@ export interface SkillDamageEvent extends TraitPresentation {
   /** 反射状态弹回的法术伤害：casterId 是反射方（表现层不当作一次主动施法）。 */
   reflected?: boolean;
   damage: number;
+  /** Actual HP lost on this hit, excluding Armor and overkill. */
+  hpLoss?: number;
   resultingHp: number;
   resultingArmor: number;
 }
@@ -180,6 +184,8 @@ export interface BuffEvent extends TraitPresentation {
   amount: number;
   /** IncreaseHealth growth, for event-only projections; omitted for pure healing. */
   maxHpGain?: number;
+  /** 原位复活的实际回血，供战果区分倒地后复起与普通治疗。 */
+  revived?: boolean;
   source?: 'trait';
 }
 
@@ -258,6 +264,8 @@ export interface StatusCleanseEvent {
 /** 召唤新角色入队伍空位（需求 10.3, 10.4）。 */
 export interface SummonEvent {
   type: 'summon';
+  /** Full event-time form; optional only for legacy replay events. */
+  form?: CharacterFormSnapshot;
   player: PlayerSide;
   /** Active field slot；queue 仅为旧事件回放兼容。 */
   slot: number;
@@ -290,8 +298,8 @@ export interface FleeEvent {
 }
 
 /**
- * 战场经济获得（DECISIONS 四项拍板①）：金币/灵魂/宝石三币种共用一个战场经济池
- * （GameState.economy），side 记录获得发生时的行动方（GoW 奖励归玩家，全场共用）。
+ * 战场经济实际获得：黄金按双方独立入账，灵魂／宝石／地图沿用原生共享池。
+ * side 记录技能施法者或触发特质的持有者阵营；实际账户另见战斗经济账本。
  * 来源：gainGold/gainSouls/gainGems 效果段、赃物宝石被摧毁（+10 金币）。
  */
 export interface EconomyGainEvent {
@@ -299,7 +307,7 @@ export interface EconomyGainEvent {
   currency: 'gold' | 'souls' | 'gems' | 'maps';
   /** 本次获得量（恒为正整数） */
   amount: number;
-  /** 获得发生时的行动方（归因字段，池本身共用） */
+  /** 施法者／触发持有者／特殊宝石触发方的归属阵营。 */
   side: PlayerSide;
 }
 
@@ -383,6 +391,13 @@ export interface TroopTransformEvent {
   /** Side responsible for this transformation. */
   sourceSide?: PlayerSide;
   type: 'troop-transform';
+  /** Full event-time form; optional only for legacy replay events. */
+  form?: CharacterFormSnapshot;
+  /** Artwork at this event, before any later form in the same action. */
+  portraitUrl?: string;
+  /** 转化当刻生命快照，避免事件回放把形态变化误算成治疗。 */
+  hp?: number;
+  maxHp?: number;
   targetId: number;
   /** 转化后的兵种名（中文名，来自模板） */
   name: string;

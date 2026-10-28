@@ -1,0 +1,701 @@
+{
+  "version": 1,
+  "auditDate": "2026-10-24",
+  "scope": "ST conditional skull offense and role-only design entry; structural delta, no new full behavior acceptance",
+  "methodology": "Real adapted native prototypes and all adapted ordinary traits; Warrior role intersects actual portraits with exact complete mana colors and rank across existing forms. All 1821 remain denominator. Structural reachability is distinct from public compilation, derived preflight, behavior and the 13 obligations.",
+  "baselineReachable": 1760,
+  "reachable": 1762,
+  "total": 1821,
+  "changedSources": 59,
+  "publicEffectsAdded": 0,
+  "rolesOrEffectsRemoved": 0,
+  "newlyReachable": [
+    6341,
+    7038
+  ],
+  "byRarity": {
+    "Common": {
+      "reachable": 117,
+      "total": 120
+    },
+    "Uncommon": {
+      "reachable": 236,
+      "total": 242
+    },
+    "Rare": {
+      "reachable": 350,
+      "total": 357
+    },
+    "UltraRare": {
+      "reachable": 588,
+      "total": 608
+    },
+    "Epic": {
+      "reachable": 244,
+      "total": 258
+    },
+    "Legendary": {
+      "reachable": 227,
+      "total": 236
+    }
+  },
+  "delta": [
+    {
+      "id": 6041,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6068,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6113,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6114,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6123,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6150,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6164,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6181,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6184,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6186,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6192,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6196,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6198,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6213,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6220,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6221,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6222,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6249,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6278,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6285,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6290,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6311,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6341,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": true
+    },
+    {
+      "id": 6348,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6356,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6386,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6482,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6484,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6561,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6570,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6599,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6692,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6742,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6780,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6850,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6856,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6956,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6972,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 6999,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7011,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7037,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7038,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": true
+    },
+    {
+      "id": 7049,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7146,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7156,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7188,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7357,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7366,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7427,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7439,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7447,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7448,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7449,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7450,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7451,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7452,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7489,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7559,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    },
+    {
+      "id": 7883,
+      "added": [
+        "Warrior"
+      ],
+      "removed": [],
+      "effectAdded": [],
+      "effectRemoved": [],
+      "newReachable": false
+    }
+  ],
+  "entries": [
+    {
+      "id": 6341,
+      "seed": 3,
+      "input": {
+        "manaColors": [
+          "Yellow",
+          "Brown"
+        ],
+        "rank": "首领",
+        "form": "野兽",
+        "role": "Warrior",
+        "level": 20,
+        "difficulty": 1,
+        "effects": []
+      },
+      "traitIds": [
+        "st:clobber",
+        "st:big",
+        "st:impervious"
+      ],
+      "omitted": [],
+      "effects": []
+    },
+    {
+      "id": 7038,
+      "seed": 6,
+      "input": {
+        "manaColors": [
+          "Red",
+          "Yellow"
+        ],
+        "rank": "首领",
+        "form": "类人",
+        "role": "Warrior",
+        "level": 20,
+        "difficulty": 1,
+        "effects": []
+      },
+      "traitIds": [
+        "st:pyromania",
+        "st:infernalarmor"
+      ],
+      "omitted": [
+        "淘宝之盾"
+      ],
+      "effects": []
+    }
+  ],
+  "inputFingerprints": {
+    "src/sillytavern/enemyDesign.ts": "2e5022ae8446766aff333b5ba946bdef0a55a0825b9a16a6341ac06a72e19594",
+    "src/sillytavern/enemyDesignView.ts": "019b58c9aaeb003f1910b0558df73e3f6df6feef58dfe9c9c690771800e0bcf6",
+    "tests/unit/stEnemyConditionalSkullDesign.test.ts": "1cdfdac41c1872e5ef05ff5334684b80c74170fe34b4780c690d7e43e6d1462f",
+    "tests/unit/stEnemyDesign.test.ts": "baaed728d04a7ebc2848f3e82d86f27f6233592ba7f597e2975f260e192ff74b",
+    "tests/e2e/stEnemyDesign.spec.ts": "49fba536d03c37bfcd5658d3600b94ab5e3a8c8e8b1a7b38d118b63f3e5a7b10"
+  },
+  "nativeEngineFilesUnchanged": true,
+  "nativeEngineFilesChecked": 142,
+  "nativeEvidenceReused": [
+    "tests/unit/traitOBucket.test.ts: native definitions, matching/wrong/no target status and strongest multiplier contract"
+  ],
+  "limitations": [
+    "Conditional skull offense does not apply the status or guarantee activation, immediate damage or mana.",
+    "Mongo keeps all six native random branches; no public effect is inferred from a branch alone.",
+    "7038 omits only the scoped delve shield; ordinary pyromania and infernalarmor remain.",
+    "6341/7038 are not registered or counted as complete behavior acceptance."
+  ]
+}

@@ -27,7 +27,7 @@ export {
   effectiveHealing,
 } from '../../healing';
 import type { Character, StatusInstance } from '../../types';
-import { isSameMatchType, colorGem, skullGem, PlayerSide } from '../../types';
+import { snapshotCharacterForm, isSameMatchType, colorGem, skullGem, PlayerSide } from '../../types';
 import type { BaseColor } from '../../types';
 import type { SeededRNG } from '../../rng';
 import type {
@@ -463,7 +463,7 @@ export function applyStatus(
  * 直接修改角色。返回事件（tick / defeat / expire 按序）。
  */
 export function tickStatuses(
-  char: Character, rng?: SeededRNG, lycanthropyTemplate?: () => SummonTemplate | null,
+  char: Character, rng?: SeededRNG, lycanthropyTemplate?: (target?: Character) => SummonTemplate | null,
 ): GameEvent[] {
   if (char.defeated || char.fled || char.statuses.length === 0) return [];
 
@@ -492,13 +492,13 @@ export function tickStatuses(
   // Recovering from the status above preempts this roll.
   if (rng && lycanthropyTemplate && char.statuses.some(s => s.turns > 0 && WOLF_STATUS_IDS.has(s.id))
     && rng.next() < 0.15) {
-    const template = lycanthropyTemplate();
+    const template = lycanthropyTemplate(char);
     if (template) {
       for (const status of char.statuses) {
         events.push({ type: 'status-expire', targetId: char.id, statusId: status.id, reason: 'transform' });
       }
       applyTransformTemplate(char, template);
-      events.push({ type: 'troop-transform', targetId: char.id, name: template.name });
+      events.push({ type: 'troop-transform', form: snapshotCharacterForm(char), targetId: char.id, name: template.name, hp: char.hp, maxHp: char.maxHp, ...(template.portraitUrl?{portraitUrl:template.portraitUrl}:{}) });
       return events;
     }
   }
@@ -626,7 +626,7 @@ function tickTerrorRoster(characters: Character[], rng: SeededRNG, player: Playe
 /** 结算整队每个存活角色的状态，按队伍索引顺序（确定性，需求 9.4） */
 export function tickTeamStatuses(
   characters: Character[], rng?: SeededRNG, player: PlayerSide = PlayerSide.Left,
-  lycanthropyTemplate?: () => SummonTemplate | null,
+  lycanthropyTemplate?: (target?: Character) => SummonTemplate | null,
 ): GameEvent[] {
   const events: GameEvent[] = [];
   // 恐怖位次交换先于逐角色 DoT/到期结算（同一回合窗口内，顺序固定保证确定性）

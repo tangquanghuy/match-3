@@ -572,9 +572,19 @@ export interface Character {
   eventTarget?: 'boss' | 'tower';
   eventRarity?: number;
   id: number;
+  /** Stable identity for named-unit mechanics; independent of the narrative display name. */
+  mechanicalIdentity?: string;
+  /** Frozen level/difficulty for derived forms; summon uses owner, transform uses target. */
+  battleScaling?: { level: number; difficulty: number };
   /** Official troop role (e.g. Generator / Striker); optional for old fixtures. */
   role?: string | null;
   name: string;
+  /** Narrative race shown by the host; independent of mechanical troopTypes. */
+  race?: string;
+  /** Display level from this combatant snapshot; independent of battle stats. */
+  levelLabel?: string;
+  /** Explicit form artwork, including summoned/transformed actors. */
+  portraitUrl?: string;
   maxHp: number;
   hp: number;
   attack: number;
@@ -642,6 +652,15 @@ export interface Character {
    * 结算路径只读这里，不查特质注册表，见 `src/engine/traits.ts`。
    */
   passive?: PassiveModifiers;
+}
+
+/** Detached event-time form; compiled passives are not presentation data. */
+export type CharacterFormSnapshot = Omit<Character, 'passive'>;
+
+export function snapshotCharacterForm(character: Character): CharacterFormSnapshot {
+  const { passive: _passive, ...form } = character;
+  void _passive;
+  return structuredClone(form);
 }
 
 /**

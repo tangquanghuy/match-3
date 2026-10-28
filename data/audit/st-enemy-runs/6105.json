@@ -1,0 +1,2189 @@
+{
+  "version": 1,
+  "enemyId": 6105,
+  "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+  "testFiles": [
+    "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+    "tests/unit/stEnemyBoardManaDesign.test.ts",
+    "tests/unit/stEnemyMappedAcceptance.test.ts",
+    "tests/unit/stEnemyMappedTraits.test.ts"
+  ],
+  "evidenceFiles": [
+    "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html",
+    "data/raw/gow-2026-09-18/traits.en.json",
+    "data/raw/spells.gow.en.json",
+    "data/raw/troops.gow.en.json"
+  ],
+  "subjectDigest": "b7e2d04d5322e56aa33a68f73974c048f78138e00013a40ed0c38d682ba52b97",
+  "testDigest": "e11c716cbf5d5e656d50fd4505c9829632100a32388c59a14ff893a380095fe5",
+  "implementationDigest": "c000bb34e44bf81b2dcb476b1fed7d59196e7564c65ab2b64039e2ab8e4cef97",
+  "portraitDigest": "a446807bbda8614f3ec785fd1ff85a28fe27e0de13513046d538f3cec82883df",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "f39b459c7d69df8272278bf94284f51491c4477fec301fec8bfff7b313a1c5f0",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review cross-checks current stored English/native step, final registry and historical official randomized wording",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=0 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=0 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=1 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=1 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=11 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=11 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=20 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Left M=20 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=0 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=0 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=1 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=1 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=11 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=11 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=20 Blue: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review Right M=20 Yellow: randomly explode only chosen-color gems, capped by pool",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review absent chosen color explodes nothing but spends the cast",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review prompts for chosen color exactly once",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review silence: no cast or turn expenditure",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowRagnagordWholeSkillAudit.test.ts",
+      "fullName": "Ragnagord 6105: Blitz Em complete stored-snapshot review low-mana: no cast or turn expenditure",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 0 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 1 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 2 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 3 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 4 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 5 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 6 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 7 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 8 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 9 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 10 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 11 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 12 can collect mana without promising color or quantity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 0 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 1 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 2 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 3 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 4 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 5 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 6 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 7 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 8 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 9 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 10 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 11 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters remove target 12 never proves mana from collection or ensuing cascades",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 0 does not infer color mana from skull or colorless special targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 1 does not infer color mana from skull or colorless special targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 2 does not infer color mana from skull or colorless special targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 3 does not infer color mana from skull or colorless special targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 4 does not infer color mana from skull or colorless special targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters destroy target 5 does not infer color mana from skull or colorless special targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters explode target 0 can collect colors in the surrounding footprint",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters explode target 1 can collect colors in the surrounding footprint",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters explode target 2 can collect colors in the surrounding footprint",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters explode target 3 can collect colors in the surrounding footprint",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters explode target 4 can collect colors in the surrounding footprint",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters keeps area as the complete footprint instead of promising another splash ring",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters uses native color-bearing special semantics for target 0",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters uses native color-bearing special semantics for target 1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters uses native color-bearing special semantics for target 2",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 0 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 1 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 2 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 3 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 4 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 5 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 6 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 7 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 8 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 9 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 10 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 11 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters empty or incompatible target 12 pool cannot acquire mana through destroy or explosion",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters respects random count range and colors precedence from the native resolver",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters preserves reachable probability/board conditions and rejects provably unreachable gates",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters oneOf requires mana capability in every branch",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters choose requires mana capability in every branch",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST board mana: conditional collection follows native target filters publishes conditional collection in the shared effect and role explanations",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6016 selects its own recipe with 'Generator' and survives save/restore",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6026 selects its own recipe with 'Striker' and survives save/restore",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6027 selects its own recipe with 'Defender' and survives save/restore",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6029 selects its own recipe with 'Striker' and survives save/restore",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6098 selects its own recipe with 'Generator' and survives save/restore",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6105 selects its own recipe with 'Generator' and survives save/restore",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 0 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 1 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 2 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 3 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 4 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 5 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries skull output case 6 proves Warrior without inventing direct damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 0 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 1 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 2 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 3 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 4 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 5 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 6 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 7 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries ineffective skull output case 8 does not prove Warrior",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries retains native chance and condition gates and never treats immunities as tank evidence",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries oneOf needs skull offense in every complete branch",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries choose needs skull offense in every complete branch",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries enemyId=6074 proves native Warrior mechanics and exposes the actual public artwork constraint",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST active skull offense: native output, probability and whole-branch boundaries enemyId=6074 manual recipe and blueprint persistence remain partial evidence without a Warrior design entry",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6026: production assembly with reused native semantics preserves native atomic cancellation of a required character target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6029: production assembly with reused native semantics preserves native atomic cancellation of a required character target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics registers the native mana-only input restriction on the live ST prototype after reopen=false",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics registers the native mana-only input restriction on the live ST prototype after reopen=true",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics registers the native mana-only input restriction on the live ST prototype after reopen=false",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics registers the native mana-only input restriction on the live ST prototype after reopen=true",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6098: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6074: production assembly with reused native semantics accepts an absent selected color as a paid empty board effect",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6105: production assembly with reused native semantics accepts an absent selected color as a paid empty board effect",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics keeps remove distinct from mana-producing destroy after reopen=false",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+      "fullName": "ST mapped source 6027: production assembly with reused native semantics keeps remove distinct from mana-producing destroy after reopen=true",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6026 Owlbear frenzy gains source attack from a real skull hit on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6026 Owlbear frenzy preserves native spell damage not triggering attack gain and respects a blocked hit on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6026 Owlbear regeneration heals only at its own turn start, caps at max HP and stays quiet at full HP on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6026 Owlbear frenzy gains source attack from a real skull hit on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6026 Owlbear frenzy preserves native spell damage not triggering attack gain and respects a blocked hit on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6026 Owlbear regeneration heals only at its own turn start, caps at max HP and stays quiet at full HP on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big handles a real 3-match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big handles a real 4-match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big handles a real 5-match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big ignores the opponent's actual four-match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big handles a real 3-match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big handles a real 4-match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big handles a real 5-match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6027 Treant big ignores the opponent's actual four-match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 1 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 2 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 10 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 11 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 12 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 1 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 2 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 10 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 11 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6027 stoneskin rounds 12 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 1 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 2 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 10 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 11 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 12 incoming skull damage and leaves spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 1 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 2 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 10 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 11 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 6029 armored rounds 12 incoming skull damage and leaves spell damage intact on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin dragonslayer matches mechanical affinity on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin dragonslayer excludes mechanical affinity on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin airlink adds its yellow bonus after a real three-match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin airlink leaves green unchanged after a real three-match on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin dragonslayer matches mechanical affinity on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin dragonslayer excludes mechanical affinity on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin airlink adds its yellow bonus after a real three-match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6029 Paladin airlink leaves green unchanged after a real three-match on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls necromancy applies the native player-only multiplier and cap to 9 live souls with holder on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls necromancy applies the native player-only multiplier and cap to 201 live souls with holder on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks poison in a hostile spell with a susceptible control on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks death-mark in a hostile spell with a susceptible control on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks disease in a hostile spell with a susceptible control on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks wolf in a hostile spell with a susceptible control on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks wolf-form in a hostile spell with a susceptible control on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks lycanthropy in a hostile spell with a susceptible control on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying still accepts an unrelated negative status on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls necromancy applies the native player-only multiplier and cap to 9 live souls with holder on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls necromancy applies the native player-only multiplier and cap to 201 live souls with holder on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks poison in a hostile spell with a susceptible control on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks death-mark in a hostile spell with a susceptible control on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks disease in a hostile spell with a susceptible control on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks wolf in a hostile spell with a susceptible control on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks wolf-form in a hostile spell with a susceptible control on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying blocks lycanthropy in a hostile spell with a susceptible control on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Keeper of Souls undying still accepts an unrelated negative status on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy credits actual 3-match gold to the matching side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy credits actual 4-match gold to the matching side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy credits actual 5-match gold to the matching side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy excludes an opposing four-match with holder on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant jinx halves opponent mana from a real 3-match with holder on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant jinx halves opponent mana from a real 4-match with holder on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant jinx does not suppress its own team's mana on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy credits actual 3-match gold to the matching side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy credits actual 4-match gold to the matching side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy credits actual 5-match gold to the matching side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant greedy excludes an opposing four-match with holder on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant jinx halves opponent mana from a real 3-match with holder on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant jinx halves opponent mana from a real 4-match with holder on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6098 Peasant jinx does not suppress its own team's mana on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 1@1 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 1@1 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 20@1 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 20@1 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 20@1.5 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 20@1.5 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 7@1.3 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 7@1.3 on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline full team remains at four after a successful Soul Legion roll on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline full team remains at four after a failed Soul Legion roll on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline Soul Legion ignores another ally death on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline Soul Legion ignores its own on side Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 1@1 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 1@1 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 20@1 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 20@1 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 20@1.5 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 20@1.5 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death summons at 7@1.3 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline enemy death fails its summon roll at 7@1.3 on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline full team remains at four after a successful Soul Legion roll on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline full team remains at four after a failed Soul Legion roll on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline Soul Legion ignores another ally death on side Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+      "fullName": "ST-04 mapped ordinary traits: 6074 Soul Legion death pipeline Soul Legion ignores its own on side Right",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 431,
+  "passedTests": 431,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

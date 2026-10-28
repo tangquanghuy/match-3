@@ -19,11 +19,12 @@ export function reflectHit(reflector: Character, source: Character, incoming: nu
       const amount = reflectDamageAmount(incoming);
       const absorbed = Math.min(source.armor, amount);
       source.armor -= absorbed;
+      const hpBeforeHit = source.hp;
       source.hp = Math.max(0, source.hp - (amount - absorbed));
       if (kind === 'skill') events.push({ type: 'skill-damage', casterId: reflector.id,
-        targetId: source.id, range: 'single', damage: amount, resultingHp: source.hp, resultingArmor: source.armor, reflected: true });
+        targetId: source.id, range: 'single', damage: amount, hpLoss: hpBeforeHit - source.hp, resultingHp: source.hp, resultingArmor: source.armor, reflected: true });
       else events.push({ type: 'skull-damage', attackerId: reflector.id, targetId: source.id,
-        damage: amount, resultingHp: source.hp, resultingArmor: source.armor, reflected: true });
+        damage: amount, hpLoss: hpBeforeHit - source.hp, resultingHp: source.hp, resultingArmor: source.armor, reflected: true });
     }
   }
   events.push(...consumeReflect(reflector));

@@ -1,0 +1,8 @@
+:root{font:15px/1.5 system-ui,sans-serif;color:#ece6d8;background:#0d0e14;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0}
+/* 仅把本体 fixed 加载页放进消息文档流；阵容方向、卡宽和响应式均用本体规则。 */
+.bl-screen--encounter{position:relative;inset:auto;isolation:isolate;min-height:480px}
+.bl-screen--encounter .bl-btn:disabled{opacity:.55;cursor:wait}
+.bl-screen--encounter #status{margin:0;color:#cfc8b8;font-size:12px;text-align:center;overflow-wrap:anywhere}
+
+.bl-screen--encounter #status:empty{display:none}

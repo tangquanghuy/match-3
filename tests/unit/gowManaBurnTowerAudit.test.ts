@@ -1,4 +1,4 @@
-﻿// Full source steps/branch repairs for ManaBurn and Tower boost. Shared pool rules
+// Full source steps/branch repairs for ManaBurn and Tower boost. Shared pool rules
 // (transform levels/exclusions/status recovery) remain outside this scoped suite.
 // @ts-expect-error Node fixtures
 import fs from 'node:fs';
@@ -38,7 +38,7 @@ function fixture(id: number, side = PlayerSide.Left, branch = 1) {
 }
 describe('Native ManaBurn is damage, never Mana Drain', () => {
   it('official 2.0 primary source explicitly distinguishes damage and no drain', () => {
-    const source = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-mana-burn-2-0.html', 'utf8');
+    const source = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-mana-burn-2-0.html', 'utf8');
     expect(source).toContain('Mana Burn deals damage to an enemy based on the enemy');
     expect(source).toContain('Mana Burn does not drain Mana from the enemy');
   });

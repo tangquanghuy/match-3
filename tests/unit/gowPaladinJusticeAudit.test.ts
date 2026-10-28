@@ -15,7 +15,7 @@ import troops from '../../src/data/troops.json';
 const troop=troops.find(t=>t.id===6029)!;
 const en=JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json','utf8')).troops.find((t:{id:number})=>t.id===6029);
 const native=indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells).get(7029).raw;
-const guide=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html','utf8');
+const guide=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html','utf8');
 const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 function setup(side=PlayerSide.Left,chosen=12){
   const f=damageFixture();f.caster.skillId='7029';f.caster.manaCost=f.caster.mana=11;

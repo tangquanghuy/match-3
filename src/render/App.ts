@@ -14,6 +14,7 @@ import { TurnEngine } from '@engine/TurnEngine';
 import { BoardGenerator } from '@engine/boardGen';
 import { pickHintSwap } from '@engine/boardUtils';
 import { chooseAiAction } from '@engine/aiPolicy';
+import { hasCharacterCastSkill } from '@engine/skillUsage';
 import { BATTLE_COMBO_BIAS, BATTLE_SETUP_BIAS, BATTLE_SKULL_CHANCE } from '@engine/comboBias';
 import { createGameState } from '@engine/GameState';
 import { battleGoldCap } from '@engine/battleGold';
@@ -83,6 +84,7 @@ import { ManaDistributor } from '@engine/ManaDistributor';
 import { ExtensionRegistry } from '@engine/registry';
 import { registerSkillLibrary } from '@engine/skills/library';
 import type { SkillPrototype } from '@engine/skills/prototypes';
+import { choiceRuleOf, colorAllowed, gemAllowed } from '@engine/skills/gowChoiceRules';
 import { AiColorChooser, FixedColorChooser, prototypeNeedsColor } from '@engine/skills/colorChooser';
 import { AiTargetChooser, FixedTargetChooser, prototypeChosenTargetMode } from '@engine/skills/targetChooser';
 import { candidatesFor, selectTargets } from '@engine/skills/targeting';
@@ -459,7 +461,7 @@ export class App {
    * @param registry 可选。meta 出战把 `buildMetaRegistry` 的结果传进来，
    *   未收录法术的兜底原型才进战斗；部队+武器法术本身由 registerSkillLibrary 覆盖。
    */
-  async init(mount: HTMLElement, request?: BattleRequest, registry?: ExtensionRegistry): Promise<void> {
+  async init(mount: HTMLElement, request?: BattleRequest, registry?: ExtensionRegistry, configureEngine?: (engine: TurnEngine) => void): Promise<void> {
     // 技能注册要先于队伍解析：配置/宿主下发的 skillId 必须校验为已注册（需求 2.6）。
     this.registry = new ExtensionRegistry();
     registerSkillLibrary(this.registry.prototypes); // 部队法术 + 武器法术（数字 id 与 gw_*）
@@ -638,13 +640,15 @@ export class App {
     const state = createGameState(genBoard, playerTeam, enemyTeam, PlayerSide.Left,
       battleRequest.kingdom !== undefined ? { kingdom: battleRequest.kingdom } : undefined);
     this.narrator.start(state);
-    this.engine = new TurnEngine(state, rng, idGen, this.registry);
-    this.engine.setSummonResolver((ref) => troopToSummonTemplate(ref, battleRequest.arenaRules));
-    this.engine.setSummonKingdomResolver(kingdom => TROOPS.filter(t => (typeof kingdom === 'number' ? t.kingdomId === kingdom : t.kingdom === kingdom)).map(t => t.referenceName));
-    this.engine.setDaemonPool(TROOPS.filter(t => t.troopTypes.includes('Daemon')).map(t => t.referenceName));
-    this.engine.setBeastPool(TROOPS.filter(t => t.troopTypes.includes('Beast')).map(t => t.referenceName));
-    // 死亡召唤特质（summonOnDeath 族）的召唤物装配：按生成器预解析的 referenceName 查兵种数据
-    setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, battleRequest.arenaRules));
+    this.engine = new TurnEngine(state, rng, idGen, this.registry, engine => {
+      engine.setSummonResolver((ref) => troopToSummonTemplate(ref, battleRequest.arenaRules));
+      engine.setSummonKingdomResolver(kingdom => TROOPS.filter(t => (typeof kingdom === 'number' ? t.kingdomId === kingdom : t.kingdom === kingdom)).map(t => t.referenceName));
+      engine.setDaemonPool(TROOPS.filter(t => t.troopTypes.includes('Daemon')).map(t => t.referenceName));
+      engine.setBeastPool(TROOPS.filter(t => t.troopTypes.includes('Beast')).map(t => t.referenceName));
+      // Native defaults and host overrides are installed before any opening effects.
+      setSummonTemplateResolver((spec) => troopToSummonTemplate(spec.referenceName, battleRequest.arenaRules));
+      configureEngine?.(engine);
+    });
     this.engine.skullChance = BATTLE_SKULL_CHANCE; // 骷髅为棋盘常驻成分（Gems of War 风格；节奏调参见 comboBias.ts）
     this.engine.skullDropMix = BATTLE_SKULL_DROPS;
     this.engine.comboBias = BATTLE_COMBO_BIAS; // 补充的连消倾向：4/5 连机会与连锁更常见（见 engine/comboBias.ts）
@@ -859,7 +863,7 @@ export class App {
 
   /** 取角色立绘：优先用战斗快照里显式配置的 URL，召唤物按部队目录和技能标识取本地资源。 */
   private portraitFor(ch: Character): string {
-    return this.portraitById.get(ch.id) ?? resolveTroopPortrait(ch.name, { skillId: ch.skillId });
+    return ch.portraitUrl ?? this.portraitById.get(ch.id) ?? resolveTroopPortrait(ch.name, { skillId: ch.skillId });
   }
 
   /** 本场战斗的输入快照（宿主注入或独立模式配置）。 */
@@ -879,6 +883,11 @@ export class App {
   exportResult(): BattleResult | null {
     if (!this.session?.isFinished()) return null;
     return this.session.buildResult();
+  }
+
+  /** 完整事件快照供宿主生成事实战报；调用方修改不影响本场记录。 */
+  exportEvents(): GameEvent[] {
+    return structuredClone([...this.session.recordedEvents()]);
   }
 
   /** 交出战斗结果，最多一次。战斗未结束时什么也不做。 */
@@ -1916,7 +1925,8 @@ export class App {
           const becameFull = card.absorbMana(ev.color, ev.amount);
           // 疾病减半：标注原因，否则「消了 4 颗只加 2 点」会被当成 bug
           if (ev.halved) card.floatText(`疾病 减半\n+${ev.amount}`, '#bdc957', 820);
-          if (becameFull) {
+          const character = state.teams[ev.player].characters.find(ch => ch.id === ev.characterId);
+          if (becameFull && character && this.hasSkillUsesRemaining(character, ev.player)) {
             card.pulseManaReady();
             // B-6：刚攒满立刻点亮显式可释放标记（不等回合尾的 refreshTeams）
             card.setCastable(true);
@@ -2312,12 +2322,12 @@ export class App {
       case 'summon': {
         // Queue-only summons stay off-field until a later defeat promotes them.
         if (ev.destination === 'queue') break;
-        const ch = state.teams[ev.player].characters.find((c) => c.id === ev.characterId);
+        const ch = ev.form ?? state.teams[ev.player].characters.find((c) => c.id === ev.characterId);
         if (ch) {
           this.audio.play('summon');
           const card = this.viewOf(ev.player).addCharacterCard(ch, {
-            portrait: this.portraitFor(ch),
-            troopName: battleTroopOf(ch.name, this.idMap.snapshotOf(ch.id))?.name,
+            portrait: ev.form ? (ch.portraitUrl ?? resolveTroopPortrait(ch.name, { troopId: ev.troopId })) : this.portraitFor(ch),
+            troopName: ev.form ? ch.name : battleTroopOf(ch.name, this.idMap.snapshotOf(ch.id))?.name,
           });
           const center = this.cardCenterInOverlay(card);
           if (center) this.playFrameFX('summon_rune', center.x, center.y);
@@ -2339,15 +2349,16 @@ export class App {
       case 'troop-transform': {
         const card = this.cardOfChar(ev.targetId);
         if (!card) break;
-        const portrait = resolveTroopPortrait(ev.name, { troopId: ev.troopId });
+        const portrait = ev.form?.portraitUrl ?? ev.portraitUrl ?? resolveTroopPortrait(ev.name, { troopId: ev.troopId });
         this.portraitById.set(ev.targetId, portrait);
         // 变身把 statuses 清空（技能路径不发 expire）：卡面持续层/控制态按新状态校正
         this.removeAllStatusPersist(ev.targetId);
-        card.syncStatusVisuals();
         // 轻量转化演出：卡面翻到侧面换脸再翻回，外沿一圈流光 + 上行琶音
         this.audio.play('troopTransform');
         card.transformFlip(() => {
-          card.reface(portrait);
+          if (ev.form) card.presentForm(ev.form, portrait);
+          else card.reface(portrait);
+          card.syncStatusVisuals();
           card.floatText(ev.name, '#f0d9a4');
         });
         break;
@@ -3414,6 +3425,7 @@ export class App {
           inputProto = selected;
           this.engine.setBranchChooser(new FixedBranchChooser(branch));
         }
+        const choiceRule = choiceRuleOf(inputProto);
         if (prototypeNeedsColor(inputProto)) {
           const originCard = this.cardOfChar(charId);
           if (!originCard) return;
@@ -3424,8 +3436,11 @@ export class App {
             this.wrapper,
             this.cellAimCoords(),
             '选择一枚宝石以决定法术颜色',
-            (candidate) => this.engine.getState().board.get(candidate)?.type.kind === 'color',
-            '这枚宝石不能决定颜色，请选择红、黄、蓝、绿、紫或棕色宝石',
+            (candidate) => {
+              const gem = this.engine.getState().board.get(candidate);
+              return gem?.type.kind === 'color' && colorAllowed(choiceRule, gem.type.color);
+            },
+            '请选择技能允许颜色的普通宝石，颜色限制见技能说明',
           );
           if (cell === null) return;
           const gem = this.engine.getState().board.get(cell);
@@ -3464,6 +3479,11 @@ export class App {
             this.wrapper,
             this.cellAimCoords(),
             '选择一枚宝石作为技能目标',
+            (candidate) => {
+              const gem = this.engine.getState().board.get(candidate);
+              return !!gem && gemAllowed(choiceRule, gem.type);
+            },
+            '请选择技能允许的宝石，颜色限制见技能说明',
           );
           if (cell === null) return;
           this.engine.setCellChooser(new FixedCellChooser(cell));
@@ -3857,7 +3877,8 @@ export class App {
         const card = view.getCard(ch.id);
         if (!card) continue;
         const castable =
-          !ch.defeated && ManaDistributor.isSkillCastable(ch.mana, ch.manaCost);
+          !ch.defeated && ManaDistributor.isSkillCastable(ch.mana, ch.manaCost)
+          && this.hasSkillUsesRemaining(ch, side);
         card.setCastable(castable);
       }
     }
@@ -3904,6 +3925,11 @@ export class App {
     return !!ch && this.castAvailability(ch, ch.mana).kind === 'ready';
   }
 
+  private hasSkillUsesRemaining(ch: Character, side: PlayerSide): boolean {
+    return !this.registry.prototypes.get(ch.skillId)?.oncePerBattle
+      || !hasCharacterCastSkill(this.engine.getState(), side, ch);
+  }
+
   /**
    * 施放可用性：详情窗按钮（传卡面显示法力）、快速释放判定与 castPlayerSkill 闸门（传引擎法力）共用。
    * 只读 App 自身状态，不依赖 input.enabled（自动战斗线可能另行接管输入）。
@@ -3913,7 +3939,6 @@ export class App {
    */
   private castAvailability(ch: Character, mana: number): CastAvailability {
     const state = this.engine.getState();
-    const proto = this.registry.prototypes.get(ch.skillId);
     const busy = this.settingsOpen || this.pageHidden || this.orientationBlocked || this.startupPlaying
       || this.casting || this.player.isPlaying() || this.visualPlaying
       || state.state !== MatchState.AwaitingInput;
@@ -3927,7 +3952,7 @@ export class App {
       mana,
       manaCost: ch.manaCost,
       silenced: (ch.statuses ?? []).some((s) => s.id === 'silence' || s.id === 'silenced'),
-      usedOnce: !!proto?.oncePerBattle && state.actionLog.some((entry) => entry.skillId === ch.skillId),
+      usedOnce: !this.hasSkillUsesRemaining(ch, PlayerSide.Left),
     });
   }
 
@@ -3968,7 +3993,8 @@ export class App {
     const tier = rarityIdx !== null ? RARITY_TIERS[Math.max(0, Math.min(RARITY_TIERS.length - 1, Math.floor(rarityIdx)))] : null;
     const types = troop?.troopTypes ?? ch.troopTypes ?? [];
     const kingdom = troop?.kingdom ?? ch.kingdom ?? '';
-    const typeLine = [types.length ? raceNames(types) : '', kingdom, tier?.label ?? ''].filter(Boolean).join(' · ');
+    const race = ch.race ?? (types.length ? raceNames(types) : '');
+    const typeLine = [race, kingdom, tier?.label ?? ''].filter(Boolean).join(' · ');
     const proto = this.registry.prototypes.get(ch.skillId);
     return {
       charId,
@@ -3979,7 +4005,7 @@ export class App {
       shown,
       typeLine,
       role: roleNameZh(troop?.role) ?? '',
-      race: types.length ? raceNames(types) : '',
+      race,
       kingdom,
       rarityLabel: tier?.label ?? '',
       rarity: tier ? RARITY_TIERS.indexOf(tier) : null,

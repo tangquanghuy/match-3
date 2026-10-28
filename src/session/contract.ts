@@ -7,6 +7,7 @@
  *  - 宿主只应看到本场结算所需字段，永久养成数据仍归 AIRP。
  */
 import type { BaseColor, SpecialGemKind } from '@engine/types';
+import type { BattleEconomyAudit } from '@engine/battleEconomyLedger';
 
 /** DTO 结构版本。字段语义发生不兼容变化时才递增。 */
 export const BATTLE_SCHEMA_VERSION = 1;
@@ -34,9 +35,15 @@ export interface CombatantSnapshot {
   externalId: string;
   /** 宿主侧模板/兵种标识，仅作追溯，客户端不依赖它取数值 */
   templateId?: string;
+  /** 用于指定对象联动的稳定机制身份，独立于叙事显示名；旧请求省略时按 name 匹配。 */
+  mechanicalIdentity?: string;
+  /** Frozen level/difficulty for derived forms; summon uses owner, transform uses target. */
+  battleScaling?: { level: number; difficulty: number };
   /** Official troop role for battle AI targeting/cast priority. */
   role?: string | null;
   name: string;
+  /** Narrative race shown by the host; independent of mechanical troopTypes. */
+  race?: string;
   portraitUrl?: string;
   /** 等级文本仅供展示（需求 7.6：客户端不做永久升级） */
   levelLabel?: string;
@@ -243,6 +250,8 @@ export interface BattleResult {
    * maps 可选；战后入背包，下一场从 0 重新累计。
    */
   economy?: { gold: number; souls: number; gems: number; maps?: number };
+  /** 可选的战斗资源对账快照；独立于宿主实际发奖收据。 */
+  economyAudit?: BattleEconomyAudit;
   /** 行动序列摘要，用于复现校验：同 seed + 同 digest 应得到同一场战斗 */
   actionLogDigest: string;
   eventSummary: BattleEventSummary[];

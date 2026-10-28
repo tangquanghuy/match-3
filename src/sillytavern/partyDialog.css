@@ -1,0 +1,62 @@
+:host { color-scheme: dark; color: var(--ink); font: 14px/1.5 var(--body); }
+/* Only host sizing and the absent Tavern banner differ from the native workspace. */
+:host(#stage.team-responsive) { position: static; display: block; width: 100% !important; height: auto !important; min-width: 0; transform: none; overflow: visible; }
+.party-dialog { width: min(1440px, 100%); max-width: 100%; margin: auto; padding: 16px; color: var(--ink); background: #0e0e18; border: 0; }
+.party-dialog:not(.embedded) { width: min(1440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; }
+.party-dialog::backdrop { background: #05060bd9; }
+.party-dialog.embedded { padding: 0; }
+.party-dialog .team-workspace { flex: none; min-width: 0; height: calc(100dvh - 190px); min-height: 600px; }
+.party-dialog .lineup,.party-dialog .roster,.party-dialog .lineup-body,.party-dialog .slots { min-width: 0; }
+.party-dialog .team-workspace > .panel { min-width: 0; height: auto; }
+.party-dialog .lineup-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.party-dialog .slots { flex: none; height: auto; min-height: 0; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.party-dialog .roster-grid { flex: 0 0 auto; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: auto; }
+.party-dialog .mini { aspect-ratio: 4/5; }
+.party-dialog .mini > img { width: 100%; height: 100%; object-fit: cover; }
+.party-dialog .inspect { flex: none; margin-top: auto; }
+.party-dialog .member-config { flex: none; flex-wrap: wrap; }
+.party-dialog .member-config label { flex: 1 1 180px; min-width: 0; }
+.party-dialog .member-config label > span { display: block; }
+.party-dialog .member-config select { width: 100%; max-width: 100%; }
+.party-dialog .member-config > p { flex-basis: 100%; margin: 0; font-size: 12px; }
+.party-dialog .issue { color: #e0a08a; overflow-wrap: anywhere; }
+.party-dialog .slot-ops .slot-op { width: 24px; padding: 0; font-size: 13px; }
+.party-dialog .lineup-bar { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 10px; }
+.party-dialog .lineup-bar .confirm { margin-left: auto; }
+.party-dialog .save-hint:empty { display: none; }
+.party-dialog button:disabled { opacity: .5; cursor: default; }
+.party-dialog .mini,.party-dialog .slot { cursor: pointer; }
+@media(max-width:1399px) {
+  .party-dialog .team-workspace { height: auto; min-height: 0; }
+  :host(#stage.team-responsive) .party-dialog .lineup-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  :host(#stage.team-responsive) .party-dialog .lineup-body .slots { height: 474px; min-height: 0; }
+  :host(#stage.team-responsive) .party-dialog .roster { min-height: 0; }
+  :host(#stage.team-responsive) .party-dialog .lineup { min-height: 0; }
+  :host(#stage.team-responsive) .party-dialog .roster-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .party-dialog .inspect { margin-top: 14px; }
+}
+@media(max-width:700px) {
+  .party-dialog { padding: 10px; }
+  :host(#stage.team-responsive) .party-dialog .lineup-body .slots { height: 420px; min-height: 0; }
+  .party-dialog .inspect { grid-template-columns: 76px minmax(0, 1fr); height: auto; min-height: 200px; }
+  .party-dialog .inspect-ops { grid-column: 1/-1; flex-direction: row; }
+  .party-dialog .inspect-art { min-height: 140px; }
+  .party-dialog .inspect-name { display: block; }
+  .party-dialog .inspect-name span { display: block; max-width: 100%; }
+  .party-dialog .inspect-spell strong { font-size: 14px; letter-spacing: 0; }
+  .party-dialog .inspect-copy > p { max-height: 150px; }
+  .party-dialog .stat-chips { flex-wrap: wrap; }
+}
+
+.party-dialog .lineup-bar > .slot-op { flex: none; }
+.party-dialog .lineup-bar > .secondary { min-width: 0; padding: 6px 12px; height: 36px; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; background: #191521; color: var(--gold); border: 1px solid #7d6743; }
+.party-dialog .lineup-bar > .secondary [data-icon] { width: 14px; height: 14px; }
+.party-dialog .lineup-bar > .slot-op svg { width: 16px; height: 16px; }
+.party-dialog .save-hint { white-space: normal; overflow-wrap: anywhere; }
+
+@media(min-width:1400px) { .party-dialog .team-workspace { grid-template-rows: minmax(0, 1fr); } .party-dialog .team-workspace > .panel { height: 100%; min-height: 0; } }
+
+@media(min-width:1400px) {
+  .party-dialog .roster { overflow-y: auto; }
+  .party-dialog .roster-grid { grid-template-columns: repeat(6,minmax(0,1fr)); }
+}

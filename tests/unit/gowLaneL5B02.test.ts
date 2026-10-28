@@ -2,8 +2,8 @@ import type { GameEvent } from '@engine/events';
 // Lane L5 (status apply / cleanse / dispel) batch B02, reviewer sa-L5.
 // Per-entity stored-source binding + real TurnEngine.castSkill evidence.
 // Tests named "REPRO L5-xxx" document current runtime behaviour for an issue
-// registered in tasks/active/gow-skill-shards/lane-L5/issues.json (they pass on
-// current code by design; the issue states the expected GoW behaviour).
+// The historical issue list is retired; these cases preserve the expected GoW
+// behaviour in executable regression tests.
 // Tests named "FIXED L5-xxx" assert the repaired behaviour (rulings/R001, R002).
 // @ts-expect-error Node-only audit fixture
 import fs from 'node:fs';

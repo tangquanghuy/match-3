@@ -59,7 +59,7 @@ const ENGINE_STATUS_IDS = new Set([
   // 不再与 DoT 的 burning 混映射
   'faerie-fire',
   // 接线批：狼化状态本体（status.ts WOLF_STATUS_IDS，狼化宝石 LYCANTHROPY_GEM_TURNS 同款）
-  'lycanthropy',
+  'wolf', 'wolf-form', 'lycanthropy',
 ]);
 
 const BASE_COLORS = new Set(Object.values(BaseColor));
@@ -911,7 +911,8 @@ describe('C · 描述↔数值一致性（从官方文本重新抽数对账）',
           }
         }
       }
-      if (t.manaOpsImmunity && !/对法力灼烧、法力耗尽和法力窃取免疫/.test(d)) {
+      // Drain immunity also occurs alone in High Ancestry; burn immunity is a separate status field.
+      if (t.manaOpsImmunity && !/法力耗尽.*免疫/.test(d)) {
         report(`${tag(t)} manaOpsImmunity 但描述不是法力操作免疫句式`);
       }
       if (t.battleStartDestroy) {

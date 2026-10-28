@@ -1,0 +1,194 @@
+{
+  "generated_on": "2026-10-28",
+  "timezone": "Asia/Hong_Kong (UTC+8)",
+  "session_ids": [
+    "01a14fe7-705b-7ff1-b24d-9192aa87fae5",
+    "01a1582a-76d5-7c82-a72d-0fd0ca1db893"
+  ],
+  "source_count": 8,
+  "turn_count": 95,
+  "image_occurrences": 9,
+  "image_files": 8,
+  "exclusions": {
+    "# AGENTS.md": 2,
+    "<environment_context>": 8,
+    "<turn_aborted>": 25,
+    "<subagent_notification>": 122,
+    "<codex_internal_context>": 26
+  },
+  "sources": [
+    {
+      "file": "rollout-2026-10-19T00-45-30-01a14fe7-705b-7ff1-b24d-9192aa87fae5.jsonl.zst",
+      "sha256": "f508b8afaefb150858a317a781bc2185b24bf6fb242ee3688de33d6c723dd22f",
+      "messages": [
+        "msg_01a14fe8-2003-7990-a85a-2ae5c5d3832c",
+        "msg_01a14ffc-2102-79e0-bd47-d079bd1d032c",
+        "msg_01a15012-5f90-7002-a43f-9d8b1b55fdd4",
+        "msg_01a15023-b331-7e33-9d7b-38f9e86d460e",
+        "msg_01a15034-77bc-7062-ae37-a9d2dc4c6bff",
+        "msg_01a15043-eb3e-73c0-91ee-a859c8000e36",
+        "msg_01a1504d-ab02-7a61-84e0-f1d816daf768",
+        "msg_01a15052-4bdd-7c61-83e5-71959ba5a401",
+        "msg_01a15059-830c-7350-a04f-64db2afdc662",
+        "msg_01a15061-09bd-7822-ad4e-d7f0d1d1a98c",
+        "msg_01a152c5-aa4b-7a43-8aa6-fde1beee1f6b",
+        "msg_01a152d1-e25d-7d71-90d3-0ce83708693a",
+        "msg_01a152e1-ec43-7132-bf2a-1034dbe731e5",
+        "msg_01a152ee-85b6-7071-9b86-5075862da328",
+        "msg_01a152f7-596d-7b52-80ca-de821e35301d",
+        "msg_01a152fd-3b4c-7ae2-9054-732616b6c3c6",
+        "msg_01a15301-76da-76c3-942a-6b1764ee3add",
+        "msg_01a15312-92e0-73b1-8330-05cc67eb4565",
+        "msg_01a15494-5c5c-7762-b7b5-1e137ac96f70",
+        "msg_01a15499-5a37-7900-b72c-dac08ffab7d3",
+        "msg_01a1549f-322d-79f1-bfe7-a79f1c6f5a06",
+        "msg_01a154c1-6777-7553-804c-1a3c9eef26d8",
+        "msg_01a154cd-f173-7332-a464-c194c31060d7",
+        "msg_01a1551a-cd83-7773-ae23-9fcc00220f74",
+        "msg_01a15527-3631-7060-9038-7837afdaf9ab",
+        "msg_01a1553e-c8a9-70e3-9c33-3e4584eb5bf9",
+        "msg_01a157ee-c710-7752-a614-8ea799e9ee5b"
+      ],
+      "excluded": {
+        "# AGENTS.md": 1,
+        "<environment_context>": 1
+      }
+    },
+    {
+      "file": "rollout-2026-10-20T14-17-09-01a14fe7-705b-7ff1-b24d-9192aa87fae5_01a157f4-e443-7271-ab4f-b9186f4d590e.jsonl.zst",
+      "sha256": "2da538ab80a7c59a833f032a3ff87cc206567215d781d4bf58b0c1c0ddca79fb",
+      "messages": [
+        "msg_01a157f4-e51f-7142-a8ec-bd80bc00acfd"
+      ],
+      "excluded": {}
+    },
+    {
+      "file": "rollout-2026-10-20T14-33-06-01a14fe7-705b-7ff1-b24d-9192aa87fae5_01a15803-7d07-74a0-adb3-15b856f4bab3.jsonl.zst",
+      "sha256": "dacc6f55abb262ac6a19ad50567a9a278ec2911ddb032737bb3733cfe6bfcae9",
+      "messages": [
+        "msg_01a15803-7ddf-7631-9412-9e8c17f07b3d"
+      ],
+      "excluded": {}
+    },
+    {
+      "file": "rollout-2026-10-20T14-58-44-01a14fe7-705b-7ff1-b24d-9192aa87fae5_01a1581a-f74a-7a00-8613-01cbe3549677.jsonl.zst",
+      "sha256": "edae86d55442f8903c3d26692953e63c3f9ed29a8774bba7134a5edc1f17fa9d",
+      "messages": [
+        "msg_01a1581a-f846-7972-96df-5f6636cdd841"
+      ],
+      "excluded": {}
+    },
+    {
+      "file": "rollout-2026-10-20T15-15-40-01a1582a-76d5-7c82-a72d-0fd0ca1db893.jsonl",
+      "sha256": "18db77986e9f46dc7b4a4cbd71e493287a185a24040aa7497b7306550ddddf6b",
+      "messages": [
+        "msg_01a1582a-85b3-7f51-ab13-122f8843aa70",
+        "msg_01a15848-8c8e-70d1-ac6f-f1d94e069000",
+        "msg_01a15938-f267-7302-bacf-5844f0167bea",
+        "msg_01a1594b-4050-7621-a484-96d31684cb57",
+        "msg_01a15952-523f-7da2-8ebc-4fade8905a0a",
+        "msg_01a1596c-45f1-7161-8286-59a97aa26f7b",
+        "msg_01a1596f-b768-7801-a283-dd558e3a7d44",
+        "msg_01a15971-ecef-7a53-8f39-baa9e0836679",
+        "msg_01a15979-7e5a-72c3-a859-15329c86a435",
+        "msg_01a15981-3702-7c52-9966-09893f860289",
+        "msg_01a15986-6ad6-7e50-a24b-fc5e2a94a850",
+        "msg_01a15988-1c25-7d50-a40a-48434c4b8e7b",
+        "msg_01a159fe-f238-7da0-ab8e-1f54bfcb69e2",
+        "msg_01a15dc3-757f-7ff1-bb46-9b46e01f1ae0",
+        "msg_01a15de9-7e35-7ba2-88b7-9e8366ddc3f4",
+        "msg_01a15e09-d27f-7ce1-add0-a9e25b57cd4b",
+        "msg_01a15ed0-0021-7d91-9a39-a7078eb58a70",
+        "msg_01a15efc-501c-77a1-b93d-d69a2341c1d4",
+        "msg_01a15f3e-1b0f-70f0-a663-2a62aafc550b",
+        "msg_01a1647e-1808-79c2-bd07-5d5aa818acc4",
+        "msg_01a16492-d100-7513-a328-222c47892a70",
+        "msg_01a16987-5e96-7b61-8bda-877a426e1d43",
+        "msg_01a1698d-b7ac-7df2-b4da-f6b3f877de61",
+        "msg_01a16a20-2244-77b3-ac02-703ca069e010",
+        "msg_01a16c64-b317-7d80-8239-392da1618d8c",
+        "msg_01a16c93-bd0c-7d83-a0e6-b0832ed3843e",
+        "msg_01a16d3c-ae3b-73f3-8614-d44cd9071c69"
+      ],
+      "excluded": {
+        "# AGENTS.md": 1,
+        "<turn_aborted>": 11,
+        "<environment_context>": 4,
+        "<subagent_notification>": 77,
+        "<codex_internal_context>": 26
+      }
+    },
+    {
+      "file": "rollout-2026-10-24T17-27-43-01a1582a-76d5-7c82-a72d-0fd0ca1db893_01a16d3c-cac2-70e2-bd02-bd727f99d9a4.jsonl",
+      "sha256": "f79cb9cf33fb3e7702718ff0909b51b52215d4780d632adc1958705385bffd6d",
+      "messages": [
+        "msg_01a16d3c-cb98-7f31-8c98-988d7c2f661e",
+        "msg_01a16e07-e036-7c93-a2a2-3645a51aff87",
+        "msg_01a16e86-cf13-7890-9a45-31e705b7de7f",
+        "msg_01a16e97-1219-73b1-add5-9ed5b00e39c6",
+        "msg_01a16e9a-1e0b-7860-8a85-33a6efa5c694",
+        "msg_01a16ea2-f39d-7be0-a862-63873dfd0b5e",
+        "msg_01a16eaa-c7d1-7f90-b4a5-23b17167f18b",
+        "msg_01a16eb1-8574-7932-9251-e46964ba4865",
+        "msg_01a16ebe-31e8-7351-bc21-d4c113f6fba4",
+        "msg_01a16ecc-8910-7ca3-b99f-2ddd0ceaa9db",
+        "msg_01a16ed1-983f-7893-9b46-e9f581839a8c",
+        "msg_01a16ee2-18c2-7631-b31a-51d16165812d",
+        "msg_01a16ee7-5a36-7911-aa5c-a43426e54e24",
+        "msg_01a16eeb-2705-7090-8ab4-afced46a5ea9"
+      ],
+      "excluded": {
+        "<subagent_notification>": 8,
+        "<environment_context>": 1,
+        "<turn_aborted>": 4
+      }
+    },
+    {
+      "file": "rollout-2026-10-25T01-18-48-01a1582a-76d5-7c82-a72d-0fd0ca1db893_01a16eec-167f-7ba1-82c9-4aa761e47ce7.jsonl",
+      "sha256": "4e7557ec3ead16c86bc431a094e696f62618a149a1e4185a1bca29dded2fdd4e",
+      "messages": [
+        "msg_01a16eec-176e-72b2-85e3-66e02628f80c",
+        "msg_01a16efb-60ec-7ba3-a339-f97c71e58c3d",
+        "msg_01a16efc-ecec-7d51-98a5-867909e60000",
+        "msg_01a171f5-fa54-7b72-9731-25c815d316ed",
+        "msg_01a1722b-2f2c-7f10-9cf9-357a5586e492",
+        "msg_01a1723d-821e-7cd3-b29f-b28f18fe2df7",
+        "msg_01a1724d-f235-7850-9e7f-4d596b31e4b3",
+        "msg_01a1726c-64f3-7832-ae10-dffcd4bfcae8",
+        "msg_01a17314-9cf2-76b1-bd77-4caa2ec366ad",
+        "msg_01a17330-3999-7101-a3f1-cda0e436ce48",
+        "msg_01a17356-20a1-7e43-b63c-fb7c04a21be4",
+        "msg_01a17368-8dc1-7530-b5b5-09c2486945a0",
+        "msg_01a17377-3d9b-7be3-841b-3e26c5dc89ed",
+        "msg_01a17389-0647-7832-9a0d-fbb8e607cfca",
+        "msg_01a17397-0f60-7f92-9b12-dd092109fa18",
+        "msg_01a173aa-6f35-7dc0-b549-59996bf95a17",
+        "msg_01a173d6-e8e1-7763-8dcc-623d84ac7633",
+        "msg_01a176a4-60d7-7103-8605-41ecf7d7d517",
+        "msg_01a17735-4e26-71b1-bdf1-f4266c8901ff",
+        "msg_01a17822-4f19-7c01-b482-c27aa2063866"
+      ],
+      "excluded": {
+        "<subagent_notification>": 35,
+        "<turn_aborted>": 9,
+        "<environment_context>": 1
+      }
+    },
+    {
+      "file": "rollout-2026-10-26T20-15-20-01a1582a-76d5-7c82-a72d-0fd0ca1db893_01a17822-f82c-7f11-9270-2294c215891e.jsonl",
+      "sha256": "1d3f7932f7250089061feae22a8d5ca6c702239136445790a0eeacd1e320877b",
+      "messages": [
+        "msg_01a17822-f99d-7e61-958f-80547dafed95",
+        "msg_01a1785b-200a-7fe2-9579-73cffb75dd2f",
+        "msg_01a1785d-6ed8-7791-a787-70be1c2d6b5d",
+        "msg_01a181d4-2d25-7532-9dfa-c3269d3e265e"
+      ],
+      "excluded": {
+        "<subagent_notification>": 2,
+        "<turn_aborted>": 1,
+        "<environment_context>": 1
+      }
+    }
+  ],
+  "hash_note": "源日志 SHA-256 为提取时的文件快照；活动日志后续追加会改变文件哈希。逐条文本及提取附件的哈希可独立验证。"
+}

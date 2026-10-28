@@ -33,8 +33,13 @@ const EDGE_PX = 64;
 const EDGE_MAX_SPEED = 18;
 
 /** 找到最近的可纵向滚动祖先；找不到就用文档本身 */
+function parentAcrossShadow(el: HTMLElement): HTMLElement | null {
+  const tree = el.getRootNode();
+  return el.parentElement ?? (tree instanceof ShadowRoot ? tree.host as HTMLElement : null);
+}
+
 function scrollerOf(el: HTMLElement): HTMLElement {
-  for (let n = el.parentElement; n; n = n.parentElement) {
+  for (let n = parentAcrossShadow(el); n; n = parentAcrossShadow(n)) {
     const oy = getComputedStyle(n).overflowY;
     if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 1) return n;
   }
@@ -122,8 +127,16 @@ export class TeamDrag {
       const sc = this.scroller;
       const isDoc = sc === document.scrollingElement || sc === document.documentElement;
       const r = isDoc ? { top: 0, bottom: window.innerHeight } : sc.getBoundingClientRect();
-      const top = Math.max(r.top, 0);
-      const bottom = Math.min(r.bottom, window.innerHeight);
+      let top = Math.max(r.top, 0);
+      let bottom = Math.min(r.bottom, window.innerHeight);
+      if (!isDoc) {
+        for (let ancestor = parentAcrossShadow(sc); ancestor; ancestor = parentAcrossShadow(ancestor)) {
+          if (!/(auto|scroll|hidden|clip)/.test(getComputedStyle(ancestor).overflowY)) continue;
+          const bounds = ancestor.getBoundingClientRect();
+          top = Math.max(top, bounds.top);
+          bottom = Math.min(bottom, bounds.bottom);
+        }
+      }
       const { x, y } = this.last;
       let v = 0;
       if (y < top + EDGE_PX) v = -Math.ceil(((top + EDGE_PX - y) / EDGE_PX) * EDGE_MAX_SPEED);
@@ -165,14 +178,22 @@ export class TeamDrag {
     ghost.style.width = `${w}px`;
     ghost.style.height = `${h}px`;
     const img = p.src.el.querySelector('img');
-    ghost.innerHTML = img ? `<img src="${img.getAttribute('src') ?? ''}" alt="">` : '';
+    if (img) {
+      const portrait = document.createElement('img');
+      portrait.src = img.getAttribute('src') ?? '';
+      portrait.alt = '';
+      ghost.appendChild(portrait);
+    }
     const label = p.src.el.querySelector('.slot-foot b, .mini-shade b')?.textContent ?? '';
     if (label) {
       const b = document.createElement('b');
       b.textContent = label;
       ghost.appendChild(b);
     }
-    document.body.appendChild(ghost);
+    const tree = this.root.getRootNode();
+    // Keep the ghost in the same style scope as the cards, including embedded shadow roots.
+    if (tree instanceof ShadowRoot) tree.appendChild(ghost);
+    else document.body.appendChild(ghost);
     // 长按/拖动过程中浏览器可能已经开始选中文字，这里清掉
     document.getSelection()?.removeAllRanges();
     const dx = w / 2;

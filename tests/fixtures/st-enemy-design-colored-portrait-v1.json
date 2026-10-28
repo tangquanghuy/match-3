@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "rulesetVersion": "1.1.0",
+  "design": {
+    "manaColors": [
+      "Red"
+    ],
+    "rank": "杂兵",
+    "form": "人形",
+    "role": "Striker",
+    "level": 20,
+    "difficulty": 1,
+    "effects": [],
+    "assembly": "classified",
+    "storyWeight": 1
+  },
+  "seed": 1,
+  "externalId": "enemy-1",
+  "blueprint": {
+    "version": 3,
+    "rulesetVersion": "1.1.0",
+    "recipeSignature": "66c3dfbc60a62797",
+    "assembly": {
+      "version": 1,
+      "activeTroopId": 6020,
+      "traitCodes": [
+        "cursedtouch",
+        "entrapment",
+        "giftofcunning"
+      ]
+    },
+    "recipeId": "enemy:6020",
+    "portrait": {
+      "version": 1,
+      "query": {
+        "manaColors": [
+          "Red"
+        ],
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Striker"
+      },
+      "assetId": "Troop_K01_00",
+      "troopId": 6004,
+      "contentHash": "4bb4b9c08e2194e9a68ae4fe59b05825689c7daa3f878f35a3929d9d61e9c1a4"
+    },
+    "level": 20,
+    "difficulty": 1,
+    "snapshot": {
+      "externalId": "enemy-1",
+      "battleScaling": {
+        "level": 20,
+        "difficulty": 1
+      },
+      "mechanicalIdentity": "unit:6020",
+      "name": "输出 enemy-1",
+      "role": "Striker",
+      "stats": {
+        "hp": 17,
+        "attack": 9,
+        "armor": 14,
+        "magic": 10
+      },
+      "levelLabel": "20",
+      "manaColors": [
+        "Red"
+      ],
+      "manaCost": 8,
+      "skillId": "st:7020",
+      "traitIds": [
+        "st:cursedtouch",
+        "st:entrapment",
+        "st:giftofcunning"
+      ],
+      "traitNames": {
+        "st:cursedtouch": "受诅之触",
+        "st:entrapment": "诱捕",
+        "st:giftofcunning": "狡诈之礼"
+      },
+      "troopTypes": [
+        "affinity:24"
+      ],
+      "kingdom": "region:39",
+      "kingdomId": 100016,
+      "spellName": "指定的一名敌人伤害·指定的一名敌人中毒〔0gl7zfd〕",
+      "spellDescription": "1. 对选定的一名敌人造成max(0,round(魔力+3))点伤害；若该段目标具有「中毒」，数值最后×2；2. 对选定的一名敌人施加「中毒」，持续参数3回合（实际结束遵循该状态的触发与解除规则），强度3",
+      "rarityIdx": 0,
+      "portraitUrl": "/static/portraits/Troop_K01_00.webp"
+    },
+    "abilityId": "active:v1:1e42714cf4f84dd5",
+    "sourceId": "assembled:66c3dfbc60a62797",
+    "traitDescriptionAudit": [
+      {
+        "code": "st:cursedtouch",
+        "support": "full",
+        "diagnostics": []
+      },
+      {
+        "code": "st:entrapment",
+        "support": "full",
+        "diagnostics": []
+      },
+      {
+        "code": "st:giftofcunning",
+        "support": "full",
+        "diagnostics": []
+      }
+    ],
+    "descriptionAudit": {
+      "support": "full",
+      "diagnostics": []
+    },
+    "context": {
+      "affinities": [
+        "affinity:24"
+      ],
+      "region": "region:39",
+      "regionId": 100016
+    },
+    "budget": {
+      "activeCount": 1,
+      "traitCount": 3,
+      "effectSegments": 2,
+      "manaCost": 8
+    },
+    "omittedMechanisms": []
+  },
+  "signature": {
+    "roles": [
+      "Striker"
+    ],
+    "effects": [
+      "damage",
+      "allyBuff",
+      "debuff"
+    ],
+    "evidence": [
+      {
+        "effect": "damage",
+        "source": "active",
+        "path": "active.segments[0]",
+        "detail": "enemyChosen：直接伤害"
+      },
+      {
+        "effect": "magicDamage",
+        "source": "active",
+        "path": "active.segments[0]",
+        "detail": "enemyChosen：伤害含魔力系数 1"
+      },
+      {
+        "effect": "debuff",
+        "source": "active",
+        "path": "active.segments[1]",
+        "detail": "enemyChosen：poison"
+      },
+      {
+        "effect": "debuff",
+        "source": "st:cursedtouch",
+        "path": "traits.st:cursedtouch.inflictOnSkullHit",
+        "detail": "inflictOnSkullHit：敌方 curse"
+      },
+      {
+        "effect": "skullOffense",
+        "source": "st:entrapment",
+        "path": "traits.st:entrapment.skullMultVsStatus",
+        "detail": "skullMultVsStatus：目标已有 entangle 时骷髅伤害 ×2；不施加该状态，不保证条件成立或即时伤害"
+      },
+      {
+        "effect": "allyBuff",
+        "source": "st:giftofcunning",
+        "path": "traits.st:giftofcunning.onBigMatchTypeAura",
+        "detail": "onBigMatchTypeAura：实际盟友光环或触发增益"
+      },
+      {
+        "effect": "teamAttack",
+        "source": "st:giftofcunning",
+        "path": "traits.st:giftofcunning.onBigMatchTypeAura",
+        "detail": "onBigMatchTypeAura：盟友攻击增益"
+      }
+    ],
+    "explanation": [
+      "输出：以直接伤害和杀伤为主要任务。"
+    ]
+  },
+  "generation": {
+    "version": 1,
+    "pool": "ordinary",
+    "primaryRole": "Striker",
+    "profile": {
+      "primaryRole": "Striker",
+      "sourceTroopId": 6020,
+      "spellId": 7020,
+      "rarityIdx": 0,
+      "manaCost": 8,
+      "families": [
+        "damage",
+        "negativeStatus"
+      ],
+      "maxPathFamilies": 2,
+      "damageShapes": [
+        "single"
+      ],
+      "capabilities": [
+        "allyBuff",
+        "damage",
+        "debuff"
+      ],
+      "highImpact": [],
+      "resourceGain": false,
+      "selfMana": false,
+      "massControl": false,
+      "generatedColors": [],
+      "canAttack": true,
+      "hasTeamBenefit": false,
+      "damage": [
+        {
+          "kind": "damage",
+          "target": "enemyChosen",
+          "scaling": {
+            "base": 3,
+            "mult": 1
+          },
+          "condMult": {
+            "times": 2,
+            "cond": {
+              "kind": "targetStatus",
+              "statusId": "poison"
+            }
+          }
+        }
+      ],
+      "gems": [],
+      "summons": [],
+      "conditions": true,
+      "groupKey": "{\"conditional\":true,\"cost\":\"01-10\",\"families\":[\"damage\",\"negativeStatus\"],\"shapes\":[\"single\"]}"
+    },
+    "context": {},
+    "groupKey": "{\"conditional\":true,\"cost\":\"01-10\",\"families\":[\"damage\",\"negativeStatus\"],\"shapes\":[\"single\"]}",
+    "groupWeight": 2.0892857142857144,
+    "recipeWeight": 2.0892857142857144
+  },
+  "selection": {
+    "portraitAssetId": "Troop_K01_00",
+    "recipeId": "enemy:6020",
+    "abilityId": "active:v1:1e42714cf4f84dd5",
+    "traitIds": [
+      "st:cursedtouch",
+      "st:entrapment",
+      "st:giftofcunning"
+    ]
+  },
+  "complexity": {
+    "activeCount": 1,
+    "traitCount": 3,
+    "effectSegments": 2,
+    "branchCount": 0,
+    "conditionalCount": 1,
+    "traitMechanisms": 3,
+    "calibration": "uncalibrated",
+    "notes": [
+      "测量全部嵌套效果、分支、条件和特质机制；五档上限仍待标定，不新增经验阈值",
+      "保留全部嵌套效果与原生叠加规则；测量计数不代表已标定的战力评分。"
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "complexity_uncalibrated",
+      "path": "rank",
+      "message": "rank（五档定位，与等级独立）：档位复杂度预算尚未标定；保留原配方并报告测量值"
+    }
+  ],
+  "integrity": "enemy-design:v1:5cc8a1d78ac2d1f3"
+}

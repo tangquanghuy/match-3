@@ -40,8 +40,8 @@ export type ResultTheme = 'victory' | 'defeat';
 
 /** 结算曲成品：已归一到 -17 LUFS，gain 与 BackgroundMusic 的场景增益同一口径 */
 const RESULT_TRACKS: Readonly<Record<ResultTheme, { url: string; gain: number }>> = {
-  victory: { url: victoryUrl, gain: 0.9 },
-  defeat: { url: defeatUrl, gain: 0.9 },
+  victory: { url: new URL(victoryUrl, import.meta.url).href, gain: 0.9 },
+  defeat: { url: new URL(defeatUrl, import.meta.url).href, gain: 0.9 },
 };
 
 /** 升级号角输出增益 */

@@ -14,7 +14,10 @@
     "statusImmunities": [
       "poison",
       "death-mark",
-      "disease"
+      "disease",
+      "wolf",
+      "wolf-form",
+      "lycanthropy"
     ]
   },
   {
@@ -268,7 +271,10 @@
       "poison",
       "stun",
       "death-mark",
-      "disease"
+      "disease",
+      "wolf",
+      "wolf-form",
+      "lycanthropy"
     ],
     "devourImmunity": true
   },
@@ -440,6 +446,7 @@
     "name": "暗黑血脉",
     "description": "对法力耗尽、沉默、妖火和织网状态效果免疫。",
     "troops": 29,
+    "manaOpsImmunity": true,
     "statusImmunities": [
       "faerie-fire",
       "silence",
@@ -561,6 +568,7 @@
     "name": "高等血脉",
     "description": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。",
     "troops": 23,
+    "manaOpsImmunity": true,
     "statusImmunities": [
       "faerie-fire",
       "silence",
@@ -741,7 +749,10 @@
     "description": "对疾病和狼化免疫",
     "troops": 18,
     "statusImmunities": [
-      "disease"
+      "disease",
+      "wolf",
+      "wolf-form",
+      "lycanthropy"
     ]
   },
   {
@@ -927,6 +938,7 @@
     "name": "灵木血脉",
     "description": "对法力耗尽、沉默、妖火和缠绕状态效果免疫。",
     "troops": 14,
+    "manaOpsImmunity": true,
     "statusImmunities": [
       "faerie-fire",
       "silence",
@@ -1155,6 +1167,7 @@
     "name": "天穹血脉",
     "description": "对法力耗尽、沉默、妖火和法力灼烧免疫。",
     "troops": 11,
+    "manaOpsImmunity": true,
     "statusImmunities": [
       "faerie-fire",
       "silence",

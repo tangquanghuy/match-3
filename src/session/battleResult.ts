@@ -1,4 +1,5 @@
 import { clampBattleMaps } from '../engine/battleMaps';
+import { exportBattleEconomyAudit } from '../engine/battleEconomyLedger';
 /**
  * 引擎终局状态 → BattleResult（需求 3.6；设计 §4）。
  *
@@ -154,6 +155,7 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
   }
 
   const winner: BattleSideName = NAME_OF_SIDE[state.winner];
+  const economyAudit = exportBattleEconomyAudit(state);
 
   return {
     schemaVersion: BATTLE_SCHEMA_VERSION,
@@ -174,6 +176,7 @@ export function buildBattleResult(input: BuildResultInput): BattleResult {
       gems: state.economy.gems,
       ...(clampBattleMaps(state.economy.maps) > 0 ? { maps: clampBattleMaps(state.economy.maps) } : {}),
     },
+    ...(economyAudit ? { economyAudit } : {}),
     actionLogDigest: digestString(encodeActionLog(state.actionLog)),
     ...endReasonOf(events),
     ...(state.turnCount ? { playerTurns: state.turnCount[PlayerSide.Left] } : {}),

@@ -1,7 +1,10 @@
+import { hasCharacterCastSkill } from './skillUsage';
 import type { SkullDropMix } from './skullDrops';
 import { BoardModel } from './BoardModel';
 import { creditGoldForSide } from './battleGold';
 import { creditBattleSouls } from './battleSouls';
+import { enableBattleEconomyAudit, creditUncappedEconomy, forfeitPlayerEconomy } from './battleEconomyLedger';
+import type { EconomySource } from './battleEconomyLedger';
 import { canReceiveRandomStatus, eligibleRandomStatuses, randomStatusCandidates } from './randomStatusTarget';
 import { MatchResolver, grantsExtraTurn } from './MatchResolver';
 import type { MatchGroup } from './MatchResolver';
@@ -35,7 +38,7 @@ import type { BranchChooser } from './skills/branchChooser';
 import { AiCellChooser, prototypeNeedsCell } from './skills/cellChooser';
 import { choiceRuleOf } from './skills/gowChoiceRules';
 import type { CellChooser } from './skills/cellChooser';
-import { MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, SPECIAL_MATCH_COLOR, WEB_GEM_TURNS,
+import { snapshotCharacterForm, MatchState, PlayerSide, BaseColor, opponentOf, colorGem, specialGem, posKey, SPECIAL_MATCH_COLOR, WEB_GEM_TURNS,
   MATCH_STATUS_GEMS, DESTROY_STATUS_GEMS, STATUS_GEM_EFFECTS, isStatusGemKind, BOOTY_GEM_GOLD,
   MANA_BONUS_GIANT, SPIRIT_GEM_DRAIN, MANA_POTION_GEM_RANGE, CANDY_GEM_MANA, TRAP_GEM_OPTIONS,
   ANGEL_GEM_TURNS, LYCANTHROPY_GEM_TURNS, GARGOYLE_GEM_TURNS,
@@ -136,8 +139,13 @@ export class TurnEngine {
   private spellBoardSettle: { pending: boolean; deferRemoval: boolean; destroyed: DestroyedGem[]; mode: 'destroy' | 'explode' | 'remove' } | null = null;
   private branchChooser: BranchChooser = new AiBranchChooser();
   /** 召唤物 referenceName → 属性模板 解析器（需求 7）；默认无（ref/randomOf 来源将安全跳过） */
-  private summonResolver: ((referenceName: string) => SummonTemplate | null) | null = null;
+  private summonResolver: ((referenceName: string, source?: Character) => SummonTemplate | null) | null = null;
   private beastPool: readonly string[] = [];
+  private automaticMatchEconomyEnabled = true;
+  /** Controls native four/five-match Gold without granting persistent rewards. */
+  setAutomaticMatchEconomyEnabled(enabled: boolean): void { this.automaticMatchEconomyEnabled = enabled; }
+  /** Enable before opening effects so the audit covers the full battle. */
+  enableEconomyAudit(): void { enableBattleEconomyAudit(this.state); }
   /** 行动开始时的「角色 id → 所属方」快照，供阵亡响应在角色离场后仍能判定归属 */
   private readonly rosterSideAtActionStart = new Map<number, PlayerSide>();
   /** 行动开始时的角色引用快照：阵亡者被移出编队后，死亡召唤仍需读它编译过的被动 */
@@ -172,12 +180,13 @@ export class TurnEngine {
   /**
    * 条件经济光环入账口（条件经济批，注入 traits 触发器 ctx/opts.gainEconomy）：
    * 黄金按阵营入账，灵魂/宝石保持既有奖励模型，发既有
-   * economy-gain 事件（不新增事件类型）；side 记录获得发生时的行动方。
+   * economy-gain 事件（不新增事件类型）；side 记录触发特质的持有者阵营。
    */
-  private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number, side = this.state.activePlayer): GameEvent[] => {
-    if (currency === 'gold') amount = creditGoldForSide(this.state, side, amount);
-    else if (currency === 'souls') amount = creditBattleSouls(this.state, amount);
-    else this.state.economy[currency] += amount;
+  private readonly creditEconomy = (currency: keyof TraitEconomyGain, amount: number, side: PlayerSide, actorId?: number, source: EconomySource = 'trait'): GameEvent[] => {
+    const context = { source, side, ...(actorId !== undefined ? { actorId } : {}) };
+    if (currency === 'gold') amount = creditGoldForSide(this.state, side, amount, context);
+    else if (currency === 'souls') amount = creditBattleSouls(this.state, amount, context);
+    else amount = creditUncappedEconomy(this.state, currency, amount, context);
     return amount > 0 ? [{ type: 'economy-gain', currency, amount, side }] : [];
   };
 
@@ -213,8 +222,8 @@ export class TurnEngine {
    */
   private readonly traitSummon = (spec: {
     chance: number; troopId: number; referenceName: string; displayName: string;
-  }, side: PlayerSide = this.state.activePlayer): GameEvent[] =>
-    applyDeathSummons([{ spec: { ...spec, chance: 1 }, side }], {
+  }, side: PlayerSide = this.state.activePlayer, owner?: Character): GameEvent[] =>
+    applyDeathSummons([{ spec: { ...spec, chance: 1 }, side, owner }], {
       nextCharId: () => this.nextCharId(),
       rng: this.rng,
       enqueue: (summoned, troopId, side) => this.enqueueSummon(summoned, troopId, side),
@@ -304,12 +313,16 @@ export class TurnEngine {
     private rng: SeededRNG,
     nextGemId: () => number,
     private registry: ExtensionRegistry = new ExtensionRegistry(),
+    initializeRuntime?: (engine: TurnEngine) => void,
   ) {
     this.nextGemId = nextGemId;
     // 法力涌动新规则（4 消保底 / 连锁加成）的掷骰走独立分支流：只读主流状态派生，不消耗主流，
     // 其余随机结果（技能目标、补充宝石、闪避…）与旧规则逐次一致。
     this.surgeRng = new SeededRNG((rng.getState() ^ 0x6a09e667) >>> 0);
     this.gravity = new GravitySystem(rng, nextGemId);
+    // Resolvers and environment pools must exist before opening traits can cascade.
+    // The callback configures dependencies only; actions start after construction.
+    initializeRuntime?.(this);
     // 特质在战斗开始时编译一次：之后骷髅/技能/状态结算只读 Character.passive，
     // 不必把注册表传进那些纯函数（见 src/engine/traits.ts 的设计说明）。
     const all = [
@@ -457,7 +470,7 @@ export class TurnEngine {
           if (char.defeated) continue;
           const gain = passivesOf(char).pvpEconomyGain;
           // Post-battle PvP grant is separate from the capped, trait-multiplied battle pool.
-          if (gain && gain.amount > 0) this.state.economy[gain.currency] += gain.amount;
+          if (gain && gain.amount > 0) creditUncappedEconomy(this.state, gain.currency, gain.amount, { source: 'pvp-bonus', side: PlayerSide.Left, actorId: char.id, operation: 'bonus' });
         }
       }
     }
@@ -777,12 +790,12 @@ export class TurnEngine {
       const eco = p.damagedEconomyGains;
       if (eco) {
         for (const currency of ['gold', 'souls', 'gems'] as const) {
-          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency]));
+          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency], side, holder.id));
         }
       }
       const summon = p.summonOnDamaged;
       if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
-        events.push(...this.traitSummon(summon, side));
+        events.push(...this.traitSummon(summon, side, holder));
         events.push(...this.applySelfSummonStatus(holder));
       }
       // 承受骷髅伤害创造特殊宝石（接线批 onyxshard「创造 2 颗极度末日骷髅头」+ *shard
@@ -822,12 +835,12 @@ export class TurnEngine {
       const eco = p.turnStartEconomyGains;
       if (eco) {
         for (const currency of ['gold', 'souls', 'gems'] as const) {
-          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency]));
+          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency], this.state.activePlayer, char.id));
         }
       }
       const summon = p.turnStartSummon;
       if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
-        events.push(...this.traitSummon(summon));
+        events.push(...this.traitSummon(summon, this.state.activePlayer, char));
         events.push(...this.applySelfSummonStatus(char));
       }
       // 回合开始按概率获得属性（职业天赋 darkchannel「每回合 50% 几率获得 1 点魔力值」）：
@@ -954,12 +967,12 @@ export class TurnEngine {
       const eco = p.allyCastEconomyGains;
       if (eco) {
         for (const currency of ['gold', 'souls', 'gems'] as const) {
-          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency]));
+          if (eco[currency] > 0) events.push(...this.creditEconomy(currency, eco[currency], this.state.activePlayer, holder.id));
         }
       }
       const summon = p.summonOnAllyCast;
       if (summon && (summon.chance >= 1 || this.rng.next() < summon.chance)) {
-        events.push(...this.traitSummon(summon));
+        events.push(...this.traitSummon(summon, this.state.activePlayer, holder));
         events.push(...this.applySelfSummonStatus(holder));
       }
       // 盟友施法伤害/创造宝石（特质收尾批：serpentsfang 蝰蛇之牙「对一名随机敌人造成
@@ -1048,7 +1061,7 @@ export class TurnEngine {
     this.beastPool = [...refs];
   }
 
-  setSummonResolver(resolver: (referenceName: string) => SummonTemplate | null): void {
+  setSummonResolver(resolver: (referenceName: string, source?: Character) => SummonTemplate | null): void {
     this.summonResolver = resolver;
   }
 
@@ -1068,6 +1081,12 @@ export class TurnEngine {
    * 由装配层从 troops 数据注入；缺省空池 → 传送门只爆炸不召唤（零随机消耗）。
    */
   private daemonPool: readonly string[] = [];
+  private environmentSummonResolver: ((referenceName: string, side: PlayerSide) => SummonTemplate | null) | null = null;
+
+  /** Board effects have no actor; hosts may supply a frozen battle-side scaling rule. */
+  setEnvironmentSummonResolver(resolver: (referenceName: string, side: PlayerSide) => SummonTemplate | null): void {
+    this.environmentSummonResolver = resolver;
+  }
 
   setDaemonPool(refs: readonly string[]): void {
     this.daemonPool = refs;
@@ -1085,9 +1104,9 @@ export class TurnEngine {
   surrender(side: PlayerSide): GameEvent[] {
     if (this.state.winner !== null || this.state.state === MatchState.GameOver) return [];
     const winner = opponentOf(side);
+    forfeitPlayerEconomy(this.state, side);
     this.state.winner = winner;
     this.state.state = MatchState.GameOver;
-    this.state.economy = { gold: 0, souls: 0, gems: 0, maps: 0 };
     return [{ type: 'game-over', winner, reason: 'surrender' }];
   }
 
@@ -1227,7 +1246,7 @@ export class TurnEngine {
         // （createGem：wildtribe/wildmagic 族落子，避开本轮将被消除的匹配格）；
         // 旧特质路径零随机消耗、事件序不变。
         if (group.cells.length >= 4) {
-          events.push(...this.creditEconomy('gold', group.cells.length >= 5 ? 5 : 4, matchingSide));
+          if (this.automaticMatchEconomyEnabled) events.push(...this.creditEconomy('gold', group.cells.length >= 5 ? 5 : 4, matchingSide, undefined, 'match'));
           events.push(...applyBigMatchTriggers(
             this.state.teams[matchingSide].characters,
             {
@@ -1249,8 +1268,8 @@ export class TurnEngine {
               createPlainGem: (color, count) => this.spawnPlainGems(color as BaseColor, count),
               createGem: (kind, tier, count, color) =>
                 this.spawnSpecialGems(kind, tier, count, matches.map((grp) => grp.cells), color as BaseColor | undefined),
-              summon: (spec) => {
-                const produced = this.traitSummon(spec, matchingSide);
+              summon: (spec, owner) => {
+                const produced = this.traitSummon(spec, matchingSide, owner);
                 // 大连召唤完成后的 self-summon 触发（hauntedweave）：召唤事件发生后，
                 // 对行动方存活持有者各触发一次。
                 return [...produced, ...this.appendSelfSummonStatusForDeathSummons(
@@ -1630,7 +1649,7 @@ export class TurnEngine {
         // 赃物宝石（官方 Booty Gem）：被摧毁时给摧毁方 +10 金币（战场经济池）。
         // 不可匹配（SPECIAL_MATCH_COLOR 无键），只能经清除管线/至尊末日骷髅爆炸圈抵达这里。
         events.push({ type: 'special-gem-trigger', kind: 'bootyGem', pos: d.pos });
-        const gained = creditGoldForSide(this.state, triggeringSide, BOOTY_GEM_GOLD);
+        const gained = creditGoldForSide(this.state, triggeringSide, BOOTY_GEM_GOLD, { source: 'booty-gem', side: triggeringSide });
         if (gained > 0) events.push({
           type: 'economy-gain', currency: 'gold', amount: gained, side: triggeringSide,
         });
@@ -1699,7 +1718,7 @@ export class TurnEngine {
         // to the team of the gem destroyer"）：爆炸相邻一圈 + 为摧毁者（行动方）召唤随机恶魔
         events.push({ type: 'special-gem-trigger', kind, pos: d.pos });
         this.clearCellsForSpecial(this.ringCells(d.pos), 'gem-explode', events, queue, chain);
-        events.push(...this.summonRandomDaemon());
+        events.push(...this.summonRandomDaemon(triggeringSide));
       } else if (kind === 'gargoyleGem') {
         this.applyGargoyleGem(d.gemType.spec, d.pos, events, triggeringSide);
       } else if (kind === 'trapGem') {
@@ -1940,10 +1959,18 @@ export class TurnEngine {
    * 种子化掷选后走现有召唤先例（traitSummon → applyDeathSummons → 注入模板解析器装配 +
    * 容量/FIFO 入队），归摧毁者（行动方）一方。池为空时安全跳过、零随机消耗。
    */
-  private summonRandomDaemon(): GameEvent[] {
+  private summonRandomDaemon(side: PlayerSide = this.state.activePlayer): GameEvent[] {
     if (this.daemonPool.length === 0) return [];
     const referenceName = this.daemonPool[this.rng.nextInt(this.daemonPool.length)];
-    return this.traitSummon({ chance: 1, troopId: -1, referenceName, displayName: referenceName });
+    const spec = { chance: 1, troopId: -1, referenceName, displayName: referenceName };
+    if (this.environmentSummonResolver) {
+      return applyDeathSummons([{ spec, side }], {
+        nextCharId: () => this.nextCharId(), rng: this.rng,
+        resolveTemplate: s => this.environmentSummonResolver!(s.referenceName, side),
+        enqueue: (summoned, troopId, ownerSide) => this.enqueueSummon(summoned, troopId, ownerSide),
+      });
+    }
+    return this.traitSummon(spec, side, this.state.teams[side].characters.find(c=>!c.defeated));
   }
 
   /**
@@ -2417,7 +2444,7 @@ export class TurnEngine {
       const dead = this.rosterCharAtActionStart.get(id);
       if (dead) events.push(...applySelfDeathManaGift(dead, this.state.teams[side].characters, this.rng));
       const deathEco = dead ? passivesOf(dead).onDeathEconomy : undefined;
-      if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount, side));
+      if (deathEco) events.push(...this.creditEconomy(deathEco.currency, deathEco.amount, side, id));
       // 自身亡→敌方全体陷入状态（职业天赋 deathcurse「我身亡时，使所有敌人陷入死亡标记」）：
       // 死者被动随行动开始引用快照取（死者已移出编队），确定性逐个施加、零随机消耗。
       const selfDeathStatus = dead ? passivesOf(dead).onSelfDeathEnemyAllStatus : undefined;
@@ -2490,26 +2517,26 @@ export class TurnEngine {
   private resolveDeathSummons(deadId: number, deadSide: PlayerSide): GameEvent[] {
     const ownerTeam = this.state.teams[deadSide];
     const enemyTeam = this.state.teams[opponentOf(deadSide)];
-    const specs: { spec: DeathSummonSpec; side: PlayerSide }[] = [];
+    const specs: { spec: DeathSummonSpec; side: PlayerSide; owner?: Character }[] = [];
 
     // 死者本人：summonOnDeath 唯一有效来源。resolveDefeatEvents 已把它移出编队，
     // 编译被动随对象走，从行动开始的引用快照取。召唤物归死者一方（本人持有）。
     const dead = this.rosterCharAtActionStart.get(deadId);
     if (dead) {
       const p = passivesOf(dead);
-      if (p.summonOnDeath) specs.push({ spec: p.summonOnDeath, side: deadSide });
+      if (p.summonOnDeath) specs.push({ spec: p.summonOnDeath, side: deadSide, owner: dead });
     }
     // 本队存活者：summonOnAllyDeath。召唤物归持有者一方（=死者一方）
     for (const c of ownerTeam.characters) {
       if (c.defeated || c.id === deadId) continue;
       const p = passivesOf(c);
-      if (p.summonOnAllyDeath) specs.push({ spec: p.summonOnAllyDeath, side: deadSide });
+      if (p.summonOnAllyDeath) specs.push({ spec: p.summonOnAllyDeath, side: deadSide, owner: c });
     }
     // 对方存活者：summonOnEnemyDeath。召唤物归持有者一方（=死者对方）
     for (const c of enemyTeam.characters) {
       if (c.defeated) continue;
       const p = passivesOf(c);
-      if (p.summonOnEnemyDeath) specs.push({ spec: p.summonOnEnemyDeath, side: opponentOf(deadSide) });
+      if (p.summonOnEnemyDeath) specs.push({ spec: p.summonOnEnemyDeath, side: opponentOf(deadSide), owner: c });
     }
 
     if (specs.length === 0) return [];
@@ -2643,6 +2670,7 @@ export class TurnEngine {
     return [{
       type: 'summon', player: side, slot: team.characters.length - 1,
       troopId, characterId: summoned.id, destination: 'field',
+      form: snapshotCharacterForm(summoned),
     }];
   }
 
@@ -2743,8 +2771,8 @@ export class TurnEngine {
       events.push(
         ...this.resolveDefeatWithRevive(
           tickTeamStatuses(this.state.teams[this.state.activePlayer].characters, this.rng, this.state.activePlayer,
-            () => this.summonResolver && this.beastPool.length
-              ? this.summonResolver(this.beastPool[this.rng.nextInt(this.beastPool.length)]) : null),
+            (target) => this.summonResolver && this.beastPool.length
+              ? this.summonResolver(this.beastPool[this.rng.nextInt(this.beastPool.length)], target) : null),
         ),
       );
       // DoT 可能致死，重新判定胜负（game-over 仍排在末尾）
@@ -2832,9 +2860,7 @@ export class TurnEngine {
     // L3-009: native DisableMySpell targets Self — only this troop's own earlier cast disables it
     // (an enemy or another ally casting the same spell id does not).
     if (this.registry.prototypes.get(ch.skillId)?.oncePerBattle
-      && this.state.actionLog.some((entry) => entry.skillId === ch.skillId
-        && entry.side === this.state.activePlayer
-        && entry.action.type === 'cast' && entry.action.characterId === ch.id)) {
+      && hasCharacterCastSkill(this.state, this.state.activePlayer, ch)) {
       return [];
     }
 
@@ -2933,7 +2959,7 @@ export class TurnEngine {
         // P-create-interleave: defer the settle of pure board rewrites to the end of the spell
         // Piscea devours first; its green clear and blue creation are spell steps before gravity/cascades.
         const settle = {
-          pending: false, deferRemoval: ch.skillId === '8715',
+          pending: false, deferRemoval: ch.skillId === '8715' || ch.skillId === 'st:8715',
           destroyed: [] as DestroyedGem[], mode: 'destroy' as 'destroy' | 'explode' | 'remove',
         };
         this.spellBoardSettle = settle;

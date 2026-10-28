@@ -15,8 +15,8 @@ import troops from '../../src/data/troops.json';
 import { spellDescription } from '../../src/data/combatText';
 const en = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json','utf8')).troops.find((t:{id:number})=>t.id===6092);
 const native = indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells).get(7162).raw;
-const officialGuide=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html','utf8');
-const officialStatuses=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html','utf8');
+const officialGuide=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html','utf8');
+const officialStatuses=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-status-effects.html','utf8');
 const troop = troops.find(t=>t.id===6092)!;
 const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 describe('Brian the Lucky 6092 / Cheers 7162 scoped snapshot review',()=>{

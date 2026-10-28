@@ -6,13 +6,13 @@
  *     ("Transform a selected Mana color to Green" never picks Green);
  *   - `<X>Gems`: only a gem of colour X can be chosen ("Choose a Purple Gem");
  *   - `ManaGemsOnly`: only a Mana (colour) gem can be chosen, never a Skull or special gem.
- * Engine side only: the AI colour/cell choosers honour the rule. The player palette / board pick
- * (src/render/App.ts) does not filter yet — follow-up UI work.
+ * The AI colour/cell choosers and the player board picker honour the same rule.
  *
  * Rules are attached to compiled prototypes through a WeakMap so the prototype data (and every
  * test that compares it with toEqual) is unchanged.
  */
 import { BaseColor } from '../types';
+import type { GemType } from '../types';
 import type { SkillPrototype } from './prototypes';
 
 export interface ChoiceRule {
@@ -72,6 +72,14 @@ export function applyGowChoiceRule(id: number, proto: SkillPrototype): SkillProt
   return proto;
 }
 
+/** Preserve native input restrictions when an adapter copies a prototype. */
+export function copyGowChoiceRule(source: SkillPrototype, target: SkillPrototype): SkillPrototype {
+  const rule = rules.get(source);
+  if (rule) rules.set(target, { ...rule });
+  else rules.delete(target);
+  return target;
+}
+
 /** Native choice restriction of a compiled prototype, if any. */
 export function choiceRuleOf(proto: SkillPrototype | undefined): ChoiceRule | undefined {
   return proto ? rules.get(proto) : undefined;
@@ -83,4 +91,10 @@ export function colorAllowed(rule: ChoiceRule | undefined, color: BaseColor): bo
   if (rule.notColor !== undefined && color === rule.notColor) return false;
   if (rule.onlyColor !== undefined && color !== rule.onlyColor) return false;
   return true;
+}
+
+/** Shared by the original cell chooser and the player's board picker. */
+export function gemAllowed(rule: ChoiceRule | undefined, gem: GemType): boolean {
+  if (rule?.manaGemsOnly && gem.kind !== 'color') return false;
+  return gem.kind !== 'color' || colorAllowed(rule, gem.color);
 }

@@ -1,0 +1,1131 @@
+{
+  "version": 1,
+  "oracle": "Frozen from English troop clauses, native RawData spell steps, complete source troop/traits and progression rows, and portrait bytes. Panels computed independently: base + literal growth[0:level], then positive half-up difficulty rounding. No adapter/compiler/engine output generates expected values. Status duration/magnitude follow the existing native shared-rule contract.",
+  "enemies": [
+    {
+      "id": 6220,
+      "name": "LavaElemental",
+      "sourceTroop": {
+        "id": 6220,
+        "name": "熔岩元素",
+        "referenceName": "LavaElemental",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "破碎尖塔",
+        "kingdomId": 3000,
+        "troopTypes": [
+          "Elemental"
+        ],
+        "role": "Mage",
+        "attack": 13,
+        "armor": 23,
+        "health": 18,
+        "magic": 5,
+        "base": {
+          "attack": 3,
+          "armor": 4,
+          "health": 3,
+          "magic": 1
+        },
+        "manaColors": [
+          "Red",
+          "Brown"
+        ],
+        "manaCost": 13,
+        "spell": {
+          "id": 7362,
+          "name": "熔岩之怒",
+          "description": "对所有敌人造成 [魔法 + 2] 点伤害，再使他们陷入燃烧状态。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 2,
+                "mult": 1
+              }
+            ],
+            "raw": "对所有敌人造成 [魔法 + 2] 点伤害，再使他们陷入燃烧状态。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "fireproof",
+            "name": "防火",
+            "description": "对燃烧和妖火状态效果免疫。"
+          },
+          {
+            "code": "pyromania",
+            "name": "纵火狂",
+            "description": "对陷入燃烧状态的敌人造成双倍骷髅头伤害。"
+          },
+          {
+            "code": "stoneskin",
+            "name": "铁壁铜墙",
+            "description": "降低来自骷髅头的伤害 50%。"
+          }
+        ],
+        "portrait": "Troop_K00_06"
+      },
+      "sourceTraits": [
+        {
+          "code": "fireproof",
+          "name": "防火",
+          "description": "对燃烧和妖火状态效果免疫。",
+          "troops": 95,
+          "statusImmunities": [
+            "burning",
+            "faerie-fire"
+          ]
+        },
+        {
+          "code": "pyromania",
+          "name": "纵火狂",
+          "description": "对陷入燃烧状态的敌人造成双倍骷髅头伤害。",
+          "troops": 13,
+          "skullMultVsStatus": {
+            "status": "burning",
+            "mult": 2
+          }
+        },
+        {
+          "code": "stoneskin",
+          "name": "铁壁铜墙",
+          "description": "降低来自骷髅头的伤害 50%。",
+          "troops": 148,
+          "skullDamageReduction": 0.5
+        }
+      ],
+      "progression": {
+        "growth": {
+          "health": [
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            2,
+            1,
+            2
+          ],
+          "armor": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            2,
+            2,
+            2,
+            2
+          ],
+          "attack": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2
+          ],
+          "magic": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "traits": [
+          {
+            "minor:brown": 14,
+            "major:brown": 6,
+            "major:red": 6
+          },
+          {
+            "minor:brown": 20,
+            "runic:brown": 6,
+            "runic:red": 6
+          },
+          {
+            "minor:brown": 26,
+            "major:brown": 8,
+            "arcane:red:brown": 3
+          }
+        ]
+      },
+      "english": {
+        "referenceName": "LavaElemental",
+        "spellId": 7362,
+        "cost": 13,
+        "colors": {
+          "ColorRed": true,
+          "ColorBrown": true
+        },
+        "rarityIdx": 2,
+        "kingdomId": 3000,
+        "troopTypes": [
+          "Elemental"
+        ],
+        "description": "Deal [Magic + 2] damage to all Enemies, and then Burn them.",
+        "traits": [
+          {
+            "code": "fireproof",
+            "name": "Fireproof",
+            "description": "Immunity to Burning and Faerie Fire."
+          },
+          {
+            "code": "pyromania",
+            "name": "Pyromania",
+            "description": "Deal double Skull damage vs. Burning enemies."
+          },
+          {
+            "code": "stoneskin",
+            "name": "Stoneskin",
+            "description": "Reduce damage from Skulls by 50%."
+          }
+        ]
+      },
+      "nativeSpell": {
+        "Cost": 13,
+        "Description": "[SPELL7362_DESC]",
+        "Id": 7362,
+        "Name": "[SPELL7362_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1.0,
+            "Target": "AllEnemies",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "AllEnemies",
+            "Amount": 1,
+            "Type": "CauseBurning"
+          }
+        ],
+        "Target": "None"
+      },
+      "portrait": {
+        "assetId": "Troop_K00_06",
+        "troopId": 6220,
+        "manaColors": [
+          "Red",
+          "Brown"
+        ],
+        "rank": "精锐",
+        "form": "人形",
+        "role": "Mage",
+        "portraitUrl": "/static/portraits/Troop_K00_06.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "2f15b6d8adf15abc4656e196063a5b16f42f808c3c0e0c8e8d65e45136317dea"
+      },
+      "portraitSha256": "2f15b6d8adf15abc4656e196063a5b16f42f808c3c0e0c8e8d65e45136317dea",
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 3,
+            "armor": 4,
+            "attack": 3,
+            "magic": 1
+          },
+          "damage": 3
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 18,
+            "armor": 23,
+            "attack": 13,
+            "magic": 5
+          },
+          "damage": 7
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 27,
+            "armor": 35,
+            "attack": 20,
+            "magic": 8
+          },
+          "damage": 10
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:11"
+        ],
+        "region": "region:27",
+        "regionId": 100000
+      },
+      "active": {
+        "target": "enemyAll",
+        "base": 2,
+        "mult": 1,
+        "statuses": [
+          {
+            "id": "burning",
+            "turns": 3,
+            "magnitude": 3
+          }
+        ],
+        "descriptionTerms": [
+          "所有敌人",
+          "燃烧",
+          "魔力"
+        ]
+      },
+      "openingMana": 0,
+      "keptTraitCodes": [
+        "fireproof",
+        "pyromania",
+        "stoneskin"
+      ],
+      "omittedMechanisms": [],
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6220]",
+        "data/raw/spells.gow.en.json#RawData[Id=7362,SpellSteps]",
+        "src/data/troops.json#[id=6220]",
+        "src/data/troop-progression.json#6220",
+        "src/data/traits.json#[code=fireproof]",
+        "src/data/traits.json#[code=pyromania]",
+        "src/data/traits.json#[code=stoneskin]",
+        "src/sillytavern/data/portraits.json#entries[troopId=6220]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+      ],
+      "traitDescriptionTerms": {
+        "fireproof": [
+          "免疫",
+          "燃烧",
+          "承受法术伤害增加"
+        ],
+        "pyromania": [
+          "燃烧",
+          "骷髅头伤害倍率为 2"
+        ],
+        "stoneskin": [
+          "骷髅头伤害降低 50%"
+        ]
+      }
+    },
+    {
+      "id": 7131,
+      "name": "VaultGuard",
+      "sourceTroop": {
+        "id": 7131,
+        "name": "藏宝库守卫",
+        "referenceName": "VaultGuard",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "盖塔尔",
+        "kingdomId": 3020,
+        "troopTypes": [
+          "Undead",
+          "Knight"
+        ],
+        "role": "Striker",
+        "attack": 16,
+        "armor": 9,
+        "health": 20,
+        "magic": 11,
+        "base": {
+          "attack": 4,
+          "armor": 1,
+          "health": 4,
+          "magic": 1
+        },
+        "manaColors": [
+          "Blue",
+          "Brown"
+        ],
+        "manaCost": 12,
+        "spell": {
+          "id": 8675,
+          "name": "冰冷之触",
+          "description": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 2,
+                "mult": 1
+              }
+            ],
+            "raw": "对一名敌人造成 [魔法 + 2] 点伤害。再使他们陷入冻结和死亡标记状态。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "undeadshield",
+            "name": "不死族之盾",
+            "description": "不死族盟友获得 2 点护甲值。"
+          },
+          {
+            "code": "undying",
+            "name": "不死不灭",
+            "description": "对中毒、疾病、狼化和死亡标记免疫"
+          },
+          {
+            "code": "armored",
+            "name": "全副武装",
+            "description": "降低来自骷髅头的伤害 25%。"
+          }
+        ],
+        "portrait": "Troop_K09_24"
+      },
+      "sourceTraits": [
+        {
+          "code": "undeadshield",
+          "name": "不死族之盾",
+          "description": "不死族盟友获得 2 点护甲值。",
+          "troops": 4,
+          "typeAura": {
+            "troopType": "Undead",
+            "stat": "armor",
+            "amount": 2
+          }
+        },
+        {
+          "code": "undying",
+          "name": "不死不灭",
+          "description": "对中毒、疾病、狼化和死亡标记免疫",
+          "troops": 150,
+          "statusImmunities": [
+            "poison",
+            "death-mark",
+            "disease",
+            "wolf",
+            "wolf-form",
+            "lycanthropy"
+          ]
+        },
+        {
+          "code": "armored",
+          "name": "全副武装",
+          "description": "降低来自骷髅头的伤害 25%。",
+          "troops": 203,
+          "skullDamageReduction": 0.25
+        }
+      ],
+      "progression": {
+        "growth": {
+          "health": [
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            2,
+            2,
+            2,
+            2
+          ],
+          "armor": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "attack": [
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            2,
+            1,
+            2
+          ],
+          "magic": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2
+          ]
+        },
+        "traits": [
+          {
+            "minor:blue": 14,
+            "major:blue": 6,
+            "major:brown": 6
+          },
+          {
+            "minor:blue": 20,
+            "runic:blue": 6,
+            "runic:brown": 6
+          },
+          {
+            "minor:blue": 26,
+            "major:blue": 8,
+            "arcane:blue:brown": 3
+          }
+        ]
+      },
+      "english": {
+        "referenceName": "VaultGuard",
+        "spellId": 8675,
+        "cost": 12,
+        "colors": {
+          "ColorBlue": true,
+          "ColorBrown": true
+        },
+        "rarityIdx": 2,
+        "kingdomId": 3020,
+        "troopTypes": [
+          "Undead",
+          "Knight"
+        ],
+        "description": "Deal [Magic + 2] damage to an Enemy. Then Freeze and Death Mark them.",
+        "traits": [
+          {
+            "code": "undeadshield",
+            "name": "Undead Shield",
+            "description": "Allied Undead gain 2 Armor."
+          },
+          {
+            "code": "undying",
+            "name": "Undying",
+            "description": "Immune to Poison, Disease, Lycanthropy, and Death Mark."
+          },
+          {
+            "code": "armored",
+            "name": "Armored",
+            "description": "Reduce damage from Skulls by 25%."
+          }
+        ]
+      },
+      "nativeSpell": {
+        "Cost": 12,
+        "Description": "[SPELL8675_DESC]",
+        "Id": 8675,
+        "Name": "[SPELL8675_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1.0,
+            "Target": "FromTarget",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseFrozen"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseDeathMark"
+          }
+        ],
+        "Target": "Enemy"
+      },
+      "portrait": {
+        "assetId": "Troop_K09_24",
+        "troopId": 7131,
+        "manaColors": [
+          "Blue",
+          "Brown"
+        ],
+        "rank": "精锐",
+        "form": "类人",
+        "role": "Striker",
+        "portraitUrl": "/static/portraits/Troop_K09_24.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "b026659bcdde339354c405d167d4a04034bfecd2f1a72358988a621b302420a6"
+      },
+      "portraitSha256": "b026659bcdde339354c405d167d4a04034bfecd2f1a72358988a621b302420a6",
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 4,
+            "armor": 1,
+            "attack": 4,
+            "magic": 1
+          },
+          "damage": 3
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 20,
+            "armor": 9,
+            "attack": 16,
+            "magic": 11
+          },
+          "damage": 13
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 30,
+            "armor": 14,
+            "attack": 24,
+            "magic": 17
+          },
+          "damage": 19
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:31",
+          "affinity:19"
+        ],
+        "region": "region:26",
+        "regionId": 100020
+      },
+      "active": {
+        "target": "enemyChosen",
+        "base": 2,
+        "mult": 1,
+        "statuses": [
+          {
+            "id": "frozen",
+            "turns": 3
+          },
+          {
+            "id": "death-mark",
+            "turns": 3
+          }
+        ],
+        "descriptionTerms": [
+          "选定的一名敌人",
+          "冻结",
+          "死亡标记",
+          "魔力"
+        ]
+      },
+      "openingMana": 0,
+      "keptTraitCodes": [
+        "undeadshield",
+        "undying",
+        "armored"
+      ],
+      "omittedMechanisms": [],
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7131]",
+        "data/raw/spells.gow.en.json#RawData[Id=8675,SpellSteps]",
+        "src/data/troops.json#[id=7131]",
+        "src/data/troop-progression.json#7131",
+        "src/data/traits.json#[code=undeadshield]",
+        "src/data/traits.json#[code=undying]",
+        "src/data/traits.json#[code=armored]",
+        "src/sillytavern/data/portraits.json#entries[troopId=7131]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+      ],
+      "traitDescriptionTerms": {
+        "undeadshield": [
+          "战斗开始",
+          "我方族群 #31",
+          "存活角色",
+          "护甲",
+          "2 点"
+        ],
+        "undying": [
+          "免疫",
+          "中毒",
+          "法力获取减半",
+          "延迟形态替换",
+          "死亡标记"
+        ],
+        "armored": [
+          "骷髅头伤害降低 25%"
+        ]
+      }
+    },
+    {
+      "id": 6788,
+      "name": "Amaru",
+      "sourceTroop": {
+        "id": 6788,
+        "name": "安马茹",
+        "referenceName": "Amaru",
+        "rarity": "Uncommon",
+        "rarityIdx": 1,
+        "kingdom": "鳞雾沼泽",
+        "kingdomId": 3016,
+        "troopTypes": [
+          "Beast"
+        ],
+        "role": "Striker",
+        "attack": 12,
+        "armor": 12,
+        "health": 18,
+        "magic": 10,
+        "base": {
+          "attack": 2,
+          "armor": 2,
+          "health": 5,
+          "magic": 1
+        },
+        "manaColors": [
+          "Yellow",
+          "Purple"
+        ],
+        "manaCost": 10,
+        "spell": {
+          "id": 8195,
+          "name": "美杜莎之眼",
+          "description": "对一名敌人造成 [魔法 + 4] 点伤害。再使其陷入诅咒、击晕和中毒状态。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 4,
+                "mult": 1
+              }
+            ],
+            "raw": "对一名敌人造成 [魔法 + 4] 点伤害。再使其陷入诅咒、击晕和中毒状态。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "bountyhunter",
+            "name": "赏金猎人",
+            "description": "基于我已晋升的稀有度获得 2 到 6 倍的赏金点数。"
+          },
+          {
+            "code": "arcane",
+            "name": "秘法",
+            "description": "当一名盟友施放法术时获得 1 点魔力值。"
+          },
+          {
+            "code": "fast",
+            "name": "快速",
+            "description": "战斗开始时获得 50% 法力值。"
+          }
+        ],
+        "portrait": "Troop_K05_20"
+      },
+      "sourceTraits": [
+        {
+          "code": "bountyhunter",
+          "name": "赏金猎人",
+          "description": "基于我已晋升的稀有度获得 2 到 6 倍的赏金点数。",
+          "troops": 93,
+          "onDelveBounty": {
+            "min": 2,
+            "max": 6
+          }
+        },
+        {
+          "code": "arcane",
+          "name": "秘法",
+          "description": "当一名盟友施放法术时获得 1 点魔力值。",
+          "troops": 79,
+          "onAllyCastGain": {
+            "stat": "magic",
+            "amount": 1
+          }
+        },
+        {
+          "code": "fast",
+          "name": "快速",
+          "description": "战斗开始时获得 50% 法力值。",
+          "troops": 68,
+          "battleStartManaRatio": 0.5
+        }
+      ],
+      "progression": {
+        "growth": {
+          "health": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            1,
+            2,
+            1,
+            2,
+            2
+          ],
+          "armor": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "attack": [
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "magic": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "traits": [
+          {
+            "minor:purple": 12,
+            "major:purple": 4,
+            "major:yellow": 4
+          },
+          {
+            "minor:purple": 16,
+            "runic:purple": 4,
+            "runic:yellow": 4
+          },
+          {
+            "minor:purple": 20,
+            "major:purple": 6,
+            "arcane:yellow:purple": 2
+          }
+        ]
+      },
+      "english": {
+        "referenceName": "Amaru",
+        "spellId": 8195,
+        "cost": 10,
+        "colors": {
+          "ColorYellow": true,
+          "ColorPurple": true
+        },
+        "rarityIdx": 1,
+        "kingdomId": 3016,
+        "troopTypes": [
+          "Beast"
+        ],
+        "description": "Deal [Magic + 4] damage to an Enemy. Then Curse, Stun and Poison them.",
+        "traits": [
+          {
+            "code": "bountyhunter",
+            "name": "Bountyhunter",
+            "description": "Gain 2x - 6x to Bounty Score, based on my ascension."
+          },
+          {
+            "code": "arcane",
+            "name": "Arcane",
+            "description": "Gain 1 Magic when an ally casts a spell."
+          },
+          {
+            "code": "fast",
+            "name": "Fast",
+            "description": "Start battles with 50% Mana."
+          }
+        ]
+      },
+      "nativeSpell": {
+        "Cost": 10,
+        "Description": "[SPELL8195_DESC]",
+        "Id": 8195,
+        "Name": "[SPELL8195_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1.0,
+            "Target": "FromTarget",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage",
+            "Delay": 1
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseCursed"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CauseStun"
+          },
+          {
+            "Target": "FromTarget",
+            "Type": "CausePoison"
+          }
+        ],
+        "Target": "Enemy"
+      },
+      "portrait": {
+        "assetId": "Troop_K05_20",
+        "troopId": 6788,
+        "manaColors": [
+          "Yellow",
+          "Purple"
+        ],
+        "rank": "杂兵",
+        "form": "怪物",
+        "role": "Striker",
+        "portraitUrl": "/static/portraits/Troop_K05_20.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "10f75d5b7dcb32c056c8b314e13b4a07a1e8f2df3c64be86bd8ef82aabcd180f"
+      },
+      "portraitSha256": "10f75d5b7dcb32c056c8b314e13b4a07a1e8f2df3c64be86bd8ef82aabcd180f",
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 5,
+            "armor": 2,
+            "attack": 2,
+            "magic": 1
+          },
+          "damage": 6
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 18,
+            "armor": 12,
+            "attack": 12,
+            "magic": 10
+          },
+          "damage": 15
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 27,
+            "armor": 18,
+            "attack": 18,
+            "magic": 15
+          },
+          "damage": 20
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:1"
+        ],
+        "region": "region:39",
+        "regionId": 100016
+      },
+      "active": {
+        "target": "enemyChosen",
+        "base": 4,
+        "mult": 1,
+        "statuses": [
+          {
+            "id": "curse",
+            "turns": 3
+          },
+          {
+            "id": "stun",
+            "turns": 3
+          },
+          {
+            "id": "poison",
+            "turns": 3,
+            "magnitude": 3
+          }
+        ],
+        "descriptionTerms": [
+          "选定的一名敌人",
+          "诅咒",
+          "特质失效",
+          "中毒",
+          "魔力"
+        ],
+        "selfCastMagicBonus": 1
+      },
+      "openingMana": 5,
+      "keptTraitCodes": [
+        "arcane",
+        "fast"
+      ],
+      "omittedMechanisms": [
+        "赏金猎人"
+      ],
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6788]",
+        "data/raw/spells.gow.en.json#RawData[Id=8195,SpellSteps]",
+        "src/data/troops.json#[id=6788]",
+        "src/data/troop-progression.json#6788",
+        "src/data/traits.json#[code=bountyhunter]",
+        "src/data/traits.json#[code=arcane]",
+        "src/data/traits.json#[code=fast]",
+        "src/sillytavern/data/portraits.json#entries[troopId=6788]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+      ],
+      "traitDescriptionTerms": {
+        "arcane": [
+          "我方任一角色施法时（含自身）",
+          "魔力",
+          "1 点"
+        ],
+        "fast": [
+          "战斗开始",
+          "法力",
+          "50%",
+          "向下取整"
+        ]
+      }
+    }
+  ]
+}

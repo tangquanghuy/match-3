@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "rulesetVersion": "1.1.0",
+  "design": {
+    "manaColors": [
+      "Red"
+    ],
+    "rank": "杂兵",
+    "form": "人形",
+    "role": "Striker",
+    "level": 20,
+    "difficulty": 1,
+    "effects": [],
+    "assembly": "classified",
+    "storyWeight": 1
+  },
+  "seed": 17,
+  "externalId": "enemy-1",
+  "blueprint": {
+    "version": 3,
+    "rulesetVersion": "1.1.0",
+    "recipeSignature": "f5a3a16ec1ecf089",
+    "assembly": {
+      "version": 1,
+      "activeTroopId": 6004,
+      "traitCodes": [
+        "beastshield",
+        "armorpiercing",
+        "giftoftreachery"
+      ]
+    },
+    "recipeId": "enemy:6004",
+    "portrait": {
+      "version": 1,
+      "query": {
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Striker"
+      },
+      "assetId": "Troop_K16_02",
+      "troopId": 6115,
+      "contentHash": "66d5e4db68eb9751ef40e45f7af97dff4eff509b92b57b2de0f2e3996d57d82e"
+    },
+    "level": 20,
+    "difficulty": 1,
+    "snapshot": {
+      "externalId": "enemy-1",
+      "battleScaling": {
+        "level": 20,
+        "difficulty": 1
+      },
+      "mechanicalIdentity": "unit:6004",
+      "name": "输出 enemy-1",
+      "role": "Striker",
+      "stats": {
+        "hp": 15,
+        "attack": 12,
+        "armor": 9,
+        "magic": 12
+      },
+      "levelLabel": "20",
+      "manaColors": [
+        "Red"
+      ],
+      "manaCost": 6,
+      "skillId": "st:7004",
+      "traitIds": [
+        "st:beastshield",
+        "st:armorpiercing",
+        "st:giftoftreachery"
+      ],
+      "traitNames": {
+        "st:beastshield": "野兽之盾",
+        "st:armorpiercing": "穿透护甲",
+        "st:giftoftreachery": "背叛之礼"
+      },
+      "troopTypes": [
+        "affinity:17"
+      ],
+      "kingdom": "region:37",
+      "kingdomId": 100001,
+      "spellName": "指定的一名敌人伤害〔19tdyfn〕",
+      "spellDescription": "1. 对选定的一名敌人造成max(0,round(魔力+2))点伤害",
+      "rarityIdx": 0,
+      "portraitUrl": "/static/portraits/Troop_K16_02.webp"
+    },
+    "abilityId": "active:v1:4e60386fa1777432",
+    "sourceId": "assembled:f5a3a16ec1ecf089",
+    "traitDescriptionAudit": [
+      {
+        "code": "st:beastshield",
+        "support": "full",
+        "diagnostics": []
+      },
+      {
+        "code": "st:armorpiercing",
+        "support": "full",
+        "diagnostics": []
+      },
+      {
+        "code": "st:giftoftreachery",
+        "support": "full",
+        "diagnostics": []
+      }
+    ],
+    "descriptionAudit": {
+      "support": "full",
+      "diagnostics": []
+    },
+    "context": {
+      "affinities": [
+        "affinity:17"
+      ],
+      "region": "region:37",
+      "regionId": 100001
+    },
+    "budget": {
+      "activeCount": 1,
+      "traitCount": 3,
+      "effectSegments": 1,
+      "manaCost": 6
+    },
+    "omittedMechanisms": []
+  },
+  "signature": {
+    "roles": [
+      "Striker"
+    ],
+    "effects": [
+      "damage",
+      "allyBuff"
+    ],
+    "evidence": [
+      {
+        "effect": "damage",
+        "source": "active",
+        "path": "active.segments[0]",
+        "detail": "enemyChosen：直接伤害"
+      },
+      {
+        "effect": "magicDamage",
+        "source": "active",
+        "path": "active.segments[0]",
+        "detail": "enemyChosen：伤害含魔力系数 1"
+      },
+      {
+        "effect": "allyBuff",
+        "source": "st:beastshield",
+        "path": "traits.st:beastshield.typeAura",
+        "detail": "typeAura：实际盟友光环或触发增益"
+      },
+      {
+        "effect": "allyBuff",
+        "source": "st:giftoftreachery",
+        "path": "traits.st:giftoftreachery.onBigMatchTypeAura",
+        "detail": "onBigMatchTypeAura：实际盟友光环或触发增益"
+      },
+      {
+        "effect": "teamAttack",
+        "source": "st:giftoftreachery",
+        "path": "traits.st:giftoftreachery.onBigMatchTypeAura",
+        "detail": "onBigMatchTypeAura：盟友攻击增益"
+      }
+    ],
+    "explanation": [
+      "输出：以直接伤害和杀伤为主要任务。"
+    ]
+  },
+  "generation": {
+    "version": 1,
+    "pool": "ordinary",
+    "primaryRole": "Striker",
+    "profile": {
+      "primaryRole": "Striker",
+      "sourceTroopId": 6004,
+      "spellId": 7004,
+      "rarityIdx": 0,
+      "manaCost": 6,
+      "families": [
+        "damage"
+      ],
+      "maxPathFamilies": 1,
+      "damageShapes": [
+        "single"
+      ],
+      "capabilities": [
+        "allyBuff",
+        "damage"
+      ],
+      "highImpact": [],
+      "resourceGain": false,
+      "selfMana": false,
+      "massControl": false,
+      "generatedColors": [],
+      "canAttack": true,
+      "hasTeamBenefit": false,
+      "damage": [
+        {
+          "kind": "damage",
+          "target": "enemyChosen",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          }
+        }
+      ],
+      "gems": [],
+      "summons": [],
+      "conditions": false,
+      "groupKey": "{\"conditional\":false,\"cost\":\"01-10\",\"families\":[\"damage\"],\"shapes\":[\"single\"]}"
+    },
+    "context": {},
+    "groupKey": "{\"conditional\":false,\"cost\":\"01-10\",\"families\":[\"damage\"],\"shapes\":[\"single\"]}",
+    "groupWeight": 2.0714285714285716,
+    "recipeWeight": 2.0714285714285716
+  },
+  "selection": {
+    "portraitAssetId": "Troop_K16_02",
+    "recipeId": "enemy:6004",
+    "abilityId": "active:v1:4e60386fa1777432",
+    "traitIds": [
+      "st:beastshield",
+      "st:armorpiercing",
+      "st:giftoftreachery"
+    ]
+  },
+  "complexity": {
+    "activeCount": 1,
+    "traitCount": 3,
+    "effectSegments": 1,
+    "branchCount": 0,
+    "conditionalCount": 0,
+    "traitMechanisms": 3,
+    "calibration": "uncalibrated",
+    "notes": [
+      "测量全部嵌套效果、分支、条件和特质机制；五档上限仍待标定，不新增经验阈值",
+      "保留全部嵌套效果与原生叠加规则；测量计数不代表已标定的战力评分。"
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "complexity_uncalibrated",
+      "path": "rank",
+      "message": "rank（五档定位，与等级独立）：档位复杂度预算尚未标定；保留原配方并报告测量值"
+    }
+  ],
+  "integrity": "enemy-design:v1:945b04c8c8ce5cac"
+}

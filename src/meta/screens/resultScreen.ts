@@ -35,7 +35,7 @@ import type { MetaSave } from '../state/schema';
 import { ART, KINGDOM_VIEWS, kingdomViewOf } from './mapData';
 import { troopArt } from './teamScreen';
 import { escapeHtml } from './troopCard';
-import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml, $ } from '../shell/chrome';
+import { bottomNavHtml, icon, mountIcons, toast, toastHtml, topbarHtml } from '../shell/chrome';
 import type { SettlementView, Screen, ShellCtx } from '../shell/screen';
 import { cssUrlVar, resultArt } from '../shell/artAssets';
 import { ingotArt, materialImg, scrollArt, stoneMarkupForKey, treasureMapMarkup } from '../shell/materialArt';
@@ -57,12 +57,15 @@ const CURRENCY_ART = {
 } as const;
 
 /** 结算/升级页彩绘素材（game-assets/bundled/meta/result/，透明底 WebP，随构建打包） */
-const art = (name: string): string => resultArt(name);
+const art = (name: string): string => {
+  const url = resultArt(name);
+  return url ? new URL(url, import.meta.url).href : '';
+};
 /** 页面 CSS 里用到的底板图：以 CSS 变量挂到根节点（?raw 注入的 CSS 不改写 url） */
 const RESULT_CSS_ART = [
-  cssUrlVar('rs-art-continue', resultArt('continue-button')),
-  cssUrlVar('rs-art-ribbon', resultArt('levelup-ribbon')),
-  cssUrlVar('rs-art-card', resultArt('mastery-card')),
+  cssUrlVar('rs-art-continue', art('continue-button')),
+  cssUrlVar('rs-art-ribbon', art('levelup-ribbon')),
+  cssUrlVar('rs-art-card', art('mastery-card')),
 ].filter(Boolean).join(';');
 const MASTERY_ART: Record<ManaColor, string> = {
   Red: art('mastery-red'),
@@ -284,7 +287,38 @@ const hash01 = (i: number, k: number): number => {
   return v - Math.floor(v);
 };
 
+function resultRewardHtml(reward: {
+  name: string; amount: number; iconHtml: string; index: number;
+  attributes: string; className?: string;
+}): string {
+  return `<div class="rs-reward reward-row ${reward.className ?? ''}" ${reward.attributes} style="--i:${reward.index}">
+    <span class="rs-reward-icon">${reward.iconHtml}</span>
+    <p><strong data-count="${reward.amount}">+${fmt(reward.amount)}</strong><span>${escapeHtml(reward.name)}</span></p>
+  </div>`;
+}
+
+export interface CommittedResultReward {
+  id: string;
+  kind: string;
+  name: string;
+  quantity: number;
+}
+
+/** Display an already committed result without accessing the metagame wallet. */
+export interface CommittedResultView {
+  victory: boolean;
+  rewards: readonly CommittedResultReward[];
+  onContinue?: () => void;
+  playMusic?: boolean;
+}
+
 export class ResultScreen implements Screen {
+  constructor(private readonly root: ParentNode = document) {}
+
+  private query(selector: string): HTMLElement {
+    return this.root.querySelector<HTMLElement>(selector)!;
+  }
+
   private ctx!: ShellCtx;
   private detail: SettlementView | null = null;
   private meta: ResultMeta = { kingdom: '', sourceLabel: '' };
@@ -304,7 +338,15 @@ export class ResultScreen implements Screen {
   }
 
   html(): string {
-    return `${topbarHtml()}
+    return this.resultHtml(true);
+  }
+
+  committedHtml(): string {
+    return this.resultHtml(false);
+  }
+
+  private resultHtml(chrome: boolean): string {
+    return `${chrome ? topbarHtml() : ''}
       <main class="screen result-screen" data-view="summary" style='${RESULT_CSS_ART}'>
         <div class="rs-art" id="summaryArt" hidden><img id="sumArt" alt="" decoding="async"></div>
         <div class="rs-shade" aria-hidden="true"></div>
@@ -348,13 +390,14 @@ export class ResultScreen implements Screen {
           <small class="lu-step" id="luStep" hidden></small>
         </section>
       </main>
-      ${bottomNavHtml('', '')}${toastHtml()}`;
+      ${chrome ? bottomNavHtml('', '') + toastHtml() : ''}`;
   }
 
   mount(ctx: ShellCtx): void {
     this.ctx = ctx;
     this.busy = false;
     backgroundMusic.setDucking('result', true);
+    this.ownsMusic = true;
     this.bind('#again', () => this.continueFromSummary());
     this.bind('#team', () => ctx.navigate(this.isHunt() ? '#map' : '#team'));
     this.bind('#luContinue', () => void this.continueFromLevelUp());
@@ -363,9 +406,54 @@ export class ResultScreen implements Screen {
       if (card?.dataset.masteryColor) this.select(card.dataset.masteryColor);
     });
     this.paint();
-    const scroll = $('#resultScroll');
+    this.mountSummaryScroll();
+    if (this.detail) resultMusic.play(battleIncomeView(this.detail).victory ? 'victory' : 'defeat');
+  }
+
+  /** Same native summary, used when rewards were settled outside the metagame. */
+  mountCommitted(view: CommittedResultView): void {
+    const screen = this.query('.result-screen');
+    screen.dataset.resultMode = 'committed';
+    screen.classList.add(view.victory ? 'is-victory' : 'is-defeat');
+    this.query('#summaryArt').hidden = false;
+    (this.query('#sumArt') as HTMLImageElement).src = new URL(resultSummaryArt(''), import.meta.url).href;
+    const title = view.victory ? '战斗胜利' : '战斗失败';
+    this.query('#resultTitle').innerHTML = [...title].map((ch, i) => `<span style="--c:${i}">${ch}</span>`).join('');
+    this.query('#resultSub').hidden = true;
+    this.query('#standardRewards').hidden = view.rewards.length === 0;
+    const rows = this.query('#rewardRows');
+    rows.setAttribute('role', 'region');
+    rows.setAttribute('aria-label', '本场实际获得');
+    rows.innerHTML = view.rewards.map((reward, i) => resultRewardHtml({
+      name: reward.name, amount: reward.quantity,
+      iconHtml: reward.kind === 'currency' && reward.id in CURRENCY_ART
+        ? `<img src="${CURRENCY_ART[reward.id as keyof typeof CURRENCY_ART]}" alt="" draggable="false">`
+        : materialIconHtml(reward.id) || icon(reward.kind === 'ability' ? 'book' : reward.kind === 'fragment' ? 'soul' : 'chest'),
+      index: i,
+      attributes: `data-grant-kind="${escapeHtml(reward.kind)}" data-grant-id="${escapeHtml(reward.id)}"`,
+      className: 'settlement-grant',
+    })).join('');
+    mountIcons(rows);
+    screen.classList.toggle('has-many-rewards', rows.childElementCount > 4);
+    const again = this.query('#again');
+    again.innerHTML = '<span>继续</span>';
+    again.hidden = !view.onContinue;
+    if (view.onContinue) this.bind('#again', view.onContinue);
+    this.particles(view.victory);
+    this.mountSummaryScroll();
+    if (view.playMusic) {
+      backgroundMusic.setDucking('result', true);
+      resultMusic.play(view.victory ? 'victory' : 'defeat');
+      this.ownsMusic = true;
+    }
+  }
+
+  private ownsMusic = false;
+
+  private mountSummaryScroll(): void {
+    const scroll = this.query('#resultScroll');
     const updateScrollHint = () => {
-      const hint = $('#resultScrollMore');
+      const hint = this.query('#resultScrollMore');
       const overflow = scroll.scrollHeight > scroll.clientHeight + 2;
       hint.hidden = !overflow;
       const atEnd = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 2;
@@ -379,9 +467,8 @@ export class ResultScreen implements Screen {
     }));
     this.summaryResize = new ResizeObserver(updateScrollHint);
     this.summaryResize.observe(scroll);
-    this.summaryResize.observe($('#rewardRows'));
+    this.summaryResize.observe(this.query('#rewardRows'));
     updateScrollHint();
-    if (this.detail) resultMusic.play(battleIncomeView(this.detail).victory ? 'victory' : 'defeat');
   }
 
   private isHunt(): boolean {
@@ -405,22 +492,22 @@ export class ResultScreen implements Screen {
 
   private paint(): void {
     const detail = this.detail;
-    const screen = $('.result-screen');
+    const screen = this.query('.result-screen');
     screen.classList.toggle('is-empty', !detail);
     screen.classList.remove('is-victory', 'is-defeat', 'is-pvp');
     screen.dataset.view = 'summary';
-    $('#standardRewards').hidden = !detail;
-    $('#summaryArt').hidden = !detail;
-    $('#team').hidden = !detail;
-    $('#team').textContent = this.isHunt() ? '返回地图' : '调整队伍';
-    $('#rewardRows').replaceChildren();
+    this.query('#standardRewards').hidden = !detail;
+    this.query('#summaryArt').hidden = !detail;
+    this.query('#team').hidden = !detail;
+    this.query('#team').textContent = this.isHunt() ? '返回地图' : '调整队伍';
+    this.query('#rewardRows').replaceChildren();
     screen.classList.remove('has-many-rewards');
-    const image = $('#sumArt') as HTMLImageElement;
-    const again = $('#again');
+    const image = this.query('#sumArt') as HTMLImageElement;
+    const again = this.query('#again');
     if (!detail) {
       image.removeAttribute('src');
-      $('#resultTitle').textContent = '暂无战报';
-      $('#resultSub').textContent = '完成一场战斗后，这里会显示本场收益。';
+      this.query('#resultTitle').textContent = '暂无战报';
+      this.query('#resultSub').textContent = '完成一场战斗后，这里会显示本场收益。';
       again.innerHTML = '<span>去世界地图</span>';
       again.removeAttribute('aria-label');
       return;
@@ -431,9 +518,9 @@ export class ResultScreen implements Screen {
     screen.classList.add(income.victory ? 'is-victory' : 'is-defeat');
     screen.classList.toggle('is-pvp', 'kind' in detail && detail.kind !== 'hunt');
     const title = this.isHunt() ? '寻宝收获' : surrendered ? '已放弃' : income.victory ? '战斗胜利' : '战斗失败';
-    $('#resultTitle').innerHTML = [...title].map((ch, i) => `<span style="--c:${i}">${ch}</span>`).join('');
+    this.query('#resultTitle').innerHTML = [...title].map((ch, i) => `<span style="--c:${i}">${ch}</span>`).join('');
     const save = this.ctx.save();
-    $('#resultSub').textContent = resultSubtitle(detail, this.meta, save.kingdoms?.[this.meta.kingdom]?.questsDone ?? 0);
+    this.query('#resultSub').textContent = resultSubtitle(detail, this.meta, save.kingdoms?.[this.meta.kingdom]?.questsDone ?? 0);
     again.innerHTML = this.isHunt() ? '<span>返回寻宝</span>' : '<span>继续</span>';
     again.setAttribute('aria-label', income.levelsGained > 0 ? '继续：查看等级提升' : `继续：${this.returnLabel()}`);
     again.title = income.levelsGained > 0 ? '查看等级提升' : this.returnLabel();
@@ -448,11 +535,10 @@ export class ResultScreen implements Screen {
       { key: 'glory', name: '荣耀', amount: income.glory ?? 0 },
       { key: 'goldKeys', name: '金钥匙', amount: income.goldKeys ?? 0 },
     ];
-    const currency = (r: (typeof rewards)[number], i: number) =>
-      `<div class="rs-reward reward-row" data-battle-currency="${r.key}" style="--i:${i}">
-        <span class="rs-reward-icon"><img src="${CURRENCY_ART[r.key]}" alt="" draggable="false"></span>
-        <p><strong data-count="${r.amount}">+${fmt(r.amount)}</strong><span>${r.name}</span></p>
-      </div>`;
+    const currency = (r: (typeof rewards)[number], i: number) => resultRewardHtml({
+      name: r.name, amount: r.amount, iconHtml: `<img src="${CURRENCY_ART[r.key]}" alt="" draggable="false">`,
+      index: i, attributes: `data-battle-currency="${r.key}"`,
+    });
     const xp = `<div class="rs-reward rs-xp" id="standardXp" style="--i:1">
         <span class="rs-reward-icon"><img src="${art('xp-icon')}" alt="" draggable="false"></span>
         <p><strong id="xpGain" data-count="${income.xp}">+${fmt(income.xp)}</strong><span>经验值</span></p>
@@ -469,11 +555,10 @@ export class ResultScreen implements Screen {
         <span class="rs-reward-icon"><span data-icon="book"></span></span>
         <p><strong data-count="${income.classXp}">+${fmt(income.classXp ?? 0)}</strong><span>职业经验</span>${income.trialClassXpBonus ? `<small>试炼奖励 +${fmt(income.trialClassXpBonus)}</small>` : ''}</p>
       </div>` : '';
-    const matCards = income.materials.map((m, i) =>
-      `<div class="rs-reward reward-row rs-mat" data-battle-material="${escapeHtml(m.key)}" style="--i:${6 + i}">
-        <span class="rs-reward-icon">${materialIconHtml(m.key)}</span>
-        <p><strong data-count="${m.amount}">+${fmt(m.amount)}</strong><span>${escapeHtml(m.name)}</span></p>
-      </div>`);
+    const matCards = income.materials.map((m, i) => resultRewardHtml({
+      name: m.name, amount: m.amount, iconHtml: materialIconHtml(m.key), index: 6 + i,
+      attributes: `data-battle-material="${escapeHtml(m.key)}"`, className: 'rs-mat',
+    }));
     const weaponCards = 'kind' in detail ? [] : (detail.weaponRewards ?? []).flatMap((reward, i) => {
       const weapon = anyWeaponById(reward.weaponId);
       if (!weapon) return [];
@@ -483,19 +568,19 @@ export class ResultScreen implements Screen {
         <p><strong>+1</strong><span>${escapeHtml(weapon.name)}（武器解锁）</span></p>
       </div>`];
     });
-    $('#rewardRows').innerHTML = [
+    this.query('#rewardRows').innerHTML = [
       currency(souls!, 0), this.isHunt() ? '' : xp, currency(gold!, 2), classXp,
       ...extras.filter(r => r.amount > 0).map((r, i) => currency(r, 3 + i)), ...matCards, ...weaponCards,
     ].join('');
-    mountIcons($('#rewardRows'));
-    screen.classList.toggle('has-many-rewards', $('#rewardRows').childElementCount > 4);
+    mountIcons(this.query('#rewardRows'));
+    screen.classList.toggle('has-many-rewards', this.query('#rewardRows').childElementCount > 4);
     this.particles(income.victory);
     this.animateSummary(income);
   }
 
   /** 胜利：上升的余烬；战败：缓落的灰烬。 */
   private particles(victory: boolean): void {
-    const host = $('#rsParticles');
+    const host = this.query('#rsParticles');
     if (!host) return;
     const count = victory ? 26 : 18;
     host.innerHTML = Array.from({ length: count }, (_, i) => {
@@ -510,12 +595,12 @@ export class ResultScreen implements Screen {
 
   private animateSummary(income: BattleIncomeView): void {
     const reduced = prefersReducedMotion();
-    const screen = $('.result-screen');
+    const screen = this.query('.result-screen');
     screen.classList.remove('is-entering');
     if (reduced) return;
     void screen.offsetWidth;
     screen.classList.add('is-entering');
-    document.querySelectorAll<HTMLElement>('#rewardRows [data-count]').forEach((el, i) => {
+    this.root.querySelectorAll<HTMLElement>('#rewardRows [data-count]').forEach((el, i) => {
       this.countUp(el, Number(el.dataset.count) || 0, 900 + i * 180);
     });
     this.animateXp(income);
@@ -539,8 +624,8 @@ export class ResultScreen implements Screen {
   /** 经验条从战前涨到战后，跨级时满格翻页并闪光。 */
   private animateXp(income: BattleIncomeView): void {
     const hero = this.ctx.save().hero;
-    const fill = $('#xpFill');
-    const label = $('#xpLevel');
+    const fill = this.query('#xpFill');
+    const label = this.query('#xpLevel');
     const bar = fill?.parentElement;
     if (!fill || !label || !bar || income.xp <= 0) return;
     const start = preBattleXp(hero.level, hero.xp, income.xp, income.levelsGained);
@@ -604,27 +689,27 @@ export class ResultScreen implements Screen {
 
   private showLevelUp(): void {
     const level = this.levels[this.levelIndex]!;
-    const screen = $('.result-screen');
+    const screen = this.query('.result-screen');
     screen.dataset.view = 'levelup';
-    $('#resultSummary').hidden = true;
-    $('#levelUp').hidden = false;
-    $('#luLevel').textContent = String(level);
-    $('#luLevel').classList.toggle('is-wide', level >= 100);
-    const step = $('#luStep');
+    this.query('#resultSummary').hidden = true;
+    this.query('#levelUp').hidden = false;
+    this.query('#luLevel').textContent = String(level);
+    this.query('#luLevel').classList.toggle('is-wide', level >= 100);
+    const step = this.query('#luStep');
     step.hidden = this.levels.length < 2;
     step.textContent = `${this.levelIndex + 1} / ${this.levels.length}`;
     this.selected = null;
     this.renderChoices();
     this.renderStats(level);
     this.renderUnlock(level);
-    const section = $('#levelUp');
+    const section = this.query('#levelUp');
     section.classList.remove('is-entering');
     if (!prefersReducedMotion()) {
       void section.offsetWidth;
       section.classList.add('is-entering');
     }
     resultMusic.levelUp();
-    $('#luContinue').focus({ preventScroll: true });
+    this.query('#luContinue').focus({ preventScroll: true });
   }
 
   private offer(): [ManaColor, ManaColor] | null {
@@ -634,16 +719,16 @@ export class ResultScreen implements Screen {
   private renderChoices(): void {
     const save = this.ctx.save();
     const offer = this.offer();
-    const band = $('#luBand');
+    const band = this.query('#luBand');
     band.classList.toggle('is-done', !offer);
     const pending = save.hero.masteryOffers?.length ?? 0;
     const forced = offer?.[0] === offer?.[1];
-    $('#luPrompt').querySelector('b')!.textContent = offer ? '选择一项法力精通' : '法力精通已全部分配';
-    $('#luPromptNote').textContent = offer
+    this.query('#luPrompt').querySelector('b')!.textContent = offer ? '选择一项法力精通' : '法力精通已全部分配';
+    this.query('#luPromptNote').textContent = offer
       ? `${forced ? '优先补齐落后颜色' : '二选一'} · 永久提升该色三消涌动几率，并计入武器解锁${pending > 1 ? ` · 待分配 ${pending} 点` : ''}`
       : '可随时在英雄页查看精通与涌动几率';
     if (!offer) {
-      $('#luChoices').innerHTML = '';
+      this.query('#luChoices').innerHTML = '';
       this.syncContinue();
       return;
     }
@@ -661,13 +746,13 @@ export class ResultScreen implements Screen {
           <small><span>总精通 ${mine + extra} → ${mine + extra + 1}${extra ? `（王国 +${extra}）` : ''}</span><span>三消涌动 ${surgeChancePct(mine + extra)} → ${surgeChancePct(mine + 1 + extra)}</span></small>
         </button>`;
     };
-    $('#luChoices').innerHTML = `${card(offer[0], 0)}${forced ? '' : `<span class="lu-or" aria-hidden="true"><span>或</span></span>${card(offer[1], 1)}`}`;
+    this.query('#luChoices').innerHTML = `${card(offer[0], 0)}${forced ? '' : `<span class="lu-or" aria-hidden="true"><span>或</span></span>${card(offer[1], 1)}`}`;
     this.syncContinue();
   }
 
   /** 这一级新开放的王国（每级约 1 个，Lv.42 全开）：徽记 + 名字，提示回地图看迷雾散开 */
   private renderUnlock(level: number): void {
-    const el = $('#luUnlock');
+    const el = this.query('#luUnlock');
     const opened = kingdomsUnlockedBetween(level - 1, level);
     el.hidden = opened.length === 0;
     if (!opened.length) {
@@ -688,14 +773,14 @@ export class ResultScreen implements Screen {
   private renderStats(level: number): void {
     const save = this.ctx.save();
     const bonus = temperingBonusOf(save);
-    $('#luStats').innerHTML = levelUpStats(level, bonus, save.hero.classId).map((s) =>
+    this.query('#luStats').innerHTML = levelUpStats(level, bonus, save.hero.classId).map((s) =>
       `<div class="lu-stat${s.gain > 0 ? ' is-up' : ''}" data-stat="${s.key}" title="${s.label}">
         <img class="lu-stat-icon" src="${art(`stat-${s.key}`)}" alt="" draggable="false">
         <b>${s.value}</b>
         ${s.gain > 0 ? `<em><span class="lu-chevrons" data-icon="chevrons"></span>+${s.gain}</em>` : ''}
         <span class="sr-only">${s.label}${s.gain > 0 ? `，本级提升 ${s.gain}` : ''}</span>
       </div>`).join('');
-    mountIcons($('#luStats'));
+    mountIcons(this.query('#luStats'));
   }
 
   private select(color: string): void {
@@ -703,18 +788,18 @@ export class ResultScreen implements Screen {
     const offer = this.offer();
     if (!offer || (offer[0] !== color && offer[1] !== color)) return;
     this.selected = color;
-    document.querySelectorAll<HTMLElement>('#luChoices [data-mastery-color]').forEach((el) => {
+    this.root.querySelectorAll<HTMLElement>('#luChoices [data-mastery-color]').forEach((el) => {
       const on = el.dataset.masteryColor === color;
       el.setAttribute('aria-pressed', String(on));
       el.classList.toggle('is-selected', on);
       el.classList.toggle('is-dimmed', !on);
     });
-    $('#luBand').classList.remove('needs-pick');
+    this.query('#luBand').classList.remove('needs-pick');
     this.syncContinue();
   }
 
   private syncContinue(): void {
-    const button = $('#luContinue');
+    const button = this.query('#luContinue');
     const blocked = !!this.offer() && !this.selected;
     button.classList.toggle('is-blocked', blocked);
     button.setAttribute('aria-disabled', String(blocked));
@@ -726,7 +811,7 @@ export class ResultScreen implements Screen {
     if (this.busy) return;
     const offer = this.offer();
     if (offer && !this.selected) {
-      const band = $('#luBand');
+      const band = this.query('#luBand');
       band.classList.remove('needs-pick');
       void band.offsetWidth;
       band.classList.add('needs-pick');
@@ -735,7 +820,7 @@ export class ResultScreen implements Screen {
     }
     if (offer && this.selected) {
       this.busy = true;
-      $('#luContinue').classList.add('is-busy');
+      this.query('#luContinue').classList.add('is-busy');
       try {
         const { result } = await this.ctx.gateway.pickManaMastery(this.selected);
         if (isFailure(result)) {
@@ -746,7 +831,7 @@ export class ResultScreen implements Screen {
         this.ctx.refreshChrome();
       } finally {
         this.busy = false;
-        $('#luContinue')?.classList.remove('is-busy');
+        this.query('#luContinue')?.classList.remove('is-busy');
       }
     }
     if (this.levelIndex < this.levels.length - 1) {
@@ -766,7 +851,7 @@ export class ResultScreen implements Screen {
   }
 
   private bind(selector: string, fn: EventListener): void {
-    const el = $(selector);
+    const el = this.query(selector);
     if (!el) return;
     el.addEventListener('click', fn);
     this.listeners.push([el, 'click', fn]);
@@ -777,8 +862,11 @@ export class ResultScreen implements Screen {
     this.frames.clear();
     this.summaryResize?.disconnect();
     this.summaryResize = null;
-    resultMusic.stop(0.9);
-    backgroundMusic.finishResult();
+    if (this.ownsMusic || this.root === document) {
+      resultMusic.stop(0.9);
+      backgroundMusic.finishResult();
+      this.ownsMusic = false;
+    }
     for (const [target, type, fn] of this.listeners.splice(0)) target.removeEventListener(type, fn);
   }
 }

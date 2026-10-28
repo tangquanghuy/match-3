@@ -1,5 +1,6 @@
 /* 战斗加载页（全局，fixed 覆盖在战斗层之上） */
-.bl-screen { position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; padding: 36px clamp(16px, 5vw, 80px) 32px; overflow: hidden; color: #ece6d8; font-family: var(--body, system-ui, sans-serif); background: #0d0e14; transition: opacity .32s ease; }
+.bl-screen { position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: auto minmax(max-content, 1fr) auto; gap: 18px; padding: 36px clamp(16px, 5vw, 80px) 32px; overflow-x: hidden; overflow-y: auto; color: #ece6d8; font-family: var(--body, system-ui, sans-serif); background: #0d0e14; transition: opacity .32s ease; }
+.bl-screen--untitled { grid-template-rows: minmax(max-content, 1fr) auto; }
 .bl-screen.is-leaving { opacity: 0; }
 .bl-backdrop { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 45%, rgba(13, 14, 20, .35), rgba(13, 14, 20, .92) 75%), var(--bl-bg, linear-gradient(160deg, #1b1a24, #0d0e14)) center / cover no-repeat; animation: bl-drift 14s ease-in-out infinite alternate; }
 .bl-head { text-align: center; }
@@ -19,9 +20,6 @@
 .bl-unit img, .bl-unit-blank { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: linear-gradient(160deg, #262733, #15161c); }
 .bl-unit img { opacity: 0; transition: opacity .3s; }
 .bl-unit img.is-ready, .bl-unit img[data-loaded] { opacity: 1; }
-.bl-unit figcaption { display: flex; flex-direction: column; gap: 1px; padding: 7px 8px 9px; text-align: center; }
-.bl-unit b { overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; }
-.bl-unit small { color: #a7a194; font-size: 12px; }
 .bl-vs span { display: grid; place-items: center; width: 76px; height: 76px; border: 2px solid #f0cf85; border-radius: 50%; background: radial-gradient(circle, #3a2d18, #16161c 70%); color: #fff1c8; font: 700 26px var(--display, serif); letter-spacing: .06em; box-shadow: 0 0 30px rgba(240, 207, 133, .35); }
 .bl-empty { color: #8d8894; }
 
@@ -46,9 +44,6 @@
   .bl-versus { grid-template-columns: 1fr; grid-template-rows: auto auto auto; align-content: center; gap: 14px; }
   .bl-side, .bl-side--enemy { justify-content: safe center; }
   .bl-unit { width: min(76px, var(--bl-fit)); }
-  .bl-unit figcaption { padding: 4px 4px 6px; }
-  .bl-unit b { font-size: 11px; }
-  .bl-unit small { display: none; }
   .bl-vs { justify-self: center; }
   .bl-vs span { width: 52px; height: 52px; font-size: 18px; }
   .bl-tip { flex-direction: column; align-items: center; gap: 4px; }

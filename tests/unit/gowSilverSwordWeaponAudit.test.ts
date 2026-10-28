@@ -14,7 +14,7 @@ import weapons from '../../src/data/weapons.json';
 const weapon=weapons.find(w=>w.id===1010)!;
 const en=JSON.parse(fs.readFileSync('artifacts/gowhead-weapons/weapons.json','utf8')).weapons.find((w:{id:number})=>w.id===1010);
 const native=indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells).get(7076).raw;
-const guide=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html','utf8');
+const guide=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-weapon-list.html','utf8');
 const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 function setup(alias='gw_SilverSword',side=PlayerSide.Left){
   const f=damageFixture();f.caster.skillId=alias;f.caster.manaCost=f.caster.mana=7;

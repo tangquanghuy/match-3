@@ -1,4 +1,4 @@
-import {expect, test, type Page} from '@playwright/test';
+﻿import {expect, test, type Page} from '@playwright/test';
 import type {App} from '../../src/render/App';
 import type {GameEvent} from '../../src/engine/events';
 import type {EventStreamPlayer} from '../../src/render/EventStreamPlayer';
@@ -97,3 +97,35 @@ test.describe('mobile quick cast choices', () => {
   await page.keyboard.press('Escape');
  });
 });
+
+for(const spellId of ['7406','7253'])test(`native restriction reaches real App picker ${spellId}`,async({page})=>{
+ await page.addInitScript(()=>{localStorage.setItem('battle.skipCastConfirm','1');localStorage.setItem('battle.gestureHintShown','1');});
+ await page.goto('/index.html');
+ await page.waitForFunction(()=>{
+  const app=(window as unknown as {__app:Runtime}).__app;
+  return !!app?.getEngine() && !!document.querySelector('.battle-settings-button') && !app.startupPlaying;
+ });
+ const result=await page.evaluate(async id=>{
+  const app=(window as unknown as {__app:Runtime}).__app;
+  type Cell={row:number;col:number};
+  const picker=(app as unknown as {cellPicker:{pick(...args:unknown[]):Promise<Cell|null>}}).cellPicker;
+  const state=app.getEngine().getState(),c=state.teams.Left.characters[0];
+  c.skillId=id;c.manaCost=10;c.mana=10;c.statuses=[];
+  state.activePlayer='Left' as typeof state.activePlayer;
+  const kinds=[{kind:'color',color:'Red'},{kind:'color',color:'Purple'},{kind:'skull',variant:'normal'}];
+  kinds.forEach((type,col)=>state.board.set({row:0,col},{id:9900+col,type:type as NonNullable<Parameters<typeof state.board.set>[1]>['type']}));
+  const checks:boolean[][]=[];
+  picker.pick=async(...args)=>{
+   const valid=args[4] as ((cell:Cell)=>boolean)|undefined;
+   checks.push(kinds.map((_,col)=>valid?.({row:0,col})??true));
+   return null;
+  };
+  app.refreshTeams();
+  const before=JSON.stringify(state);
+  await app.castPlayerSkill(c.id);
+  return {checks,unchanged:JSON.stringify(state)===before};
+ },spellId);
+ expect(result.checks).toEqual([[false,true,false]]);
+ expect(result.unchanged).toBe(true);
+});
+

@@ -8,6 +8,8 @@
     "economy:gacha": "node scripts/gacha-economy.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:tavern": "tsc --noEmit && vite build --mode tavern",
+    "deploy:tavern": "npm run build:tavern && node worker/node_modules/wrangler/bin/wrangler.js deploy --config deploy/sillytavern.wrangler.jsonc",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

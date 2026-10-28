@@ -258,7 +258,7 @@ describe('selfReviveEffect 原语：死亡态复活、存活无事件', () => {
     });
     expect(fallen.defeated).toBe(false);
     expect(fallen.hp).toBe(25);
-    expect(revivedEvents).toEqual([{ type: 'buff', targetId: 9, stat: 'hp', amount: 25 }]);
+    expect(revivedEvents).toEqual([{ type: 'buff', targetId: 9, stat: 'hp', amount: 25, revived: true }]);
 
     const alive = makeChar(8, { hp: 30 });
     expect(selfReviveEffect({ targets: [alive] }).apply({ state, casterId: 0, rng: new SeededRNG(1), nextGemId: () => 0 })).toEqual([]);

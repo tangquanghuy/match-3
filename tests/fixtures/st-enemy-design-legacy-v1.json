@@ -1,0 +1,206 @@
+﻿{
+  "version": 1,
+  "rulesetVersion": "1.1.0",
+  "design": {
+    "manaColors": [
+      "Red"
+    ],
+    "rank": "杂兵",
+    "form": "人形",
+    "role": "Striker",
+    "level": 20,
+    "difficulty": 1,
+    "effects": [
+      {
+        "effect": "damage",
+        "requirement": "required"
+      }
+    ],
+    "storyWeight": 1
+  },
+  "seed": 1,
+  "externalId": "legacy-save",
+  "blueprint": {
+    "version": 3,
+    "rulesetVersion": "1.1.0",
+    "recipeSignature": "3472de36",
+    "recipeId": "enemy:6457",
+    "portrait": {
+      "version": 1,
+      "query": {
+        "manaColors": [
+          "Red"
+        ],
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Striker"
+      },
+      "assetId": "Troop_K01_00",
+      "troopId": 6004,
+      "contentHash": "4bb4b9c08e2194e9a68ae4fe59b05825689c7daa3f878f35a3929d9d61e9c1a4"
+    },
+    "level": 20,
+    "difficulty": 1,
+    "snapshot": {
+      "externalId": "legacy-save",
+      "battleScaling": {
+        "level": 20,
+        "difficulty": 1
+      },
+      "mechanicalIdentity": "unit:6457",
+      "name": "输出 legacy-save",
+      "role": "Striker",
+      "stats": {
+        "hp": 14,
+        "attack": 10,
+        "armor": 14,
+        "magic": 7
+      },
+      "levelLabel": "20",
+      "manaColors": [
+        "Red"
+      ],
+      "manaCost": 4,
+      "skillId": "st:7635",
+      "traitIds": [
+        "st:elementalbond",
+        "st:firespirit",
+        "st:empowered"
+      ],
+      "traitNames": {
+        "st:elementalbond": "元素族亲",
+        "st:firespirit": "火焰之灵",
+        "st:empowered": "赐能"
+      },
+      "troopTypes": [
+        "affinity:11"
+      ],
+      "kingdom": "region:27",
+      "kingdomId": 100000,
+      "spellName": "爆破随机max(0,round(4))颗等·随机一名敌人伤害等〔113wwta〕",
+      "spellDescription": "1. 爆破随机max(0,round(4))颗红色宝石；2. 对随机一名敌人造成max(0,round(魔力+5))点伤害；3. 移除自身的「抵挡一次伤害」状态；4. 移除自身的「负面状态防护」状态；5. 移除自身的「每回合补充法力」状态；6. 移除自身的「骷髅伤害增强」状态；7. 移除自身的「骷髅伤害增强」状态；8. 移除自身的「反射伤害」状态；9. 移除自身的「免受群体法术伤害」状态；10. 献祭自身使其阵亡，并记录其属性快照",
+      "rarityIdx": 0,
+      "portraitUrl": "/static/portraits/Troop_K01_00.webp"
+    },
+    "abilityId": "active:v1:406b77eae7b2bb48",
+    "sourceId": "enemy:6457",
+    "traitDescriptionAudit": [
+      {
+        "code": "st:elementalbond",
+        "support": "full",
+        "diagnostics": []
+      },
+      {
+        "code": "st:firespirit",
+        "support": "full",
+        "diagnostics": []
+      },
+      {
+        "code": "st:empowered",
+        "support": "full",
+        "diagnostics": []
+      }
+    ],
+    "descriptionAudit": {
+      "support": "full",
+      "diagnostics": []
+    },
+    "context": {
+      "affinities": [
+        "affinity:11"
+      ],
+      "region": "region:27",
+      "regionId": 100000
+    },
+    "budget": {
+      "activeCount": 1,
+      "traitCount": 3,
+      "effectSegments": 10,
+      "manaCost": 4
+    },
+    "omittedMechanisms": []
+  },
+  "signature": {
+    "roles": [
+      "Striker",
+      "Generator",
+      "Support",
+      "Mage"
+    ],
+    "effects": [
+      "damage",
+      "allyBuff",
+      "mana",
+      "gemExplode"
+    ],
+    "evidence": [
+      {
+        "effect": "gemExplode",
+        "source": "active",
+        "path": "active.segments[0]",
+        "detail": "爆破宝石"
+      },
+      {
+        "effect": "mana",
+        "source": "active",
+        "path": "active.segments[0]",
+        "detail": "条件供魔：爆破范围内有色宝石按颜色折半取整，area 不额外溅射；不保证颜色或数量"
+      },
+      {
+        "effect": "damage",
+        "source": "active",
+        "path": "active.segments[1]",
+        "detail": "enemyRandom：直接伤害"
+      },
+      {
+        "effect": "magicDamage",
+        "source": "active",
+        "path": "active.segments[1]",
+        "detail": "enemyRandom：伤害含魔力系数 1"
+      },
+      {
+        "effect": "allyBuff",
+        "source": "st:elementalbond",
+        "path": "traits.st:elementalbond.typeAura",
+        "detail": "typeAura：实际盟友光环或触发增益"
+      }
+    ],
+    "explanation": [
+      "输出：实际对敌方直接伤害。",
+      "供魔：直接法力、法力链接、明确创造/转换六色宝石，或按棋盘条件摧毁/爆破收集法力；不保证收集颜色或数量，移除与单纯骷髅造石不算。",
+      "辅助：实际作用于自身以外盟友的增益、治疗或净化。",
+      "法师：直接敌方伤害含正魔力缩放系数。"
+    ]
+  },
+  "selection": {
+    "portraitAssetId": "Troop_K01_00",
+    "recipeId": "enemy:6457",
+    "abilityId": "active:v1:406b77eae7b2bb48",
+    "traitIds": [
+      "st:elementalbond",
+      "st:firespirit",
+      "st:empowered"
+    ]
+  },
+  "complexity": {
+    "activeCount": 1,
+    "traitCount": 3,
+    "effectSegments": 10,
+    "branchCount": 0,
+    "conditionalCount": 0,
+    "traitMechanisms": 3,
+    "calibration": "uncalibrated",
+    "notes": [
+      "测量全部嵌套效果、分支、条件和特质机制；五档上限仍待标定，不新增经验阈值",
+      "保留全部嵌套效果与原生叠加规则；测量计数不代表已标定的战力评分。"
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "complexity_uncalibrated",
+      "path": "rank",
+      "message": "rank（五档定位，与等级独立）：档位复杂度预算尚未标定；保留原配方并报告测量值"
+    }
+  ],
+  "integrity": "enemy-design:v1:18daba416657d775"
+}

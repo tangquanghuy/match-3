@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>三消 · 酒馆安装</title></head>
+<body><h1>在酒馆里开启三消战斗</h1>
+<p>在角色开局配置或底栏系统设置中开启“三消战斗模式”。安装下方世界书提示词和正文正则后，AI 在剧情遭遇中输出 <code>&lt;match3&gt;…&lt;/match3&gt;</code> 协议块，本条 AI 消息正文会显示战斗入口，继续进入队伍准备与战场。</p>
+<p>底栏“三消”提供编队、能力装配、魂片收藏和往昔再现。首次进入自动为当前聊天创建存档，最多三个聊天；槽位满时由玩家手动删除旧档。部署地址：<code id="deployment-address"></code></p>
+<h2>安装运行时 AI 提示词与正文正则</h2>
+<ol>
+<li>在酒馆中启用酒馆助手、MVU 和正则扩展，将三消变量结构合并到角色的 MVU 结构中，进入已初始化人物变量的聊天。</li>
+<li>下载“运行时 AI 协议”，打开 <code>runtime-ai.md</code>，将全文复制到当前角色绑定的世界书条目中，启用该条目并设为常驻（蓝灯），确保提示词进入模型上下文。文件中的 EJS 由现有提示词模板扩展在发送前执行，读取消息变量选择规则；三消开启且未屏蔽战斗上下文时才输出三消规则。原生《战斗规则》条目也须同步互斥条件，AI 只接收选定的规则正文。</li>
+<li>下载“正文正则 JSON”，在 SillyTavern 的“扩展 → 正则”中导入并启用“三消·正文战斗入口 v1”。导入文件已配置为 AI 输出、仅格式显示、编辑时运行，保留真实原消息与模型上下文。</li>
+<li>开启“三消战斗模式”后，让 AI 生成包含待战遭遇的新回复。符合协议的 <code>&lt;match3&gt;…&lt;/match3&gt;</code> 区块在正文中显示战斗入口；入口模块读取本条真实原消息并校验，随后进入准备与战场。请启用酒馆助手的消息内 HTML 渲染。</li>
+</ol>
+<button id="download-runtime-ai">下载运行时 AI 协议</button><button id="download-runtime-regex">下载正文正则 JSON</button><button id="download-runtime-replacement">下载正则替换正文 TXT</button>
+<p>手工编辑已有正则时，下载“正则替换正文 TXT”，将全文粘贴到替换框，保留首尾代码围栏。JSON 文件用于导入，请勿将其中带转义符的 replaceString 原文粘贴到替换框。</p>
+<p>正文正则绑定本页显示的部署目录；迁移部署地址后，请从新安装页重新下载并导入。提示词文件由本页按当前协议生成下载。<a href="./sillytavern-runtime-ai.md">完整运行时 AI 协议说明</a></p>
+<p><a href="./sillytavern-manual-deployment.md">人工部署文件清单与正则设置</a> · <a href="./战斗规则.md">原生战斗规则（互斥版）</a></p>
+<p class="note">联调版本。请使用测试聊天并保留存档备份。安装与真实环境验收分开记录，当前产品进度见项目 STATUS。</p>
+<details><summary>兼容加载器联调步骤</summary><ol><li>在酒馆中启用酒馆助手和 MVU。将三消变量结构合并到角色的 MVU 结构中。</li>
+<li>下载下方脚本 JSON，在酒馆助手的脚本库中导入并启用。也可以展开加载器，复制到新建脚本。</li>
+<li>打开已初始化人物变量的聊天，点击“三消存档”，创建当前聊天的存档。每个存档绑定一个聊天，最多保留三个。</li>
+<li>按下方接入说明提供本场剧情遭遇后，使用“剧情挑战”进入队伍准备与嵌入战场。战场内支持全屏；完成后回到酒馆核对本场结算与聊天变量。</li></ol></details>
+<button id="download-script">下载酒馆助手脚本 JSON</button><button id="download-loader">下载加载器 JS</button><button id="copy-loader">复制加载器</button><p id="install-status" role="status"></p>
+<details><summary>查看或复制加载器</summary><textarea id="loader-source" readonly aria-label="酒馆助手加载器"></textarea></details>
+<p><a href="./sillytavern.html">敌人组装预览</a> · <a href="./sillytavern-host-integration.md">接入与变量说明</a> · <a href="./sillytavern-manual-test.md">联调检查清单</a> · <a href="./sillytavern-release-20261024.md">本轮实测记录</a> · <a href="./mvuzod.js">变量结构参考</a></p>
+<p>请从酒馆内的战斗入口进入战场。独立打开战斗 URL 时，需要关联本次酒馆会话后才会开始战斗。</p>
+<script type="module" src="/src/sillytavern/installPage.ts"></script></body></html>

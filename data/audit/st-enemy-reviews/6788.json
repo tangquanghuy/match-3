@@ -1,0 +1,587 @@
+{
+  "version": 1,
+  "enemyId": 6788,
+  "reviewer": "codex-independent-random-family-product-20261024",
+  "reviewerName": "Codex independent random-family product and enemy-behavior reviewer",
+  "reviewedAt": "2026-10-23T18:45:10.037Z",
+  "decision": "accepted",
+  "scope": "enemy-behavior",
+  "obligations": [
+    "portrait",
+    "active",
+    "traits",
+    "target",
+    "mana-cost",
+    "mana-colors",
+    "scaling",
+    "context",
+    "description",
+    "role",
+    "refresh",
+    "determinism",
+    "invalid-action"
+  ],
+  "subjectDigest": "90ba92373d653e6ca96fb2b2091ad6bc9f3cf59cd52e48c971f8cd0edcc9bc94",
+  "testDigest": "c160c52084d3f6e14db8b7193bf208718e1a21f74e820d363762d8f722e0deec",
+  "implementationDigest": "630b33122fe47822b696b3ced3958d9d0a0a612f70415b0efe0226718fafe330",
+  "portraitDigest": "be072a0ddb2c5045fa3fb392451b2cb96ac7e2c82a9da3976de7c5955d8bda3c",
+  "contractDigest": "d9f65356af20799ec4a98049618c17ad618611f67af0a63e16be623445518e1a",
+  "runDigest": "0064acce6bbba9ef973d9ebe74c8d929ca318f503d857f1d3c827af922e1fe83",
+  "evidence": {
+    "sourceRefs": [
+      "data/raw/troops.gow.en.json#troops[id=6788]",
+      "data/raw/spells.gow.en.json#RawData[Id=8195,SpellSteps]",
+      "src/data/troops.json#[id=6788]",
+      "src/data/troop-progression.json#6788",
+      "src/data/traits.json#[code=bountyhunter]",
+      "src/data/traits.json#[code=arcane]",
+      "src/data/traits.json#[code=fast]",
+      "src/sillytavern/data/portraits.json#entries[troopId=6788]",
+      "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+    ],
+    "sourceFixture": "tests/fixtures/stEnemyStatusDamageExpectations.json",
+    "sourceFixtureSha256": "d239a6fb033539c7dbe2f73f7e9d543047949f3f746431d0d4f92fa980bc03ea",
+    "sourceRowDigest": "0d6d2e7591b3cb1c2e7d4fa47dfd00bbfca38967f2abac2129997916387455f5",
+    "sourceReviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+    "sourceReview": "8195: Yellow/Purple, cost 10, chosen-enemy Magic+4 damage then Curse, Stun, Poison. Arcane self-cast gain occurs before damage.",
+    "ordinaryTraits": [
+      {
+        "code": "bountyhunter",
+        "executionReview": "Explicit omittedMechanisms entry: bounty-mode/ascension score, outside ordinary battle mechanics. No invented battle reward."
+      },
+      {
+        "code": "arcane",
+        "executionReview": "Own/allied spell casts grant +1 Magic; enemy casts do not."
+      },
+      {
+        "code": "fast",
+        "executionReview": "Native half-mana start gives 5/10 mana."
+      }
+    ],
+    "obligationAssertions": [
+      {
+        "id": "portrait",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          }
+        ]
+      },
+      {
+        "id": "active",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Right"
+          },
+          {
+            "testFile": "tests/unit/statusEffect.test.ts",
+            "fullName": "GoW official status rules: independent boundaries Stun disables both compiled passives and directly-read trait triggers until cleansed"
+          },
+          {
+            "testFile": "tests/unit/statusEffect.test.ts",
+            "fullName": "GoW official status rules: independent boundaries Poison has a single probabilistic 1-Life tick and no natural expiry"
+          },
+          {
+            "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+            "fullName": "official status shared-rule regression Curse itself rolls cumulative recovery at 10%, then +5% (15%) on the next turn (R004)"
+          },
+          {
+            "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+            "fullName": "R004 negative statuses: shared cumulative self-cleanse, no cap one roll per owner turn; success removes every recoverable negative, Poison stays"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Curse then Stun lets the real Poison rider pass ordinary immunity while preserving source target order on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Curse then Stun lets the real Poison rider pass ordinary immunity while preserving source target order on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition explicitly accounts for the original mode-only Bountyhunter omission without inventing a battle reward"
+          }
+        ]
+      },
+      {
+        "id": "traits",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Curse then Stun lets the real Poison rider pass ordinary immunity while preserving source target order on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Curse then Stun lets the real Poison rider pass ordinary immunity while preserving source target order on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition explicitly accounts for the original mode-only Bountyhunter omission without inventing a battle reward"
+          },
+          {
+            "testFile": "tests/unit/traits.test.ts",
+            "fullName": "施法 / 阵亡 / 4-5 连响应特质 秘法：同队任一角色施法时全队 +1 法强，施法者自己也算盟友"
+          },
+          {
+            "testFile": "tests/unit/traits.test.ts",
+            "fullName": "回合开始与战斗开始特质 快速 / 赐能在 TurnEngine 构造时结算开局法力"
+          },
+          {
+            "testFile": "tests/unit/traitModeSpecific.test.ts",
+            "fullName": "字段存在：8 code 全部落地、数值与官方描述逐条对账 bountyhunter：赏金倍率区间 [2,6] 与「2 到 6 倍的赏金点数」一致"
+          }
+        ]
+      },
+      {
+        "id": "target",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru honors every selected live slot and excludes dead slots without reselecting status riders on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru honors every selected live slot and excludes dead slots without reselecting status riders on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru AI recognizes the source role and full-mana active and executes its legal target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru AI recognizes the source role and full-mana active and executes its legal target on Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-cost",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru naturally reaches the exact cost, spends once and rejects an empty recast on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru naturally reaches the exact cost, spends once and rejects an empty recast on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-colors",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Red three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Green three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Blue three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Yellow three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Purple three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Brown three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Red three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Green three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Blue three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Yellow three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Purple three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru routes a real Brown three-match only to associated source mana on Right"
+          }
+        ]
+      },
+      {
+        "id": "scaling",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Right"
+          }
+        ]
+      },
+      {
+        "id": "context",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Right"
+          }
+        ]
+      },
+      {
+        "id": "description",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          }
+        ]
+      },
+      {
+        "id": "role",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru AI recognizes the source role and full-mana active and executes its legal target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru AI recognizes the source role and full-mana active and executes its legal target on Right"
+          }
+        ]
+      },
+      {
+        "id": "refresh",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          }
+        ]
+      },
+      {
+        "id": "determinism",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Right"
+          }
+        ]
+      },
+      {
+        "id": "invalid-action",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru naturally reaches the exact cost, spends once and rejects an empty recast on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6788 Amaru naturally reaches the exact cost, spends once and rejects an empty recast on Right"
+          }
+        ]
+      }
+    ],
+    "publicCompiler": "compileEnemyBlueprint -> prepareStBattle -> mapRequestToTeams -> TurnEngine/configureEngine -> BattleSession.resolve",
+    "independentBrowser": {
+      "provenance": "Reviewer personally exercised the seven real form/save/full-BP/reload/formation flows.7159 was independently repeated after the description patch.",
+      "input": {
+        "seed": 0,
+        "colors": "Yellow,Purple",
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Striker"
+      },
+      "sourceRecipe": "enemy:6788",
+      "fullAndSemanticBpPreserved": true,
+      "formationSourceFieldsPreserved": true,
+      "pageErrors": []
+    },
+    "independentRandomFamily20261024": {
+      "reviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+      "reviewedAt": "2026-10-23T18:45:10.037Z",
+      "kind": "new-source-acceptance",
+      "execution": {
+        "author": "codex-main-random-family-20261024",
+        "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+        "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+        "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+        "sharedFiles": 24,
+        "sharedPassedAssertions": 2525,
+        "failed": 0,
+        "pending": 0,
+        "todo": 0,
+        "projectedSourceAssertions": 265,
+        "projectionDigest": "b4bf72502568d932e2e26bfce68f596e0bf13a8d8663bc91fb953c236d3b765b",
+        "obligationReferences": 99,
+        "all13ReferencesVerified": true,
+        "provenance": "Shared execution by main agent; reviewer independently inspected original report, exact assertion projection, live fingerprints and contracts. Reviewer ran earlier random-target70 and seven real browser flows, then independently reran7159 browser after the patch; no claim to executing the shared batch."
+      },
+      "productionDelta": {
+        "changedFile": "src/sillytavern/traitDescription.ts",
+        "descriptionException": "没有其他可选目标时仍可被选择",
+        "postFixSha256": "d9742b89ded7ba0c81c33ca431d302e63faa856839fc6a84eb9bad3e4ea1f53c",
+        "preFixSha256": "7e99eba08f9aed4f138a9af61a2c46a366c1aa192c1c6dafa9c9446c1f4aa2d3",
+        "proofFile": ".tmp/st-random-family-implementation-delta.json",
+        "proofSha256": "746d58739971c848b971dd593a49e925125aaf4416d0849d281e6e7f4b5bd057",
+        "independentlyReconstructedOld33": 33,
+        "otherSrcScriptsUnchangedFiles": 683,
+        "otherSrcScriptsDigest": "62411395e7250de383897fe53be6d8532892370e71d11b1e3b1a7db4e95308f1",
+        "engineFilesUnchanged": 142
+      },
+      "buildEvidence": {
+        "provenance": "Main agent build/dist smoke logs inspected; not independently rerun.",
+        "validationFile": ".tmp/st-random-family-validation.json",
+        "validationSha256": "268b7b2a942962e95c6455d74e22deb3fc7a22a54275915b27568dc3654589a1",
+        "buildExit": 0,
+        "distSmokeExit": 0
+      }
+    }
+  },
+  "boundaries": [
+    "Random-family 2026-10-24 acceptance covers only registered source enemy-behavior and its 13 obligations. Shared tests/build/browser evidence grant no additional source or whole-directory/ST-04 completion credit;7038/6341 are outside this batch of new behaviors.",
+    "Persistence scope is canonical full battle-setup BP/semantic design/formation save and reload, plus deterministic seeded replay; no arbitrary mid-battle snapshot-resume claim is made.",
+    "The current shared execution is batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3: 24 files and 2525 passing assertions. Per-source projections overlap and must not be added. Earlier execution statements retained in this receipt are historical.",
+    "Old33 renewal preserves source/portrait/contract semantics. Its conservative implementationDigest update is independently isolated to the ST untargetable last-target exception text; tests and registry/report bindings are renewed. Existing evidence/history/native boundaries remain in force.",
+    "Bountyhunter is a source ordinary trait with mode-specific bounty/ascension scoring; it is explicitly omitted rather than silently lost. The accepted scope covers all applicable ordinary battle traits."
+  ]
+}

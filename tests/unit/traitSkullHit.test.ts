@@ -55,8 +55,8 @@ describe('T1 免疫特质（纯数据批）', () => {
     expect(resolvePassives(['warded']).statusImmunities).toEqual(['death-mark']);
     expect(resolvePassives(['cunning']).statusImmunities).toEqual(['marked']);
     expect(resolvePassives(['brave']).statusImmunities).toEqual(['terror']);
-    // 「对疾病和狼化免疫」：狼化（wolf）引擎未实现，只收疾病
-    expect(resolvePassives(['immune']).statusImmunities).toEqual(['disease']);
+    // 「对疾病和狼化免疫」：包含运行时接受的全部狼化状态别名。
+    expect(resolvePassives(['immune']).statusImmunities).toEqual(['disease', 'wolf', 'wolf-form', 'lycanthropy']);
   });
 
   it('免疫在引擎判定侧生效（isImmuneToStatus）', () => {

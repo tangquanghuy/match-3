@@ -10,6 +10,9 @@ artifacts
 # ZCode 本地会话状态
 .zcode/
 
+# Local linked worktrees are managed by Git and never belong to the project tree.
+.worktrees/
+
 # —— 2026-09-19 基线提交时明确的排除项（保持既有实践：大体积二进制资产不进版本库）——
 # 本地临时/调试目录
 tmp/
@@ -54,3 +57,9 @@ game-assets/public/*
 output/
 __pycache__/
 *.pyc
+
+# Dedicated SillyTavern integration build
+dist-tavern/
+
+# Local integration profiles, caches, and smoke-test artifacts.
+.tmp/

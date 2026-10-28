@@ -43,6 +43,11 @@ export function snapshotToCharacter(snapshot: CombatantSnapshot, internalId: num
   return {
     id: internalId,
     name: snapshot.name,
+    ...(snapshot.race !== undefined ? { race: snapshot.race } : {}),
+    ...(snapshot.levelLabel !== undefined ? { levelLabel: snapshot.levelLabel } : {}),
+    ...(snapshot.battleScaling ? { battleScaling: { ...snapshot.battleScaling } } : {}),
+    ...(snapshot.portraitUrl !== undefined ? { portraitUrl: snapshot.portraitUrl } : {}),
+    ...(snapshot.mechanicalIdentity !== undefined ? { mechanicalIdentity: snapshot.mechanicalIdentity } : {}),
     ...(snapshot.role ? { role: snapshot.role } : {}),
     maxHp: snapshot.stats.hp,
     hp: snapshot.initialHp ?? snapshot.stats.hp,

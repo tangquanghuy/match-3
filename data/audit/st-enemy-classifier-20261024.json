@@ -1,0 +1,914 @@
+{
+  "version": 1,
+  "auditDate": "2026-10-24",
+  "auditType": "read_only_classifier_catalog_delta",
+  "purpose": "Archive the inspected ST classifier delta and product entrance gaps. This record grants no source acceptance and does not replace the 13 obligations.",
+  "provenance": {
+    "resultOrigin": "Previously completed read-only in-memory catalog analyses; archival writes only this JSON. No classifier analysis or tests were rerun to create this record.",
+    "baselineHistoricalReference": ".tmp/st-enemy-signatures-after.json",
+    "baselineHistoricalReferenceMeaning": "The historical after file predates this batch. Its roles/effects match the in-memory before classifier for this batch.",
+    "baselineValidation": {
+      "comparedSources": 1821,
+      "comparedFields": [
+        "roles",
+        "effects"
+      ],
+      "comparison": "Set equality per stable enemy ID; evidence prose was not compared.",
+      "mismatchedSources": 0,
+      "analysisErrors": 0
+    },
+    "baselineReconstruction": "In memory only, disable the calls to gemProducesSkulls and clearCanCollectMana in segmentSignals. Leave all other classifier rules and adapted data unchanged.",
+    "historicalFilesOverwritten": false,
+    "archivalSha256": {
+      "src/sillytavern/enemyDesign.ts": "3e21f01a7f1f002c1452737b0718f3f260c242ad1c033b5342ae072d406cfdb9",
+      "tests/unit/stEnemyBoardManaDesign.test.ts": "79099da1a87cea64f720ff6437afb878b40b89d517b2bccff72710751345f143",
+      ".tmp/st-enemy-signatures-after.json": "6435c1277f82cd553f109862a7b04f1c403e2f4774014001b9a65784ca9982bb"
+    },
+    "hashMeaning": "Hashes read at archival time; these are not acceptance execution fingerprints.",
+    "frozenFiles": [
+      "src/sillytavern/enemyDesign.ts",
+      "tests/unit/stEnemyBoardManaDesign.test.ts"
+    ],
+    "frozenFilesUnchangedDuringReadOnlyAnalysis": true,
+    "testsExecutedDuringReadOnlyAnalysis": 0
+  },
+  "methodology": {
+    "universe": "All 1821 runtime TROOPS entries, counted by stable enemy ID. No scope exclusions are inferred or applied in this structural report.",
+    "portraitIndexedUniverse": 1800,
+    "traits": "Use adaptedPrototype(troop.spell.id) and adaptedTrait for each source trait; flatMap undefined adapted traits exactly as compileEnemyDesign does. Do not drop an entire source when one scoped trait adapts to undefined.",
+    "structuralReachability": "A source has an entry in PORTRAITS, and at least one actual signature role exists in the real portrait pool with the same rank and complete mana-color set. Existence across available forms is measured; no missing form or role is invented.",
+    "fixedDimensions": [
+      "source universe",
+      "adapted prototypes",
+      "adapted traits",
+      "complete mana-color set",
+      "rank mapping",
+      "existing portrait catalogue"
+    ],
+    "rolePairs": "Each unique source-role pair; one source may gain multiple roles.",
+    "publicEffectPairs": "Each unique source-public-effect pair. skullOffense is an internal feature, not a new public effect enum; the only added public effect in this batch is mana.",
+    "changedSources": "Distinct sources whose role or public-effect set changes; not the sum of role and effect additions.",
+    "unverifiedByThisMetric": [
+      "full compileEnemyDesign selection",
+      "derived-form availability preflight",
+      "explicit power-budget policy acceptance",
+      "all 13 source acceptance obligations",
+      "independent review receipt validity"
+    ],
+    "acceptancePolicy": "Retain all 13 obligations and separate >=90% thresholds for each original rarity and each of the five product ranks. Structural reachability is not full acceptance."
+  },
+  "changes": {
+    "changedSources": 367,
+    "addedRolePairs": 352,
+    "addedGeneratorSources": 252,
+    "addedWarriorSources": 100,
+    "addedPublicEffectPairs": 272,
+    "addedManaSources": 272,
+    "addedImageSupportedRolePairs": 289,
+    "newlyStructurallyReachableSources": 42,
+    "removedRolePairs": 0,
+    "removedPublicEffectPairs": 0
+  },
+  "totals": {
+    "totalSources": 1821,
+    "portraitIndexedSources": 1800,
+    "changedSources": 367,
+    "rolePairsBefore": 5231,
+    "rolePairsAfter": 5583,
+    "publicEffectPairsBefore": 5361,
+    "publicEffectPairsAfter": 5633,
+    "imageSupportedRolePairsBefore": 4226,
+    "imageSupportedRolePairsAfter": 4515,
+    "structurallyReachableBefore": 1718,
+    "structurallyReachableAfter": 1760,
+    "addedGeneratorSources": 252,
+    "addedWarriorSources": 100,
+    "addedManaSources": 272,
+    "removedRolePairs": 0,
+    "removedPublicEffectPairs": 0
+  },
+  "byOriginalRarity": [
+    {
+      "rarity": "Common",
+      "totalSources": 120,
+      "portraitIndexedSources": 120,
+      "changedSources": 18,
+      "rolePairsBefore": 342,
+      "rolePairsAfter": 359,
+      "publicEffectPairsBefore": 318,
+      "publicEffectPairsAfter": 334,
+      "imageSupportedRolePairsBefore": 272,
+      "imageSupportedRolePairsAfter": 288,
+      "structurallyReachableBefore": 110,
+      "structurallyReachableAfter": 117,
+      "addedGeneratorSources": 15,
+      "addedWarriorSources": 2,
+      "addedManaSources": 16,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rarity": "Uncommon",
+      "totalSources": 242,
+      "portraitIndexedSources": 242,
+      "changedSources": 43,
+      "rolePairsBefore": 613,
+      "rolePairsAfter": 656,
+      "publicEffectPairsBefore": 632,
+      "publicEffectPairsAfter": 672,
+      "imageSupportedRolePairsBefore": 501,
+      "imageSupportedRolePairsAfter": 543,
+      "structurallyReachableBefore": 232,
+      "structurallyReachableAfter": 236,
+      "addedGeneratorSources": 38,
+      "addedWarriorSources": 5,
+      "addedManaSources": 40,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rarity": "Rare",
+      "totalSources": 357,
+      "portraitIndexedSources": 357,
+      "changedSources": 90,
+      "rolePairsBefore": 971,
+      "rolePairsAfter": 1058,
+      "publicEffectPairsBefore": 1044,
+      "publicEffectPairsAfter": 1116,
+      "imageSupportedRolePairsBefore": 837,
+      "imageSupportedRolePairsAfter": 918,
+      "structurallyReachableBefore": 341,
+      "structurallyReachableAfter": 350,
+      "addedGeneratorSources": 68,
+      "addedWarriorSources": 19,
+      "addedManaSources": 72,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rarity": "UltraRare",
+      "totalSources": 608,
+      "portraitIndexedSources": 596,
+      "changedSources": 103,
+      "rolePairsBefore": 1685,
+      "rolePairsAfter": 1786,
+      "publicEffectPairsBefore": 1700,
+      "publicEffectPairsAfter": 1779,
+      "imageSupportedRolePairsBefore": 1521,
+      "imageSupportedRolePairsAfter": 1621,
+      "structurallyReachableBefore": 572,
+      "structurallyReachableAfter": 586,
+      "addedGeneratorSources": 76,
+      "addedWarriorSources": 25,
+      "addedManaSources": 79,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rarity": "Epic",
+      "totalSources": 258,
+      "portraitIndexedSources": 252,
+      "changedSources": 60,
+      "rolePairsBefore": 772,
+      "rolePairsAfter": 825,
+      "publicEffectPairsBefore": 810,
+      "publicEffectPairsAfter": 842,
+      "imageSupportedRolePairsBefore": 547,
+      "imageSupportedRolePairsAfter": 584,
+      "structurallyReachableBefore": 238,
+      "structurallyReachableAfter": 244,
+      "addedGeneratorSources": 25,
+      "addedWarriorSources": 28,
+      "addedManaSources": 32,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rarity": "Legendary",
+      "totalSources": 236,
+      "portraitIndexedSources": 233,
+      "changedSources": 53,
+      "rolePairsBefore": 848,
+      "rolePairsAfter": 899,
+      "publicEffectPairsBefore": 857,
+      "publicEffectPairsAfter": 890,
+      "imageSupportedRolePairsBefore": 548,
+      "imageSupportedRolePairsAfter": 561,
+      "structurallyReachableBefore": 225,
+      "structurallyReachableAfter": 227,
+      "addedGeneratorSources": 30,
+      "addedWarriorSources": 21,
+      "addedManaSources": 33,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    }
+  ],
+  "byProductRank": [
+    {
+      "rank": "杂兵",
+      "originalRarities": [
+        "Common",
+        "Uncommon"
+      ],
+      "totalSources": 362,
+      "portraitIndexedSources": 362,
+      "changedSources": 61,
+      "rolePairsBefore": 955,
+      "rolePairsAfter": 1015,
+      "publicEffectPairsBefore": 950,
+      "publicEffectPairsAfter": 1006,
+      "imageSupportedRolePairsBefore": 773,
+      "imageSupportedRolePairsAfter": 831,
+      "structurallyReachableBefore": 342,
+      "structurallyReachableAfter": 353,
+      "addedGeneratorSources": 53,
+      "addedWarriorSources": 7,
+      "addedManaSources": 56,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rank": "精锐",
+      "originalRarities": [
+        "Rare"
+      ],
+      "totalSources": 357,
+      "portraitIndexedSources": 357,
+      "changedSources": 90,
+      "rolePairsBefore": 971,
+      "rolePairsAfter": 1058,
+      "publicEffectPairsBefore": 1044,
+      "publicEffectPairsAfter": 1116,
+      "imageSupportedRolePairsBefore": 837,
+      "imageSupportedRolePairsAfter": 918,
+      "structurallyReachableBefore": 341,
+      "structurallyReachableAfter": 350,
+      "addedGeneratorSources": 68,
+      "addedWarriorSources": 19,
+      "addedManaSources": 72,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rank": "首领",
+      "originalRarities": [
+        "UltraRare"
+      ],
+      "totalSources": 608,
+      "portraitIndexedSources": 596,
+      "changedSources": 103,
+      "rolePairsBefore": 1685,
+      "rolePairsAfter": 1786,
+      "publicEffectPairsBefore": 1700,
+      "publicEffectPairsAfter": 1779,
+      "imageSupportedRolePairsBefore": 1521,
+      "imageSupportedRolePairsAfter": 1621,
+      "structurallyReachableBefore": 572,
+      "structurallyReachableAfter": 586,
+      "addedGeneratorSources": 76,
+      "addedWarriorSources": 25,
+      "addedManaSources": 79,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rank": "领主",
+      "originalRarities": [
+        "Epic"
+      ],
+      "totalSources": 258,
+      "portraitIndexedSources": 252,
+      "changedSources": 60,
+      "rolePairsBefore": 772,
+      "rolePairsAfter": 825,
+      "publicEffectPairsBefore": 810,
+      "publicEffectPairsAfter": 842,
+      "imageSupportedRolePairsBefore": 547,
+      "imageSupportedRolePairsAfter": 584,
+      "structurallyReachableBefore": 238,
+      "structurallyReachableAfter": 244,
+      "addedGeneratorSources": 25,
+      "addedWarriorSources": 28,
+      "addedManaSources": 32,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    },
+    {
+      "rank": "传奇",
+      "originalRarities": [
+        "Legendary"
+      ],
+      "totalSources": 236,
+      "portraitIndexedSources": 233,
+      "changedSources": 53,
+      "rolePairsBefore": 848,
+      "rolePairsAfter": 899,
+      "publicEffectPairsBefore": 857,
+      "publicEffectPairsAfter": 890,
+      "imageSupportedRolePairsBefore": 548,
+      "imageSupportedRolePairsAfter": 561,
+      "structurallyReachableBefore": 225,
+      "structurallyReachableAfter": 227,
+      "addedGeneratorSources": 30,
+      "addedWarriorSources": 21,
+      "addedManaSources": 33,
+      "removedRolePairs": 0,
+      "removedPublicEffectPairs": 0
+    }
+  ],
+  "prior1800SourceMetricReconciliation": {
+    "indexedAddedWarriorSources": 99,
+    "fullCatalogAddedWarriorSources": 100,
+    "additionalUnindexedWarriorSource": 10004,
+    "additionalStructuralReachabilityFromThatSource": 0
+  },
+  "remainingStructuralGaps": {
+    "total": 61,
+    "noSignatureRoleCount": 27,
+    "signatureRolesWithoutMatchingPortraitCount": 13,
+    "noSourcePortraitIndexCount": 21,
+    "noSignatureRole": [
+      {
+        "enemyId": 6039,
+        "name": "战狮身人面像",
+        "rarity": "Rare",
+        "rank": "精锐"
+      },
+      {
+        "enemyId": 6076,
+        "name": "哥布林国王",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 6204,
+        "name": "诺本兄弟",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 6341,
+        "name": "蒙戈",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 6600,
+        "name": "贪婪",
+        "rarity": "Uncommon",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 6614,
+        "name": "钱袋",
+        "rarity": "Common",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 6615,
+        "name": "金戒指",
+        "rarity": "Uncommon",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 6616,
+        "name": "祭司圣杯",
+        "rarity": "Rare",
+        "rank": "精锐"
+      },
+      {
+        "enemyId": 6617,
+        "name": "皇冠",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 6618,
+        "name": "神灯",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 6619,
+        "name": "神圣瑰宝",
+        "rarity": "Legendary",
+        "rank": "传奇"
+      },
+      {
+        "enemyId": 6673,
+        "name": "珠宝地精",
+        "rarity": "Common",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 6876,
+        "name": "哥布林小妞",
+        "rarity": "Uncommon",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 6988,
+        "name": "深渊锻工",
+        "rarity": "Rare",
+        "rank": "精锐"
+      },
+      {
+        "enemyId": 6998,
+        "name": "锚威利",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 7012,
+        "name": "摄政王卡利夫",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 7038,
+        "name": "地狱爪战士",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 7132,
+        "name": "人马龙",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 7151,
+        "name": "火灵",
+        "rarity": "Uncommon",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 7285,
+        "name": "狐狸小偷",
+        "rarity": "Rare",
+        "rank": "精锐"
+      },
+      {
+        "enemyId": 7297,
+        "name": "暗影狐狸",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 7400,
+        "name": "火手哥布林",
+        "rarity": "Uncommon",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 7406,
+        "name": "黑暗、潜伏和黑暗",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 7417,
+        "name": "死亡陷阱模仿怪",
+        "rarity": "Uncommon",
+        "rank": "杂兵"
+      },
+      {
+        "enemyId": 7454,
+        "name": "大力金刚",
+        "rarity": "Rare",
+        "rank": "精锐"
+      },
+      {
+        "enemyId": 7740,
+        "name": "黑暗神谕",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 7781,
+        "name": "默内斯",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      }
+    ],
+    "signatureRolesWithoutMatchingPortrait": [
+      {
+        "enemyId": 6074,
+        "name": "守魂者",
+        "rarity": "Epic",
+        "rank": "领主",
+        "actualSignatureRoles": [
+          "Warrior"
+        ]
+      },
+      {
+        "enemyId": 6562,
+        "name": "骨连者",
+        "rarity": "Rare",
+        "rank": "精锐",
+        "actualSignatureRoles": [
+          "Warrior"
+        ]
+      },
+      {
+        "enemyId": 6847,
+        "name": "莱拉斯扎",
+        "rarity": "Epic",
+        "rank": "领主",
+        "actualSignatureRoles": [
+          "Generator"
+        ]
+      },
+      {
+        "enemyId": 6872,
+        "name": "炼狱战机",
+        "rarity": "Rare",
+        "rank": "精锐",
+        "actualSignatureRoles": [
+          "Defender",
+          "Warrior"
+        ]
+      },
+      {
+        "enemyId": 7033,
+        "name": "哈提尔运行",
+        "rarity": "Legendary",
+        "rank": "传奇",
+        "actualSignatureRoles": [
+          "Generator",
+          "Support"
+        ]
+      },
+      {
+        "enemyId": 7124,
+        "name": "临界传送门",
+        "rarity": "Epic",
+        "rank": "领主",
+        "actualSignatureRoles": [
+          "Defender"
+        ]
+      },
+      {
+        "enemyId": 7155,
+        "name": "双鱼神",
+        "rarity": "Legendary",
+        "rank": "传奇",
+        "actualSignatureRoles": [
+          "Defender",
+          "Generator",
+          "Support",
+          "Warmaster"
+        ]
+      },
+      {
+        "enemyId": 7289,
+        "name": "菲尼克斯",
+        "rarity": "Legendary",
+        "rank": "传奇",
+        "actualSignatureRoles": [
+          "Support"
+        ]
+      },
+      {
+        "enemyId": 7302,
+        "name": "龙石地精",
+        "rarity": "Common",
+        "rank": "杂兵",
+        "actualSignatureRoles": [
+          "Support"
+        ]
+      },
+      {
+        "enemyId": 7328,
+        "name": "蜘蛛皇座",
+        "rarity": "UltraRare",
+        "rank": "首领",
+        "actualSignatureRoles": [
+          "Defender"
+        ]
+      },
+      {
+        "enemyId": 7329,
+        "name": "丝绸女皇",
+        "rarity": "Epic",
+        "rank": "领主",
+        "actualSignatureRoles": [
+          "Support"
+        ]
+      },
+      {
+        "enemyId": 7524,
+        "name": "法老哈夫鲁",
+        "rarity": "Legendary",
+        "rank": "传奇",
+        "actualSignatureRoles": [
+          "Warrior"
+        ]
+      },
+      {
+        "enemyId": 7926,
+        "name": "莉基",
+        "rarity": "Legendary",
+        "rank": "传奇",
+        "actualSignatureRoles": [
+          "Generator",
+          "Support"
+        ]
+      }
+    ],
+    "noSourcePortraitIndex": [
+      {
+        "enemyId": 10001,
+        "name": "白鹭依晞",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10002,
+        "name": "Douglas",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 10003,
+        "name": "ciallo",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 10004,
+        "name": "四脚萝卜怪",
+        "rarity": "Legendary",
+        "rank": "传奇"
+      },
+      {
+        "enemyId": 10005,
+        "name": "好想星艾",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10006,
+        "name": "Lianka",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 10007,
+        "name": "叶落",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 10008,
+        "name": "ℛℯ𝓃ℴ𝒾𝓇 [→ sideF →]",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 10009,
+        "name": "苏",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10010,
+        "name": "Shirakyusu Anna",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10011,
+        "name": "霖空洛",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10012,
+        "name": "銀蒔蘿",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10013,
+        "name": "WangFeng",
+        "rarity": "Epic",
+        "rank": "领主"
+      },
+      {
+        "enemyId": 10014,
+        "name": "管理组重点观察对象",
+        "rarity": "Legendary",
+        "rank": "传奇"
+      },
+      {
+        "enemyId": 10015,
+        "name": "虹蝶",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10016,
+        "name": "苹",
+        "rarity": "Legendary",
+        "rank": "传奇"
+      },
+      {
+        "enemyId": 10017,
+        "name": "zhuwang",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10018,
+        "name": "Erochika",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10019,
+        "name": "灰鸠",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10020,
+        "name": "翠香吃西瓜",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      },
+      {
+        "enemyId": 10021,
+        "name": "OldMeepo",
+        "rarity": "UltraRare",
+        "rank": "首领"
+      }
+    ],
+    "caveat": "This partition explains structural metric exclusions only; it is not a complete mechanism-availability or acceptance failure inventory."
+  },
+  "nextBatchRecommendations": [
+    {
+      "priority": 1,
+      "kind": "existing_native_skull_trait_missing_ST_classification",
+      "sources": [
+        {
+          "enemyId": 6341,
+          "name": "蒙戈",
+          "rarity": "UltraRare",
+          "rank": "首领",
+          "trait": "clobber",
+          "nativeField": "skullMultVsStatus",
+          "nativeCondition": {
+            "status": "stun",
+            "mult": 2
+          }
+        },
+        {
+          "enemyId": 7038,
+          "name": "地狱爪战士",
+          "rarity": "UltraRare",
+          "rank": "首领",
+          "trait": "pyromania",
+          "nativeField": "skullMultVsStatus",
+          "nativeCondition": {
+            "status": "burning",
+            "mult": 2
+          }
+        }
+      ],
+      "finding": "Both currently have no signature role, retain a conditional skull damage multiplier, and have real Warrior art in the matching color/rank pool. traitSignals recognizes a few scalar skull multipliers but omits the generic skullMultVsStatus field.",
+      "expectedRole": "Warrior under existing unchanged role rules",
+      "potentialNewStructuralSources": 2,
+      "potentialIsVerifiedAcceptance": false,
+      "evidence": [
+        {
+          "file": "src/sillytavern/enemyDesign.ts",
+          "line": 334
+        },
+        {
+          "file": "src/engine/traits.ts",
+          "line": 393
+        },
+        {
+          "file": "tests/unit/traitOBucket.test.ts",
+          "line": 49
+        },
+        {
+          "file": "tests/unit/traitOBucket.test.ts",
+          "line": 69
+        }
+      ],
+      "minimumNextEvidence": [
+        "Reuse exact native status-hit, wrong-status and no-status contract assertions. Do not recreate native damage tests.",
+        "Recognize only a valid implemented condition and a multiplier greater than one; preserve status requirements and adapted trait payload.",
+        "For each source, demonstrate fixed-seed public design selecting its own recipe with existing Warrior art; assert signature evidence and deterministic JSON restore.",
+        "Apply remaining source obligations using existing native and family evidence; keep unknown mechanisms open."
+      ]
+    },
+    {
+      "priority": 2,
+      "kind": "real_portrait_entrance_gap",
+      "candidateIds": [
+        6074,
+        6562,
+        6872,
+        6847
+      ],
+      "finding": "Existing actual signature roles have no matching real art. Resolve the product art entrance separately; retain strict four-dimensional matching and existing role definitions.",
+      "source6074": "Keep fixed no_exact_match and manual blueprint persistence as partial evidence. Do not sign off as a complete accepted source.",
+      "evidence": [
+        {
+          "file": "src/sillytavern/enemyDesign.ts",
+          "line": 430
+        },
+        {
+          "file": "src/sillytavern/portraits.ts",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "priority": 3,
+      "kind": "passive_explosion_conditional_mana_classification",
+      "candidateIds": [
+        6594,
+        6659,
+        7486,
+        7524,
+        7729
+      ],
+      "finding": "These retain explosion traits without Generator classification. In the current matching pools only 6659 has Generator art, and it is already structurally reachable under another role.",
+      "estimatedAdditionalStructuralSourcesInCurrentArt": 0,
+      "benefit": "More complete semantic role exposure, not an increase in currently reachable source count.",
+      "evidence": [
+        {
+          "file": "src/sillytavern/enemyDesign.ts",
+          "line": 334
+        },
+        {
+          "file": "src/engine/traits.ts",
+          "line": 373
+        },
+        {
+          "file": "tests/unit/traitFinalBatch.test.ts",
+          "line": 215
+        },
+        {
+          "file": "tests/unit/traitBigMatch.test.ts",
+          "line": 389
+        }
+      ]
+    },
+    {
+      "priority": 4,
+      "kind": "source_portrait_index_gate_review",
+      "candidateIds": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007,
+        10008,
+        10009,
+        10010,
+        10011,
+        10012,
+        10013,
+        10014,
+        10015,
+        10016,
+        10017,
+        10018,
+        10019,
+        10020,
+        10021
+      ],
+      "finding": "The public compiler indexes recipe candidates through PORTRAITS and blueprint compilation also requires a source portrait. Check whether real same-color/same-rank images can support these sources before deciding an entrance change.",
+      "estimatedAdditionalStructuralSources": null,
+      "estimateStatus": "Not evaluated; do not claim all 21 become reachable.",
+      "evidence": [
+        {
+          "file": "src/sillytavern/enemyDesign.ts",
+          "line": 436
+        },
+        {
+          "file": "src/sillytavern/enemyBlueprint.ts",
+          "line": 148
+        }
+      ]
+    }
+  ],
+  "mainThreadStatusReportedByUser": {
+    "registeredSourceCount": 33,
+    "structuralSourceCount": 1760,
+    "totalSourceCount": 1821,
+    "registeredTestsPassed": 1945,
+    "regressionTestsPassed": 99,
+    "browserTestsPassed": 9,
+    "actualUiGroupsPassed": 6,
+    "independentReviewReceipts": "Darwin review in progress at time of archival",
+    "statusMeaning": "Reported by main thread, not rerun or independently revalidated by this read-only analysis."
+  }
+}

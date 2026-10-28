@@ -1,0 +1,1727 @@
+{
+  "version": 1,
+  "enemyId": 7131,
+  "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+  "testFiles": [
+    "tests/unit/controlStatus.test.ts",
+    "tests/unit/gowCommonStatusRules.test.ts",
+    "tests/unit/gowFixR004StatusDurations.test.ts",
+    "tests/unit/gowLaneL5C.test.ts",
+    "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+    "tests/unit/traits.test.ts"
+  ],
+  "evidenceFiles": [
+    "data/raw/spells.gow.en.json",
+    "data/raw/troops.gow.en.json",
+    "game-assets/public/static/portraits/Troop_K09_24.webp",
+    "src/data/communityTroops.ts",
+    "src/data/traits.json",
+    "src/data/troop-progression.json",
+    "src/data/troops.json",
+    "src/data/weapons.json",
+    "src/sillytavern/data/portraits.json",
+    "tests/fixtures/stEnemyMappedSources.ts",
+    "tests/fixtures/stEnemyStatusDamageExpectations.json",
+    "tests/helpers/damageFixture.ts",
+    "tests/helpers/gowCast.ts",
+    "tests/helpers/stMappedHarness.ts",
+    "tests/helpers/stStatusDamageHarness.ts"
+  ],
+  "subjectDigest": "01ed8e36497b16a0ac38fabf6eff90ebe5eb85b444b6828d81377f79f7f93709",
+  "testDigest": "87e96a41fe5927aa24db5138a656adcdde421c18d11951b0483a2de516023663",
+  "implementationDigest": "5a83b423e9b93fba6afe8fdf4b28d530ba0e145bc60a4f15ba1c212fa5f3b3ba",
+  "portraitDigest": "08306358f9b48df1b9b8d8cb22e5ead70ff8e3d6a9669b55fd1902bf497f2b3b",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "92a6f00ee087fa5e56771e169a7a12b791ecb9b77de0062cbeb404280088fa08",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "控制类状态行动限制（原版冰冻仅限制额外回合） 沉默：不可技能、不可充能、可攻击",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "控制类状态行动限制（原版冰冻仅限制额外回合） 冰冻：仍可技能、攻击和充能",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "控制类状态行动限制（原版冰冻仅限制额外回合） 缠绕：仅不可攻击，可技能、可充能",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "控制类状态行动限制（原版冰冻仅限制额外回合） 击晕：引擎侧暂无行动限制（待被动系统），仅表现层",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "castSkill 受控制状态限制 正常可释放：产出 skill-cast + 效果事件",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "castSkill 受控制状态限制 沉默拒绝释放（需求 9.3）",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "castSkill 受控制状态限制 冰冻仍可释放技能",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "castSkill 受控制状态限制 击晕不影响技能释放（引擎侧无效果）",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "castSkill 受控制状态限制 状态到期后恢复释放能力",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "骷髅攻击：冰冻仍攻击，缠绕攻击归零 队首正常：产出 skull-damage 造成伤害",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "骷髅攻击：冰冻仍攻击，缠绕攻击归零 队首冰冻：仍正常造成骷髅伤害",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "骷髅攻击：冰冻仍攻击，缠绕攻击归零 队首缠绕：攻击落空，reason=entangle",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/controlStatus.test.ts",
+      "fullName": "骷髅攻击：冰冻仍攻击，缠绕攻击归零 队首击晕：仍可攻击（引擎侧无限制），正常造成伤害",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "Lycanthropy shared status transformation uses separate recovery and 15% rolls, replaces the character with a Beast template, and keeps the slot and id",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "Lycanthropy shared status transformation a naturally cleansed status does not transform; an absent catalogue does not fabricate a transformation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Entangle blocks positive Attack gain from spells and traits, but permits reductions and gains after removal",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression a Blessed troop rejects Devour before the random draw, and cannot grant growth",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression blocked Devour produces no growth even if the target has Barrier",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Devour gains the victim current stats, bypasses spell mitigation, and never gains Magic",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Devour observes Entangle on both attacker and victim",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Barrier consumes itself on Devour and prevents defeat, growth and magic changes",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Death Mark skips the first owner-turn death roll and may kill on the second",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Curse itself rolls cumulative recovery at 10%, then +5% (15%) on the next turn (R004)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Curse bypasses ordinary Devour immunity, but never Invulnerable immunity",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression impervious blocks Devour as its description promises",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression fortitude blocks Devour as its description promises",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Indestructible blocks Devour and direct execution even while cursed or stunned",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression group execution skips protected targets and still kills unprotected targets",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression resists Devour only after its chance succeeds",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Devour cannot consume its own caster even if a skill passes self as its target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Indestructible blocks direct half-Life reduction but still takes ordinary damage and fixed reductions",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression Barrier absorbs ordinary skull damage but not lethal skull damage; Invulnerable blocks lethal",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "official status shared-rule regression stunning suppresses lethal skull traits during actual combat and cleansing restores them",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "instant execution and lethal resistance execution bypasses spellarmor without triggering spell resistance",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "instant execution and lethal resistance execution bypasses spellblock without triggering spell resistance",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "instant execution and lethal resistance true-damage execution bypasses spell reduction and leaves armor unchanged",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "instant execution and lethal resistance invulnerable resists while stunned and cursed and announces the holder",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "instant execution and lethal resistance indestructible resists while stunned and cursed and announces the holder",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "instant execution and lethal resistance a direct execution bypasses Barrier and Reflect as well as spell armor",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "status-triggered instant death death mark respects invulnerable and displays resistance",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowCommonStatusRules.test.ts",
+      "fullName": "status-triggered instant death death mark respects indestructible and displays resistance",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 negative statuses: shared cumulative self-cleanse, no cap one roll per owner turn; success removes every recoverable negative, Poison stays",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 negative statuses: shared cumulative self-cleanse, no cap Poison never self-cleanses even at roll 0, and gaining Poison resets the shared chance",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 negative statuses: shared cumulative self-cleanse, no cap re-applying a present negative resets; Bleed stacks 2-4 do not, the 5th does (official Bleed entry)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 negative statuses: shared cumulative self-cleanse, no cap Cursed grows by 5% per turn from a 10% start; chance caps at 100% (certain cleanse)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 positive statuses end on their trigger, not on a timer Enraged / Reflect / Submerged / Blessed / Barrier / Enchanted survive turn starts",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 positive statuses end on their trigger, not on a timer Left: casting ends the caster's Submerged/Blessed/Enchanted before the spell body; Enraged/Reflect stay",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 positive statuses end on their trigger, not on a timer Right: casting ends the caster's Submerged/Blessed/Enchanted before the spell body; Enraged/Reflect stay",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 positive statuses end on their trigger, not on a timer front troop dealing skull damage ends its Enraged, Submerged and Blessed; defender Reflect is consumed",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+      "fullName": "R004 positive statuses end on their trigger, not on a timer no skull damage (Entangled front troop, or target Barrier absorbs) keeps the attacker statuses",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:6800 CountAttackArmorLife 34% (R003) on top of the (M/2+1)-(M+3) roll; Enraged on kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:6791 Faerie Fire all enemies only when the target had Hunter's Mark (counted before the damage)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:7900 three RandomEnemy/RandomPrefNotPrev waves: never the same enemy twice in a row, repeats allowed",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:7578 target hit + three waves (RandomEnemy may hit the target), each with its own roll; Bleeding x3",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:7581 five waves boosted x3 per Frozen enemy",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:7901 scatter total boosted x3 per Cursed enemy",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B01 troop:6624 true splash boosted x2 per Submerged ally; a Submerged caster counts itself (P-B-action-status-self-count)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B02 troop:7783 / troop:7710 double damage only when the target already Bleeds; 7710 adds 2 stacks",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B02 weapon:1250 Bleeds both of the first 2 enemies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B02 weapon:1695 2 Bleed stacks; with Immortal Kveldulf in my team 1 more stack and Lycanthropy (not Curse)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B02 weapon:1442 first + last, weapon:1443 last 2, weapon:1444 first 2 (+4 per Tempering on every hit)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B02 troop:6007 20% Burn lands on a random enemy (not the chosen one)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B03 troop:7331 25% Death Mark: one roll for both neighbours of the target (never exactly one)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B03 weapon:1176 Death Mark Divine enemies, Disease Knight enemies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B03 troop:6389 triple damage on a Death Marked target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C B03 weapon:1124 Burn a random enemy, Disease a different one",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B04 troop:6578 Enchant only ally Daemons, Barrier only ally Mystics (caster Medea is Human/Mystic)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B04 troop:7432 one 50% roll freezes every enemy below the target, never the target; still below it after a kill (R012)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B05 weapon:1132 +10 when the last enemy is Frozen; Freezes the LastEnemy (not the chosen one), re-resolved after a kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B05 troop:7131 Freezes AND Death Marks the target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B05 troop:6388 triple damage only on a Hunter's Marked target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B05 troop:6051 Poison and Burn the damaged strongest enemy; nothing re-picked after it dies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B05 troop:6377 target always Silenced; above and below each roll their own 50%, also after a kill (R012)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 troop:6724 Curse all enemies only with an Icestorm (Blue), not with other Storms",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 troop:6737 Bless myself with any Storm",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 troop:7002 Monster target Entangled; Dragon target triple damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 troop:7180 Elemental triple; Enrage only on the kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 weapon:1378 Death Mark only a Purple-mana target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 troop:7352 Enrage + Barrier only if the caster has taken damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 weapon:1294 checks the damaged target itself: Frozen -> Curse, Burning -> Death Mark",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B06 weapon:1405 4 Bleed stacks on the Poisoned last enemy only",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B07 weapon:1405 LastEnemy is re-resolved per step: after killing the last enemy, a Poisoned new last enemy Bleeds",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B07 troop:7142 three waves avoiding the previous target (repeat of the first allowed), each Stun its own 50% on the damaged enemy",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B07 troop:7409 double damage on a Terrified target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B07 troop:7355 triple damage on a Daemon",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B07 troop:6997 / troop:6674 First/Last targets are re-resolved at the Stun step after a kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B08 troop:6819 on the kill: Cleanse all allies AND Dispel all enemies (Enraged removed); nothing without a kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B08 troop:6937 each of first/last doubled only on its own Blue mana (native MultiplyForBlueTarget)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B08 troop:6602 damages, Burns and Faerie Fires the target and only the next enemy below",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B08 troop:6708 only the Cursed chosen enemy is doubled and Death Marked; enemies below take plain damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B08 troop:6145 triple damage on an Entangled target",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 4 B08 troop:6108 gives 3 Magic to all allies on the kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 troop:6517 Barrier to all allies only while the caster is damaged",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 troop:6301 / troop:6208 double damage on a Stunned / Webbed target, then Stun / Web",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 troop:6235 bonus damage and Burn on every Yellow enemy (target included), nobody else",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 troop:7589 gains 2 Magic (not Mana) and Enraged",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 troop:6460 last enemy: 25% execute; other allies Submerged, never the caster",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 troop:6821 kills a Submerged target instead of Submerging it",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 weapon:1668 / 1669 both hits get Tempering and their own colour Bleed check; random prefers another enemy",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 6 B09 weapon:1668 with a Doom enemy: armor broken before each hit (chosen and random)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B10 weapon:1670-1673 Doomed blades: each Bleeds only its own mana colour (chosen and random hit)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B10 troop:6571 strips every enemy armor before the (2M+7) hit, then Submerges itself",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B11 troop:6785 armor to the chosen ally, Barrier every ally below it (not the chosen, not above)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B11 troop:7203 Barriers only Daemon allies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B11 weapon:1527 Barriers only Whitehelm allies after armor to all",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B11 troop:7191 other allies Barriered only with a Storm",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B11 troop:6980 knocks a random enemy (any, the last included) to the back",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B12 troop:7703 Barrier + Enchant the chosen ally AND the caster, in native order",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B12 troop:7706 armor picks the weakest (Life+Armor), then Life and Barrier on that same ally",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B12 troop:7666 Bless and Barrier only an Elemental ally",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B12 troop:6695 (M/2)+1 Attack and Armor, then Barrier",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B12 troop:6335 native order Attack -> Life -> Cleanse; +3 Magic only for a Red ally",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B13 troop:6450 Life + Barrier on self, then a flat 8 damage",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B13 troop:6690 native order Life -> Blessed -> Enchanted on the chosen ally",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B13 troop:7323 Life to the first 2 allies, Disease on the last 2 enemies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B13 weapon:1149 Cleanse and Enchant all OTHER allies (caster keeps its Poison, not Enchanted)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B13 troop:7797 the kill roll only fires on an ALREADY Entangled target (checked before its own Entangle), ~30%",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B14 weapon:1446 scatter total 16 + 2M; Bless Purple allies, Curse Purple enemies only",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B14 troop:6150 scatter 9 + M; one 75% roll Burns all enemies or none",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B14 troop:6158 scatter 8 + M, Burn exactly one random enemy",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B14 troop:7718 Burn a random enemy, then 50% another (prefers a different one)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B14 troop:7013 scatter 8 + M; one 75% roll Enchants all allies or none",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B15 troop:6194 scatter M+3, Entangle all; +8 Magic once when any enemy dies (not only when all die)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B15 troop:6983 Stun the target and both adjacent enemies even on armor-only hits (native FromTarget + AdjacentFromTarget)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B15 weapon:1447 Bless only Brown allies, Curse only Brown enemies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B15 troop:6816 burn the first splash group, freeze the second (two independent RandomEnemy picks)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B15 weapon:1153 Enrage only the front ally",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B16 troop:7141 Poison the target and both adjacent enemies even on armor-only hits",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B16 troop:6702 Poison then Bleed the whole splash group",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B16 troop:6402 Submerge self after the splash, also on a kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B16 weapon:1278 second splash on the enemy below the target, R012 anchor position when the target dies",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B16 weapon:1252 Steal from and Death Mark the last 2 enemies, then Bless self",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B17 troop:7422 Steal M+1 Life and Web the target; no Web on a kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B17 troop:7314 true damage doubled on a Purple enemy, then Curse",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B17 weapon:1286 triple true damage on a Hunter's Marked enemy (checked before its own Mark)",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B17 troop:6900 true damage to the front enemy (x2 Purple); Mark + Bleed only Daemons/Beasts",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B17 troop:7252 kill roll only on an ALREADY Poisoned target (~50%); otherwise 3 Bleed then Poison",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B18 troop:6570 true damage, knock to last, Submerge self; no move on a kill",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B18 weapon:1445 two random TRUE hits (never the same enemy twice in a row), +4 per Tempering on both; Yellow Bless/Curse",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B18 troop:6882 50% second-last hit resolved BEFORE the last-enemy hit",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/gowLaneL5C.test.ts",
+      "fullName": "L5 sa-C round 9 B18 troop:6627 two true splashes (second prefers another centre); Submerge self + a random OTHER ally",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Red three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Green three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Blue three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Yellow three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Purple three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Brown three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental naturally reaches the exact cost, spends once and rejects an empty recast on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental honors every selected live slot and excludes dead slots without reselecting status riders on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental AI recognizes the source role and full-mana active and executes its legal target on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Red three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Green three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Blue three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Yellow three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Purple three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental routes a real Brown three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental naturally reaches the exact cost, spends once and rejects an empty recast on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental honors every selected live slot and excludes dead slots without reselecting status riders on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental AI recognizes the source role and full-mana active and executes its legal target on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6220 LavaElemental rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard executes source damage then every status at level 1 difficulty 1 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard executes source damage then every status at level 20 difficulty 1 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard executes source damage then every status at level 20 difficulty 1.5 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Red three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Green three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Blue three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Yellow three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Purple three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Brown three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard naturally reaches the exact cost, spends once and rejects an empty recast on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard honors every selected live slot and excludes dead slots without reselecting status riders on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard rolls back cancellation, friendly, stale and dead choices including chooser RNG on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard AI recognizes the source role and full-mana active and executes its legal target on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard executes source damage then every status at level 1 difficulty 1 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard executes source damage then every status at level 20 difficulty 1 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard executes source damage then every status at level 20 difficulty 1.5 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Red three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Green three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Blue three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Yellow three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Purple three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard routes a real Brown three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard naturally reaches the exact cost, spends once and rejects an empty recast on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard honors every selected live slot and excludes dead slots without reselecting status riders on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard rolls back cancellation, friendly, stale and dead choices including chooser RNG on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard AI recognizes the source role and full-mana active and executes its legal target on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 7131 VaultGuard rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Red three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Green three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Blue three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Yellow three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Purple three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Brown three-match only to associated source mana on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru naturally reaches the exact cost, spends once and rejects an empty recast on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru honors every selected live slot and excludes dead slots without reselecting status riders on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru AI recognizes the source role and full-mana active and executes its legal target on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 1 difficulty 1 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru executes source damage then every status at level 20 difficulty 1.5 on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Red three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Green three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Blue three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Yellow three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Purple three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru routes a real Brown three-match only to associated source mana on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru naturally reaches the exact cost, spends once and rejects an empty recast on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru honors every selected live slot and excludes dead slots without reselecting status riders on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru rolls back cancellation, friendly, stale and dead choices including chooser RNG on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru AI recognizes the source role and full-mana active and executes its legal target on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status damage 6788 Amaru rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile burning while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile faerie-fire while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source immunity accepts unrelated negative status and stun suppresses its trait on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source skull reduction acts on real incoming hits and leaves spell damage unchanged on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile burning while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile faerie-fire while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source immunity accepts unrelated negative status and stun suppresses its trait on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental source skull reduction acts on real incoming hits and leaves spell damage unchanged on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile poison while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile disease while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile lycanthropy while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile wolf while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile wolf-form while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile death-mark while an allied control accepts it on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity accepts unrelated negative status and stun suppresses its trait on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source skull reduction acts on real incoming hits and leaves spell damage unchanged on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile poison while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile disease while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile lycanthropy while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile wolf while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile wolf-form while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity blocks hostile death-mark while an allied control accepts it on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source immunity accepts unrelated negative status and stun suppresses its trait on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard source skull reduction acts on real incoming hits and leaves spell damage unchanged on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental composition its real Burn rider enables pyromania only on burning targets and stun disables the bonus on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6220 LavaElemental composition its real Burn rider enables pyromania only on burning targets and stun disables the bonus on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard context Undead Shield grants armor exactly once only to living allied Undead aliases on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 7131 VaultGuard context Undead Shield grants armor exactly once only to living allied Undead aliases on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6788 Amaru composition Curse then Stun lets the real Poison rider pass ordinary immunity while preserving source target order on Left",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6788 Amaru composition Fast opens at five mana and Arcane responds to allied and own casts before damage but excludes hostile casts on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6788 Amaru composition Curse then Stun lets the real Poison rider pass ordinary immunity while preserving source target order on Right",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+      "fullName": "ST status traits 6788 Amaru composition explicitly accounts for the original mode-only Bountyhunter omission without inventing a battle reward",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "特质库 · 数据自洽 code 唯一，且都能按 code 取回",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "特质库 · 数据自洽 减伤比例都在 0～1 之间，名称与描述非空",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 无特质得到中性修正",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 未知 code 安全忽略",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 同类减伤取最强，不连乘",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 免疫取并集，无坚不摧只编译为负面状态免疫",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 再生与狂暴同类累加",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 护甲再生与生命再生分开累计",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "被动编译 · resolvePassives 法力灵链按色累计，彩虹灵链对所有色生效",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "骷髅减伤特质 全副武装把 10 点骷髅伤害减到 8",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "骷髅减伤特质 铁壁铜墙减半",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "骷髅减伤特质 无特质不减免，且骷髅数不影响伤害",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "骷髅减伤特质 减伤后先扣护甲再扣血",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "法术减伤特质 法术铠甲把技能伤害减 25%",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "状态免疫特质 对应状态被拒绝，其它状态照常",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "状态免疫特质 无坚不摧只免疫负面状态，仍可获得正面状态",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "状态免疫特质 未编译被动的角色不免疫任何状态",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "受击 / 命中触发特质 狂暴：受到骷髅伤害后攻击力 +1",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "受击 / 命中触发特质 被纠缠时攻击落空，不触发狂暴",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "受击 / 命中触发特质 被冻结仍能造成骷髅伤害并触发受击狂暴；冻结限制额外回合而非攻击",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "受击 / 命中触发特质 毒液：造成骷髅伤害时让目标中毒，并产出 status-apply",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "受击 / 命中触发特质 毒液遇免疫目标：不施加也不报错",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "闪避与反弹特质 敏捷：判定命中时攻击落空，reason=dodge，且不触发受击/命中类特质",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "闪避与反弹特质 敏捷：判定未命中时正常受伤",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "闪避与反弹特质 不传随机源时闪避特质不生效（纯逻辑单测可省略 rng）",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "闪避与反弹特质 炼狱护甲把 25% 伤害反弹给攻击者",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "闪避与反弹特质 反弹按减伤后的实际伤害折算",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "闪避与反弹特质 反弹致死时产出攻击者的 defeat 事件",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始的棋盘写入特质 火生：回合开始把随机一格变成红色宝石，并产出 gem-transform",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始的棋盘写入特质 改完棋盘立即结算连锁：回合结束后盘面不留现成匹配",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始的棋盘写入特质 白骨堆：按概率把一颗紫色宝石转成骷髅头",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始的棋盘写入特质 无棋盘写入特质时不产出 gem-transform",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始的棋盘写入特质 只作用于即将行动的一方",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 龙族杀手对龙族造成双倍骷髅伤害，对其它种族不变",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 纵火狂只对燃烧目标翻倍",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 烈焰之恨按目标法力色判定",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 吸血鬼只对已受伤目标翻倍",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 多个屠戮条件同时命中时取最强，不相乘",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 倍率与目标减伤叠加：先放大再折算",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 穿透护甲命中时直接跳过护甲",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "屠戮倍率与穿透护甲 不传随机源时穿透护甲不生效",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 秘法：同队任一角色施法时全队 +1 法强，施法者自己也算盟友",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 铭刻 / 怨恨：敌人施法时获得护甲 / 攻击力",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 施法响应先于技能效果：铭刻加的护甲能吃掉同一次施法的伤害",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 施法响应产出 buff 事件，供卡面演出",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 吸收生命：敌人阵亡时 +4 生命；复仇者：盟友阵亡时 +3 攻击",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 庆功：敌人阵亡时获得法力，且不超过上限",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 庞然 / 修理：4 连时匹配方全队获得生命 / 护甲，对方不获得",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 食人魔之怒：匹配红色宝石时全队获得攻击力，匹配其它色不获得",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "施法 / 阵亡 / 4-5 连响应特质 三连不触发 4/5 连响应",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 再生每回合恢复 1 点，不超过上限",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 阵亡角色不再生",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 revered gives every ally two random skill points instead of always granting magic",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 诅咒给全体敌人 -2 法强，不影响自己一方",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 revered rolls two skill points while enemy accursed still subtracts magic",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 骑士族亲只给同队骑士 +2 生命，不影响其它种族与敌方骑士",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 之盾类族亲加护甲，双类型角色也吃得到",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 无种族的角色不吃族亲光环",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 水系之心按蓝色盟友数量叠加生命",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 法力灵链在匹配对应色时额外充能，且不挤占队友",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 灵链不会突破法力上限",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 快速 / 赐能在 TurnEngine 构造时结算开局法力",
+      "status": "passed"
+    },
+    {
+      "testFile": "tests/unit/traits.test.ts",
+      "fullName": "回合开始与战斗开始特质 TurnEngine 回合结束时结算再生（对即将行动方）",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 336,
+  "passedTests": 336,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

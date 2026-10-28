@@ -1,0 +1,310 @@
+{
+  "version": 1,
+  "enemyId": 7159,
+  "testFile": "tests/unit/stEnemyRandomTargetAcceptance.test.ts",
+  "testFiles": [
+    "tests/unit/stEnemyRandomTargetAcceptance.test.ts"
+  ],
+  "evidenceFiles": [
+    "data/raw/gow-2026-09-18/traits.en.json",
+    "data/raw/spells.gow.en.json",
+    "data/raw/troops.gow.en.json"
+  ],
+  "subjectDigest": "a04facfbc130803d75c77a4c6afd21610e7763d35d4d9f13078ca748542029a0",
+  "testDigest": "72c178f000e395f92a94eb0b22c4dbfdaf28c7477d8834a1de183ec5e486fe79",
+  "implementationDigest": "6280b458d68f1d2d32fca4050a698ff1e417a256557fd5735bccf9d98da1e932",
+  "portraitDigest": "da8d42c375facd6e4e972c589604d16f87e8348712937b238c2abbb84c9616db",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "7905082d43c3cebf23993215797119234f694fb21582e643d4400854cd46b34d",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source anchors complete native text, spell, three traits, growth and portrait bytes independently",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source binds source identity, rarity, role, aliases, full descriptions and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source executes independent scaled normal damage and own-cast traits at 1@1 on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source executes independent scaled normal damage and own-cast traits at 20@1 on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source executes independent scaled normal damage and own-cast traits at 20@1.5 on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source applies each opening affinity and color trait only to living allies on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Red matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Green matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Blue matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Yellow matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Purple matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Brown matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source naturally fills the source cost, spends once and rejects empty recast on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source rejects low mana, dead caster and wrong side without any mutation on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source selects only living opponents and needs no character chooser on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source covers all random targets, preserves one damage pool and restores deterministic JSON on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source executes independent scaled normal damage and own-cast traits at 1@1 on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source executes independent scaled normal damage and own-cast traits at 20@1 on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source executes independent scaled normal damage and own-cast traits at 20@1.5 on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source applies each opening affinity and color trait only to living allies on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Red matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Green matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Blue matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Yellow matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Purple matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source routes real Brown matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source naturally fills the source cost, spends once and rejects empty recast on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source rejects low mana, dead caster and wrong side without any mutation on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source selects only living opponents and needs no character chooser on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source covers all random targets, preserves one damage pool and restores deterministic JSON on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source rejects altered source mana, context, traits, scaling and skill during JSON reopen",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source keeps native Invigorated allied/self cast timing and suppression on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source keeps native Invigorated allied/self cast timing and suppression on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source keeps Stealthy chosen-target exclusion and last-target fallback on Left, companion=true",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source keeps Stealthy chosen-target exclusion and last-target fallback on Left, companion=false",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source keeps Stealthy chosen-target exclusion and last-target fallback on Right, companion=true",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7159 Kitsune: complete source keeps Stealthy chosen-target exclusion and last-target fallback on Right, companion=false",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source anchors complete native text, spell, three traits, growth and portrait bytes independently",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source binds source identity, rarity, role, aliases, full descriptions and every ordinary trait",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source executes independent scaled normal damage and own-cast traits at 1@1 on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source executes independent scaled normal damage and own-cast traits at 20@1 on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source executes independent scaled normal damage and own-cast traits at 20@1.5 on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source applies each opening affinity and color trait only to living allies on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Red matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Green matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Blue matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Yellow matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Purple matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Brown matches through native colors and cost on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source naturally fills the source cost, spends once and rejects empty recast on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source rejects low mana, dead caster and wrong side without any mutation on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source selects only living opponents and needs no character chooser on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source covers all random targets, preserves one damage pool and restores deterministic JSON on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source executes independent scaled normal damage and own-cast traits at 1@1 on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source executes independent scaled normal damage and own-cast traits at 20@1 on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source executes independent scaled normal damage and own-cast traits at 20@1.5 on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source applies each opening affinity and color trait only to living allies on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Red matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Green matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Blue matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Yellow matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Purple matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source routes real Brown matches through native colors and cost on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source naturally fills the source cost, spends once and rejects empty recast on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source rejects low mana, dead caster and wrong side without any mutation on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source selects only living opponents and needs no character chooser on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source covers all random targets, preserves one damage pool and restores deterministic JSON on Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source rejects altered source mana, context, traits, scaling and skill during JSON reopen",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source starts native Red storm for eight turns without changing the other team on Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random target 7335 MysteriousHero: complete source starts native Red storm for eight turns without changing the other team on Right",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 70,
+  "passedTests": 70,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

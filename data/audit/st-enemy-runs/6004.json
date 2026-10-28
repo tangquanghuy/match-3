@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "enemyId": 6004,
+  "testFile": "tests/unit/stEnemyMusketeerAcceptance.test.ts",
+  "subjectDigest": "933741749db63c492272a8dee8a6965add321a54fffb3c7ffe63f6eb5b45c5f3",
+  "testDigest": "bf5f1f4d4780e732761603ec073620bd81fd5b06474b800d4bf7c317d0c324bb",
+  "implementationDigest": "79da67dd2c620e270cffa4da8591ba125087bb18339c1a415fc0073af990ad1b",
+  "portraitDigest": "bc88dcd8f53947374a6218f2db29a2dcf1de05984ba25da942a0e40474cf6d83",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "46888cbbac0240496deb5a8592d3129929b1ce9646e447abdd26c4b2bd747324",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance binds its real portrait, role, six Red mana, complete active and three ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance scales level 1 and difficulty 1 before unscaled opening traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance scales level 20 and difficulty 1 before unscaled opening traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance scales level 20 and difficulty 1.5 before unscaled opening traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance applies Human Bond only to same-team humans, Fire Spirit counts same-team red including self, and Fast grants exactly half mana",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance counts multi-color allies once and excludes dead and opposing characters from opening aura benefits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance preserves the combined source mechanics and selected target on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance preserves the combined source mechanics and selected target on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects a cast at opening half mana without consuming mana, RNG, an action, or a turn",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance charges from a real Red three-match to six mana and spends it on exactly the chosen enemy",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance leaves the Red caster at half mana after a real non-Red three-match",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects cancelled, friendly, and stale target null before any committed cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects cancelled, friendly, and stale target 4 before any committed cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects cancelled, friendly, and stale target 999 before any committed cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects cancelled, friendly, and stale target null before any committed cast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects cancelled, friendly, and stale target 4 before any committed cast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance rejects cancelled, friendly, and stale target 999 before any committed cast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST enemy 6004 Musketeer: source-grounded behavior acceptance preserves configuration on JSON reopen and produces the same action events, board, and result under the same seed",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 18,
+  "passedTests": 18,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

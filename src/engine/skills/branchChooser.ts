@@ -1,3 +1,4 @@
+import { copyGowChoiceRule } from './gowChoiceRules';
 import type { SkillPrototype, ChooseSegment } from './prototypes';
 import type { GameState } from '../GameState';
 
@@ -25,5 +26,5 @@ export function selectSkillBranch(proto: SkillPrototype, index?: number | null):
   const segments = proto.segments.flatMap(s => s === choice ? choice.options[index!] : [s]);
   // This representation permits one top-level choice only; never silently execute nested choices.
   if (segments.some(s => s.kind === 'choose')) return null;
-  return { ...proto, segments };
+  return copyGowChoiceRule(proto, { ...proto, segments });
 }

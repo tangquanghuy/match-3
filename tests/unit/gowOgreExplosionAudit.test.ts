@@ -1,4 +1,4 @@
-﻿// Ogre 6000 / Boulder 7131: per-entity English, native and saved historical official source review.
+// Ogre 6000 / Boulder 7131: per-entity English, native and saved historical official source review.
 // @ts-expect-error Node fixture reader
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -15,7 +15,7 @@ import troops from '../../src/data/troops.json';
 const troop = troops.find(t=>t.id===6000)!;
 const en = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json','utf8')).troops.find((t:{id:number})=>t.id===6000);
 const native = indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells).get(7131).raw;
-const guide = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html','utf8');
+const guide = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html','utf8');
 const registry = new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 const spell = registry.prototypes.get('7131')!;
 function cast(gem:GemType,side=PlayerSide.Left) {
@@ -35,7 +35,7 @@ describe('Ogre 6000 / Boulder 7131 source and battle review',()=>{
   it('saved English, native and historical official source agree on an unrestricted random Gem; cost/colour/display align',()=>{
     const section=guide.slice(guide.indexOf('<h2>Ogre</h2>'),guide.indexOf('<h2>Orc</h2>'));
     expect(section).toContain('Boulder</big></b>  (Cost:6');
-    const patch = JSON.parse(fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-4-0-patch-notes.json','utf8'));
+    const patch = JSON.parse(fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-4-0-patch-notes.json','utf8'));
     expect(patch.posts[0].username).toBe('Sirrian');
     expect(patch.posts[0].cooked).toContain('Mana gain from Explosions has been reduced from 70% to 50%');
     expect(patch.posts[0].cooked).toContain('Mana gain from any gem cascade after an explosion will still get 100%');

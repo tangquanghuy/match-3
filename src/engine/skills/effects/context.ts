@@ -212,7 +212,7 @@ export interface EffectContext {
    * 召唤物 referenceName → 属性模板 的映射器（需求 7）：由装配层注入（来自 troops 数据）。
    * 召唤段 ref/randomOf 来源用它解析属性；缺省时该来源安全跳过。
    */
-  resolveSummonRef?: (referenceName: string) => import('./summon').SummonTemplate | null;
+  resolveSummonRef?: (referenceName: string, source?: Character) => import('./summon').SummonTemplate | null;
   /**
    * 王国 → 该王国兵种 referenceName 清单 的映射器（武器原语批 K-E，「召唤一名来自X王国的
    * 随机部队」）：由装配层注入（来自 troops.json kingdom 字段）。召唤段 randomOfKingdom

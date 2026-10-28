@@ -1,4 +1,4 @@
-﻿// Independent expectations from official 4.5 patch notes, Sirrian, 2019-08-28.
+// Independent expectations from official 4.5 patch notes, Sirrian, 2019-08-28.
 // This shared-rule suite is not whole-skill acceptance.
 // @ts-expect-error Node fixture
 import fs from 'node:fs';
@@ -10,7 +10,7 @@ import { damageEffect } from '@engine/skills/effects/damage';
 import { reflectDamageAmount, hasStatus } from '@engine/skills/effects/status';
 import { damageFixture } from '../helpers/damageFixture';
 
-const notes = JSON.parse(fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-reflect-4-5.json', 'utf8'));
+const notes = JSON.parse(fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-reflect-4-5.json', 'utf8'));
 const original = notes.post_stream.posts.find((p: { post_number: number }) => p.post_number === 1);
 const cases = [[1, 1], [3, 1], [5, 2], [13, 6], [15, 7], [16, 8]] as const;
 describe('Official 4.5 Reflect rule: independent floor, minimum, damage source and resistance audit', () => {
@@ -75,7 +75,7 @@ describe('Official 4.5 Reflect rule: independent floor, minimum, damage source a
 
 describe('Reflect damage participates in Barrier protection, but never recursively reflects', () => {
   it('preserves the official general Barrier protection rule used for the reflected recipient', () => {
-    const statusPage = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html', 'utf8');
+    const statusPage = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-status-effects.html', 'utf8');
     expect(statusPage).toContain('Protects from one instance or turn of damage (including Spells and Skulls)');
   });
   for (const side of [PlayerSide.Left, PlayerSide.Right]) {

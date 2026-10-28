@@ -156,6 +156,7 @@ export class CombatResolver {
     const absorbed = piercing ? 0 : Math.min(target.armor, damage);
     target.armor -= absorbed;
     const hpDamage = damage - absorbed;
+    const hpBeforeHit = target.hp;
     target.hp = Math.max(0, target.hp - hpDamage);
 
     events.push({
@@ -163,6 +164,7 @@ export class CombatResolver {
       attackerId: attacker.id,
       targetId: target.id,
       damage,
+      hpLoss: hpBeforeHit - target.hp,
       resultingHp: target.hp,
       resultingArmor: target.armor,
       ...(!enraged && damage < Math.round(raw)
@@ -279,12 +281,14 @@ export class CombatResolver {
       if (reflected > 0 && !attacker.defeated) {
         const takenByArmor = Math.min(attacker.armor, reflected);
         attacker.armor -= takenByArmor;
+        const hpBeforeReflect = attacker.hp;
         attacker.hp = Math.max(0, attacker.hp - (reflected - takenByArmor));
         events.push({
           type: 'skull-damage',
           attackerId: target.id,
           targetId: attacker.id,
           damage: reflected,
+          hpLoss: hpBeforeReflect - attacker.hp,
           resultingHp: attacker.hp,
           resultingArmor: attacker.armor,
           reflected: true,

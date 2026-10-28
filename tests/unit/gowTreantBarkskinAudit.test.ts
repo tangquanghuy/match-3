@@ -15,7 +15,7 @@ import troops from '../../src/data/troops.json';
 const troop = troops.find(t => t.id === 6027)!;
 const en = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops.find((t: {id:number}) => t.id === 6027);
 const native = indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json', 'utf8')).spells).get(7027).raw;
-const guide = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html', 'utf8');
+const guide = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html', 'utf8');
 const registry = new ExtensionRegistry(); registerSkillLibrary(registry.prototypes);
 const boost = { mod: { kind: 'ratio', a: 4, b: 1 }, source: { kind: 'destroyedGems', color: BaseColor.Brown } };
 

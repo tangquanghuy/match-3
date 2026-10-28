@@ -1,4 +1,4 @@
-﻿// Acolyte 6009 / Unearth Secrets 7009: scoped source and real-cast checks, NOT whole acceptance.
+// Acolyte 6009 / Unearth Secrets 7009: scoped source and real-cast checks, NOT whole acceptance.
 // @ts-expect-error Node fixture
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -16,7 +16,7 @@ import troops from '../../src/data/troops.json';
 const troop = troops.find(t => t.id === 6009)!;
 const en = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops.find((t: {id:number}) => t.id === 6009);
 const native = indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells).get(7009).raw;
-const guide = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html', 'utf8');
+const guide = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html', 'utf8');
 const registry = new ExtensionRegistry(); registerSkillLibrary(registry.prototypes);
 
 describe('Acolyte 6009 / 7009 scoped original-source checks', () => {

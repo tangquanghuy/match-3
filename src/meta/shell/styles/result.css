@@ -151,6 +151,10 @@
 .rs-summary-content .rs-banner { overflow-x: clip; overflow-y: visible; }
 .rs-summary-content:focus-visible { outline: 1px solid #b89854; outline-offset: -2px; }
 .rs-summary-content .rs-strip { margin-top: auto; }
+/* Committed receipts can contain a single reward and no source subtitle. */
+.result-screen[data-result-mode="committed"] .rs-summary-content .rs-strip {
+  margin-top: clamp(12px, 2.6cqh, 28px);
+}
 .rs-summary > .rs-footer { flex: 0 0 auto; box-sizing: border-box; }
 .rs-scroll-more {
   flex: 0 0 28px;
@@ -307,6 +311,18 @@
   text-shadow: 0 2px 3px #000;
   white-space: nowrap;
 }
+/* Long receipt names must fit even when the many-rewards grid is not active. */
+.result-screen[data-result-mode="committed"] .rs-reward p {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.result-screen[data-result-mode="committed"] .rs-reward p span {
+  min-width: 0;
+  max-width: 100%;
+  text-wrap: balance;
+}
 .rs-reward strong { font-weight: 700; font-variant-numeric: tabular-nums; }
 .rs-level {
   position: relative;
@@ -355,6 +371,9 @@
   white-space: nowrap;
   animation: rs-bob 1.4s ease-in-out infinite;
 }
+
+/* Shared with shadow-hosted results, which do not load the shell button reset. */
+.result-screen button:disabled { cursor: not-allowed; opacity: .42; }
 
 /* 底部按钮带 */
 .rs-footer {
@@ -892,11 +911,15 @@
 /* ------------------------------------------------------------ 减弱动效 --- */
 html[data-motion="reduced"] .result-screen *,
 html[data-motion="reduced"] .result-screen *::before,
-html[data-motion="reduced"] .result-screen *::after {
+html[data-motion="reduced"] .result-screen *::after,
+.stage[data-motion="reduced"] .result-screen *,
+.stage[data-motion="reduced"] .result-screen *::before,
+.stage[data-motion="reduced"] .result-screen *::after {
   animation: none !important;
   transition: none !important;
 }
-html[data-motion="reduced"] .rs-particles { display: none; }
+html[data-motion="reduced"] .rs-particles,
+.stage[data-motion="reduced"] .rs-particles { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .result-screen *,
   .result-screen *::before,

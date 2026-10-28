@@ -570,7 +570,7 @@ export function conditionMet(
       const side = cond.side === 'enemy'
         ? mySide === PlayerSide.Left ? PlayerSide.Right : PlayerSide.Left
         : mySide;
-      return ctx.state.teams[side].characters.some((c) => !c.defeated && c.name === cond.name);
+      return ctx.state.teams[side].characters.some((c) => !c.defeated && (c.mechanicalIdentity ?? c.name) === cond.name);
     }
     case 'anyOf':
       return cond.of.some((c) => conditionMet(c, ctx, target));
@@ -878,7 +878,7 @@ export function resolveModifierCount(source: ModifierSource, ctx: EffectContext)
       // P-R5-named-ally-count: native CountArmyTroop — one per matching ally, not a boolean like troopPresent
     {
       const names = Array.isArray(source.name) ? source.name : [source.name];
-      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => names.includes(c.name)).length;
+      return armyUnits(ctx, 'ally', source.atCastStart).filter((c) => names.includes(c.mechanicalIdentity ?? c.name)).length;
     }
     case 'enemiesOfKingdom':
       // 敌方该王国存活计数（Wave4 批，与 enemiesOfColor 同构）

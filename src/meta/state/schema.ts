@@ -1,7 +1,7 @@
 import { freshRegionalState, type RegionalState, type RegionalBattleContext } from './regional';
 import { emptyGachaWishlist, type GachaWishlist, type GachaAudit } from '../data/gachaRules';
 /**
- * Meta 层存档 schema（v2）——对齐 META-GAME-PLAN.md §3.3 草案。
+ * Meta 层存档 schema（v2）——对齐 docs/archive/meta-game-plan-2026-09.md §3.3 草案。
  *
  * 本文件只有类型与默认值工厂：禁 DOM、禁引擎/会话依赖（方向：meta → data 单向）。
  * 字段语义要点：

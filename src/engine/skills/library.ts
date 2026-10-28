@@ -2,7 +2,7 @@ import { SOURCE_TROOPS } from '../../data/troops';
 import { TEMPORARY_AOE_MANA_TIERS, temporaryAoeMultiplier } from '../../data/temporaryAoeMultipliers';
 import { applyGowLifeRule } from './gowLifeRules';
 import { applyGowDamageRule } from './gowDamageRules';
-import { applyGowChoiceRule } from './gowChoiceRules';
+import { applyGowChoiceRule, copyGowChoiceRule } from './gowChoiceRules';
 import { applyGowRemoveRule } from './gowRemoveRules';
 /**
  * 技能库（窗口 B · 组装器消费端）。
@@ -84,7 +84,7 @@ for (const troop of SOURCE_TROOPS) {
     if (!damage[0].rangeSpec || damage[0].scaling.base !== 2) throw new Error('Lucifer random interval mismatch');
     delete damage[0].rangeSpec;
   }
-  SKILL_LIBRARY[id] = next;
+  SKILL_LIBRARY[id] = copyGowChoiceRule(proto, next);
 }
 
 /** 核对后放弃的条目（覆盖率报告用） */

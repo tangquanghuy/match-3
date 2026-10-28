@@ -1,0 +1,3407 @@
+{
+  "version": 1,
+  "provenance": "Frozen directly from troops.json, traits.json, portrait and progression source files; active segments transcribed from named curated builders and life rules. No compiler output is used to derive expectations.",
+  "affinities": {
+    "Beast": "affinity:1",
+    "Boss": "affinity:2",
+    "Castle": "affinity:3",
+    "Centaur": "affinity:4",
+    "Construct": "affinity:5",
+    "Daemon": "affinity:6",
+    "Divine": "affinity:7",
+    "Doom": "affinity:8",
+    "Dragon": "affinity:9",
+    "Dwarf": "affinity:10",
+    "Elemental": "affinity:11",
+    "Elf": "affinity:12",
+    "Fey": "affinity:13",
+    "Giant": "affinity:14",
+    "Gnome": "affinity:15",
+    "Goblin": "affinity:16",
+    "Human": "affinity:17",
+    "Immortal": "affinity:18",
+    "Knight": "affinity:19",
+    "Mech": "affinity:20",
+    "Merfolk": "affinity:21",
+    "Monster": "affinity:22",
+    "Mystic": "affinity:23",
+    "Naga": "affinity:24",
+    "Orc": "affinity:25",
+    "OtherworldVisitor": "affinity:26",
+    "Raksha": "affinity:27",
+    "Rogue": "affinity:28",
+    "Stryx": "affinity:29",
+    "Tauros": "affinity:30",
+    "Undead": "affinity:31",
+    "Urska": "affinity:32",
+    "Wargare": "affinity:33",
+    "Wildfolk": "affinity:34"
+  },
+  "enemies": [
+    {
+      "enemyId": 6028,
+      "referenceName": "Priestess",
+      "sourceTroop": {
+        "id": 6028,
+        "name": "女祭司",
+        "referenceName": "Priestess",
+        "rarity": "Common",
+        "rarityIdx": 0,
+        "kingdom": "白盔国",
+        "kingdomId": 3014,
+        "troopTypes": [
+          "Divine",
+          "Human"
+        ],
+        "role": "Support",
+        "attack": 9,
+        "armor": 10,
+        "health": 21,
+        "magic": 12,
+        "base": {
+          "attack": 1,
+          "armor": 1,
+          "health": 4,
+          "magic": 1
+        },
+        "manaColors": [
+          "Yellow"
+        ],
+        "manaCost": 9,
+        "spell": {
+          "id": 7028,
+          "name": "佑护之力",
+          "description": "净化一名盟友，并为他提供 [魔法 + 1] 点护甲值和屏障效果。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "净化一名盟友，并为他提供 [魔法 + 1] 点护甲值和屏障效果。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "divinebond",
+            "name": "神祇族亲",
+            "description": "神祇盟友获得 2 点生命值。"
+          },
+          {
+            "code": "revered",
+            "name": "崇敬",
+            "description": "所有盟友获得 2 点随机技能值。"
+          },
+          {
+            "code": "regeneration",
+            "name": "再生",
+            "description": "在每回合开始时恢复 1 点生命值。"
+          }
+        ],
+        "portrait": "Troop_K07_00"
+      },
+      "sourceTraits": [
+        {
+          "code": "divinebond",
+          "name": "神祇族亲",
+          "description": "神祇盟友获得 2 点生命值。",
+          "troops": 19,
+          "typeAura": {
+            "troopType": "Divine",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。",
+          "troops": 103,
+          "teamAura": {
+            "scope": "allies",
+            "stat": "random",
+            "amount": 2
+          }
+        },
+        {
+          "code": "regeneration",
+          "name": "再生",
+          "description": "在每回合开始时恢复 1 点生命值。",
+          "troops": 45,
+          "regen": {
+            "stat": "hp",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K07_00",
+        "troopId": 6028,
+        "manaColors": [
+          "Yellow"
+        ],
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K07_00.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "223c539b8c0b469824bdf1192934e16fc478bbfb8865d592892e71a654d2fba5"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 4,
+          "armor": 1,
+          "attack": 1,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 21,
+          "armor": 10,
+          "attack": 9,
+          "magic": 12
+        },
+        "20@1.5": {
+          "hp": 32,
+          "armor": 15,
+          "attack": 14,
+          "magic": 18
+        },
+        "40@1": {
+          "hp": 34,
+          "armor": 20,
+          "attack": 13,
+          "magic": 14
+        }
+      },
+      "segments": [
+        {
+          "kind": "cleanse",
+          "target": "allyChosen"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "armor",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          }
+        },
+        {
+          "kind": "status",
+          "target": "allyChosen",
+          "statusId": "barrier",
+          "turns": 3
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6028",
+        "src/data/traits.json#divinebond",
+        "src/data/traits.json#revered",
+        "src/data/traits.json#regeneration",
+        "src/engine/skills/curated/batch-01.ts#7028",
+        "src/data/troop-progression.json#6028",
+        "src/sillytavern/data/portraits.json#6028",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6081,
+      "referenceName": "Luther",
+      "sourceTroop": {
+        "id": 6081,
+        "name": "卢瑟",
+        "referenceName": "Luther",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "破碎尖塔",
+        "kingdomId": 3000,
+        "troopTypes": [
+          "Human",
+          "Knight"
+        ],
+        "role": "Support",
+        "attack": 13,
+        "armor": 17,
+        "health": 26,
+        "magic": 6,
+        "base": {
+          "attack": 3,
+          "armor": 3,
+          "health": 6,
+          "magic": 1
+        },
+        "manaColors": [
+          "Blue",
+          "Brown"
+        ],
+        "manaCost": 11,
+        "spell": {
+          "id": 7151,
+          "name": "战斗号召",
+          "description": "为所有盟友提供 [魔法 + 2] 点攻击力。再赋予首位盟友屏障效果。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 2,
+                "mult": 1
+              }
+            ],
+            "raw": "为所有盟友提供 [魔法 + 2] 点攻击力。再赋予首位盟友屏障效果。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "knightbond",
+            "name": "骑士族亲",
+            "description": "骑士盟友获得 2 点生命值。"
+          },
+          {
+            "code": "fireproof",
+            "name": "防火",
+            "description": "对燃烧和妖火状态效果免疫。"
+          },
+          {
+            "code": "armored",
+            "name": "全副武装",
+            "description": "降低来自骷髅头的伤害 25%。"
+          }
+        ],
+        "portrait": "Troop_Quest_K00"
+      },
+      "sourceTraits": [
+        {
+          "code": "knightbond",
+          "name": "骑士族亲",
+          "description": "骑士盟友获得 2 点生命值。",
+          "troops": 16,
+          "typeAura": {
+            "troopType": "Knight",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "fireproof",
+          "name": "防火",
+          "description": "对燃烧和妖火状态效果免疫。",
+          "troops": 95,
+          "statusImmunities": [
+            "burning",
+            "faerie-fire"
+          ]
+        },
+        {
+          "code": "armored",
+          "name": "全副武装",
+          "description": "降低来自骷髅头的伤害 25%。",
+          "troops": 203,
+          "skullDamageReduction": 0.25
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K00",
+        "troopId": 6081,
+        "manaColors": [
+          "Blue",
+          "Brown"
+        ],
+        "rank": "首领",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_Quest_K00.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "f962ad0a952e040ccbedfe08be98dcfddc3c600c6cea6099c24dce88455015c1"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 6,
+          "armor": 3,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 26,
+          "armor": 17,
+          "attack": 13,
+          "magic": 6
+        },
+        "20@1.5": {
+          "hp": 39,
+          "armor": 26,
+          "attack": 20,
+          "magic": 9
+        },
+        "40@1": {
+          "hp": 39,
+          "armor": 27,
+          "attack": 17,
+          "magic": 8
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyAll",
+          "stat": "attack",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          }
+        },
+        {
+          "kind": "status",
+          "target": "allyFront",
+          "statusId": "barrier",
+          "turns": 3
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6081",
+        "src/data/traits.json#knightbond",
+        "src/data/traits.json#fireproof",
+        "src/data/traits.json#armored",
+        "src/engine/skills/curated/batch-02.ts#7151",
+        "src/data/troop-progression.json#6081",
+        "src/sillytavern/data/portraits.json#6081",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6082,
+      "referenceName": "Sparkgrinder",
+      "sourceTroop": {
+        "id": 6082,
+        "name": "斯帕克格林德",
+        "referenceName": "Sparkgrinder",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "阿达纳",
+        "kingdomId": 3001,
+        "troopTypes": [
+          "Dwarf"
+        ],
+        "role": "Support",
+        "attack": 11,
+        "armor": 24,
+        "health": 22,
+        "magic": 6,
+        "base": {
+          "attack": 2,
+          "armor": 4,
+          "health": 7,
+          "magic": 1
+        },
+        "manaColors": [
+          "Red",
+          "Yellow"
+        ],
+        "manaCost": 12,
+        "spell": {
+          "id": 7152,
+          "name": "升级",
+          "description": "给予一名盟友 [魔法 + 3] 点攻击力和护甲值。如果盟友是一名机械军队，则效果翻倍。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 3,
+                "mult": 1
+              }
+            ],
+            "raw": "给予一名盟友 [魔法 + 3] 点攻击力和护甲值。如果盟友是一名机械军队，则效果翻倍。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "elementalslayer",
+            "name": "元素杀手",
+            "description": "对元素军队造成双倍骷髅头伤害。"
+          },
+          {
+            "code": "mechbond",
+            "name": "机械族亲",
+            "description": "机械盟友获得 2 点生命值。"
+          },
+          {
+            "code": "fortitude",
+            "name": "坚韧",
+            "description": "对击晕、中毒、疾病、死亡标记、狼化和吞噬免疫"
+          }
+        ],
+        "portrait": "Troop_Quest_K01"
+      },
+      "sourceTraits": [
+        {
+          "code": "elementalslayer",
+          "name": "元素杀手",
+          "description": "对元素军队造成双倍骷髅头伤害。",
+          "troops": 3,
+          "skullMultVsTroopType": {
+            "troopType": "Elemental",
+            "mult": 2
+          }
+        },
+        {
+          "code": "mechbond",
+          "name": "机械族亲",
+          "description": "机械盟友获得 2 点生命值。",
+          "troops": 10,
+          "typeAura": {
+            "troopType": "Mech",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "fortitude",
+          "name": "坚韧",
+          "description": "对击晕、中毒、疾病、死亡标记、狼化和吞噬免疫",
+          "troops": 43,
+          "statusImmunities": [
+            "poison",
+            "stun",
+            "death-mark",
+            "disease",
+            "wolf",
+            "wolf-form",
+            "lycanthropy"
+          ],
+          "devourImmunity": true
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K01",
+        "troopId": 6082,
+        "manaColors": [
+          "Red",
+          "Yellow"
+        ],
+        "rank": "首领",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_Quest_K01.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "69bb62ab4f28d69f902c8a5e94c324fae35f50122f47b6eeba2b34faec5991bb"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 7,
+          "armor": 4,
+          "attack": 2,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 22,
+          "armor": 24,
+          "attack": 11,
+          "magic": 6
+        },
+        "20@1.5": {
+          "hp": 33,
+          "armor": 36,
+          "attack": 17,
+          "magic": 9
+        },
+        "40@1": {
+          "hp": 35,
+          "armor": 34,
+          "attack": 15,
+          "magic": 8
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "attack",
+          "scaling": {
+            "base": 3,
+            "mult": 1
+          },
+          "raceDouble": "Mech"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "armor",
+          "scaling": {
+            "base": 3,
+            "mult": 1
+          },
+          "raceDouble": "Mech"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6082",
+        "src/data/traits.json#elementalslayer",
+        "src/data/traits.json#mechbond",
+        "src/data/traits.json#fortitude",
+        "src/engine/skills/curated/batch-05.ts#7152",
+        "src/data/troop-progression.json#6082",
+        "src/sillytavern/data/portraits.json#6082",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6142,
+      "referenceName": "Sunweaver",
+      "sourceTroop": {
+        "id": 6142,
+        "name": "织日者",
+        "referenceName": "Sunweaver",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "狂野平原",
+        "kingdomId": 3027,
+        "troopTypes": [
+          "Undead",
+          "Tauros"
+        ],
+        "role": "Support",
+        "attack": 15,
+        "armor": 15,
+        "health": 24,
+        "magic": 6,
+        "base": {
+          "attack": 4,
+          "armor": 2,
+          "health": 5,
+          "magic": 1
+        },
+        "manaColors": [
+          "Blue",
+          "Yellow"
+        ],
+        "manaCost": 12,
+        "spell": {
+          "id": 7256,
+          "name": "远古荣耀",
+          "description": "为一名盟友增加 [魔法 + 2] 点攻击力、护甲值和生命值。盟友同时获得 6 点法力值。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 2,
+                "mult": 1
+              }
+            ],
+            "raw": "为一名盟友增加 [魔法 + 2] 点攻击力、护甲值和生命值。盟友同时获得 6 点法力值。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "monsterslayer",
+            "name": "怪物杀手",
+            "description": "对怪物军队造成双倍骷髅头伤害。"
+          },
+          {
+            "code": "undying",
+            "name": "不死不灭",
+            "description": "对中毒、疾病、狼化和死亡标记免疫"
+          },
+          {
+            "code": "waterspirit",
+            "name": "水系之灵",
+            "description": "每有一名蓝色盟友则获得 1 点魔力值。"
+          }
+        ],
+        "portrait": "Troop_Quest_K18"
+      },
+      "sourceTraits": [
+        {
+          "code": "monsterslayer",
+          "name": "怪物杀手",
+          "description": "对怪物军队造成双倍骷髅头伤害。",
+          "troops": 6,
+          "skullMultVsTroopType": {
+            "troopType": "Monster",
+            "mult": 2
+          }
+        },
+        {
+          "code": "undying",
+          "name": "不死不灭",
+          "description": "对中毒、疾病、狼化和死亡标记免疫",
+          "troops": 150,
+          "statusImmunities": [
+            "poison",
+            "death-mark",
+            "disease",
+            "wolf",
+            "wolf-form",
+            "lycanthropy"
+          ]
+        },
+        {
+          "code": "waterspirit",
+          "name": "水系之灵",
+          "description": "每有一名蓝色盟友则获得 1 点魔力值。",
+          "troops": 19,
+          "perAllyColor": {
+            "color": "Blue",
+            "stat": "magic",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K18",
+        "troopId": 6142,
+        "manaColors": [
+          "Blue",
+          "Yellow"
+        ],
+        "rank": "首领",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_Quest_K18.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "7eb05a59f1c01891789429939af1711944442495ea8ea1cdb32299851eaea26d"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 5,
+          "armor": 2,
+          "attack": 4,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 24,
+          "armor": 15,
+          "attack": 15,
+          "magic": 6
+        },
+        "20@1.5": {
+          "hp": 36,
+          "armor": 23,
+          "attack": 23,
+          "magic": 9
+        },
+        "40@1": {
+          "hp": 37,
+          "armor": 25,
+          "attack": 19,
+          "magic": 8
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "attack",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          }
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "armor",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          }
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          },
+          "lifeMode": "gain"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "mana",
+          "scaling": {
+            "base": 6,
+            "mult": 0
+          }
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6142",
+        "src/data/traits.json#monsterslayer",
+        "src/data/traits.json#undying",
+        "src/data/traits.json#waterspirit",
+        "src/engine/skills/curated/batch-05.ts#7256",
+        "src/data/troop-progression.json#6142",
+        "src/sillytavern/data/portraits.json#6142",
+        "src/data/gowLifeRules.json#7256",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6162,
+      "referenceName": "Fenrir",
+      "sourceTroop": {
+        "id": 6162,
+        "name": "费尼尔",
+        "referenceName": "Fenrir",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "毛格瑞姆森林",
+        "kingdomId": 3008,
+        "troopTypes": [
+          "Wargare",
+          "Beast"
+        ],
+        "role": "Support",
+        "attack": 15,
+        "armor": 11,
+        "health": 28,
+        "magic": 4,
+        "base": {
+          "attack": 3,
+          "armor": 2,
+          "health": 7,
+          "magic": 1
+        },
+        "manaColors": [
+          "Blue",
+          "Green"
+        ],
+        "manaCost": 12,
+        "spell": {
+          "id": 7288,
+          "name": "狼群召唤",
+          "description": "给予一名盟友 [魔法 + 2] 点攻击力和生命值。如果盟友是一名野兽军队，则效果翻倍。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 2,
+                "mult": 1
+              }
+            ],
+            "raw": "给予一名盟友 [魔法 + 2] 点攻击力和生命值。如果盟友是一名野兽军队，则效果翻倍。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "beastbond",
+            "name": "野兽族亲",
+            "description": "野兽盟友获得 2 点生命值。"
+          },
+          {
+            "code": "leader",
+            "name": "领袖",
+            "description": "当军队位于首位时，全部技能值将增加 3 点。"
+          },
+          {
+            "code": "naturespirit",
+            "name": "自然之灵",
+            "description": "每有一名绿色盟友则获得 1 点魔力值。"
+          }
+        ],
+        "portrait": "Troop_K16_05"
+      },
+      "sourceTraits": [
+        {
+          "code": "beastbond",
+          "name": "野兽族亲",
+          "description": "野兽盟友获得 2 点生命值。",
+          "troops": 45,
+          "typeAura": {
+            "troopType": "Beast",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "leader",
+          "name": "领袖",
+          "description": "当军队位于首位时，全部技能值将增加 3 点。",
+          "troops": 15,
+          "positionAura": {
+            "position": "front",
+            "gains": {
+              "hp": 3,
+              "armor": 3,
+              "attack": 3,
+              "magic": 3
+            }
+          }
+        },
+        {
+          "code": "naturespirit",
+          "name": "自然之灵",
+          "description": "每有一名绿色盟友则获得 1 点魔力值。",
+          "troops": 14,
+          "perAllyColor": {
+            "color": "Green",
+            "stat": "magic",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K16_05",
+        "troopId": 6162,
+        "manaColors": [
+          "Blue",
+          "Green"
+        ],
+        "rank": "首领",
+        "form": "野兽",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K16_05.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "85e925431d816831766125d05dc37f3ac23b27e9f55dc1f96b6d4c37bd20dffc"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 7,
+          "armor": 2,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 28,
+          "armor": 11,
+          "attack": 15,
+          "magic": 4
+        },
+        "20@1.5": {
+          "hp": 42,
+          "armor": 17,
+          "attack": 23,
+          "magic": 6
+        },
+        "40@1": {
+          "hp": 41,
+          "armor": 21,
+          "attack": 19,
+          "magic": 6
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "attack",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          },
+          "raceDouble": "Beast"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 2,
+            "mult": 1
+          },
+          "raceDouble": "Beast",
+          "lifeMode": "gain"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6162",
+        "src/data/traits.json#beastbond",
+        "src/data/traits.json#leader",
+        "src/data/traits.json#naturespirit",
+        "src/engine/skills/curated/batch-05.ts#7288",
+        "src/data/troop-progression.json#6162",
+        "src/sillytavern/data/portraits.json#6162",
+        "src/data/gowLifeRules.json#7288",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6193,
+      "referenceName": "Runesmith",
+      "sourceTroop": {
+        "id": 6193,
+        "name": "符文铁匠",
+        "referenceName": "Runesmith",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "卡其尔",
+        "kingdomId": 3012,
+        "troopTypes": [
+          "Dwarf",
+          "Mystic"
+        ],
+        "role": "Support",
+        "attack": 12,
+        "armor": 10,
+        "health": 27,
+        "magic": 4,
+        "base": {
+          "attack": 3,
+          "armor": 0,
+          "health": 7,
+          "magic": 1
+        },
+        "manaColors": [
+          "Red",
+          "Purple"
+        ],
+        "manaCost": 10,
+        "spell": {
+          "id": 7334,
+          "name": "熔炉之火",
+          "description": "给予一名盟友 [魔法 + 1] 点攻击力和护甲值，点数因红色宝石数量而增强。 [3:1]",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "给予一名盟友 [魔法 + 1] 点攻击力和护甲值，点数因红色宝石数量而增强。 [3:1]",
+            "parsed": true,
+            "modifier": {
+              "kind": "ratio",
+              "a": 3,
+              "b": 1
+            }
+          }
+        },
+        "traits": [
+          {
+            "code": "dwarfbond",
+            "name": "矮人族亲",
+            "description": "矮人盟友获得 2 点生命值。"
+          },
+          {
+            "code": "fortitude",
+            "name": "坚韧",
+            "description": "对击晕、中毒、疾病、死亡标记、狼化和吞噬免疫"
+          },
+          {
+            "code": "firelink",
+            "name": "火焰灵链",
+            "description": "在配对红色宝石时获得额外的红色法力值。"
+          }
+        ],
+        "portrait": "Troop_K10_06"
+      },
+      "sourceTraits": [
+        {
+          "code": "dwarfbond",
+          "name": "矮人族亲",
+          "description": "矮人盟友获得 2 点生命值。",
+          "troops": 9,
+          "typeAura": {
+            "troopType": "Dwarf",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "fortitude",
+          "name": "坚韧",
+          "description": "对击晕、中毒、疾病、死亡标记、狼化和吞噬免疫",
+          "troops": 43,
+          "statusImmunities": [
+            "poison",
+            "stun",
+            "death-mark",
+            "disease",
+            "wolf",
+            "wolf-form",
+            "lycanthropy"
+          ],
+          "devourImmunity": true
+        },
+        {
+          "code": "firelink",
+          "name": "火焰灵链",
+          "description": "在配对红色宝石时获得额外的红色法力值。",
+          "troops": 30,
+          "manaLink": {
+            "color": "Red",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K10_06",
+        "troopId": 6193,
+        "manaColors": [
+          "Red",
+          "Purple"
+        ],
+        "rank": "精锐",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K10_06.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "891fa1faadb3db2d6de375dde5eb3e14f0e33744d727e6f8d14adec29b07ba17"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 7,
+          "armor": 0,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 27,
+          "armor": 10,
+          "attack": 12,
+          "magic": 4
+        },
+        "20@1.5": {
+          "hp": 41,
+          "armor": 15,
+          "attack": 18,
+          "magic": 6
+        },
+        "40@1": {
+          "hp": 40,
+          "armor": 20,
+          "attack": 16,
+          "magic": 6
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "attack",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          },
+          "modifier": {
+            "mod": {
+              "kind": "ratio",
+              "a": 3,
+              "b": 1
+            },
+            "source": {
+              "kind": "boardGems",
+              "color": "Red"
+            }
+          }
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "armor",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          },
+          "modifier": {
+            "mod": {
+              "kind": "ratio",
+              "a": 3,
+              "b": 1
+            },
+            "source": {
+              "kind": "boardGems",
+              "color": "Red"
+            }
+          }
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6193",
+        "src/data/traits.json#dwarfbond",
+        "src/data/traits.json#fortitude",
+        "src/data/traits.json#firelink",
+        "src/engine/skills/curated/batch-05.ts#7334",
+        "src/data/troop-progression.json#6193",
+        "src/sillytavern/data/portraits.json#6193",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6258,
+      "referenceName": "Innkeeper",
+      "sourceTroop": {
+        "id": 6258,
+        "name": "旅店老板",
+        "referenceName": "Innkeeper",
+        "rarity": "Common",
+        "rarityIdx": 0,
+        "kingdom": "剑锋崖",
+        "kingdomId": 3006,
+        "troopTypes": [
+          "Human"
+        ],
+        "role": "Support",
+        "attack": 10,
+        "armor": 5,
+        "health": 22,
+        "magic": 4,
+        "base": {
+          "attack": 2,
+          "armor": 0,
+          "health": 5,
+          "magic": 1
+        },
+        "manaColors": [
+          "Yellow"
+        ],
+        "manaCost": 9,
+        "spell": {
+          "id": 7401,
+          "name": "店家请客",
+          "description": "给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔力值。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "给予其他盟友 [魔法 + 1] 点攻击力，但减除他们 1 点魔力值。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "humanbond",
+            "name": "人类族亲",
+            "description": "人类盟友获得 2 点生命值。"
+          },
+          {
+            "code": "regeneration",
+            "name": "再生",
+            "description": "在每回合开始时恢复 1 点生命值。"
+          },
+          {
+            "code": "airlink",
+            "name": "空气灵链",
+            "description": "从黄色宝石配对中获得额外的黄色法力值。"
+          }
+        ],
+        "portrait": "Troop_K14_07"
+      },
+      "sourceTraits": [
+        {
+          "code": "humanbond",
+          "name": "人类族亲",
+          "description": "人类盟友获得 2 点生命值。",
+          "troops": 21,
+          "typeAura": {
+            "troopType": "Human",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "regeneration",
+          "name": "再生",
+          "description": "在每回合开始时恢复 1 点生命值。",
+          "troops": 45,
+          "regen": {
+            "stat": "hp",
+            "amount": 1
+          }
+        },
+        {
+          "code": "airlink",
+          "name": "空气灵链",
+          "description": "从黄色宝石配对中获得额外的黄色法力值。",
+          "troops": 24,
+          "manaLink": {
+            "color": "Yellow",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K14_07",
+        "troopId": 6258,
+        "manaColors": [
+          "Yellow"
+        ],
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K14_07.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "d4de672e839f3ea1d63af0147d69387ab988c57d539220e7af5b990155680b2e"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 5,
+          "armor": 0,
+          "attack": 2,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 22,
+          "armor": 5,
+          "attack": 10,
+          "magic": 4
+        },
+        "20@1.5": {
+          "hp": 33,
+          "armor": 8,
+          "attack": 15,
+          "magic": 6
+        },
+        "40@1": {
+          "hp": 35,
+          "armor": 15,
+          "attack": 14,
+          "magic": 6
+        }
+      },
+      "segments": [
+        {
+          "kind": "reduce",
+          "target": "allyOthers",
+          "stat": "magic",
+          "scaling": {
+            "base": 1,
+            "mult": 0
+          }
+        },
+        {
+          "kind": "buff",
+          "target": "allyOthers",
+          "stat": "attack",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          }
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6258",
+        "src/data/traits.json#humanbond",
+        "src/data/traits.json#regeneration",
+        "src/data/traits.json#airlink",
+        "src/engine/skills/curated/batch-01.ts#7401",
+        "src/data/troop-progression.json#6258",
+        "src/sillytavern/data/portraits.json#6258",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6315,
+      "referenceName": "Archdruid",
+      "sourceTroop": {
+        "id": 6315,
+        "name": "德鲁伊教士长",
+        "referenceName": "Archdruid",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "荆棘森林",
+        "kingdomId": 3015,
+        "troopTypes": [
+          "Elemental",
+          "Elf"
+        ],
+        "role": "Support",
+        "attack": 15,
+        "armor": 5,
+        "health": 27,
+        "magic": 4,
+        "base": {
+          "attack": 3,
+          "armor": 0,
+          "health": 7,
+          "magic": 1
+        },
+        "manaColors": [
+          "Green",
+          "Yellow"
+        ],
+        "manaCost": 13,
+        "spell": {
+          "id": 7465,
+          "name": "自然生长",
+          "description": "给予一名盟友 [魔法 + 1] 点生命值和 2 点魔力值。如果盟友是一名元素军队，则效果翻倍。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "给予一名盟友 [魔法 + 1] 点生命值和 2 点魔力值。如果盟友是一名元素军队，则效果翻倍。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "woodancestry",
+            "name": "灵木血脉",
+            "description": "对法力耗尽、沉默、妖火和缠绕状态效果免疫。"
+          },
+          {
+            "code": "naturepact",
+            "name": "自然契约",
+            "description": "在身亡时有 25% 的几率召唤一只树神。"
+          },
+          {
+            "code": "naturespirit",
+            "name": "自然之灵",
+            "description": "每有一名绿色盟友则获得 1 点魔力值。"
+          }
+        ],
+        "portrait": "Troop_K06_09"
+      },
+      "sourceTraits": [
+        {
+          "code": "woodancestry",
+          "name": "灵木血脉",
+          "description": "对法力耗尽、沉默、妖火和缠绕状态效果免疫。",
+          "troops": 14,
+          "manaOpsImmunity": true,
+          "statusImmunities": [
+            "faerie-fire",
+            "silence",
+            "entangle"
+          ]
+        },
+        {
+          "code": "naturepact",
+          "name": "自然契约",
+          "description": "在身亡时有 25% 的几率召唤一只树神。",
+          "troops": 2,
+          "summonOnDeath": {
+            "chance": 0.25,
+            "troopId": 6025,
+            "referenceName": "Dryad",
+            "displayName": "树神"
+          }
+        },
+        {
+          "code": "naturespirit",
+          "name": "自然之灵",
+          "description": "每有一名绿色盟友则获得 1 点魔力值。",
+          "troops": 14,
+          "perAllyColor": {
+            "color": "Green",
+            "stat": "magic",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K06_09",
+        "troopId": 6315,
+        "manaColors": [
+          "Green",
+          "Yellow"
+        ],
+        "rank": "精锐",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K06_09.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "22e22086010c2edf23d2437d0b617be0f280e4adb8e8be3faf506522cd897a40"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 7,
+          "armor": 0,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 27,
+          "armor": 5,
+          "attack": 15,
+          "magic": 4
+        },
+        "20@1.5": {
+          "hp": 41,
+          "armor": 8,
+          "attack": 23,
+          "magic": 6
+        },
+        "40@1": {
+          "hp": 40,
+          "armor": 15,
+          "attack": 19,
+          "magic": 6
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          },
+          "raceDouble": "Elemental",
+          "lifeMode": "gain"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "magic",
+          "scaling": {
+            "base": 2,
+            "mult": 0
+          },
+          "raceDouble": "Elemental"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6315",
+        "src/data/traits.json#woodancestry",
+        "src/data/traits.json#naturepact",
+        "src/data/traits.json#naturespirit",
+        "src/engine/skills/curated/batch-06.ts#7465",
+        "src/data/troop-progression.json#6315",
+        "src/sillytavern/data/portraits.json#6315",
+        "src/data/gowLifeRules.json#7465",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6323,
+      "referenceName": "ElvenBard",
+      "sourceTroop": {
+        "id": 6323,
+        "name": "精灵吟游诗人",
+        "referenceName": "ElvenBard",
+        "rarity": "Uncommon",
+        "rarityIdx": 1,
+        "kingdom": "玉银林地",
+        "kingdomId": 3009,
+        "troopTypes": [
+          "Elf",
+          "Mystic"
+        ],
+        "role": "Support",
+        "attack": 14,
+        "armor": 5,
+        "health": 21,
+        "magic": 0,
+        "base": {
+          "attack": 3,
+          "armor": 0,
+          "health": 5,
+          "magic": 0
+        },
+        "manaColors": [
+          "Green",
+          "Yellow"
+        ],
+        "manaCost": 11,
+        "spell": {
+          "id": 7473,
+          "name": "迷人旋律",
+          "description": "给予一名盟友 2 点魔力值，给予其自身一半的法力值并赋予法印效果。 [2:1]",
+          "meta": {
+            "scalings": [],
+            "raw": "给予一名盟友 2 点魔力值，给予其自身一半的法力值并赋予法印效果。 [2:1]",
+            "parsed": true,
+            "modifier": {
+              "kind": "ratio",
+              "a": 2,
+              "b": 1
+            }
+          }
+        },
+        "traits": [
+          {
+            "code": "elfbond",
+            "name": "精灵族亲",
+            "description": "精灵盟友获得 2 点生命值。"
+          },
+          {
+            "code": "highancestry",
+            "name": "高等血脉",
+            "description": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。"
+          },
+          {
+            "code": "revered",
+            "name": "崇敬",
+            "description": "所有盟友获得 2 点随机技能值。"
+          }
+        ],
+        "portrait": "Troop_K26_02"
+      },
+      "sourceTraits": [
+        {
+          "code": "elfbond",
+          "name": "精灵族亲",
+          "description": "精灵盟友获得 2 点生命值。",
+          "troops": 14,
+          "typeAura": {
+            "troopType": "Elf",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "highancestry",
+          "name": "高等血脉",
+          "description": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。",
+          "troops": 23,
+          "statusImmunities": [
+            "faerie-fire",
+            "silence",
+            "death-mark"
+          ],
+          "manaOpsImmunity": true
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。",
+          "troops": 103,
+          "teamAura": {
+            "scope": "allies",
+            "stat": "random",
+            "amount": 2
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_02",
+        "troopId": 6323,
+        "manaColors": [
+          "Green",
+          "Yellow"
+        ],
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K26_02.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "969fe91852033666fc236147c4782df2ffc91efffe6f26deb26e8f23737b43dd"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 5,
+          "armor": 0,
+          "attack": 3,
+          "magic": 0
+        },
+        "20@1": {
+          "hp": 21,
+          "armor": 5,
+          "attack": 14,
+          "magic": 0
+        },
+        "20@1.5": {
+          "hp": 32,
+          "armor": 8,
+          "attack": 21,
+          "magic": 0
+        },
+        "40@1": {
+          "hp": 34,
+          "armor": 15,
+          "attack": 18,
+          "magic": 2
+        }
+      },
+      "segments": [
+        {
+          "kind": "status",
+          "target": "allyChosen",
+          "statusId": "enchanted",
+          "turns": 3
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "mana",
+          "scaling": {
+            "base": 0,
+            "mult": 0
+          },
+          "halve": true
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "magic",
+          "scaling": {
+            "base": 2,
+            "mult": 0
+          }
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6323",
+        "src/data/traits.json#elfbond",
+        "src/data/traits.json#highancestry",
+        "src/data/traits.json#revered",
+        "src/engine/skills/curated/batch-r18.ts#7473",
+        "src/data/troop-progression.json#6323",
+        "src/sillytavern/data/portraits.json#6323",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6325,
+      "referenceName": "Unicorn",
+      "sourceTroop": {
+        "id": 6325,
+        "name": "独角兽",
+        "referenceName": "Unicorn",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "玉银林地",
+        "kingdomId": 3009,
+        "troopTypes": [
+          "Beast",
+          "Mystic"
+        ],
+        "role": "Support",
+        "attack": 13,
+        "armor": 7,
+        "health": 29,
+        "magic": 7,
+        "base": {
+          "attack": 3,
+          "armor": 0,
+          "health": 7,
+          "magic": 1
+        },
+        "manaColors": [
+          "Green",
+          "Purple"
+        ],
+        "manaCost": 11,
+        "spell": {
+          "id": 7475,
+          "name": "净化",
+          "description": "净化一名盟友，赋予他法印效果，并给予 [魔法 + 1] 点生命值。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "净化一名盟友，赋予他法印效果，并给予 [魔法 + 1] 点生命值。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "beastbond",
+            "name": "野兽族亲",
+            "description": "野兽盟友获得 2 点生命值。"
+          },
+          {
+            "code": "revered",
+            "name": "崇敬",
+            "description": "所有盟友获得 2 点随机技能值。"
+          },
+          {
+            "code": "arcane",
+            "name": "秘法",
+            "description": "当一名盟友施放法术时获得 1 点魔力值。"
+          }
+        ],
+        "portrait": "Troop_K26_03"
+      },
+      "sourceTraits": [
+        {
+          "code": "beastbond",
+          "name": "野兽族亲",
+          "description": "野兽盟友获得 2 点生命值。",
+          "troops": 45,
+          "typeAura": {
+            "troopType": "Beast",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。",
+          "troops": 103,
+          "teamAura": {
+            "scope": "allies",
+            "stat": "random",
+            "amount": 2
+          }
+        },
+        {
+          "code": "arcane",
+          "name": "秘法",
+          "description": "当一名盟友施放法术时获得 1 点魔力值。",
+          "troops": 79,
+          "onAllyCastGain": {
+            "stat": "magic",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_03",
+        "troopId": 6325,
+        "manaColors": [
+          "Green",
+          "Purple"
+        ],
+        "rank": "精锐",
+        "form": "野兽",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K26_03.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "3af8b2474157381ef965c98b9e7f8db8a71c5ae624f5f5705a86a06e212821fb"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 7,
+          "armor": 0,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 29,
+          "armor": 7,
+          "attack": 13,
+          "magic": 7
+        },
+        "20@1.5": {
+          "hp": 44,
+          "armor": 11,
+          "attack": 20,
+          "magic": 11
+        },
+        "40@1": {
+          "hp": 42,
+          "armor": 17,
+          "attack": 17,
+          "magic": 9
+        }
+      },
+      "segments": [
+        {
+          "kind": "cleanse",
+          "target": "allyChosen"
+        },
+        {
+          "kind": "status",
+          "target": "allyChosen",
+          "statusId": "enchanted",
+          "turns": 3
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          },
+          "lifeMode": "gain"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6325",
+        "src/data/traits.json#beastbond",
+        "src/data/traits.json#revered",
+        "src/data/traits.json#arcane",
+        "src/engine/skills/curated/batch-r18.ts#7475",
+        "src/data/troop-progression.json#6325",
+        "src/sillytavern/data/portraits.json#6325",
+        "src/data/gowLifeRules.json#7475",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6351,
+      "referenceName": "Bishop",
+      "sourceTroop": {
+        "id": 6351,
+        "name": "主教",
+        "referenceName": "Bishop",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "白盔国",
+        "kingdomId": 3014,
+        "troopTypes": [
+          "Divine",
+          "Human"
+        ],
+        "role": "Support",
+        "attack": 13,
+        "armor": 11,
+        "health": 26,
+        "magic": 6,
+        "base": {
+          "attack": 2,
+          "armor": 3,
+          "health": 6,
+          "magic": 1
+        },
+        "manaColors": [
+          "Yellow",
+          "Purple"
+        ],
+        "manaCost": 12,
+        "spell": {
+          "id": 7503,
+          "name": "神祇之力",
+          "description": "给予一名盟友 [(魔法 / 2) + 4] 点护甲值以及 1 点魔力值。如果盟友是一名神祇军队，则效果翻倍。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 4,
+                "mult": 0.5
+              }
+            ],
+            "raw": "给予一名盟友 [(魔法 / 2) + 4] 点护甲值以及 1 点魔力值。如果盟友是一名神祇军队，则效果翻倍。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "divinebond",
+            "name": "神祇族亲",
+            "description": "神祇盟友获得 2 点生命值。"
+          },
+          {
+            "code": "revered",
+            "name": "崇敬",
+            "description": "所有盟友获得 2 点随机技能值。"
+          },
+          {
+            "code": "airspirit",
+            "name": "空气之灵",
+            "description": "每有一名黄色盟友则获得 1 点魔力值。"
+          }
+        ],
+        "portrait": "Troop_K07_09"
+      },
+      "sourceTraits": [
+        {
+          "code": "divinebond",
+          "name": "神祇族亲",
+          "description": "神祇盟友获得 2 点生命值。",
+          "troops": 19,
+          "typeAura": {
+            "troopType": "Divine",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。",
+          "troops": 103,
+          "teamAura": {
+            "scope": "allies",
+            "stat": "random",
+            "amount": 2
+          }
+        },
+        {
+          "code": "airspirit",
+          "name": "空气之灵",
+          "description": "每有一名黄色盟友则获得 1 点魔力值。",
+          "troops": 16,
+          "perAllyColor": {
+            "color": "Yellow",
+            "stat": "magic",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K07_09",
+        "troopId": 6351,
+        "manaColors": [
+          "Yellow",
+          "Purple"
+        ],
+        "rank": "精锐",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K07_09.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "93c6df997e109703e04f558997fd8a29b260ee87833006e8b25fda4298d3a09a"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 6,
+          "armor": 3,
+          "attack": 2,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 26,
+          "armor": 11,
+          "attack": 13,
+          "magic": 6
+        },
+        "20@1.5": {
+          "hp": 39,
+          "armor": 17,
+          "attack": 20,
+          "magic": 9
+        },
+        "40@1": {
+          "hp": 39,
+          "armor": 21,
+          "attack": 17,
+          "magic": 8
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "armor",
+          "scaling": {
+            "base": 4,
+            "mult": 0.5
+          },
+          "raceDouble": "Divine"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "magic",
+          "scaling": {
+            "base": 1,
+            "mult": 0
+          },
+          "raceDouble": "Divine"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6351",
+        "src/data/traits.json#divinebond",
+        "src/data/traits.json#revered",
+        "src/data/traits.json#airspirit",
+        "src/engine/skills/curated/batch-20.ts#7503",
+        "src/data/troop-progression.json#6351",
+        "src/sillytavern/data/portraits.json#6351",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6690,
+      "referenceName": "SilverOak",
+      "sourceTroop": {
+        "id": 6690,
+        "name": "银栎",
+        "referenceName": "SilverOak",
+        "rarity": "Rare",
+        "rarityIdx": 2,
+        "kingdom": "玉银林地",
+        "kingdomId": 3009,
+        "troopTypes": [
+          "Elemental",
+          "Mystic"
+        ],
+        "role": "Support",
+        "attack": 11,
+        "armor": 18,
+        "health": 22,
+        "magic": 7,
+        "base": {
+          "attack": 2,
+          "armor": 4,
+          "health": 5,
+          "magic": 1
+        },
+        "manaColors": [
+          "Blue",
+          "Brown"
+        ],
+        "manaCost": 9,
+        "spell": {
+          "id": 8036,
+          "name": "起死回生",
+          "description": "给予一名盟友 [魔法 + 1] 点生命值，再赋予其法印和赐福效果。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "给予一名盟友 [魔法 + 1] 点生命值，再赋予其法印和赐福效果。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "inscribed",
+            "name": "铭刻",
+            "description": "当一名敌人施放法术时获得 1 点护甲值。"
+          },
+          {
+            "code": "revered",
+            "name": "崇敬",
+            "description": "所有盟友获得 2 点随机技能值。"
+          },
+          {
+            "code": "barkskin",
+            "name": "树皮",
+            "description": "降低来自骷髅头的伤害 33%。"
+          }
+        ],
+        "portrait": "Troop_K26_11"
+      },
+      "sourceTraits": [
+        {
+          "code": "inscribed",
+          "name": "铭刻",
+          "description": "当一名敌人施放法术时获得 1 点护甲值。",
+          "troops": 67,
+          "onEnemyCastGain": {
+            "stat": "armor",
+            "amount": 1
+          }
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。",
+          "troops": 103,
+          "teamAura": {
+            "scope": "allies",
+            "stat": "random",
+            "amount": 2
+          }
+        },
+        {
+          "code": "barkskin",
+          "name": "树皮",
+          "description": "降低来自骷髅头的伤害 33%。",
+          "troops": 36,
+          "skullDamageReduction": 0.33
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_11",
+        "troopId": 6690,
+        "manaColors": [
+          "Blue",
+          "Brown"
+        ],
+        "rank": "精锐",
+        "form": "类人",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K26_11.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "39a8ec749004ef55de5aee06db8c0f4350c268ea3630d1b1d82c41db7a01d6db"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 5,
+          "armor": 4,
+          "attack": 2,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 22,
+          "armor": 18,
+          "attack": 11,
+          "magic": 7
+        },
+        "20@1.5": {
+          "hp": 33,
+          "armor": 27,
+          "attack": 17,
+          "magic": 11
+        },
+        "40@1": {
+          "hp": 35,
+          "armor": 28,
+          "attack": 15,
+          "magic": 9
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          },
+          "lifeMode": "gain"
+        },
+        {
+          "kind": "status",
+          "target": "allyChosen",
+          "statusId": "blessed",
+          "turns": 3
+        },
+        {
+          "kind": "status",
+          "target": "allyChosen",
+          "statusId": "enchanted",
+          "turns": 3
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6690",
+        "src/data/traits.json#inscribed",
+        "src/data/traits.json#revered",
+        "src/data/traits.json#barkskin",
+        "src/engine/skills/curated/batch-r18.ts#8036",
+        "src/data/troop-progression.json#6690",
+        "src/sillytavern/data/portraits.json#6690",
+        "src/data/gowLifeRules.json#8036",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6740,
+      "referenceName": "KhatibTahir",
+      "sourceTroop": {
+        "id": 6740,
+        "name": "卡迪塔河",
+        "referenceName": "KhatibTahir",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "狮心帝国",
+        "kingdomId": 3025,
+        "troopTypes": [
+          "Human"
+        ],
+        "role": "Support",
+        "attack": 13,
+        "armor": 11,
+        "health": 32,
+        "magic": 7,
+        "base": {
+          "attack": 3,
+          "armor": 1,
+          "health": 8,
+          "magic": 1
+        },
+        "manaColors": [
+          "Blue",
+          "Red"
+        ],
+        "manaCost": 12,
+        "spell": {
+          "id": 8110,
+          "name": "安努神恩典",
+          "description": "给予一名盟友 [魔法 + 1] 点生命值和 5 点攻击力。若盟友是一名人类，则效果翻倍。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 1,
+                "mult": 1
+              }
+            ],
+            "raw": "给予一名盟友 [魔法 + 1] 点生命值和 5 点攻击力。若盟友是一名人类，则效果翻倍。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "humanbond",
+            "name": "人类族亲",
+            "description": "人类盟友获得 2 点生命值。"
+          },
+          {
+            "code": "revered",
+            "name": "崇敬",
+            "description": "所有盟友获得 2 点随机技能值。"
+          },
+          {
+            "code": "waterlink",
+            "name": "水系灵链",
+            "description": "在配对蓝色宝石时获得额外的蓝色法力值。"
+          }
+        ],
+        "portrait": "Troop_K23_17"
+      },
+      "sourceTraits": [
+        {
+          "code": "humanbond",
+          "name": "人类族亲",
+          "description": "人类盟友获得 2 点生命值。",
+          "troops": 21,
+          "typeAura": {
+            "troopType": "Human",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。",
+          "troops": 103,
+          "teamAura": {
+            "scope": "allies",
+            "stat": "random",
+            "amount": 2
+          }
+        },
+        {
+          "code": "waterlink",
+          "name": "水系灵链",
+          "description": "在配对蓝色宝石时获得额外的蓝色法力值。",
+          "troops": 35,
+          "manaLink": {
+            "color": "Blue",
+            "amount": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K23_17",
+        "troopId": 6740,
+        "manaColors": [
+          "Red",
+          "Blue"
+        ],
+        "rank": "首领",
+        "form": "人形",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_K23_17.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "04e37662fa5cc0bcf55abad2bb3223e06483527f437774bac68a7ca5030bee25"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 8,
+          "armor": 1,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 32,
+          "armor": 11,
+          "attack": 13,
+          "magic": 7
+        },
+        "20@1.5": {
+          "hp": 48,
+          "armor": 17,
+          "attack": 20,
+          "magic": 11
+        },
+        "40@1": {
+          "hp": 45,
+          "armor": 21,
+          "attack": 17,
+          "magic": 9
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 1,
+            "mult": 1
+          },
+          "raceDouble": "Human",
+          "lifeMode": "gain"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "attack",
+          "scaling": {
+            "base": 5,
+            "mult": 0
+          },
+          "raceDouble": "Human"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6740",
+        "src/data/traits.json#humanbond",
+        "src/data/traits.json#revered",
+        "src/data/traits.json#waterlink",
+        "src/engine/skills/curated/batch-07.ts#8110",
+        "src/data/troop-progression.json#6740",
+        "src/sillytavern/data/portraits.json#6740",
+        "src/data/gowLifeRules.json#8110",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6091,
+      "referenceName": "Emperina",
+      "sourceTroop": {
+        "id": 6091,
+        "name": "埃佩里娜",
+        "referenceName": "Emperina",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "卡其尔",
+        "kingdomId": 3012,
+        "troopTypes": [
+          "Dragon"
+        ],
+        "role": "Support",
+        "attack": 13,
+        "armor": 15,
+        "health": 26,
+        "magic": 9,
+        "base": {
+          "attack": 3,
+          "armor": 3,
+          "health": 6,
+          "magic": 1
+        },
+        "manaColors": [
+          "Red",
+          "Brown"
+        ],
+        "manaCost": 13,
+        "spell": {
+          "id": 7161,
+          "name": "生命气息",
+          "description": "为 1 名盟友提供 [魔法] 生命值和攻击力，然后净化和治疗他。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 0,
+                "mult": 1
+              }
+            ],
+            "raw": "为 1 名盟友提供 [魔法] 生命值和攻击力，然后净化和治疗他。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "dwarfslayer",
+            "name": "矮人杀手",
+            "description": "对矮人军队造成双倍骷髅头伤害。"
+          },
+          {
+            "code": "firelink",
+            "name": "火焰灵链",
+            "description": "在配对红色宝石时获得额外的红色法力值。"
+          },
+          {
+            "code": "aflame",
+            "name": "燃烧",
+            "description": "在造成骷髅头伤害时燃烧敌人。"
+          }
+        ],
+        "portrait": "Troop_Quest_K10"
+      },
+      "sourceTraits": [
+        {
+          "code": "dwarfslayer",
+          "name": "矮人杀手",
+          "description": "对矮人军队造成双倍骷髅头伤害。",
+          "troops": 1,
+          "skullMultVsTroopType": {
+            "troopType": "Dwarf",
+            "mult": 2
+          }
+        },
+        {
+          "code": "firelink",
+          "name": "火焰灵链",
+          "description": "在配对红色宝石时获得额外的红色法力值。",
+          "troops": 30,
+          "manaLink": {
+            "color": "Red",
+            "amount": 1
+          }
+        },
+        {
+          "code": "aflame",
+          "name": "燃烧",
+          "description": "在造成骷髅头伤害时燃烧敌人。",
+          "troops": 20,
+          "inflictOnSkullHit": {
+            "id": "burning",
+            "turns": 3,
+            "magnitude": 1
+          }
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K10",
+        "troopId": 6091,
+        "manaColors": [
+          "Red",
+          "Brown"
+        ],
+        "rank": "首领",
+        "form": "怪物",
+        "role": "Support",
+        "portraitUrl": "/static/portraits/Troop_Quest_K10.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "eee8001150c2eba7951908be13f6db6551def955b41c21c44d9566308e48b276"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 6,
+          "armor": 3,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 26,
+          "armor": 15,
+          "attack": 13,
+          "magic": 9
+        },
+        "20@1.5": {
+          "hp": 39,
+          "armor": 23,
+          "attack": 20,
+          "magic": 14
+        },
+        "40@1": {
+          "hp": 39,
+          "armor": 25,
+          "attack": 17,
+          "magic": 11
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 0,
+            "mult": 1
+          },
+          "lifeMode": "gain"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "attack",
+          "scaling": {
+            "base": 0,
+            "mult": 1
+          }
+        },
+        {
+          "kind": "cleanse",
+          "target": "allyChosen"
+        },
+        {
+          "kind": "buff",
+          "target": "allyChosen",
+          "stat": "hp",
+          "scaling": {
+            "base": 0,
+            "mult": 0
+          },
+          "full": true,
+          "lifeMode": "heal"
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6091",
+        "src/data/traits.json#dwarfslayer",
+        "src/data/traits.json#firelink",
+        "src/data/traits.json#aflame",
+        "src/engine/skills/curated/batch-r21.ts#7161",
+        "src/data/troop-progression.json#6091",
+        "src/sillytavern/data/portraits.json#6091",
+        "src/data/gowLifeRules.json#7161",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6097,
+      "referenceName": "FortressGate",
+      "sourceTroop": {
+        "id": 6097,
+        "name": "堡垒大门",
+        "referenceName": "FortressGate",
+        "rarity": "Common",
+        "rarityIdx": 0,
+        "kingdom": "破碎尖塔",
+        "kingdomId": 3000,
+        "troopTypes": [
+          "Construct"
+        ],
+        "role": "Defender",
+        "attack": 0,
+        "armor": 22,
+        "health": 28,
+        "magic": 11,
+        "base": {
+          "attack": 0,
+          "armor": 2,
+          "health": 6,
+          "magic": 1
+        },
+        "manaColors": [
+          "Brown"
+        ],
+        "manaCost": 9,
+        "spell": {
+          "id": 7130,
+          "name": "增援",
+          "description": "获得 [魔法 + 3] 点护甲值。若板面上有 13 颗或更多棕色宝石，则给予所有盟友 5 点护甲值。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 3,
+                "mult": 1
+              }
+            ],
+            "raw": "获得 [魔法 + 3] 点护甲值。若板面上有 13 颗或更多棕色宝石，则给予所有盟友 5 点护甲值。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "defender",
+            "name": "防卫者",
+            "description": "盟友在玩家对决战中将获得 3 点护甲值。"
+          },
+          {
+            "code": "reinforced",
+            "name": "增援",
+            "description": "在每回合开始时恢复 1 点护甲值。"
+          },
+          {
+            "code": "impervious",
+            "name": "无坚不摧",
+            "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫"
+          }
+        ],
+        "portrait": "Troop_Gate"
+      },
+      "sourceTraits": [
+        {
+          "code": "defender",
+          "name": "防卫者",
+          "description": "盟友在玩家对决战中将获得 3 点护甲值。",
+          "troops": 6,
+          "mode": "pvp",
+          "pvpBonus": {
+            "phase": "defense",
+            "gains": {
+              "armor": 3
+            }
+          }
+        },
+        {
+          "code": "reinforced",
+          "name": "增援",
+          "description": "在每回合开始时恢复 1 点护甲值。",
+          "troops": 20,
+          "regen": {
+            "stat": "armor",
+            "amount": 1
+          }
+        },
+        {
+          "code": "impervious",
+          "name": "无坚不摧",
+          "description": "对所有负面状态效果、吞噬、狼化和法力燃烧免疫",
+          "troops": 85,
+          "statusImmunities": [
+            "negative"
+          ],
+          "devourImmunity": true
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_Gate",
+        "troopId": 6097,
+        "manaColors": [
+          "Brown"
+        ],
+        "rank": "杂兵",
+        "form": "类人",
+        "role": "Defender",
+        "portraitUrl": "/static/portraits/Troop_Gate.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "9ee5e54803efb9e0b2f5df762d0bbeebee69f7bd7faa4c0613f101fefff9ed8e"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 6,
+          "armor": 2,
+          "attack": 0,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 28,
+          "armor": 22,
+          "attack": 0,
+          "magic": 11
+        },
+        "20@1.5": {
+          "hp": 42,
+          "armor": 33,
+          "attack": 0,
+          "magic": 17
+        },
+        "40@1": {
+          "hp": 41,
+          "armor": 32,
+          "attack": 4,
+          "magic": 13
+        }
+      },
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allySelf",
+          "stat": "armor",
+          "scaling": {
+            "base": 3,
+            "mult": 1
+          }
+        },
+        {
+          "kind": "buff",
+          "target": "allyAll",
+          "stat": "armor",
+          "scaling": {
+            "base": 5,
+            "mult": 0
+          },
+          "ifCond": {
+            "kind": "boardAtLeast",
+            "color": "Brown",
+            "n": 13
+          }
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6097",
+        "src/data/traits.json#defender",
+        "src/data/traits.json#reinforced",
+        "src/data/traits.json#impervious",
+        "src/engine/skills/curated/batch-r7.ts#7130",
+        "src/data/troop-progression.json#6097",
+        "src/sillytavern/data/portraits.json#6097",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#typeValues"
+      ]
+    },
+    {
+      "enemyId": 6486,
+      "referenceName": "SandScuttler",
+      "sourceTroop": {
+        "id": 6486,
+        "name": "沙地疾驰虫",
+        "referenceName": "SandScuttler",
+        "rarity": "Uncommon",
+        "rarityIdx": 1,
+        "kingdom": "聚沙之地",
+        "kingdomId": 3024,
+        "troopTypes": [
+          "Monster"
+        ],
+        "role": "Defender",
+        "attack": 14,
+        "armor": 12,
+        "health": 14,
+        "magic": 22,
+        "base": {
+          "attack": 3,
+          "armor": 3,
+          "health": 2,
+          "magic": 1
+        },
+        "manaColors": [
+          "Red",
+          "Yellow"
+        ],
+        "manaCost": 16,
+        "spell": {
+          "id": 7673,
+          "name": "沙堡",
+          "description": "获得 [魔法 + 20] 点生命值和护甲值。只能施放一次。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 20,
+                "mult": 1
+              }
+            ],
+            "raw": "获得 [魔法 + 20] 点生命值和护甲值。只能施放一次。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "monstershield",
+            "name": "怪物之盾",
+            "description": "怪物盟友获得 2 点护甲值。"
+          },
+          {
+            "code": "regeneration",
+            "name": "再生",
+            "description": "在每回合开始时恢复 1 点生命值。"
+          },
+          {
+            "code": "armored",
+            "name": "全副武装",
+            "description": "降低来自骷髅头的伤害 25%。"
+          }
+        ],
+        "portrait": "Troop_K20_11"
+      },
+      "sourceTraits": [
+        {
+          "code": "monstershield",
+          "name": "怪物之盾",
+          "description": "怪物盟友获得 2 点护甲值。",
+          "troops": 2,
+          "typeAura": {
+            "troopType": "Monster",
+            "stat": "armor",
+            "amount": 2
+          }
+        },
+        {
+          "code": "regeneration",
+          "name": "再生",
+          "description": "在每回合开始时恢复 1 点生命值。",
+          "troops": 45,
+          "regen": {
+            "stat": "hp",
+            "amount": 1
+          }
+        },
+        {
+          "code": "armored",
+          "name": "全副武装",
+          "description": "降低来自骷髅头的伤害 25%。",
+          "troops": 203,
+          "skullDamageReduction": 0.25
+        }
+      ],
+      "portrait": {
+        "assetId": "Troop_K20_11",
+        "troopId": 6486,
+        "manaColors": [
+          "Red",
+          "Yellow"
+        ],
+        "rank": "杂兵",
+        "form": "野兽",
+        "role": "Defender",
+        "portraitUrl": "/static/portraits/Troop_K20_11.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "0bd71c5aaf54413714533f681adc94811f90225026435ed6c901f3862a8f29c0"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 2,
+          "armor": 3,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 14,
+          "armor": 12,
+          "attack": 14,
+          "magic": 22
+        },
+        "20@1.5": {
+          "hp": 21,
+          "armor": 18,
+          "attack": 21,
+          "magic": 33
+        },
+        "40@1": {
+          "hp": 27,
+          "armor": 22,
+          "attack": 18,
+          "magic": 24
+        }
+      },
+      "oncePerBattle": true,
+      "segments": [
+        {
+          "kind": "buff",
+          "target": "allySelf",
+          "stat": "hp",
+          "scaling": {
+            "base": 20,
+            "mult": 1
+          },
+          "lifeMode": "gain"
+        },
+        {
+          "kind": "buff",
+          "target": "allySelf",
+          "stat": "armor",
+          "scaling": {
+            "base": 20,
+            "mult": 1
+          }
+        }
+      ],
+      "sourceRefs": [
+        "src/data/troops.json#6486",
+        "src/data/traits.json#monstershield",
+        "src/data/traits.json#regeneration",
+        "src/data/traits.json#armored",
+        "src/engine/skills/curated/batch-r7.ts#7673",
+        "src/engine/skills/builders.ts#skillOnce,heal,armor",
+        "src/data/gowLifeRules.json#7673",
+        "src/data/troop-progression.json#6486",
+        "src/data/leveling.ts#troopStatsAtLevel,EXTENDED_GROWTH",
+        "src/sillytavern/data/portraits.json#6486",
+        "src/data/communityTroops.ts#COMMUNITY_RACE",
+        "src/data/troops.ts#SOURCE_TROOPS",
+        "src/sillytavern/enemyBlueprint.ts#identityAliases,typeValues"
+      ]
+    }
+  ],
+  "blocked": [],
+  "sandScuttlerNumerics": {
+    "sourceProgression": {
+      "growth": {
+        "health": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "armor": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "attack": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "magic": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          3,
+          3,
+          3,
+          3,
+          4
+        ]
+      },
+      "traits": [
+        {
+          "minor:yellow": 12,
+          "major:yellow": 4,
+          "major:red": 4
+        },
+        {
+          "minor:yellow": 16,
+          "runic:yellow": 4,
+          "runic:red": 4
+        },
+        {
+          "minor:yellow": 20,
+          "major:yellow": 6,
+          "arcane:red:yellow": 2
+        }
+      ]
+    },
+    "extendedGrowth": {
+      "health": {
+        "points": 2,
+        "everyLevels": 3
+      },
+      "armor": {
+        "points": 1,
+        "everyLevels": 2
+      },
+      "attack": {
+        "points": 1,
+        "everyLevels": 5
+      },
+      "magic": {
+        "points": 1,
+        "everyLevels": 8
+      }
+    },
+    "castGain": {
+      "1@1": 21,
+      "20@1": 42,
+      "20@1.5": 53,
+      "40@1": 44
+    }
+  },
+  "openingRandomStatRolls": {
+    "seed": 1122,
+    "stats": [
+      "armor",
+      "hp",
+      "attack",
+      "hp",
+      "magic",
+      "armor",
+      "attack",
+      "armor",
+      "hp",
+      "attack",
+      "attack",
+      "magic",
+      "attack",
+      "hp",
+      "armor",
+      "magic"
+    ]
+  },
+  "deathSummon": {
+    "troop": {
+      "id": 6025,
+      "name": "树神",
+      "referenceName": "Dryad",
+      "rarity": "Uncommon",
+      "rarityIdx": 1,
+      "kingdom": "荆棘森林",
+      "kingdomId": 3015,
+      "troopTypes": [
+        "Fey",
+        "Elemental"
+      ],
+      "role": "Generator",
+      "attack": 10,
+      "armor": 20,
+      "health": 17,
+      "magic": 9,
+      "base": {
+        "attack": 2,
+        "armor": 3,
+        "health": 3,
+        "magic": 1
+      },
+      "manaColors": [
+        "Blue",
+        "Yellow"
+      ],
+      "manaCost": 10,
+      "spell": {
+        "id": 7025,
+        "name": "自然之礼",
+        "description": "给予盟友 5 点生命值，并恢复  [魔法 + 1]  点生命值。赋予其屏障效果，并创造 8 颗绿色宝石。",
+        "meta": {
+          "scalings": [
+            {
+              "base": 1,
+              "mult": 1
+            }
+          ],
+          "raw": "给予盟友 5 点生命值，并恢复  [魔法 + 1]  点生命值。赋予其屏障效果，并创造 8 颗绿色宝石。",
+          "parsed": true
+        }
+      },
+      "traits": [
+        {
+          "code": "feybond",
+          "name": "妖仙族亲",
+          "description": "妖仙盟友获得 2 点生命值。"
+        },
+        {
+          "code": "revered",
+          "name": "崇敬",
+          "description": "所有盟友获得 2 点随机技能值。"
+        },
+        {
+          "code": "naturelink",
+          "name": "自然灵链",
+          "description": "在配对绿色宝石时获得额外的绿色法力值。"
+        }
+      ],
+      "portrait": "Troop_K06_01"
+    },
+    "level20Stats": {
+      "hp": 17,
+      "armor": 20,
+      "attack": 10,
+      "magic": 9
+    },
+    "chanceRollSeeds": {
+      "success": 7,
+      "failure": 1
+    },
+    "stats": {
+      "20@1": {
+        "hp": 17,
+        "armor": 20,
+        "attack": 10,
+        "magic": 9
+      },
+      "20@1.5": {
+        "hp": 26,
+        "armor": 30,
+        "attack": 15,
+        "magic": 14
+      }
+    }
+  },
+  "traitDescriptionClauses": {
+    "monstershield": [
+      "战斗开始时",
+      "我方族群 #22 的存活角色",
+      "护甲增加 2 点"
+    ],
+    "aflame": [
+      "自身造成骷髅头伤害后",
+      "对受击目标",
+      "燃烧",
+      "3"
+    ],
+    "airlink": [
+      "实际收到黄色宝石配对",
+      "额外获得最多 1 点法力",
+      "剩余法力容量"
+    ],
+    "airspirit": [
+      "战斗开始时",
+      "每名关联黄色的我方存活角色（含自身）",
+      "魔力增加 1 点"
+    ],
+    "arcane": [
+      "我方任一角色施法时（含自身）",
+      "获得 1 点魔力"
+    ],
+    "armored": [
+      "骷髅头伤害降低 25%"
+    ],
+    "barkskin": [
+      "骷髅头伤害降低 33%"
+    ],
+    "beastbond": [
+      "战斗开始时",
+      "我方族群 #1 的存活角色",
+      "生命增加 2 点"
+    ],
+    "defender": [
+      "PvP",
+      "右方防守队",
+      "所属方全体存活角色",
+      "护甲增加 3 点",
+      "一次"
+    ],
+    "divinebond": [
+      "战斗开始时",
+      "我方族群 #7 的存活角色",
+      "生命增加 2 点"
+    ],
+    "dwarfbond": [
+      "战斗开始时",
+      "我方族群 #10 的存活角色",
+      "生命增加 2 点"
+    ],
+    "dwarfslayer": [
+      "目标属于族群 #10",
+      "骷髅头伤害倍率为 2"
+    ],
+    "elementalslayer": [
+      "目标属于族群 #11",
+      "骷髅头伤害倍率为 2"
+    ],
+    "elfbond": [
+      "战斗开始时",
+      "我方族群 #12 的存活角色",
+      "生命增加 2 点"
+    ],
+    "firelink": [
+      "实际收到红色宝石配对",
+      "额外获得最多 1 点法力",
+      "剩余法力容量"
+    ],
+    "fireproof": [
+      "免疫",
+      "燃烧",
+      "承受法术伤害增加"
+    ],
+    "fortitude": [
+      "免疫",
+      "中毒",
+      "特质失效",
+      "死亡标记",
+      "法力获取减半",
+      "吞噬",
+      "延迟形态替换"
+    ],
+    "highancestry": [
+      "免疫",
+      "承受法术伤害增加",
+      "封锁主动技能",
+      "死亡标记"
+    ],
+    "humanbond": [
+      "战斗开始时",
+      "我方族群 #17 的存活角色",
+      "生命增加 2 点"
+    ],
+    "impervious": [
+      "免疫全部负面状态",
+      "免疫吞噬"
+    ],
+    "inscribed": [
+      "敌方角色施法时",
+      "获得 1 点护甲"
+    ],
+    "knightbond": [
+      "战斗开始时",
+      "我方族群 #19 的存活角色",
+      "生命增加 2 点"
+    ],
+    "leader": [
+      "自身首次处于首位时",
+      "自身获得",
+      "3 点生命",
+      "3 点护甲",
+      "3 点攻击",
+      "3 点魔力"
+    ],
+    "mechbond": [
+      "战斗开始时",
+      "我方族群 #20 的存活角色",
+      "生命增加 2 点"
+    ],
+    "monsterslayer": [
+      "目标属于族群 #22",
+      "骷髅头伤害倍率为 2"
+    ],
+    "naturepact": [
+      "自身阵亡时",
+      "25%",
+      "我方空位",
+      "召唤体 6025",
+      "沿用持有者等级与难度"
+    ],
+    "naturespirit": [
+      "战斗开始时",
+      "每名关联绿色的我方存活角色（含自身）",
+      "魔力增加 1 点"
+    ],
+    "regeneration": [
+      "我方回合开始时",
+      "恢复最多 1 点缺失生命",
+      "不增加最大生命"
+    ],
+    "reinforced": [
+      "我方回合开始时",
+      "获得 1 点护甲"
+    ],
+    "revered": [
+      "战斗开始时",
+      "我方全体存活角色",
+      "随机四维属性合计变化 2 点"
+    ],
+    "undying": [
+      "免疫",
+      "中毒",
+      "死亡标记",
+      "法力获取减半",
+      "延迟形态替换"
+    ],
+    "waterlink": [
+      "实际收到蓝色宝石配对",
+      "额外获得最多 1 点法力",
+      "剩余法力容量"
+    ],
+    "waterspirit": [
+      "战斗开始时",
+      "每名关联蓝色的我方存活角色（含自身）",
+      "魔力增加 1 点"
+    ],
+    "woodancestry": [
+      "免疫",
+      "承受法术伤害增加",
+      "封锁主动技能",
+      "攻击归零",
+      "免疫法力削减"
+    ]
+  },
+  "sourceImmunityPromises": {
+    "fortitude": {
+      "sourcePromise": "对击晕、中毒、疾病、死亡标记、狼化和吞噬免疫",
+      "requiredClause": "延迟形态替换",
+      "behavior": "wolf, wolf-form and lycanthropy immunity"
+    },
+    "undying": {
+      "sourcePromise": "对中毒、疾病、狼化和死亡标记免疫",
+      "requiredClause": "延迟形态替换",
+      "behavior": "wolf, wolf-form and lycanthropy immunity"
+    },
+    "woodancestry": {
+      "sourcePromise": "对法力耗尽、沉默、妖火和缠绕状态效果免疫。",
+      "requiredClause": "免疫法力削减",
+      "behavior": "mana depletion immunity"
+    },
+    "highancestry": {
+      "sourcePromise": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。",
+      "requiredClause": "免疫法力削减",
+      "behavior": "mana depletion immunity"
+    }
+  },
+  "activeDescriptionClauses": {
+    "6486": [
+      "每场战斗仅可施放一次",
+      "自身生命与生命上限同时增加，数值=max(0,round(魔力+20))",
+      "自身增加护甲，数值=max(0,round(魔力+20))"
+    ],
+    "6028": [
+      "增加护甲，数值=max(0,round(魔力+1))"
+    ],
+    "6081": [
+      "增加攻击，数值=max(0,round(魔力+2))"
+    ],
+    "6082": [
+      "增加攻击，数值=max(0,round(魔力+3))",
+      "增加护甲，数值=max(0,round(魔力+3))"
+    ],
+    "6091": [
+      "生命与生命上限同时增加，数值=max(0,round(魔力))",
+      "增加攻击，数值=max(0,round(魔力))",
+      "恢复生命，不超过上限，数值=目标当前缺失生命"
+    ],
+    "6097": [
+      "自身增加护甲，数值=max(0,round(魔力+3))",
+      "若棋盘至少有13颗棕色宝石，使所有盟友（含自身）增加护甲，数值=max(0,round(5))"
+    ],
+    "6142": [
+      "增加攻击，数值=max(0,round(魔力+2))",
+      "增加护甲，数值=max(0,round(魔力+2))",
+      "生命与生命上限同时增加，数值=max(0,round(魔力+2))",
+      "增加法力，数值=max(0,round(6))"
+    ],
+    "6162": [
+      "增加攻击，数值=max(0,round(魔力+2))",
+      "生命与生命上限同时增加，数值=max(0,round(魔力+2))"
+    ],
+    "6193": [
+      "增加攻击，数值=max(0,round(魔力+1))+(floor((棋盘上的红色宝石数)×34/100))",
+      "增加护甲，数值=max(0,round(魔力+1))+(floor((棋盘上的红色宝石数)×34/100))"
+    ],
+    "6258": [
+      "削减除自身外所有盟友的魔力，数值=max(0,round(1))",
+      "增加攻击，数值=max(0,round(魔力+1))"
+    ],
+    "6315": [
+      "生命与生命上限同时增加，数值=max(0,round(魔力+1))",
+      "增加魔力，数值=max(0,round(2))"
+    ],
+    "6323": [
+      "增加法力，数值=floor(目标法力上限×0.5)",
+      "增加魔力，数值=max(0,round(2))"
+    ],
+    "6325": [
+      "生命与生命上限同时增加，数值=max(0,round(魔力+1))"
+    ],
+    "6351": [
+      "增加护甲，数值=max(0,round(0.5×魔力+4))",
+      "增加魔力，数值=max(0,round(1))"
+    ],
+    "6690": [
+      "生命与生命上限同时增加，数值=max(0,round(魔力+1))"
+    ],
+    "6740": [
+      "生命与生命上限同时增加，数值=max(0,round(魔力+1))",
+      "增加攻击，数值=max(0,round(5))"
+    ]
+  }
+}

@@ -1,0 +1,1154 @@
+{
+  "version": 1,
+  "oracle": "Frozen raw source declarations and independent arithmetic; not compiler or observed execution output.",
+  "enemies": [
+    {
+      "enemyId": 7159,
+      "referenceName": "Kitsune",
+      "sourceTroop": {
+        "id": 7159,
+        "name": "狐狸精",
+        "referenceName": "Kitsune",
+        "rarity": "Uncommon",
+        "rarityIdx": 1,
+        "kingdom": "毛格瑞姆森林",
+        "kingdomId": 3008,
+        "troopTypes": [
+          "Beast"
+        ],
+        "role": "Striker",
+        "attack": 14,
+        "armor": 7,
+        "health": 20,
+        "magic": 10,
+        "base": {
+          "attack": 4,
+          "armor": 0,
+          "health": 3,
+          "magic": 1
+        },
+        "manaColors": [
+          "Green",
+          "Purple"
+        ],
+        "manaCost": 7,
+        "spell": {
+          "id": 8734,
+          "name": "火狐",
+          "description": "对 1 名随机的敌人造成 [魔法 + 2] 点伤害。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 2,
+                "mult": 1
+              }
+            ],
+            "raw": "对 1 名随机的敌人造成 [魔法 + 2] 点伤害。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "invigorated",
+            "name": "生气勃勃",
+            "description": "当一名盟友施放法术时获得 1 点生命值。"
+          },
+          {
+            "code": "natureheart",
+            "name": "自然之心",
+            "description": "每有一名绿色盟友则获得 1 点生命值。"
+          },
+          {
+            "code": "stealthy",
+            "name": "隐匿",
+            "description": "无法成为法术指定攻击目标（除非场上已无任何其他目标）。"
+          }
+        ],
+        "portrait": "Troop_K16_29"
+      },
+      "sourceTraits": [
+        {
+          "code": "invigorated",
+          "name": "生气勃勃",
+          "description": "当一名盟友施放法术时获得 1 点生命值。",
+          "troops": 7,
+          "onAllyCastGain": {
+            "stat": "hp",
+            "amount": 1
+          }
+        },
+        {
+          "code": "natureheart",
+          "name": "自然之心",
+          "description": "每有一名绿色盟友则获得 1 点生命值。",
+          "troops": 21,
+          "perAllyColor": {
+            "color": "Green",
+            "stat": "hp",
+            "amount": 1
+          }
+        },
+        {
+          "code": "stealthy",
+          "name": "隐匿",
+          "description": "无法成为法术指定攻击目标（除非场上已无任何其他目标）。",
+          "troops": 92,
+          "untargetable": true
+        }
+      ],
+      "progression": {
+        "growth": {
+          "health": [
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            2,
+            1,
+            2,
+            2
+          ],
+          "armor": [
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1
+          ],
+          "attack": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2
+          ],
+          "magic": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "traits": [
+          {
+            "minor:green": 12,
+            "major:green": 4,
+            "major:purple": 4
+          },
+          {
+            "minor:green": 16,
+            "runic:green": 4,
+            "runic:purple": 4
+          },
+          {
+            "minor:green": 20,
+            "major:green": 6,
+            "arcane:green:purple": 2
+          }
+        ]
+      },
+      "portrait": {
+        "assetId": "Troop_K16_29",
+        "troopId": 7159,
+        "manaColors": [
+          "Green",
+          "Purple"
+        ],
+        "rank": "杂兵",
+        "form": "人形",
+        "role": "Striker",
+        "portraitUrl": "/static/portraits/Troop_K16_29.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "f7d2e6827fb4daf1359cc83846c154d83c9f4be43348c1a4385979ee3870a83d"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 3,
+          "armor": 0,
+          "attack": 4,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 20,
+          "armor": 7,
+          "attack": 14,
+          "magic": 10
+        },
+        "20@1.5": {
+          "hp": 30,
+          "armor": 11,
+          "attack": 21,
+          "magic": 15
+        }
+      },
+      "context": {
+        "affinities": [
+          "affinity:1"
+        ],
+        "region": "region:17",
+        "regionId": 100008
+      },
+      "englishClause": "Deal [Magic + 2] damage to a random Enemy.",
+      "englishTraits": [
+        {
+          "code": "invigorated",
+          "name": "Invigorated",
+          "description": "Gain 1 Life when an ally casts a spell.",
+          "image_url": "/assets/TroopCardAll_Traits/naturespirit.webp?v=1.0",
+          "traitstones": [
+            {
+              "id": 1,
+              "required": 12,
+              "name": "Minor Nature Traitstone",
+              "image_url": "/assets/Runes_Rune01.webp?v=1.0"
+            },
+            {
+              "id": 7,
+              "required": 4,
+              "name": "Major Nature Traitstone",
+              "image_url": "/assets/Runes_Rune07.webp?v=1.0"
+            },
+            {
+              "id": 10,
+              "required": 4,
+              "name": "Major Magic Traitstone",
+              "image_url": "/assets/Runes_Rune10.webp?v=1.0"
+            }
+          ]
+        },
+        {
+          "code": "natureheart",
+          "name": "Nature Heart",
+          "description": "Gain 1 Life for each Green ally.",
+          "image_url": "/assets/TroopCardAll_Traits/natureheart.webp?v=1.0",
+          "traitstones": [
+            {
+              "id": 1,
+              "required": 16,
+              "name": "Minor Nature Traitstone",
+              "image_url": "/assets/Runes_Rune01.webp?v=1.0"
+            },
+            {
+              "id": 13,
+              "required": 4,
+              "name": "Runic Nature Traitstone",
+              "image_url": "/assets/Runes_Rune13.webp?v=1.0"
+            },
+            {
+              "id": 16,
+              "required": 4,
+              "name": "Runic Magic Traitstone",
+              "image_url": "/assets/Runes_Rune16.webp?v=1.0"
+            }
+          ]
+        },
+        {
+          "code": "stealthy",
+          "name": "Stealthy",
+          "description": "Cannot be targeted by spells (unless there are no other targets).",
+          "image_url": "/assets/TroopCardAll_Traits/stealthy.webp?v=1.0",
+          "traitstones": [
+            {
+              "id": 1,
+              "required": 20,
+              "name": "Minor Nature Traitstone",
+              "image_url": "/assets/Runes_Rune01.webp?v=1.0"
+            },
+            {
+              "id": 7,
+              "required": 6,
+              "name": "Major Nature Traitstone",
+              "image_url": "/assets/Runes_Rune07.webp?v=1.0"
+            },
+            {
+              "id": 27,
+              "required": 2,
+              "name": "Arcane Venom Traitstone",
+              "image_url": "/assets/Runes_Rune27.webp?v=1.0"
+            }
+          ]
+        }
+      ],
+      "nativeTroop": {
+        "ArmorIncrease": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "Ascension_Armor": [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "Ascension_Attack": [
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "Ascension_Health": [
+          0,
+          1,
+          2,
+          1,
+          2
+        ],
+        "AttackIncrease": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "Attack_Base": 4,
+        "Description": "[Troop_K16_29_DESC]",
+        "FileBase": "Troop_K16_29",
+        "HealthIncrease": [
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          2,
+          1,
+          2,
+          2
+        ],
+        "Health_Base": 3,
+        "Id": 7159,
+        "ImmortalTraits": [
+          "none",
+          "none",
+          "none"
+        ],
+        "ManaColors": {
+          "ColorGreen": true,
+          "ColorPurple": true
+        },
+        "Name": "[Troop_K16_29_NAME]",
+        "PortraitOffsetY": 50,
+        "PrimaryColor": 1,
+        "ReferenceName": "Kitsune",
+        "ShinySpellId": -1,
+        "SoundCastSpell": "SpiritFox_Spell",
+        "SoundDeath": "Wolf_Death",
+        "SoundSelection": "SpiritFox_Select",
+        "SpellId": 8734,
+        "SpellPowerIncrease": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "SpellPower_Base": 1,
+        "Traits": [
+          "invigorated",
+          "natureheart",
+          "stealthy"
+        ],
+        "TroopRarity": "Uncommon",
+        "TroopType": "Beast",
+        "TroopRoleArray": [
+          "Striker"
+        ],
+        "BonusColoursOut": {},
+        "BonusColoursIn": {
+          "ColorGreen": true,
+          "ColorPurple": true
+        },
+        "Traitstones": [
+          [
+            {
+              "Id": 1,
+              "Required": 12
+            },
+            {
+              "Id": 7,
+              "Required": 4
+            },
+            {
+              "Id": 10,
+              "Required": 4
+            }
+          ],
+          [
+            {
+              "Id": 1,
+              "Required": 16
+            },
+            {
+              "Id": 13,
+              "Required": 4
+            },
+            {
+              "Id": 16,
+              "Required": 4
+            }
+          ],
+          [
+            {
+              "Id": 1,
+              "Required": 20
+            },
+            {
+              "Id": 7,
+              "Required": 6
+            },
+            {
+              "Id": 27,
+              "Required": 2
+            }
+          ]
+        ]
+      },
+      "nativeSpell": {
+        "Cost": 7,
+        "Description": "[SPELL8734_DESC]",
+        "Id": 8734,
+        "Name": "[SPELL8734_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1.0,
+            "Target": "RandomEnemy",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "Target": "None"
+      },
+      "nativeTraits": [
+        {
+          "Activation": "cast_spell",
+          "Code": "invigorated",
+          "Description": "[TRAIT_INVIGORATED_DESC]",
+          "Image": "naturespirit",
+          "Modifier": 1.0,
+          "Name": "[TRAIT_INVIGORATED]",
+          "TraitType": "adjust_life",
+          "Trigger": "self_player"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "natureheart",
+          "Description": "[TRAIT_NATUREHEART_DESC]",
+          "Filter": "1",
+          "Image": "natureheart",
+          "Modifier": 1.0,
+          "Name": "[TRAIT_NATUREHEART]",
+          "TraitType": "adjust_life_per_ally",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "select_spell_target",
+          "Code": "stealthy",
+          "Description": "[TRAIT_STEALTHY_DESC]",
+          "Image": "stealthy",
+          "Name": "[TRAIT_STEALTHY]",
+          "TraitType": "stealth",
+          "Trigger": "none"
+        }
+      ],
+      "baseDamage": 2
+    },
+    {
+      "enemyId": 7335,
+      "referenceName": "MysteriousHero",
+      "sourceTroop": {
+        "id": 7335,
+        "name": "神秘英雄",
+        "referenceName": "MysteriousHero",
+        "rarity": "UltraRare",
+        "rarityIdx": 3,
+        "kingdom": "剑锋崖",
+        "kingdomId": 3006,
+        "troopTypes": [
+          "Human"
+        ],
+        "role": "Striker",
+        "attack": 15,
+        "armor": 11,
+        "health": 28,
+        "magic": 10,
+        "base": {
+          "attack": 3,
+          "armor": 2,
+          "health": 7,
+          "magic": 1
+        },
+        "manaColors": [
+          "Red",
+          "Purple"
+        ],
+        "manaCost": 6,
+        "spell": {
+          "id": 8958,
+          "name": "神秘之刃",
+          "description": "对一名随机敌人造成 [魔法 + 5] 点伤害。",
+          "meta": {
+            "scalings": [
+              {
+                "base": 5,
+                "mult": 1
+              }
+            ],
+            "raw": "对一名随机敌人造成 [魔法 + 5] 点伤害。",
+            "parsed": true
+          }
+        },
+        "traits": [
+          {
+            "code": "humanbond",
+            "name": "人类族亲",
+            "description": "人类盟友获得 2 点生命值。"
+          },
+          {
+            "code": "songoffire",
+            "name": "火之歌",
+            "description": "在战斗开始的时候召唤火风暴。"
+          },
+          {
+            "code": "magicspirit",
+            "name": "魔法之灵",
+            "description": "每有一名紫色盟友则获得 1 点魔力值。"
+          }
+        ],
+        "portrait": "Troop_K14_27"
+      },
+      "sourceTraits": [
+        {
+          "code": "humanbond",
+          "name": "人类族亲",
+          "description": "人类盟友获得 2 点生命值。",
+          "troops": 21,
+          "typeAura": {
+            "troopType": "Human",
+            "stat": "hp",
+            "amount": 2
+          }
+        },
+        {
+          "code": "songoffire",
+          "name": "火之歌",
+          "description": "在战斗开始的时候召唤火风暴。",
+          "troops": 8,
+          "battleStartStorm": {
+            "color": "Red",
+            "turns": 8,
+            "troopId": 9002,
+            "referenceName": "Firestorm",
+            "displayName": "Firestorm"
+          }
+        },
+        {
+          "code": "magicspirit",
+          "name": "魔法之灵",
+          "description": "每有一名紫色盟友则获得 1 点魔力值。",
+          "troops": 13,
+          "perAllyColor": {
+            "color": "Purple",
+            "stat": "magic",
+            "amount": 1
+          }
+        }
+      ],
+      "progression": {
+        "growth": {
+          "health": [
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            2,
+            3,
+            2,
+            3,
+            3
+          ],
+          "armor": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "attack": [
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            2,
+            1,
+            2
+          ],
+          "magic": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "traits": [
+          {
+            "minor:red": 16,
+            "runic:red": 8,
+            "runic:purple": 8
+          },
+          {
+            "minor:red": 22,
+            "major:red": 8,
+            "arcane:red:purple": 8
+          },
+          {
+            "minor:red": 28,
+            "arcane:red:purple": 4,
+            "celestial": 1
+          }
+        ]
+      },
+      "portrait": {
+        "assetId": "Troop_K14_27",
+        "troopId": 7335,
+        "manaColors": [
+          "Red",
+          "Purple"
+        ],
+        "rank": "首领",
+        "form": "人形",
+        "role": "Striker",
+        "portraitUrl": "/static/portraits/Troop_K14_27.webp",
+        "review": "thumbnail-reviewed",
+        "contentHash": "af9b52dddcc493b35498eccec95dc4baa9507f7127eeaea72a40c748a785bb84"
+      },
+      "stats": {
+        "1@1": {
+          "hp": 7,
+          "armor": 2,
+          "attack": 3,
+          "magic": 1
+        },
+        "20@1": {
+          "hp": 28,
+          "armor": 11,
+          "attack": 15,
+          "magic": 10
+        },
+        "20@1.5": {
+          "hp": 42,
+          "armor": 17,
+          "attack": 23,
+          "magic": 15
+        }
+      },
+      "context": {
+        "affinities": [
+          "affinity:17"
+        ],
+        "region": "region:2",
+        "regionId": 100006
+      },
+      "englishClause": "Deal [Magic + 5] damage to a random Enemy.",
+      "englishTraits": [
+        {
+          "code": "humanbond",
+          "name": "Human Bond",
+          "description": "Allied Humans gain 2 Life.",
+          "image_url": "/assets/TroopCardAll_Traits/humanbond.webp?v=1.0",
+          "traitstones": [
+            {
+              "id": 2,
+              "required": 16,
+              "name": "Minor Fire Traitstone",
+              "image_url": "/assets/Runes_Rune02.webp?v=1.0"
+            },
+            {
+              "id": 14,
+              "required": 8,
+              "name": "Runic Fire Traitstone",
+              "image_url": "/assets/Runes_Rune14.webp?v=1.0"
+            },
+            {
+              "id": 16,
+              "required": 8,
+              "name": "Runic Magic Traitstone",
+              "image_url": "/assets/Runes_Rune16.webp?v=1.0"
+            }
+          ]
+        },
+        {
+          "code": "songoffire",
+          "name": "Song of Fire",
+          "description": "Summon a Firestorm at the start of Battle.",
+          "image_url": "/assets/TroopCardAll_Traits/firebrand.webp?v=1.0",
+          "traitstones": [
+            {
+              "id": 2,
+              "required": 22,
+              "name": "Minor Fire Traitstone",
+              "image_url": "/assets/Runes_Rune02.webp?v=1.0"
+            },
+            {
+              "id": 8,
+              "required": 8,
+              "name": "Major Fire Traitstone",
+              "image_url": "/assets/Runes_Rune08.webp?v=1.0"
+            },
+            {
+              "id": 31,
+              "required": 8,
+              "name": "Arcane Dark Traitstone",
+              "image_url": "/assets/Runes_Rune31.webp?v=1.0"
+            }
+          ]
+        },
+        {
+          "code": "magicspirit",
+          "name": "Magic Spirit",
+          "description": "Gain 1 Magic for each Purple ally.",
+          "image_url": "/assets/TroopCardAll_Traits/magicspirit.webp?v=1.0",
+          "traitstones": [
+            {
+              "id": 2,
+              "required": 28,
+              "name": "Minor Fire Traitstone",
+              "image_url": "/assets/Runes_Rune02.webp?v=1.0"
+            },
+            {
+              "id": 31,
+              "required": 4,
+              "name": "Arcane Dark Traitstone",
+              "image_url": "/assets/Runes_Rune31.webp?v=1.0"
+            },
+            {
+              "id": 39,
+              "required": 1,
+              "name": "Celestial Traitstone",
+              "image_url": "/assets/Runes_Rune39.webp?v=1.0"
+            }
+          ]
+        }
+      ],
+      "nativeTroop": {
+        "ArmorIncrease": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "Armor_Base": 2,
+        "Ascension_Armor": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "Ascension_Attack": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "Ascension_Health": [
+          0,
+          0,
+          0,
+          1,
+          2
+        ],
+        "AttackIncrease": [
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          2,
+          1,
+          2
+        ],
+        "Attack_Base": 3,
+        "Description": "[Troop_K14_27_DESC]",
+        "FileBase": "Troop_K14_27",
+        "HealthIncrease": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          2,
+          3,
+          2,
+          3,
+          3
+        ],
+        "Health_Base": 7,
+        "Id": 7335,
+        "ImmortalTraits": [
+          "none",
+          "none",
+          "none"
+        ],
+        "ManaColors": {
+          "ColorRed": true,
+          "ColorPurple": true
+        },
+        "Name": "[Troop_K14_27_NAME]",
+        "PortraitOffsetY": 25,
+        "PrimaryColor": 2,
+        "ReferenceName": "MysteriousHero",
+        "SoundCastSpell": "Default_CastSpell",
+        "SoundDeath": "Default_Death",
+        "SoundSelection": "Default_Selection",
+        "SpellId": 8958,
+        "SpellPowerIncrease": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "SpellPower_Base": 1,
+        "Traits": [
+          "humanbond",
+          "songoffire",
+          "magicspirit"
+        ],
+        "TroopRarity": "UltraRare",
+        "TroopType": "Human",
+        "TroopRoleArray": [
+          "Striker"
+        ],
+        "BonusColoursOut": {},
+        "BonusColoursIn": {
+          "ColorRed": true,
+          "ColorPurple": true
+        },
+        "Traitstones": [
+          [
+            {
+              "Id": 2,
+              "Required": 16
+            },
+            {
+              "Id": 14,
+              "Required": 8
+            },
+            {
+              "Id": 16,
+              "Required": 8
+            }
+          ],
+          [
+            {
+              "Id": 2,
+              "Required": 22
+            },
+            {
+              "Id": 8,
+              "Required": 8
+            },
+            {
+              "Id": 31,
+              "Required": 8
+            }
+          ],
+          [
+            {
+              "Id": 2,
+              "Required": 28
+            },
+            {
+              "Id": 31,
+              "Required": 4
+            },
+            {
+              "Id": 39,
+              "Required": 1
+            }
+          ]
+        ]
+      },
+      "nativeSpell": {
+        "Cost": 6,
+        "Description": "[SPELL8958_DESC]",
+        "Id": 8958,
+        "Name": "[SPELL8958_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1.0,
+            "Target": "RandomEnemy",
+            "Amount": 5,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "Target": "None"
+      },
+      "nativeTraits": [
+        {
+          "Activation": "start_battle",
+          "Code": "humanbond",
+          "Description": "[TRAIT_HUMANBOND_DESC]",
+          "Filter": "human",
+          "Image": "humanbond",
+          "Modifier": 2.0,
+          "Name": "[TRAIT_HUMANBOND]",
+          "TraitType": "adjust_allies_life",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "songoffire",
+          "Description": "[TRAIT_SONGOFFIRE_DESC]",
+          "Filter": "2",
+          "Image": "firebrand",
+          "Modifier": 1.0,
+          "Name": "[TRAIT_SONGOFFIRE]",
+          "TraitType": "create_storm",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "magicspirit",
+          "Description": "[TRAIT_MAGICSPIRIT_DESC]",
+          "Filter": "4",
+          "Image": "magicspirit",
+          "Modifier": 1.0,
+          "Name": "[TRAIT_MAGICSPIRIT]",
+          "TraitType": "adjust_magic_per_ally",
+          "Trigger": "none"
+        }
+      ],
+      "baseDamage": 5
+    }
+  ]
+}

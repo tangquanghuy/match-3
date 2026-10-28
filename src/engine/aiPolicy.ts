@@ -1,4 +1,5 @@
 import { BoardModel } from './BoardModel';
+import { hasCharacterCastSkill } from './skillUsage';
 import { ALL_BASE_COLORS, colorGem, isSameMatchType, skullGem } from './types';
 import { AiColorChooser } from './skills/colorChooser';
 import { choiceRuleOf } from './skills/gowChoiceRules';
@@ -112,7 +113,7 @@ function readyWangfengWithOpenSlot(
   if (state.state !== MatchState.AwaitingInput || state.activePlayer !== side) return null;
   const team = state.teams[side].characters;
   if (team.length >= MAX_ACTIVE_TEAM_SIZE) return null;
-  return team.find(ch => ch.skillId === WANGFENG_SKILL_ID && engineWouldAcceptCast(state, ch, registry)) ?? null;
+  return team.find(ch => ch.skillId === WANGFENG_SKILL_ID && engineWouldAcceptCast(state, ch, side, registry)) ?? null;
 }
 
 /** Cast ready non-generators before generators, preserving team order within each group. */
@@ -125,7 +126,7 @@ export function firstCastableCharacter(
   const summon = readyWangfengWithOpenSlot(state, side, registry);
   if (summon) return summon;
   const team = state.teams[side].characters;
-  const castable = team.filter(ch => engineWouldAcceptCast(state, ch, registry)
+  const castable = team.filter(ch => engineWouldAcceptCast(state, ch, side, registry)
     && !giftsOpponentBigMatch(state, ch, registry));
   // Full-mana allies should spend their skills before a generator refills them.
   // If only generators are ready, preserve team order to avoid circular deferral.
@@ -294,6 +295,7 @@ function scoreGroups(
 function engineWouldAcceptCast(
   state: GameState,
   ch: Character,
+  side: PlayerSide,
   registry?: Pick<ExtensionRegistry, 'prototypes' | 'skills'>,
 ): boolean {
   if (ch.defeated) return false;
@@ -301,7 +303,7 @@ function engineWouldAcceptCast(
   if (!canCastSkill(ch)) return false;
   if (!registry) return true;
   let proto = registry.prototypes.get(ch.skillId);
-  if (proto?.oncePerBattle && state.actionLog.some((entry) => entry.skillId === ch.skillId)) return false;
+  if (proto?.oncePerBattle && hasCharacterCastSkill(state, side, ch)) return false;
   if (proto && !registry.skills.has(ch.skillId)) {
     // AI 分支选择器恒取第 0 支（AiBranchChooser）；结构非法的分支原型引擎会拒绝
     const choice = skillChoices(proto);

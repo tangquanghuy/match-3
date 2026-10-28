@@ -1,0 +1,33 @@
+{
+  "captured_on": "2026-10-28",
+  "files": [
+    {
+      "source": "D:\\Code\\dnf\\code\\开局.html",
+      "snapshot": "dnf-code/开局.html",
+      "bytes": 1568257,
+      "sha256": "bd57a7ce9f740f7d3515d5f383bfc5d3b92f492b2e19bc6d8bec8dcf76514a90",
+      "source_mtime_local": "2026-10-24T17:37:02"
+    },
+    {
+      "source": "D:\\Code\\dnf\\code\\底部状态栏.html",
+      "snapshot": "dnf-code/底部状态栏.html",
+      "bytes": 562336,
+      "sha256": "f2eb67a5535a0be5ff23526a771a8e5b8216073bf304e3d6d051e00711771700",
+      "source_mtime_local": "2026-10-24T17:51:45"
+    },
+    {
+      "source": "D:\\Code\\dnf\\code\\外置状态栏.js",
+      "snapshot": "dnf-code/外置状态栏.js",
+      "bytes": 833560,
+      "sha256": "d8a51c39d6d2714bc6f3a6d2ede71895d31b4e12296ac15648907fe02466887c",
+      "source_mtime_local": "2026-10-15T22:50:00"
+    },
+    {
+      "source": "D:\\Code\\dnf\\code\\三消面板.js",
+      "snapshot": "dnf-code/三消面板.js",
+      "bytes": 1657,
+      "sha256": "9c8306a754ff4fec38dd2582024d556dde4d0d3f59ca3232dda21905825e4af0",
+      "source_mtime_local": "2026-10-24T17:45:15"
+    }
+  ]
+}

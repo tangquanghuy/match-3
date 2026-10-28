@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "scope": "enemy-assembler-random-family",
+  "newlyAcceptedEnemyIds": [
+    7159,
+    7335,
+    7160,
+    7161,
+    6220,
+    7131,
+    6788
+  ],
+  "fullAccepted": 40,
+  "total": 1821,
+  "structuralReachable": 1762,
+  "report": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "tests": {
+    "files": 24,
+    "passed": 2525,
+    "failed": 0,
+    "skipped": 0,
+    "browserPassed": 7
+  },
+  "build": true,
+  "hostDistSmoke": true,
+  "inventoryCheck": true,
+  "independentReview": "docs/sillytavern-st04-random-family-review-20261024.md",
+  "engineFilesUnchanged": 142,
+  "productionChange": "ST Stealthy description now includes last available target exception",
+  "overallStageComplete": false
+}

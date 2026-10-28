@@ -1,0 +1,48 @@
+import fs from 'node:fs';
+import {evidencePath} from './lib/st-evidence-paths.mjs';
+import {fingerprintEnemies,validateEnemyEvidence} from './lib/st-enemy-evidence.mjs';
+import { createServer } from 'vite';
+const server=await createServer({server:{middlewareMode:true},appType:'custom'});
+try {
+ const {buildEnemyInventory,coverageRows}=await server.ssrLoadModule('/src/sillytavern/enemyInventory.ts');
+ const data=buildEnemyInventory();
+ const root=process.cwd();
+ const registryFile='data/audit/st-enemy-acceptance.json';
+ const registry=JSON.parse(fs.readFileSync(evidencePath(root,registryFile,{allowMissing:false}),'utf8'));
+ if(registry.version!==1||!Array.isArray(registry.records))throw new Error('Invalid enemy acceptance registry');
+ const ids=new Set();
+ const readEvidence=relative=>{
+  const absolute=evidencePath(root,relative);
+  return fs.existsSync(absolute)?JSON.parse(fs.readFileSync(absolute,'utf8')):null;
+ };
+ const subjects=registry.records.map(record=>{
+  const enemy=data.enemies.find(enemy=>enemy.id===record.enemyId);
+  if(!enemy)throw new Error('Orphan enemy evidence: '+record.enemyId);
+  return {enemy,testFile:record.testFile,testFiles:record.testFiles,evidenceFiles:record.evidenceFiles};
+ });
+ const fingerprints=fingerprintEnemies({root,subjects});
+ for(const [index,record] of registry.records.entries()){
+  if(ids.has(record.enemyId))throw new Error('Duplicate enemy evidence: '+record.enemyId);ids.add(record.enemyId);
+  const enemy=data.enemies.find(enemy=>enemy.id===record.enemyId);
+  if(!enemy)throw new Error('Orphan enemy evidence: '+record.enemyId);
+  const current=fingerprints[index];
+  const run=readEvidence(record.runFile),review=readEvidence(record.reviewFile);
+  const decision=validateEnemyEvidence({record,current,run,review});
+  enemy.assemblerVerified=decision.status==='passed';
+  enemy.assemblyEvidence={...decision,testFile:record.testFile,runFile:record.runFile,reviewFile:record.reviewFile};
+ }
+ data.rarities=coverageRows(data.enemies,'rarity');data.ranks=coverageRows(data.enemies,'rank');
+ const json=JSON.stringify(data,null,2)+'\n';
+ const file='data/st-enemy-inventory.json';
+ const table=rows=>['| 档位 | 总数 | 排除 | 适用分母 | 原生已注册 | 默认配置可编译 | 完整通过 | 缺口 | 达标需通过 | 覆盖率 |','| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',...rows.map(r=>`| ${r.name} | ${r.total} | ${r.excluded} | ${r.applicable} | ${r.nativeRegistered} | ${r.compiled} | ${r.passed} | ${r.missing} | ${r.required} | ${r.coverage===null?'—':(r.coverage*100).toFixed(1)+'%'} |`)].join('\n');
+ const descriptionRows=data.rarities.map(row=>{const entries=data.enemies.filter(e=>e.rarity===row.name);return {name:row.name,full:entries.filter(e=>e.compilation.recipe?.descriptionAudit.support==='full').length,partial:entries.filter(e=>e.compilation.recipe&&e.compilation.recipe.descriptionAudit.support!=='full').length,blocked:entries.filter(e=>e.compilation.state==='blocked').length};});
+ const descriptionTable=['| 原始稀有度 | 已编译且主动说明结构完整 | 已编译但说明待核对 | 组装受阻 |','| --- | ---: | ---: | ---: |',...descriptionRows.map(r=>`| ${r.name} | ${r.full} | ${r.partial} | ${r.blocked} |`)].join('\n');
+ const traitRows=data.rarities.map(row=>{const entries=data.enemies.filter(e=>e.rarity===row.name);return {name:row.name,full:entries.filter(e=>e.compilation.recipe?.traitDescriptionAudit.every(a=>a.support==='full')).length,partial:entries.filter(e=>e.compilation.recipe?.traitDescriptionAudit.some(a=>a.support!=='full')).length,blocked:entries.filter(e=>e.compilation.state==='blocked').length};});
+ const traitTable=['| 原始稀有度 | 已编译且保留特质说明结构完整 | 已编译但特质说明待核对 | 组装受阻 |','| --- | ---: | ---: | ---: |',...traitRows.map(r=>`| ${r.name} | ${r.full} | ${r.partial} | ${r.blocked} |`)].join('\n');
+ const traitAudit={full:data.traits.filter(t=>t.descriptionAudit?.support==='full').length,partial:data.traits.filter(t=>t.descriptionAudit?.support==='partial').length,empty:data.traits.filter(t=>t.descriptionAudit?.support==='empty').length,omitted:data.traits.filter(t=>t.descriptionAudit===null).length};
+ const doc=['# 敌人全量适配基线','', '由 `node scripts/st-enemy-inventory.mjs` 生成。确定性数据索引，不包含已通过通用组装的推断。', '',`全量 ${data.enemies.length} 个敌人；${data.skills.length} 个独立主动；${data.traits.length} 个独立特质。逐条来源、依赖与排除依据见 [机器清单](../data/st-enemy-inventory.json)。`,'','## 原始稀有度','',table(data.rarities),'','## 五档汇总','',table(data.ranks),'','## 主动能力说明结构审计','',descriptionTable,'','名称与说明由适配后的实际主动原型生成；未识别字段记录在机器清单的 descriptionAudit 中。说明结构完整只证明已解析字段，仍须核对数值、条件、目标、成本、被动及实际行为，不计作完整组装验收。受阻条目继续留在分母。','','## 特质机制说明结构审计','',traitTable,'',`独立特质：保留且说明结构完整 ${traitAudit.full}，待核对 ${traitAudit.partial}，无效果 ${traitAudit.empty}，仅受限机制而省略 ${traitAudit.omitted}。`,'','说明直接读取适配后的特质字段，保留触发、目标、概率、数量及形态引用；未覆盖的结构路径记录在 traitDescriptionAudit 和独立特质 descriptionAudit 中。经济与 PvP 条件按实际字段说明，并保留当前 ST 适用性限制；未识别结构继续保留诊断。描述结构通过不计为行为或结算通过。','','## 特殊机制处理','', '晋升、淘宝模式、魔头仅按具体描述及结构依赖标注。特殊特质、条件增幅不自动排除整个敌人，独立普通效果仍留在适配范围。本基线暂未将任何整敌移出分母；进入 ST-04 后按可执行配置与证据细化。普通首领、召唤、变形和族群关系保留。', '',`带有特殊机制条目的敌人：${data.enemies.filter(e=>e.exclusions.length).length}；特殊主动：${data.skills.filter(e=>e.exclusions.length).length}；特殊特质：${data.traits.filter(e=>e.exclusions.length).length}。`, '', '## 上下文机制优先级','', '| 结构依赖 | 涉及敌人数 |','| --- | ---: |',...data.families.map(f=>`| ${f.kind} | ${f.count} |`),'','## 验证边界','', '默认配置可编译列实际调用组装器，在等级 20、难度 1 下绑定四维立绘、主动、成本、颜色和适用特质；逐条记录配方签名、机械能力标识、预算、省略机制与失败原因。它不计作完整验收。主动索引另附原始完整原型、描述及敌人来源，便于后续逐机制校核。', '', '原生已注册表示主动非空、特质存在；不代表通用语义、上下文绑定、肖像绑定或实际行为已经完整验收。完整通过列只消费逐敌人行为义务、实际运行收据和独立审查收据；源配置、执行／适配规则、测试或立绘变更后证据过期，不计入分子。缺失、失败、跳过及未签收记录均保留缺口；不用索引或烟雾测试替代。登记与执行方式见 [行为验收证据](sillytavern-enemy-evidence.md)。', '', '自维护部队并入全量分母，未进入既有四维肖像索引的条目显式标记，保持为适配缺口。',''].join('\n');
+ if(process.argv.includes('--check')){
+   for(const [p,text]of [[file,json],['docs/sillytavern-enemy-coverage.md',doc]])if(!fs.existsSync(p)||fs.readFileSync(p,'utf8')!==text)throw new Error('Outdated inventory: '+p);
+ }else{fs.writeFileSync(file,json);fs.writeFileSync('docs/sillytavern-enemy-coverage.md',doc);}
+ console.log(JSON.stringify({enemies:data.enemies.length,skills:data.skills.length,traits:data.traits.length,traitDescriptionAudit:traitAudit,rarities:data.rarities,families:data.families.map(({kind,count})=>({kind,count}))},null,2));
+}finally{await server.close();}

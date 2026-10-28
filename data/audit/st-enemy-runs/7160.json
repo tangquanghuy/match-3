@@ -1,0 +1,364 @@
+{
+  "version": 1,
+  "enemyId": 7160,
+  "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+  "testFiles": [
+    "tests/unit/stEnemyRandomDamageAcceptance.test.ts"
+  ],
+  "evidenceFiles": [
+    "data/raw/gow-2026-09-18/traits.en.json",
+    "data/raw/spells.gow.en.json",
+    "data/raw/troops.gow.en.json",
+    "game-assets/public/static/portraits/Troop_K15_27.webp",
+    "src/data/communityTroops.ts",
+    "src/data/traits.json",
+    "src/data/troop-progression.json",
+    "src/data/troops.json",
+    "src/sillytavern/data/portraits.json",
+    "tests/fixtures/stEnemyMappedSources.ts",
+    "tests/fixtures/stEnemyRandomDamageExpectations.json",
+    "tests/helpers/stMappedHarness.ts",
+    "tests/helpers/stRandomDamageHarness.ts",
+    "tests/unit/gowParallelSignoffTroops.test.ts",
+    "tests/unit/gowRandomTroopCompletion.test.ts",
+    "tests/unit/stEnemyDirectDamageAcceptance.test.ts",
+    "tests/unit/traits.test.ts"
+  ],
+  "subjectDigest": "8d2b64131e5ee8b202a67563e9cfe16b06b2f4355e1620d9ce680d96ff37e329",
+  "testDigest": "223a04e70ecb2c9093db77204f24a4705172140d7e6c98845432cb2a32d956c3",
+  "implementationDigest": "060b6777e2643ac0e93848d2e80392fd2739f86e067924b200cdcea47a062a47",
+  "portraitDigest": "049163a424b6a859945ee4a768fe26036502f1a2a83fd7516bc77d3a5a3ff985",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "d45a8e722480569bf4cd8255e2aa13fb70e1c74849c8d0e12cf43893e3fa0542",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior freezes independent raw troop, spell, traits, source stats and progression",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior binds portrait bytes, context, role, native recipe and every description on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior counts only living allied heart colors including self once on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior counts only living allied heart colors including self once on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Red three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Green three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Blue three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Yellow three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Purple three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Brown three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Red three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Green three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Blue three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Yellow three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Purple three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior routes a real Brown three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior excludes dead slots and preserves the source target rule on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior excludes dead slots and preserves the source target rule on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior ignores a cancelling manual chooser for its automatic front target on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior barrier blocks only the real selected victim while consuming one cast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes Frenzy from a real skull hit and records the raw spell-damage scope gap on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior executes Frenzy from a real skull hit and records the raw spell-damage scope gap on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior Sturdy blocks real poison with a plain control and yields to stun on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7160 Southrender: source behavior Sturdy blocks real poison with a plain control and yields to stun on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior counts only living allied heart colors including self once on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior counts only living allied heart colors including self once on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Red three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Green three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Blue three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Yellow three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Purple three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Brown three-match through source mana colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Red three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Green three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Blue three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Yellow three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Purple three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Brown three-match through source mana colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior excludes dead slots and preserves the source target rule on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior excludes dead slots and preserves the source target rule on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks each named status while a plain control receives it on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks each named status while a plain control receives it on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks actual mana drain and theft with a plain control on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks actual mana drain and theft with a plain control on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior Agile executes both seeded skull branches and leaves ordinary spell damage intact on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST random damage 7161 SwordMaiden: source behavior Agile executes both seeded skull branches and leaves ordinary spell damage intact on side Right",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 80,
+  "passedTests": 80,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

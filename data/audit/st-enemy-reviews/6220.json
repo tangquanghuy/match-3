@@ -1,0 +1,590 @@
+{
+  "version": 1,
+  "enemyId": 6220,
+  "reviewer": "codex-independent-random-family-product-20261024",
+  "reviewerName": "Codex independent random-family product and enemy-behavior reviewer",
+  "reviewedAt": "2026-10-23T18:45:10.037Z",
+  "decision": "accepted",
+  "scope": "enemy-behavior",
+  "obligations": [
+    "portrait",
+    "active",
+    "traits",
+    "target",
+    "mana-cost",
+    "mana-colors",
+    "scaling",
+    "context",
+    "description",
+    "role",
+    "refresh",
+    "determinism",
+    "invalid-action"
+  ],
+  "subjectDigest": "556432984e6ed7a66ff9536402814bbc826c7e497fa4ac3535ff959e6e14d4de",
+  "testDigest": "b3c46413c15110ba3558a536a88fa0306474529a246b00c1f85f3ee09158217f",
+  "implementationDigest": "1f96081d9f5ba6513d18494a0c6e40fafa39c8ceec848d3e07c0b914a33c113d",
+  "portraitDigest": "aefb154156136cd23cd2f5d516d0e4302970d053213ed191ee0aec7e7dd82a07",
+  "contractDigest": "24d8719cfd359504c2fa78a9261ee269cd0c6fe4f3e5724627423f6bb028df08",
+  "runDigest": "304bc652001a146f9d013fe41399fc412e6ed8194c08ab4026fdd894d88935d0",
+  "evidence": {
+    "sourceRefs": [
+      "data/raw/troops.gow.en.json#troops[id=6220]",
+      "data/raw/spells.gow.en.json#RawData[Id=7362,SpellSteps]",
+      "src/data/troops.json#[id=6220]",
+      "src/data/troop-progression.json#6220",
+      "src/data/traits.json#[code=fireproof]",
+      "src/data/traits.json#[code=pyromania]",
+      "src/data/traits.json#[code=stoneskin]",
+      "src/sillytavern/data/portraits.json#entries[troopId=6220]",
+      "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+    ],
+    "sourceFixture": "tests/fixtures/stEnemyStatusDamageExpectations.json",
+    "sourceFixtureSha256": "d239a6fb033539c7dbe2f73f7e9d543047949f3f746431d0d4f92fa980bc03ea",
+    "sourceRowDigest": "188e6d86e16f88e85f17cde67388701250537de24a6bf0a34e5fc43f4547a2b6",
+    "sourceReviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+    "sourceReview": "7362: Red/Brown, cost 13, Magic+2 damage to all living enemies, followed by Burn. Damage/status ordering and Burn-to-skull combination reviewed.",
+    "ordinaryTraits": [
+      {
+        "code": "fireproof",
+        "executionReview": "Burn/Faerie Fire immunity uses native status handling."
+      },
+      {
+        "code": "pyromania",
+        "executionReview": "Actual skull damage doubles against burning enemies, including after this active skill."
+      },
+      {
+        "code": "stoneskin",
+        "executionReview": "50% skull reduction; spell control remains separate."
+      }
+    ],
+    "obligationAssertions": [
+      {
+        "id": "portrait",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          }
+        ]
+      },
+      {
+        "id": "active",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Right"
+          },
+          {
+            "testFile": "tests/unit/gowWorker01BoardAndStorm.test.ts",
+            "fullName": "troop:6220 barrier absorbs only its own hit; native burn rider can still apply"
+          },
+          {
+            "testFile": "tests/unit/statusEffect.test.ts",
+            "fullName": "GoW official status rules: independent boundaries Burning hits Armor first, then Life, and Barrier absorbs one tick"
+          },
+          {
+            "testFile": "tests/unit/gowFixR004StatusDurations.test.ts",
+            "fullName": "R004 negative statuses: shared cumulative self-cleanse, no cap one roll per owner turn; success removes every recoverable negative, Poison stays"
+          }
+        ]
+      },
+      {
+        "id": "traits",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile burning while an allied control accepts it on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile faerie-fire while an allied control accepts it on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity accepts unrelated negative status and stun suppresses its trait on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source skull reduction acts on real incoming hits and leaves spell damage unchanged on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile burning while an allied control accepts it on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile faerie-fire while an allied control accepts it on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity accepts unrelated negative status and stun suppresses its trait on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source skull reduction acts on real incoming hits and leaves spell damage unchanged on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental composition its real Burn rider enables pyromania only on burning targets and stun disables the bonus on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental composition its real Burn rider enables pyromania only on burning targets and stun disables the bonus on Right"
+          },
+          {
+            "testFile": "tests/unit/traits.test.ts",
+            "fullName": "状态免疫特质 对应状态被拒绝，其它状态照常"
+          },
+          {
+            "testFile": "tests/unit/traits.test.ts",
+            "fullName": "骷髅减伤特质 铁壁铜墙减半"
+          },
+          {
+            "testFile": "tests/unit/traits.test.ts",
+            "fullName": "屠戮倍率与穿透护甲 纵火狂只对燃烧目标翻倍"
+          }
+        ]
+      },
+      {
+        "id": "target",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental honors every selected live slot and excludes dead slots without reselecting status riders on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental honors every selected live slot and excludes dead slots without reselecting status riders on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental AI recognizes the source role and full-mana active and executes its legal target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental AI recognizes the source role and full-mana active and executes its legal target on Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-cost",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental naturally reaches the exact cost, spends once and rejects an empty recast on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental naturally reaches the exact cost, spends once and rejects an empty recast on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-colors",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Red three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Green three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Blue three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Yellow three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Purple three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Brown three-match only to associated source mana on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Red three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Green three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Blue three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Yellow three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Purple three-match only to associated source mana on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental routes a real Brown three-match only to associated source mana on Right"
+          }
+        ]
+      },
+      {
+        "id": "scaling",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 1 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1 on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes source damage then every status at level 20 difficulty 1.5 on Right"
+          }
+        ]
+      },
+      {
+        "id": "context",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile burning while an allied control accepts it on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile faerie-fire while an allied control accepts it on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile burning while an allied control accepts it on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status traits 6220 LavaElemental source immunity blocks hostile faerie-fire while an allied control accepts it on Right"
+          }
+        ]
+      },
+      {
+        "id": "description",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          }
+        ]
+      },
+      {
+        "id": "role",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental freezes independent English clauses, native ordered steps, all three source traits, progression and portrait bytes"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental binds portrait, complete ordinary traits, input metadata, descriptions, role and heterogeneous context through ST preparation"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental AI recognizes the source role and full-mana active and executes its legal target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental AI recognizes the source role and full-mana active and executes its legal target on Right"
+          }
+        ]
+      },
+      {
+        "id": "refresh",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          }
+        ]
+      },
+      {
+        "id": "determinism",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental reopens the saved blueprint and request and deterministically replays charge, statuses, events and result on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Right"
+          }
+        ]
+      },
+      {
+        "id": "invalid-action",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects insufficient mana, silence, wrong-side, unknown and defeated casters atomically on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental executes the complete all-enemy active without requesting a cancellable target on Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental rejects tampered saved recipes and unavailable skill, trait and context dependencies before execution"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental naturally reaches the exact cost, spends once and rejects an empty recast on Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyStatusDamageAcceptance.test.ts",
+            "fullName": "ST status damage 6220 LavaElemental naturally reaches the exact cost, spends once and rejects an empty recast on Right"
+          }
+        ]
+      }
+    ],
+    "publicCompiler": "compileEnemyBlueprint -> prepareStBattle -> mapRequestToTeams -> TurnEngine/configureEngine -> BattleSession.resolve",
+    "independentBrowser": {
+      "provenance": "Reviewer personally exercised the seven real form/save/full-BP/reload/formation flows.7159 was independently repeated after the description patch.",
+      "input": {
+        "seed": 19,
+        "colors": "Red,Brown",
+        "rank": "精锐",
+        "form": "人形",
+        "role": "Mage"
+      },
+      "sourceRecipe": "enemy:6220",
+      "fullAndSemanticBpPreserved": true,
+      "formationSourceFieldsPreserved": true,
+      "pageErrors": []
+    },
+    "independentRandomFamily20261024": {
+      "reviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+      "reviewedAt": "2026-10-23T18:45:10.037Z",
+      "kind": "new-source-acceptance",
+      "execution": {
+        "author": "codex-main-random-family-20261024",
+        "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+        "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+        "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+        "sharedFiles": 24,
+        "sharedPassedAssertions": 2525,
+        "failed": 0,
+        "pending": 0,
+        "todo": 0,
+        "projectedSourceAssertions": 279,
+        "projectionDigest": "de60aed9e52d8f063716d44b3705dc989e54e7479fc02dc45e44bff3a81e1a7e",
+        "obligationReferences": 100,
+        "all13ReferencesVerified": true,
+        "provenance": "Shared execution by main agent; reviewer independently inspected original report, exact assertion projection, live fingerprints and contracts. Reviewer ran earlier random-target70 and seven real browser flows, then independently reran7159 browser after the patch; no claim to executing the shared batch."
+      },
+      "productionDelta": {
+        "changedFile": "src/sillytavern/traitDescription.ts",
+        "descriptionException": "没有其他可选目标时仍可被选择",
+        "postFixSha256": "d9742b89ded7ba0c81c33ca431d302e63faa856839fc6a84eb9bad3e4ea1f53c",
+        "preFixSha256": "7e99eba08f9aed4f138a9af61a2c46a366c1aa192c1c6dafa9c9446c1f4aa2d3",
+        "proofFile": ".tmp/st-random-family-implementation-delta.json",
+        "proofSha256": "746d58739971c848b971dd593a49e925125aaf4416d0849d281e6e7f4b5bd057",
+        "independentlyReconstructedOld33": 33,
+        "otherSrcScriptsUnchangedFiles": 683,
+        "otherSrcScriptsDigest": "62411395e7250de383897fe53be6d8532892370e71d11b1e3b1a7db4e95308f1",
+        "engineFilesUnchanged": 142
+      },
+      "buildEvidence": {
+        "provenance": "Main agent build/dist smoke logs inspected; not independently rerun.",
+        "validationFile": ".tmp/st-random-family-validation.json",
+        "validationSha256": "268b7b2a942962e95c6455d74e22deb3fc7a22a54275915b27568dc3654589a1",
+        "buildExit": 0,
+        "distSmokeExit": 0
+      }
+    }
+  },
+  "boundaries": [
+    "Random-family 2026-10-24 acceptance covers only registered source enemy-behavior and its 13 obligations. Shared tests/build/browser evidence grant no additional source or whole-directory/ST-04 completion credit;7038/6341 are outside this batch of new behaviors.",
+    "Persistence scope is canonical full battle-setup BP/semantic design/formation save and reload, plus deterministic seeded replay; no arbitrary mid-battle snapshot-resume claim is made.",
+    "The current shared execution is batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3: 24 files and 2525 passing assertions. Per-source projections overlap and must not be added. Earlier execution statements retained in this receipt are historical.",
+    "Old33 renewal preserves source/portrait/contract semantics. Its conservative implementationDigest update is independently isolated to the ST untargetable last-target exception text; tests and registry/report bindings are renewed. Existing evidence/history/native boundaries remain in force."
+  ]
+}

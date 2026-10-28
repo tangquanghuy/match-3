@@ -68,6 +68,18 @@ describe('buildDetailViewModel（需求 4.1-4.3）', () => {
     expect(vm.colors).toEqual([BaseColor.Red, BaseColor.Blue]);
   });
 
+  it('uses the current character identity and exact snapshot level label in native details', () => {
+    const char = makeChar({ name: '同名守卫', race: '半精灵', levelLabel: 'Lv.7', battleScaling: { level: 20, difficulty: 1 } });
+    const vm = buildDetailViewModel(char);
+    expect(vm).toMatchObject({ name: '同名守卫', race: '半精灵', levelLabel: 'Lv.7', hp: 25, attack: 12, armor: 6, magic: 8 });
+    expect(char.levelLabel).toBe('Lv.7');
+  });
+
+  it('uses frozen scaling for derived forms and leaves unknown levels absent', () => {
+    expect(buildDetailViewModel(makeChar({ battleScaling: { level: 23, difficulty: 1 } })).levelLabel).toBe('Lv.23');
+    expect(buildDetailViewModel(makeChar()).levelLabel).toBeUndefined();
+  });
+
   it('技能名 + 全文 + 法力值消耗（需求 4.2）', () => {
     const vm = buildDetailViewModel(makeChar(), makeTroop());
     expect(vm.skill).not.toBeNull();

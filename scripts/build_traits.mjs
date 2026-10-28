@@ -856,14 +856,15 @@ function parse(desc, code) {
   if ((m = /^(?:当|在)一名盟友施(?:放|法)法?术?时[，,]?获得\s*(\d+)\s*个?(黄金|灵魂)。?$/.exec(desc))) {
     return { effects: { onAllyCastEconomy: { currency: m[2] === '黄金' ? 'gold' : 'souls', amount: num(m[1]) } } };
   }
-  // 免疫：对 X、Y 免疫（T1 批：warded/cunning/brave/immune——「对疾病和狼化免疫」的
-  // 狼化引擎未实现，按映射表只收疾病，不做缺状态半解析）
+  // 状态免疫与即时法力操作分别登记；狼化覆盖引擎识别的三个状态别名。
   if (/免疫/.test(desc)) {
     const devour = /吞噬/.test(desc) ? { devourImmunity: true } : {};
     if (code === 'impervious') return { effects: { statusImmunities: ['negative'], ...devour } };
     if (/所有状态效果/.test(desc)) return { effects: { statusImmunities: ['*'], ...devour } };
     const ids = RESCUE_FULL_STATUS_MAP.filter(([re]) => re.test(desc)).map(([, id]) => id);
-    if (ids.length > 0) return { effects: { statusImmunities: [...new Set(ids)], ...devour } };
+    if (/狼化/.test(desc)) ids.push('wolf', 'wolf-form', 'lycanthropy');
+    const mana = /法力耗尽|法力窃取/.test(desc) ? { manaOpsImmunity: true } : {};
+    if (ids.length > 0 || Object.keys(mana).length) return { effects: { ...(ids.length ? { statusImmunities: [...new Set(ids)] } : {}), ...devour, ...mana } };
     return null; // 全是引擎没有的状态
   }
   // 开局法力：战斗开始时获得 N% 法力值 / 全满法力值

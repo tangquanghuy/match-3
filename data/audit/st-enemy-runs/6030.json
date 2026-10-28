@@ -1,0 +1,3279 @@
+{
+  "version": 1,
+  "enemyId": 6030,
+  "testFile": "tests/unit/stEnemyDirectDamageAcceptance.test.ts",
+  "evidenceFiles": [
+    "data/raw/gow-2026-09-18/traits.en.json",
+    "data/raw/spells.gow.en.json",
+    "data/raw/troops.gow.en.json"
+  ],
+  "subjectDigest": "4a4208abf360888c16c5184b417da04ac8b6e719ee2de2578e72ba71d3c0f462",
+  "testDigest": "ff99603b71d5cd020a67918cd77cedbe90be3ccee3630098af42ee44f3173711",
+  "implementationDigest": "6280b458d68f1d2d32fca4050a698ff1e417a256557fd5735bccf9d98da1e932",
+  "portraitDigest": "4f6c72588e45cc77413b23c4357f41053c7294bf3bc3fef739daa6d5ed252c0d",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "64a84adbc0f7aa237cbf03d30f01f61dee0427468d2d4d6bbc5505937113930a",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior blocks poison from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior uses native normal splash on adjacent slots without reaching a fourth enemy",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6001 Rhynax: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior reduces actual incoming skull hits but preserves ordinary spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior doubles outgoing skull damage only against the source affinity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6030 ArchonStatue: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior blocks burning from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior blocks faerie-fire from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior executes both seeded probability branches of its skull trait",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6057 WolfKnight: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior executes both seeded probability branches of its skull trait",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6085 Atlanta: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior reduces actual incoming skull hits but preserves ordinary spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior doubles outgoing skull damage only against the source affinity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6117 Scarlett: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior rejects cancelled, friendly, stale and dead selected targets with RNG rollback on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior reduces actual incoming skull hits but preserves ordinary spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior doubles outgoing skull damage only against the source affinity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior blocks silence from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6257 DragonKnight: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior executes every conditional active branch and excludes opposing context from allied traits on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior reduces actual incoming skull hits but preserves ordinary spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior gains exactly three magic per committed enemy cast and none for allied or rejected casts",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6306 DarkMonolith: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior reduces both ordinary and true spell damage while true damage bypasses armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior grows every stat of living green allies once per allied turn with no enemy, dead or off-color benefit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior obeys native six-wave no-previous-target preference and its literal damage interval",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 6932 Mambasira: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior reduces both ordinary and true spell damage while true damage bypasses armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior blocks faerie-fire from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior blocks silence from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior blocks death-mark from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior describes the source High Ancestry immunity to mana depletion",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior retains mana when an actual enemy spell drains all mana under High Ancestry",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7164 MoonMage: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior matches literal raw spell, original rarity, base stats and all three source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior binds the source portrait, context, role, active description and all ordinary trait descriptions",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior scales source stats at level 1 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior scales source stats at level 20 difficulty 1 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior scales source stats at level 20 difficulty 1.5 and executes the scaled active",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior applies opening traits only to living allied source affinities and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior applies opening traits only to living allied source affinities and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior executes complete damage, target and role behavior on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior executes complete damage, target and role behavior on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Red three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Red three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Green three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Green three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Blue three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Blue three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Yellow three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Yellow three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Purple three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Purple three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Brown three-match through source mana colors and links on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior routes a real Brown three-match through source mana colors and links on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior charges naturally to the source cost, spends it once and rejects an empty recast on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior rejects insufficient mana, wrong-side, unknown and defeated casters atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior blocks entangle from a committed enemy spell while a plain allied control receives it",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior heals one HP per allied turn and clamps regeneration at maximum HP",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior excludes dead target slots and resolves the remaining source target rule",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST direct damage 7386 RatSwarm: source behavior restores canonical JSON and replays identical real actions, board, events and final result",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry: original family inventory accounts for every raw holder, including the source-only catalog gap",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6190 Tassarion: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6322 Swordmaster: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6323 ElvenBard: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6324 Enchantress: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6326 PrincessElspeth: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6327 TheSilvermaiden: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6355 DarkPriestess: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6425 PrinceEthoras: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6527 Arcanus: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6691 LordEhrondil: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6814 FrostfireWitch: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6816 TheFrostfireKing: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6903 SapphireKnight: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 6923 StarryMage: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7005 Forgemistress: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7161 SwordMaiden: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7164 MoonMage: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7392 SirAiluin: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7532 LioraMistveil: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7557 TheRedCorsair: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7752 ElvenNoble: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7753 Siobhan: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression assembles the real recipe and describes drain and steal without adding burn immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression drain with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression drain with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression drain with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression steal with none on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression steal with curse on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression steal with stun on side Left uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression drain with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression drain with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression drain with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression steal with none on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression steal with curse on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression steal with stun on side Right uses a committed enemy cast and a plain allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn damage with none on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn damage with curse on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn damage with stun on side Left preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn damage with none on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn damage with curse on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn damage with stun on side Right preserves mana and respects only the separate burn shield",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn status on side Left is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7794 KingElbormor: shared trait regression mana burn status on side Right is distinct from drain and steal immunity",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7915 VaerilRubyward: shared trait regression binds original rarity and the complete source trait clauses",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST High Ancestry 7915 VaerilRubyward: shared trait regression records 7915 as missing the current ST portrait entry without claiming runtime behavior",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 813,
+  "passedTests": 813,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

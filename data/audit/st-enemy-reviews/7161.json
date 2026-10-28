@@ -1,0 +1,654 @@
+{
+  "version": 1,
+  "enemyId": 7161,
+  "reviewer": "codex-independent-random-family-product-20261024",
+  "reviewerName": "Codex independent random-family product and enemy-behavior reviewer",
+  "reviewedAt": "2026-10-23T18:45:10.037Z",
+  "decision": "accepted",
+  "scope": "enemy-behavior",
+  "obligations": [
+    "portrait",
+    "active",
+    "traits",
+    "target",
+    "mana-cost",
+    "mana-colors",
+    "scaling",
+    "context",
+    "description",
+    "role",
+    "refresh",
+    "determinism",
+    "invalid-action"
+  ],
+  "subjectDigest": "000a09bf7b496e401380dea46213c8b042414c04fd27ce110891b7d32df23451",
+  "testDigest": "223a04e70ecb2c9093db77204f24a4705172140d7e6c98845432cb2a32d956c3",
+  "implementationDigest": "cf28f278f883bda83dcf69e51fb1fa3c7658865a3969f50a242004dca60ac852",
+  "portraitDigest": "cc7b94b90cc75d545d8a021bae32795da3b7e26a9d80a50928b6cb03bbe77c2d",
+  "contractDigest": "1a16c2b6ff24f37872a94b201522f5ad0c5109978e91b86b91a4ada28f38ba60",
+  "runDigest": "a9aacd984fdc0536e03fff3899a7cdf041a35d03e2fe0ef6dcbaacadffe91d6c",
+  "evidence": {
+    "sourceRefs": [
+      "data/raw/troops.gow.en.json#troops[id=7161]",
+      "data/raw/spells.gow.en.json#spells[Id=8736]",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=magicheart",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=agile",
+      "src/data/troop-progression.json#7161",
+      "src/data/troops.json#7161",
+      "src/data/traits.json#magicheart",
+      "src/data/traits.json#highancestry",
+      "src/data/traits.json#agile",
+      "src/sillytavern/data/portraits.json#entries[troopId=7161]",
+      "game-assets/public/static/portraits/Troop_K26_21.webp",
+      "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM"
+    ],
+    "sourceFixture": "tests/fixtures/stEnemyRandomDamageExpectations.json",
+    "sourceFixtureSha256": "4b3ff6a71bf9c66068ee97cb7d358934f43295627e7fb6308b2c9143c6623b31",
+    "sourceRowDigest": "cab40aa230cf0e165c248c34c7ea2e23e9cfeaaa12b7fbc51e26e6316c4f5edf",
+    "sourceReviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+    "sourceReview": "8736: Red/Purple, cost 7, chosen enemy, inclusive random damage 3..Magic+2. Selected target, endpoints, both sides, scaling and seeded replay reviewed.",
+    "ordinaryTraits": [
+      {
+        "code": "magicheart",
+        "executionReview": "Opening HP counts actual living same-team Purple allies including self."
+      },
+      {
+        "code": "highancestry",
+        "executionReview": "Native listed status, mana-drain and steal immunities use actual controls."
+      },
+      {
+        "code": "agile",
+        "executionReview": "Seeded skull dodge with spell-damage non-dodge control."
+      }
+    ],
+    "obligationAssertions": [
+      {
+        "id": "portrait",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          }
+        ]
+      },
+      {
+        "id": "active",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "traits",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior counts only living allied heart colors including self once on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior counts only living allied heart colors including self once on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks each named status while a plain control receives it on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks each named status while a plain control receives it on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks actual mana drain and theft with a plain control on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior High Ancestry blocks actual mana drain and theft with a plain control on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior Agile executes both seeded skull branches and leaves ordinary spell damage intact on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior Agile executes both seeded skull branches and leaves ordinary spell damage intact on side Right"
+          }
+        ]
+      },
+      {
+        "id": "target",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior excludes dead slots and preserves the source target rule on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior excludes dead slots and preserves the source target rule on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-cost",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior barrier blocks only the real selected victim while consuming one cast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "mana-colors",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Red three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Green three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Blue three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Yellow three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Purple three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Brown three-match through source mana colors on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Red three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Green three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Blue three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Yellow three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Purple three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior routes a real Brown three-match through source mana colors on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          }
+        ]
+      },
+      {
+        "id": "scaling",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          }
+        ]
+      },
+      {
+        "id": "context",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior counts only living allied heart colors including self once on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior counts only living allied heart colors including self once on side Right"
+          }
+        ]
+      },
+      {
+        "id": "description",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior freezes independent raw troop, spell, traits, source stats and progression"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          }
+        ]
+      },
+      {
+        "id": "role",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior binds portrait bytes, context, role, native recipe and every description on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          }
+        ]
+      },
+      {
+        "id": "refresh",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Right"
+          }
+        ]
+      },
+      {
+        "id": "determinism",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 1 difficulty 1 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 10 difficulty 1.5 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior executes seeded interval endpoints at level 20 difficulty 2 on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior restores canonical JSON and replays identical board, RNG, events and cached result on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Right"
+          }
+        ]
+      },
+      {
+        "id": "invalid-action",
+        "assertions": [
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rejects low mana, wrong-side, unknown, defeated and disabled casters atomically on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior rolls back cancelled, friendly, stale and dead choices including consumed RNG on side Right"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Left"
+          },
+          {
+            "testFile": "tests/unit/stEnemyRandomDamageAcceptance.test.ts",
+            "fullName": "ST random damage 7161 SwordMaiden: source behavior naturally charges to seven, spends once and atomically rejects an empty recast on side Right"
+          }
+        ]
+      }
+    ],
+    "publicCompiler": "compileEnemyBlueprint -> prepareStBattle -> mapRequestToTeams -> TurnEngine/configureEngine -> BattleSession.resolve",
+    "independentBrowser": {
+      "provenance": "Reviewer personally exercised the seven real form/save/full-BP/reload/formation flows.7159 was independently repeated after the description patch.",
+      "input": {
+        "seed": 20,
+        "colors": "Red,Purple",
+        "rank": "精锐",
+        "form": "人形",
+        "role": "Striker"
+      },
+      "sourceRecipe": "enemy:7161",
+      "fullAndSemanticBpPreserved": true,
+      "formationSourceFieldsPreserved": true,
+      "pageErrors": []
+    },
+    "independentRandomFamily20261024": {
+      "reviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+      "reviewedAt": "2026-10-23T18:45:10.037Z",
+      "kind": "new-source-acceptance",
+      "execution": {
+        "author": "codex-main-random-family-20261024",
+        "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+        "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+        "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+        "sharedFiles": 24,
+        "sharedPassedAssertions": 2525,
+        "failed": 0,
+        "pending": 0,
+        "todo": 0,
+        "projectedSourceAssertions": 80,
+        "projectionDigest": "4ec1649b5d8dd1ab2cbb3dcfe93dc2289991f28e8e518767a04267d8d08a2715",
+        "obligationReferences": 115,
+        "all13ReferencesVerified": true,
+        "provenance": "Shared execution by main agent; reviewer independently inspected original report, exact assertion projection, live fingerprints and contracts. Reviewer ran earlier random-target70 and seven real browser flows, then independently reran7159 browser after the patch; no claim to executing the shared batch."
+      },
+      "productionDelta": {
+        "changedFile": "src/sillytavern/traitDescription.ts",
+        "descriptionException": "没有其他可选目标时仍可被选择",
+        "postFixSha256": "d9742b89ded7ba0c81c33ca431d302e63faa856839fc6a84eb9bad3e4ea1f53c",
+        "preFixSha256": "7e99eba08f9aed4f138a9af61a2c46a366c1aa192c1c6dafa9c9446c1f4aa2d3",
+        "proofFile": ".tmp/st-random-family-implementation-delta.json",
+        "proofSha256": "746d58739971c848b971dd593a49e925125aaf4416d0849d281e6e7f4b5bd057",
+        "independentlyReconstructedOld33": 33,
+        "otherSrcScriptsUnchangedFiles": 683,
+        "otherSrcScriptsDigest": "62411395e7250de383897fe53be6d8532892370e71d11b1e3b1a7db4e95308f1",
+        "engineFilesUnchanged": 142
+      },
+      "buildEvidence": {
+        "provenance": "Main agent build/dist smoke logs inspected; not independently rerun.",
+        "validationFile": ".tmp/st-random-family-validation.json",
+        "validationSha256": "268b7b2a942962e95c6455d74e22deb3fc7a22a54275915b27568dc3654589a1",
+        "buildExit": 0,
+        "distSmokeExit": 0
+      }
+    }
+  },
+  "boundaries": [
+    "Random-family 2026-10-24 acceptance covers only registered source enemy-behavior and its 13 obligations. Shared tests/build/browser evidence grant no additional source or whole-directory/ST-04 completion credit;7038/6341 are outside this batch of new behaviors.",
+    "Persistence scope is canonical full battle-setup BP/semantic design/formation save and reload, plus deterministic seeded replay; no arbitrary mid-battle snapshot-resume claim is made.",
+    "The current shared execution is batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3: 24 files and 2525 passing assertions. Per-source projections overlap and must not be added. Earlier execution statements retained in this receipt are historical.",
+    "Old33 renewal preserves source/portrait/contract semantics. Its conservative implementationDigest update is independently isolated to the ST untargetable last-target exception text; tests and registry/report bindings are renewed. Existing evidence/history/native boundaries remain in force."
+  ]
+}

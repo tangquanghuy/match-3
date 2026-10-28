@@ -1,0 +1,33 @@
+{
+  "checked_on": "2026-10-28",
+  "purpose": "提交推送前记录当前工作区实测结果；交接快照保留未完成事项。",
+  "build": {
+    "command": "npm run build:tavern",
+    "result": "passed",
+    "note": "本轮本地部署工作中执行，TypeScript 与 Vite 构建通过；存在大 chunk 提示。"
+  },
+  "local_deployment": "local-deployment-verification.json",
+  "unit_tests": {
+    "command": "npx vitest run tests/unit/stRuntimeProtocol.test.ts tests/unit/stRuntimeRegex.test.ts tests/unit/stEnemyClassifiedAssembly.test.ts tests/unit/stEnemyWeightedAssembly.test.ts tests/unit/stPortraitIndependence.test.ts tests/unit/stSave.test.ts tests/unit/stStoryWriteback.test.ts tests/unit/stEconomyReceipt.test.ts",
+    "test_files": 8,
+    "passed_files": 6,
+    "failed_files": 2,
+    "passed_tests": 316,
+    "failed_tests": 2,
+    "failures": [
+      {
+        "file": "tests/unit/stEnemyClassifiedAssembly.test.ts",
+        "line": 101,
+        "test": "fulfills semantic damage and defense together through independently selected traits",
+        "observed": "生成敌人颜色为 Red，断言要求等于技能来源的 Green/Purple；需核对颜色重绑定后的测试口径。"
+      },
+      {
+        "file": "tests/unit/stEnemyWeightedAssembly.test.ts",
+        "line": 53,
+        "test": "restores a pre-policy save using its original selector and detects altered data",
+        "observed": "旧版本语义设计 fixture 在 restoreEnemyDesign 全字段校验时被拒绝，需核对兼容恢复行为。"
+      }
+    ]
+  },
+  "acceptance": "本次为交接快照，存在以上两条失败；ST-04–ST-09 仍进行中，ST-10 未整版验收。"
+}

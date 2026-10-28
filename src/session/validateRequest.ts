@@ -125,6 +125,21 @@ function validateCombatant(
     issues.push({ path: `${path}.name`, code: 'missing-field', message: '必须是非空字符串' });
   }
 
+  if (c.race !== undefined && (!isNonEmptyString(c.race) || c.race.length > 80)) {
+    issues.push({ path: `${path}.race`, code: 'bad-type', message: '种族必须是 1～80 字符的非空字符串' });
+  }
+
+  if (c.battleScaling !== undefined) {
+    const scaling = c.battleScaling;
+    if (!isPlainObject(scaling) || !Number.isInteger(scaling.level) || Number(scaling.level) < 1 || Number(scaling.level) > 100
+      || typeof scaling.difficulty !== 'number' || !Number.isFinite(scaling.difficulty) || scaling.difficulty < .1 || scaling.difficulty > 10) {
+      issues.push({ path: `${path}.battleScaling`, code: 'bad-type', message: '派生形态等级须为 1–100 整数，难度须为 0.1–10' });
+    }
+  }
+  if (c.mechanicalIdentity !== undefined && !isNonEmptyString(c.mechanicalIdentity)) {
+    issues.push({ path: `${path}.mechanicalIdentity`, code: 'bad-type', message: '机制身份必须是非空字符串' });
+  }
+
   if (!isPlainObject(c.stats)) {
     issues.push({ path: `${path}.stats`, code: 'missing-field', message: '必须是对象' });
   } else {

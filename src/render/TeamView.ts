@@ -1,4 +1,4 @@
-import { BaseColor, PlayerSide } from '@engine/types';
+import { BaseColor, PlayerSide, snapshotCharacterForm } from '@engine/types';
 import type { Character, Team } from '@engine/types';
 import { AnimConfig } from './AnimationConfig';
 import { scaledMs } from './battleSpeed';
@@ -10,6 +10,7 @@ import {
 } from './statusPresentation';
 import { statusRecoveryChance } from '@engine/skills/effects/status';
 import { traitCardGlyphs } from './traitBadges';
+import { characterLevelLabel } from './CharacterDetailPanel';
 import frostBorderUrl from '@assets/fx/frost_border_overlay.webp';
 import frostVeinsUrl from '@assets/fx/frost_veins_overlay.webp';
 import silenceSealUrl from '@assets/fx/silence_seal_overlay.webp';
@@ -232,6 +233,8 @@ export type PressSource = 'pointer' | 'keyboard';
 
 /** 卡面此刻显示的数值（详情窗与卡面同步用；法力为卡面显示值，不是引擎值） */
 export interface CardShownStats {
+  /** Identity follows the displayed form, alongside its visible battle stats. */
+  levelLabel?: string;
   attack: number;
   armor: number;
   hp: number;
@@ -919,7 +922,7 @@ export class CharacterCard {
   private gemColors: BaseColor[] = [];
   private displayedMana = 0;
 
-  private readonly troopName?: string;
+  private troopName?: string;
 
   constructor(char: Character, side: PlayerSide, opts?: { portrait?: string; variant?: string; troopName?: string }) {
     ensureStyles();
@@ -1085,6 +1088,19 @@ export class CharacterCard {
     this.applyCompactMetrics(this.cardWidth);
   }
 
+  /** Replace only the card's form; never copy historical values into the engine actor. */
+  presentForm(form: Character, portrait: string): void {
+    this.char = snapshotCharacterForm(form);
+    this.troopName = form.name;
+    this.reface(portrait);
+  }
+
+  /** Return to the actual actor only after the action's presentation has finished. */
+  syncCharacter(character: Character): void {
+    this.char = character;
+    this.refresh(true);
+  }
+
   /** 兵种转化后换脸：立绘、法力色、特质和数值都换成当前角色。 */
   reface(portrait: string): void {
     for (const skin of Object.values(SKIN_CLASS)) this.el.classList.remove(skin);
@@ -1138,6 +1154,7 @@ export class CharacterCard {
   private recordShown(): void {
     const c = this.char;
     this.shown = {
+      levelLabel: characterLevelLabel(c),
       attack: c.attack,
       armor: Math.max(0, c.armor),
       hp: Math.max(0, c.hp),
@@ -1153,7 +1170,7 @@ export class CharacterCard {
       })),
     };
     this.shownVersion++;
-    this.el.setAttribute('aria-label', `${c.name}，生命 ${this.shown.hp}，法力 ${this.shown.mana}/${c.manaCost}`);
+    this.el.setAttribute('aria-label', `${c.name}${c.race ? `，${c.race}` : ''}，生命 ${this.shown.hp}，法力 ${this.shown.mana}/${c.manaCost}`);
   }
 
   /** 卡面当前显示的数值（详情窗用）；version 在每次重绘后自增 */
@@ -2135,7 +2152,7 @@ export class TeamView {
   private turnActive = false;
 
   constructor(
-    team: Team,
+    private readonly team: Team,
     side: PlayerSide,
     opts?: {
       portraits?: Record<number, string>;
@@ -2266,7 +2283,7 @@ export class TeamView {
   addCharacterCard(char: Character, opts?: { portrait?: string; troopName?: string }): CharacterCard {
     const existing = this.cards.get(char.id);
     if (existing) return existing;
-    const card = new CharacterCard(char, this.side, {
+    const card = new CharacterCard(snapshotCharacterForm(char), this.side, {
       portrait: opts?.portrait,
       troopName: opts?.troopName,
       variant: VARIANTS[this.cards.size % VARIANTS.length],
@@ -2427,7 +2444,11 @@ export class TeamView {
   }
 
   refreshAll(): void {
-    for (const card of this.cards.values()) card.refresh(true);
+    for (const card of this.cards.values()) {
+      const character = this.team.characters.find(char => char.id === card.charId);
+      if (character) card.syncCharacter(character);
+      else card.refresh(true);
+    }
   }
 
   /** 推入舞台缩放（B-7：徽记 24px 下限是屏幕像素口径，见 CharacterCard.setStageScale） */

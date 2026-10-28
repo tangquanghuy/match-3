@@ -18,6 +18,16 @@ describe('battle troop identity', () => {
     expect(battleTroopOf(yeluo.name, snapshot({ templateId: String(yeluo.id) }))).toBeUndefined();
   });
 
+  it('does not resolve a story enemy by a coincidentally identical native troop name', () => {
+    expect(battleTroopOf(yeluo.name, snapshot({externalId:'enemy-1',skillId:'st:123',race:'半精灵'}))).toBeUndefined();
+  });
+
+  it('keeps snapshot-owned identities separate from same-name native troops for any skill source', () => {
+    for (const skillId of ['none', yeluo.spell.id.toString()]) {
+      expect(battleTroopOf(yeluo.name, snapshot({ externalId: 'enemy-1', skillId }))).toBeUndefined();
+    }
+  });
+
   it('keeps the real hero distinct in a built player team', () => {
     const save = newSave({ now: 0, starterTroopIds: [6000, 6097, 6457] });
     save.character = { name: yeluo.name, gender: 'unknown', portrait: 'default:unknown' };

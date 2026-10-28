@@ -1,3 +1,4 @@
+import type {BattleEconomyAudit} from './battleEconomyLedger';
 import { BoardModel } from './BoardModel';
 import { MatchState, PlayerSide } from './types';
 import type { ActionLogEntry, Team } from './types';
@@ -34,6 +35,8 @@ export interface GameState {
   charIdHighWater?: number;
   /** 玩家奖励计数；黄金按双方独立持有，见 BattleEconomy 注释 */
   economy: BattleEconomy;
+  /** Optional battle-resource audit, separate from persistent reward grants. */
+  economyAudit?: BattleEconomyAudit;
   /** Right-side battle Gold; optional only for legacy state fixtures (defaults to zero). */
   enemyGold?: number;
   /** Battle-start gold trait ratios, retained after a trait holder leaves the roster. */

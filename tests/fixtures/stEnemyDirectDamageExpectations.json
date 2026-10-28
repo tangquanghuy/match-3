@@ -1,0 +1,3074 @@
+{
+  "version": 1,
+  "reviewStatus": "pending-independent-review",
+  "oracle": "Literal source anchors and hand-calculated source effects. Never derived from compiler, adapted prototypes or observed engine outputs.",
+  "enemies": [
+    {
+      "id": 6001,
+      "name": "Rhynax",
+      "rarity": "Uncommon",
+      "rarityIdx": 1,
+      "role": "Striker",
+      "portrait": {
+        "assetId": "Troop_K00_01",
+        "rank": "杂兵",
+        "form": "野兽"
+      },
+      "spellId": 7132,
+      "sourceDescription": "对 1 名敌人造成 [魔法 + 2] 点轻微溅射伤害。",
+      "colors": [
+        "Green",
+        "Brown"
+      ],
+      "cost": 10,
+      "traits": [
+        {
+          "code": "beastbond",
+          "source": {
+            "code": "beastbond",
+            "name": "野兽族亲",
+            "description": "野兽盟友获得 2 点生命值。",
+            "troops": 45,
+            "typeAura": {
+              "troopType": "Beast",
+              "stat": "hp",
+              "amount": 2
+            }
+          },
+          "description": "战斗开始时，我方族群 #1 的存活角色的生命增加 2 点。"
+        },
+        {
+          "code": "sturdy",
+          "source": {
+            "code": "sturdy",
+            "name": "健壮",
+            "description": "对中毒状态免疫。",
+            "troops": 34,
+            "statusImmunities": [
+              "poison"
+            ]
+          },
+          "description": "免疫中毒。"
+        },
+        {
+          "code": "stonespirit",
+          "source": {
+            "code": "stonespirit",
+            "name": "岩石之灵",
+            "description": "每有一名棕色盟友则获得 1 点魔力值。",
+            "troops": 12,
+            "perAllyColor": {
+              "color": "Brown",
+              "stat": "magic",
+              "amount": 1
+            }
+          },
+          "description": "战斗开始时，每名关联棕色的我方存活角色（含自身）使自身魔力增加 1 点。"
+        }
+      ],
+      "stats": {
+        "hp": 28,
+        "armor": 6,
+        "attack": 11,
+        "magic": 8
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 4,
+            "armor": 0,
+            "attack": 2,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 28,
+            "armor": 6,
+            "attack": 11,
+            "magic": 8
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 42,
+            "armor": 9,
+            "attack": 17,
+            "magic": 12
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:11",
+          "affinity:1"
+        ],
+        "region": "region:27",
+        "regionId": 100000
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6001",
+        "src/data/troop-progression.json#6001",
+        "src/data/traits.json#beastbond",
+        "src/data/traits.json#sturdy",
+        "src/data/traits.json#stonespirit",
+        "src/sillytavern/data/portraits.json#entries[troopId=6001]",
+        "game-assets/public/static/portraits/Troop_K00_01.webp",
+        "data/raw/troops.gow.en.json#troops[id=6001]",
+        "data/raw/spells.gow.en.json#spells[Id=7132]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=beastbond,sturdy,stonespirit"
+      ],
+      "kind": "splash",
+      "damage": 11,
+      "range": "splash",
+      "opening": {
+        "hp": 30,
+        "magic": 9,
+        "mana": 0
+      },
+      "spirit": "Brown",
+      "bond": "Beast",
+      "immunities": [
+        "poison"
+      ],
+      "phrases": [
+        "2",
+        "溅射",
+        "相邻"
+      ],
+      "nativeSpell": {
+        "Cost": 10,
+        "Description": "[SPELL7132_DESC]",
+        "Id": 7132,
+        "Name": "[SPELL7132_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "SplashHighDamage"
+          }
+        ],
+        "Target": "Enemy"
+      },
+      "englishClause": "Deal [Magic + 2] splash damage to an Enemy.",
+      "splashRatio": 0.5,
+      "sourceDiscrepancy": "The Chinese stored text says light splash; the independent English clause and native SplashHighDamage require normal splash (50% adjacent).",
+      "englishTraits": [
+        {
+          "code": "beastbond",
+          "description": "Allied Beasts gain 2 Life."
+        },
+        {
+          "code": "sturdy",
+          "description": "Immune to Poison."
+        },
+        {
+          "code": "stonespirit",
+          "description": "Gain 1 Magic for each Brown ally."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "start_battle",
+          "Code": "beastbond",
+          "Description": "[TRAIT_BEASTBOND_DESC]",
+          "Filter": "beast",
+          "Image": "beastbond",
+          "Modifier": 2,
+          "Name": "[TRAIT_BEASTBOND]",
+          "TraitType": "adjust_allies_life",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "status_effect_received",
+          "Code": "sturdy",
+          "Description": "[TRAIT_STURDY_DESC]",
+          "Image": "sturdy",
+          "Name": "[TRAIT_STURDY]",
+          "TraitType": "immune_poison",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "stonespirit",
+          "Description": "[TRAIT_STONESPIRIT_DESC]",
+          "Filter": "5",
+          "Image": "stonespirit",
+          "Modifier": 1,
+          "Name": "[TRAIT_STONESPIRIT]",
+          "TraitType": "adjust_magic_per_ally",
+          "Trigger": "none"
+        }
+      ]
+    },
+    {
+      "id": 6030,
+      "name": "ArchonStatue",
+      "rarity": "Uncommon",
+      "rarityIdx": 1,
+      "role": "Defender",
+      "portrait": {
+        "assetId": "Troop_K07_02",
+        "rank": "杂兵",
+        "form": "人形"
+      },
+      "spellId": 7030,
+      "sourceDescription": "对最健康的敌人造成 [魔法 + 3] 点伤害。若自身的生命值受损，则可多造成 8 点伤害。",
+      "colors": [
+        "Green",
+        "Brown"
+      ],
+      "cost": 10,
+      "traits": [
+        {
+          "code": "undeadslayer",
+          "source": {
+            "code": "undeadslayer",
+            "name": "不死族杀手",
+            "description": "对不死族造成双倍骷髅头伤害。",
+            "troops": 7,
+            "skullMultVsTroopType": {
+              "troopType": "Undead",
+              "mult": 2
+            }
+          },
+          "description": "目标属于族群 #31时，骷髅头伤害倍率为 2。"
+        },
+        {
+          "code": "stonespirit",
+          "source": {
+            "code": "stonespirit",
+            "name": "岩石之灵",
+            "description": "每有一名棕色盟友则获得 1 点魔力值。",
+            "troops": 12,
+            "perAllyColor": {
+              "color": "Brown",
+              "stat": "magic",
+              "amount": 1
+            }
+          },
+          "description": "战斗开始时，每名关联棕色的我方存活角色（含自身）使自身魔力增加 1 点。"
+        },
+        {
+          "code": "stoneskin",
+          "source": {
+            "code": "stoneskin",
+            "name": "铁壁铜墙",
+            "description": "降低来自骷髅头的伤害 50%。",
+            "troops": 148,
+            "skullDamageReduction": 0.5
+          },
+          "description": "受到的骷髅头伤害降低 50%；同类减伤取最强值。"
+        }
+      ],
+      "stats": {
+        "hp": 22,
+        "armor": 16,
+        "attack": 12,
+        "magic": 12
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 5,
+            "armor": 4,
+            "attack": 2,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 22,
+            "armor": 16,
+            "attack": 12,
+            "magic": 12
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 33,
+            "armor": 24,
+            "attack": 18,
+            "magic": 18
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:7",
+          "affinity:5"
+        ],
+        "region": "region:24",
+        "regionId": 100014
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6030",
+        "src/data/troop-progression.json#6030",
+        "src/data/traits.json#undeadslayer",
+        "src/data/traits.json#stonespirit",
+        "src/data/traits.json#stoneskin",
+        "src/sillytavern/data/portraits.json#entries[troopId=6030]",
+        "game-assets/public/static/portraits/Troop_K07_02.webp",
+        "data/raw/troops.gow.en.json#troops[id=6030]",
+        "data/raw/spells.gow.en.json#spells[Id=7030]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=undeadslayer,stonespirit,stoneskin"
+      ],
+      "kind": "healthiest",
+      "damage": 16,
+      "bonusDamage": 24,
+      "range": "single",
+      "opening": {
+        "hp": 22,
+        "magic": 13,
+        "mana": 0
+      },
+      "spirit": "Brown",
+      "slayer": "Undead",
+      "skullFactor": 0.5,
+      "phrases": [
+        "3",
+        "8",
+        "生命"
+      ],
+      "nativeSpell": {
+        "Cost": 10,
+        "Description": "[SPELL7030_DESC]",
+        "Id": 7030,
+        "Name": "[SPELL7030_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "StrongestEnemy",
+            "StatusAmount": 8,
+            "Amount": 3,
+            "Primarypower": true,
+            "StatusModifier": "AddForCasterDamaged",
+            "Type": "Damage"
+          }
+        ],
+        "Target": "None"
+      },
+      "englishClause": "Deal [Magic + 3] damage to the strongest Enemy. If I am wounded, deal 8 more damage.",
+      "englishTraits": [
+        {
+          "code": "undeadslayer",
+          "description": "Deal double Skull damage vs. Undead. "
+        },
+        {
+          "code": "stonespirit",
+          "description": "Gain 1 Magic for each Brown ally."
+        },
+        {
+          "code": "stoneskin",
+          "description": "Reduce damage from Skulls by 50%."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "on_skull_damage",
+          "Code": "undeadslayer",
+          "Description": "[TRAIT_UNDEADSLAYER_DESC]",
+          "Filter": "undead",
+          "Image": "undeadslayer",
+          "Modifier": 2,
+          "Name": "[TRAIT_UNDEADSLAYER]",
+          "TraitType": "bonus_damage",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "stonespirit",
+          "Description": "[TRAIT_STONESPIRIT_DESC]",
+          "Filter": "5",
+          "Image": "stonespirit",
+          "Modifier": 1,
+          "Name": "[TRAIT_STONESPIRIT]",
+          "TraitType": "adjust_magic_per_ally",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "received_skull_damage",
+          "Code": "stoneskin",
+          "Description": "[TRAIT_STONESKIN_DESC]",
+          "Image": "stoneskin",
+          "Modifier": 0.5,
+          "Name": "[TRAIT_STONESKIN]",
+          "TraitType": "damage_reduction",
+          "Trigger": "self"
+        }
+      ]
+    },
+    {
+      "id": 6057,
+      "name": "WolfKnight",
+      "rarity": "Uncommon",
+      "rarityIdx": 1,
+      "role": "Striker",
+      "portrait": {
+        "assetId": "Troop_K14_01",
+        "rank": "杂兵",
+        "form": "类人"
+      },
+      "spellId": 7057,
+      "sourceDescription": "对一名敌人造成 [魔法 + 1] 点真实伤害。如果敌人受伤，则增加 6 点伤害。",
+      "colors": [
+        "Yellow",
+        "Brown"
+      ],
+      "cost": 8,
+      "traits": [
+        {
+          "code": "fireproof",
+          "source": {
+            "code": "fireproof",
+            "name": "防火",
+            "description": "对燃烧和妖火状态效果免疫。",
+            "troops": 95,
+            "statusImmunities": [
+              "burning",
+              "faerie-fire"
+            ]
+          },
+          "description": "免疫燃烧、承受法术伤害增加。"
+        },
+        {
+          "code": "airspirit",
+          "source": {
+            "code": "airspirit",
+            "name": "空气之灵",
+            "description": "每有一名黄色盟友则获得 1 点魔力值。",
+            "troops": 16,
+            "perAllyColor": {
+              "color": "Yellow",
+              "stat": "magic",
+              "amount": 1
+            }
+          },
+          "description": "战斗开始时，每名关联黄色的我方存活角色（含自身）使自身魔力增加 1 点。"
+        },
+        {
+          "code": "armorpiercing",
+          "source": {
+            "code": "armorpiercing",
+            "name": "穿透护甲",
+            "description": "骷髅头伤害有 50% 的几率略过护甲值。",
+            "troops": 22,
+            "armorPierceChance": 0.5
+          },
+          "description": "造成骷髅头伤害时，以 50% 概率穿透护甲。"
+        }
+      ],
+      "stats": {
+        "hp": 16,
+        "armor": 18,
+        "attack": 11,
+        "magic": 5
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 3,
+            "armor": 2,
+            "attack": 3,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 16,
+            "armor": 18,
+            "attack": 11,
+            "magic": 5
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 24,
+            "armor": 27,
+            "attack": 17,
+            "magic": 8
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:33",
+          "affinity:19"
+        ],
+        "region": "region:2",
+        "regionId": 100006
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6057",
+        "src/data/troop-progression.json#6057",
+        "src/data/traits.json#fireproof",
+        "src/data/traits.json#airspirit",
+        "src/data/traits.json#armorpiercing",
+        "src/sillytavern/data/portraits.json#entries[troopId=6057]",
+        "game-assets/public/static/portraits/Troop_K14_01.webp",
+        "data/raw/troops.gow.en.json#troops[id=6057]",
+        "data/raw/spells.gow.en.json#spells[Id=7057]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=fireproof,airspirit,armorpiercing"
+      ],
+      "kind": "true",
+      "damage": 7,
+      "bonusDamage": 13,
+      "range": "single",
+      "opening": {
+        "hp": 16,
+        "magic": 6,
+        "mana": 0
+      },
+      "spirit": "Yellow",
+      "pierce": true,
+      "immunities": [
+        "burning",
+        "faerie-fire"
+      ],
+      "phrases": [
+        "1",
+        "6",
+        "无视护甲"
+      ],
+      "nativeSpell": {
+        "Cost": 8,
+        "Description": "[SPELL7057_DESC]",
+        "Id": 7057,
+        "Name": "[SPELL7057_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 6,
+            "Amount": 1,
+            "Primarypower": true,
+            "StatusModifier": "AddForDamaged",
+            "Type": "TrueDamage"
+          }
+        ],
+        "Target": "Enemy"
+      },
+      "englishClause": "Deal [Magic + 1] true damage to an Enemy. If the Enemy is wounded, deal 6 more damage.",
+      "englishTraits": [
+        {
+          "code": "fireproof",
+          "description": "Immunity to Burning and Faerie Fire."
+        },
+        {
+          "code": "airspirit",
+          "description": "Gain 1 Magic for each Yellow ally."
+        },
+        {
+          "code": "armorpiercing",
+          "description": "50% chance to ignore Armor with Skull damage."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "status_effect_received",
+          "Code": "fireproof",
+          "Description": "[TRAIT_FIREPROOF_DESC]",
+          "Image": "fireproof",
+          "Name": "[TRAIT_FIREPROOF]",
+          "TraitType": "immune_burning",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "airspirit",
+          "Description": "[TRAIT_AIRSPIRIT_DESC]",
+          "Filter": "3",
+          "Image": "airspirit",
+          "Modifier": 1,
+          "Name": "[TRAIT_AIRSPIRIT]",
+          "TraitType": "adjust_magic_per_ally",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "on_skull_damage",
+          "Code": "armorpiercing",
+          "Description": "[TRAIT_ARMORPIERCING_DESC]",
+          "Image": "armorpiercing",
+          "Modifier": 0.5,
+          "Name": "[TRAIT_ARMORPIERCING]",
+          "TraitType": "true_damage",
+          "Trigger": "self"
+        }
+      ]
+    },
+    {
+      "id": 6085,
+      "name": "Atlanta",
+      "rarity": "UltraRare",
+      "rarityIdx": 3,
+      "role": "Mage",
+      "portrait": {
+        "assetId": "Troop_Quest_K04",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "spellId": 7155,
+      "sourceDescription": "对所有敌人造成 [魔法 + 2] 点伤害。",
+      "colors": [
+        "Yellow",
+        "Purple"
+      ],
+      "cost": 12,
+      "traits": [
+        {
+          "code": "agile",
+          "source": {
+            "code": "agile",
+            "name": "敏捷",
+            "description": "有 20% 的几率闪避骷髅头伤害。",
+            "troops": 110,
+            "dodgeChance": 0.2
+          },
+          "description": "以 20% 概率闪避骷髅头伤害。"
+        },
+        {
+          "code": "airlink",
+          "source": {
+            "code": "airlink",
+            "name": "空气灵链",
+            "description": "从黄色宝石配对中获得额外的黄色法力值。",
+            "troops": 24,
+            "manaLink": {
+              "color": "Yellow",
+              "amount": 1
+            }
+          },
+          "description": "自身实际收到黄色宝石配对产生的基础法力后，自身额外获得最多 1 点法力，受自身剩余法力容量限制。"
+        },
+        {
+          "code": "swift",
+          "source": {
+            "code": "swift",
+            "name": "迅疾",
+            "description": "战斗开始时获得 75% 法力值。",
+            "troops": 27,
+            "battleStartManaRatio": 0.75
+          },
+          "description": "战斗开始时，自身法力至少补至法力上限的 75%（向下取整）。"
+        }
+      ],
+      "stats": {
+        "hp": 22,
+        "armor": 15,
+        "attack": 17,
+        "magic": 7
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 5,
+            "armor": 2,
+            "attack": 4,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 22,
+            "armor": 15,
+            "attack": 17,
+            "magic": 7
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 33,
+            "armor": 23,
+            "attack": 26,
+            "magic": 11
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:17",
+          "affinity:28"
+        ],
+        "region": "region:6",
+        "regionId": 100028
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6085",
+        "src/data/troop-progression.json#6085",
+        "src/data/traits.json#agile",
+        "src/data/traits.json#airlink",
+        "src/data/traits.json#swift",
+        "src/sillytavern/data/portraits.json#entries[troopId=6085]",
+        "game-assets/public/static/portraits/Troop_Quest_K04.webp",
+        "data/raw/troops.gow.en.json#troops[id=6085]",
+        "data/raw/spells.gow.en.json#spells[Id=7155]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=agile,airlink,swift"
+      ],
+      "kind": "all",
+      "damage": 9,
+      "range": "all",
+      "opening": {
+        "hp": 22,
+        "magic": 7,
+        "mana": 9
+      },
+      "dodge": true,
+      "link": "Yellow",
+      "phrases": [
+        "2",
+        "所有"
+      ],
+      "nativeSpell": {
+        "Cost": 12,
+        "Description": "[SPELL7155_DESC]",
+        "Id": 7155,
+        "Name": "[SPELL7155_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "AllEnemies",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "Target": "None"
+      },
+      "englishClause": "Deal [Magic + 2] damage to all Enemies.",
+      "englishTraits": [
+        {
+          "code": "agile",
+          "description": "20% chance to dodge Skull damage."
+        },
+        {
+          "code": "airlink",
+          "description": "Gain bonus Yellow Mana from Yellow Gem matches."
+        },
+        {
+          "code": "swift",
+          "description": "Start battles with 75% Mana."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "on_skull_attacked",
+          "Code": "agile",
+          "Description": "[TRAIT_AGILE_DESC]",
+          "Image": "agile",
+          "Modifier": 0.2,
+          "Name": "[TRAIT_AGILE]",
+          "TraitType": "dodge",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "match_mana",
+          "Code": "airlink",
+          "Description": "[TRAIT_AIRLINK_DESC]",
+          "Filter": "3",
+          "Image": "airlink",
+          "Modifier": 1,
+          "Name": "[TRAIT_AIRLINK]",
+          "TraitType": "bonus_mana",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "swift",
+          "Description": "[TRAIT_SWIFT_DESC]",
+          "Image": "fast",
+          "Modifier": 0.75,
+          "Name": "[TRAIT_SWIFT]",
+          "TraitType": "set_mana_percentage",
+          "Trigger": "none"
+        }
+      ]
+    },
+    {
+      "id": 6117,
+      "name": "Scarlett",
+      "rarity": "UltraRare",
+      "rarityIdx": 3,
+      "role": "Assassin",
+      "portrait": {
+        "assetId": "Troop_Quest_K16",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "spellId": 7209,
+      "sourceDescription": "对 1 名敌人造成 [魔法 + 7] 点伤害。如果对方是野兽，则造成三倍伤害。",
+      "colors": [
+        "Green",
+        "Red"
+      ],
+      "cost": 11,
+      "traits": [
+        {
+          "code": "beastslayer",
+          "source": {
+            "code": "beastslayer",
+            "name": "野兽杀手",
+            "description": "对野兽军队造成双倍骷髅头伤害。",
+            "troops": 6,
+            "skullMultVsTroopType": {
+              "troopType": "Beast",
+              "mult": 2
+            }
+          },
+          "description": "目标属于族群 #1时，骷髅头伤害倍率为 2。"
+        },
+        {
+          "code": "firespirit",
+          "source": {
+            "code": "firespirit",
+            "name": "火焰之灵",
+            "description": "每有一名红色盟友则获得 1 点魔力值。",
+            "troops": 16,
+            "perAllyColor": {
+              "color": "Red",
+              "stat": "magic",
+              "amount": 1
+            }
+          },
+          "description": "战斗开始时，每名关联红色的我方存活角色（含自身）使自身魔力增加 1 点。"
+        },
+        {
+          "code": "armored",
+          "source": {
+            "code": "armored",
+            "name": "全副武装",
+            "description": "降低来自骷髅头的伤害 25%。",
+            "troops": 203,
+            "skullDamageReduction": 0.25
+          },
+          "description": "受到的骷髅头伤害降低 25%；同类减伤取最强值。"
+        }
+      ],
+      "stats": {
+        "hp": 30,
+        "armor": 13,
+        "attack": 13,
+        "magic": 14
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 6,
+            "armor": 3,
+            "attack": 3,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 30,
+            "armor": 13,
+            "attack": 13,
+            "magic": 14
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 45,
+            "armor": 20,
+            "attack": 20,
+            "magic": 21
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:17",
+          "affinity:19"
+        ],
+        "region": "region:17",
+        "regionId": 100008
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6117",
+        "src/data/troop-progression.json#6117",
+        "src/data/traits.json#beastslayer",
+        "src/data/traits.json#firespirit",
+        "src/data/traits.json#armored",
+        "src/sillytavern/data/portraits.json#entries[troopId=6117]",
+        "game-assets/public/static/portraits/Troop_Quest_K16.webp",
+        "data/raw/troops.gow.en.json#troops[id=6117]",
+        "data/raw/spells.gow.en.json#spells[Id=7209]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=beastslayer,firespirit,armored"
+      ],
+      "kind": "race",
+      "damage": 22,
+      "bonusDamage": 66,
+      "range": "single",
+      "opening": {
+        "hp": 30,
+        "magic": 15,
+        "mana": 0
+      },
+      "spirit": "Red",
+      "slayer": "Beast",
+      "skullFactor": 0.75,
+      "phrases": [
+        "7",
+        "3",
+        "族群"
+      ],
+      "nativeSpell": {
+        "Cost": 11,
+        "Description": "[SPELL7209_DESC]",
+        "Id": 7209,
+        "Name": "[SPELL7209_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "StatusAmount": 3,
+            "Amount": 7,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForBeast",
+            "Type": "Damage"
+          }
+        ],
+        "Target": "Enemy"
+      },
+      "englishClause": "Deal [Magic + 7] damage to an Enemy. If the Enemy is a Beast, deal triple damage.",
+      "englishTraits": [
+        {
+          "code": "beastslayer",
+          "description": "Deal double Skull damage vs. Beasts."
+        },
+        {
+          "code": "firespirit",
+          "description": "Gain 1 Magic for each Red ally."
+        },
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "on_skull_damage",
+          "Code": "beastslayer",
+          "Description": "[TRAIT_BEASTSLAYER_DESC]",
+          "Filter": "beast",
+          "Image": "beastslayer",
+          "Modifier": 2,
+          "Name": "[TRAIT_BEASTSLAYER]",
+          "TraitType": "bonus_damage",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "start_battle",
+          "Code": "firespirit",
+          "Description": "[TRAIT_FIRESPIRIT_DESC]",
+          "Filter": "2",
+          "Image": "firespirit",
+          "Modifier": 1,
+          "Name": "[TRAIT_FIRESPIRIT]",
+          "TraitType": "adjust_magic_per_ally",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "received_skull_damage",
+          "Code": "armored",
+          "Description": "[TRAIT_ARMORED_DESC]",
+          "Image": "armored",
+          "Modifier": 0.75,
+          "Name": "[TRAIT_ARMORED]",
+          "TraitType": "damage_reduction",
+          "Trigger": "self"
+        }
+      ]
+    },
+    {
+      "id": 6257,
+      "name": "DragonKnight",
+      "rarity": "Rare",
+      "rarityIdx": 2,
+      "role": "Striker",
+      "portrait": {
+        "assetId": "Troop_K14_06",
+        "rank": "精锐",
+        "form": "怪物"
+      },
+      "spellId": 7400,
+      "sourceDescription": "对 1 名敌人造成 [魔法 + 4] 点伤害。如果敌方有龙族军队，则对所有敌人造成 6 点伤害。",
+      "colors": [
+        "Red",
+        "Brown"
+      ],
+      "cost": 12,
+      "traits": [
+        {
+          "code": "dragonslayer",
+          "source": {
+            "code": "dragonslayer",
+            "name": "龙族杀手",
+            "description": "对龙族军队造成双倍骷髅头伤害。",
+            "troops": 7,
+            "skullMultVsTroopType": {
+              "troopType": "Dragon",
+              "mult": 2
+            }
+          },
+          "description": "目标属于族群 #9时，骷髅头伤害倍率为 2。"
+        },
+        {
+          "code": "alert",
+          "source": {
+            "code": "alert",
+            "name": "警醒",
+            "description": "对沉默状态免疫。",
+            "troops": 59,
+            "statusImmunities": [
+              "silence"
+            ]
+          },
+          "description": "免疫封锁主动技能。"
+        },
+        {
+          "code": "armored",
+          "source": {
+            "code": "armored",
+            "name": "全副武装",
+            "description": "降低来自骷髅头的伤害 25%。",
+            "troops": 203,
+            "skullDamageReduction": 0.25
+          },
+          "description": "受到的骷髅头伤害降低 25%；同类减伤取最强值。"
+        }
+      ],
+      "stats": {
+        "hp": 13,
+        "armor": 20,
+        "attack": 15,
+        "magic": 7
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 3,
+            "armor": 4,
+            "attack": 3,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 13,
+            "armor": 20,
+            "attack": 15,
+            "magic": 7
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 20,
+            "armor": 30,
+            "attack": 23,
+            "magic": 11
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:17",
+          "affinity:19"
+        ],
+        "region": "region:2",
+        "regionId": 100006
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6257",
+        "src/data/troop-progression.json#6257",
+        "src/data/traits.json#dragonslayer",
+        "src/data/traits.json#alert",
+        "src/data/traits.json#armored",
+        "src/sillytavern/data/portraits.json#entries[troopId=6257]",
+        "game-assets/public/static/portraits/Troop_K14_06.webp",
+        "data/raw/troops.gow.en.json#troops[id=6257]",
+        "data/raw/spells.gow.en.json#spells[Id=7400]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=dragonslayer,alert,armored"
+      ],
+      "kind": "dragon",
+      "damage": 11,
+      "bonusDamage": 6,
+      "range": "single",
+      "opening": {
+        "hp": 13,
+        "magic": 7,
+        "mana": 0
+      },
+      "slayer": "Dragon",
+      "skullFactor": 0.75,
+      "immunities": [
+        "silence"
+      ],
+      "phrases": [
+        "4",
+        "6",
+        "族群"
+      ],
+      "nativeSpell": {
+        "Cost": 12,
+        "Description": "[SPELL7400_DESC]",
+        "Id": 7400,
+        "Name": "[SPELL7400_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FromTarget",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          },
+          {
+            "Amount": 900,
+            "Type": "Delay"
+          },
+          {
+            "Target": "AllEnemies",
+            "StatusAmount": 6,
+            "StatusModifier": "AddIfEnemyHasDragon",
+            "Type": "Damage"
+          }
+        ],
+        "Target": "Enemy"
+      },
+      "englishClause": "Deal [Magic + 4] damage to an enemy. If the enemy has a Dragon, deal 6 damage to all enemies.",
+      "englishTraits": [
+        {
+          "code": "dragonslayer",
+          "description": "Deal double Skull damage vs. Dragons."
+        },
+        {
+          "code": "alert",
+          "description": "Immunity to Silence."
+        },
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "on_skull_damage",
+          "Code": "dragonslayer",
+          "Description": "[TRAIT_DRAGONSLAYER_DESC]",
+          "Filter": "dragon",
+          "Image": "dragonslayer",
+          "Modifier": 2,
+          "Name": "[TRAIT_DRAGONSLAYER]",
+          "TraitType": "bonus_damage",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "status_effect_received",
+          "Code": "alert",
+          "Description": "[TRAIT_ALERT_DESC]",
+          "Image": "alert",
+          "Name": "[TRAIT_ALERT]",
+          "TraitType": "immune_silence",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "received_skull_damage",
+          "Code": "armored",
+          "Description": "[TRAIT_ARMORED_DESC]",
+          "Image": "armored",
+          "Modifier": 0.75,
+          "Name": "[TRAIT_ARMORED]",
+          "TraitType": "damage_reduction",
+          "Trigger": "self"
+        }
+      ]
+    },
+    {
+      "id": 6306,
+      "name": "DarkMonolith",
+      "rarity": "Epic",
+      "rarityIdx": 4,
+      "role": "Defender",
+      "portrait": {
+        "assetId": "Troop_K21_09",
+        "rank": "领主",
+        "form": "类人"
+      },
+      "spellId": 7456,
+      "sourceDescription": "对两名最虚弱的敌人造成 [魔法 + 2] 点伤害。若自身的生命值受损，则造成两倍伤害。",
+      "colors": [
+        "Red",
+        "Brown"
+      ],
+      "cost": 15,
+      "traits": [
+        {
+          "code": "daemonbond",
+          "source": {
+            "code": "daemonbond",
+            "name": "恶魔族亲",
+            "description": "恶魔盟友获得 2 点生命值。",
+            "troops": 20,
+            "typeAura": {
+              "troopType": "Daemon",
+              "stat": "hp",
+              "amount": 2
+            }
+          },
+          "description": "战斗开始时，我方族群 #6 的存活角色的生命增加 2 点。"
+        },
+        {
+          "code": "stoneskin",
+          "source": {
+            "code": "stoneskin",
+            "name": "铁壁铜墙",
+            "description": "降低来自骷髅头的伤害 50%。",
+            "troops": 148,
+            "skullDamageReduction": 0.5
+          },
+          "description": "受到的骷髅头伤害降低 50%；同类减伤取最强值。"
+        },
+        {
+          "code": "absorbpower",
+          "source": {
+            "code": "absorbpower",
+            "name": "吸收能量",
+            "description": "当一名敌人施放法术时获得 3 点魔力值。",
+            "troops": 1,
+            "onEnemyCastGain": {
+              "stat": "magic",
+              "amount": 3
+            }
+          },
+          "description": "敌方角色施法时，自身获得 3 点魔力。"
+        }
+      ],
+      "stats": {
+        "hp": 19,
+        "armor": 24,
+        "attack": 17,
+        "magic": 7
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 5,
+            "armor": 5,
+            "attack": 4,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 19,
+            "armor": 24,
+            "attack": 17,
+            "magic": 7
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 29,
+            "armor": 36,
+            "attack": 26,
+            "magic": 11
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:6",
+          "affinity:5"
+        ],
+        "region": "region:30",
+        "regionId": 100021
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6306",
+        "src/data/troop-progression.json#6306",
+        "src/data/traits.json#daemonbond",
+        "src/data/traits.json#stoneskin",
+        "src/data/traits.json#absorbpower",
+        "src/sillytavern/data/portraits.json#entries[troopId=6306]",
+        "game-assets/public/static/portraits/Troop_K21_09.webp",
+        "data/raw/troops.gow.en.json#troops[id=6306]",
+        "data/raw/spells.gow.en.json#spells[Id=7456]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=daemonbond,stoneskin,absorbpower"
+      ],
+      "kind": "weakest",
+      "damage": 9,
+      "bonusDamage": 18,
+      "range": "all",
+      "opening": {
+        "hp": 21,
+        "magic": 7,
+        "mana": 0
+      },
+      "bond": "Daemon",
+      "skullFactor": 0.5,
+      "absorb": true,
+      "phrases": [
+        "2",
+        "生命"
+      ],
+      "nativeSpell": {
+        "Cost": 15,
+        "Description": "[SPELL7456_DESC]",
+        "Id": 7456,
+        "Name": "[SPELL7456_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "TwoWeakestEnemies",
+            "StatusAmount": 2,
+            "Amount": 2,
+            "Primarypower": true,
+            "StatusModifier": "MultiplyForCasterDamaged",
+            "Type": "Damage"
+          }
+        ],
+        "Target": "None"
+      },
+      "englishClause": "Deal [Magic + 2] damage to the two weakest  enemies. Deal double damage if I am damaged.",
+      "englishTraits": [
+        {
+          "code": "daemonbond",
+          "description": "Allied Daemons gain 2 Life."
+        },
+        {
+          "code": "stoneskin",
+          "description": "Reduce damage from Skulls by 50%."
+        },
+        {
+          "code": "absorbpower",
+          "description": "Gain 3 Magic when an enemy casts a spell."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "start_battle",
+          "Code": "daemonbond",
+          "Description": "[TRAIT_DAEMONBOND_DESC]",
+          "Filter": "daemon",
+          "Image": "daemonbond",
+          "Modifier": 2,
+          "Name": "[TRAIT_DAEMONBOND]",
+          "TraitType": "adjust_allies_life",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "received_skull_damage",
+          "Code": "stoneskin",
+          "Description": "[TRAIT_STONESKIN_DESC]",
+          "Image": "stoneskin",
+          "Modifier": 0.5,
+          "Name": "[TRAIT_STONESKIN]",
+          "TraitType": "damage_reduction",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "cast_spell",
+          "Code": "absorbpower",
+          "Description": "[TRAIT_ABSORBPOWER_DESC]",
+          "Image": "spikearmor",
+          "Modifier": 3,
+          "Name": "[TRAIT_ABSORBPOWER]",
+          "TraitType": "adjust_magic",
+          "Trigger": "other_player"
+        }
+      ]
+    },
+    {
+      "id": 6932,
+      "name": "Mambasira",
+      "rarity": "Mythic",
+      "rarityIdx": 5,
+      "role": "Striker",
+      "portrait": {
+        "assetId": "Troop_K05_23",
+        "rank": "传奇",
+        "form": "人形"
+      },
+      "spellId": 8410,
+      "sourceDescription": "对 6 名随机敌人造成 [(魔法 x 0.625) + 1] – [(魔法 x 1.25) + 2] 伤害。",
+      "colors": [
+        "Green",
+        "Purple",
+        "Brown"
+      ],
+      "cost": 24,
+      "traits": [
+        {
+          "code": "nagabond",
+          "source": {
+            "code": "nagabond",
+            "name": "纳迦族亲",
+            "description": "纳迦盟友获得 2 点生命值。",
+            "troops": 10,
+            "typeAura": {
+              "troopType": "Naga",
+              "stat": "hp",
+              "amount": 2
+            }
+          },
+          "description": "战斗开始时，我方族群 #24 的存活角色的生命增加 2 点。"
+        },
+        {
+          "code": "spellarmor",
+          "source": {
+            "code": "spellarmor",
+            "name": "法术铠甲",
+            "description": "降低来自法术的伤害 25%。",
+            "troops": 111,
+            "spellDamageReduction": 0.25
+          },
+          "description": "受到的法术伤害降低 25%；同类减伤取最强值。"
+        },
+        {
+          "code": "risingvenom",
+          "source": {
+            "code": "risingvenom",
+            "name": "毒液泛滥",
+            "description": "在每个回合开始的时候，所有绿色盟友全部技能值增加 1 点。",
+            "troops": 1,
+            "turnStartTypeAura": {
+              "scope": "Green",
+              "gains": {
+                "hp": 1,
+                "armor": 1,
+                "attack": 1,
+                "magic": 1
+              }
+            }
+          },
+          "description": "我方回合开始时，我方关联绿色的存活角色获得 1 点生命、1 点护甲、1 点攻击、1 点魔力。"
+        }
+      ],
+      "stats": {
+        "hp": 25,
+        "armor": 14,
+        "attack": 23,
+        "magic": 10
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 7,
+            "armor": 4,
+            "attack": 7,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 25,
+            "armor": 14,
+            "attack": 23,
+            "magic": 10
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 38,
+            "armor": 21,
+            "attack": 35,
+            "magic": 15
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:6",
+          "affinity:24"
+        ],
+        "region": "region:39",
+        "regionId": 100016
+      },
+      "sourceRefs": [
+        "src/data/troops.json#6932",
+        "src/data/troop-progression.json#6932",
+        "src/data/traits.json#nagabond",
+        "src/data/traits.json#spellarmor",
+        "src/data/traits.json#risingvenom",
+        "src/sillytavern/data/portraits.json#entries[troopId=6932]",
+        "game-assets/public/static/portraits/Troop_K05_23.webp",
+        "data/raw/troops.gow.en.json#troops[id=6932]",
+        "data/raw/spells.gow.en.json#spells[Id=8410]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=nagabond,spellarmor,risingvenom"
+      ],
+      "kind": "waves",
+      "damageMin": 8,
+      "damageMax": 16,
+      "range": "all",
+      "opening": {
+        "hp": 27,
+        "magic": 10,
+        "mana": 0
+      },
+      "bond": "Naga",
+      "spellFactor": 0.75,
+      "turnAura": true,
+      "phrases": [
+        "6",
+        "0.625",
+        "1.25"
+      ],
+      "nativeSpell": {
+        "Cost": 24,
+        "Description": "[SPELL8410_DESC]",
+        "Id": 8410,
+        "Name": "[SPELL8410_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "RandomEnemy",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "RandomHighDamage",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "RandomHighDamage",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "RandomHighDamage",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "RandomHighDamage",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "RandomHighDamage",
+            "Delay": 1,
+            "ResetTargets": true
+          },
+          {
+            "SpellPowerMultiplier": 1.25,
+            "Target": "RandomPrefNotPrevEnemy",
+            "Amount": 2,
+            "Type": "RandomHighDamage",
+            "Delay": 1,
+            "ResetTargets": true
+          }
+        ],
+        "Target": "None"
+      },
+      "englishClause": "Deal [(Magic x 0.625) + 1] – [(Magic x 1.25) + 2] damage to 6 random Enemies.",
+      "englishTraits": [
+        {
+          "code": "nagabond",
+          "description": "Allied Naga gain 2 Life."
+        },
+        {
+          "code": "spellarmor",
+          "description": "Reduce damage from Spells by 25%."
+        },
+        {
+          "code": "risingvenom",
+          "description": "All Green Allies gain 1 to all Stats at the start of each turn."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "start_battle",
+          "Code": "nagabond",
+          "Description": "[TRAIT_NAGABOND_DESC]",
+          "Filter": "naga",
+          "Image": "nagabond",
+          "Modifier": 2,
+          "Name": "[TRAIT_NAGABOND]",
+          "TraitType": "adjust_allies_life",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "received_spell_damage",
+          "Code": "spellarmor",
+          "Description": "[TRAIT_SPELLARMOR_DESC]",
+          "Image": "reinforced",
+          "Modifier": 0.75,
+          "Name": "[TRAIT_SPELLARMOR]",
+          "TraitType": "damage_reduction",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "start_turn",
+          "Code": "risingvenom",
+          "Description": "[TRAIT_RISINGVENOM_DESC]",
+          "Filter": "1",
+          "Image": "siphon",
+          "Modifier": 1,
+          "Name": "[TRAIT_RISINGVENOM]",
+          "TraitType": "adjust_all_skills_by_color",
+          "Trigger": "self_player"
+        }
+      ],
+      "runtimeRarity": "Legendary",
+      "sourceDiscrepancy": "Original raw troop recipe TroopRarity is Mythic. The current runtime imports it as Legendary at rarityIdx 5 and portrait rank legendary. Acceptance reports the original source rarity and preserves the runtime mapping explicitly."
+    },
+    {
+      "id": 7164,
+      "name": "MoonMage",
+      "rarity": "UltraRare",
+      "rarityIdx": 3,
+      "role": "Mage",
+      "portrait": {
+        "assetId": "Troop_K26_22",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "spellId": 8739,
+      "sourceDescription": "对所有敌人造成 [(魔法 / 2) + 4] 点伤害。",
+      "colors": [
+        "Blue",
+        "Purple"
+      ],
+      "cost": 9,
+      "traits": [
+        {
+          "code": "waterspirit",
+          "source": {
+            "code": "waterspirit",
+            "name": "水系之灵",
+            "description": "每有一名蓝色盟友则获得 1 点魔力值。",
+            "troops": 19,
+            "perAllyColor": {
+              "color": "Blue",
+              "stat": "magic",
+              "amount": 1
+            }
+          },
+          "description": "战斗开始时，每名关联蓝色的我方存活角色（含自身）使自身魔力增加 1 点。"
+        },
+        {
+          "code": "spellarmor",
+          "source": {
+            "code": "spellarmor",
+            "name": "法术铠甲",
+            "description": "降低来自法术的伤害 25%。",
+            "troops": 111,
+            "spellDamageReduction": 0.25
+          },
+          "description": "受到的法术伤害降低 25%；同类减伤取最强值。"
+        },
+        {
+          "code": "highancestry",
+          "source": {
+            "code": "highancestry",
+            "name": "高等血脉",
+            "description": "对法力耗尽、沉默、妖火和死亡标记状态效果免疫。",
+            "troops": 23,
+            "statusImmunities": [
+              "faerie-fire",
+              "silence",
+              "death-mark"
+            ],
+            "manaOpsImmunity": true
+          },
+          "description": "免疫法力削减与窃取。免疫承受法术伤害增加、封锁主动技能、死亡标记。"
+        }
+      ],
+      "stats": {
+        "hp": 22,
+        "armor": 13,
+        "attack": 17,
+        "magic": 13
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 5,
+            "armor": 2,
+            "attack": 4,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 22,
+            "armor": 13,
+            "attack": 17,
+            "magic": 13
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 33,
+            "armor": 20,
+            "attack": 26,
+            "magic": 20
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:12"
+        ],
+        "region": "region:23",
+        "regionId": 100009
+      },
+      "sourceRefs": [
+        "src/data/troops.json#7164",
+        "src/data/troop-progression.json#7164",
+        "src/data/traits.json#waterspirit",
+        "src/data/traits.json#spellarmor",
+        "src/data/traits.json#highancestry",
+        "src/sillytavern/data/portraits.json#entries[troopId=7164]",
+        "game-assets/public/static/portraits/Troop_K26_22.webp",
+        "data/raw/troops.gow.en.json#troops[id=7164]",
+        "data/raw/spells.gow.en.json#spells[Id=8739]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=waterspirit,spellarmor,highancestry"
+      ],
+      "kind": "all",
+      "damage": 11,
+      "range": "all",
+      "opening": {
+        "hp": 22,
+        "magic": 14,
+        "mana": 0
+      },
+      "spirit": "Blue",
+      "spellFactor": 0.75,
+      "immunities": [
+        "faerie-fire",
+        "silence",
+        "death-mark"
+      ],
+      "drainImmune": true,
+      "phrases": [
+        "0.5",
+        "4",
+        "所有"
+      ],
+      "nativeSpell": {
+        "Cost": 9,
+        "Description": "[SPELL8739_DESC]",
+        "Id": 8739,
+        "Name": "[SPELL8739_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 0.5,
+            "Target": "AllEnemies",
+            "Amount": 4,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ],
+        "Target": "None"
+      },
+      "englishClause": "Deal [(Magic / 2) + 4] damage to all Enemies.",
+      "englishTraits": [
+        {
+          "code": "waterspirit",
+          "description": "Gain 1 Magic for each Blue ally."
+        },
+        {
+          "code": "spellarmor",
+          "description": "Reduce damage from Spells by 25%."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "start_battle",
+          "Code": "waterspirit",
+          "Description": "[TRAIT_WATERSPIRIT_DESC]",
+          "Filter": "0",
+          "Image": "waterspirit",
+          "Modifier": 1,
+          "Name": "[TRAIT_WATERSPIRIT]",
+          "TraitType": "adjust_magic_per_ally",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "received_spell_damage",
+          "Code": "spellarmor",
+          "Description": "[TRAIT_SPELLARMOR_DESC]",
+          "Image": "reinforced",
+          "Modifier": 0.75,
+          "Name": "[TRAIT_SPELLARMOR]",
+          "TraitType": "damage_reduction",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "status_effect_received",
+          "Code": "highancestry",
+          "Description": "[TRAIT_HIGHANCESTRY_DESC]",
+          "Image": "mysticbond",
+          "Name": "[TRAIT_HIGHANCESTRY]",
+          "TraitType": "immune_spec_high",
+          "Trigger": "self"
+        }
+      ]
+    },
+    {
+      "id": 7386,
+      "name": "RatSwarm",
+      "rarity": "Common",
+      "rarityIdx": 0,
+      "role": "Mage",
+      "portrait": {
+        "assetId": "Troop_K25_31",
+        "rank": "杂兵",
+        "form": "野兽"
+      },
+      "spellId": 9028,
+      "sourceDescription": "对所有敌人造成 [(魔法 / 2) + 2] 点散射伤害。",
+      "colors": [
+        "Green"
+      ],
+      "cost": 7,
+      "traits": [
+        {
+          "code": "beastbond",
+          "source": {
+            "code": "beastbond",
+            "name": "野兽族亲",
+            "description": "野兽盟友获得 2 点生命值。",
+            "troops": 45,
+            "typeAura": {
+              "troopType": "Beast",
+              "stat": "hp",
+              "amount": 2
+            }
+          },
+          "description": "战斗开始时，我方族群 #1 的存活角色的生命增加 2 点。"
+        },
+        {
+          "code": "nimble",
+          "source": {
+            "code": "nimble",
+            "name": "灵巧",
+            "description": "对缠绕效果免疫。",
+            "troops": 32,
+            "statusImmunities": [
+              "entangle"
+            ]
+          },
+          "description": "免疫攻击归零。"
+        },
+        {
+          "code": "regeneration",
+          "source": {
+            "code": "regeneration",
+            "name": "再生",
+            "description": "在每回合开始时恢复 1 点生命值。",
+            "troops": 45,
+            "regen": {
+              "stat": "hp",
+              "amount": 1
+            }
+          },
+          "description": "我方回合开始时，自身恢复最多 1 点缺失生命（不增加最大生命）。"
+        }
+      ],
+      "stats": {
+        "hp": 10,
+        "armor": 17,
+        "attack": 10,
+        "magic": 4
+      },
+      "scales": [
+        {
+          "level": 1,
+          "difficulty": 1,
+          "stats": {
+            "hp": 2,
+            "armor": 3,
+            "attack": 2,
+            "magic": 1
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1,
+          "stats": {
+            "hp": 10,
+            "armor": 17,
+            "attack": 10,
+            "magic": 4
+          }
+        },
+        {
+          "level": 20,
+          "difficulty": 1.5,
+          "stats": {
+            "hp": 15,
+            "armor": 26,
+            "attack": 15,
+            "magic": 6
+          }
+        }
+      ],
+      "context": {
+        "affinities": [
+          "affinity:1"
+        ],
+        "region": "region:41",
+        "regionId": 100026
+      },
+      "sourceRefs": [
+        "src/data/troops.json#7386",
+        "src/data/troop-progression.json#7386",
+        "src/data/traits.json#beastbond",
+        "src/data/traits.json#nimble",
+        "src/data/traits.json#regeneration",
+        "src/sillytavern/data/portraits.json#entries[troopId=7386]",
+        "game-assets/public/static/portraits/Troop_K25_31.webp",
+        "data/raw/troops.gow.en.json#troops[id=7386]",
+        "data/raw/spells.gow.en.json#spells[Id=9028]",
+        "src/data/communityTroops.ts#COMMUNITY_RACE,COMMUNITY_KINGDOM",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=beastbond,nimble,regeneration"
+      ],
+      "kind": "scatter",
+      "damage": 4,
+      "range": "scatter",
+      "opening": {
+        "hp": 12,
+        "magic": 4,
+        "mana": 0
+      },
+      "bond": "Beast",
+      "immunities": [
+        "entangle"
+      ],
+      "regen": true,
+      "phrases": [
+        "0.5",
+        "2",
+        "分配伤害"
+      ],
+      "nativeSpell": {
+        "Cost": 7,
+        "Description": "[SPELL9028_DESC]",
+        "Id": 9028,
+        "Name": "[SPELL9028_NAME]",
+        "SpellSteps": [
+          {
+            "SpellPowerMultiplier": 0.5,
+            "Target": "AllEnemies",
+            "Amount": 2,
+            "Primarypower": true,
+            "Type": "ScatterDamage"
+          }
+        ],
+        "Target": "None"
+      },
+      "englishClause": "Deal [(Magic / 2) + 2] scatter damage.",
+      "englishTraits": [
+        {
+          "code": "beastbond",
+          "description": "Allied Beasts gain 2 Life."
+        },
+        {
+          "code": "nimble",
+          "description": "Immunity to Entangle."
+        },
+        {
+          "code": "regeneration",
+          "description": "Recover 1 Life at the start of each turn."
+        }
+      ],
+      "nativeTraits": [
+        {
+          "Activation": "start_battle",
+          "Code": "beastbond",
+          "Description": "[TRAIT_BEASTBOND_DESC]",
+          "Filter": "beast",
+          "Image": "beastbond",
+          "Modifier": 2,
+          "Name": "[TRAIT_BEASTBOND]",
+          "TraitType": "adjust_allies_life",
+          "Trigger": "none"
+        },
+        {
+          "Activation": "status_effect_received",
+          "Code": "nimble",
+          "Description": "[TRAIT_NIMBLE_DESC]",
+          "Image": "flying",
+          "Name": "[TRAIT_NIMBLE]",
+          "TraitType": "immune_entangle",
+          "Trigger": "self"
+        },
+        {
+          "Activation": "start_turn",
+          "Code": "regeneration",
+          "Description": "[TRAIT_REGENERATION_DESC]",
+          "Image": "regeneration",
+          "Modifier": 1,
+          "Name": "[TRAIT_REGENERATION]",
+          "TraitType": "adjust_life_limited",
+          "Trigger": "self_player"
+        }
+      ]
+    }
+  ],
+  "highAncestryFamily": [
+    {
+      "id": 6190,
+      "name": "Tassarion",
+      "rarity": "UltraRare",
+      "role": "Generator",
+      "colors": [
+        "Yellow",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K22",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfbond",
+        "highancestry",
+        "arcane"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfbond",
+          "description": "Allied Elves gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "arcane",
+          "description": "Gain 1 Magic when an ally casts a spell."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6190]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6322,
+      "name": "Swordmaster",
+      "rarity": "Uncommon",
+      "role": "Striker",
+      "colors": [
+        "Blue",
+        "Green"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_01",
+        "rank": "杂兵",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfbond",
+        "highancestry",
+        "armored"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfbond",
+          "description": "Allied Elves gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6322]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6323,
+      "name": "ElvenBard",
+      "rarity": "Uncommon",
+      "role": "Support",
+      "colors": [
+        "Green",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_02",
+        "rank": "杂兵",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfbond",
+        "highancestry",
+        "revered"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfbond",
+          "description": "Allied Elves gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "revered",
+          "description": "All allies gain 2 random Skill points."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6323]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6324,
+      "name": "Enchantress",
+      "rarity": "Rare",
+      "role": "Mage",
+      "colors": [
+        "Yellow",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_04",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "mysticbond",
+        "highancestry",
+        "magicspirit"
+      ],
+      "englishTraits": [
+        {
+          "code": "mysticbond",
+          "description": "Allied Mystics gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "magicspirit",
+          "description": "Gain 1 Magic for each Purple ally."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6324]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6326,
+      "name": "PrincessElspeth",
+      "rarity": "UltraRare",
+      "role": "Warmaster",
+      "colors": [
+        "Blue",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K26",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "greedy",
+        "highancestry",
+        "empowered"
+      ],
+      "englishTraits": [
+        {
+          "code": "greedy",
+          "description": "Gain 2 bonus Gold on 4 or 5 Gem matches."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "empowered",
+          "description": "Start battles with full Mana."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6326]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6327,
+      "name": "TheSilvermaiden",
+      "rarity": "UltraRare",
+      "role": "Defender",
+      "colors": [
+        "Blue",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_05",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "leader",
+        "highancestry",
+        "holyarmor"
+      ],
+      "englishTraits": [
+        {
+          "code": "leader",
+          "description": "Gain 3 to all Skills if in first position."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "holyarmor",
+          "description": "Reduce damage from Skulls by 40%."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6327]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6355,
+      "name": "DarkPriestess",
+      "rarity": "Rare",
+      "role": "Warmaster",
+      "colors": [
+        "Green",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K13_09",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "accursed",
+        "highancestry",
+        "arcane"
+      ],
+      "englishTraits": [
+        {
+          "code": "accursed",
+          "description": "All enemies lose 2 random Skill points."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "arcane",
+          "description": "Gain 1 Magic when an ally casts a spell."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6355]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6425,
+      "name": "PrinceEthoras",
+      "rarity": "UltraRare",
+      "role": "Warmaster",
+      "colors": [
+        "Green",
+        "Red"
+      ],
+      "portrait": {
+        "assetId": "Troop_Quest_K31",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "feyslayer",
+        "highancestry",
+        "dragonboon"
+      ],
+      "englishTraits": [
+        {
+          "code": "feyslayer",
+          "description": "Deal double Skull damage vs. Fey."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "dragonboon",
+          "description": "25% chance to summon a Dragonette on death."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6425]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6527,
+      "name": "Arcanus",
+      "rarity": "UltraRare",
+      "role": "Warrior",
+      "colors": [
+        "Red",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_09",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "armored",
+        "arcane",
+        "highancestry"
+      ],
+      "englishTraits": [
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        },
+        {
+          "code": "arcane",
+          "description": "Gain 1 Magic when an ally casts a spell."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6527]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6691,
+      "name": "LordEhrondil",
+      "rarity": "UltraRare",
+      "role": "Striker",
+      "colors": [
+        "Blue",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_12",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "highancestry",
+        "arcane",
+        "godslayer"
+      ],
+      "englishTraits": [
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "arcane",
+          "description": "Gain 1 Magic when an ally casts a spell."
+        },
+        {
+          "code": "godslayer",
+          "description": "Deal 3x - 5x Skull damage vs. Bosses, based on my ascension."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6691]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6814,
+      "name": "FrostfireWitch",
+      "rarity": "Rare",
+      "role": "Striker",
+      "colors": [
+        "Blue",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K51_01",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "deepmagic",
+        "highancestry",
+        "arcane"
+      ],
+      "englishTraits": [
+        {
+          "code": "deepmagic",
+          "description": "Gain 5 Magic when attacking Delves."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "arcane",
+          "description": "Gain 1 Magic when an ally casts a spell."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6814]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6816,
+      "name": "TheFrostfireKing",
+      "rarity": "Epic",
+      "role": "Mage",
+      "colors": [
+        "Blue",
+        "Red"
+      ],
+      "portrait": {
+        "assetId": "Troop_Boss_K51",
+        "rank": "领主",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "deepmagic",
+        "highancestry",
+        "frostfireaura"
+      ],
+      "englishTraits": [
+        {
+          "code": "deepmagic",
+          "description": "Gain 5 Magic when attacking Delves."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "frostfireaura",
+          "description": "Freeze and Burn a random Enemy when matching 4 or more Gems."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6816]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6903,
+      "name": "SapphireKnight",
+      "rarity": "Rare",
+      "role": "Generator",
+      "colors": [
+        "Blue",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_15",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfshield",
+        "highancestry",
+        "armored"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfshield",
+          "description": "Allied Elves gain 2 Armor."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6903]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 6923,
+      "name": "StarryMage",
+      "rarity": "Uncommon",
+      "role": "Generator",
+      "colors": [
+        "Blue",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_16",
+        "rank": "杂兵",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "bountyhunter",
+        "highancestry",
+        "manashield"
+      ],
+      "englishTraits": [
+        {
+          "code": "bountyhunter",
+          "description": "Gain 2x - 6x to Bounty Score, based on my ascension."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "manashield",
+          "description": "Immunity to Mana Burn, Mana Drain and Mana Steal."
+        }
+      ],
+      "burnImmune": true,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=6923]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7005,
+      "name": "Forgemistress",
+      "rarity": "Rare",
+      "role": "Striker",
+      "colors": [
+        "Red",
+        "Brown"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_17",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfshield",
+        "highancestry",
+        "bandingarmor"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfshield",
+          "description": "Allied Elves gain 2 Armor."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "bandingarmor",
+          "description": "Gain 2 Armor for each Ally with a Banding Trait."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7005]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7161,
+      "name": "SwordMaiden",
+      "rarity": "Rare",
+      "role": "Striker",
+      "colors": [
+        "Red",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_21",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "magicheart",
+        "highancestry",
+        "agile"
+      ],
+      "englishTraits": [
+        {
+          "code": "magicheart",
+          "description": "Gain 1 Life for each Purple ally."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "agile",
+          "description": "20% chance to dodge Skull damage."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7161]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7164,
+      "name": "MoonMage",
+      "rarity": "UltraRare",
+      "role": "Mage",
+      "colors": [
+        "Blue",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_22",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "waterspirit",
+        "spellarmor",
+        "highancestry"
+      ],
+      "englishTraits": [
+        {
+          "code": "waterspirit",
+          "description": "Gain 1 Magic for each Blue ally."
+        },
+        {
+          "code": "spellarmor",
+          "description": "Reduce damage from Spells by 25%."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 0.75,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7164]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7392,
+      "name": "SirAiluin",
+      "rarity": "UltraRare",
+      "role": "Striker",
+      "colors": [
+        "Blue",
+        "Green"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_27",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "dragonbond",
+        "highancestry",
+        "pathfinder"
+      ],
+      "englishTraits": [
+        {
+          "code": "dragonbond",
+          "description": "Allied Dragons gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "pathfinder",
+          "description": "Gain 2x/2.5x/3x Miles in my Journey Event, based on my ascensions."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7392]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7532,
+      "name": "LioraMistveil",
+      "rarity": "UltraRare",
+      "role": "Striker",
+      "colors": [
+        "Yellow",
+        "Purple"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_30",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfbond",
+        "highancestry",
+        "godslayer"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfbond",
+          "description": "Allied Elves gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "godslayer",
+          "description": "Deal 3x - 5x Skull damage vs. Bosses, based on my ascension."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7532]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7557,
+      "name": "TheRedCorsair",
+      "rarity": "UltraRare",
+      "role": "Striker",
+      "colors": [
+        "Blue",
+        "Red"
+      ],
+      "portrait": {
+        "assetId": "Troop_K25_32",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "greedy",
+        "highancestry",
+        "siegebreaker"
+      ],
+      "englishTraits": [
+        {
+          "code": "greedy",
+          "description": "Gain 2 bonus Gold on 4 or 5 Gem matches."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "siegebreaker",
+          "description": "Deal 3x - 5x Skull damage vs. Towers, based on my ascension."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7557]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7752,
+      "name": "ElvenNoble",
+      "rarity": "Rare",
+      "role": "Support",
+      "colors": [
+        "Blue",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_38",
+        "rank": "精锐",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "elfbond",
+        "highancestry",
+        "revered"
+      ],
+      "englishTraits": [
+        {
+          "code": "elfbond",
+          "description": "Allied Elves gain 2 Life."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "revered",
+          "description": "All allies gain 2 random Skill points."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7752]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7753,
+      "name": "Siobhan",
+      "rarity": "UltraRare",
+      "role": "Striker",
+      "colors": [
+        "Green",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_39",
+        "rank": "首领",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "armored",
+        "highancestry",
+        "siegebreaker"
+      ],
+      "englishTraits": [
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "siegebreaker",
+          "description": "Deal 3x - 5x Skull damage vs. Towers, based on my ascension."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7753]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7794,
+      "name": "KingElbormor",
+      "rarity": "Epic",
+      "role": "Assassin",
+      "colors": [
+        "Green",
+        "Yellow"
+      ],
+      "portrait": {
+        "assetId": "Troop_K26_40",
+        "rank": "领主",
+        "form": "人形"
+      },
+      "sourceTraitCodes": [
+        "highancestry",
+        "spellarmor",
+        "elvenking"
+      ],
+      "englishTraits": [
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "spellarmor",
+          "description": "Reduce damage from Spells by 25%."
+        },
+        {
+          "code": "elvenking",
+          "description": "Give 2 Magic and Life to all Elf Allies when matching 4 or more Gems."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 0.75,
+      "availability": "runtime",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7794]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    },
+    {
+      "id": 7915,
+      "name": "VaerilRubyward",
+      "rarity": "UltraRare",
+      "role": "Support",
+      "colors": [
+        "Red",
+        "Purple"
+      ],
+      "portrait": null,
+      "sourceTraitCodes": [
+        "rubymount",
+        "highancestry",
+        "armored"
+      ],
+      "englishTraits": [
+        {
+          "code": "rubymount",
+          "description": "25% chance to summon Blazicorn on death."
+        },
+        {
+          "code": "highancestry",
+          "description": "Immune to Mana Drain, Silence, Faerie Fire, and Death Mark."
+        },
+        {
+          "code": "armored",
+          "description": "Reduce damage from Skulls by 25%."
+        }
+      ],
+      "burnImmune": false,
+      "spellFactor": 1,
+      "availability": "missing-runtime-catalog-and-portrait",
+      "sourceRefs": [
+        "data/raw/troops.gow.en.json#troops[id=7915]",
+        "data/raw/gow-2026-09-18/traits.en.json#Code=highancestry"
+      ]
+    }
+  ],
+  "highAncestryScope": "24 original holders: 23 execute High Ancestry interactions through compile/prepare/map/engine/session; 7915 is missing runtime catalog/portrait. This trait-only regression does not claim full enemy active/ordinary-trait acceptance for additional holders."
+}

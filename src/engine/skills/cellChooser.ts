@@ -18,7 +18,7 @@ import type { GameState } from '../GameState';
 import type { SeededRNG } from '../rng';
 import type { SkillPrototype } from './prototypes';
 import type { ClearGemParams } from './effects/gems';
-import { colorAllowed, type ChoiceRule } from './gowChoiceRules';
+import { gemAllowed, type ChoiceRule } from './gowChoiceRules';
 import { casterSide, compareChoiceScores, manaNeeds, sameGemType, transformOutput, transformedMatchScore } from './gemChoiceScore';
 
 /** 格子选择器：为一次技能释放返回一个棋盘坐标；无可选格返回 null。
@@ -84,8 +84,7 @@ export class AiCellChooser {
     board.forEach((gem, pos) => {
       if (!gem) return;
       // P-chooser-native-restrictions：ManaGemsOnly 只选普通法力（颜色）宝石；颜色限制同选色器
-      if (rule?.manaGemsOnly && gem.type.kind !== 'color') return;
-      if (rule && gem.type.kind === 'color' && !colorAllowed(rule, gem.type.color)) return;
+      if (!gemAllowed(rule, gem.type)) return;
       const d = Math.abs(pos.row - cx) + Math.abs(pos.col - cy);
       let matchScore: readonly number[] = [0, 0, 0, 0];
       let clearedMana = 0, clearedCount = 0, transformable = false;

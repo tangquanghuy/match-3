@@ -1,4 +1,4 @@
-﻿// Keeper of Souls 6074 / native 7144: complete stored-snapshot color-to-skull spell.
+// Keeper of Souls 6074 / native 7144: complete stored-snapshot color-to-skull spell.
 // @ts-expect-error Node fixture typings are absent from the browser TypeScript build.
 import fs from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
@@ -15,7 +15,7 @@ const troop = TROOPS.find(t => t.id === 6074)!;
 const en = JSON.parse(fs.readFileSync('data/raw/troops.gow.en.json', 'utf8')).troops.find((t: { Id: number }) => t.Id === 6074);
 const nativeRow = JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json', 'utf8')).spells.find((s: { Id: number }) => s.Id === 7144);
 const raw = JSON.parse(nativeRow.RawData ?? nativeRow.data);
-const guide = fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-brian-guide.html', 'utf8');
+const guide = fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html', 'utf8');
 const registry = new ExtensionRegistry(); registerSkillLibrary(registry.prototypes);
 function setup(color: BaseColor, side = PlayerSide.Left) {
   const f = damageFixture();

@@ -1,3 +1,4 @@
+import { abilityDisplayText } from './abilityDisplay';
 import { isCoupletSpell, spellTitleText } from '../data/spellPresentation';
 /**
  * 部队详情窗（战斗内，非模态）——三张图鉴样式的卡叠成一摞。
@@ -667,7 +668,7 @@ export class UnitSheet {
   // —— 渲染 ——
 
   private headerSigOf(d: UnitSheetData): string {
-    return [d.charId, d.ally, d.name, d.portrait, d.typeLine, d.race, d.kingdom, d.rarityLabel, d.role ?? '', d.rarity, d.rarityColor,
+    return [d.charId, d.ally, d.name, d.portrait, d.typeLine, d.race, d.kingdom, d.rarityLabel, d.role ?? '', d.shown.levelLabel ?? '', d.rarity, d.rarityColor,
       d.skillName, d.skillTag, d.colors.join(','),
       d.traitSlots.map((t) => `${t.code}:${t.unlocked}:${t.implemented}`).join(',')].join('|');
   }
@@ -677,7 +678,7 @@ export class UnitSheet {
     this.root.setAttribute('aria-labelledby', nameId);
     this.root.dataset.side = d.ally ? 'ally' : 'enemy';
     this.root.dataset.charId = String(d.charId);
-    const nameSub = [d.role ?? '', d.race, d.kingdom, d.rarityLabel].filter(Boolean).join(' · ');
+    const nameSub = [d.role ?? '', d.race, d.kingdom, d.rarityLabel, d.shown.levelLabel].filter(Boolean).join(' · ');
     const rarityAttr = d.rarityColor ? ` data-rc style="--rc:${esc(d.rarityColor)}"` : '';
     const unlocked = d.traitSlots.filter((t) => t.unlocked).length;
     this.root.innerHTML = `
@@ -802,7 +803,7 @@ export class UnitSheet {
     const copy = this.root.querySelector('.usw-copy') as HTMLElement | null;
     if (copy) {
       const html = d.skillDescription
-        ? renderSpell(esc(d.skillDescription), d.shown.magic, { interactive: false }).html
+        ? renderSpell(esc(/\b(?:max|min|round|floor)\s*\(/.test(d.skillDescription) ? abilityDisplayText(d.skillDescription, d.shown.magic) : d.skillDescription), d.shown.magic, { interactive: false }).html
         : '';
       copy.classList.toggle('empty', !html);
       copy.innerHTML = html || '这个技能暂无效果描述。';

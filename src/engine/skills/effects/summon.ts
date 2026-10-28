@@ -8,7 +8,7 @@
  */
 import type { GameEvent, ExtraTurnEvent } from '../../events';
 import type { Character, KingdomRef } from '../../types';
-import { PlayerSide } from '../../types';
+import { PlayerSide, snapshotCharacterForm } from '../../types';
 import { MAX_ACTIVE_TEAM_SIZE, resolveDefeatEvents, allocateCharId, pruneDefeated } from '../../teamRoster';
 import type { EffectContext, EffectPrimitive } from './context';
 import { attachPassives } from '../../traits';
@@ -50,7 +50,7 @@ export interface TransformTroopParams {
   /** 被转化成兵种 id（可选，供表现层取立绘） */
   troopId?: number;
   /** referenceName → 模板映射（由装配层注入；缺省用 ctx.resolveSummonRef） */
-  resolveRef?: (referenceName: string) => SummonTemplate | null;
+  resolveRef?: (referenceName: string, source?: Character) => SummonTemplate | null;
   fullMana?: boolean;
 }
 
@@ -65,6 +65,7 @@ function templateOf(char: Character): SummonTemplate {
     ...rest,
     hp: char.maxHp,
     mana: 0,
+    ...(char.battleScaling ? { battleScaling: { ...char.battleScaling } } : {}),
     colors: [...char.colors],
     traitIds: [...(char.traitIds ?? [])],
     troopTypes: [...(char.troopTypes ?? [])],
@@ -83,26 +84,21 @@ export function transformTroopEffect(params: TransformTroopParams): EffectPrimit
     apply(ctx: EffectContext): GameEvent[] {
       const resolve = params.resolveRef ?? ctx.resolveSummonRef;
       // R22 批：copyOf 形态（TransformSelfFromTarget）模板来自现存角色，无需 ref 解析器
-      const template: SummonTemplate | null = params.copyOf && params.copyOf.length > 0
-        ? templateOf(params.copyOf[0])
-        : (() => {
-          if (!resolve) return null;
-          // ref / randomOf 二选一：randomOf 先种子化掷选再映射（与 summon.randomOf 同语义）
-          const refName = params.ref ?? (params.randomOf && params.randomOf.length > 0
-            ? params.randomOf[ctx.rng.nextInt(params.randomOf.length)]
-            : undefined);
-          if (!refName) return null;
-          return resolve(refName);
-        })();
-      if (!template) return [];
+      const copied = params.copyOf && params.copyOf.length > 0 ? templateOf(params.copyOf[0]) : null;
+      const refName = copied ? undefined : params.ref ?? (params.randomOf && params.randomOf.length > 0
+        ? params.randomOf[ctx.rng.nextInt(params.randomOf.length)] : undefined);
+      if (!copied && (!resolve || !refName)) return [];
       const events: GameEvent[] = [];
       for (const target of params.targets) {
         if (target.defeated) continue;
+        const template = copied ?? resolve!(refName!, target);
+        if (!template) continue;
         applyTransformTemplate(target, template);
         if (params.fullMana) target.mana = template.manaCost;
-        const ev: GameEvent = { type: 'troop-transform', targetId: target.id, name: template.name,
-          sourceSide: findSide(ctx.state, ctx.casterId) ?? undefined };
+        const ev: GameEvent = { type: 'troop-transform', targetId: target.id, name: template.name, hp: target.hp, maxHp: target.maxHp,
+          sourceSide: findSide(ctx.state, ctx.casterId) ?? undefined, form: snapshotCharacterForm(target) };
         if (params.troopId !== undefined) ev.troopId = params.troopId;
+        if (template.portraitUrl !== undefined) ev.portraitUrl = template.portraitUrl;
         events.push(ev);
       }
       return events;
@@ -113,6 +109,12 @@ export function transformTroopEffect(params: TransformTroopParams): EffectPrimit
 /** Apply a troop template without changing its stable battle identity or slot. */
 export function applyTransformTemplate(target: Character, template: SummonTemplate): void {
   target.name = template.name;
+  target.race = template.race;
+  target.levelLabel = template.levelLabel;
+  target.mechanicalIdentity = template.mechanicalIdentity;
+  target.battleScaling = template.battleScaling ? { ...template.battleScaling } : undefined;
+  target.portraitUrl = template.portraitUrl;
+  target.role = template.role;
   target.maxHp = template.maxHp;
   target.hp = template.hp;
   target.attack = template.attack;
@@ -168,7 +170,7 @@ export interface SummonParams {
    * referenceName → 召唤物模板的映射器（由装配层注入，来自 troops 数据）。
    * ref/randomOf 需要它；template 来源不需要。缺失或映射失败时安全跳过。
    */
-  resolveRef?: (referenceName: string) => SummonTemplate | null;
+  resolveRef?: (referenceName: string, source?: Character) => SummonTemplate | null;
   /** 被召唤兵种 id（troopId），供表现层取立绘/数据（可选） */
   troopId?: number;
 }
@@ -189,19 +191,22 @@ function deriveCharId(ctx: EffectContext): number {
 function resolveTemplate(params: SummonParams, ctx: EffectContext): SummonTemplate | null {
   const src = params.source;
   if ('template' in src) return src.template;
-  if ('ref' in src) return params.resolveRef?.(src.ref) ?? null;
+  const source = Object.values(ctx.state.teams).flatMap(t=>t.characters).find(c=>c.id===ctx.casterId)
+    ?? Object.values(ctx.castTracking?.unitsAtCastStart ?? {}).flatMap(units=>units ?? []).find(c=>c.id===ctx.casterId);
+  const resolve = params.resolveRef ?? ctx.resolveSummonRef;
+  if ('ref' in src) return resolve?.(src.ref, source) ?? null;
   // randomOfKingdom（K-E 批）：王国兵册清单 → 种子化掷选 → resolveRef 映射；
   // 映射器缺省 / 清单空（null 或 []）→ 安全跳过（rng 不消耗，与 ref 无解析器同口径）
   if ('randomOfKingdom' in src) {
     const refs = ctx.resolveKingdomSummonRefs?.(src.randomOfKingdom);
     if (!refs || refs.length === 0) return null;
     const pick = refs[ctx.rng.nextInt(refs.length)];
-    return params.resolveRef?.(pick) ?? null;
+    return resolve?.(pick, source) ?? null;
   }
   // randomOf：确定性选取
   if (src.randomOf.length === 0) return null;
   const pick = src.randomOf[ctx.rng.nextInt(src.randomOf.length)];
-  return params.resolveRef?.(pick) ?? null;
+  return resolve?.(pick, source) ?? null;
 }
 
 /** 把一只召唤物追加到编队末尾；满四人时召唤失效。
@@ -220,6 +225,7 @@ function appendSummon(
   const id = deriveCharId(ctx);
   const summoned: Character = {
     ...template, id, defeated: false, statuses: [],
+    ...(template.battleScaling ? { battleScaling: { ...template.battleScaling } } : {}),
     colors: [...template.colors], traitIds: [...(template.traitIds ?? [])],
     troopTypes: [...(template.troopTypes ?? [])],
   };
@@ -233,6 +239,7 @@ function appendSummon(
     troopId,
     characterId: id,
     destination: 'field',
+    form: snapshotCharacterForm(summoned),
   });
   if (position === 'front' && slot > 0) {
     team.characters.pop();
@@ -327,7 +334,7 @@ function reviveOne(target: Character, spec: SelfReviveSpec): GameEvent[] {
   target.defeated = false;
   target.hp = Math.min(target.maxHp, Math.max(1, revivedHp));
   if (target.hp > hpBefore) {
-    events.push({ type: 'buff', targetId: target.id, stat: 'hp', amount: target.hp - hpBefore });
+    events.push({ type: 'buff', targetId: target.id, stat: 'hp', amount: target.hp - hpBefore, revived: true });
   }
   if (spec.fullMana === true && target.mana < target.manaCost) {
     const gained = target.manaCost - target.mana;

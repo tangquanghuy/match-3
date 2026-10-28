@@ -14,9 +14,9 @@ import {spellDescription} from '../../src/data/combatText';
 import weapons from '../../src/data/weapons.json';
 const en=JSON.parse(fs.readFileSync('artifacts/gowhead-weapons/weapons.json','utf8')).weapons;
 const native=indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells);
-const old=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-weapon-list.html','utf8');
-const update=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-4-5-weapon-balance.html','utf8');
-const officialStatus=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html','utf8');
+const old=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-weapon-list.html','utf8');
+const update=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-4-5-weapon-balance.html','utf8');
+const officialStatus=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-status-effects.html','utf8');
 const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 const cases=[
  {id:1011,spell:7077,ref:'PhoenixCrossbow',name:'Phoenix Crossbow',cost:9,color:'Green',base:3,oldBase:1,oldCost:10,desc:'Deal [Magic + 3] true damage to an Enemy.',kind:'TrueDamage',target:'FromTarget',trueDamage:true,random:false},

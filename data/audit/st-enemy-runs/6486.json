@@ -1,0 +1,2194 @@
+{
+  "version": 1,
+  "enemyId": 6486,
+  "testFile": "tests/unit/stEnemySupportAcceptance.test.ts",
+  "subjectDigest": "99bb4819fc120002b5e33440efb4295e07322f83ad6dee18b68065aabdc4b377",
+  "testDigest": "166653f9055b663efaecf5de089cb716a1236f8c855a4f8107e850f315f8b24e",
+  "implementationDigest": "79da67dd2c620e270cffa4da8591ba125087bb18339c1a415fc0073af990ad1b",
+  "portraitDigest": "6d0bc58426ad3d93e0e04288c799ceda90cc0cf81689a64231ff1c46a8685422",
+  "author": "codex-main-random-family-20261024",
+  "contractDigest": "c42eaba8b5a45635854c2e3ced3cc2e1f9c34d231e2556141721dc0546ee3e2c",
+  "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+  "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+  "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+  "command": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"D:\\\\Code\\\\match-3\\\\node_modules\\\\vitest\\\\vitest.mjs\" \"run\" \"tests/unit/gowRhynaxWholeSkillAudit.test.ts\" \"tests/unit/stEnemyDirectDamageAcceptance.test.ts\" \"tests/unit/stEnemyMusketeerAcceptance.test.ts\" \"tests/unit/stEnemySupportAcceptance.test.ts\" \"tests/unit/gowCentaurScoutChargeAudit.test.ts\" \"tests/unit/stEnemyBoardManaDesign.test.ts\" \"tests/unit/stEnemyMappedAcceptance.test.ts\" \"tests/unit/stEnemyMappedTraits.test.ts\" \"tests/unit/gowOwlbearScreechAudit.test.ts\" \"tests/unit/gowTreantBarkskinAudit.test.ts\" \"tests/unit/gowPaladinJusticeAudit.test.ts\" \"tests/unit/gowPeasantWholeSkillAudit.test.ts\" \"tests/unit/gowRagnagordWholeSkillAudit.test.ts\" \"tests/unit/stEnemyRandomTargetAcceptance.test.ts\" \"tests/unit/stEnemyRandomDamageAcceptance.test.ts\" \"tests/unit/gowFixR004StatusDurations.test.ts\" \"tests/unit/gowWorker01BoardAndStorm.test.ts\" \"tests/unit/stEnemyStatusDamageAcceptance.test.ts\" \"tests/unit/statusEffect.test.ts\" \"tests/unit/traits.test.ts\" \"tests/unit/controlStatus.test.ts\" \"tests/unit/gowCommonStatusRules.test.ts\" \"tests/unit/gowLaneL5C.test.ts\" \"tests/unit/traitModeSpecific.test.ts\" \"--reporter=json\" \"--outputFile=D:\\\\Code\\\\match-3\\\\data\\\\audit\\\\st-enemy-runs\\\\reports\\\\batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json\"",
+  "assertions": [
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance ordinary trait regeneration restores exactly one hp on own turn start and never the opponent turn",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance charges from a real Blue three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance charges from a real Brown three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance ordinary trait fireproof blocks burning through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance ordinary trait fireproof blocks faerie-fire through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance ordinary trait armored reduces incoming skull damage with source rounding and preserves spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance charges from a real Red three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait elementalslayer doubles actual skull damage only against its designated race",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks poison through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks stun through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks death-mark through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks disease through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks wolf through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks wolf-form through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude blocks lycanthropy through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance ordinary trait fortitude prevents a guaranteed hostile devour without consuming its chance roll",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance charges from a real Blue three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait monsterslayer doubles actual skull damage only against its designated race",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait undying blocks poison through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait undying blocks death-mark through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait undying blocks disease through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait undying blocks wolf through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait undying blocks wolf-form through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance ordinary trait undying blocks lycanthropy through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance charges from a real Blue three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance charges from a real Green three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance ordinary trait leader grants all four skills once at front and waits for an actual front vacancy",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance charges from a real Red three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance charges from a real Purple three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks poison through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks stun through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks death-mark through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks disease through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks wolf through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks wolf-form through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude blocks lycanthropy through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance ordinary trait fortitude prevents a guaranteed hostile devour without consuming its chance roll",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance ordinary trait regeneration restores exactly one hp on own turn start and never the opponent turn",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance charges from a real Green three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait woodancestry blocks faerie-fire through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait woodancestry blocks silence through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait woodancestry blocks entangle through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance charges from a real Green three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance ordinary trait highancestry blocks faerie-fire through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance ordinary trait highancestry blocks silence through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance ordinary trait highancestry blocks death-mark through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance charges from a real Green three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance charges from a real Purple three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance ordinary trait arcane reacts to its source cast side including self and excludes the other side",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance charges from a real Purple three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance charges from a real Blue three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance charges from a real Brown three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance ordinary trait inscribed reacts to its source cast side including self and excludes the other side",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance ordinary trait barkskin reduces incoming skull damage with source rounding and preserves spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance charges from a real Blue three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance charges from a real Red three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance charges from a real Red three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance charges from a real Brown three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects cancelled ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects opposing ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects stale ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects defeated ally selection without spending mana, RNG, action, turn or events on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance ordinary trait dwarfslayer doubles actual skull damage only against its designated race",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance executes every active segment on the selected living ally without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance charges from a real Brown three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait reinforced restores exactly one armor on own turn start and never the opponent turn",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks poison through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks burning through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks bleed through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks silence through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks frozen through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks stun through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks entangle through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks web through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks disease through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks death-mark through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks marked through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks charm through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks mana-burn through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks faerie-fire through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks terror through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious blocks wolf-form through a hostile session cast and permits a positive status",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait impervious prevents a guaranteed hostile devour without consuming its chance roll",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance binds frozen portrait, source role, exact mana, complete active and all ordinary traits",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance describes each source effect, chosen scope, scaling, race and ordinary trait without source names",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance scales source stats at level 1 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance scales source stats at level 20 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance scales source stats at level 20 difficulty 1.5 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance scales source stats at level 40 difficulty 1 and uses scaled magic in the actual cast",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance applies all source opening auras only to living same-side races and colors on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance executes every active segment on its source-defined living targets without changing other targets on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance executes every active segment on its source-defined living targets without changing other targets on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance charges from a real Red three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance charges from a real Yellow three-match with exact link bonus and no opponent credit",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance does not charge from an off-color three-match and rejects underfilled and wrong-side casts atomically",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance preserves frozen configuration through JSON reopen and replays identical actions, events, board and BattleResult",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance ordinary trait regeneration restores exactly one hp on own turn start and never the opponent turn",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance ordinary trait armored reduces incoming skull damage with source rounding and preserves spell damage",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=true fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=true fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=false fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=false fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=true fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=true fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=false fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance raceDouble Mech matching=false fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=true fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=true fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=false fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=false fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=true fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=true fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=false fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance raceDouble Beast matching=false fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=true fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=true fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=false fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=false fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=true fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=true fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=false fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance raceDouble Elemental matching=false fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=true fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=true fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=false fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=false fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=true fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=true fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=false fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance raceDouble Divine matching=false fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=true fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=true fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=false fullLife=true on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=false fullLife=false on side Left changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=true fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=true fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=false fullLife=true on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance raceDouble Human matching=false fullLife=false on side Right changes current and maximum Life independently of armor",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance caps granted mana at recipient cost and distinguishes silence from magic growth",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance caps granted mana at recipient cost and distinguishes silence from magic growth",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance reads red board count for both attack and armor across the three-to-one boundary",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance honors source wolf immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance honors source wolf-form immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance honors source lycanthropy immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance honors source wolf immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance honors source wolf-form immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance honors source lycanthropy immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance honors source wolf immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance honors source wolf-form immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance honors source lycanthropy immunity through a hostile cast with a susceptible allied control",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance honors source mana depletion immunity while an allied control drains to zero",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance honors source mana depletion immunity while an allied control drains to zero",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6028 Priestess: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6082 Sparkgrinder: source-grounded behavior acceptance describes the complete source immunity promise for ordinary trait fortitude",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6142 Sunweaver: source-grounded behavior acceptance describes the complete source immunity promise for ordinary trait undying",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6162 Fenrir: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6193 Runesmith: source-grounded behavior acceptance describes the complete source immunity promise for ordinary trait fortitude",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance describes the complete source immunity promise for ordinary trait woodancestry",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6323 ElvenBard: source-grounded behavior acceptance describes the complete source immunity promise for ordinary trait highancestry",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6325 Unicorn: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6351 Bishop: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6690 SilverOak: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6740 KhatibTahir: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance permits self selection for every chosen-ally segment on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance rejects unknown and defeated casters and actions after surrender atomically on both sides",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance excludes dead slots from all-allies and other-allies support and finds the living front on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6081 Luther: source-grounded behavior acceptance excludes dead slots from all-allies and other-allies support and finds the living front on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance excludes dead slots from all-allies and other-allies support and finds the living front on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6258 Innkeeper: source-grounded behavior acceptance excludes dead slots from all-allies and other-allies support and finds the living front on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 0 brown gems on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 12 brown gems on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 13 brown gems on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 14 brown gems on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 0 brown gems on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 12 brown gems on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 13 brown gems on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance grants conditional five armor to every living ally including self at 14 brown gems on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait defender grants opening team armor exactly once only to living PvP defenders on side Left mode standard",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait defender grants opening team armor exactly once only to living PvP defenders on side Left mode pvp",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait defender grants opening team armor exactly once only to living PvP defenders on side Right mode standard",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6097 FortressGate: source-grounded behavior acceptance ordinary trait defender grants opening team armor exactly once only to living PvP defenders on side Right mode pvp",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with success roll on side Left difficulty 1",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with success roll on side Left difficulty 1.5",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with failure roll on side Left difficulty 1",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with failure roll on side Left difficulty 1.5",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with success roll on side Right difficulty 1",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with success roll on side Right difficulty 1.5",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with failure roll on side Right difficulty 1",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact summons the real scaled Dryad on owner death with failure roll on side Right difficulty 1.5",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact ignores deaths of other allies and enemies on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6315 Archdruid: source-grounded behavior acceptance ordinary trait naturepact ignores deaths of other allies and enemies on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance ordinary trait aflame burns only the actual skull victim and never triggers from its support spell on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6091 Emperina: source-grounded behavior acceptance ordinary trait aflame burns only the actual skull victim and never triggers from its support spell on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance freezes imported growth and independent literal gains from native skillOnce/IncreaseHealth rules",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 1@1 wounded=false side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 1@1 wounded=true side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1 wounded=false side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1 wounded=true side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1.5 wounded=false side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1.5 wounded=true side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 40@1 wounded=false side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 40@1 wounded=true side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance MonsterShield grants exactly two Armor once to living allied Monsters including self on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Regeneration heals one missing Life only on owner turn and keeps the maximum on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 1 skull damage to literal 1, without reducing spells on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 2 skull damage to literal 2, without reducing spells on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 10 skull damage to literal 8, without reducing spells on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 11 skull damage to literal 8, without reducing spells on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 12 skull damage to literal 9, without reducing spells on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance a rejected underfilled attempt leaves the individual's one successful cast available on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance a rejected wrong-side attempt leaves the individual's one successful cast available on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance a rejected silenced attempt leaves the individual's one successful cast available on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance each duplicate on both teams casts once independently, excludes spent units from AI, and reproduces after JSON reopen on side Left",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 1@1 wounded=false side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 1@1 wounded=true side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1 wounded=false side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1 wounded=true side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1.5 wounded=false side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 20@1.5 wounded=true side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 40@1 wounded=false side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance gains literal Magic+20 current/max Life and Armor only on self at 40@1 wounded=true side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance MonsterShield grants exactly two Armor once to living allied Monsters including self on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Regeneration heals one missing Life only on owner turn and keeps the maximum on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 1 skull damage to literal 1, without reducing spells on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 2 skull damage to literal 2, without reducing spells on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 10 skull damage to literal 8, without reducing spells on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 11 skull damage to literal 8, without reducing spells on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance Armored rounds incoming 12 skull damage to literal 9, without reducing spells on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance a rejected underfilled attempt leaves the individual's one successful cast available on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance a rejected wrong-side attempt leaves the individual's one successful cast available on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance a rejected silenced attempt leaves the individual's one successful cast available on side Right",
+      "status": "passed"
+    },
+    {
+      "fullName": "ST support 6486 SandScuttler: source-grounded behavior acceptance each duplicate on both teams casts once independently, excludes spent units from AI, and reproduces after JSON reopen on side Right",
+      "status": "passed"
+    }
+  ],
+  "totalTests": 543,
+  "passedTests": 543,
+  "failedTests": 0,
+  "pendingTests": 0,
+  "exitCode": 0
+}

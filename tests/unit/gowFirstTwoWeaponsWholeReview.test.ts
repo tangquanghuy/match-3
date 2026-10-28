@@ -14,8 +14,8 @@ import {spellDescription} from '../../src/data/combatText';
 import weapons from '../../src/data/weapons.json';
 const english=JSON.parse(fs.readFileSync('artifacts/gowhead-weapons/weapons.json','utf8')).weapons;
 const native=indexNativeSpells(JSON.parse(fs.readFileSync('data/raw/spells.gow.en.json','utf8')).spells);
-const official=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/update-9-4-patch-notes.html','utf8').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ');
-const statusGuide=fs.readFileSync('artifacts/gow-skill-audit/gold-primary-sources/official-status-effects.html','utf8');
+const official=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/update-9-4-patch-notes.html','utf8').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ');
+const statusGuide=fs.readFileSync('artifacts/gow-source-fixtures/gold-primary-sources/official-status-effects.html','utf8');
 const registry=new ExtensionRegistry();registerSkillLibrary(registry.prototypes);
 const cases=[
  {id:1008,spellId:7074,ref:'IcyGlaive',name:'Icy Glaive',base:3,cost:8,legacyCounter:true},

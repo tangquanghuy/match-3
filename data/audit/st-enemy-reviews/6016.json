@@ -1,0 +1,2198 @@
+{
+  "version": 1,
+  "enemyId": 6016,
+  "evidence": {
+    "sourceRefs": [
+      "src/data/troops.json#6016",
+      "src/data/troop-progression.json#6016",
+      "src/data/traits.json#airspirit",
+      "src/data/traits.json#agile",
+      "src/data/traits.json#fast",
+      "src/sillytavern/data/portraits.json#entries[troopId=6016]",
+      "game-assets/public/static/portraits/Troop_K04_00.webp",
+      "data/raw/troops.gow.en.json#troops[Id=6016]",
+      "data/raw/spells.gow.en.json#spells[Id=7016]",
+      "data/raw/gow-2026-09-18/traits.en.json#Code=airspirit,agile,fast"
+    ],
+    "sourceReviewDocument": "docs/sillytavern-st04-independent-20261024.md",
+    "sourceReview": "Destroy exactly the chosen row, then damage only the first living enemy for Magic+1. Geometry, original gem IDs, Web and Barrier boundaries are separately traced to native and ST assertions.",
+    "ordinaryTraits": [
+      {
+        "code": "airspirit",
+        "executionReview": "Opening Magic counts living same-team Yellow allies, including self, once; excludes nonmatching/opposing/dead allies."
+      },
+      {
+        "code": "agile",
+        "executionReview": "Seeded skull-dodge success/failure on both sides checks real damage and RNG; spell damage is not a skull dodge."
+      },
+      {
+        "code": "fast",
+        "executionReview": "Opening 50% mana applied once; later turn/cast and restored continuation preserve the native rule."
+      }
+    ],
+    "nativeEvidence": [
+      {
+        "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+        "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+        "clausesCovered": [
+          "row destruction followed by first-living-enemy Magic+1 damage",
+          "source cost, colors and registered native prototype"
+        ],
+        "limits": [
+          "Native source/prototype evidence. This assertion does not execute an ST blueprint or prove all native trait triggers."
+        ]
+      },
+      {
+        "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+        "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+        "clausesCovered": [
+          "specific native battle boundary: Web suppresses only Magic scaling; fixed +1 still hits"
+        ],
+        "limits": [
+          "One named boundary only; additional parameterized native cases remain in this suite. ST mapping and whole-enemy acceptance remain separate."
+        ]
+      }
+    ],
+    "rawSource": {
+      "englishSpell": {
+        "name": "Charge",
+        "desc": "Destroy a row, and deal [Magic + 1] damage to the first Enemy.",
+        "id": 7016
+      },
+      "nativeSpell": {
+        "Id": 7016,
+        "Cost": 7,
+        "Target": "Board",
+        "SpellSteps": [
+          {
+            "Amount": 1,
+            "BoardTarget": "Row",
+            "Type": "DestroyGems"
+          },
+          {
+            "SpellPowerMultiplier": 1,
+            "Target": "FrontEnemy",
+            "Amount": 1,
+            "Primarypower": true,
+            "Type": "Damage"
+          }
+        ]
+      },
+      "traits": [
+        {
+          "code": "airspirit",
+          "englishDescription": "Gain 1 Magic for each Yellow ally.",
+          "native": {
+            "Activation": "start_battle",
+            "Code": "airspirit",
+            "Description": "[TRAIT_AIRSPIRIT_DESC]",
+            "Filter": "3",
+            "Image": "airspirit",
+            "Modifier": 1,
+            "Name": "[TRAIT_AIRSPIRIT]",
+            "TraitType": "adjust_magic_per_ally",
+            "Trigger": "none"
+          }
+        },
+        {
+          "code": "agile",
+          "englishDescription": "20% chance to dodge Skull damage.",
+          "native": {
+            "Activation": "on_skull_attacked",
+            "Code": "agile",
+            "Description": "[TRAIT_AGILE_DESC]",
+            "Image": "agile",
+            "Modifier": 0.2,
+            "Name": "[TRAIT_AGILE]",
+            "TraitType": "dodge",
+            "Trigger": "self"
+          }
+        },
+        {
+          "code": "fast",
+          "englishDescription": "Start battles with 50% Mana.",
+          "native": {
+            "Activation": "start_battle",
+            "Code": "fast",
+            "Description": "[TRAIT_FAST_DESC]",
+            "Image": "fast",
+            "Modifier": 0.5,
+            "Name": "[TRAIT_FAST]",
+            "TraitType": "set_mana_percentage",
+            "Trigger": "none"
+          }
+        }
+      ]
+    },
+    "sourceFixture": "tests/fixtures/stEnemyMappedSources.ts",
+    "sourceFixtureDigest": "64ff1cc13d99624b9f12a666ae0b39182c188522487e9756f8efb3b0865102c3",
+    "portrait": {
+      "assetId": "Troop_K04_00",
+      "troopId": 6016,
+      "manaColors": [
+        "Yellow"
+      ],
+      "rank": "杂兵",
+      "form": "怪物",
+      "role": "Striker",
+      "portraitUrl": "/static/portraits/Troop_K04_00.webp",
+      "review": "thumbnail-reviewed",
+      "contentHash": "c1f32f6775a848d5b5295486b65821f908f4dbaed1ccab1e7ed111e3591a43c5"
+    },
+    "portraitSha256": "c1f32f6775a848d5b5295486b65821f908f4dbaed1ccab1e7ed111e3591a43c5",
+    "independentlyRecalculatedPanels": {
+      "1@1": {
+        "hp": 4,
+        "armor": 1,
+        "attack": 2,
+        "magic": 1
+      },
+      "20@1": {
+        "hp": 19,
+        "armor": 9,
+        "attack": 10,
+        "magic": 12
+      },
+      "20@1.5": {
+        "hp": 29,
+        "armor": 14,
+        "attack": 15,
+        "magic": 18
+      },
+      "7@1.3": {
+        "hp": 9,
+        "armor": 3,
+        "attack": 5,
+        "magic": 4
+      }
+    },
+    "publicCompiler": {
+      "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+      "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6016 selects its own recipe with 'Generator' and survives save/restore",
+      "input": {
+        "manaColors": [
+          "Yellow"
+        ],
+        "rank": "杂兵",
+        "form": "类人",
+        "role": "Generator",
+        "effects": [
+          {
+            "effect": "damage",
+            "requirement": "required"
+          },
+          {
+            "effect": "mana",
+            "requirement": "required"
+          }
+        ],
+        "level": 20,
+        "difficulty": 1
+      },
+      "status": "passed",
+      "scope": "Actual compileEnemyDesign, strict four-dimensional artwork, actual retained recipe/traits/signature, save/restore and deterministic repeat. Main browser evidence is separately attributed.",
+      "seed": 1
+    },
+    "sampleTests": 429,
+    "registeredFileTests": 429,
+    "obligationReferences": 92,
+    "uniqueObligationReferences": 43,
+    "obligationAssertions": [
+      {
+        "obligation": "portrait",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+        "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+        "status": "passed"
+      },
+      {
+        "obligation": "active",
+        "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+        "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "traits",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+        "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+        "status": "passed"
+      },
+      {
+        "obligation": "target",
+        "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+        "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-cost",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-cost",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-cost",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-cost",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-cost",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-cost",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "mana-colors",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "scaling",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+        "status": "passed"
+      },
+      {
+        "obligation": "scaling",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+        "status": "passed"
+      },
+      {
+        "obligation": "scaling",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+        "status": "passed"
+      },
+      {
+        "obligation": "scaling",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+        "status": "passed"
+      },
+      {
+        "obligation": "context",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+        "status": "passed"
+      },
+      {
+        "obligation": "context",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+        "status": "passed"
+      },
+      {
+        "obligation": "context",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "context",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "description",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+        "status": "passed"
+      },
+      {
+        "obligation": "role",
+        "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+        "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6016 selects its own recipe with 'Generator' and survives save/restore",
+        "status": "passed"
+      },
+      {
+        "obligation": "role",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "role",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "refresh",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+        "status": "passed"
+      },
+      {
+        "obligation": "refresh",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "refresh",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "refresh",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+        "status": "passed"
+      },
+      {
+        "obligation": "determinism",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "determinism",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "determinism",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "determinism",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "determinism",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "determinism",
+        "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+        "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "invalid-action",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+        "status": "passed"
+      },
+      {
+        "obligation": "invalid-action",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+        "status": "passed"
+      },
+      {
+        "obligation": "invalid-action",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+        "status": "passed"
+      },
+      {
+        "obligation": "invalid-action",
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+        "status": "passed"
+      }
+    ],
+    "executionProvenance": {
+      "author": "codex-main",
+      "reviewerExecutedTests": 0,
+      "reviewerExecutedBuilds": 0,
+      "reviewerExecutedBrowsers": 0,
+      "sharedFiles": 13,
+      "sharedPassed": 1945,
+      "sharedFailed": 0,
+      "sharedSkipped": 0,
+      "reportFile": "data/audit/st-enemy-runs/reports/batch-32364-f8c2dad6-b49e-4692-a000-aaa6fc22fea4.json",
+      "reportDigest": "94da41c77626f5176318ea4ef01f8c01a11bf7dbb43e9679531dae3ae16192fb",
+      "registryDigest": "0cb30fda41e4e1a40be7d67352450530d574dc2f9dc46689ba26e15cb658fe63",
+      "summaryFile": ".tmp/st-mapped-final-summary.json",
+      "summaryDigest": "630b9ef6eba1402c626f925bbe30f6fd6b627790b91b2c026137329e9df46330"
+    },
+    "independentMappedFinal20261024": {
+      "reviewDocument": "docs/sillytavern-st04-independent-20261024.md",
+      "reviewedAt": "2026-10-23T16:59:40.300Z",
+      "mode": "new-six-independent-source-review",
+      "reviewerAuthorship": "The reviewer authored no ST implementation, classifier changes, fixtures or acceptance tests in this batch. The only engine experiment and its exclusive test authored by this reviewer were precisely withdrawn before freeze; earlier unrelated dirty-tree changes were retained.",
+      "testExecution": {
+        "author": "codex-main",
+        "reviewerExecutedTests": 0,
+        "reviewerExecutedBuilds": 0,
+        "reviewerExecutedBrowsers": 0,
+        "sharedFiles": 13,
+        "sharedPassed": 1945,
+        "sharedFailed": 0,
+        "sharedSkipped": 0,
+        "reportFile": "data/audit/st-enemy-runs/reports/batch-32364-f8c2dad6-b49e-4692-a000-aaa6fc22fea4.json",
+        "reportDigest": "94da41c77626f5176318ea4ef01f8c01a11bf7dbb43e9679531dae3ae16192fb",
+        "registryDigest": "0cb30fda41e4e1a40be7d67352450530d574dc2f9dc46689ba26e15cb658fe63",
+        "summaryFile": ".tmp/st-mapped-final-summary.json",
+        "summaryDigest": "630b9ef6eba1402c626f925bbe30f6fd6b627790b91b2c026137329e9df46330"
+      },
+      "independentWork": [
+        "Read source expectations, raw English/native clauses, exact native evidence mapping, new ST tests and retained reviews.",
+        "Independently compared seven full source troop/trait/progression/portrait fixtures and portrait byte hashes; independently recalculated 28 stat panels. 6074 remains partial and excluded.",
+        "Parsed the raw final report with strict readAssertions, checked all 33 complete run assertion projections, 429 obligations and 2741 uniquely resolved passing reference occurrences.",
+        "Loaded actual inventoryEntry subjects with Vite (without running tests); computed all four current fingerprints and checked run/summary/contract/report/registry digests.",
+        "Validated all candidate reviews before writing; final fresh fingerprints and on-disk validator readback are recorded separately."
+      ],
+      "rollback": {
+        "engineFile": "src/engine/TurnEngine.ts",
+        "sha256": "4e429203d3e67a40f742a1b189187324f681d877c4bb343d4a083969ebc66d6d",
+        "exclusiveTest": "tests/unit/stCastChoiceCommit.test.ts",
+        "exclusiveTestAbsent": true,
+        "scope": "Only this reviewer's four engine hunks and exclusive test were withdrawn; no whole-file reset or unrelated dirty-tree rollback."
+      },
+      "supplementalMainEvidence": {
+        "browserPreacceptance": {
+          "resultFile": ".tmp/st-mapped-ui-check.json",
+          "resultDigest": "ef488faf5b0f08cbbda9ccfe9ee6a1df937d47d5339a8e4444ae655601a35fbc",
+          "scriptFile": ".tmp/st-mapped-ui-check.mjs",
+          "scriptDigest": "eeeadc0ec43fe624df4e046455a87a30592dcd3f01b5ae1807d41e33e7500659",
+          "executor": "main",
+          "reviewerReadResultOnly": true,
+          "reviewerDidNotExecuteOrCoSign": true,
+          "summary": "Six fixed inputs compile, save, refresh identically and add to formation; 6074 public rejection preserves previous save; pageErrors is empty."
+        },
+        "otherReportedChecks": "Main reports build success, 99 semantic regression assertions and 9 browser assertions. These are not independently rerun or substituted for registered per-source obligations.",
+        "classifierCensus": "Raman reports structure 1718 to 1760 of 1821, 367 sources gain roles/effects, no removals. This review does not sign that census or enlarge the 33-source acceptance set."
+      },
+      "registryDigest": "0cb30fda41e4e1a40be7d67352450530d574dc2f9dc46689ba26e15cb658fe63",
+      "reportDigest": "94da41c77626f5176318ea4ef01f8c01a11bf7dbb43e9679531dae3ae16192fb",
+      "runDigest": "c502cd165ebdf2051637797354f2727aa2b3bd73f47f67519cda4ee97a0cc125",
+      "contractDigest": "e12ee2b8219ab046896d6bd0db746e62bf841ee8c9726ed71b09655dbd34bd53",
+      "currentFingerprints": {
+        "enemyId": 6016,
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "testFiles": [
+          "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "tests/unit/stEnemyBoardManaDesign.test.ts",
+          "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "tests/unit/stEnemyMappedTraits.test.ts"
+        ],
+        "evidenceFiles": [
+          "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html",
+          "data/raw/gow-2026-09-18/traits.en.json",
+          "data/raw/spells.gow.en.json",
+          "data/raw/troops.gow.en.json"
+        ],
+        "subjectDigest": "e62b9072eb9e54561a1720e0efaa25e28b6965addd80f9ffb869c3ee5012beb9",
+        "testDigest": "22bb3b3bba48ea69d6f5c0e1d3cf8cc649bf16c10a9aa129adb260d48bd04282",
+        "implementationDigest": "b9247b3fbb995b7274d07c9ee7156ad7aa907c175a0f8520b5239500cce7a96f",
+        "portraitDigest": "788cb05d93679effc0d015c43d3621b36e84720adb013f4209f63a7d72ff0e50"
+      },
+      "obligationCount": 13,
+      "obligationReferenceOccurrences": 92,
+      "uniqueObligationReferences": 43,
+      "obligationAssertions": [
+        {
+          "obligation": "portrait",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "description",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+          "status": "passed"
+        },
+        {
+          "obligation": "role",
+          "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+          "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6016 selects its own recipe with 'Generator' and survives save/restore",
+          "status": "passed"
+        },
+        {
+          "obligation": "role",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "role",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+          "status": "passed"
+        }
+      ],
+      "projectedRegisteredFileAssertions": 429,
+      "sharedCountIsNotProjectionSum": true,
+      "rawSourcePathHashes": {
+        "src/data/troops.json": "b7872267ae4100340801d7e5da5ca97971acfd7de089e785a21913f91084cf7f",
+        "src/data/troop-progression.json": "58b1371ef6db5fbac117abb7ff0be58f287a0d53274663f4717646d624265bf3",
+        "src/data/traits.json": "fba783dffee82070de88dcb02d7491fc072a479c68d1fb393ff5f567c7b7effb",
+        "src/sillytavern/data/portraits.json": "0fa2f4143d96f233f0fb5193376dd5c19ff39aa688374c13020141effca2487c",
+        "game-assets/public/static/portraits/Troop_K04_00.webp": "c1f32f6775a848d5b5295486b65821f908f4dbaed1ccab1e7ed111e3591a43c5",
+        "data/raw/troops.gow.en.json": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+        "data/raw/spells.gow.en.json": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+        "data/raw/gow-2026-09-18/traits.en.json": "f8568574ce6d88fef7c763a2765f585f94e6bc9145be862d2652c2f0bbec5a79",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+      },
+      "reviewerIsDistinctFromRunAuthor": true,
+      "registeredAssertionsMatchRawReport": true
+    },
+    "renewalHistory": [
+      {
+        "reviewedAt": "2026-10-23T16:59:40.300Z",
+        "reviewer": "codex-independent-mapped-six-renewal-20261024",
+        "reviewFileSha256": "6258da2602b19a8652bdd77e674a839c4dec3b5fe39702673514fb40ca8df318",
+        "runFileSha256": "88944e6de86b0917d1b45848a151c0ade658aedfbb01756840ef0a571b1abd43",
+        "runDigest": "c502cd165ebdf2051637797354f2727aa2b3bd73f47f67519cda4ee97a0cc125",
+        "subjectDigest": "e62b9072eb9e54561a1720e0efaa25e28b6965addd80f9ffb869c3ee5012beb9",
+        "testDigest": "22bb3b3bba48ea69d6f5c0e1d3cf8cc649bf16c10a9aa129adb260d48bd04282",
+        "implementationDigest": "b9247b3fbb995b7274d07c9ee7156ad7aa907c175a0f8520b5239500cce7a96f",
+        "portraitDigest": "788cb05d93679effc0d015c43d3621b36e84720adb013f4209f63a7d72ff0e50",
+        "contractDigest": "e12ee2b8219ab046896d6bd0db746e62bf841ee8c9726ed71b09655dbd34bd53",
+        "preservedRawReceipt": ".tmp/st-conditional-skull-review/baseline-20261023T174036027630Z/data/audit/st-enemy-reviews/6016.json",
+        "preservedRawRun": ".tmp/st-conditional-skull-review/baseline-20261023T174036027630Z/data/audit/st-enemy-runs/6016.json",
+        "previousReceiptMetadata": {
+          "version": 1,
+          "enemyId": 6016,
+          "reviewer": "codex-independent-mapped-six-renewal-20261024",
+          "reviewerName": "Codex independent source and frozen-tree reviewer (withdrawn engine experiment only)",
+          "reviewedAt": "2026-10-23T16:59:40.300Z",
+          "decision": "accepted",
+          "scope": "enemy-behavior",
+          "obligations": [
+            "portrait",
+            "active",
+            "traits",
+            "target",
+            "mana-cost",
+            "mana-colors",
+            "scaling",
+            "context",
+            "description",
+            "role",
+            "refresh",
+            "determinism",
+            "invalid-action"
+          ],
+          "subjectDigest": "e62b9072eb9e54561a1720e0efaa25e28b6965addd80f9ffb869c3ee5012beb9",
+          "testDigest": "22bb3b3bba48ea69d6f5c0e1d3cf8cc649bf16c10a9aa129adb260d48bd04282",
+          "implementationDigest": "b9247b3fbb995b7274d07c9ee7156ad7aa907c175a0f8520b5239500cce7a96f",
+          "portraitDigest": "788cb05d93679effc0d015c43d3621b36e84720adb013f4209f63a7d72ff0e50",
+          "contractDigest": "e12ee2b8219ab046896d6bd0db746e62bf841ee8c9726ed71b09655dbd34bd53",
+          "runDigest": "c502cd165ebdf2051637797354f2727aa2b3bd73f47f67519cda4ee97a0cc125"
+        },
+        "supersededByReviewAt": "2026-10-23T17:50:23.062Z",
+        "reason": "Independent renewal of an existing receipt after the conditional-skull classifier and view update; original subject, portrait and obligation contract unchanged."
+      }
+    ],
+    "independentConditionalSkull20261024": {
+      "reviewDocument": "docs/sillytavern-st04-conditional-skull-independent-20261024.md",
+      "reviewedAt": "2026-10-23T17:50:23.062Z",
+      "mode": "existing-33-independent-renewal",
+      "reviewer": "codex-independent-conditional-skull-renewal-20261024",
+      "executionAuthor": "codex-main-conditional-skull-20261024",
+      "reviewerIsDistinctFromRunAuthor": true,
+      "summaryFile": ".tmp/st-conditional-skull-acceptance-summary.json",
+      "summaryDigest": "6684792702a2bc8f898ec085b4ed56559f4263b4d21cbdf3520556a07c8a42aa",
+      "registryFile": "data/audit/st-enemy-acceptance.json",
+      "registryDigest": "0cb30fda41e4e1a40be7d67352450530d574dc2f9dc46689ba26e15cb658fe63",
+      "reportFile": "data/audit/st-enemy-runs/reports/batch-1704-bdec022c-43eb-4f54-887e-3a06ce3e7021.json",
+      "reportDigest": "545aaa75d6593cde80cac812667c8c7d3f2e560988e3696d2e4980e43ad2db34",
+      "runFile": "data/audit/st-enemy-runs/6016.json",
+      "runDigest": "6d2b338125a0bba0593e302b208f8f543a167bb6b228cb220a11d6685d8ba799",
+      "contractDigest": "e12ee2b8219ab046896d6bd0db746e62bf841ee8c9726ed71b09655dbd34bd53",
+      "currentFingerprints": {
+        "enemyId": 6016,
+        "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+        "testFiles": [
+          "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "tests/unit/stEnemyBoardManaDesign.test.ts",
+          "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "tests/unit/stEnemyMappedTraits.test.ts"
+        ],
+        "evidenceFiles": [
+          "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html",
+          "data/raw/gow-2026-09-18/traits.en.json",
+          "data/raw/spells.gow.en.json",
+          "data/raw/troops.gow.en.json"
+        ],
+        "subjectDigest": "e62b9072eb9e54561a1720e0efaa25e28b6965addd80f9ffb869c3ee5012beb9",
+        "testDigest": "64ee14f38e9ba7cd03cf20326c835131cc61223e84989c42d546c5df50fa7df8",
+        "implementationDigest": "d5397598f98a496aa7f3589ee201a93e344bde6dddb048e79f8773445ad067c4",
+        "portraitDigest": "788cb05d93679effc0d015c43d3621b36e84720adb013f4209f63a7d72ff0e50"
+      },
+      "priorReviewSnapshot": ".tmp/st-conditional-skull-review/baseline-20261023T174036027630Z/data/audit/st-enemy-reviews/6016.json",
+      "priorReviewSha256": "6258da2602b19a8652bdd77e674a839c4dec3b5fe39702673514fb40ca8df318",
+      "priorRunSnapshot": ".tmp/st-conditional-skull-review/baseline-20261023T174036027630Z/data/audit/st-enemy-runs/6016.json",
+      "priorRunSha256": "88944e6de86b0917d1b45848a151c0ade658aedfbb01756840ef0a571b1abd43",
+      "subjectPortraitContractUnchanged": true,
+      "sourcePathHashes": {
+        "src/data/troops.json": "b7872267ae4100340801d7e5da5ca97971acfd7de089e785a21913f91084cf7f",
+        "src/data/troop-progression.json": "58b1371ef6db5fbac117abb7ff0be58f287a0d53274663f4717646d624265bf3",
+        "src/data/traits.json": "fba783dffee82070de88dcb02d7491fc072a479c68d1fb393ff5f567c7b7effb",
+        "src/sillytavern/data/portraits.json": "0fa2f4143d96f233f0fb5193376dd5c19ff39aa688374c13020141effca2487c",
+        "game-assets/public/static/portraits/Troop_K04_00.webp": "c1f32f6775a848d5b5295486b65821f908f4dbaed1ccab1e7ed111e3591a43c5",
+        "data/raw/troops.gow.en.json": "be77c2dd9838435f5461b763e9f1e1436e53ae9be36fc35eaadea71060e6b757",
+        "data/raw/spells.gow.en.json": "ddc7e03e23a6ea880e34fc8f1b7f0572b15f42041e979c443642d735f89dd63b",
+        "data/raw/gow-2026-09-18/traits.en.json": "f8568574ce6d88fef7c763a2765f585f94e6bc9145be862d2652c2f0bbec5a79",
+        "artifacts/gow-source-fixtures/gold-primary-sources/official-brian-guide.html": "cb2924f8f48fb400e5918ad2c75d7f3a40ae12e4d839c0c84e5168ab452e89a7"
+      },
+      "obligations": 13,
+      "obligationReferenceOccurrences": 92,
+      "uniqueObligationReferences": 43,
+      "obligationAssertions": [
+        {
+          "obligation": "portrait",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+          "status": "passed"
+        },
+        {
+          "obligation": "active",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout fast fills the frozen fraction of source mana once on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "traits",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 0,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,0",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 7,7",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps board input geometry and original gem ids at edge 3,3",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit English, native, historical official, registry and display agree",
+          "status": "passed"
+        },
+        {
+          "obligation": "target",
+          "testFile": "tests/unit/gowCentaurScoutChargeAudit.test.ts",
+          "fullName": "Centaur Scout 6016 / Charge 7016 per-entity original spell audit Web suppresses only Magic scaling; fixed +1 still hits",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-cost",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Blue three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Green three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Red three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Yellow three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Purple three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics routes actual Brown three-match charging through source colors on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "mana-colors",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 1@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 20@1.5",
+          "status": "passed"
+        },
+        {
+          "obligation": "scaling",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves frozen panels and executes the scaled full active at 7@1.3",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics binds frozen source, actual portrait bytes, original rarity, mana, context and every ordinary trait",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "context",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics applies opening traits only to living same-side source affinities on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "description",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics describes the source effects, input scope and all ordinary traits in player terms",
+          "status": "passed"
+        },
+        {
+          "obligation": "role",
+          "testFile": "tests/unit/stEnemyBoardManaDesign.test.ts",
+          "fullName": "ST seven native sources: public semantic design entry, persistence and signature enemyId=6016 selects its own recipe with 'Generator' and survives save/restore",
+          "status": "passed"
+        },
+        {
+          "obligation": "role",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "role",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics executes the complete active through the prepared session on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "refresh",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics keeps frozen source and learning identities independent of level, difficulty and JSON reopening",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics charges by legal swaps and replays casts and follow-up turns identically after JSON reopen on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile dodges an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "determinism",
+          "testFile": "tests/unit/stEnemyMappedTraits.test.ts",
+          "fullName": "ST-04 mapped ordinary traits: 6016 Centaur Scout agile takes an actual opposing skull match on side Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Left",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics rejects insufficient mana, wrong turn, unknown and defeated casters atomically on Right",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics restores the entire blueprint and rejects modified active, traits, mana and context",
+          "status": "passed"
+        },
+        {
+          "obligation": "invalid-action",
+          "testFile": "tests/unit/stEnemyMappedAcceptance.test.ts",
+          "fullName": "ST mapped source 6016: production assembly with reused native semantics preserves native paid cancellation of board input and identical JSON continuation",
+          "status": "passed"
+        }
+      ],
+      "retainedHistoricalReferenceOccurrences": 184,
+      "allCurrentAndRetainedReferencesPassed": true,
+      "registeredAssertionsExactlyMatchRawReportProjection": true,
+      "independentPathByteFingerprintRecomputationMatched": true,
+      "sharedReport": {
+        "testFiles": 13,
+        "passed": 1945,
+        "failed": 0,
+        "pending": 0,
+        "countedOnce": true
+      },
+      "originalEvidenceAndBoundariesPreserved": true,
+      "reviewerExecutedTests": 0,
+      "reviewerExecutedAcceptance": false,
+      "reviewerExecutedBuilds": 0,
+      "reviewerExecutedBrowserSessions": 0,
+      "productionCodeEditedByReviewer": false,
+      "engineFilesChecked": 142,
+      "newCompleteEnemiesCredited": 0,
+      "excludedIds": [
+        6341,
+        7038
+      ],
+      "st04OverallCompletionClaimed": false,
+      "rarity90PercentClaimed": false,
+      "retainedP2": [
+        "A changed semantic candidate pool may invalidate an old preview; the original stored blueprint remains and is not silently replaced.",
+        "Conservative whole-tree execution/test fingerprints require receipt renewal after unrelated changes; dependency-scope optimization remains open."
+      ],
+      "sourceSemanticsReaudited": false,
+      "historicalEvidenceNotice": "Earlier evidence fields, counters, report bindings and execution attribution remain historical. The independentConditionalSkull20261024 entry is the current renewal binding; no new native mechanism or full-catalog execution is attributed to this reviewer."
+    },
+    "independentRandomFamily20261024": {
+      "reviewDocument": "docs/sillytavern-st04-random-family-review-20261024.md",
+      "reviewedAt": "2026-10-23T18:45:10.037Z",
+      "kind": "existing-source-renewal",
+      "execution": {
+        "author": "codex-main-random-family-20261024",
+        "reportFile": "data/audit/st-enemy-runs/reports/batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3.json",
+        "reportDigest": "39740938f8ab9f5411215cd6f78da04ae032ddfbae7696c23431ee63302c8e66",
+        "registryDigest": "43a61fa3ea535a6320ffe51c915fd37593419a0c97b4503108241f2164021121",
+        "sharedFiles": 24,
+        "sharedPassedAssertions": 2525,
+        "failed": 0,
+        "pending": 0,
+        "todo": 0,
+        "projectedSourceAssertions": 429,
+        "projectionDigest": "25de99264096f3516dfb1a4b8f34c7b29094e7f574373e155c4cf52fea2e8806",
+        "obligationReferences": 92,
+        "all13ReferencesVerified": true,
+        "provenance": "Shared execution by main agent; reviewer independently inspected original report, exact assertion projection, live fingerprints and contracts. Reviewer ran earlier random-target70 and seven real browser flows, then independently reran7159 browser after the patch; no claim to executing the shared batch."
+      },
+      "productionDelta": {
+        "changedFile": "src/sillytavern/traitDescription.ts",
+        "descriptionException": "没有其他可选目标时仍可被选择",
+        "postFixSha256": "d9742b89ded7ba0c81c33ca431d302e63faa856839fc6a84eb9bad3e4ea1f53c",
+        "preFixSha256": "7e99eba08f9aed4f138a9af61a2c46a366c1aa192c1c6dafa9c9446c1f4aa2d3",
+        "proofFile": ".tmp/st-random-family-implementation-delta.json",
+        "proofSha256": "746d58739971c848b971dd593a49e925125aaf4416d0849d281e6e7f4b5bd057",
+        "independentlyReconstructedOld33": 33,
+        "otherSrcScriptsUnchangedFiles": 683,
+        "otherSrcScriptsDigest": "62411395e7250de383897fe53be6d8532892370e71d11b1e3b1a7db4e95308f1",
+        "engineFilesUnchanged": 142
+      },
+      "buildEvidence": {
+        "provenance": "Main agent build/dist smoke logs inspected; not independently rerun.",
+        "validationFile": ".tmp/st-random-family-validation.json",
+        "validationSha256": "268b7b2a942962e95c6455d74e22deb3fc7a22a54275915b27568dc3654589a1",
+        "buildExit": 0,
+        "distSmokeExit": 0
+      },
+      "priorBinding": {
+        "reviewer": "codex-independent-conditional-skull-renewal-20261024",
+        "reviewedAt": "2026-10-23T17:50:23.062Z",
+        "subjectDigest": "e62b9072eb9e54561a1720e0efaa25e28b6965addd80f9ffb869c3ee5012beb9",
+        "testDigest": "64ee14f38e9ba7cd03cf20326c835131cc61223e84989c42d546c5df50fa7df8",
+        "implementationDigest": "d5397598f98a496aa7f3589ee201a93e344bde6dddb048e79f8773445ad067c4",
+        "portraitDigest": "788cb05d93679effc0d015c43d3621b36e84720adb013f4209f63a7d72ff0e50",
+        "contractDigest": "e12ee2b8219ab046896d6bd0db746e62bf841ee8c9726ed71b09655dbd34bd53",
+        "runDigest": "6d2b338125a0bba0593e302b208f8f543a167bb6b228cb220a11d6685d8ba799",
+        "baselineReviewFile": ".tmp/st-random-family-baseline/6016-review.json",
+        "baselineReviewSha256": "d92ce743a26c29340c6cd5293092943d4440038ff955642cb634cba8684b27c0",
+        "baselineRunFile": ".tmp/st-random-family-baseline/6016-run.json",
+        "baselineRunSha256": "4baa22f1a4920a6c7b441199f935a314502db5f2a1f6fe5adf7ee4eeae78718b"
+      }
+    }
+  },
+  "boundaries": [
+    "Null cell is an existing paid cast; row destruction is skipped while later damage still executes. Conditional row mana is not a guarantee.",
+    "Native baseline reused: required character-target cancellation is precommit and atomic; native cell/color cancellation occurs after cast commit, pays mana and cast hooks, skips that board effect and allows later independent segments (6016 damage) to continue. This batch does not repair or claim atomic board cancellation.",
+    "Native Frenzy currently gains Attack from skull damage only. Spell damage does not trigger it despite the broader stored source clause. ST preserves this preexisting discrepancy; this review does not claim full correction of original-source text.",
+    "Treant removes Brown gems and receives no direct mana from removal; later cascade mana is separate. Destroy/explode mana signatures are conditional on actual colored gems, native collection and explosion rounding, not a guaranteed color or amount.",
+    "Public roles are derived from executable mechanics, never solely from artwork/source tags or status immunity. 6074 has skullOffense/Warrior mechanics but no exact Purple/Brown Lord Warrior artwork, remains outside the registry and receives no complete receipt.",
+    "Acceptance scope is the registered source enemy behavior and its 13 obligations. Shared native evidence, classifier structure, partial 6074 cases, build success and UI checks do not by themselves grant extra source acceptance, 90% coverage, or complete ST-04 product acceptance.",
+    "The reviewer inspected source, fixtures, raw report and fingerprints but executed no tests, build, acceptance batch or browser session for this review. The 1945 passing assertions were executed by codex-main and are a shared count, not a sum of repeated per-source projections.",
+    "Conditional-skull 2026-10-24 renews this existing enemy-behavior receipt against the current shared execution only. Existing native semantics and all prior boundaries remain in force. Sources 6341 and 7038 receive no registration or complete-enemy credit from this renewal. Candidate-pool changes may invalidate an old semantic preview; the stored blueprint remains and is not silently replaced. Conservative whole-tree fingerprint renewal remains an efficiency limitation.",
+    "Random-family 2026-10-24 acceptance covers only registered source enemy-behavior and its 13 obligations. Shared tests/build/browser evidence grant no additional source or whole-directory/ST-04 completion credit;7038/6341 are outside this batch of new behaviors.",
+    "Persistence scope is canonical full battle-setup BP/semantic design/formation save and reload, plus deterministic seeded replay; no arbitrary mid-battle snapshot-resume claim is made.",
+    "The current shared execution is batch-28584-445f6a21-bff6-4ce1-b032-9ba44b07afe3: 24 files and 2525 passing assertions. Per-source projections overlap and must not be added. Earlier execution statements retained in this receipt are historical.",
+    "Old33 renewal preserves source/portrait/contract semantics. Its conservative implementationDigest update is independently isolated to the ST untargetable last-target exception text; tests and registry/report bindings are renewed. Existing evidence/history/native boundaries remain in force."
+  ],
+  "reviewer": "codex-independent-random-family-product-20261024",
+  "reviewerName": "Codex independent random-family product and enemy-behavior reviewer",
+  "reviewedAt": "2026-10-23T18:45:10.037Z",
+  "decision": "accepted",
+  "scope": "enemy-behavior",
+  "obligations": [
+    "portrait",
+    "active",
+    "traits",
+    "target",
+    "mana-cost",
+    "mana-colors",
+    "scaling",
+    "context",
+    "description",
+    "role",
+    "refresh",
+    "determinism",
+    "invalid-action"
+  ],
+  "subjectDigest": "e62b9072eb9e54561a1720e0efaa25e28b6965addd80f9ffb869c3ee5012beb9",
+  "testDigest": "a946e0dbba4cdb61b494eed463541621bb40df094e55c96836a4248c5226593a",
+  "implementationDigest": "c000bb34e44bf81b2dcb476b1fed7d59196e7564c65ab2b64039e2ab8e4cef97",
+  "portraitDigest": "788cb05d93679effc0d015c43d3621b36e84720adb013f4209f63a7d72ff0e50",
+  "contractDigest": "e12ee2b8219ab046896d6bd0db746e62bf841ee8c9726ed71b09655dbd34bd53",
+  "runDigest": "875f64de834749a6b6903aacd582f722d5aec7461954133ce5f3d1b297631fdb"
+}
