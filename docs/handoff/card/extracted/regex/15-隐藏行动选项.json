@@ -1,0 +1,17 @@
+{
+  "id": "51780bb4-8196-421a-9821-6ecc3116069b",
+  "scriptName": "隐藏行动选项",
+  "disabled": false,
+  "runOnEdit": true,
+  "findRegex": "/<action>([\\s\\S]*?)<\\/action>/gi ",
+  "trimStrings": [],
+  "replaceString": "",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": null,
+  "markdownOnly": false,
+  "promptOnly": true
+}

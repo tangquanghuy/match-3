@@ -27,7 +27,27 @@
 .management-content .fragment-card { min-width:0; }
 .management-content .fragment-card > p { font-size:12px; color:#c4b5c9; }
 .management-content .fragment-card .collection-card { aspect-ratio:4/5; min-height:210px; }
-.management-content .collection-info h2 { white-space:normal; font-size:17px; }
+/* Native face without the level row: the name fills both info rows. */
+.management-content .collection-info.no-level h2 { grid-row:1 / 3; align-self:center; font-size:16px; }
+.management-content .collection-info .collection-role b { display:inline; }
+.management-content .collection-info .collection-role { padding:0 5px; }
+/* Fragment card: the whole face is one button; it flips to the ability it teaches. */
+.management-content .fragment-card .collection-card { display:block; }
+.management-content .fragment-toggle { position:absolute; inset:0; z-index:5; width:100%; height:100%; min-height:0; margin:0; padding:0; border:0; border-radius:inherit; background:transparent; cursor:pointer; }
+.management-content .fragment-toggle:focus-visible { outline:2px solid #a6dff9; outline-offset:-3px; }
+.management-content .fragment-hint { position:absolute; top:6px; right:6px; z-index:3; width:26px; height:26px; display:grid; place-items:center; border:1px solid #9b815b; border-radius:3px; background:#17151edd; color:#decba7; }
+.management-content .fragment-hint [data-icon],.management-content .fragment-hint svg { width:14px; height:14px; }
+.management-content .fragment-ability { position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; gap:8px; padding:16px 14px 12px; overflow:auto; background:linear-gradient(170deg,#211b28,#0f0d15); border-radius:inherit; }
+.management-content .fragment-ability[hidden] { display:none; }
+.management-content .fragment-ability small { color:#9e8860; font-size:11px; letter-spacing:1px; }
+.management-content .fragment-ability strong { color:#e9d39d; font:16px/1.35 var(--display); letter-spacing:1px; }
+.management-content .fragment-ability p { margin:0; color:#d8cbb4; font-size:13px; line-height:1.55; overflow-wrap:anywhere; }
+.management-content .fragment-ability em { margin-top:auto; color:#8d8278; font-size:11px; font-style:normal; }
+.management-content .collection-card.flipped .fragment-hint { display:none; }
+/* Flipped: the back must receive wheel/touch scrolling, so the full-card toggle goes underneath;
+   tapping the back flips it again. The toggle stays focusable for the keyboard. */
+.management-content .collection-card.flipped .fragment-toggle { z-index:3; }
+.management-content .collection-card.flipped .fragment-ability { z-index:6; cursor:pointer; overscroll-behavior:contain; touch-action:pan-y; }
 .management-content .collection-card .collection-mana { color:var(--light); }
 .management-content .encounter-lineup { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; max-width:900px; margin:14px 0; }
 .management-content .encounter-lineup .collection-card { width:100%; min-height:140px; aspect-ratio:4/5; }
@@ -38,7 +58,27 @@
 .management-content summary { cursor:pointer; color:var(--gold); padding:8px 0; }
 .management-content .empty { min-height:250px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:20px; color:#a89aaf; text-align:center; }
 .management-content .empty [data-icon] { width:58px; height:58px; color:#8a7252; }
-.management-content .report .result-host { min-height:520px; }
+/* Embedded native result screen: it sizes everything in container units, so keep the
+   game's 16:9 proportion instead of the 360px intrinsic fallback. */
+.management-content .receipt-view { width:100%; aspect-ratio:16/9; min-height:340px; max-height:min(72vh,720px); overflow:hidden; border-radius:4px; }
+.management-content .card.report.receipt-view { padding:0; }
+/* Battle record: one card per opponent group; replay rows are compact and only the notable ones show. */
+.management-content .record-group { display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+.management-content .record-group > p { margin:0; color:#c8bbd0; }
+.management-content .record-replays { display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; }
+.management-content .record-replays > button { align-self:flex-start; }
+.management-content .record-replays > .receipt-view { align-self:stretch; }
+.management-content .record-group > .receipt-view { align-self:stretch; }
+/* Compact receipt: outcome line plus one thumbnail row per credited reward. */
+.management-content .record-receipt { display:flex; flex-direction:column; gap:8px; padding:10px 12px; border:1px solid rgba(226,207,169,.18); border-radius:4px; background:#15121b; }
+.management-content .record-receipt > p { margin:0; color:#e9dfcf; }
+.management-content .record-receipt > small { color:#9e93a8; }
+.management-content .record-rewards { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none; }
+.management-content .record-rewards li { display:flex; align-items:center; gap:8px; min-width:0; padding:4px 10px 4px 4px; border:1px solid rgba(226,207,169,.22); border-radius:4px; background:#1d1924; color:#e9dfcf; font-size:13px; }
+.management-content .record-rewards li b { color:#f0cf8b; font-variant-numeric:tabular-nums; }
+.management-content .record-reward-art { width:36px; height:36px; flex:none; border-radius:3px; object-fit:cover; object-position:50% 20%; background:#0f0d15; }
+.management-content .record-reward-glyph { display:grid; place-items:center; color:#decba7; }
+.management-content .record-reward-glyph svg { width:20px; height:20px; }
 .management-page .notice { flex:none; margin:0; padding:0 32px; color:#c8bbd0; white-space:pre-wrap; }
 .management-page .notice:empty { display:none; }
 .management-page .notice.error { padding-top:10px; color:#f1aaa0; }

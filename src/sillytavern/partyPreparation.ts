@@ -6,13 +6,16 @@ import type { CombatantSnapshot } from '../session/contract';
 import { STAT_LIMITS, TEAM_SIZE_LIMITS } from '../session/validateRequest';
 import type { HostSnapshot } from './hostAdapter';
 import type { StSave } from './save';
-import { abilityIdentity, adaptedAbilityDescription, adaptedPrototype, registerStSkillLibrary } from './enemyBlueprint';
+import { abilityIdentity, adaptedAbilityDescription, adaptedPrototype, learningAbilityId, registerStSkillLibrary, skillNameForTroop } from './enemyBlueprint';
 import { describeAdaptedAbility } from './abilityDescription';
 import { prototypeEconomyIssues } from './economyAvailability';
+import { weaponOwned } from './weaponShop';
 
 /** Member refs are JSON pointers into statData, shared by selection and equippedAbilities. */
 export const HERO_MEMBER_REF = '/人物';
 export const PARTY_CONVERSION_VERSION = 'st-party-v1';
+/** The game's starter weapon (meta STARTER_WEAPON_ID); used whenever no weapon is bound. */
+export const STARTER_WEAPON = 'gw_KnightsSword';
 const escapePointer = (key: string): string => key.replace(/~/g, '~0').replace(/\//g, '~1');
 export function companionMemberRef(name: string): string { return `/羁绊列表/${escapePointer(name)}`; }
 export function equipmentRef(memberRef: string, key: string): string { return `${memberRef}/装备列表/${escapePointer(key)}`; }
@@ -90,8 +93,8 @@ function text(value: unknown, path: string): string {
   return value;
 }
 function colors(value: unknown, path: string): BaseColor[] {
-  if (!Array.isArray(value) || value.length < 1 || value.length > 2 || new Set(value).size !== value.length ||
-      value.some(color => !ALL_BASE_COLORS.includes(color as BaseColor))) fail('colors', path, `${path} 需要一种或两种不同的六色法力颜色`);
+  if (!Array.isArray(value) || value.length < 1 || value.length > 3 || new Set(value).size !== value.length ||
+      value.some(color => !ALL_BASE_COLORS.includes(color as BaseColor))) fail('colors', path, `${path} 需要一至三种不同的六色法力颜色`);
   return [...value] as BaseColor[];
 }
 /** Supports helper-generated merged offhand panels (e.g. 1d6+1d4); never rolls dice. */
@@ -106,45 +109,122 @@ export function damageDiceExpectation(value: unknown): number {
   }, 0);
 }
 
-let catalogue: { abilities: PartyAbilityChoice[]; prototypes: Map<string, SkillPrototype> } | undefined;
-function catalog() {
+interface PartyCatalogue {
+  abilities: PartyAbilityChoice[]; prototypes: Map<string, SkillPrototype>;
+  /** Current and legacy (color-bound v1) learning identities. */
+  byId: Map<string, PartyAbilityChoice>;
+  /** Common-rarity abilities usable as a companion's initial active. */
+  starters: PartyAbilityChoice[];
+}
+let catalogue: PartyCatalogue | undefined;
+function catalog(): PartyCatalogue {
   if (catalogue) return catalogue;
   const prototypes = new Map<string, SkillPrototype>();
   registerStSkillLibrary(prototypes);
   const abilities = new Map<string, PartyAbilityChoice>();
-  // Same prototype and ID generation as registerAdaptedCatalog/compileEnemyBlueprint.
+  const byId = new Map<string, PartyAbilityChoice>();
+  const starters: PartyAbilityChoice[] = [];
+  // Same prototype as registerAdaptedCatalog/compileEnemyBlueprint. Colors are not part of the identity.
   for (const troop of TROOPS) {
     const prototype = adaptedPrototype(troop.spell.id);
     const skillId = `st:${troop.spell.id}`;
     prototypes.set(skillId, prototype);
-    const abilityId = abilityIdentity(prototype, troop.manaColors, troop.manaCost);
-    const description = adaptedAbilityDescription(troop.spell.id);
-    const availabilityIssues = prototypeEconomyIssues(prototype);
-    if (!abilities.has(abilityId)) abilities.set(abilityId, {
-      abilityId, skillId, sourceSpellId: troop.spell.id, name: description.name,
-      description: description.description, manaCost: troop.manaCost,
-      sourceManaColors: [...troop.manaColors] as BaseColor[],
-      ...(availabilityIssues.length ? { availabilityIssues } : {}),
-    });
+    const abilityId = learningAbilityId(prototype, troop.manaCost);
+    let choice = abilities.get(abilityId);
+    if (!choice) {
+      const description = adaptedAbilityDescription(troop.spell.id);
+      const availabilityIssues = prototypeEconomyIssues(prototype);
+      choice = {
+        // Same player-facing name as the enemies with these mechanics (one name per mechanics).
+        abilityId, skillId, sourceSpellId: troop.spell.id, name: skillNameForTroop(troop.id) ?? description.name,
+        description: description.description, manaCost: troop.manaCost,
+        sourceManaColors: [...troop.manaColors] as BaseColor[],
+        ...(availabilityIssues.length ? { availabilityIssues } : {}),
+      };
+      abilities.set(abilityId, choice); byId.set(abilityId, choice);
+      if (troop.rarityIdx === 0 && !availabilityIssues.length && prototype.segments.length) starters.push(choice);
+    }
+    // Saves created before the color decoupling keep resolving their learned/base abilities.
+    const legacy = abilityIdentity(prototype, troop.manaColors, troop.manaCost);
+    if (!byId.has(legacy)) byId.set(legacy, choice);
   }
-  catalogue = { abilities: [...abilities.values()], prototypes };
+  catalogue = { abilities: [...abilities.values()], prototypes, byId, starters };
   return catalogue;
 }
-/** Real adapted active:v1 identities; no native troop panel/traits are attached to the character. */
+/** Real adapted learning identities; no native troop panel/traits are attached to the character. */
 export function partyAbilityChoices(): PartyAbilityChoice[] { return structuredClone(catalog().abilities); }
+/** Resolve a current or legacy learning identity to its catalogue ability. */
+export function findPartyAbility(abilityId: string): PartyAbilityChoice | undefined {
+  const choice = catalog().byId.get(abilityId);
+  return choice && structuredClone(choice);
+}
+const QUALITY_ORDER = ['普通', '精良', '稀有', '卓越', '传说', '史诗', '神话'] as const;
+function fnv32(text: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
+  return hash >>> 0;
+}
+/**
+ * Test-phase companion rarity: explicit `三消.稀有度`, otherwise the highest quality among worn
+ * equipment, otherwise 普通. Once colors are persisted the rarity no longer changes them.
+ */
+export function companionRarity(actor: Record<string, unknown>, equipment: readonly PartyEquipment[]): string {
+  const bridge = object(actor['三消']) ? actor['三消'] : {};
+  const explicit = bridge['稀有度'];
+  if (typeof explicit === 'string' && (QUALITY_ORDER as readonly string[]).includes(explicit)) return explicit;
+  let best = 0;
+  for (const item of equipment) {
+    const quality = item.data['品质'] === '神器' ? '卓越' : item.data['品质'];
+    best = Math.max(best, (QUALITY_ORDER as readonly unknown[]).indexOf(quality));
+  }
+  return QUALITY_ORDER[best]!;
+}
+/** Same color counts as enemy ranks: 普通/精良 1, 稀有～史诗 2, 神话 3. */
+export function companionColorCount(rarity: string): number {
+  const index = (QUALITY_ORDER as readonly string[]).indexOf(rarity);
+  return index >= 6 ? 3 : index >= 2 ? 2 : 1;
+}
+/** Fixed companion colors from two dimensions: the name hash selects, the rarity sets how many. */
+export function companionDefaultColors(name: string, rarity: string): BaseColor[] {
+  const count = companionColorCount(rarity);
+  const combos: BaseColor[][] = [];
+  const pick = (start: number, chosen: BaseColor[]): void => {
+    if (chosen.length === count) { combos.push(chosen); return; }
+    for (let i = start; i < ALL_BASE_COLORS.length; i++) pick(i + 1, [...chosen, ALL_BASE_COLORS[i]!]);
+  };
+  pick(0, []);
+  return [...combos[fnv32(`match3-companion:${name}`) % combos.length]!];
+}
+/** Deterministic initial active for a companion without a learned/registered ability. */
+export function companionStarterAbility(name: string): PartyAbilityChoice {
+  const starters = catalog().starters;
+  return structuredClone(starters[fnv32(`match3-starter:${name}`) % starters.length]!);
+}
+/** Every catalogue weapon whose spell is actually registered; placeholders without a spell are excluded. */
+export function partyWeaponChoices(): string[] {
+  return weapons.filter(row => catalog().prototypes.get(`gw_${row.referenceName}`)?.segments.length).map(row => `gw_${row.referenceName}`);
+}
+/** Adapted engine description of a weapon's spell (formula tokens resolve with abilityDisplayText). */
+export function partyWeaponDescription(id: string): string {
+  const prototype = catalog().prototypes.get(id);
+  return prototype?.segments.length ? describeAdaptedAbility(prototype).description : '';
+}
 /** Keep restricted weapons visible in binding choices, with an explicit reason. */
 export function partyWeaponEconomyIssues(id: string): string[] {
   const prototype = catalog().prototypes.get(id);
   return prototype ? prototypeEconomyIssues(prototype) : [];
 }
-const colorChoices = (): BaseColor[][] => ALL_BASE_COLORS.flatMap((color, index) => [
-  [color], ...ALL_BASE_COLORS.slice(index + 1).map(other => [color, other]),
-]);
+/** Original-game name of a troop (`st:<spellId>`) or weapon (`gw_*`) skill. */
+function skillDisplayName(skillId: string): string | undefined {
+  const troop = /^st:(\d+)$/.exec(skillId);
+  if (troop) { const source = TROOPS.find(t => t.spell.id === Number(troop[1])); return source && skillNameForTroop(source.id); }
+  return weapons.find(row => `gw_${row.referenceName}` === skillId)?.spell.name.trim() || undefined;
+}
 function checkedSkill(skillId: string, path: string): void {
   const prototype = catalog().prototypes.get(skillId);
   if (!prototype?.segments.length) fail('skill', path, `主动能力 ${skillId} 尚未真实注册`);
   const issues = prototypeEconomyIssues(prototype);
-  if (issues.length) fail('economy-unavailable', path, `${describeAdaptedAbility(prototype).name}：${issues.join('、')}尚未接入酒馆模式，暂未开放出战；已有收藏和学习进度保留。`);
+  if (issues.length) fail('economy-unavailable', path, `${skillDisplayName(skillId) ?? describeAdaptedAbility(prototype).name}：${issues.join('、')}尚未接入酒馆模式，暂未开放出战；已有收藏和学习进度保留。`);
 }
 function readEquipment(actor: Record<string, unknown>, ref: string): PartyEquipment[] {
   const list = actor['装备列表'] === undefined ? {} : record(actor['装备列表'], `${ref}/装备列表`);
@@ -195,7 +275,6 @@ function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>,
   const equipped = candidate.equipment;
   const mains = equipped.filter(item => item.type === '武器' && item.slot === '主手');
   if (mains.length > 1) fail('weapon-ambiguous', `${ref}/装备列表`, '存在多件已穿戴主手武器');
-  const main = mains[0];
   // Actor aggregate includes merged offhand dice and the attribute adjustment already.
   let panelSource = `${ref}/战斗属性/武器面板`;
   let panelValue = combat['武器面板'];
@@ -204,13 +283,14 @@ function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>,
   }
   let panel: Record<string, unknown>;
   if (panelValue !== undefined) panel = record(panelValue, panelSource);
-  else if (!main) {
+  else {
     // Exact helper buildUnarmedWeaponPanel/calcAttrFixedDmg; no GoW weapon stats.
+    // A worn weapon whose helper panel is missing also falls back instead of blocking the battle.
     const coef = mode === 'new' ? 1 : Math.floor(level / 10) + 1;
     const modifier = Math.max(0, Math.floor((Math.min(Math.max(...core), 40) - 10) / 2));
     panel = { 伤害骰: '1d4', 等级系数: coef, 固定伤害: (mode === 'new' ? 0 : level) + modifier * coef };
     panelSource = 'helper:unarmed';
-  } else fail('weapon-panel', panelSource, '已装备武器需要辅助脚本生成的战斗属性/武器面板');
+  }
   let diceExpectation: number;
   try { diceExpectation = damageDiceExpectation(panel['伤害骰']); }
   catch (error) { if (error instanceof InputIssue) fail(error.issue.code, `${panelSource}/伤害骰`, error.message); throw error; }
@@ -242,7 +322,28 @@ function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>,
   const initialHp = options.mode === 'replay' ? stats.hp : Math.round(stats.hp * currentHp / maxHp);
   if (currentHp > 0 && initialHp === 0 && options.mode !== 'replay') fail('hp-resolution', `${ref}/当前生命值`, '当前缩放把存活角色舍入为零，请统一调整转换系数');
   candidate.snapshot = { externalId: ref, name: candidate.name, levelLabel: String(level), battleScaling: { level, difficulty: 1 }, stats, initialHp,
-    manaColors: [], manaCost: 1 };
+    portraitUrl: defaultActorPortrait(actor['性别']), manaColors: [], manaCost: 1 };
+}
+
+/** Tavern actors carry no battle art; use the base game's default character art by gender. */
+export function defaultActorPortrait(gender: unknown): string {
+  const kind = gender === '男' ? 'male' : gender === '女' ? 'female' : 'unknown';
+  return `${import.meta.env.BASE_URL ?? '/'}static/hero/character-${kind}.webp`;
+}
+
+/** Travelling companions whose fixed colors are not yet persisted in `三消.颜色`. Pure. */
+export function missingCompanionColors(snapshot: HostSnapshot): { name: string; colors: BaseColor[] }[] {
+  const bonds = object(snapshot.statData['羁绊列表']) ? snapshot.statData['羁绊列表'] : {};
+  const result: { name: string; colors: BaseColor[] }[] = [];
+  for (const [name, actor] of Object.entries(bonds)) {
+    if (!object(actor) || actor['同行誓约'] !== true || !name.trim()) continue;
+    const bridge = actor['三消'];
+    if (bridge !== undefined && (!object(bridge) || bridge['颜色'] !== undefined)) continue;
+    let equipment: PartyEquipment[] = [];
+    try { equipment = readEquipment(actor, companionMemberRef(name)); } catch { /* Rarity falls back to 普通. */ }
+    result.push({ name, colors: companionDefaultColors(name, companionRarity(actor, equipment)) });
+  }
+  return result;
 }
 
 /** Pure preparation: never writes host variables, local saves, rewards or runtime modules. */
@@ -299,37 +400,39 @@ export function prepareCurrentParty(snapshot: HostSnapshot, options: PartyPrepar
         const unit = candidate.snapshot!;
         if (kind === 'hero') {
           const main = candidate.equipment.find(item => item.type === '武器' && item.slot === '主手');
-          const bound = main && options.weaponBindings?.[main.ref];
+          // A binding to a paid weapon that this floor has not bought falls back to the starter.
+          const registered = main && options.weaponBindings?.[main.ref];
+          const bound = registered && weaponOwned(root, registered) ? registered : undefined;
           if (main && !bound) {
-            initializationChoices.push({ memberRef: ref, kind: 'weaponBinding', path: main.ref,
-              weaponChoices: weapons.filter(row => catalog().prototypes.get(`gw_${row.referenceName}`)?.segments.length).map(row => `gw_${row.referenceName}`) });
-            fail('weapon-binding', main.ref, '当前主手武器尚未登记稳定的三消能力代码');
+            // Optional binding; until then the hero fights with the game's starter weapon.
+            initializationChoices.push({ memberRef: ref, kind: 'weaponBinding', path: main.ref, weaponChoices: partyWeaponChoices() });
           }
-          const id = bound ?? 'gw_KnightsSword';
+          const id = bound ?? STARTER_WEAPON;
           const weapon = weapons.find(row => `gw_${row.referenceName}` === id);
-          if (!weapon) fail('weapon-binding', main?.ref ?? ref, `武器代码 ${id} 未出现在现有目录`);
+          if (!weapon) fail('weapon-binding', main?.ref ?? ref, `已登记的武器不在现有目录中，请重新登记主手武器`);
           checkedSkill(id, main?.ref ?? ref);
-          candidate.weapon = { id, sourceId: weapon.id, spellId: weapon.spell.id, isDefault: !main, ...(main ? { equipmentRef: main.ref } : {}) };
+          candidate.weapon = { id, sourceId: weapon.id, spellId: weapon.spell.id, isDefault: !bound, ...(main && bound ? { equipmentRef: main.ref } : {}) };
           unit.manaColors = colors(weapon.manaColors, `${ref}/manaColors`); unit.manaCost = weapon.manaCost;
           const description = describeAdaptedAbility(catalog().prototypes.get(id)!);
-          unit.skillId = id; unit.spellName = description.name; unit.spellDescription = description.description;
+          // The hero's ability is the weapon's own spell: show its native name, not a generated
+          // target phrase. The adapted description stays (it states the engine's real numbers);
+          // a single effect needs no "1." list marker.
+          unit.skillId = id; unit.spellName = weapon.spell.name;
+          unit.spellDescription = description.description;
           if (options.equippedAbilities?.[ref] || options.save?.equippedAbilities[ref]) fail('hero-ability', ref, '主角主动能力由当前武器决定');
         } else {
           const bridge = actor['三消'] === undefined ? {} : record(actor['三消'], `${ref}/三消`);
-          if (bridge['颜色'] === undefined) {
-            initializationChoices.push({ memberRef: ref, kind: 'colors', path: `${ref}/三消/颜色`, colorChoices: colorChoices() });
-            candidate.issues.push({ code: 'colors-required', path: `${ref}/三消/颜色`, message: '请选择颜色并由宿主写回三消.颜色后重新准备' });
-          } else unit.manaColors = colors(bridge['颜色'], `${ref}/三消/颜色`);
+          // Fixed colors: a persisted value wins; otherwise name hash × rarity (the host persists it).
+          unit.manaColors = bridge['颜色'] === undefined
+            ? companionDefaultColors(name, companionRarity(actor, candidate.equipment))
+            : colors(bridge['颜色'], `${ref}/三消/颜色`);
+          // Abilities are color independent; they are learned from soul fragments.
           const override = options.equippedAbilities;
           const chosen = override && own(override, ref) ? override[ref] : options.save?.equippedAbilities[ref];
-          if (chosen && !options.save?.learnedAbilityIds.includes(chosen)) fail('ability-not-learned', ref, `能力 ${chosen} 尚未学会`);
+          if (chosen && !options.save?.learnedAbilityIds.includes(chosen)) fail('ability-not-learned', ref, '所选能力尚未学会');
           const abilityId = chosen || options.baseAbilities?.[ref];
-          if (!abilityId) {
-            initializationChoices.push({ memberRef: ref, kind: 'baseAbility', path: ref, abilityChoices: partyAbilityChoices() });
-            fail('base-ability-required', ref, '同伴尚未登记基础能力，请从现有适配能力候选中选择');
-          }
-          const ability = catalog().abilities.find(item => item.abilityId === abilityId);
-          if (!ability) fail('ability-mapping', ref, `能力 ${abilityId} 缺少现有适配配方映射`);
+          const ability = abilityId ? catalog().byId.get(abilityId) : companionStarterAbility(name);
+          if (!ability) fail('ability-mapping', ref, '已装配的能力缺少现有技能映射，请改用其他能力');
           checkedSkill(ability.skillId, ref); candidate.ability = structuredClone(ability);
           unit.skillId = ability.skillId; unit.manaCost = ability.manaCost;
           unit.spellName = ability.name; unit.spellDescription = ability.description;
@@ -367,6 +470,6 @@ export function prepareCurrentParty(snapshot: HostSnapshot, options: PartyPrepar
   return { ready: issues.length === 0, party: issues.length ? [] : selected.map(ref => structuredClone(candidates.find(item => item.memberRef === ref)!.snapshot!)),
     candidates, issues, initializationChoices, conversion: { version: PARTY_CONVERSION_VERSION, status: 'uncalibrated', mode, config },
     notices: ['st-party-v1 转换系数与耐久/法强预算尚未完成产品标定；此结果不代表产品验收通过。',
-      'ST 原生技能/效果文本、临时 HP 吸收池、族群身份、武器淬炼及词缀尚未接入。'] };
+      '临时 HP 吸收池、族群身份、武器淬炼及词缀尚未接入；同伴颜色按名字与稀有度测试映射。'] };
 }
 

@@ -141,9 +141,9 @@ describe('ST victory learning and full encounter replay',()=>{
    const receipt=structuredClone(save);receipt.settlements.push(structuredClone(receipt.settlements[0]!));expect(()=>validateSave(receipt)).toThrow('重复');
    const noVictory=structuredClone(save);noVictory.settlements=[];expect(()=>validateSave(noVictory)).toThrow('胜利');
  });
- it('requires learned status and compatible fixed colors only when equipping',()=>{
-   const {save}=fixture();expect(canEquipAbility(save,'ability1',['Blue'],['Blue','Red'])).toBe(false);save.learnedAbilityIds.push('ability1');
-   expect(canEquipAbility(save,'ability1',['Blue'],['Blue','Red'])).toBe(true);expect(canEquipAbility(save,'ability1',['Blue','Green'],['Blue','Red'])).toBe(false);
+ it('requires learned status only; mana colors are not bound to abilities',()=>{
+   const {save}=fixture();expect(canEquipAbility(save,'ability1')).toBe(false);save.learnedAbilityIds.push('ability1');
+   expect(canEquipAbility(save,'ability1')).toBe(true);
  });
 });
 

@@ -82,8 +82,8 @@
       ],
       "kingdom": "region:39",
       "kingdomId": 100016,
-      "spellName": "指定的一名敌人伤害·指定的一名敌人中毒〔0gl7zfd〕",
-      "spellDescription": "1. 对选定的一名敌人造成max(0,round(魔力+3))点伤害；若该段目标具有「中毒」，数值最后×2；2. 对选定的一名敌人施加「中毒」，持续参数3回合（实际结束遵循该状态的触发与解除规则），强度3",
+      "spellName": "双尖牙",
+      "spellDescription": "对一名敌人造成max(0,round(魔力+3))点伤害，若目标陷入中毒则造成双倍伤害；使其陷入中毒。",
       "rarityIdx": 0,
       "portraitUrl": "/static/portraits/Troop_K01_00.webp"
     },
@@ -269,5 +269,5 @@
       "message": "rank（五档定位，与等级独立）：档位复杂度预算尚未标定；保留原配方并报告测量值"
     }
   ],
-  "integrity": "enemy-design:v1:5cc8a1d78ac2d1f3"
+  "integrity": "enemy-design:v1:27d6a60afa8b5d88"
 }

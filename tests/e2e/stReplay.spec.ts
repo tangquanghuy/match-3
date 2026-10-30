@@ -89,12 +89,12 @@ test('successful replay ACK destroys the App, stops its ticker and removes the c
  await expect(replay.locator('#again')).toBeEnabled();await expect(replay.locator('iframe')).toBeHidden();
  await expectReplayRuntimeReleased(frame);
  const grants=replay.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward');
- await expect(grants).toHaveText(/\+1\s*剑击灵魂碎片/);
+ await expect(grants).toHaveText(/\+1\s*enemy的灵魂碎片/);
  const readSaved=()=>page.evaluate(async()=>{const service=(window as any).replayHost.service;return {save:(await service.current()).save,queue:await service.repository.listReplayOutcomes()};});
  const committed=await readSaved();
  expect(committed.save.pendingReplay).toBeUndefined();expect(committed.save.sources[0].wins).toBe(2);expect(committed.save.settlements).toHaveLength(2);expect(committed.queue).toHaveLength(0);
  await resubmitReleasedReplay(frame);
- expect(await readSaved()).toEqual(committed);await expect(grants).toHaveText(/\+1\s*剑击灵魂碎片/);
+ expect(await readSaved()).toEqual(committed);await expect(grants).toHaveText(/\+1\s*enemy的灵魂碎片/);
  await expectReplayRuntimeReleased(frame);
  await replay.locator('#again').click();await expect(replay).toHaveCount(0);
 });
@@ -125,7 +125,7 @@ test('actual replay frame saves named fragments once to its original chat and le
  await expect(replay.getByRole('status')).toBeHidden();
  await expect(replay.getByRole('button',{name:'导出本场战果'})).toBeHidden();
  await expect(replay.locator('#again')).toBeVisible();
- await expect(replay.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*剑击灵魂碎片/);await expect(replay.locator('.settlement-grant')).toHaveCount(1);
+ await expect(replay.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*enemy的灵魂碎片/);await expect(replay.locator('.settlement-grant')).toHaveCount(1);
  await expectReplayRuntimeReleased(frame);
  await resubmitReleasedReplay(frame);
  const saved=await page.evaluate(async()=>({saves:await (window as any).replayHost.service.repository.list(),state:(window as any).readReplaySt()}));
@@ -168,7 +168,7 @@ test('durable replay outcome survives host reload, blocks abandonment, and retri
  await expect(host.getByRole('region',{name:'待保存战果'})).toBeVisible();
  await expect(host.getByRole('button',{name:'重新开始本场'})).toHaveCount(0);
  await host.getByRole('button',{name:'保存本场战果'}).click();
- await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*剑击灵魂碎片/);
+ await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*enemy的灵魂碎片/);
  const state=await page.evaluate(async()=>{const service=(window as any).replayHost.service;return {save:(await service.current()).save,queue:await service.repository.listReplayOutcomes()};});
  expect(state.queue).toHaveLength(0);expect(state.save.pendingReplay).toBeUndefined();expect(state.save.sources[0].wins).toBe(2);expect(state.save.settlements.filter((r:any)=>r.battleId===queued.id)).toHaveLength(1);
  await page.reload();await install(page);await expect(host.getByRole('region',{name:'待保存战果'})).toHaveCount(0);

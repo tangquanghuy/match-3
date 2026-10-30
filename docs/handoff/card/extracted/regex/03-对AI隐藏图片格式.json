@@ -1,0 +1,17 @@
+{
+  "id": "bb316d0c-c111-4042-9776-d419aafb93d9",
+  "scriptName": "对AI隐藏图片格式",
+  "disabled": false,
+  "runOnEdit": true,
+  "findRegex": "/<pic>(.*?)<\\/pic>/gi",
+  "trimStrings": [],
+  "replaceString": "",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 10,
+  "markdownOnly": false,
+  "promptOnly": true
+}

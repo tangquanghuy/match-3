@@ -1,0 +1,18 @@
+{
+  "id": "552f835c-f7e8-4427-86bd-0f0a4f3e6a13",
+  "scriptName": "变量更新美化",
+  "disabled": false,
+  "runOnEdit": false,
+  "findRegex": "/<(?:UpdateVariable(?:variable)?|update)>([\\s\\S]*?)<\\/(?:UpdateVariable(?:variable)?|update)>/gsi",
+  "trimStrings": [],
+  "replaceString": "<div class=\"modern-dark-log\" style=\"width: 98%; margin: 8px auto; font-family: 'JetBrains Mono', monospace; font-size: 13px;\">\n    <details style=\"background: #1a1b26; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);\">\n        <summary style=\"padding: 10px 15px; background: #16161e; color: #7aa2f7; cursor: pointer; display: flex; align-items: center; justify-content: space-between; list-style: none;\">\n            <div style=\"display: flex; align-items: center; gap: 8px;\">\n                <!-- Requires Font Awesome -->\n                <i class=\"fa-solid fa-terminal\"></i>\n                <span style=\"color: #c0caf5;\">System Update</span>\n            </div>\n            <i class=\"fa-solid fa-chevron-down toggle-icon\" style=\"font-size: 10px; opacity: 0.7; transition: transform 0.2s;\"></i>\n        </summary>\n        <div style=\"padding: 15px; color: #9aa5ce; line-height: 1.6; border-top: 1px solid #24283b;\">\n            $1\n        </div>\n    </details>\n</div>\n\n<style>\n    /* Reset default marker */\n    .modern-dark-log details > summary::-webkit-details-marker {\n        display: none;\n    }\n    .modern-dark-log details > summary {\n        list-style: none;\n    }\n\n    /* Chevron rotation */\n    .modern-dark-log details[open] .toggle-icon {\n        transform: rotate(180deg);\n    }\n</style>\n",
+  "placement": [
+    1,
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": null,
+  "markdownOnly": true,
+  "promptOnly": false
+}

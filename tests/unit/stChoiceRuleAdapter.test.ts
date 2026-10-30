@@ -46,9 +46,9 @@ describe('ST adapter preserves native input rules',()=>{
  for(const id of [7406,7253,7040])it(`${id}: the player description states the input restriction`,()=>{
   const p=adaptedPrototype(id),rule=GOW_CHOICE_RULES[id];
   const text=describeAdaptedAbility(p).description;
-  if(rule.notColor)expect(text).toContain(`排除${COMBAT_DESCRIPTION_TERMS.colors[rule.notColor]}色`);
-  else if(rule.onlyColor)expect(text).toContain(`只能选择${COMBAT_DESCRIPTION_TERMS.colors[rule.onlyColor]}色普通宝石`);
-  else expect(text).toContain('只能选择六色普通宝石');
+  if(rule.notColor)expect(text).toContain(`不能选择${COMBAT_DESCRIPTION_TERMS.colors[rule.notColor]}色宝石`);
+  else if(rule.onlyColor)expect(text).toContain(`只能选择${COMBAT_DESCRIPTION_TERMS.colors[rule.onlyColor]}色宝石`);
+  else expect(text).toContain('只能选择普通宝石');
  });
  it('the shared picker predicate excludes skulls, special gems and the forbidden color',()=>{
   const rule=GOW_CHOICE_RULES[7406];

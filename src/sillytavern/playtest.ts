@@ -20,6 +20,12 @@ const chatLabel=el('label','当前示例聊天：');const chats=el('select');cha
 const rankLabel=el('label','敌人稀有度：');const rank=el('select');rank.setAttribute('aria-label','敌人稀有度');for(const name of RANKS){const option=el('option',name);option.value=name;rank.append(option);}rankLabel.append(rank);mount.append(rankLabel);
 const modeLabel=el('label','人物面板模式：');const mode=el('select');mode.setAttribute('aria-label','人物面板模式');for(const [value,name]of [['classic','经典'],['new','新版']]){const option=el('option',name);option.value=value;mode.append(option);}modeLabel.append(mode);mount.append(modeLabel);
 const start=el('button','开始示例遭遇');const challenge=el('button','挑战已保存的组装编队');const show=el('button','打开存档与往昔再现');const status=el('p');status.setAttribute('role','status');const facts=el('pre');facts.setAttribute('aria-label','示例酒馆人物状态');mount.append(start,challenge,show,status,facts);
+// Stand-in for the tavern chat box: the story result's "继续" sends its report here.
+const chatLog=el('pre');chatLog.setAttribute('aria-label','发送给 AI 的消息');
+const chatInput=el('textarea');chatInput.id='send_textarea';chatInput.hidden=true;
+const chatSend=el('button');chatSend.id='send_but';chatSend.hidden=true;
+chatSend.onclick=()=>{chatLog.textContent=chatInput.value;chatInput.value='';};
+mount.append(el('h2','发送给 AI 的消息'),chatLog,chatInput,chatSend);
 const preview=el('a','打开敌人组装预览');preview.href=new URL('sillytavern.html',location.href).href;preview.target='_blank';mount.append(preview);
 function render():void{const data=state().stat_data;facts.textContent=JSON.stringify({当前聊天:fixture.chatId,人物:data['人物'],同伴颜色:(data['羁绊列表'] as Record<string,Record<string,unknown>>)?.['同行者']?.['三消']},null,2);mode.value=(data['系统配置'] as Record<string,string>)['战斗数值模式']!;}
 const handle=await installStHost({hostWindow:window,hostId:'match3-playtest-v1',battleUrl:new URL('sillytavern-battle.html',location.href).href,helpers:{

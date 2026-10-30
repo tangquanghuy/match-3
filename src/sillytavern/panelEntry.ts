@@ -1,4 +1,4 @@
-import type {StHostHandle,MessageStoryState} from './hostEntry';
+import type {StHostHandle,MessageStoryState,MessageStoryLineup} from './hostEntry';
 import type {TavernHelpers} from './hostAdapter';
 import {assertMessageSource} from './messageSource';
 import type {MessageEncounterSource} from './messageSource';
@@ -13,6 +13,10 @@ export interface StPanelOptions {
 export interface StPanelHandle {
  open():Promise<void>;
  messageStoryState(source:MessageEncounterSource,dismissReceipt?:boolean):Promise<MessageStoryState>;
+ /** Read-only preview lineup; undefined until the chat has a save. */
+ messageStoryLineup(source:MessageEncounterSource):Promise<MessageStoryLineup|undefined>;
+ /** Temporary test tool: undo this message's settled battle. */
+ resetMessageStoryForTesting(source:MessageEncounterSource):Promise<void>;
  playMessageStory(source:MessageEncounterSource,receiptSignal?:AbortSignal):Promise<void>;
  hasPendingBattle():Promise<boolean>;
  destroy():void;
@@ -67,8 +71,10 @@ function runtimeHelpers(host:RuntimeWindow,runtime:RuntimeWindow):TavernHelpers 
 function assertEnabled(helpers:TavernHelpers):void {
  const context=helpers.getContext();
  if(!context.getCurrentChatId()||!context.chat.length)throw new Error('请先打开已有消息的酒馆聊天');
- const data=helpers.Mvu.getMvuData({type:'message',message_id:context.chat.length-1});
- const config=data?.stat_data?.['系统配置'];
+ // A just-sent message (e.g. the battle report) has no MVU data until generation copies it;
+ // read the most recent floor that actually carries variables.
+ let config:unknown;
+ for(let id=context.chat.length-1;id>=0&&config===undefined;id--)config=helpers.Mvu.getMvuData({type:'message',message_id:id})?.stat_data?.['系统配置'];
  if(!config||typeof config!=='object'||Array.isArray(config)||(config as Record<string,unknown>)['三消战斗模式']!==true){
   throw new Error('当前聊天的三消战斗模式已关闭，请在开局配置或系统设置中启用');
  }
@@ -137,6 +143,14 @@ export async function openStPanel(options:StPanelOptions={}):Promise<StPanelHand
   },
   async messageStoryState(source,dismissReceipt){
    return (await installed()).messageStoryState(source,dismissReceipt);
+  },
+  async messageStoryLineup(source){
+   return (await installed()).messageStoryLineup(source);
+  },
+  async resetMessageStoryForTesting(source){
+   if(state.playing)throw new Error('已有剧情战斗正在准备或打开，请先完成当前操作');
+   assertEnabled(helpers);
+   return (await installed()).resetMessageStoryForTesting(source);
   },
   async playMessageStory(source,receiptSignal){
    if(state.playing)throw new Error('已有剧情战斗正在准备或打开，请先完成当前操作');

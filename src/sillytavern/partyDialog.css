@@ -53,6 +53,10 @@
 .party-dialog .lineup-bar > .secondary [data-icon] { width: 14px; height: 14px; }
 .party-dialog .lineup-bar > .slot-op svg { width: 16px; height: 16px; }
 .party-dialog .save-hint { white-space: normal; overflow-wrap: anywhere; }
+.party-dialog .inspect-ops .inspect-act { width: 100%; min-width: 0; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
+.party-dialog .inspect-ops .inspect-act [data-icon] { width: 14px; height: 14px; flex: none; }
+.party-dialog .inspect-ops .inspect-act [data-icon] svg { width: 100%; height: 100%; }
+@media(max-width:700px) { .party-dialog .inspect-ops .inspect-act { flex: 1 1 0; } }
 
 @media(min-width:1400px) { .party-dialog .team-workspace { grid-template-rows: minmax(0, 1fr); } .party-dialog .team-workspace > .panel { height: 100%; min-height: 0; } }
 
@@ -60,3 +64,25 @@
   .party-dialog .roster { overflow-y: auto; }
   .party-dialog .roster-grid { grid-template-columns: repeat(6,minmax(0,1fr)); }
 }
+
+/* Main-hand weapon binding row and picker overlay (original weapon center styles, re-anchored). */
+.weapon-binding { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.weapon-binding > span { color:#e9dfcf; }
+.st-weapon-picker { position:fixed; inset:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; border:0; box-sizing:border-box; display:flex; align-items:stretch; justify-content:center; padding:min(4vh,32px) min(3vw,32px); background:rgba(6,8,10,.72); color:inherit; }
+.st-weapon-picker:not([open]) { display:none; }
+.st-weapon-picker::backdrop { background:transparent; }
+.st-weapon-picker .weapons-screen { position:relative; inset:auto; width:min(1280px,100%); height:100%; border:1px solid rgba(226,207,169,.28); border-radius:6px; box-shadow:0 18px 60px rgba(0,0,0,.55); }
+.st-weapon-picker .weapons-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.st-weapon-picker .weapons-heading h1 { margin:0; font-size:22px; }
+.st-weapon-picker .weapons-heading p { margin:2px 0 0; color:var(--weapons-muted); font-size:13px; }
+.st-weapon-picker .weapon-detail-veil { border-radius:6px; }
+.st-weapon-picker .weapons-heading .weapon-detail-close { width:38px; height:38px; display:grid; place-items:center; padding:0; border:1px solid rgba(226,207,169,.28); border-radius:4px; background:#171a1d; color:var(--weapons-text); cursor:pointer; }
+.st-weapon-picker .weapons-heading .weapon-detail-close:hover { border-color:rgba(226,207,169,.6); }
+.st-weapon-picker .weapons-heading .weapon-detail-close [data-icon] { width:18px; height:18px; display:grid; }
+.st-weapon-picker .weapon-shop-balance { margin-left:auto; color:#f0cf8b; font-size:12px; font-variant-numeric:tabular-nums; }
+.st-weapon-picker .detail-actions { flex-wrap:wrap; }
+.st-weapon-picker .weapon-shop-price { margin:0 auto 0 0; color:var(--weapons-muted); font-size:13px; }
+.st-weapon-picker .weapon-shop-price b { color:#f0cf8b; font-size:15px; }
+.st-weapon-picker .weapon-shop-confirm { display:flex; gap:10px; flex-wrap:wrap; }
+.st-weapon-picker .weapon-shop-notice { flex:1 0 100%; margin:0; color:#f0cf8b; font-size:13px; }
+@media (max-width:600px) { .st-weapon-picker { padding:0; } .st-weapon-picker .weapons-screen { border-radius:0; padding:12px; } .st-weapon-picker .weapon-shop-price { flex:1 0 100%; } .st-weapon-picker .weapon-shop-confirm { flex:1 0 100%; } }

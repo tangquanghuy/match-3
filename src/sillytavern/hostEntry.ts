@@ -7,16 +7,20 @@ import {StSaveRepository} from './saveRepository';
 import {chatKey,LEARNING_WINS,canReplay,sourceIsLearned} from './save';
 import type {StSave,EncounterRecord} from './save';
 import type {SettlementReceipt} from './save';
+import {battleRecordGroups} from './battleRecords';
+import type {BattleRecordGroup} from './battleRecords';
 import {renderStSettlement} from './settlementView';
 import {sourceEnemy,soulFragmentName} from './fragmentRewards';
-import {abilityDisplayName} from './abilityName';
+import {abilityDisplayName,fragmentDisplayName} from './abilityName';
 import type {StSettlementView} from './settlementView';
 import {openStReplay,openStReceipt,dismissMessageReceipt} from './replayLauncher';
+import {formatStoryReportMessage,sendTavernChatMessage} from './storyReportMessage';
+const MANA_NAMES:Record<string,string>={Red:'红',Blue:'蓝',Green:'绿',Yellow:'黄',Purple:'紫',Brown:'棕'};
 import {BATTLE_SCHEMA_VERSION,RULESET_VERSION} from '../session/contract';
 import type {BattleRequest,CombatantSnapshot} from '../session/contract';
 import {preparePartyDialog} from './partyDialog';
 import {prepareCurrentParty} from './partyPreparation';
-import {restoreEnemyBlueprint} from './enemyBlueprint';
+import {learningAbilityIdForSkill,restoreEnemyBlueprint} from './enemyBlueprint';
 import type {EnemyBlueprint} from './enemyBlueprint';
 import {RANKS} from './portraits';
 import {compileEnemyEncounterPlan} from './enemyDesign';
@@ -29,6 +33,7 @@ import type {MessageEncounterSource} from './messageSource';
 import {stableJson} from './json';
 import {managementPageCss,managementAsset} from './managementPage';
 import {icon,gemSvg} from '../meta/shell/chrome';
+import {ROLE_ICONS,roleNameZh} from '../meta/data/roles';
 
 function errorMessage(error:unknown,fallback:string):string {return error&&typeof error==='object'&&'message'in error&&typeof error.message==='string'&&error.message?error.message:fallback;}
 
@@ -49,7 +54,9 @@ export type StoryPlan={difficulty:string;seed?:number;rules?:BattleRequest['rule
  {enemies:readonly EnemyBlueprint[];enemyDesigns?:never}
 );
 export type MessageStoryState='new'|'pending'|'settled';
-export interface StHostHandle {readonly destroyed:boolean;assertActive():void;service:StHostService;open():Promise<void>;playStory(plan:StoryPlan):Promise<void>;messageStoryState(source:MessageEncounterSource,dismissReceipt?:boolean):Promise<MessageStoryState>;playMessageStory(source:MessageEncounterSource,receiptSignal?:AbortSignal):Promise<void>;playReplay(encounterId:string,party:ReplayParty):Promise<void>;destroy():void}
+export interface MessageLineupUnit {name:string;portraitUrl?:string}
+export interface MessageStoryLineup {player:MessageLineupUnit[];enemy:MessageLineupUnit[]}
+export interface StHostHandle {readonly destroyed:boolean;assertActive():void;service:StHostService;open():Promise<void>;playStory(plan:StoryPlan):Promise<void>;messageStoryState(source:MessageEncounterSource,dismissReceipt?:boolean):Promise<MessageStoryState>;messageStoryLineup(source:MessageEncounterSource):Promise<MessageStoryLineup|undefined>;resetMessageStoryForTesting(source:MessageEncounterSource):Promise<void>;playMessageStory(source:MessageEncounterSource,receiptSignal?:AbortSignal):Promise<void>;playReplay(encounterId:string,party:ReplayParty):Promise<void>;destroy():void}
 /** Import from a Tavern Helper script and pass the ST top window explicitly. */
 export async function installStHost(options:InstallStHostOptions):Promise<StHostHandle> {
  options.signal?.throwIfAborted();
@@ -108,9 +115,68 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
  let busy=false;let deleted=false;let displayedChat='';let storyStarting=false;
  const receiptViews=new Map<HTMLElement,StSettlementView>();
  function renderReceipt(mount:HTMLElement,receipt:SettlementReceipt,encounters?:readonly EncounterRecord[]):void{
+   // The native result screen scales with its container; give it a game-like 16:9 box.
+   mount.classList.add('receipt-view');
    receiptViews.get(mount)?.dispose();receiptViews.set(mount,renderStSettlement(mount,receipt,{sources:encounters?.find(item=>item.id===receipt.encounterId)?.sources}));
  }
  function clearReceiptViews():void{for(const view of receiptViews.values())view.dispose();receiptViews.clear();}
+ /**
+  * Compact receipt for the battle record: outcome, turns and a thumbnail per actually credited
+  * reward (soul fragments show the enemy portrait). Reads the committed receipt only.
+  */
+ function receiptSummary(receipt:SettlementReceipt,encounters:readonly EncounterRecord[]):HTMLElement{
+   const box=el('div');box.className='record-receipt';
+   box.append(el('p',`${receipt.winner==='player'?'胜利':'败北'} · ${receipt.result.turns} 回合`));
+   const sources=encounters.find(item=>item.id===receipt.encounterId)?.sources??[];
+   const items:{art:HTMLElement;name:string;quantity?:number}[]=[];
+   const glyphArt=(name:string)=>{const art=el('span');art.className='record-reward-glyph';art.innerHTML=icon(name);return art;};
+   for(const grant of receipt.grants){
+     if(grant.kind==='fragment'){
+       const enemy=sourceEnemy(receipt.request.enemyTeam,sources,grant.id);
+       let art:HTMLElement=glyphArt('soul');
+       if(enemy?.portraitUrl){const image=el('img');image.alt='';image.loading='lazy';image.src=new URL(enemy.portraitUrl,options.battleUrl??managementAsset('/')).href;art=image;}
+       items.push({art,name:enemy?soulFragmentName(enemy.name):fragmentDisplayName(grant.name),quantity:grant.quantity});
+     }else items.push({art:glyphArt(grant.kind==='currency'?'crystal':'chest'),name:grant.name,quantity:grant.quantity});
+   }
+   for(const id of receipt.learnedAbilityIds)items.push({art:glyphArt('book'),name:`学会「${abilityDisplayName(receipt.learnedAbilityNames[id]??id)}」`});
+   if(!items.length){box.append(el('small',receipt.winner==='player'?'本场没有入账奖励':'战败不发奖励'));return box;}
+   const list=el('ul');list.className='record-rewards';list.setAttribute('aria-label','本场实际获得');
+   for(const item of items){
+     const row=el('li');item.art.classList.add('record-reward-art');
+     row.append(item.art,el('span',item.name));if(item.quantity!==undefined)row.append(el('b',`×${item.quantity}`));list.append(row);
+   }
+   box.append(list);return box;
+ }
+ /** A toggle that opens one receipt's compact summary below itself. */
+ function receiptToggle(label:string,receipt:SettlementReceipt,encounters:readonly EncounterRecord[]):HTMLElement[]{
+   const toggle=el('button',label);const detail=el('div');detail.hidden=true;toggle.setAttribute('aria-expanded','false');
+   toggle.onclick=()=>{detail.hidden=!detail.hidden;toggle.setAttribute('aria-expanded',String(!detail.hidden));if(!detail.hidden)detail.replaceChildren(receiptSummary(receipt,encounters));};
+   return [toggle,detail];
+ }
+ /**
+  * One card per opponent group: the story battle plus a summary of its replays. Only replays that
+  * taught an ability and the latest replay are listed (user decision: no "show all"). Display only:
+  * every receipt stays in the save for idempotency, reset and outbox checks.
+  */
+ function battleRecordCard(group:BattleRecordGroup,encounters:readonly EncounterRecord[]):HTMLElement{
+   const card=el('article');card.className='card report record-group';
+   const names=group.receipts[0]!.request.enemyTeam.map(enemy=>enemy.name).join('、');
+   const outcome=(receipt:SettlementReceipt)=>receipt.winner==='player'?'胜利':'败北';
+   const learnedText=(receipt:SettlementReceipt)=>receipt.learnedAbilityIds.length?` · 学会${receipt.learnedAbilityIds.map(id=>`「${abilityDisplayName(receipt.learnedAbilityNames[id]??id)}」`).join('')}`:'';
+   if(group.story)card.append(...receiptToggle(`剧情 · ${outcome(group.story)} · ${names}${learnedText(group.story)}`,group.story,encounters));
+   const replays=group.replays;
+   if(!replays.length)return card;
+   const wins=replays.filter(receipt=>receipt.winner==='player').length;
+   const learned=replays.reduce((sum,receipt)=>sum+receipt.learnedAbilityIds.length,0);
+   card.append(el('p',`往昔再现 ${replays.length} 场 · 胜 ${wins} 负 ${replays.length-wins}${learned?` · 学会 ${learned} 个能力`:''}`));
+   const list=el('div');list.className='record-replays';card.append(list);
+   const numbered=replays.map((receipt,index)=>({receipt,index}));
+   const latest=numbered[numbered.length-1]!;
+   const notable=numbered.filter(item=>item.receipt.learnedAbilityIds.length||item===latest).reverse();
+   const row=(item:{receipt:SettlementReceipt;index:number})=>receiptToggle(`第 ${item.index+1} 场再现 · ${outcome(item.receipt)}${learnedText(item.receipt)}${item===latest?' · 最近一场':''}`,item.receipt,encounters);
+   for(const item of notable)list.append(...row(item));
+   return card;
+ }
  function assertAlive():void{if(deleted)throw new Error('三消入口已关闭，请重新打开');if(accountNamespace()!==account){destroy();throw new Error('酒馆账号已切换，请重新打开三消入口');}}
  function assertModeEnabled(force=false):void{
    if(!force&&!options.requireModeEnabled)return;
@@ -183,6 +249,45 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
    }
    return current.pendingStory?.request.battleId===ids.battleId?'pending':'new';
  }
+ /** Temporary test tool: undo this message's settled battle so it can be fought again identically. */
+ async function resetMessageStoryForTesting(source:MessageEncounterSource):Promise<void>{
+   const original=structuredClone(source);assertAlive();assertModeEnabled(true);
+   assertMessageSource(options.helpers.getContext(),original);
+   if(storyStarting)throw new Error('已有剧情战斗正在准备或打开，请先完成当前操作');
+   const {snapshot,save}=await service.current();if(!save)throw new Error('当前聊天还没有三消存档');
+   assertStorySource(original,snapshot,false);
+   const ids=await messageIds(save,original,parseRuntimeEncounter(original.text));
+   dismissMessageReceipt(host,ids.battleId,doc.getElementById('st-match3-story-root'));
+   await service.resetStoryForTesting(ids.battleId,{messageId:original.messageId,swipeId:original.swipeId});
+ }
+ /**
+  * Read-only lineup for the message preview. A settled or pending battle shows its frozen request;
+  * a new one compiles with the same message-derived seed that playStory uses, so portraits match.
+  * The seed needs the chat's save, so a new chat creates it here, exactly as opening the panel or
+  * "进入战斗" would (creation is idempotent per chat). With all slots full the preview stays blank.
+  */
+ async function messageStoryLineup(source:MessageEncounterSource):Promise<MessageStoryLineup|undefined>{
+   const original=structuredClone(source);assertAlive();assertModeEnabled(true);
+   assertMessageSource(options.helpers.getContext(),original);
+   const snapshot=adapter.read();
+   let save=(await repository.list()).find(item=>chatKey(item.chat)===chatKey(snapshot.chat));
+   if(!save){
+     try{adapter.assertChat(snapshot.chat);save=await service.create();}
+     catch{return undefined;}
+     assertAlive();assertMessageSource(options.helpers.getContext(),original);
+   }
+   const plan=parseRuntimeEncounter(original.text);
+   const ids=await messageIds(save,original,plan);
+   const unit=(member:CombatantSnapshot):MessageLineupUnit=>({name:member.name,...(member.portraitUrl?{portraitUrl:new URL(member.portraitUrl,options.battleUrl??managementAsset('/')).href}:{})});
+   const frozen=save.settlements.find(item=>item.battleId===ids.battleId)?.request
+    ??(save.pendingStory?.request.battleId===ids.battleId?save.pendingStory.request:undefined);
+   if(frozen)return {player:frozen.playerTeam.map(unit),enemy:frozen.enemyTeam.map(unit)};
+   const seed=Number.parseInt(ids.battleId.slice(0,8),16);
+   const enemies=compileEnemyEncounterPlan(plan.enemyDesigns,{seed}).members.map(result=>result.blueprint.snapshot);
+   const prepared=prepareCurrentParty(snapshot,{...save.partyPreparation,save,mode:'story'});
+   // An unready party previews as empty; the explicit click still reports the issue.
+   return {player:prepared.party.map(unit),enemy:enemies.map(unit)};
+ }
  async function showMessageReceipt(save:StSave,receipt:SettlementReceipt,source:MessageEncounterSource,snapshot:HostSnapshot,receiptSignal?:AbortSignal):Promise<void>{
    assertStorySource(source,snapshot,false);panel.hidden=true;
    await openStReceipt({hostWindow:host,receipt,sources:save.encounters.find(item=>item.id===receipt.encounterId)?.sources,signal:lifecycle.signal,receiptSignal});
@@ -200,7 +305,7 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
      if(save.pendingStory.request.requestId!==ids.requestId)throw new Error('本条消息已有待完成战斗，但遭遇内容已变化；请恢复或放弃原战斗');
      assertStorySource(source,snapshot,true);assertStoryRestore(save);
      await openStReplay({hostWindow:host,service,saveId:save.id,chat:save.chat,ticket:save.pendingStory,battleUrl:options.battleUrl!,signal:lifecycle.signal,kind:'story'});
-     if(!deleted)await refresh();return true;
+     if(!deleted)await refresh().catch(error=>console.warn('[三消] 战后刷新管理页失败，下次打开时重新读取',error));return true;
    }
    if(save.pendingStory||save.pendingReplay)throw new Error('请先完成或手动放弃待完成战斗');
    return false;
@@ -247,14 +352,24 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
       assertStorySource(source,snapshot,true);
     }
     const request:BattleRequest={schemaVersion:BATTLE_SCHEMA_VERSION,rulesetVersion:RULESET_VERSION,battleId:ids?.battleId??host.crypto.randomUUID(),requestId:ids?.requestId??host.crypto.randomUUID(),seed,playerTeam:structuredClone([...prepared.party]),enemyTeam:enemies.map(e=>e.snapshot),...(plan.rules?{rules:structuredClone(plan.rules)}:{})};
-    const sources=enemies.map(e=>({sourceId:e.sourceId,abilityId:e.abilityId,abilityName:e.snapshot.spellName??'主动能力',rank:RANKS.indexOf(e.portrait.query.rank as typeof RANKS[number]),enemyExternalId:e.snapshot.externalId}));
+    // Mana colors are bound to the enemy instance, never to the learned ability.
+    const sources=enemies.map(e=>({sourceId:e.sourceId,abilityId:learningAbilityIdForSkill(e.snapshot.skillId,e.snapshot.manaCost)??e.abilityId,abilityName:e.snapshot.spellName??'主动能力',rank:RANKS.indexOf(e.portrait.query.rank as typeof RANKS[number]),enemyExternalId:e.snapshot.externalId}));
     const ticket=await service.beginStory(request,sources,plan.difficulty,ids?.battleId??host.crypto.randomUUID(),prepared.source);
     assertAlive();adapter.assertChat(snapshot.chat);
     if(source)assertStorySource(source,snapshot,true);
-    await openStReplay({hostWindow:host,service,saveId:save.id,chat:save.chat,ticket,battleUrl:options.battleUrl,signal:lifecycle.signal,kind:'story'});if(!deleted)await refresh();
+    await openStReplay({hostWindow:host,service,saveId:save.id,chat:save.chat,ticket,battleUrl:options.battleUrl,signal:lifecycle.signal,kind:'story'});
+    // The battle is settled. "继续" has just sent the report, so the newest floor (the report or
+    // the AI reply) may not carry MVU variables yet. Refreshing the hidden management page is
+    // display only: a failure here must not surface as a battle error on the message card.
+    if(!deleted)await refresh().catch(error=>console.warn('[三消] 战后刷新管理页失败，下次打开时重新读取',error));
    }finally{storyStarting=false;}
  }
+ /** Fixed companion colors are derived anyway; persisting them is best effort. */
+ async function persistCompanionColors():Promise<void>{
+   try{await service.ensureCompanionColors();}catch(error){console.warn('[三消] 同伴颜色写入酒馆变量失败，本场使用推导颜色',error);}
+ }
  async function prepareSavedParty(save:StSave,mode:'story'|'replay'):Promise<ReplayParty>{
+   await persistCompanionColors();assertAlive();
    const current=await service.current();assertAlive();adapter.assertChat(save.chat);
    if(current.save?.id!==save.id)throw new Error('当前聊天存档已变化，请重新打开战斗');
    const prepared=prepareCurrentParty(current.snapshot,{...current.save.partyPreparation,save:current.save,mode});
@@ -271,9 +386,30 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
  function portraitCard(enemy:CombatantSnapshot|undefined,name:string,rank:number):HTMLElement {
   const card=el('div');card.className=`collection-card r-${rank}`;const image=el('img');image.alt=enemy?.name??name;image.loading='lazy';
   image.src=enemy?.portraitUrl?new URL(enemy.portraitUrl,options.battleUrl??managementAsset('/')).href:managementAsset('/static/ui/card-back-vault.webp');
-  const edge=el('i');edge.className='rarity-edge';const info=el('div');info.className='collection-info';info.append(el('h2',name));const subtitle=el('span');subtitle.append(el('span',enemy?.name&&enemy.name!==name?enemy.name:RANKS[rank]??''));info.append(subtitle);card.append(edge,image,info);
+  // Native collection face (troopCardFace): name and role badge only, no level line.
+  const edge=el('i');edge.className='rarity-edge';const info=el('div');info.className='collection-info no-level';info.append(el('h2',name));
+  const role=roleNameZh(enemy?.role);
+  if(role){const badge=el('span');badge.className='collection-role';badge.title=`定位：${role}`;badge.setAttribute('aria-label',`定位${role}`);badge.innerHTML=icon(ROLE_ICONS[enemy!.role as keyof typeof ROLE_ICONS]??'swords');badge.append(el('b',role));info.append(badge);}
+  card.append(edge,image,info);
   if(enemy?.manaColors.length){const mana=el('span');mana.className='collection-mana';mana.innerHTML=gemSvg(enemy.manaColors.map(color=>color.toLowerCase()));card.append(mana);}
   return card;
+ }
+ /** Fragment card: tap/click/Enter flips the card face to the ability it teaches. Same on phone and desktop. */
+ function fragmentFace(enemy:CombatantSnapshot|undefined,source:{abilityName:string;rank:number}):HTMLElement{
+  const face=portraitCard(enemy,enemy?.name??'灵魂碎片',source.rank);
+  const toggle=el('button');toggle.type='button';toggle.className='fragment-toggle';toggle.setAttribute('aria-expanded','false');
+  const abilityName=abilityDisplayName(source.abilityName);
+  toggle.setAttribute('aria-label',`查看${enemy?.name??'灵魂碎片'}的能力：${abilityName}`);
+  const hint=el('span');hint.className='fragment-hint';hint.setAttribute('aria-hidden','true');hint.append(glyph('book'));
+  const back=el('div');back.className='fragment-ability';back.hidden=true;
+  const text=enemy?.spellDescription?abilityDisplayText(enemy.spellDescription,enemy.stats.magic):'原场能力说明缺失';
+  // A single effect needs no "1." list marker.
+  back.append(el('small','可学会能力'),el('strong',abilityName),el('p',/(^|；)2\. /.test(text)?text:text.replace(/1\. /,'')),el('em','点按卡面返回'));
+  face.querySelector('h2')?.setAttribute('title',enemy?.name??'灵魂碎片');
+  toggle.onclick=()=>{const open=back.hidden;back.hidden=!open;face.classList.toggle('flipped',open);toggle.setAttribute('aria-expanded',String(open));};
+  // The flipped back sits above the toggle so it can scroll; a tap on it flips the card back.
+  back.onclick=()=>{toggle.click();toggle.focus({preventScroll:true});};
+  face.append(hint,back,toggle);return face;
  }
  async function refresh():Promise<void>{
    if(deleted)return;formationController?.abort();partyMount=undefined;const {snapshot,save}=await service.current();if(deleted)return;const saves=await repository.list();if(deleted)return;adapter.assertChat(snapshot.chat);clearReceiptViews();content.replaceChildren();displayedChat=chatKey(snapshot.chat);
@@ -304,11 +440,19 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
    if(!save){activePage='saves';showPage(activePage);return;}
    partyMount=el('section');partyMount.setAttribute('aria-label','编队');pageContent(partyMount,'party');
    if(save.pendingStory&&!outcomes.some(o=>o.saveId===save.id)){
-     const pending=el('article');pending.className='card';pending.append(el('strong','待完成的剧情战斗'),el('p','本场尚未结算。继续使用原场开局配置；战果保存后再同步酒馆人物生命。'),el('p','旧版战斗配置可能暂受限制。可先导出备份保留本场，或手动放弃未结算剧情；放弃不发放奖励、不扣除生命，也会保留已学能力与历史记录。'));
+     const pending=el('article');pending.className='card';pending.append(el('strong','待完成的剧情战斗'),el('p','本场尚未结束，可重新开始；放弃按败北结算，并把战报发送给 AI。'));
      if(options.battleUrl)pending.append(button('重新开始剧情战斗',async()=>{assertStoryRestore(save);await openStReplay({hostWindow:host,service,saveId:save.id,chat:save.chat,ticket:save.pendingStory!,battleUrl:options.battleUrl!,signal:lifecycle.signal,kind:'story'});await refresh();}));
      const battleId=save.pendingStory.request.battleId;
-     const abandon=el('button','放弃未结算剧情');let armed=false;
-     abandon.onclick=()=>{if(!armed){armed=true;abandon.textContent='确认放弃未结算剧情';return;}void action(async()=>{await service.abandonStory(battleId,save.revision,save.chat);await refresh();});};
+     const abandon=el('button','放弃战斗');let armed=false;
+     abandon.onclick=()=>{if(!armed){armed=true;abandon.textContent='确认放弃（按败北结算）';return;}void action(async()=>{
+       const {receipt,sources,syncError}=await service.surrenderStory(battleId,save.chat);
+       await refresh();
+       // Same handoff as a finished battle: the native result's continue sends the report.
+       // The chat continues after the report, so the management page stays closed.
+       panel.hidden=true;
+       await openStReceipt({hostWindow:host,receipt,sources,signal:lifecycle.signal,onContinue:()=>{if(!sendTavernChatMessage(host,formatStoryReportMessage(receipt,sources)))host.alert('未找到酒馆输入框，战报未发送；请手动告知 AI 本场结果。');}});
+       if(syncError){panel.hidden=false;showPage('saves');throw syncError;}
+     });};
      pending.append(abandon);pageContent(pending,'saves');
    }
    if(save.pendingReplay&&!outcomes.some(o=>o.saveId===save.id)){
@@ -322,7 +466,8 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
    for(const source of save.sources){
     const learned=sourceIsLearned(save,source);const threshold=LEARNING_WINS[source.rank]!;
     const encounter=save.encounters.find(item=>item.sources.some(itemSource=>itemSource.sourceId===source.sourceId));const enemy=encounter?sourceEnemy(encounter.enemyTeam,encounter.sources,source.sourceId):undefined;
-    const card=el('article');card.className='fragment-card';card.append(portraitCard(enemy,enemy?soulFragmentName(enemy.name):'灵魂碎片',source.rank),el('p',abilityDisplayName(source.abilityName)),el('p',learned?'已学会':`${source.wins} / ${threshold} · 还需 ${threshold-source.wins} 场有效胜利`));
+    const card=el('article');card.className='fragment-card';card.setAttribute('aria-label',enemy?soulFragmentName(enemy.name):'灵魂碎片');
+    card.append(fragmentFace(enemy,source),el('p',learned?'已学会':`${source.wins} / ${threshold} · 还需 ${threshold-source.wins} 场有效胜利`));
     const progress=el('progress');progress.max=threshold;progress.value=learned?threshold:source.wins;progress.setAttribute('aria-label',`${enemy?.name??'灵魂碎片'}学习进度`);card.append(progress);fragments.append(card);
    }
    pageContent(collection,'collection');
@@ -333,17 +478,17 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
      const preview=el('details');preview.append(el('summary','查看原场敌方配置'));
      for(const enemy of encounter.enemyTeam){const row=el('div');row.className='card enemy';
        if(enemy.portraitUrl){const image=el('img');image.alt=enemy.name;image.loading='lazy';image.src=new URL(enemy.portraitUrl,options.battleUrl??managementAsset('/')).href;row.append(image);}
-       const info=el('div');info.append(el('strong',`${enemy.name}${enemy.levelLabel?` · 等级 ${enemy.levelLabel}`:''}`),...(enemy.race?[el('p',`种族：${enemy.race}`)]:[]),el('p',`生命 ${enemy.stats.hp} · 攻击 ${enemy.stats.attack} · 护甲 ${enemy.stats.armor} · 法强 ${enemy.stats.magic}`),el('p',`法力 ${enemy.manaColors.join(' / ')} · 消耗 ${enemy.manaCost}`),el('p',`${enemy.spellName??enemy.skillId??'主动能力'}${enemy.spellDescription?`：${abilityDisplayText(enemy.spellDescription,enemy.stats.magic)}`:''}`));
+       const info=el('div');info.append(el('strong',`${enemy.name}${enemy.levelLabel?` · 等级 ${enemy.levelLabel}`:''}`),...(enemy.race?[el('p',`种族：${enemy.race}`)]:[]),el('p',`生命 ${enemy.stats.hp} · 攻击 ${enemy.stats.attack} · 护甲 ${enemy.stats.armor} · 法强 ${enemy.stats.magic}`),el('p',`法力 ${enemy.manaColors.map(color=>MANA_NAMES[color]??color).join(' / ')} · 消耗 ${enemy.manaCost}`),el('p',`${abilityDisplayName(enemy.spellName??'主动能力')}${enemy.spellDescription?`：${abilityDisplayText(enemy.spellDescription,enemy.stats.magic)}`:''}`));
        for(const trait of enemy.traitIds??[])info.append(el('small',`${enemy.traitNames?.[trait]??trait} `));row.append(info);preview.append(row);
      }card.append(preview);
      if(canReplay(save,encounter)&&!save.pendingReplay&&!save.pendingStory&&options.battleUrl)card.append(button('重复挑战',async()=>{adapter.assertChat(save.chat);const prepared=await prepareReplay(save,encounter);if(!prepared)return;adapter.assertChat(save.chat);await playReplay(encounter.id,prepared);await refresh();}));bestiary.append(card);}
    pageContent(bestiary,'replay');
    const reports=el('section');reports.setAttribute('aria-label','战斗记录');reports.append(el('h3','战斗记录'));
    if(!save.settlements.length)emptyState(reports,'尚无战斗记录','book');
-   for(const receipt of [...save.settlements].reverse()){const card=el('article');card.className='card report';const toggle=el('button',`${receipt.kind==='story'?'剧情':'再现'} · ${receipt.winner==='player'?'胜利':'败北'} · ${receipt.request.enemyTeam.map(enemy=>enemy.name).join('、')}`);const detail=el('div');detail.hidden=true;toggle.onclick=()=>{detail.hidden=!detail.hidden;if(!detail.hidden)renderReceipt(detail,receipt,save.encounters);};card.append(toggle,detail);reports.append(card);}
+   for(const group of battleRecordGroups(save))reports.append(battleRecordCard(group,save.encounters));
    pageContent(reports,'history');showPage(activePage);
  }
- async function open():Promise<void>{assertAlive();try{assertModeEnabled();}catch(error){host.alert(errorMessage(error,'读取三消模式失败'));return;}panel.hidden=false;await action(refresh);if(!deleted)close.focus();}
+ async function open():Promise<void>{assertAlive();try{assertModeEnabled();}catch(error){host.alert(errorMessage(error,'读取三消模式失败'));return;}panel.hidden=false;await action(async()=>{await persistCompanionColors();await refresh();});if(!deleted)close.focus({focusVisible:false} as FocusOptions);}
  if(launch)launch.onclick=()=>void open();
  const chatWatcher=host.setInterval(()=>{
    if(deleted)return;try{assertAlive();}catch{destroy();return;}if(panel.hidden)return;
@@ -360,5 +505,5 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
  }
  options.signal?.addEventListener('abort',destroy,{once:true});host.addEventListener('pagehide',destroy);
  if(options.runtimeLifecycle!==false&&window!==host)window.addEventListener('pagehide',destroy);
- return {get destroyed(){return deleted;},assertActive:assertAlive,service,open,playStory,messageStoryState,playMessageStory,playReplay,destroy};
+ return {get destroyed(){return deleted;},assertActive:assertAlive,service,open,playStory,messageStoryState,messageStoryLineup,resetMessageStoryForTesting,playMessageStory,playReplay,destroy};
 }

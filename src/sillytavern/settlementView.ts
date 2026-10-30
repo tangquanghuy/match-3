@@ -20,7 +20,12 @@ export function renderStSettlement(mount:HTMLElement,receipt:SettlementReceipt,o
  :host{--gold:#d8c290;--light:#f4e2b4;--ink:#f2ead8;--display:"Palatino Linotype","STZhongsong","SimSun",serif;--body:"Segoe UI","Microsoft YaHei",sans-serif}
  *,*::before,*::after{box-sizing:border-box}button{font:inherit;cursor:pointer}[hidden]{display:none!important}
  .stage{position:absolute;inset:0;min-height:0}
- ${resultStyles}`;
+ ${resultStyles}
+ /* Committed receipts have no source subtitle, so the reward strip would sit on the lower half
+    of the banner's zodiac art. Start it below the art: the art is centred 5.4cqmin above the banner
+    bottom and is half as tall as wide, so it reaches a quarter of its width below that centre. */
+ .result-screen[data-result-mode="committed"] .rs-summary-content .rs-strip{margin-top:max(12px,calc(min(25cqw,225px,25cqh) - 5.4cqmin + 6px))}
+ @container rs (max-width: 760px){.result-screen[data-result-mode="committed"] .rs-summary-content .rs-strip{margin-top:max(12px,calc(min(37.5cqw,25cqh) - 5.4cqmin + 6px))}}`;
  const stage=doc.createElement('div');stage.className='stage';stage.setAttribute('aria-label','本场战斗结算');stage.dataset.battleId=receipt.battleId;
  const screen=new ResultScreen(stage);stage.innerHTML=screen.committedHtml();
  shadow.append(style,stage);mount.replaceChildren(host);

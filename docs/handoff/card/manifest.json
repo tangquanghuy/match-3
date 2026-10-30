@@ -1,0 +1,174 @@
+{
+  "card": "创世回廊6.0.png",
+  "world": "创世回廊6.0.json",
+  "cleaned": {
+    "chat": "cleared",
+    "droppedVariables": [
+      "start_presets"
+    ]
+  },
+  "scripts": [
+    {
+      "order": 1,
+      "name": "var_update",
+      "enabled": true,
+      "file": "01-var_update.js"
+    },
+    {
+      "order": 2,
+      "name": "MVU_ZOD",
+      "enabled": true,
+      "file": "02-MVU_ZOD.js"
+    },
+    {
+      "order": 3,
+      "name": "辅助计算脚本",
+      "enabled": true,
+      "file": "03-辅助计算脚本.js"
+    },
+    {
+      "order": 4,
+      "name": "通用币校验",
+      "enabled": true,
+      "file": "04-通用币校验.js"
+    },
+    {
+      "order": 5,
+      "name": "外置状态栏",
+      "enabled": true,
+      "file": "05-外置状态栏.js"
+    },
+    {
+      "order": 6,
+      "name": "小手机脚本",
+      "enabled": true,
+      "file": "06-小手机脚本.js"
+    },
+    {
+      "order": 7,
+      "name": "创意工坊",
+      "enabled": true,
+      "file": "07-创意工坊.js"
+    },
+    {
+      "order": 8,
+      "name": "格式修复",
+      "enabled": true,
+      "file": "08-格式修复.js"
+    }
+  ],
+  "regex": [
+    {
+      "order": 1,
+      "name": "变量更新美化",
+      "disabled": false,
+      "file": "01-变量更新美化.json"
+    },
+    {
+      "order": 2,
+      "name": "变量更新对AI不可见",
+      "disabled": false,
+      "file": "02-变量更新对AI不可见.json"
+    },
+    {
+      "order": 3,
+      "name": "对AI隐藏图片格式",
+      "disabled": false,
+      "file": "03-对AI隐藏图片格式.json"
+    },
+    {
+      "order": 4,
+      "name": "封面",
+      "disabled": false,
+      "file": "04-封面.json"
+    },
+    {
+      "order": 5,
+      "name": "开局",
+      "disabled": false,
+      "file": "05-开局.json"
+    },
+    {
+      "order": 6,
+      "name": " 不想要头像开这个",
+      "disabled": true,
+      "file": "06-不想要头像开这个.json"
+    },
+    {
+      "order": 7,
+      "name": "正文前处理",
+      "disabled": false,
+      "file": "07-正文前处理.json"
+    },
+    {
+      "order": 8,
+      "name": "正文后处理",
+      "disabled": false,
+      "file": "08-正文后处理.json"
+    },
+    {
+      "order": 9,
+      "name": "三消·战斗块移出正文美化",
+      "disabled": false,
+      "file": "09-三消·战斗块移出正文美化.json"
+    },
+    {
+      "order": 10,
+      "name": "正文美化",
+      "disabled": false,
+      "file": "10-正文美化.json"
+    },
+    {
+      "order": 11,
+      "name": "状态栏",
+      "disabled": false,
+      "file": "11-状态栏.json"
+    },
+    {
+      "order": 12,
+      "name": "个人爱好",
+      "disabled": true,
+      "file": "12-个人爱好.json"
+    },
+    {
+      "order": 13,
+      "name": "隐藏经验日志",
+      "disabled": false,
+      "file": "13-隐藏经验日志.json"
+    },
+    {
+      "order": 14,
+      "name": "行动选项美化",
+      "disabled": false,
+      "file": "14-行动选项美化.json"
+    },
+    {
+      "order": 15,
+      "name": "隐藏行动选项",
+      "disabled": false,
+      "file": "15-隐藏行动选项.json"
+    },
+    {
+      "order": 16,
+      "name": "[CG渲染]不用正文美化时再开",
+      "disabled": true,
+      "file": "16-[CG渲染]不用正文美化时再开.json"
+    },
+    {
+      "order": 17,
+      "name": "三消·正文战斗入口 v1",
+      "disabled": false,
+      "file": "17-三消·正文战斗入口_v1.json"
+    }
+  ],
+  "localUrls": [
+    "http://127.0.0.1:5185/sillytavern-currency-guard.js?v=3",
+    "http://127.0.0.1:5185/local-card/startup.html",
+    "http://127.0.0.1:5185/local-card/statusbar.html",
+    "http://127.0.0.1:5185/sillytavern-message.js"
+  ],
+  "sha256": {
+    "创世回廊6.0.png": "e6647a33c2b70fe9b1f9c8845a2216c43dc05dc403469475bd5b14555b0f2cf2",
+    "创世回廊6.0.json": "f6f32e10f6d58a9c7619e228d08ca4c123766057e7bf8bc8df7098c48ef70c03"
+  }
+}

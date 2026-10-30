@@ -257,7 +257,9 @@ describe.each([
     expect(prompt).toContain('输出结束标记后立即结束回复，等待玩家操作');
     expect(prompt).toContain('别重复生成本场战斗块');
     expect(prompt).toContain('收到真实战报前，不预演回合');
-    expect(prompt).toContain('战斗事实以战报为准，不补造回合过程、招式或奖励');
+    expect(prompt).toContain('战斗事实以战报为准，不补造回合过程或招式');
+    expect(prompt).toContain('战利品、经验等按原有规则由你自行结算');
+    expect(prompt).not.toContain('三消养成所得'); // Not in the report anymore (2026-10-30).
   });
 
   it('preserves regional levels, rank identities, color counts and mixed groups', () => {
@@ -334,10 +336,12 @@ describe.each([
     expect(prompt).toContain('系统配置.屏蔽战斗上下文');
     expect(prompt).not.toMatch(/battleId|requestId|stat_data\.三消战果|match3\.storyResults|结算收据|往昔再现/);
     for (const instruction of ['玩家决定交战',
-      '交锋前', 'E1、E2', 'enemy-1、enemy-2', '保持待战', '扣 HP', '判胜负',
-      '接收程序提供的本场战报', '根据战报续写战后剧情', '承接战前的事件与人物关系']) {
+      '交锋前', '保持待战', '扣 HP', '判胜负',
+      '以「【三消战报】」开头的消息', '续写战后剧情', '承接战前的事件与人物关系', '放弃战斗按败北记录']) {
       expect(prompt).toContain(instruction);
     }
+    // Enemies are matched by name in the block; the prose carries no E1/E2 labels (user decision 2026-10-30).
+    expect(prompt).not.toMatch(/E1|E2/);
   });
 });
 

@@ -1,0 +1,18 @@
+{
+  "id": "41f79712-3347-4ac9-b3e1-e12e95c204b7",
+  "scriptName": "变量更新对AI不可见",
+  "disabled": false,
+  "runOnEdit": false,
+  "findRegex": "/<(?:UpdateVariable(?:variable)?|update)>([\\s\\S]*?)<\\/(?:UpdateVariable(?:variable)?|update)>/gsi",
+  "trimStrings": [],
+  "replaceString": "",
+  "placement": [
+    1,
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": null,
+  "markdownOnly": false,
+  "promptOnly": true
+}

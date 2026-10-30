@@ -27,7 +27,7 @@ describe('abilityDisplayText engine scaling semantics', () => {
     const spec = { base, mult };
     const mechanical = describeAdaptedAbility(damage(spec)).description;
     const display = abilityDisplayText(mechanical, magic);
-    expect(display).toBe(`1. 对选定的一名敌人造成${evaluateScaling(spec, magic)}点伤害`);
+    expect(display).toBe(`对一名敌人造成${evaluateScaling(spec, magic)}点伤害。`);
     expect(display).not.toMatch(codeFormula);
   });
 
@@ -73,14 +73,10 @@ describe('abilityDisplayText rules and integration', () => {
       [{ kind: 'gem', params: { op: 'create', gem: { kind: 'color', color: BaseColor.Blue }, count: { base: 0, mult: 0.5 } } }],
     ] }] };
     const text = abilityDisplayText(describeAdaptedAbility(prototype).description, 5);
-    expect(text).toContain('由施放者选择一个分支');
-    expect(text).toContain('区间随机整数[7,13]');
-    expect(text).toContain('分支1');
-    expect(text).toContain('分支2');
-    expect(text).toContain('向下取整');
-    expect(text).toContain('红');
-    expect(text).toContain('数值最后×2');
-    expect(text).toContain('3颗蓝色宝石');
+    expect(text).toContain('施放时选择：①对所有敌人造成7～13点伤害');
+    expect(text).toContain('伤害因红色宝石数而增强（每3颗+1）');
+    expect(text).toContain('若自身已受伤则造成双倍伤害');
+    expect(text).toContain('；②创造3颗蓝色宝石');
     expect(text).not.toMatch(codeFormula);
   });
 

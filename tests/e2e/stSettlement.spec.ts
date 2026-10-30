@@ -114,13 +114,14 @@ for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:900
    }
    const metrics=await result.evaluate(root=>{
     const box=(selector:string)=>root.querySelector(selector)!.getBoundingClientRect();
-    const title=box('#resultTitle'),strip=box('#standardRewards'),screen=root.getBoundingClientRect();
+    const title=box('#resultTitle'),strip=box('#standardRewards'),art=box('.rs-banner-art img'),screen=root.getBoundingClientRect();
     const scroll=root.querySelector('#resultScroll')!;
     const horizontalOverflow=[...root.querySelectorAll<HTMLElement>('.rs-reward')].some(card=>card.scrollWidth>card.clientWidth+1);
-    return {gap:strip.top-title.bottom,screenHeight:screen.height,scrollOverflow:scroll.scrollWidth-scroll.clientWidth,horizontalOverflow};
+    return {gap:strip.top-title.bottom,artOverlap:art.bottom-strip.top,screenHeight:screen.height,scrollOverflow:scroll.scrollWidth-scroll.clientWidth,horizontalOverflow};
    });
    expect(metrics.gap).toBeGreaterThanOrEqual(0);
-   expect(metrics.gap).toBeLessThan(60);
+   // The reward strip starts below the banner's zodiac art instead of covering it.
+   expect(metrics.artOverlap).toBeLessThanOrEqual(1);
    expect(metrics.screenHeight).toBeLessThanOrEqual(viewport.height);
    expect(metrics.scrollOverflow).toBeLessThanOrEqual(1);
    expect(metrics.horizontalOverflow).toBe(false);

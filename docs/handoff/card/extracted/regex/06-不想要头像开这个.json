@@ -1,0 +1,17 @@
+{
+  "id": "8e40833c-a767-4896-89a1-81c8853dc3a4",
+  "scriptName": " 不想要头像开这个",
+  "disabled": true,
+  "runOnEdit": true,
+  "findRegex": "/(?<!\\{)\\{[^{}]*\\}(?!\\})(?=(?:(?!<\\/?now_plot>)[\\s\\S])*<\\/now_plot>)/g",
+  "trimStrings": [],
+  "replaceString": "",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 10,
+  "markdownOnly": true,
+  "promptOnly": true
+}

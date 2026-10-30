@@ -4,7 +4,7 @@ import type {GameEvent} from '../../src/engine/events';
 import {BATTLE_SCHEMA_VERSION,RULESET_VERSION} from '../../src/session/contract';
 import type {BattleRequest,BattleResult,CombatantSnapshot} from '../../src/session/contract';
 import {beginStory,completeStory} from '../../src/sillytavern/storySession';
-import {beginReplay,completeReplay,createSave,emptyRoot,validateSave} from '../../src/sillytavern/save';
+import {beginReplay,completeReplay,createSave,emptyRoot,revertStorySettlement,validateSave} from '../../src/sillytavern/save';
 import type {AbilitySource,PendingStory,StSave} from '../../src/sillytavern/save';
 import {prepareStBattle} from '../../src/sillytavern/battleRuntime';
 import {BoardGenerator} from '../../src/engine/boardGen';
@@ -29,6 +29,34 @@ function fixture(n=0) {
 }
 function restore(save:StSave):StSave {return validateSave(JSON.parse(JSON.stringify(save)));}
 
+describe('temporary story test reset',()=>{
+ const strip=(save:StSave)=>{const copy=structuredClone(save) as Partial<StSave>;delete copy.pendingStory;return JSON.stringify(copy);};
+ it('returns the save to its pre-battle state and allows the same battle again',()=>{
+   const f=fixture();f.save.sources=[{sourceId:'other',abilityId:'other-ability',abilityName:'其他',rank:0,wins:3}];
+   const before=strip(f.save);f.begin();const first=completeStory(f.save,f.result,f.events);
+   expect(f.save.sources.find(s=>s.sourceId==='source')!.wins).toBe(1);expect(f.save.encounters).toHaveLength(1);
+   expect(revertStorySettlement(f.save,f.request.battleId)).toBe(true);
+   expect(strip(f.save)).toBe(before);expect(restore(f.save)).toEqual(f.save);
+   f.begin();expect(completeStory(f.save,f.result,f.events)).toEqual(first);
+   expect(revertStorySettlement(f.save,'missing')).toBe(false);
+ });
+ it('unlearns and unequips an ability learned by the reset battle',()=>{
+   const f=fixture();f.save.sources=[{sourceId:'source',abilityId:'ability',abilityName:'骑士剑技',rank:4,wins:4}];
+   f.begin();completeStory(f.save,f.result,f.events);f.save.equippedAbilities={'/羁绊列表/林':'ability'};
+   expect(f.save.learnedAbilityIds).toEqual(['ability']);
+   revertStorySettlement(f.save,f.request.battleId);
+   expect(f.save.learnedAbilityIds).toEqual([]);expect(f.save.equippedAbilities).toEqual({});expect(f.save.sources[0]!.wins).toBe(4);
+   expect(restore(f.save)).toEqual(f.save);
+ });
+ it('resets a defeat and refuses while a battle is pending or after a replay',()=>{
+   const lost=fixture();lost.result.winner='enemy';lost.begin();completeStory(lost.save,lost.result,lost.events);
+   expect(revertStorySettlement(lost.save,lost.request.battleId)).toBe(true);expect(lost.save.settlements).toEqual([]);
+   const f=fixture();f.begin();completeStory(f.save,f.result,f.events);
+   beginReplay(f.save,'encounter-0',[actor('hero')],{battleId:'replay',requestId:'replay-request'});
+   expect(()=>revertStorySettlement(f.save,f.request.battleId)).toThrow('待完成');
+ });
+});
+
 describe('ST durable story lifecycle',()=>{
  it('freezes the complete original request and sources without registering a victory',()=>{
    const f=fixture();const original=structuredClone(f.request);const sources=structuredClone(f.sources);const ticket=f.begin();
@@ -44,7 +72,7 @@ describe('ST durable story lifecycle',()=>{
    f.request.playerTeam[0]!.initialHp=100;f.request.enemyTeam[0]!.stats.attack=999;f.sources.length=0;
    const receipt=completeStory(save,f.result,f.events);
    expect(save.pendingStory).toBeUndefined();expect(receipt.request).toEqual(original);expect(receipt.result).toEqual(f.result);
-   expect(receipt.grants).toEqual([{kind:'fragment',id:'source',name:'骑士剑技灵魂碎片',quantity:1}]);expect(save.balances).toEqual({});
+   expect(receipt.grants).toEqual([{kind:'fragment',id:'source',name:'enemy1的灵魂碎片',quantity:1}]);expect(save.balances).toEqual({});
    expect(save.sources[0]!.wins).toBe(1);expect(save.encounters).toHaveLength(1);expect(save.encounters[0]).toMatchObject({id:'encounter-0',difficulty:'hard',enemyTeam:original.enemyTeam,sources:fixture().sources,rules:original.rules,seed:original.seed});
    expect(receipt.report.defeatedEnemyIds).toEqual(['enemy1','enemy2']);expect(receipt.report.units[0]!.initialHp).toBe(25);expect(receipt.report.units[1]!.hpDamage).toBe(25);
    expect(restore(save)).toEqual(save);

@@ -130,6 +130,25 @@ export function applyStoryWritebackRecord(statData:Record<string,unknown>,record
  next[STORY_RESULTS_FIELD]={...(entries??{}),[record.battleId]:structuredClone(record)};
  return next;
 }
+/**
+ * Temporary test tool: undo one battle's HP writeback and remove its marker.
+ * HP returns to the pre-battle values stored in the marker. Undefined when the marker is absent.
+ */
+export function revertStoryWritebackRecord(statData:Record<string,unknown>,battleId:string):Record<string,unknown>|undefined {
+ const entries=statData[STORY_RESULTS_FIELD];
+ if(entries!==undefined&&!object(entries))throw new Error('MVU 三消战果字段格式有误');
+ if(!entries||!Object.hasOwn(entries,battleId))return undefined;
+ const record=entries[battleId];
+ if(!object(record)||!Array.isArray(record.actors))throw new Error('MVU 三消战果记录格式有误');
+ const next=structuredClone(statData);
+ for(const actor of record.actors as unknown[]){
+   if(!object(actor)||!nonempty(actor.path)||!integer(actor.current))throw new Error('MVU 三消战果角色记录有误');
+   actorAt(next,actor.path)['当前生命值']=actor.current;
+ }
+ const rest={...(next[STORY_RESULTS_FIELD] as Record<string,unknown>)};delete rest[battleId];
+ next[STORY_RESULTS_FIELD]=rest;
+ return next;
+}
 /** Host calls this only for committed story receipts. Persist origin and receipt until it succeeds. */
 export function writebackStory(adapter:StHostAdapter,origin:StoryWritebackOrigin,receipt:SettlementReceipt):Promise<StoryWritebackResult> {
  return adapter.writeStoryResult(origin,receipt);

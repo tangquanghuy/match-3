@@ -1,0 +1,2 @@
+# The runtime prompt download must match the editable file byte for byte on every OS.
+docs/sillytavern-runtime-ai-prompt.md text eol=lf

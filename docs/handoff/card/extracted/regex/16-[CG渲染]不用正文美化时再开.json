@@ -1,0 +1,18 @@
+{
+  "id": "3b915ddb-9c39-46fb-8bc4-c76f8857c533",
+  "scriptName": "[CG渲染]不用正文美化时再开",
+  "disabled": true,
+  "runOnEdit": true,
+  "findRegex": "/<pic>(.*?)<\\/pic>/gi",
+  "trimStrings": [],
+  "replaceString": "<div class=\"cg-container\">\n    <img class=\"cg-image\" src=\"https://dnf.rown.dpdns.org/$1.webp\" alt=\"$1\" width=60% />\n</div>",
+  "placement": [
+    1,
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 10,
+  "markdownOnly": true,
+  "promptOnly": false
+}

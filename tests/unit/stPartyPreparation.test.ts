@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as troopModule from '../../src/data/troops';
-import { abilityIdentity, adaptedPrototype, adaptedAbilityDescription } from '../../src/sillytavern/enemyBlueprint';
+import { abilityIdentity, adaptedPrototype, adaptedAbilityDescription, learningAbilityId, skillNameForTroop } from '../../src/sillytavern/enemyBlueprint';
 import {
   prepareCurrentParty, HERO_MEMBER_REF, companionMemberRef, equipmentRef,
   partyAbilityChoices, damageDiceExpectation, DEFAULT_PARTY_CONVERSION,
+  companionDefaultColors, companionColorCount, companionRarity, companionStarterAbility,
+  missingCompanionColors, findPartyAbility,
 } from '../../src/sillytavern/partyPreparation';
 import type { PartyPreparationOptions } from '../../src/sillytavern/partyPreparation';
 import type { HostSnapshot } from '../../src/sillytavern/hostAdapter';
@@ -68,18 +70,30 @@ describe('current ST party preparation', () => {
     expect(prepareCurrentParty(host(actor(), {}, 'new')).issues.some(issue => issue.code === 'stale-panel')).toBe(true);
     expect(prepareCurrentParty(host(actor(), {}, 'typo')).ready).toBe(false);
   });
-  it('offers deterministic missing color/base-ability initialization without writing or silently selecting', () => {
+  it('derives fixed colors (name hash × rarity) and a starter ability without writing or asking', () => {
     const input = host(actor(), { '阿/青~': companion({ 三消: undefined }) }); const before = structuredClone(input);
     const ref = companionMemberRef('阿/青~'); expect(ref).toBe('/羁绊列表/阿~1青~0');
     const result = prepareCurrentParty(input, { memberRefs: [ref, HERO_MEMBER_REF] });
-    expect(result.ready).toBe(false); expect(result.party).toEqual([]);
-    expect(result.initializationChoices.find(choice => choice.kind === 'colors')).toMatchObject({ memberRef: ref, path: `${ref}/三消/颜色` });
-    const combinations = result.initializationChoices.find(choice => choice.kind === 'colors')!.colorChoices!;
-    expect(combinations).toHaveLength(21); expect(new Set(combinations.map(String)).size).toBe(21);
-    const abilities = result.initializationChoices.find(choice => choice.kind === 'baseAbility')!.abilityChoices!;
-    expect(abilities.length).toBeGreaterThan(1000); expect(abilities[0]!.skillId).toMatch(/^st:\d+$/);
-    expect(prepareCurrentParty(input, { memberRefs: [ref, HERO_MEMBER_REF] }).initializationChoices).toEqual(result.initializationChoices);
-    expect(input).toEqual(before); expect(prepareCurrentParty(input).ready).toBe(true);
+    expect(result.ready).toBe(true);
+    const unit = result.party[0]!;
+    expect(unit.manaColors).toEqual(companionDefaultColors('阿/青~', '普通')); expect(unit.manaColors).toHaveLength(1);
+    expect(unit.skillId).toBe(companionStarterAbility('阿/青~').skillId);
+    expect(result.initializationChoices.some(choice => choice.kind === 'colors' || choice.kind === 'baseAbility')).toBe(false);
+    expect(prepareCurrentParty(input, { memberRefs: [ref, HERO_MEMBER_REF] }).party).toEqual(result.party);
+    expect(missingCompanionColors(input)).toEqual([{ name: '阿/青~', colors: unit.manaColors }]);
+    expect(input).toEqual(before);
+  });
+  it('uses rarity for the color count and the name hash for the combination', () => {
+    expect(companionColorCount('普通')).toBe(1); expect(companionColorCount('精良')).toBe(1);
+    expect(['稀有', '卓越', '传说', '史诗'].map(companionColorCount)).toEqual([2, 2, 2, 2]);
+    expect(companionColorCount('神话')).toBe(3);
+    expect(companionDefaultColors('甲', '神话')).toEqual(companionDefaultColors('甲', '神话'));
+    expect(new Set(['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛'].map(name => companionDefaultColors(name, '稀有').join())).size).toBeGreaterThan(1);
+    const ally = companion({ 三消: undefined, 装备列表: { armor: weapon({ 类型: '防具', 部位: '上衣', 品质: '史诗' }) } });
+    expect(companionRarity(ally, [{ ref: 'r', key: 'armor', name: 'a', type: '防具', slot: '上衣', data: { 品质: '史诗' } }])).toBe('史诗');
+    expect(companionRarity({ 三消: { 稀有度: '神话' } }, [])).toBe('神话');
+    const stored = host(actor(), { 甲: companion() });
+    expect(missingCompanionColors(stored)).toEqual([]);
   });
   it('reads stable host colors and converts the selected 1–4 people in UI order', () => {
     const input = host(actor(), { 甲: companion(), 乙: companion(), 丙: companion() });
@@ -100,7 +114,7 @@ describe('current ST party preparation', () => {
     expect(prepareCurrentParty(input, optionsFor(['甲'])).issues.some(issue => issue.code === 'not-travelling')).toBe(true);
     expect(prepareCurrentParty(input, optionsFor(['乙'])).issues.some(issue => issue.code === 'companion-state')).toBe(true);
   });
-  it.each([['Red', 'Red'], [], ['pink'], ['Red', 'Blue', 'Green'], 'Blue'].map(value => ({ value })))(
+  it.each([['Red', 'Red'], [], ['pink'], ['Red', 'Blue', 'Green', 'Yellow'], 'Blue'].map(value => ({ value })))(
     'rejects malformed stored colors $value', ({ value }) => {
       const result = prepareCurrentParty(host(actor(), { 甲: companion({ 三消: { 颜色: value } }) }), optionsFor(['甲']));
       expect(result.ready).toBe(false); expect(result.issues.some(issue => issue.code === 'colors')).toBe(true);
@@ -108,17 +122,22 @@ describe('current ST party preparation', () => {
   it('resolves current weapon bindings by equipment pointer, never by narrative names or boxed items', () => {
     const ref = equipmentRef(HERO_MEMBER_REF, 'sword/1');
     const input = host(actor({ 装备列表: { 'sword/1': weapon(), boxed: weapon({ 装备箱: true }) } }));
-    expect(prepareCurrentParty(input).issues.some(issue => issue.code === 'weapon-binding')).toBe(true);
+    // An unbound main hand fights with the starter weapon; binding stays available.
+    const unbound = prepareCurrentParty(input);
+    expect(unbound.ready).toBe(true); expect(unbound.candidates[0]!.weapon).toMatchObject({ id: 'gw_KnightsSword', isDefault: true });
+    expect(unbound.candidates[0]!.weapon).not.toHaveProperty('equipmentRef');
+    expect(unbound.initializationChoices.some(choice => choice.kind === 'weaponBinding' && choice.path === ref)).toBe(true);
     const result = prepareCurrentParty(input, { weaponBindings: { [ref]: 'gw_KnightsSword' } });
     expect(result.ready).toBe(true); expect(result.candidates[0]!.equipment).toHaveLength(1);
     expect(result.candidates[0]!.weapon).toMatchObject({ isDefault: false, equipmentRef: ref });
     expect(prepareCurrentParty(input, { weaponBindings: { [ref]: 'invented' } }).ready).toBe(false);
     expect(prepareCurrentParty(host(actor({ 装备列表: { stored: weapon({ 装备箱: true }) } }))).party[0]!.skillId).toBe('gw_KnightsSword');
   });
-  it('supports legacy wear-state and reports ambiguous or missing computed weapon panels', () => {
+  it('supports legacy wear-state, falls back for a missing computed weapon panel and reports ambiguity', () => {
     const legacy = weapon({ 穿戴状态: '已装备' }); delete legacy['装备箱'];
     const input = host(actor({ 装备列表: { legacy }, 战斗属性: {} }));
-    expect(prepareCurrentParty(input).issues.some(issue => issue.code === 'weapon-panel')).toBe(true);
+    const fallback = prepareCurrentParty(input);
+    expect(fallback.ready).toBe(true); expect(fallback.candidates[0]!.source?.panelSource).toBe('helper:unarmed');
     expect(prepareCurrentParty(host(actor({ 装备列表: { a: weapon(), b: weapon() } }))).issues.some(issue => issue.code === 'weapon-ambiguous')).toBe(true);
     expect(prepareCurrentParty(host(actor({ 装备列表: { a: weapon({ 装备箱: 'false' }) } }))).ready).toBe(false);
   });
@@ -139,7 +158,19 @@ describe('current ST party preparation', () => {
     input.statData['系统配置'] = { 战斗数值模式: 'new' };
     expect(prepareCurrentParty(input).candidates[0]!.source).toMatchObject({ levelCoefficient: 1, fixedDamage: 4 });
   });
-  it('maps learned active:v1 IDs using save ownership and preserves companion colors', () => {
+  it('equips a learned ability regardless of color and still resolves legacy color-bound v1 IDs', () => {
+    const input = host(actor(), { 甲: companion() }); const ref = companionMemberRef('甲');
+    const troop = troopModule.TROOPS.find(t => t.manaColors.every(color => !['Purple', 'Green'].includes(color)) && findPartyAbility(learningAbilityId(adaptedPrototype(t.spell.id), t.manaCost)) && !findPartyAbility(learningAbilityId(adaptedPrototype(t.spell.id), t.manaCost))!.availabilityIssues)!;
+    const current = learningAbilityId(adaptedPrototype(troop.spell.id), troop.manaCost);
+    const legacy = abilityIdentity(adaptedPrototype(troop.spell.id), troop.manaColors, troop.manaCost);
+    for (const id of [current, legacy]) {
+      const save = { id: 'save', chat: input.chat, learnedAbilityIds: [id], equippedAbilities: { [ref]: id } };
+      const party = prepareCurrentParty(input, { memberRefs: [HERO_MEMBER_REF, ref], save }).party;
+      expect(party[1]).toMatchObject({ skillId: `st:${troop.spell.id}`, manaColors: ['Purple', 'Green'] });
+    }
+    expect(findPartyAbility(legacy)!.abilityId).toBe(current);
+  });
+  it('maps learned IDs using save ownership and preserves companion colors', () => {
     const input = host(actor(), { 甲: companion() }); const ref = companionMemberRef('甲');
     const [base, learned] = partyAbilityChoices();
     const save = { id: 'save', chat: input.chat, learnedAbilityIds: [learned!.abilityId], equippedAbilities: { [ref]: learned!.abilityId } };
@@ -194,7 +225,7 @@ describe('party ability catalogue display', () => {
   it('describes actual compiled mechanics and keeps one choice per mechanical identity', () => {
     const groups = new Map<string, typeof troopModule.TROOPS>();
     for (const troop of troopModule.TROOPS) {
-      const id = abilityIdentity(adaptedPrototype(troop.spell.id), troop.manaColors, troop.manaCost);
+      const id = learningAbilityId(adaptedPrototype(troop.spell.id), troop.manaCost);
       groups.set(id, [...(groups.get(id) ?? []), troop]);
     }
     const choices = partyAbilityChoices();
@@ -204,7 +235,8 @@ describe('party ability catalogue display', () => {
       const source = groups.get(choice.abilityId)![0]!;
       expect(choice.sourceSpellId).toBe(source.spell.id);
       const described = adaptedAbilityDescription(source.spell.id);
-      expect(choice.name).toBe(described.name);
+      // Player-facing name: original game name, one per mechanics (abilityNames.ts).
+      expect(choice.name).toBe(skillNameForTroop(source.id));
       expect(choice.description).toBe(described.description);
     }
   });
@@ -219,15 +251,16 @@ describe('party ability catalogue display', () => {
       expect(choices).toHaveLength(partyAbilityChoices().length);
       expect(choices.filter(choice => choice.sourceSpellId === first.spell.id)).toHaveLength(1);
       expect(choices[0]).toMatchObject({
-        abilityId: abilityIdentity(adaptedPrototype(first.spell.id), first.manaColors, first.manaCost),
+        abilityId: learningAbilityId(adaptedPrototype(first.spell.id), first.manaCost),
         sourceSpellId: first.spell.id,
-        name: adaptedAbilityDescription(first.spell.id).name,
+        // Same mechanics under another original name share the first source's name.
+        name: first.spell.name.trim(),
       });
     } finally {
       vi.doUnmock('../../src/data/troops'); vi.resetModules();
     }
   });
-  it('keeps the compiled mechanical description when source narrative names and descriptions change', async () => {
+  it('keeps the compiled mechanical description when source descriptions change, and labels a nameless source by its mechanics', async () => {
     const first = troopModule.TROOPS[0]!;
     vi.resetModules();
     vi.doMock('../../src/data/troops', () => ({ ...troopModule, TROOPS: troopModule.TROOPS.map(t => t.id === first.id ? { ...first, spell: { ...first.spell, name: '   ', description: '这个原始故事文本不应进入玩家技能说明' } } : t) }));
@@ -260,6 +293,8 @@ describe('party economy availability before battle launch', () => {
   });
   it('allows registering a native economic weapon and leaves narrative equipment intact', () => {
     const input = host(actor({ 装备列表: { 主手: weapon() } }));
+    // 骷髅钥匙 is a paid rarity: this floor has bought it.
+    input.statData['三消已购武器'] = ['gw_SkeletonKey'];
     const ref = equipmentRef(HERO_MEMBER_REF, '主手'); const before = structuredClone(input);
     const result = prepareCurrentParty(input, { weaponBindings: { [ref]: 'gw_SkeletonKey' } });
     expect(result.ready).toBe(true);

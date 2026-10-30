@@ -1,10 +1,12 @@
 import {BaseColor} from '../engine/types';
-import {applyStoryWritebackRecord,buildStoryWritebackRecord,STORY_RESULTS_FIELD} from './storyWriteback';
+import {applyStoryWritebackRecord,buildStoryWritebackRecord,revertStoryWritebackRecord,STORY_RESULTS_FIELD} from './storyWriteback';
 import type {StoryWritebackOrigin,StoryWritebackResult} from './storyWriteback';
 import type {SettlementReceipt} from './save';
 import {chatKey} from './save';
 import type {ChatBinding,StSave} from './save';
 import {stableJson} from './json';
+import {applyWeaponPurchase,ownedWeapons} from './weaponShop';
+import {currencyGuardActive,reconcileCurrencyInPlace,sealCurrencyInPlace,sealedCurrency} from './currencySeal';
 
 export interface TavernContext {
  characterId?:string|number;groupId?:string|number|null;
@@ -43,7 +45,7 @@ export function companionColors(statData:Record<string,unknown>):Record<string,s
  return result;
 }
 function checkedColors(value:unknown,name:string):string[] {
- if(!Array.isArray(value)||value.length<1||value.length>2||new Set(value).size!==value.length||value.some(c=>!Object.values(BaseColor).includes(c as BaseColor)))throw new Error(`同伴 ${name} 需要一种或两种有效且不同的颜色`);
+ if(!Array.isArray(value)||value.length<1||value.length>3||new Set(value).size!==value.length||value.some(c=>!Object.values(BaseColor).includes(c as BaseColor)))throw new Error(`同伴 ${name} 需要一至三种有效且不同的颜色`);
  return [...value] as string[];
 }
 /** Instantiate in the host window; helpers may be supplied by a Tavern Helper script iframe. */
@@ -154,6 +156,38 @@ export class StHostAdapter {
      return confirmed;
    });
  }
+ /**
+  * Buy a weapon with 通用币 on the snapshot's floor: deduct and record ownership in one MVU write,
+  * then read back. Shares the MVU mutation lock; a changed floor or variable rejects the purchase.
+  */
+ async purchaseWeapon(snapshot:HostSnapshot,weaponId:string):Promise<HostSnapshot> {
+   const lock=this.hostWindow.navigator.locks;if(!lock)throw new Error('当前环境缺少聊天变量写入锁');
+   return lock.request(`match3:colors:${chatKey(snapshot.chat)}`,async()=>{
+     this.assertSnapshot(snapshot);
+     const options=this.mvuOptions(snapshot.messageId);
+     const data=structuredClone(this.helpers.Mvu.getMvuData(options));
+     if(stableJson(data.stat_data)!==snapshot.fingerprint)throw new Error('角色变量已变化，请重新读取后重试');
+     // With the card's 通用币 guard running, pay from the sealed balance (a hand-edited one is put
+     // back silently in the same write) and seal the balance left after paying.
+     const guarded=currencyGuardActive(this.hostWindow);
+     if(guarded)reconcileCurrencyInPlace(data.stat_data,()=>{
+       for(let id=snapshot.messageId-1;id>=0;id--){
+         const earlier=this.helpers.Mvu.getMvuData(this.mvuOptions(id))?.stat_data;
+         const value=isObject(earlier)?sealedCurrency(earlier):undefined;if(value!==undefined)return value;
+       }
+       return undefined;
+     });
+     data.stat_data=applyWeaponPurchase(data.stat_data,weaponId);
+     if(guarded)sealCurrencyInPlace(data.stat_data);
+     const expectedFingerprint=stableJson(data.stat_data);
+     this.assertSnapshot(snapshot);
+     await this.helpers.Mvu.replaceMvuData(data,options);
+     const confirmed=this.read();
+     if(chatKey(confirmed.chat)!==chatKey(snapshot.chat)||confirmed.messageId!==snapshot.messageId||confirmed.swipeId!==snapshot.swipeId||confirmed.saveId!==snapshot.saveId||(snapshot.messageIdentity!==undefined&&confirmed.messageIdentity!==snapshot.messageIdentity))throw new Error('变量写入后聊天或消息已切换，请回原聊天确认');
+     if(!ownedWeapons(confirmed.statData).has(weaponId)||confirmed.fingerprint!==expectedFingerprint)throw new Error('购买记录未完整写入，请检查角色卡 MVU 结构是否包含“三消已购武器”');
+     return confirmed;
+   });
+ }
  /** Commit story HP + its durable marker together, then confirm the chat-level factual mirror. */
  async writeStoryResult(origin:StoryWritebackOrigin,receipt:SettlementReceipt):Promise<StoryWritebackResult> {
    const record=buildStoryWritebackRecord(origin,receipt);const fingerprint=origin.fingerprint;
@@ -207,6 +241,36 @@ export class StHostAdapter {
      const confirmed=assertLocation();
      if(stableJson(readMarker(confirmed.statData))!==stableJson(record)||stableJson(readMirror(this.helpers.getVariables({type:'chat'})))!==stableJson(record))throw new Error('剧情战果回传尚未确认，请保留结果重试');
      return {status:marker===undefined?'applied':'already-applied',record:structuredClone(record),snapshot:confirmed};
+   });
+ }
+ /**
+  * Temporary test tool. The battle floor must be the latest floor, so later report and
+  * reply messages are already deleted. Restores HP, removes the MVU marker and chat mirror.
+  * Each step is skipped when already undone, so a retry after a partial failure is safe.
+  */
+ async clearStoryResultForTesting(chat:ChatBinding,messageId:number,swipeId:number,battleId:string):Promise<void> {
+   const lock=this.hostWindow.navigator.locks;if(!lock)throw new Error('当前环境缺少聊天变量写入锁');
+   await lock.request(`match3:colors:${chatKey(chat)}`,async()=>{
+     const assertLocation=():HostSnapshot=>{
+       this.assertChat(chat);const current=this.read();
+       if(current.messageId!==messageId||current.swipeId!==swipeId)throw new Error('请先删除本场战斗之后的战报和回复消息，让战斗所在楼层成为最新一楼');
+       return current;
+     };
+     assertLocation();
+     const options=this.mvuOptions(messageId);
+     const data=structuredClone(this.helpers.Mvu.getMvuData(options));
+     const next=revertStoryWritebackRecord(data.stat_data,battleId);
+     if(next){
+       data.stat_data=next;assertLocation();
+       await this.helpers.Mvu.replaceMvuData(data,options);
+       if(revertStoryWritebackRecord(assertLocation().statData,battleId))throw new Error('MVU 战果未能清除，请重试');
+     }
+     await this.helpers.updateVariablesWith(variables=>{
+       assertLocation();const reference=variables['match3'];
+       if(!isObject(reference)||!isObject(reference['storyResults'])||!Object.hasOwn(reference['storyResults'],battleId))return variables;
+       const storyResults={...reference['storyResults']};delete storyResults[battleId];
+       return {...variables,match3:{...reference,storyResults}};
+     },{type:'chat'});
    });
  }
 

@@ -100,7 +100,7 @@ describe('ST enemy 6004 Musketeer: source-grounded behavior acceptance',()=>{
   expect(bp.traitDescriptionAudit.every(t=>t.support==='full'&&t.diagnostics.length===0)).toBe(true);
   expect(bp.snapshot.spellDescription).toContain('2');
   expect(bp.snapshot.spellDescription).toContain('魔力');
-  expect(bp.snapshot.spellDescription).toContain('选定的一名敌人');
+  expect(bp.snapshot.spellDescription).toContain('对一名敌人造成');
   // Independent semantic oracle: Human is source affinity #17; these literal
   // sentences fix recipients, quantity and opening timing, not just parser support.
   expect(bp.context.affinities).toEqual(['affinity:17']);

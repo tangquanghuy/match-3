@@ -4,6 +4,7 @@ import type {AbilitySource,PendingReplay,PendingStory,SettlementReceipt,ChatBind
 import type {StHostService} from './hostService';
 import {renderStSettlement} from './settlementView';
 import type {StSettlementView} from './settlementView';
+import {formatStoryReportMessage,sendTavernChatMessage} from './storyReportMessage';
 
 function errorMessage(error:unknown,fallback:string):string {return error&&typeof error==='object'&&'message'in error&&typeof error.message==='string'&&error.message?error.message:fallback;}
 
@@ -14,7 +15,7 @@ export function dismissMessageReceipt(host:Window,battleId:string,previousReceip
  if(root&&root===previousReceipt&&root.dataset.battleId===battleId)root.dispatchEvent(new Event('match3:message-rerender'));
 }
 /** Reopen an already committed message result without entering the collection page. */
-export function openStReceipt(options:{hostWindow:Window;receipt:SettlementReceipt;sources?:readonly AbilitySource[];signal?:AbortSignal;receiptSignal?:AbortSignal}):Promise<void> {
+export function openStReceipt(options:{hostWindow:Window;receipt:SettlementReceipt;sources?:readonly AbilitySource[];signal?:AbortSignal;receiptSignal?:AbortSignal;onContinue?:()=>void}):Promise<void> {
  const {hostWindow:host,receipt,signal,receiptSignal}=options;const doc=host.document;
  if(signal?.aborted||receiptSignal?.aborted)return Promise.resolve();
  if(doc.getElementById('st-match3-replay-root')||doc.getElementById('st-match3-story-root'))return Promise.reject(new Error('已有战斗页面打开'));
@@ -28,8 +29,9 @@ export function openStReceipt(options:{hostWindow:Window;receipt:SettlementRecei
    if(disposed)return;disposed=true;root.removeEventListener('match3:message-rerender',dispose);signal?.removeEventListener('abort',dispose);receiptSignal?.removeEventListener('abort',dispose);
    host.removeEventListener('pagehide',dispose);view?.dispose();root.remove();resolve();
   }
-  root.addEventListener('match3:message-rerender',dispose);
-  const view=renderStSettlement(detail,receipt,{onContinue:dispose,sources:options.sources});
+  // A result that still has to hand off its report stays until the player continues.
+  if(!options.onContinue)root.addEventListener('match3:message-rerender',dispose);
+  const view=renderStSettlement(detail,receipt,{onContinue:()=>{options.onContinue?.();dispose();},sources:options.sources});
   signal?.addEventListener('abort',dispose,{once:true});receiptSignal?.addEventListener('abort',dispose,{once:true});host.addEventListener('pagehide',dispose,{once:true});doc.body.append(root);
  });
 }
@@ -64,7 +66,7 @@ export function openStReplay(options:OpenReplayOptions):Promise<void> {
    bar.append(close,status,retry,backup);shadow.append(style,bar,frame,detail);
    let resultView:StSettlementView|undefined;
    let dismissRequested=false;
-   let disposed=false;let saving=false;let staged=false;let receipt:SettlementReceipt|undefined;let outcome:{result:BattleResult;events:GameEvent[]}|undefined;
+   let disposed=false;let saving=false;let staged=false;let reportSent=false;let receipt:SettlementReceipt|undefined;let outcome:{result:BattleResult;events:GameEvent[]}|undefined;
    const readyTimer=host.setTimeout(()=>{if(disposed)return;bar.hidden=false;close.textContent='返回';status.textContent='战场加载超时，请返回后重试';},30_000);
    const acknowledge=()=>frame.contentWindow?.postMessage({channel:'match3:st-replay:v1',nonce,type:'ack',battleId:ticket.request.battleId,requestId:ticket.request.requestId},url.origin);
    async function commit():Promise<void>{
@@ -79,7 +81,7 @@ export function openStReplay(options:OpenReplayOptions):Promise<void> {
        }
        if(disposed)return;
        acknowledge();detail.hidden=false;frame.hidden=true;root.dataset.resultState='settled';
-       if(!resultView)resultView=renderStSettlement(detail,receipt,{onContinue:()=>{if(!saving)dispose();},playMusic:true});
+       if(!resultView)resultView=renderStSettlement(detail,receipt,{onContinue:()=>{if(!saving)continueStory();},playMusic:true});
        resultView.setContinueEnabled(false);
        await service.finishOutcome(receipt);
        if(!disposed){status.textContent='本场战果已保存';bar.hidden=true;backup.hidden=true;}
@@ -106,7 +108,18 @@ export function openStReplay(options:OpenReplayOptions):Promise<void> {
      if(doc.fullscreenElement===root)void doc.exitFullscreen().catch(()=>{});
      resultView?.dispose();root.remove();resolve();
    }
-   function dismissResult():void {if(receipt){dismissRequested=true;if(!saving)dispose();}}
+   /** Story results hand their report to the AI as a chat message when the player continues. */
+   function continueStory():void {
+     if(story&&receipt&&!reportSent){
+       reportSent=true;
+       if(!sendTavernChatMessage(host,formatStoryReportMessage(receipt,(ticket as PendingStory).sources))){
+         bar.hidden=false;close.hidden=true;status.textContent='未找到酒馆输入框，战报未发送；请手动告知 AI 本场结果后再点继续';return;
+       }
+     }
+     dispose();
+   }
+   // HP writeback can re-render the source message; keep an unsent story report on screen.
+   function dismissResult():void {if(receipt&&(!story||reportSent)){dismissRequested=true;if(!saving)dispose();}}
    root.addEventListener('match3:message-rerender',dismissResult);
    close.onclick=()=>{if(saving||(!receipt&&outcome&&!staged))return;dispose();};retry.onclick=()=>void commit();
    function beforeUnload(event:BeforeUnloadEvent):void {if(outcome&&!staged&&!receipt){event.preventDefault();event.returnValue='';}}

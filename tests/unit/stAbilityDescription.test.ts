@@ -109,7 +109,7 @@ describe('ST-04 mechanics and completeness contracts', () => {
       {kind: 'gem', params: {op: 'clear', mode: 'destroy', target: {kind: 'randomLines', orientation: 'row', count: magic}}},
     ];
     expect(gems.map(s => render(s).name.replace(/〔.*$/, ''))).toEqual([
-      '爆破随机基色宝石', '爆破随机红色宝石', '摧毁随机行',
+      '爆破宝石', '爆破红色宝石', '摧毁随机行',
     ]);
     expect(render(gems[0]).description).toContain('max(0,round(1))');
     expect(render(gems[1]).description).toContain('max(0,round(1.5×魔力+3))');
@@ -129,7 +129,7 @@ describe('ST-04 mechanics and completeness contracts', () => {
     const a = render(damage());
     const reordered = render({scaling: {...magic}, target: 'enemyChosen', kind: 'damage'});
     expect(a.name).toBe(reordered.name);
-    expect(a.name).toContain('指定的一名敌人伤害');
+    expect(a.name).toContain('一名敌人伤害');
     expect(a.name).toMatch(/〔[0-9a-z]{7}〕$/);
     const variants = [damage({target: 'enemyAll'}), damage({trueDamage: true}), damage({scaling: fixed(7)}), damage({chance: 0.5}), damage({ifCond: {kind: 'selfHpDamaged'}})];
     const names = variants.map(s => render(s).name);
@@ -160,8 +160,9 @@ describe('ST-04 mechanics and completeness contracts', () => {
     expect(conflicting.coverage.unresolvedPaths).toContain('segments[0].modifier');
     const filters = render({kind: 'randomStatus', target: 'allyAll', pool: 'positive', targetRace: 'NARRATIVE_GROUP', targetKingdom: 'region:3'} as EffectSegment);
     expect(filters.support).toBe('full');
-    expect(filters.description).toContain('族群#');
-    expect(filters.description).toContain('区域#3');
+    // Hidden identities read as "特定族群/特定区域" inside the target noun.
+    expect(filters.description).toContain('所有来自特定区域的特定族群盟友');
+    expect(filters.description).not.toMatch(/region:|affinity:/);
     expect(JSON.stringify(filters)).not.toContain('NARRATIVE_GROUP');
   });
 
@@ -174,17 +175,21 @@ describe('ST-04 mechanics and completeness contracts', () => {
       ifCond: {kind: 'allOf', of: [{kind: 'enemyRacePresent', race: 'affinity:8'}, {kind: 'not', cond: {kind: 'manaFull', of: 'caster'}}]},
     }));
     expect(result.support).toBe('full');
-    for (const phrase of ['1.5×魔力+3', '前2～4名', '族群#8', '区域#9', '34/100', 'max(0,10)', '2×(自身攻击)', '数值先加5', '再×3', '最后×2', '25%', '主目标由存活变为阵亡', '不满足']) expect(result.description).toContain(phrase);
+    // Game-style wording; the bonus cap is intentionally not shown (user decision 2026-10-29).
+    for (const phrase of ['1.5×魔力+3', '前2～4位', '来自特定区域的特定族群敌人', '红色宝石数（每3颗+1）', '自身攻击（2倍）', '若目标陷入冻结则伤害+5', '三倍伤害', '若自身已受伤则造成双倍伤害', '有25%几率', '若目标身亡且', '自身法力未满']) expect(result.description).toContain(phrase);
+    // Conditions keep their order: death check, then the battlefield condition, then the chance.
+    expect(result.description.indexOf('若目标身亡')).toBeLessThan(result.description.indexOf('有25%几率'));
   });
 
   it('matches engine ratio rounding, separate sources, pooled sources and source group precedence', () => {
     const sources: ModifierSource[] = [{kind: 'selfStat', stat: 'armor'}, {kind: 'selfStat', stat: 'hp'}];
     const make = (modifier: ModifierSpec) => render(damage({modifier})).description;
     const mod = {kind: 'ratio', a: 3, b: 1} as const;
-    expect(make({mod, sources})).toContain('floor((自身护甲)×34/100)+floor((自身生命)×34/100)');
-    expect(make({mod, sources, pooled: true})).toContain('floor((自身护甲+自身生命)×34/100)');
-    expect(make({mod, sources, sourceGroups: [sources, [{kind: 'selfStat', stat: 'magic'}]]})).toContain('floor((自身护甲+自身生命)×34/100)+floor((自身魔力)×34/100)');
-    expect(make({mod: {kind: 'ratio', a: 3, b: 2}, sources})).toContain('2×floor((自身护甲)/3)');
+    // Separately rounded sources keep their own rate; pooled sources share one.
+    expect(make({mod, sources})).toContain('自身护甲（33%）和自身生命（33%）');
+    expect(make({mod, sources, pooled: true})).toContain('自身护甲和生命而增强（33%）');
+    expect(make({mod, sources, sourceGroups: [sources, [{kind: 'selfStat', stat: 'magic'}]]})).toContain('自身护甲和生命（33%）和自身魔力（33%）');
+    expect(make({mod: {kind: 'ratio', a: 3, b: 2}, sources})).toContain('自身护甲（67%）');
   });
 
   it('has a description for every declared target mode, including exact adjacency and cached targets', () => {
@@ -193,10 +198,10 @@ describe('ST-04 mechanics and completeness contracts', () => {
       expect(result.support, mode).toBe('full');
       expect(result.description, mode).not.toContain(mode);
     }
-    expect(render(damage({target: 'enemyChosenAndAdjacent'})).description).toContain('不含选定者');
-    expect(render(damage({target: 'enemyChosenAndBelow'})).description).toContain('下方全部');
-    expect(render(damage({target: 'allyRandomPrefNotPrevN', n: 3})).description).toContain('可重复');
-    expect(render(damage({target: 'lastDamaged'})).description).toContain('最近伤害段');
+    expect(render(damage({target: 'enemyChosenAndAdjacent'})).description).toContain('目标两侧的敌人');
+    expect(render(damage({target: 'enemyChosenAndBelow'})).description).toContain('一名敌人及其后方所有敌人');
+    expect(render(damage({target: 'allyRandomPrefNotPrevN', n: 3})).description).toContain('3名随机盟友');
+    expect(render(damage({target: 'lastDamaged'})).description).toContain('受到伤害的目标');
   });
 
   it('describes all declared conditions and sources, as observed across the full catalogue plus rare contracts', () => {
@@ -233,14 +238,16 @@ describe('ST-04 mechanics and completeness contracts', () => {
     ]});
     expect(result.support).toBe('full');
     expect(result.coverage.totalSegments).toBe(6);
-    expect(result.description).toContain('由施放者选择');
-    expect(result.description).toContain('等概率随机');
-    expect(result.description).toContain('每场战斗仅可施放一次');
-    expect(result.description).toContain('单位#22');
+    expect(result.description).toContain('施放时选择：①');
+    // A random pick nested in a choice reads inline so ①② stay unambiguous.
+    expect(result.description).toContain('①随机触发其一：');
+    expect(result.description).toContain('，或获得一个额外回合；②');
+    expect(result.description).toContain('每场战斗限一次');
+    expect(result.description).toContain('召唤1名随机随从到首位');
+    expect(result.description).toContain('若场上有特定单位');
     expect(JSON.stringify(result)).not.toMatch(/SOURCE_|OFFICIAL_|NARRATIVE_/);
     const again = render(damage({targetRace: 'SOURCE_RACE'}));
-    const identity = result.description.match(/族群#\d+/)![0];
-    expect(again.description).toContain(identity);
+    expect(again.description).toContain('特定族群敌人');
   });
 
   it('preserves random gem counts, geometry, special tiers, colours and count formulas', () => {
@@ -250,17 +257,17 @@ describe('ST-04 mechanics and completeness contracts', () => {
       {kind: 'gem', params: {op: 'clear', mode: 'explode', target: {kind: 'area', shape: 'square3', center: {row: 2, col: 4}}, countAdjacentSpecial: 'wildcard'}},
     );
     expect(result.support).toBe('full');
-    for (const p of ['5～9', '每类至少2颗', '等级3', '紫色', '穿过选定格', '1～2', '3×3', '第3行第5列', '清除前记录相邻']) expect(result.description).toContain(p);
+    // Per-kind minimums, random tiers and the adjacency record are engine detail and not shown.
+    for (const p of ['创造5～9颗3级通配宝石和紫色特殊宝石', '选定格右斜对角线上的', '颗石块转化为2级红色特殊宝石', '数量因骷髅头数而增强（每颗+1）', '爆破第3行第5列的3×3范围']) expect(result.description).toContain(p);
   });
 
   it('separates segment gating, boosted chance without a base chance, and per-target devour', () => {
     const boost: ModifierSpec = {mod: {kind: 'multiplier', a: 5}, source: {kind: 'boardSkulls'}};
     const result = render(damage({chanceBoost: boost}), {kind: 'devour', target: 'enemyAll', chance: 0.2, chanceBoost: boost, chanceMult: {cond: {kind: 'targetRace', race: 'affinity:3'}, times: 2}});
     expect(result.support).toBe('full');
-    expect(result.segments[0].text).toContain('整段以clamp(0%');
-    expect(result.segments[1].text).toContain('分别判定吞噬');
-    expect(result.segments[1].text).toContain('20%×');
-    expect(result.segments[1].text).not.toContain('整段以');
+    expect(result.segments[0].text).toContain('有N%（N等于骷髅头数×5）几率对一名敌人造成');
+    expect(result.segments[1].text).toContain('有N%（N等于20+骷髅头数×5）几率吞噬所有敌人');
+    expect(result.segments[1].text).toContain('若目标为特定族群则几率翻倍');
   });
 
   it('distinguishes growth, restoration, proportional mana, drain, full reduction and random stat allocation', () => {
@@ -275,7 +282,7 @@ describe('ST-04 mechanics and completeness contracts', () => {
       damage({drain: true}),
     );
     expect(result.support).toBe('full');
-    for (const p of ['生命与生命上限同时增加', '恢复生命，不超过上限', '目标当前缺失生命', '法力上限×0.25', '全部数值', '重复2次', '实际削减量×0.5', '每点独立随机分配', '全部点数加给该项', '目标实际损失的生命']) expect(result.description).toContain(p);
+    for (const p of ['使自身生命增加', '完全治疗所有盟友', '为一名盟友补充25%法力', '清空所有敌人的法力，自身获得其中50%的法力', '随机属性减少max(0,round(1.5×魔力+3))，共2次', '为所有盟友随机分配', '使所有盟友的随机属性增加', '真实伤害，并恢复等量生命']) expect(result.description).toContain(p);
     expect(result.description).not.toContain('随机增加或削减');
   });
 

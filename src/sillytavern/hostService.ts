@@ -1,5 +1,5 @@
 import {stableJson} from './json';
-import {chatKey,beginReplay,completeReplay} from './save';
+import {chatKey,beginReplay,completeReplay,revertStorySettlement} from './save';
 import type {BattleRequest,BattleResult,CombatantSnapshot} from '../session/contract';
 import type {GameEvent} from '../engine/events';
 import type {PendingReplay,SettlementReceipt} from './save';
@@ -9,6 +9,8 @@ import {StSaveRepository,validateReplayOutcome} from './saveRepository';
 import {captureStoryWritebackOrigin,writebackStory} from './storyWriteback';
 import type {ReplayOutcome} from './saveRepository';
 import {StHostAdapter,companionColors} from './hostAdapter';
+import {missingCompanionColors} from './partyPreparation';
+import {surrenderedStoryOutcome} from './storySurrender';
 import type {CompanionColorChoice,HostSnapshot} from './hostAdapter';
 
 export class StHostService {
@@ -38,10 +40,26 @@ export class StHostService {
    const snapshot=this.adapter.read();const save=await this.repository.import(text,snapshot.chat);
    this.adapter.bindSave(save);return (await this.current()).save!;
  }
+ /** Persist fixed colors (name hash × rarity) for travelling companions that have none yet. */
+ async ensureCompanionColors():Promise<void> {
+   const {snapshot,save}=await this.current();if(!save)return;
+   const missing=missingCompanionColors(snapshot);
+   if(missing.length)await this.adapter.writeCompanionColors(snapshot,missing);
+ }
  async initializeCompanions(choices:readonly CompanionColorChoice[]):Promise<StSave> {
    const {snapshot,save}=await this.current();if(!save)throw new Error('请先创建当前聊天存档');
    await this.adapter.writeCompanionColors(snapshot,choices);
    return (await this.current()).save!;
+ }
+ /**
+  * Buy a weapon with 通用币. Blocked while a story battle is pending or a result still waits to be
+  * written back: story write-back checks that the character variables are unchanged since the start.
+  */
+ async purchaseWeapon(weaponId:string,expectedSnapshot?:HostSnapshot):Promise<HostSnapshot> {
+   const {snapshot,save}=await this.current();if(!save)throw new Error('请先创建当前聊天存档');
+   if(save.pendingStory)throw new Error('剧情战斗尚未结算，暂不能购买武器');
+   if((await this.repository.listReplayOutcomes()).some(o=>o.saveId===save.id))throw new Error('请先保存待处理战果，再购买武器');
+   return this.adapter.purchaseWeapon(expectedSnapshot??snapshot,weaponId);
  }
  async beginReplay(encounterId:string,party:readonly CombatantSnapshot[],playerContext:Pick<BattleRequest,'playerBanner'|'playerManaMastery'>={},expectedSnapshot?:HostSnapshot):Promise<PendingReplay> {
    const {snapshot,save}=await this.current();if(!save)throw new Error('请先创建当前聊天存档');
@@ -101,6 +119,23 @@ export class StHostService {
    }
    await this.repository.removeReplayOutcome(receipt.battleId);
  }
+ /**
+  * Abandoning a story battle settles it as a surrender defeat through the normal pipeline:
+  * outbox → receipt → HP/fact writeback. A writeback failure keeps the queued outcome for retry.
+  */
+ async surrenderStory(battleId:string,expectedChat:ChatBinding):Promise<{receipt:SettlementReceipt;sources:AbilitySource[];syncError?:unknown}> {
+   this.adapter.assertChat(expectedChat);
+   const save=(await this.repository.list()).find(s=>chatKey(s.chat)===chatKey(expectedChat));
+   if(!save)throw new Error('请先创建当前聊天存档');
+   if((await this.repository.listReplayOutcomes()).some(o=>o.saveId===save.id))throw new Error('已有待保存战果，请先保存本场结果');
+   const ticket=save.pendingStory;
+   if(!ticket||ticket.request.battleId!==battleId)throw new Error('待完成剧情已变化，请刷新后重试');
+   const {result,events}=surrenderedStoryOutcome(ticket.request);
+   await this.stageReplayOutcome(save.id,ticket,result,events,save.chat,'story');
+   const receipt=await this.completeStory(save.id,result,events);
+   try{await this.finishOutcome(receipt);}catch(syncError){return {receipt,sources:structuredClone(ticket.sources),syncError};}
+   return {receipt,sources:structuredClone(ticket.sources)};
+ }
  /** Abandon only the displayed, unsettled story; queued battle facts take priority. */
  async abandonStory(battleId:string,expectedRevision:number,expectedChat:ChatBinding):Promise<void> {
    this.adapter.assertChat(expectedChat);
@@ -112,6 +147,16 @@ export class StHostService {
      if(draft.pendingStory?.request.battleId!==battleId)throw new Error('待完成剧情已变化，请刷新后重试');
      delete draft.pendingStory;
    },true);
+ }
+ /** Temporary test tool: undo a settled story battle (host variables first, then the save). */
+ async resetStoryForTesting(battleId:string,location:{messageId:number;swipeId:number}):Promise<void> {
+   const {snapshot,save}=await this.current();if(!save)throw new Error('请先创建当前聊天存档');
+   const receipt=save.settlements.find(r=>r.battleId===battleId);
+   if(receipt&&receipt.kind!=='story')throw new Error('只能重置剧情战斗');
+   await this.adapter.clearStoryResultForTesting(snapshot.chat,location.messageId,location.swipeId,battleId);
+   const latest=(await this.repository.list()).find(s=>s.id===save.id);if(!latest)throw new Error('存档不存在');
+   await this.repository.update(latest.id,latest.revision,draft=>{this.adapter.assertChat(snapshot.chat);revertStorySettlement(draft,battleId);});
+   await this.repository.removeReplayOutcome(battleId);
  }
  async abandonReplay(battleId:string):Promise<void> {
    if((await this.repository.listReplayOutcomes()).some(o=>o.result.battleId===battleId))throw new Error('本场已有实际战果，请先保存结果');

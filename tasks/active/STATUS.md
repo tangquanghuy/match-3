@@ -1,6 +1,163 @@
 # 当前执行状态
 
-## 2026-10-28 交接提交前检查
+## 2026-10-31 交接整理
+
+用户要求：保存历史会话、更新交接文档、备份干净的角色卡、写清上线待办。之后用户决定角色卡太大不备份、只写清更新方法，并提交推送；三消本体只推送搜索框相关改动。
+
+- 会话记录：本轮 Kiro 会话导出到 `docs/handoff/session-20261028/`（U096–U171，76 条用户消息、26 张截图、助手可见回复与 3 段压缩摘要）。导出脚本 `scripts/handoff-export-session.cjs`。
+- 角色卡：`docs/handoff/card/` 只放改动说明、更新方法、开局页与底栏副本、卡内脚本与正则可读副本和 `manifest.json`；PNG（29 MB）和世界书（10 MB）不进仓库。导出脚本 `scripts/st-card-backup.cjs`。卡内 4 个 `127.0.0.1:5185` 地址待上线替换。
+- 上线待办：`docs/handoff/launch-checklist.md`。
+- 更新：交接首页 README、`decisions.md`（接手会话其余决定）、`files.md`（第 10 节）、人工测试清单。
+- 本轮还完成：正文入口去掉敌人姓名行（悬停缩略图可见），武器选择窗口加“拥有状态”筛选（stPartyDialog 新增用例）。
+- 提交推送：酒馆接入源码与测试、交接文档、`vite.config.ts`（酒馆构建入口）、`.gitattributes`、原游戏 `src/meta/screens/weaponsScreen.ts`（搜索框）。未提交：`src/render/App.ts`、`src/render/CharacterDetailPanel.ts`（酒馆战斗详情显示，属三消本体）。
+
+## 2026-10-31 战后报错、战斗记录精简、魂片背面滚动（编队多队伍待对齐）
+
+- **战后报错“当前 MVU message scope 尚未初始化人物变量”**：剧情战斗点“继续”后战报作为新楼层发出，`playStory` 随后刷新隐藏的管理页，读最新楼层时该楼层还没有 MVU 变量，异常冒到正文入口。改为刷新失败只记日志（`hostEntry.ts` 两处）。新增 stMessageStory 用例“继续发出战报后，最新楼层暂无 MVU 变量…”，去掉修复时报出同一错误。
+- **战斗记录**：去掉“显示全部 N 场”，再现只列学会能力的场次和最近一场；点开不再嵌原生结算大图，改为“胜利/败北 · N 回合”加每项实际入账奖励的缩略行（魂片用敌人立绘，能力用书本图标，其他用宝箱/宝石图标，带数量）。存档页“刚保存的本场结算”仍用原生结算页。
+- **魂片收藏背面不能下拉**：整卡翻面按钮盖在背面上，滚轮落不到背面。翻面后背面置于按钮之上，点背面翻回；键盘仍用按钮。stHostPanel 新增用例（去掉修复时失败）。
+- 测试：7 个酒馆 spec 95 项，93 过，2 项为并行负载超时，单独复跑通过。已重新打包。
+- 编队“新建 + 队伍管理”：用户看过方案后决定不做。
+- 本机 5185 预览服务曾意外退出，导致酒馆里三消入口和状态栏都加载失败；已重启（`npx vite preview --config deploy/sillytavern.local.vite.config.ts`）。
+
+## 2026-10-30 搜索框中文输入法修复
+
+用户反馈：原游戏武器栏搜索框中文输入法下每打一个字母就直接写进框里。原因：每次 `input` 事件都整屏重绘，搜索框被换成新元素，输入法拼音中途被打断。修法：拼音输入中（`isComposing`）不重绘，`compositionend` 后按上屏文字搜索一次。用户同意改原游戏文件。
+
+- 修了 3 处：原游戏 `weaponsScreen.ts`（武器中心）、酒馆 `weaponPicker.ts`（选择主手武器）、酒馆 `partyDialog.ts`（编队成员搜索）。
+- 用 Chrome DevTools 输入法接口模拟逐字母拼音再上屏：改前三处分别得到 `qqiqisqishqishi骑士` 类、`kkukulkulokulou骷髅`、`ttotontongtongbtongbatongban同伴`，改后均为上屏文字。原游戏职业、愿望单、部队图鉴、编队、宝石商店搜索只重绘列表不换输入框，实测正常，未改。
+- stPartyDialog 新增回归用例“Chinese IME input works…”；stPartyDialog/stHostPanel 55 项通过；原游戏武器栏用临时用例验证后已删除（未跑原游戏 e2e 全套）。已重新打包。
+
+## 2026-10-30 技能名改用原游戏名称（一名一效果）
+
+用户决定：技能名延续游戏本体；效果完全相同的统一成一个名字（远古之盾、炎爆、地裂）；同名不同效果的改名（做法 A，21 个新名，用户逐个审过）；主角武器、旧存档不管。
+
+- 新文件 `abilityNames.ts`：27 条兵种 → 名称覆盖表与分组规则（同一学习身份的兵种共用一个名字，有覆盖用覆盖，否则用排在前面的兵种原名）。`enemyBlueprint.skillNameForTroop()` 惰性建表；敌人快照 `spellName`、同伴可学能力名、“暂未开放”提示、开发预览页配方列表都改用它。生成的机制标签（带〔编号〕）仍保留在 `describeAdaptedAbility().name`，只给审计和测试用。
+- 测试：新增 `stAbilityNames`（1813 种能力名字一一对应、除覆盖外均为原名、同伴与敌人同名）；stPartyPreparation 3 处、stBlueprint 1 处改为新规则；stHostPanel 宝石技能用例改为按效果找能力、核对原名；stMessageEntry:87 补改上一轮遗留断言（战报不再含魂片）。两份敌人设计夹具刷新 `spellName` 与 `integrity`。
+- 结果：单测除 `stEnemyNativeParity` 与缺原始数据的 3 个文件外全部跑完，失败项与原提交 `1a26bb17` 基线一致（BoardManaDesign 7、DesignReviewRegression 2、ClassifiedAssembly 1、NativeEconomyIntegration 2、ConditionalSkull 2、WeightedAssembly 1、CastingColors legacy 1）。浏览器 10 个酒馆 spec 123 项：并行跑时 stMessageEntry 因负载超时较多，单独复跑只剩既有短屏 2 项；另有既有失败 stEnemyAssemblyPreview:86、stPreview:119。已重新打包。
+
+## 2026-10-30 通用币防手改（方案 A，静默改回）
+
+- 新文件：`currencySeal.ts`（校验码、校验与改回规则）、`currencyGuard.ts`（检查逻辑，可测）、`currencyGuardEntry.ts`（角色卡脚本入口，构建为 `sillytavern-currency-guard.js`，`vite.config.ts` 增加入口与 CORS 头）。`docs/mvuzod.js` 顶层增加 `通用币校验`。
+- 规则：AI 变量更新结束时盖码；MVU 更新开始时、生成开始前、每 2 秒（生成中暂停）检查最新楼层，对不上就改回校验码里的值；校验码被删改时按更早楼层最近一个完好的码改回；聊天里没有任何码时以当前余额为基线，并顺带给前一楼盖码。旧档“金币”按 schema 合并口径计入。
+- 三消购买：校验脚本在运行（心跳 10 秒内）时，从校验值扣款并在同一次写入盖码；武器窗口显示校验值。脚本不在时行为不变、不写校验码。
+- 已查本卡其他会写通用币的地方：辅助计算脚本只有“金币”迁移（在 MVU 更新结束时，已计入）；外置状态栏、小手机、创意工坊、格式修复、底栏不写。开局页设置初始金额发生在第一楼，按基线处理。
+- 本机酒馆：角色卡 MVU_ZOD 已同步，新增脚本“通用币校验”（`?v=3`），改前备份在 `.tmp/st-install/backup-20261030-currency-guard/`（含当时的聊天文件）。用复制出的测试聊天实测：变量管理器式改写 99,999,999 → 3 秒内回到 1,925,144；在改过的底板上模拟 AI `_.add(通用币, 320)` → 结果 1,925,464 并盖码；删码再改 → 回到前一楼的 5,144。测试聊天已删除。生成开始前的检查没有实测（需要真实生成）。
+- 测试：新增 `stCurrencyGuard` 11 项、stHostAdapter 校验购买 1 项；单测 6 文件 111 项、stPartyDialog/stHostPanel 54 项通过。已重新打包。
+
+## 2026-10-30 武器用通用币购买
+
+用户决定：普通/精良/稀有免费（51 把）；传说 60 万（93 把）、史诗 120 万（420 把）、神话 200 万（78 把）、末日 300 万（76 把），扣 `人物.背包.通用币`。已购记录写进 MVU（方案 1），不给 AI 看；不发酒馆消息；剧情战斗未结算时禁止购买；旧聊天不兼容。
+
+- 新文件 `weaponShop.ts`：价格表、`三消已购武器` 读取、扣款纯函数。`hostAdapter.purchaseWeapon` 与同伴颜色共用写锁：核对楼层与变量指纹 → 扣款并记录 → 一次 `replaceMvuData` → 读回核对。`hostService.purchaseWeapon` 在有 pendingStory 或待保存战果时拒绝。
+- `partyPreparation`：登记了但本楼层没买的武器按骑士之剑出战。编队页显示“X（未购买，出战使用骑士之剑）”。
+- 武器选择窗口：工具栏显示通用币；未购武器卡片置灰并标价格；详情页“售价 / 当前持有”，按钮“购买（N 通用币）”→“确认花费 N 通用币 / 取消”→ 成功后变成“登记为主手武器”。钱不够、读不到通用币、剧情未结算时按钮不可点并写明原因。变量被改过时提示“已变化”且不扣钱，面板自动重读后可重试。
+- `docs/mvuzod.js` 顶层新增 `三消已购武器: z.array(z.string()).optional()`。本机酒馆角色卡“创世回廊6.0”的 MVU_ZOD 脚本已同步（改前备份在 `.tmp/st-install/backup-20261030-weapon-shop/`）；在真实页面用卡内 schema 解析当前变量，确认该字段保留。“⚙当前变量”条目按白名单输出（世界信息、任务列表、人物指定字段、附近的人、羁绊列表等），不含此字段；其余启用条目没有整段输出 stat_data。
+- 测试：新增 `stWeaponShop`（5 项）、stHostAdapter 购买 1 项、stHostService 剧情未结算拦截 1 项；stPartyPreparation 骷髅钥匙用例补已购记录；stPartyDialog 原“经济武器可登记”改为购买流程 2 项（购买-登记-出战、钱不够/变量变化/回退楼层）。单测 5 文件 99 项通过；stHostPanel/stPartyDialog/stSettlement/stOutboxAcceptance/stReplay/stMessageStory 89 项中 88 项通过，另 1 项为并行负载超时，单独复跑通过。1280、390 宽截图核对。已重新打包。
+
+## 2026-10-30 武器选择窗口；战斗记录按对手分组
+
+用户决定：武器全部开放（方案 A，不做解锁）；战斗记录按对手分组显示，不删数据。
+
+- **武器**：编队页主手武器原来是 718 项的长下拉框，改为一行“主手武器（类型）：名称（默认）”加“更换武器”按钮，打开仿原武器中心的选择窗口（新文件 `weaponPicker.ts`，复用原 `weaponsScreen.css` 样式）：搜索、武器图、法力颜色与消耗、按主角魔力计算的技能描述；详情页“登记为主手武器 / 使用默认武器”。不显示属性加成、词缀、获取途径（酒馆里不生效）。选骑士之剑等于清除登记、用默认。窗口是独立模态 `<dialog>`，因为编队页本身可能是模态对话框。718 把武器均已注册可用。`partyPreparation.ts` 新增 `partyWeaponChoices()`/`partyWeaponDescription()`，`partyDialog.ts` 去掉经济门禁提示。
+- **战斗记录**：新文件 `battleRecords.ts` 按遭遇分组，最近有战斗的组在前。每组一张卡：剧情战斗一行，下面一行“往昔再现 N 场 · 胜 x 负 y · 学会 k 个能力”，只列出学会能力的场次和最近一场，其余在“显示全部 N 场”后面；每行仍可点开原结算页。收据一条不删（幂等、重置剧情、战果队列都要用），场次多了存档会继续变大。
+- 验证：新增单测 `stBattleRecords` 2 项；stPartyDialog 武器用例改为操作选择窗口；stHostPanel/stPartyDialog/stSettlement/stOutboxAcceptance/stReplay 80 项通过。1280 与 390 宽截图核对选择窗口；临时用例造 1 场剧情 + 7 场再现（1 负、第 5 场学会）截图核对分组、展开与单场详情，截图在 `.tmp/chat-debug/records-*.png`，临时用例已删除。已重新打包。
+
+## 2026-10-30 战报删除“三消养成所得”
+
+用户决定：战报不再列魂片和学会能力，避免影响 AIRP。往昔再现本来就不发战报，剧情战斗几乎不会凑满碎片，AI 看到技能名的可能可以忽略。`storyReportMessage.ts` 不再输出该行；提示词第四阶段第 4 条只保留“战利品、经验等按原有规则由你自行结算。”。结算页照常显示魂片与学会能力，存档照常入账。改 `runtimeProtocol.ts`、`docs/sillytavern-runtime-ai-prompt.md`、`docs/handoff/decisions.md`、人工测试清单；测试 stStoryReport/stRuntimeProtocol 150 项、stStoryAbandon/stMessageStory/stSettlement 24 项通过。世界书“⚙️三消战斗规则”已同步（写入前检查内容非空），已重新打包。
+
+## 2026-10-30 提示词：删除正文 E1、E2 敌人编号
+
+用户反馈正文里“（E1：…）”的编号标注突兀。程序不读正文编号，战斗块和战报都按姓名对应，故删除第二阶段第 1 条的“按 E1、E2…列出敌人的身份与可见外观；enemyDesigns 按相同顺序填写，战报按姓名列出这些人物”，不加替代说法。改 `runtimeProtocol.ts`、`docs/sillytavern-runtime-ai-prompt.md`、`docs/sillytavern-runtime-ai.md`；stRuntimeProtocol 146 项通过（新增“提示词不含 E1/E2”断言）。世界书“⚙️三消战斗规则”（uid 759042）已同步，已重新打包。
+
+## 2026-10-30 修复：新聊天的战斗横条首次渲染没有缩略图
+
+用户确认：新聊天里横条只显示首字，点“进入战斗”后才有图。原因是预览阵容要用“存档编号 + 消息”算种子，新聊天第一次渲染时还没有三消存档，`messageStoryLineup` 直接返回空；之后建档也不会刷新横条。现在预览时若当前聊天没有存档，就按打开管理页/进入战斗时同样的方式先建档（同一聊天建档幂等，多条横条同时渲染不会重复建档；三个槽位已满时保持空白，不影响进入战斗）。只改 `hostEntry.ts`。新增 stMessageStory 用例“新聊天首次预览即建档并显示敌方立绘，开战使用同一存档与同一批敌人”；stMessageStory/stMessageEntry/stStoryAbandon 27 项中 25 通过，2 项为既有短屏失败。已重新打包。
+
+## 2026-10-29 技能描述改为原游戏风味（进行中，等待用户审核）
+
+只改酒馆描述生成器 `src/sillytavern/abilityDescription.ts`（另 `enemyBlueprint.ts` 传入 spellId），机制、学习身份不变；覆盖仍 1816/1816。旧生成器备份在 `.tmp/chat-debug/abilityDescription.orig.ts`、上一版在 `abilityDescription.v2.ts`。
+
+用户定下的规则：
+- 不写说明书式注释（满员不召唤、不获得法力、可选自身、含自身、免疫无效、最高100、风暴效果说明、资源仅本场、向下取整、加成上限）。
+- 沿用原游戏词：缠绕、织网、赐福、附魔、魅惑、屏障、狂怒、下潜、出血、沉默、击晕、妖火、猎人标记、狼化、恐怖；真实/溅射/散射伤害；创造、转化、骷髅头；火/冰/叶/光/暗/尘/骸骨/末日风暴；炸弹、闪电、通配、鬼魂等宝石。隐藏身份的特殊宝石仍写“特殊宝石”；族群仍写“特定族群”（酒馆里主角与同伴没有族群，敌人族群来自原游戏底板，AI 填的种族只显示）。
+- 站位用“前方/后方”；状态默认 3 回合不写，强度不写。
+- 场地（战斗发生在特定区域）加成与效果全部不显示。
+- 加成写成“伤害因X而增强（每颗+N）/（1:1）/（33%）”；纯概率写“有N%几率…”，N 在最后一个用到的分句后说明一次。
+- 连续多次的概率不写细数，合成范围（“爆破1～4颗鬼魂宝石”“召唤1～3名随从”）。
+- 同一目标的连续增益、状态、移除、创造合并；紧接同一目标用“其”，隔开时用“该目标/该盟友”。
+- 开头检查目标状态、后面又施加该状态的技能，检查句移到最后：“若目标已陷入X，…”（7 条）。
+- 8160 原数据为“蓝色宝石数×2”，机制不归本轮，文字按原版改为“爆破棋盘上一半的蓝色宝石”（`TEXT_PATCHES`）。
+
+技能名：用户决定暂不改（保持当前程序生成名）。特性描述待技能定稿后再处理。
+
+测试与同步（2026-10-30）：
+- 单测：引用酒馆代码的 65 个文件分三批并行跑完；在原提交 `1a26bb17` 的干净副本上复跑全部失败文件作对照。
+  - 本轮改文案断言（只改文字，机制断言不变）：`stAbilityDescription`、`stAbilityDisplay`、`stChoiceRuleAdapter`、`stEnemyMusketeerAcceptance`、`stEnemyStatusDamageAcceptance`（含 fixture 词条）、`stDerivedFormPreview`、`stEnemyMappedAcceptance`、`stEnemySupportAcceptance`（含 fixture 词条），复跑全部通过。
+  - 测试顺带发现并修复生成器 3 处问题：空原型时报错；合并分句时“其”被错换成前一分句的目标（7256、7465 显示成“使一名盟友的…”）；嵌套随机分支 ①② 重号、族群/区域双重筛选与转化特殊宝石的等级颜色顺序。
+  - 原提交上同样失败、非本轮造成：`stEnemyNativeParity`（1857，levelLabel）、`stEnemyBoardManaDesign`（7）、`stEnemyDesignReviewRegression`（2）、`stEnemyConditionalSkullDesign`（2）、`stEnemyClassifiedAssembly`（1）、`stEnemyWeightedAssembly`（1）、`stEnemyCastingColors` legacy（1）、`stNativeEconomyIntegration`（2），`stEnemyDirectDamage/RandomTarget/RandomDamageAcceptance` 缺 `data/raw/gow-2026-09-18`。
+  - 两份“已保存敌人设计” fixture（`st-enemy-design-colored-portrait-v1.json`、`st-enemy-design-uncolored-policy-v1.json`）冻结了旧描述，按用户要求用新版本数据刷新（只改 `spellName`、`spellDescription`、`integrity` 三个由文案派生的字段，未改还原逻辑）；`stPortraitIndependence` 11 项全过，`stEnemyCastingColors` 只剩 legacy 样本 1 项（原提交上同样失败）。旧版开发预览存档用户另开新档，不做兼容。
+- 浏览器：酒馆相关 9 个 spec 120 项，首轮 115 过；`stEnemyAssemblyPreview:86` 为既有失败；`stHostPanel` 宝石能力名用例改为新写法；其余 3 项为并行负载下的超时，单独复跑 stHostPanel/stMessageStory/stPartyDialog 59 项全部通过。
+- 打包：`$env:VITE_BASE='/'; npx vite build --mode tavern`，5185 端口已提供新文件（含“并有几率重复触发”，不含“我方满4人时不召唤”）。真实酒馆打开管理页，主角“骑士之剑”描述为新格式。世界书提示词未改，无需同步。
+
+## 2026-10-29 结算奖励条不再压住“战斗胜利”星盘
+
+已结算收据（战斗记录、消息“查看本场战果”）没有来源副题，奖励条原来紧贴标题，盖住星盘下半部分。只在酒馆的 `settlementView.ts` 影子样式里覆盖 committed 模式的奖励条上边距，按星盘实际尺寸（宽的 1/4，减去 5.4cqmin）推到星盘下方；窄容器同理。未改原游戏 `result.css`。stSettlement 中原“标题与奖励条间距 <60px”的断言改为“奖励条不与星盘重叠”；stSettlement/stMessageStory/stHostPanel/stEconomyReceipt 55 项通过（含 900×320 短屏继续按钮可达）。
+
+## 2026-10-29 管理页样式：编队按钮、战斗记录结算、魂片收藏卡面
+
+只改酒馆接入层（`partyDialog.ts/.css`、`hostEntry.ts`、`managementPage.css`），未改原游戏文件。在真实酒馆页面里用假宿主数据挂载管理页复现并验证，1920×1010 与 390×844 截图核对。
+
+- **编队页**：“加入队伍/移出队伍”改用原生 `.inspect-act` 按钮，不再溢出 108px 操作列；左下角“重新读取”从 24px 指南针图标改成与“取消”同尺寸的文字按钮；打开管理页时聚焦关闭按钮不再显示蓝色焦点环（键盘操作仍显示）。
+- **战斗记录**：内嵌的原生结算页按容器尺寸缩放，原来只有 360px 高，标题被顶边裁掉、奖励条与背景错位。现在给 16:9 容器（最小 340px，最大 72vh）。
+- **魂片收藏**：卡面改为原生图鉴卡样式：只显示敌人姓名和定位徽标，不显示等级，名字不再换成三行。卡面下不再写技能；点按卡面翻到“可学会能力”背面（能力名 + 实际效果），再点返回，手机和电脑一致，键盘可用。学习进度仍在卡下。
+- 验证：stHostPanel/stPartyDialog/stReplay/stOutboxAcceptance/stMessageStory 73 项通过。
+
+## 2026-10-29 主角技能名称与描述
+
+主角能力来自所用武器，原来技能名用程序生成的动作/目标短语（如“生命最高的敌人…”，标题被截断）。现在技能名用武器自己的法术名（默认“骑士之剑”），描述仍是适配后的实际效果（数值按引擎计算）；只有一个效果时去掉“1.”编号。不影响学习身份和战斗行为。stPartyPreparation/stHostAdapter 60 项、stPartyDialog/stHostPanel 52 项通过。
+
+## 2026-10-29 临时测试重置按钮；战斗入口改为紧凑横条
+
+- **重置本场（测试）——临时功能，正式交付前移除。** 入口显示“查看本场战果”时出现，点两次确认。要求战斗所在楼层是最新一楼（战报和 AI 回复需玩家先在酒馆里删掉，程序不删聊天）。撤回顺序：该楼 MVU 生命恢复到开战前并删除 `三消战果[battleId]` → 删除聊天变量 `match3.storyResults[battleId]` → 存档撤回结算收据、胜利图鉴、本场魂片进度、本场学会的能力及其装配、非魂片余额 → 清除待保存队列。各步已撤回时跳过，失败后可重试。战斗编号和种子不变，重打是同一批敌人。已有往昔再现记录或待完成战斗时拒绝重置。代码：`save.revertStorySettlement`、`storyWriteback.revertStoryWritebackRecord`、`hostAdapter.clearStoryResultForTesting`、`hostService.resetStoryForTesting`、`hostEntry.resetMessageStoryForTesting`，入口卡 `#reset`。
+- **紧凑战斗入口**：预览卡不再复用本体加载页（整张背景、480px 高），改为约 100px 的横条：我方/敌方 42px 小头像、VS、敌人“姓名 阶级 Lv.N”一行、右侧按钮；420px 以下改为竖排。完整阵容仍由点击后的加载页显示。消息框默认高度 96px，尺寸同步下限 60px。
+- 验证：单测 stStorySession 38、stStoryWriteback 49 通过（含重置后存档等于开战前、学会能力撤回、败北重置、待完成时拒绝、MVU 生命恢复）；浏览器 stMessageEntry/stMessageStory/stStoryAbandon 26 项中 24 通过，2 项为既有短屏失败；新增“重置后同一楼同配置重打”用例通过。真实酒馆截图确认横条约 106px。
+
+## 2026-10-29 修复：预览与战场立绘；核对首场真实战报
+
+- **战斗预览立绘**：预览卡此前只收到 AI 给的姓名/阶级，敌我两侧都是空白卡。新增只读 `messageStoryLineup`：已结算或待完成的战斗读冻结请求；未开战的用与开战相同的消息派生种子编译敌人，所以预览立绘与战场一致。聊天还没有三消存档时（首次开战前）无法确定种子，预览保持空白。立绘地址只接受同源 http(s)。
+- **我方战场无立绘**：酒馆角色快照从未带 `portraitUrl`。现按 `性别` 使用本体默认形象（男/女/未知 `static/hero/character-*.webp`）。已结算的旧战斗保留冻结快照，仍无我方立绘。
+- **核对聊天 23h37m33s 首场战报**：程序侧一致。`三消战果` 记录胜利、1 回合（3 次交换中 2 次额外回合）、3 名敌人被击败、该隐 15/15 不变，战报消息与记录逐项相符，魂片每名敌人 ×1。敌方 HP 仅 6/5/5，属数值平衡问题，后置。
+- **AI 侧问题**：菲琳未上阵却被写成主力并分到经验；AI 把 3 枚灵魂碎片写进 MVU 背包。提示词第四阶段新增：只有战报“我方”列出的角色参战。
+- **用户决定（2026-10-29）：战利品两边分开。** 战利品、经验由 AI 按角色卡原有规则自行结算，三消不管；三消战斗只产出三消自己的养成物品（魂片，后续的养成材料）。战报奖励行改名为“三消养成所得”，提示词第四阶段第 4 条要求 AI 不把它写入背包、不算作战利品。项目规则“结算页显示真实所得”只约束三消程序自己的入账。
+- **立绘**：用户表示后续支持自行上传，现阶段不再处理。本轮已做的预览立绘与默认形象保留。
+- 验证：8 个单测文件 372 项通过；消息入口/剧情/编队浏览器 45 项中 43 通过，2 项为既有短屏失败；临时浏览器用例确认预览敌我立绘与战场一致（已删除）。世界书“⚙️三消战斗规则”已同步新提示词。
+
+## 2026-10-29 修复：战斗块在 `<now_plot>` 内时正文与入口都不显示
+
+用户新聊天“创世回廊6.0 - 2026-10-28@23h37m33s847ms”中，AI 把 `<match3>` 块写在 `<now_plot>` 里。角色卡“正文美化”正则把整段正文装进一个 HTML 代码块，三消入口替换出的 HTML 代码块嵌在里面，提前闭合了外层：正文不渲染，页面露出“html”“END”，入口停在“正在加载三消战斗入口…”。
+
+处理：角色卡新增仅显示用的局部正则“三消·战斗块移出正文美化”，排在“正文美化”前，查找 `(<match3>…</match3>)(…)(</now_plot>)`，替换为 `$2$3\n\n$1`。聊天原文不变，协议解析读原文，已确认这条真实消息可正常解析出 3 名敌人。另修本地开局页、底栏副本首尾多余的 ``` 围栏（交接快照带入，CDN 原件没有），它让底栏顶部多显示一行“```”。真实酒馆复测：正文、战斗入口“进入战斗”、底栏均正常显示。
+
+## 2026-10-28 接手后：战报回注、默认武器、同伴固定颜色、放弃按败北
+
+按用户本轮要求实现，尚未提交，等待人工测试。数值平衡后置。
+
+- **战报回注 AI**：剧情结算页点“继续”后，`formatStoryReportMessage` 生成以“【三消战报】”开头、不含内部 ID 的中文战报，`sendTavernChatMessage` 参照底栏经营页“出发”写入 `#send_textarea` 并点击 `#send_but`，作为一条酒馆消息发给 AI。只发一次；发送失败提示后第二次点击关闭。战报未发出时消息重绘不收起结算页。
+- **主角默认武器**：主手未登记时使用三消初始武器骑士之剑（`gw_KnightsSword`），登记仍可选。缺武器面板时回退徒手面板，不再报错。
+- **同伴颜色**：不再手选。已写入的 `三消.颜色` 优先；否则按姓名 FNV 哈希 × 稀有度映射（普通/精良 1 色、稀有～史诗 2 色、神话 3 色）。稀有度取可选 `三消.稀有度`，否则取已穿装备最高品质，再否则普通。打开管理页和战前准备时写回 MVU。颜色上限改为 3（含 `docs/mvuzod.js`）。
+- **技能与颜色解绑**：学会的能力只校验“已学会”即可装配，不校验颜色；获取途径仍只有灵魂碎片。新学习身份 `active:v2:` 不含颜色，蓝图 v1 身份保留以恢复旧存档。没配置技能的同伴按姓名哈希取一个普通稀有度起始主动。
+- **放弃战斗按败北**：管理页“放弃战斗 → 确认放弃（按败北结算）”生成败北结果（开局生命、`endReason: surrender`），走正常结算、回写和战报发送。
+- **模式判断修复**：战报消息发出后，读取最近一个带 `系统配置` 的楼层判断三消模式，修正误报“当前聊天的三消战斗模式已关闭”。
+
+验证：受影响的 15 个单测文件 477 项全部通过；交接时已记录的两条组装器单测失败（`stEnemyClassifiedAssembly:101`、`stEnemyWeightedAssembly:53`）复跑仍失败，本轮未改动该范围；酒馆接入相关浏览器用例已按新行为更新。下列失败在原提交 `1a26bb17` 上同样失败，与本轮无关：`stEnemyFamilyEntry`（7 项）、`stEnemyAssemblyPreview:86`、`stPreview:119`、`stLoader:105`、`stMessageEntry:368` 短屏加载失败 2 项。原三消本体 e2e 不在本轮范围，未运行。`npm run build:tavern` 因既有 tsc 错误（缺 `data/raw/gow-2026-09-18`、`@cloudflare/workers-types`）失败，本地改用 `$env:VITE_BASE='/'; npx vite build --mode tavern`。
+
+真实酒馆：已装入本机 `G:\SillyTavern-release` 的角色卡 创世回廊6.0（局部正则、MVU_ZOD 脚本、世界书条目及互斥条件），走通一轮“AI 战斗块 → 战斗 → 原生结算 → 战报作为聊天消息发送 → AI 按战报续写”：败北 26 回合，MVU 生命 180 → 0，`三消战果` 1 条，同伴颜色写回。人工测试步骤与注意事项见 [人工测试清单](../../docs/handoff/manual-test-checklist.md)。
+
+仍未做：临时 HP 吸收池、逐行动恢复、数值平衡、材料与淬炼、构建产物 preload 404（`VITE_BASE='/'` 所致，不影响功能）。ST-04～ST-09 进行中、ST-10 未验收的状态不变。
+
+## 2026-10-28 交接提交前检查（上一轮记录）
 
 按用户“提交推送”要求纳入现有集成源码、文档、数据与既有清理删除，`.tmp/` 本地浏览器资料和缓存排除。本轮 `npm run build:tavern` 与本地安装页/跨域模块浏览器检查通过。提交前 8 个定向单测文件共 318 项：316 通过、2 失败；分别是 `stEnemyClassifiedAssembly.test.ts:101` 的技能来源颜色断言，以及 `stEnemyWeightedAssembly.test.ts:53` 的旧语义设计恢复校验。详见 `docs/handoff/pre-push-verification.json`。本次为交接快照，ST-04～ST-09、ST-10 的未完成与未验收状态保持。
 

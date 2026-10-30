@@ -349,10 +349,12 @@ const bondSkillSchema = z.object({
     描述: str('')
 });
 
-// --- 三消角色附加变量：已有颜色原样保留，首次初始化由桥接程序写入 ---
+// --- 三消角色附加变量：已有颜色原样保留；缺省时桥接程序按名字哈希 × 稀有度生成并写入 ---
+// 稀有度可选：缺省按同伴已穿戴装备的最高品质推导；只影响颜色数量（普通/精良 1，稀有～史诗 2，神话 3）
 const match3CharacterSchema = z.object({
-    颜色: z.array(z.enum(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Brown'])).min(1).max(2)
-        .refine(colors => new Set(colors).size === colors.length, '三消颜色不得重复').optional()
+    颜色: z.array(z.enum(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Brown'])).min(1).max(3)
+        .refine(colors => new Set(colors).size === colors.length, '三消颜色不得重复').optional(),
+    稀有度: z.enum(['普通', '精良', '稀有', '卓越', '传说', '史诗', '神话']).optional()
 });
 
 // --- 剧情三消原子回写收据：HP 与本场标记同次写入，聊天 match3.storyResults 为事实镜像 ---
@@ -373,6 +375,8 @@ const match3BattleResultSchema = z.object({
     defeatedExternalIds: z.array(z.string()), fledExternalIds: z.array(z.string()).optional(),
     summonedCount: match3NonnegativeInt, actionLogDigest: z.string().min(1),
     economy: z.object({ gold: match3NonnegativeInt, souls: match3NonnegativeInt, gems: match3NonnegativeInt, maps: match3NonnegativeInt.optional() }).optional(),
+    // 战斗内资源账本原样保留；缺少此项时 zod 会剥离字段，导致回写确认失败
+    economyAudit: z.unknown().optional(),
     eventSummary: z.array(z.object({ type: z.string().min(1), count: match3NonnegativeInt }))
 });
 const match3UnitFactSchema = z.object({
@@ -458,6 +462,12 @@ export const Schema = z.object({
 
     // 仅程序写入：与角色 HP 原子保存，供剧情事实回传与重试防重。旧档无需此字段。
     三消战果: z.record(z.string(), match3StoryWritebackSchema).optional(),
+
+    // 仅程序写入：用通用币购买的三消武器 ID（gw_*），与扣款同一次写入；“当前变量”条目不输出，AI 不可见。
+    三消已购武器: z.array(z.string()).optional(),
+
+    // 仅程序写入：通用币校验码（值 + 码），由“通用币校验”脚本在每次合法改动后更新；手改通用币会被改回。AI 不可见。
+    通用币校验: z.object({ 值: z.number(), 码: z.string() }).optional(),
 
     // ===== 世界信息 =====
     世界信息: z.object({

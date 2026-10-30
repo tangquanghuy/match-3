@@ -3,7 +3,7 @@ import {validateStoryWritebackOrigin,validateStoryWritebackParty,buildStoryWrite
 import type {StoryWritebackOrigin} from './storyWriteback';
 import {stableJson} from './json';
 import {sourceFragmentName} from './fragmentRewards';
-import {partyAbilityChoices} from './partyPreparation';
+import {findPartyAbility} from './partyPreparation';
 import preparationWeapons from '../data/weapons.json';
 import {prepareStBattle,validateStBattleSnapshot} from './battleRuntime';
 import type {GameEvent} from '../engine/events';
@@ -64,9 +64,9 @@ export function createSave(root:SaveRoot,chat:ChatBinding,id:string,now=Date.now
  root.saves.push(save);return save;
 }
 export function deleteSave(root:SaveRoot,id:string):void {const index=root.saves.findIndex(s=>s.id===id);if(index<0)throw new Error('存档不存在');root.saves.splice(index,1);}
-export function canEquipAbility(save:StSave,abilityId:string,abilityColors:readonly string[],characterColors:readonly string[]):boolean {
- colorKey(abilityColors);colorKey(characterColors);
- return save.learnedAbilityIds.includes(abilityId)&&abilityColors.every(c=>characterColors.includes(c));
+/** Mana colors belong to the companion, not the ability: any learned ability can be equipped. */
+export function canEquipAbility(save:StSave,abilityId:string):boolean {
+ return save.learnedAbilityIds.includes(abilityId);
 }
 export function sourceIsLearned(save:StSave,source:Pick<AbilitySource,'abilityId'>):boolean{return save.learnedAbilityIds.includes(source.abilityId);}
 export function canReplay(save:StSave,encounter:EncounterRecord):boolean{return encounter.sources.some(s=>!sourceIsLearned(save,s));}
@@ -170,6 +170,38 @@ export function settleSave(save:StSave,input:SettleInput):SettlementReceipt {
  const receipt:SettlementReceipt={battleId:result.battleId,requestId:result.requestId,kind,encounterId:encounter.id,winner:result.winner,resultDigest:result.actionLogDigest,grants,learnedAbilityIds,learnedAbilityNames:Object.fromEntries(encounter.sources.filter(s=>learnedAbilityIds.includes(s.abilityId)).map(s=>[s.abilityId,s.abilityName])),request:structuredClone(request),result:structuredClone(result),report:buildStBattleReport(request,result,input.events)};
  draft.settlements.push(receipt);Object.assign(save,draft);return structuredClone(receipt);
 }
+/**
+ * Temporary test tool: undo one story settlement so its message can be fought again with the
+ * same battleId and seed. Reverses exactly what settleSave granted. Returns false if not settled.
+ */
+export function revertStorySettlement(save:StSave,battleId:string):boolean {
+ const receipt=save.settlements.find(r=>r.battleId===battleId);
+ if(!receipt)return false;
+ if(receipt.kind!=='story')throw new Error('只能重置剧情战斗');
+ if(save.pendingStory||save.pendingReplay)throw new Error('请先完成或放弃待完成的战斗');
+ const encounter=save.encounters.find(e=>e.storyBattleId===battleId);
+ if(encounter&&save.settlements.some(r=>r.kind==='replay'&&r.encounterId===encounter.id))throw new Error('本场已有往昔再现记录，无法重置');
+ const draft=structuredClone(save);
+ for(const g of receipt.grants){
+   if(g.kind==='fragment'){
+     const progress=draft.sources.find(s=>s.sourceId===g.id);
+     if(!progress||progress.wins<g.quantity)throw new Error('魂片进度与本场收据不一致，无法重置');
+     progress.wins-=g.quantity;
+   }else{
+     const key=`${g.kind}:${g.id}`;const balance=(draft.balances[key]??0)-g.quantity;
+     if(balance<0)throw new Error('存档余额与本场收据不一致，无法重置');
+     if(balance===0)delete draft.balances[key];else draft.balances[key]=balance;
+   }
+ }
+ draft.sources=draft.sources.filter(s=>s.wins>0);
+ for(const id of receipt.learnedAbilityIds){
+   draft.learnedAbilityIds=draft.learnedAbilityIds.filter(a=>a!==id);
+   for(const [ref,ability]of Object.entries(draft.equippedAbilities))if(ability===id)delete draft.equippedAbilities[ref];
+ }
+ draft.encounters=draft.encounters.filter(e=>e.storyBattleId!==battleId);
+ draft.settlements=draft.settlements.filter(r=>r.battleId!==battleId);
+ Object.assign(save,draft);return true;
+}
 function nonempty(value:unknown):value is string{return typeof value==='string'&&!!value.trim();}
 function object(value:unknown):value is Record<string,unknown>{return !!value&&typeof value==='object'&&!Array.isArray(value);}
 function integer(value:unknown,min=0):value is number{return Number.isSafeInteger(value)&&Number(value)>=min;}
@@ -250,8 +282,7 @@ function validatePartyPreparation(value:unknown):void {
  const member=/^(?:\/人物|\/羁绊列表\/(?:[^~/]|~[01])+)$/;
  if(value.memberRefs.length<1||value.memberRefs.length>4||!value.memberRefs.includes('/人物')||value.memberRefs.some(ref=>!member.test(ref)))throw new Error('Invalid partyPreparation memberRefs');
  if(!object(value.baseAbilities)||!object(value.weaponBindings))throw new Error('Invalid partyPreparation mappings');
- const abilities=new Set(partyAbilityChoices().map(choice=>choice.abilityId));
- for(const [ref,id] of Object.entries(value.baseAbilities))if(!member.test(ref)||ref==='/人物'||typeof id!=='string'||!abilities.has(id))throw new Error('Invalid partyPreparation base ability');
+ for(const [ref,id] of Object.entries(value.baseAbilities))if(!member.test(ref)||ref==='/人物'||typeof id!=='string'||!findPartyAbility(id))throw new Error('Invalid partyPreparation base ability');
  const weaponRef=/^(?:\/人物|\/羁绊列表\/(?:[^~/]|~[01])+)\/装备列表\/(?:[^~/]|~[01])+$/;
  const weapons=new Set(preparationWeapons.map(weapon=>'gw_'+weapon.referenceName));
  for(const [ref,id] of Object.entries(value.weaponBindings))if(!weaponRef.test(ref)||typeof id!=='string'||!weapons.has(id))throw new Error('Invalid partyPreparation weapon binding');

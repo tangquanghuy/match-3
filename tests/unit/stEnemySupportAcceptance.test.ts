@@ -169,10 +169,11 @@ for(const row of fixture.enemies)describe(familyName(row),()=>{
   const labels:Record<string,string>={attack:'攻击',armor:'护甲',hp:'生命',mana:'法力',magic:'魔力'};
   for(const seg of row.segments) {
    if('stat' in seg)expect(description).toContain(labels[seg.stat!]!);
-   if(seg.kind==='cleanse')expect(description).toContain('全部负面状态');
-   if('lifeMode' in seg)expect(description).toContain('生命上限同时增加');
-   if('raceDouble' in seg){expect(description).toContain(`族群#${a(seg.raceDouble).slice(9)}`);expect(description).toContain('2');}
-   if('halve' in seg)expect(description).toContain('0.5');
+   // Game-style wording (2026-10-29): 净化, "生命增加", hidden race as 特定族群.
+   if(seg.kind==='cleanse')expect(description).toContain('净化');
+   if('lifeMode' in seg)expect(description).toMatch(/生命.*增加|恢复.*生命|生命回满/);
+   if('raceDouble' in seg){expect(description).toContain('若目标为特定族群则效果翻倍');expect(description).not.toMatch(/affinity:|族群#/);}
+   if('halve' in seg)expect(description).toContain('50%');
   }
   for(const clause of fixture.activeDescriptionClauses[String(row.enemyId) as keyof typeof fixture.activeDescriptionClauses])expect(description).toContain(clause);
   expect(description).not.toContain(row.referenceName);
@@ -183,11 +184,11 @@ for(const row of fixture.enemies)describe(familyName(row),()=>{
    for(const clause of (fixture.traitDescriptionClauses as Record<string,string[]>)[tr.code]!)expect(description.description).toContain(clause);
   }
   const chosen=row.segments.some(s=>s.target==='allyChosen');
-  if(chosen)expect(description).toContain('选定的一名盟友（可选自身）');
-  if(row.enemyId===6081){expect(description).toContain('所有盟友（含自身）');expect(description).toContain('我方首位');}
-  if(row.enemyId===6258)expect(description).toContain('除自身外所有盟友');
-  if(row.enemyId===6097){expect(description).toContain('棋盘至少有13颗棕色宝石');expect(description).toContain('所有盟友（含自身）');}
-  if(row.enemyId===6091)expect(description).toContain('目标当前缺失生命');
+  if(chosen)expect(description).toContain('一名盟友');
+  if(row.enemyId===6081){expect(description).toContain('所有盟友');expect(description).toContain('第一位盟友');}
+  if(row.enemyId===6258)expect(description).toContain('所有其他盟友');
+  if(row.enemyId===6097){expect(description).toContain('棋盘上至少有13颗棕色宝石');expect(description).toContain('所有盟友');}
+  if(row.enemyId===6091)expect(description).toContain('生命回满');
  });
  for(const [level,difficulty] of [[1,1],[20,1],[20,1.5],[40,1]])it(`scales source stats at level ${level} difficulty ${difficulty} and uses scaled magic in the actual cast`,()=>{
   const run=battle(row,{level,difficulty});
