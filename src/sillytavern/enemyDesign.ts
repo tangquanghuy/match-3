@@ -19,8 +19,9 @@ import {prototypeEconomyIssues,traitEconomyIssues,stEffectIsProvablyUnreachable,
 import {validateStDerivedForms} from './derivedFormPreflight';
 import {stableJson} from './json';
 import {inspectEnemyMechanisms} from './enemyMechanismRules';
-import {ENEMY_ASSEMBLY_POLICY_VERSION,profileEnemyAssembly,enemyGenerationIssues,enemyTeamGenerationIssues,enemyProfileWeight,enemyRoleAffinity,enemySelectionRng,pickEnemyWeighted,primaryTaskPreserved} from './enemyAssemblyPolicy';
-import type {EnemyAssemblyProfile,EnemyGeneration,EnemyGenerationPool} from './enemyAssemblyPolicy';
+import {ENEMY_ASSEMBLY_POLICY_VERSION,profileEnemyAssembly,enemyGenerationIssues,enemyTeamGenerationIssues,enemyTraitHighImpactIssues,enemyProfileWeight,enemyRoleAffinity,enemySelectionRng,pickEnemyWeighted,primaryTaskPreserved} from './enemyAssemblyPolicy';
+import type {EnemyAssemblyPolicyVersion,EnemyAssemblyProfile,EnemyGeneration,EnemyGenerationPool} from './enemyAssemblyPolicy';
+import {enemyTraitCount} from '../meta/data/enemyDifficulty';
 
 export const ENEMY_DESIGN_VERSION=1;
 const effectDefinitions=[
@@ -549,9 +550,18 @@ function primaryTaskFeatures(prototype:SkillPrototype,traits:TraitDefinition[]):
  for(const trait of effectiveSignatureTraits(traits))merge(found,traitSignals(trait));
  return [...found.features];
 }
-/** Independent trait draws are grouped by capability so repeated source codes do not amplify a family. */
-function weightedTraitChoices(troop:TroopData,prototype:SkillPrototype,design:EnemyDesignInput,seed:number):string[][] {
+/**
+ * The source troop's own adapted traits. From v3 the original game's level gate applies
+ * (enemyTraitCount: below Lv10 none, then one more slot at 10, 15 and 20).
+ */
+function nativeTraitKit(troop:TroopData,level:number,version:EnemyAssemblyPolicyVersion):string[] {
  const native=troop.traits.flatMap(tr=>adaptedTrait(tr.code)?[tr.code]:[]);
+ return version===3?native.slice(0,enemyTraitCount(level)):native;
+}
+/** Independent trait draws are grouped by capability so repeated source codes do not amplify a family. */
+function weightedTraitChoices(troop:TroopData,prototype:SkillPrototype,design:EnemyDesignInput,seed:number,version:EnemyAssemblyPolicyVersion=ENEMY_ASSEMBLY_POLICY_VERSION):string[][] {
+ // The level-gated native kit is always offered, so a small pool falls back to the original game's own enemy.
+ const native=nativeTraitKit(troop,design.level,version);
  const base=primaryTaskFeatures(prototype,native.map(code=>adaptedTrait(code)!));
  const groups=new Map<string,ReturnType<typeof classifiedTraitComponents>>();
  for(const component of classifiedTraitComponents()){
@@ -574,6 +584,7 @@ function weightedTraitChoices(troop:TroopData,prototype:SkillPrototype,design:En
  if(design.effects.length)choices.push(...assembleTraitChoices(troop,prototype,design,seed));
  const seen=new Set<string>();
  return choices.filter(codes=>{
+  if(version===3&&codes.length>native.length)return false;
   const key=stableJson(codes);if(seen.has(key))return false;seen.add(key);
   const actual=primaryTaskFeatures(prototype,codes.map(code=>adaptedTrait(code)!));
   return stableJson(codes)===stableJson(native)||primaryTaskPreserved(design.role,base,actual);
@@ -601,7 +612,7 @@ function chooseWeightedCandidate(candidates:Candidate[],design:EnemyDesignInput,
 export function compileEnemyDesign(input:unknown,options:EnemyDesignCompileOptions):CompiledEnemyDesign {
  return compileEnemyDesignInternal(input,options,false,{});
 }
-function compileEnemyDesignInternal(input:unknown,options:EnemyDesignCompileOptions,legacy:boolean,context:GenerationContext,legacyArtwork=false,generationVersion:1|2=ENEMY_ASSEMBLY_POLICY_VERSION):CompiledEnemyDesign {
+function compileEnemyDesignInternal(input:unknown,options:EnemyDesignCompileOptions,legacy:boolean,context:GenerationContext,legacyArtwork=false,generationVersion:EnemyAssemblyPolicyVersion=ENEMY_ASSEMBLY_POLICY_VERSION):CompiledEnemyDesign {
  const design=validateInput(!legacy&&object(input)?{...input,effects:input.effects===undefined?[]:input.effects,assembly:input.assembly??'classified'}:input);
  if(!object(options)||!Number.isSafeInteger(options.seed))return fail('invalid_value','seed',{reason:'需要安全整数种子'});
  const pool=options.generationPool??'ordinary';
@@ -609,7 +620,7 @@ function compileEnemyDesignInternal(input:unknown,options:EnemyDesignCompileOpti
  if(options.statVariationSeed!==undefined&&!Number.isSafeInteger(options.statVariationSeed))return fail('invalid_value','statVariationSeed',{reason:'需要安全整数种子'});
  if(typeof options.externalId!=='string'||!options.externalId.trim())return fail('invalid_value','externalId');
  const budgetPolicy=options.budgetPolicy===undefined?undefined:validateEnemyBudgetPolicy(options.budgetPolicy);
- const independentMana=!legacy&&generationVersion===2&&design.assembly==='classified';
+ const independentMana=!legacy&&generationVersion>=2&&design.assembly==='classified';
  const castingColors=independentMana?colorKey(design.manaColors).split(','):design.manaColors;
  const query={...(legacyArtwork?{manaColors:design.manaColors}:{}),rank:design.rank,form:design.form,role:design.role};
  let portraits=findPortraits(query).sort((a,b)=>a.assetId.localeCompare(b.assetId));
@@ -628,11 +639,12 @@ function compileEnemyDesignInternal(input:unknown,options:EnemyDesignCompileOpti
  const required=design.effects.filter(e=>e.requirement==='required').map(e=>e.effect);
  const preferred=design.effects.filter(e=>e.requirement==='preferred').map(e=>e.effect);
  const candidates:Candidate[]=[],rejected:{recipeId:string;diagnostics:EnemyDesignDiagnostic[]}[]=[];
+ const nativeKitProfiles=new Map<number,EnemyAssemblyProfile>();
  let registry:ExtensionRegistry|undefined;
  for(const troop of TROOPS.filter(t=>indexed.has(t.id)&&(independentMana||colorKey(t.manaColors)===colorKey(design.manaColors))&&(legacy||t.role===design.role)).sort((a,b)=>a.id-b.id)){
   let selections:(string[]|undefined)[]=[undefined];
   if(design.assembly==='classified'){
-   try{selections=(legacy?assembleTraitChoices:weightedTraitChoices)(troop,adaptedPrototype(troop.spell.id),design,options.seed);}
+   try{selections=legacy?assembleTraitChoices(troop,adaptedPrototype(troop.spell.id),design,options.seed):weightedTraitChoices(troop,adaptedPrototype(troop.spell.id),design,options.seed,generationVersion);}
    catch(error){rejected.push({recipeId:`enemy:${troop.id}`,diagnostics:[diagnostic('mechanism_unavailable','assembly',{reason:error instanceof Error?error.message:String(error)})]});continue;}
   }
   for(const selectedTraits of selections){
@@ -646,9 +658,18 @@ function compileEnemyDesignInternal(input:unknown,options:EnemyDesignCompileOpti
    const missing=required.filter(effect=>!signature.effects.includes(effect));
    if(missing.length)issues.push(diagnostic('required_effect_unavailable','effects',{missing,actual:signature.effects}));
    if(legacy&&!signature.roles.includes(design.role))issues.push(diagnostic('role_signature_mismatch','role',{requested:design.role,actual:signature.roles,evidence:signature.evidence}));
-   const profile=legacy?undefined:profileEnemyAssembly(independentMana?{...troop,manaColors:castingColors as TroopData['manaColors']}:troop,prototype,traits,signature.effects,generationVersion);
+   const profiled=independentMana?{...troop,manaColors:castingColors as TroopData['manaColors']}:troop;
+   const profile=legacy?undefined:profileEnemyAssembly(profiled,prototype,traits,signature.effects,generationVersion);
    if(profile){
     const policyIssues=[...enemyGenerationIssues(profile,design.rank,pool,generationVersion),...enemyTeamGenerationIssues([...(context.previous??[]),profile],generationVersion)];
+    if(generationVersion===3&&pool==='ordinary'){
+     let nativeKit=nativeKitProfiles.get(troop.id);
+     if(!nativeKit){
+      const nativeTraits=nativeTraitKit(troop,design.level,3).map(code=>adaptedTrait(code)!);
+      nativeKit=profileEnemyAssembly(profiled,prototype,nativeTraits,[],3);nativeKitProfiles.set(troop.id,nativeKit);
+     }
+     policyIssues.push(...enemyTraitHighImpactIssues(profile,nativeKit));
+    }
     if(policyIssues.length)issues.push(diagnostic('mechanism_unavailable','assembly',{reasons:policyIssues}));
     signature.roles=[design.role];signature.explanation=[primaryRoleDescriptions[design.role]!];
    }
@@ -698,7 +719,7 @@ function contentFingerprint(value:unknown):string {
 export function restoreEnemyDesign(value:unknown):CompiledEnemyDesign {
  if(!object(value)||value.version!==ENEMY_DESIGN_VERSION||value.rulesetVersion!==RULESET_VERSION)return fail('invalid_save','version');
  let canonical:CompiledEnemyDesign;
- try{canonical=compileEnemyDesignInternal(value.design,{...(object(value.generation)?{generationPool:value.generation.pool as EnemyGenerationPool}:{}),seed:value.seed as number,externalId:value.externalId as string,...(object(value.blueprint)&&value.blueprint.statVariationSeed!==undefined?{statVariationSeed:value.blueprint.statVariationSeed as number}:{}),...(value.budget?{budgetPolicy:(value.budget as EnemyBudgetEvaluation).policy??undefined}:{})},!value.generation,object(value.generation)&&object(value.generation.context)?value.generation.context as GenerationContext:{},object(value.blueprint)&&object(value.blueprint.portrait)&&object(value.blueprint.portrait.query)&&value.blueprint.portrait.query.manaColors!==undefined,object(value.generation)&&value.generation.version===2?2:1);}
+ try{canonical=compileEnemyDesignInternal(value.design,{...(object(value.generation)?{generationPool:value.generation.pool as EnemyGenerationPool}:{}),seed:value.seed as number,externalId:value.externalId as string,...(object(value.blueprint)&&value.blueprint.statVariationSeed!==undefined?{statVariationSeed:value.blueprint.statVariationSeed as number}:{}),...(value.budget?{budgetPolicy:(value.budget as EnemyBudgetEvaluation).policy??undefined}:{})},!value.generation,object(value.generation)&&object(value.generation.context)?value.generation.context as GenerationContext:{},object(value.blueprint)&&object(value.blueprint.portrait)&&object(value.blueprint.portrait.query)&&value.blueprint.portrait.query.manaColors!==undefined,object(value.generation)&&(value.generation.version===3||value.generation.version===2)?value.generation.version:1);}
  catch(error){return fail('invalid_save','design',{reason:error instanceof Error?error.message:String(error)});}
  if(stableJson(value)!==stableJson(canonical))return fail('invalid_save','design',{reason:'全字段与当前语义编译结果不一致'});
  return canonical;

@@ -5,6 +5,7 @@ import type {StBattleReport} from './battleReport';
 import type {HostSnapshot,StHostAdapter} from './hostAdapter';
 import {stableJson} from './json';
 import {chatKey} from './save';
+import {storyInitialHp} from './storyHp';
 import type {ChatBinding,SettlementReceipt} from './save';
 
 export interface StoryWritebackActor {externalId:string;path:string;current:number;max:number;temp:number}
@@ -71,7 +72,7 @@ export function validateStoryWritebackParty(origin:StoryWritebackOrigin,party:re
  if(party.length!==origin.actors.length||new Set(party.map(p=>p.externalId)).size!==party.length)throw new Error('剧情回写参战队伍不一致');
  for(const actor of origin.actors){
    const unit=party.find(p=>p.externalId===actor.externalId);
-   if(!unit||!integer(unit.stats?.hp,1)||!integer(unit.initialHp??unit.stats.hp)||Math.round(unit.stats.hp*actor.current/actor.max)!==(unit.initialHp??unit.stats.hp))throw new Error('剧情入场 HP 与冻结宿主角色不一致');
+   if(!unit||!integer(unit.stats?.hp,1)||!integer(unit.initialHp??unit.stats.hp)||storyInitialHp(unit.stats.hp,actor.current,actor.max)!==(unit.initialHp??unit.stats.hp))throw new Error('剧情入场 HP 与冻结宿主角色不一致');
  }
 }
 /** Pure write plan. The actual receipt, rather than a caller supplied result ID, owns idempotence. */

@@ -53,7 +53,9 @@ test('host accepts a semantic encounter and freezes the compiled roster in a rea
  expect(pending.request.seed).toBe(42);
  expect(pending.request.enemyTeam.map((e:any)=>e.externalId)).toEqual(['enemy-1','enemy-2']);
  expect(pending.sources.map((s:any)=>s.enemyExternalId)).toEqual(['enemy-1','enemy-2']);
- expect(pending.request.enemyTeam.every((e:any)=>e.skillId.startsWith('st:')&&e.traitIds.length>0)).toBe(true);
+ expect(pending.request.enemyTeam.every((e:any)=>e.skillId.startsWith('st:'))).toBe(true);
+ // Like the original game, enemy trait slots open with level: none below Lv10, all at Lv20.
+ expect(pending.request.enemyTeam.map((e:any)=>e.traitIds.length>0)).toEqual([true,false]);
  expect(await page.evaluate(()=>(window as any).semanticStory.error)).toBeUndefined();
 });
 

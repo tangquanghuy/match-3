@@ -106,7 +106,7 @@ async function readResult(page: Page) {
 
 test('default protagonist shows real stats and default weapon, persists configuration, and restores focus', async ({ page }) => {
   await install(page, { companions: false });
-  await expect(inspect(page).locator('[title="生命"] b')).toHaveText('109/218');
+  await expect(inspect(page).locator('[title="生命"] b')).toHaveText('12/23');
   await expect(inspect(page).locator('.inspect-spell strong')).toHaveText('骑士之剑');
   await expect(inspect(page).locator('.inspect-mana i')).toHaveText('3');
   await expect(page.getByRole('dialog')).not.toContainText('uncalibrated');
@@ -118,7 +118,7 @@ test('default protagonist shows real stats and default weapon, persists configur
   });
   await confirm(page).click();
   const result = await readResult(page);
-  expect(result).toMatchObject({ party: [{ externalId: '/人物', manaColors: ['Blue'], manaCost: 3, skillId: 'gw_KnightsSword', initialHp: 109 }] });
+  expect(result).toMatchObject({ party: [{ externalId: '/人物', manaColors: ['Blue'], manaCost: 3, skillId: 'gw_KnightsSword', initialHp: 12 }] });
   const source = await page.evaluate(() => {
     const fixture = window.partyFixture; const prepared = fixture.result;
     if (!prepared || prepared === 'pending') throw new Error('Missing prepared party');
@@ -343,9 +343,9 @@ test('rereads changed source before confirmation and only returns the updated pa
   await confirm(page).click();
   await expect(page.getByRole('dialog').getByRole('status')).toContainText('宿主人物或变量已变化');
   expect(await page.evaluate(() => window.partyFixture.result)).toBe('pending');
-  await expect(inspect(page).locator('[title="生命"] b')).toHaveText('55/218');
+  await expect(inspect(page).locator('[title="生命"] b')).toHaveText('6/23');
   await confirm(page).click();
-  expect(await readResult(page)).toMatchObject({ party: [{ initialHp: 55 }] });
+  expect(await readResult(page)).toMatchObject({ party: [{ initialHp: 6 }] });
 });
 
 test('invalid selected stats block battle while invalid unselected candidates do not', async ({ page }) => {
@@ -390,7 +390,7 @@ test('explicitly creates current-chat save and replay uses independent full HP',
   await page.getByRole('button', { name: '取消', exact: true }).click(); await readResult(page);
   await page.evaluate(() => window.partyFixture.open('replay'));
   await expect(page.getByRole('dialog')).toHaveAttribute('aria-label', '往昔再现队伍准备');
-  await confirm(page).click(); expect(await readResult(page)).toMatchObject({ party: [{ initialHp: 218 }] });
+  await confirm(page).click(); expect(await readResult(page)).toMatchObject({ party: [{ initialHp: 23 }] });
 });
 
 test('a switched chat is blocked before persistence', async ({ page }) => {
@@ -437,7 +437,7 @@ test('a source change during IndexedDB commit is caught by the final host reread
   await confirm(page).click();
   await expect(page.getByRole('dialog').getByRole('status')).toContainText('保存期间宿主人物或变量已变化');
   expect(await page.evaluate(() => window.partyFixture.result)).toBe('pending');
-  await confirm(page).click(); expect(await readResult(page)).toMatchObject({ party: [{ initialHp: 27 }] });
+  await confirm(page).click(); expect(await readResult(page)).toMatchObject({ party: [{ initialHp: 3 }] });
 });
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 844, height: 390 }]) {
@@ -530,7 +530,7 @@ test('host entry without a prepareReplay callback starts directly and resumes th
   await expect(preparation).toHaveCount(0);
   const after = await page.evaluate(async () => (await window.partyFixture.service.current()).save!);
   expect(after.partyPreparation).toEqual(before.partyPreparation);
-  expect(after.pendingReplay!.request.playerTeam[0]).toMatchObject({ externalId: '/人物', skillId: 'gw_KnightsSword', initialHp: 218 });
+  expect(after.pendingReplay!.request.playerTeam[0]).toMatchObject({ externalId: '/人物', skillId: 'gw_KnightsSword', initialHp: 23 });
   expect(after.pendingReplay!.request.playerTeam[0]!.initialHp).toBe(after.pendingReplay!.request.playerTeam[0]!.stats.hp);
   expect(after.pendingReplay!.request.enemyTeam).toEqual(before.encounters[0]!.enemyTeam);
   expect(after.settlements).toEqual(before.settlements); expect(after.balances).toEqual(before.balances);

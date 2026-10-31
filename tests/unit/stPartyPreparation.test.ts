@@ -3,7 +3,7 @@ import * as troopModule from '../../src/data/troops';
 import { abilityIdentity, adaptedPrototype, adaptedAbilityDescription, learningAbilityId, skillNameForTroop } from '../../src/sillytavern/enemyBlueprint';
 import {
   prepareCurrentParty, HERO_MEMBER_REF, companionMemberRef, equipmentRef,
-  partyAbilityChoices, damageDiceExpectation, DEFAULT_PARTY_CONVERSION,
+  partyAbilityChoices, partyBaseStats, DEFAULT_PARTY_CONVERSION,
   companionDefaultColors, companionColorCount, companionRarity, companionStarterAbility,
   missingCompanionColors, findPartyAbility,
 } from '../../src/sillytavern/partyPreparation';
@@ -55,19 +55,29 @@ describe('current ST party preparation', () => {
     expect(result.ready).toBe(true); expect(result.issues).toEqual([]);
     const hero = result.party[0]!;
     expect(hero).toMatchObject({ externalId: HERO_MEMBER_REF, name: '林', levelLabel: '20',
-      manaColors: ['Blue'], manaCost: 3, skillId: 'gw_KnightsSword', stats: { hp: 218, armor: 4, attack: 62, magic: 4 }, initialHp: 109 });
+      manaColors: ['Blue'], manaCost: 3, skillId: 'gw_KnightsSword', stats: { hp: 23, armor: 9, attack: 15, magic: 9 }, initialHp: 12 });
     expect(result.candidates[0]!.weapon).toMatchObject({ id: 'gw_KnightsSword', sourceId: 1000, spellId: 7066, isDefault: true });
     expect(hero).not.toHaveProperty('troopTypes'); expect(hero).not.toHaveProperty('templateId');
     expect(result.conversion.status).toBe('uncalibrated'); expect(input).toEqual(before);
-    hero.stats.hp = 2; expect(prepareCurrentParty(input).party[0]!.stats.hp).toBe(218);
+    hero.stats.hp = 2; expect(prepareCurrentParty(input).party[0]!.stats.hp).toBe(23);
   });
-  it('distinguishes the new panel/multiplier/zero-reduction rules', () => {
-    const input = host(actor({ 战斗属性: { 武器面板: { 伤害骰: '2d6', 等级系数: 1, 固定伤害: 10 }, 物理减伤: 40, 魔法减伤: 20 } }), {}, '新版');
-    const result = prepareCurrentParty(input);
-    expect(result.ready).toBe(true); expect(result.party[0]!.stats).toEqual({ hp: 196, armor: 4, attack: 48, magic: 4 });
-    expect(result.candidates[0]!.source).toMatchObject({ attackCount: 2, normalAttackMultiplier: 1.4, effectiveReduction: 0 });
-    expect(result.candidates[0]!.source!.attackBaseline).toBeCloseTo(47.6);
-    expect(prepareCurrentParty(host(actor(), {}, 'new')).issues.some(issue => issue.code === 'stale-panel')).toBe(true);
+  it('follows the level curve and lets capped attributes and AC nudge it by -5% to +10%', () => {
+    const neutral = { 力量: 10, 敏捷: 10, 体质: 10, 智力: 10, 感知: 10, 魅力: 10 };
+    for (const level of [1, 5, 20, 50, 95]) {
+      const stats = prepareCurrentParty(host(actor({ 等级: level, 属性: neutral, AC: 10 }))).party[0]!.stats;
+      expect(stats).toEqual(partyBaseStats(level));
+    }
+    expect(partyBaseStats(50).hp).toBeGreaterThan(partyBaseStats(20).hp);
+    const max = { 力量: 30, 敏捷: 30, 体质: 30, 智力: 30, 感知: 30, 魅力: 30 };
+    const capped = prepareCurrentParty(host(actor({ 属性: max, AC: 30 }))).party[0]!;
+    const above = prepareCurrentParty(host(actor({ 属性: Object.fromEntries(Object.keys(max).map(key => [key, 99])), AC: 99 }))).party[0]!;
+    expect(above.stats).toEqual(capped.stats);
+    const base = partyBaseStats(20);
+    expect(capped.stats).toEqual({ hp: Math.round(base.hp * 1.1), attack: Math.round(base.attack * 1.1), armor: Math.round(base.armor * 1.1), magic: Math.round(base.magic * 1.1) });
+    const low = prepareCurrentParty(host(actor({ 属性: { 力量: 1, 敏捷: 1, 体质: 1, 智力: 1, 感知: 1, 魅力: 1 }, AC: 0 }))).party[0]!;
+    expect(low.stats).toEqual({ hp: Math.round(base.hp * .95), attack: Math.round(base.attack * .95), armor: Math.round(base.armor * .95), magic: Math.round(base.magic * .95) });
+    // A level 1 gap moves the numbers more than the whole attribute range at high levels.
+    expect(prepareCurrentParty(host(actor({ 等级: 1, 属性: max, AC: 30 }))).party[0]!.stats.hp).toBeLessThan(low.stats.hp);
     expect(prepareCurrentParty(host(actor(), {}, 'typo')).ready).toBe(false);
   });
   it('derives fixed colors (name hash × rarity) and a starter ability without writing or asking', () => {
@@ -133,30 +143,23 @@ describe('current ST party preparation', () => {
     expect(prepareCurrentParty(input, { weaponBindings: { [ref]: 'invented' } }).ready).toBe(false);
     expect(prepareCurrentParty(host(actor({ 装备列表: { stored: weapon({ 装备箱: true }) } }))).party[0]!.skillId).toBe('gw_KnightsSword');
   });
-  it('supports legacy wear-state, falls back for a missing computed weapon panel and reports ambiguity', () => {
+  it('supports legacy wear-state, needs no computed weapon panel and reports ambiguity', () => {
     const legacy = weapon({ 穿戴状态: '已装备' }); delete legacy['装备箱'];
     const input = host(actor({ 装备列表: { legacy }, 战斗属性: {} }));
     const fallback = prepareCurrentParty(input);
-    expect(fallback.ready).toBe(true); expect(fallback.candidates[0]!.source?.panelSource).toBe('helper:unarmed');
+    expect(fallback.ready).toBe(true); expect(fallback.candidates[0]!.equipment).toHaveLength(1);
     expect(prepareCurrentParty(host(actor({ 装备列表: { a: weapon(), b: weapon() } }))).issues.some(issue => issue.code === 'weapon-ambiguous')).toBe(true);
     expect(prepareCurrentParty(host(actor({ 装备列表: { a: weapon({ 装备箱: 'false' }) } }))).ready).toBe(false);
   });
-  it('uses aggregate merged weapon dice without re-adding equipment bonuses', () => {
-    const input = host(actor({ 战斗属性: { 武器面板: { 伤害骰: '1d6+1d4', 等级系数: 1, 固定伤害: 3 } },
-      装备列表: { armor: weapon({ 类型: '防具', 部位: '上衣', 属性加成: { 力量: 100, 生命值上限: 999 }, 防御力: 500 }) } }));
-    const result = prepareCurrentParty(input);
-    expect(result.ready).toBe(true); expect(result.party[0]!.stats.attack).toBe(18);
-    expect(result.candidates[0]!.source).toMatchObject({ maxHp: 200, diceExpectation: 6 });
-    expect(damageDiceExpectation('2d6 + 1d4')).toBe(9.5);
-  });
-  it('uses explicit root readonly panels and exact helper unarmed fallback for each mode', () => {
-    const input = host(actor({ 战斗属性: {} }));
+  it('ignores AIRP weapon panels, damage reductions, equipment bonuses and AIRP max HP for stats', () => {
+    const plain = prepareCurrentParty(host()).party[0]!.stats;
+    const input = host(actor({ 生命值上限: 900, 当前生命值: 450, 战斗属性: { 武器面板: { 伤害骰: '10d12', 等级系数: 9, 固定伤害: 300 }, 物理减伤: 90, 魔法减伤: 90 },
+      装备列表: { armor: weapon({ 类型: '防具', 部位: '上衣', 品质: '普通', 属性加成: { 力量: 100, 生命值上限: 999 }, 防御力: 500 }) } }));
     input.statData['武器面板'] = { 伤害骰: '1d6', 等级系数: 1, 固定伤害: 3 };
-    expect(prepareCurrentParty(input).candidates[0]!.source?.panelSource).toBe('/武器面板');
-    delete input.statData['武器面板'];
-    expect(prepareCurrentParty(input).candidates[0]!.source).toMatchObject({ panelSource: 'helper:unarmed', levelCoefficient: 3, fixedDamage: 32 });
-    input.statData['系统配置'] = { 战斗数值模式: 'new' };
-    expect(prepareCurrentParty(input).candidates[0]!.source).toMatchObject({ levelCoefficient: 1, fixedDamage: 4 });
+    const result = prepareCurrentParty(input);
+    expect(result.ready).toBe(true); expect(result.party[0]!.stats).toEqual(plain);
+    expect(result.party[0]!.initialHp).toBe(Math.round(plain.hp / 2));
+    expect(prepareCurrentParty(host(actor(), {}, 'new')).party[0]!.stats).toEqual(plain);
   });
   it('equips a learned ability regardless of color and still resolves legacy color-bound v1 IDs', () => {
     const input = host(actor(), { 甲: companion() }); const ref = companionMemberRef('甲');
@@ -184,23 +187,22 @@ describe('current ST party preparation', () => {
     expect(prepareCurrentParty(input, { ...opts, save: { ...save, learnedAbilityIds: ['active:v1:missing'], equippedAbilities: { [ref]: 'active:v1:missing' } } }).issues.some(issue => issue.code === 'ability-mapping')).toBe(true);
     expect(prepareCurrentParty(input, { ...opts, baseAbilities: { renamed: base!.abilityId } }).ready).toBe(false);
   });
-  it('derives bond-schema AC from highest worn armour quality and preserves one durability budget', () => {
+  it('derives bond-schema AC from highest worn armour quality and applies it as a small armour factor', () => {
     const ally = companion({ 装备列表: { armor: weapon({ 类型: '防具', 部位: '上衣', 品质: '神话' }) } }); delete ally['AC'];
     const result = prepareCurrentParty(host(actor(), { 甲: ally }), optionsFor(['甲']));
     expect(result.ready).toBe(true); expect(result.candidates[1]!.source?.ac).toBe(17);
-    expect(result.party[1]!.stats.hp + result.party[1]!.stats.armor).toBe(222);
+    expect(result.party[1]!.stats.armor).toBe(Math.round(partyBaseStats(20).armor * 1.035));
   });
   it.each([NaN, Infinity, -1, '20', 1.5])('rejects malformed level %j', value => {
     expect(prepareCurrentParty(host(actor({ 等级: value }))).ready).toBe(false);
-  });
-  it.each(['2d6+3', '1d0', '0d6', 'Infinityd6', '2d6junk'])('rejects malformed dice %s', dice => {
-    expect(() => damageDiceExpectation(dice)).toThrow();
   });
   it('blocks zero/overflow/temporary health and out-of-range stats without clipping', () => {
     expect(prepareCurrentParty(host(actor({ 当前生命值: 0 }))).ready).toBe(false);
     expect(prepareCurrentParty(host(actor({ 当前生命值: 201 }))).ready).toBe(false);
     expect(prepareCurrentParty(host(actor({ 临时生命值: 3 }))).issues.some(issue => issue.code === 'temporary-hp')).toBe(true);
-    expect(prepareCurrentParty(host(actor({ 生命值上限: 99999 }))).ready).toBe(false);
+    // AIRP HP only gives the ratio; a living character never rounds down to zero.
+    const tiny = prepareCurrentParty(host(actor({ 生命值上限: 99999 })));
+    expect(tiny.ready).toBe(true); expect(tiny.party[0]!.initialHp).toBe(1);
     expect(prepareCurrentParty(host(), { conversion: { ...DEFAULT_PARTY_CONVERSION, attackScale: 100 } }).ready).toBe(false);
     expect(prepareCurrentParty(host(), { conversion: { ...DEFAULT_PARTY_CONVERSION, hpScale: NaN } }).ready).toBe(false);
     const replay = prepareCurrentParty(host(actor({ 当前生命值: 0, 临时生命值: 3 })), { mode: 'replay' });

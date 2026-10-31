@@ -4,7 +4,7 @@ const savedKey='st.enemy-design-preview.v1';
 const cases=[
   {
     "id": 6220,
-    "seed": 19,
+    "seed": 2,
     "colors": "Red,Brown",
     "rank": "精锐",
     "form": "人形",
@@ -12,7 +12,7 @@ const cases=[
   },
   {
     "id": 7131,
-    "seed": 18,
+    "seed": 115,
     "colors": "Blue,Brown",
     "rank": "精锐",
     "form": "类人",
@@ -20,7 +20,7 @@ const cases=[
   },
   {
     "id": 6788,
-    "seed": 0,
+    "seed": 332,
     "colors": "Yellow,Purple",
     "rank": "杂兵",
     "form": "人形",
@@ -28,7 +28,7 @@ const cases=[
   },
   {
     "id": 7160,
-    "seed": 0,
+    "seed": 36,
     "colors": "Blue,Yellow",
     "rank": "杂兵",
     "form": "人形",
@@ -36,7 +36,7 @@ const cases=[
   },
   {
     "id": 7161,
-    "seed": 20,
+    "seed": 4,
     "colors": "Red,Purple",
     "rank": "精锐",
     "form": "人形",
@@ -44,7 +44,7 @@ const cases=[
   },
   {
     "id": 7159,
-    "seed": 11,
+    "seed": 111,
     "colors": "Green,Purple",
     "rank": "杂兵",
     "form": "怪物",
@@ -52,7 +52,7 @@ const cases=[
   },
   {
     "id": 7335,
-    "seed": 2,
+    "seed": 15,
     "colors": "Red,Purple",
     "rank": "首领",
     "form": "人形",

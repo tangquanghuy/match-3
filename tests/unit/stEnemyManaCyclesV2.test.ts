@@ -151,9 +151,9 @@ describe('v2 closed team mana supply risk',()=>{
   expect(a.manaFlow!.consumedColors).toEqual([Red]);
   expect(issues(clone(a),clone(b))).toEqual(issues(a,b));
  });
- it('defaults to v2 but preserves the entire v1 profile shape and old admission',()=>{
+ it('adds mana flow in v2 but preserves the entire v1 profile shape and old admission',()=>{
   const segments=[create(Blue),lethal,extra],a=profile(Red,segments,1),b=profile(Blue,[create(Red)],1);
-  const {manaFlow,...v2base}=profileEnemyAssembly(troop,{segments},[],[]);
+  const {manaFlow,...v2base}=profileEnemyAssembly(troop,{segments},[],[],2);
   expect(manaFlow).toBeDefined();expect(a).toEqual(v2base);expect(a).not.toHaveProperty('manaFlow');
   expect(enemyTeamGenerationIssues([a,b],1)).toEqual([]);
   expect(enemyTeamGenerationIssues([profile(Red,[create(Red),lethal,extra],1)],1)).toEqual(['teamLethalManaLoop']);
@@ -210,7 +210,8 @@ describe('versioned individual admission and real assembly entry',()=>{
   try{
    catalogue.splice(0,catalogue.length,fixture);
    const compiled=compileEnemyDesign(input,{seed:17,externalId:'branch-fixture'});
-   expect(compiled.generation!.version).toBe(2);
+   // New designs use the current policy (v3), which keeps the v2 mana-cycle admission.
+   expect(compiled.generation!.version).toBe(3);
    expect(compiled.generation!.profile.selfMana).toBe(true);
    expect(compiled.generation!.profile.highImpact).toContain('extraTurn');
    expect(enemyGenerationIssues(compiled.generation!.profile,art.rank,'ordinary')).toEqual([]);

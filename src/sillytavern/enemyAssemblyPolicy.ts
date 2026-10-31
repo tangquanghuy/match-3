@@ -8,7 +8,9 @@ import {inspectEnemyMechanisms} from './enemyMechanismRules';
 import {stEffectIsProvablyUnreachable,stTraitIsProvablyUnreachable} from './economyAvailability';
 import {stableJson} from './json';
 
-export const ENEMY_ASSEMBLY_POLICY_VERSION=2;
+export const ENEMY_ASSEMBLY_POLICY_VERSION=3;
+/** Saved designs restore with their own version; v1/v2 keep their exact historical rules. */
+export type EnemyAssemblyPolicyVersion=1|2|3;
 export type EnemyGenerationPool='ordinary'|'special';
 /** V2 evidence is serialized with previous members; v1 profiles retain their exact shape. */
 export interface EnemyManaFlowPath {
@@ -23,9 +25,17 @@ export interface EnemyAssemblyProfile {
  generatedColors:string[];canAttack:boolean;hasTeamBenefit:boolean;
  damage:EffectSegment[];gems:EffectSegment[];summons:EffectSegment[];
  conditions:boolean;groupKey:string;manaFlow?:EnemyManaFlow;
+ /** V3 only. Strong active effects that fire without any condition or probability gate. */
+ ungatedHighImpact?:string[];
+ /** V3 only. Trait mechanism families, named like active families where they mean the same thing. */
+ traitFamilies?:string[];
+ /** V3 only. Active path families plus trait families the active does not already have. */
+ combinedFamilies?:number;
+ /** V3 only. highImpact plus trait summon/storm/revive and mass control. */
+ highImpactPlus?:string[];
 }
 export interface EnemyGeneration {
- version:1|typeof ENEMY_ASSEMBLY_POLICY_VERSION;pool:EnemyGenerationPool;primaryRole:string;
+ version:EnemyAssemblyPolicyVersion;pool:EnemyGenerationPool;primaryRole:string;
  profile:EnemyAssemblyProfile;context?:{teamColors?:string[];previous?:EnemyAssemblyProfile[]};groupKey:string;groupWeight:number;recipeWeight:number;
 }
 const positive=new Set(['barrier','blessed','enraged','enchant','enchanted','reflect','submerged','rage']);
@@ -208,8 +218,53 @@ function traitValueIsReachable(value:unknown,key:string):boolean {
  if(Object.hasOwn(lethalTraitEffects,key))return typeof value==='number'?value>0:record(value)&&typeof value.chance==='number'&&value.chance>0;
  return true;
 }
+const enemyTargeted=(s:EffectSegment)=>'target'in s&&typeof s.target==='string'&&(s.target.startsWith('enemy')||s.target.startsWith('last'));
+function strongEffect(s:EffectSegment):string|undefined {
+ if(s.kind==='devour'&&enemyTargeted(s))return 'devour';
+ if(s.kind==='damage'&&s.execute&&enemyTargeted(s))return 'execute';
+ if(s.kind==='extraTurn')return 'extraTurn';
+ if((s.kind==='transformTroop'||s.kind==='status'&&['lycanthropy','wolf','wolf-form'].includes(s.statusId))&&enemyTargeted(s))return 'enemyTransform';
+ return undefined;
+}
+/** A segment's own condition or probability. Devour rolls its own chance (and chance multiplier). */
+function segmentGated(s:EffectSegment):boolean {
+ if(s.kind==='choose')return false;
+ if(s.ifCond!==undefined||s.ifTargetDied===true||s.chanceBoost!==undefined)return true;
+ if(s.kind==='devour')return s.chance<1||s.chanceMult!==undefined;
+ return s.chance!==undefined&&s.chance<1;
+}
+/**
+ * Strong effects reachable without any gate. Like the original game, devour, execute, extra turns
+ * and enemy transformation should depend on a condition or a roll. Random oneOf branches with more
+ * than one option count as a roll; a player-chosen branch does not.
+ */
+function ungatedStrongEffects(segments:readonly EffectSegment[]):string[] {
+ const found=new Set<string>();
+ const walk=(items:readonly EffectSegment[],gated:boolean):void=>{
+  for(const s of items){
+   if(!effectIsReachable(s))continue;
+   const own=gated||segmentGated(s);
+   if(s.kind==='choose'||s.kind==='oneOf'){
+    const random=s.kind==='oneOf'&&s.options.length>1;
+    for(const option of s.options)walk(option,own||random);
+    continue;
+   }
+   const effect=strongEffect(s);
+   if(effect&&!own)found.add(effect);
+  }
+ };
+ walk(segments,false);
+ return [...found].sort();
+}
+const IGNORED_TRAIT_TAGS=new Set(['economy','mode','delveMiles','mastery']);
+const TRAIT_TAG_FAMILY:Readonly<Record<string,string>>={
+ damage:'damage',gemCreate:'gem:create',gemExplode:'gem:explode',gemTransform:'gem:transform',gemDestroy:'gem:destroy',
+ mana:'mana',manaLink:'mana',summon:'summon',execute:'execute',devour:'devour',regen:'heal',cleanse:'cleanse',
+ dispel:'dispel',buff:'attribute',aura:'attribute',lifeSteal:'life',
+};
+const TRAIT_HIGH_IMPACT:Readonly<Record<string,string>>={summon:'traitSummon',storm:'traitStorm',revive:'traitRevive'};
 /** The primary role is a source classification seed; capabilities never assign another role. */
-export function profileEnemyAssembly(troop:TroopData,prototype:SkillPrototype,traits:readonly TraitDefinition[],capabilities:readonly string[],version:1|2=ENEMY_ASSEMBLY_POLICY_VERSION):EnemyAssemblyProfile {
+export function profileEnemyAssembly(troop:TroopData,prototype:SkillPrototype,traits:readonly TraitDefinition[],capabilities:readonly string[],version:EnemyAssemblyPolicyVersion=ENEMY_ASSEMBLY_POLICY_VERSION):EnemyAssemblyProfile {
  const ps=paths(prototype.segments),ss=ps.flat();
  const enemy=(s:EffectSegment)=>'target'in s&&typeof s.target==='string'&&(s.target.startsWith('enemy')||s.target.startsWith('last'));
  const damage=ss.filter(s=>s.kind==='damage'&&enemy(s));
@@ -244,13 +299,36 @@ export function profileEnemyAssembly(troop:TroopData,prototype:SkillPrototype,tr
   hasTeamBenefit:ss.some(s=>'target'in s&&typeof s.target==='string'&&s.target.startsWith('ally')&&s.target!=='allySelf'),
   damage:structuredClone([...new Set(damage)]),gems:structuredClone([...new Set(gems)]),summons:structuredClone([...new Set(ss.filter(s=>['summon','summonCopy','transformTroop'].includes(s.kind)))]),
   conditions:allNodes.some(n=>['ifCond','ifTargetDied','chance','chanceBoost','rangeSpec','condMult','condBonus'].some(k=>n[k]!==undefined))};
- return {...base,...(version===2?{manaFlow:profileManaFlow(troop,prototype)}:{}),groupKey:stableJson({families:familySet,shapes:base.damageShapes,cost:costBand(troop.manaCost),conditional:base.conditions})};
+ const groupKey=stableJson({families:familySet,shapes:base.damageShapes,cost:costBand(troop.manaCost),conditional:base.conditions});
+ if(version!==3)return {...base,...(version===2?{manaFlow:profileManaFlow(troop,prototype)}:{}),groupKey};
+ const tags=traitRules.filter(f=>f.startsWith('trait:')).map(f=>f.slice(6)).filter(tag=>!IGNORED_TRAIT_TAGS.has(tag)&&!tag.startsWith('delve'));
+ const traitFamilies=unique(tags.map(tag=>TRAIT_TAG_FAMILY[tag]??'trait:'+tag));
+ const highImpactPlus=unique([...base.highImpact,...tags.flatMap(tag=>TRAIT_HIGH_IMPACT[tag]?[TRAIT_HIGH_IMPACT[tag]!]:[]),...(massControl?['massControl']:[])]);
+ return {...base,manaFlow:profileManaFlow(troop,prototype),groupKey,ungatedHighImpact:ungatedStrongEffects(prototype.segments),
+  traitFamilies,combinedFamilies:base.maxPathFamilies+traitFamilies.filter(f=>!familySet.includes(f)).length,highImpactPlus};
 }
 function costBand(n:number):string{return n<=10?'01-10':n<=14?'11-14':n<=18?'15-18':n<=24?'19-24':'25+';}
 export const ENEMY_RANK_GENERATION_RULES:Record<string,{maxFamilies:number;maxHighImpact:number;simpleTarget:number}>={
  '杂兵':{maxFamilies:3,maxHighImpact:0,simpleTarget:2},'精锐':{maxFamilies:3,maxHighImpact:0,simpleTarget:2},
  '首领':{maxFamilies:4,maxHighImpact:1,simpleTarget:3},'领主':{maxFamilies:4,maxHighImpact:2,simpleTarget:3},'传奇':{maxFamilies:5,maxHighImpact:2,simpleTarget:3},
 };
+/**
+ * V3 caps, calibrated on the 1800 native troops (docs/sillytavern-enemy-assembly-rules.md):
+ * native active families have P90 3 at every rank; combined families (traits included) have
+ * median 4/4/4/4/5 and P75 5. maxHighImpact counts highImpactPlus. simpleTarget is unchanged.
+ */
+export const ENEMY_RANK_GENERATION_RULES_V3:Record<string,{maxFamilies:number;maxCombinedFamilies:number;maxHighImpact:number;simpleTarget:number}>={
+ '杂兵':{maxFamilies:3,maxCombinedFamilies:4,maxHighImpact:0,simpleTarget:2},'精锐':{maxFamilies:3,maxCombinedFamilies:5,maxHighImpact:0,simpleTarget:2},
+ '首领':{maxFamilies:3,maxCombinedFamilies:5,maxHighImpact:1,simpleTarget:3},'领主':{maxFamilies:3,maxCombinedFamilies:5,maxHighImpact:1,simpleTarget:3},'传奇':{maxFamilies:3,maxCombinedFamilies:6,maxHighImpact:2,simpleTarget:3},
+};
+/**
+ * V3: re-rolled traits may not bring high-impact effects (incl. trait summon/storm/revive and
+ * mass control) that the source troop's own kit at this level lacks. Both profiles must be v3.
+ */
+export function enemyTraitHighImpactIssues(profile:EnemyAssemblyProfile,nativeKit:EnemyAssemblyProfile):string[] {
+ const native=new Set(nativeKit.highImpactPlus??[]);
+ return (profile.highImpactPlus??[]).some(effect=>!native.has(effect))?['traitAddedHighImpact']:[];
+}
 /** Relative preferences inside the already fixed primary-role pool, never a role classifier. */
 export const ENEMY_ROLE_EFFECT_WEIGHTS:Record<string,Record<string,number>>={
  Striker:{damage:4,trueDamage:1,gemCreate:1,gemConvert:1,damageReduction:.5},
@@ -267,14 +345,22 @@ export function enemyRoleAffinity(role:string,capabilities:readonly string[]):nu
  const weights=ENEMY_ROLE_EFFECT_WEIGHTS[role]??{};
  return 1+capabilities.reduce((sum,key)=>sum+(weights[key]??0),0)/4;
 }
-export function enemyGenerationIssues(profile:EnemyAssemblyProfile,rank:string,pool:EnemyGenerationPool,version:1|2=ENEMY_ASSEMBLY_POLICY_VERSION):string[] {
+export function enemyGenerationIssues(profile:EnemyAssemblyProfile,rank:string,pool:EnemyGenerationPool,version:EnemyAssemblyPolicyVersion=ENEMY_ASSEMBLY_POLICY_VERSION):string[] {
  const rule=ENEMY_RANK_GENERATION_RULES[rank];if(!rule)return ['unknownRank'];
  const issues:string[]=[];
- if(pool==='ordinary'){
+ if(version===3){
+  const v3=ENEMY_RANK_GENERATION_RULES_V3[rank]!;
+  if(pool==='ordinary'){
+   if(profile.maxPathFamilies>v3.maxFamilies)issues.push('activeComplexity');
+   if((profile.combinedFamilies??profile.maxPathFamilies)>v3.maxCombinedFamilies)issues.push('combinedComplexity');
+   if((profile.highImpactPlus??profile.highImpact).length>v3.maxHighImpact)issues.push('highImpactLimit');
+   if(profile.ungatedHighImpact?.length)issues.push('ungatedHighImpact');
+  }
+ }else if(pool==='ordinary'){
   if(profile.maxPathFamilies>rule.maxFamilies)issues.push('activeComplexity');
   if(profile.highImpact.length>rule.maxHighImpact)issues.push('highImpactLimit');
  }
- if(version===2){
+ if(version>=2){
   const cycles=teamManaCycleIssues([profile]);
   if(cycles.includes('teamLethalManaLoop'))issues.push('lethalManaLoop');
   if(cycles.includes('teamCheapControlLoop'))issues.push('cheapMassControlLoop');
@@ -284,8 +370,8 @@ export function enemyGenerationIssues(profile:EnemyAssemblyProfile,rank:string,p
  }
  return issues;
 }
-export function enemyTeamGenerationIssues(profiles:readonly EnemyAssemblyProfile[],version:1|2=ENEMY_ASSEMBLY_POLICY_VERSION):string[] {
- if(version===2)return teamManaCycleIssues(profiles);
+export function enemyTeamGenerationIssues(profiles:readonly EnemyAssemblyProfile[],version:EnemyAssemblyPolicyVersion=ENEMY_ASSEMBLY_POLICY_VERSION):string[] {
+ if(version>=2)return teamManaCycleIssues(profiles);
  const lethal=profiles.some(p=>p.highImpact.some(x=>x==='devour'||x==='execute'));
  const mana=profiles.some(p=>p.selfMana);
  const extra=profiles.some(p=>p.highImpact.includes('extraTurn'));

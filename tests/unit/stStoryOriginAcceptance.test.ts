@@ -104,9 +104,9 @@ function fixture() {
  };
 }
 
+/** Change a host value that moves the converted attack (st-party-v2: strength nudges attack) but not HP. */
 function alterPanel(f:ReturnType<typeof fixture>):void {
- const combat=f.hero['战斗属性'] as Record<string,unknown>;
- (combat['武器面板'] as Record<string,unknown>)['固定伤害']=100;
+ (f.hero['属性'] as Record<string,unknown>)['力量']=30;
 }
 
 describe('ST integrated story origin acceptance: freeze and side effects',()=>{
@@ -127,7 +127,8 @@ describe('ST integrated story origin acceptance: freeze and side effects',()=>{
   const receipt=await f.settle();expect(receipt.grants).toEqual([{kind:'fragment',id:'enemy-source',name:'骑士的灵魂碎片',quantity:1}]);
   expect(f.saved.sources[0]!.wins).toBe(1);expect(f.saved.balances).toEqual({});expect(f.saved.encounters).toHaveLength(1);
   expect(f.data).toEqual(initial);expect(f.replace).not.toHaveBeenCalled();expect(f.updateVariables).not.toHaveBeenCalled();expect(f.queue).toHaveLength(1);
-  await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(1);expect(f.marker()!.report).toEqual(receipt.report);
+  // 1 battle HP left of the hero's match-3 maximum maps back onto the 200-point tavern maximum.
+  await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(Math.round(200/f.request.playerTeam[0]!.stats.hp));expect(f.marker()!.report).toEqual(receipt.report);
   expect(f.marker()!.result).toEqual(receipt.result);expect(f.queue).toEqual([]);expect(f.remove).toHaveBeenCalledTimes(1);
  });
  it('commits a defeat with its frozen origin, zero grants and no codex entry',async()=>{

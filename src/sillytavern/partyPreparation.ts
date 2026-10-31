@@ -1,6 +1,9 @@
 import { ALL_BASE_COLORS, BaseColor } from '../engine/types';
 import type { SkillPrototype } from '../engine/skills/prototypes';
 import { TROOPS } from '../data/troops';
+import { troopStatsAtLevel } from '../data/leveling';
+import { isImmortal } from '../data/immortals';
+import { storyInitialHp } from './storyHp';
 import weapons from '../data/weapons.json';
 import type { CombatantSnapshot } from '../session/contract';
 import { STAT_LIMITS, TEAM_SIZE_LIMITS } from '../session/validateRequest';
@@ -13,7 +16,16 @@ import { weaponOwned } from './weaponShop';
 
 /** Member refs are JSON pointers into statData, shared by selection and equippedAbilities. */
 export const HERO_MEMBER_REF = '/人物';
-export const PARTY_CONVERSION_VERSION = 'st-party-v1';
+/**
+ * st-party-v2: match-3 stats follow the match-3 level curve; AIRP attributes and AC only nudge
+ * them (−5% to +10%). AIRP HP, weapon panels and damage reductions no longer set absolute numbers;
+ * AIRP HP only supplies the current/max ratio for story entry HP.
+ */
+export const PARTY_CONVERSION_VERSION = 'st-party-v2';
+/** Rarity whose median troop defines the party's base curve (the original game's most common normal-mode rarity). */
+export const PARTY_REFERENCE_RARITY = 2;
+/** AIRP attribute scores and AC above this value count as this value. */
+export const PARTY_ATTRIBUTE_CAP = 30;
 /** The game's starter weapon (meta STARTER_WEAPON_ID); used whenever no weapon is bound. */
 export const STARTER_WEAPON = 'gw_KnightsSword';
 const escapePointer = (key: string): string => key.replace(/~/g, '~0').replace(/\//g, '~1');
@@ -58,9 +70,9 @@ export interface PartyCandidate {
   equipment: PartyEquipment[]; issues: PartyIssue[]; snapshot?: CombatantSnapshot;
   source?: {
     level: number; maxHp: number; currentHp: number; temporaryHp: number; ac: number;
-    panelSource: string; diceExpectation: number; levelCoefficient: number; fixedDamage: number;
-    attackCount: number; normalAttackMultiplier: number; physicalReduction: number; magicalReduction: number;
-    effectiveReduction: number; attackBaseline: number;
+    /** Scores as read (uncapped); the factors apply PARTY_ATTRIBUTE_CAP. */
+    attributes: Record<typeof coreKeys[number], number>;
+    base: PartyStats; factors: PartyStats;
   };
   weapon?: { id: string; sourceId: number; spellId: number; isDefault: boolean; equipmentRef?: string };
   ability?: PartyAbilityChoice;
@@ -97,17 +109,34 @@ function colors(value: unknown, path: string): BaseColor[] {
       value.some(color => !ALL_BASE_COLORS.includes(color as BaseColor))) fail('colors', path, `${path} 需要一至三种不同的六色法力颜色`);
   return [...value] as BaseColor[];
 }
-/** Supports helper-generated merged offhand panels (e.g. 1d6+1d4); never rolls dice. */
-export function damageDiceExpectation(value: unknown): number {
-  const path = '伤害骰';
-  if (typeof value !== 'string' || !/^\s*\d+d\d+(\s*\+\s*\d+d\d+)*\s*$/i.test(value))
-    fail('dice', path, '伤害骰需要 NdM 或 NdM+NdM 格式');
-  return value.split('+').reduce((sum, term) => {
-    const [count, sides] = term.trim().toLowerCase().split('d').map(Number);
-    number(count, path, 1, 1000, true); number(sides, path, 2, 1000, true);
-    return sum + count! * (sides! + 1) / 2;
-  }, 0);
+type PartyStats = CombatantSnapshot['stats'];
+const baseCurve = new Map<number, PartyStats>();
+const median = (values: number[]): number => {
+  const sorted = [...values].sort((a, b) => a - b); const mid = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+};
+/**
+ * Level-driven base stats: per stat, the median of every ordinary (non-Immortal) troop of
+ * PARTY_REFERENCE_RARITY at that level. Enemies use the same troop curve (troopStatsAtLevel),
+ * so a party member and an enemy of the same level start from comparable numbers.
+ */
+export function partyBaseStats(level: number): PartyStats {
+  const cached = baseCurve.get(level); if (cached) return { ...cached };
+  const leveled = TROOPS.filter(t => t.rarityIdx === PARTY_REFERENCE_RARITY && !isImmortal(t)).map(t => troopStatsAtLevel(t, level));
+  const stats = { hp: median(leveled.map(s => s.health)), attack: median(leveled.map(s => s.attack)),
+    armor: median(leveled.map(s => s.armor)), magic: median(leveled.map(s => s.magic)) };
+  baseCurve.set(level, stats); return { ...stats };
 }
+/** D&D ability modifier of a score capped at PARTY_ATTRIBUTE_CAP: −5 (score 1) to +10 (score 30). */
+export function partyAttributeModifier(score: number): number {
+  return Math.floor((Math.min(score, PARTY_ATTRIBUTE_CAP) - 10) / 2);
+}
+/**
+ * Small nudge from AIRP numbers: 1% per ability modifier point, 0.5% per AC point above 10.
+ * Range 0.95–1.10, so even all-30 scores weigh about as much as five levels (simulated).
+ */
+export function partyAttributeFactor(score: number): number { return 1 + .01 * partyAttributeModifier(score); }
+export function partyAcFactor(ac: number): number { return 1 + .005 * (Math.min(ac, PARTY_ATTRIBUTE_CAP) - 10); }
 
 interface PartyCatalogue {
   abilities: PartyAbilityChoice[]; prototypes: Map<string, SkillPrototype>;
@@ -260,8 +289,8 @@ function actorAc(actor: Record<string, unknown>, equipped: PartyEquipment[], ref
   }
   return 10 + bonus;
 }
-function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>, root: Record<string, unknown>,
-  mode: 'classic' | 'new', options: PartyPreparationOptions, config: PartyConversionConfig): void {
+function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>,
+  options: PartyPreparationOptions, config: PartyConversionConfig): void {
   const ref = candidate.memberRef;
   const level = number(actor['等级'], `${ref}/等级`, 1, 100, true);
   const maxHp = number(actor['生命值上限'], `${ref}/生命值上限`, 1, Number.MAX_SAFE_INTEGER, true);
@@ -269,58 +298,26 @@ function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>,
   const temporaryHp = number(actor['临时生命值'] === undefined ? 0 : actor['临时生命值'], `${ref}/临时生命值`, 0, Number.MAX_SAFE_INTEGER, true);
   const attrs = record(actor['属性'], `${ref}/属性`);
   const core = coreKeys.map(key => number(attrs[key], `${ref}/属性/${key}`, 1, Number.MAX_SAFE_INTEGER, true));
-  const combat = actor['战斗属性'] === undefined ? {} : record(actor['战斗属性'], `${ref}/战斗属性`);
-  const physicalReduction = number(combat['物理减伤'] === undefined ? 0 : combat['物理减伤'], `${ref}/战斗属性/物理减伤`, 0, 100);
-  const magicalReduction = number(combat['魔法减伤'] === undefined ? 0 : combat['魔法减伤'], `${ref}/战斗属性/魔法减伤`, 0, 100);
+  const [strength, dexterity, constitution, intelligence, wisdom, charisma] = core as [number, number, number, number, number, number];
   const equipped = candidate.equipment;
   const mains = equipped.filter(item => item.type === '武器' && item.slot === '主手');
   if (mains.length > 1) fail('weapon-ambiguous', `${ref}/装备列表`, '存在多件已穿戴主手武器');
-  // Actor aggregate includes merged offhand dice and the attribute adjustment already.
-  let panelSource = `${ref}/战斗属性/武器面板`;
-  let panelValue = combat['武器面板'];
-  if (panelValue === undefined && candidate.kind === 'hero' && root['武器面板'] !== undefined) {
-    panelValue = root['武器面板']; panelSource = '/武器面板';
-  }
-  let panel: Record<string, unknown>;
-  if (panelValue !== undefined) panel = record(panelValue, panelSource);
-  else {
-    // Exact helper buildUnarmedWeaponPanel/calcAttrFixedDmg; no GoW weapon stats.
-    // A worn weapon whose helper panel is missing also falls back instead of blocking the battle.
-    const coef = mode === 'new' ? 1 : Math.floor(level / 10) + 1;
-    const modifier = Math.max(0, Math.floor((Math.min(Math.max(...core), 40) - 10) / 2));
-    panel = { 伤害骰: '1d4', 等级系数: coef, 固定伤害: (mode === 'new' ? 0 : level) + modifier * coef };
-    panelSource = 'helper:unarmed';
-  }
-  let diceExpectation: number;
-  try { diceExpectation = damageDiceExpectation(panel['伤害骰']); }
-  catch (error) { if (error instanceof InputIssue) fail(error.issue.code, `${panelSource}/伤害骰`, error.message); throw error; }
-  const levelCoefficient = number(panel['等级系数'], `${panelSource}/等级系数`, 1, Number.MAX_SAFE_INTEGER, true);
-  const fixedDamage = number(panel['固定伤害'], `${panelSource}/固定伤害`, 0, Number.MAX_SAFE_INTEGER, true);
-  if (mode === 'new' && levelCoefficient !== 1) fail('stale-panel', `${panelSource}/等级系数`, '新版武器面板等级系数应为 1，请先同步辅助脚本');
-  const action = combat['每回合动作资源'] === undefined ? {} : record(combat['每回合动作资源'], `${ref}/战斗属性/每回合动作资源`);
-  const attackCount = action['攻击次数'] === undefined ? (level >= 50 ? 3 : level >= 20 ? 2 : 1)
-    : number(action['攻击次数'], `${ref}/战斗属性/每回合动作资源/攻击次数`, 1, 3, true);
-  const normalAttackMultiplier = mode === 'new' ? 1 + level * .02 : 1;
-  const attackBaseline = (diceExpectation * levelCoefficient + fixedDamage) * normalAttackMultiplier * attackCount;
   const ac = actorAc(actor, equipped, ref);
-  // Provisional equal physical/magical weighting. New AIRP rules explicitly use zero reduction.
-  const effectiveReduction = mode === 'new' ? 0 : (physicalReduction + magicalReduction) / 2;
-  if (effectiveReduction >= 100) fail('reduction', `${ref}/战斗属性`, '永久完全减伤超出当前转换范围');
-  const durability = maxHp * config.hpScale / (1 - effectiveReduction / 100);
-  const acBudget = Math.max(0, ac - 10) * config.armorScale;
-  // Split one durability budget; adding AC does not duplicate the full HP budget.
-  const armor = Math.round(durability * acBudget / (durability + acBudget));
-  const stats = { hp: Math.round(durability) - armor, armor,
-    attack: Math.round(attackBaseline * config.attackScale),
-    magic: Math.round(Math.max(0, Math.floor((Math.max(core[3]!, core[4]!, core[5]!) - 10) / 2)) * config.magicScale) };
+  // Level sets the trend; AIRP numbers only nudge it, and scores/AC above 30 count as 30.
+  const base = partyBaseStats(level);
+  const factors = { hp: partyAttributeFactor(constitution), attack: partyAttributeFactor(Math.max(strength, dexterity)),
+    armor: partyAcFactor(ac), magic: partyAttributeFactor(Math.max(intelligence, wisdom, charisma)) };
+  const scaled = (key: keyof PartyStats, scale: number) => Math.round(base[key] * factors[key] * scale);
+  const stats = { hp: Math.max(1, scaled('hp', config.hpScale)), attack: scaled('attack', config.attackScale),
+    armor: scaled('armor', config.armorScale), magic: scaled('magic', config.magicScale) };
   for (const key of ['hp', 'attack', 'armor', 'magic'] as const)
     number(stats[key], `${ref}/stats/${key}`, STAT_LIMITS[key].min, STAT_LIMITS[key].max, true);
-  candidate.source = { level, maxHp, currentHp, temporaryHp, ac, panelSource, diceExpectation, levelCoefficient,
-    fixedDamage, attackCount, normalAttackMultiplier, physicalReduction, magicalReduction, effectiveReduction, attackBaseline };
+  candidate.source = { level, maxHp, currentHp, temporaryHp, ac,
+    attributes: Object.fromEntries(coreKeys.map((key, index) => [key, core[index]!])) as Record<typeof coreKeys[number], number>,
+    base, factors };
   if (options.mode !== 'replay' && temporaryHp > 0) candidate.issues.push({ code: 'temporary-hp', path: `${ref}/临时生命值`, message: '临时生命吸收池尚未实现，请先处理临时 HP' });
   if (options.mode !== 'replay' && currentHp === 0) candidate.issues.push({ code: 'zero-hp', path: `${ref}/当前生命值`, message: '当前生命为零的角色尚未恢复战斗能力' });
-  const initialHp = options.mode === 'replay' ? stats.hp : Math.round(stats.hp * currentHp / maxHp);
-  if (currentHp > 0 && initialHp === 0 && options.mode !== 'replay') fail('hp-resolution', `${ref}/当前生命值`, '当前缩放把存活角色舍入为零，请统一调整转换系数');
+  const initialHp = options.mode === 'replay' ? stats.hp : storyInitialHp(stats.hp, currentHp, maxHp);
   candidate.snapshot = { externalId: ref, name: candidate.name, levelLabel: String(level), battleScaling: { level, difficulty: 1 }, stats, initialHp,
     portraitUrl: defaultActorPortrait(actor['性别']), manaColors: [], manaCost: 1 };
 }
@@ -396,7 +393,7 @@ export function prepareCurrentParty(snapshot: HostSnapshot, options: PartyPrepar
           if (!candidate.eligible) candidate.issues.push({ code: 'not-travelling', path: `${ref}/同行誓约`, message: '该角色当前未同行' });
         }
         candidate.equipment = readEquipment(actor, ref);
-        prepareActor(candidate, actor, root, mode, options, config);
+        prepareActor(candidate, actor, options, config);
         const unit = candidate.snapshot!;
         if (kind === 'hero') {
           const main = candidate.equipment.find(item => item.type === '武器' && item.slot === '主手');
@@ -469,7 +466,7 @@ export function prepareCurrentParty(snapshot: HostSnapshot, options: PartyPrepar
   }
   return { ready: issues.length === 0, party: issues.length ? [] : selected.map(ref => structuredClone(candidates.find(item => item.memberRef === ref)!.snapshot!)),
     candidates, issues, initializationChoices, conversion: { version: PARTY_CONVERSION_VERSION, status: 'uncalibrated', mode, config },
-    notices: ['st-party-v1 转换系数与耐久/法强预算尚未完成产品标定；此结果不代表产品验收通过。',
+    notices: ['st-party-v2：三消数值按等级取原游戏同稀有度兵种的中位数曲线，五维与 AC（超过 30 按 30 计）只做 −5%～+10% 的修正；尚未经过真实酒馆体验标定。',
       '临时 HP 吸收池、族群身份、武器淬炼及词缀尚未接入；同伴颜色按名字与稀有度测试映射。'] };
 }
 
