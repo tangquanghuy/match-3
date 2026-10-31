@@ -12,8 +12,8 @@ import {createSave,emptyRoot,validateSave} from '../../src/sillytavern/save';
 import type {PendingStory,StSave} from '../../src/sillytavern/save';
 import {completeStory} from '../../src/sillytavern/storySession';
 import {prepareCurrentParty} from '../../src/sillytavern/partyPreparation';
-import {buildStoryWritebackRecord,STORY_RESULTS_FIELD} from '../../src/sillytavern/storyWriteback';
-import type {StoryWritebackOrigin,StoryWritebackRecord} from '../../src/sillytavern/storyWriteback';
+import {buildStoryWritebackRecord} from '../../src/sillytavern/storyWriteback';
+import type {StoryWritebackAck,StoryWritebackOrigin} from '../../src/sillytavern/storyWriteback';
 import {stableJson} from '../../src/sillytavern/json';
 
 const jsonClone=<T>(value:T):T=>JSON.parse(JSON.stringify(value)) as T;
@@ -92,7 +92,8 @@ function fixture() {
  const stageStory=(ticket:PendingStory)=>service.stageReplayOutcome('save',ticket,result,events,chat,'story');
  const settle=()=>service.completeStory('save',result,events);
  const reopen=()=>new StHostService(new StHostAdapter(helpers,host,'host'),repository);
- const marker=()=>((dataByChat['chat-a']!.stat_data[STORY_RESULTS_FIELD]??{}) as Record<string,StoryWritebackRecord>)['story'];
+ // Story facts stay in the local receipt; the chat-level acknowledgement prevents a second HP write.
+ const marker=()=>(((variablesByChat['chat-a']!['match3'] as Record<string,unknown>)['storyResults']??{}) as Record<string,StoryWritebackAck>)['story'];
  return {adapter,service,repository,request,result,sources,source,events,context,replace,updateVariables,get,locks,list,listOutcomes,update,stage,remove,
   begin,outcome,stageStory,settle,reopen,marker,
   get saved(){return structuredClone(stored);},get queue(){return structuredClone(queue);},
@@ -128,14 +129,14 @@ describe('ST integrated story origin acceptance: freeze and side effects',()=>{
   expect(f.saved.sources[0]!.wins).toBe(1);expect(f.saved.balances).toEqual({});expect(f.saved.encounters).toHaveLength(1);
   expect(f.data).toEqual(initial);expect(f.replace).not.toHaveBeenCalled();expect(f.updateVariables).not.toHaveBeenCalled();expect(f.queue).toHaveLength(1);
   // 1 battle HP left of the hero's match-3 maximum maps back onto the 200-point tavern maximum.
-  await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(Math.round(200/f.request.playerTeam[0]!.stats.hp));expect(f.marker()!.report).toEqual(receipt.report);
-  expect(f.marker()!.result).toEqual(receipt.result);expect(f.queue).toEqual([]);expect(f.remove).toHaveBeenCalledTimes(1);
+  await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(Math.round(200/f.request.playerTeam[0]!.stats.hp));expect(f.marker()).toMatchObject({battleId:receipt.battleId,resultDigest:receipt.resultDigest});expect(f.data.stat_data).not.toHaveProperty('三消战果');
+  expect(f.queue).toEqual([]);expect(f.remove).toHaveBeenCalledTimes(1);
  });
  it('commits a defeat with its frozen origin, zero grants and no codex entry',async()=>{
   const f=fixture();f.result.winner='enemy';f.result.combatants[0]!.hp=0;f.result.combatants[0]!.defeated=true;f.result.defeatedExternalIds.push('/人物');
   const ticket=await f.begin();await f.stageStory(ticket);const receipt=await f.settle();expect(receipt.storyOrigin).toEqual(ticket.origin);
   expect(receipt.grants).toEqual([]);expect(f.saved.sources).toEqual([]);expect(f.saved.encounters).toEqual([]);
-  await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(0);expect(f.marker()!.report.fallenAllyIds).toContain('/人物');
+  await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(0);expect(f.marker()!.resultDigest).toBe(receipt.resultDigest);expect(receipt.report.fallenAllyIds).toContain('/人物');
  });
  it('keeps accounting and the durable outcome when current host variables conflict',async()=>{
   const f=fixture();const ticket=await f.begin();await f.stageStory(ticket);alterPanel(f);
@@ -218,9 +219,13 @@ describe('ST integrated story origin acceptance: durable retries',()=>{
   }
   if(failure==='chat acknowledgement')f.updateVariables.mockImplementationOnce(()=>{throw new Error('lost chat acknowledgement');});
   if(failure==='queue removal')f.remove.mockRejectedValueOnce(new Error('lost queue removal'));
-  await expect(f.service.finishOutcome(receipt)).rejects.toThrow('lost');expect(f.queue).toHaveLength(1);expect(f.marker()).toBeDefined();
-  f.hero['当前生命值']=7;f.reload();const restored=await f.reopen().retryReplayOutcome(jsonClone(f.queue[0]!));
-  expect(restored).toEqual(receipt);expect(f.hero['当前生命值']).toBe(7);expect(f.replace).toHaveBeenCalledTimes(1);
+  await expect(f.service.finishOutcome(receipt)).rejects.toThrow('lost');expect(f.queue).toHaveLength(1);
+  // HP is already written; only the chat acknowledgement may still be missing.
+  const written=f.hero['当前生命值'];expect(f.marker()===undefined).toBe(failure!=='queue removal');
+  // Once acknowledged, later HP edits on the battle floor are never overwritten.
+  if(failure==='queue removal')f.hero['当前生命值']=7;
+  f.reload();const restored=await f.reopen().retryReplayOutcome(jsonClone(f.queue[0]!));
+  expect(restored).toEqual(receipt);expect(f.hero['当前生命值']).toBe(failure==='queue removal'?7:written);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.marker()).toBeDefined();
   expect(f.saved.settlements).toHaveLength(1);expect(f.saved.sources[0]!.wins).toBe(1);expect(f.queue).toEqual([]);
  });
  it('serializes double finish callbacks and leaves HP and reward progress committed once',async()=>{
@@ -232,9 +237,9 @@ describe('ST integrated story origin acceptance: durable retries',()=>{
  it('retains the queue and already granted receipt if switching chat after the MVU commit',async()=>{
   const f=fixture();const ticket=await f.begin();await f.stageStory(ticket);const receipt=await f.settle();const commit=f.replace.getMockImplementation()!;
   f.replace.mockImplementationOnce(async data=>{await commit(data);f.switchChat('chat-b');});
-  await expect(f.service.finishOutcome(receipt)).rejects.toThrow('切换');expect(f.queue).toHaveLength(1);expect(f.marker()).toBeDefined();
+  await expect(f.service.finishOutcome(receipt)).rejects.toThrow('切换');expect(f.queue).toHaveLength(1);expect(f.marker()).toBeUndefined();
   f.switchChat('chat-a');f.reload();await f.reopen().retryReplayOutcome(f.queue[0]!);
-  expect(f.replace).toHaveBeenCalledTimes(1);expect(f.queue).toEqual([]);expect(f.saved.sources[0]!.wins).toBe(1);
+  expect(f.replace).toHaveBeenCalledTimes(1);expect(f.queue).toEqual([]);expect(f.saved.sources[0]!.wins).toBe(1);expect(f.marker()).toBeDefined();
  });
 });
 
@@ -289,7 +294,7 @@ describe('ST integrated story origin acceptance: stale preparation and receipt a
   expect(()=>buildStoryWritebackRecord(tampered.storyOrigin!,tampered)).not.toThrow();
   const accepted=await f.service.finishOutcome(tampered).then(()=>true,()=>false);
   expect(f.saved.settlements).toEqual([receipt]);
-  expect({accepted,queued:f.queue.length,writes:f.replace.mock.calls.length,storedDamage:f.marker()?.report.units[0]!.hpDamage})
-   .toEqual({accepted:false,queued:1,writes:0,storedDamage:undefined});
+  expect({accepted,queued:f.queue.length,writes:f.replace.mock.calls.length,acknowledged:f.marker()})
+   .toEqual({accepted:false,queued:1,writes:0,acknowledged:undefined});
  });
 });

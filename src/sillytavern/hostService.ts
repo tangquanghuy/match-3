@@ -153,7 +153,7 @@ export class StHostService {
    const {snapshot,save}=await this.current();if(!save)throw new Error('请先创建当前聊天存档');
    const receipt=save.settlements.find(r=>r.battleId===battleId);
    if(receipt&&receipt.kind!=='story')throw new Error('只能重置剧情战斗');
-   await this.adapter.clearStoryResultForTesting(snapshot.chat,location.messageId,location.swipeId,battleId);
+   await this.adapter.clearStoryResultForTesting(snapshot.chat,location.messageId,location.swipeId,battleId,receipt?.storyOrigin?.actors??[]);
    const latest=(await this.repository.list()).find(s=>s.id===save.id);if(!latest)throw new Error('存档不存在');
    await this.repository.update(latest.id,latest.revision,draft=>{this.adapter.assertChat(snapshot.chat);revertStorySettlement(draft,battleId);});
    await this.repository.removeReplayOutcome(battleId);

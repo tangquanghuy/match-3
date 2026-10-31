@@ -20,7 +20,8 @@ export interface StoryWritebackRecord {
  result:SettlementReceipt['result'];report:StBattleReport;
 }
 export interface StoryWritebackResult {status:'applied'|'already-applied';record:StoryWritebackRecord;snapshot:HostSnapshot}
-export const STORY_RESULTS_FIELD='三消战果';
+/** Removed MVU field: earlier versions copied every story result into stat_data. */
+const LEGACY_STORY_RESULTS_FIELD='三消战果';
 const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const integer=(v:unknown,min=0):v is number=>Number.isSafeInteger(v)&&Number(v)>=min;
 const nonempty=(v:unknown):v is string=>typeof v==='string'&&!!v.trim();
@@ -118,7 +119,11 @@ export function buildStoryWritebackRecord(value:StoryWritebackOrigin,receipt:Set
  });
  return structuredClone({version:1,chat:origin.chat,messageId:origin.messageId,swipeId:origin.swipeId,...(origin.saveId?{saveId:origin.saveId}:{}),battleId:receipt.battleId,requestId:receipt.requestId,resultDigest:receipt.resultDigest,actors,result,report});
 }
-/** HP and its acknowledgement share one MVU document replacement. */
+/**
+ * Only HP goes into MVU. Battle facts stay in the local save receipt; the chat-level
+ * `match3.storyResults` acknowledgement (StoryWritebackAck) prevents a second HP write.
+ * A legacy `三消战果` marker left by older versions is dropped in the same write.
+ */
 export function applyStoryWritebackRecord(statData:Record<string,unknown>,record:StoryWritebackRecord):Record<string,unknown> {
  const next=structuredClone(statData);
  for(const actor of record.actors){
@@ -126,28 +131,36 @@ export function applyStoryWritebackRecord(statData:Record<string,unknown>,record
    if(stableJson(actorOrigin(next,actor.path))!==stableJson(before))throw new Error('剧情角色生命状态已变化');
    actorAt(next,actor.path)['当前生命值']=nextCurrent;
  }
- const entries=next[STORY_RESULTS_FIELD];
- if(entries!==undefined&&!object(entries))throw new Error('MVU 三消战果字段格式有误');
- next[STORY_RESULTS_FIELD]={...(entries??{}),[record.battleId]:structuredClone(record)};
+ delete next[LEGACY_STORY_RESULTS_FIELD];
  return next;
 }
+/** True when every actor already carries this battle's resulting HP with unchanged max and temporary HP. */
+export function storyWritebackApplied(statData:Record<string,unknown>,record:StoryWritebackRecord):boolean {
+ try{
+   return record.actors.every(({nextCurrent,...before})=>stableJson(actorOrigin(statData,before.path))===stableJson({...before,current:nextCurrent}));
+ }catch{return false;}
+}
+/** Compact chat-level acknowledgement of one applied story writeback. Not stored in MVU. */
+export interface StoryWritebackAck {version:1;battleId:string;requestId:string;resultDigest:string;messageId:number;swipeId:number}
+export function storyWritebackAck(record:StoryWritebackRecord):StoryWritebackAck {
+ return {version:1,battleId:record.battleId,requestId:record.requestId,resultDigest:record.resultDigest,messageId:record.messageId,swipeId:record.swipeId};
+}
+/** Older versions mirrored the full record; both shapes carry battleId and resultDigest. */
+export function storyWritebackAckMatches(stored:unknown,record:StoryWritebackRecord):boolean {
+ return object(stored)&&stored.battleId===record.battleId&&stored.resultDigest===record.resultDigest;
+}
 /**
- * Temporary test tool: undo one battle's HP writeback and remove its marker.
- * HP returns to the pre-battle values stored in the marker. Undefined when the marker is absent.
+ * Temporary test tool: put the pre-battle HP back (from the receipt's frozen origin) and drop a
+ * legacy `三消战果` entry for this battle if one exists.
  */
-export function revertStoryWritebackRecord(statData:Record<string,unknown>,battleId:string):Record<string,unknown>|undefined {
- const entries=statData[STORY_RESULTS_FIELD];
- if(entries!==undefined&&!object(entries))throw new Error('MVU 三消战果字段格式有误');
- if(!entries||!Object.hasOwn(entries,battleId))return undefined;
- const record=entries[battleId];
- if(!object(record)||!Array.isArray(record.actors))throw new Error('MVU 三消战果记录格式有误');
+export function revertStoryWriteback(statData:Record<string,unknown>,battleId:string,actors:readonly {path:string;current:number}[]):Record<string,unknown> {
  const next=structuredClone(statData);
- for(const actor of record.actors as unknown[]){
-   if(!object(actor)||!nonempty(actor.path)||!integer(actor.current))throw new Error('MVU 三消战果角色记录有误');
+ for(const actor of actors){
+   if(!nonempty(actor.path)||!integer(actor.current))throw new Error('剧情战果角色记录有误');
    actorAt(next,actor.path)['当前生命值']=actor.current;
  }
- const rest={...(next[STORY_RESULTS_FIELD] as Record<string,unknown>)};delete rest[battleId];
- next[STORY_RESULTS_FIELD]=rest;
+ const legacy=next[LEGACY_STORY_RESULTS_FIELD];
+ if(object(legacy)&&Object.hasOwn(legacy,battleId)){const rest={...legacy};delete rest[battleId];next[LEGACY_STORY_RESULTS_FIELD]=rest;}
  return next;
 }
 /** Host calls this only for committed story receipts. Persist origin and receipt until it succeeds. */

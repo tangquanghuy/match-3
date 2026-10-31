@@ -13,7 +13,7 @@
 
 | 位置 | 改动 | 源文件 |
 | --- | --- | --- |
-| 脚本 `MVU_ZOD` | 新增：同伴 `三消.颜色`（1～3 色）、可选 `三消.稀有度`、`系统配置.三消战斗模式`、顶层 `三消战果`、`三消已购武器`、`通用币校验`。卡内内容与仓库 `docs/mvuzod.js` 完全一致。 | [docs/mvuzod.js](../../mvuzod.js) |
+| 脚本 `MVU_ZOD` | 新增：同伴 `三消.颜色`（1～3 色）、可选 `三消.稀有度`、`系统配置.三消战斗模式`、`三消已购武器`、`通用币校验`。卡内内容与仓库 `docs/mvuzod.js` 完全一致。 | [docs/mvuzod.js](../../mvuzod.js) |
 | 脚本 `通用币校验` | 新增，排在“辅助计算脚本”之后，内容只有一行：`import '<三消站点>/sillytavern-currency-guard.js?v=3';` | [04-通用币校验.js](extracted/scripts/04-通用币校验.js) |
 | 正则 `开局`、`状态栏` | 改为加载 `<站点>/local-card/startup.html`、`<站点>/local-card/statusbar.html`。 | [05-开局.json](extracted/regex/05-开局.json)、[11-状态栏.json](extracted/regex/11-状态栏.json) |
 | 正则 `三消·战斗块移出正文美化` | 新增，排在“正文美化”之前，只作用于显示：把 `<now_plot>` 里的 `<match3>` 块挪到 `</now_plot>` 之后，否则正文美化会截断战斗入口。 | [09-三消·战斗块移出正文美化.json](extracted/regex/09-三消·战斗块移出正文美化.json) |

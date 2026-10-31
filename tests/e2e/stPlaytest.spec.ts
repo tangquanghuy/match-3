@@ -46,7 +46,7 @@ test('fresh playtest uses default preparation, real story victory, visible rewar
  await expect(page.locator('#st-match3-story-root').getByRole('status')).toBeHidden();
  await expect(page.locator('#st-match3-story-root').getByRole('button',{name:'继续',exact:true})).toHaveCount(1);
  const first=await readSave(page);const save=first.saves[0];expect(save.encounters).toHaveLength(1);expect(save.sources[0].wins).toBe(1);expect(save.settlements[0].storyOrigin).toBeTruthy();expect(first.queue).toHaveLength(0);
- const battleId=save.settlements[0].battleId;expect(first.host.states['示例聊天一'].stat_data.三消战果[battleId].result.winner).toBe('player');
+ const battleId=save.settlements[0].battleId;expect(first.host.states['示例聊天一'].stat_data).not.toHaveProperty('三消战果');
  expect(first.host.variables['示例聊天一'].match3.storyResults[battleId].battleId).toBe(battleId);
  await page.locator('#st-match3-story-root').getByRole('button',{name:'继续',exact:true}).click();
  // "继续" hands the report to the stand-in chat box on the playtest page.
@@ -79,9 +79,9 @@ test('committed story rewards remain visible while host sync fails and resume ex
    StHostAdapter.prototype.writeStoryResult=async()=>{(window as any).__storySyncFaultCalls++;throw new Error('模拟酒馆同步暂时失败');};
  });
  await beginStory(page);await winWithRealCasts(page,'story');const battle=page.locator('#st-match3-story-root');await expect(battle.getByRole('status')).toContainText('本场奖励已入账');await expect(battle.getByRole('status')).toContainText('模拟酒馆同步暂时失败');expect(await page.evaluate(()=>(window as any).__storySyncFaultCalls)).toBe(1);
- const before=await readSave(page);expect(before.queue).toHaveLength(1);expect(before.saves[0].sources[0].wins).toBe(1);expect(before.host.states['示例聊天一'].stat_data.三消战果).toBeUndefined();
+ const before=await readSave(page);expect(before.queue).toHaveLength(1);expect(before.saves[0].sources[0].wins).toBe(1);expect(before.host.variables['示例聊天一'].match3.storyResults).toBeUndefined();
  await page.reload();await host.getByRole('tab',{name:'存档',exact:true}).click();
  await expect(host.getByRole('button',{name:'重新开始剧情战斗'})).toHaveCount(0);await host.getByRole('button',{name:'保存本场战果'}).click();
  await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'})).toContainText('灵魂碎片');
- const after=await readSave(page);expect(after.queue).toHaveLength(0);expect(after.saves[0].sources[0].wins).toBe(1);expect(after.saves[0].settlements).toHaveLength(1);expect(Object.keys(after.host.states['示例聊天一'].stat_data.三消战果)).toHaveLength(1);
+ const after=await readSave(page);expect(after.queue).toHaveLength(0);expect(after.saves[0].sources[0].wins).toBe(1);expect(after.saves[0].settlements).toHaveLength(1);expect(Object.keys(after.host.variables['示例聊天一'].match3.storyResults)).toHaveLength(1);
 });

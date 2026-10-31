@@ -52,7 +52,7 @@
 
 | 源文件（角色卡仓库） | 要合入的内容 | 参考 |
 | --- | --- | --- |
-| `D:/Code/dnf/变量/mvuzod.js` | `match3CharacterSchema` 等三消 schema、同伴 `三消` 字段、`系统配置.三消战斗模式`、顶层 `三消战果`、`三消已购武器`、`通用币校验` | [docs/mvuzod.js](../mvuzod.js)（与卡内脚本完全一致） |
+| `D:/Code/dnf/变量/mvuzod.js` | `match3CharacterSchema` 等三消 schema、同伴 `三消` 字段、`系统配置.三消战斗模式`、`三消已购武器`、`通用币校验` | [docs/mvuzod.js](../mvuzod.js)（与卡内脚本完全一致） |
 | `D:/Code/dnf/code/开局.html` | 三消开关 | [card/local-card/startup.html](card/local-card/startup.html) |
 | `D:/Code/dnf/code/底部状态栏.html` | 三消开关、“三消”按钮、加载 `sillytavern-panel.js` 的地址 | [card/local-card/statusbar.html](card/local-card/statusbar.html) |
 | 世界书源文件 | “⚙️三消战斗规则”条目，及“⚙️战斗规则【新】”“⚙️敌人设定【新】”的互斥条件 | [运行时提示词](../sillytavern-runtime-ai-prompt.md) |

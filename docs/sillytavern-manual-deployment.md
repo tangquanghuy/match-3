@@ -34,7 +34,7 @@
 
 1. `match3CharacterSchema`、`match3ChatSchema`、结果与战报相关 schema，直至 `match3StoryWritebackSchema`。
 2. `bondSchema` 内增加 `三消: match3CharacterSchema.optional()`，保存羁绊角色颜色。
-3. 顶层变量结构增加 `三消战果: z.record(z.string(), match3StoryWritebackSchema).optional()`。
+3. 顶层变量结构不再需要 `三消战果`（2026-10-31 起剧情战果不写入 MVU）；已合并的旧定义可以删除。
 4. `系统配置.三消战斗模式` 保持布尔、默认 false。
 
 参考文件中的其他产品字段不在本次合并范围。对已有聊天保留现有变量，让可选字段由对应流程初始化。

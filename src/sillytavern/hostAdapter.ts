@@ -1,5 +1,5 @@
 import {BaseColor} from '../engine/types';
-import {applyStoryWritebackRecord,buildStoryWritebackRecord,revertStoryWritebackRecord,STORY_RESULTS_FIELD} from './storyWriteback';
+import {applyStoryWritebackRecord,buildStoryWritebackRecord,revertStoryWriteback,storyWritebackAck,storyWritebackAckMatches,storyWritebackApplied} from './storyWriteback';
 import type {StoryWritebackOrigin,StoryWritebackResult} from './storyWriteback';
 import type {SettlementReceipt} from './save';
 import {chatKey} from './save';
@@ -202,53 +202,48 @@ export class StHostAdapter {
      };
      const current=assertLocation();const saveId=current.saveId!;
      const options=this.mvuOptions(record.messageId);
-     const readMarker=(statData:Record<string,unknown>):unknown=>{
-       const entries=statData[STORY_RESULTS_FIELD];
-       if(entries!==undefined&&!isObject(entries))throw new Error('MVU 三消战果字段格式有误');
-       return isObject(entries)&&Object.hasOwn(entries,record.battleId)?entries[record.battleId]:undefined;
-     };
-     const readMirror=(variables:Record<string,unknown>):unknown=>{
+     const readAck=(variables:Record<string,unknown>):unknown=>{
        const reference=variables['match3'];
        if(!isObject(reference)||reference['version']!==1||reference['saveId']!==saveId||stableJson(reference['chat'])!==stableJson(record.chat))throw new Error('剧情原始聊天存档绑定已变化');
        const entries=reference['storyResults'];
        if(entries!==undefined&&!isObject(entries))throw new Error('聊天三消战果字段格式有误');
        return isObject(entries)&&Object.hasOwn(entries,record.battleId)?entries[record.battleId]:undefined;
      };
-     const data=structuredClone(this.helpers.Mvu.getMvuData(options));
-     if(stableJson(data.stat_data)!==current.fingerprint)throw new Error('剧情角色变量已变化，请重试');
-     const marker=readMarker(data.stat_data);const mirror=readMirror(this.helpers.getVariables({type:'chat'}));
-     for(const stored of [marker,mirror])if(stored!==undefined&&stableJson(stored)!==stableJson(record))throw new Error('本场剧情写回标识或战果冲突，请保留结果检查');
-     if(marker===undefined){
-       if(mirror!==undefined)throw new Error('聊天战果已有确认但 MVU 写回标记缺失，请保留结果检查');
-       if(current.fingerprint!==fingerprint)throw new Error('剧情原始角色变量指纹已变化，请保留结果处理冲突');
-       const next=applyStoryWritebackRecord(data.stat_data,record);const expectedFingerprint=stableJson(next);data.stat_data=next;
-       if(assertLocation().fingerprint!==fingerprint)throw new Error('剧情原始角色变量已变化');
-       await this.helpers.Mvu.replaceMvuData(data,options);
-       const confirmed=assertLocation();
-       if(stableJson(readMarker(confirmed.statData))!==stableJson(record)||confirmed.fingerprint!==expectedFingerprint)throw new Error('剧情 HP 或三消战果未持久化，请检查 MVU schema 后重试');
-     }
-     // A matching MVU marker wins over the stale pre-battle fingerprint on every retry.
-     // Never reapply HP here: a later script or battle may legitimately have changed it already.
-     assertLocation();
-     if(mirror===undefined){
+     const ack=readAck(this.helpers.getVariables({type:'chat'}));
+     if(ack!==undefined&&!storyWritebackAckMatches(ack,record))throw new Error('本场剧情写回确认与战果冲突，请保留结果检查');
+     // An acknowledged battle never writes HP again: a later script or battle may have changed it.
+     let applied=false;
+     if(ack===undefined){
+       const data=structuredClone(this.helpers.Mvu.getMvuData(options));
+       if(stableJson(data.stat_data)!==current.fingerprint)throw new Error('剧情角色变量已变化，请重试');
+       if(current.fingerprint===fingerprint){
+         const next=applyStoryWritebackRecord(data.stat_data,record);const expectedFingerprint=stableJson(next);data.stat_data=next;
+         if(assertLocation().fingerprint!==fingerprint)throw new Error('剧情原始角色变量已变化');
+         await this.helpers.Mvu.replaceMvuData(data,options);applied=true;
+         if(assertLocation().fingerprint!==expectedFingerprint)throw new Error('剧情 HP 未持久化，请检查 MVU schema 后重试');
+       }else if(!storyWritebackApplied(data.stat_data,record)){
+         // Not the pre-battle state, and not this battle's result (e.g. a lost acknowledgement): keep the result.
+         throw new Error('剧情原始角色变量指纹已变化，请保留结果处理冲突');
+       }
        await this.helpers.updateVariablesWith(variables=>{
-         assertLocation();const existing=readMirror(variables);
-         if(existing!==undefined&&stableJson(existing)!==stableJson(record))throw new Error('聊天本场战果冲突');
+         assertLocation();const existing=readAck(variables);
+         if(existing!==undefined&&!storyWritebackAckMatches(existing,record))throw new Error('聊天本场战果冲突');
          const reference=variables['match3'] as Record<string,unknown>;
-         return {...variables,match3:{...reference,storyResults:{...(reference['storyResults'] as Record<string,unknown>|undefined),[record.battleId]:structuredClone(record)}}};
+         return {...variables,match3:{...reference,storyResults:{...(reference['storyResults'] as Record<string,unknown>|undefined),[record.battleId]:storyWritebackAck(record)}}};
        },{type:'chat'});
      }
      const confirmed=assertLocation();
-     if(stableJson(readMarker(confirmed.statData))!==stableJson(record)||stableJson(readMirror(this.helpers.getVariables({type:'chat'})))!==stableJson(record))throw new Error('剧情战果回传尚未确认，请保留结果重试');
-     return {status:marker===undefined?'applied':'already-applied',record:structuredClone(record),snapshot:confirmed};
+     if(!storyWritebackAckMatches(readAck(this.helpers.getVariables({type:'chat'})),record))throw new Error('剧情战果回传尚未确认，请保留结果重试');
+     return {status:applied?'applied':'already-applied',record:structuredClone(record),snapshot:confirmed};
    });
  }
  /**
   * Temporary test tool. The battle floor must be the latest floor, so later report and
-  * reply messages are already deleted. Restores HP, removes the MVU marker and chat mirror.
-  * Each step is skipped when already undone, so a retry after a partial failure is safe.
+  * reply messages are already deleted. While the chat acknowledgement exists, HP returns to the
+  * receipt's frozen pre-battle values; then the acknowledgement is removed. A retry after a
+  * partial failure is safe: without the acknowledgement HP is left alone.
   */
- async clearStoryResultForTesting(chat:ChatBinding,messageId:number,swipeId:number,battleId:string):Promise<void> {
+ async clearStoryResultForTesting(chat:ChatBinding,messageId:number,swipeId:number,battleId:string,actors:readonly {path:string;current:number}[]=[]):Promise<void> {
    const lock=this.hostWindow.navigator.locks;if(!lock)throw new Error('当前环境缺少聊天变量写入锁');
    await lock.request(`match3:colors:${chatKey(chat)}`,async()=>{
      const assertLocation=():HostSnapshot=>{
@@ -258,12 +253,16 @@ export class StHostAdapter {
      };
      assertLocation();
      const options=this.mvuOptions(messageId);
-     const data=structuredClone(this.helpers.Mvu.getMvuData(options));
-     const next=revertStoryWritebackRecord(data.stat_data,battleId);
-     if(next){
-       data.stat_data=next;assertLocation();
-       await this.helpers.Mvu.replaceMvuData(data,options);
-       if(revertStoryWritebackRecord(assertLocation().statData,battleId))throw new Error('MVU 战果未能清除，请重试');
+     const reference=this.helpers.getVariables({type:'chat'})['match3'];
+     const acknowledged=isObject(reference)&&isObject(reference['storyResults'])&&Object.hasOwn(reference['storyResults'],battleId);
+     if(acknowledged&&actors.length){
+       const data=structuredClone(this.helpers.Mvu.getMvuData(options));
+       const next=revertStoryWriteback(data.stat_data,battleId,actors);const expected=stableJson(next);
+       if(expected!==stableJson(data.stat_data)){
+         data.stat_data=next;assertLocation();
+         await this.helpers.Mvu.replaceMvuData(data,options);
+         if(assertLocation().fingerprint!==expected)throw new Error('战前生命未能恢复，请重试');
+       }
      }
      await this.helpers.updateVariablesWith(variables=>{
        assertLocation();const reference=variables['match3'];

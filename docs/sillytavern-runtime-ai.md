@@ -91,7 +91,7 @@ AI 根据收到的战报续写。程序负责发奖、结算展示与报告内�
 
 ## 战后输入的现状与协议边界
 
-现有剧情同步写入 `stat_data.三消战果[battleId]`，并镜像到聊天变量 `match3.storyResults[battleId]`。记录包含 `version`、`battleId`、`requestId`、`resultDigest`、原消息/存档绑定、`actors` 的生命换算，以及 `result` 和聚合 `report`。
+现有剧情同步只把生命写回 MVU，并在聊天变量 `match3.storyResults[battleId]` 记一条简短确认（`version`、`battleId`、`requestId`、`resultDigest`、原消息与 swipe）。完整的 `result` 和聚合 `report` 只在本地存档的结算收据里；AI 通过【三消战报】消息得到战斗事实。
 
 `report` 包含胜方、回合数、击败敌人 ID、我方倒下/复起 ID，以及每名角色的初末生命、生命百分比、净生命损失百分点、累计受伤/治疗、倒下/复活次数和最终倒地/逃离事实。AI 只能叙述这些已证实事实。相同颜色或相同能力需求不代表具体施放过某个招式；没有完整行动记录时，不补造回合过程。
 

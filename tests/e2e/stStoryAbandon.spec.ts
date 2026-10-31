@@ -68,7 +68,7 @@ test('abandoning settles as a defeat, writes back facts and hands the report to 
  expect(after.save.encounters).toEqual([]);expect(after.save.sources).toEqual([]);
  // Facts and unchanged HP go back through the normal writeback.
  expect(after.host.writes).toBe(1);expect(after.host.state.stat_data.人物.当前生命值).toBe(23);
- expect(after.host.state.stat_data.三消战果['unfinished-story'].result.winner).toBe('enemy');
+ expect(after.host.state.stat_data).not.toHaveProperty('三消战果');expect(after.host.variables.match3.storyResults['unfinished-story'].battleId).toBe('unfinished-story');
  expect(after.host.variables.other).toBe('preserve');
  expect(await sentTavernMessages(page)).toEqual([]);
  await result.locator('#again').click();

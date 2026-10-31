@@ -5,7 +5,7 @@ import {BATTLE_SCHEMA_VERSION,RULESET_VERSION} from '../../src/session/contract'
 import type {BattleRequest,BattleResult,CombatantSnapshot} from '../../src/session/contract';
 import {StHostAdapter} from '../../src/sillytavern/hostAdapter';
 import type {MvuData,TavernContext,TavernHelpers} from '../../src/sillytavern/hostAdapter';
-import {captureStoryWritebackOrigin,validateStoryWritebackOrigin,writebackStory,STORY_RESULTS_FIELD} from '../../src/sillytavern/storyWriteback';
+import {captureStoryWritebackOrigin,revertStoryWriteback,storyWritebackAck,validateStoryWritebackOrigin,writebackStory} from '../../src/sillytavern/storyWriteback';
 import type {StoryWritebackRecord} from '../../src/sillytavern/storyWriteback';
 import {createSave,emptyRoot,recordEncounter,settleSave} from '../../src/sillytavern/save';
 import type {SettlementReceipt} from '../../src/sillytavern/save';
@@ -51,7 +51,6 @@ function fixture() {
    get hero(){return dataByChat['chat-a']!.stat_data['人物'] as Record<string,unknown>;},
    switchChat:(id:string)=>{chatId=id;},failRead:()=>{failReads=1;},
    setData:(data:MvuData)=>{dataByChat['chat-a']=structuredClone(data);},
-   marker:()=>((dataByChat['chat-a']!.stat_data[STORY_RESULTS_FIELD]??{}) as Record<string,StoryWritebackRecord>)['battle'],
    mirror:()=>((variablesByChat['chat-a']!['match3'] as Record<string,unknown>)['storyResults'] as Record<string,StoryWritebackRecord>|undefined)?.['battle'],
  };
 }
@@ -85,15 +84,21 @@ describe('ST frozen story writeback origin',()=>{
 });
 
 describe('ST story HP and authoritative factual writeback',()=>{
- it('atomically commits HP with facts, mirrors them in chat match3, and preserves unrelated fields',async()=>{
+ it('writes only HP into MVU, acknowledges the battle in chat match3, and preserves unrelated fields',async()=>{
    const f=fixture();const before=structuredClone(f.data);const receipt=f.receipt();const origin=f.origin();const returned=await writebackStory(f.adapter,JSON.parse(JSON.stringify(origin)),receipt);
    expect(returned.status).toBe('applied');expect(f.hero['当前生命值']).toBe(14);expect(f.hero['生命值上限']).toBe(99);expect(f.hero['临时生命值']).toBe(0);
    const friend=(f.data.stat_data['羁绊列表'] as Record<string,Record<string,unknown>>)[friendName]!;expect(friend['当前生命值']).toBe(0);expect(friend['同行誓约']).toBe(true);expect(friend['其他']).toBe('保留');
    expect(f.data.display_data).toEqual(before.display_data);expect(f.data.stat_data['任务']).toEqual(before.stat_data['任务']);expect(f.hero['SP']).toBe(8);expect(f.variables['other']).toEqual({keep:true});expect((f.variables['match3'] as Record<string,unknown>)['keep']).toBe('保留');
-   expect(f.marker()).toEqual(returned.record);expect(f.mirror()).toEqual(returned.record);expect(f.marker()!.report).toEqual(receipt.report);expect(f.marker()!.result).toEqual(receipt.result);
-   expect(f.marker()!.report).toMatchObject({defeatedEnemyIds:['enemy'],fallenAllyIds:['/人物',friendRef],revivedAllyIds:['/人物']});expect(f.marker()!.report.units[0]).toMatchObject({fellCount:1,revivedCount:1,hpDamage:3,finallyDefeated:false});
-   expect(f.replace).toHaveBeenCalledTimes(1);const payload=f.replace.mock.calls[0]![0];expect(payload.stat_data[STORY_RESULTS_FIELD]).toBeDefined();expect((payload.stat_data['人物'] as Record<string,unknown>)['当前生命值']).toBe(14);
-   returned.record.report.units[0]!.hpDamage=999;expect(f.marker()!.report.units[0]!.hpDamage).toBe(3);expect(receipt.report.units[0]!.hpDamage).toBe(3);
+   expect(f.data.stat_data).not.toHaveProperty('三消战果');
+   expect(f.mirror()).toEqual({version:1,battleId:'battle',requestId:'request',resultDigest:'digest',messageId:0,swipeId:0});expect(f.mirror()).toEqual(storyWritebackAck(returned.record));
+   expect(returned.record.report).toEqual(receipt.report);expect(returned.record.result).toEqual(receipt.result);
+   expect(returned.record.report).toMatchObject({defeatedEnemyIds:['enemy'],fallenAllyIds:['/人物',friendRef],revivedAllyIds:['/人物']});expect(returned.record.report.units[0]).toMatchObject({fellCount:1,revivedCount:1,hpDamage:3,finallyDefeated:false});
+   expect(f.replace).toHaveBeenCalledTimes(1);const payload=f.replace.mock.calls[0]![0];expect(payload.stat_data).not.toHaveProperty('三消战果');expect((payload.stat_data['人物'] as Record<string,unknown>)['当前生命值']).toBe(14);
+   returned.record.report.units[0]!.hpDamage=999;expect(receipt.report.units[0]!.hpDamage).toBe(3);
+ });
+ it('drops a legacy 三消战果 marker in the same HP write',async()=>{
+   const f=fixture();f.data.stat_data['三消战果']={old:{battleId:'old'}};await writebackStory(f.adapter,f.origin(),f.receipt());
+   expect(f.data.stat_data).not.toHaveProperty('三消战果');expect(f.hero['当前生命值']).toBe(14);
  });
  it('preserves the original current HP when the entry and final battle ratios are unchanged',async()=>{
    const f=fixture();f.result.combatants[0]!.hp=3;await f.adapter.writeStoryResult(f.origin(),f.receipt());expect(f.hero['当前生命值']).toBe(37);
@@ -105,7 +110,7 @@ describe('ST story HP and authoritative factual writeback',()=>{
    const f=fixture();f.hero['当前生命值']=1;f.hero['生命值上限']=1;f.request.playerTeam[0]!.stats.hp=1000;f.request.playerTeam[0]!.initialHp=1000;f.result.combatants[0]!.maxHp=1000;await writebackStory(f.adapter,f.origin(),f.receipt());expect(f.hero['当前生命值']).toBe(1);
  });
  it('writes actual defeat HP and facts with zero story rewards',async()=>{
-   const f=fixture();f.result.winner='enemy';f.result.combatants[0]!.hp=0;f.result.combatants[0]!.defeated=true;f.result.defeatedExternalIds.push('/人物');const receipt=f.receipt();await writebackStory(f.adapter,f.origin(),receipt);expect(f.hero['当前生命值']).toBe(0);expect(f.marker()!.report.winner).toBe('enemy');expect(receipt.grants).toEqual([]);
+   const f=fixture();f.result.winner='enemy';f.result.combatants[0]!.hp=0;f.result.combatants[0]!.defeated=true;f.result.defeatedExternalIds.push('/人物');const receipt=f.receipt();const returned=await writebackStory(f.adapter,f.origin(),receipt);expect(f.hero['当前生命值']).toBe(0);expect(returned.record.report.winner).toBe('enemy');expect(receipt.grants).toEqual([]);
  });
  it('rejects replay receipts without reading or writing the host',async()=>{
    const f=fixture();const receipt=f.receipt();receipt.kind='replay';const origin=f.origin();f.get.mockClear();await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('再现');expect(f.get).not.toHaveBeenCalled();expect(f.replace).not.toHaveBeenCalled();
@@ -120,7 +125,7 @@ describe('ST story HP and authoritative factual writeback',()=>{
 describe('ST story writeback conflicts and retry durability',()=>{
  it.each(['chat','message','swipe','variable','binding'] as const)('rejects a changed %s before writing',async field=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();if(field==='chat')f.switchChat('chat-b');if(field==='message')f.ctx.chat=[{},{}];if(field==='swipe')f.ctx.chat=[{swipe_id:1}];if(field==='variable')f.hero['SP']=9;if(field==='binding')(f.variables['match3'] as Record<string,unknown>)['saveId']='other-save';
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow();expect(f.replace).not.toHaveBeenCalled();expect(f.hero['当前生命值']).toBe(37);expect(f.marker()).toBeUndefined();expect(receipt.report.units[0]!.finalHp).toBe(1);
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow();expect(f.replace).not.toHaveBeenCalled();expect(f.hero['当前生命值']).toBe(37);expect(f.mirror()).toBeUndefined();expect(receipt.report.units[0]!.finalHp).toBe(1);
  });
  it('requires a bound chat and the host lock before modifying MVU',async()=>{
    const f=fixture();const origin=f.origin();delete f.variables['match3'];await expect(writebackStory(f.adapter,origin,f.receipt())).rejects.toThrow('绑定');expect(f.replace).not.toHaveBeenCalled();
@@ -130,44 +135,46 @@ describe('ST story writeback conflicts and retry durability',()=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();const results=await Promise.all([writebackStory(f.adapter,origin,receipt),writebackStory(f.adapter,origin,receipt)]);
    expect(results.map(r=>r.status)).toEqual(['applied','already-applied']);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.update).toHaveBeenCalledTimes(1);expect(f.requestLock).toHaveBeenCalledTimes(2);expect(f.requestLock.mock.calls[0]![0]).toBe(f.requestLock.mock.calls[1]![0]);expect(f.hero['当前生命值']).toBe(14);
  });
- it('retries chat confirmation failure using the MVU marker and preserves subsequently edited HP',async()=>{
+ it('retries a lost chat acknowledgement from the already written HP without writing it again',async()=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();f.update.mockImplementationOnce(updater=>{updater(structuredClone(f.variables));});
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('尚未确认');expect(f.marker()).toBeDefined();expect(f.mirror()).toBeUndefined();expect(f.hero['当前生命值']).toBe(14);
-   f.hero['当前生命值']=9;const reopened=new StHostAdapter(f.helpers,f.host,'host');const result=await writebackStory(reopened,JSON.parse(JSON.stringify(origin)),JSON.parse(JSON.stringify(receipt)));
-   expect(result.status).toBe('already-applied');expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(9);expect(f.mirror()).toEqual(f.marker());
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('尚未确认');expect(f.mirror()).toBeUndefined();expect(f.hero['当前生命值']).toBe(14);
+   const reopened=new StHostAdapter(f.helpers,f.host,'host');const result=await writebackStory(reopened,JSON.parse(JSON.stringify(origin)),JSON.parse(JSON.stringify(receipt)));
+   expect(result.status).toBe('already-applied');expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(14);expect(f.mirror()).toEqual(storyWritebackAck(result.record));
+ });
+ it('keeps the result for conflict handling when HP changed after a lost acknowledgement',async()=>{
+   const f=fixture();const origin=f.origin();const receipt=f.receipt();f.update.mockImplementationOnce(updater=>{updater(structuredClone(f.variables));});
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('尚未确认');f.hero['当前生命值']=9;
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('指纹');expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(9);expect(f.mirror()).toBeUndefined();
  });
  it('retries an MVU successful commit followed by a rejected write promise without applying HP again',async()=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();f.replace.mockImplementationOnce(async next=>{f.setData(next);throw new Error('write acknowledgement lost');});
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('acknowledgement');expect(f.marker()).toBeDefined();expect((await writebackStory(f.adapter,origin,receipt)).status).toBe('already-applied');expect(f.replace).toHaveBeenCalledTimes(1);
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('acknowledgement');expect(f.hero['当前生命值']).toBe(14);expect((await writebackStory(f.adapter,origin,receipt)).status).toBe('already-applied');expect(f.replace).toHaveBeenCalledTimes(1);
  });
- it('recovers from an MVU readback failure after successful atomic commit',async()=>{
+ it('recovers from an MVU readback failure after a successful commit',async()=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();f.replace.mockImplementationOnce(async next=>{f.setData(next);f.failRead();});
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('readback');expect(f.marker()).toBeDefined();await writebackStory(f.adapter,origin,receipt);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(14);
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('readback');await writebackStory(f.adapter,origin,receipt);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(14);expect(f.mirror()).toBeDefined();
  });
  it('does not repeat either write when chat update committed but its acknowledgement rejected',async()=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();const normal=f.update.getMockImplementation()!;
    f.update.mockImplementationOnce(updater=>{normal(updater);throw new Error('chat acknowledgement lost');});await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('acknowledgement');
    await writebackStory(f.adapter,origin,receipt);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.update).toHaveBeenCalledTimes(1);
  });
- it('rejects schema stripping of the marker and retains the supplied result for conflict handling',async()=>{
-   const f=fixture();const origin=f.origin();const receipt=f.receipt();const before=stableJson(receipt);
-   f.replace.mockImplementationOnce(async next=>{const stripped=structuredClone(next);delete stripped.stat_data[STORY_RESULTS_FIELD];f.setData(stripped);});
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('未持久化');expect(f.mirror()).toBeUndefined();expect(stableJson(receipt)).toBe(before);await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('指纹');expect(f.replace).toHaveBeenCalledTimes(1);
- });
- it('detects a silently discarded HP write even when a marker was retained',async()=>{
-   const f=fixture();const origin=f.origin();const receipt=f.receipt();f.replace.mockImplementationOnce(async next=>{(next.stat_data['人物'] as Record<string,unknown>)['当前生命值']=37;f.setData(next);});
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('未持久化');expect(f.mirror()).toBeUndefined();
+ it('detects a silently discarded HP write and retains the supplied result',async()=>{
+   const f=fixture();const origin=f.origin();const receipt=f.receipt();const before=stableJson(receipt);f.replace.mockImplementationOnce(async next=>{(next.stat_data['人物'] as Record<string,unknown>)['当前生命值']=37;f.setData(next);});
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('未持久化');expect(f.mirror()).toBeUndefined();expect(stableJson(receipt)).toBe(before);
  });
  it('handles chat switching after MVU commit and resumes only in the original chat',async()=>{
    const f=fixture();const origin=f.origin();const receipt=f.receipt();f.replace.mockImplementationOnce(async next=>{f.setData(next);f.switchChat('chat-b');});
-   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('切换');expect(f.marker()).toBeDefined();expect(f.mirror()).toBeUndefined();f.switchChat('chat-a');await writebackStory(f.adapter,origin,receipt);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.mirror()).toEqual(f.marker());
+   await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('切换');expect(f.mirror()).toBeUndefined();f.switchChat('chat-a');await writebackStory(f.adapter,origin,receipt);expect(f.replace).toHaveBeenCalledTimes(1);expect(f.mirror()).toBeDefined();expect(f.hero['当前生命值']).toBe(14);
  });
- it.each(['marker','mirror'] as const)('rejects a conflicting persisted %s and leaves HP alone',async field=>{
-   const f=fixture();const origin=f.origin();const receipt=f.receipt();await writebackStory(f.adapter,origin,receipt);const stored=field==='marker'?f.marker()!:f.mirror()!;stored.resultDigest='conflicting';f.hero['当前生命值']=9;
+ it('rejects a conflicting chat acknowledgement and leaves HP alone',async()=>{
+   const f=fixture();const origin=f.origin();const receipt=f.receipt();await writebackStory(f.adapter,origin,receipt);f.mirror()!.resultDigest='conflicting';f.hero['当前生命值']=9;
    await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('冲突');expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(9);
  });
- it('rejects a chat acknowledgement with a missing MVU marker instead of applying HP again',async()=>{
-   const f=fixture();const origin=f.origin();const receipt=f.receipt();await writebackStory(f.adapter,origin,receipt);delete f.data.stat_data[STORY_RESULTS_FIELD];await expect(writebackStory(f.adapter,origin,receipt)).rejects.toThrow('标记缺失');expect(f.replace).toHaveBeenCalledTimes(1);
+ it('accepts an older full-record chat acknowledgement without writing HP again',async()=>{
+   const f=fixture();const origin=f.origin();const receipt=f.receipt();const first=await writebackStory(f.adapter,origin,receipt);
+   ((f.variables['match3'] as Record<string,unknown>)['storyResults'] as Record<string,unknown>)['battle']=structuredClone(first.record);f.hero['当前生命值']=9;
+   expect((await writebackStory(f.adapter,origin,receipt)).status).toBe('already-applied');expect(f.replace).toHaveBeenCalledTimes(1);expect(f.hero['当前生命值']).toBe(9);
  });
 });
 
@@ -184,13 +191,13 @@ describe('ST story writeback with battle economy audit',()=>{
  it.each([false,true])('persists the audited story fact and retries without duplicate HP or currency writes: recorded=%s',async recorded=>{
    const f=fixture();withAudit(f.result,recorded);const origin=f.origin();const receipt=f.receipt();
    const first=await writebackStory(f.adapter,origin,receipt);
-   expect(first.status).toBe('applied');expect(f.marker()!.result.economyAudit).toEqual(receipt.result.economyAudit);
+   expect(first.status).toBe('applied');expect(first.record.result.economyAudit).toEqual(receipt.result.economyAudit);
    expect(f.hero['当前生命值']).toBe(14);const frozen=stableJson(f.data);
    const retry=await writebackStory(f.adapter,origin,JSON.parse(JSON.stringify(receipt)));
    expect(retry.status).toBe('already-applied');expect(stableJson(f.data)).toBe(frozen);
    expect(f.replace).toHaveBeenCalledTimes(1);expect(f.update).toHaveBeenCalledTimes(1);
    first.record.result.economyAudit!.final.leftGold=999;
-   expect(f.marker()!.result.economyAudit!.final.leftGold).toBe(recorded?10:0);
+   expect(receipt.result.economyAudit!.final.leftGold).toBe(recorded?10:0);
  });
  it.each(['entry','balance','missing-economy'] as const)('rejects corrupt audit before any host write: %s',async field=>{
    const f=fixture();withAudit(f.result,true);const origin=f.origin();const receipt=f.receipt();
@@ -203,15 +210,12 @@ describe('ST story writeback with battle economy audit',()=>{
 });
 
 describe('temporary story test reset of host variables',()=>{
- it('restores pre-battle HP and removes only this battle marker',async()=>{
-  const {revertStoryWritebackRecord}=await import('../../src/sillytavern/storyWriteback');
-  const statData={人物:{当前生命值:0,生命值上限:15},羁绊列表:{'a/b':{当前生命值:3,生命值上限:16}},三消战果:{
-   battle:{actors:[{externalId:'/人物',path:'/人物',current:15,max:15,temp:0,nextCurrent:0},{externalId:'/羁绊列表/a~1b',path:'/羁绊列表/a~1b',current:16,max:16,temp:0,nextCurrent:3}]},
-   other:{actors:[]},
-  }};
-  const next=revertStoryWritebackRecord(statData,'battle')!;
-  expect(next).toEqual({人物:{当前生命值:15,生命值上限:15},羁绊列表:{'a/b':{当前生命值:16,生命值上限:16}},三消战果:{other:{actors:[]}}});
+ it('restores pre-battle HP from the frozen origin and drops only this battle from a legacy marker',()=>{
+  const statData={人物:{当前生命值:0,生命值上限:15},羁绊列表:{'a/b':{当前生命值:3,生命值上限:16}},三消战果:{battle:{},other:{}}};
+  const actors=[{path:'/人物',current:15},{path:'/羁绊列表/a~1b',current:16}];
+  const next=revertStoryWriteback(statData,'battle',actors);
+  expect(next).toEqual({人物:{当前生命值:15,生命值上限:15},羁绊列表:{'a/b':{当前生命值:16,生命值上限:16}},三消战果:{other:{}}});
   expect(statData.人物.当前生命值).toBe(0);
-  expect(revertStoryWritebackRecord(next,'battle')).toBeUndefined();
+  expect(revertStoryWriteback({人物:{当前生命值:0,生命值上限:15}},'battle',[actors[0]!])).toEqual({人物:{当前生命值:15,生命值上限:15}});
  });
 });
