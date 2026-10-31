@@ -143,7 +143,8 @@ test('missing colors are fixed by name and rarity, learned equipment and orderin
   await inspect(page).getByRole('button', { name: '加入队伍', exact: true }).click();
   await expect(confirm(page)).toBeEnabled();
   const derived = await page.evaluate(async () => {
-    const { companionDefaultColors } = await import(/* @vite-ignore */'/src/sillytavern/partyPreparation.ts') as typeof import('../../src/sillytavern/partyPreparation');
+    const path = '/src/sillytavern/partyPreparation.ts';
+    const { companionDefaultColors } = await import(/* @vite-ignore */path) as typeof import('../../src/sillytavern/partyPreparation');
     return companionDefaultColors('同伴甲', '普通');
   });
   expect(derived).toHaveLength(1);
@@ -484,7 +485,8 @@ test('opening the management page persists fixed colors for travelling companion
   await install(page);
   await page.getByRole('button', { name: '取消', exact: true }).click(); await readResult(page);
   const derived = await page.evaluate(async () => {
-    const { companionDefaultColors } = await import(/* @vite-ignore */'/src/sillytavern/partyPreparation.ts') as typeof import('../../src/sillytavern/partyPreparation');
+    const path = '/src/sillytavern/partyPreparation.ts';
+    const { companionDefaultColors } = await import(/* @vite-ignore */path) as typeof import('../../src/sillytavern/partyPreparation');
     return companionDefaultColors('同伴甲', '普通');
   });
   const before = await page.evaluate(() => structuredClone(window.partyFixture.state.stat_data.羁绊列表));
