@@ -1,7 +1,7 @@
 /**
- * Card script entry for the 通用币 guard. Imported by a 酒馆助手 script of the character card
- * (`import '<部署地址>/sillytavern-currency-guard.js'`), placed after MVU_ZOD and 辅助计算脚本 so
- * its update-ended handler runs after theirs. Runs silently: a hand-edited balance is written back
+ * Card script entry for the 通用币 guard. The card's 辅助计算脚本 imports it
+ * (`import('<部署地址>/sillytavern-currency-guard.js')`) right after registering its own
+ * VARIABLE_UPDATE_ENDED handler, so the guard's update-ended handler runs after MVU_ZOD's and theirs. Runs silently: a hand-edited balance is written back
  * without any prompt.
  */
 import { createCurrencyGuard } from './currencyGuard';

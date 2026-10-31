@@ -85,7 +85,7 @@ function deployManifest(): Plugin {
     generateBundle(_options, bundle) {
       this.emitFile({ type: 'asset', fileName: '_headers', source: HEADERS });
       this.emitFile({type:'asset',fileName:'sillytavern-loader.js',source:readFileSync(root('./scripts/sillytavern-loader.js'),'utf8').replace("'https://YOUR_MATCH3_HOST/'", "new URL('./', import.meta.url).href")});
-      for(const file of ['sillytavern-host-integration.md','sillytavern-runtime-ai.md','sillytavern-runtime-ai-prompt.md','sillytavern-manual-deployment.md','战斗规则.md','sillytavern-manual-test.md','sillytavern-release-20261024.md','mvuzod.js']) {
+      for(const file of ['sillytavern-host-integration.md','sillytavern-runtime-ai.md','sillytavern-runtime-ai-prompt.md','sillytavern-manual-deployment.md','战斗规则.md','sillytavern-manual-test.md','sillytavern-release-20261024.md']) {
         this.emitFile({type:'asset',fileName:file,source:readFileSync(root(`./docs/${file}`),'utf8')});
       }
       const entry = Object.values(bundle).find((c) => c.type === 'chunk' && c.isEntry && c.name === 'game');

@@ -10,10 +10,10 @@ await new Promise(resolve=>host.listen(0,'127.0.0.1',resolve));
 let browser;
 try {
  const responses=[];
- for(const path of ['sillytavern-install.html','sillytavern-host.js','sillytavern-panel.js','sillytavern-message.js','sillytavern-encounter.html','sillytavern-loader.js','sillytavern-battle.html','sillytavern.html','mvuzod.js']) {
+ for(const path of ['sillytavern-install.html','sillytavern-host.js','sillytavern-panel.js','sillytavern-message.js','sillytavern-encounter.html','sillytavern-loader.js','sillytavern-battle.html','sillytavern.html','local-card/card-import/mvuzod.js']) {
   const response=await fetch(new URL(path,base));assert.equal(response.status,200,path);
   const headers={path,status:response.status,type:response.headers.get('content-type'),cors:response.headers.get('access-control-allow-origin'),cache:response.headers.get('cache-control')};
-  if(path.endsWith('.js')&&path!=='mvuzod.js'){assert.equal(headers.cors,'*',path+' CORS');assert.match(headers.cache??'',/no-cache|max-age=0/,path+' cache');}
+  if(path.endsWith('.js')&&!path.endsWith('mvuzod.js')){assert.equal(headers.cors,'*',path+' CORS');assert.match(headers.cache??'',/no-cache|max-age=0/,path+' cache');}
   responses.push(headers);
  }
  browser=await chromium.launch({headless:true,...(process.env.PROBE_PROXY?{proxy:{server:process.env.PROBE_PROXY,bypass:'localhost,127.0.0.1'}}:{})});const page=await browser.newPage();const errors=[];
