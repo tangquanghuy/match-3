@@ -77,8 +77,8 @@
       ],
       "kingdom": "region:27",
       "kingdomId": 100000,
-      "spellName": "爆破随机max(0,round(4))颗等·随机一名敌人伤害等〔113wwta〕",
-      "spellDescription": "1. 爆破随机max(0,round(4))颗红色宝石；2. 对随机一名敌人造成max(0,round(魔力+5))点伤害；3. 移除自身的「抵挡一次伤害」状态；4. 移除自身的「负面状态防护」状态；5. 移除自身的「每回合补充法力」状态；6. 移除自身的「骷髅伤害增强」状态；7. 移除自身的「骷髅伤害增强」状态；8. 移除自身的「反射伤害」状态；9. 移除自身的「免受群体法术伤害」状态；10. 献祭自身使其阵亡，并记录其属性快照",
+      "spellName": "自爆",
+      "spellDescription": "爆破max(0,round(4))颗红色宝石；对一名随机敌人造成max(0,round(魔力+5))点伤害；移除自身屏障、赐福、附魔、狂怒、反射和下潜；献祭自身。",
       "rarityIdx": 0,
       "portraitUrl": "/static/portraits/Troop_K01_00.webp"
     },
@@ -202,5 +202,5 @@
       "message": "rank（五档定位，与等级独立）：档位复杂度预算尚未标定；保留原配方并报告测量值"
     }
   ],
-  "integrity": "enemy-design:v1:18daba416657d775"
+  "integrity": "enemy-design:v1:0a144b21a29d9d23"
 }

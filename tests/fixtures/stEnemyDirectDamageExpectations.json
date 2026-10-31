@@ -141,7 +141,7 @@
       "phrases": [
         "2",
         "溅射",
-        "相邻"
+        "溅射"
       ],
       "nativeSpell": {
         "Cost": 10,
@@ -551,7 +551,7 @@
       "phrases": [
         "1",
         "6",
-        "无视护甲"
+        "真实伤害"
       ],
       "nativeSpell": {
         "Cost": 8,
@@ -946,7 +946,7 @@
       "skullFactor": 0.75,
       "phrases": [
         "7",
-        "3",
+        "三倍",
         "族群"
       ],
       "nativeSpell": {
@@ -2021,7 +2021,7 @@
       "phrases": [
         "0.5",
         "2",
-        "分配伤害"
+        "散射"
       ],
       "nativeSpell": {
         "Cost": 7,

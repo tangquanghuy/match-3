@@ -98,7 +98,8 @@ describe('ST role-only design is reachable from real source mechanics and surviv
   expect(result.blueprint).toEqual(compileEnemyBlueprint({portrait:result.blueprint.portrait,recipeTroopId:source.id,externalId:options.externalId,level:20,difficulty:1}));
   expect(result.diagnostics.some(d=>d.code==='preferred_effect_unmet')).toBe(false);
   const art=restorePortrait(result.blueprint.portrait).entry;
-  expect({colors:art.manaColors,rank:art.rank,form:art.form,role:art.role}).toEqual({colors:entry.colors,rank:'首领',form:entry.form,role:input.role});
+  // Mana colors do not restrict artwork (U078): only rank, form and role are matched.
+  expect({rank:art.rank,form:art.form,role:art.role}).toEqual({rank:'首领',form:entry.form,role:input.role});
   expect(restoreEnemyDesign(JSON.parse(JSON.stringify(result)))).toEqual(result);
   expect(compileEnemyDesign(input,options)).toEqual(result);
   const altered=JSON.parse(JSON.stringify(result));altered.design.effects=[{effect:'damage',requirement:'required'}];

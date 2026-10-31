@@ -54,7 +54,9 @@ export interface CharacterDisplay {
 
 /** 本场显示等级优先；派生形态只有缩放快照时复用其实际等级。 */
 export function characterLevelLabel(char: Character): string | undefined {
-  return char.levelLabel ?? (char.battleScaling ? `Lv.${char.battleScaling.level}` : undefined);
+  // Tavern snapshots carry a bare level number; the main game already passes "Lv.N".
+  if (char.levelLabel !== undefined) return /^\d+$/.test(char.levelLabel) ? `Lv.${char.levelLabel}` : char.levelLabel;
+  return char.battleScaling ? `Lv.${char.battleScaling.level}` : undefined;
 }
 
 /**

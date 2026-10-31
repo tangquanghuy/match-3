@@ -261,7 +261,8 @@ describe('real economic victories settle and replay only fragments plus explicit
     const story = victory(input);
     const encounter = recordEncounter(input, [{sourceId: enemy.sourceId, abilityId: enemy.abilityId, abilityName: '炼金术', rank: 0, enemyExternalId: 'enemy-alchemist'}], 'normal', 'economic-encounter');
     const save = createSave(emptyRoot(), {hostId: 'host', characterId: 'hero', chatId: 'economy'}, 'economy-save', 1);
-    const fragment = {kind: 'fragment', id: 'enemy:6005', name: '炼金术灵魂碎片', quantity: 1};
+    // Fragments are named after the encountered enemy (“敌人名的灵魂碎片”), not the ability.
+    const fragment = {kind: 'fragment', id: 'enemy:6005', name: `${enemy.snapshot.name}的灵魂碎片`, quantity: 1};
     const storyGrant = {kind: 'currency' as const, id: 'gems', name: '宝石', quantity: 5};
     const settlement = {kind: 'story' as const, encounter, request: input, result: story.result, events: story.events, ...(explicit ? {storyGrants: [storyGrant]} : {})};
     const receipt = settleSave(save, settlement);

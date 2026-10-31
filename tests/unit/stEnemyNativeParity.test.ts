@@ -42,7 +42,8 @@ const refAliases=new Map(TROOPS.map(t=>[t.referenceName,`unit:${t.id}`]));
 // A reference name can equal a race name (Goblin). Normalize according to its domain.
 typeNames.forEach((s,i)=>aliases.set(s,`affinity:${i+1}`));
 regionNames.forEach((s,i)=>aliases.set(s,`region:${i+1}`));
-const presentation=new Set(['name','displayName','portraitUrl','spellName','spellDescription','traitNames','displayTraitIds','economyAudit']);
+// levelLabel is display text (the ST snapshot shows its level; the native helper omits it).
+const presentation=new Set(['name','displayName','portraitUrl','spellName','spellDescription','traitNames','displayTraitIds','economyAudit','levelLabel']);
 function canonical(value:unknown,key=''):unknown {
  if(typeof value==='string')return value.startsWith('st:')?value.slice(3):['ref','referenceName','randomOf'].includes(key)?refAliases.get(value)??value:aliases.get(value)??value;
  if(typeof value==='number'&&['kingdom','kingdomId'].includes(key)&&regionIds.includes(value))return 100000+regionIds.indexOf(value);

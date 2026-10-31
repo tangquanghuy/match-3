@@ -642,9 +642,9 @@
         }
       },
       "descriptionPhrases": [
-        "首位",
+        "第一位",
         "魔力",
-        "随机",
+        "～",
         "伤害"
       ],
       "sourceRefs": [
@@ -1287,9 +1287,9 @@
         }
       },
       "descriptionPhrases": [
-        "选定",
+        "一名敌人",
         "魔力",
-        "随机",
+        "～",
         "伤害"
       ],
       "sourceRefs": [

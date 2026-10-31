@@ -98,6 +98,7 @@ describe('ST classified component assembly',()=>{
   expect(result.blueprint.assembly).toBeDefined();
   expect(restoreEnemyDesign(clone(result))).toEqual(result);
   const actual=getTroopById(result.blueprint.assembly!.activeTroopId)!;
-  expect(result.blueprint.snapshot.manaColors).toEqual(actual.manaColors);expect(result.blueprint.snapshot.manaCost).toBe(actual.manaCost);
+  // The requested colors are the enemy's own; the native active keeps its cost.
+  expect(result.blueprint.snapshot.manaColors).toEqual(input.manaColors);expect(result.blueprint.snapshot.manaCost).toBe(actual.manaCost);
  });
 });

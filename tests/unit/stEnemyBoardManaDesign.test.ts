@@ -168,8 +168,10 @@ describe('ST seven native sources: public semantic design entry, persistence and
    expect(result.blueprint.snapshot.traitIds).toEqual(assembly.traitCodes.map(code=>`st:${code}`));
    expect(result.blueprint.snapshot.manaCost).toBe(source.manaCost);
    expect(result.blueprint.omittedMechanisms).toEqual([]);
+   // Mana colors belong to the enemy instance and do not restrict artwork (U078).
    const {entry}=restorePortrait(result.blueprint.portrait);
-   expect({colors:colorKey(entry.manaColors),rank:entry.rank,form:entry.form,role:entry.role}).toEqual({colors:colorKey(input.manaColors),rank:input.rank,form:input.form,role:input.role});
+   expect({rank:entry.rank,form:entry.form,role:entry.role}).toEqual({rank:input.rank,form:input.form,role:input.role});
+   expect(colorKey(result.blueprint.snapshot.manaColors)).toBe(colorKey(input.manaColors));
    expect(restoreEnemyDesign(JSON.parse(JSON.stringify(result)))).toEqual(result);
    expect(compileEnemyDesign(input,options)).toEqual(result);
   }
@@ -242,8 +244,13 @@ describe('ST active skull offense: native output, probability and whole-branch b
   expect(artwork).toEqual([]);
   const input:EnemyDesignInput={...query,form:'类人',level:20,difficulty:1,
    effects:[{effect:'gemConvert',requirement:'required'},{effect:'summon',requirement:'required'}]};
-  try{compileEnemyDesign(input,{seed:0,externalId:'board-mana-6074'});throw new Error('expected missing exact Warrior artwork');}
-  catch(error){expect(error).toBeInstanceOf(EnemyDesignError);expect((error as EnemyDesignError).diagnostics).toContainEqual(expect.objectContaining({code:'no_exact_match'}));}
+  // Artwork ignores mana colors now (U078), so Warrior lord art exists; the request still fails
+  // because no Warrior-role source offers the Warmaster's gemConvert + summon combination.
+  try{compileEnemyDesign(input,{seed:0,externalId:'board-mana-6074'});throw new Error('expected no Warrior source with this combination');}
+  catch(error){
+   expect(error).toBeInstanceOf(EnemyDesignError);const codes=(error as EnemyDesignError).diagnostics.map(d=>d.code);
+   expect(codes).toContain('required_effect_unavailable');expect(codes).not.toContain('no_exact_match');
+  }
  });
  it('enemyId=6074 keeps its native blueprint and compiles under its actual Warmaster primary role',()=>{
   const source=getTroopById(6074)!;

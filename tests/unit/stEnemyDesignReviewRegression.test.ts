@@ -81,10 +81,10 @@ describe('independent enemy design review: real mechanical recipes',()=>{
     expect(result.generation?.profile.sourceTroopId).toBe(source.id);
     expect(result.blueprint.assembly?.activeTroopId).toBe(source.id);
     expect(result.selection.recipeId).not.toBe(`enemy:${oldCrossRoleId}`);
+    // Mana colors belong to the enemy instance and do not restrict artwork (U078).
     const {entry}=restorePortrait(result.blueprint.portrait);
-    expect({manaColors:colorKey(entry.manaColors),rank:entry.rank,form:entry.form,role:entry.role}).toEqual({
-     manaColors:colorKey(input.manaColors),rank:input.rank,form:input.form,role:input.role,
-    });
+    expect({rank:entry.rank,form:entry.form,role:entry.role}).toEqual({rank:input.rank,form:input.form,role:input.role});
+    expect(colorKey(result.blueprint.snapshot.manaColors)).toBe(colorKey(input.manaColors));
     const actual=inspectEnemyDesignSignature(adaptedPrototype(source.spell.id),result.blueprint.assembly!.traitCodes.map(code=>adaptedTrait(code)!));
     expect(actual.effects).toEqual(result.signature.effects);
     expect(actual.effects).toEqual(expect.arrayContaining(input.effects.map(e=>e.effect)));
