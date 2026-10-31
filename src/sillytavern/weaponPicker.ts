@@ -23,7 +23,7 @@ export interface WeaponPickerOptions {
   current: string;
   /** Hero magic, so spell numbers show real values. */
   magic: number;
-  /** Resolves `/static/...` art against the game's origin. */
+  /** Resolves art paths under the game's static directory against the game's origin. */
   assetBase: URL;
   /** Called with the chosen id; '' means "use the starter weapon". */
   onPick(id: string): void;
