@@ -40,6 +40,9 @@ ${headerBase}sillytavern-loader.js
 ${headerBase}sillytavern-currency-guard.js
   Access-Control-Allow-Origin: *
   Cache-Control: no-cache
+${headerBase}local-card/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
 ${headerBase}assets/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
