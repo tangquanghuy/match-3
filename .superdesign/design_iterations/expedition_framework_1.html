@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>深渊远征 · 框架页面线框稿 v1</title>
+<style>
+:root{
+  --bg:#0c1720; --bg2:#0b1520; --ink:#e8e4d9; --muted:#a4b8c2; --dim:#6f818a;
+  --gold:#dcc18d; --gold2:#a5814e; --line:#b4a16e40; --line2:#91a7ae30;
+  --bad:#e08a76; --good:#8fd3b0; --warn:#e9c46a;
+  --display:"Palatino Linotype","STZhongsong","SimSun",serif;
+  --body:"Segoe UI","Microsoft YaHei",sans-serif;
+  --r0:#aab2ad; --r1:#4caf6a; --r2:#9a4fd4; --r3:#ffe24a; --r4:#c56b2d; --r5:#56d8ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#05090d;color:var(--ink);font:14px/1.5 var(--body);min-width:1500px}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{font-family:var(--display);font-weight:500}
+b{font-variant-numeric:tabular-nums}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:default}
+
+/* ---------- 原型外壳（不是游戏界面） ---------- */
+.proto-nav{position:relative;z-index:50;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 30px;background:#020406f2;border-bottom:1px solid #2a3740;font-size:13px}
+.proto-nav strong{font-family:var(--display);color:var(--gold);font-size:15px;margin-right:10px}
+.proto-nav a{text-decoration:none;color:#b9c7cd;padding:3px 8px;border-radius:3px}
+.proto-nav a:hover{background:#18252e;color:#fff}
+.scr{width:1440px;margin:44px auto 0}
+.scr-head{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
+.scr-head .id{font:600 13px Georgia,serif;color:#020406;background:var(--gold);padding:2px 8px;border-radius:3px}
+.scr-head h2{font-size:22px;color:#f1e3c2}
+.scr-head code{color:#8fb7c9;font-size:12px}
+.scr-head .phase{margin-left:auto;font-size:12px;color:var(--muted)}
+.frame{position:relative;width:1440px;height:900px;overflow:hidden;background:var(--bg);border:1px solid #2c3a43;box-shadow:0 20px 60px #000a}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:6px 40px;margin:12px 0 0;padding:14px 18px;background:#0a1015;border:1px dashed #3a4a54;border-radius:4px;font-size:13px;color:#b9c7cd}
+.notes h4{grid-column:1/-1;font-size:13px;color:var(--gold);font-weight:600}
+.notes li{margin-left:16px}
+.notes ul{margin:0;padding:0}
+.tbd{display:inline-block;font-size:11px;color:#211e18;background:var(--warn);padding:0 6px;border-radius:2px;margin-left:6px;font-weight:600;vertical-align:1px}
+
+/* ---------- 游戏通用组件 ---------- */
+.g-top{position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;gap:18px;padding:0 24px;background:var(--bg2);border-bottom:1px solid #bdad753d}
+.g-back{display:flex;align-items:center;gap:8px;color:#dfd5b7;font-size:14px}
+.g-back:before{content:"‹";font-size:26px;line-height:1;margin-top:-3px}
+.g-title{margin:0 auto;text-align:center}
+.g-title b{display:block;font:20px var(--display);letter-spacing:.3em;color:#dfcd9e}
+.g-title small{display:block;font-size:11px;color:#9c8660;letter-spacing:.12em}
+.g-wallet{display:flex;gap:16px;font-size:13px;color:var(--muted)}
+.g-wallet span b{color:#ebc588;margin-left:5px}
+.g-tabs{position:absolute;left:0;right:0;top:56px;height:46px;display:flex;align-items:stretch;gap:2px;padding:0 24px;background:#0a131b;border-bottom:1px solid var(--line2)}
+.g-tab{display:flex;align-items:center;padding:0 20px;color:#a9b9c1;font-size:15px;border-bottom:2px solid transparent}
+.g-tab.on{color:#f3dfb0;border-bottom-color:var(--gold)}
+.g-tab.more:after{content:"▾";margin-left:6px;font-size:11px}
+.g-tabs .right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.g-body{position:absolute;left:0;right:0;top:102px;bottom:0;padding:20px 24px}
+.g-body.full{top:56px}
+.continue{position:absolute;left:0;right:0;top:102px;height:40px;display:flex;align-items:center;gap:16px;padding:0 24px;background:linear-gradient(90deg,#6d4f26,#3a2c18 60%,#1a1810);color:#f5e3bb;font-size:13px}
+.continue .btn{margin-left:auto;min-height:28px;padding:3px 14px}
+
+.panel{border:1px solid #a9976640;background:linear-gradient(130deg,#1c303bab,#101c27);border-radius:6px;padding:16px;min-width:0}
+.panel>h3{font-size:16px;color:#ebd7aa;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel>h3 small{margin-left:auto;font:12px var(--body);color:var(--muted)}
+.sub{font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:6px;min-height:38px;padding:7px 16px;border:1px solid #b8a87865;border-radius:4px;background:#14252edb;color:#dfd5b7;font-size:14px;white-space:nowrap}
+.btn.sm{min-height:28px;padding:2px 10px;font-size:12px}
+.btn.primary{background:linear-gradient(135deg,#dcc18d,#a5814e);color:#211e18;border-color:#ebd0a0;font-weight:600}
+.btn.danger{border-color:#d0806c80;color:#f0b5a5;background:#3a1d1a}
+.btn.off{opacity:.42}
+.btn.ghost{background:transparent}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border:1px solid #91a7ae45;border-radius:12px;font-size:12px;color:#c9d5da;background:#0e1b24}
+.chip.on{border-color:var(--gold);color:#f3dfb0;background:#2a2416}
+.bar{height:6px;border-radius:3px;background:#081017;border:1px solid #2b3b45;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#8a6a3a,#e3c68f)}
+.bar.hp>i{background:linear-gradient(90deg,#8c2f2f,#e06c6c)}
+.bar.blue>i{background:linear-gradient(90deg,#2f5f8c,#7cc3f0)}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.sep{height:1px;background:var(--line2);margin:10px 0}
+.k{color:var(--muted)}
+.v{color:#f3dfb0}
+.bad{color:var(--bad)} .good{color:var(--good)} .warn{color:var(--warn)}
+.ph{display:grid;place-items:center;color:#5d6f78;background:repeating-linear-gradient(135deg,#0f1c25,#0f1c25 8px,#122230 8px,#122230 16px);border:1px dashed #2f414c;border-radius:4px;font-size:12px}
+.slot-ph{border:1px dashed #e9c46a80;background:#1d1a10;color:#d9c48c;border-radius:6px;display:grid;place-items:center;text-align:center;font-size:12px;padding:8px}
+
+/* 稀有度 */
+.rc0{--rc:var(--r0)} .rc1{--rc:var(--r1)} .rc2{--rc:var(--r2)} .rc3{--rc:var(--r3)} .rc4{--rc:var(--r4)} .rc5{--rc:var(--r5)}
+.rname{color:var(--rc)}
+.sig{position:relative;display:flex;flex-direction:column;gap:3px;padding:8px 10px;border:1px solid var(--rc);border-left-width:3px;border-radius:4px;background:linear-gradient(120deg,color-mix(in srgb,var(--rc) 14%,#0d1820),#0d1820 60%);min-width:0}
+.sig .nm{font-size:13px;color:var(--rc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sig .meta{font-size:11px;color:var(--muted)}
+.sig .dots{letter-spacing:2px;color:var(--gold);font-size:11px}
+.sig .tag{position:absolute;right:6px;top:5px;font-size:10px;color:#9fb0b8}
+.sig-ico{width:34px;height:34px;border:1px solid var(--rc);border-radius:5px;background:color-mix(in srgb,var(--rc) 18%,#0b141b);display:grid;place-items:center;font:12px var(--display);color:var(--rc)}
+.sig-ico.empty{--rc:#41535e;color:#5d707a;border-style:dashed}
+
+/* 物品行：真实名称 × 数量 */
+.items{display:flex;flex-direction:column;gap:5px}
+.item{display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #91a7ae25;border-radius:4px;background:#0c1922}
+.item .ic{width:26px;height:26px;border-radius:4px;border:1px solid var(--rc,#55666f);background:color-mix(in srgb,var(--rc,#55666f) 20%,#0b141b);flex:none}
+.item .nm{flex:1;min-width:0;color:var(--rc,#e8e4d9)}
+.item .q{font:600 15px Georgia,serif;color:#f3dfb0}
+.item .src{font-size:11px;color:var(--dim)}
+.grp{font-size:12px;color:var(--gold);margin:10px 0 5px;display:flex;gap:8px;align-items:center}
+.grp:after{content:"";flex:1;height:1px;background:var(--line2)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.card{border:1px solid var(--rc,#55666f);border-radius:5px;padding:8px;background:linear-gradient(160deg,color-mix(in srgb,var(--rc,#55666f) 16%,#0d1820),#0d1820 70%);display:flex;flex-direction:column;gap:4px;min-height:84px}
+.card .ic{height:34px;border-radius:4px;background:color-mix(in srgb,var(--rc,#55666f) 24%,#0b141b)}
+.card .nm{font-size:12px;color:var(--rc,#e8e4d9);line-height:1.3}
+.card .q{font:600 16px Georgia,serif;color:#f3dfb0;margin-top:auto}
+
+/* 部队卡（占位立绘） */
+.troop{border:1px solid #b29d6966;border-radius:6px;overflow:hidden;background:#0c1822;display:flex;flex-direction:column}
+.troop .art{height:150px;background:radial-gradient(ellipse at 50% 30%,#3a5562,#0e1a22 70%);position:relative}
+.troop .art:after{content:"立绘";position:absolute;inset:0;display:grid;place-items:center;color:#4b6470;font-size:12px}
+.troop .cap{padding:8px 10px;border-top:1px solid #b29d6940;background:linear-gradient(120deg,#192833,#0c1822)}
+.troop .cap h4{font:15px var(--display);color:#efdeb7}
+.troop .sigs{display:flex;gap:6px;margin-top:6px}
+
+/* 表格 */
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+.t th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:6px 8px;border-bottom:1px solid var(--line2)}
+.t td{padding:7px 8px;border-bottom:1px solid #91a7ae18}
+
+/* 弹层/抽屉 */
+.scrim{position:absolute;inset:0;background:#02060acc}
+.modal{position:absolute;border:1px solid #c9ad74;border-radius:8px;background:linear-gradient(160deg,#18293a,#0c1620);box-shadow:0 30px 80px #000c;padding:22px}
+.drawer{position:absolute;top:0;bottom:0;right:0;width:400px;border-left:1px solid #c9ad7480;background:linear-gradient(180deg,#132330,#0b151d);box-shadow:-20px 0 50px #0008;padding:18px}
+
+/* 局内 HUD */
+.hud{position:absolute;left:0;right:0;top:0;height:60px;display:flex;align-items:center;gap:26px;padding:0 22px;background:linear-gradient(#0a1520,#081119);border-bottom:1px solid #bdad753d;z-index:2}
+.hud .zone b{display:block;font:17px var(--display);color:#f1e3c2}
+.hud .zone small{color:var(--muted);font-size:11px}
+.ring{width:42px;height:42px;border-radius:50%;background:conic-gradient(var(--gold) var(--p),#1d2a33 0);display:grid;place-items:center}
+.ring>span{width:32px;height:32px;border-radius:50%;background:#0a1520;display:grid;place-items:center;font:600 11px Georgia,serif;color:#f3dfb0}
+.hud-k{font-size:11px;color:var(--muted)}
+.hud-v{font:600 16px Georgia,serif;color:#f3dfb0}
+.hearts{color:#e06c6c;font-size:17px;letter-spacing:2px}
+.hearts i{color:#3a2a2e}
+
+/* 地图 */
+.map{position:absolute;left:230px;top:60px;right:400px;bottom:104px;background:radial-gradient(ellipse at 50% 48%,#1a3140 0,#0d1a24 55%,#070e14 100%)}
+.map svg{width:100%;height:100%}
+.tracker{position:absolute;left:230px;right:400px;bottom:56px;height:48px;display:flex;align-items:center;gap:12px;padding:0 16px;background:#08121acc;border-top:1px solid var(--line2);font-size:12px}
+.tracker .ev{padding:4px 10px;border:1px solid #91a7ae35;border-radius:4px;background:#0e1c26}
+.tracker .ev b{color:var(--gold);font-weight:500;margin-right:6px}
+.bottombar{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 22px;background:#0a141c;border-top:1px solid #bdad753d}
+.side{position:absolute;left:0;top:60px;width:230px;bottom:56px;padding:14px;border-right:1px solid var(--line2);background:#0a141c;display:flex;flex-direction:column;gap:10px}
+.mem{display:flex;gap:8px;align-items:center}
+.mem .pf{width:36px;height:36px;border-radius:50%;background:radial-gradient(#3a5562,#13222b);border:1px solid #b29d69}
+.mem .nm{font-size:12px;color:#e9dcc0}
+.relics{display:flex;gap:5px;flex-wrap:wrap}
+.relics i{width:28px;height:28px;border-radius:50%;border:1px solid #c9ad74;background:#1f2a22;display:grid;place-items:center;font-size:11px;color:#e6d3a9}
+.node text{font-family:var(--body)}
+</style>
+</head>
+<body>
+
+<nav class="proto-nav" aria-label="原型目录">
+  <strong>深渊远征 · 框架线框稿 v1</strong>
+  <a href="#s00">00 框架总览</a>
+  <a href="#s24">U24 锁定页</a>
+  <a href="#s01">U01 营地</a>
+  <a href="#s02">U02 地图台</a>
+  <a href="#s03">U03 出征准备</a>
+  <a href="#s04">U04 角色刻印</a>
+  <a href="#s06">U06 仓库</a>
+  <a href="#s14">U14 局内地图 + U15</a>
+  <a href="#s16">U16 局内背包</a>
+  <a href="#s17">U17 遭遇预览</a>
+  <a href="#s20">U20 战斗结算</a>
+  <a href="#s21">U21 撤离结算</a>
+  <a href="#s22">U22 失败结算</a>
+</nav>
+
+<!-- ======================= 00 框架总览 ======================= -->
+<section class="scr" id="s00">
+  <div class="scr-head"><span class="id">00</span><h2>框架总览</h2><code>页面关系 · 本稿范围 · 通用组件</code></div>
+  <div class="frame" style="background:#0b141c;padding:28px 32px;display:grid;grid-template-columns:1.25fr 1fr;gap:24px">
+    <div class="panel" style="display:flex;flex-direction:column">
+      <h3>主流程（一趟远征）<small>金框 = 本稿已画　黄色虚框 = 占位</small></h3>
+      <svg viewBox="0 0 760 500" style="height:520px" role="img" aria-label="页面流程图">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b8a878"/></marker></defs>
+        <g font-size="13" fill="#e8e4d9" text-anchor="middle">
+          <g stroke="#dcc18d" fill="#16262f"><rect x="20" y="30" width="130" height="44" rx="5"/><rect x="200" y="30" width="130" height="44" rx="5"/><rect x="380" y="30" width="130" height="44" rx="5"/><rect x="560" y="30" width="170" height="44" rx="5"/></g>
+          <text x="85" y="57">U24 锁定页</text><text x="265" y="57">U01 营地首页</text><text x="445" y="57">U02 地图台</text><text x="645" y="57">U03 出征准备</text>
+          <g stroke="#dcc18d" fill="#16262f"><rect x="560" y="140" width="170" height="64" rx="5"/><rect x="330" y="150" width="170" height="44" rx="5"/><rect x="100" y="150" width="170" height="44" rx="5"/></g>
+          <text x="645" y="167">U14 局内地图</text><text x="645" y="190" font-size="11" fill="#a4b8c2">含 U15 节点抽屉、U16 背包</text>
+          <text x="415" y="177">U17 遭遇预览</text><text x="185" y="177">三消战斗（现有）</text>
+          <g stroke="#dcc18d" fill="#16262f"><rect x="100" y="270" width="170" height="44" rx="5"/><rect x="560" y="270" width="170" height="44" rx="5"/><rect x="100" y="390" width="170" height="44" rx="5"/></g>
+          <text x="185" y="297">U20 战斗结算</text><text x="645" y="297">U21 撤离结算</text><text x="185" y="417">U22 失败结算</text>
+          <g stroke="#e9c46a" stroke-dasharray="5 4" fill="#14130c"><rect x="400" y="380" width="170" height="44" rx="5"/></g>
+          <text x="485" y="407" fill="#d9c48c">E1–E6 地图事件</text>
+          <g stroke="#b8a878" stroke-width="1.5" fill="none" marker-end="url(#ar)">
+            <path d="M150 52H198"/><path d="M330 52H378"/><path d="M510 52H558"/><path d="M645 74V138"/>
+            <path d="M560 172H502"/><path d="M330 172H272"/><path d="M185 194V268"/>
+            <path d="M270 300L558 200"/><path d="M185 314V388"/>
+            <path d="M645 204V268"/>
+            <path d="M645 314V470H300V76"/><path d="M270 412H300" marker-end="none"/>
+          </g>
+          <path d="M600 204L520 378" stroke="#e9c46a" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#ar)"/>
+          <g font-size="11" fill="#a4b8c2"><text x="400" y="232">命数未尽：回地图</text><text x="150" y="358">命数耗尽</text><text x="680" y="240">撤离点</text><text x="470" y="488">返回营地</text><text x="590" y="330" fill="#d9c48c">事件节点</text></g>
+        </g>
+      </svg>
+      <div class="sep"></div>
+      <table class="t">
+        <tr><th>阶段</th><th>页面</th><th>写操作（服务端命令）</th></tr>
+        <tr><td class="k">营地</td><td>U01 · U02 · U03 · U04 · U06</td><td>放入路引 / 罗盘、设保险格、换刻印、分解；“出发”= <code>expeditionStart</code></td></tr>
+        <tr><td class="k">局内</td><td>U14 · U15 · U16 · U17</td><td>移动、搜刮、拿取、合成、穿上；“开战”= <code>expeditionEngage</code></td></tr>
+        <tr><td class="k">结算</td><td>U20 · U21 · U22</td><td>只读收据；撤离和失败按 <code>runId</code> 幂等</td></tr>
+      </table>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+      <div class="panel">
+        <h3>本稿范围</h3>
+        <table class="t">
+          <tr><th>状态</th><th>页面</th></tr>
+          <tr><td class="good">本稿已画</td><td>U24 锁定页 · U01 营地 · U02 地图台 · U03 出征准备 · U04 角色刻印 · U06 仓库 · U14 局内地图（含 U15 节点抽屉）· U16 局内背包 · U17 遭遇预览 · U20 / U21 / U22 三种结算</td></tr>
+          <tr><td class="warn">只留入口或槽位</td><td>宠物（U03、U14 里是占位槽）· 工坊 U07 · 铭文库 U08 · 地图事件 E1–E6 · 星图 U10 · 委托 U11 · 情报 U12</td></tr>
+          <tr><td class="k">不画</td><td>交易行 U25 · 记忆簿 U26 · 宠物页 U27 · 毕业地图 U28 · 深渊轮回 U29</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>远征导航（营地内）</h3>
+        <div class="row" style="flex-wrap:wrap;gap:6px"><span class="chip on">出征</span><span class="chip">刻印</span><span class="chip">仓库</span><span class="chip">工坊</span><span class="chip">更多 ▾：设施 · 星图 · 委托 · 情报 · 战报</span></div>
+        <p class="sub" style="margin-top:8px">进入 <code>#expedition/*</code> 后隐藏外壳底部主导航，只留顶栏。局内地图全屏，不显示远征导航。有进行中的局时，营地顶部常驻“继续远征”条。</p>
+      </div>
+      <div class="panel">
+        <h3>通用组件</h3>
+        <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <span class="chip rc0"><span class="rname">普通</span></span><span class="chip rc1"><span class="rname">精良</span></span><span class="chip rc2"><span class="rname">稀有</span></span><span class="chip rc3"><span class="rname">传说</span></span><span class="chip rc4"><span class="rname">史诗</span></span><span class="chip rc5"><span class="rname">神话</span></span>
+          <span class="sub">颜色取 <code>RARITY_TIERS</code>，刻印、路引、怪物共用</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="sig rc2"><span class="tag">可交易</span><span class="nm">霜纹之握</span><span class="meta">星银 · 物品等级 6</span><span class="dots">●●●○</span></div>
+          <div class="items"><div class="item rc0" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">升阶石</span><span class="q">×3</span></div></div>
+        </div>
+        <p class="sub" style="margin-top:8px">物品一律“真实名称 + ×数量”。按钮三档：主按钮（金）、普通、危险（红）。会丢东西的操作二次确认，确认框里列名称和数量。</p>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>说明</h4>
+    <ul><li>线框稿用游戏现有配色（区域 PvP 页的深蓝 + 金），立绘和图标都是占位。</li><li>视口按桌面 1440×900 画；移动端（390×844）在每页说明里写排布变化，下一稿单独出。</li></ul>
+    <ul><li>规则以 <code>docs/expedition/00–06</code> 为准，界面细节以 <code>05-ui-spec.md</code> 为准；本稿和文档冲突时改本稿。</li><li>标了 <span class="tbd">待定</span> 的地方是规则还没定的内容，只占位置，不代表设计。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U24 锁定页 ======================= -->
+<section class="scr" id="s24">
+  <div class="scr-head"><span class="id">U24</span><h2>锁定页</h2><code>#expedition（未解锁）</code><span class="phase">一期</span></div>
+  <div class="frame">
+    <div class="g-top"><span class="g-back">王国地图</span><div class="g-title"><b>深渊远征</b><small>终局玩法</small></div><div class="g-wallet"><span>金币<b>1,284,300</b></span><span>宝石<b>2,410</b></span></div></div>
+    <div class="g-body full" style="display:grid;grid-template-columns:1fr 520px;gap:0;padding:0">
+      <div style="position:relative;background:linear-gradient(90deg,#07131cee,#07131c55),radial-gradient(ellipse at 70% 40%,#2a4352,#0b1720 70%);padding:70px 64px;display:flex;flex-direction:column;justify-content:center;gap:22px">
+        <small style="font:11px Georgia,serif;letter-spacing:.35em;color:#d1b77e">ABYSSAL EXPEDITION</small>
+        <h1 style="font-size:52px;letter-spacing:.12em;color:#f5e8cc">深渊远征</h1>
+        <p style="max-width:560px;color:#c3d0d5;font-size:16px;line-height:1.9">带着队伍下到深渊，一边搜刮一边战斗，在步数用完之前从撤离点出来。带出来的才算你的；倒在里面，除了保险格，背包里的东西都会留下。</p>
+        <div class="row" style="gap:28px;color:#e4c98e;font-size:14px"><span>熔炉材料</span><span>王国 11–15 级材料</span><span>远征专属装备“刻印”</span></div>
+        <div class="ph" style="position:absolute;right:40px;bottom:40px;width:300px;height:180px">主视觉（深渊入口）</div>
+      </div>
+      <div style="padding:46px 36px;border-left:1px solid var(--line);background:#0b1520;display:flex;flex-direction:column;gap:18px">
+        <div>
+          <div class="row"><span class="k">解锁条件</span><span class="grow"></span><span class="sub">全部王国达到 10 级</span></div>
+          <div class="row" style="align-items:baseline;margin-top:8px"><b style="font:44px Georgia,serif;color:#ecd4a1">31</b><span style="font:22px Georgia,serif;color:#8a9aa2">/ 42</span><span class="grow"></span><span class="sub">还差 11 个</span></div>
+          <div class="bar" style="height:8px;margin-top:8px"><i style="width:74%"></i></div>
+        </div>
+        <div class="panel" style="flex:1;padding:0;overflow:hidden;display:flex;flex-direction:column">
+          <div class="row" style="padding:12px 14px;border-bottom:1px solid var(--line2)"><span class="v">未满 10 级的王国</span><span class="grow"></span><span class="sub">按所需金币从少到多</span></div>
+          <table class="t" style="margin:0">
+            <tr><td>星星湾</td><td class="k">9 级</td><td class="k">38,000 金币</td><td style="text-align:right"><span class="btn sm">前往升级</span></td></tr>
+            <tr><td>阿达尼亚</td><td class="k">9 级</td><td class="k">38,000 金币</td><td style="text-align:right"><span class="btn sm">前往升级</span></td></tr>
+            <tr><td>夏之岛</td><td class="k">8 级</td><td class="k">72,000 金币</td><td style="text-align:right"><span class="btn sm">前往升级</span></td></tr>
+            <tr><td>古盖塔</td><td class="k">8 级</td><td class="k">72,000 金币</td><td style="text-align:right"><span class="btn sm">前往升级</span></td></tr>
+            <tr><td>破碎之地</td><td class="k">7 级</td><td class="k">110,000 金币</td><td style="text-align:right"><span class="btn sm">前往升级</span></td></tr>
+            <tr><td class="k">……另外 6 个</td><td></td><td></td><td style="text-align:right"><span class="btn sm ghost">展开</span></td></tr>
+          </table>
+          <div class="row" style="margin-top:auto;padding:12px 14px;border-top:1px solid var(--line2)"><span class="k">剩余所需金币合计</span><span class="grow"></span><b class="v" style="font-size:18px">612,000</b><span class="sub">持有 1,284,300</span></div>
+        </div>
+        <span class="btn primary off">满 42 个王国 10 级后开放</span>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>“前往升级”跳到王国页（M02），返回时回到本页并刷新计数。</li><li>金币够把剩下的全部升满时，合计一行变绿，写“金币足够”。</li><li>达成条件后，本页换成新手引导入口（U24 引导：固定种子的短途图）。</li></ul>
+    <ul><li>不为主角 50 级的旧入口保留例外。</li><li>移动端：主视觉压到顶部 220px，右栏整体下移成单列。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U01 营地首页 ======================= -->
+<section class="scr" id="s01">
+  <div class="scr-head"><span class="id">U01</span><h2>营地首页</h2><code>#expedition</code><span class="phase">一期（事件进度在二期以后逐项出现）</span></div>
+  <div class="frame">
+    <div class="g-top"><span class="g-back">王国地图</span><div class="g-title"><b>深渊远征</b><small>第 1 赛季 · 剩余 23 天</small></div><div class="g-wallet"><span>金币<b>1,284,300</b></span><span>宝石<b>2,410</b></span><span>燃烧灵魂<b>38/75</b></span></div></div>
+    <div class="g-tabs"><span class="g-tab on">出征</span><span class="g-tab">刻印</span><span class="g-tab">仓库</span><span class="g-tab">工坊</span><span class="g-tab more">更多</span><span class="right">远征等级 14<span class="bar" style="width:140px"><i style="width:62%"></i></span>3,720 / 6,000</span></div>
+    <div class="continue">进行中：寒冬堡垒 · 阶 6 · 已走 14/36 步 · 背包 9/16<span class="btn sm primary">继续远征</span></div>
+    <div class="g-body" style="top:142px;display:grid;grid-template-columns:1fr 360px;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="row"><h3 style="font-size:18px;color:#ebd7aa">本周开放的群系</h3><span class="sub">每周一轮换 · 剩余 3 天</span><span class="grow"></span><span class="sub">有进行中的局：先完成当前远征，才能去新的群系</span><span class="btn">再来一趟<span class="sub">阶 6 · 寒冬堡垒</span></span></div>
+        <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px;flex:1;min-height:0">
+          <div class="panel" style="padding:0;display:flex;flex-direction:column;border-top:2px solid #d6b774">
+            <div class="ph" style="height:250px;border-radius:6px 6px 0 0;border:0">群系图 · 中央尖塔</div>
+            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1">
+              <div class="row"><h3 style="font-size:22px;color:#f5e8cc">中央尖塔</h3><span class="chip">常驻</span></div>
+              <div class="sub">敌人主题：全池 · 无群系标记</div>
+              <div class="row k" style="font-size:13px">本周首领<span class="v">尖塔守望者</span></div>
+              <div class="row k" style="font-size:13px">代表产出<span class="chip">记忆碎片</span><span class="chip">路引</span></div>
+              <div class="sep"></div>
+              <div class="row k" style="font-size:13px">你的最深撤离<span class="grow"></span><span class="v">阶 5</span></div>
+              <div class="row k" style="font-size:13px">领主<span class="grow"></span><span>每周从其他群系借 2 名</span></div>
+              <div class="row" style="margin-top:auto;gap:8px"><span class="btn primary off grow">前往</span><span class="btn">情报</span></div>
+            </div>
+          </div>
+          <div class="panel" style="padding:0;display:flex;flex-direction:column;border-top:2px solid #a6c9d9">
+            <div class="ph" style="height:250px;border-radius:6px 6px 0 0;border:0">群系图 · 寒冬堡垒</div>
+            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1">
+              <h3 style="font-size:22px;color:#f5e8cc">寒冬堡垒</h3>
+              <div class="sub">敌人主题：元素 · 巨人</div>
+              <div class="row k" style="font-size:13px">群系标记<span class="v">霜噬</span></div>
+              <div class="row k" style="font-size:13px">本周首领<span class="v">寒冬不朽 · 寒狱</span></div>
+              <div class="row k" style="font-size:13px">代表产出<span class="chip">寒冬纹章</span><span class="chip">冰封棺</span></div>
+              <div class="sep"></div>
+              <div class="row k" style="font-size:13px">你的最深撤离<span class="grow"></span><span class="v">阶 6</span></div>
+              <div class="row k" style="font-size:13px">领主<span class="grow"></span><span>冰窟女王 · 霜巨人督军</span></div>
+              <div class="row" style="margin-top:auto;gap:8px"><span class="btn primary off grow">前往</span><span class="btn">情报</span></div>
+            </div>
+          </div>
+          <div class="panel" style="padding:0;display:flex;flex-direction:column;border-top:2px solid #cd957b">
+            <div class="ph" style="height:250px;border-radius:6px 6px 0 0;border:0">群系图 · 破碎之地</div>
+            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1">
+              <h3 style="font-size:22px;color:#f5e8cc">破碎之地</h3>
+              <div class="sub">敌人主题：兽人 · 龙族</div>
+              <div class="row k" style="font-size:13px">群系标记<span class="v">余烬</span></div>
+              <div class="row k" style="font-size:13px">本周首领<span class="v">破碎不朽 · 焚城</span></div>
+              <div class="row k" style="font-size:13px">代表产出<span class="chip">破碎纹章</span><span class="chip">龙巢</span></div>
+              <div class="sep"></div>
+              <div class="row k" style="font-size:13px">你的最深撤离<span class="grow"></span><span class="k">未去过</span></div>
+              <div class="row k" style="font-size:13px">领主<span class="grow"></span><span class="k">未遭遇</span></div>
+              <div class="row" style="margin-top:auto;gap:8px"><span class="btn primary off grow">前往</span><span class="btn">情报</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-height:0">
+        <div class="panel"><h3>事件进度<small>点条目进入事件营地</small></h3>
+          <div class="items">
+            <div class="item"><span class="grow">血祭 · 王之召见</span><b class="v">1,240 / 3,000</b></div>
+            <div class="item"><span class="grow">魔方 · 欲念之核</span><b class="v">1 / 3</b></div>
+            <div class="item" style="opacity:.45"><span class="grow">裂隙、猎金</span><span class="sub">二期开放</span></div>
+            <div class="item" style="opacity:.45"><span class="grow">梦境、金库</span><span class="sub">三期开放</span></div>
+          </div>
+        </div>
+        <div class="panel"><h3>本周燃烧灵魂<small>首领 60 + 周委托 15</small></h3>
+          <div class="row"><b style="font:26px Georgia,serif;color:#ecd4a1">38</b><span class="k">/ 75</span><span class="grow"></span><span class="sub">撤离时入账</span></div>
+          <div class="bar" style="margin-top:6px"><i style="width:51%"></i></div>
+        </div>
+        <div class="panel"><h3>日委托<small>撤离时自动结算</small></h3>
+          <div class="items">
+            <div class="item"><span class="grow">用 3 词缀以上的路引撤离</span><span class="sub">0/1</span></div>
+            <div class="item"><span class="grow">在一次血祭里延期 2 件恩惠</span><span class="sub">1/2</span></div>
+            <div class="item"><span class="grow">击败本群系的两名领主</span><span class="good">已完成</span></div>
+          </div>
+          <div class="row" style="margin-top:8px"><span class="btn sm">委托板</span><span class="grow"></span><span class="sub">今天还能换 1 条</span></div>
+        </div>
+        <div class="panel" style="margin-top:auto"><div class="row"><span class="k">仓库</span><b class="v">142 / 200</b><span class="grow"></span><span class="k">溢出区</span><b>0</b></div>
+          <div class="row" style="margin-top:8px"><span class="btn sm off grow">深渊轮回</span><span class="sub">击败任一事件终极首领后开放</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>群系卡“前往”：进入 U02 并选中该群系；有进行中的局时禁用，提示“先完成当前远征”。</li><li>“再来一趟”：按上一趟的群系、路引阶、罗盘组合直接进 U03；库存不够时禁用并写缺什么，例如“缺少：阶 6 路引”。</li><li>继续远征条只在有进行中的局时出现，点了直接进 U14。</li></ul>
+    <ul><li>事件进度只列已开放的事件；有可以挑战的首领时该行高亮，右侧出现“挑战”。</li><li>移动端：继续条 → 群系卡横滑 → 事件进度 → 委托 → 燃烧灵魂，纵向排列。</li><li>群系代表产出只写类别，不写概率。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U02 地图台 ======================= -->
+<section class="scr" id="s02">
+  <div class="scr-head"><span class="id">U02</span><h2>地图台</h2><code>#expedition/device</code><span class="phase">一期（路引词缀、罗盘槽在二期）</span></div>
+  <div class="frame">
+    <div class="g-top"><span class="g-back">营地</span><div class="g-title"><b>地图台</b><small>放入路引 · 插入罗盘 · 查看这一趟的代价和收益</small></div><div class="g-wallet"><span>升品石<b>14</b></span><span>重铸石<b>9</b></span><span>破限石<b>2</b></span></div></div>
+    <div class="g-tabs"><span class="g-tab on">放置</span><span class="g-tab">制作路引</span><span class="g-tab">合成高一阶</span></div>
+    <div class="g-body" style="display:grid;grid-template-columns:300px 1fr 360px;gap:16px">
+      <!-- 左：路引库存 -->
+      <div class="panel" style="display:flex;flex-direction:column;gap:8px">
+        <h3>路引库存<small>共 23 张</small></h3>
+        <div class="row" style="flex-wrap:wrap;gap:5px"><span class="chip on">全部阶</span><span class="chip">阶 5</span><span class="chip">阶 6</span><span class="chip">阶 7</span></div>
+        <div class="row" style="flex-wrap:wrap;gap:5px"><span class="chip">普通</span><span class="chip">精良</span><span class="chip on">稀有</span><span class="chip">词缀数 ↓</span></div>
+        <div class="sep"></div>
+        <div class="items" style="overflow:hidden">
+          <div class="item rc2" style="border-color:var(--rc)"><i class="ic"></i><span class="nm">阶 6 · 稀有路引<br><span class="src">4 词缀 · 已放入</span></span><span class="q">×1</span></div>
+          <div class="item rc2"><i class="ic"></i><span class="nm">阶 6 · 稀有路引<br><span class="src">5 词缀</span></span><span class="q">×1</span></div>
+          <div class="item rc1"><i class="ic"></i><span class="nm">阶 6 · 精良路引<br><span class="src">2 词缀</span></span><span class="q">×3</span></div>
+          <div class="item rc0"><i class="ic"></i><span class="nm">阶 6 · 普通路引</span><span class="q">×4</span></div>
+          <div class="item rc2"><i class="ic"></i><span class="nm">阶 7 · 稀有路引<br><span class="src">3 词缀</span></span><span class="q">×1</span></div>
+          <div class="item rc0"><i class="ic"></i><span class="nm">阶 5 · 普通路引</span><span class="q">×6</span></div>
+          <div class="item rc0" style="border-style:dashed"><i class="ic"></i><span class="nm">阶 1–3 免费普通路引<br><span class="src">保底，不占库存</span></span></div>
+        </div>
+      </div>
+      <!-- 中：地图台本体 -->
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="panel" style="display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span class="k">路引槽</span>
+            <div class="rc2" style="height:150px;border:1px solid var(--rc);border-radius:8px;background:radial-gradient(circle,color-mix(in srgb,var(--rc) 28%,#0b141b),#0b141b 70%);display:grid;place-items:center;text-align:center">
+              <div><b style="font:34px Georgia,serif;color:#f3dfb0">阶 6</b><div class="rname" style="font-size:13px">稀有路引</div><div class="sub">4 条词缀 · 命数 3</div></div>
+            </div>
+            <span class="btn sm">更换路引</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+            <div class="row"><span class="k">路引词缀</span><span class="sub">每条 = 代价 → 绑定收益</span></div>
+            <table class="t">
+              <tr><th>代价</th><th>收益</th><th>你的队伍</th></tr>
+              <tr><td>敌方骷髅伤害 +20%</td><td class="v">物品稀有度 +15%</td><td class="good">2 名闪避角色</td></tr>
+              <tr><td>我方开局法力 −20%</td><td class="v">遭遇数量 +12%</td><td class="bad">没有开局法力刻印</td></tr>
+              <tr><td>灯火每步额外 −1</td><td class="v">物品稀有度 +18%</td><td class="k">带 3 支火把可抵消</td></tr>
+              <tr><td>敌方免疫冻结</td><td class="v">路引掉率 +15%</td><td class="bad">队伍 3 名冻结角色</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>罗盘槽<small>路引词缀数决定开放几个槽</small></h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="border:1px solid #c9ad74;border-radius:6px;padding:12px;background:#1a2018"><div class="row"><b class="v">血祭罗盘</b><span class="chip">一阶</span></div><div class="sub" style="margin-top:4px">本趟必定出现血祭。代价：怪物生命 +10%</div><div class="row" style="margin-top:8px"><span class="btn sm">取下</span></div></div>
+            <div style="border:1px solid #c9ad74;border-radius:6px;padding:12px;background:#1a2018"><div class="row"><b class="v">劲敌罗盘</b><span class="chip">二阶</span></div><div class="sub" style="margin-top:4px">稀有怪物 +2 群。代价：怪物生命 +30%</div><div class="row" style="margin-top:8px"><span class="btn sm">取下</span></div></div>
+            <div style="border:1px dashed #41535e;border-radius:6px;padding:12px;display:grid;place-items:center;text-align:center;color:#6f818a"><div>槽 3 未开放<div class="sub">再加 1 条词缀开放此槽</div></div></div>
+          </div>
+        </div>
+        <div class="panel row" style="gap:18px">
+          <div><span class="k">群系</span><div class="row" style="gap:5px;margin-top:4px"><span class="chip">中央尖塔</span><span class="chip on">寒冬堡垒</span><span class="chip">破碎之地</span></div></div>
+          <div><span class="k">出征类型</span><div class="row" style="gap:5px;margin-top:4px"><span class="chip">短途 24 步</span><span class="chip on">标准 36 步</span><span class="chip" style="opacity:.45">深潜（补给站 3 级）</span></div></div>
+        </div>
+        <div class="panel" style="flex:1">
+          <h3>寒冬堡垒 · 本周敌情<small>详情见情报（U12）</small></h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:13px">
+            <div class="row"><span class="k">敌人主题</span><span class="grow"></span><span>元素 · 巨人 · 冰峰之巅 · 厄什卡亚</span></div>
+            <div class="row"><span class="k">群系标记</span><span class="grow"></span><span class="v">霜噬：对冻结目标骷髅伤害 ×1.3</span></div>
+            <div class="row"><span class="k">领主</span><span class="grow"></span><span>冰窟女王 · 霜巨人督军</span></div>
+            <div class="row"><span class="k">首领</span><span class="grow"></span><span>寒冬不朽 · 本周变体“寒狱”</span></div>
+            <div class="row"><span class="k">专属节点</span><span class="grow"></span><span>冰封棺</span></div>
+            <div class="row"><span class="k">建议</span><span class="grow"></span><span class="good">冻结免疫 · 净化 · 先手击杀控制位</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- 右：汇总 -->
+      <div class="panel" style="display:flex;flex-direction:column;gap:10px">
+        <h3>这一趟</h3>
+        <div class="row"><span class="k">命数</span><span class="grow"></span><span class="hearts">♥♥♥<i>♥</i></span></div>
+        <div class="row"><span class="k">怪物生命</span><span class="grow"></span><b class="bad">×1.43</b></div>
+        <div class="row"><span class="k">怪物攻击 / 魔法</span><span class="grow"></span><b class="bad">×1.20 / ×1.00</b></div>
+        <div class="sep"></div>
+        <div class="k" style="font-size:12px">收益合计（已和星图相乘）</div>
+        <div class="row"><span>物品稀有度</span><span class="grow"></span><b class="v">+35%</b></div>
+        <div class="row"><span>遭遇数量</span><span class="grow"></span><b class="v">+12%</b></div>
+        <div class="row"><span>怪物稀有度</span><span class="grow"></span><b class="v">+30%</b></div>
+        <div class="row"><span>路引掉率</span><span class="grow"></span><b class="v">+15%</b></div>
+        <div class="row"><span>怪物强度</span><span class="grow"></span><b class="k">—</b></div>
+        <div class="sep"></div>
+        <div class="row"><span class="k">必出现的事件</span><span class="grow"></span><span>血祭</span></div>
+        <div class="row"><span class="k">空槽随机事件</span><span class="grow"></span><span class="k">无空槽</span></div>
+        <div class="sep"></div>
+        <div class="row"><span class="k">推荐装备增益</span><span class="grow"></span><b>+35%</b></div>
+        <div class="row"><span class="k">你的装备增益</span><span class="grow"></span><b class="warn">+31% · 吃力</b></div>
+        <div class="bar" style="position:relative"><i style="width:62%;background:linear-gradient(90deg,#8a6a3a,#e9c46a)"></i></div>
+        <div class="sub">“我方开局法力 −20%”对你的队伍不利，可以换一张路引，或者用重铸石换掉这条。</div>
+        <span class="btn primary" style="margin-top:auto">下一步：准备</span>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>左栏点一张路引即放入槽；已放入的高亮。阶 1–3 永远有免费普通路引作兜底。</li><li>罗盘槽点开是抽屉：按事件和阶分组，显示库存和效果。槽数 = 词缀数档位（0–2 → 1，3–4 → 2，5–6 → 3）。</li><li>“你的队伍”一列是克制提示，只看当前出征队伍和穿戴的刻印，不改数值。</li></ul>
+    <ul><li>汇总面板任何倍率触到上限时标“已达上限”。装备增益分三档：推荐 / 吃力 / 危险。</li><li>“制作路引”页签：加词缀（升品石）、重铸（重铸石）、腐化（破限石，地图台 3 级）。具体数值见 <code>01</code> §2.1，本稿不画。</li><li>移动端：路引槽和罗盘槽在上，汇总在中间，库存从底部抽屉打开。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U03 出征准备 ======================= -->
+<section class="scr" id="s03">
+  <div class="scr-head"><span class="id">U03</span><h2>出征准备</h2><code>#expedition/prepare</code><span class="phase">一期</span></div>
+  <div class="frame">
+    <div class="g-top"><span class="g-back">地图台</span><div class="g-title"><b>出征准备</b><small>寒冬堡垒 · 阶 6 稀有路引 · 标准 36 步 · 血祭 + 劲敌</small></div><div class="g-wallet"><span>钱袋<b>—</b></span></div></div>
+    <div class="g-body full" style="top:56px;padding:20px 24px;display:grid;grid-template-columns:1fr 380px;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="panel">
+          <h3>队伍<small>出发后锁定，本趟不能换人</small></h3>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr) 170px;gap:12px">
+            <div class="troop"><div class="art"></div><div class="cap"><h4>冰霜巨人</h4><div class="sub">生命 64 · 护甲 38</div><div class="sigs"><span class="sig-ico rc2">霜</span><span class="sig-ico rc1">铁</span><span class="sig-ico rc1">岩</span></div></div></div>
+            <div class="troop"><div class="art"></div><div class="cap"><h4>霜鸦女巫</h4><div class="sub">生命 41 · 护甲 22</div><div class="sigs"><span class="sig-ico rc3">星</span><span class="sig-ico rc2">霜</span><span class="sig-ico empty">+</span></div></div></div>
+            <div class="troop"><div class="art"></div><div class="cap"><h4>冬狼骑士</h4><div class="sub">生命 52 · 护甲 30</div><div class="sigs"><span class="sig-ico rc1">铁</span><span class="sig-ico rc1">铁</span><span class="sig-ico rc0">岩</span></div></div></div>
+            <div class="troop"><div class="art"></div><div class="cap"><h4>极光祭司</h4><div class="sub">生命 38 · 护甲 18</div><div class="sigs"><span class="sig-ico rc4">银</span><span class="sig-ico rc2">霜</span><span class="sig-ico rc1">岩</span></div></div></div>
+            <div class="slot-ph"><div><b style="font-size:13px">宠物槽</b><br>只带 1 只 · 出发后锁定<br><span class="tbd">规则待定</span></div></div>
+          </div>
+          <div class="row" style="margin-top:12px;gap:8px"><span class="btn sm">更换队伍</span><span class="btn sm">调整刻印</span><span class="grow"></span><span class="k">装备增益</span><b class="warn">+31%</b><span class="sub">推荐 +35%</span><span class="k" style="margin-left:14px">共鸣</span><span class="chip">冰霜 4</span><span class="chip">守护 2</span></div>
+        </div>
+        <div class="panel">
+          <h3>补给腰带<small>6 格 · 篝火的免费补给自动填入</small></h3>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px">
+            <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">火把</span><span class="q">×3</span></div>
+            <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">药剂</span><span class="q">×2</span></div>
+            <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">撬锁器</span><span class="q">×1</span></div>
+            <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">烟雾弹</span><span class="q">×1</span></div>
+            <div class="card" style="--rc:#41535e;border-style:dashed"><div class="ic"></div><span class="nm k">空</span></div>
+            <div class="card" style="--rc:#41535e;border-style:dashed"><div class="ic"></div><span class="nm k">空</span></div>
+          </div>
+          <div class="row" style="margin-top:10px;gap:8px"><span class="btn sm">自动补给</span><span class="btn sm">去购买</span><span class="sub">火把最多 3，烟雾弹最多 1</span></div>
+        </div>
+        <div class="panel" style="flex:1">
+          <h3>保险格<small>失败时只有保险格里的东西留下</small></h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="border:1px solid #c9ad74;border-radius:6px;padding:12px;background:#1a2018;display:flex;flex-direction:column;gap:6px">
+              <span class="k" style="font-size:12px">格 1</span>
+              <div class="sig rc4"><span class="tag">已穿戴</span><span class="nm">寒渊誓约</span><span class="meta">极光祭司 · 星银 · 物品等级 6</span></div>
+              <span class="sub">已投保：失败不丢，本趟不回潜能</span>
+              <span class="btn sm">更换</span>
+            </div>
+            <div style="border:1px dashed #41535e;border-radius:6px;padding:12px;display:grid;place-items:center;color:#6f818a;text-align:center">格 2<br><span class="sub">远征 15 级开放</span></div>
+            <div style="border:1px dashed #41535e;border-radius:6px;padding:12px;display:grid;place-items:center;color:#6f818a;text-align:center">格 3<br><span class="sub">远征 35 级开放</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="panel">
+          <h3>这一趟</h3>
+          <div class="row"><span class="k">命数</span><span class="grow"></span><span class="hearts">♥♥♥</span></div>
+          <div class="sub" style="margin-top:4px">命数为 0 时全灭，或者步数用完还在图里，才算失败。</div>
+          <div class="sep"></div>
+          <div class="row"><span class="k">步数</span><span class="grow"></span><b>36</b></div>
+          <div class="row"><span class="k">撤离点</span><span class="grow"></span><span class="sub">外环 2 · 中环 1，开局可见窗口</span></div>
+          <div class="row"><span class="k">本趟事件</span><span class="grow"></span><span>血祭</span></div>
+        </div>
+        <div class="panel" style="flex:1;display:flex;flex-direction:column">
+          <h3>失败时会丢<small>可折叠</small></h3>
+          <table class="t">
+            <tr><th>刻印</th><th>穿戴者</th><th>状态</th></tr>
+            <tr><td class="rc2"><span class="rname">霜纹之握</span></td><td class="k">冰霜巨人</td><td class="bad">会丢</td></tr>
+            <tr><td class="rc3"><span class="rname">北境星盘</span></td><td class="k">霜鸦女巫</td><td class="bad">会丢</td></tr>
+            <tr><td class="rc4"><span class="rname">寒渊誓约</span></td><td class="k">极光祭司</td><td class="good">已投保</td></tr>
+            <tr><td class="k">其余精良 / 普通</td><td class="k">8 件</td><td class="bad">会丢</td></tr>
+          </table>
+          <div class="sub" style="margin-top:8px">另外会丢：补给腰带里的消耗品；已消耗的路引和罗盘不退。</div>
+          <div class="row" style="margin-top:auto;padding-top:10px"><span class="k">未投保的稀有以上</span><span class="grow"></span><b class="bad">2 件</b></div>
+        </div>
+        <span class="btn primary" style="min-height:52px;font-size:17px">出发</span>
+        <span class="sub" style="text-align:center">消耗：阶 6 稀有路引 ×1、血祭罗盘 ×1、劲敌罗盘 ×1</span>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>“出发”调用 <code>expeditionStart</code>：消耗路引和罗盘，锁定队伍、刻印、宠物 → 进入 U14。未投保的高价值刻印较多时先二次确认，确认框列出名称。</li><li>保险格每格二选一：投保一枚已穿戴的刻印，或放一堆仓库物品。穿戴刻印的投保只能在这里设，局内只能放背包物品。</li></ul>
+    <ul><li>宠物槽只保留位置和“只带 1 只、出发后锁定”两条已定规则，卡面内容等宠物规则定了再画。</li><li>“失败时会丢”只按品质和投保列，不写重建估价；具体口径等做装规则确认后再加。</li><li>移动端：队伍 2×2，宠物槽在队伍下方一行；腰带横滑；“出发”固定在底部。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U04 角色刻印 ======================= -->
+<section class="scr" id="s04">
+  <div class="scr-head"><span class="id">U04</span><h2>角色刻印</h2><code>#expedition/sigils[/&lt;角色&gt;]</code><span class="phase">一期（共鸣在二期）</span></div>
+  <div class="frame">
+    <div class="g-top"><span class="g-back">王国地图</span><div class="g-title"><b>深渊远征</b><small>刻印只在远征里生效</small></div><div class="g-wallet"><span>仓库<b>142/200</b></span></div></div>
+    <div class="g-tabs"><span class="g-tab">出征</span><span class="g-tab on">刻印</span><span class="g-tab">仓库</span><span class="g-tab">工坊</span><span class="g-tab more">更多</span><span class="right"><span class="btn sm">配装方案 1 ▾</span></span></div>
+    <div class="g-body" style="display:grid;grid-template-columns:250px 1fr 380px;gap:16px;bottom:160px">
+      <div class="panel" style="display:flex;flex-direction:column;gap:6px;overflow:hidden">
+        <div class="row" style="gap:5px"><span class="chip on">出征队伍</span><span class="chip">有刻印</span><span class="chip">全部</span></div>
+        <div class="sep"></div>
+        <div class="mem" style="padding:6px;border:1px solid var(--gold);border-radius:5px;background:#1f2a22"><i class="pf"></i><div><div class="nm">冰霜巨人</div><div class="sub">3/3 · 增益 +34%</div></div></div>
+        <div class="mem" style="padding:6px"><i class="pf"></i><div><div class="nm">霜鸦女巫</div><div class="sub">2/3 · 增益 +27%</div></div></div>
+        <div class="mem" style="padding:6px"><i class="pf"></i><div><div class="nm">冬狼骑士</div><div class="sub">3/3 · 增益 +25%</div></div></div>
+        <div class="mem" style="padding:6px"><i class="pf"></i><div><div class="nm">极光祭司</div><div class="sub">3/3 · 增益 +38%</div></div></div>
+        <div class="sep"></div>
+        <div class="mem" style="padding:6px;opacity:.6"><i class="pf"></i><div><div class="nm">雪原猎手</div><div class="sub">0/3</div></div></div>
+        <div class="mem" style="padding:6px;opacity:.6"><i class="pf"></i><div><div class="nm">冰甲守卫</div><div class="sub">1/3</div></div></div>
+      </div>
+      <div class="panel" style="display:grid;grid-template-columns:240px 1fr;gap:18px">
+        <div class="troop" style="height:100%"><div class="art" style="height:100%;min-height:300px"></div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div class="row"><h3 style="font-size:24px;color:#f1e3c2">冰霜巨人</h3><span class="sub">巨人 · 寒冬堡垒</span></div>
+          <div class="k" style="font-size:12px">3 个刻印位（不分类型）</div>
+          <div class="sig rc2"><span class="tag">位 1</span><span class="nm">霜纹之握</span><span class="meta">星银 · 物品等级 6 · 开局法力 +11%（T3）· 骷髅命中几率冻结 14%（T3）· 生命 +6（T3）</span></div>
+          <div class="sig rc1"><span class="tag">位 2</span><span class="nm">赤铁护符</span><span class="meta">赤铁 · 物品等级 5 · 护甲 +5（T3）</span></div>
+          <div class="sig rc1"><span class="tag">位 3</span><span class="nm">玄岩肩章</span><span class="meta">玄岩 · 物品等级 5 · 闪避骷髅伤害 7%（T3）</span></div>
+          <div class="sep"></div>
+          <table class="t">
+            <tr><th>属性</th><th>基础</th><th>刻印后</th><th></th></tr>
+            <tr><td>生命</td><td>58</td><td class="v">64</td><td class="good">+6</td></tr>
+            <tr><td>护甲</td><td>33</td><td class="v">38</td><td class="good">+5</td></tr>
+            <tr><td>开局法力</td><td>0%</td><td class="v">17%</td><td class="sub">上限 50% · 含星银隐式 6%</td></tr>
+            <tr><td>闪避骷髅伤害</td><td>0%</td><td class="v">7%</td><td class="sub">上限 30%</td></tr>
+          </table>
+          <div class="row" style="margin-top:auto;gap:8px"><span class="btn sm">推荐穿戴</span><span class="btn sm">转移刻印</span><span class="btn sm">全部卸下</span></div>
+        </div>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:8px;overflow:hidden">
+        <h3>仓库刻印<small>和位 1 对比</small></h3>
+        <div class="row" style="gap:5px;flex-wrap:wrap"><span class="chip">品质 ↓</span><span class="chip">物品等级</span><span class="chip">冰霜</span><span class="chip">搜索词缀…</span></div>
+        <div class="sig rc3"><span class="nm">北境星盘</span><span class="meta">星银 · 物品等级 6 · 4 条词缀</span><span class="good" style="font-size:12px">开局法力 +3% · 生命 +4 · 冻结 +3%</span></div>
+        <div class="sig rc2"><span class="nm">冰川之眼</span><span class="meta">星银 · 物品等级 6 · 3 条词缀</span><span class="bad" style="font-size:12px">开局法力 −11% · 冻结 +3%</span></div>
+        <div class="sig rc2"><span class="nm">寒狱徽记</span><span class="meta">玄岩 · 物品等级 5 · 3 条词缀</span><span class="k" style="font-size:12px">护甲 +3 · 生命 −6</span></div>
+        <div class="sig rc1"><span class="nm">赤铁指环</span><span class="meta">赤铁 · 物品等级 6 · 1 条词缀</span><span class="bad" style="font-size:12px">综合变弱</span></div>
+        <div class="sig rc1"><span class="nm">玄岩护腕</span><span class="meta">玄岩 · 物品等级 4 · 2 条词缀</span><span class="bad" style="font-size:12px">综合变弱</span></div>
+      </div>
+    </div>
+    <div class="panel" style="position:absolute;left:24px;right:24px;bottom:16px;height:130px">
+      <h3>全队共鸣<small>全队 12 枚刻印上的机制标签，3 / 6 / 9 档全队生效</small></h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div><div class="row"><b class="v">冰霜</b><span class="grow"></span><span>4 / 6</span></div><div class="bar blue" style="margin:4px 0"><i style="width:66%"></i></div><div class="sub">当前：开局 2 颗蓝色宝石 → 冻结宝石 · 下一档：开局冻结随机敌人</div></div>
+        <div><div class="row"><b class="v">守护</b><span class="grow"></span><span>2 / 3</span></div><div class="bar" style="margin:4px 0"><i style="width:66%"></i></div><div class="sub">当前：— · 下一档：首位成员开局屏障</div></div>
+        <div><div class="row"><b class="k">贪婪</b><span class="grow"></span><span class="k">1 / 3</span></div><div class="bar" style="margin:4px 0"><i style="width:33%"></i></div><div class="sub">下一档：稀有度 +10%</div></div>
+        <div><div class="row"><b class="k">暗影</b><span class="grow"></span><span class="k">1 / 3</span></div><div class="bar" style="margin:4px 0"><i style="width:33%"></i></div><div class="sub">下一档：闪避 +4%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>点刻印位打开该位的列表；已穿戴时打开 U05 详情弹层。右栏每项都显示和当前位的差值，绿 = 变强，红 = 变弱。</li><li>“刻印后”一列显示合计并截断后的值，到上限时写“已达上限”。</li><li>远征进行中，出征队伍的刻印只能在局内营火“整备”换，本页对这 4 人只读。</li></ul>
+    <ul><li>3 个刻印位不分类型、不命名；底材只决定隐式属性（赤铁 / 玄岩 / 星银）。</li><li>移动端：顶部角色头像条左右滑；中间 3 个位；点位从底部弹出列表；共鸣面板默认折叠。</li><li>刻印名称、词缀数值都是示例。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U06 仓库 ======================= -->
+<section class="scr" id="s06">
+  <div class="scr-head"><span class="id">U06</span><h2>仓库</h2><code>#expedition/stash[/&lt;页签&gt;]</code><span class="phase">一期</span></div>
+  <div class="frame">
+    <div class="g-top"><span class="g-back">王国地图</span><div class="g-title"><b>深渊远征</b><small>带出来的东西都在这里</small></div><div class="g-wallet"><span>仓库<b>142/200</b></span></div></div>
+    <div class="g-tabs"><span class="g-tab">出征</span><span class="g-tab">刻印</span><span class="g-tab on">仓库</span><span class="g-tab">工坊</span><span class="g-tab more">更多</span></div>
+    <div class="continue" style="background:linear-gradient(90deg,#5b2a22,#2c1714 60%,#16100e)">溢出区 5 件 · 剩余 70 小时，到期自动分解并发邮件<span class="btn sm">去整理</span></div>
+    <div class="g-body" style="top:142px;display:grid;grid-template-columns:1fr 320px;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="row" style="gap:6px"><span class="chip on">刻印 96</span><span class="chip">材料</span><span class="chip">路引与罗盘</span><span class="chip">消耗品</span><span class="chip">事件货币</span><span class="grow"></span><span class="chip">品质 ↓</span><span class="chip">底材</span><span class="chip">物品等级</span><span class="chip">标签</span><span class="btn sm">多选</span></div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+          <div class="sig rc4"><span class="tag">绑定</span><span class="nm">寒渊誓约</span><span class="meta">星银 · 6</span><span class="dots">●●●●○○</span></div>
+          <div class="sig rc3"><span class="tag">可交易</span><span class="nm">北境星盘</span><span class="meta">星银 · 6</span><span class="dots">●●●●●</span></div>
+          <div class="sig rc3"><span class="tag">可交易</span><span class="nm">熔心之戒</span><span class="meta">赤铁 · 5</span><span class="dots">●●●○○</span></div>
+          <div class="sig rc2" style="outline:2px solid var(--gold)"><span class="tag">可交易</span><span class="nm">冰川之眼</span><span class="meta">星银 · 6</span><span class="dots">●●●●</span></div>
+          <div class="sig rc2"><span class="tag">可交易</span><span class="nm">寒狱徽记</span><span class="meta">玄岩 · 5</span><span class="dots">●●○○</span></div>
+          <div class="sig rc2"><span class="tag">新</span><span class="nm">沙漠之心</span><span class="meta">玄岩 · 6</span><span class="dots">●●●●</span></div>
+          <div class="sig rc2"><span class="nm">铁壁徽章</span><span class="meta">赤铁 · 4</span><span class="dots">●●●●</span></div>
+          <div class="sig rc1"><span class="nm">赤铁指环</span><span class="meta">赤铁 · 6</span><span class="dots">●●●</span></div>
+          <div class="sig rc1"><span class="nm">玄岩护腕</span><span class="meta">玄岩 · 4</span><span class="dots">●●○</span></div>
+          <div class="sig rc1"><span class="nm">星银发簪</span><span class="meta">星银 · 5</span><span class="dots">●●●</span></div>
+          <div class="sig rc1"><span class="nm">赤铁指环</span><span class="meta">赤铁 · 3</span><span class="dots">●○○</span></div>
+          <div class="sig rc1"><span class="nm">玄岩肩章</span><span class="meta">玄岩 · 5</span><span class="dots">●●●</span></div>
+          <div class="sig rc0"><span class="nm">赤铁刻印</span><span class="meta">赤铁 · 6</span><span class="dots">●●</span></div>
+          <div class="sig rc0"><span class="nm">玄岩刻印</span><span class="meta">玄岩 · 6</span><span class="dots">●●</span></div>
+          <div class="sig rc0"><span class="nm">星银刻印</span><span class="meta">星银 · 5</span><span class="dots">●○</span></div>
+          <div class="sig rc0"><span class="nm">赤铁刻印</span><span class="meta">赤铁 · 5</span><span class="dots">●●</span></div>
+          <div class="sig rc0"><span class="nm">玄岩刻印</span><span class="meta">玄岩 · 4</span><span class="dots">●●</span></div>
+          <div class="sig rc0"><span class="nm">星银刻印</span><span class="meta">星银 · 4</span><span class="dots">●●</span></div>
+        </div>
+        <div class="ph" style="flex:1">……更多刻印（虚拟滚动）</div>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:10px">
+        <div class="sig rc2"><span class="tag">可交易</span><span class="nm" style="font-size:16px">冰川之眼</span><span class="meta">稀有 · 星银 · 物品等级 6</span></div>
+        <div class="items">
+          <div class="item"><span class="grow">骷髅命中几率冻结 17%</span><span class="chip">T2</span></div>
+          <div class="item"><span class="grow">生命 +6</span><span class="chip">T3</span></div>
+          <div class="item"><span class="grow">回合开始 1 颗蓝色宝石 → 冻结宝石 9%</span><span class="chip">T4</span></div>
+        </div>
+        <div class="row"><span class="k">标签</span><span class="chip">冰霜</span><span class="chip">属性</span></div>
+        <div class="row"><span class="k">来源</span><span class="sub">寒冬堡垒 阶 6 · 冰窟女王</span></div>
+        <div class="sep"></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><span class="btn sm">穿上…</span><span class="btn sm">锁定</span><span class="btn sm">去工坊</span><span class="btn sm danger">分解</span></div>
+        <div class="row" style="gap:8px"><span class="btn sm">上架</span><span class="btn sm">回收</span><span class="sub">交易行开放后出现</span></div>
+        <div class="sep"></div>
+        <div class="k" style="font-size:12px">材料页签的分组（只列名称）</div>
+        <div class="sub">熔炉：记忆碎片（按记忆）· 王国：各区域纹章、钢锭 · 工坊：做装通货 · 不朽：燃烧灵魂</div>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>多选后底部出现批量条：已选 N 件 · 分解 · 锁定。分解确认框逐件列名称和产出。锁定的、正穿戴的不会被选中。</li><li>仓库 4 级后可以设自动分解规则（例如“普通且物品等级低于 5”）。</li><li>每个物品显示交易状态：可交易 / 绑定；可堆叠物品分别显示两个数量。</li></ul>
+    <ul><li>右侧详情是 U05 的简化版，营地内点任一刻印都打开它。</li><li>“上架”“回收”只在交易行开放后出现，本稿只留位置。</li><li>移动端：页签横滑，网格 3 列，详情改为底部抽屉。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U14 局内地图 + U15 节点抽屉 ======================= -->
+<section class="scr" id="s14">
+  <div class="scr-head"><span class="id">U14</span><h2>局内地图（右侧打开 U15 节点抽屉）</h2><code>#expedition/run</code><span class="phase">一期</span></div>
+  <div class="frame">
+    <div class="hud">
+      <div class="zone"><b>寒冬堡垒 · 阶 6</b><small>稀有路引 · 4 词缀 · 血祭 · 劲敌</small></div>
+      <div class="row"><div class="ring" style="--p:39%"><span>14</span></div><div><div class="hud-k">步数</div><div class="hud-v">14 / 36</div></div></div>
+      <div class="row"><div class="ring" style="--p:52%;background:conic-gradient(#e9a24a var(--p),#1d2a33 0)"><span>52</span></div><div><div class="hud-k">灯火 · 昏暗</div><div class="hud-v">掉落 ×1.15</div></div></div>
+      <div><div class="hud-k">命数</div><div class="hearts">♥♥<i>♥</i></div></div>
+      <div><div class="hud-k">钱袋</div><div class="hud-v">640</div></div>
+      <span class="grow"></span>
+      <span class="btn sm">列表模式</span><span class="btn sm">菜单</span>
+    </div>
+    <div class="side">
+      <div class="k" style="font-size:12px">队伍</div>
+      <div class="mem"><i class="pf"></i><div class="grow"><div class="nm">冰霜巨人</div><div class="bar hp"><i style="width:82%"></i></div></div></div>
+      <div class="mem"><i class="pf"></i><div class="grow"><div class="nm">霜鸦女巫</div><div class="bar hp"><i style="width:46%"></i></div></div></div>
+      <div class="mem"><i class="pf"></i><div class="grow"><div class="nm">冬狼骑士</div><div class="bar hp"><i style="width:100%"></i></div></div></div>
+      <div class="mem" style="opacity:.45"><i class="pf"></i><div class="grow"><div class="nm">极光祭司 · 阵亡</div><div class="bar hp"><i style="width:0"></i></div></div></div>
+      <div class="slot-ph" style="min-height:58px">宠物头像位 <span class="tbd">待定</span></div>
+      <div class="sep"></div>
+      <div class="k" style="font-size:12px">遗物 3 / 6</div>
+      <div class="relics"><i>夜</i><i>拾</i><i>引</i></div>
+      <div class="sep"></div>
+      <div class="k" style="font-size:12px">撤离窗口</div>
+      <div class="items" style="font-size:12px">
+        <div class="item"><span class="grow">外环 A</span><span class="good">开放 · 至 20 步</span></div>
+        <div class="item"><span class="grow">外环 B</span><span class="good">开放 · 至 28 步</span></div>
+        <div class="item"><span class="grow">中环 C</span><span class="k">第 20 步开放</span></div>
+      </div>
+    </div>
+    <div class="map">
+      <svg viewBox="0 0 900 640" role="img" aria-label="三环地图示意">
+        <g fill="none" stroke="#2d4655" stroke-dasharray="3 6"><ellipse cx="450" cy="320" rx="380" ry="270"/><ellipse cx="450" cy="320" rx="250" ry="175"/><ellipse cx="450" cy="320" rx="120" ry="85"/></g>
+        <g stroke="#4f6a78" stroke-width="2" fill="none">
+          <path d="M450 50L673 102L811 237L811 403L673 538L450 590L227 538L89 403L89 237L227 102Z"/>
+          <path d="M536 156L685 260L667 408L493 492L289 454L200 320L289 186Z"/>
+          <path d="M227 102L289 186M450 50L536 156M811 237L685 260M673 538L493 492M89 403L200 320"/>
+          <path d="M289 186L346 277M685 260L554 277M493 492L450 405M346 277L450 320M554 277L450 320M450 405L450 320"/>
+        </g>
+        <g stroke="#dcc18d" stroke-width="3.5" fill="none" opacity=".85"><path d="M89 403L89 237L227 102L289 186"/></g>
+        <g class="node" font-size="13" text-anchor="middle">
+          <!-- 已走过 -->
+          <g opacity=".5"><circle cx="89" cy="403" r="19" fill="#22323b" stroke="#7b8f99"/><text x="89" y="408" fill="#cfd9de">入</text><text x="89" y="438" fill="#8fa3ad" font-size="11">入口</text></g>
+          <g opacity=".5"><circle cx="89" cy="237" r="19" fill="#22323b" stroke="#7b8f99"/><text x="89" y="242" fill="#cfd9de">箱</text><text x="89" y="272" fill="#8fa3ad" font-size="11">补给箱 · 已搜</text></g>
+          <g opacity=".5"><circle cx="227" cy="102" r="19" fill="#22323b" stroke="#7b8f99"/><text x="227" y="107" fill="#cfd9de">战</text><text x="227" y="137" fill="#8fa3ad" font-size="11">驻守 · 已清</text></g>
+          <!-- 当前 -->
+          <circle cx="289" cy="186" r="30" fill="none" stroke="#f3dfb0" stroke-width="2" opacity=".5"/>
+          <g><circle cx="289" cy="186" r="22" fill="#3a2f18" stroke="#f3dfb0" stroke-width="2.5"/><text x="289" y="191" fill="#f3dfb0">堆</text><text x="289" y="224" fill="#f3dfb0" font-size="11">战利品堆 · 你在这里</text></g>
+          <!-- 外环 -->
+          <g><circle cx="450" cy="50" r="19" fill="#173a2c" stroke="#8fd3b0" stroke-width="2"/><text x="450" y="55" fill="#bff0d6">撤</text><text x="450" y="85" fill="#8fd3b0" font-size="11">撤离 A · 4–20 步</text></g>
+          <g><circle cx="673" cy="102" r="19" fill="#141e25" stroke="#3d505b"/><text x="673" y="107" fill="#6f818a">?</text></g>
+          <g><circle cx="811" cy="237" r="19" fill="#1d2a33" stroke="#9fb0b8"/><text x="811" y="242" fill="#d9e3e7">矿</text><text x="811" y="272" fill="#8fa3ad" font-size="11">矿脉</text></g>
+          <g><circle cx="811" cy="403" r="19" fill="#173a2c" stroke="#8fd3b0" stroke-width="2"/><text x="811" y="408" fill="#bff0d6">撤</text><text x="811" y="438" fill="#8fd3b0" font-size="11">撤离 B · 12–28 步</text></g>
+          <g><circle cx="673" cy="538" r="19" fill="#141e25" stroke="#3d505b"/><text x="673" y="543" fill="#6f818a">?</text></g>
+          <g><circle cx="450" cy="590" r="19" fill="#3a2414" stroke="#e9a24a"/><text x="450" y="595" fill="#f3c98a">火</text><text x="450" y="625" fill="#c9a77a" font-size="11">营火</text></g>
+          <g><circle cx="227" cy="538" r="19" fill="#1d2a33" stroke="#9fb0b8"/><text x="227" y="543" fill="#d9e3e7">箱</text><text x="227" y="573" fill="#8fa3ad" font-size="11">补给箱</text></g>
+          <!-- 中环 -->
+          <g><circle cx="536" cy="156" r="20" fill="#2a1d36" stroke="#9a4fd4" stroke-width="2"/><text x="536" y="161" fill="#dcc2f2">巢</text><text x="536" y="192" fill="#b48fd6" font-size="11">稀有怪巢</text></g>
+          <g><circle cx="685" cy="260" r="22" fill="#3a1818" stroke="#e06c6c" stroke-width="2"/><text x="685" y="265" fill="#f5b7a1">祭</text><text x="685" y="296" fill="#e08a76" font-size="11">血祭祭坛</text></g>
+          <g><circle cx="667" cy="408" r="19" fill="#141e25" stroke="#3d6a58" stroke-dasharray="3 3"/><text x="667" y="413" fill="#8fd3b0">撤</text><text x="667" y="443" fill="#7a9a8c" font-size="11">撤离 C · 20–34 步</text></g>
+          <g><circle cx="493" cy="492" r="20" fill="#16303d" stroke="#a6c9d9" stroke-width="2"/><text x="493" y="497" fill="#d4ecf6">棺</text><text x="493" y="528" fill="#a6c9d9" font-size="11">冰封棺</text></g>
+          <g><circle cx="289" cy="454" r="21" fill="#3a2f18" stroke="#ffe24a" stroke-width="2"/><text x="289" y="459" fill="#ffe9a0">领</text><text x="289" y="490" fill="#e9d27a" font-size="11">冰窟女王</text></g>
+          <g><circle cx="200" cy="320" r="19" fill="#1d2a33" stroke="#c9ad74"/><text x="200" y="325" fill="#e6d3a9">神</text><text x="200" y="355" fill="#a99870" font-size="11">神龛</text></g>
+          <!-- 内环 -->
+          <g><circle cx="346" cy="277" r="21" fill="#3a2f18" stroke="#ffe24a" stroke-width="2"/><text x="346" y="282" fill="#ffe9a0">领</text><text x="346" y="313" fill="#e9d27a" font-size="11">霜巨人督军</text></g>
+          <g><circle cx="554" cy="277" r="19" fill="#141e25" stroke="#3d505b"/><text x="554" y="282" fill="#6f818a">?</text></g>
+          <g><circle cx="450" cy="405" r="19" fill="#2a2416" stroke="#dcc18d"/><text x="450" y="410" fill="#f3dfb0">锁</text><text x="450" y="440" fill="#c9ad74" font-size="11">上锁宝箱</text></g>
+          <g><circle cx="450" cy="320" r="28" fill="#2a0f12" stroke="#e06c6c" stroke-width="3"/><text x="450" y="326" fill="#ffd0c4" font-size="15">首</text><text x="450" y="364" fill="#e08a76" font-size="11">首领殿 · 寒冬不朽</text></g>
+          <!-- 游荡敌人 -->
+          <g><path d="M598 118l10 -18l10 18z" fill="#e08a76"/><text x="608" y="140" fill="#e08a76" font-size="11">游荡 · 霜鸦哨兵</text></g>
+        </g>
+      </svg>
+    </div>
+    <div class="tracker">
+      <span class="ev"><b>血祭</b>名单 3/8 · 祭坛未激活</span>
+      <span class="ev"><b>劲敌</b>稀有怪 2 群未清</span>
+      <span class="grow"></span><span class="sub">本节点：战利品堆 · 灯火加成 ×1.15</span>
+    </div>
+    <div class="bottombar">
+      <span class="btn">背包 9/16</span><span class="btn">合成</span><span class="btn">火把 ×3</span><span class="btn">药剂 ×2</span>
+      <span class="grow"></span>
+      <span class="sub">前往相邻节点 1 步 · 自动前往遇到事件就停</span>
+      <span class="btn primary off">撤离（不在撤离点）</span>
+    </div>
+    <!-- U15 节点抽屉 -->
+    <div class="drawer" style="top:60px;bottom:56px;display:flex;flex-direction:column;gap:12px">
+      <div class="row"><h3 style="font-size:20px;color:#f1e3c2">战利品堆</h3><span class="grow"></span><span class="btn sm ghost">关闭</span></div>
+      <div class="sub">已搜刮（1 步）· 灯火加成 ×1.15 · 结果已由服务端抽定</div>
+      <div class="grp">地面</div>
+      <div class="items">
+        <div class="item rc2"><i class="ic"></i><span class="nm">霜纹之握<br><span class="src">稀有刻印 · 星银 · 物品等级 6</span></span><span class="btn sm">拿取</span></div>
+        <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">升阶石</span><span class="q">×2</span><span class="btn sm">拿取</span></div>
+        <div class="item" style="--rc:#56a8c8"><i class="ic"></i><span class="nm" style="color:#e8e4d9">记忆碎片 · 六色的碎梦 #4</span><span class="q">×1</span><span class="btn sm">拿取</span></div>
+        <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">灵质</span><span class="q">×3</span><span class="btn sm">拿取</span></div>
+      </div>
+      <div class="row" style="gap:8px"><span class="btn grow">全部拿取</span><span class="sub">背包剩 7 格</span></div>
+      <div class="sep"></div>
+      <div class="k" style="font-size:12px">背包满时</div>
+      <div class="sub">“拿取”变成“替换…”，从背包选一件放回地面。留在地面的东西离开节点后仍在，回来可以再拿。</div>
+      <div class="sep"></div>
+      <div class="k" style="font-size:12px">相邻节点</div>
+      <div class="items">
+        <div class="item"><span class="grow">驻守 · 已清</span><span class="sub">1 步</span></div>
+        <div class="item"><span class="grow">霜巨人督军（领主巢）</span><span class="sub">1 步</span><span class="btn sm">前往</span></div>
+        <div class="item"><span class="grow">稀有怪巢</span><span class="sub">2 步</span><span class="btn sm">前往</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>点节点：显示信息、路径和总步数；相邻节点“前往”= 1 步。服务端返回途中事件后逐个播放（遭遇、伏击、游荡敌人移动）。</li><li>灯火档位决定能看到什么：70 以上看得见相邻节点内容，40–69 看得见游荡敌人，40 以下看不见。迷雾节点显示“?”。</li><li>撤离窗口开局就写在地图和左栏上；站在开放中的撤离点，“撤离”变成主按钮，引导 1 步。</li></ul>
+    <ul><li>节点抽屉（U15）按类型换内容：搜刮、上锁宝箱、奇物、营火、神龛、行商、撤离点、首领殿；本图示意搜刮后的地面。</li><li>地图事件节点（血祭祭坛）点了进入 E1 全屏层，本稿不画。</li><li>菜单：暂离（回营地，局保留）、放弃远征（确认框列出将丢失的物品）。移动端：HUD 只留步数、灯火、命数，点开看详情；左栏变成顶部头像条；抽屉从底部弹出。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U16 局内背包 ======================= -->
+<section class="scr" id="s16">
+  <div class="scr-head"><span class="id">U16</span><h2>局内背包</h2><code>抽屉（覆盖在 U14 上）</code><span class="phase">一期</span></div>
+  <div class="frame" style="background:radial-gradient(ellipse at 40% 50%,#1a3140,#070e14)">
+    <div class="ph" style="position:absolute;inset:0;opacity:.25;border:0">U14 地图（压暗）</div>
+    <div class="scrim"></div>
+    <div class="modal" style="left:120px;right:120px;top:60px;bottom:60px;display:grid;grid-template-columns:1fr 360px;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="row" style="gap:6px"><span class="chip on">背包 9/16</span><span class="chip">保险格 1/1</span><span class="chip">已穿戴</span><span class="chip">合成</span><span class="grow"></span><span class="btn sm ghost">关闭</span></div>
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);grid-auto-rows:150px;gap:10px">
+          <div class="card rc2" style="outline:2px solid var(--gold)"><div class="ic"></div><span class="nm">霜纹之握</span><span class="sub">稀有刻印</span></div>
+          <div class="card rc1"><div class="ic"></div><span class="nm">赤铁指环</span><span class="sub">精良刻印</span></div>
+          <div class="card rc1"><div class="ic"></div><span class="nm">玄岩护腕</span><span class="sub">精良刻印</span></div>
+          <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">升阶石</span><span class="q">×5</span></div>
+          <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">重铸石</span><span class="q">×1</span></div>
+          <div class="card" style="--rc:#56a8c8"><div class="ic"></div><span class="nm">记忆碎片 · 六色的碎梦 #4</span><span class="q">×1</span></div>
+          <div class="card" style="--rc:#a6c9d9"><div class="ic"></div><span class="nm">寒冬纹章</span><span class="q">×6</span></div>
+          <div class="card" style="--rc:#c9ad74"><div class="ic"></div><span class="nm">钱袋</span><span class="q">640</span></div>
+          <div class="card" style="--rc:#7b8f99"><div class="ic"></div><span class="nm">灵质</span><span class="q">×5</span></div>
+          <div class="card" style="--rc:#2f414c;border-style:dashed"></div><div class="card" style="--rc:#2f414c;border-style:dashed"></div><div class="card" style="--rc:#2f414c;border-style:dashed"></div><div class="card" style="--rc:#2f414c;border-style:dashed"></div><div class="card" style="--rc:#2f414c;border-style:dashed"></div><div class="card" style="--rc:#2f414c;border-style:dashed"></div><div class="card" style="--rc:#2f414c;border-style:dashed"></div>
+        </div>
+        <div class="panel" style="margin-top:auto">
+          <div class="row"><span class="k">保险格 1/1</span><span class="grow"></span><span class="sub">局内可以随时调整背包物品；穿戴刻印的投保只能在出发前设</span></div>
+          <div class="row" style="margin-top:8px;gap:10px"><div class="sig rc4" style="width:260px"><span class="tag">已投保</span><span class="nm">寒渊誓约</span><span class="meta">极光祭司 · 出发前投保</span></div><span class="sub">投保格不能改放其他物品</span></div>
+        </div>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:10px">
+        <div class="sig rc2"><span class="nm" style="font-size:16px">霜纹之握</span><span class="meta">稀有 · 星银 · 物品等级 6 · 本趟拾取</span></div>
+        <div class="items">
+          <div class="item"><span class="grow">开局法力 +11%</span><span class="chip">T3</span></div>
+          <div class="item"><span class="grow">骷髅命中几率冻结 14%</span><span class="chip">T3</span></div>
+          <div class="item"><span class="grow">生命 +6</span><span class="chip">T3</span></div>
+        </div>
+        <div class="row"><span class="k">对比 冰霜巨人 位 1</span><span class="grow"></span><span class="good">开局法力 +11%</span></div>
+        <div class="sep"></div>
+        <span class="btn">穿上（1 步）</span>
+        <span class="sub" style="margin-top:-6px">在营火选“整备”时免费</span>
+        <span class="btn off">放入保险格</span>
+        <span class="sub" style="margin-top:-6px">保险格已满：需要先换出</span>
+        <span class="btn danger">丢弃（放在当前节点地上）</span>
+        <div class="sep"></div>
+        <div class="k" style="font-size:12px">失败时</div>
+        <div class="sub">背包和已穿戴的东西全部丢失，只有保险格里的留下。</div>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>每件物品一格，可堆叠的写 ×数量；刻印占 1 格，穿着不占。钱袋、魂瓶也在背包里，撤离时才变成金币、灵魂。</li><li>“合成”页签：配方按工坊等级解锁，每次 1 步（火把、药剂、撬锁器、复活羽毛）。</li></ul>
+    <ul><li>“已穿戴”页签列 4 人 × 3 位；局内换刻印 1 步，营火整备免费。</li><li>移动端：网格 4 列，详情改为点物品后从底部弹出。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U17 遭遇预览 ======================= -->
+<section class="scr" id="s17">
+  <div class="scr-head"><span class="id">U17</span><h2>遭遇预览</h2><code>弹层（覆盖在 U14 上）</code><span class="phase">一期</span></div>
+  <div class="frame" style="background:radial-gradient(ellipse at 40% 50%,#1a3140,#070e14)">
+    <div class="ph" style="position:absolute;inset:0;opacity:.25;border:0">U14 地图（压暗）</div>
+    <div class="scrim"></div>
+    <div class="modal" style="left:110px;right:110px;top:50px;bottom:50px;display:flex;flex-direction:column;gap:14px">
+      <div class="row"><span class="chip rc2" style="border-color:var(--r2)"><span class="rname">稀有怪巢</span></span><h3 style="font-size:24px;color:#f1e3c2">霜鸦哨兵的冰巢</h3><span class="grow"></span><span class="sub">胜利：遗物三选一 · 刻印 · 局外材料</span></div>
+      <div style="padding:10px 14px;border-left:3px solid #a6c9d9;background:#10232e;font-size:13px"><b style="color:#d4ecf6">群系标记 · 霜噬</b>　对冻结目标骷髅伤害 ×1.3。<span class="k">对策：带冻结免疫或净化，或者先击杀霜魂萨满。</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:1;min-height:0">
+        <div class="troop" style="border-color:var(--r2)"><div class="art" style="height:310px"></div><div class="cap"><h4 class="rc2"><span class="rname">霜鸦哨兵</span></h4><div class="sub">精锐 · 供魔 · 蓝 黄</div><div class="sub">生命 48 · 护甲 21 · 攻击 9</div></div>
+          <div style="padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:5px"><div><span class="v">特质</span> 匹配蓝色时 25% 冻结随机敌人</div><div><span class="bad">词缀 · 先发</span> 开局 30% 法力<div class="k">打法：开局控制、法力灼烧</div></div><div><span class="bad">词缀 · 冰封</span> 骷髅命中 25% 冻结<div class="k">打法：冻结免疫</div></div></div></div>
+        <div class="troop" style="border-color:var(--r2)"><div class="art" style="height:310px"></div><div class="cap"><h4 class="rc2"><span class="rname">冰甲巨人</span></h4><div class="sub">精锐 · 前排 · 蓝 棕</div><div class="sub">生命 72 · 护甲 40 · 攻击 11</div></div>
+          <div style="padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:5px"><div><span class="v">特质</span> 受伤后获得护甲；反弹 30% 骷髅伤害</div><div><span class="bad">词缀 · 坚甲</span> 护甲 ×1.3<div class="k">打法：无视护甲、技能伤害</div></div><div style="opacity:.45"><span>词缀 · 荆棘</span> 反弹 25% 骷髅伤害<div>被原生特质覆盖（同类只取最强），不生效</div></div></div></div>
+        <div class="troop"><div class="art" style="height:310px"></div><div class="cap"><h4 class="rc1"><span class="rname">寒狱狼</span></h4><div class="sub">杂兵 · 输出 · 蓝</div><div class="sub">生命 30 · 护甲 12 · 攻击 10</div></div>
+          <div style="padding:8px 10px;font-size:12px"><span class="v">特质</span> 成对出现，一只阵亡时召唤另一只补位</div></div>
+        <div class="troop"><div class="art" style="height:310px"></div><div class="cap"><h4 class="rc1"><span class="rname">霜魂萨满</span></h4><div class="sub">精锐 · 辅助 · 蓝 紫</div><div class="sub">生命 36 · 护甲 16 · 攻击 6</div></div>
+          <div style="padding:8px 10px;font-size:12px"><span class="v">特质</span> 开局冻结第一名敌人；技能治疗并净化盟友</div></div>
+      </div>
+      <div class="row" style="gap:14px;font-size:13px"><span class="warn">提示：霜魂萨满开局会冻结你的第一名（冰霜巨人），可以先调整出场顺序</span><span class="grow"></span><span class="k">我方生命</span><span>3 人存活 · 平均 76%</span><span class="k">伏击</span><span class="good">否</span></div>
+      <div class="row" style="gap:10px"><span class="btn">调整出场顺序</span><span class="btn">离开（回上一节点，1 步）</span><span class="btn off">烟雾弹</span><span class="grow"></span><span class="btn primary" style="min-width:200px">开战（2 步）</span></div>
+    </div>
+  </div>
+  <div class="notes"><h4>交互与状态</h4>
+    <ul><li>敌人类别：驻守、游荡、稀有怪巢、领主、首领、悬赏目标、事件、先行者（镜像）、NPC 探险者。名字颜色 = 怪物稀有度（普通 / 精良 / 稀有 / 首领级）。</li><li>“离开”只对驻守、稀有怪巢、首领殿可用，且尚未交战；“烟雾弹”只对游荡和先行者遭遇可用。</li></ul>
+    <ul><li>多阶段领主和首领在卡下加阶段格“阶段 1/3”，列出每阶段的形态名和关键机制；未击败过的只显示第一阶段。</li><li>先行者遭遇显示玩家名、王国旗帜、装备增益和“镜像”标识，不显示对方背包。移动端：4 张卡改 2×2，词缀点开看全文。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U20 战斗结算 ======================= -->
+<section class="scr" id="s20">
+  <div class="scr-head"><span class="id">U20</span><h2>战斗结算（远征扩展）</h2><code>#result · 复用原生 ResultScreen</code><span class="phase">一期</span></div>
+  <div class="frame" style="background:radial-gradient(ellipse at 50% 20%,#2a3c48,#0b141c 65%)">
+    <div style="position:absolute;left:0;right:0;top:0;height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+      <h1 style="font-size:42px;letter-spacing:.3em;color:#f3dfb0">战斗胜利</h1>
+      <div class="sub">寒冬堡垒 · 阶 6 · 霜巨人督军（领主巢）· 11 回合</div>
+    </div>
+    <div style="position:absolute;left:120px;right:120px;top:130px;bottom:96px;display:grid;grid-template-columns:1fr 1.35fr;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:14px;min-height:0">
+        <div class="panel" role="region" aria-label="本场实际获得">
+          <h3>本场实际获得<small>已入账，失败也不会丢</small></h3>
+          <div class="cards" style="grid-template-columns:repeat(3,1fr)">
+            <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">远征经验</span><span class="q">+420</span></div>
+            <div class="card" style="--rc:#d8c290"><div class="ic"></div><span class="nm">职业经验</span><span class="q">+60</span></div>
+            <div class="card rc3"><div class="ic"></div><span class="nm">铭文 · 霜巨人督军之怒（首杀解锁）</span><span class="q">+1</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>事件与状态</h3>
+          <div class="items">
+            <div class="item"><span class="grow">委托“击败本群系的两名领主”</span><span class="v">1/2 → 2/2</span><span class="sub">撤离时结算</span></div>
+            <div class="item"><span class="grow">命数</span><span class="v">2（未变）</span></div>
+            <div class="item"><span class="grow">步数</span><span class="v">15 → 17 / 36</span></div>
+            <div class="item"><span class="grow">节点</span><span class="v">领主巢 · 已清</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" role="region" aria-label="放入背包（尚未带出）" style="display:flex;flex-direction:column;min-height:0">
+        <h3>放入背包（尚未带出）<small>撤离才算获得；失败时会丢</small></h3>
+        <div class="grp">掉落</div>
+        <div class="items">
+          <div class="item rc3"><i class="ic"></i><span class="nm">督军之握<br><span class="src">传说刻印 · 玄岩 · 物品等级 6</span></span><span class="q">×1</span></div>
+          <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">升阶石</span><span class="q">×3</span></div>
+          <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">重铸石</span><span class="q">×1</span></div>
+          <div class="item" style="--rc:#a6c9d9"><i class="ic"></i><span class="nm" style="color:#e8e4d9">寒冬纹章</span><span class="q">×4</span></div>
+          <div class="item" style="--rc:#56a8c8"><i class="ic"></i><span class="nm" style="color:#e8e4d9">记忆碎片 · 冰峰的回声 #2</span><span class="q">×1</span></div>
+        </div>
+        <div class="grp">战斗内收集</div>
+        <div class="items">
+          <div class="item" style="--rc:#c9ad74"><i class="ic"></i><span class="nm" style="color:#e8e4d9">钱袋（金币）</span><span class="q">+186</span></div>
+          <div class="item" style="--rc:#9a7fd4"><i class="ic"></i><span class="nm" style="color:#e8e4d9">魂瓶（灵魂）</span><span class="q">+42</span></div>
+        </div>
+        <div class="grp">留在地面（背包已满）</div>
+        <div class="items">
+          <div class="item rc1"><i class="ic"></i><span class="nm">赤铁指环<br><span class="src">精良刻印 · 在“领主巢”节点，回来可以再拿</span></span><span class="q">×1</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:86px;display:flex;align-items:center;justify-content:center;gap:14px;border-top:1px solid var(--line2);background:#0a131bcc">
+      <span class="btn primary" style="min-width:240px;min-height:46px">返回地图</span>
+    </div>
+  </div>
+  <div class="notes"><h4>口径（AGENTS.md / battle-settlement-rewards.md）</h4>
+    <ul><li>复用原生 <code>main.result-screen</code>，标题“战斗胜利 / 战斗失败”；“本场实际获得”就是原生 <code>#rewardRows</code> 区域，卡片写“+数量 + 真实名称”。远征加一个“放入背包（尚未带出）”区域，两者不能混。</li><li>远征里大部分产出进背包；如果这场触发了直接入账的首胜、里程碑、周活动发放（含宝石），才在“本场实际获得”出卡，数量等于钱包实际增量。委托进度只显示变化，撤离时才发奖。</li><li>战败也先到本页：标题“战斗失败”，只显示实际发生的内容（经验、撤退遗失），命数耗尽时主按钮换成“查看失败结算”。</li></ul>
+    <ul><li>页面只读本场收据，不重新抽奖；重复进入、重载恢复显示同一份；没有获得的内容不显示，也不加“本场没有获得”。</li><li>奖励多时 <code>#resultScroll</code> 可以滚到最后一张，主按钮始终在视口内（1440×900 和 390×844 都验收）。</li><li>示例里的刻印、通货、碎片名称都是示意数据。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U21 撤离结算 ======================= -->
+<section class="scr" id="s21">
+  <div class="scr-head"><span class="id">U21</span><h2>撤离结算</h2><code>#expedition/extract</code><span class="phase">一期</span></div>
+  <div class="frame" style="background:radial-gradient(ellipse at 50% 10%,#2c4536,#0b141c 60%)">
+    <div style="position:absolute;left:0;right:0;top:0;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+      <h1 style="font-size:40px;letter-spacing:.3em;color:#cfeedd">撤离成功</h1>
+      <div class="sub">寒冬堡垒 · 阶 6 · 外环 B · 第 27 步 · 用时 31 分钟 · 战斗 7 场</div>
+    </div>
+    <div style="position:absolute;left:80px;right:80px;top:120px;bottom:96px;display:grid;grid-template-columns:1.4fr 1fr;gap:20px">
+      <div class="panel" role="region" aria-label="本趟实际入账" style="display:flex;flex-direction:column;min-height:0;overflow:hidden">
+        <h3>本趟实际入账<small>按来源分组 · 全部已进仓库</small></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px">
+          <div>
+            <div class="grp">首领 · 寒冬不朽</div>
+            <div class="items">
+              <div class="item rc4"><i class="ic"></i><span class="nm">寒狱王冠<br><span class="src">史诗刻印 · 星银 · 物品等级 6</span></span><span class="q">×1</span></div>
+              <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">破限石</span><span class="q">×1</span></div>
+              <div class="item" style="--rc:#e06c6c"><i class="ic"></i><span class="nm" style="color:#e8e4d9">燃烧灵魂</span><span class="q">×12</span></div>
+              <div class="item rc2"><i class="ic"></i><span class="nm">阶 7 · 稀有路引</span><span class="q">×1</span></div>
+            </div>
+            <div class="grp">战斗</div>
+            <div class="items">
+              <div class="item rc3"><i class="ic"></i><span class="nm">督军之握</span><span class="q">×1</span></div>
+              <div class="item rc2"><i class="ic"></i><span class="nm">霜纹之握</span><span class="q">×1</span></div>
+              <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">升阶石</span><span class="q">×9</span></div>
+              <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">重铸石</span><span class="q">×2</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="grp">搜刮</div>
+            <div class="items">
+              <div class="item" style="--rc:#a6c9d9"><i class="ic"></i><span class="nm" style="color:#e8e4d9">寒冬纹章</span><span class="q">×10</span></div>
+              <div class="item" style="--rc:#56a8c8"><i class="ic"></i><span class="nm" style="color:#e8e4d9">记忆碎片 · 六色的碎梦 #4</span><span class="q">×1</span></div>
+              <div class="item" style="--rc:#56a8c8"><i class="ic"></i><span class="nm" style="color:#e8e4d9">记忆碎片 · 冰峰的回声 #2</span><span class="q">×1</span></div>
+            </div>
+            <div class="grp">血祭</div>
+            <div class="items">
+              <div class="item rc2"><i class="ic"></i><span class="nm">冰川之眼</span><span class="q">×1</span></div>
+            </div>
+            <div class="grp">钱袋、魂瓶</div>
+            <div class="items">
+              <div class="item" style="--rc:#c9ad74"><i class="ic"></i><span class="nm" style="color:#e8e4d9">金币</span><span class="q">+1,420</span></div>
+              <div class="item" style="--rc:#9a7fd4"><i class="ic"></i><span class="nm" style="color:#e8e4d9">灵魂</span><span class="q">+310</span></div>
+            </div>
+            <div class="grp">委托 · 自动分解</div>
+            <div class="items">
+              <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">刻尘（委托“击败两名领主”）</span><span class="q">×40</span></div>
+              <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">刻尘（局内素材折算）</span><span class="q">×18</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-height:0">
+        <div class="panel"><h3>远征经验</h3>
+          <div class="row"><span>等级 14</span><span class="grow"></span><span class="v">+1,380</span></div>
+          <div class="bar" style="margin-top:6px"><i style="width:85%"></i></div>
+          <div class="sub" style="margin-top:4px">5,100 / 6,000 · 15 级开放保险格 2</div>
+        </div>
+        <div class="panel"><h3>本周上限</h3>
+          <div class="row"><span>燃烧灵魂</span><span class="grow"></span><span class="v">50 / 75</span></div>
+          <div class="sub">首领掉落部分本周 50 / 60，未超出</div>
+        </div>
+        <div class="panel"><h3>长期进度</h3>
+          <div class="items">
+            <div class="item"><span class="grow">血祭 · 王之召见</span><span class="v">+420 → 1,660 / 3,000</span></div>
+            <div class="item"><span class="grow">铭文库新增“已见”</span><span class="v">3 条</span></div>
+            <div class="item"><span class="grow">情报：新遭遇的独有敌人</span><span class="v">霜魂萨满</span></div>
+          </div>
+        </div>
+        <div class="panel" style="border-color:#e9c46a80"><div class="row"><span class="warn">仓库 196 / 200</span><span class="grow"></span><span class="sub">溢出 0 件</span></div><div class="sub">再满会进溢出区，保留 72 小时</div></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:86px;display:flex;align-items:center;justify-content:center;gap:14px;border-top:1px solid var(--line2);background:#0a131bcc">
+      <span class="btn">整理仓库</span><span class="btn primary" style="min-width:220px;min-height:46px">返回营地</span><span class="btn">再来一趟</span>
+    </div>
+  </div>
+  <div class="notes"><h4>口径</h4>
+    <ul><li>撤离结算页是远征唯一的入账页：背包里的东西在这里才变成你的。按来源分组，每项真实名称和数量；委托、自动分解的产出也在这里列明。</li><li>燃烧灵魂超过周上限时，超出部分只写说明文字“本周已满，超出 N 点未入账”，不出奖励卡。</li></ul>
+    <ul><li>按 <code>runId</code> 幂等：断线重进、重复提交都显示同一份，不会入账两次。</li><li>“刻印变化”一组（潜能等）等做装规则确认后再加，本稿不画。</li><li>移动端：入账列表在上（单列），右栏各卡依次排在下方，三个按钮固定在底部。</li></ul>
+  </div>
+</section>
+
+<!-- ======================= U22 失败结算 ======================= -->
+<section class="scr" id="s22">
+  <div class="scr-head"><span class="id">U22</span><h2>失败结算</h2><code>#expedition/extract</code><span class="phase">一期</span></div>
+  <div class="frame" style="background:radial-gradient(ellipse at 50% 10%,#3a1e1e,#0b141c 60%)">
+    <div style="position:absolute;left:0;right:0;top:0;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+      <h1 style="font-size:40px;letter-spacing:.3em;color:#f0b5a5">远征失败</h1>
+      <div class="sub">寒冬堡垒 · 阶 6 · 命数耗尽（第 3 次全队阵亡，冰窟女王）· 第 22 步</div>
+    </div>
+    <div style="position:absolute;left:100px;right:100px;top:120px;bottom:96px;display:grid;grid-template-columns:1.3fr 1fr;gap:20px">
+      <div class="panel" role="region" aria-label="遗失清单" style="border-color:#d0806c60;display:flex;flex-direction:column;min-height:0">
+        <h3 style="color:#f0b5a5">遗失<small>留在了深渊里</small></h3>
+        <div class="grp" style="color:#e08a76">已穿戴的刻印</div>
+        <div class="items">
+          <div class="item rc3"><i class="ic"></i><span class="nm">北境星盘<br><span class="src">霜鸦女巫</span></span><span class="q">×1</span></div>
+          <div class="item rc2"><i class="ic"></i><span class="nm">霜纹之握<br><span class="src">冰霜巨人</span></span><span class="q">×1</span></div>
+          <div class="item rc1"><i class="ic"></i><span class="nm">赤铁护符<br><span class="src">冰霜巨人</span></span><span class="q">×1</span></div>
+          <div class="item rc1"><i class="ic"></i><span class="nm">玄岩肩章<br><span class="src">冰霜巨人</span></span><span class="q">×1</span></div>
+          <div class="item" style="justify-content:center"><span class="sub">展开其余 6 件（逐件列出名称）</span></div>
+        </div>
+        <div class="grp" style="color:#e08a76">背包</div>
+        <div class="items">
+          <div class="item rc3"><i class="ic"></i><span class="nm">督军之握</span><span class="q">×1</span></div>
+          <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">升阶石</span><span class="q">×7</span></div>
+          <div class="item" style="--rc:#a6c9d9"><i class="ic"></i><span class="nm" style="color:#e8e4d9">寒冬纹章</span><span class="q">×8</span></div>
+          <div class="item" style="--rc:#56a8c8"><i class="ic"></i><span class="nm" style="color:#e8e4d9">记忆碎片 · 冰峰的回声 #2</span><span class="q">×1</span></div>
+          <div class="item" style="--rc:#c9ad74"><i class="ic"></i><span class="nm" style="color:#e8e4d9">钱袋（金币）</span><span class="q">1,060</span></div>
+          <div class="item" style="--rc:#d8c290"><i class="ic"></i><span class="nm" style="color:#e8e4d9">火把、药剂</span><span class="q">×3</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-height:0">
+        <div class="panel" role="region" aria-label="保留清单"><h3>保留<small>保险格 · 不算获得</small></h3>
+          <div class="items"><div class="item rc4"><i class="ic"></i><span class="nm">寒渊誓约<br><span class="src">极光祭司 · 已投保</span></span><span class="q">×1</span></div></div>
+        </div>
+        <div class="panel"><h3>本趟已经永久入账<small>这些不会丢</small></h3>
+          <div class="items">
+            <div class="item"><span class="grow">远征经验</span><span class="v">+1,060</span></div>
+            <div class="item"><span class="grow">铭文 · 霜巨人督军之怒（首杀解锁）</span><span class="v">+1</span></div>
+            <div class="item"><span class="grow">血祭 · 献给王的贡品</span><span class="v">王之召见 +260</span></div>
+          </div>
+        </div>
+        <div class="panel"><h3>队伍</h3><div class="sub">部队本身永不损失。全员已回到营地，下一趟满血出发。</div></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:86px;display:flex;align-items:center;justify-content:center;gap:14px;border-top:1px solid var(--line2);background:#0a131bcc">
+      <span class="btn">用阶 1–3 免费路引再出发</span><span class="btn primary" style="min-width:220px;min-height:46px">返回营地</span>
+    </div>
+  </div>
+  <div class="notes"><h4>口径</h4>
+    <ul><li>先由 U20“战斗失败”进入本页（命数耗尽），或步数耗尽时直接进入。失败原因写在标题下。</li><li>遗失清单逐项列真实名称和数量；保留清单单列，写明“不算获得”。</li></ul>
+    <ul><li>任何页面都不展示失物池的存在、内容或期限；本页也不出现“可能找回”之类的暗示。</li><li>按 <code>runId</code> 幂等；重复进入显示同一份。移动端：遗失在上，保留和永久入账在下。</li></ul>
+  </div>
+</section>
+
+<div style="height:80px"></div>
+</body>
+</html>

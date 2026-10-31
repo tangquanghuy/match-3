@@ -1,0 +1,1878 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>深渊远征 · 高保真稿 v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ================= 视觉规范（v3） =================
+   一级页面只放"现在要做的决定"：每屏 1 个主按钮，信息不超过 3 组；说明、明细、列表一律收进二级页（右侧抽屉）。
+   不写英文副标题，不堆统计数字。数字只在玩家要据此做决定时出现。
+   字号 6 档：40 / 28 / 20 / 16 / 14 / 13。颜色：金 = 主操作与收益；青 = 选中；珊瑚红 = 代价与危险；绿 = 安全。
+   队伍卡与敌方卡沿用游戏现有的出战准备卡（src/meta/screens/regionalScreen.css 的 rg-troop）。 */
+:root{
+  --ink:#f5f7ff; --ink2:#c6cfe6; --ink3:#93a0c2;
+  --line:rgba(205,222,255,.16); --line2:rgba(205,222,255,.3);
+  --cy:#74e4ff; --gold:#ffcf6b; --red:#ff7088; --green:#72e6a8;
+  --r0:#aab2ad; --r1:#4fcf8a; --r2:#a66bff; --r3:#ffd84a; --r4:#f08a3c; --r5:#56d8ff;
+  --sans:"Noto Sans SC","Microsoft YaHei","PingFang SC",sans-serif;
+  --num:"Oswald","Noto Sans SC",sans-serif;
+  --panel:linear-gradient(180deg,rgba(32,42,88,.82),rgba(22,30,68,.88));
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:#0a1024;color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer;padding:0}
+button:focus{outline:none}
+button:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+img{display:block}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink3)} .good{color:var(--green)} .bad{color:var(--red)} .gold{color:var(--gold)}
+.grow{flex:1;min-width:0}
+
+/* 原型工具条（不属于游戏画面） */
+.proto{position:fixed;inset:0 0 auto 0;height:40px;z-index:100;display:flex;align-items:center;gap:6px;padding:0 14px;background:#0d1430;border-bottom:1px solid #222d52;font-size:13px;color:#aab4d4}
+.proto strong{color:#e8ecff;margin-right:10px}
+.proto button{height:28px;padding:0 12px;border-radius:8px;color:#c9d1ee}
+.proto button.on{background:#e8ecff;color:#0d1430;font-weight:700}
+.proto .sp{flex:1}
+.proto .seedbox{display:flex;align-items:center;gap:6px;padding-left:12px;border-left:1px solid #2a3560}
+.proto input,.proto select{height:28px;padding:0 8px;border-radius:7px;border:1px solid #2f3b6a;background:#141c3d;color:#e8ecff;font-size:13px}
+.proto input{width:130px}
+.proto input[type=checkbox]{width:16px;height:16px;padding:0;accent-color:#8fb4ff}
+.proto .ghost{border:1px solid #2f3b6a}
+.proto label{display:flex;align-items:center;gap:6px;margin-left:12px;cursor:pointer}
+#viewport{position:fixed;inset:40px 0 0 0;overflow:hidden;display:grid;place-items:center}
+#stage{position:relative;width:1600px;height:900px;flex:none;overflow:hidden;transform-origin:center;background:#16204a}
+
+.screen{position:absolute;inset:0;display:none}
+.screen.on{display:block}
+.bg{position:absolute;inset:0;background-size:cover;background-position:50% 50%}
+.shade{position:absolute;inset:0;pointer-events:none}
+
+/* —— 通用组件 —— */
+/* 面板：和营地同一档靛蓝，不加顶部亮线（v4 审稿 G9） */
+.glass{position:absolute;background:var(--panel);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 40px rgba(6,10,32,.3)}
+.sh{display:flex;align-items:center;gap:10px;padding:18px 22px 12px}
+.sh h3{margin:0;font:700 20px var(--sans)}
+.sh small{color:var(--ink3);font-size:13px}
+.sh .btn{margin-left:auto}
+/* 按钮（v4 审稿 G4/G5）：主按钮是竖向短渐变的暖金，深金描边 + 靛蓝落影，不发黄光、不加白色内高光；
+   次按钮是实色靛蓝底，不是网页式的透明线框 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;background:rgba(38,49,100,.8);border:1px solid rgba(190,208,255,.24);font:600 15px var(--sans);color:#e8eeff;box-shadow:0 4px 10px rgba(8,12,36,.22);backdrop-filter:blur(10px);transition:background .15s,border-color .15s;white-space:nowrap}
+.btn:hover{background:rgba(52,66,128,.86);border-color:rgba(190,208,255,.42)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:8px}
+.btn.text{background:none;border-color:transparent;box-shadow:none;backdrop-filter:none;color:var(--ink2)}
+.btn.text:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 28px;border-radius:12px;background:linear-gradient(180deg,#ffd982 0%,#f4bc56 100%);color:#3a2604;font:700 18px/1 var(--sans);letter-spacing:.04em;box-shadow:0 0 0 1px rgba(150,96,20,.55),0 6px 16px rgba(8,12,40,.34);transition:background .15s,transform .15s;white-space:nowrap}
+.primary:hover{background:linear-gradient(180deg,#ffe08f 0%,#f7c464 100%)} .primary:active{transform:translateY(1px)}
+.primary small{font:500 14px var(--sans);letter-spacing:0;color:#6a4a10}
+.primary svg.i{width:20px;height:20px;stroke-width:2.2}
+.primary[disabled]{background:rgba(255,255,255,.08);color:var(--ink3);box-shadow:inset 0 0 0 1px var(--line);cursor:not-allowed}
+.primary[disabled] small{color:var(--ink3)}
+/* 撤离用绿色，和金色的常规动作分开 */
+.primary.exit{background:linear-gradient(180deg,#8ff0bd,#5fd394);color:#0e3a24;box-shadow:0 0 0 1px rgba(30,110,70,.55),0 6px 16px rgba(8,12,40,.34)}
+.primary.exit small{color:#1d5a3a}
+.chip{height:32px;padding:0 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(205,222,255,.16);color:var(--ink2);font:500 13px var(--sans)}
+.chip:hover{background:rgba(255,255,255,.09)}
+.chip.on{background:rgba(116,228,255,.12);border-color:rgba(116,228,255,.5);color:#e6fbff;font-weight:700}
+.seg{display:flex;padding:3px;border-radius:12px;background:rgba(6,10,28,.45);border:1px solid var(--line)}
+.seg button{flex:1;height:38px;border-radius:9px;color:var(--ink2);font-size:14px}
+.seg button.on{background:rgba(116,228,255,.2);box-shadow:inset 0 0 0 1px rgba(116,228,255,.6);color:#e6fbff;font-weight:700}
+.seg button.off{opacity:.6;color:var(--ink3)}
+.seg button.off svg.i{width:14px;height:14px;vertical-align:-2px;margin-left:2px}
+/* 标签用 6px 小圆角（只有地图上的地名牌保留全圆胶囊） */
+.tag{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:6px;font:500 13px var(--sans);background:rgba(14,22,50,.62);box-shadow:inset 0 0 0 1px rgba(205,222,255,.16);color:var(--ink2);white-space:nowrap}
+.tag b{font-weight:700;margin-right:2px}
+.tag.red{background:rgba(255,112,136,.14);box-shadow:inset 0 0 0 1px rgba(255,112,136,.32);color:#ffc7d1}
+.tag.cy{background:rgba(116,228,255,.12);box-shadow:inset 0 0 0 1px rgba(116,228,255,.34);color:#d2f8ff}
+.tag.gold{background:rgba(255,207,107,.14);box-shadow:inset 0 0 0 1px rgba(255,207,107,.34);color:#ffe6ad}
+.tag.good{background:rgba(114,230,168,.14);box-shadow:inset 0 0 0 1px rgba(114,230,168,.34);color:#c8f7dc}
+.tag.vio{background:rgba(201,168,255,.14);box-shadow:inset 0 0 0 1px rgba(201,168,255,.34);color:#e6dbff}
+.dot{position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%;background:#ff5c74;box-shadow:0 0 0 2px rgba(14,22,48,.6)}
+
+/* 物品框（v4 审稿 G1–G3）：底色统一成靛蓝石板，稀有度只看描边和底部一层淡色晕，不铺整块颜色、不加底部色条 */
+.it{--rc:var(--r0);--s:64px;position:relative;width:var(--s);height:var(--s);flex:none;border-radius:10px;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(95% 70% at 50% 105%,color-mix(in srgb,var(--rc) 30%,transparent) 0%,transparent 72%),#263166;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rc) 80%,#263166),0 3px 8px rgba(8,12,36,.3)}
+.it.r4,.it.r5{box-shadow:inset 0 0 0 2px var(--rc),0 3px 8px rgba(8,12,36,.3)}
+.it img{width:82%;height:82%;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(10,16,40,.4))}
+.it .q{position:absolute;right:3px;bottom:3px;min-width:clamp(16px,calc(var(--s)*.24),22px);height:clamp(16px,calc(var(--s)*.24),22px);padding:0 5px;border-radius:6px;
+  background:rgba(12,18,44,.86);box-shadow:inset 0 0 0 1px rgba(205,222,255,.18);font:600 clamp(11px,calc(var(--s)*.16),14px)/clamp(16px,calc(var(--s)*.24),22px) var(--num);color:#eef3ff;text-align:center}
+.it .new{position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#74e4ff;box-shadow:0 0 0 2px rgba(12,18,44,.8)}
+.it.empty{background:rgba(10,16,40,.3);border:0;box-shadow:inset 0 2px 6px rgba(6,10,30,.45),inset 0 0 0 1px rgba(205,222,255,.1);color:var(--ink3)}
+button.it:hover{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--rc) 90%,#fff),0 3px 8px rgba(8,12,36,.3)}
+.it.sel{box-shadow:inset 0 0 0 2px var(--rc),0 0 0 2px var(--cy)}
+.it.r1{--rc:var(--r1)} .it.r2{--rc:var(--r2)} .it.r3{--rc:var(--r3)} .it.r4{--rc:var(--r4)} .it.r5{--rc:var(--r5)}
+/* 保险格 = 安全 = 绿色（青色只表示选中） */
+.it .safe{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:6px;background:#0f2e24;display:grid;place-items:center;color:var(--green)}
+.it .safe svg{width:13px;height:13px;stroke-width:2.4}
+
+/* 顶栏 */
+.topbar{position:absolute;left:0;right:0;top:0;height:84px;display:flex;align-items:center;gap:16px;padding:0 40px;z-index:5}
+.back{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(30,40,84,.74);border:1px solid rgba(205,222,255,.22);backdrop-filter:blur(10px);color:#dfe6ff}
+.back:hover{background:rgba(48,62,122,.84);color:#fff}
+.back svg.i{width:20px;height:20px;stroke-width:2}
+.topbar h1{margin:0;font:900 28px/1.2 var(--sans);letter-spacing:.02em;text-shadow:0 2px 12px rgba(10,16,40,.45)}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.wallet{display:flex;align-items:center;height:44px;padding:0 6px;border-radius:99px;background:rgba(14,22,48,.55);border:1px solid var(--line);backdrop-filter:blur(10px)}
+.wallet .c{display:flex;align-items:center;gap:7px;padding:0 14px;height:30px}
+.wallet .c+.c{border-left:1px solid var(--line)}
+.wallet img{width:26px;height:26px;object-fit:contain}
+.wallet b{font:500 17px var(--num)}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(30,40,84,.74);border:1px solid rgba(205,222,255,.22);backdrop-filter:blur(10px);color:#dfe6ff;position:relative}
+.ib:hover{color:#fff;background:rgba(48,62,122,.84)}
+.ib svg.i{width:20px;height:20px;stroke-width:2}
+.ib .dot{top:5px;right:5px}
+
+/* —— 二级页：右侧抽屉 —— */
+.sheet{position:absolute;inset:0;z-index:40;display:none;background:rgba(8,12,32,.34)}
+.sheet.on{display:block}
+/* 抽屉从顶栏 / 局内 HUD 下方开始，高度随内容，不盖住返回键和命数 */
+.sheet .card{position:absolute;right:24px;top:96px;max-height:calc(100% - 120px);width:540px;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(34,44,92,.94),rgba(22,30,68,.96));backdrop-filter:blur(22px);border:1px solid var(--line2);box-shadow:0 24px 60px rgba(4,8,28,.5);animation:slidein .18s ease-out}
+.sheet.wide .card{width:760px}
+@keyframes slidein{from{transform:translateX(24px);opacity:0}}
+.sheet header{display:flex;align-items:center;gap:12px;padding:22px 24px 14px;border-bottom:1px solid var(--line)}
+.sheet header h3{margin:0;font:700 20px var(--sans)}
+.sheet header small{color:var(--ink3);font-size:13px}
+.sheet header .x{margin-left:auto;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--ink2)}
+.sheet header .x:hover{background:rgba(255,255,255,.1)}
+.sheet .body{flex:0 1 auto;min-height:0;overflow-y:auto;padding:16px 24px 24px;scrollbar-width:thin}
+.sheet .foot{padding:16px 24px 22px;border-top:1px solid var(--line);display:flex;gap:10px}
+.sheet .foot .primary{flex:1}
+.sheet h4{margin:18px 0 10px;font:700 15px var(--sans);color:var(--ink2)}
+.sheet h4:first-child{margin-top:4px}
+.sheet p{margin:0 0 10px;color:var(--ink2);line-height:1.65}
+.lrow{display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:14px;width:100%;text-align:left}
+.lrow+.lrow{margin-top:6px}
+/* 不用斑马纹（看起来像被选中）：说明行一律淡底；可点的行多一道细线，悬停更亮 */
+div.lrow{background:rgba(255,255,255,.04)}
+button.lrow{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--line)}
+button.lrow:hover{background:rgba(255,255,255,.1)}
+.lrow[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+.lrow .ck{width:22px;height:22px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--line2);display:grid;place-items:center;color:transparent}
+.lrow.on .ck{background:var(--cy);color:#0e1a3a;box-shadow:none}
+.lrow .ck svg.i{width:14px;height:14px;stroke-width:3}
+.sheet p.warn{padding:10px 12px;border-radius:10px;background:rgba(150,110,255,.12);box-shadow:inset 0 0 0 1px rgba(170,140,255,.4);color:#e2d8ff;font-size:14px}
+.sheet p.note{padding:10px 12px;border-radius:10px;background:rgba(116,228,255,.06);box-shadow:inset 3px 0 0 rgba(116,228,255,.5);color:var(--ink2);font-size:14px}
+.lrow.sel{background:rgba(116,228,255,.12);box-shadow:inset 0 0 0 1px rgba(116,228,255,.55)}
+.lrow b{display:block;font:700 16px var(--sans)}
+.lrow small{display:block;font-size:13px;color:var(--ink3)}
+.lrow .end{margin-left:auto;text-align:right;flex:none}
+.lrow .it{--s:52px}
+.afrow{display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04)}
+.afrow+.afrow{margin-top:8px}
+.afrow .c{color:#ffc0cb} .afrow .g{color:#ffe2a3} .afrow .to{color:var(--ink3)}
+.afrow .note{grid-column:1/-1;font-size:13px;color:var(--ink3)}
+.afrow .note.warn{color:#ffd0a6}
+.afrow .note.ok{color:#c8f7dc}
+.toast{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);z-index:60;padding:12px 20px;border-radius:12px;background:rgba(14,22,48,.92);border:1px solid var(--line2);font-size:14px;display:none}
+.toast.on{display:flex;align-items:center;gap:14px}
+.toast .tundo{height:28px;padding:0 12px;border-radius:8px;background:rgba(116,228,255,.14);box-shadow:inset 0 0 0 1px rgba(116,228,255,.45);color:#d2f8ff;font-weight:700;font-size:13px}
+</style>
+
+<style>
+/* ================= 队伍卡（照搬 regionalScreen.css 的 rg-troop，数字 Georgia、图标与战斗卡同款） ================= */
+.rg-troop{position:relative;display:flex;flex-direction:column;padding:0;border:1px solid #b29d6966;border-radius:8px;overflow:hidden;background:#0c1822;box-shadow:0 5px 16px #0004;transition:border-color .15s,box-shadow .15s;text-align:left;color:inherit}
+.rg-troop:hover{border-color:#e4c787;box-shadow:0 0 0 1px #e4c78755,0 7px 20px #0005}
+.rg-troop-art{position:relative;flex:1;min-height:0;overflow:hidden;isolation:isolate}
+.rg-troop-art>img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 22%}
+.rg-portrait-stats{position:absolute;inset:0;container-type:inline-size;pointer-events:none;background:linear-gradient(180deg,#06101c33,transparent 28%,transparent 50%,#06101cbe)}
+.rg-stat{position:absolute;display:flex;align-items:center;gap:4px;color:#f3dfb0;text-shadow:0 2px 3px #000,0 0 6px #000}
+.rg-stat b{font:bold clamp(18px,7.5cqw,28px)/1 Georgia,serif}
+.rg-stat svg{width:clamp(16px,7cqw,25px);height:clamp(16px,7cqw,25px);flex:none}
+.rg-stat-mana{left:0;top:0;width:clamp(29px,23cqw,50px);aspect-ratio:1;padding:clamp(2px,2cqw,5px);background:linear-gradient(135deg,rgba(20,18,15,.74),rgba(11,10,9,.6));border:1px solid rgba(216,194,144,.5);border-radius:8px 0 12px 0;box-shadow:1px 1px 4px #0008}
+.rg-stat.rg-stat-mana>svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1px 2px #000d)}
+.board-gem .seat{fill:rgba(11,10,9,.25)} .board-gem .facets{fill:none;stroke:rgba(255,255,255,.22);stroke-width:5}
+.rg-gem-mana{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;font:800 clamp(11px,8cqw,23px)/1 Georgia,serif;color:rgba(243,234,214,.72);text-shadow:1px 0 #0a0806,-1px 0 #0a0806,0 1px #0a0806,0 -1px #0a0806,0 1px 3px #000}
+.rg-gem-mana small{font-size:.72em;font-weight:700}
+.rg-stat-magic{top:0;right:0;padding:7px 9px;background:#2c1d39d9;border-radius:0 0 0 12px;color:#e5d1ff}
+.rg-stat-attack{bottom:12px;left:10px}
+.rg-stat-armor{bottom:48px;right:10px;color:#dae4e9;flex-direction:row-reverse}
+.rg-stat-hp{bottom:12px;right:10px;color:#ff999b;flex-direction:row-reverse}
+.rg-troop-caption{flex:none;display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;column-gap:8px;min-height:58px;padding:7px 12px;border-top:2px solid var(--rc,#b29d6940);background:linear-gradient(120deg,#192833,#0c1822)}
+.rg-troop-caption h3{margin:0;font:17px/1.35 "Palatino Linotype","STZhongsong","Noto Sans SC",serif;color:#efdeb7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rg-troop-caption small{grid-column:1;margin-top:2px;font-size:12px;color:#a99870}
+.rg-troop-caption>span{grid-column:2;grid-row:1/3;align-self:center;font:22px Georgia,serif;color:#a99870}
+.sheet .rg-troop-caption>span{visibility:hidden}
+.rg-troop.r0{--rc:#aab2ad} .rg-troop.r1{--rc:#4caf6a} .rg-troop.r2{--rc:#9a4fd4} .rg-troop.r3{--rc:#ffe24a} .rg-troop.r4{--rc:#c56b2d} .rg-troop.r5{--rc:#56d8ff}
+</style>
+
+<style>
+/* ================= 营地 ================= */
+#camp .bg{background-image:url(../../game-assets/bundled/meta/expedition/anime/camp.webp);background-position:50% 46%}
+#camp .shade{background:linear-gradient(90deg,rgba(14,20,50,.5) 0,rgba(14,20,50,.1) 30%,transparent 50%,rgba(14,20,50,.14) 70%,rgba(14,20,50,.46) 100%),linear-gradient(180deg,rgba(14,20,50,.42) 0,transparent 16%)}
+.snow{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.snow i{position:absolute;top:-10px;width:4px;height:4px;border-radius:50%;background:#fff;opacity:.7;animation:fall linear infinite}
+@keyframes fall{to{transform:translate(var(--dx),920px)}}
+@media (prefers-reduced-motion:reduce){.snow{display:none}}
+.rank{left:40px;top:104px;width:380px;padding:20px 22px 20px}
+.rank .r{display:flex;align-items:center;gap:14px}
+.rank .n{font:600 56px/0.9 var(--num)}
+.rank b{display:block;font:700 20px var(--sans)}
+.rank small{font-size:13px;color:var(--ink2)}
+.bar{height:6px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:16px}
+.bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#5fc8ff,#9ff0ff)}
+/* 生命条分三档：≥60 绿、30–60 橙、<30 红 */
+.bar.hp{height:8px;margin-top:8px}
+.bar.hp i{background:linear-gradient(90deg,#4fd28b,#9ff5c4)}
+.bar.hp.mid i{background:linear-gradient(90deg,#ffb35a,#ffd27a)}
+.bar.hp.low i{background:linear-gradient(90deg,#ff7088,#ffa8b6)}
+/* 遗物用圆框，和背包物品区分开（不会被当成背包里的东西） */
+.it.relic{border-radius:50%}
+.biomes{left:40px;top:252px;width:380px;padding-bottom:12px}
+.bio{position:relative;display:block;width:calc(100% - 24px);margin:0 12px 10px;height:100px;border-radius:14px;overflow:hidden;text-align:left;background-size:cover;background-position:50% 32%;border:1px solid var(--line)}
+.bio::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,18,44,.86) 0,rgba(12,18,44,.5) 55%,rgba(12,18,44,.05) 100%)}
+.bio>*{position:relative}
+.bio .nm{position:absolute;left:18px;top:18px;font:700 20px var(--sans)}
+.bio .ds{position:absolute;left:18px;top:52px;right:90px;font-size:13px;color:var(--ink2)}
+.bio.on{border-color:rgba(116,228,255,.75);box-shadow:inset 0 0 0 1px rgba(116,228,255,.45)}
+.bio:hover{border-color:rgba(205,222,255,.5)}
+.hero{left:1080px;top:104px;width:480px;height:300px;overflow:hidden;padding:0}
+.hero .art{position:absolute;inset:0;background:url(../../game-assets/bundled/meta/expedition/anime/biome-winter.webp) 50% 28%/cover}
+.hero .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,20,48,0) 0,rgba(14,20,48,.2) 40%,rgba(14,20,48,.9) 100%)}
+.hero .bt{position:absolute;left:22px;right:22px;bottom:20px}
+.hero .ttl{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.hero h2{margin:0;font:900 28px var(--sans)}
+.hero .kit{margin-left:auto;display:flex;gap:6px}
+.hero .kit .it{--s:40px;border-radius:10px}
+.hero .acts{display:flex;gap:10px}
+.hero .primary{flex:1}
+.hero .run{display:none}
+#camp.running .hero .run{display:inline-flex}
+#camp.running .hero .idle{display:none}
+.tiles{position:absolute;left:1080px;top:420px;width:480px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{position:relative;height:112px;padding:14px 12px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--line);transition:border-color .15s,background .15s}
+.tile:hover{border-color:rgba(205,222,255,.5)}
+.tile img{width:52px;height:52px;object-fit:contain}
+.tile b{font:700 15px var(--sans)}
+.tile .warn{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:12px;color:#ffd28a}
+.tile.has-warn b{margin-bottom:10px}
+.tile.lock img{filter:grayscale(1) opacity(.45)}
+.tile.lock b{color:var(--ink3)}
+.tile .lk{position:absolute;top:10px;right:10px;color:var(--ink3);width:16px;height:16px}
+.lastrun{position:absolute;left:40px;bottom:32px;display:flex;align-items:center;gap:12px;height:48px;padding:0 8px 0 18px;border-radius:99px;background:rgba(14,22,48,.6);border:1px solid var(--line);backdrop-filter:blur(12px);font-size:14px;color:var(--ink2)}
+
+/* ================= 地图台 ================= */
+/* 和营地同一画风：营地里的制图帐篷，圆桌台面是分层深渊的浮雕。槽位用营地的深色玻璃面板，稀有度只看边框颜色 */
+#device{background:#2c3468}
+#device .bg{background-image:url(../../game-assets/bundled/meta/expedition/abyss/device.webp);background-size:1600px auto;background-position:0 -470px;background-repeat:no-repeat}
+#device .shade{background:linear-gradient(90deg,transparent 0,transparent 64%,rgba(20,26,60,.55) 76%,rgba(20,26,60,.75) 100%),linear-gradient(180deg,rgba(20,26,60,.5) 0,transparent 14%,transparent 82%,rgba(20,26,60,.45) 100%)}
+/* 槽位 = 桌面上凹进去的黄铜碟（按桌面透视压扁 0.42），物件直立、底部压进碟心、脚下有接触阴影；
+   稀有度只画碟内圈一道细线，不发光。坐标按底图实测：深渊口中心约 (580,630)，桌面压扁比约 0.41 */
+.sock{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:calc(var(--w)*.42);transform:translate(-50%,-50%);padding:0;border:0;background:none;border-radius:50%;cursor:pointer}
+.sock::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(18,24,58,.72) 0 60%,rgba(30,38,80,.5) 82%,rgba(30,38,80,0) 100%);
+  box-shadow:inset 0 0 0 3px #c6a68e,inset 0 0 0 4px rgba(245,221,197,.35),inset 0 6px 10px rgba(8,10,34,.62),0 2px 0 rgba(245,221,197,.25),0 6px 12px rgba(20,22,60,.35);transition:box-shadow .15s}
+.sock::after{content:"";position:absolute;inset:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--rc,transparent);opacity:.9}
+.sock .shadow{position:absolute;left:50%;top:50%;width:calc(var(--ih)*.66);height:calc(var(--ih)*.18);transform:translate(-50%,-35%);border-radius:50%;background:radial-gradient(closest-side,rgba(8,10,34,.62),rgba(8,10,34,0))}
+.sock .obj{position:absolute;left:50%;bottom:50%;width:var(--ih);height:var(--ih);margin-bottom:-6px;transform:translateX(-50%);object-fit:contain;filter:drop-shadow(0 3px 2px rgba(8,10,34,.5));transition:transform .15s}
+.sock:hover .obj{transform:translateX(-50%) translateY(-4px)}
+.sock:hover::before{box-shadow:inset 0 0 0 3px #e0c2a6,inset 0 0 0 4px rgba(245,221,197,.5),inset 0 6px 10px rgba(8,10,34,.62),0 2px 0 rgba(245,221,197,.3),0 6px 12px rgba(20,22,60,.35)}
+.sock:focus-visible{outline:2px solid #74e4ff;outline-offset:4px}
+.sock>svg.i{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%) scaleY(.6);color:rgba(245,221,197,.6);display:none}
+.sock.empty .obj,.sock.empty .shadow,.sock.lock .obj,.sock.lock .shadow{display:none}
+.sock.empty>svg.plus,.sock.lock>svg.lk{display:block}
+.sock.lock{cursor:default;opacity:.8}
+/* 名字：罗盘用刻字，不加底；路引用一块小铜牌 */
+.slbl{position:absolute;transform:translateX(-50%);white-space:nowrap;font:700 14px var(--sans);color:#f4e8d2;text-shadow:0 1px 2px rgba(10,12,40,.95),0 0 8px rgba(10,12,40,.7);pointer-events:none}
+.slbl.dim{font:500 12px var(--sans);color:#d9d2e6}
+.slbl.main{padding:5px 14px;border-radius:6px;font-size:15px;background:rgba(20,24,58,.76);box-shadow:inset 0 0 0 1px rgba(198,166,142,.6);text-shadow:none}
+.slbl.main .tier{font:600 16px var(--num);color:var(--gold);margin-right:8px}
+.sum{left:1140px;top:104px;width:420px;display:flex;flex-direction:column}
+.sum .pb{padding:0 22px}
+.lbl{font-size:13px;color:var(--ink3);margin:14px 0 8px;display:flex;align-items:baseline}
+.lbl .hint{margin-left:auto;font-size:12.5px;color:var(--ink3)}
+.whereto{display:flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 14px;border-radius:12px;background:rgba(6,10,28,.45);border:1px solid var(--line)}
+.whereto b{font:700 16px var(--sans)}
+.whereto .btn{margin-left:auto}
+.sline{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 22px;font-size:15px;color:var(--ink2);border-top:1px solid var(--line)}
+.sline .v{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--ink)}
+button.sline{width:100%;text-align:left}
+button.sline:hover{background:rgba(255,255,255,.05)}
+.sline .warn{color:#ffd0a6}
+.hearts{display:flex;gap:2px}
+.hearts img{width:24px;height:24px;object-fit:contain}
+.diff{margin:4px 22px 0;padding:16px;border-radius:14px;background:rgba(255,255,255,.05)}
+.diff .t{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:14px;color:var(--ink2)}
+.diff .t b{font:700 20px var(--sans);color:#ffd28a}
+.diff .lv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.diff .lv span{height:8px;border-radius:99px;background:rgba(255,255,255,.12)}
+.diff .lv span.on{background:#ffd28a}
+.diff .why{margin-top:10px;font-size:13px;color:var(--ink3);text-align:left;width:100%}
+.diff .why:hover{color:var(--ink2)}
+.diff .lb{display:grid;grid-template-columns:repeat(4,1fr);margin-top:6px;font-size:13px;color:var(--ink3);text-align:center}
+.sum .foot{padding:18px 22px 22px}
+.sum .foot .primary{width:100%}
+</style>
+
+<style>
+/* ================= 出征准备 ================= */
+#prepare .bg{background-image:url(../../game-assets/bundled/meta/expedition/anime/prepare.webp);background-position:50% 62%}
+#prepare .shade{background:linear-gradient(180deg,rgba(14,20,50,.5) 0,rgba(14,20,50,.08) 18%,transparent 45%,rgba(14,20,50,.3) 72%,rgba(14,20,50,.6) 100%)}
+.party{position:absolute;left:40px;top:104px;height:480px;display:flex;gap:14px}
+.party .rg-troop{width:232px;height:100%}
+.pet{width:140px;height:100%;border-radius:8px;border:1px solid var(--line);background:rgba(14,22,48,.4);backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px 12px}
+.pet img{width:64px;height:64px;object-fit:contain;filter:grayscale(.75) opacity(.55)}
+.pet b{font:700 16px var(--sans);color:var(--ink2)}
+.pet span{font-size:13px;color:var(--ink3)}
+.belt{left:40px;top:604px;width:640px;height:264px}
+.slots{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:24px 22px 0}
+.slots .slot{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:14px;color:var(--ink2)}
+.slots .it{--s:84px}
+.vault{left:696px;top:604px;width:468px;height:264px}
+.vslots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:6px 22px 0}
+.vs{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px 10px;border-radius:14px;background:rgba(255,255,255,.05);text-align:center;font-size:13px;color:var(--ink3);height:186px;gap:5px}
+.vs .it{--s:84px}
+.vs b{font:700 14px var(--sans);color:var(--ink)}
+.vs.on{background:rgba(114,230,168,.1);box-shadow:inset 0 0 0 1px rgba(114,230,168,.45);cursor:pointer}
+.vs.on:hover{background:rgba(114,230,168,.16)}
+.vs .chg{font-size:12px;color:var(--green)}
+.vs .lkic{width:84px;height:84px;border-radius:12px;background:rgba(10,16,40,.3);box-shadow:inset 0 2px 6px rgba(6,10,30,.45),inset 0 0 0 1px rgba(205,222,255,.1);display:grid;place-items:center;color:var(--ink3)}
+.contract{left:1188px;top:104px;width:372px;height:764px;display:flex;flex-direction:column;overflow:hidden}
+.contract .head{position:relative;height:180px;flex:none;background:url(../../game-assets/bundled/meta/expedition/anime/biome-winter.webp) 50% 26%/cover}
+.contract .head::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,20,48,0),rgba(14,20,48,.9))}
+.contract .head div{position:absolute;left:22px;bottom:16px;z-index:1;display:flex;align-items:baseline;gap:12px}
+.contract .head h2{margin:0;font:900 28px var(--sans)}
+.contract .head span{font:600 20px var(--num);color:var(--gold)}
+.costs{display:flex;gap:6px;padding:0 22px 14px}
+.costs .cost{display:flex;flex-direction:column;align-items:center;gap:6px;width:76px}
+.costs .cost small{font-size:13px;color:var(--ink3);white-space:nowrap}
+.costs .it{--s:60px}
+/* 失败时会丢：风险块 */
+.risk{display:block;width:100%;text-align:left;padding:18px 22px;border-top:1px solid var(--line)}
+.risk:hover{background:rgba(255,255,255,.04)}
+.risk h3{display:flex;align-items:center;margin:0;font:700 20px var(--sans)}
+.risk h3 svg{margin-left:auto;color:var(--ink3)}
+.risk .ics{display:flex;align-items:center;gap:8px;margin-top:12px}
+.risk .ics .it{--s:52px}
+.risk .ok{margin-top:12px;font-size:14px;color:var(--green)}
+.contract .foot{margin-top:auto;padding:16px 22px 22px}
+.contract .foot .primary{width:100%}
+</style>
+
+<style>
+/* ================= 局内地图 ================= */
+#run{background:#2c3468}
+#terrain{position:absolute;inset:0;width:1600px;height:900px}
+#mapsvg{position:absolute;inset:0;width:1600px;height:900px}
+/* 区域状态：只改边框和薄薄一层罩色，不盖住地貌贴图 */
+#mapsvg .cell{fill:transparent;stroke:rgba(255,255,255,.42);stroke-width:1.2;cursor:pointer;transition:fill .15s}
+#mapsvg .cell:hover{fill:rgba(255,255,255,.10)}
+/* 没探明：一层冷白的雾，地貌隐约可见 */
+#mapsvg .cell.fog{fill:url(#mist)}
+#mapsvg .cell.fog:hover{fill:url(#mist);stroke:rgba(255,255,255,.85)}
+#mapsvg .cell.exitc{fill:rgba(114,230,168,.12)}
+#mapsvg .cell.bossc{fill:rgba(200,60,110,.10)}
+#mapsvg .cell.reach{stroke:rgba(255,255,255,.95);stroke-width:2.2}
+#mapsvg .cell.here{fill:rgba(116,228,255,.14);stroke:#74e4ff;stroke-width:3}
+#mapsvg .cell.sel{stroke:#fff;stroke-width:3.5;fill:rgba(255,255,255,.12)}
+/* 冰潮：已封住的区域盖一层厚冰；下一次要封的区域边框发紫光，罩色随时间变浓（不写数字） */
+/* 已封 = 冷白厚冰（地貌压成灰白）；将封 = 紫色虚线 + 从边缘往里长的冰带。紫色表示冰潮正在来，白色表示已经冻住 */
+#mapsvg .cell.sealed{fill:url(#iceSeal);stroke:rgba(150,140,230,.7);cursor:not-allowed}
+#mapsvg .cell.sealed:hover{fill:url(#iceSeal)}
+#mapsvg .cell.fresh{animation:freeze .7s ease-out}
+@keyframes freeze{from{fill-opacity:0}}
+#mapsvg .warnfill{pointer-events:none}
+#mapsvg .frostband{fill:none;stroke:rgba(214,200,255,.55);pointer-events:none}
+#mapsvg .warnbase{fill:none;stroke:rgba(40,24,96,.55);stroke-width:5;pointer-events:none}
+#mapsvg .warn{fill:none;stroke:#efe6ff;stroke-width:2.5;stroke-dasharray:12 8;animation:dash 1.6s linear infinite;pointer-events:none;filter:drop-shadow(0 0 3px rgba(170,130,255,.5))}
+#mapsvg .warn.fast{animation-duration:.7s}
+#mapsvg .hereline{fill:none;stroke:#74e4ff;stroke-width:3;pointer-events:none}
+#mapsvg .door{fill:#fff;stroke:rgba(40,56,120,.8);stroke-width:1.5;pointer-events:none}
+#mapsvg .walked{fill:none;stroke:rgba(255,226,160,.6);stroke-width:3;stroke-linecap:round;pointer-events:none}
+#mapsvg .walked.old{opacity:.3}
+#mapsvg .route-bg{fill:none;stroke:rgba(16,26,70,.5);stroke-width:8;stroke-linecap:round;pointer-events:none}
+#mapsvg .route{fill:none;stroke:#74e4ff;stroke-width:4;stroke-linecap:round;stroke-dasharray:10 8;animation:dash 1.1s linear infinite;filter:drop-shadow(0 0 3px rgba(116,228,255,.45));pointer-events:none}
+#mapsvg .pushtrail{fill:none;stroke:#c5a8ff;stroke-width:3;stroke-dasharray:6 6;stroke-linecap:round;pointer-events:none;animation:fadeout 2.4s ease-in forwards}
+@keyframes fadeout{70%{opacity:1}to{opacity:0}}
+#mapsvg .plate text{font:700 14px var(--sans);fill:#fff;letter-spacing:.02em}
+#mapsvg .plate.fog text{fill:#d7def0;font-weight:500}
+#mapsvg .plate.sealed text{fill:#3d3a78}
+#mapsvg .xbreath{animation:breath 1.2s ease-in-out infinite}
+@keyframes breath{50%{opacity:.6}}
+#mapsvg .doom{transform-box:fill-box;transform-origin:center;animation:spin 3s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#mapsvg .me-ring{transform-box:fill-box;transform-origin:center;animation:me 1.8s ease-out infinite}
+@keyframes me{from{transform:scale(.6);opacity:.9}to{transform:scale(1.5);opacity:0}}
+#mapsvg .cell.ping{animation:ping .8s ease-out 1}
+@keyframes ping{50%{stroke-width:5;stroke:#74e4ff}}
+@keyframes dash{to{stroke-dashoffset:-18}}
+@media (prefers-reduced-motion:reduce){#mapsvg .route,#mapsvg .warn,#mapsvg .doom,#mapsvg .me-ring,#mapsvg .xbreath{animation:none}}
+
+.rtop{position:absolute;left:24px;right:24px;top:18px;height:60px;display:flex;align-items:center;gap:12px;z-index:5;pointer-events:none}
+.rtop>*{pointer-events:auto}
+.pill{display:flex;align-items:center;gap:10px;height:52px;padding:0 18px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);box-shadow:0 8px 20px rgba(10,16,48,.25)}
+.pill b{font:700 16px var(--sans)}
+.pill img{width:30px;height:30px;object-fit:contain}
+.pill .layer{font-size:14px;color:var(--ink2);padding-left:12px;border-left:1px solid var(--line)}
+/* 冰潮播报：涨潮时在顶部中间出现几秒，写清楚封了哪里、下一次要封哪里 */
+.tidecast{position:absolute;left:50%;top:18px;transform:translate(-50%,-8px);z-index:35;min-width:420px;max-width:640px;padding:12px 22px;border-radius:14px;text-align:center;
+  background:linear-gradient(180deg,rgba(70,52,150,.92),rgba(36,30,96,.94));border:1px solid rgba(200,180,255,.45);box-shadow:0 12px 30px rgba(30,20,90,.45);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.tidecast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.tidecast.lite{min-width:0;padding:8px 18px}
+.tidecast.lite b{font-size:15px}
+.tidecast.lite span{display:none}
+.tidecast b{display:block;font:700 17px var(--sans);color:#f1eaff}
+.tidecast span{display:block;margin-top:4px;font-size:13.5px;color:#d9ceff}
+.lives img{width:24px;height:24px}
+.lives img.lost{filter:grayscale(1) opacity(.35)}
+
+.party-dock{position:absolute;left:24px;bottom:22px;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);z-index:5}
+.pm{position:relative;width:56px;height:56px;border-radius:50%}
+.pm img{position:absolute;inset:5px;width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 14%}
+.pm svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.pm.dead img{filter:grayscale(1) brightness(.7)}
+/* 被冰潮推开：头像依次闪红，上方飘"-15%" */
+.pm.hit{animation:hit .5s ease-out both}
+@keyframes hit{30%{box-shadow:0 0 0 4px #ff7088;border-radius:50%}}
+.pm .dmg{position:absolute;left:50%;top:-6px;transform:translateX(-50%);font:700 14px var(--num);color:#ff9fb0;text-shadow:0 1px 3px #000;animation:float 1.4s ease-out forwards;pointer-events:none}
+@keyframes float{from{opacity:0;transform:translate(-50%,6px)}20%{opacity:1}to{opacity:0;transform:translate(-50%,-22px)}}
+.pm svg circle+circle{transition:stroke-dasharray .6s}
+.potcard{position:absolute;right:24px;bottom:112px;z-index:9;width:300px;padding:16px 18px;border-radius:12px;background:var(--panel);border:1px solid var(--line2);backdrop-filter:blur(16px);box-shadow:0 16px 40px rgba(8,12,40,.4)}
+.potcard h4{margin:0 0 10px;font:700 16px var(--sans)}
+.potcard .who{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;font:600 12px var(--num);color:var(--ink2)}
+.potcard .who img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:50% 14%;margin:0 auto 4px}
+.potcard .who b{color:var(--green);font-weight:600}
+.potcard .acts{display:flex;justify-content:flex-end;margin-top:14px}
+.potcard .acts .primary{height:42px;font-size:15px;padding:0 18px}
+.menu-pop .lrow.danger{margin-top:6px;border-top:1px solid var(--line);border-radius:0 0 8px 8px}
+.party-dock .more{font-size:13px;color:var(--ink2);padding-left:6px;display:flex;align-items:center;gap:4px}
+.act-dock{position:absolute;right:24px;bottom:22px;display:flex;gap:10px;z-index:5}
+.ab{position:relative;width:76px;height:76px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);font-size:13px;color:var(--ink2)}
+.ab:hover{border-color:rgba(205,222,255,.5);color:var(--ink)}
+.ab img{width:38px;height:38px;object-fit:contain}
+.ab .n{position:absolute;right:6px;top:5px;min-width:22px;height:20px;padding:0 6px;border-radius:99px;background:#24305e;font:600 12px/20px var(--num);color:#fff;text-align:center}
+.ab[disabled]{opacity:.45;cursor:not-allowed}
+.ab.wide{width:auto;padding:0 18px;flex-direction:row;gap:10px;font-size:14px}
+.ab.wide b{font:700 15px var(--sans);color:var(--ink)}
+.ab.wide small{display:block;font-size:13px;color:var(--ink3)}
+
+/* 左上菜单：从按钮下方展开，不再借用右侧抽屉 */
+.menu-pop{position:absolute;left:24px;top:84px;z-index:9;width:300px;padding:8px;border-radius:12px;background:var(--panel);border:1px solid var(--line2);backdrop-filter:blur(16px);box-shadow:0 16px 40px rgba(8,12,40,.4);animation:drop .14s ease-out}
+.menu-pop .lrow{background:none}
+.menu-pop .lrow:hover{background:rgba(255,255,255,.08)}
+@keyframes drop{from{transform:translateY(-6px);opacity:0}}
+
+/* 节点浮窗：只回答"这是什么、去要几步" */
+.pop{position:absolute;z-index:8;width:300px;padding:16px 18px;border-radius:12px;background:var(--panel);border:1px solid var(--line2);backdrop-filter:blur(16px);box-shadow:0 16px 40px rgba(8,12,40,.4);display:none}
+.pop.on{display:block}
+.pop .h{display:flex;align-items:center;gap:12px}
+.pop .h img{width:48px;height:48px;object-fit:contain}
+.pop .h b{display:block;font:700 18px var(--sans)}
+.pop .h small{font-size:13px;color:var(--ink3)}
+.pop p{margin:10px 0 0;font-size:14px;color:var(--ink2)}
+.pop .acts{display:flex;gap:8px;margin-top:14px}
+.pop .acts .primary{flex:1;height:46px;font-size:16px;padding:0 16px}
+.pop .acts .btn{height:46px}
+/* 只有一个常规按钮时不拉满整条，靠右，读完再点；撤离按钮保持整条（C04） */
+.pop .acts .primary:only-child:not(.exit){flex:0 0 auto;min-width:132px;height:42px;margin-left:auto}
+.pop .h small{display:block}
+.pop .h small.k{font:600 14px var(--sans);color:var(--ink2)}
+.pop .h small.k.danger{color:#ffb3c0}
+.pop .h .herep{margin-left:8px;vertical-align:2px;height:20px;font-size:12px}
+
+/* ================= 遭遇预览 ================= */
+.modal{position:absolute;inset:0;z-index:30;display:none;background:rgba(8,12,34,.4);backdrop-filter:blur(3px)}
+.modal.on{display:grid;place-items:center}
+.enc{position:relative;width:1180px;padding:26px 30px 26px;border-radius:24px;background:linear-gradient(180deg,rgba(34,44,92,.95),rgba(22,30,68,.97));border:1px solid var(--line2);box-shadow:0 30px 80px rgba(4,8,28,.55)}
+.enc .hd{display:flex;align-items:center;gap:14px}
+.enc .hd h2{margin:0;font:900 28px var(--sans)}
+.enc .hd .x{margin-left:auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--ink2)}
+.enc .hd .x:hover{background:rgba(255,255,255,.1)}
+.foes{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.foe{display:flex;flex-direction:column;gap:10px}
+.foe .rg-troop{height:380px}
+.foe .rk{font-size:13px;color:var(--ink3)}
+.afs{display:flex;flex-wrap:wrap;gap:6px;min-height:26px}
+.enc{border-radius:18px}
+.enc .hd .ph{font:600 16px var(--sans);color:var(--ink2)}
+.enc .hd .where{font-size:14px;color:var(--ink3)}
+/* 建议条：左边一道青色竖线，不用网页式的 ⓘ 提示条 */
+.enc .tip{margin-top:20px;padding:12px 16px;border-radius:10px;background:rgba(116,228,255,.06);box-shadow:inset 3px 0 0 rgba(116,228,255,.5);font-size:14px;color:var(--ink2)}
+.enc .tip .how{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:15px}
+.enc .tip .how>span:first-child{color:var(--ink3)}
+.enc .tip .how b{color:var(--cy);font-weight:700}
+.enc .tip .tx{margin-top:4px;font-size:13px;color:var(--ink3)}
+.enc .tip .tx:empty{display:none}
+.enc .ft{display:flex;align-items:center;gap:12px;margin-top:18px}
+.enc .ft .rw{display:flex;align-items:center;gap:14px;font-size:15px;color:var(--ink)}
+.enc .ft .rw>small{font-size:13px;color:var(--ink3)}
+.enc .ft .rwi{display:flex;align-items:center;gap:8px}
+.enc .ft .rwi b{font-weight:700}
+.enc .ft .rwi small{font-size:12px;color:var(--ink3)}
+.enc .ft .primary small,.pop .primary small{display:inline}
+.pop .primary small em.tide,.enc .primary small em.tide{font-style:normal;color:#5a3aa8;margin-left:4px}
+.ab.ping{animation:abping .8s 1}
+@keyframes abping{50%{box-shadow:0 0 0 3px rgba(255,112,136,.7)}}
+.enc .ft .rw b{color:var(--gold)}
+.enc .ft .sp{flex:1}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs><radialGradient id="mgOrb" cx="38%" cy="30%" r="78%"><stop offset="0%" stop-color="#f7f0ff"/><stop offset="42%" stop-color="#cdaef3"/><stop offset="100%" stop-color="#7c4dbe"/></radialGradient></defs>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.2"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14c2.4 0 4 1.5 4.5 4"/></symbol>
+  <symbol id="i-hammer" viewBox="0 0 24 24"><path d="M14 4l6 6-3 3-6-6zM11 7l-7 7 3 3 7-7"/></symbol>
+</svg>
+
+<div class="proto" role="toolbar" aria-label="原型工具条">
+  <strong>深渊远征 · 高保真稿 v4</strong>
+  <button data-go="camp" class="on">营地</button>
+  <button data-go="device">地图台</button>
+  <button data-go="prepare">出征准备</button>
+  <button data-go="run">局内地图</button>
+  <span class="sp"></span>
+  <span class="seedbox">种子 <input id="seed" value="frost-1028" aria-label="地图种子">
+    <select id="rtype" aria-label="出征类型"><option value="standard">标准</option><option value="short">短途</option></select>
+    <button class="ghost" id="reseed">换一张</button><button class="ghost" id="regen">按种子生成</button></span>
+  <label><input type="checkbox" id="tRunning"> 营地：有进行中的远征</label>
+</div>
+
+<div id="viewport"><div id="stage">
+
+<!-- ================= 营地 ================= -->
+<section class="screen on" id="camp" aria-label="营地">
+  <div class="bg"></div><div class="shade"></div><div class="snow" id="snow"></div>
+  <header class="topbar">
+    <button class="back" aria-label="返回王国地图"><svg class="i"><use href="#i-back"/></svg></button>
+    <h1>深渊营地</h1>
+    <span class="tag">余烬之年 · 剩 23 天</span>
+    <div class="right">
+      <div class="wallet">
+        <div class="c"><img src="../../game-assets/bundled/chrome/gold.png" alt="金币"><b>1,284,300</b></div>
+        <div class="c"><img src="../../game-assets/bundled/chrome/gem.png" alt="宝石"><b>2,410</b></div>
+      </div>
+      <button class="ib" aria-label="邮件"><svg class="i"><use href="#i-mail"/></svg><i class="dot"></i></button>
+      <button class="ib" aria-label="设置"><svg class="i"><use href="#i-gear"/></svg></button>
+    </div>
+  </header>
+
+  <section class="glass rank">
+    <div class="r"><span class="n">14</span><div><b>远征等级</b><small>下一级开放第 2 个保险格</small></div></div>
+    <div class="bar"><i style="width:62%"></i></div>
+  </section>
+
+  <section class="glass biomes">
+    <div class="sh"><h3>本周深渊</h3><small>周一轮换</small></div>
+    <button class="bio" style="background-image:url(../../game-assets/bundled/meta/expedition/anime/biome-spire.webp)"><span class="nm">中央尖塔</span><span class="ds">全池出敌，每周借 2 名领主</span></button>
+    <button class="bio on" style="background-image:url(../../game-assets/bundled/meta/expedition/anime/biome-winter.webp)"><span class="nm">寒冬堡垒</span><span class="ds">霜噬：对冻结目标骷髅伤害 ×1.3</span></button>
+    <button class="bio" style="background-image:url(../../game-assets/bundled/meta/expedition/anime/biome-broken.webp)"><span class="nm">破碎之地</span><span class="ds">余烬：阵亡时留下燃烧宝石</span></button>
+  </section>
+
+  <section class="glass hero">
+    <div class="art"></div>
+    <div class="bt">
+      <div class="ttl"><h2 id="heroName">寒冬堡垒</h2>
+        <button class="kit" id="campKit" data-go="device" aria-label="地图台上放着的东西，点这里去换"></button></div>
+      <div class="acts">
+        <button class="btn idle" style="height:56px" id="againBtn" data-go="prepare"><svg class="i"><use href="#i-redo"/></svg>照上次再去</button>
+        <button class="primary idle" data-go="device">出征<svg class="i"><use href="#i-arrow"/></svg></button>
+        <button class="primary run" data-go="run">继续远征<small>第二层 · 极光冰窟</small><svg class="i"><use href="#i-arrow"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <nav class="tiles" aria-label="营地功能">
+    <button class="tile"><img src="../../game-assets/bundled/meta/expedition/anime/node-supply.webp" alt=""><b>补给站</b><i class="dot" aria-label="免费补给已就绪"></i></button>
+    <button class="tile"><img src="../../game-assets/bundled/meta/expedition/anime/cur-tier.webp" alt=""><b>熔炉工坊</b></button>
+    <button class="tile has-warn"><img src="../../game-assets/bundled/meta/expedition/abyss/i-chest.webp" alt=""><b>仓库</b><span class="warn">快满了</span></button>
+    <button class="tile"><img src="../../game-assets/bundled/meta/expedition/anime/sigil-silver.webp" alt=""><b>刻印</b></button>
+    <button class="tile" data-sheet="quest"><img src="../../game-assets/bundled/meta/expedition/anime/pass-1.webp" alt=""><b>委托</b></button>
+    <button class="tile"><img src="../../game-assets/bundled/meta/expedition/abyss/i-memory.webp" alt=""><b>记忆</b></button>
+    <button class="tile"><img src="../../game-assets/bundled/meta/expedition/anime/compass-deep.webp" alt=""><b>星图</b><i class="dot" aria-label="有未分配的点数"></i></button>
+    <button class="tile lock" title="远征 20 级开放"><svg class="i lk"><use href="#i-lock"/></svg><img src="../../game-assets/bundled/meta/expedition/anime/mat-purse.webp" alt=""><b>交易行</b></button>
+  </nav>
+
+  <div class="lastrun"><span>上一趟</span><span class="tag good">撤离成功</span><button class="btn sm text">查看结算</button></div>
+</section>
+
+<!-- ================= 地图台 ================= -->
+<section class="screen" id="device" aria-label="地图台">
+  <div class="bg"></div><div class="shade"></div>
+  <header class="topbar">
+    <button class="back" data-go="camp" aria-label="返回营地"><svg class="i"><use href="#i-back"/></svg></button>
+    <h1>地图台</h1>
+    </header>
+
+  <!-- 槽位是桌面上的黄铜托盘：路引放在深渊口上，两个罗盘在 60% 半径那一圈，第三个在远端（路引有 5 条词缀时开放） -->
+  <button class="sock main" id="sockMain" data-sheet="pass" aria-label="更换路引" style="--x:580px;--y:624px;--w:200px;--ih:116px;--rc:var(--r2)"><span class="shadow"></span><img class="obj" id="sockImg" src="../../game-assets/bundled/meta/expedition/abyss/pass-2.webp" alt=""></button>
+  <div class="slbl main" id="sockLbl" style="left:580px;top:672px"><span class="tier">阶 6</span>稀有路引</div>
+  <button class="sock c" id="sock0" data-sheet="compass" data-arg="0" aria-label="更换罗盘" style="--x:262px;--y:618px;--w:150px;--ih:86px"><span class="shadow"></span><img class="obj" alt=""><svg class="i plus"><use href="#i-plus"/></svg><svg class="i lk"><use href="#i-lock"/></svg></button>
+  <div class="slbl" id="sockLbl0" style="left:262px;top:655px"></div>
+  <button class="sock c" id="sock1" data-sheet="compass" data-arg="1" aria-label="更换罗盘" style="--x:898px;--y:618px;--w:150px;--ih:86px"><span class="shadow"></span><img class="obj" alt=""><svg class="i plus"><use href="#i-plus"/></svg><svg class="i lk"><use href="#i-lock"/></svg></button>
+  <div class="slbl" id="sockLbl1" style="left:898px;top:655px"></div>
+  <button class="sock c" id="sock2" data-sheet="compass" data-arg="2" aria-label="第三个罗盘槽" style="--x:580px;--y:448px;--w:104px;--ih:64px"><span class="shadow"></span><img class="obj" alt=""><svg class="i plus"><use href="#i-plus"/></svg><svg class="i lk"><use href="#i-lock"/></svg></button>
+  <div class="slbl dim" id="sockLbl2" style="left:580px;top:473px"></div>
+
+  <aside class="glass sum">
+    <div class="sh"><h3>这一趟</h3></div>
+    <div class="pb">
+      <div class="lbl" style="margin-top:0">去哪里<span class="hint"></span></div>
+      <div class="whereto"><b id="devBiome">寒冬堡垒</b><span class="muted">霜渊 · 三层</span><button class="btn sm text" data-go="camp">换</button></div>
+      <div class="lbl">走多远<span class="hint" id="rtHint">区域多，冰潮涨得慢</span></div>
+      <div class="seg" id="segRun"><button data-rt="short">短途</button><button class="on" data-rt="standard">标准</button><button class="off" data-lock="远征 20 级开放：多一层深渊">深潜<svg class="i"><use href="#i-lock"/></svg></button></div>
+    </div>
+    <div style="height:18px"></div>
+    <div class="sline">命数<span class="v hearts" id="devHearts"></span></div>
+    <div class="sline">一定会遇到<span class="v" id="devMeet"></span></div>
+    <button class="sline" data-sheet="affix">路引词缀 <span class="muted" id="afCount">4 条</span><span class="v warn" id="afWarn"></span></button>
+    <div class="diff">
+      <div class="t">对你现在的队伍<b id="diffT">吃力</b></div>
+      <div class="lv" id="diffLv"><span></span><span></span><span class="on"></span><span></span></div>
+      <button class="why" id="diffWhy" data-sheet="affix"></button>
+    </div>
+    <div class="foot"><button class="primary" data-go="prepare">去出征准备<svg class="i"><use href="#i-arrow"/></svg></button></div>
+  </aside>
+</section>
+
+<!-- ================= 出征准备 ================= -->
+<section class="screen" id="prepare" aria-label="出征准备">
+  <div class="bg"></div><div class="shade"></div>
+  <header class="topbar">
+    <button class="back" data-go="device" aria-label="返回地图台"><svg class="i"><use href="#i-back"/></svg></button>
+    <h1>出征准备</h1>
+    <div class="right"><button class="btn" data-proto="team"><svg class="i"><use href="#i-team"/></svg>调整编队</button></div>
+  </header>
+  <div class="party" id="party"></div>
+
+  <section class="glass belt">
+    <div class="sh"><h3>补给</h3><small>补给站的免费补给已放入</small><button class="btn sm" data-proto="supply">按上次补齐</button></div>
+    <div class="slots">
+      
+      <button class="slot" data-proto="supply"><span class="it r1"><img src="../../game-assets/bundled/meta/expedition/abyss/i-potion.webp" alt=""><span class="q">2</span></span>药剂</button>
+      <button class="slot" data-proto="supply"><span class="it r1"><img src="../../game-assets/bundled/meta/expedition/abyss/i-lockpick.webp" alt=""><span class="q">1</span></span>撬锁器</button>
+      <button class="slot" data-proto="supply"><span class="it r2"><img src="../../game-assets/bundled/meta/expedition/abyss/i-smoke.webp" alt=""><span class="q">1</span></span>烟雾弹</button>
+      <button class="slot" data-proto="supply" aria-label="放入补给"><span class="it empty"><svg class="i"><use href="#i-plus"/></svg></span>&nbsp;</button>
+      <button class="slot" data-proto="supply" aria-label="放入补给"><span class="it empty"><svg class="i"><use href="#i-plus"/></svg></span>&nbsp;</button>
+      <button class="slot" data-proto="supply" aria-label="放入补给"><span class="it empty"><svg class="i"><use href="#i-plus"/></svg></span>&nbsp;</button>
+    </div>
+  </section>
+
+  <section class="glass vault">
+    <div class="sh"><h3>保险格</h3><small>失败时这里的东西留下</small></div>
+    <div class="vslots">
+      <button class="vs on" data-sheet="vault" id="vaultSlot" aria-label="更换保险格里的刻印"></button>
+      <div class="vs"><span class="lkic"><svg class="i"><use href="#i-lock"/></svg></span><b>远征 15 级</b></div>
+      <div class="vs"><span class="lkic"><svg class="i"><use href="#i-lock"/></svg></span><b>远征 35 级</b></div>
+    </div>
+  </section>
+
+  <aside class="glass contract">
+    <div class="head"><div><h2>寒冬堡垒</h2><span>阶 6</span></div></div>
+    <div class="sh"><h3>出发将消耗</h3></div>
+    <div class="costs" id="prepCosts"></div>
+    <div class="sline">命数<span class="v hearts" id="prepHearts"></span></div>
+    <!-- 代价比消耗更重要：做成一块带图标的风险块，数量从队伍穿戴算出来 -->
+    <button class="risk" data-sheet="loss" id="riskBox"></button>
+    <div class="foot"><button class="primary" data-go="run">进入霜渊<svg class="i"><use href="#i-arrow"/></svg></button></div>
+  </aside>
+</section>
+
+<!-- ================= 局内地图 ================= -->
+<section class="screen" id="run" aria-label="局内地图">
+  <canvas id="terrain" width="1600" height="900" aria-hidden="true"></canvas>
+  <svg id="mapsvg" viewBox="0 0 1600 900" aria-label="远征地图"></svg>
+
+  <!-- 顶栏只放：菜单、去了哪里、现在在第几层、命数。步数只在后台记，不显示 -->
+  <div class="rtop">
+    <button class="ib" id="menuBtn" aria-label="菜单" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-menu"/></svg></button>
+    <div class="pill"><b id="rBiome">霜渊</b><span class="tag gold">阶 6</span><span class="layer" id="rLayer">第一层 · 雪檐林地</span></div>
+    <div style="margin-left:auto;display:flex;gap:10px">
+      <div class="pill lives" id="hLives" aria-label="命数"></div>
+    </div>
+  </div>
+  <!-- 冰潮播报：显示期间可以点，点了打开冰潮记录 -->
+  <button class="tidecast" id="tidecast" role="status" aria-live="polite" data-sheet="tidelog"><b></b><span></span></button>
+
+  <button class="party-dock" data-sheet="squad" aria-label="队伍与遗物"><span id="pmList" style="display:flex;gap:8px"></span><span class="more"><span id="nRelic">遗物 2</span><svg class="i" style="width:14px;height:14px"><use href="#i-chev"/></svg></span></button>
+  <div class="act-dock">
+    <!-- 血祭只在找到祭坛之后出现，和药剂、背包同样大小；名单进度放在点开后的抽屉里 -->
+    <button class="ab" data-sheet="events" id="evBtn" hidden><img src="../../game-assets/bundled/meta/expedition/abyss/i-altar.webp" alt="" id="evImg"><span>血祭</span></button>
+    <button class="ab" id="usePotion" aria-haspopup="dialog"><img src="../../game-assets/bundled/meta/expedition/abyss/i-potion.webp" alt="" id="potImg"><span>药剂</span><i class="n" id="nPotion">2</i></button>
+    <button class="ab" data-sheet="bag"><img src="../../game-assets/bundled/meta/expedition/abyss/i-chest.webp" alt="" id="bagImg"><span>背包</span><i class="n" id="nBag">9/16</i></button>
+  </div>
+  <!-- 药剂先确认：写清每人回复到多少，再点"喝下" -->
+  <div class="potcard" id="potCard" role="dialog" aria-label="使用药剂" hidden></div>
+  <div class="pop" id="pop" role="dialog" aria-live="polite"></div>
+  <div class="menu-pop" id="menuPop" role="menu" hidden>
+    <button class="lrow" role="menuitem" data-go="camp"><span><b>暂离</b><small>回营地，这一趟完整保留，冰潮也停在原处</small></span></button>
+    <button class="lrow" role="menuitem" data-sheet="tidelog"><span><b>冰潮记录</b><small>封了哪里、下一批在哪</small></span></button>
+    <button class="lrow" role="menuitem" data-proto="list"><span><b>列表模式</b><small>用文字列出所有区域</small></span></button>
+    <button class="lrow danger" role="menuitem" data-sheet="abandon"><span><b class="bad">放弃远征</b><small>背包里的东西会丢掉</small></span></button>
+  </div>
+
+  <div class="modal" id="encounter" role="dialog" aria-modal="true" aria-label="遭遇预览">
+    <div class="enc">
+      <div class="hd"><span class="tag red" id="encKind">驻守敌人</span><h2 id="encName">驻守敌人</h2><span class="ph" id="encPhase" hidden></span><span class="where" id="encWhere"></span>
+        <button class="x" id="encClose" aria-label="关闭"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="foes" id="foes"></div>
+      <!-- "怎么打"：全队词缀去重，直接写对策（触屏也看得到）；下一行是这场的说明 -->
+      <div class="tip"><div><div class="how" id="encHow"></div><div class="tx" id="encTip"></div></div></div>
+      <div class="ft"><div class="rw" id="encReward"></div><span class="sp"></span>
+        <span class="muted" id="encNoSmoke" hidden>烟雾弹用完了，只能迎战</span>
+        <button class="btn" id="encLeave">先不打</button>
+        <button class="primary" id="encFight">战斗</button></div>
+    </div>
+  </div>
+</section>
+
+<aside class="sheet" id="sheet"><div class="card" role="dialog" aria-modal="true">
+  <header><div><h3 id="shT"></h3><small id="shS"></small></div><button class="x" id="shX" aria-label="关闭"><svg class="i"><use href="#i-x"/></svg></button></header>
+  <div class="body" id="shB"></div>
+  <div class="foot" id="shF" hidden></div>
+</div></aside>
+<div class="toast" id="toast"></div>
+
+</div></div>
+<!-- 原型阶段生成器和地形经常改，加时间戳避免浏览器用旧缓存 -->
+<script>for (const f of ['expedition_mapgen.js', 'expedition_terrain.js']) document.write(`<script src="${f}?t=${Date.now()}"><\/script>`);</script>
+<script>
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const A = '../../game-assets/bundled/meta/expedition/anime/';
+// 第 4 轮重画过的图标（abyss/i-*.webp，手绘哑光，不塑料）；其余仍用 anime/*。旧图都留着
+const REDRAWN = {'node-chest': 'i-chest', 'hud-life': 'i-life', 'cur-reroll': 'i-reroll', 'sigil-stone': 'i-sigil-stone', 'sigil-iron': 'i-sigil-iron', 'cur-quality': 'i-quality', 'mat-memory': 'i-memory', 'use-lockpick': 'i-lockpick', 'use-smoke': 'i-smoke', 'node-altar': 'i-altar', 'node-nest': 'i-nest', 'use-potion': 'i-potion'};
+const ico = (k) => (REDRAWN[k] ? '../../game-assets/bundled/meta/expedition/abyss/' + REDRAWN[k] : A + k) + '.webp';
+const P = '../../game-assets/public/static/portraits/';
+const svg = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- 缩放与切屏 ---------- */
+const stage = $('#stage');
+function fit() { const vp = $('#viewport'); stage.style.transform = `scale(${Math.min(vp.clientWidth / 1600, vp.clientHeight / 900)})`; }
+addEventListener('resize', fit); fit();
+function go(id) {
+  $$('.screen').forEach((s) => s.classList.toggle('on', s.id === id));
+  $$('.proto [data-go]').forEach((b) => b.classList.toggle('on', b.dataset.go === id));
+  closeSheet(); hidePop();
+  if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+}
+document.addEventListener('click', (e) => {
+  const g = e.target.closest('[data-go]'); if (g) { e.preventDefault(); go(g.dataset.go); return; }
+  const s = e.target.closest('[data-sheet]'); if (s) { e.preventDefault(); openSheet(s.dataset.sheet, s.dataset.arg); return; }
+  // 原型里没做的入口统一提示一下，不再是点了没反应；没开放的选项说清楚什么时候开放
+  const lk = e.target.closest('[data-lock]'); if (lk) { toast(lk.dataset.lock); return; }
+  if (e.target.closest('[data-proto]')) toast('原型略');
+});
+$('#tRunning').onchange = (e) => $('#camp').classList.toggle('running', e.target.checked);
+// toast 可以带"撤销"：o.undo 是撤销函数，显示时间默认 5 秒
+function toast(msg, o = {}) {
+  const t = $('#toast'); t.innerHTML = esc(msg) + (o.undo ? '<button class="tundo" type="button">撤销</button>' : '');
+  if (o.undo) t.querySelector('.tundo').onclick = () => { o.undo(); t.classList.remove('on'); };
+  t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), o.ms || (o.undo ? 5000 : 2200));
+}
+
+/* 雪 */
+$('#snow').innerHTML = Array.from({ length: 40 }, (_, i) => `<i style="left:${(i * 41) % 100}%;--dx:${(i % 7) * 12 - 36}px;animation-duration:${9 + (i % 6) * 2}s;animation-delay:-${(i * 1.7) % 12}s;opacity:${0.35 + (i % 4) * 0.15}"></i>`).join('');
+const hearts = (n, max = n) => Array.from({ length: max }, (_, i) => `<img src="${ico('hud-life')}" alt=""${i >= n ? ' class="lost"' : ''}>`).join('');
+$('#devHearts').innerHTML = hearts(3); $('#prepHearts').innerHTML = hearts(3);
+
+/* ---------- 法力宝石与属性图标（照搬 src/meta/shell/chrome.ts、src/render/TeamView.ts） ---------- */
+const COLOR_HEX = { red: '#e8555e', green: '#57c06b', blue: '#4f9fe0', yellow: '#e8c24a', purple: '#a074d4', brown: '#c0823f' };
+const EMERALD = 'M310.375 16.75L89.405 75.72l58.126 50.905L282.563 90.28l2.032-.53 25.78-73zm17.063 7.844l-27.157 76.812 91.69 91.875 95.624-8.78L327.438 24.594zm-41.813 12.062l-8.594 33.657c-.28-15.516-38.03-17.018-107.56-4.376l116.155-29.28zm51.063 14.625l123.5 123.407-58.844 7.563c16.2-21.37-32.277-91.112-64.656-130.97zM74.75 87.72L15.594 308.405l79-31.47 37.28-139.155L74.75 87.72zm207.438 22l-133.032 35.81-35.72 133.376 97.25 97.53 133.064-35.81 35.72-133.376-97.283-97.53zm-201.72 5.686l32.844 30.5-30.156 118.97-39.03 15.812c50.817-30.543 65.667-130.132 36.343-165.282zm195.876 14.78L359 213.377l-30.156 113.81-44.688 11.97c119.527-107.872-34.816-238.375-131.5-140.875l9.875-37.405 113.814-30.688zM490.564 203l-92.877 8.53-35.968 134.19 71.342 71.842L490.563 203zm-17.283 13.875L444.03 333.03c6.73-68.874-.03-90.85-30.655-111.5l59.906-4.655zm-371.155 77.188L20.22 326.688l161.75 161.468 17.31-96.72-97.155-97.373zm.094 20l78.124 82.437-7.438 61.375c-5.23-44.565-28.34-85.92-70.687-143.813zm246.124 44.687l-130.53 35.125-17.564 98.188 221.688-59.157-73.594-74.156zm18.625 42.5l24.28 24.844-115.22 32.72c61.28-26.446 83.34-37.418 90.94-57.564z';
+let gemUid = 0;
+function gemSvg(colors) {
+  const list = [...new Set(colors.length ? colors : ['red'])], id = 'gc' + ++gemUid, n = list.length;
+  let fill = '';
+  if (n <= 1) fill = `<rect width="512" height="512" fill="${COLOR_HEX[list[0]]}"/>`;
+  else for (let i = 0; i < n; i++) {
+    const a0 = -Math.PI / 2 + i * 2 * Math.PI / n, a1 = a0 + 2 * Math.PI / n;
+    fill += `<path d="M256 256 L${(256 + 420 * Math.cos(a0)).toFixed(1)} ${(256 + 420 * Math.sin(a0)).toFixed(1)} A420 420 0 0 1 ${(256 + 420 * Math.cos(a1)).toFixed(1)} ${(256 + 420 * Math.sin(a1)).toFixed(1)} Z" fill="${COLOR_HEX[list[i]]}"/>`;
+  }
+  return `<svg class="board-gem" viewBox="0 0 512 512"><defs><clipPath id="${id}"><path d="${EMERALD}"/></clipPath></defs><path class="seat" d="${EMERALD}"/><g clip-path="url(#${id})">${fill}</g><path class="facets" d="${EMERALD}"/></svg>`;
+}
+const SWORD = `<svg viewBox="0 0 512 512"><path fill="currentColor" d="M19.75 14.438c59.538 112.29 142.51 202.35 232.28 292.718l3.626 3.75.063-.062c21.827 21.93 44.04 43.923 66.405 66.25-18.856 14.813-38.974 28.2-59.938 40.312l28.532 28.53 68.717-68.717c42.337 27.636 76.286 63.646 104.094 105.81l28.064-28.06c-42.47-27.493-79.74-60.206-106.03-103.876l68.936-68.938-28.53-28.53c-11.115 21.853-24.413 42.015-39.47 60.593-43.852-43.8-86.462-85.842-130.125-125.47-.224-.203-.432-.422-.656-.625C183.624 122.75 108.515 63.91 19.75 14.437zm471.875 0c-83.038 46.28-154.122 100.78-221.97 161.156l22.814 21.562 56.81-56.812 13.22 13.187-56.438 56.44 24.594 23.186c61.802-66.92 117.6-136.92 160.97-218.72zm-329.53 125.906 200.56 200.53a402.965 402.965 0 0 1-13.405 13.032L148.875 153.53l13.22-13.186zm-76.69 113.28-28.5 28.532 68.907 68.906c-26.29 43.673-63.53 76.414-106 103.907l28.063 28.06c27.807-42.164 61.758-78.174 104.094-105.81l68.718 68.717 28.53-28.53c-20.962-12.113-41.08-25.5-59.937-40.313 17.865-17.83 35.61-35.433 53.157-52.97l-24.843-25.655-55.47 55.467c-4.565-4.238-9.014-8.62-13.374-13.062l55.844-55.844-24.53-25.374c-18.28 17.856-36.602 36.06-55.158 54.594-15.068-18.587-28.38-38.758-39.5-60.625z"/></svg>`;
+const HEART = `<svg viewBox="3 4 18 17"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 20C6.5 16 3.5 12.8 3.5 9.2 3.5 6.6 5.5 4.7 8 4.7c1.6 0 3.1.8 4 2.2.9-1.4 2.4-2.2 4-2.2 2.5 0 4.5 1.9 4.5 4.5 0 3.6-3 6.8-8.5 10.8z"/></svg>`;
+const SHIELD = `<svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3 19 5.5v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V5.5z"/></svg>`;
+// 渐变 mgOrb 定义在页首常驻的 sprite <svg> 里：如果放在卡片里，第一张卡在隐藏的页面时，其他页面的引用会失效
+const MAGIC = `<svg viewBox="0 0 512 512"><path fill="url(#mgOrb)" d="M254.563 20.75c-42.96 0-85.918 16.387-118.688 49.156-65.54 65.54-65.852 172.15-.313 237.688 65.54 65.54 172.15 65.226 237.688-.313 65.54-65.538 65.54-171.835 0-237.374-32.77-32.77-75.728-49.156-118.688-49.156zm-.157 18.47a149.284 149.284 0 0 1 74.313 19.968c-13.573-3.984-26.266-2.455-34.22 5.5-14.437 14.437-7.796 44.485 14.813 67.093 22.608 22.61 52.625 29.22 67.062 14.782 8.523-8.522 9.706-22.468 4.594-37.125 36.352 57.684 29.586 134.6-20.69 184.875-29.158 29.16-67.353 43.773-105.56 43.813 9.436-2.3 17.762-6.732 24.436-13.406 28.885-28.886 15.64-88.954-29.594-134.19-45.234-45.233-105.302-58.51-134.187-29.624-4.052 4.052-7.266 8.723-9.688 13.875 3.092-33.537 17.473-66.222 43.157-91.905 29.198-29.2 67.384-43.737 105.562-43.656zM386.97 319.28c-.205.206-.39.422-.595.626-72.78 72.78-191.252 73.155-264.03.375-.278-.275-.54-.565-.814-.842-11.987 9.483-18.81 20.384-18.81 32 0 36.523 67.315 66.125 151.343 66.125 84.027 0 152.093-29.6 152.093-66.125 0-11.68-6.97-22.637-19.187-32.157zm39.717 54.564c-22.225 32.29-91.192 55.906-172.625 55.906-81.172 0-149.954-23.46-172.406-55.594-12.638 11.3-19.72 24.052-19.72 37.563.002 46.928 85.546 85.03 192.064 85.03 106.518 0 192.97-38.1 192.97-85.03 0-13.637-7.313-26.498-20.283-37.876z"/></svg>`;
+
+/** 与游戏出战准备卡同构：法力宝石左上、魔力右上、攻击左下、护甲在生命上方的右下，底栏名字 + 等级 */
+function troopCard(u, o = {}) {
+  const [atk, arm, hp, mag] = u.st;
+  return `<button class="rg-troop r${o.r ?? u.r ?? 0}" ${o.attr || ''} type="button" title="${esc(u.nm)}">
+    <div class="rg-troop-art"><img src="${P}${u.p}.webp" alt="" loading="lazy" onerror="this.onerror=null;this.src='../../game-assets/public/static/troops/troop-veteran.webp'">
+      <span class="rg-portrait-stats">
+        <span class="rg-stat rg-stat-mana" title="法力 0/${u.m}">${gemSvg(u.c)}<span class="rg-gem-mana"><b>0</b><small>/${u.m}</small></span></span>
+        <span class="rg-stat rg-stat-magic" title="魔力 ${mag}">${MAGIC}<b>${mag}</b></span>
+        <span class="rg-stat rg-stat-attack" title="攻击 ${atk}">${SWORD}<b>${atk}</b></span>
+        <span class="rg-stat rg-stat-armor" title="护甲 ${arm}">${SHIELD}<b>${arm}</b></span>
+        <span class="rg-stat rg-stat-hp" title="生命 ${hp}">${HEART}<b>${hp}</b></span>
+      </span></div>
+    <div class="rg-troop-caption"><h3>${esc(u.nm)}</h3><small>${o.sub ?? 'Lv.' + (u.lv || 20)}</small><span>›</span></div></button>`;
+}
+
+/* ---------- 二级页 ---------- */
+function closeSheet() { $('#sheet').classList.remove('on', 'wide'); }
+$('#shX').onclick = closeSheet;
+$('#sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet') closeSheet(); });
+// Esc 关抽屉、浮窗、药剂卡；遭遇窗口只有"查看"模式能用 Esc 关（走进战斗或撞上巡逻时必须选打还是走）
+addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  closeSheet(); hidePop(); if (typeof potionCard === 'function') potionCard(false);
+  if (typeof encCtx === 'undefined' || !encCtx || encCtx.peek) $('#encounter').classList.remove('on');
+});
+function sheet(title, sub, body, foot, wide) {
+  $('#shT').textContent = title; $('#shS').textContent = sub || '';
+  $('#shB').innerHTML = body; $('#shB').scrollTop = 0;
+  $('#shF').hidden = !foot; $('#shF').innerHTML = foot || '';
+  $('#sheet').classList.toggle('wide', !!wide); $('#sheet').classList.add('on');
+}
+const itemBox = (x, s) => `<span class="it r${x.r || 0}" style="--s:${s || 52}px"><img src="${x.src || ico(x.icon)}" alt="">${x.q > 1 ? `<span class="q">${x.q}</span>` : ''}</span>`;
+const RNM = ['普通', '精良', '稀有', '传说', '史诗', '神话'];
+
+/* ---------- 地图台 ---------- */
+const PASSES = [
+  { nm: '稀有路引', tier: 6, r: 2, af: 4, life: 3 }, { nm: '稀有路引', tier: 6, r: 2, af: 5, life: 2 }, { nm: '传说路引', tier: 7, r: 3, af: 6, life: 1 },
+  { nm: '稀有路引', tier: 7, r: 2, af: 3, life: 3 }, { nm: '精良路引', tier: 6, r: 1, af: 2, life: 4, n: 3 }, { nm: '普通路引', tier: 6, r: 0, af: 0, life: 4, n: 4 }, { nm: '普通路引', tier: 5, r: 0, af: 0, life: 4, n: 7 },
+];
+let passSel = 0;
+// 路引按品质换图，罗盘按种类换图；稀有度同时看托盘内圈的细线颜色
+const AB = '../../game-assets/bundled/meta/expedition/abyss/';
+const passIcon = (r) => AB + 'pass-' + Math.min(3, Math.max(0, r)) + '.webp';
+const compassIcon = (k) => AB + 'compass-' + k + '.webp';
+// 罗盘：库存与效果。slots 是桌上的三个槽（第三槽要路引有 5 条词缀才开）
+const COMPASS = {
+  blood: { nm: '血祭罗盘', t: '一阶', r: 2, d: '必出血祭 · 怪物生命 +10%', q: 5, meet: ['血祭', 'red'], hp: 1.1 },
+  rival: { nm: '劲敌罗盘', t: '二阶', r: 2, d: '稀有怪巢 +2 · 怪物生命 +30%', q: 2, meet: ['更多稀有怪', ''], hp: 1.3 },
+  deep: { nm: '深潜罗盘', t: '一阶', r: 1, d: '多一层深渊', q: 1, lock: '远征 20 级开放' },
+};
+const slots = ['blood', 'rival', null];
+// 每条词缀都是"代价 → 收益"；note 级别 warn = 克制你现在的队伍
+const AFX_ROWS = [
+  ['敌方骷髅伤害 +20%', '物品稀有度 +15%', 'ok', '你有 2 名闪避角色，影响不大'],
+  ['敌方免疫冻结', '路引掉率 +15%', 'warn', '你有 3 名冻结角色，这条最克制你'],
+  ['冰潮多涨一次', '物品稀有度 +18%', '', '要更早规划撤离路线'],
+  ['敌方以 20% 法力开局', '遭遇数量 +12%', '', '开局可能被抢先手，带控制角色会好打一些'],
+  ['敌方生命 +15%', '刻尘掉落 +20%', '', '整体更耐打'],
+  ['怪巢多一名精良', '遗物品质 +1 档', 'warn', '你的队伍缺少群体伤害，怪巢会更难打'],
+];
+const AFX_POOL = [['敌方护甲 +10%', '金币 +20%', '', '整体更耐打'], ['敌方首回合必暴击', '物品稀有度 +12%', 'warn', '你的前排生命偏低，首回合容易减员'], ['巡逻敌人多一队', '路引掉率 +10%', '', '路上更容易被拦']];
+const passAfx = (p) => AFX_ROWS.slice(0, p.af);
+const LV = ['轻松', '合适', '吃力', '危险'];
+function applyPass() {
+  const p = PASSES[passSel], afx = passAfx(p), bad = afx.filter((r) => r[2] === 'warn');
+  $('#sockMain').style.setProperty('--rc', `var(--r${p.r})`);
+  $('#sockImg').src = passIcon(p.r);
+  $('#sockLbl').innerHTML = `<span class="tier">阶 ${p.tier}</span>${p.nm}`;
+  $('#afCount').textContent = p.af ? p.af + ' 条' : '没有';
+  $('#afWarn').innerHTML = (bad.length ? `${bad.length} 条克制你的队伍` : p.af ? '不克制你的队伍' : '') + svg('chev');
+  $('#afWarn').classList.toggle('warn', !!bad.length);
+  $('#devHearts').innerHTML = hearts(p.life);
+  // 第三个罗盘槽：路引有 5 条词缀时开放
+  const open3 = p.af >= 5;
+  if (!open3) slots[2] = null;
+  ['0', '1', '2'].forEach((i) => {
+    const el = $(`#sock${i}`), k = slots[+i], lock = i === '2' && !open3;
+    el.classList.toggle('lock', lock); el.classList.toggle('empty', !lock && !k);
+    el.style.setProperty('--rc', k ? `var(--r${COMPASS[k].r})` : 'transparent');
+    el.querySelector('.obj').src = k ? compassIcon(k) : '';
+    $(`#sockLbl${i}`).textContent = lock ? '路引有 5 条词缀时开放' : k ? COMPASS[k].nm : '空槽';
+    $(`#sockLbl${i}`).classList.toggle('dim', lock || !k);
+    el.setAttribute('aria-label', lock ? '第三个罗盘槽未开放' : '更换罗盘');
+    if (lock) el.removeAttribute('data-sheet'); else el.dataset.sheet = 'compass';
+  });
+  // 一定会遇到：来自插着的罗盘
+  const meet = slots.filter(Boolean).map((k) => COMPASS[k].meet).filter(Boolean);
+  $('#devMeet').innerHTML = meet.length ? meet.map(([t, c]) => `<span class="tag ${c}">${t}</span>`).join('') : '<span class="muted">没有</span>';
+  // 难度：阶数 + 克制条数 + 罗盘，粗略分四档；下面一行写最主要的原因
+  const lv = Math.max(0, Math.min(3, (p.tier - 5) + bad.length - (slots.filter(Boolean).length ? 0 : 1)));
+  $('#diffT').textContent = LV[lv];
+  $$('#diffLv span').forEach((s, i) => s.classList.toggle('on', i === lv));
+  $('#diffWhy').textContent = bad.length ? `主要是「${bad[0][0]}」：${bad[0][3]}` : p.tier >= 7 ? '阶 7 的敌人比你现在的队伍强一截' : '你的队伍应付得来';
+  renderKit();
+}
+// 营地大卡、出征准备里的"出发将消耗"都跟着桌上的东西走
+function renderKit() {
+  const p = PASSES[passSel], cs = slots.filter(Boolean);
+  const box = (src, r, label) => `<div class="cost"><span class="it r${r}"><img src="${src}" alt=""></span><small>${label}</small></div>`;
+  $('#prepCosts').innerHTML = box(passIcon(p.r), p.r, `阶 ${p.tier} 路引`) + cs.map((k) => box(compassIcon(k), COMPASS[k].r, COMPASS[k].nm)).join('');
+  $('#campKit').innerHTML = `<span class="it r${p.r}" title="阶 ${p.tier} ${p.nm}"><img src="${passIcon(p.r)}" alt=""></span>` + cs.map((k) => `<span class="it r${COMPASS[k].r}" title="${COMPASS[k].nm}"><img src="${compassIcon(k)}" alt=""></span>`).join('');
+  $('#againBtn').title = `阶 ${p.tier} ${p.nm}` + (cs.length ? ' + ' + cs.map((k) => COMPASS[k].nm).join('、') : '');
+}
+const SHEETS = {
+  // 只有 7 张路引，一屏放得下：去掉没用的筛选，按阶、稀有度排好（A3）
+  pass() {
+    const order = PASSES.map((p, i) => ({ p, i })).sort((a, b) => b.p.tier - a.p.tier || b.p.r - a.p.r);
+    const rows = order.map(({ p, i }) => `<button class="lrow${i === passSel ? ' sel' : ''}" data-pass="${i}">${itemBox({ src: passIcon(p.r), r: p.r, q: p.n })}
+      <span><b>${p.nm}</b><small>${p.af ? p.af + ' 条词缀' : '无词缀'} · 命数 ${p.life}</small></span><span class="end num" style="font-size:22px">阶 ${p.tier}</span></button>`).join('');
+    sheet('选择路引', '阶越高，敌人越强，掉落越好', rows, `<button class="btn" style="flex:1" data-sheet="craft">改造桌上这张路引</button>`);
+    $$('#shB [data-pass]').forEach((b) => (b.onclick = () => { passSel = +b.dataset.pass; applyPass(); closeSheet(); }));
+  },
+  // 罗盘：知道在换哪个槽；当前那个高亮；另一个槽里的点了就互换；可以取下；没开放的不能选（A5）
+  compass(arg) {
+    const i = +(arg || 0), cur = slots[i], other = slots.findIndex((k, j) => j !== i && k);
+    const side = ['左边', '右边', '后面'][i];
+    const rows = Object.entries(COMPASS).map(([k, c]) => {
+      const here = k === cur, there = slots.some((x, j) => j !== i && x === k);
+      if (c.lock) return `<div class="lrow" aria-disabled="true">${itemBox({ src: compassIcon(k), r: c.r, q: c.q })}<span><b>${c.nm} · ${c.t}</b><small>${c.d}</small></span><span class="end muted" style="font-size:13px">${c.lock}</span></div>`;
+      return `<button class="lrow${here ? ' sel' : ''}" data-c="${k}">${itemBox({ src: compassIcon(k), r: c.r, q: c.q })}<span><b>${c.nm} · ${c.t}</b><small>${c.d}</small></span>${here ? '<span class="end tag cy">在这里</span>' : there ? '<span class="end tag">在另一边</span>' : ''}</button>`;
+    }).join('');
+    sheet('罗盘', `${side}的槽 · ${cur ? '现在放着' + COMPASS[cur].nm : '空着'}`, rows + '<p class="muted" style="margin-top:14px;font-size:13px">罗盘插在地图台上，进图时消耗。</p>',
+      cur ? `<button class="btn" style="flex:1" id="cOff">取下罗盘</button>` : '');
+    $$('#shB [data-c]').forEach((b) => (b.onclick = () => {
+      const k = b.dataset.c, j = slots.findIndex((x, jj) => jj !== i && x === k);
+      if (j >= 0) slots[j] = slots[i]; // 两边互换
+      slots[i] = k; applyPass(); closeSheet(); toast(`${side}的槽放上了${COMPASS[k].nm}`);
+    }));
+    const off = $('#cOff'); if (off) off.onclick = () => { slots[i] = null; applyPass(); closeSheet(); toast('取下了' + COMPASS[cur].nm); };
+    void other;
+  },
+  // 词缀：行数和路引一致；"合计"写清楚来自路引和罗盘；克制的那条可以直接用重铸石换（A6）
+  affix() {
+    const p = PASSES[passSel], afx = passAfx(p);
+    const hp = slots.filter(Boolean).reduce((m, k) => m * (COMPASS[k].hp || 1), 1) * (afx.some((r) => /生命/.test(r[0])) ? 1.15 : 1);
+    sheet('路引词缀', `${p.nm} · ${p.af ? p.af + ' 条' : '没有词缀'}`, (afx.length ? afx.map(([c, g, k, n], i) => `<div class="afrow"><span class="c">${c}</span><span class="to">${svg('arrow')}</span><span class="g">${g}</span><span class="note ${k}">${n}${k === 'warn' ? ` <button class="btn sm" style="margin-left:8px" data-sheet="craft" data-arg="reroll:${i}">用重铸石换掉</button>` : ''}</span></div>`).join('') : '<p>这张路引没有词缀。</p>')
+      + `<h4>加上罗盘以后</h4><p>敌人生命 ×${hp.toFixed(2)}${afx.length ? '，攻击 ×1.20' : ''}</p><p>掉落 ×${(1 + afx.length * 0.08).toFixed(2)}</p>`);
+  },
+  // 制作：对象就是桌上这张路引。先选通货；用不了的置灰写原因；重铸先选换哪一条；用之前先看"原 → 新"（A7）
+  craft(arg) {
+    const p = PASSES[passSel], afx = passAfx(p);
+    const sameTier = PASSES.filter((x) => x.tier === p.tier).reduce((s, x) => s + (x.n || 1), 0);
+    const CUR = [
+      ['cur-quality', 3, '升品石', 14, p.r === 0 ? '普通 → 精良' : p.r === 1 ? '精良 → 稀有' : '', p.r >= 2 ? '已是稀有以上' : ''],
+      ['cur-reroll', 2, '重铸石', 9, '换掉一条词缀', afx.length ? '' : '这张路引没有词缀'],
+      ['cur-tier', 1, '升阶石', 6, `三张阶 ${p.tier} 合成一张阶 ${p.tier + 1}`, sameTier >= 3 ? '' : `还需 ${3 - sameTier} 张阶 ${p.tier} 路引`],
+      ['cur-break', 4, '破限石', 2, '词缀上限多一条', p.af >= 6 ? '词缀已经到顶' : ''],
+    ];
+    const pre = typeof arg === 'string' && arg.startsWith('reroll:') ? +arg.split(':')[1] : null;
+    let pick = pre != null ? 1 : null, which = pre ?? afx.findIndex((r) => r[2] === 'warn');
+    const draw = (preview) => {
+      const list = CUR.map(([ic, r, nm, q, d, no], i) => no
+        ? `<div class="lrow" aria-disabled="true">${itemBox({ icon: ic, r })}<span><b>${nm}</b><small>${no}</small></span><span class="end num" style="font-size:20px">${q}</span></div>`
+        : `<button class="lrow${pick === i ? ' sel' : ''}" data-cur="${i}">${itemBox({ icon: ic, r })}<span><b>${nm}</b><small>${d}</small></span><span class="end num" style="font-size:20px">${q}</span></button>`).join('');
+      const rr = pick === 1 ? `<h4>换掉哪一条</h4>${afx.map(([c, , k], i) => `<button class="lrow${i === which ? ' sel' : ''}" data-af="${i}"><span><b>${c}</b>${k === 'warn' ? '<small class="bad">克制你的队伍</small>' : ''}</span></button>`).join('')}` : '';
+      const pv = preview ? `<h4>换成</h4><div class="afrow"><span class="c" style="text-decoration:line-through;opacity:.6">${afx[which][0]}</span><span class="to">${svg('arrow')}</span><span class="c">${preview[0]}</span><span class="note ${preview[2]}">${preview[3]}</span></div>` : '';
+      const warn = pick != null && pick !== 1 ? '<p class="warn" style="margin-top:14px">用掉就不能撤回。</p>' : '';
+      const [, , nm, q] = pick != null ? CUR[pick] : [];
+      const foot = preview ? `<button class="btn" id="keepOld">留下原来的</button><button class="primary" id="useNew" style="flex:1">用新的</button>`
+        : `<button class="primary" id="curUse" style="flex:1"${pick == null ? ' disabled' : ''}>${pick == null ? '选一种通货' : pick === 1 ? `换掉「${afx[which][0]}」<small>剩 ${q}</small>` : `使用${nm}<small>剩 ${q}</small>`}</button>`;
+      sheet('改造路引', `对象：桌上的阶 ${p.tier} ${p.nm}`, list + rr + pv + warn, foot);
+      $$('#shB [data-cur]').forEach((b) => (b.onclick = () => { pick = +b.dataset.cur; if (which < 0) which = 0; draw(); }));
+      $$('#shB [data-af]').forEach((b) => (b.onclick = () => { which = +b.dataset.af; draw(); }));
+      const u = $('#curUse'); if (u) u.onclick = () => {
+        if (pick === 1) return draw(G.makeRng('reroll', passSel, which, Date.now()).pick(AFX_POOL));
+        toast(`用掉 1 个${nm} → 路引变化动画（原型略）`); closeSheet();
+      };
+      const k = $('#keepOld'); if (k) k.onclick = () => { closeSheet(); toast('留下了原来的词缀，重铸石已用掉'); };
+      const n = $('#useNew'); if (n) n.onclick = () => { AFX_ROWS[which] = preview; applyPass(); closeSheet(); toast(`换成了「${preview[0]}」`); };
+    };
+    draw();
+  },
+  // 失败时会丢：从队伍穿戴算（v4 审稿 B1/B3/B4）。失败条件放最上面；按"会丢 / 保住"分组，不每行挂红标签
+  loss() {
+    const { lost, kept } = wornSigils();
+    const top = lost.filter((x) => x.s[1] >= 2), rest = lost.filter((x) => x.s[1] < 2);
+    const row = (x) => `<div class="lrow">${itemBox({ icon: 'sigil-' + x.s[0], r: x.s[1] })}<span><b>${x.s[2]}</b><small>${RNM[x.s[1]]} · ${x.m.nm}穿戴中</small></span></div>`;
+    sheet('失败时会丢', '', `<p style="font-size:14px;color:var(--ink2);margin-bottom:14px">命数用完，或最后一次冰潮前还没撤离，就算失败。失败时，这一趟捡到的东西和下面这些刻印都会丢。</p>
+      <h4>会丢 · ${lost.length} 件</h4>${top.map(row).join('')}
+      ${rest.length ? `<div class="lrow"><span style="display:flex">${rest.slice(0, 3).map((x, i) => `<span style="margin-left:${i ? -14 : 0}px">${itemBox({ icon: 'sigil-' + x.s[0], r: x.s[1] }, 36)}</span>`).join('')}</span><span><b>其余 ${rest.length} 件</b><small>精良和普通</small></span></div>` : ''}
+      <h4>保住 · ${kept.length} 件</h4>${kept.map((x) => `<div class="lrow">${itemBox({ icon: 'sigil-' + x.s[0], r: x.s[1] })}<span><b>${x.s[2]}</b><small>${x.m.nm}穿戴中</small></span><span class="end tag good">保险格</span></div>`).join('')}`,
+      `<button class="btn" style="flex:1" data-sheet="vault">换保险格里的刻印</button>`);
+  },
+  // 保险格：列出全部穿戴刻印，点一行就换进去；再点原来那件就换回（B2）
+  vault() {
+    const all = PARTY.flatMap((m, mi) => m.sg.map((s, k) => s && { m, mi, k, s })).filter(Boolean).sort((a, b) => b.s[1] - a.s[1]);
+    sheet('保险格', '失败时，放在这里的刻印会留下', all.map((x) => `<button class="lrow${x.s[4] ? ' sel' : ''}" data-v="${x.mi}:${x.k}">${itemBox({ icon: 'sigil-' + x.s[0], r: x.s[1] })}<span><b>${x.s[2]}</b><small>${RNM[x.s[1]]} · ${x.m.nm}穿戴中</small></span>${x.s[4] ? '<span class="end tag good">保险格</span>' : ''}</button>`).join(''));
+    $$('#shB [data-v]').forEach((b) => (b.onclick = () => {
+      const [mi, k] = b.dataset.v.split(':').map(Number), was = wornSigils().kept[0], s = PARTY[mi].sg[k];
+      if (s[4]) return;
+      PARTY.forEach((m) => m.sg.forEach((t) => t && (t[4] = 0))); s[4] = 1;
+      renderPrep(); SHEETS.vault();
+      toast(`${s[2]} 放进保险格${was ? `，${was.s[2]} 移出` : ''}`, { undo: () => { s[4] = 0; if (was) was.s[4] = 1; renderPrep(); if ($('#sheet').classList.contains('on')) SHEETS.vault(); } });
+    }));
+  },
+  // 成员详情：刻印行本身可点（换哪件点哪件），每行可以放进保险格；不再放一个只是关闭的金色"好"（B6）
+  member(i) {
+    const m = PARTY[+i];
+    sheet(m.nm, `${RNM[m.r]} · ${m.race} · Lv.20`, `<div style="display:grid;grid-template-columns:260px 1fr;gap:22px">
+      <div style="height:400px;display:flex">${troopCard(m, { attr: 'style="width:100%;pointer-events:none"' })}</div>
+      <div><h4>刻印</h4>${m.sg.map((s, k) => s ? `<div class="lrow">${itemBox({ icon: 'sigil-' + s[0], r: s[1] })}<span class="grow"><b>${s[2]}</b><small>${s[3]}</small></span>${s[4] ? '<span class="end tag good">保险格</span>' : `<button class="end btn sm" data-safe="${i}:${k}">放进保险格</button>`}<button class="btn sm text" data-proto="sigil" aria-label="换这枚刻印">换${svg('chev')}</button></div>`
+        : `<button class="lrow" data-proto="sigil"><span class="it empty" style="--s:52px">${svg('plus')}</span><span><b class="muted">空位</b><small>点这里穿上一枚</small></span></button>`).join('')}
+      <h4>本趟加成</h4><p>来自刻印：${sigilBonus(m.sg)}</p></div></div>`, '', true);
+    $$('#shB [data-safe]').forEach((b) => (b.onclick = () => {
+      const [mi, k] = b.dataset.safe.split(':').map(Number);
+      PARTY.forEach((p) => p.sg.forEach((t) => t && (t[4] = 0))); PARTY[mi].sg[k][4] = 1; renderPrep(); SHEETS.member(i); toast(PARTY[mi].sg[k][2] + ' 放进保险格');
+    }));
+  },
+  // 委托：每行写奖励；完成的写"撤离时发放"（发放时撤离结算页要逐项列出真实名称和数量）（A12）
+  quest() {
+    const row = ([t, p, ic, r, q]) => `<div class="lrow">${itemBox({ icon: ic, r, q }, 40)}<span class="grow"><b style="font-size:15px">${t}</b></span><span class="end ${p === '完成' ? 'tag good' : 'num muted'}">${p === '完成' ? '撤离时发放' : p}</span></div>`;
+    sheet('委托', '撤离时自动结算', `<h4>本趟</h4>${[['用 3 条词缀以上的路引撤离', '0/1', 'cur-reroll', 2, 2], ['在寒冬堡垒击败 2 名领主', '完成', 'sigil-silver', 3, 1]].map(row).join('')}
+      <h4>本周</h4>${[['在一次血祭里延期 2 件恩惠', '1/2', 'cur-quality', 2, 3], ['魔方连续抽取 6 次不激怒', '2/6', 'mat-memory', 2, 2]].map(row).join('')}`);
+  },
+  // 队伍、背包、本趟事件在局内代码里定义（Object.assign(SHEETS, …)）
+  room(id) { roomSheet(MAP.byId[id]); },
+};
+// 打开任何抽屉都先收起地图浮窗和路线预览（C06）
+function openSheet(kind, arg) {
+  hidePop();
+  if (S && S.sel && $('#run').classList.contains('on')) { S.sel = null; renderRun(); }
+  (SHEETS[kind] || (() => {}))(arg);
+}
+
+/* ---------- 出征准备 ---------- */
+// 本趟加成 = 所穿刻印的词条逐项相加（同名数值合并，其余效果原样列出），不再手写一份容易对不上的汇总
+function sigilBonus(sg) {
+  const sum = new Map(), other = [];
+  sg.filter(Boolean).forEach((s) => s[3].split(' · ').forEach((t) => {
+    const m = t.match(/^(.+?) \+(\d+)(%?)$/);
+    if (!m) { other.push(t); return; }
+    const k = m[1] + (m[3] ? '%' : '');
+    sum.set(k, (sum.get(k) || 0) + +m[2]);
+  }));
+  const parts = [...sum].map(([k, v]) => (k.endsWith('%') ? `${k.slice(0, -1)} +${v}%` : `${k} +${v}`));
+  return parts.concat(other).join(' · ') || '无';
+}
+const PARTY = [
+  { nm: '冰之女', p: 'Troop_K22_16', c: ['purple', 'brown'], m: 12, st: [17, 11, 34, 2], r: 3, race: '妖仙',
+    sg: [['silver', 2, '霜纹之握', '开局法力 +11% · 生命 +6'], ['stone', 1, '石纹护符', '护甲 +2'], ['iron', 1, '铁誓之环', '攻击 +2']] },
+  { nm: '霜羽', p: 'Troop_K22_17', c: ['blue', 'green'], m: 16, st: [17, 19, 28, 10], r: 4, race: '元素 · 野兽',
+    sg: [['silver', 4, '北境星盘', '魔力 +2 · 冻结持续 +1 回合'], ['silver', 2, '霜纹之握', '生命 +4'], null] },
+  { nm: '冰魔像', p: 'Troop_K22_06', c: ['blue', 'brown'], m: 13, st: [15, 27, 27, 6], r: 3, race: '元素 · 构装体',
+    sg: [['stone', 2, '冰棱回响', '护甲 +6'], ['iron', 1, '铁誓之环', '生命 +6'], ['stone', 0, '石纹护符', '护甲 +2']] },
+  { nm: '雪猎人', p: 'Troop_K22_10', c: ['red', 'brown'], m: 12, st: [22, 13, 19, 11], r: 3, race: '罗刹 · 游荡者',
+    sg: [['iron', 4, '寒渊誓约', '攻击 +3 · 首回合必暴击', 1], ['iron', 1, '凛风指环', '魔力 +2'], ['silver', 1, '白夜徽记', '技能伤害 +5%']] },
+];
+// 穿戴的刻印：会丢的（保险格以外）和保住的
+function wornSigils() {
+  const all = PARTY.flatMap((m) => m.sg.filter(Boolean).map((s) => ({ m, s })));
+  return { lost: all.filter((x) => !x.s[4]).sort((a, b) => b.s[1] - a.s[1]), kept: all.filter((x) => x.s[4]) };
+}
+function renderPrep() {
+  const { lost, kept } = wornSigils(), k = kept[0];
+  $('#riskBox').innerHTML = `<h3>失败时会丢${svg('chev')}</h3><div class="ics">${lost.slice(0, 4).map((x) => itemBox({ icon: 'sigil-' + x.s[0], r: x.s[1] })).join('')}${lost.length > 4 ? `<span class="tag red">+${lost.length - 4}</span>` : ''}</div>`
+    + `<div class="ok">${k ? `保险格保住：${k.s[2]}` : '保险格还空着'}</div>`;
+  $('#vaultSlot').innerHTML = k ? `${itemBox({ icon: 'sigil-' + k.s[0], r: k.s[1] }, 84).replace('</span>', '')}<span class="safe">${svg('shield')}</span></span><b>${k.s[2]}</b><span>${k.m.nm}穿戴中</span><span class="chg">点这里换</span>` : '<span class="it empty" style="--s:84px"></span><b>空</b><span class="chg">点这里放一枚</span>';
+}
+$('#party').innerHTML = PARTY.map((m, i) => troopCard(m, { attr: `data-sheet="member" data-arg="${i}"` })).join('')
+  + `<div class="pet"><img src="${A}pet-egg.webp" alt=""><b><svg class="i" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px"><use href="#i-lock"/></svg>宠物</b><span>即将开放</span></div>`;
+renderPrep();
+
+/* ---------- 营地：本周深渊卡片是"选择"，只有"出征"负责跳转（A11） ---------- */
+const BIO_ART = { 中央尖塔: 'biome-spire', 寒冬堡垒: 'biome-winter', 破碎之地: 'biome-broken' };
+$$('.bio').forEach((b) => (b.onclick = () => {
+  const nm = b.querySelector('.nm').textContent;
+  $$('.bio').forEach((x) => x.classList.toggle('on', x === b));
+  $('#heroName').textContent = nm; $('#devBiome').textContent = nm;
+  $('.hero .art').style.backgroundImage = `url(${A}${BIO_ART[nm]}.webp)`;
+  // 原型只做了霜渊（寒冬堡垒下面的深渊）；其余区域的分层主题在生成器的 THEMES，说明见 docs/expedition/12 §2.4
+  const th = window.ExpeditionMapGen.themeOf(nm);
+  if (nm !== '寒冬堡垒') toast(`${nm}下面是${th.abyss}：${th.layers.join(' → ')}。原型里还没做，地图会先用霜渊`, { ms: 4200 });
+}));
+</script>
+<script>
+'use strict';
+/* ================= 局内地图：数据全部来自 expedition_mapgen.js，种子决定结构和房间 ================= */
+const G = window.ExpeditionMapGen;
+const TYPES = {
+  entry:    { nm: '入口', icon: 'node-extract', nc: '#9fd8c8', d: '你从这里下来。' },
+  exit:     { nm: '撤离点', icon: 'node-extract', nc: '#72e6a8' },
+  supply:   { nm: '补给箱', icon: 'node-supply', nc: '#9fd8c8', d: '局内素材和消耗品。', loot: 1 },
+  loot:     { nm: '战利品堆', icon: 'node-loot', nc: '#ffcf6b', d: '2–3 件物品，可能有刻印。', loot: 1 },
+  chest:    { nm: '上锁宝箱', icon: 'node-chest', nc: '#ffcf6b', d: '至少 1 件稀有以上。徒手撬锁比较费时，用撬锁器很快。', loot: 2, slow: 1 },
+  ore:      { nm: '矿脉', icon: 'node-ore', nc: '#74e4ff', d: '记忆碎片和刻尘。', loot: 1 },
+  guard:    { nm: '驻守敌人', icon: 'node-wander', nc: '#ff7088', d: '不会移动，不想打可以绕路。', fight: 1 },
+  nest:     { nm: '稀有怪巢', icon: 'node-nest', nc: '#b892ff', d: '稀有怪物群，胜利后遗物三选一。', fight: 1 },
+  lord:     { nm: '领主巢', icon: 'node-lord', nc: '#ffc145', d: '多阶段领主，必掉传说以上刻印。', fight: 1 },
+  boss:     { nm: '首领殿', icon: 'node-boss', nc: '#ff5a74', d: '群系首领。胜利后开启首领传送门。', fight: 1 },
+  camp:     { nm: '营火', icon: 'node-fire', nc: '#ffa25a', d: '休整、侦察或整备，三选一。都比较费时。' },
+  shrine:   { nm: '神龛', icon: 'node-shrine', nc: '#ffe6a8', d: '两个祝福选一个。' },
+  merchant: { nm: '行商', icon: 'node-merchant', nc: '#ffcf6b', d: '用钱袋买卖。' },
+  altar:    { nm: '血祭祭坛', icon: 'node-altar', nc: '#ff5a74', d: '祭坛和相邻房间里打过的敌人会记入名单。' },
+  coffin:   { nm: '冰封棺', icon: 'node-coffin', nc: '#a8dcff', d: '砸开冰层会惊醒里面的东西，必定开战，赢了拿走棺中的箱子。', fight: 1 },
+};
+// 层名来自生成器（群系的分层主题），例如"第二层 · 极光冰窟"
+const layerOf = (n) => { const L = MAP.layers[n.ring] || MAP.layers.outer; return `${L.no} · ${L.nm}`; };
+const BAG0 = [['use-smoke', 1], ['cur-reroll', 2], ['sigil-stone', 1], ['sigil-iron', 0], ['cur-quality', 3], ['mat-soul', 2], ['cur-dust', 0, 8], ['sigil-silver', 1], ['mat-purse', 0]].map(([icon, r, q]) => ({ icon, r, q }));
+const ekey = (u, v) => (u < v ? u + '|' + v : v + '|' + u);
+let MAP, S, ADJ;
+
+function newRun(seed, runType) {
+  MAP = G.generate({ seed, runType, compasses: ['blood', 'rival'], tier: 6 });
+  MAP.byId = Object.fromEntries(MAP.nodes.map((n) => [n.id, n]));
+  ADJ = {}; MAP.nodes.forEach((n) => (ADJ[n.id] = []));
+  MAP.edges.forEach((e) => { ADJ[e.u].push(e.v); ADJ[e.v].push(e.u); e.k = ekey(e.u, e.v); });
+  const altar = MAP.nodes.find((n) => n.t === 'altar');
+  MAP.altarRange = new Set(altar ? [altar.id, ...ADJ[altar.id]] : []);
+  // 开局可见：入口、撤离点（规划路线用）、首领殿、罗盘事件
+  const known = new Set([MAP.entry, 'boss', ...MAP.exits.map((x) => x.node), ...MAP.events.filter((e) => e.core).map((e) => e.core)]);
+  // step 只在后台记（服务端），界面上不出现；玩家看到的是冰潮封了哪些区域、下一次要封哪些
+  S = { cur: MAP.entry, prev: null, visited: new Set([MAP.entry]), known, walked: new Set(), step: 0, tide: 0, sealed: new Set(), lives: 3, smoke: 1, potions: 2, sel: null,
+    cleared: new Set(), looted: new Set(), list: 0, hp: [100, 100, 100, 100], bag: BAG0.map((x) => ({ ...x })), patrol: MAP.patrols.map((p) => ({ ...p, pos: 0 })), quiet: true,
+    tideLog: [], whisper: -1, seenRing: new Set([MAP.byId[MAP.entry].ring]), over: null,
+    relics: [{ nm: '霜心', d: '冻结的敌人受到骷髅伤害 +15%', icon: 'cur-quality', r: 2 }, { nm: '旅人斗篷', d: '营火休整时多回复 20% 生命', icon: 'mat-soul', r: 1 }] };
+  scout();
+  // 开场先走两步，地图上能看出走过的路
+  const r = path(S.cur, MAP.exits[0].node);
+  for (let i = 1; i < r.length && i <= 2; i++) { if (isFight(MAP.byId[r[i]])) break; moveOne(r[i]); }
+  S.quiet = false;
+  $('#rBiome').textContent = '霜渊'; $('#seed').value = seed; $('#rtype').value = runType;
+  $$('#segRun [data-rt]').forEach((b) => b.classList.toggle('on', b.dataset.rt === runType));
+  $('#rtHint').textContent = runType === 'short' ? '区域少，冰潮涨得快' : '区域多，冰潮涨得慢';
+  clearTimeout(tidecast.h); $('#tidecast').classList.remove('on');
+  hidePop(); renderRun();
+}
+const eff = (n) => (n.t === 'guard' && S.cleared.has(n.id) ? 'loot' : n.t);
+const isFight = (n) => !!(TYPES[eff(n)] || {}).fight && !S.cleared.has(n.id);
+const hasLoot = (n) => !!(TYPES[eff(n)] || {}).loot && !S.looted.has(n.id);
+// 最短路线不穿过已经被冰潮封住的区域；找不到就返回 [from]
+function path(from, to) {
+  const prev = { [from]: null }, q = [from];
+  while (q.length) { const u = q.shift(); if (u === to) break; for (const v of ADJ[u]) if (!(v in prev) && !S.sealed.has(v)) { prev[v] = u; q.push(v); } }
+  if (!(to in prev)) return [from];
+  const out = []; for (let c = to; c != null; c = prev[c]) out.unshift(c); return out;
+}
+// 走进一个区域就能看清相邻区域里有什么（不再有灯火）
+function scout() { ADJ[S.cur].forEach((v) => S.known.add(v)); }
+function moveOne(to) {
+  S.walked.add(ekey(S.cur, to)); S.prev = S.cur; S.cur = to; S.visited.add(to); S.known.add(to);
+  S.patrol.forEach((p) => { if (!p.dead) p.pos = (p.pos + 1) % p.route.length; });
+  scout();
+  const n = MAP.byId[to];
+  // 第一次走进更深的一层：轻提示层名（地图本身靠崖边和色调表示"往下走"）
+  const firstRing = !S.seenRing.has(n.ring); S.seenRing.add(n.ring);
+  spend(1);
+  if (S.quiet || S.cur !== to) return;
+  if (!lastLeg() && tideNext(to)) tidecast('这里下一次冰潮会被封住', '', { lite: 1, ms: 2400 });
+  else if (firstRing && !$('#tidecast').classList.contains('on')) tidecast(`进入${layerOf(n)}`, '', { lite: 1, ms: 2200 });
+}
+const patrolAt = (id) => S.patrol.find((p) => !p.dead && p.route[p.pos] === id);
+const exitOpen = (n) => n.exit && S.step >= n.exit.win[0] && !S.sealed.has(n.id);
+// 下一次冰潮要封的区域
+const tideNext = (id) => MAP.tide.seal[id] === S.tide + 1 && !S.sealed.has(id);
+
+/* ---------- 后台计时与冰潮 ----------
+   每个动作花的时间（移动 1、搜刮 1–2、战斗 2、营火 3……）只累计在 S.step，不显示。
+   跨过 tide.every 的整数倍时冰潮上涨：封住这一次的区域，在顶部播报，并把下一次要封的区域标出来。
+   你站的区域被封：全队被冰潮推到最近的通路区域，损失 15% 生命。最后一次冰潮时还在图里 = 失败。
+   玩家看到的时间线索全都不是数字（v4 审稿 F）：
+   - 下一次冰潮还有多久：将封区域的冰从边缘往里长（tideNear），最后一两步虚线加快、提示"脚下的冰在响"；
+   - 整局还剩多久：地图外圈的霜带每次涨潮加宽（tideFrac）；播报用"漫过林地 / 漫进冰窟 / 只剩最后一次"这类阶段话。 */
+const tideNear = () => (S.tide >= MAP.tide.count ? 1 : Math.min(1, (S.step % MAP.tide.every) / MAP.tide.every));
+const tideSoon = () => tideNear() >= 2 / 3;
+const lastLeg = () => S.tide >= MAP.tide.count - 1;
+const tideFrac = () => S.sealed.size / MAP.nodes.length;
+// 某个动作做完会不会让冰潮涨（给按钮写"打完冰潮会上涨"，不写步数）
+const tideIn = (k) => S.tide < MAP.tide.count && S.step + k >= (S.tide + 1) * MAP.tide.every;
+// 最后一个还开着的撤离点（最后一个间隔里标"最后的出路"）
+const lastExit = () => MAP.exits.map((x) => MAP.byId[x.node]).filter((n) => !S.sealed.has(n.id)).sort((a, b) => MAP.tide.seal[b.id] - MAP.tide.seal[a.id])[0];
+function spend(n) {
+  S.step += n;
+  while (S.tide < MAP.tide.count && S.step >= (S.tide + 1) * MAP.tide.every) riseTide();
+  // 快涨了：每个间隔只说一次
+  if (!S.quiet && S.tide < MAP.tide.count && tideSoon() && S.whisper !== S.tide) {
+    S.whisper = S.tide;
+    if (!$('#tidecast').classList.contains('on')) tidecast('脚下的冰在响，冰潮快涨了', '', { lite: 1, ms: 2400 });
+  }
+}
+function riseTide() {
+  S.tide++;
+  const now = MAP.nodes.filter((n) => MAP.tide.seal[n.id] === S.tide);
+  now.forEach((n) => S.sealed.add(n.id));
+  S.fresh = new Set(now.map((n) => n.id)); // 这一帧播一次封冻动画
+  S.patrol.forEach((p) => { if (!p.dead && S.sealed.has(p.route[p.pos])) p.dead = true; }); // 巡逻的敌人也被封在冰里
+  const log = { k: S.tide, places: now.map((n) => n.place), pushed: '' };
+  S.tideLog.push(log);
+  if (S.tide >= MAP.tide.count) { S.over = 'fail'; tidecast('冰潮吞没了整座霜渊', '最后一次冰潮之前没能撤离 → 失败结算页（原型略）', { ms: 6000 }); return; }
+  let pushed = '';
+  if (S.sealed.has(S.cur)) {
+    // 推到最近的开放区域；同样近的几个里，优先挑不在下一批、没有巡逻敌人、直线更近的
+    const from = S.cur, dist = { [from]: 0 }, prev = { [from]: null }, q = [from], cands = [];
+    let best = Infinity;
+    while (q.length) {
+      const u = q.shift(); if (dist[u] >= best) continue;
+      for (const v of ADJ[u]) if (!(v in dist)) { dist[v] = dist[u] + 1; prev[v] = u; if (S.sealed.has(v)) q.push(v); else { cands.push(v); best = Math.min(best, dist[v]); } }
+    }
+    const a = MAP.byId[from], score = (v) => (tideNext(v) ? 2 : 0) + (patrolAt(v) ? 1 : 0) + Math.hypot(MAP.byId[v].x - a.x, MAP.byId[v].y - a.y) / 1e4;
+    const to = cands.filter((v) => dist[v] === best).sort((x, y) => score(x) - score(y))[0];
+    if (to) {
+      const trail = []; for (let c = to; c != null; c = prev[c]) trail.unshift(c);
+      S.cur = to; S.known.add(to); scout();
+      S.hp = S.hp.map((v) => Math.max(5, Math.round(v * 0.85)));
+      S.pushAnim = viaDoors(trail); S.pushedTo = to; S.hpHit = true;
+      pushed = `你被冰潮推到了${MAP.byId[to].place}，全队损失 15% 生命`;
+      log.pushed = MAP.byId[to].place;
+    }
+  }
+  if (S.quiet) return;
+  // 标题只写结果；封得多就不列名单，地名交给地图上的封冻动画
+  const title = !now.length ? '冰潮涨了一截，还没漫到路上'
+    : now.length <= 2 ? `冰潮上涨，${now.map((n) => n.place).join('、')}被冰封` : '冰潮上涨，又封住了一片';
+  // 副标题只写一句最有用的：被推开 > 撤离点被封 > 阶段话 > 下一批在哪
+  const exitGone = now.filter((n) => n.exit).map((n) => `撤离 ${n.exit.id} 被封住了`)[0];
+  const L = MAP.layers, last = lastExit();
+  const stage = S.tide === MAP.tide.count - 1 ? `只剩最后一次冰潮了。${last ? `撤离 ${last.exit.id} 是最后的出路` : ''}`
+    : now.some((n) => n.ring === 'mid') && !S.tideLog.slice(0, -1).some((l) => l.mid) ? (log.mid = 1, `冰潮漫进了${L.mid.nm}`)
+    : S.tide <= 2 ? `冰潮漫过了${L.outer.nm}的边缘` : '';
+  const hint = '紫色虚线圈住的是下一批';
+  if (!now.length) { tidecast(title, '', { lite: 1, ms: 2400 }); return; }
+  if (pushed) {
+    tidecast(title, pushed, { ms: 5000, then: () => tidecast(exitGone || stage || hint, '', { lite: 1, ms: 2600 }) });
+  } else tidecast(title, exitGone || stage || hint, { ms: 3400 });
+}
+// 播报：o.lite 是单行轻量样式；o.then 播完接下一条；遭遇窗口打开期间不自动消失
+function tidecast(title, sub, o = {}) {
+  const t = $('#tidecast'); t.querySelector('b').textContent = title; t.querySelector('span').textContent = sub || '';
+  t.classList.toggle('lite', !!o.lite); t.classList.add('on'); clearTimeout(tidecast.h);
+  const done = () => {
+    if ($('#encounter').classList.contains('on')) { tidecast.h = setTimeout(done, 1000); return; }
+    t.classList.remove('on'); if (o.then) setTimeout(o.then, 300);
+  };
+  tidecast.h = setTimeout(done, o.ms || 3400);
+}
+
+/* ---------- 绘制：《黑色幸存者》式区域图 ----------
+   底图（地形、道路、石墙、地貌）由 expedition_terrain.js 按种子画在 canvas 上，开局画一次；
+   这里的 SVG 只画会变的东西：区域状态（迷雾 / 当前 / 可去 / 选中）、地名、类型标记、走过的路、路线预览、头像。 */
+const GLYPH = {
+  fight: 'M5 19 19 5M14 5h5v5M19 19 5 5M5 10V5h5',
+  lord: 'M4 17h16l-1.5-9-4 3.5L12 5l-2.5 6.5-4-3.5z',
+  boss: 'M12 3a7 7 0 0 0-7 7c0 2.6 1.4 4.3 3 5.2V19h8v-3.8c1.6-.9 3-2.6 3-5.2a7 7 0 0 0-7-7zM9.5 10.5h.01M14.5 10.5h.01M10 19v-2M14 19v-2',
+  nest: 'M6 19c2.2-4.4 2.2-9.4 1-14M12 20c1-5 1-10.4 0-16M18 19c-2.2-4.4-2.2-9.4-1-14',
+  loot: 'M8 7h8l2.5 12h-13zM9.5 7a2.5 2.5 0 0 1 5 0',
+  chest: 'M4 10h16v9H4zM4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4M11 12.5h2v3h-2z',
+  supply: 'M4 7h16v12H4zM4 7l8 5 8-5M12 12v7',
+  ore: 'M12 3l5 6-5 12-5-12zM7 9h10',
+  camp: 'M12 3c3 4 5 6.2 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4 0 1.8 1 3 2 3 0-4-1-6 1-9zM6 21h12',
+  shrine: 'M12 3l2.2 4.5h-4.4zM8 21h8M10 21V9h4v12',
+  merchant: 'M12 4a8 8 0 1 0 .01 0zM9 10h6M9 14h6M12 7v10',
+  altar: 'M12 3c3 5 6 8 6 11a6 6 0 0 1-12 0c0-3 3-6 6-11z',
+  coffin: 'M9 3h6l3 6-3 12H9L6 9zM10 9h4M12 7v5',
+  exit: 'M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10',
+  entry: 'M6 21V4M6 4h11l-2 4 2 4H6',
+};
+// 类型 → [图形, 主色, 是否实心]。v4 审稿 G10：大多数是"深底 + 彩色线框图形"，只有撤离和首领用实心，拉开层级
+const BADGE = {
+  entry: ['entry', '#c9d4f0'], exit: ['exit', '#72e6a8', 1], supply: ['supply', '#9cc8ec'], loot: ['loot', '#ffcf6b'],
+  chest: ['chest', '#ffb35a'], ore: ['ore', '#7fd8f0'], guard: ['fight', '#ff8fa3'], nest: ['nest', '#c9a8ff'],
+  lord: ['lord', '#f2b640'], boss: ['boss', '#ff7088', 1], camp: ['camp', '#ff9f5a'], shrine: ['shrine', '#f3e2b0'],
+  merchant: ['merchant', '#9fe3c4'], altar: ['altar', '#e86a9a'], coffin: ['coffin', '#a8dcff'],
+};
+const SVGNS = 'http://www.w3.org/2000/svg';
+const cellPath = (n) => 'M' + n.cell.map((p) => p.join(' ')).join('L') + 'Z';
+// 没探明：不画问号圆，只画两道雾纹，比已知标记安静（G12）
+const mistMark = (x, y) => `<g transform="translate(${x} ${y})" pointer-events="none" opacity=".8"><path d="M-6 -2.5q3-3 6 0t6 0M-6 2.5q3-3 6 0t6 0" fill="none" stroke="#c9d2e8" stroke-width="1.6" stroke-linecap="round"/></g>`;
+const LOCK = (fg) => `<path d="M-4 -1v-2a4 4 0 0 1 8 0v2M-5 -1h10v6h-10z" fill="none" stroke="${fg}" stroke-width="1.6" stroke-linejoin="round"/>`;
+function badge(x, y, t, opt = {}) {
+  const r = opt.r || 15, s = (r * 1.15) / 24; // 图形大小跟着圆走（G11）
+  // 标记不接收点击，点在标记上等于点它所在的区域
+  if (!t) return r > 12 ? `<g transform="translate(${x} ${y})" pointer-events="none"><circle r="${r}" fill="rgba(16,22,52,.6)" stroke="rgba(201,210,232,.5)" stroke-dasharray="3 3"/><g transform="scale(${r / 9})">${mistMark(0, 0)}</g></g>` : mistMark(x, y);
+  if (t === 'sealed') return `<g transform="translate(${x} ${y})" pointer-events="none"><circle r="${r}" fill="#7d6cd8"/><g transform="scale(${r / 11})">${LOCK('#fff')}</g></g>`;
+  const [gl, c, solid] = BADGE[t] || BADGE.supply;
+  const fill = solid ? c : 'rgba(16,22,52,.92)', fg = solid ? '#13203a' : c;
+  return `<g transform="translate(${x} ${y})" pointer-events="none" opacity="${opt.dim ? 0.5 : 1}"><circle r="${r}" fill="${fill}" stroke="${c}" stroke-width="${solid ? 0 : 1.5}" stroke-opacity=".85"/>`
+    + `<g transform="translate(${-12 * s} ${-12 * s}) scale(${s})"><path d="${GLYPH[gl]}" fill="none" stroke="${fg}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></g></g>`;
+}
+// 文字宽度估算（中文 14px ≈ 14，其余 ≈ 7.8）
+const textW = (s, cn = 14, en = 7.8) => [...String(s)].reduce((w, ch) => w + (/[\u3000-\u9fff\uff00-\uffef]/.test(ch) ? cn : en), 0);
+// 地名牌：深色玻璃底 + 左侧类型标记 + 地名，挂在地标贴图下方。没探明的牌子降一级：半透明、虚线边、字更轻
+function plate(n, known, t, spent) {
+  const sealed = S.sealed.has(n.id), boss = n.t === 'boss';
+  const w = textW(n.place) + (known || sealed ? 46 : 40), y = n.y + 34;
+  const bg = sealed ? 'rgba(236,234,255,.92)' : boss ? 'rgba(110,26,58,.9)' : known ? 'rgba(18,26,58,.84)' : 'rgba(18,26,58,.6)';
+  const stroke = sealed ? 'rgba(125,108,216,.7)' : boss ? 'rgba(255,170,190,.55)' : 'rgba(205,222,255,.35)';
+  const dash = known || sealed ? '' : ' stroke-dasharray="4 3"';
+  const mark = `<g transform="translate(${-w / 2 + 16} 0)">${badge(0, 0, sealed ? 'sealed' : n.exit && known ? 'exit' : t, { dim: spent, r: 11 })}</g>`;
+  return `<g class="plate${known ? '' : ' fog'}${sealed ? ' sealed' : ''}" transform="translate(${n.x} ${y})" pointer-events="none">
+    <rect x="${-w / 2}" y="-14" width="${w}" height="28" rx="14" fill="${bg}" stroke="${stroke}"${dash}/>${mark}
+    <text x="${-w / 2 + (known || sealed ? 34 : 28)}" y="5">${esc(n.place)}</text></g>`;
+}
+function pill(x, y, text, fg, bg, extra = '') {
+  const w = textW(text, 13, 7.6) + 22;
+  return `<g transform="translate(${x} ${y})" pointer-events="none"${extra}><rect x="${-w / 2}" y="-11" width="${w}" height="22" rx="11" fill="${bg}" stroke="rgba(255,255,255,.35)"/><text y="4.5" text-anchor="middle" font-family="Noto Sans SC" font-size="12.5" font-weight="700" fill="${fg}">${esc(text)}</text></g>`;
+}
+// 撤离点状态只写玩家能直接读懂的（不写步数）：稍后开放 / 可撤离 / 冰潮将至 / 快封了 / 最后的出路 / 已封闭
+function exitState(n) {
+  if (S.sealed.has(n.id)) return ['已封闭', '#4a4680', 'rgba(236,234,255,.92)'];
+  if (!exitOpen(n)) return ['稍后开放', '#e9fff3', 'rgba(18,66,50,.9)'];
+  if (lastLeg() && lastExit() === n) return ['最后的出路', '#0f3a26', '#72e6a8', 1];
+  if (tideNext(n.id)) return [tideSoon() ? '快封了' : '冰潮将至', '#0f3a26', '#72e6a8', 1];
+  return ['可撤离', '#0f3a26', '#72e6a8'];
+}
+// 仍然能撤 = 绿色底；冰潮快到 = 右端长出一段紫色冰凌（越近越长），"快封了"时呼吸
+function exitPill(n) {
+  const [st, fg, bg, tide] = exitState(n), text = `撤离 ${n.exit.id} · ${st}`;
+  if (!tide) return pill(n.x, n.y + 62, text, fg, bg);
+  const w = textW(text, 13, 7.6) + 22, ice = lastLeg() ? w * 0.4 : 22 + tideNear() * (w * 0.4 - 22);
+  const soon = tideSoon() || lastLeg();
+  return `<g transform="translate(${n.x} ${n.y + 62})" pointer-events="none" class="${soon ? 'xbreath' : ''}"><clipPath id="xp-${n.id}"><rect x="${-w / 2}" y="-11" width="${w}" height="22" rx="11"/></clipPath>
+    <rect x="${-w / 2}" y="-11" width="${w}" height="22" rx="11" fill="${bg}"/><rect x="${w / 2 - ice}" y="-11" width="${ice}" height="22" fill="rgba(150,120,255,.9)" clip-path="url(#xp-${n.id})"/>
+    <rect x="${-w / 2}" y="-11" width="${w}" height="22" rx="11" fill="none" stroke="${soon ? '#efe6ff' : 'rgba(255,255,255,.35)'}" stroke-width="${soon ? 2 : 1}"/>
+    <text y="4.5" text-anchor="middle" font-family="Noto Sans SC" font-size="12.5" font-weight="700" fill="${fg}">${esc(text)}</text></g>`;
+}
+function viaDoors(r) {
+  if (r.length < 2) return '';
+  let d = `M${MAP.byId[r[0]].x} ${MAP.byId[r[0]].y}`;
+  for (let i = 1; i < r.length; i++) { const e = MAP.edges.find((x) => x.k === ekey(r[i - 1], r[i])), b = MAP.byId[r[i]]; d += e ? `Q${e.door[0]} ${e.door[1]} ${b.x} ${b.y}` : `L${b.x} ${b.y}`; }
+  return d;
+}
+// 头像棋子。玩家：更大、色圈更粗、脚下一圈慢慢扩散的青色光环；巡逻敌人：没有图钉尖角（它在游荡），红色虚线圈
+function token(x, y, img, ring, r, o = {}) {
+  const me = !!o.me, head = `<circle r="${r + (me ? 5 : 3)}" fill="${me ? ring : 'rgba(255,255,255,.92)'}"${me ? '' : ` stroke="${ring}" stroke-width="2.5" stroke-dasharray="4 3"`}/><circle r="${r + 1}" fill="#fff"/>
+    <image href="${P}${img}.webp" x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}" clip-path="url(#pc)" preserveAspectRatio="xMidYMin slice"/>`;
+  if (!me) return `<g transform="translate(${x} ${y})" pointer-events="none"><ellipse cx="0" cy="${r + 6}" rx="${r * 0.7}" ry="3.5" fill="rgba(20,24,70,.3)"/>${head}</g>`;
+  const doom = o.doom ? `<circle class="doom" r="${r + 11}" fill="none" stroke="#c5a8ff" stroke-width="2.5" stroke-dasharray="6 5"/>` : '';
+  const anim = o.anim ? `<animateMotion dur=".6s" fill="freeze" path="${o.anim}" calcMode="spline" keyTimes="0;1" keySplines=".3 0 .2 1"/>` : '';
+  const at = o.anim ? '' : ` transform="translate(${x} ${y})"`;
+  // 推开动画：棋子沿路径滑过去（animateMotion 用绝对坐标，所以外层不再平移；向上偏 30 和头像位置一致）
+  return `<g pointer-events="none"${at}>${anim}<g${o.anim ? ' transform="translate(0 -30)"' : ''}>
+    <ellipse class="me-ring" cx="0" cy="${r + 11}" rx="22" ry="7" fill="none" stroke="#74e4ff" stroke-width="2"/>
+    <ellipse cx="0" cy="${r + 11}" rx="${r * 0.7}" ry="4" fill="rgba(20,24,70,.35)"/>
+    <path d="M-8 ${r + 1}L0 ${r + 11}L8 ${r + 1}z" fill="${ring}"/>${doom}${head}</g></g>`;
+}
+// 迷雾贴图：一张冷白的云雾噪声图，用 canvas 生成一次
+let mistURL = '';
+function mistTexture() {
+  if (mistURL) return mistURL;
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  x.fillStyle = 'rgba(214,224,250,.30)'; x.fillRect(0, 0, 256, 256);
+  const rng = G.makeRng('mist');
+  for (let i = 0; i < 70; i++) {
+    const px = rng.next() * 256, py = rng.next() * 256, r = 18 + rng.next() * 46;
+    for (const [dx, dy] of [[0, 0], [256, 0], [-256, 0], [0, 256], [0, -256]]) {
+      const g = x.createRadialGradient(px + dx, py + dy, 0, px + dx, py + dy, r);
+      const a = rng.next() < 0.5 ? 'rgba(255,255,255,.26)' : 'rgba(150,166,220,.18)';
+      g.addColorStop(0, a); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(px + dx - r, py + dy - r, 2 * r, 2 * r);
+    }
+  }
+  return (mistURL = c.toDataURL());
+}
+// 已封区域：冷白厚冰（T04/T05）。512 的不规则冰裂纹 + 霜斑，各边按环绕画，平铺看不出接缝
+let iceURL = '';
+function iceTexture() {
+  if (iceURL) return iceURL;
+  const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const x = c.getContext('2d');
+  x.fillStyle = 'rgba(228,230,255,.64)'; x.fillRect(0, 0, N, N);
+  const rng = G.makeRng('ice'), wrap = [[0, 0], [N, 0], [-N, 0], [0, N], [0, -N]];
+  for (let i = 0; i < 40; i++) {
+    const px = rng.next() * N, py = rng.next() * N, r = 30 + rng.next() * 70;
+    for (const [dx, dy] of wrap) { const g = x.createRadialGradient(px + dx, py + dy, 0, px + dx, py + dy, r); g.addColorStop(0, rng.next() < 0.5 ? 'rgba(255,255,255,.35)' : 'rgba(170,165,235,.22)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(px + dx - r, py + dy - r, 2 * r, 2 * r); }
+  }
+  // 裂纹：从 24 个点出发的折线
+  x.lineCap = 'round'; x.lineJoin = 'round';
+  for (let i = 0; i < 24; i++) {
+    let px = rng.next() * N, py = rng.next() * N, ang = rng.next() * Math.PI * 2; const pts = [[px, py]];
+    for (let k = 0, L = 3 + Math.floor(rng.next() * 4); k < L; k++) { ang += (rng.next() - 0.5) * 1.3; px += Math.cos(ang) * (18 + rng.next() * 36); py += Math.sin(ang) * (18 + rng.next() * 36); pts.push([px, py]); }
+    for (const [dx, dy] of wrap) for (const [col, lw, off] of [['rgba(120,110,200,.45)', 1.6, 0], ['rgba(255,255,255,.55)', 1, 1.2]]) {
+      x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); pts.forEach(([a, b], j) => (j ? x.lineTo(a + dx + off, b + dy + off) : x.moveTo(a + dx + off, b + dy + off))); x.stroke();
+    }
+  }
+  return (iceURL = c.toDataURL());
+}
+let terrainKey = '';
+function renderRun() {
+  const key = MAP.seed + '|' + MAP.runType;
+  if (terrainKey !== key) { ExpeditionTerrain.draw($('#terrain'), MAP); terrainKey = key; }
+  const reach = new Set(ADJ[S.cur].filter((v) => !S.sealed.has(v)));
+  const near = tideNear(), last = lastLeg(), soon = tideSoon();
+  const outline = 'M' + MAP.outline.map((p) => p.join(' ')).join('L') + 'Z';
+  let h = `<defs><clipPath id="pc" clipPathUnits="objectBoundingBox"><circle cx=".5" cy=".5" r=".5"/></clipPath>
+    <clipPath id="rimclip"><path d="${outline}"/></clipPath>
+    <filter id="frostEdge" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="12" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="1.2"/></filter>
+    <pattern id="mist" width="256" height="256" patternUnits="userSpaceOnUse"><image href="${mistTexture()}" width="256" height="256"/></pattern>
+    <pattern id="iceSeal" width="512" height="512" patternUnits="userSpaceOnUse"><image href="${iceTexture()}" width="512" height="512"/></pattern></defs>`;
+  // 区域
+  for (const n of MAP.nodes) {
+    const known = S.known.has(n.id), here = n.id === S.cur, sel = n.id === S.sel, sealed = S.sealed.has(n.id);
+    let cls = 'cell';
+    if (sealed) cls += ' sealed'; else if (!known) cls += ' fog';
+    if (here) cls += ' here'; else if (reach.has(n.id)) cls += ' reach'; if (sel) cls += ' sel';
+    if (known && n.exit && !sealed) cls += ' exitc'; if (n.t === 'boss') cls += ' bossc';
+    if (S.fresh && S.fresh.has(n.id)) cls += ' fresh';
+    h += `<path class="${cls}" data-id="${n.id}" d="${cellPath(n)}"/>`;
+  }
+  // 整局进度：地图外圈的霜带每次涨潮加宽（只增不减）；最后一个间隔里随时间快速往里收
+  const rimW = 2 * (10 + tideFrac() * 70 + (last ? near * 60 : 0));
+  h += `<g class="rimfrost" pointer-events="none" clip-path="url(#rimclip)"><path d="${outline}" fill="none" stroke="url(#iceSeal)" stroke-width="${rimW}" filter="url(#frostEdge)"/>
+    <path d="${outline}" fill="none" stroke="rgba(236,234,255,.55)" stroke-width="${rimW * 0.35}" filter="url(#frostEdge)"/></g>`;
+  // 下一批：紫色双层虚线 + 从边缘往里长的冰带（离下一次冰潮越近越宽）。最后一个间隔不再逐格画（全都要封），改由外圈霜带表示
+  if (!last) MAP.nodes.forEach((n) => {
+    if (!tideNext(n.id)) return;
+    const d = cellPath(n);
+    h += `<clipPath id="cp-${n.id}"><path d="${d}"/></clipPath><path class="warnfill" d="${d}" fill="rgba(150,120,255,.10)"/>
+      <path class="frostband" d="${d}" clip-path="url(#cp-${n.id})" stroke-width="${(16 + near * 80).toFixed(0)}" filter="url(#frostEdge)"/>`;
+    if (n.id !== S.cur) h += `<path class="warnbase" d="${d}"/><path class="warn${soon ? ' fast' : ''}" d="${d}"/>`;
+  });
+  // 当前区域的青色描边画在冰潮标记上面，不被盖住
+  h += `<path class="hereline" d="${cellPath(MAP.byId[S.cur])}"/>`;
+  // 走过的路（任一端已封就淡掉）、路线预览（深色衬底，压在金线上也能看清）
+  MAP.edges.forEach((e) => { if (S.walked.has(e.k)) h += `<path class="walked${S.sealed.has(e.u) || S.sealed.has(e.v) ? ' old' : ''}" d="${viaDoors([e.u, e.v])}"/>`; });
+  if (S.sel && S.sel !== S.cur) { const d = viaDoors(path(S.cur, S.sel)); if (d) h += `<path class="route-bg" d="${d}"/><path class="route" d="${d}"/>`; }
+  if (S.pushAnim) h += `<path class="pushtrail" d="${S.pushAnim}"/>`;
+  // 通道口（两端都看清了才显示）
+  MAP.edges.forEach((e) => { if (S.known.has(e.u) && S.known.has(e.v) && !S.sealed.has(e.u) && !S.sealed.has(e.v)) h += `<circle class="door" cx="${e.door[0]}" cy="${e.door[1]}" r="4"/>`; });
+  // 地名牌 + 撤离标签
+  for (const n of MAP.nodes) {
+    const known = S.known.has(n.id), t = known ? eff(n) : null;
+    const spent = S.looted.has(n.id) || (S.cleared.has(n.id) && n.t !== 'guard');
+    h += plate(n, known, t, spent);
+    if (known && n.exit) h += exitPill(n);
+  }
+  S.patrol.forEach((p) => { if (!p.dead && S.known.has(p.route[p.pos])) { const n = MAP.byId[p.route[p.pos]]; h += token(n.x + 40, n.y - 44, p.p, '#ff7088', 14); } });
+  const c = MAP.byId[S.cur];
+  h += token(c.x, c.y - 30, 'Troop_K22_16', '#74e4ff', 24, { me: 1, doom: !last && tideNext(S.cur), anim: S.pushAnim });
+  S.pushAnim = null; S.fresh = null;
+  const el = $('#mapsvg');
+  el.innerHTML = h;
+  // 再点一次已选中的区域 = 取消选中（C06）
+  $$('.cell', el).forEach((g) => (g.onclick = (ev) => { ev.stopPropagation(); const id = g.dataset.id; if (S.sel === id) { S.sel = null; hidePop(); return renderRun(); } select(id); }));
+  renderHud();
+}
+$('#mapsvg').addEventListener('click', () => { S.sel = null; hidePop(); renderRun(); });
+$('#mapsvg').addEventListener('contextmenu', (e) => { e.preventDefault(); S.sel = null; hidePop(); renderRun(); });
+/* ---------- HUD ---------- */
+function renderHud() {
+  $('#rLayer').textContent = layerOf(MAP.byId[S.cur]);
+  $('#hLives').innerHTML = hearts(S.lives, 3);
+  $('#nPotion').textContent = S.potions; $('#usePotion').disabled = !S.potions;
+  $('#nBag').textContent = S.bag.length + '/16';
+  // 血祭按钮只在找到祭坛之后出现；名单有变化时闪一下
+  const altar = MAP.nodes.find((n) => n.t === 'altar');
+  $('#evBtn').hidden = !(altar && S.known.has(altar.id));
+  const eb = $('#evBtn'); eb.classList.remove('ping'); if (renderHud.list != null && S.list !== renderHud.list) { void eb.offsetWidth; eb.classList.add('ping'); }
+  renderHud.list = S.list;
+  $('#nRelic').textContent = '遗物 ' + S.relics.length;
+  const hit = S.hpHit; S.hpHit = false;
+  $('#pmList').innerHTML = PARTY.map((m, i) => { const p = S.hp[i], col = p > 50 ? '#72e6a8' : p > 25 ? '#ffd27a' : '#ff7088';
+    return `<span class="pm${hit ? ' hit' : ''}" style="animation-delay:${i * 80}ms"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="26" fill="rgba(10,16,40,.6)" stroke="rgba(255,255,255,.15)" stroke-width="3"/><circle cx="28" cy="28" r="26" fill="none" stroke="${col}" stroke-width="3" stroke-dasharray="${(p / 100 * 163).toFixed(1)} 200" stroke-linecap="round"/></svg><img src="${P}${m.p}.webp" alt="${m.nm}">${hit ? '<i class="dmg">-15%</i>' : ''}</span>`; }).join('');
+}
+
+/* ---------- 药剂：先确认，写清每人回复到多少；喝下后 5 秒内可以撤销 ---------- */
+function potionCard(open) {
+  const c = $('#potCard');
+  if (!open) { c.hidden = true; return; }
+  const full = S.hp.every((v) => v >= 95);
+  c.innerHTML = `<h4>喝一瓶药剂</h4><div class="who">${PARTY.map((m, i) => `<div><img src="${P}${m.p}.webp" alt="">${S.hp[i]}% → <b>${Math.min(100, S.hp[i] + 30)}%</b></div>`).join('')}</div>
+    <div class="acts"><button class="btn text" id="potNo">算了</button><button class="primary" id="potGo"${full ? ' disabled' : ''}>${full ? '大家都很健康' : `喝下<small>剩 ${S.potions - 1} 瓶</small>`}</button></div>`;
+  c.hidden = false;
+  $('#potNo').onclick = () => potionCard(false);
+  $('#potGo').onclick = () => {
+    const before = { hp: [...S.hp], n: S.potions };
+    S.potions--; S.hp = S.hp.map((v) => Math.min(100, v + 30)); potionCard(false); renderHud();
+    toast('全队回复 30% 生命', { undo: () => { S.hp = before.hp; S.potions = before.n; renderHud(); } });
+  };
+}
+$('#usePotion').onclick = (e) => { e.stopPropagation(); if (!S.potions) return; hidePop(); potionCard($('#potCard').hidden); };
+document.addEventListener('click', (e) => { if (!e.target.closest('#potCard, #usePotion')) potionCard(false); }, true);
+
+/* ---------- 左上菜单 ---------- */
+function setMenu(open) { $('#menuPop').hidden = !open; $('#menuBtn').setAttribute('aria-expanded', String(open)); }
+$('#menuBtn').onclick = (e) => { e.stopPropagation(); hidePop(); setMenu($('#menuPop').hidden); };
+// 捕获阶段关闭：岛屿的点击会 stopPropagation，冒泡阶段收不到
+document.addEventListener('click', (e) => { if (!e.target.closest('#menuPop, #menuBtn')) setMenu(false); }, true);
+addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+$$('#menuPop .lrow').forEach((b) => b.addEventListener('click', () => setMenu(false)));
+
+/* ---------- 节点浮窗 ---------- */
+function hidePop() { $('#pop').classList.remove('on'); }
+function select(id) { S.sel = id; renderRun(); showPop(MAP.byId[id]); }
+const layerNo = (n) => (MAP.layers[n.ring] || MAP.layers.outer).no;
+const ROOMS = ['camp', 'shrine', 'merchant', 'altar'];
+// 地图上的格子闪一下（提示能去哪、祭坛范围在哪）
+function ping(ids) { requestAnimationFrame(() => ids.forEach((id) => { const c = $(`#mapsvg .cell[data-id="${id}"]`); if (c) c.classList.add('ping'); })); }
+// "前往"按钮的小字：经过 1–2 个区域写地名，再多写"经过 N 个区域"；没探明的写"一片雾地"
+function viaText(route) {
+  const mid = route.slice(1, -1);
+  if (!mid.length) return '';
+  if (mid.length <= 2) return '经过' + mid.map((id) => (S.known.has(id) ? MAP.byId[id].place : '一片雾地')).join('、');
+  return `经过 ${mid.length} 个区域`;
+}
+const goLabel = (route, tail = '') => {
+  const via = viaText(route), tide = !lastLeg() && route.slice(1).some((id) => tideNext(id));
+  const small = [via, tail].filter(Boolean).join('，');
+  return `前往${small || tide ? `<small>${esc(small)}${tide ? '<em class="tide">· 有冰潮</em>' : ''}</small>` : ''}`;
+};
+// 撤离点的说明：说结果，错过了还能去哪
+function exitDesc(n) {
+  if (!exitOpen(n)) return '撤离信标还没点亮，稍后才能从这里撤离。';
+  if (lastLeg() && lastExit() === n) return '这是最后一个撤离点，冰潮一到就出不去了。';
+  if (tideNext(n.id)) {
+    const nx = MAP.exits.map((x) => MAP.byId[x.node]).filter((m) => m !== n && !S.sealed.has(m.id) && MAP.tide.seal[m.id] > S.tide + 1).sort((a, b) => MAP.tide.seal[a.id] - MAP.tide.seal[b.id])[0];
+    return '冰潮一到，这里就封了。' + (nx ? `错过的话，下一个能走的是撤离 ${nx.exit.id}（${nx.place}）。` : '');
+  }
+  return '信标亮着。现在撤离，背包里的东西都能带回营地。';
+}
+const hasPile = (n) => !!(n.drop && n.drop.length);
+function showPop(n) {
+  const known = S.known.has(n.id), T = TYPES[eff(n)] || TYPES.supply, here = n.id === S.cur;
+  const route = path(S.cur, n.id), dist = route.length - 1, pat = patrolAt(n.id);
+  const sealed = S.sealed.has(n.id), blocked = !here && !sealed && dist === 0;
+  let kind = known ? (n.exit ? '撤离点 ' + n.exit.id : n.name ? `${T.nm} · ${n.name}` : T.nm) : '未探明', desc = '', acts = '';
+  const goBtn = dist > 0 ? `<button class="primary" data-act="go">${goLabel(route)}</button>` : '';
+  if (sealed) { kind = '已被冰封'; desc = '冰潮封住了这里，过不去了。' + (known && hasLoot(n) ? '里面的东西没搜，拿不到了。' : ''); }
+  else if (blocked) desc = '冰潮把路封死了，过不去。';
+  else if (!known) { desc = '走到相邻的区域就能看清这里有什么。'; acts = goBtn; }
+  else {
+    desc = n.exit ? exitDesc(n) : T.d || '';
+    if (S.cleared.has(n.id) && n.t !== 'guard') desc = '已经打过了。';
+    if (S.looted.has(n.id)) desc = ROOMS.includes(n.t) ? '已经用过了。' : '已经搜过了。';
+    if (here) {
+      if (n.exit && exitOpen(n)) acts = `<button class="primary exit" data-act="exit">撤离<small>带走 ${S.bag.length} 件</small></button>`;
+      else if (hasLoot(n) || hasPile(n)) acts = `<button class="primary" data-act="loot">搜刮${T.slow && !n.searched ? `<small>${tideIn(T.loot) ? '搜完冰潮会涨' : '费时'}</small>` : ''}</button>`;
+      else if (ROOMS.includes(n.t) && !S.looted.has(n.id)) acts = `<button class="primary" data-act="room">${{ camp: '生火', shrine: '祈祷', merchant: '交易', altar: '查看祭坛' }[n.t]}</button>`;
+      else if (S.pushedTo !== n.id) {
+        // 自己所在的区域没事可做：不弹一张没有按钮的死卡片，改成让相邻能去的区域闪一下（C07）
+        hidePop(); S.sel = null; renderRun(); ping([...ADJ[S.cur]].filter((v) => !S.sealed.has(v))); return;
+      }
+    } else {
+      const tail = dist >= 2 ? '' : '';
+      if (isFight(n)) acts = `<button class="btn" data-act="peek">看敌人</button>` + goBtn;
+      else if (hasLoot(n) || hasPile(n) || (ROOMS.includes(n.t) && !S.looted.has(n.id))) acts = `<button class="btn" data-act="room">详情</button>` + goBtn;
+      else acts = goBtn + tail;
+    }
+  }
+  if (S.pushedTo === n.id) { desc = '你被冰潮推到了这里。' + desc; S.pushedTo = null; }
+  if (pat && known) desc += ` 游荡的${pat.enemy}正在这里。`;
+  if (!sealed && !n.exit && !lastLeg() && tideNext(n.id)) desc += ' 下一次冰潮会封住这里。';
+  if (!here && dist >= 2) desc += ' 路上遇到敌人会停下。';
+  if (MAP.altarRange.has(n.id) && known && n.t !== 'altar' && isFight(n)) desc += ' 在祭坛范围内，打过会记入名单。';
+  const danger = known && !sealed && ['guard', 'nest', 'lord', 'boss', 'coffin'].includes(eff(n)) && isFight(n);
+  const otherLayer = n.ring !== MAP.byId[S.cur].ring;
+  const pop = $('#pop');
+  pop.innerHTML = `<div class="h"><svg width="44" height="44" viewBox="-22 -22 44 44" aria-hidden="true">${badge(0, 0, sealed ? 'sealed' : known ? (n.exit ? 'exit' : eff(n)) : null, { r: 19 })}</svg>
+    <div><b>${esc(n.place)}${here ? '<span class="tag cy herep">你在这里</span>' : ''}</b><small class="k${danger ? ' danger' : ''}">${esc(kind)}</small>${otherLayer ? `<small>在${layerNo(n)}</small>` : ''}</div></div>
+    <p>${esc(desc.trim())}</p>${acts ? `<div class="acts">${acts}</div>` : ''}`;
+  pop.classList.add('on');
+  // 选位：不出屏；不盖住头像、首领殿、也不盖住这条路线经过的区域（C01）；先试和路线方向相反的一侧
+  const R = 70, ry = 34, ph = pop.offsetHeight || 200, W = 300;
+  const midY = Math.max(96, Math.min(820 - ph, n.y - 90)), midX = Math.max(24, Math.min(1276, n.x - W / 2));
+  const from = MAP.byId[route[route.length - 2] ?? n.id], right = n.x - from.x >= 0 || n.x < MAP.center[0];
+  const side = [[n.x + R + 22, midY], [n.x - R - 22 - W, midY]];
+  const cand = (right ? side : side.reverse()).concat([[midX, n.y + ry + 18], [midX, n.y - ry - 70 - ph], [n.x + R, n.y + ry + 18], [n.x - W - R, n.y - ph - 40]]);
+  const c = MAP.byId[S.cur], boss = MAP.byId.boss, avoid = route.map((id) => MAP.byId[id]).filter((m) => m.id !== n.id);
+  const hits = (x, y, px, py, pad) => px > x - pad && px < x + W + pad && py > y - pad && py < y + ph + pad;
+  const fits = ([x, y]) => x >= 24 && x <= 1276 && y >= 96 && y + ph <= 830;
+  const base = ([x, y]) => !(n.id !== S.cur && hits(x, y, c.x, c.y - 30, 34)) && !(n.id !== 'boss' && hits(x, y, boss.x, boss.y, 90));
+  const clean = (p) => base(p) && !avoid.some((m) => hits(p[0], p[1], m.x, m.y, 40));
+  const loose = (p) => base(p) && !avoid.slice(-2).some((m) => hits(p[0], p[1], m.x, m.y, 40));
+  const [x, y] = cand.find((p) => fits(p) && clean(p)) ?? cand.find((p) => fits(p) && loose(p)) ?? cand.find(fits) ?? cand[0];
+  pop.style.left = x + 'px'; pop.style.top = y + 'px';
+  $$('[data-act]', pop).forEach((b) => (b.onclick = () => act(b.dataset.act, n)));
+}
+function act(a, n) {
+  if (a === 'go') return travel(n.id);
+  if (a === 'peek') return openEncounter(n, { peek: true });
+  if (a === 'room' || a === 'loot') return roomSheet(n);
+  if (a === 'exit') return exitSheet(n);
+}
+function travel(to) {
+  const r = path(S.cur, to);
+  for (let i = 1; i < r.length; i++) {
+    // 半路涨潮：前面的区域被封、或者人被推走了，就停下重新规划
+    if (S.sealed.has(r[i]) || !ADJ[S.cur].includes(r[i])) { S.sel = to; renderRun(); return showPop(MAP.byId[to]); }
+    moveOne(r[i]);
+    if (S.cur !== r[i]) { S.sel = null; renderRun(); return showPop(MAP.byId[S.cur]); } // 这一步被冰潮推走了
+    const n = MAP.byId[r[i]], pat = patrolAt(r[i]);
+    if (pat) { S.sel = null; hidePop(); renderRun(); return openEncounter(n, { patrol: pat }); }
+    if (isFight(n)) { S.sel = null; hidePop(); renderRun(); return openEncounter(n, {}); }
+  }
+  select(to);
+}
+
+/* ---------- 撤离 / 放弃 / 冰潮记录：一局里最重要的决定，先确认 ---------- */
+function exitSheet(n) {
+  hidePop();
+  const left = MAP.nodes.filter((x) => S.known.has(x.id) && (hasLoot(x) || hasPile(x)) && !S.sealed.has(x.id) && x.id !== n.id).map((x) => x.place);
+  sheet('撤离霜渊', '撤离 ' + n.exit.id + ' · ' + n.place,
+    `<h4>带回营地 · ${S.bag.length} 件</h4><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px">${S.bag.map((b) => itemBox(b, 52)).join('')}</div>
+     <div class="lrow" style="margin-top:12px">${itemBox({ icon: 'sigil-iron', r: 4 })}<span><b>寒渊誓约</b><small>在保险格，雪猎人穿戴中</small></span><span class="end tag good">保险格</span></div>
+     ${left.length ? `<h4>还没拿的</h4><p>${esc(left.slice(0, 3).join('、'))}${left.length > 3 ? ` 等 ${left.length} 处` : ''}还有东西没搜。</p>` : ''}
+     <p class="muted" style="font-size:13px">撤离后这一趟就结束了，结算页会逐项列出带回的东西。</p>`,
+    `<button class="btn" id="exStay">再想想</button><button class="primary exit" id="exGo">撤离</button>`);
+  $('#exStay').onclick = closeSheet;
+  $('#exGo').onclick = () => { closeSheet(); S.over = 'exit'; toast('撤离 → 撤离结算页（原型略）'); };
+}
+Object.assign(SHEETS, {
+  abandon() {
+    sheet('放弃这一趟？', '', `<p>背包里的 ${S.bag.length} 件会丢掉，保险格里的寒渊誓约会留下。</p>`,
+      `<button class="primary" id="abStay" style="flex:1">继续远征</button><button class="btn text bad" id="abGo">放弃</button>`);
+    $('#abStay').onclick = closeSheet; $('#abStay').focus();
+    $('#abGo').onclick = () => { closeSheet(); toast('放弃 → 失败结算页（原型略）'); };
+  },
+  // 冰潮记录：最新的在上面；只写地名和状态，不写步数
+  tidelog() {
+    const next = MAP.nodes.filter((n) => tideNext(n.id)).map((n) => n.place);
+    const ex = MAP.exits.map((x) => { const n = MAP.byId[x.node]; return `<div class="lrow">${itemBox({ icon: 'node-extract', r: 1 }, 40)}<span><b>撤离 ${x.id} · ${esc(n.place)}</b></span><span class="end tag ${S.sealed.has(n.id) ? '' : exitOpen(n) ? 'good' : ''}">${exitState(n)[0]}</span></div>`; }).join('');
+    const rows = S.tideLog.slice().reverse().map((l) => `<div class="lrow"><span><b>${l.places.length ? esc(l.places.join('、')) + ' 被冰封' : '冰潮涨了一截，没封住区域'}</b>${l.pushed ? `<small>你被推到了${esc(l.pushed)}</small>` : ''}</span></div>`).join('');
+    sheet('冰潮', lastLeg() ? '只剩最后一次冰潮了' : '冰潮会一次次往下涨，最后一次连渊底一起封住',
+      `<h4>下一批</h4><p>${next.length ? esc(next.join('、')) + '（地图上紫色虚线圈住的区域）' : '—'}</p><h4>撤离点</h4>${ex}<h4>已经发生的</h4>${rows || '<p class="muted">冰潮还没涨过。</p>'}`);
+  },
+});
+
+/* ---------- 房间二级页 ---------- */
+const ITEM_NAMES = { 'use-smoke': '烟雾弹', 'cur-reroll': '重铸石', 'sigil-stone': '石纹刻印', 'sigil-iron': '铁誓刻印', 'cur-quality': '升品石', 'mat-soul': '灵质', 'cur-dust': '刻尘', 'sigil-silver': '星银刻印', 'mat-purse': '钱袋', 'use-potion': '药剂', 'use-lockpick': '撬锁器', 'mat-memory': '记忆碎片', 'cur-tier': '升阶石', 'cur-break': '破限石', 'pass-2': '高一阶路引' };
+const itemName = (x) => x.name || ITEM_NAMES[x.icon] || '物品';
+const itemUse = (x) => ({ sigil: '刻印：撤离后可以给队员穿戴', cur: '路引通货：在地图台改造路引', use: '消耗品：这一趟里就能用', mat: '材料：带回营地使用', pass: '路引：放上地图台再去一趟' }[x.icon.split('-')[0]] || '');
+const qtyText = (x) => (x.q > 1 ? ' ×' + x.q : '');
+const namesOf = (list) => list.slice(0, 2).map((x) => itemName(x) + qtyText(x)).join('、') + (list.length > 2 ? ` 等 ${list.length} 件` : '');
+// 生火、搜宝箱之类会花时间的动作：用后台时间算出"做完会不会涨潮"，界面只说结果
+function tideNote(k, verb) {
+  if (!tideIn(k)) return `<p class="note">${verb}要花些时间，这次冰潮还涨不到。</p>`;
+  if (S.tide === MAP.tide.count - 1) return `<p class="warn">这是最后一次冰潮，${verb}完还没撤离就算失败。</p>`;
+  return `<p class="warn">${verb}完冰潮就会涨，紫色虚线圈出的区域会被封住。${tideNext(S.cur) ? '你现在站的地方也在里面，会被推出去，全队掉 15% 生命。' : ''}</p>`;
+}
+function roomSheet(n) {
+  hidePop();
+  const T = TYPES[eff(n)] || {}, here = n.id === S.cur, sub = T.nm + (n.ring !== MAP.byId[S.cur].ring ? ' · 在' + layerNo(n) : '');
+  let body = '', foot = '';
+  const pile = T.loot ? (n.loot = n.loot || [{ icon: 'cur-dust', r: 0, name: '刻尘', q: 6 }, { icon: 'sigil-stone', r: 1, name: '石纹刻印' }]) : n.drop;
+  if (pile && pile.length && !(T.loot && S.looted.has(n.id))) {
+    // 搜刮可以挑：默认全选，点一下取消；写出背包还能装几件，放不下时按钮置灰（E01）
+    const free = 16 - S.bag.length;
+    body = pile.map((x, i) => here
+      ? `<button class="lrow pick on" data-i="${i}">${itemBox(x)}<span><b>${esc(itemName(x))}</b><small>${RNM[x.r]}${qtyText(x)}</small></span><span class="end ck">${svg('check')}</span></button>`
+      : `<div class="lrow">${itemBox(x)}<span><b>${esc(itemName(x))}</b><small>${RNM[x.r]}${qtyText(x)}</small></span></div>`).join('')
+      + `<p class="muted" style="margin-top:14px;font-size:13px">背包还能装 ${free} 件。拿到的东西先放进背包，撤离后才算到手。</p>`
+      + (here && T.slow && !n.searched ? tideNote(T.loot, '撬锁') : '');
+    if (here) foot = `<button class="btn" id="takeNone">先不拿</button><button class="primary" id="takeSel"></button>`;
+    else foot = `<button class="primary" disabled style="flex:1">走到这里才能拿</button>`;
+  } else if (T.loot) body = '<p>已经搜过了。</p>';
+  else if (n.t === 'shrine' || n.t === 'camp') {
+    // 营火、神龛：先选再确认，选了就不能改（E02）
+    const low = S.hp.indexOf(Math.min(...S.hp)), full = S.hp.every((v) => v >= 95);
+    const opts = n.t === 'camp'
+      ? [['休整', full ? '大家都很健康' : `全队回复 40% 生命 · ${PARTY[low].nm} ${S.hp[low]}% → ${Math.min(100, S.hp[low] + 40)}%`, 'use-potion', full], ['侦察', '看清周围两圈区域里有什么', 'compass-deep'], ['整备', '免费更换刻印；复活 1 名阵亡者', 'sigil-silver']]
+      : (n.options || []).map(([nm, d]) => [nm, d, 'node-shrine']);
+    body = (S.looted.has(n.id) ? `<p>${n.t === 'camp' ? '营火已经熄了。' : '神龛已经暗了。'}</p>` : `<p class="muted" style="font-size:14px">只能选一项，选完${n.t === 'camp' ? '营火就熄了' : '神龛就暗了'}。</p>`
+      + opts.map(([nm, d, ic, off], i) => here && !off
+        ? `<button class="lrow" data-opt="${i}">${itemBox({ icon: ic, r: 1 }, 52)}<span><b>${nm}</b><small>${esc(d)}</small></span></button>`
+        : `<div class="lrow"${off ? ' aria-disabled="true"' : ''}>${itemBox({ icon: ic, r: 1 }, 52)}<span><b>${nm}</b><small>${esc(d)}</small></span></div>`).join('')
+      + (here && n.t === 'camp' ? tideNote(3, '生火') : ''));
+    if (!S.looted.has(n.id)) foot = here ? `<button class="primary" id="optGo" disabled style="flex:1">选一项</button>` : `<button class="primary" disabled style="flex:1">走到这里才能${n.t === 'camp' ? '生火' : '祈祷'}</button>`;
+    sheet(n.place, sub, body, foot);
+    let pick = null;
+    $$('#shB [data-opt]').forEach((b) => (b.onclick = () => {
+      pick = +b.dataset.opt; $$('#shB [data-opt]').forEach((x) => x.classList.toggle('sel', x === b));
+      const g = $('#optGo'); g.disabled = false; g.textContent = (n.t === 'camp' ? '生火：' : '祈祷：') + opts[pick][0];
+    }));
+    const g = $('#optGo'); if (g) g.onclick = () => {
+      const nm = opts[pick][0];
+      S.looted.add(n.id); closeSheet();
+      if (n.t === 'camp') {
+        if (nm === '侦察') ADJ[n.id].forEach((v) => { S.known.add(v); ADJ[v].forEach((w) => S.known.add(w)); });
+        if (nm === '休整') S.hp = S.hp.map((v) => Math.min(100, v + 40));
+        spend(3);
+      } else if (nm === '缓潮') S.step = Math.max(S.tide * MAP.tide.every, S.step - 3); // 后台把下一次冰潮推后
+      S.sel = null; renderRun(); toast('已选择：' + nm);
+      if (nm === '整备') openSheet('member', 0);
+    };
+    return;
+  } else if (n.t === 'merchant') {
+    body = (n.loot || []).map((x) => `<div class="lrow">${itemBox(x)}<span><b>${esc(itemName(x))}</b><small>${RNM[x.r]}</small></span><span class="end num">${(x.r + 1) * 40}<small>钱袋</small></span></div>`).join('');
+  } else if (n.t === 'altar') {
+    const left = [...MAP.altarRange].filter((id) => isFight(MAP.byId[id])).length;
+    body = `<p>祭坛和相邻区域里打过的敌人会记入名单。激活祭坛时，名单上的敌人会一个接一个复活，打完才算胜利，然后打开恩惠商店。</p>
+      <h4>名单上有 ${S.list} 个敌人，满 4 个就能激活，最多记 8 个</h4><p class="muted">祭坛周围还有 ${left} 个战斗区域没打。</p><button class="btn sm" id="showRange">在地图上看</button>`;
+    if (here) foot = `<button class="primary" style="flex:1" ${S.list < 4 ? 'disabled' : ''}>激活祭坛<small>${S.list < 4 ? `还差 ${4 - S.list} 个` : '车轮战'}</small></button>`;
+  }
+  sheet(n.place, sub, body, foot);
+  const sr = $('#showRange'); if (sr) sr.onclick = () => { closeSheet(); S.sel = null; renderRun(); ping([...MAP.altarRange]); };
+  // 搜刮：勾选 → 拿取。只第一次搜的时候花时间；没拿的留在原地，下次再来拿不再费时
+  const upd = () => {
+    const k = $$('#shB .pick.on').length, free = 16 - S.bag.length, b = $('#takeSel'); if (!b) return;
+    b.disabled = !k || k > free; b.innerHTML = !k ? '一件都没选' : k > free ? `背包只剩 ${free} 格` : `拿取 ${k} 件${T.slow && !n.searched ? `<small>${tideIn(T.loot) ? '拿完冰潮会涨' : '费时'}</small>` : ''}`;
+  };
+  $$('#shB .pick').forEach((b) => (b.onclick = () => { b.classList.toggle('on'); upd(); }));
+  upd();
+  const tn = $('#takeNone'); if (tn) tn.onclick = closeSheet;
+  const ts = $('#takeSel'); if (ts) ts.onclick = () => {
+    const on = new Set($$('#shB .pick.on').map((b) => +b.dataset.i));
+    const got = pile.filter((_, i) => on.has(i)), rest = pile.filter((_, i) => !on.has(i));
+    got.forEach((x) => S.bag.push({ ...x, new: 1 }));
+    if (T.loot) { n.loot = rest; if (!rest.length) S.looted.add(n.id); } else n.drop = rest;
+    const first = !n.searched; n.searched = 1;
+    closeSheet(); S.sel = null; hidePop();
+    if (first && T.loot) spend(T.loot);
+    renderRun();
+    toast(`拿到 ${namesOf(got)}，已放进背包${rest.length ? `；${namesOf(rest)}还留在这里` : ''}`);
+  };
+}
+
+/* ---------- 背包 / 队伍 / 本趟事件 ---------- */
+Object.assign(SHEETS, {
+  // 背包格子可以点：看名字、用途，可以丢掉（5 秒内能撤销）；新拿到的角上有青色小点
+  bag(sel) {
+    const i0 = sel == null ? null : +sel, free = 16 - S.bag.length;
+    const slots = Array.from({ length: 16 }, (_, i) => S.bag[i]);
+    const body = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">${slots.map((b, i) => b
+      ? `<button class="it r${b.r || 0}${i === i0 ? ' sel' : ''}" data-bag="${i}" style="--s:104px" aria-label="${esc(itemName(b))}"><img src="${ico(b.icon)}" alt="">${b.q > 1 ? `<span class="q">${b.q}</span>` : ''}${b.new ? '<i class="new"></i>' : ''}</button>`
+      : '<span class="it empty" style="--s:104px"></span>').join('')}</div>
+      <p style="font-size:14px;margin-top:14px;color:var(--ink2)">撤离后，背包里的东西都带回营地。没撤离就失败的话，它们会留在深渊里。</p>
+      <h4>保险格</h4><div class="lrow">${itemBox({ icon: 'sigil-iron', r: 4 }, 52)}<span><b>寒渊誓约</b><small>雪猎人穿戴中，失败也会留下</small></span></div>`;
+    const it = i0 != null && S.bag[i0];
+    const foot = it ? `<div class="lrow" style="flex:1;padding:0">${itemBox(it, 52)}<span><b>${esc(itemName(it))}${qtyText(it)}</b><small>${RNM[it.r || 0]} · ${itemUse(it)}</small></span></div><button class="btn" id="bagDrop">丢掉</button>` : '';
+    sheet('背包', `还能装 ${free} 件`, body, foot);
+    S.bag.forEach((b) => delete b.new);
+    $$('#shB [data-bag]').forEach((b) => (b.onclick = () => SHEETS.bag(b.dataset.bag)));
+    const d = $('#bagDrop'); if (d) d.onclick = () => {
+      const [x] = S.bag.splice(i0, 1); renderHud(); SHEETS.bag();
+      toast(`已丢掉 ${itemName(x)}`, { undo: () => { S.bag.splice(i0, 0, x); renderHud(); if ($('#sheet').classList.contains('on')) SHEETS.bag(); } });
+    };
+  },
+  squad() {
+    const tier = (p) => (p >= 60 ? '' : p >= 30 ? ' mid' : ' low');
+    sheet('队伍', '生命跨战斗保留', PARTY.map((m, i) => `<div class="lrow"><img src="${P}${m.p}.webp" alt="" style="width:52px;height:52px;border-radius:12px;object-fit:cover;object-position:50% 14%"><span class="grow"><b style="display:flex">${m.nm}<span class="num" style="margin-left:auto;font-weight:500">${Math.round(m.st[2] * S.hp[i] / 100)}<small class="muted" style="display:inline"> / ${m.st[2]}</small></span></b><span class="bar hp${tier(S.hp[i])}" style="margin-top:8px;display:block"><i style="width:${S.hp[i]}%"></i></span></span></div>`).join('')
+      + `<h4>遗物 · ${S.relics.length} / 6</h4>${S.relics.map((r) => `<div class="lrow"><span class="it relic r${r.r}" style="--s:52px"><img src="${ico(r.icon)}" alt=""></span><span><b>${r.nm}</b><small>${r.d}</small></span></div>`).join('')}`
+      + `<p class="muted" style="margin-top:14px">宠物之后开放。</p>`);
+  },
+  events() {
+    const altar = MAP.nodes.find((n) => n.t === 'altar'), found = altar && S.known.has(altar.id);
+    const nests = MAP.nodes.filter((n) => n.t === 'nest'), done = nests.filter((n) => S.cleared.has(n.id)).length;
+    const nest = nests.filter((n) => !S.cleared.has(n.id) && S.known.has(n.id)).sort((a, b) => path(S.cur, a.id).length - path(S.cur, b.id).length)[0];
+    sheet('本趟事件', '插在地图台上的罗盘带来的', `<div class="lrow"><img src="${ico('node-altar')}" alt="" style="width:52px;height:52px"><span><b>血祭</b><small>${found ? `名单上有 ${S.list} 个敌人，满 4 个可以激活祭坛` : '祭坛还没找到'}</small></span><button class="end btn sm" data-pick="${found ? altar.id : ''}"${found ? '' : ' disabled'}>${found ? '在地图上看' : '还没找到'}</button></div>
+      <div class="lrow"><img src="${ico('node-nest')}" alt="" style="width:52px;height:52px"><span><b>劲敌</b><small>${done ? `稀有怪巢打掉 ${done} 个，还剩 ${nests.length - done} 个` : `这张图多了 2 个稀有怪巢，一共 ${nests.length} 个`}</small></span><button class="end btn sm" data-pick="${nest ? nest.id : ''}"${nest ? '' : ' disabled'}>${nest ? '在地图上看' : '还没找到'}</button></div>`);
+    $$('#shB [data-pick]').forEach((b) => (b.onclick = () => { if (!b.dataset.pick) return; closeSheet(); select(b.dataset.pick); }));
+  },
+});
+
+/* ---------- 遭遇预览 ---------- */
+const AFFIX = G.AFFIX;
+const RAR = (u) => (u.lead ? (u.rarity >= 4 ? 4 : 3) : u.rarity);
+// 游荡敌人的掉落：按种子在第一次见到时定下来，预览和结算用同一份，结算页不重新抽
+const DROP_POOL = [['sigil-silver', '星银刻印', 1], ['cur-dust', '刻尘', 0], ['cur-reroll', '重铸石', 2], ['mat-soul', '灵质', 1], ['use-smoke', '烟雾弹', 1], ['sigil-stone', '石纹刻印', 1]];
+function patrolDrop(p) {
+  if (p.drop) return p.drop;
+  const rng = G.makeRng(MAP.seed + '|drop|' + p.enemy + '|' + p.route.join(','));
+  return (p.drop = rng.shuffle(DROP_POOL).slice(0, rng.int(2, 3)).map(([icon, name, r]) => ({ icon, name, r, q: icon === 'cur-dust' ? rng.int(3, 6) : 1 })));
+}
+const RELIC_POOL = [['霜心', '冻结的敌人受到骷髅伤害 +15%', 'cur-quality'], ['雪原之心', '每场战斗开始时首位队员获得 4 点护甲', 'mat-soul'], ['冰魄护符', '冰霜宝石的伤害 +20%', 'mat-memory'], ['寒光指环', '第一回合额外获得 1 次行动', 'sigil-silver']];
+function patrolEnc(p) {
+  const pool = G.BIOMES.winter.pool, lead = pool.high.find((u) => u.nm === p.enemy) || pool.high[0];
+  const mk = (b, r, af) => ({ ...b, st: b.st.map((v, i) => (i === 2 ? Math.round(v * 1.6) : Math.round(v * 1.2))), rarity: r, rk: ['普通', '精良', '稀有'][r], af });
+  // 冰潮每涨两次，游荡敌人的随从多一名精良（后台按冰潮次数加强，界面只说"变强了"）
+  const up = Math.min(2, Math.floor(S.tide / 2));
+  return { kind: '游荡敌人', team: [mk(lead, 2, ['先发', '冰封']), mk(pool.low[0], 1, ['坚甲']), mk(pool.low[2], up >= 1 ? 1 : 0, up >= 1 ? ['再生'] : []), mk(pool.low[3], up >= 2 ? 1 : 0, up >= 2 ? ['荆棘'] : [])],
+    rw: [['node-loot', '2–3 件战利品', '打赢直接放进背包']],
+    tip: (up ? '冰潮涨过之后，它们的随从变强了。' : '') + (S.smoke ? '用烟雾弹：你留在原地，它会走开，之后还可能再碰上。' : '') };
+}
+const KIND_TAG = { 驻守敌人: 'red', 游荡敌人: 'red', 稀有怪巢: 'vio', 领主: 'gold', 首领: 'red', 冰封棺: 'cy' };
+let encCtx = null;
+function openEncounter(n, o) {
+  const e = o.patrol ? patrolEnc(o.patrol) : n.enc;
+  encCtx = { n, ...o, e };
+  // 标签写类别；标题写这一场的名字：领主 / 首领用本名，巡逻写"某某巡逻队"，其余用地名
+  $('#encKind').textContent = e.kind; $('#encKind').className = 'tag ' + (KIND_TAG[e.kind] || 'red');
+  $('#encName').textContent = o.patrol ? `${o.patrol.enemy}巡逻队` : n.name || n.place;
+  const ph = $('#encPhase'); ph.hidden = !e.phases; ph.textContent = `共 ${e.phases} 个阶段`;
+  $('#encWhere').textContent = o.patrol ? `${layerOf(n)} · ${n.place}` : n.name ? `${layerOf(n)} · ${n.place}` : layerOf(n);
+  $('#foes').innerHTML = e.team.map((u) => `<div class="foe">${troopCard(u, { r: RAR(u), sub: u.rk })}<div class="afs">${u.af.length ? u.af.map((a) => `<span class="tag" title="${esc(AFFIX[a][0])} · 对策：${esc(AFFIX[a][1])}"><b class="bad">${a}</b>${esc(AFFIX[a][0])}</span>`).join('') : '<span class="tag">无词缀</span>'}</div></div>`).join('');
+  // 怎么打：全队词缀去重计数，直接列对策
+  const cnt = {}; e.team.forEach((u) => u.af.forEach((a) => (cnt[a] = (cnt[a] || 0) + 1)));
+  $('#encHow').innerHTML = Object.keys(cnt).length ? '<span>怎么打</span>' + Object.entries(cnt).map(([a, k]) => `<span><b>${esc(AFFIX[a][1])}</b>（${a}${k > 1 ? ' ×' + k : ''}）</span>`).join('') : '<span>怎么打</span><span>这队没有词缀，正常打就行</span>';
+  let tip = e.tip || '';
+  if (!o.patrol && MAP.altarRange.has(n.id)) tip += ' 这场在祭坛范围内，敌人会记入血祭名单。';
+  $('#encTip').textContent = tip.trim();
+  $('#encReward').innerHTML = '<small>胜利可得</small>' + (e.rw || []).map(([icon, nm, note]) => `<span class="rwi">${itemBox({ icon, r: 2 }, 32)}<b>${esc(nm)}</b><small>${esc(note)}</small></span>`).join('');
+  // 三种模式的按钮：查看（还没走到）/ 走进战斗区域 / 撞上巡逻。走进去以后不能用 X 或 Esc 绕过
+  const L = $('#encLeave'), F = $('#encFight');
+  $('#encClose').hidden = !o.peek; $('#encNoSmoke').hidden = true; L.hidden = false; L.disabled = false; F.disabled = false;
+  if (o.peek) {
+    const r = path(S.cur, n.id); L.hidden = true;
+    if (r.length === 1) { F.disabled = true; F.textContent = '过不去'; }
+    else F.innerHTML = goLabel(r, '到了就开战');
+  } else {
+    const fightHint = tideIn(2) ? (tideNext(S.cur) ? '打完这里会被冰封' : '打完冰潮会上涨') : '';
+    F.innerHTML = '战斗' + (fightHint ? `<small>${fightHint}</small>` : '');
+    if (o.patrol) {
+      if (S.smoke) L.innerHTML = `烟雾弹脱离<small>剩 ${S.smoke} 个</small>`;
+      else { L.hidden = true; $('#encNoSmoke').hidden = false; }
+    } else if (!S.prev || S.sealed.has(S.prev)) { L.disabled = true; L.textContent = '来路已被冰封'; }
+    else L.innerHTML = `退回${esc(MAP.byId[S.prev].place)}<small>${tideIn(1) ? '退回去冰潮会涨' : '要走一段'}</small>`;
+  }
+  $('#encounter').classList.add('on');
+}
+const closeEnc = () => $('#encounter').classList.remove('on');
+$('#encClose').onclick = closeEnc;
+$('#encounter').addEventListener('click', (e) => { if (e.target.id === 'encounter' && encCtx && encCtx.peek) closeEnc(); });
+$('#encLeave').onclick = () => {
+  const c = encCtx; closeEnc();
+  if (c.patrol) { if (!S.smoke) return; S.smoke--; c.patrol.pos = (c.patrol.pos + 2) % c.patrol.route.length; spend(1); toast(`用掉 1 个烟雾弹，${c.patrol.enemy}走开了`); }
+  else if (S.prev && !S.sealed.has(S.prev)) moveOne(S.prev);
+  renderRun();
+};
+/* 战斗结算：这一场实际入账的东西一次算定（grants），同一份数组既放进背包也交给结算页；
+   留在地图上的（驻守区域变成的战利品堆、背包放不下的）单独列出，写明"留在原地"。没有实际入账的一律不显示，不重新抽 */
+function battleResult(c) {
+  const n = c.n, grants = [], left = [], unlocks = [];
+  const add = (x) => (S.bag.length < 16 ? (S.bag.push({ ...x, new: 1 }), grants.push(x)) : left.push(x));
+  let pile = null, relic = null;
+  if (c.patrol) patrolDrop(c.patrol).forEach(add);
+  else if (n.t === 'guard') pile = n.loot = n.loot || [{ icon: 'sigil-silver', r: 1, name: '星银刻印' }, { icon: 'cur-dust', r: 0, name: '刻尘', q: 5 }];
+  else if (n.t === 'coffin') { (n.loot || []).forEach(add); S.looted.add(n.id); n.loot = []; }
+  else if (n.t === 'nest') {
+    // 遗物三选一：三个选项按种子定好；原型默认选第一个，正式版在结算页让玩家选，选中的那件写进 grants
+    const opts = n.relicOpts || (n.relicOpts = G.makeRng(MAP.seed + '|relic|' + n.id).shuffle(RELIC_POOL).slice(0, 3));
+    const [nm, d, icon] = opts[0]; relic = { nm, d, icon, r: 2 }; S.relics.push(relic);
+  } else if (n.t === 'lord') { add({ icon: 'sigil-silver', r: 3, name: '传说刻印 · 霜纹之握' }); unlocks.push(n.enc.rw[1][1]); }
+  else if (n.t === 'boss') { add({ icon: 'sigil-iron', r: 4, name: '首领刻印 · 寒冬王冠' }); unlocks.push('首杀铭文'); }
+  if (left.length) n.drop = (n.drop || []).concat(left);
+  return { grants, left, pile, relic, unlocks };
+}
+$('#encFight').onclick = () => {
+  const c = encCtx; closeEnc();
+  if (c.peek) return travel(c.n.id);
+  const before = S.list;
+  if (c.patrol) c.patrol.dead = true; else S.cleared.add(c.n.id);
+  if (!c.patrol && MAP.altarRange.has(c.n.id)) S.list = Math.min(8, S.list + c.e.team.length);
+  S.hp = S.hp.map((v, i) => Math.max(5, v - 8 - ((i * 7 + S.step) % 13)));
+  const res = battleResult(c);
+  spend(2);
+  renderRun();
+  settleSheet(c, res, S.list - before);
+};
+// 战斗结算页（原型）：只显示这一场真实拿到的名称和数量
+function settleSheet(c, res, listUp) {
+  const row = (x, tag) => `<div class="lrow">${itemBox(x)}<span><b>${esc(itemName(x))}${qtyText(x)}</b><small>${RNM[x.r || 0]}</small></span>${tag ? `<span class="end tag ${tag[1]}">${tag[0]}</span>` : ''}</div>`;
+  const got = res.grants.map((x) => row(x, ['已放进背包', 'good'])).join('')
+    + (res.relic ? `<div class="lrow"><span class="it relic r2" style="--s:52px"><img src="${ico(res.relic.icon)}" alt=""></span><span><b>遗物 · ${res.relic.nm}</b><small>${res.relic.d}</small></span><span class="end tag good">已获得</span></div>` : '')
+    + res.unlocks.map((u) => `<div class="lrow">${itemBox({ icon: 'mat-soul', r: 3 })}<span><b>解锁：${esc(u)}</b><small>首次击败</small></span></div>`).join('');
+  const body = `<h4>本场获得</h4>${got || '<p class="muted">这一场没有直接放进背包的东西。</p>'}`
+    + (res.pile ? `<h4>留在原地</h4>${res.pile.map((x) => row(x)).join('')}<p class="muted" style="font-size:13px">这一堆在${esc(c.n.place)}，点"搜刮"就能拿。</p>` : '')
+    + (res.left.length ? `<h4>背包满了，留在原地</h4>${res.left.map((x) => row(x)).join('')}` : '')
+    + (listUp ? `<p class="note" style="margin-top:14px">血祭名单 +${listUp}</p>` : '')
+    + (res.relic ? '<p class="muted" style="font-size:13px">原型里遗物默认选第一个；正式版在这里让你三选一。</p>' : '');
+  sheet('胜利', (c.patrol ? c.patrol.enemy + '巡逻队' : c.n.name || c.n.place) + ' · 战斗结算', body, `<button class="primary" id="setOk" style="flex:1">回到地图</button>`);
+  $('#setOk').onclick = () => { closeSheet(); select(S.cur); };
+}
+
+/* ---------- 原型工具条 ---------- */
+$('#regen').onclick = () => newRun($('#seed').value.trim() || 'abyss', $('#rtype').value);
+$('#reseed').onclick = () => newRun('frost-' + Math.floor(1000 + Math.random() * 9000), $('#rtype').value);
+$('#rtype').onchange = () => newRun($('#seed').value.trim() || 'abyss', $('#rtype').value);
+$$('#segRun [data-rt]').forEach((b) => (b.onclick = () => newRun($('#seed').value.trim() || 'abyss', b.dataset.rt)));
+
+newRun($('#seed').value, 'standard');
+applyPass();
+function routeFromHash() {
+  const h = location.hash.slice(1);
+  if (h === 'encounter') { go('run'); const lord = MAP.nodes.find((n) => n.t === 'lord'); openEncounter(lord, { peek: true }); return; }
+  if (['camp', 'device', 'prepare', 'run'].includes(h)) go(h);
+}
+addEventListener('hashchange', routeFromHash); routeFromHash();
+</script>
+</body>
+</html>

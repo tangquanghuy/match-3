@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>深渊远征 · 营地 / 出征 / 地图 高保真稿 v1</title>
+<style>
+:root{
+  --A:'../../game-assets/bundled/meta/expedition/';
+  --g1:#f6e7bd; --g2:#d9b46a; --g3:#9c7438; --g4:#5a4120;
+  --ink:#ece3cf; --ink2:#bfb39b; --ink3:#8b8170; --ink4:#5e574c;
+  --teal:#6fe0d2; --teal2:#2e8f88; --ember:#ffad55; --blood:#d4483c; --life:#e0605a; --good:#8fdcb0;
+  --r0:#aab2ad; --r1:#4caf6a; --r2:#a66be0; --r3:#ffe24a; --r4:#e07b35; --r5:#56d8ff;
+  --disp:"STZhongsong","Noto Serif SC","Songti SC","SimSun",serif;
+  --num:"Palatino Linotype","Book Antiqua",Georgia,serif;
+  --body:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .9 0 0 0 0 .75 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --cTL:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><path d='M1.5 29V10L10 1.5h19' fill='none' stroke='%23d9b46a' stroke-width='1.4'/><path d='M5.5 29V12l6.5-6.5h17' fill='none' stroke='%23d9b46a' stroke-opacity='.35'/><path d='M10 5.5l4.5 4.5L10 14.5 5.5 10z' fill='%23f6e7bd'/><circle cx='10' cy='10' r='1.3' fill='%235a4120'/></svg>");
+  --cTR:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><g transform='translate(30 0) scale(-1 1)'><path d='M1.5 29V10L10 1.5h19' fill='none' stroke='%23d9b46a' stroke-width='1.4'/><path d='M5.5 29V12l6.5-6.5h17' fill='none' stroke='%23d9b46a' stroke-opacity='.35'/><path d='M10 5.5l4.5 4.5L10 14.5 5.5 10z' fill='%23f6e7bd'/><circle cx='10' cy='10' r='1.3' fill='%235a4120'/></g></svg>");
+  --cBL:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><g transform='translate(0 30) scale(1 -1)'><path d='M1.5 29V10L10 1.5h19' fill='none' stroke='%23d9b46a' stroke-width='1.4'/><path d='M5.5 29V12l6.5-6.5h17' fill='none' stroke='%23d9b46a' stroke-opacity='.35'/><path d='M10 5.5l4.5 4.5L10 14.5 5.5 10z' fill='%23f6e7bd'/><circle cx='10' cy='10' r='1.3' fill='%235a4120'/></g></svg>");
+  --cBR:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><g transform='translate(30 30) scale(-1 -1)'><path d='M1.5 29V10L10 1.5h19' fill='none' stroke='%23d9b46a' stroke-width='1.4'/><path d='M5.5 29V12l6.5-6.5h17' fill='none' stroke='%23d9b46a' stroke-opacity='.35'/><path d='M10 5.5l4.5 4.5L10 14.5 5.5 10z' fill='%23f6e7bd'/><circle cx='10' cy='10' r='1.3' fill='%235a4120'/></g></svg>");
+  --div:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='10'><path d='M11 0l5 5-5 5-5-5z' fill='%23d9b46a'/><path d='M0 5h5M17 5h5' stroke='%23d9b46a'/></svg>");
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#030405;color:var(--ink);font:14px/1.5 var(--body);overflow:hidden}
+h1,h2,h3,h4,p{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+img{display:block;user-select:none;-webkit-user-drag:none}
+b,.n{font-family:var(--num);font-variant-numeric:tabular-nums}
+
+/* ============ 原型外壳 ============ */
+.proto{position:fixed;left:0;right:0;top:0;height:40px;z-index:100;display:flex;align-items:center;gap:6px;padding:0 16px;background:#050608;border-bottom:1px solid #2a2418;font-size:12px;color:#9a917f}
+.proto strong{font-family:var(--disp);color:var(--g2);font-size:14px;margin-right:12px;letter-spacing:.1em}
+.proto button{padding:4px 12px;border:1px solid #2f281c;border-radius:3px;color:#cbbf9f}
+.proto button.on{background:#2a2213;border-color:var(--g3);color:var(--g1)}
+.proto .sp{flex:1}
+.proto label{display:flex;align-items:center;gap:6px;cursor:pointer}
+#viewport{position:fixed;left:0;right:0;top:40px;bottom:0;display:grid;place-items:center;overflow:hidden}
+#stage{position:relative;width:1600px;height:900px;flex:none;overflow:hidden;background:#07090b;transform-origin:center;box-shadow:0 0 0 1px #1b1710,0 30px 80px #000}
+.screen{position:absolute;inset:0;display:none}
+.screen.on{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+/* ============ 通用：背景与氛围 ============ */
+.bg{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 46%,transparent 40%,rgba(2,3,5,.72) 100%)}
+.grain{position:absolute;inset:0;pointer-events:none;background:var(--noise);mix-blend-mode:overlay;opacity:.9}
+.embers{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.embers i{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#ffb565;box-shadow:0 0 6px 2px rgba(255,150,60,.6);opacity:0;animation:rise linear infinite}
+@keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:.9}100%{transform:translate(var(--dx),-620px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.embers{display:none}*{animation-duration:.01s!important}}
+
+/* ============ 通用：面板 ============ */
+.pnl{position:absolute;background:linear-gradient(180deg,rgba(22,24,28,.9),rgba(11,12,15,.93)),var(--noise);border:1px solid #4d3e25;box-shadow:inset 0 0 0 1px rgba(0,0,0,.85),inset 0 0 0 2px rgba(217,180,106,.13),inset 0 30px 60px -40px rgba(217,180,106,.18),0 20px 50px rgba(0,0,0,.65)}
+.pnl::before,.pnl::after{content:"";position:absolute;pointer-events:none;inset:-5px}
+.pnl::before{background:var(--cTL) left top no-repeat,var(--cTR) right top no-repeat}
+.pnl::after{background:var(--cBL) left bottom no-repeat,var(--cBR) right bottom no-repeat}
+.pnl.glass{background:linear-gradient(180deg,rgba(14,15,18,.72),rgba(8,9,11,.82)),var(--noise);backdrop-filter:blur(3px)}
+.ph{display:flex;align-items:center;gap:10px;padding:13px 18px 11px;position:relative}
+.ph::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:10px;background:var(--div) center/22px 10px no-repeat,linear-gradient(90deg,transparent,#6d5530 20%,#6d5530 80%,transparent) center/100% 1px no-repeat}
+.ph h3{font:19px var(--disp);letter-spacing:.18em;background:linear-gradient(180deg,#fff3cf,#d9b46a 60%,#a47d3f);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.ph small{margin-left:auto;font-size:12px;color:var(--ink3)}
+.pb{padding:14px 18px}
+.title-xl{font:44px/1.1 var(--disp);letter-spacing:.22em;background:linear-gradient(180deg,#fffaf0 0%,#f2dca2 45%,#b88a43 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 rgba(0,0,0,.8)) drop-shadow(0 0 24px rgba(0,0,0,.6))}
+.kicker{font:11px var(--num);letter-spacing:.42em;color:#b89a62;text-transform:uppercase}
+.muted{color:var(--ink3)} .dim{color:var(--ink4)} .gold{color:var(--g1)} .warn{color:#f0c062} .bad{color:#f08a7a} .good{color:var(--good)} .tealc{color:var(--teal)}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.hr{height:1px;margin:10px 0;background:linear-gradient(90deg,transparent,#4a3c25 15%,#4a3c25 85%,transparent)}
+
+/* ============ 通用：按钮 ============ */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 20px;font:15px var(--disp);letter-spacing:.12em;color:#e9d8ac;background:linear-gradient(180deg,#2d2a25,#15130f);border:1px solid #6e5631;box-shadow:inset 0 1px 0 rgba(255,236,190,.12),inset 0 -8px 16px rgba(0,0,0,.4),0 4px 10px rgba(0,0,0,.5);clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);transition:filter .15s,transform .1s}
+.btn:hover{filter:brightness(1.25)}
+.btn:active{transform:translateY(1px)}
+.btn.sm{height:30px;padding:0 14px;font-size:13px}
+.btn.off{filter:grayscale(.9) brightness(.6);cursor:not-allowed}
+.btn.red{color:#ffd7cc;background:linear-gradient(180deg,#5a1f1a,#2a0d0b);border-color:#9b4436}
+.cta{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;height:74px;padding:0 44px;color:#2b1a08;background:linear-gradient(180deg,#fbe8b4 0%,#e1bb6f 38%,#a8772f 62%,#d6a95c 100%);border:1px solid #fff0c4;box-shadow:inset 0 0 0 2px rgba(80,50,15,.55),inset 0 2px 0 rgba(255,255,255,.6),0 0 30px rgba(255,180,80,.25),0 10px 24px rgba(0,0,0,.7);clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,18px 100%,0 50%);overflow:hidden;transition:filter .15s}
+.cta b{font:26px var(--disp);letter-spacing:.42em;margin-right:-.42em;text-shadow:0 1px 0 rgba(255,240,200,.6)}
+.cta small{font-size:12px;letter-spacing:.12em;color:#5b3a12;margin-top:2px}
+.cta::after{content:"";position:absolute;top:0;bottom:0;width:60px;left:-80px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:sheen 3.6s ease-in-out infinite}
+@keyframes sheen{0%,60%{left:-80px}100%{left:110%}}
+.cta:hover{filter:brightness(1.08) saturate(1.1)}
+.cta.ember{background:linear-gradient(180deg,#ffd29a 0%,#ff9c45 40%,#b4471a 70%,#e2763a 100%);border-color:#ffe0b8;box-shadow:inset 0 0 0 2px rgba(90,25,5,.55),inset 0 2px 0 rgba(255,255,255,.5),0 0 40px rgba(255,120,40,.4),0 10px 24px rgba(0,0,0,.7)}
+.cta.ember small{color:#5a1a05}
+
+/* ============ 通用：顶栏 ============ */
+.topbar{position:absolute;left:0;right:0;top:0;height:66px;z-index:20;display:flex;align-items:center;gap:16px;padding:0 22px;background:linear-gradient(180deg,rgba(5,6,8,.96),rgba(5,6,8,.78) 70%,rgba(5,6,8,0));}
+.topbar::after{content:"";position:absolute;left:0;right:0;top:58px;height:1px;background:linear-gradient(90deg,transparent,#7a5d2e 25%,#d9b46a 50%,#7a5d2e 75%,transparent)}
+.back{display:flex;align-items:center;gap:10px;height:40px;padding:0 16px 0 10px;border:1px solid #4d3e25;background:linear-gradient(180deg,#1d1b17,#0e0d0b);clip-path:polygon(14px 0,100% 0,100% 100%,14px 100%,0 50%);color:var(--ink2);font:14px var(--disp);letter-spacing:.1em}
+.back::before{content:"";width:10px;height:10px;border-left:2px solid var(--g2);border-bottom:2px solid var(--g2);transform:rotate(45deg);margin-left:8px}
+.place{display:flex;flex-direction:column;line-height:1.15}
+.place b{font:22px var(--disp);letter-spacing:.24em;color:var(--g1);text-shadow:0 2px 0 #000}
+.place small{font-size:11px;color:#a8946a;letter-spacing:.2em}
+.wallet{margin-left:auto;display:flex;gap:6px}
+.coin{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 4px;border:1px solid #3d3220;background:linear-gradient(180deg,rgba(28,26,22,.9),rgba(10,10,9,.9));border-radius:18px;box-shadow:inset 0 1px 0 rgba(255,230,180,.06)}
+.coin img{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 2px 2px #000)}
+.coin b{font-size:15px;color:#f1e3bf}
+.coin small{font-size:11px;color:var(--ink3)}
+.iconbtn{width:40px;height:40px;display:grid;place-items:center;border:1px solid #4d3e25;background:linear-gradient(180deg,#1d1b17,#0e0d0b);transform:rotate(45deg);margin:0 6px}
+.iconbtn span{transform:rotate(-45deg);font:16px var(--disp);color:var(--g2)}
+
+/* ============ 通用：物品格 ============ */
+.slot{position:relative;width:68px;height:68px;flex:none;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#25221d,#0b0b0a 75%);border:1px solid #3e3424;box-shadow:inset 0 0 0 1px #000,inset 0 0 14px rgba(0,0,0,.9)}
+.slot img{width:82%;height:82%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.8))}
+.slot .q{position:absolute;right:4px;bottom:1px;font:600 14px var(--num);color:#fff3d6;text-shadow:0 0 3px #000,0 1px 0 #000,0 0 6px #000}
+.slot.empty{background:radial-gradient(circle,#15130f,#080807 75%)}
+.slot.empty::after{content:"";width:16px;height:16px;border:1px solid #3a3121;transform:rotate(45deg)}
+.slot[class*="r"]{--rc:transparent}
+.slot.r1{--rc:var(--r1)} .slot.r2{--rc:var(--r2)} .slot.r3{--rc:var(--r3)} .slot.r4{--rc:var(--r4)} .slot.r5{--rc:var(--r5)} .slot.r0{--rc:var(--r0)}
+.slot.r0,.slot.r1,.slot.r2,.slot.r3,.slot.r4,.slot.r5{border-color:color-mix(in srgb,var(--rc) 75%,#000);background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--rc) 30%,#15130f),#0b0b0a 78%);box-shadow:inset 0 0 0 1px #000,inset 0 0 16px color-mix(in srgb,var(--rc) 25%,transparent),0 0 10px color-mix(in srgb,var(--rc) 22%,transparent)}
+.slot.sel{outline:2px solid var(--g1);outline-offset:2px}
+.rn{color:var(--rc)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;font-size:11px;letter-spacing:.06em;border:1px solid #4d3e25;background:#14120e;color:var(--ink2)}
+.tag.teal{border-color:#2d6a64;color:var(--teal);background:#0b1715}
+.tag.red{border-color:#7a3027;color:#f3a090;background:#1c0c0a}
+.tag.gold{border-color:#7a5d2e;color:var(--g1);background:#1c1609}
+.dot{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff9b8a,#d6322a 60%,#7a1410);box-shadow:0 0 0 2px #120806,0 0 8px #ff4a3a}
+
+/* ============ 营地 ============ */
+#camp .bg{background-image:url(../../game-assets/bundled/meta/expedition/scene-camp.webp);background-position:50% 55%}
+#camp .bg.glow{mix-blend-mode:screen;opacity:0;transition:opacity .3s}
+.hs{position:absolute;z-index:5;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer}
+.hs .plaque{position:relative;display:flex;align-items:center;gap:10px;padding:6px 18px 6px 8px;min-width:150px;background:linear-gradient(180deg,rgba(20,18,14,.94),rgba(8,8,7,.94));border:1px solid #6b5430;box-shadow:inset 0 0 0 1px #000,0 8px 20px rgba(0,0,0,.6);clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);transition:border-color .2s,transform .2s}
+.hs .plaque img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 3px #000)}
+.hs .plaque b{display:block;font:17px var(--disp);letter-spacing:.14em;color:var(--g1);font-weight:400}
+.hs .plaque small{display:block;font-size:11px;color:var(--ink3);letter-spacing:.04em;white-space:nowrap}
+.hs .stem{width:1px;height:var(--stem,46px);background:linear-gradient(180deg,#d9b46a,rgba(217,180,106,0))}
+.hs .pin{width:12px;height:12px;border:1px solid var(--g1);transform:rotate(45deg);background:#2a1f0e;box-shadow:0 0 12px 3px rgba(255,200,110,.55);margin-top:-2px}
+.hs:hover .plaque{border-color:var(--g1);transform:translateY(-3px)}
+.hs:hover .pin{background:var(--g1)}
+.hs .dot{right:-4px;top:-4px}
+.hs .pulse{position:absolute;left:50%;bottom:-24px;width:120px;height:46px;margin-left:-60px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,190,100,.35),transparent 70%);opacity:0;transition:opacity .25s;pointer-events:none}
+.hs:hover .pulse{opacity:1}
+.hs.main .plaque{padding:10px 26px 10px 10px;border-color:#a7854a;background:linear-gradient(180deg,rgba(40,30,14,.95),rgba(12,10,7,.95))}
+.hs.main .plaque img{width:52px;height:52px}
+.hs.main .plaque b{font-size:21px}
+
+.dossier{left:22px;top:84px;width:318px}
+.lvl{display:flex;align-items:center;gap:14px;padding:16px 18px 8px}
+.lvl .ring{position:relative;width:70px;height:70px;border-radius:50%;background:conic-gradient(var(--g2) 0 62%,#2a241a 0);display:grid;place-items:center;box-shadow:0 0 0 2px #0c0b09,0 0 0 3px #6b5430}
+.lvl .ring::after{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#2b251b,#0e0d0b)}
+.lvl .ring b{position:relative;z-index:1;font-size:28px;color:var(--g1)}
+.lvl .t b{font:18px var(--disp);letter-spacing:.14em;color:var(--g1);font-weight:400}
+.season{display:flex;align-items:center;gap:10px;padding:8px 18px 14px;font-size:12px;color:var(--ink3)}
+.biome-strip{display:flex;flex-direction:column;gap:8px;padding:12px 14px 14px}
+.bstrip{position:relative;height:74px;overflow:hidden;border:1px solid #3e3424;display:flex;align-items:flex-end;padding:8px 12px;cursor:pointer;transition:border-color .2s}
+.bstrip .art{position:absolute;inset:0;background-size:cover;background-position:50% 30%;filter:saturate(.9);transition:transform .4s}
+.bstrip::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(6,7,9,.92) 0%,rgba(6,7,9,.55) 55%,rgba(6,7,9,.1))}
+.bstrip>div{position:relative;z-index:2;width:100%}
+.bstrip b{font:18px var(--disp);letter-spacing:.16em;color:#f5ead0;font-weight:400}
+.bstrip small{display:block;font-size:11px;color:#c8bba0}
+.bstrip .depth{position:absolute;right:10px;top:8px;z-index:2;font-size:11px;color:var(--ink2)}
+.bstrip:hover{border-color:var(--g2)} .bstrip:hover .art{transform:scale(1.06)}
+.bstrip.lock::after{content:"未去过";position:absolute;right:10px;bottom:8px;z-index:2;font-size:11px;color:var(--ink3)}
+.quests .q{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(80,66,40,.35);font-size:13px}
+.quests .q:last-child{border:0}
+.quests .q i{width:8px;height:8px;transform:rotate(45deg);border:1px solid var(--g3);flex:none}
+.quests .q.done i{background:var(--good);border-color:var(--good)}
+.quests .q span{flex:1}
+.quests .q em{font-style:normal;font:13px var(--num);color:var(--ink2)}
+.bar{position:relative;height:8px;background:#0a0908;border:1px solid #3a3022;box-shadow:inset 0 1px 3px #000}
+.bar>i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#f2d38e,#b6853c);box-shadow:0 0 8px rgba(242,211,142,.4)}
+.bar.soul>i{background:linear-gradient(180deg,#e79ad6,#8a3c9e)}
+
+.dock{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:10;display:flex;gap:4px;align-items:flex-end;padding:0 18px}
+.dock::before{content:"";position:absolute;left:0;right:0;bottom:-16px;height:70px;background:radial-gradient(ellipse 50% 100% at 50% 100%,rgba(0,0,0,.9),transparent)}
+.dk{position:relative;width:96px;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;padding-bottom:8px;color:var(--ink2);font:14px var(--disp);letter-spacing:.14em;transition:transform .15s}
+.dk .gem{position:absolute;top:2px;width:62px;height:62px;display:grid;place-items:center}
+.dk .gem::before{content:"";position:absolute;inset:9px;transform:rotate(45deg);border:1px solid #6b5430;background:radial-gradient(circle at 50% 40%,#2a251c,#0b0a08);box-shadow:inset 0 0 0 1px #000,0 6px 14px rgba(0,0,0,.7)}
+.dk img{position:relative;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 3px 4px #000)}
+.dk:hover{transform:translateY(-4px);color:var(--g1)}
+.dk:hover .gem::before{border-color:var(--g1);box-shadow:inset 0 0 0 1px #000,0 0 18px rgba(255,200,110,.35)}
+.dk .dot{right:16px;top:6px}
+.dk.lock{opacity:.45}
+.qpop{display:none;left:50%;bottom:100px;width:330px;transform:translateX(-50%);text-align:left;letter-spacing:0;font:13px var(--body);color:var(--ink)}
+.qpop .quests{display:block}
+.qpop .q{display:flex}
+#questBtn:hover .qpop,#questBtn:focus .qpop{display:block}
+.go{position:absolute;right:28px;bottom:26px;z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.go .ribbon{display:flex;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(90deg,transparent,rgba(10,9,7,.9) 18%);font-size:13px;color:var(--ink2)}
+.go .ribbon b{color:var(--g1);font-size:15px}
+.runbanner{position:absolute;left:50%;top:84px;transform:translateX(-50%);z-index:10;display:none;align-items:center;gap:16px;padding:10px 26px;background:linear-gradient(90deg,transparent,rgba(70,30,8,.9) 15%,rgba(70,30,8,.9) 85%,transparent);border-top:1px solid #ff9c4566;border-bottom:1px solid #ff9c4566;color:#ffe2c0;font-size:14px;letter-spacing:.06em}
+.runbanner b{font:17px var(--disp);color:#ffd59a;letter-spacing:.14em}
+#camp.running .runbanner{display:flex}
+</style>
+</head>
+<body>
+<div class="proto" role="toolbar" aria-label="原型导航">
+  <strong>深渊远征 · 高保真稿 v1</strong>
+  <button data-go="camp" class="on">营地</button>
+  <button data-go="device">地图台</button>
+  <button data-go="prepare">出征准备</button>
+  <button data-go="run">局内地图</button>
+  <span class="sp"></span>
+  <label><input type="checkbox" id="tRunning"> 营地：有进行中的远征</label>
+  <span>1600×900 · 自动缩放</span>
+</div>
+<div id="viewport"><div id="stage">
+
+<!-- ===================================================== 营地 ===================================================== -->
+<section class="screen on" id="camp" aria-label="营地">
+  <div class="bg"></div>
+  <div class="embers" id="campEmbers"></div>
+  <div class="vig"></div>
+  <div class="grain"></div>
+
+  <header class="topbar">
+    <button class="back" data-go="camp">王国地图</button>
+    <div class="place"><b>深渊营地</b><small>第一赛季 · 余烬之年 · 剩余 23 天</small></div>
+    <div class="wallet">
+      <div class="coin"><img src="../../game-assets/bundled/chrome/gold.png" alt=""><b>1,284,300</b></div>
+      <div class="coin"><img src="../../game-assets/bundled/chrome/gem.png" alt=""><b>2,410</b></div>
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/cur-reroll.webp" alt=""><b>9</b><small>重铸石</small></div>
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/cur-break.webp" alt=""><b>2</b><small>破限石</small></div>
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/mat-soul.webp" alt=""><b>38</b><small>/75 燃烧灵魂</small></div>
+    </div>
+    <button class="iconbtn" aria-label="邮件"><span>信</span></button>
+  </header>
+
+  <div class="runbanner"><span>进行中</span><b>寒冬堡垒 · 阶 6</b><span>已走 14 / 36 步 · 背包 9/16 · 命数 2</span></div>
+
+  <!-- 建筑热点 -->
+  <button class="hs main" style="left:770px;top:300px;--stem:44px" data-go="device"><span class="plaque"><img src="../../game-assets/bundled/meta/expedition/node-extract.webp" alt=""><span><b>深渊石阶</b><small>出征 · 选择路引与群系</small></span></span><span class="stem"></span><span class="pin"></span><span class="pulse"></span></button>
+  <button class="hs" style="left:400px;top:625px;--stem:22px" data-go="device"><span class="plaque"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt=""><span><b>地图台</b><small>指挥帐篷 · 路引 · 罗盘</small></span></span><span class="stem"></span><span class="pin"></span><span class="pulse"></span></button>
+  <button class="hs" style="left:848px;top:690px;--stem:70px"><span class="plaque"><img src="../../game-assets/bundled/meta/expedition/node-fire.webp" alt=""><span><b>补给站</b><small>火把 · 药剂 · 免费补给已就绪</small></span></span><span class="stem"></span><span class="pin"></span><span class="pulse"></span><i class="dot"></i></button>
+  <button class="hs" style="left:1360px;top:598px;--stem:40px"><span class="plaque"><img src="../../game-assets/bundled/meta/expedition/cur-tier.webp" alt=""><span><b>熔炉工坊</b><small>刻印打造 · 2 件可升阶</small></span></span><span class="stem"></span><span class="pin"></span><span class="pulse"></span><i class="dot"></i></button>
+  <button class="hs" style="left:1456px;top:190px;--stem:30px"><span class="plaque"><img src="../../game-assets/bundled/meta/expedition/node-wander.webp" alt=""><span><b>瞭望塔</b><small>情报 · 群系图鉴</small></span></span><span class="stem"></span><span class="pin"></span><span class="pulse"></span></button>
+  <button class="hs" style="left:186px;top:770px;--stem:22px"><span class="plaque"><img src="../../game-assets/bundled/meta/expedition/node-chest.webp" alt=""><span><b>仓库</b><small>196 / 200 · 将满</small></span></span><span class="stem"></span><span class="pin"></span><span class="pulse"></span><i class="dot"></i></button>
+
+  <!-- 左栏：远征档案 -->
+  <aside class="pnl glass dossier">
+    <div class="lvl">
+      <div class="ring"><b>14</b></div>
+      <div class="t grow"><b>远征等级</b><div class="bar" style="margin:6px 0 4px"><i style="width:62%"></i></div><div class="muted" style="font-size:12px">3,720 / 6,000 · 15 级开放保险格 2</div></div>
+    </div>
+    <div class="season"><span>最深撤离</span><b class="gold" style="font-size:15px">阶 6</b><span style="margin-left:auto">本周燃烧灵魂</span><b class="gold" style="font-size:15px">38</b><span>/75</span></div>
+    <div class="ph"><h3>本周深渊</h3><small>周一轮换 · 剩 3 天</small></div>
+    <div class="biome-strip">
+      <div class="bstrip" data-go="device"><span class="art" style="background-image:url(../../game-assets/bundled/meta/expedition/biome-spire.webp)"></span><span class="depth">常驻 · 最深 阶 5</span><div><b>中央尖塔</b><small>全池出敌 · 每周借 2 名领主</small></div></div>
+      <div class="bstrip" data-go="device"><span class="art" style="background-image:url(../../game-assets/bundled/meta/expedition/biome-winter.webp)"></span><span class="depth">最深 阶 6</span><div><b>寒冬堡垒</b><small>霜噬 · 冻结目标骷髅伤害 ×1.3</small></div></div>
+      <div class="bstrip lock" data-go="device"><span class="art" style="background-image:url(../../game-assets/bundled/meta/expedition/biome-broken.webp)"></span><span class="depth">首领 · 焚城</span><div><b>破碎之地</b><small>余烬 · 阵亡时留下燃烧宝石</small></div></div>
+    </div>
+  </aside>
+
+  <!-- 底部导航 -->
+  <nav class="dock" aria-label="营地功能">
+    <button class="dk"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""></span>刻印</button>
+    <button class="dk"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/node-chest.webp" alt=""></span>仓库<i class="dot"></i></button>
+    <button class="dk"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/cur-tier.webp" alt=""></span>工坊</button>
+    <button class="dk"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt=""></span>星图</button>
+    <button class="dk" id="questBtn"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span>委托<i class="dot"></i>
+      <span class="qpop pnl"><span class="ph"><h3>委托</h3><small>撤离时结算</small></span><span class="pb quests">
+        <span class="q"><i></i><span>用 3 词缀以上的路引撤离</span><em>0/1</em></span>
+        <span class="q"><i></i><span>在一次血祭里延期 2 件恩惠</span><em>1/2</em></span>
+        <span class="q done"><i></i><span>击败本群系的两名领主</span><em class="good">完成</em></span>
+        <span class="q"><i></i><span>周委托 · 魔方连续抽取 6 次不激怒</span><em>2/6</em></span>
+      </span></span></button>
+    <button class="dk"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/mat-memory.webp" alt=""></span>记忆</button>
+    <button class="dk lock"><span class="gem"><img src="../../game-assets/bundled/meta/expedition/mat-purse.webp" alt=""></span>交易行</button>
+  </nav>
+
+  <div class="go">
+    <div class="ribbon"><span>上一趟</span><b>寒冬堡垒 · 阶 6</b><span>血祭 + 劲敌</span></div>
+    <div class="row" style="gap:12px">
+      <button class="btn">再来一趟</button>
+      <button class="cta" id="campCta" data-go="device"><b>出征</b><small>前往地图台</small></button>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ============ 地图台 ============ */
+#device .bg{background-image:url(../../game-assets/bundled/meta/expedition/scene-device.webp);background-size:1600px auto;background-position:50% -150px}
+.tabs{position:absolute;left:50%;top:74px;transform:translateX(-50%);z-index:12;display:flex;gap:2px}
+.tab{position:relative;height:38px;padding:0 26px;font:15px var(--disp);letter-spacing:.2em;color:var(--ink3);background:linear-gradient(180deg,rgba(20,18,14,.85),rgba(8,8,7,.85));border:1px solid #3a3022}
+.tab.on{color:var(--g1);border-color:#8a6a37;background:linear-gradient(180deg,rgba(60,44,20,.9),rgba(16,12,7,.9))}
+.tab.on::after{content:"";position:absolute;left:20%;right:20%;bottom:-1px;height:2px;background:var(--g1);box-shadow:0 0 10px var(--g2)}
+.inv{left:22px;top:126px;bottom:22px;width:330px;display:flex;flex-direction:column}
+.filters{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 4px}
+.chip{height:26px;padding:0 11px;font-size:12px;color:var(--ink2);border:1px solid #3a3022;background:#0f0e0b;border-radius:13px}
+.chip.on{color:var(--g1);border-color:#8a6a37;background:#241b0c}
+.passlist{flex:1;min-height:0;overflow-y:auto;padding:8px 8px 18px 12px;display:flex;flex-direction:column;gap:6px;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 36px),transparent);scrollbar-width:thin;scrollbar-color:#5a4626 transparent}
+.passlist>.pass{flex:none}
+.passlist::-webkit-scrollbar{width:4px}.passlist::-webkit-scrollbar-thumb{background:#5a4626}
+.pass{position:relative;display:flex;align-items:center;gap:12px;padding:8px 10px 8px 8px;border:1px solid #2f281c;background:linear-gradient(90deg,color-mix(in srgb,var(--rc) 12%,#0e0d0b),#0b0a09 70%);cursor:pointer;transition:border-color .15s}
+.pass:hover{border-color:#6b5430}
+.pass.sel{border-color:var(--rc);box-shadow:0 0 0 1px color-mix(in srgb,var(--rc) 40%,transparent),0 0 18px color-mix(in srgb,var(--rc) 20%,transparent)}
+.pass .slot{width:52px;height:52px}
+.pass .tier{font:24px var(--num);color:var(--g1);width:44px;text-align:center;line-height:1}
+.pass .tier small{display:block;font:10px var(--body);color:var(--ink3);letter-spacing:.1em}
+.pass b{font:15px var(--disp);font-weight:400;color:var(--rc)}
+.pass .m{font-size:11px;color:var(--ink3)}
+.pass .cnt{margin-left:auto;font:16px var(--num);color:var(--ink2)}
+.r0v{--rc:var(--r0)} .r1v{--rc:var(--r1)} .r2v{--rc:var(--r2)} .r3v{--rc:var(--r3)} .r4v{--rc:var(--r4)} .r5v{--rc:var(--r5)}
+/* 机关上的插槽 */
+.sock{position:absolute;z-index:6;transform:translate(-50%,-50%);display:grid;place-items:center;border-radius:50%;cursor:pointer}
+.sock.main{width:190px;height:190px}
+.sock.main::before{content:"";position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--rc) 45%,transparent) 0%,transparent 65%);animation:breath 3.2s ease-in-out infinite}
+@keyframes breath{50%{opacity:.55;transform:scale(1.06)}}
+.sock.main .core{position:relative;width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(30,20,40,.85),rgba(5,6,8,.95) 70%);box-shadow:0 0 0 2px #1b1408,0 0 0 4px #8a6a37,0 0 0 5px #000,inset 0 0 40px color-mix(in srgb,var(--rc) 45%,transparent)}
+.sock.main img{position:absolute;width:108px;height:108px;object-fit:contain;top:6px;filter:drop-shadow(0 6px 10px #000)}
+.sock.main .lv{position:absolute;bottom:18px;font:30px var(--num);color:#fff4d8;text-shadow:0 0 8px #000,0 2px 0 #000}
+.sock.main .lbl{position:absolute;top:100%;margin-top:6px;white-space:nowrap;text-align:center}
+.sock.main .lbl b{display:block;font:20px var(--disp);letter-spacing:.2em;color:var(--rc);font-weight:400;text-shadow:0 2px 4px #000}
+.sock.main .lbl small{font-size:12px;color:var(--ink2);text-shadow:0 1px 3px #000}
+.sock.c{width:104px;height:104px}
+.sock.c .core{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(10,30,30,.75),rgba(4,6,7,.95));box-shadow:0 0 0 2px #120d06,0 0 0 3px #8a6a37,inset 0 0 26px rgba(111,224,210,.45)}
+.sock.c img{width:66px;height:66px;object-fit:contain;filter:drop-shadow(0 4px 6px #000)}
+.sock.c .lbl{position:absolute;top:100%;margin-top:2px;white-space:nowrap;text-align:center;padding:3px 10px;background:rgba(6,7,8,.85);border:1px solid #3a3022}
+.sock.c.up .lbl{top:auto;bottom:100%;margin:0 0 2px}
+.sock.c .lbl b{font:14px var(--disp);color:var(--teal);letter-spacing:.12em;font-weight:400}
+.sock.c .lbl small{display:block;font-size:11px;color:var(--ink3)}
+.sock.c.empty .core{box-shadow:0 0 0 2px #120d06,0 0 0 3px #4d3e25;background:radial-gradient(circle,#0d0e0f,#050506)}
+.sock.c.empty .core::after{content:"＋";font:28px var(--disp);color:#6b5a3a}
+.sock.c.lock .core{box-shadow:0 0 0 2px #120d06,0 0 0 3px #2c2519;background:#050506}
+.sock.c.lock .core::after{content:"";width:18px;height:14px;border:2px solid #4d4232;border-top:0;position:relative;top:6px;box-shadow:0 -10px 0 -5px #4d4232}
+.sock.c.lock .lbl b{color:var(--ink3)}
+.affixes{left:430px;right:430px;bottom:22px;height:226px}
+.affix{display:grid;grid-template-columns:1fr 28px 1fr 150px;align-items:center;gap:8px;padding:6px 18px;font-size:13px;border-bottom:1px solid rgba(80,66,40,.25)}
+.affix:last-child{border:0}
+.affix .cost{color:#f2a493}
+.affix .arrow{width:20px;height:10px;background:linear-gradient(90deg,#6b5430,#d9b46a);clip-path:polygon(0 35%,65% 35%,65% 0,100% 50%,65% 100%,65% 65%,0 65%)}
+.affix .gain{color:var(--g1)}
+.affix .fit{font-size:12px;text-align:right}
+.affix .side{font-size:10px;padding:1px 5px;margin-right:6px;border:1px solid #4a3c25;color:var(--ink3)}
+.sum{right:22px;top:126px;bottom:22px;width:330px;display:flex;flex-direction:column}
+.seg{display:flex;border:1px solid #3a3022;background:#0b0a09}
+.seg button{flex:1;height:34px;font-size:13px;color:var(--ink3);border-right:1px solid #2a2419}
+.seg button:last-child{border:0}
+.seg button.on{color:var(--g1);background:linear-gradient(180deg,#3a2c14,#1a1409);box-shadow:inset 0 -2px 0 var(--g2)}
+.seg button.off{opacity:.4}
+.kv{display:flex;align-items:center;padding:5px 0;font-size:13px}
+.kv span:first-child{color:var(--ink3)}
+.kv b{margin-left:auto;font-size:15px}
+.hearts{display:flex;gap:2px;margin-left:auto}
+.hearts img{width:22px;height:22px;object-fit:contain;filter:drop-shadow(0 1px 2px #000)}
+.hearts img.lost{filter:grayscale(1) brightness(.35)}
+.gauge{position:relative;height:12px;margin:8px 0 4px;background:linear-gradient(90deg,#3a1510,#6b4a16 45%,#2d4a2c 70%,#173a2c);border:1px solid #3a3022}
+.gauge i{position:absolute;top:-5px;width:3px;height:20px;background:#fff3d0;box-shadow:0 0 6px #fff;left:var(--p)}
+.gauge u{position:absolute;top:-3px;width:1px;height:16px;background:#d9b46a;left:var(--p);text-decoration:none}
+.gauge-l{display:flex;justify-content:space-between;font-size:10px;color:var(--ink4)}
+</style>
+
+<!-- ===================================================== 地图台 ===================================================== -->
+<section class="screen" id="device" aria-label="地图台">
+  <div class="bg"></div>
+  <div class="vig" style="background:radial-gradient(ellipse 60% 70% at 50% 45%,transparent 35%,rgba(2,3,5,.8) 100%)"></div>
+  <div class="grain"></div>
+
+  <header class="topbar">
+    <button class="back" data-go="camp">营地</button>
+    <div class="place"><b>地图台</b><small>放入路引 · 插入罗盘 · 给这一趟定价</small></div>
+    <div class="wallet">
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/cur-quality.webp" alt=""><b>14</b><small>升品石</small></div>
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/cur-reroll.webp" alt=""><b>9</b><small>重铸石</small></div>
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/cur-break.webp" alt=""><b>2</b><small>破限石</small></div>
+    </div>
+  </header>
+  <nav class="tabs"><button class="tab on">放置</button><button class="tab">制作路引</button><button class="tab">合成高一阶</button></nav>
+
+  <!-- 左：路引库存 -->
+  <aside class="pnl inv">
+    <div class="ph"><h3>路引</h3><small>库存 23</small></div>
+    <div class="filters"><button class="chip on">全部</button><button class="chip">阶 5</button><button class="chip">阶 6</button><button class="chip">阶 7</button><button class="chip">稀有</button><button class="chip">词缀 ↓</button></div>
+    <div class="passlist" id="passList">
+      <div class="pass r2v sel" data-pass="0"><span class="slot r2"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span><span class="tier">6<small>阶</small></span><span><b>稀有路引</b><div class="m">4 条词缀 · 命数 3 · 罗盘槽 2</div></span><span class="cnt">×1</span></div>
+      <div class="pass r2v" data-pass="1"><span class="slot r2"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span><span class="tier">6<small>阶</small></span><span><b>稀有路引</b><div class="m">5 条词缀 · 命数 2 · 罗盘槽 3</div></span><span class="cnt">×1</span></div>
+      <div class="pass r2v" data-pass="2"><span class="slot r2"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span><span class="tier">7<small>阶</small></span><span><b>稀有路引</b><div class="m">3 条词缀 · 命数 3 · 罗盘槽 2</div></span><span class="cnt">×1</span></div>
+      <div class="pass r1v" data-pass="3"><span class="slot r1"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span><span class="tier">6<small>阶</small></span><span><b>精良路引</b><div class="m">2 条词缀 · 命数 4 · 罗盘槽 1</div></span><span class="cnt">×3</span></div>
+      <div class="pass r0v" data-pass="4"><span class="slot r0"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span><span class="tier">6<small>阶</small></span><span><b>普通路引</b><div class="m">无词缀 · 命数 4 · 罗盘槽 1</div></span><span class="cnt">×4</span></div>
+      <div class="pass r0v" data-pass="5"><span class="slot r0"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""></span><span class="tier">5<small>阶</small></span><span><b>普通路引</b><div class="m">无词缀 · 命数 4 · 罗盘槽 1</div></span><span class="cnt">×6</span></div>
+      <div class="pass r0v" style="border-style:dashed;opacity:.75"><span class="slot r0"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt="" style="filter:grayscale(1) brightness(.7)"></span><span class="tier">1–3<small>阶</small></span><span><b>免费普通路引</b><div class="m">保底 · 不占库存</div></span></div>
+    </div>
+    <div class="ph" style="padding-top:4px"><h3>罗盘</h3><small>点插槽更换</small></div>
+    <div class="pb row" style="gap:8px;padding-top:12px">
+      <span class="slot"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt=""><span class="q">5</span></span>
+      <span class="slot"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt="" style="filter:hue-rotate(120deg) drop-shadow(0 3px 3px #000)"><span class="q">2</span></span>
+      <span class="slot"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt="" style="filter:hue-rotate(220deg) drop-shadow(0 3px 3px #000)"><span class="q">1</span></span>
+      <span class="slot empty"></span>
+    </div>
+  </aside>
+
+  <!-- 机关插槽（坐标对齐底图上的四个凹槽） -->
+  <div class="sock main r2v" id="sockMain" style="left:800px;top:452px"><div class="core"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""><span class="lv">阶 6</span></div><div class="lbl"><b id="sockName">稀有路引</b><small id="sockMeta">4 条词缀 · 命数 3</small></div></div>
+  <div class="sock c up" style="left:800px;top:290px"><div class="core"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt=""></div><div class="lbl"><b>血祭罗盘 · 一阶</b><small>必出血祭 · 怪物生命 +10%</small></div></div>
+  <div class="sock c" style="left:540px;top:540px"><div class="core"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt="" style="filter:hue-rotate(120deg) drop-shadow(0 4px 6px #000)"></div><div class="lbl"><b>劲敌罗盘 · 二阶</b><small>稀有怪 +2 群 · 怪物生命 +30%</small></div></div>
+  <div class="sock c lock" id="sock3" style="left:1061px;top:540px"><div class="core"></div><div class="lbl"><b>第三槽</b><small>路引 5 条词缀以上开放</small></div></div>
+
+  <!-- 下：路引词缀 -->
+  <section class="pnl affixes">
+    <div class="ph"><h3>路引词缀</h3><small>每条都是“代价 → 绑定收益”　右列看你的队伍吃不吃得下</small></div>
+    <div style="padding:4px 0 8px">
+      <div class="affix"><span class="cost"><span class="side">前缀</span>敌方骷髅伤害 +20%</span><span class="arrow"></span><span class="gain">物品稀有度 +15%</span><span class="fit good">2 名闪避角色 ✓</span></div>
+      <div class="affix"><span class="cost"><span class="side">前缀</span>敌方以 20% 法力开局</span><span class="arrow"></span><span class="gain">遭遇数量 +12%</span><span class="fit warn">缺先手控制</span></div>
+      <div class="affix"><span class="cost"><span class="side">后缀</span>灯火每步额外 −1</span><span class="arrow"></span><span class="gain">物品稀有度 +18%</span><span class="fit muted">带满 3 支火把</span></div>
+      <div class="affix"><span class="cost"><span class="side">后缀</span>敌方免疫冻结</span><span class="arrow"></span><span class="gain">路引掉率 +15%</span><span class="fit bad">队伍 3 名冻结角色 ✗</span></div>
+    </div>
+  </section>
+
+  <!-- 右：这一趟 -->
+  <aside class="pnl sum">
+    <div class="ph"><h3>这一趟</h3><small>寒冬堡垒</small></div>
+    <div class="pb" style="padding-bottom:6px">
+      <div class="muted" style="font-size:12px;margin-bottom:6px">群系</div>
+      <div class="seg"><button>中央尖塔</button><button class="on">寒冬堡垒</button><button>破碎之地</button></div>
+      <div class="muted" style="font-size:12px;margin:10px 0 6px">出征类型</div>
+      <div class="seg"><button>短途 24</button><button class="on">标准 36</button><button class="off">深潜</button></div>
+    </div>
+    <div class="pb" style="padding-top:4px">
+      <div class="kv"><span>命数</span><span class="hearts"><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""><img class="lost" src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""></span></div>
+      <div class="kv"><span>怪物生命</span><b class="bad">×1.43</b></div>
+      <div class="kv"><span>怪物攻击</span><b class="bad">×1.20</b></div>
+      <div class="hr"></div>
+      <div class="kv"><span>物品稀有度</span><b class="gold">+35%</b></div>
+      <div class="kv"><span>遭遇数量</span><b class="gold">+12%</b></div>
+      <div class="kv"><span>怪物稀有度</span><b class="gold">+30%</b></div>
+      <div class="kv"><span>路引掉率</span><b class="gold">+15%</b></div>
+      <div class="kv"><span>必出事件</span><span style="margin-left:auto" class="tag red">血祭</span></div>
+      <div class="hr"></div>
+      <div class="kv"><span>装备增益</span><b class="warn">+31%</b><span class="muted" style="margin-left:8px;font-size:12px">推荐 +35%</span></div>
+      <div class="gauge"><u style="--p:56%"></u><i style="--p:51%"></i></div>
+      <div class="gauge-l"><span>危险</span><span>吃力</span><span>推荐</span><span>轻松</span></div>
+    </div>
+    <div style="margin-top:auto;padding:0 16px 18px">
+      <button class="cta" style="width:100%" data-go="prepare"><b>下一步</b><small>出征准备</small></button>
+    </div>
+  </aside>
+</section>
+
+<style>
+/* ============ 出征准备 ============ */
+#prepare .bg{background-image:url(../../game-assets/bundled/meta/expedition/scene-prepare.webp);background-position:50% 40%;filter:brightness(.62) saturate(.9)}
+.party{position:absolute;left:22px;top:84px;display:flex;gap:14px}
+.tc{position:relative;width:236px;height:440px;display:flex;flex-direction:column;background:#0a0908;border:1px solid color-mix(in srgb,var(--rc) 55%,#3a3022);box-shadow:inset 0 0 0 1px #000,0 18px 40px rgba(0,0,0,.7),0 0 24px color-mix(in srgb,var(--rc) 12%,transparent);cursor:pointer;transition:transform .2s,box-shadow .2s}
+.tc:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px #000,0 24px 44px rgba(0,0,0,.75),0 0 30px color-mix(in srgb,var(--rc) 30%,transparent)}
+.tc .art{position:relative;height:286px;overflow:hidden}
+.tc .art img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.tc .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,transparent 22%,transparent 62%,rgba(10,9,8,1) 100%)}
+.tc .rar{position:absolute;left:10px;top:10px;z-index:2;font:12px var(--disp);letter-spacing:.2em;color:var(--rc);padding:2px 8px;background:rgba(6,6,6,.75);border:1px solid color-mix(in srgb,var(--rc) 60%,#000)}
+.tc .mana{position:absolute;right:8px;top:8px;z-index:2;display:flex;gap:2px}
+.tc .mana img{width:24px;height:24px;filter:drop-shadow(0 2px 2px #000)}
+.tc .name{position:absolute;left:0;right:0;bottom:8px;z-index:2;text-align:center}
+.tc .name b{font:22px var(--disp);letter-spacing:.16em;color:#f7ecd2;font-weight:400;text-shadow:0 2px 4px #000}
+.tc .name small{display:block;font-size:11px;color:var(--ink3);letter-spacing:.08em}
+.stats{display:flex;justify-content:space-around;padding:6px 10px 4px}
+.stats span{display:flex;align-items:center;gap:3px;font:16px var(--num);color:#efe3c7}
+.stats img{width:22px;height:22px;object-fit:contain}
+.stats .up{font-size:10px;color:var(--good);margin-left:1px}
+.sigs{display:flex;justify-content:center;gap:16px;padding:14px 0 10px}
+.sg{position:relative;width:46px;height:46px;display:grid;place-items:center}
+.sg::before{content:"";position:absolute;inset:4px;transform:rotate(45deg);border:1px solid color-mix(in srgb,var(--rc) 80%,#000);background:radial-gradient(circle,color-mix(in srgb,var(--rc) 30%,#15130f),#0a0908 75%);box-shadow:0 0 10px color-mix(in srgb,var(--rc) 30%,transparent)}
+.sg img{position:relative;width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 2px 2px #000)}
+.sg.empty{--rc:#4d3e25}
+.sg.empty::after{content:"＋";position:relative;font-size:16px;color:#6b5a3a}
+.sg.ins::after{content:"";position:absolute;right:-6px;bottom:-6px;width:20px;height:20px;background:url(../../game-assets/bundled/meta/expedition/hud-safe.webp) center/contain no-repeat;filter:drop-shadow(0 1px 2px #000)}
+.tc .gs{margin-top:auto;text-align:center;font-size:11px;color:var(--ink3);padding:9px 0 10px;border-top:1px solid color-mix(in srgb,var(--rc) 30%,#2a2318);background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--rc) 10%,#0a0908))}
+.tc .gs b{color:var(--g1);font-size:13px}
+.petcard{position:relative;width:150px;height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border:1px dashed #6b5430;background:radial-gradient(ellipse at 50% 40%,rgba(60,44,20,.35),rgba(8,8,7,.9) 70%);color:var(--ink3);font-size:12px;padding:16px}
+.petcard .ring{width:92px;height:92px;border-radius:50%;border:1px solid #6b5430;box-shadow:inset 0 0 20px rgba(0,0,0,.9),0 0 0 6px rgba(107,84,48,.15);display:grid;place-items:center;font:30px var(--disp);color:#6b5a3a}
+.petcard b{font:18px var(--disp);letter-spacing:.24em;color:var(--g2);font-weight:400}
+.petcard .tbd{position:absolute;top:12px;font-size:11px;padding:2px 8px;color:#2b1a08;background:#e9c46a}
+.belt{left:22px;top:546px;width:592px;height:182px}
+.vault{left:628px;top:546px;width:544px;height:332px}
+.beltgrid{display:flex;gap:10px;padding:16px 18px 6px}
+.beltgrid .slot{width:80px;height:80px}
+.beltgrid .nm{display:block;text-align:center;font-size:11px;color:var(--ink3);margin-top:4px}
+.vslots{display:flex;gap:14px;padding:16px 18px}
+.vs{flex:1;height:196px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;border:1px solid #3a3022;background:radial-gradient(ellipse at 50% 30%,rgba(111,224,210,.08),rgba(6,7,8,.95) 70%);padding:12px}
+.vs.on{border-color:#2f8a80;box-shadow:inset 0 0 30px rgba(111,224,210,.12),0 0 16px rgba(111,224,210,.15)}
+.vs .lockico{width:56px;height:56px;object-fit:contain;filter:grayscale(1) brightness(.45)}
+.vs .slot{width:84px;height:84px}
+.vs b{font:15px var(--disp);color:var(--rc,var(--ink2));font-weight:400;letter-spacing:.08em}
+.vs small{font-size:11px;color:var(--ink3)}
+.vs .hd{position:absolute;top:8px;left:10px;font-size:11px;color:var(--ink4);letter-spacing:.1em}
+.helpbelt{left:22px;top:742px;width:592px;height:136px}
+.contract{right:22px;top:84px;bottom:22px;width:390px;display:flex;flex-direction:column}
+.contract .hero{position:relative;height:150px;overflow:hidden;border-bottom:1px solid #4d3e25}
+.contract .hero .art{position:absolute;inset:0;background:url(../../game-assets/bundled/meta/expedition/biome-winter.webp) 50% 22%/cover}
+.contract .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,9,11,.1),rgba(8,9,11,.95))}
+.contract .hero div{position:absolute;left:18px;bottom:12px;z-index:2}
+.contract .hero b{font:28px var(--disp);letter-spacing:.24em;color:#f4ead2;font-weight:400;text-shadow:0 2px 6px #000}
+.contract .hero small{display:block;font-size:12px;color:#c9d6dc}
+.contract .hero .kicker{display:block;margin-bottom:2px}
+.contract .hero b{display:block}
+.costs{display:flex;gap:8px;padding:12px 18px 4px}
+.costs .slot{width:56px;height:56px}
+.risk{padding:4px 18px}
+.risk .r{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(80,66,40,.25)}
+.risk .r img{width:28px;height:28px;object-fit:contain}
+.risk .r b{font:14px var(--disp);font-weight:400}
+.risk .r .st{margin-left:auto;font-size:12px}
+</style>
+
+<!-- ===================================================== 出征准备 ===================================================== -->
+<section class="screen" id="prepare" aria-label="出征准备">
+  <div class="bg"></div>
+  <div class="vig"></div>
+  <div class="grain"></div>
+  <header class="topbar">
+    <button class="back" data-go="device">地图台</button>
+    <div class="place"><b>出征准备</b><small>出发后锁定队伍、刻印和宠物</small></div>
+    <div class="wallet">
+      <div class="coin"><img src="../../game-assets/bundled/meta/expedition/mat-purse.webp" alt=""><b>0</b><small>钱袋（局内）</small></div>
+    </div>
+  </header>
+
+  <div class="party">
+    <article class="tc" style="--rc:var(--r3)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K22_16.webp" alt=""><span class="rar">传说</span><span class="mana"><img src="../../game-assets/bundled/gems/purple.png" alt=""><img src="../../game-assets/bundled/gems/brown.png" alt=""></span><div class="name"><b>冰之女</b><small>妖仙 · 冰峰之巅</small></div></div>
+      <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="攻击">15</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="护甲">14<i class="up">+5</i></span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="生命">36<i class="up">+6</i></span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="魔法">1</span></div>
+      <div class="sigs"><span class="sg" style="--rc:var(--r2)"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""></span><span class="sg" style="--rc:var(--r1)"><img src="../../game-assets/bundled/meta/expedition/sigil-stone.webp" alt=""></span><span class="sg" style="--rc:var(--r1)"><img src="../../game-assets/bundled/meta/expedition/sigil-iron.webp" alt=""></span></div>
+      <div class="gs">装备增益 <b>+34%</b></div></article>
+    <article class="tc" style="--rc:var(--r4)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K22_17.webp" alt=""><span class="rar">史诗</span><span class="mana"><img src="../../game-assets/bundled/gems/blue.png" alt=""><img src="../../game-assets/bundled/gems/green.png" alt=""></span><div class="name"><b>霜羽</b><small>元素 · 野兽</small></div></div>
+      <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="攻击">17</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="护甲">19</span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="生命">28<i class="up">+4</i></span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="魔法">10<i class="up">+2</i></span></div>
+      <div class="sigs"><span class="sg" style="--rc:var(--r3)"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""></span><span class="sg" style="--rc:var(--r2)"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""></span><span class="sg empty"></span></div>
+      <div class="gs">装备增益 <b>+27%</b></div></article>
+    <article class="tc" style="--rc:var(--r3)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K22_06.webp" alt=""><span class="rar">传说</span><span class="mana"><img src="../../game-assets/bundled/gems/blue.png" alt=""><img src="../../game-assets/bundled/gems/brown.png" alt=""></span><div class="name"><b>冰魔像</b><small>元素 · 构装体</small></div></div>
+      <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="攻击">15</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="护甲">27<i class="up">+8</i></span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="生命">27<i class="up">+6</i></span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="魔法">6</span></div>
+      <div class="sigs"><span class="sg" style="--rc:var(--r1)"><img src="../../game-assets/bundled/meta/expedition/sigil-stone.webp" alt=""></span><span class="sg" style="--rc:var(--r1)"><img src="../../game-assets/bundled/meta/expedition/sigil-iron.webp" alt=""></span><span class="sg" style="--rc:var(--r0)"><img src="../../game-assets/bundled/meta/expedition/sigil-stone.webp" alt=""></span></div>
+      <div class="gs">装备增益 <b>+25%</b></div></article>
+    <article class="tc" style="--rc:var(--r3)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K22_10.webp" alt=""><span class="rar">传说</span><span class="mana"><img src="../../game-assets/bundled/gems/red.png" alt=""><img src="../../game-assets/bundled/gems/brown.png" alt=""></span><div class="name"><b>雪猎人</b><small>罗刹 · 游荡者</small></div></div>
+      <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="攻击">22<i class="up">+3</i></span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="护甲">13</span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="生命">19</span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="魔法">11<i class="up">+2</i></span></div>
+      <div class="sigs"><span class="sg ins" style="--rc:var(--r4)"><img src="../../game-assets/bundled/meta/expedition/sigil-iron.webp" alt=""></span><span class="sg" style="--rc:var(--r2)"><img src="../../game-assets/bundled/meta/expedition/sigil-iron.webp" alt=""></span><span class="sg" style="--rc:var(--r1)"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""></span></div>
+      <div class="gs">装备增益 <b>+38%</b></div></article>
+    <div class="petcard"><span class="tbd">规则待定</span><span class="ring">宠</span><b>宠物</b><span>只带 1 只<br>出发后本趟锁定</span><button class="btn sm">更换</button></div>
+  </div>
+
+  <section class="pnl belt">
+    <div class="ph"><h3>补给腰带</h3><small>6 格 · 补给站的免费补给已放入</small></div>
+    <div class="beltgrid">
+      <div><span class="slot"><img src="../../game-assets/bundled/meta/expedition/use-torch.webp" alt=""><span class="q">3</span></span><span class="nm">火把</span></div>
+      <div><span class="slot"><img src="../../game-assets/bundled/meta/expedition/use-potion.webp" alt=""><span class="q">2</span></span><span class="nm">药剂</span></div>
+      <div><span class="slot"><img src="../../game-assets/bundled/meta/expedition/use-lockpick.webp" alt=""><span class="q">1</span></span><span class="nm">撬锁器</span></div>
+      <div><span class="slot"><img src="../../game-assets/bundled/meta/expedition/use-smoke.webp" alt=""><span class="q">1</span></span><span class="nm">烟雾弹</span></div>
+      <div><span class="slot empty"></span><span class="nm dim">空</span></div>
+      <div><span class="slot empty"></span><span class="nm dim">空</span></div>
+    </div>
+  </section>
+  <section class="pnl helpbelt">
+    <div class="pb" style="display:flex;gap:12px;align-items:center;height:100%">
+      <div class="grow" style="font-size:13px;color:var(--ink2);line-height:1.8">火把最多 3 支，烟雾弹最多 1 个。<br><span class="muted">寒冬堡垒的“灯火每步额外 −1”会让火把更快用完。</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><button class="btn sm">自动补给</button><button class="btn sm">去补给站</button></div>
+    </div>
+  </section>
+
+  <section class="pnl vault">
+    <div class="ph"><h3>保险格</h3><small>失败时，只有这里的东西留下</small></div>
+    <div class="vslots">
+      <div class="vs on" style="--rc:var(--r4)"><span class="hd">格 1</span><span class="slot r4"><img src="../../game-assets/bundled/meta/expedition/sigil-iron.webp" alt=""></span><b>寒渊誓约</b><small>雪猎人穿戴 · 已投保<br>失败不丢，本趟不回潜能</small><button class="btn sm">更换</button></div>
+      <div class="vs"><span class="hd">格 2</span><img class="lockico" src="../../game-assets/bundled/meta/expedition/hud-safe.webp" alt=""><b>远征 15 级开放</b><small>还差 2,280 经验</small></div>
+      <div class="vs"><span class="hd">格 3</span><img class="lockico" src="../../game-assets/bundled/meta/expedition/hud-safe.webp" alt=""><b>远征 35 级开放</b><small>&nbsp;</small></div>
+    </div>
+  </section>
+
+  <aside class="pnl contract">
+    <div class="hero"><span class="art"></span><div><span class="kicker">Winter's Reach</span><b>寒冬堡垒</b><small>阶 6 · 标准 36 步 · 血祭 + 劲敌</small></div></div>
+    <div class="ph" style="padding-top:10px"><h3>消耗</h3><small>出发即扣除，不退</small></div>
+    <div class="costs">
+      <span class="slot r2"><img src="../../game-assets/bundled/meta/expedition/item-pass.webp" alt=""><span class="q">1</span></span>
+      <span class="slot"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt=""><span class="q">1</span></span>
+      <span class="slot"><img src="../../game-assets/bundled/meta/expedition/item-compass.webp" alt="" style="filter:hue-rotate(120deg) drop-shadow(0 3px 3px #000)"><span class="q">1</span></span>
+      <div class="grow" style="font-size:12px;color:var(--ink3);padding-left:4px;line-height:1.6">阶 6 稀有路引<br>血祭罗盘 · 劲敌罗盘</div>
+    </div>
+    <div class="pb" style="padding:8px 18px 0">
+      <div class="kv"><span>命数</span><span class="hearts"><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""></span></div>
+      <div class="muted" style="font-size:12px">命数为 0 时全灭，或步数用完还在图里，才算失败。</div>
+    </div>
+    <div class="ph"><h3>失败时会丢</h3><small>穿戴中的刻印</small></div>
+    <div class="risk">
+      <div class="r"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""><b style="color:var(--r3)">北境星盘</b><span class="muted">霜羽</span><span class="st bad">会丢</span></div>
+      <div class="r"><img src="../../game-assets/bundled/meta/expedition/sigil-silver.webp" alt=""><b style="color:var(--r2)">霜纹之握</b><span class="muted">冰之女</span><span class="st bad">会丢</span></div>
+      <div class="r"><img src="../../game-assets/bundled/meta/expedition/sigil-iron.webp" alt=""><b style="color:var(--r4)">寒渊誓约</b><span class="muted">雪猎人</span><span class="st tealc">已投保</span></div>
+      <div class="r"><span class="muted" style="width:28px;text-align:center">+8</span><span class="muted">其余精良 / 普通刻印</span><span class="st bad">会丢</span></div>
+    </div>
+    <div style="margin-top:auto;padding:12px 16px 18px">
+      <button class="cta ember" style="width:100%" data-go="run"><b>出发</b><small>下到深渊 · 阶 6</small></button>
+    </div>
+  </aside>
+</section>
+
+<style>
+/* ============ 局内地图 ============ */
+#run .bg{background-image:url(../../game-assets/bundled/meta/expedition/map-winter.webp);background-position:50% 50%;filter:blur(18px) brightness(.35) saturate(.8);transform:scale(1.1)}
+.hud{position:absolute;left:0;right:0;top:0;height:64px;z-index:30;display:flex;align-items:center;gap:22px;padding:0 20px;background:linear-gradient(180deg,rgba(4,5,7,.97),rgba(4,5,7,.85) 75%,rgba(4,5,7,0))}
+.hud::after{content:"";position:absolute;left:0;right:0;top:60px;height:1px;background:linear-gradient(90deg,transparent,#5f7f86 25%,#a8e6de 50%,#5f7f86 75%,transparent);opacity:.6}
+.zone{display:flex;flex-direction:column;line-height:1.2;padding-right:18px;border-right:1px solid #2c2a24}
+.zone b{font:21px var(--disp);letter-spacing:.2em;color:#e7f2f3;font-weight:400}
+.zone small{font-size:11px;color:#8aa0a5}
+.gz{display:flex;align-items:center;gap:8px}
+.gz img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 2px 3px #000)}
+.gz .t{display:flex;flex-direction:column;line-height:1.1}
+.gz .t small{font-size:11px;color:var(--ink3);letter-spacing:.1em}
+.gz .t b{font-size:20px;color:#f4ead2}
+.gz .t b em{font-style:normal;font-size:13px;color:var(--ink3)}
+.segbar{display:flex;gap:2px;margin-top:4px}
+.segbar i{width:5px;height:6px;background:#2a2620}
+.segbar i.on{background:linear-gradient(180deg,#f1d999,#b0833d)}
+.lamp{width:200px}
+.lamp .t.grow{flex:1}
+.lamp .lb{position:relative;height:7px;margin-top:5px;background:#120f0b;border:1px solid #3a3022}
+.lamp .lb i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#8a3f12,#ffad55);box-shadow:0 0 8px rgba(255,173,85,.5);transition:width .5s}
+.lamp .lb u{position:absolute;top:-3px;bottom:-3px;width:1px;background:#6b5430}
+.hud .tierlbl{font:12px var(--body);color:var(--ember);margin-left:10px;letter-spacing:.04em;vertical-align:2px}
+.hud .menu{margin-left:auto;display:flex;gap:8px}
+.board{position:absolute;left:378px;top:58px;width:842px;height:842px;z-index:2}
+.board .map{position:absolute;inset:0;background:url(../../game-assets/bundled/meta/expedition/map-winter.webp) center/cover;-webkit-mask:radial-gradient(circle at 50% 50%,#000 58%,transparent 72%);mask:radial-gradient(circle at 50% 50%,#000 58%,transparent 72%)}
+.board .fog{position:absolute;inset:0;pointer-events:none;transition:background .6s}
+.board svg.links{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.links path{fill:none;stroke-linecap:round}
+.links .base{stroke:rgba(190,215,220,.18);stroke-width:2;stroke-dasharray:2 7}
+.links .seen{stroke:rgba(217,180,106,.45);stroke-width:2.5;stroke-dasharray:6 6}
+.links .walked{stroke:#f2d38e;stroke-width:3.5;filter:drop-shadow(0 0 5px rgba(255,200,110,.8))}
+.links .route{stroke:#7ff0e0;stroke-width:3;stroke-dasharray:10 7;animation:flow 1s linear infinite;filter:drop-shadow(0 0 5px rgba(111,224,210,.9))}
+@keyframes flow{to{stroke-dashoffset:-17}}
+.nd{position:absolute;z-index:3;width:var(--s,58px);height:var(--s,58px);transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:transform .15s,filter .3s}
+.nd::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 38%,#23262a,#07080a 72%);box-shadow:0 0 0 2px #050505,0 0 0 4px var(--nc,#8a6a37),0 0 0 5px #000,0 6px 14px rgba(0,0,0,.8),0 0 18px color-mix(in srgb,var(--nc,#8a6a37) 35%,transparent)}
+.nd img{position:relative;width:76%;height:76%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.9))}
+.nd .nl{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:1px 8px;font-size:12px;color:#efe4c9;background:rgba(5,6,8,.82);border:1px solid rgba(120,100,60,.45);text-shadow:0 1px 2px #000;pointer-events:none}
+.nd .nl small{color:var(--ink3);margin-left:4px;font-size:11px}
+.nd:hover{transform:translate(-50%,-50%) scale(1.1);z-index:6}
+.nd.visited{filter:grayscale(.85) brightness(.55)}
+.nd.visited .nl{opacity:.7}
+.nd.fog::before{background:radial-gradient(circle,#0d1012,#040506 75%);box-shadow:0 0 0 2px #050505,0 0 0 3px #39454a,0 6px 14px rgba(0,0,0,.8)}
+.nd.fog img{display:none}
+.nd.fog::after{content:"?";position:relative;font:26px var(--disp);color:#6f8a90}
+.nd.fog .nl{display:none}
+.nd.reach{animation:reach 1.6s ease-in-out infinite}
+@keyframes reach{50%{filter:brightness(1.35)}}
+.nd.sel::before{box-shadow:0 0 0 2px #050505,0 0 0 4px #fff2c8,0 0 0 5px #000,0 0 24px rgba(255,230,170,.8)}
+.nd.cur::before{box-shadow:0 0 0 2px #050505,0 0 0 4px #f6e7bd,0 0 0 5px #000,0 0 30px rgba(255,214,140,.9)}
+.party-token{position:absolute;z-index:8;width:54px;height:70px;transform:translate(-50%,-118%);pointer-events:none;transition:left .6s cubic-bezier(.5,0,.3,1),top .6s cubic-bezier(.5,0,.3,1)}
+.party-token .pf{position:absolute;left:5px;top:0;width:44px;height:44px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #050505,0 0 0 4px #f6e7bd,0 6px 12px #000}
+.party-token .pf img{width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+.party-token::after{content:"";position:absolute;left:21px;top:46px;width:12px;height:12px;background:#f6e7bd;clip-path:polygon(0 0,100% 0,50% 100%)}
+.ripple{position:absolute;z-index:2;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:2px solid rgba(246,231,189,.6);pointer-events:none;animation:ripple 2.2s ease-out infinite;transition:left .6s,top .6s}
+@keyframes ripple{0%{transform:scale(.45);opacity:1}100%{transform:scale(1.25);opacity:0}}
+.wanderer{position:absolute;z-index:4;width:40px;height:40px;transform:translate(-50%,-50%);pointer-events:none}
+.wanderer img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 6px rgba(255,90,70,.9))}
+.wanderer::after{content:"游荡 · 寒冬狼";position:absolute;left:50%;top:100%;transform:translateX(-50%);white-space:nowrap;font-size:11px;color:#ffb3a5;text-shadow:0 1px 2px #000}
+.tracker{position:absolute;left:50%;top:72px;transform:translateX(-50%);z-index:20;display:flex;gap:8px}
+.ev{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px 0 4px;font-size:12px;color:var(--ink2);background:rgba(6,7,9,.86);border:1px solid #3a3022}
+.ev img{width:24px;height:24px;object-fit:contain}
+.ev b{font:13px var(--disp);color:#ffb3a5;font-weight:400;letter-spacing:.1em}
+/* 左栏 */
+.squad{left:16px;top:76px;width:344px;bottom:16px;display:flex;flex-direction:column}
+.mem{display:flex;align-items:center;gap:12px;padding:8px 16px}
+.mem .pf{position:relative;width:58px;height:58px;flex:none;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #050505,0 0 0 3px var(--rc),0 4px 10px #000}
+.mem .pf img{width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+.mem .t{flex:1;min-width:0}
+.mem .t b{font:15px var(--disp);color:#f2e6cc;font-weight:400;letter-spacing:.08em}
+.mem .t small{font-size:11px;color:var(--ink3);margin-left:6px}
+.hp{position:relative;height:10px;margin-top:5px;background:#120a09;border:1px solid #3a2420}
+.hp i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#f07a6e,#a8302a);box-shadow:0 0 6px rgba(240,100,90,.45)}
+.hp span{position:absolute;right:4px;top:-4px;font:11px var(--num);color:#fff;text-shadow:0 0 3px #000,0 0 3px #000}
+.mem.dead{filter:grayscale(1) brightness(.55)}
+.mem.dead .t small{color:#f08a7a}
+.relics{display:flex;gap:8px;padding:6px 16px 10px}
+.relics .slot{width:50px;height:50px}
+.exits .x{display:flex;align-items:center;gap:10px;padding:6px 16px;font-size:13px}
+.exits .x img{width:26px;height:26px;object-fit:contain}
+.exits .x b{font:14px var(--disp);font-weight:400}
+.exits .x span:last-child{margin-left:auto;font-size:12px}
+.petrow{margin:6px 16px;padding:8px 12px;border:1px dashed #6b5430;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:10px}
+.petrow i{font-style:normal;font-size:10px;padding:1px 6px;background:#e9c46a;color:#2b1a08}
+/* 右栏抽屉 */
+.drawer{right:16px;top:76px;bottom:16px;width:356px;display:flex;flex-direction:column}
+.drawer .head{position:relative;display:flex;align-items:center;gap:14px;padding:18px 18px 12px}
+.drawer .head .big{width:76px;height:76px;flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 38%,#23262a,#07080a 72%);box-shadow:0 0 0 2px #050505,0 0 0 4px var(--nc,#8a6a37),0 0 20px color-mix(in srgb,var(--nc,#8a6a37) 40%,transparent)}
+.drawer .head .big img{width:78%;height:78%;object-fit:contain}
+.drawer .head b{font:22px var(--disp);letter-spacing:.16em;color:var(--g1);font-weight:400;display:block}
+.drawer .head small{font-size:12px;color:var(--ink3)}
+.drawer .body{flex:1;overflow:hidden;padding:4px 18px 10px}
+.drawer .foot{padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.lootgrid{display:grid;grid-template-columns:repeat(4,68px);gap:10px;justify-content:space-between;margin:10px 0}
+.lootgrid .slot{cursor:pointer}
+.lootgrid .slot:hover{filter:brightness(1.25)}
+.lootgrid .slot.taken{opacity:.25}
+.itemtip{margin-top:4px;padding:10px 12px;border:1px solid #3a3022;background:linear-gradient(180deg,#14120f,#0a0908)}
+.itemtip b{font:16px var(--disp);font-weight:400}
+.itemtip .af{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--ink2)}
+.itemtip .af em{font-style:normal;font-size:11px;color:var(--ink3);border:1px solid #3a3022;padding:0 5px}
+.enemyrow{display:flex;gap:8px;margin:10px 0}
+.enemyrow .e{position:relative;width:74px;height:96px;overflow:hidden;border:1px solid color-mix(in srgb,var(--rc) 60%,#000)}
+.enemyrow .e img{width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+.enemyrow .e span{position:absolute;left:0;right:0;bottom:0;padding:10px 4px 3px;font-size:11px;text-align:center;color:var(--rc);background:linear-gradient(transparent,#000 70%)}
+.note{font-size:12px;color:var(--ink3);line-height:1.7}
+.shopts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.sho{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid #3a3022;background:linear-gradient(90deg,rgba(60,48,24,.35),#0b0a09 80%);cursor:pointer}
+.sho:hover{border-color:#6b5430}
+.sho.on{border-color:var(--g1);box-shadow:0 0 14px rgba(242,211,142,.25)}
+.sho b{font:16px var(--disp);font-weight:400;color:var(--g1);letter-spacing:.1em}
+.sho span{font-size:13px;color:var(--ink2)}
+.sho small{font-size:11px;color:#f08a7a}
+.cta[disabled]{filter:grayscale(.8) brightness(.6);cursor:not-allowed}
+.afrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 12px}
+.afrow .afx{white-space:nowrap}
+.afrow small{margin-left:auto;font-size:11px;color:var(--ink3)}
+.afx{padding:2px 9px;font-size:12px;color:#ffc2b5;border:1px solid #6a2c24;background:linear-gradient(180deg,#2a100c,#140807)}
+.threat{padding:10px 0 12px;margin-bottom:6px;border-top:1px solid rgba(120,100,60,.3);border-bottom:1px solid rgba(120,100,60,.3)}
+.tbar{position:relative;height:8px;background:linear-gradient(90deg,#6e1d16,#8a5a1c 50%,#2f6b3e);border:1px solid #3a3022}
+.tbar i{position:absolute;left:0;top:0;bottom:0;border-right:2px solid #fff4d8;box-shadow:2px 0 8px rgba(255,244,216,.7);background:rgba(0,0,0,.0)}
+.tbar u{position:absolute;top:-4px;bottom:-4px;width:1px;background:#d9b46a}
+.tlbl{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);margin-top:4px}
+.bagbox{margin-top:14px;padding-top:10px;border-top:1px solid rgba(120,100,60,.3)}
+.bagh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.bagh b{font:15px var(--disp);font-weight:400;letter-spacing:.2em;color:var(--g1)}
+.bagh span{font:14px var(--num);color:var(--ink2)}
+.baggrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;margin-bottom:8px}
+.bg-c{position:relative;height:36px;min-width:0;overflow:hidden;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--rc,#3a3022) 70%,#000);background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--rc,#2a261f) 22%,#16140f),#0a0908 75%)}
+.bg-c img{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);object-fit:contain}
+.bg-c.empty{border-color:#231f18;background:#0b0a09}
+.bg-c.new{box-shadow:0 0 0 1px var(--g1),0 0 10px rgba(242,211,142,.45);animation:fadein .3s}
+.bg-c.r0{--rc:var(--r0)}.bg-c.r1{--rc:var(--r1)}.bg-c.r2{--rc:var(--r2)}.bg-c.r3{--rc:var(--r3)}.bg-c.r4{--rc:var(--r4)}.bg-c.r5{--rc:var(--r5)}
+.markline{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:8px 0;border-left:2px solid #9fd7ff;background:linear-gradient(90deg,rgba(60,110,140,.25),transparent);font-size:12px;color:#cfe6f2}
+.markline b{color:#e8f6ff;font-weight:600;white-space:nowrap}
+.rundock{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;padding:8px 14px;background:linear-gradient(180deg,rgba(14,15,18,.9),rgba(6,7,8,.95));border:1px solid #4d3e25;box-shadow:0 10px 30px #000}
+.rd{position:relative;width:62px;height:62px;display:grid;place-items:center;border:1px solid #3a3022;background:radial-gradient(circle at 50% 40%,#25221d,#0b0b0a 75%)}
+.rd img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 3px #000)}
+.rd .q{position:absolute;right:3px;bottom:0;font:600 13px var(--num);color:#fff3d6;text-shadow:0 0 3px #000,0 0 3px #000}
+.rd .lb{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--ink3);white-space:nowrap}
+.rd:hover{border-color:var(--g2)}
+.rundock .sepv{width:1px;height:46px;background:#3a3022;margin:0 6px}
+/* 遭遇预览 */
+.modal{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,6,.6),rgba(2,2,3,.94))}
+.modal.on{display:flex;animation:fadein .25s}
+.enc{position:relative;width:1240px;height:760px}
+.enc .bgart{position:absolute;inset:0;background:url(../../game-assets/bundled/meta/expedition/biome-winter.webp) 50% 30%/cover;opacity:.28;filter:saturate(.7);-webkit-mask:linear-gradient(180deg,#000 30%,transparent 90%);mask:linear-gradient(180deg,#000 30%,transparent 90%)}
+.enc .top{position:absolute;left:36px;right:36px;top:28px;display:flex;align-items:flex-end;gap:18px}
+.enc .top .big{width:86px;height:86px}
+.enc .ecards{position:absolute;left:36px;right:36px;top:190px;display:flex;gap:16px}
+.ec{position:relative;flex:1;height:440px;display:flex;flex-direction:column;background:#0a0908;border:1px solid color-mix(in srgb,var(--rc) 60%,#3a3022);box-shadow:0 18px 40px rgba(0,0,0,.7),0 0 26px color-mix(in srgb,var(--rc) 15%,transparent)}
+.ec .art{position:relative;height:286px;flex:none;overflow:hidden}
+.ec .art img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.ec .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,0,0,.25),transparent 30%,transparent 60%,#0a0908)}
+.ec .rk{position:absolute;left:10px;top:10px;z-index:2;font:12px var(--disp);letter-spacing:.16em;color:var(--rc);padding:2px 8px;background:rgba(6,6,6,.8);border:1px solid color-mix(in srgb,var(--rc) 60%,#000)}
+.ec .nm{position:absolute;left:0;right:0;bottom:6px;z-index:2;text-align:center;font:21px var(--disp);letter-spacing:.14em;color:var(--rc);text-shadow:0 2px 4px #000}
+.ec .aff{display:flex;flex-direction:column;gap:6px;padding:4px 12px 12px}
+.ec .aff div{font-size:12px;color:var(--ink2);line-height:1.5}
+.ec .aff div b{font-weight:400;color:#ffb3a5;margin-right:6px}
+.ec .aff div.trait b{color:#9fd7ff}
+.ec .aff div.off{opacity:.4;text-decoration:line-through}
+.enc .bottom{position:absolute;left:36px;right:36px;bottom:26px;display:flex;align-items:center;gap:14px}
+</style>
+
+<!-- ===================================================== 局内地图 ===================================================== -->
+<section class="screen" id="run" aria-label="局内地图">
+  <div class="bg"></div>
+  <div class="grain"></div>
+
+  <header class="hud">
+    <div class="zone"><b>寒冬堡垒 · 阶 6</b><small>稀有路引 · 4 词缀 · 血祭 · 劲敌</small></div>
+    <div class="gz"><img src="../../game-assets/bundled/meta/expedition/hud-steps.webp" alt=""><div class="t"><small>步数</small><b id="hSteps">14<em> / 36</em></b><div class="segbar" id="hStepBar"></div></div></div>
+    <div class="gz lamp"><img src="../../game-assets/bundled/meta/expedition/hud-lantern.webp" alt=""><div class="t grow"><small>灯火 · <span id="hTier">昏暗</span></small><b><span id="hLight">52</span><span class="tierlbl" id="hMult">掉落 ×1.15</span></b><div class="lb"><i id="hLightBar" style="width:52%"></i><u style="left:10%"></u><u style="left:40%"></u><u style="left:70%"></u></div></div></div>
+    <div class="gz"><img src="../../game-assets/bundled/meta/expedition/hud-life.webp" alt=""><div class="t"><small>命数</small><b>2<em> / 3</em></b></div></div>
+    <div class="gz"><img src="../../game-assets/bundled/meta/expedition/mat-purse.webp" alt=""><div class="t"><small>钱袋</small><b>640</b></div></div>
+    <div class="menu"><button class="btn sm">列表模式</button><button class="btn sm">暂离</button><button class="btn sm red">放弃</button></div>
+  </header>
+
+  <div class="tracker">
+    <div class="ev"><img src="../../game-assets/bundled/meta/expedition/node-altar.webp" alt=""><b>血祭</b>名单 3 / 8 · 祭坛未激活</div>
+    <div class="ev"><img src="../../game-assets/bundled/meta/expedition/node-nest.webp" alt=""><b style="color:#d8b6ff">劲敌</b>稀有怪 2 群未清</div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="map"></div>
+    <svg class="links" id="links" viewBox="0 0 842 842"></svg>
+    <div class="fog" id="fog"></div>
+  </div>
+
+  <aside class="pnl glass squad">
+    <div class="ph"><h3>队伍</h3><small>阵亡者营火可复活</small></div>
+    <div style="padding:6px 0">
+      <div class="mem" style="--rc:var(--r3)"><span class="pf"><img src="../../game-assets/public/static/portraits/Troop_K22_16.webp" alt=""></span><div class="t"><b>冰之女</b><small>36 生命</small><div class="hp"><i style="width:82%"></i><span>30</span></div></div></div>
+      <div class="mem" style="--rc:var(--r4)"><span class="pf"><img src="../../game-assets/public/static/portraits/Troop_K22_17.webp" alt=""></span><div class="t"><b>霜羽</b><small>28 生命</small><div class="hp"><i style="width:46%"></i><span>13</span></div></div></div>
+      <div class="mem" style="--rc:var(--r3)"><span class="pf"><img src="../../game-assets/public/static/portraits/Troop_K22_06.webp" alt=""></span><div class="t"><b>冰魔像</b><small>27 生命</small><div class="hp"><i style="width:100%"></i><span>27</span></div></div></div>
+      <div class="mem dead" style="--rc:var(--r3)"><span class="pf"><img src="../../game-assets/public/static/portraits/Troop_K22_10.webp" alt=""></span><div class="t"><b>雪猎人</b><small>阵亡</small><div class="hp"><i style="width:0"></i><span>0</span></div></div></div>
+      <div class="petrow">宠物头像位<i>规则待定</i></div>
+    </div>
+    <div class="ph"><h3>遗物</h3><small>3 / 6</small></div>
+    <div class="relics">
+      <span class="slot r2"><img src="../../game-assets/bundled/meta/events/relic-hunter_mark.webp" alt=""></span>
+      <span class="slot r1"><img src="../../game-assets/bundled/meta/events/relic-iron_bulwark.webp" alt=""></span>
+      <span class="slot r3"><img src="../../game-assets/bundled/meta/events/relic-phoenix_feather.webp" alt=""></span>
+      <span class="slot empty"></span><span class="slot empty"></span>
+    </div>
+    <div class="ph"><h3>撤离点</h3><small>窗口开局可见</small></div>
+    <div class="exits" style="padding:6px 0">
+      <div class="x"><img src="../../game-assets/bundled/meta/expedition/node-extract.webp" alt=""><b>外环 A</b><span class="good">开放 · 至第 20 步</span></div>
+      <div class="x"><img src="../../game-assets/bundled/meta/expedition/node-extract.webp" alt=""><b>外环 B</b><span class="good">开放 · 至第 28 步</span></div>
+      <div class="x" style="opacity:.6"><img src="../../game-assets/bundled/meta/expedition/node-extract.webp" alt="" style="filter:grayscale(1)"><b>中环 C</b><span class="muted">第 20 步开放</span></div>
+    </div>
+  </aside>
+
+  <aside class="pnl drawer" id="drawer"></aside>
+
+  <div class="rundock">
+    <button class="rd"><span class="lb">背包</span><img src="../../game-assets/bundled/meta/expedition/node-supply.webp" alt=""><span class="q" id="dockBag">9/16</span></button>
+    <button class="rd"><span class="lb">保险格</span><img src="../../game-assets/bundled/meta/expedition/hud-safe.webp" alt=""><span class="q">1/1</span></button>
+    <button class="rd"><span class="lb">合成</span><img src="../../game-assets/bundled/meta/expedition/cur-tier.webp" alt=""></button>
+    <span class="sepv"></span>
+    <button class="rd" id="useTorch"><span class="lb">火把</span><img src="../../game-assets/bundled/meta/expedition/use-torch.webp" alt=""><span class="q" id="torchQ">3</span></button>
+    <button class="rd"><span class="lb">药剂</span><img src="../../game-assets/bundled/meta/expedition/use-potion.webp" alt=""><span class="q">2</span></button>
+    <button class="rd"><span class="lb">烟雾弹</span><img src="../../game-assets/bundled/meta/expedition/use-smoke.webp" alt=""><span class="q">1</span></button>
+    <span class="sepv"></span>
+    <button class="btn off" id="extractBtn" style="height:50px;padding:0 26px">撤离</button>
+  </div>
+
+  <!-- 遭遇预览 -->
+  <div class="modal" id="encounter" role="dialog" aria-label="遭遇预览">
+    <div class="pnl enc">
+      <span class="bgart"></span>
+      <div class="top">
+        <div class="big" id="encBig" style="--nc:#b07cff;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 38%,#23262a,#07080a 72%);box-shadow:0 0 0 2px #050505,0 0 0 4px var(--nc),0 0 24px color-mix(in srgb,var(--nc) 40%,transparent)"><img id="encIcon" src="../../game-assets/bundled/meta/expedition/node-nest.webp" alt="" style="width:78%;height:78%;object-fit:contain"></div>
+        <div class="grow"><span class="kicker" id="encKicker" style="color:#c9a8ff">Rare Nest · 稀有怪巢</span><div class="title-xl" id="encTitle" style="font-size:38px">冰峰兽巢</div></div>
+        <div style="text-align:right;font-size:13px;color:var(--ink2);line-height:1.8"><span id="encReward">胜利：<span class="gold">遗物三选一</span> · 刻印 · 局外材料</span><br><span class="muted" id="encMeta">开战耗 2 步 · 我方 3 人存活 · 未被伏击</span></div>
+      </div>
+      <div class="markline" style="position:absolute;left:36px;right:36px;top:132px;margin:0"><b>群系标记 · 霜噬</b><span>对冻结目标骷髅伤害 ×1.3。对策：带冻结免疫或净化，或先击杀能冻结你的敌人。</span></div>
+      <div class="ecards" id="encCards">
+        <article class="ec" style="--rc:var(--r2)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K15_04.webp" alt=""><span class="rk">稀有 · 2 词缀</span><div class="nm">寒冰巫师</div></div>
+          <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="">16</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="">18</span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="">44</span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="">13</span></div>
+          <div class="aff"><div><b>先发</b>开局 30% 法力 · <span class="muted">对策：开局控制</span></div><div><b>冰封</b>骷髅命中 25% 冻结 · <span class="muted">对策：冻结免疫</span></div></div></article>
+        <article class="ec" style="--rc:var(--r2)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K22_08.webp" alt=""><span class="rk">稀有 · 2 词缀</span><div class="nm">雪之守护者</div></div>
+          <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="">19</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="">8</span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="">34</span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="">13</span></div>
+          <div class="aff"><div><b>坚甲</b>护甲 ×1.3 · <span class="muted">对策：无视护甲</span></div><div class="trait"><b>特质</b>受到骷髅伤害时反弹 30%</div><div class="off"><b>荆棘</b>被原生特质覆盖，不生效</div></div></article>
+        <article class="ec" style="--rc:var(--r1)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K22_05.webp" alt=""><span class="rk">精良 · 1 词缀</span><div class="nm">寒冬狼</div></div>
+          <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="">17</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="">8</span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="">30</span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="">11</span></div>
+          <div class="aff"><div><b>连击</b>匹配 4 颗以上时攻击 +3 · <span class="muted">对策：抢大连</span></div></div></article>
+        <article class="ec" style="--rc:var(--r1)"><div class="art"><img src="../../game-assets/public/static/portraits/Troop_K15_00.webp" alt=""><span class="rk">精良 · 1 词缀</span><div class="nm">寒霜巨人</div></div>
+          <div class="stats"><span><img src="../../game-assets/bundled/meta/result/stat-attack.webp" alt="">16</span><span><img src="../../game-assets/bundled/meta/result/stat-armor.webp" alt="">12</span><span><img src="../../game-assets/bundled/meta/result/stat-health.webp" alt="">26</span><span><img src="../../game-assets/bundled/meta/result/stat-magic.webp" alt="">8</span></div>
+          <div class="aff"><div><b>再生</b>每回合回复 2 生命 · <span class="muted">对策：爆发</span></div></div></article>
+      </div>
+      <div class="bottom">
+        <span class="warn" id="encTip" style="font-size:13px">提示：寒冰巫师开局就有 30% 法力，第一回合就可能放技能冻住你的前排。</span>
+        <span class="grow"></span>
+        <button class="btn" id="encLeave">离开 · 回上一节点（1 步）</button>
+        <button class="btn off">烟雾弹</button>
+        <button class="cta ember" style="height:64px;padding:0 50px"><b>开战</b><small id="encCost">2 步</small></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<script>
+const A = '../../game-assets/bundled/meta/expedition/';
+const P = '../../game-assets/public/static/portraits/';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------- 缩放与切屏 ---------- */
+const stage = $('#stage');
+function fit() {
+  const vp = $('#viewport');
+  const k = Math.min(vp.clientWidth / 1600, vp.clientHeight / 900);
+  stage.style.transform = `scale(${k})`;
+}
+addEventListener('resize', fit); fit();
+function go(id) {
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  $$('.proto [data-go]').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  $('#encounter').classList.remove('on');
+  history.replaceState(null, '', '#' + id);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-go]');
+  if (t) { e.preventDefault(); go(t.dataset.go); }
+});
+function routeFromHash() { if (location.hash && $(location.hash + '.screen')) go(location.hash.slice(1)); }
+addEventListener('hashchange', routeFromHash);
+routeFromHash();
+
+/* ---------- 营地 ---------- */
+(function embers() {
+  const box = $('#campEmbers');
+  for (let i = 0; i < 26; i++) {
+    const e = document.createElement('i');
+    e.style.left = (820 + (Math.random() - .5) * 160) + 'px';
+    e.style.bottom = (200 + Math.random() * 40) + 'px';
+    e.style.setProperty('--dx', ((Math.random() - .5) * 220) + 'px');
+    e.style.animationDuration = (4 + Math.random() * 5) + 's';
+    e.style.animationDelay = (-Math.random() * 8) + 's';
+    box.appendChild(e);
+  }
+})();
+$('#tRunning').addEventListener('change', e => {
+  const on = e.target.checked;
+  $('#camp').classList.toggle('running', on);
+  const c = $('#campCta');
+  c.classList.toggle('ember', on);
+  c.innerHTML = on ? '<b>继续远征</b><small>寒冬堡垒 · 第 14 步</small>' : '<b>出征</b><small>前往地图台</small>';
+  c.dataset.go = on ? 'run' : 'device';
+});
+
+/* ---------- 地图台 ---------- */
+const PASSES = [
+  { name: '稀有路引', meta: '4 条词缀 · 命数 3', tier: 6, rc: 'r2v', slots: 2 },
+  { name: '稀有路引', meta: '5 条词缀 · 命数 2', tier: 6, rc: 'r2v', slots: 3 },
+  { name: '稀有路引', meta: '3 条词缀 · 命数 3', tier: 7, rc: 'r2v', slots: 2 },
+  { name: '精良路引', meta: '2 条词缀 · 命数 4', tier: 6, rc: 'r1v', slots: 1 },
+  { name: '普通路引', meta: '无词缀 · 命数 4', tier: 6, rc: 'r0v', slots: 1 },
+  { name: '普通路引', meta: '无词缀 · 命数 4', tier: 5, rc: 'r0v', slots: 1 },
+];
+$$('#passList .pass[data-pass]').forEach(el => el.addEventListener('click', () => {
+  const p = PASSES[+el.dataset.pass];
+  $$('#passList .pass').forEach(x => x.classList.toggle('sel', x === el));
+  const s = $('#sockMain');
+  s.className = 'sock main ' + p.rc;
+  s.querySelector('.lv').textContent = '阶 ' + p.tier;
+  $('#sockName').textContent = p.name;
+  $('#sockMeta').textContent = p.meta;
+  const s3 = $('#sock3');
+  s3.classList.toggle('lock', p.slots < 3);
+  s3.classList.toggle('empty', p.slots >= 3);
+  s3.querySelector('.lbl').innerHTML = p.slots >= 3 ? '<b>第三槽</b><small>点击插入罗盘</small>' : '<b>第三槽</b><small>路引 5 条词缀以上开放</small>';
+}));
+
+/* ---------- 局内地图 ---------- */
+// 坐标是地图底板（842×842）上的百分比，对齐底图上的平台。
+const T = {
+  loot:   { icon: 'node-loot',     nc: '#d9b46a', name: '战利品堆' },
+  supply: { icon: 'node-supply',   nc: '#a89070', name: '补给箱' },
+  chest:  { icon: 'node-chest',    nc: '#f0c75a', name: '上锁宝箱' },
+  ore:    { icon: 'node-ore',      nc: '#6fd3e6', name: '矿脉' },
+  fire:   { icon: 'node-fire',     nc: '#ff9c45', name: '营火' },
+  shrine: { icon: 'node-shrine',   nc: '#e8d9a0', name: '神龛' },
+  shop:   { icon: 'node-merchant', nc: '#d9b46a', name: '行商' },
+  exit:   { icon: 'node-extract',  nc: '#8fe0b0', name: '撤离点' },
+  fight:  { icon: 'node-wander',   nc: '#d4483c', name: '驻守敌人' },
+  nest:   { icon: 'node-nest',     nc: '#b07cff', name: '稀有怪巢' },
+  lord:   { icon: 'node-lord',     nc: '#ffcf5a', name: '领主巢' },
+  boss:   { icon: 'node-boss',     nc: '#ff4a3a', name: '首领殿' },
+  altar:  { icon: 'node-altar',    nc: '#e0405a', name: '血祭祭坛' },
+  coffin: { icon: 'node-coffin',   nc: '#9fd7ff', name: '冰封棺' },
+};
+const N = [
+  { id: 'a', x: 21, y: 75, t: 'supply', sub: '入口' },
+  { id: 'b', x: 11, y: 55, t: 'supply' },
+  { id: 'c', x: 14, y: 32, t: 'fight', sub: '已清' },
+  { id: 'd', x: 30, y: 15, t: 'loot' },
+  { id: 'e', x: 51, y: 11, t: 'exit', sub: 'A · 4–20 步' },
+  { id: 'f', x: 77, y: 14, t: 'shop' },
+  { id: 'g', x: 88, y: 34, t: 'ore' },
+  { id: 'h', x: 90, y: 56, t: 'exit', sub: 'B · 12–28 步' },
+  { id: 'i', x: 84, y: 72, t: 'fight' },
+  { id: 'j', x: 62, y: 80, t: 'fire' },
+  { id: 'k', x: 38, y: 80, t: 'supply' },
+  { id: 'm1', x: 44, y: 27, t: 'nest', name: '冰峰兽巢', enemy: true },
+  { id: 'm2', x: 72, y: 32, t: 'altar' },
+  { id: 'm3', x: 74, y: 57, t: 'exit', sub: 'C · 20–34 步', locked: true },
+  { id: 'm4', x: 52, y: 68, t: 'coffin' },
+  { id: 'm5', x: 27, y: 61, t: 'lord', name: '冰窟女王', enemy: true },
+  { id: 'm6', x: 26, y: 42, t: 'shrine' },
+  { id: 'i1', x: 38, y: 47, t: 'lord', name: '霜巨人督军', enemy: true },
+  { id: 'i2', x: 63, y: 42, t: 'chest' },
+  { id: 'i3', x: 63, y: 62, t: 'fight' },
+  { id: 'boss', x: 52.5, y: 52, t: 'boss', name: '寒冬不朽', enemy: true, s: 92 },
+];
+const E = [['a','b'],['b','c'],['c','d'],['d','e'],['e','f'],['f','g'],['g','h'],['h','i'],['i','j'],['j','k'],['k','a'],
+  ['d','m1'],['g','m2'],['h','m3'],['j','m4'],['b','m5'],['c','m6'],
+  ['m1','m2'],['m2','m3'],['m3','m4'],['m4','m5'],['m5','m6'],['m6','m1'],
+  ['m6','i1'],['m2','i2'],['m4','i3'],['i1','boss'],['i2','boss'],['i3','boss']];
+const byId = Object.fromEntries(N.map(n => [n.id, n]));
+const adj = {}; E.forEach(([u, v]) => { (adj[u] ||= []).push(v); (adj[v] ||= []).push(u); });
+const S = { cur: 'd', visited: new Set(['a', 'b', 'c', 'd']), walked: new Set(['a|b', 'b|c', 'c|d']), steps: 14, light: 52, sel: 'd', torches: 3, taken: new Set() };
+const key = (u, v) => [u, v].sort().join('|');
+function path(from, to) {
+  const prev = { [from]: null }, q = [from];
+  while (q.length) { const u = q.shift(); if (u === to) break; for (const v of adj[u] || []) if (!(v in prev)) { prev[v] = u; q.push(v); } }
+  const out = []; for (let u = to; u != null; u = prev[u]) out.unshift(u); return out;
+}
+const revealed = n => S.visited.has(n.id) || n.t === 'exit' || n.t === 'boss' || (adj[n.id] || []).some(v => S.visited.has(v)) || (S.light >= 70 && (adj[n.id] || []).some(v => v === S.cur));
+const px = n => [n.x / 100 * 842, n.y / 100 * 842];
+
+function tier(l) { return l >= 70 ? ['明亮', '×1.0'] : l >= 40 ? ['昏暗', '×1.15'] : l >= 10 ? ['幽暗', '×1.35'] : ['漆黑', '×1.6']; }
+function renderHud() {
+  $('#hSteps').innerHTML = `${S.steps}<em> / 36</em>`;
+  $('#hStepBar').innerHTML = Array.from({ length: 18 }, (_, i) => `<i class="${i < Math.ceil((36 - S.steps) / 2) ? 'on' : ''}"></i>`).join('');
+  $('#hLight').textContent = S.light;
+  $('#hLightBar').style.width = S.light + '%';
+  const [nm, mult] = tier(S.light);
+  $('#hTier').textContent = nm; $('#hMult').textContent = '掉落 ' + mult;
+  const darkness = S.light >= 70 ? .0 : S.light >= 40 ? .25 : S.light >= 10 ? .45 : .62;
+  const [cx, cy] = px(byId[S.cur]);
+  $('#fog').style.background = `radial-gradient(circle at ${cx}px ${cy}px, transparent 120px, rgba(2,4,8,${darkness}) 300px, rgba(2,4,8,${darkness + .2}) 620px)`;
+  $('#torchQ').textContent = S.torches;
+  const onExit = byId[S.cur].t === 'exit' && !byId[S.cur].locked;
+  const ex = $('#extractBtn'); ex.classList.toggle('off', !onExit); ex.className = onExit ? 'cta' : 'btn off';
+  ex.style.cssText = onExit ? 'height:50px;padding:0 30px' : 'height:50px;padding:0 26px';
+  ex.innerHTML = onExit ? '<b style="font-size:20px">撤离</b>' : '撤离';
+}
+function renderMap() {
+  const board = $('#board');
+  $$('.nd,.party-token,.ripple,.wanderer', board).forEach(e => e.remove());
+  const route = S.sel && S.sel !== S.cur ? path(S.cur, S.sel) : [];
+  const routeKeys = new Set(route.slice(1).map((v, i) => key(route[i], v)));
+  $('#links').innerHTML = E.map(([u, v]) => {
+    const [x1, y1] = px(byId[u]), [x2, y2] = px(byId[v]);
+    const k = key(u, v);
+    const cls = routeKeys.has(k) ? 'route' : S.walked.has(k) ? 'walked' : (revealed(byId[u]) && revealed(byId[v])) ? 'seen' : 'base';
+    const mx = (x1 + x2) / 2 + (y2 - y1) * .08, my = (y1 + y2) / 2 - (x2 - x1) * .08;
+    return `<path class="${cls}" d="M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}"/>`;
+  }).join('');
+  for (const n of N) {
+    const t = T[n.t], [x, y] = px(n), el = document.createElement('button');
+    const isFog = !revealed(n), reach = (adj[S.cur] || []).includes(n.id) && !S.visited.has(n.id);
+    el.className = 'nd' + (S.visited.has(n.id) && n.id !== S.cur ? ' visited' : '') + (isFog ? ' fog' : '') + (n.id === S.cur ? ' cur' : '') + (n.id === S.sel ? ' sel' : '') + (reach && !isFog ? ' reach' : '');
+    el.style.cssText = `left:${x}px;top:${y}px;--nc:${n.locked ? '#4f6a5c' : t.nc};${n.s ? `--s:${n.s}px` : ''}`;
+    el.innerHTML = `<img src="${A}${t.icon}.webp" alt=""><span class="nl">${n.name || t.name}${n.sub ? `<small>${n.sub}</small>` : ''}</span>`;
+    el.setAttribute('aria-label', isFog ? '未知节点' : (n.name || t.name));
+    el.onclick = () => { S.sel = n.id; renderMap(); renderDrawer(); };
+    board.appendChild(el);
+  }
+  const [cx, cy] = px(byId[S.cur]);
+  const tok = document.createElement('div'); tok.className = 'party-token'; tok.style.cssText = `left:${cx}px;top:${cy}px`;
+  tok.innerHTML = `<span class="pf"><img src="${P}Troop_K22_16.webp" alt=""></span>`; board.appendChild(tok);
+  const rp = document.createElement('div'); rp.className = 'ripple'; rp.style.cssText = `left:${cx}px;top:${cy}px`; board.appendChild(rp);
+  if (S.light >= 40 || S.cur === 'e' || S.cur === 'f') {
+    const w = document.createElement('div'); w.className = 'wanderer';
+    const [wx, wy] = [64 / 100 * 842, 18 / 100 * 842]; w.style.cssText = `left:${wx}px;top:${wy}px`;
+    w.innerHTML = `<img src="${A}node-wander.webp" alt="">`; board.appendChild(w);
+  }
+  renderHud();
+}
+const LOOT = [
+  { icon: 'sigil-silver', r: 'r2', name: '霜纹之握', kind: '稀有刻印 · 星银 · 物品等级 6', af: [['开局法力 +11%', 'T3'], ['骷髅命中几率冻结 14%', 'T3'], ['生命 +6', 'T3']] },
+  { icon: 'cur-tier', name: '升阶石', q: 2, kind: '做装通货 · 词缀 T 级往上升' },
+  { icon: 'mat-memory', r: 'r5', name: '记忆碎片 · 冰峰的回声 #2', q: 1, kind: '拼齐后开出熔炉材料' },
+  { icon: 'cur-dust', name: '刻尘', q: 12, kind: '做装通货 · 用于铭刻' },
+];
+let tipIdx = 0;
+function renderDrawer() {
+  const n = byId[S.sel], t = T[n.t], d = $('#drawer');
+  const fog = !revealed(n);
+  const route = path(S.cur, n.id), dist = route.length - 1;
+  const title = fog ? '未知' : (n.name || t.name);
+  const sub = fog ? '灯火不够，看不清这里' : n.id === S.cur ? '你在这里' : `距离 ${dist} 步`;
+  let body = '', foot = '';
+  if (n.id === S.cur && n.t === 'loot') {
+    body = `<div class="note">已搜刮（1 步）· 灯火加成 ×1.15 · 结果已由服务端抽定</div>
+      <div class="lootgrid">${LOOT.map((it, i) => `<span class="slot ${it.r || ''} ${i === tipIdx ? 'sel' : ''} ${S.taken.has(i) ? 'taken' : ''}" data-i="${i}"><img src="${A}${it.icon}.webp" alt="">${it.q ? `<span class="q">${it.q}</span>` : ''}</span>`).join('')}</div>
+      ${tipHtml(LOOT[tipIdx])}
+      ${bagHtml()}`;
+    foot = `<button class="btn" id="takeOne">拿取</button><button class="cta" style="height:58px" id="takeAll"><b style="font-size:20px">全部拿取</b></button>`;
+  } else if (n.id === S.cur && n.t === 'shrine') {
+    const opts = [['霜火祝福', '本趟全队开局法力 +10%', '代价：怪物生命 +5%'], ['守夜者之眼', '本趟灯火每步消耗 −1', '代价：钱袋 −120'], ['冰誓', '本趟冻结免疫 1 名队员', '代价：无']];
+    body = `<div class="note">只能选一个，或者不选直接离开。效果只在本趟有效。</div>
+      <div class="shopts">${opts.map(([a, b, c], i) => `<div class="sho ${S.shrine === i ? 'on' : ''}" data-i="${i}"><b>${a}</b><span>${b}</span><small>${c}</small></div>`).join('')}</div>`;
+    foot = `<button class="btn" id="leaveShrine">不选，离开</button><button class="cta" style="height:58px" id="takeShrine" ${S.shrine == null ? 'disabled' : ''}><b style="font-size:20px">${S.shrineTaken ? '已接受' : '接受'}</b></button>`;
+  } else if (fog) {
+    body = `<div class="note">要么点亮火把（灯火 70 以上能看清相邻节点），要么走过去看。</div>`;
+    foot = dist > 0 ? `<button class="cta" style="height:58px" id="travel"><b style="font-size:20px">前往</b><small>${dist} 步</small></button>` : '';
+  } else if (n.enemy || n.t === 'fight') {
+    const enc = encFor(n);
+    const affs = [...new Set(enc.cards.flatMap(c => (c.af || []).map(a => a[0])))];
+    body = `<div class="markline"><b>霜噬</b><span>对冻结目标骷髅伤害 ×1.3</span></div>
+      <div class="enemyrow">${enc.cards.map(c => `<span class="e" style="--rc:var(--${c.r})"><img src="${P}${c.p}.webp" alt=""><span>${c.nm}</span></span>`).join('')}</div>
+      <div class="afrow">${affs.length ? affs.map(a => `<span class="afx">${a}</span>`).join('') : '<span class="note">无怪物词缀</span>'}<small>怪物词缀</small></div>
+      <div class="threat"><div class="bagh"><b>队伍对比</b><span>装备增益 +31% · 推荐 ${n.t === 'boss' ? '+45%' : n.t === 'lord' ? '+38%' : '+30%'}</span></div>
+        <div class="tbar"><i style="width:${n.t === 'boss' ? 41 : n.t === 'lord' ? 47 : 58}%"></i><u style="left:50%"></u></div>
+        <div class="tlbl"><span>危险</span><span>吃力</span><span>稳妥</span></div></div>
+      <div class="note">${n.t === 'boss' ? '三个阶段，最终阶段召唤冰霜风暴。胜利后开启首领传送门。' : n.t === 'lord' ? `${n.name === '霜巨人督军' ? '两个阶段。' : ''}必掉 1 件传说以上刻印；首杀解锁首领铭文。` : n.t === 'nest' ? '稀有怪群，每名带 1–2 条怪物词缀。胜利后遗物三选一。' : '驻守敌人。胜利后节点变成战利品堆。'}</div>`;
+    foot = (n.id === S.cur ? '' : `<button class="btn" id="travel">前往 · ${dist} 步</button>`) + `<button class="cta ember" style="height:58px" id="scout"><b style="font-size:20px">查看敌情</b></button>`;
+  } else {
+    const desc = { supply: '局内素材、消耗品。搜刮 1 步。', exit: n.locked ? '还没开放。第 20 步开放，到第 34 步关闭。' : '站在开放中的撤离点上，引导 1 步即可撤离。游荡敌人进入同一节点会打断。', shop: '用钱袋买卖。刷新一次，价格翻倍。', ore: '宝石类记忆的碎片、本群系纹章。搜刮 2 步。', fire: '休整、守夜、整备三选一，3 步。', shrine: '本趟增益，接受或离开。', altar: '在祭坛范围里打过的敌人会进入名单。激活祭坛（2 步）进行车轮战。', coffin: '封着一名稀有怪和一箱战利品。用火把融冰（灯火 −20）才能打开。', chest: '3–4 件，至少 1 件稀有以上。撬锁 2 步，或用钥匙 0 步。' }[n.t] || '';
+    body = `<div class="note" style="font-size:13px;color:var(--ink2)">${desc}</div>`;
+    foot = dist > 0 ? `<button class="cta" style="height:58px" id="travel"><b style="font-size:20px">前往</b><small>${dist} 步 · 灯火 −${dist * 4}</small></button>` : '';
+  }
+  d.innerHTML = `<div class="head" style="--nc:${fog ? '#39454a' : t.nc}"><span class="big">${fog ? '<span style="font:30px var(--disp);color:#6f8a90">?</span>' : `<img src="${A}${t.icon}.webp" alt="">`}</span><div><b>${title}</b><small>${sub}</small></div></div><div class="body">${body}</div><div class="foot">${foot}</div>`;
+  $$('.lootgrid .slot', d).forEach(s => s.onclick = () => { tipIdx = +s.dataset.i; renderDrawer(); });
+  const tr = $('#travel', d); if (tr) tr.onclick = () => travel(n.id);
+  const sc = $('#scout', d); if (sc) sc.onclick = () => openEncounter(n);
+  const ta = $('#takeAll', d); if (ta) ta.onclick = () => { LOOT.forEach((_, i) => S.taken.add(i)); renderDrawer(); };
+  $$('.sho', d).forEach(s => s.onclick = () => { if (!S.shrineTaken) { S.shrine = +s.dataset.i; renderDrawer(); } });
+  const tsh = $('#takeShrine', d); if (tsh) tsh.onclick = () => { if (S.shrine != null) { S.shrineTaken = true; renderDrawer(); } };
+  const t1 = $('#takeOne', d); if (t1) t1.onclick = () => { S.taken.add(tipIdx); renderDrawer(); };
+}
+/* 怪物词缀：取自 03-enemies §4；数值为示例 */
+const AFX = {
+  先发: ['开局 30% 法力', '开局控制'], 冰封: ['骷髅命中 25% 冻结', '冻结免疫'], 坚甲: ['护甲 ×1.3', '无视护甲'],
+  荆棘: ['反弹 25% 骷髅伤害', '技能伤害'], 连击: ['匹配 4 颗以上时攻击 +3', '抢大连'], 再生: ['每回合回复 2 生命', '爆发'],
+  屏障: ['开局获得屏障', '多段伤害'], 不屈: ['首次阵亡时以 30% 生命复活', '准备两次击杀'],
+};
+const af = (...k) => k.map(x => [x, ...AFX[x]]);
+/* 遭遇表：每类敌方节点一套示例阵容 */
+const ENC = {
+  nest: { kicker: 'Rare Nest · 稀有怪巢', kc: '#c9a8ff', reward: '胜利：<span class="gold">遗物三选一</span> · 刻印 · 局外材料', cost: 2,
+    tip: '提示：寒冰巫师开局就有 30% 法力，第一回合就可能放技能冻住你的前排。',
+    cards: [
+      { p: 'Troop_K15_04', nm: '寒冰巫师', r: 'r2', rk: '稀有 · 2 词缀', st: [16, 18, 44, 13], af: af('先发', '冰封') },
+      { p: 'Troop_K22_08', nm: '雪之守护者', r: 'r2', rk: '稀有 · 2 词缀', st: [19, 8, 34, 13], af: af('坚甲'), trait: '受到骷髅伤害时反弹 30%', off: '荆棘' },
+      { p: 'Troop_K22_05', nm: '寒冬狼', r: 'r1', rk: '精良 · 1 词缀', st: [17, 8, 30, 11], af: af('连击') },
+      { p: 'Troop_K15_00', nm: '寒霜巨人', r: 'r1', rk: '精良 · 1 词缀', st: [16, 12, 26, 8], af: af('再生') },
+    ] },
+  '冰窟女王': { kicker: 'Lord · 领主', kc: '#ffcf5a', reward: '胜利：<span class="gold">必掉 1 件传说以上刻印</span> · 首杀解锁铭文“冰封之列”', cost: 2,
+    tip: '提示：女王每 3 回合把一整列宝石变成冰霜宝石；被冻结的单位每回合掉血，带冻结免疫最稳。',
+    cards: [
+      { p: 'Troop_K22_11', nm: '冰窟女王', r: 'r3', rk: '领主', st: [24, 20, 62, 16], af: af('先发'), trait: '每 3 回合把一整列宝石变成冰霜宝石' },
+      { p: 'Troop_K15_26', nm: '霜魂萨满', r: 'r2', rk: '精锐 · 辅助', st: [12, 14, 38, 15], af: af('再生'), trait: '开局冻结第一名敌人' },
+      { p: 'Troop_K15_09', nm: '霜鸦哨兵', r: 'r2', rk: '精锐 · 供魔', st: [13, 10, 30, 12], af: af('冰封') },
+      { p: 'Troop_K22_05', nm: '寒狱狼', r: 'r1', rk: '杂兵 · 输出', st: [17, 8, 28, 10], af: [], trait: '一只阵亡时召唤另一只补位' },
+    ] },
+  '霜巨人督军': { kicker: 'Lord · 领主', kc: '#ffcf5a', reward: '胜利：<span class="gold">必掉 1 件传说以上刻印</span> · 首杀解锁督军铭文', cost: 2,
+    tip: '提示：第一阶段有屏障，多段伤害破盾；第二阶段匹配 4 颗以上会眩晕你的首位。',
+    cards: [
+      { p: 'Troop_K15_35', nm: '霜巨人督军', r: 'r3', rk: '领主 · 阶段 1/2', st: [22, 26, 70, 12], af: af('屏障'), trait: '第二阶段狂怒，匹配 4 颗以上眩晕首位' },
+      { p: 'Troop_K15_00', nm: '冰甲巨人', r: 'r2', rk: '精锐 · 前排', st: [15, 22, 44, 9], af: af('坚甲'), trait: '受伤后获得护甲' },
+      { p: 'Troop_K15_30', nm: '冰甲巨人', r: 'r2', rk: '精锐 · 前排', st: [15, 22, 44, 9], af: af('荆棘'), trait: '受伤后获得护甲' },
+      { p: 'Troop_K22_12', nm: '雪原猎手', r: 'r2', rk: '精锐 · 刺客', st: [20, 9, 30, 13], af: [], trait: '技能打最后一名，对冻结目标 ×2' },
+    ] },
+  boss: { kicker: 'Boss · 首领', kc: '#ff8a7a', reward: '胜利：<span class="gold">开启首领传送门</span> · 首领掉落 · 首杀铭文', cost: 2,
+    tip: '提示：三个阶段，每个阶段的属性和词缀都会变，最终阶段召唤冰霜风暴。',
+    cards: [
+      { p: 'Troop_Boss_K22', nm: '寒冬不朽', r: 'r4', rk: '首领 · 阶段 1/3', st: [28, 24, 96, 18], af: af('先发', '冰封'), trait: '最终阶段召唤冰霜风暴' },
+      { p: 'Troop_K22_06', nm: '冰魔像', r: 'r2', rk: '稀有 · 2 词缀', st: [14, 28, 52, 8], af: af('坚甲', '再生') },
+      { p: 'Troop_K15_04', nm: '寒冰巫师', r: 'r2', rk: '稀有 · 1 词缀', st: [16, 18, 44, 13], af: af('冰封') },
+      { p: 'Troop_K22_08', nm: '雪之守护者', r: 'r2', rk: '稀有 · 1 词缀', st: [19, 8, 34, 13], af: af('连击') },
+    ] },
+  fight: { kicker: 'Guard · 驻守敌人', kc: '#ff9c8c', reward: '胜利：节点变成战利品堆', cost: 2,
+    tip: '提示：驻守敌人不会移动，不想打可以绕路。',
+    cards: [
+      { p: 'Troop_K22_02', nm: '寒冬骑士', r: 'r1', rk: '精良 · 1 词缀', st: [14, 16, 30, 9], af: af('坚甲') },
+      { p: 'Troop_K22_12', nm: '寒霜弓箭手', r: 'r0', rk: '普通', st: [13, 6, 22, 10], af: [] },
+      { p: 'Troop_K22_07', nm: '霜虫', r: 'r0', rk: '普通', st: [10, 6, 20, 8], af: [] },
+      { p: 'Troop_K22_05', nm: '寒冬狼', r: 'r1', rk: '精良 · 1 词缀', st: [17, 8, 30, 11], af: af('连击') },
+    ] },
+};
+const encFor = n => ENC[n.name] || ENC[n.t] || ENC.fight;
+function openEncounter(n) {
+  const e = encFor(n), t = T[n.t], fog = !revealed(n);
+  $('#encBig').style.setProperty('--nc', t.nc);
+  $('#encIcon').src = `${A}${t.icon}.webp`;
+  $('#encKicker').textContent = e.kicker; $('#encKicker').style.color = e.kc;
+  $('#encTitle').textContent = n.name || t.name;
+  $('#encReward').innerHTML = e.reward;
+  const alive = $$('#run .mem:not(.dead)').length;
+  $('#encMeta').textContent = `开战耗 ${e.cost} 步 · 我方 ${alive} 人存活 · ${fog ? '情报不全' : '未被伏击'}`;
+  $('#encCost').textContent = `${e.cost} 步`;
+  $('#encTip').textContent = e.tip;
+  const S4 = ['attack', 'armor', 'health', 'magic'];
+  $('#encCards').innerHTML = e.cards.map(c => `<article class="ec" style="--rc:var(--${c.r})"><div class="art"><img src="${P}${c.p}.webp" alt=""><span class="rk">${c.rk}</span><div class="nm">${c.nm}</div></div>
+    <div class="stats">${c.st.map((v, i) => `<span><img src="../../game-assets/bundled/meta/result/stat-${S4[i]}.webp" alt="">${v}</span>`).join('')}</div>
+    <div class="aff">${(c.af || []).map(([k, d, ct]) => `<div><b>${k}</b>${d} · <span class="muted">对策：${ct}</span></div>`).join('')}${c.trait ? `<div class="trait"><b>特质</b>${c.trait}</div>` : ''}${c.off ? `<div class="off"><b>${c.off}</b>被原生特质覆盖，不生效</div>` : ''}${!(c.af || []).length && !c.trait ? '<div class="muted">无词缀</div>' : ''}</div></article>`).join('');
+  $('#encounter').classList.add('on');
+}
+const BAG = [['sigil-iron', 'r1'], ['sigil-stone', 'r0'], ['sigil-silver', 'r2'], ['cur-dust', ''], ['cur-quality', ''], ['cur-reroll', ''], ['mat-soul', 'r3'], ['mat-flask', ''], ['cur-break', '']];
+function bagHtml() {
+  const items = BAG.concat([...S.taken].sort().map(i => [LOOT[i].icon, LOOT[i].r || '', true]));
+  const cells = Array.from({ length: 16 }, (_, i) => {
+    const it = items[i];
+    return it ? `<span class="bg-c ${it[1]} ${it[2] ? 'new' : ''}"><img src="${A}${it[0]}.webp" alt=""></span>` : '<span class="bg-c empty"></span>';
+  }).join('');
+  $('#dockBag').textContent = `${items.length}/16`;
+  return `<div class="bagbox"><div class="bagh"><b>背包</b><span>${items.length} / 16</span></div><div class="baggrid">${cells}</div>
+    <div class="note">背包满时“拿取”变成“替换”，换下的放回地面，离开后回来还能拿。</div></div>`;
+}
+function tipHtml(it) {
+  return `<div class="itemtip"><b class="${it.r ? 'rn' : ''}" style="${it.r ? `--rc:var(--${it.r})` : ''}">${it.name}${it.q ? ` ×${it.q}` : ''}</b><div class="note">${it.kind}</div>${(it.af || []).map(([a, tl]) => `<div class="af"><span>${a}</span><em>${tl}</em></div>`).join('')}${it.af ? '<div class="note good" style="margin-top:4px">比冰之女当前位 1 多 开局法力 +11%</div>' : ''}</div>`;
+}
+function travel(to) {
+  const p = path(S.cur, to);
+  for (let i = 1; i < p.length; i++) { S.walked.add(key(p[i - 1], p[i])); S.visited.add(p[i]); }
+  S.steps = Math.min(36, S.steps + p.length - 1);
+  S.light = Math.max(0, S.light - 4 * (p.length - 1));
+  S.cur = to; S.sel = to; renderMap(); renderDrawer();
+}
+$('#useTorch').onclick = () => { if (S.torches > 0) { S.torches--; S.light = Math.min(100, S.light + 30); renderMap(); renderDrawer(); } };
+$('#encLeave').onclick = () => $('#encounter').classList.remove('on');
+$('#encounter').addEventListener('click', e => { if (e.target.id === 'encounter') e.currentTarget.classList.remove('on'); });
+addEventListener('keydown', e => { if (e.key === 'Escape') $('#encounter').classList.remove('on'); });
+renderMap(); renderDrawer();
+</script>
+</body>
+</html>
