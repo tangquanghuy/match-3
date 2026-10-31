@@ -1,0 +1,17 @@
+{
+  "id": "adf31d55-5ab4-4be7-a720-c0c96a5e1ed4",
+  "scriptName": "状态栏",
+  "disabled": false,
+  "runOnEdit": true,
+  "findRegex": "<StatusPlaceHolderImpl/>",
+  "trimStrings": [],
+  "replaceString": "```text\n<body>\n<script>\n$('body').load('http://127.0.0.1:5185/local-card/statusbar.html')\n</script>\n</body>\n```",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 3,
+  "markdownOnly": true,
+  "promptOnly": false
+}

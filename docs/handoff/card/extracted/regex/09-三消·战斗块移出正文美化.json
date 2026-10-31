@@ -1,0 +1,17 @@
+{
+  "id": "4a85d896-77fa-4f37-b313-bc1b9636b8ee",
+  "scriptName": "三消·战斗块移出正文美化",
+  "disabled": false,
+  "runOnEdit": true,
+  "findRegex": "/(<match3>\\s*[\\s\\S]*?\\s*<\\/match3>)([\\s\\S]*?)(<\\/now_plot>)/g",
+  "trimStrings": [],
+  "replaceString": "$2$3\n\n$1",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": null,
+  "markdownOnly": true,
+  "promptOnly": false
+}

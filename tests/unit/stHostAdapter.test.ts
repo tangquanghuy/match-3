@@ -2,6 +2,7 @@ import {describe,it,expect,vi} from 'vitest';
 import {StHostAdapter,companionColors} from '../../src/sillytavern/hostAdapter';
 import type {TavernHelpers,MvuData,TavernContext,StHostAdapterOptions} from '../../src/sillytavern/hostAdapter';
 import {createSave,emptyRoot} from '../../src/sillytavern/save';
+import {CURRENCY_GUARD_FLAG,CURRENCY_SEAL_FIELD,sealCurrencyInPlace,sealedCurrency} from '../../src/sillytavern/currencySeal';
 
 function fixture(options:StHostAdapterOptions={}){
  let chatId='chat-a';let variables:Record<string,unknown>={other:'preserve'};
@@ -44,7 +45,7 @@ describe('ST actual-host boundary adapter',()=>{
    const f=fixture();const bonds=f.data.stat_data['羁绊列表'] as Record<string,Record<string,unknown>>;
    bonds['同伴乙']!['三消']={颜色:['Red','Red']};expect(()=>f.adapter.read()).toThrow('颜色');
    delete bonds['同伴乙']!['三消'];
-   for(const colors of [[],['Green','Red','Blue'],['Skull'],['Red','Red']])await expect(f.adapter.writeCompanionColors(f.adapter.read(),[{name:'同伴甲',colors}])).rejects.toThrow('颜色');
+   for(const colors of [[],['Green','Red','Blue','Yellow'],['Skull'],['Red','Red']])await expect(f.adapter.writeCompanionColors(f.adapter.read(),[{name:'同伴甲',colors}])).rejects.toThrow('颜色');
    expect(f.helpers.Mvu.replaceMvuData).not.toHaveBeenCalled();
  });
  it('preserves literal prototype-like actor names and rejects inherited actors',async()=>{
@@ -53,6 +54,30 @@ describe('ST actual-host boundary adapter',()=>{
    expect(Object.hasOwn(companionColors(f.adapter.read().statData),'__proto__')).toBe(true);
    expect(companionColors(f.adapter.read().statData)['__proto__']).toEqual(['Purple']);
    await expect(f.adapter.writeCompanionColors(f.adapter.read(),[{name:'constructor',colors:['Red']}])).rejects.toThrow('不存在');
+ });
+ it('buys a weapon: deducts 通用币 and records ownership in one MVU write, rejecting stale floors and stripped fields',async()=>{
+   const withGold=(f:ReturnType<typeof fixture>)=>{(f.data.stat_data['人物'] as Record<string,unknown>)['背包']={通用币:2_500_000,道具:{}};return f;};
+   const f=withGold(fixture());const next=await f.adapter.purchaseWeapon(f.adapter.read(),'gw_SkeletonKey');
+   expect(f.helpers.Mvu.replaceMvuData).toHaveBeenCalledTimes(1);
+   expect((next.statData['人物'] as {背包:{通用币:number}}).背包.通用币).toBe(500_000);expect(next.statData['三消已购武器']).toEqual(['gw_SkeletonKey']);
+   expect(f.data.other).toEqual({preserve:true});
+   await expect(f.adapter.purchaseWeapon(f.adapter.read(),'gw_SkeletonKey')).rejects.toThrow('已经购买');
+   const stale=withGold(fixture());const snapshot=stale.adapter.read();(stale.data.stat_data['人物'] as Record<string,unknown>)['当前生命值']=2;
+   await expect(stale.adapter.purchaseWeapon(snapshot,'gw_SkeletonKey')).rejects.toThrow('变化');expect(stale.helpers.Mvu.replaceMvuData).not.toHaveBeenCalled();
+   const stripped=withGold(fixture());stripped.helpers.Mvu.replaceMvuData=vi.fn(async()=>{});
+   await expect(stripped.adapter.purchaseWeapon(stripped.adapter.read(),'gw_SkeletonKey')).rejects.toThrow('三消已购武器');
+   expect(next.statData[CURRENCY_SEAL_FIELD]).toBeUndefined();
+ });
+ it('with the 通用币 guard running, pays from the sealed balance and seals what is left',async()=>{
+   const f=fixture();const stat=f.data.stat_data;(stat['人物'] as Record<string,unknown>)['背包']={通用币:2_500_000,道具:{}};sealCurrencyInPlace(stat);
+   ((stat['人物'] as Record<string,unknown>)['背包'] as Record<string,unknown>)['通用币']=9_999_999;// edited in the variable manager
+   (f.host as unknown as Record<string,unknown>)[CURRENCY_GUARD_FLAG]={version:'test',at:Date.now()};
+   const next=await f.adapter.purchaseWeapon(f.adapter.read(),'gw_SkeletonKey');
+   expect((next.statData['人物'] as {背包:{通用币:number}}).背包.通用币).toBe(500_000);expect(sealedCurrency(next.statData)).toBe(500_000);
+   const poor=fixture();const s=poor.data.stat_data;(s['人物'] as Record<string,unknown>)['背包']={通用币:100,道具:{}};sealCurrencyInPlace(s);
+   ((s['人物'] as Record<string,unknown>)['背包'] as Record<string,unknown>)['通用币']=9_999_999;
+   (poor.host as unknown as Record<string,unknown>)[CURRENCY_GUARD_FLAG]={version:'test',at:Date.now()};
+   await expect(poor.adapter.purchaseWeapon(poor.adapter.read(),'gw_SkeletonKey')).rejects.toThrow('通用币不足');
  });
 
 });

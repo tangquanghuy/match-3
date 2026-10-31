@@ -5,8 +5,9 @@ import type { PartyPreparationSave, StSave } from './save';
 import { chatKey } from './save';
 import { stableJson } from './json';
 import {
-  prepareCurrentParty, partyAbilityChoices, partyWeaponEconomyIssues, HERO_MEMBER_REF,
+  prepareCurrentParty, findPartyAbility, HERO_MEMBER_REF, STARTER_WEAPON,
 } from './partyPreparation';
+import type { PartyAbilityChoice } from './partyPreparation';
 import type { PartyCandidate, PartyPreparation } from './partyPreparation';
 import weapons from '../data/weapons.json';
 import { normalizeCombatText } from '../data/combatText';
@@ -20,17 +21,22 @@ import { renderSpell } from '../meta/shell/spellText';
 import { bindTermTips } from '../meta/shell/termTip';
 import { abilityDisplayText } from './abilityDisplay';
 import teamStyles from '../meta/screens/teamScreen.css?inline';
+import weaponsStyles from '../meta/screens/weaponsScreen.css?inline';
+import { openWeaponPicker } from './weaponPicker';
+import type { WeaponShopAccess } from './weaponPicker';
+import { universalCurrency, weaponOwned } from './weaponShop';
+import { currencyGuardActive, sealedCurrency } from './currencySeal';
 import partyStyles from './partyDialog.css?inline';
 
 // The shadow tree lives in the ST document; asset URLs must keep the game's origin.
 const assetBase = new URL(import.meta.env.BASE_URL, import.meta.url);
-const nativeStyles = `${shellStyles}\n${screenStyles}\n${teamStyles}`.replace(/:root\b/g, ':host').replaceAll('#stage.team-responsive', ':host(#stage.team-responsive)')
+const nativeStyles = `${shellStyles}\n${screenStyles}\n${teamStyles}\n${weaponsStyles}`.replace(/:root\b/g, ':host').replaceAll('#stage.team-responsive', ':host(#stage.team-responsive)')
   .replace(/url\(\s*(['"]?)([^'"\s)]+)\1\s*\)/g, (value, _quote: string, url: string) =>
     /^(?:data:|blob:|#)/i.test(url) ? value : `url("${new URL(url, assetBase).href}")`);
 
 export interface PreparePartyDialogOptions {
   hostWindow: Window;
-  service: Pick<StHostService, 'current' | 'create' | 'initializeCompanions' | 'repository'>;
+  service: Pick<StHostService, 'current' | 'create' | 'initializeCompanions' | 'repository' | 'purchaseWeapon'>;
   mode: 'story' | 'replay' | 'management';
   mount?: HTMLElement;
   signal?: AbortSignal;
@@ -64,10 +70,7 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
   if (signal?.aborted) return Promise.resolve(undefined);
   const mount = management ? options.mount : undefined;
   const document = mount?.ownerDocument ?? hostWindow.document;
-  const availableAbilities = partyAbilityChoices();
-  const abilityIds = new Set(availableAbilities.map(a => a.abilityId));
-  const weaponIssues = new Map([...weaponNames.keys()].map(id => [id, partyWeaponEconomyIssues(id)]));
-  const abilityOption = (a: typeof availableAbilities[number]) => ({ value: a.abilityId,
+  const abilityOption = (a: PartyAbilityChoice) => ({ value: a.abilityId,
     label: `${abilityName(a.name)} · 法力 ${a.manaCost}${a.availabilityIssues?.length ? ` · 暂未开放：${a.availabilityIssues.join('、')}` : ''}`,
     disabled: !!a.availabilityIssues?.length });
   return new Promise(resolve => {
@@ -96,7 +99,6 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
     let equipped: Record<string, string> = {};
     let message = '';
     let result: PartyPreparation | undefined;
-    const palettes = new Map<string, string>();
     let selectedSlot = 0;
     let rosterPage = 0;
     let inspectedRef = HERO_MEMBER_REF;
@@ -142,7 +144,7 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
       const element = document.createElement('button');
       element.type = 'button'; element.className = 'secondary';
       const glyph = ({ '上移': 'chevrons', '下移': 'chevrons', '加入队伍': 'flag', '移出队伍': 'close',
-        '重新读取宿主': 'compass', '取消': 'close' } as Record<string, string>)[name];
+        '取消': 'close' } as Record<string, string>)[name];
       if (glyph) {
         const decoration = document.createElement('span'); decoration.dataset.icon = glyph;
         decoration.setAttribute('aria-hidden', 'true'); decoration.innerHTML = icon(glyph);
@@ -203,30 +205,24 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
         adopt(current, loadSettings || changed);
       }
     }
+    // Weapon shop over the current floor's MVU variables; re-read after each purchase attempt so the
+    // dialog's snapshot (and its later save check) follows the new variables.
+    const shop: WeaponShopAccess = {
+      owned: id => weaponOwned(snapshot?.statData ?? {}, id),
+      // With the 通用币 guard running, a hand-edited balance is not spendable: show the sealed one.
+      balance: () => !snapshot ? undefined : (currencyGuardActive(hostWindow) ? sealedCurrency(snapshot.statData) : undefined) ?? universalCurrency(snapshot.statData),
+      blocked: () => save?.pendingStory ? '剧情战斗尚未结算，暂不能购买' : !save ? '请先创建当前聊天存档' : undefined,
+      purchase: async id => {
+        if (!snapshot || done) throw new Error('面板尚未读取到当前聊天');
+        try { await service.purchaseWeapon(id, snapshot); }
+        finally { if (!done) { await refresh(); render(); } }
+      },
+    };
     function move(ref: string, direction: number): void {
       const index = config.memberRefs.indexOf(ref); const target = index + direction;
       if (index < 0 || target < 0 || target >= config.memberRefs.length) return;
       [config.memberRefs[index], config.memberRefs[target]] = [config.memberRefs[target]!, config.memberRefs[index]!];
       render();
-    }
-    async function writeColors(candidate: PartyCandidate): Promise<void> {
-      const selected = palettes.get(candidate.memberRef);
-      if (!selected) return;
-      const current = await service.current();
-      if (done) return;
-      assertContext(current);
-      if (!current.save) throw new Error('请先创建当前聊天存档。');
-      const fresh = prepareCurrentParty(current.snapshot, { ...config, mode: preparationMode, save: current.save });
-      const choice = fresh.initializationChoices.find(c => c.memberRef === candidate.memberRef && c.kind === 'colors');
-      const colors = choice?.colorChoices?.find(c => c.join('+') === selected);
-      if (!colors) {
-        adopt(current); message = '角色颜色或来源已变化，请核对更新后的面板。'; return;
-      }
-      // The service rechecks host identity and persists the chosen color into ST variables.
-      await service.initializeCompanions([{ name: candidate.name, colors }]);
-      if (done) return;
-      await refresh();
-      message = '同伴颜色已写入当前聊天。';
     }
     async function submit(): Promise<void> {
       if (!snapshot || !save || !result?.ready) return;
@@ -296,32 +292,31 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
       config.memberRefs.splice(index, 1); selectedSlot = Math.min(selectedSlot, Math.max(0, config.memberRefs.length - 1)); render();
     }
     function renderConfiguration(candidate: PartyCandidate, configuration: HTMLElement): void {
-      for (const choice of result?.initializationChoices.filter(c => c.memberRef === candidate.memberRef && c.kind === 'colors') ?? []) {
-        select(configuration, '初始化同伴颜色', `colors:${candidate.memberRef}`, [
-          { value: '', label: '请选择一或两种颜色' },
-          ...(choice.colorChoices ?? []).map(c => ({ value: c.join('+'), label: colorNames(c) })),
-        ], palettes.get(candidate.memberRef) ?? '', value => { palettes.set(candidate.memberRef, value); render(); });
-        button(configuration, '写入同伴颜色', () => { void run(() => writeColors(candidate)); }, !save || !palettes.get(candidate.memberRef));
-        text('p', '颜色立即写入当前聊天；取消准备也会保留。', configuration, 'muted');
-      }
       if (candidate.kind === 'companion') {
-        select(configuration, '基础主动能力', `base:${candidate.memberRef}`, [{ value: '', label: '请选择已有能力配方' }, ...availableAbilities.map(abilityOption)], config.baseAbilities[candidate.memberRef] ?? '', value => {
-          if (value) config.baseAbilities[candidate.memberRef] = value; else delete config.baseAbilities[candidate.memberRef]; render();
-        });
-        const learned = availableAbilities.filter(a => save?.learnedAbilityIds.includes(a.abilityId));
-        select(configuration, '装配已学能力', `equipped:${candidate.memberRef}`, [{ value: '', label: '使用基础主动能力' }, ...learned.map(abilityOption)], equipped[candidate.memberRef] ?? '', value => {
+        // Colors are fixed per companion; any learned ability can be equipped regardless of color.
+        const learned = (save?.learnedAbilityIds ?? []).flatMap(id => { const ability = findPartyAbility(id); return ability ? [{ ...ability, abilityId: id }] : []; });
+        select(configuration, '装配已学能力', `equipped:${candidate.memberRef}`, [{ value: '', label: '使用初始能力' }, ...learned.map(abilityOption)], equipped[candidate.memberRef] ?? '', value => {
           if (value) equipped[candidate.memberRef] = value; else delete equipped[candidate.memberRef]; render();
         });
-        const unmapped = save?.learnedAbilityIds.filter(id => !abilityIds.has(id)) ?? [];
-        if (unmapped.length) text('p', `另有 ${unmapped.length} 项已学能力缺少技能映射，暂未列入可装配候选。`, configuration, 'issue');
+        if (!learned.length) text('p', '击败敌人收集灵魂碎片学会能力后，可在这里装配。', configuration, 'muted');
       } else {
         const main = candidate.equipment.find(e => e.type === '武器' && e.slot === '主手');
         if (main) {
-          // Always expose an existing binding for correction; never infer one from narrative names.
-          const allowed = result?.initializationChoices.find(c => c.memberRef === candidate.memberRef && c.kind === 'weaponBinding')?.weaponChoices;
-          select(configuration, `登记主手武器：${main.name}`, `weapon:${main.ref}`, [{ value: '', label: '请选择实际对应的目录武器' }, ...[...weaponNames].filter(([id]) => !allowed || allowed.includes(id)).map(([value, label]) => { const issues = weaponIssues.get(value) ?? []; return { value, label: `${label}${issues.length ? ` · 暂未开放：${issues.join('、')}` : ''}`, disabled: !!issues.length }; })], config.weaponBindings[main.ref] ?? '', value => {
-            if (value) config.weaponBindings[main.ref] = value; else delete config.weaponBindings[main.ref]; render();
-          });
+          // Optional: an unbound main hand fights with the starter weapon. The picker follows the
+          // original weapon center: searchable card grid with the spell shown before choosing.
+          const bound = config.weaponBindings[main.ref] ?? '';
+          const row = document.createElement('div'); row.className = 'weapon-binding';
+          const label = document.createElement('span');
+          const weaponName = (id: string) => weaponNames.get(id)?.split(' · ')[0] ?? '骑士之剑';
+          // A registered paid weapon not bought on this floor fights as the starter weapon.
+          label.textContent = `主手武器（${main.name}）：${weaponName(bound || STARTER_WEAPON)}${!bound ? '（默认）'
+            : shop.owned(bound) ? '' : `（未购买，出战使用${weaponName(STARTER_WEAPON)}）`}`;
+          row.append(label); configuration.append(row);
+          const change = button(row, '更换武器', () => {
+            openWeaponPicker({ root: shadow, current: bound, magic: candidate.snapshot?.stats.magic ?? 0, assetBase, equipmentName: main.name, shop,
+              onPick: value => { if (value) config.weaponBindings[main.ref] = value; else delete config.weaponBindings[main.ref]; render(); } });
+          }, busy);
+          change.dataset.control = `weapon:${main.ref}`;
         }
       }
     }
@@ -346,7 +341,8 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
       node('lineupPanel').querySelector('.drag-hint')!.remove();
       const bar = dialog.querySelector<HTMLElement>('.lineup-bar')!;
       const refreshButton = button(bar, '重新读取宿主', () => { void run(async () => { await refresh(); message = '已重新读取，请核对队伍。'; }); });
-      refreshButton.className = 'slot-op'; refreshButton.title = '重新读取宿主'; refreshButton.setAttribute('aria-label', '重新读取宿主'); refreshButton.innerHTML = icon('compass');
+      // Same size and style as its "取消" neighbour; a readable label instead of an ambiguous icon.
+      refreshButton.title = '重新读取酒馆人物与装备'; refreshButton.setAttribute('aria-label', '重新读取宿主'); refreshButton.textContent = '重新读取';
       const cancel = button(bar, '取消', () => finish()); cancel.disabled = false;
       const confirm = button(bar, management ? '保存编队与能力装配' : mode === 'story' ? '确认队伍进入剧情战斗' : '确认队伍进入再现', () => { void run(submit); }, !save || !result?.ready);
       confirm.className = 'set-active confirm';
@@ -389,7 +385,14 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
       node('ownedCount').textContent = String(candidates.length);
       node('filters').querySelectorAll('select,.filter-sep').forEach(el => el.remove());
       const input = node<HTMLInputElement>('searchInput'); input.value = search;
-      input.oninput = () => { search = input.value; rosterPage = 0; render(); node<HTMLInputElement>('searchInput').focus(); };
+      // render() rebuilds the dialog, including this input; during IME composition (Chinese
+      // pinyin) that would break the composition, so search with the committed text instead.
+      const applySearch = () => {
+        search = input.value; rosterPage = 0; render();
+        const next = node<HTMLInputElement>('searchInput'); next.focus(); next.setSelectionRange(search.length, search.length);
+      };
+      input.oninput = event => { if (!(event as InputEvent).isComposing) applySearch(); };
+      input.addEventListener('compositionend', () => { if (input.value !== search) applySearch(); });
       node('filters').querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(tab => {
         tab.classList.toggle('on', tab.dataset.filter === filter);
         tab.onclick = () => { filter = tab.dataset.filter!; rosterPage = 0; render(); };
@@ -436,11 +439,12 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
         });
         const ops = inspect.querySelector<HTMLElement>('.inspect-ops')!;
         const index = config.memberRefs.indexOf(candidate.memberRef);
+        // Native inspect actions use .inspect-act, which fits the 108px action column.
         if (index >= 0) {
-          if (candidate.kind === 'companion') button(ops, '移出队伍', () => drop(index));
+          if (candidate.kind === 'companion') button(ops, '移出队伍', () => drop(index)).className = 'inspect-act';
         } else button(ops, '加入队伍', () => {
           if (config.memberRefs.length < 4) { config.memberRefs.push(candidate.memberRef); render(); }
-        }, !candidate.eligible || config.memberRefs.length >= 4);
+        }, !candidate.eligible || config.memberRefs.length >= 4).className = 'inspect-act primary';
         const configuration = document.createElement('div'); configuration.className = 'team-hero-loadout member-config';
         configuration.dataset.memberRef = candidate.memberRef;
         renderConfiguration(candidate, configuration);

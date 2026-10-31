@@ -126,7 +126,7 @@ describe('ST04 derived form preview',()=>{
     ]}]);
     expect(forms).toHaveLength(3);expect(new Set(forms.map(f=>f.id)).size).toBe(3);
     expect(forms[0].source).toContain('选择分支 1');expect(forms[0].source).toContain('随机分支 1');
-    expect(forms[2].description).toContain('30%');expect(forms[2].description).toContain('阵亡');expect(forms[2].description).toContain('首位');expect(forms[2].rule).toContain('1–3');
+    expect(forms[2].description).toContain('30%');expect(forms[2].description).toContain('若目标身亡');expect(forms[2].description).toContain('首位');expect(forms[2].rule).toContain('1–3');
   });
   it('reads all seven structured trait triggers, excluding storm-only and descriptive text',()=>{
     const trait={code:'st:test',name:'结构召唤',description:'召唤说明',...Object.fromEntries(triggerKeys.map(key=>[key,{referenceName:'unit:5',troopId:5,displayName:'副体',chance:.25,minSize:5,fullMana:true}]))} as TraitDefinition;
@@ -194,7 +194,7 @@ describe('ST04 derived form preview',()=>{
     if(troopId===7032){
       expect(forms.map(f=>f.id)).toEqual(['active.0.lycanthropy','active.2.lycanthropy','trait.st:badtarot.onAllyCastRandomStatus.lycanthropy']);
       const status=active.find(f=>f.id==='active.0.lycanthropy')!;
-      expect(status.source).toContain('随机 2 名敌人');expect(status.description).toContain('3回合');
+      expect(status.source).toContain('随机 2 名敌人');expect(status.description).toContain('陷入狼化');
     }else{
       // The real first segment counts wolf gems to scale mana loss; only segment 2 produces gems.
       const segments=adaptedPrototype(skillId).segments;

@@ -15,6 +15,12 @@ async function readSaves(page:Page){
  });
 }
 
+/** The management page is a fullscreen overlay; close it to reach the playtest controls. */
+async function closeManagement(page:Page):Promise<void>{
+ const host=page.locator('#st-match3-host-root');
+ await host.getByRole('button',{name:'关闭',exact:true}).click();
+ await expect(host.getByRole('dialog',{name:'三消编队、图鉴与魂片',exact:true})).toBeHidden();
+}
 async function seedIndependentBlueprint(page:Page):Promise<void>{
  await page.evaluate(async()=>{
   const portraitsPath='/src/sillytavern/portraits.ts',blueprintPath='/src/sillytavern/enemyBlueprint.ts',troopsPath='/src/data/troops.ts';
@@ -61,6 +67,7 @@ test('saved classified formation starts directly with the saved party and preser
  }
  await page.goto('/sillytavern-playtest.html');
  await page.locator('#st-match3-host-root').getByRole('button',{name:'创建当前聊天存档',exact:true}).click();
+ await closeManagement(page);
  const challenge=page.getByRole('button',{name:challengeName,exact:true}),example=page.getByRole('button',{name:'开始示例遭遇',exact:true});
  await challenge.click();
  const battle=page.frameLocator('iframe[title="剧情三消战场"]');
@@ -75,8 +82,14 @@ test('saved classified formation starts directly with the saved party and preser
  const saves=await readSaves(page);expect(saves).toHaveLength(1);
  const pending=saves[0].pendingStory!;expect(pending).toBeTruthy();
  expect(pending.difficulty).toBe('组装编队试玩');expect(pending.request).toEqual(request);
+ // Learning identity excludes the instance mana colors.
+ const learning=await page.evaluate(async members=>{
+  const path='/src/sillytavern/enemyBlueprint.ts';
+  const {learningAbilityIdForSkill}=await import(/* @vite-ignore */path) as typeof import('../../src/sillytavern/enemyBlueprint');
+  return members.map(member=>learningAbilityIdForSkill(member.snapshot.skillId,member.snapshot.manaCost));
+ },saved.members);
  expect(pending.sources.map(source=>({sourceId:source.sourceId,abilityId:source.abilityId,enemyExternalId:source.enemyExternalId}))).toEqual(
-  saved.members.map(member=>({sourceId:member.sourceId,abilityId:member.abilityId,enemyExternalId:member.snapshot.externalId})));
+  saved.members.map((member,index)=>({sourceId:member.sourceId,abilityId:learning[index],enemyExternalId:member.snapshot.externalId})));
  expect(saves[0].pendingReplay).toBeUndefined();
  expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)!),formationKey)).toEqual(saved);
  await expect(challenge).toBeDisabled();await expect(example).toBeDisabled();
@@ -94,6 +107,7 @@ for(const scenario of ['missing','invalid-json','empty','damaged-blueprint'] as 
  test(`saved formation ${scenario} reports in page status without opening preparation or creating pending`,async({page})=>{
   await page.goto('/sillytavern-playtest.html');
   await page.locator('#st-match3-host-root').getByRole('button',{name:'创建当前聊天存档',exact:true}).click();
+ await closeManagement(page);
   if(scenario==='damaged-blueprint')await seedIndependentBlueprint(page);
   await page.evaluate(async({key,scenario})=>{
    if(scenario==='missing'){localStorage.removeItem(key);return;}

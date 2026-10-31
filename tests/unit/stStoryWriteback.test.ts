@@ -201,3 +201,17 @@ describe('ST story writeback with battle economy audit',()=>{
    expect(f.replace).not.toHaveBeenCalled();expect(f.update).not.toHaveBeenCalled();expect(f.hero['当前生命值']).toBe(37);
  });
 });
+
+describe('temporary story test reset of host variables',()=>{
+ it('restores pre-battle HP and removes only this battle marker',async()=>{
+  const {revertStoryWritebackRecord}=await import('../../src/sillytavern/storyWriteback');
+  const statData={人物:{当前生命值:0,生命值上限:15},羁绊列表:{'a/b':{当前生命值:3,生命值上限:16}},三消战果:{
+   battle:{actors:[{externalId:'/人物',path:'/人物',current:15,max:15,temp:0,nextCurrent:0},{externalId:'/羁绊列表/a~1b',path:'/羁绊列表/a~1b',current:16,max:16,temp:0,nextCurrent:3}]},
+   other:{actors:[]},
+  }};
+  const next=revertStoryWritebackRecord(statData,'battle')!;
+  expect(next).toEqual({人物:{当前生命值:15,生命值上限:15},羁绊列表:{'a/b':{当前生命值:16,生命值上限:16}},三消战果:{other:{actors:[]}}});
+  expect(statData.人物.当前生命值).toBe(0);
+  expect(revertStoryWritebackRecord(next,'battle')).toBeUndefined();
+ });
+});

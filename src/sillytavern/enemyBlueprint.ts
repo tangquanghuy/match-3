@@ -22,6 +22,7 @@ import {describeAdaptedTrait} from './traitDescription';
 import type {AdaptedTraitDescription} from './traitDescription';
 import {inspectEnemyMechanisms} from './enemyMechanismRules';
 import {prototypeEconomyIssues,traitEconomyIssues} from './economyAvailability';
+import {buildSkillNames} from './abilityNames';
 
 export const BLUEPRINT_VERSION=3;
 const typeValues=[...new Set(TROOPS.flatMap(t=>t.troopTypes))].sort();
@@ -92,7 +93,7 @@ export function adaptedDescription(description:string):string {
 const prototypes=new Map<number,SkillPrototype>();
 const descriptions=new Map<number,AdaptedAbilityDescription>();
 export function adaptedAbilityDescription(id:number):AdaptedAbilityDescription {
- let description=descriptions.get(id);if(!description){description=describeAdaptedAbility(adaptedPrototype(id));descriptions.set(id,description);}
+ let description=descriptions.get(id);if(!description){description=describeAdaptedAbility(adaptedPrototype(id),{spellId:id});descriptions.set(id,description);}
  return structuredClone(description);
 }
 const adaptedTraits=new Map<string,TraitDefinition>();
@@ -148,12 +149,19 @@ function varyEnemyStats(stats:CombatantSnapshot['stats'],seed:number):void {
   stats[key]=Math.max(limits.min,Math.min(limits.max,Math.round(stats[key]*(1+direction*basisPoints/10000))));
  }
 }
+let skillNames:Map<number,string>|undefined;
+/** Player-facing skill name of a troop's active: original game name, one name per mechanics (abilityNames.ts). */
+export function skillNameForTroop(troopId:number):string|undefined {
+ skillNames??=buildSkillNames(TROOPS,troop=>{try{return learningAbilityId(adaptedPrototype(troop.spell.id),troop.manaCost);}catch{return undefined;}});
+ return skillNames.get(troopId);
+}
+/** Skill name follows the original game (see skillNameForTroop); the description stays the adapted mechanics. */
 function compiledSnapshot(t:TroopData,externalId:string,level:number,difficulty:number,active=t,traitCodes=t.traits.map(tr=>tr.code)):CombatantSnapshot {
  const traits=traitCodes.map(code=>adaptedTrait(code)).filter((tr):tr is TraitDefinition=>!!tr);
  const description=adaptedAbilityDescription(active.spell.id);
  const affiliations=portValue(t.troopTypes) as string[];
  const region=t.kingdom?aliasByString.get(t.kingdom):undefined;
- return {externalId,battleScaling:{level,difficulty},mechanicalIdentity:identityAliases.get(t.name),name:`${ROLE_NAMES[t.role!]} ${externalId}`,role:t.role,stats:statsFor(t,level,difficulty),levelLabel:String(level),manaColors:[...active.manaColors],manaCost:active.manaCost,skillId:`st:${active.spell.id}`,traitIds:traits.map(tr=>tr.code),traitNames:Object.fromEntries(traits.map(tr=>[tr.code,tr.name])),troopTypes:affiliations,...(region?{kingdom:region}:{}),...(t.kingdomId!=null?{kingdomId:portValue(t.kingdomId,'kingdomId') as number}:{}),spellName:description.name,spellDescription:description.description,rarityIdx:t.rarityIdx};
+ return {externalId,battleScaling:{level,difficulty},mechanicalIdentity:identityAliases.get(t.name),name:`${ROLE_NAMES[t.role!]} ${externalId}`,role:t.role,stats:statsFor(t,level,difficulty),levelLabel:String(level),manaColors:[...active.manaColors],manaCost:active.manaCost,skillId:`st:${active.spell.id}`,traitIds:traits.map(tr=>tr.code),traitNames:Object.fromEntries(traits.map(tr=>[tr.code,tr.name])),troopTypes:affiliations,...(region?{kingdom:region}:{}),...(t.kingdomId!=null?{kingdomId:portValue(t.kingdomId,'kingdomId') as number}:{}),spellName:skillNameForTroop(active.id)??description.name,spellDescription:description.description,rarityIdx:t.rarityIdx};
 }
 /** Only mechanical recipe/cost/colors define learning identity; presentation, rank and level do not. */
 export function abilityIdentity(recipe:SkillPrototype,manaColors:readonly string[],manaCost:number):string {
@@ -161,6 +169,22 @@ export function abilityIdentity(recipe:SkillPrototype,manaColors:readonly string
  const text=stableJson({recipe,...(choiceRule?{choiceRule}:{}),manaColors:colorKey(manaColors),manaCost});let hash=14695981039346656037n;
  for(let i=0;i<text.length;i++){hash^=BigInt(text.charCodeAt(i));hash=BigInt.asUintN(64,hash*1099511628211n);}
  return `active:v1:${hash.toString(16).padStart(16,'0')}`;
+}
+/**
+ * Learning identity for soul fragments and companion equipping. Mana colors belong to the
+ * caster, not the ability, so they are excluded; the native recipe, choice rule and cost remain.
+ * Blueprint `abilityId` keeps the historical v1 value for persisted enemy configurations.
+ */
+export function learningAbilityId(recipe:SkillPrototype,manaCost:number):string {
+ const choiceRule=choiceRuleOf(recipe);
+ const text=stableJson({recipe,...(choiceRule?{choiceRule}:{}),manaCost});let hash=14695981039346656037n;
+ for(let i=0;i<text.length;i++){hash^=BigInt(text.charCodeAt(i));hash=BigInt.asUintN(64,hash*1099511628211n);}
+ return `active:v2:${hash.toString(16).padStart(16,'0')}`;
+}
+/** Learning identity of an adapted `st:<spellId>` active; undefined for non-catalogue skills. */
+export function learningAbilityIdForSkill(skillId:string|undefined,manaCost:number):string|undefined {
+ const match=/^st:(\d+)$/.exec(skillId??'');
+ return match?learningAbilityId(adaptedPrototype(Number(match[1])),manaCost):undefined;
 }
 export function compileEnemyBlueprint(input:{presentation?:{name?:string;race?:string};portrait:PortraitSelection;recipeTroopId?:number;assembly?:EnemyAssemblySelection;externalId:string;level?:number;difficulty?:number;statVariationSeed?:number}):EnemyBlueprint {
  const {entry,selection}=restorePortrait(input.portrait);

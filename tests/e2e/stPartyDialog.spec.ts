@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-async function install(page: Page, options: { noSave?: boolean; weapon?: boolean; companions?: boolean } = {}) {
+async function install(page: Page, options: { noSave?: boolean; weapon?: boolean; companions?: boolean; gold?: number } = {}) {
   await page.goto('/sillytavern.html');
   await page.evaluate(async options => {
     const load = (path: string) => import(/* @vite-ignore */path);
@@ -42,7 +42,8 @@ async function install(page: Page, options: { noSave?: boolean; weapon?: boolean
     const bonds = options.companions === false ? {} : {
       同伴甲: missing, 同伴乙: companion(), 同伴丙: companion(), 同伴丁: companion(), 未同行: { ...companion(), 同行誓约: false },
     };
-    const state = { stat_data: { 人物: actor(), 羁绊列表: bonds } };
+    const hero = options.gold === undefined ? actor() : { ...actor(), 背包: { 通用币: options.gold, 道具: {} } };
+    const state = { stat_data: { 人物: hero, 羁绊列表: bonds } };
     let chatId = 'original'; const vars: Record<string, Record<string, unknown>> = {};
     const helpers = {
       getContext: () => ({ characterId: 0, characters: [{ avatar: 'party.png' }], chat: [{ swipe_id: 0 }], getCurrentChatId: () => chatId }),
@@ -98,9 +99,6 @@ async function addMember(page: Page, name: string) {
   await expect(slot(page, name)).toHaveCount(1);
 }
 const confirm = (page: Page) => page.getByRole('button', { name: /确认队伍进入/ });
-async function chooseBase(page: Page, name: string, index = 1) {
-  await (await selectMember(page, name)).getByRole('combobox', { name: '基础主动能力', exact: true }).selectOption({ index });
-}
 async function readResult(page: Page) {
   await expect.poll(() => page.evaluate(() => window.partyFixture.result === 'pending')).toBe(false);
   return page.evaluate(() => window.partyFixture.result);
@@ -136,22 +134,26 @@ test('default protagonist shows real stats and default weapon, persists configur
   expect(save.partyPreparation).toEqual({ memberRefs: ['/人物'], baseAbilities: {}, weaponBindings: {} });
 });
 
-test('missing colors, manual base initialization, learned equipment and ordering survive reopening', async ({ page }) => {
+test('missing colors are fixed by name and rarity, learned equipment and ordering survive reopening', async ({ page }) => {
   await install(page);
   const alpha = await selectMember(page, '同伴甲');
+  // No manual color or base-ability picks: the companion is ready with derived colors and a starter ability.
+  await expect(alpha.getByRole('combobox', { name: '初始化同伴颜色' })).toHaveCount(0);
+  await expect(alpha.getByRole('combobox', { name: '基础主动能力' })).toHaveCount(0);
   await inspect(page).getByRole('button', { name: '加入队伍', exact: true }).click();
-  await expect(confirm(page)).toBeDisabled();
-  await chooseBase(page, '同伴甲');
-  await alpha.getByRole('combobox', { name: '初始化同伴颜色' }).selectOption('Green+Blue');
-  await alpha.getByRole('button', { name: '写入同伴颜色' }).click();
-  await expect(page.getByRole('dialog').getByRole('status')).toHaveText('同伴颜色已写入当前聊天。');
-  await expect(inspect(page).getByRole('img', { name: '绿、蓝色法力', exact: true })).toBeVisible();
+  await expect(confirm(page)).toBeEnabled();
+  const derived = await page.evaluate(async () => {
+    const { companionDefaultColors } = await import(/* @vite-ignore */'/src/sillytavern/partyPreparation.ts') as typeof import('../../src/sillytavern/partyPreparation');
+    return companionDefaultColors('同伴甲', '普通');
+  });
+  expect(derived).toHaveLength(1);
   await alpha.getByRole('combobox', { name: '装配已学能力' }).selectOption({ index: 1 });
   await slot(page, '同伴甲').getByRole('button', { name: '上移', exact: true }).click();
   await confirm(page).click();
-  expect(await readResult(page)).toMatchObject({ party: [{ externalId: '/羁绊列表/同伴甲', manaColors: ['Green', 'Blue'] }, { externalId: '/人物' }] });
-  const stored = await page.evaluate(async () => ({ save: (await window.partyFixture.service.current()).save!, colors: window.partyFixture.state.stat_data.羁绊列表.同伴甲.三消.颜色 }));
-  expect(stored.colors).toEqual(['Green', 'Blue']);
+  expect(await readResult(page)).toMatchObject({ party: [{ externalId: '/羁绊列表/同伴甲', manaColors: derived }, { externalId: '/人物' }] });
+  const stored = await page.evaluate(async () => ({ save: (await window.partyFixture.service.current()).save!, bridge: window.partyFixture.state.stat_data.羁绊列表.同伴甲.三消 }));
+  // The dialog stays pure; the host persists derived colors when it opens the management page.
+  expect(stored.bridge).toBeUndefined();
   expect(stored.save.partyPreparation!.memberRefs).toEqual(['/羁绊列表/同伴甲', '/人物']);
   expect(stored.save.equippedAbilities['/羁绊列表/同伴甲']).toBe(stored.save.learnedAbilityIds[0]);
   await page.evaluate(() => window.partyFixture.open());
@@ -164,10 +166,7 @@ test('missing colors, manual base initialization, learned equipment and ordering
 
 test('selection is limited to four including protagonist and blocks members who are not travelling', async ({ page }) => {
   await install(page);
-  for (const name of ['同伴乙', '同伴丙', '同伴丁']) {
-    await addMember(page, name);
-    await chooseBase(page, name);
-  }
+  for (const name of ['同伴乙', '同伴丙', '同伴丁']) await addMember(page, name);
   await selectMember(page, '同伴甲');
   await expect(inspect(page).getByRole('button', { name: '加入队伍', exact: true })).toBeDisabled();
   await selectMember(page, '未同行');
@@ -190,9 +189,7 @@ test('native roster and slots inspect only the selected member and preserve draf
   // A single roster click only inspects; membership requires an explicit action.
   await expect(slot(page, '同伴乙')).toHaveCount(0);
   await expect(card(page, '同伴乙')).not.toHaveClass(/\bin\b/);
-  await beta.getByRole('combobox', { name: '基础主动能力', exact: true }).selectOption({ index: 1 });
   await beta.getByRole('combobox', { name: '装配已学能力', exact: true }).selectOption({ index: 1 });
-  const base = await beta.getByRole('combobox', { name: '基础主动能力', exact: true }).inputValue();
   const learned = await beta.getByRole('combobox', { name: '装配已学能力', exact: true }).inputValue();
   await selectMember(page, '同伴丙');
   await expect(beta).toHaveCount(0);
@@ -200,7 +197,6 @@ test('native roster and slots inspect only the selected member and preserve draf
   await expect(inspect(page).locator('.inspect-name > b')).toHaveText('主角');
   await expect(dialog.locator('.member-config')).toHaveCount(0);
   await selectMember(page, '同伴乙');
-  await expect(beta.getByRole('combobox', { name: '基础主动能力', exact: true })).toHaveValue(base);
   await expect(beta.getByRole('combobox', { name: '装配已学能力', exact: true })).toHaveValue(learned);
   await inspect(page).getByRole('button', { name: '加入队伍', exact: true }).click();
   await expect(card(page, '同伴乙')).toHaveClass(/\bin\b/);
@@ -208,7 +204,7 @@ test('native roster and slots inspect only the selected member and preserve draf
   await confirm(page).click();
   expect(await readResult(page)).toMatchObject({ party: [{ externalId: '/人物' }, { externalId: memberRef('同伴乙') }] });
   const save = await page.evaluate(async () => (await window.partyFixture.service.current()).save!);
-  expect(save.partyPreparation!.baseAbilities[memberRef('同伴乙')]).toBe(base);
+  expect(save.partyPreparation!.baseAbilities).toEqual({});
   expect(save.equippedAbilities[memberRef('同伴乙')]).toBe(learned);
 });
 
@@ -217,7 +213,6 @@ test('native drag assignment and swapping preserve the protagonist and removal l
   await install(page);
   const dialog = page.getByRole('dialog');
   const occupied = dialog.locator('.slot-wrap[data-member-ref]');
-  await chooseBase(page, '同伴乙');
   await card(page, '同伴乙').dragTo(slot(page, '主角').locator('.slot'));
   await expect(occupied).toHaveCount(1);
   await expect(occupied.first()).toHaveAttribute('data-member-ref', memberRef('主角'));
@@ -245,7 +240,6 @@ test('native drag assignment and swapping preserve the protagonist and removal l
 test('shadow drag ghost keeps native styling and only accepts the next empty position', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1100 });
   await install(page);
-  await chooseBase(page, '同伴乙');
   const dialog = page.getByRole('dialog');
   const empty = dialog.locator('.slot-wrap').nth(3).locator('.slot');
   await expect(empty).toBeDisabled();
@@ -280,15 +274,66 @@ test('shadow drag ghost keeps native styling and only accepts the next empty pos
   await expect(dialog.locator('.slot-wrap').first()).toHaveAttribute('data-member-ref', memberRef('主角'));
 });
 
-test('current equipment requires an explicit real weapon binding and renders host text as text', async ({ page }) => {
+test('an unbound main-hand weapon fights with the starter weapon, binding stays optional and host text renders as text', async ({ page }) => {
   await install(page, { weapon: true, companions: false });
-  await expect(confirm(page)).toBeDisabled();
+  await expect(confirm(page)).toBeEnabled();
   await expect(page.getByRole('dialog').locator('img[src="x"],img[onerror]')).toHaveCount(0);
   await expect(inspect(page).locator('img[src$="/static/hero/character-unknown.webp"]')).toHaveCount(1);
-  await configuration(page, '主角').getByRole('combobox', { name: /登记主手武器/ }).selectOption('gw_KnightsSword');
+  await expect(inspect(page).locator('.inspect-spell strong')).toHaveText('骑士之剑');
+  const config = configuration(page, '主角');
+  await expect(config.locator('.weapon-binding')).toContainText('骑士之剑（默认）');
+  // The picker follows the original weapon center: card grid, search, detail with the spell.
+  await config.getByRole('button', { name: '更换武器', exact: true }).click();
+  const picker = page.getByRole('dialog', { name: '选择主手武器', exact: true });
+  await expect(picker).toBeVisible();
+  await expect(picker.locator('[data-picker-weapon="gw_KnightsSword"] .weapon-status')).toHaveText('当前');
+  await expect(picker.locator('.weapon-card').first().locator('img')).toHaveAttribute('src', /\/static\/weapons\/.+\.webp$/);
+  await picker.getByRole('textbox', { name: '搜索武器或法术' }).fill('侦察兵之弓');
+  await expect(picker.locator('.weapon-card')).toHaveCount(1);
+  await picker.locator('[data-picker-weapon="gw_ScoutsBow"]').click();
+  const detail = page.getByRole('dialog', { name: '侦察兵之弓武器详情', exact: true });
+  await expect(detail.locator('.detail-copy')).not.toBeEmpty();
+  await expect(detail.locator('.detail-copy')).not.toContainText('max(');
+  // Tavern stats come from the AIRP character: no stat bonus, affix or acquisition sections.
+  await expect(detail.locator('.detail-stats,.detail-affixes,.detail-acquire')).toHaveCount(0);
+  await detail.getByRole('button', { name: '登记为主手武器', exact: true }).click();
+  await expect(picker).toHaveCount(0);
+  await expect(config.locator('.weapon-binding')).toContainText('侦察兵之弓');
+  await expect(inspect(page).locator('.inspect-spell strong')).toHaveText('侦察兵之弓');
   await confirm(page).click(); await readResult(page);
   const save = await page.evaluate(async () => (await window.partyFixture.service.current()).save!);
-  expect(save.partyPreparation!.weaponBindings).toEqual({ '/人物/装备列表/长剑': 'gw_KnightsSword' });
+  expect(save.partyPreparation!.weaponBindings).toEqual({ '/人物/装备列表/长剑': 'gw_ScoutsBow' });
+});
+
+test('the weapon picker lists weapons with a registered spell, and the default weapon clears the binding', async ({ page }) => {
+  await install(page, { weapon: true, companions: false });
+  const config = configuration(page, '主角');
+  const counts = await page.evaluate(async () => {
+    const load = (path: string) => import(/* @vite-ignore */path);
+    const { partyWeaponChoices } = await load('/src/sillytavern/partyPreparation.ts');
+    const weapons = (await load('/src/data/weapons.json')).default as unknown[];
+    return { registered: partyWeaponChoices().length, catalogue: weapons.length };
+  });
+  // Every listed weapon has a registered spell (currently the whole catalogue).
+  expect(counts.registered).toBeGreaterThan(0); expect(counts.registered).toBeLessThanOrEqual(counts.catalogue);
+  await config.getByRole('button', { name: '更换武器', exact: true }).click();
+  const picker = page.getByRole('dialog', { name: '选择主手武器', exact: true });
+  await expect(picker.locator('.weapons-result-count')).toHaveText(`${counts.registered} / ${counts.registered} 把`);
+  await picker.getByRole('textbox', { name: '搜索武器或法术' }).fill('侦察兵之弓');
+  await picker.locator('[data-picker-weapon="gw_ScoutsBow"]').click();
+  await page.getByRole('dialog', { name: '侦察兵之弓武器详情', exact: true }).getByRole('button', { name: '登记为主手武器', exact: true }).click();
+  await config.getByRole('button', { name: '更换武器', exact: true }).click();
+  await picker.getByRole('textbox', { name: '搜索武器或法术' }).fill('骑士之剑');
+  await picker.locator('[data-picker-weapon="gw_KnightsSword"]').click();
+  await page.getByRole('dialog', { name: '骑士之剑武器详情', exact: true }).getByRole('button', { name: '使用默认武器', exact: true }).click();
+  await expect(config.locator('.weapon-binding')).toContainText('骑士之剑（默认）');
+  // Escape closes the detail first, then the picker.
+  await config.getByRole('button', { name: '更换武器', exact: true }).click();
+  await picker.locator('.weapon-card').first().click();
+  await page.keyboard.press('Escape');
+  await expect(picker).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(picker).toHaveCount(0);
 });
 
 test('rereads changed source before confirmation and only returns the updated party after reconfirmation', async ({ page }) => {
@@ -312,16 +357,14 @@ test('invalid selected stats block battle while invalid unselected candidates do
   await expect(configuration(page, '同伴乙')).toContainText('有限');
 });
 
-test('cancel leaves draft settings uncommitted, retains acknowledged colors, and Escape restores focus', async ({ page }) => {
+test('cancel leaves draft settings uncommitted and Escape restores focus', async ({ page }) => {
   await install(page);
-  await (await selectMember(page, '同伴甲')).getByRole('combobox', { name: '初始化同伴颜色' }).selectOption('Red');
-  await configuration(page, '同伴甲').getByRole('button', { name: '写入同伴颜色' }).click();
-  await expect(page.getByRole('dialog').getByRole('status')).toHaveText('同伴颜色已写入当前聊天。');
-  await addMember(page, '同伴甲'); await chooseBase(page, '同伴甲');
+  await addMember(page, '同伴甲');
+  await configuration(page, '同伴甲').getByRole('combobox', { name: '装配已学能力' }).selectOption({ index: 1 });
   await page.keyboard.press('Escape');
   expect(await readResult(page)).toBeUndefined();
   const save = await page.evaluate(async () => (await window.partyFixture.service.current()).save!);
-  expect(save.partyPreparation).toBeUndefined(); expect(save.companionColors.同伴甲).toEqual(['Red']);
+  expect(save.partyPreparation).toBeUndefined(); expect(save.equippedAbilities).toEqual({});
   await expect(page.locator('#party-opener')).toBeFocused();
 });
 
@@ -437,14 +480,20 @@ test('an already aborted request resolves cancel without mounting UI', async ({ 
   await expect(page.locator('[data-st-party-dialog]')).toHaveCount(0);
 });
 
-test('initialization on a switched chat writes no companion colors', async ({ page }) => {
+test('opening the management page persists fixed colors for travelling companions once', async ({ page }) => {
   await install(page);
-  const alpha = await selectMember(page, '同伴甲');
-  await alpha.getByRole('combobox', { name: '初始化同伴颜色' }).selectOption('Red');
-  await page.evaluate(() => window.partyFixture.switchChat());
-  await alpha.getByRole('button', { name: '写入同伴颜色' }).click();
-  await expect(page.getByRole('dialog').getByRole('status')).toContainText('当前聊天已切换');
-  expect(await page.evaluate(() => window.partyFixture.state.stat_data.羁绊列表.同伴甲.三消)).toBeUndefined();
+  await page.getByRole('button', { name: '取消', exact: true }).click(); await readResult(page);
+  const derived = await page.evaluate(async () => {
+    const { companionDefaultColors } = await import(/* @vite-ignore */'/src/sillytavern/partyPreparation.ts') as typeof import('../../src/sillytavern/partyPreparation');
+    return companionDefaultColors('同伴甲', '普通');
+  });
+  const before = await page.evaluate(() => structuredClone(window.partyFixture.state.stat_data.羁绊列表));
+  expect(before.同伴甲.三消).toBeUndefined();
+  await page.evaluate(async () => { const handle = await window.partyFixture.installDefaultHost(); await handle.open(); });
+  await expect.poll(() => page.evaluate(() => window.partyFixture.state.stat_data.羁绊列表.同伴甲.三消?.颜色)).toEqual(derived);
+  const after = await page.evaluate(() => structuredClone(window.partyFixture.state.stat_data.羁绊列表));
+  // Existing colors and companions who are not travelling stay untouched.
+  expect(after.同伴乙.三消).toEqual(before.同伴乙.三消); expect(after.未同行.三消).toEqual(before.未同行.三消);
 });
 
 test('host entry without a prepareReplay callback starts directly and resumes the frozen full-health replay', async ({ page }) => {
@@ -523,11 +572,120 @@ test('native economic abilities can be equipped while preserving learned progres
   expect(after.learnedAbilityIds).toContain(ability.id); expect(after.equippedAbilities[ability.ref]).toBe(ability.id);
 });
 
-test('native economic weapon binding is available', async ({ page }) => {
-  await install(page, { weapon: true, companions: false });
-  const dialog = page.getByRole('dialog');
-  const option = dialog.locator('option[value="gw_SkeletonKey"]');
-  await expect(option).toHaveJSProperty('disabled', false);
-  await dialog.getByRole('combobox', { name: /登记主手武器/ }).selectOption('gw_SkeletonKey');
-  await expect(confirm(page)).toBeEnabled();
+async function openSkeletonKey(page: Page) {
+  await configuration(page, '主角').getByRole('button', { name: '更换武器', exact: true }).click();
+  const picker = page.getByRole('dialog', { name: '选择主手武器', exact: true });
+  await picker.getByRole('textbox', { name: '搜索武器或法术' }).fill('骷髅钥匙');
+  const card = picker.locator('[data-picker-weapon="gw_SkeletonKey"]');
+  return { picker, card, detail: page.getByRole('dialog', { name: '骷髅钥匙武器详情', exact: true }) };
+}
+const gold = (page: Page) => page.evaluate(() => window.partyFixture.state.stat_data.人物.背包.通用币 as number);
+const owned = (page: Page) => page.evaluate(() => window.partyFixture.state.stat_data['三消已购武器'] as string[] | undefined);
+
+test('a paid weapon (神话 骷髅钥匙) is bought with 通用币, then registered and used in battle', async ({ page }) => {
+  await install(page, { weapon: true, companions: false, gold: 2_500_000 });
+  const { picker, card, detail } = await openSkeletonKey(page);
+  await expect(picker.locator('.weapon-shop-balance')).toHaveText('通用币 2,500,000');
+  await expect(card).toHaveClass(/is-locked/);
+  await expect(card.locator('.weapon-status')).toHaveText('200万');
+  await card.click();
+  await expect(detail.locator('.weapon-shop-price')).toHaveText('售价 200万 通用币 · 当前持有 250万');
+  await expect(detail.getByRole('button', { name: '登记为主手武器', exact: true })).toHaveCount(0);
+  await detail.getByRole('button', { name: '购买（200万 通用币）', exact: true }).click();
+  // One more confirmation before spending; cancelling spends nothing.
+  await detail.getByRole('button', { name: '取消', exact: true }).click();
+  expect(await gold(page)).toBe(2_500_000);
+  await detail.getByRole('button', { name: '购买（200万 通用币）', exact: true }).click();
+  await detail.getByRole('button', { name: '确认花费 200万 通用币', exact: true }).click();
+  await expect(detail.getByRole('status')).toHaveText('购买成功，可以登记为主手武器。');
+  expect(await gold(page)).toBe(500_000);
+  expect(await owned(page)).toEqual(['gw_SkeletonKey']);
+  await expect(picker.locator('.weapon-shop-balance')).toHaveText('通用币 500,000');
+  await detail.getByRole('button', { name: '登记为主手武器', exact: true }).click();
+  await expect(picker).toHaveCount(0);
+  await expect(configuration(page, '主角').locator('.weapon-binding')).toContainText('骷髅钥匙');
+  await confirm(page).click();
+  expect(await readResult(page)).toMatchObject({ party: [{ externalId: '/人物', skillId: 'gw_SkeletonKey' }] });
+});
+
+test('weapon purchase: not enough 通用币, changed variables and an unbought binding', async ({ page }) => {
+  await install(page, { weapon: true, companions: false, gold: 1_999_999 });
+  let view = await openSkeletonKey(page);
+  await view.card.click();
+  await expect(view.detail.getByRole('button', { name: '通用币不足', exact: true })).toBeDisabled();
+  await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
+  await expect(view.picker).toHaveCount(0);
+
+  // The AI changed the floor after the panel read it: rejected without spending, then retried.
+  await page.evaluate(() => { const s = window.partyFixture.state.stat_data; s.人物.背包.通用币 = 2_000_000; s.人物.当前生命值 = 60; });
+  view = await openSkeletonKey(page);
+  await view.card.click();
+  await expect(view.detail.getByRole('button', { name: '通用币不足', exact: true })).toBeDisabled();
+  await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: '重新读取宿主' }).click();
+  view = await openSkeletonKey(page);
+  await view.card.click();
+  await page.evaluate(() => { window.partyFixture.state.stat_data.人物.当前生命值 = 70; });
+  await view.detail.getByRole('button', { name: '购买（200万 通用币）', exact: true }).click();
+  await view.detail.getByRole('button', { name: '确认花费 200万 通用币', exact: true }).click();
+  await expect(view.detail.getByRole('status')).toContainText('已变化');
+  expect(await gold(page)).toBe(2_000_000); expect(await owned(page)).toBeUndefined();
+  await view.detail.getByRole('button', { name: '购买（200万 通用币）', exact: true }).click();
+  await view.detail.getByRole('button', { name: '确认花费 200万 通用币', exact: true }).click();
+  await expect(view.detail.getByRole('status')).toHaveText('购买成功，可以登记为主手武器。');
+  expect(await gold(page)).toBe(0);
+
+  // Rolling the floor back (regenerate) removes money and ownership together: the binding stays
+  // in the save but fights as the starter weapon until bought again.
+  await view.detail.getByRole('button', { name: '登记为主手武器', exact: true }).click();
+  await page.evaluate(() => { const s = window.partyFixture.state.stat_data; delete s['三消已购武器']; s.人物.背包.通用币 = 2_000_000; });
+  await page.getByRole('button', { name: '重新读取宿主' }).click();
+  await expect(configuration(page, '主角').locator('.weapon-binding')).toContainText('骷髅钥匙（未购买，出战使用骑士之剑）');
+  await confirm(page).click();
+  expect(await readResult(page)).toMatchObject({ party: [{ externalId: '/人物', skillId: 'gw_KnightsSword' }] });
+});
+
+/** Chinese IME through Chrome DevTools: pinyin is composed key by key, then the characters are committed. */
+async function typeWithIme(page: Page, input: import('@playwright/test').Locator, pinyin: string, text: string) {
+  await input.click();
+  const cdp = await page.context().newCDPSession(page);
+  for (let i = 1; i <= pinyin.length; i++) {
+    const part = pinyin.slice(0, i);
+    await cdp.send('Input.imeSetComposition', { text: part, selectionStart: part.length, selectionEnd: part.length });
+  }
+  await cdp.send('Input.insertText', { text });
+  await cdp.detach();
+}
+
+test('Chinese IME input works in the weapon picker and roster searches', async ({ page }) => {
+  await install(page, { weapon: true });
+  await configuration(page, '主角').getByRole('button', { name: '更换武器', exact: true }).click();
+  const picker = page.getByRole('dialog', { name: '选择主手武器', exact: true });
+  const weaponSearch = picker.getByRole('textbox', { name: '搜索武器或法术' });
+  await typeWithIme(page, weaponSearch, 'kulou', '骷髅');
+  await expect(weaponSearch).toHaveValue('骷髅');
+  await expect(picker.locator('[data-picker-weapon="gw_SkeletonKey"]')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(picker).toHaveCount(0);
+  const roster = page.getByRole('dialog').locator('#searchInput');
+  await typeWithIme(page, roster, 'tongban', '同伴');
+  await expect(page.getByRole('dialog').locator('#searchInput')).toHaveValue('同伴');
+  await expect(card(page, '同伴乙')).toBeVisible();
+  await expect(card(page, '主角')).toHaveCount(0);
+});
+
+test('weapon picker filters owned and unowned weapons', async ({ page }) => {
+  await install(page, { weapon: true, companions: false, gold: 0 });
+  await configuration(page, '主角').getByRole('button', { name: '更换武器', exact: true }).click();
+  const picker = page.getByRole('dialog', { name: '选择主手武器', exact: true });
+  const ownership = picker.getByRole('combobox', { name: '拥有状态', exact: true });
+  // 普通/精良/稀有 are open: 51 owned, 667 for sale.
+  await ownership.selectOption('owned');
+  await expect(picker.locator('.weapons-result-count')).toHaveText('51 / 718 把');
+  await expect(picker.locator('.weapon-card.is-locked')).toHaveCount(0);
+  await ownership.selectOption('unowned');
+  await expect(picker.locator('.weapons-result-count')).toHaveText('667 / 718 把');
+  await expect(picker.locator('[data-picker-weapon="gw_KnightsSword"]')).toHaveCount(0);
+  await picker.getByRole('button', { name: '清除全部', exact: true }).click();
+  await expect(picker.locator('.weapons-result-count')).toHaveText('718 / 718 把');
 });

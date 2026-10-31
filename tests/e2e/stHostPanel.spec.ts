@@ -271,7 +271,8 @@ test('management persists ordered members and learned equipment without starting
  await expect(companion).toBeVisible();
  await expect(dialog.locator('.member-config')).toHaveCount(1);
  await dialog.locator('.inspect').getByRole('button',{name:'加入队伍',exact:true}).click();
- await companion.getByRole('combobox',{name:'基础主动能力',exact:true}).selectOption({index:1});
+ // Companions start with a fixed starter ability; skills come only from learned soul fragments.
+ await expect(companion.getByRole('combobox',{name:'基础主动能力',exact:true})).toHaveCount(0);
  await companion.getByRole('combobox',{name:'装配已学能力',exact:true}).selectOption({index:1});
  await dialog.locator('.slot-wrap[data-member-ref="/羁绊列表/同伴甲"]').getByRole('button',{name:'上移',exact:true}).click();
  await dialog.getByRole('button',{name:'保存编队与能力装配',exact:true}).click();
@@ -328,7 +329,7 @@ test('pending replay restoration and saving actual rewards continue after mode i
  await host(page).getByRole('button',{name:'刷新',exact:true}).click();
  await host(page).getByRole('button',{name:'保存本场战果',exact:true}).click();
  const receipt=host(page).getByRole('region',{name:'刚保存的本场结算',exact:true});
- await expect(receipt).toContainText('面板测试能力灵魂碎片');
+ await expect(receipt).toContainText('panel-enemy的灵魂碎片');
  const after=await saveState(page);expect(after).not.toHaveProperty('pendingReplay');
  expect(after.settlements).toHaveLength(before.settlements.length+1);expect(after.sources[0]!.wins).toBe(before.sources[0]!.wins+1);
  await expect(host(page).getByRole('button',{name:'保存本场战果',exact:true})).toHaveCount(0);
@@ -401,7 +402,7 @@ test('regression: queued settlement stays in saves when its async save finishes 
  expect(await page.evaluate(()=>window.stHostPanelFixture.handle.service.repository.listReplayOutcomes())).toEqual([]);
  await selectTab(page,'存档');
  await expect(receipt).toBeVisible();
- await expect(receipt.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*面板测试能力灵魂碎片/);
+ await expect(receipt.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*\S*\s?panel-enemy的灵魂碎片/);
  await expect(host(page).getByRole('button',{name:'保存本场战果',exact:true})).toHaveCount(0);
 });
 
@@ -487,16 +488,14 @@ test('regression: native roster pagination keeps desktop details and configurati
  const lastCard=dialog.locator('.mini[data-member-ref="/羁绊列表/同伴12"]');
  await lastCard.click();await expect(dialog.locator('.inspect-name > b')).toHaveText('同伴12');
  const configuration=dialog.locator('.member-config[data-member-ref="/羁绊列表/同伴12"]');
- const base=configuration.getByRole('combobox',{name:'基础主动能力',exact:true});
  const learned=configuration.getByRole('combobox',{name:'装配已学能力',exact:true});
- await expectUnclipped(base);await base.selectOption({index:1});
  await expectUnclipped(learned);await learned.selectOption({index:1});
- const selected={base:await base.inputValue(),learned:await learned.inputValue()};
+ const selected={learned:await learned.inputValue()};
  await expectUnclipped(dialog.locator('.inspect-name > b'));
  await search.fill('同伴');await expect(cards).toHaveCount(12);await expect(label).toHaveText('1 / 1');await expect(pager).toBeHidden();
  await dialog.locator('.mini[data-member-ref="/羁绊列表/同伴01"]').click();
  await expect(dialog.locator('.inspect-name > b')).toHaveText('同伴01');
- await expectUnclipped(dialog.locator('.member-config[data-member-ref="/羁绊列表/同伴01"]').getByRole('combobox',{name:'基础主动能力',exact:true}));
+ await expectUnclipped(dialog.locator('.member-config[data-member-ref="/羁绊列表/同伴01"]').getByRole('combobox',{name:'装配已学能力',exact:true}));
  await search.fill('');await expect(label).toHaveText('1 / 2');await expect(previous).toBeDisabled();
  await next.click();await expect(label).toHaveText('2 / 2');
  await dialog.locator('.filter-tab[data-filter="hero"]').click();
@@ -505,18 +504,17 @@ test('regression: native roster pagination keeps desktop details and configurati
  await dialog.locator('.filter-tab[data-filter="all"]').click();
  await expect(label).toHaveText('1 / 2');await expect(cards).toHaveCount(12);await expect(previous).toBeDisabled();
  await next.click();await lastCard.click();
- await expect(base).toHaveValue(selected.base);await expect(learned).toHaveValue(selected.learned);
+ await expect(learned).toHaveValue(selected.learned);
  // A shorter desktop must retain a scroll path to controls below the roster and details.
  await page.setViewportSize({width:1440,height:650});
  await previous.click();await expect(cards).toHaveCount(12);
  await dialog.locator('.mini[data-member-ref="/羁绊列表/同伴01"]').click();
  const shortConfiguration=dialog.locator('.member-config[data-member-ref="/羁绊列表/同伴01"]');
- const shortBase=shortConfiguration.getByRole('combobox',{name:'基础主动能力',exact:true});
  const shortLearned=shortConfiguration.getByRole('combobox',{name:'装配已学能力',exact:true});
  await expect.poll(()=>roster.evaluate(el=>getComputedStyle(el).overflowY)).toMatch(/auto|scroll/);
  await expect.poll(()=>roster.evaluate(el=>el.scrollHeight-el.clientHeight)).toBeGreaterThan(0);
  await expectUnclipped(dialog.locator('.inspect-name > b'));
- await expectUnclipped(shortBase);await expectUnclipped(shortLearned);
+ await expectUnclipped(shortLearned);
  await expect.poll(()=>roster.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
  await shortLearned.selectOption({index:1});await expect(shortLearned).not.toHaveValue('');
  expect((await saveState(page)).partyPreparation).toBeUndefined();
@@ -560,22 +558,45 @@ test('regression: mobile dragging across the embedded shadow root scrolls manage
 });
 
 
-test('regression: generated gem ability names and selected companion details show player text',async({page})=>{
+test('regression: gem ability names (original game names) and selected companion details show player text',async({page})=>{
  await install(page,{launcher:false});await open(page);
  const dialog=management(page);
- await dialog.locator('.mini[data-member-ref="/羁绊列表/同伴甲"]').click();
- const base=dialog.getByRole('combobox',{name:'基础主动能力',exact:true});
  const ability=await page.evaluate(async()=>{
   const load=(path:string)=>import(/* @vite-ignore */path);
   const {partyAbilityChoices}=await load('/src/sillytavern/partyPreparation.ts') as typeof import('../../src/sillytavern/partyPreparation');
-  const candidate=partyAbilityChoices().find(a=>!a.availabilityIssues?.length&&a.name.startsWith('爆破随机')&&a.description.includes('max(0,round(1))'));
+  const candidate=partyAbilityChoices().find(a=>!a.availabilityIssues?.length&&a.description.includes('爆破max(0,round(1))颗'));
   if(!candidate)throw new Error('Expected the native random explosion recipe');
-  return candidate.abilityId;
+  const service=window.stHostPanelFixture.handle.service;const save=(await service.current()).save!;
+  await service.repository.update(save.id,save.revision,draft=>{draft.learnedAbilityIds=[...draft.learnedAbilityIds,candidate.abilityId];});
+  return {id:candidate.abilityId,name:candidate.name};
  });
- expect(await base.locator('option').allTextContents()).not.toEqual(expect.arrayContaining([expect.stringMatching(/\b(?:max|min|round|floor)\s*\(/)]));
- await base.selectOption(ability);
- await expect(dialog.locator('.inspect-spell strong')).toContainText('爆破随机');
+ await page.evaluate(()=>window.stHostPanelFixture.handle.open());
+ await dialog.locator('.mini[data-member-ref="/羁绊列表/同伴甲"]').click();
+ const learned=dialog.getByRole('combobox',{name:'装配已学能力',exact:true});
+ expect(await learned.locator('option').allTextContents()).not.toEqual(expect.arrayContaining([expect.stringMatching(/\b(?:max|min|round|floor)\s*\(/)]));
+ await learned.selectOption(ability.id);
+ await expect(dialog.locator('.inspect-spell strong')).toHaveText(ability.name);
  await expect(dialog.locator('.inspect-spell strong')).not.toContainText('round(');
- await expect(dialog.locator('.inspect-copy > p')).toContainText('随机1颗');
+ await expect(dialog.locator('.inspect-copy > p')).toContainText('爆破1颗');
  await expect(dialog.locator('.inspect-copy > p')).not.toContainText('max(');
+});
+
+test('battle record rows expand to compact reward thumbnails, and a flipped fragment card scrolls',async({page})=>{
+ await install(page,{launcher:false});
+ await page.evaluate(()=>window.stHostPanelFixture.seedEncounter());await open(page);
+ await selectTab(page,'战斗记录');
+ const records=panel(page).locator('section[aria-label="战斗记录"]');
+ await expect(records.getByRole('button',{name:/显示全部/})).toHaveCount(0);
+ await records.getByRole('button',{name:/^剧情 · 胜利/}).click();
+ const rewards=records.getByRole('list',{name:'本场实际获得'});
+ await expect(rewards.locator('li')).toHaveText([/panel-enemy的灵魂碎片\s*×1/,/宝石\s*×8/,/铁矿石\s*×2/]);
+ await expect(rewards.locator('li').first().locator('img')).toHaveAttribute('src',/\/static\/portraits\//);
+ await expect(records.locator('.receipt-view')).toHaveCount(0);
+ await selectTab(page,'魂片收藏');
+ const card=panel(page).locator('.fragment-card').first();
+ await card.locator('.fragment-toggle').click();
+ const back=card.locator('.fragment-ability');await expect(back).toBeVisible();
+ // The scrollable back must be the topmost element, otherwise the wheel never reaches it.
+ expect(await back.evaluate(node=>{const r=node.getBoundingClientRect();const top=(node.getRootNode() as Document|ShadowRoot).elementFromPoint(r.x+r.width/2,r.y+r.height/2);return !!top&&node.contains(top);})).toBe(true);
+ await back.click();await expect(back).toBeHidden();
 });

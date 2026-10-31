@@ -88,7 +88,8 @@ for (const scenario of ['loaded', 'module failure', 'helper failure'] as const) 
     },{replacement:rule.replaceString,scenario});
     const wrapper=page.frameLocator('iframe[name="TH-message--0--0"]');
     if(scenario==='loaded') {
-      await expect(wrapper.frameLocator('iframe[title="剧情三消遭遇"]').getByRole('region',{name:'敌方阵容'}).getByText('卡洛斯·灰刃',{exact:true})).toBeVisible();
+      // The native lineup carries identity in the unit label; names and race show in the native details.
+      await expect(wrapper.frameLocator('iframe[title="剧情三消遭遇"]').getByRole('region',{name:'敌方阵容'}).getByLabel('卡洛斯·灰刃',{exact:true})).toBeVisible();
     } else {
       await expect(wrapper.locator('#match3-message')).toContainText('三消战斗入口加载失败：');
       if(scenario==='helper failure') await expect(wrapper.locator('#match3-message')).toContainText('helper fixture failed');

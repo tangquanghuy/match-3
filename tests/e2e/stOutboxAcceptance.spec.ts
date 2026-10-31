@@ -127,16 +127,16 @@ test('queue recovery renders committed named grants after cleanup abort, then su
  const host=page.locator('#st-match3-host-root');
  await host.getByRole('tab',{name:'存档',exact:true}).click();
  await host.getByRole('button',{name:'保存本场战果',exact:true}).click();
- await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*剑击灵魂碎片/);
+ await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*enemy的灵魂碎片/);
  await expect(host.getByRole('status')).toContainText('acceptance: outbox cleanup transaction aborted');
  const committed=await state(page);expect(committed.queue).toHaveLength(1);expect(committed.save?.sources[0]?.wins).toBe(2);expect(committed.save?.settlements).toHaveLength(2);expect(committed.save?.pendingReplay).toBeUndefined();
  const receipt=committed.save!.settlements.find(r=>r.battleId===committed.queue[0].result.battleId)!;
- expect(receipt.grants).toEqual([{kind:'fragment',id:'enemy-source',name:'剑击灵魂碎片',quantity:1}]);
+ expect(receipt.grants).toEqual([{kind:'fragment',id:'enemy-source',name:'enemy的灵魂碎片',quantity:1}]);
  await page.reload();await install(page);await page.evaluate(async()=>{await window.__stOutboxAcceptance.handle.open();});
  await host.getByRole('tab',{name:'存档',exact:true}).click();
  await expect(host.getByRole('region',{name:'待保存战果'})).toBeVisible();
  await host.getByRole('button',{name:'保存本场战果',exact:true}).click();
- await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*剑击灵魂碎片/);
+ await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*enemy的灵魂碎片/);
  await expect(host.getByRole('region',{name:'待保存战果'})).toHaveCount(0);
  const after=await state(page);expect(after.save).toMatchObject({sources:committed.save!.sources,balances:committed.save!.balances,settlements:committed.save!.settlements});expect(after.queue).toHaveLength(0);
 });
@@ -145,13 +145,13 @@ test('launcher shows the committed receipt before cleanup and retries an aborted
  await page.route('**/__st_outbox_transport.html*',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><html><body>outbox transport fixture</body></html>'}));
  await page.evaluate(()=>{
    const f=window.__stOutboxAcceptance;f.failCleanup();const finish=f.handle.service.finishOutcome.bind(f.handle.service);
-   f.handle.service.finishOutcome=async receipt=>{const detail=document.querySelector('#st-match3-replay-root')!.shadowRoot!.querySelector<HTMLElement>('.settlement')!;const native=detail.firstElementChild?.shadowRoot?.querySelector<HTMLElement>('main.result-screen');f.receiptVisibleBeforeCleanup=!detail.hidden&&!!native&&native.getBoundingClientRect().height>0&&!!native.querySelector('.settlement-grant.rs-reward')?.textContent?.includes('剑击灵魂碎片');await finish(receipt);};
+   f.handle.service.finishOutcome=async receipt=>{const detail=document.querySelector('#st-match3-replay-root')!.shadowRoot!.querySelector<HTMLElement>('.settlement')!;const native=detail.firstElementChild?.shadowRoot?.querySelector<HTMLElement>('main.result-screen');f.receiptVisibleBeforeCleanup=!detail.hidden&&!!native&&native.getBoundingClientRect().height>0&&!!native.querySelector('.settlement-grant.rs-reward')?.textContent?.includes('enemy的灵魂碎片');await finish(receipt);};
    f.launch();
  });
  const replay=page.locator('#st-match3-replay-root');
  const outcome=await page.evaluate(()=>window.__stOutboxAcceptance.outcome);
  await page.frameLocator('iframe[title="往昔再现战场"]').locator('body').evaluate((_,outcome)=>{parent.postMessage({channel:'match3:st-replay:v1',nonce:new URLSearchParams(location.search).get('nonce'),type:'result',result:outcome.result,events:outcome.events},location.origin);},outcome);
- await expect(replay.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*剑击灵魂碎片/);
+ await expect(replay.getByRole('region',{name:'本场实际获得'}).locator('.settlement-grant.rs-reward')).toHaveText(/\+1\s*enemy的灵魂碎片/);
  await expect(replay.getByRole('status')).toContainText('本场奖励已入账');await expect(replay.getByRole('status')).toContainText('acceptance: outbox cleanup transaction aborted');
  await expect(replay.locator('#again')).toBeEnabled();
  await expect(replay.getByRole('button',{name:'继续',exact:true})).toHaveCount(1);

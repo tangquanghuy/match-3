@@ -5,6 +5,7 @@ import type {StHostHandle} from '../../src/sillytavern/hostEntry';
 import type {MessageEncounterSource} from '../../src/sillytavern/messageSource';
 import type {BattleResult} from '../../src/session/contract';
 import type {SettlementReceipt} from '../../src/sillytavern/save';
+import {installTavernChat} from './tavernChat';
 
 test.use({contextOptions:{reducedMotion:'reduce'}});
 
@@ -19,31 +20,35 @@ interface MessageStoryFixture {
  error:string;
  editPlan():void;
  narrate():void;
+ /** The newest floor (report / AI reply) has no MVU variables yet. */
+ dropVariables():void;
  makeResult():Promise<BattleResult>;
 }
 declare global {interface Window {messageStoryFixture:MessageStoryFixture}}
 
-async function setup(page:Page){
+async function setup(page:Page,createSave=true){
  // The bridge receives controlled battle facts; engine behavior has separate regressions.
  await page.route('**/message-battle-fixture.html*',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><title>message battle fixture</title>'}));
+ await installTavernChat(page);
  await page.goto('/sillytavern.html');
- await page.evaluate(async message=>{
+ await page.evaluate(async ({message,createSave})=>{
   const load=(path:string)=>import(/* @vite-ignore */path);
   const {installStHost}=await load('/src/sillytavern/hostEntry.ts') as typeof import('../../src/sillytavern/hostEntry');
   const {readMessageSource}=await load('/src/sillytavern/messageSource.ts') as typeof import('../../src/sillytavern/messageSource');
   const chat=[{mes:message,is_user:false,is_system:false,send_date:'2026-10-24T12:00:00',swipe_id:0}];
-  let variables:Record<string,unknown>={};
+  let variables:Record<string,unknown>={};let noVariables=false;
   let state={stat_data:{人物:{名称:'桥测试主角',等级:20,当前生命值:180,生命值上限:200,临时生命值:0,AC:14,属性:{力量:16,敏捷:12,体质:14,智力:18,感知:12,魅力:10},战斗属性:{武器面板:{伤害骰:'2d6',等级系数:3,固定伤害:10},物理减伤:20,魔法减伤:0,每回合动作资源:{攻击次数:2}},装备列表:{}},系统配置:{三消战斗模式:true}}};
   const helpers={getContext:()=>({characterId:0,characters:[{avatar:'message-story.png'}],chat,getCurrentChatId:()=> 'message-story-chat'}),
    getVariables:()=>structuredClone(variables),updateVariablesWith:(fn:(v:Record<string,unknown>)=>Record<string,unknown>)=>variables=fn(variables),
-   Mvu:{getMvuData:()=>structuredClone(state),replaceMvuData:async(data:typeof state)=>{state=structuredClone(data);}}};
+   Mvu:{getMvuData:()=>noVariables?{} as typeof state:structuredClone(state),replaceMvuData:async(data:typeof state)=>{state=structuredClone(data);}}};
   const host=await installStHost({hostWindow:window,helpers,hostId:'message-story-host',battleUrl:new URL('/message-battle-fixture.html',location.href).href,launcher:false,requireModeEnabled:true});
-  await host.service.create();
+  if(createSave)await host.service.create();
   const fixture:MessageStoryFixture={host,done:false,error:'',source:(messageId=chat.length-1)=>readMessageSource(helpers.getContext(),messageId),
    start(messageId){fixture.done=false;fixture.error='';void host.playMessageStory(fixture.source(messageId)).catch(error=>{fixture.error=String(error.message);}).finally(()=>{fixture.done=true;});},
    appendSamePlanMessage(){chat.push({...chat[0]!,send_date:'2026-10-24T12:01:00'});},
    editPlan(){chat[0]!.mes=chat[0]!.mes.replace('"level":20','"level":21');},
    narrate(){chat[0]!.mes='新的旁白。\n'+chat[0]!.mes;},
+   dropVariables(){noVariables=true;},
    async makeResult(){
     const {save}=await host.service.current();const request=save!.pendingStory!.request;
     return {schemaVersion:request.schemaVersion,rulesetVersion:request.rulesetVersion,battleId:request.battleId,requestId:request.requestId,seed:request.seed,
@@ -53,7 +58,7 @@ async function setup(page:Page){
      defeatedExternalIds:request.enemyTeam.map(unit=>unit.externalId),summonedCount:0,actionLogDigest:'message-story-fixture-victory',economy:{gold:0,souls:0,gems:0,maps:0},eventSummary:[]};
    }};
   window.messageStoryFixture=fixture;
- },message);
+ },{message,createSave});
 }
 async function startNew(page:Page){
  await page.evaluate(()=>window.messageStoryFixture.start());
@@ -115,6 +120,26 @@ async function expectReceipt(page:Page,receipt:SettlementReceipt){
  expect(await page.evaluate(()=>window.messageStoryFixture.error)).toBe('');
 }
 
+test('新聊天首次预览即建档并显示敌方立绘，开战使用同一存档与同一批敌人',async({page})=>{
+ await setup(page,false);
+ const preview=await page.evaluate(async()=>{
+  const fixture=window.messageStoryFixture;
+  const before=(await fixture.host.service.current()).save;
+  // Two strips rendering at once must not create two saves.
+  const [first,second]=await Promise.all([fixture.host.messageStoryLineup(fixture.source()),fixture.host.messageStoryLineup(fixture.source())]);
+  const saves=await fixture.host.service.repository.list();
+  return {before:!!before,first,second,saves:saves.length,saveId:saves[0]?.id};
+ });
+ expect(preview.before).toBe(false);
+ expect(preview.saves).toBe(1);
+ expect(preview.first?.enemy).toHaveLength(1);
+ expect(preview.first?.enemy[0]?.portraitUrl).toMatch(/\/static\/portraits\/.+\.webp$/);
+ expect(preview.second).toEqual(preview.first);
+ await startNew(page);
+ const pending=await page.evaluate(async()=>{const {save}=await window.messageStoryFixture.host.service.current();return {saveId:save!.id,enemy:save!.pendingStory!.request.enemyTeam.map(unit=>unit.portraitUrl)};});
+ expect(pending.saveId).toBe(preview.saveId);
+ expect(pending.enemy.map(url=>new URL(url!,'http://x').pathname)).toEqual(preview.first!.enemy.map(unit=>new URL(unit.portraitUrl!).pathname));
+});
 test('同消息复用原 pending 快照与稳定标识，旁白变化不改变计划，并发不重复准备',async({page})=>{
  await setup(page);
  const preparingError=await page.evaluate(async()=>{
@@ -266,7 +291,7 @@ test('旧消息 pending 在正文和管理面板都阻止恢复，保留原档�
  await expect(page.locator('#st-match3-story-root')).toHaveCount(0);
  expect(await saveOf(page)).toEqual(before);
  expect(await page.evaluate(async()=> (await window.messageStoryFixture.host.service.repository.listReplayOutcomes()).length)).toBe(0);
- await expect(page.getByRole('button',{name:'放弃未结算剧情',exact:true})).toBeEnabled();
+ await expect(page.getByRole('button',{name:'放弃战斗',exact:true})).toBeEnabled();
 });
 
 
@@ -293,4 +318,11 @@ test('战胜后的姓名和种族保存在图鉴并用于往昔再现准备',asy
  await expect(page.locator('#st-match3-replay-root')).toHaveCount(0);
  expect(await saveOf(page)).toEqual(replay);
  expect(replay.encounters).toEqual(save.encounters);
+});
+
+test('继续发出战报后，最新楼层暂无 MVU 变量也不把错误显示到战斗入口',async({page})=>{
+ await setup(page);await startNew(page);await completeBattle(page);
+ // "继续" sends the report; the new floor has no variables until MVU processes it.
+ await page.evaluate(()=>window.messageStoryFixture.dropVariables());
+ await closeBattle(page);
 });

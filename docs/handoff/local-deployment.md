@@ -79,10 +79,17 @@ npm run build:tavern
 
 输出目录为 `dist-tavern/`。若交付方已经给出完整构建，可省略 `npm run build:tavern`；本地预览仍需要根目录依赖。源码包缺少游戏图片、字体或音效时应先补齐运行资源，再构建。
 
-随后运行：
+2026-10-28 从 GitHub 克隆的工作区里，`npm run build:tavern` 的 tsc 步骤会因既有错误失败（仓库缺 `data/raw/gow-2026-09-18`，未装 `@cloudflare/workers-types`），与酒馆接入代码无关。此时跳过类型检查直接构建：
 
 ```powershell
-npm run preview -- --config deploy/sillytavern.local.vite.config.ts
+$env:VITE_BASE = '/'
+npx vite build --mode tavern
+```
+
+随后运行（PowerShell 下 `npm run preview -- --config …` 会丢掉 `--config` 参数，直接用 npx）：
+
+```powershell
+npx vite preview --config deploy/sillytavern.local.vite.config.ts
 ```
 
 终端应打印 `http://127.0.0.1:5185/`。保持该终端运行；需要停止时按 `Ctrl+C`。端口占用时命令会直接报错，便于保持地址一致。需要更换端口可追加 `--port 5186`，并同步本文所有本机地址、角色卡页面和下载的正则。
@@ -107,6 +114,7 @@ npm run preview -- --config deploy/sillytavern.local.vite.config.ts
 
 1. 启动自己的 SillyTavern，在 `http://127.0.0.1:8000/` 打开角色卡。保持使用相同的酒馆地址和浏览器配置。
 2. 在本地安装页下载“正文正则 JSON”，得到 `runtime-regex.json`。在酒馆正则扩展里导入，替换同名“三消·正文战斗入口 v1”，每个匹配位置保留一条有效规则。下载的替换内容应包含 `http://127.0.0.1:5185/sillytavern-message.js`。仓库中现成的正则 JSON 仍绑定公开站，本地安装以本机安装页下载的文件为准。
+   若角色卡有把 `<now_plot>…</now_plot>` 整段替换成 HTML 代码块的正文美化正则（如创世回廊的“正文美化”），在它之前加一条仅显示、处理 AI 输出的正则，查找 `/(<match3>\s*[\s\S]*?\s*<\/match3>)([\s\S]*?)(<\/now_plot>)/g`，替换为 `$2$3`、空一行、`$1`，把战斗块移到正文外。否则两个代码块嵌套，正文和战斗入口都无法显示。
 3. 如采用手工编辑，下载本机安装页的 `runtime-regex-replacement.txt` 全文，保留 HTML 代码围栏；原查找式为 `/<match3>\s*[\s\S]*?\s*<\/match3>/g`，用于 AI 消息显示，保持 `markdownOnly: true`、`promptOnly: false` 和 `runOnEdit: true`。
 4. 下载同页 `runtime-ai.md`，或使用 [当前三消提示词](../sillytavern-runtime-ai-prompt.md)，更新角色绑定的三消世界书条目，保留外层 EJS。原生 AIRP 条目同步 [战斗规则](../战斗规则.md) 的互斥条件。EJS 根据当前 MVU 变量决定注入规则。
 5. 对照 [人工部署说明的 MVU 合并位置](../sillytavern-manual-deployment.md#mvu-结构合并位置)，将 [mvuzod.js](../mvuzod.js) 中三消 schema 合入接手角色的现有 MVU 结构脚本，保留该角色其他字段。包括模式开关、同伴颜色和战果结构。
@@ -121,7 +129,7 @@ HTML 页面应由现有酒馆助手入口执行。将底栏 HTML 作为另一个
 
 ## 5. 修改、重启与存档
 
-`preview` 服务提供已经构建好的文件，源码修改后执行 `npm run build:tavern`，再整页刷新酒馆。修改本地开局/底栏时编辑 `game-assets/public/local-card/` 的副本后重建；直接修改 `dist-tavern/` 会在下次构建时被覆盖。
+`preview` 服务提供已经构建好的文件，源码修改后重新构建（见第 3 节），再整页刷新酒馆。修改本地开局/底栏时编辑 `game-assets/public/local-card/` 的副本后重建；直接修改 `dist-tavern/` 会在下次构建时被覆盖。
 
 开发期可用 `npm run dev` 查看源码页面与测试台，但正式正则和底栏引用的是构建后的稳定文件名 `sillytavern-message.js` / `sillytavern-panel.js`，本地酒馆联调继续使用上述专用预览服务。预览端口应固定，避免每次重新安装入口。
 

@@ -79,8 +79,8 @@
       ],
       "kingdom": "region:37",
       "kingdomId": 100001,
-      "spellName": "指定的一名敌人伤害〔19tdyfn〕",
-      "spellDescription": "1. 对选定的一名敌人造成max(0,round(魔力+2))点伤害",
+      "spellName": "狙击",
+      "spellDescription": "对一名敌人造成max(0,round(魔力+2))点伤害。",
       "rarityIdx": 0,
       "portraitUrl": "/static/portraits/Troop_K16_02.webp"
     },
@@ -244,5 +244,5 @@
       "message": "rank（五档定位，与等级独立）：档位复杂度预算尚未标定；保留原配方并报告测量值"
     }
   ],
-  "integrity": "enemy-design:v1:945b04c8c8ce5cac"
+  "integrity": "enemy-design:v1:af074965bd12c659"
 }

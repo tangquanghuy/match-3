@@ -274,11 +274,24 @@ export class WeaponsScreen implements Screen {
   private readonly onInput = (event: Event): void => {
     const input = event.target as HTMLInputElement;
     if (!input.matches('[data-weapon-search]')) return;
+    // IME (e.g. Chinese pinyin): re-rendering replaces the input and breaks the composition, so
+    // wait for compositionend and search with the committed text.
+    if ((event as InputEvent).isComposing) return;
+    this.applyQuery(input);
+  };
+
+  private readonly onCompositionEnd = (event: Event): void => {
+    const input = event.target as HTMLInputElement;
+    // Browsers differ on whether a final non-composing input event follows; search once.
+    if (input.matches?.('[data-weapon-search]') && input.value !== this.filters.query) this.applyQuery(input);
+  };
+
+  private applyQuery(input: HTMLInputElement): void {
     this.filters.query = input.value;
     this.page = 1;
     const position = input.selectionStart ?? input.value.length;
     this.render(true, position);
-  };
+  }
 
   private readonly onChange = (event: Event): void => {
     const select = event.target as HTMLSelectElement;
@@ -326,6 +339,7 @@ export class WeaponsScreen implements Screen {
     document.head.appendChild(this.styleEl);
     root.addEventListener('click', this.onClick);
     root.addEventListener('input', this.onInput);
+    root.addEventListener('compositionend', this.onCompositionEnd);
     root.addEventListener('change', this.onChange);
     window.addEventListener('keydown', this.onKeydown);
     window.addEventListener('resize', this.onResize);
@@ -850,6 +864,7 @@ export class WeaponsScreen implements Screen {
     this.termTips?.();
     this.root?.removeEventListener('click', this.onClick);
     this.root?.removeEventListener('input', this.onInput);
+    this.root?.removeEventListener('compositionend', this.onCompositionEnd);
     this.root?.removeEventListener('change', this.onChange);
     window.removeEventListener('keydown', this.onKeydown);
     window.removeEventListener('resize', this.onResize);

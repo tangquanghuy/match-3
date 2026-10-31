@@ -23,7 +23,7 @@ export async function mountMessageEncounter(options:MessageOptions):Promise<{des
  if(!['http:','https:'].includes(url.protocol))throw new Error('战斗入口地址需要 HTTP 或 HTTPS');
  const nonce=host.crypto.randomUUID();url.hash=new URLSearchParams({channel:nonce}).toString();
  const doc=options.root.ownerDocument;const frame=doc.createElement('iframe');
- frame.title='剧情三消遭遇';frame.src=url.href;frame.style.cssText='display:block;width:100%;height:500px;border:0;border-radius:10px;color-scheme:dark';
+ frame.title='剧情三消遭遇';frame.src=url.href;frame.style.cssText='display:block;width:100%;height:96px;border:0;border-radius:10px;color-scheme:dark';
  const status=doc.createElement('p');status.setAttribute('role','status');status.hidden=true;
  const retry=doc.createElement('button');retry.type='button';retry.textContent='重试加载战斗入口';retry.hidden=true;
  const receiptLifecycle=new AbortController();
@@ -44,7 +44,11 @@ export async function mountMessageEncounter(options:MessageOptions):Promise<{des
   const panel=await openStPanel({runtimeWindow:runtime,hostWindow:host,show:false});
   if(disposed)return;
   const state=await panel.messageStoryState(source,dismissReceipt);
-  if(!disposed)send('state',{state});
+  if(disposed)return;
+  send('state',{state});
+  // Portraits are a preview nicety; a lineup failure must not block the entry.
+  try{const lineup=await panel.messageStoryLineup(source);if(lineup&&!disposed)send('lineup',{player:lineup.player,enemy:lineup.enemy});}
+  catch(error){console.warn('[三消] 战斗预览阵容读取失败',error);}
  }
  async function play():Promise<void>{
   if(busy||disposed||!connected)return;busy=true;send('busy');setStatus();
@@ -53,7 +57,24 @@ export async function mountMessageEncounter(options:MessageOptions):Promise<{des
    const panel=await openStPanel({runtimeWindow:runtime,hostWindow:host,show:false});
    if(disposed)return;
    await panel.playMessageStory(source,receiptLifecycle.signal);
-   if(!disposed){await refreshState();setStatus();send('idle');}
+   if(!disposed){
+    setStatus();send('idle');
+    // The battle is done; the report message may still be waiting for its MVU floor.
+    // A later rerender updates the button, so a failed refresh is not a battle error.
+    await refreshState().catch(()=>{});
+   }
+  }catch(error){if(!disposed){setStatus(error instanceof Error?error.message:String(error));send('error',{message:status.textContent});}}
+  finally{busy=false;}
+ }
+ /** Temporary test tool: undo the settled battle so the same floor can be fought again. */
+ async function resetForTesting():Promise<void>{
+  if(busy||disposed||!connected)return;busy=true;send('busy');setStatus();
+  try{
+   assertMessageSource(context(),source);
+   const panel=await openStPanel({runtimeWindow:runtime,hostWindow:host,show:false});
+   if(disposed)return;
+   await panel.resetMessageStoryForTesting(source);
+   if(!disposed){send('idle');await refreshState().catch(()=>{});}
   }catch(error){if(!disposed){setStatus(error instanceof Error?error.message:String(error));send('error',{message:status.textContent});}}
   finally{busy=false;}
  }
@@ -66,8 +87,9 @@ export async function mountMessageEncounter(options:MessageOptions):Promise<{des
    setStatus();
    void refreshState(!busy).catch(()=>{/* Starting still reports any host setup error on explicit click. */});
   }
-  if(data.type==='resize'&&Number.isFinite(data.height)&&data.height>=240&&data.height<=2000)frame.style.height=`${Math.ceil(data.height)}px`;
+  if(data.type==='resize'&&Number.isFinite(data.height)&&data.height>=60&&data.height<=2000)frame.style.height=`${Math.ceil(data.height)}px`;
   if(data.type==='play')void play();
+  if(data.type==='reset')void resetForTesting();
  }
  function destroy():void{if(disposed)return;disposed=true;receiptLifecycle.abort();clearHandshake();retry.onclick=null;frame.removeEventListener('error',frameError);runtime.removeEventListener('message',receive);runtime.removeEventListener('pagehide',destroy);}
  runtime.addEventListener('message',receive);runtime.addEventListener('pagehide',destroy,{once:true});

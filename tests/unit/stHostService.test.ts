@@ -101,3 +101,11 @@ describe('ST host manually abandons an unsettled story',()=>{
   await expect(f.service.abandonStory('pending',before.revision,f.chat)).rejects.toThrow('待完成剧情已变化');expect(f.save).toEqual(before);
  });
 });
+
+describe('ST host weapon purchase',()=>{
+ it('is blocked while a story battle is pending, before touching MVU',async()=>{
+  const f=fixture();expect(f.save.pendingStory).toBeDefined();
+  await expect(f.service.purchaseWeapon('gw_SkeletonKey')).rejects.toThrow('剧情战斗尚未结算');
+  expect(f.replace).not.toHaveBeenCalled();
+ });
+});

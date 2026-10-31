@@ -1,0 +1,17 @@
+{
+  "id": "1973726b-5c2b-4a80-8ddb-0af953f7da8f",
+  "scriptName": "正文后处理",
+  "disabled": false,
+  "runOnEdit": true,
+  "findRegex": "/<\\/now_plot>((?:\\s*<(?:DiceCombat|DiceCheck|Initiative|EnemyOverview|SummonOverview|ExperienceLog|LootLog|QuestContract|CombatSnapshot)>[\\s\\S]*?<\\/(?:DiceCombat|DiceCheck|Initiative|EnemyOverview|SummonOverview|ExperienceLog|LootLog|QuestContract|CombatSnapshot)>)+\\s*)/gi",
+  "trimStrings": [],
+  "replaceString": "$1</now_plot>",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 10,
+  "markdownOnly": true,
+  "promptOnly": true
+}

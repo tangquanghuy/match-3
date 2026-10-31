@@ -1,33 +1,52 @@
 {
   "checked_on": "2026-10-28",
-  "purpose": "提交推送前记录当前工作区实测结果；交接快照保留未完成事项。",
+  "purpose": "接手后本轮改动（战报回注、默认武器、同伴固定颜色、技能与颜色解绑、放弃按败北）的实测结果；改动尚未提交，等待人工测试。",
+  "base_commit": "1a26bb179813",
   "build": {
-    "command": "npm run build:tavern",
+    "command": "$env:VITE_BASE='/'; npx vite build --mode tavern",
     "result": "passed",
-    "note": "本轮本地部署工作中执行，TypeScript 与 Vite 构建通过；存在大 chunk 提示。"
+    "note": "npm run build:tavern 的 tsc 步骤因既有错误失败（仓库缺 data/raw/gow-2026-09-18，未装 @cloudflare/workers-types），与酒馆接入代码无关，故跳过类型检查直接构建。构建产物有 preload 404 提示，来自 VITE_BASE='/'，不影响功能。"
   },
-  "local_deployment": "local-deployment-verification.json",
   "unit_tests": {
-    "command": "npx vitest run tests/unit/stRuntimeProtocol.test.ts tests/unit/stRuntimeRegex.test.ts tests/unit/stEnemyClassifiedAssembly.test.ts tests/unit/stEnemyWeightedAssembly.test.ts tests/unit/stPortraitIndependence.test.ts tests/unit/stSave.test.ts tests/unit/stStoryWriteback.test.ts tests/unit/stEconomyReceipt.test.ts",
-    "test_files": 8,
-    "passed_files": 6,
-    "failed_files": 2,
-    "passed_tests": 316,
-    "failed_tests": 2,
-    "failures": [
-      {
-        "file": "tests/unit/stEnemyClassifiedAssembly.test.ts",
-        "line": 101,
-        "test": "fulfills semantic damage and defense together through independently selected traits",
-        "observed": "生成敌人颜色为 Red，断言要求等于技能来源的 Green/Purple；需核对颜色重绑定后的测试口径。"
-      },
-      {
-        "file": "tests/unit/stEnemyWeightedAssembly.test.ts",
-        "line": 53,
-        "test": "restores a pre-policy save using its original selector and detects altered data",
-        "observed": "旧版本语义设计 fixture 在 restoreEnemyDesign 全字段校验时被拒绝，需核对兼容恢复行为。"
-      }
-    ]
+    "scope": "本轮改动影响的酒馆接入单测",
+    "test_files": 15,
+    "passed_tests": 477,
+    "failed_tests": 0,
+    "note": "docs/sillytavern-runtime-ai-prompt.md 的 CRLF 导致的逐字比对失败已通过 .gitattributes 固定 LF 解决。",
+    "pre_existing_failures": {
+      "note": "交接快照已记录的两条失败，2026-10-28 复跑仍失败（2 文件 18 项中 16 通过），位置和错误与交接时一致，属敌人组装器范围，本轮未修改。",
+      "cases": [
+        "tests/unit/stEnemyClassifiedAssembly.test.ts:101 技能来源颜色断言",
+        "tests/unit/stEnemyWeightedAssembly.test.ts:53 旧语义设计恢复校验（restoreEnemyDesign 全字段校验拒绝）"
+      ]
+    }
   },
-  "acceptance": "本次为交接快照，存在以上两条失败；ST-04–ST-09 仍进行中，ST-10 未整版验收。"
+  "browser_tests": {
+    "scope": "tests/e2e 下酒馆接入 st* 用例；原三消本体 e2e 不在范围内，未运行。",
+    "updated_for_new_behavior": [
+      "stPartyDialog", "stHostPanel", "stMessageEntry", "stMessageStory", "stSemanticStory", "stStoryAbandon",
+      "stPlaytest", "stClassifiedPlaytest", "stReplay", "stOutboxAcceptance", "stRuntimePromptDownload"
+    ],
+    "pre_existing_failures": {
+      "note": "以下用例在原提交 1a26bb179813 上同样失败，与本轮改动无关。",
+      "cases": [
+        "stEnemyFamilyEntry（7 项）",
+        "stEnemyAssemblyPreview.spec.ts:86",
+        "stPreview.spec.ts:119",
+        "stLoader.spec.ts:105",
+        "stMessageEntry.spec.ts:368 短屏加载失败（2 项）"
+      ]
+    },
+    "environment_note": "stHostEmbedding 需要开发服务绑定 127.0.0.1：npx vite --host 127.0.0.1 --port 5173 --strictPort。"
+  },
+  "real_tavern": {
+    "environment": "本机 SillyTavern 1.19.0（G:\\SillyTavern-release，http://127.0.0.1:8000/），角色卡 创世回廊6.0，三消本地服务 http://127.0.0.1:5185/",
+    "result": "走通一轮：AI 输出 <match3> 块 → 正则入口 → 准备 → 战斗（败北，26 回合）→ 原生结算 → 点继续把【三消战报】作为聊天消息发出 → AI 按战报续写。MVU 生命 180 → 0，三消战果 1 条，同伴颜色写回 MVU；之后入口显示“查看本场战果”。",
+    "manual_test_checklist": "manual-test-checklist.md"
+  },
+  "acceptance": "ST-04–ST-09 仍进行中，ST-10 未整版验收；临时 HP、逐行动恢复、数值平衡、材料与淬炼未做。",
+  "previous_snapshot": {
+    "checked_on": "2026-10-28（交接时）",
+    "summary": "npm run build:tavern 在交接方环境通过；8 个定向单测文件 318 项中 316 通过、2 失败。"
+  }
 }

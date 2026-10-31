@@ -23,7 +23,7 @@ describe('enemy narrative identity across the existing battle pipeline',()=>{
    expect(member.snapshot).toMatchObject({externalId:`enemy-${index+1}`,name:input.name,race:input.race});
    const character=snapshotToCharacter(member.snapshot,index);
    expect(character).toMatchObject({name:input.name,race:input.race,levelLabel:member.snapshot.levelLabel});
-   expect(buildDetailViewModel(character)).toMatchObject({name:input.name,race:input.race,levelLabel:member.snapshot.levelLabel,hp:member.snapshot.stats.hp,attack:member.snapshot.stats.attack});
+   expect(buildDetailViewModel(character)).toMatchObject({name:input.name,race:input.race,levelLabel:`Lv.${member.snapshot.levelLabel}`,hp:member.snapshot.stats.hp,attack:member.snapshot.stats.attack});
   }
  });
  it('does not change recipes, traits, stats, artwork, mechanical affiliations or ability learning identity when renamed',()=>{

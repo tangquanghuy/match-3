@@ -37,6 +37,9 @@ ${headerBase}sillytavern-install.html
 ${headerBase}sillytavern-loader.js
   Access-Control-Allow-Origin: *
   Cache-Control: no-cache
+${headerBase}sillytavern-currency-guard.js
+  Access-Control-Allow-Origin: *
+  Cache-Control: no-cache
 ${headerBase}assets/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
@@ -142,9 +145,9 @@ export default defineConfig(({ mode }) => ({
       preserveEntrySignatures: 'exports-only',
       // 线上（--mode remote）只发布游戏外壳；单机对局页与技能测试台只在开发时构建
       input: mode === 'tavern'
-        ? {sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'),sillytavern:root('./sillytavern.html'),sillytavernHost:root('./src/sillytavern/hostEntry.ts'),sillytavernPanel:root('./src/sillytavern/panelEntry.ts'),sillytavernBattle:root('./sillytavern-battle.html')}
+        ? {sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'),sillytavern:root('./sillytavern.html'),sillytavernHost:root('./src/sillytavern/hostEntry.ts'),sillytavernPanel:root('./src/sillytavern/panelEntry.ts'),sillytavernCurrencyGuard:root('./src/sillytavern/currencyGuardEntry.ts'),sillytavernBattle:root('./sillytavern-battle.html')}
         : mode === 'remote'
-        ? { sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'), cover: root('./cover.html'), game: root('./game.html'), sillytavernHost: root('./src/sillytavern/hostEntry.ts'), sillytavernPanel: root('./src/sillytavern/panelEntry.ts'), sillytavernBattle: root('./sillytavern-battle.html') }
+        ? { sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'), cover: root('./cover.html'), game: root('./game.html'), sillytavernHost: root('./src/sillytavern/hostEntry.ts'), sillytavernPanel: root('./src/sillytavern/panelEntry.ts'), sillytavernCurrencyGuard: root('./src/sillytavern/currencyGuardEntry.ts'), sillytavernBattle: root('./sillytavern-battle.html') }
         : {
             main: root('./index.html'),
             sillytavernInstall:root('./sillytavern-install.html'),sillytavernMessage:root('./src/sillytavern/messageEntry.ts'),sillytavernEncounter:root('./sillytavern-encounter.html'),
@@ -157,7 +160,7 @@ export default defineConfig(({ mode }) => ({
             game: root('./game.html'),
           },
       output: {
-        entryFileNames: chunk => chunk.name === 'sillytavernMessage' ? 'sillytavern-message.js' : chunk.name === 'sillytavernHost' ? 'sillytavern-host.js' : chunk.name === 'sillytavernPanel' ? 'sillytavern-panel.js' : 'assets/[name]-[hash].js',
+        entryFileNames: chunk => chunk.name === 'sillytavernMessage' ? 'sillytavern-message.js' : chunk.name === 'sillytavernHost' ? 'sillytavern-host.js' : chunk.name === 'sillytavernPanel' ? 'sillytavern-panel.js' : chunk.name === 'sillytavernCurrencyGuard' ? 'sillytavern-currency-guard.js' : 'assets/[name]-[hash].js',
         manualChunks(id) {
           if (/[\\/]src[\\/].+\.json$/.test(id.split('?')[0]!)) return 'data';
           return undefined;

@@ -2,6 +2,7 @@ import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import type {StHostHandle} from '../../src/sillytavern/hostEntry';
 import type {BattleResult} from '../../src/session/contract';
+import {installTavernChat,sentTavernMessages} from './tavernChat';
 
 test.use({contextOptions:{reducedMotion:'reduce'}});
 
@@ -19,6 +20,7 @@ declare global {interface Window {
 
 
 async function install(page:Page){
+ await installTavernChat(page);
  await page.goto('/sillytavern.html');
  await page.evaluate(async()=>{
   const entry='/src/sillytavern/hostEntry.ts',design='/src/sillytavern/enemyDesign.ts';
@@ -128,4 +130,5 @@ test('semantic story renders the committed native receipt and duplicate delivery
  expect(await page.evaluate(async()=>((await window.semanticStory.handle.service.current()).save))).toEqual(committed);
  expect(await page.evaluate(async()=>(await window.semanticStory.handle.service.repository.listReplayOutcomes()).length)).toBe(0);
  await result.locator('#again').click();await expect(battle).toHaveCount(0);
+ const sent=await sentTavernMessages(page);expect(sent).toHaveLength(1);expect(sent[0]).toMatch(/^【三消战报】/);
 });

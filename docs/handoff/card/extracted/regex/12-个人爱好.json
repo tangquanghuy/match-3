@@ -1,0 +1,17 @@
+{
+  "id": "aab831a5-76ce-45d7-b20f-e024f89eb8a0",
+  "scriptName": "个人爱好",
+  "disabled": true,
+  "runOnEdit": true,
+  "findRegex": "/阴道/g",
+  "trimStrings": [],
+  "replaceString": "嫰穴",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 30,
+  "markdownOnly": true,
+  "promptOnly": true
+}

@@ -1,6 +1,6 @@
 # 文件说明、同步范围与继续工作入口
 
-交接基准：2026-10-28。本文链接以仓库内相对路径为主，复制整个项目或 `docs/handoff` 所在目录结构后可继续使用。用户原话里的 D 盘绝对路径按历史原句保留；仓库外实际文件在本次交接中另留快照。
+交接基准：2026-10-28，2026-10-31 补充第二轮接手开发的新增文件（见第 10 节）。本文链接以仓库内相对路径为主，复制整个项目或 `docs/handoff` 所在目录结构后可继续使用。用户原话里的 D 盘绝对路径按历史原句保留；仓库外实际文件在本次交接中另留快照。
 
 ## 1. 文档权威顺序与推荐阅读
 
@@ -139,7 +139,7 @@ node scripts/st-host-dist-smoke.mjs dist-tavern
 
 注意 `st-enemy-assembly-coverage.mjs --check` 仍会重写 JSON/Markdown 结构报告后检查门槛；它没有执行机制行为或平衡验收。需要保留旧证据时先另存版本。`st-enemy-inventory --check` 依赖本机历史行为证据，缺少被忽略的证据目录时不要为追求通过随意删条目或缩分母。脚本可读 [覆盖生成器](../../scripts/st-enemy-assembly-coverage.mjs)、[目录生成器](../../scripts/st-enemy-inventory.mjs)、[行为证据执行](../../scripts/st-enemy-acceptance.mjs)、[静态构建 smoke](../../scripts/st-host-dist-smoke.mjs)。
 
-公开站发布是独立的可选流程。接手人本地联调使用 `npm run preview -- --config deploy/sillytavern.local.vite.config.ts`，无需 Cloudflare 权限或 `worker/` 依赖。
+公开站发布是独立的可选流程。接手人本地联调使用 `npx vite preview --config deploy/sillytavern.local.vite.config.ts`（PowerShell 下 `npm run preview -- --config …` 会吞掉参数，不要用），无需 Cloudflare 权限或 `worker/` 依赖。2026-10-31 注：`npm run build:tavern` 会因原有类型错误失败，本机一直用 `$env:VITE_BASE='/'; npx vite build --mode tavern` 构建，详见 [上线待办](launch-checklist.md)。
 
 公开站发布配置在 [deploy/sillytavern.wrangler.jsonc](../../deploy/sillytavern.wrangler.jsonc)，发布 `dist-tavern` 静态产物。有发布权限的维护者配置目标 Cloudflare 账号；完整静态模块与 `assets/static` 同批发布，资源头由 [vite.config.ts](../../vite.config.ts) 的 `HEADERS` 常量在构建时生成 `_headers`。正式发布命令 `npm run deploy:tavern` 还依赖 `worker/` 的 Wrangler，需先在该目录安装依赖。无需为纯本地进度增加业务数据库服务器。
 
@@ -183,3 +183,35 @@ node scripts/st-host-dist-smoke.mjs dist-tavern
 - 最新魂片命名公开验证是实际酒馆文档下的隔离旧收据测试；完整用户实聊和整场战斗没有在该次修复里重做。
 - 现有战果镜像没有完整收据奖励列表及永久完整行动事件，自动进入下一次模型请求尚未验证；原始完整战报反馈目标仍待补齐。
 - 本次完成文档整理、原文和附件提取、外部快照、路径与完整性检查，并增加本地静态部署和跨来源模块验证。功能验收范围沿用已有记录，不能用交接文档写成“整版已通过”。
+
+## 10. 2026-10-31 第二轮接手新增的文件
+
+交接文档：
+
+| 文件 | 内容 |
+| --- | --- |
+| [launch-checklist.md](launch-checklist.md) | 上线待办：必须做、应该做、已知缺口。 |
+| [card/](card/README.md) | 三消接入对角色卡的改动、更新方法；开局页和底栏副本，卡内脚本与正则的可读副本，`manifest.json`（含 SHA-256 和卡内本机地址）。角色卡本体不在仓库。 |
+| [session-20261028/](session-20261028/user-dialogue.md) | U096–U171 用户原话、完整会话记录（`transcript.md`）、机器可读原文（`user-turns.json`）；截图在 `attachments/`。 |
+
+脚本：
+
+| 文件 | 用途 |
+| --- | --- |
+| [scripts/st-card-backup.cjs](../../scripts/st-card-backup.cjs) | 从酒馆数据目录导出清理过的角色卡、世界书和脚本/正则副本（只读酒馆文件；角色卡和世界书太大，不进仓库）。 |
+| [scripts/handoff-export-session.cjs](../../scripts/handoff-export-session.cjs) | 把 Kiro 会话的 `messages.jsonl` 导出成原话、会话记录和 JSON。 |
+
+酒馆接入源码（`src/sillytavern/`）：
+
+| 文件 | 职责 |
+| --- | --- |
+| [abilityNames.ts](../../src/sillytavern/abilityNames.ts) | 技能名覆盖表（27 条），保证一名一效果；`enemyBlueprint.skillNameForTroop()` 使用它。 |
+| [weaponPicker.ts](../../src/sillytavern/weaponPicker.ts) | 编队页“更换武器”的选择窗口（仿原武器中心，筛选、购买）。 |
+| [weaponShop.ts](../../src/sillytavern/weaponShop.ts) | 武器价格、`三消已购武器` 读取、扣款纯函数。写 MVU 的是 `hostAdapter.purchaseWeapon`。 |
+| [currencySeal.ts](../../src/sillytavern/currencySeal.ts)、[currencyGuard.ts](../../src/sillytavern/currencyGuard.ts)、[currencyGuardEntry.ts](../../src/sillytavern/currencyGuardEntry.ts) | 通用币校验码、检查与改回、角色卡脚本入口（构建为 `sillytavern-currency-guard.js`）。 |
+| [battleRecords.ts](../../src/sillytavern/battleRecords.ts) | 战斗记录按对手分组（只影响显示）。 |
+| [storyReportMessage.ts](../../src/sillytavern/storyReportMessage.ts) | 生成“【三消战报】”聊天消息并通过酒馆输入框发送。 |
+
+改动过的原游戏文件：`src/meta/screens/weaponsScreen.ts`（搜索框中文输入法，经用户同意，已推送）；`src/render/App.ts`、`src/render/CharacterDetailPanel.ts`（酒馆战斗详情的显示，按用户要求未推送，留在工作区）。
+
+新增测试：`stAbilityNames`、`stWeaponShop`、`stCurrencyGuard`、`stBattleRecords`、`stStoryReport` 等单测；`stPartyDialog`、`stHostPanel`、`stMessageStory` 中的武器购买、中文输入法、战斗记录、魂片背面、战后无变量楼层等浏览器用例。

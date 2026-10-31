@@ -124,7 +124,7 @@ describe('ST integrated story origin acceptance: freeze and side effects',()=>{
  it('stages and accounts a real receipt independently of the later HP writeback',async()=>{
   const f=fixture();const initial=structuredClone(f.data);const ticket=await f.begin();await f.stageStory(ticket);
   expect(f.saved.settlements).toEqual([]);expect(f.queue[0]!.ticket).toEqual(ticket);expect(f.saved.encounters).toEqual([]);
-  const receipt=await f.settle();expect(receipt.grants).toEqual([{kind:'fragment',id:'enemy-source',name:'骑士剑技灵魂碎片',quantity:1}]);
+  const receipt=await f.settle();expect(receipt.grants).toEqual([{kind:'fragment',id:'enemy-source',name:'骑士的灵魂碎片',quantity:1}]);
   expect(f.saved.sources[0]!.wins).toBe(1);expect(f.saved.balances).toEqual({});expect(f.saved.encounters).toHaveLength(1);
   expect(f.data).toEqual(initial);expect(f.replace).not.toHaveBeenCalled();expect(f.updateVariables).not.toHaveBeenCalled();expect(f.queue).toHaveLength(1);
   await f.service.finishOutcome(receipt);expect(f.hero['当前生命值']).toBe(1);expect(f.marker()!.report).toEqual(receipt.report);

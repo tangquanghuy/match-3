@@ -4,7 +4,7 @@ import { PORTRAITS, COLOR_NAMES, FORMS, RANKS, ROLE_ORDER, ROLE_NAMES, findPortr
 import type { PortraitQuery, PortraitEntry } from './portraits';
 import {getTroopById} from '../data/troops';
 import type { TroopRole } from '../data/troops';
-import {compileEnemyBlueprint,restoreEnemyBlueprint,adaptedTrait,adaptedAbilityDescription,adaptedPrototype} from './enemyBlueprint';
+import {compileEnemyBlueprint,restoreEnemyBlueprint,adaptedTrait,adaptedPrototype,skillNameForTroop} from './enemyBlueprint';
 import type {EnemyBlueprint} from './enemyBlueprint';
 import {buildDerivedFormPreview,renderDerivedFormPreview} from './derivedFormPreview';
 import {prototypeEconomyIssues,traitEconomyIssues} from './economyAvailability';
@@ -166,7 +166,7 @@ function renderBlueprint(panel:HTMLElement,portrait:PortraitEntry):void {
   const recipes=PORTRAITS.filter(p=>p.rank===portrait.rank&&(p.role===portrait.role||p.troopId===recipeTroopId));
   recipeTroopId??=portrait.troopId;
   const recipeLabel=node('label','能力配方');const recipe=node('select');recipe.setAttribute('aria-label','能力配方');
-  for(const candidate of recipes){const t=getTroopById(candidate.troopId)!;recipe.append(new Option(`${adaptedAbilityDescription(t.spell.id).name} · ${t.manaCost} 法力 · #${t.id}`,String(t.id)));}
+  for(const candidate of recipes){const t=getTroopById(candidate.troopId)!;recipe.append(new Option(`${skillNameForTroop(t.id)??t.spell.name} · ${t.manaCost} 法力 · #${t.id}`,String(t.id)));}
   recipe.value=String(recipeTroopId);recipe.onchange=()=>{recipeTroopId=Number(recipe.value);assembly=undefined;semanticDesign=undefined;notice='已切换底板并恢复其原生主动与特质';isError=false;render();};recipeLabel.append(recipe);controls.append(recipeLabel);
   for(const field of [{label:'敌人等级',value:level,min:1,max:100,step:1,set:(v:number)=>{level=v;}},{label:'难度倍率',value:difficulty,min:.1,max:10,step:.1,set:(v:number)=>{difficulty=v;}}]){
     const label=node('label',field.label);const input=node('input');input.type='number';input.min=String(field.min);input.max=String(field.max);input.step=String(field.step);input.value=String(field.value);input.setAttribute('aria-label',field.label);

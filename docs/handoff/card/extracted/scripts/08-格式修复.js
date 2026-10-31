@@ -1,0 +1,1 @@
+import 'https://cdn.jsdelivr.net/gh/tangquanghuy/dnf@latest/dist/V20260827/auto-fix.js?v=1'

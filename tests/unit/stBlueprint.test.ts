@@ -12,7 +12,7 @@ import {executePrototype} from '../../src/engine/skills/prototypes';
 import {getTrait,attachPassives} from '../../src/engine/traits';
 import {snapshotToCharacter} from '../../src/session/combatantMapping';
 import {PORTRAITS,savePortrait} from '../../src/sillytavern/portraits';
-import {compileEnemyBlueprint,restoreEnemyBlueprint,abilityIdentity,adaptedPrototype,adaptedAbilityDescription,adaptedDescription,registerAdaptedCatalog,resolveAdaptedSummon,adaptedSummonPool} from '../../src/sillytavern/enemyBlueprint';
+import {compileEnemyBlueprint,restoreEnemyBlueprint,abilityIdentity,adaptedPrototype,adaptedAbilityDescription,adaptedDescription,registerAdaptedCatalog,resolveAdaptedSummon,adaptedSummonPool,skillNameForTroop} from '../../src/sillytavern/enemyBlueprint';
 
 function board():BoardModel{const b=new BoardModel();let id=0;const colors=Object.values(BaseColor);for(let row=0;row<8;row++)for(let col=0;col<8;col++)b.set({row,col},{id:id++,type:colorGem(colors[(row*3+col*5)%6]!)});return b;}
 function unit(id:number):Character{return {id,name:'fixture',maxHp:60,hp:40,attack:12,armor:8,magic:7,colors:[BaseColor.Blue],manaCost:10,mana:10,skillId:'none',statuses:[],defeated:false};}
@@ -39,7 +39,8 @@ describe('ST versioned enemy blueprints',()=>{
      const blueprint=compileEnemyBlueprint({portrait:selection,externalId:'enemy-1'});
      const described=adaptedAbilityDescription(t.spell.id);
      expect(blueprint.descriptionAudit,`description audit ${t.id}`).toEqual({support:described.support,diagnostics:described.diagnostics});
-     expect(blueprint.snapshot.spellName).toBe(described.name);expect(blueprint.snapshot.spellDescription).toBe(described.description);
+     // Name: original game name, one per mechanics (abilityNames.ts); description: adapted mechanics.
+     expect(blueprint.snapshot.spellName).toBe(skillNameForTroop(t.id));expect(blueprint.snapshot.spellDescription).toBe(described.description);
      expect(blueprint.snapshot.manaColors,`colors ${t.id}`).toEqual(t.manaColors);expect(blueprint.snapshot.manaCost,`cost ${t.id}`).toBe(t.manaCost);
      expect(blueprint.snapshot.troopTypes?.every(v=>v.startsWith('affinity:'))).toBe(true);
      expect(blueprint.snapshot.portraitUrl).toContain(p.assetId);

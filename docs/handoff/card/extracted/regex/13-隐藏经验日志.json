@@ -1,0 +1,17 @@
+{
+  "id": "aa6309bc-adc8-4ad5-afe7-9631493fbbaa",
+  "scriptName": "隐藏经验日志",
+  "disabled": false,
+  "runOnEdit": true,
+  "findRegex": "/<Loot>([\\s\\S]*?)<\\/Loot>/gi ",
+  "trimStrings": [],
+  "replaceString": "",
+  "placement": [
+    2
+  ],
+  "substituteRegex": 0,
+  "minDepth": null,
+  "maxDepth": 30,
+  "markdownOnly": false,
+  "promptOnly": true
+}

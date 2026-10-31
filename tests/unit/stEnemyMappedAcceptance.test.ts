@@ -24,7 +24,7 @@ import type {MappedRow,Run} from '../helpers/stMappedHarness';
 // ordinary traits, and serialized continuation, without recreating the engine.
 const family=(row:MappedRow)=>`ST mapped source ${row.enemyId}: production assembly with reused native semantics`;
 const descriptionClauses:Record<number,RegExp[]>={
- 6016:[/行/,/敌方|敌人/,/魔力|魔法/],6026:[/敌方|敌人/,/攻击/,/2/],6027:[/攻击/,/护甲/,/棕色/,/25\/100/],
+ 6016:[/行/,/敌方|敌人/,/魔力|魔法/],6026:[/敌方|敌人/,/攻击/,/2/],6027:[/攻击/,/护甲/,/棕色/,/每4颗\+1/],
  6029:[/敌方|敌人/,/自身.*护甲|施法者.*护甲/],6074:[/选定.*颜色|指定颜色/,/骷髅/],6098:[/选定.*宝石|选定.*格/,/两侧|横向|左右/],6105:[/爆破/,/选定.*颜色|指定颜色/,/魔力|魔法/],
 };
 function scarceBlue(run:Run){
