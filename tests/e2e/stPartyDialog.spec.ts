@@ -104,6 +104,27 @@ async function readResult(page: Page) {
   return page.evaluate(() => window.partyFixture.result);
 }
 
+test('companions keep their names and status bar portraits; uploads show on screen only and travel is required', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('rpg_bond_avatar_同伴甲', 'data:image/png;base64,iVBORw0KGgo=');
+    (window as unknown as Record<string, unknown>).__match3PresetPortrait = (name: string) => name.startsWith('同伴') ? `https://cdn.example/${name}.webp` : '';
+  });
+  await install(page);
+  await expect(card(page, '同伴甲').locator('img')).toHaveAttribute('src', /^data:image\/png;base64,/);
+  await expect(card(page, '同伴乙').locator('img')).toHaveAttribute('src', new URL('https://cdn.example/同伴乙.webp').href);
+  await selectMember(page, '未同行');
+  await expect(inspect(page).getByRole('button', { name: '加入队伍', exact: true })).toBeDisabled();
+  await addMember(page, '同伴甲'); await addMember(page, '同伴乙');
+  await confirm(page).click();
+  const result = await readResult(page) as { party: { name: string; portraitUrl?: string }[] };
+  // The saved battle party keeps web addresses: the uploaded image is not part of it.
+  expect(result.party.map(unit => [unit.name, unit.portraitUrl])).toEqual([
+    ['主角', '/static/hero/character-unknown.webp'],
+    ['同伴甲', new URL('https://cdn.example/同伴甲.webp').href],
+    ['同伴乙', new URL('https://cdn.example/同伴乙.webp').href],
+  ]);
+});
+
 test('default protagonist shows real stats and default weapon, persists configuration, and restores focus', async ({ page }) => {
   await install(page, { companions: false });
   await expect(inspect(page).locator('[title="生命"] b')).toHaveText('12/23');

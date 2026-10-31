@@ -5,6 +5,7 @@ import type {StHostService} from './hostService';
 import {renderStSettlement} from './settlementView';
 import type {StSettlementView} from './settlementView';
 import {formatStoryReportMessage,sendTavernChatMessage} from './storyReportMessage';
+import {localPartyPortraits} from './actorPortraits';
 
 function errorMessage(error:unknown,fallback:string):string {return error&&typeof error==='object'&&'message'in error&&typeof error.message==='string'&&error.message?error.message:fallback;}
 
@@ -91,7 +92,9 @@ export function openStReplay(options:OpenReplayOptions):Promise<void> {
    function receive(event:MessageEvent):void {
      if(disposed||event.source!==frame.contentWindow||event.origin!==url.origin)return;
      const data=event.data;if(!data||data.channel!=='match3:st-replay:v1'||data.nonce!==nonce)return;
-     if(data.type==='ready'){host.clearTimeout(readyTimer);bar.hidden=true;frame.contentWindow!.postMessage({channel:'match3:st-replay:v1',nonce,type:'start',request:ticket.request},url.origin);}
+     if(data.type==='ready'){host.clearTimeout(readyTimer);bar.hidden=true;
+       // Locally uploaded status-bar portraits travel beside the request and are never part of it.
+       frame.contentWindow!.postMessage({channel:'match3:st-replay:v1',nonce,type:'start',request:ticket.request,displayPortraits:localPartyPortraits(host,ticket.request.playerTeam)},url.origin);}
      else if(data.type==='cancel'&&!outcome){dispose();}
      else if(data.type==='error'){host.clearTimeout(readyTimer);bar.hidden=false;close.textContent='返回';status.textContent=typeof data.message==='string'?data.message:'战场加载失败';}
      else if(data.type==='result'){

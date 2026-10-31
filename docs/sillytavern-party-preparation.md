@@ -71,6 +71,10 @@ if (prepared.ready) {
 - 最终输出遵守现有契约 HP 1–9999、攻击/护甲/法强 0–999、法力成本 1–100；越界报错，无逐角色截断。
 - 剧情入场生命 `initialHp = storyInitialHp(三消HP上限, ST当前HP, ST最大HP)`：按比例取整，存活角色至少 1（`src/sillytavern/storyHp.ts`，剧情回写校验用同一规则）。三消 HP 上限较小（20 级约 23），只有比例跨越边界，战后按比例写回 `当前生命值`。原生当前生命为 0 阻止入场。replay 使用独立满血快照，不处理或扣除 ST 当前/临时生命。
 - 来源字段 `candidate.source` 记录等级、AIRP 生命、AC、六维原值、`base`（等级基础值）和 `factors`（四项系数）。
+- **名字与立绘**：名字取 `人物.名称` 和羁绊列表条目名。立绘按底栏的顺序取（`src/sillytavern/actorPortraits.ts`）：
+  - 写进战斗快照、会保存的立绘：MVU `头像` 字段里的网址；没有时用底栏注册的预设头像表（底栏把 `getPresetAvatar` 挂到酒馆窗口的 `__match3PresetPortrait`）；都没有时按性别用原游戏通用角色图。
+  - 只显示、不保存的立绘：玩家在底栏上传的图片（浏览器 localStorage 的 `rpg_player_avatar`、`rpg_bond_avatar_<名字>`）。编队页、正文入口阵容和战斗页优先显示它；战斗页通过启动消息的 `displayPortraits` 收到，不改动保存的请求、收据和战报。换浏览器后回落到上一条的立绘。
+- 同伴必须 `同行誓约: true` 才能加入队伍；未同行的同伴会列出，但不能加入。
 
 ## 本轮具体未覆盖字段和流程
 

@@ -85,3 +85,16 @@ test('committed story rewards remain visible while host sync fails and resume ex
  await expect(host.getByRole('region',{name:'刚保存的本场结算'}).getByRole('region',{name:'本场实际获得'})).toContainText('灵魂碎片');
  const after=await readSave(page);expect(after.queue).toHaveLength(0);expect(after.saves[0].sources[0].wins).toBe(1);expect(after.saves[0].settlements).toHaveLength(1);expect(Object.keys(after.host.variables['示例聊天一'].match3.storyResults)).toHaveLength(1);
 });
+
+test('a locally uploaded status bar portrait shows in the battle but is not saved with the request',async({page})=>{
+ test.setTimeout(90_000);
+ const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
+ await page.addInitScript(value=>{localStorage.setItem('rpg_player_avatar',value);},image);
+ await page.goto('/sillytavern-playtest.html');
+ const host=page.locator('#st-match3-host-root');await host.getByRole('button',{name:'创建当前聊天存档'}).click();
+ await closeManagement(page);await beginStory(page);
+ const shown=await page.frameLocator('iframe[title="剧情三消战场"]').locator('body').evaluate(()=>(window as any).__stReplayApp.getBattleRequest().playerTeam[0].portraitUrl);
+ expect(shown).toBe(image);
+ const saved=(await readSave(page)).saves[0].pendingStory.request.playerTeam[0].portraitUrl;
+ expect(saved).not.toMatch(/^data:/);expect(saved).toMatch(/static\/hero\/character-/);
+});

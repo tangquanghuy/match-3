@@ -20,6 +20,7 @@ import {BATTLE_SCHEMA_VERSION,RULESET_VERSION} from '../session/contract';
 import type {BattleRequest,CombatantSnapshot} from '../session/contract';
 import {preparePartyDialog} from './partyDialog';
 import {prepareCurrentParty} from './partyPreparation';
+import {localPartyPortraits,presetPortraitResolver} from './actorPortraits';
 import {learningAbilityIdForSkill,restoreEnemyBlueprint} from './enemyBlueprint';
 import type {EnemyBlueprint} from './enemyBlueprint';
 import {RANKS} from './portraits';
@@ -284,9 +285,12 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
    if(frozen)return {player:frozen.playerTeam.map(unit),enemy:frozen.enemyTeam.map(unit)};
    const seed=Number.parseInt(ids.battleId.slice(0,8),16);
    const enemies=compileEnemyEncounterPlan(plan.enemyDesigns,{seed}).members.map(result=>result.blueprint.snapshot);
-   const prepared=prepareCurrentParty(snapshot,{...save.partyPreparation,save,mode:'story'});
+   const prepared=prepareCurrentParty(snapshot,{...save.partyPreparation,save,mode:'story',presetPortrait:presetPortraitResolver(host)});
+   // Locally uploaded status-bar images are display-only; the saved portrait stays the web address.
+   const local=localPartyPortraits(host,prepared.party);
+   const player=prepared.party.map(member=>{const shown=unit(member);return local[member.externalId]?{...shown,portraitUrl:local[member.externalId]}:shown;});
    // An unready party previews as empty; the explicit click still reports the issue.
-   return {player:prepared.party.map(unit),enemy:enemies.map(unit)};
+   return {player,enemy:enemies.map(unit)};
  }
  async function showMessageReceipt(save:StSave,receipt:SettlementReceipt,source:MessageEncounterSource,snapshot:HostSnapshot,receiptSignal?:AbortSignal):Promise<void>{
    assertStorySource(source,snapshot,false);panel.hidden=true;
@@ -372,7 +376,7 @@ export async function installStHost(options:InstallStHostOptions):Promise<StHost
    await persistCompanionColors();assertAlive();
    const current=await service.current();assertAlive();adapter.assertChat(save.chat);
    if(current.save?.id!==save.id)throw new Error('当前聊天存档已变化，请重新打开战斗');
-   const prepared=prepareCurrentParty(current.snapshot,{...current.save.partyPreparation,save:current.save,mode});
+   const prepared=prepareCurrentParty(current.snapshot,{...current.save.partyPreparation,save:current.save,mode,presetPortrait:presetPortraitResolver(host)});
    if(!prepared.ready)throw new Error(prepared.issues[0]?.message??'请先在编队面板完成当前队伍配置');
    return {party:structuredClone(prepared.party),source:structuredClone(current.snapshot)};
  }

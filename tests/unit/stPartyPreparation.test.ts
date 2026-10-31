@@ -5,7 +5,7 @@ import {
   prepareCurrentParty, HERO_MEMBER_REF, companionMemberRef, equipmentRef,
   partyAbilityChoices, partyBaseStats, DEFAULT_PARTY_CONVERSION,
   companionDefaultColors, companionColorCount, companionRarity, companionStarterAbility,
-  missingCompanionColors, findPartyAbility,
+  missingCompanionColors, findPartyAbility, defaultActorPortrait,
 } from '../../src/sillytavern/partyPreparation';
 import type { PartyPreparationOptions } from '../../src/sillytavern/partyPreparation';
 import type { HostSnapshot } from '../../src/sillytavern/hostAdapter';
@@ -192,6 +192,24 @@ describe('current ST party preparation', () => {
     const result = prepareCurrentParty(host(actor(), { 甲: ally }), optionsFor(['甲']));
     expect(result.ready).toBe(true); expect(result.candidates[1]!.source?.ac).toBe(17);
     expect(result.party[1]!.stats.armor).toBe(Math.round(partyBaseStats(20).armor * 1.035));
+  });
+  it('takes portraits like the status bar: MVU 头像 web address, then the preset table, then the gender default', () => {
+    const preset = (name: string) => ({ 林: 'https://cdn.example/林.webp', 甲: 'https://cdn.example/甲.webp' } as Record<string, string>)[name];
+    const input = host(actor({ 性别: '女' }), { 甲: companion(), 乙: companion({ 头像: 'https://img.example/乙.png' }), 丙: companion({ 头像: 'data:image/png;base64,AAAA' }) });
+    const opts = { ...optionsFor(['甲', '乙', '丙']), presetPortrait: preset };
+    const party = prepareCurrentParty(input, opts).party;
+    const web = (url: string) => new URL(url).href;
+    // A data: 头像 is a local upload copy, never saved; 丙 has no preset either.
+    expect(party.map(unit => unit.portraitUrl)).toEqual([web('https://cdn.example/林.webp'), web('https://cdn.example/甲.webp'), web('https://img.example/乙.png'), defaultActorPortrait(undefined)]);
+    expect(party.map(unit => unit.name)).toEqual(['林', '甲', '乙', '丙']);
+    // Without the status bar hook, saved portraits fall back to the gender default.
+    expect(prepareCurrentParty(input, optionsFor(['甲'])).party.map(unit => unit.portraitUrl)).toEqual([defaultActorPortrait('女'), defaultActorPortrait(undefined)]);
+  });
+  it('only lets travelling companions join, whatever their portrait', () => {
+    const input = host(actor(), { 甲: companion({ 同行誓约: false, 头像: 'https://img.example/甲.png' }) });
+    const result = prepareCurrentParty(input, { ...optionsFor(['甲']), presetPortrait: () => 'https://cdn.example/x.webp' });
+    expect(result.ready).toBe(false); expect(result.issues.some(issue => issue.code === 'not-travelling')).toBe(true);
+    expect(result.candidates[1]).toMatchObject({ eligible: false, name: '甲' });
   });
   it.each([NaN, Infinity, -1, '20', 1.5])('rejects malformed level %j', value => {
     expect(prepareCurrentParty(host(actor({ 等级: value }))).ready).toBe(false);

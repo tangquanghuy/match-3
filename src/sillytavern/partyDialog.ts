@@ -27,6 +27,7 @@ import type { WeaponShopAccess } from './weaponPicker';
 import { universalCurrency, weaponOwned } from './weaponShop';
 import { currencyGuardActive, sealedCurrency } from './currencySeal';
 import partyStyles from './partyDialog.css?inline';
+import { localPortrait, presetPortraitResolver } from './actorPortraits';
 
 // The shadow tree lives in the ST document; asset URLs must keep the game's origin.
 const assetBase = new URL(import.meta.env.BASE_URL, import.meta.url);
@@ -189,7 +190,7 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
       if (!snapshot) return undefined;
       // Use the effective draft, including explicit removals, without mutating the loaded save.
       const effectiveSave = save && { ...save, equippedAbilities: equipped };
-      return prepareCurrentParty(snapshot, { ...config, mode: preparationMode, save: effectiveSave, equippedAbilities: equipped });
+      return prepareCurrentParty(snapshot, { ...config, mode: preparationMode, save: effectiveSave, equippedAbilities: equipped, presetPortrait: presetPortraitResolver(options.hostWindow) });
     }
     async function run(action: () => Promise<void>): Promise<void> {
       if (busy || done) return;
@@ -265,7 +266,8 @@ export function preparePartyDialog(options: PreparePartyDialogOptions): Promise<
       finish({ party: structuredClone(verified.party), source: structuredClone(final.snapshot) });
     }
     function artHtml(candidate: PartyCandidate): string {
-      const url = candidate.snapshot?.portraitUrl || 'static/hero/character-unknown.webp';
+      // A locally uploaded status-bar image is shown here only; the saved portrait is the web address.
+      const url = localPortrait(options.hostWindow, candidate.kind, candidate.name) || candidate.snapshot?.portraitUrl || 'static/hero/character-unknown.webp';
       return `<img src="${escapeHtml(new URL(url, assetBase).href)}" alt="${escapeHtml(candidate.name)}" loading="lazy">`;
     }
     function manaHtml(candidate: PartyCandidate, cls: string): string {

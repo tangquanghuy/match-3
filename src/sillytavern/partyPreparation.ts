@@ -4,6 +4,7 @@ import { TROOPS } from '../data/troops';
 import { troopStatsAtLevel } from '../data/leveling';
 import { isImmortal } from '../data/immortals';
 import { storyInitialHp } from './storyHp';
+import { webPortraitUrl, type PresetPortraitResolver } from './actorPortraits';
 import weapons from '../data/weapons.json';
 import type { CombatantSnapshot } from '../session/contract';
 import { STAT_LIMITS, TEAM_SIZE_LIMITS } from '../session/validateRequest';
@@ -64,6 +65,8 @@ export interface PartyPreparationOptions {
   /** equipmentRef -> existing gw_* catalogue ID. No binding is inferred from narrative names. */
   weaponBindings?: Readonly<Record<string, string>>;
   conversion?: PartyConversionConfig;
+  /** The card's preset avatar lookup by character name (presetPortraitResolver); used when MVU has no 头像 address. */
+  presetPortrait?: PresetPortraitResolver;
 }
 export interface PartyCandidate {
   memberRef: string; name: string; kind: 'hero' | 'companion'; eligible: boolean; selected: boolean;
@@ -318,8 +321,10 @@ function prepareActor(candidate: PartyCandidate, actor: Record<string, unknown>,
   if (options.mode !== 'replay' && temporaryHp > 0) candidate.issues.push({ code: 'temporary-hp', path: `${ref}/临时生命值`, message: '临时生命吸收池尚未实现，请先处理临时 HP' });
   if (options.mode !== 'replay' && currentHp === 0) candidate.issues.push({ code: 'zero-hp', path: `${ref}/当前生命值`, message: '当前生命为零的角色尚未恢复战斗能力' });
   const initialHp = options.mode === 'replay' ? stats.hp : storyInitialHp(stats.hp, currentHp, maxHp);
+  // Same order as the status bar, minus local uploads (display-only, see actorPortraits.ts).
+  const portraitUrl = webPortraitUrl(actor['头像']) ?? webPortraitUrl(options.presetPortrait?.(candidate.name)) ?? defaultActorPortrait(actor['性别']);
   candidate.snapshot = { externalId: ref, name: candidate.name, levelLabel: String(level), battleScaling: { level, difficulty: 1 }, stats, initialHp,
-    portraitUrl: defaultActorPortrait(actor['性别']), manaColors: [], manaCost: 1 };
+    portraitUrl, manaColors: [], manaCost: 1 };
 }
 
 /** Tavern actors carry no battle art; use the base game's default character art by gender. */
