@@ -2,6 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function fixture(page: Page, loggedIn = false): Promise<void> {
   await page.route(/fonts\.(?:googleapis|gstatic)\.com/, route => route.abort());
+  // Match the production Worker's / -> cover routing; Vite serves the battle sandbox at /.
+  await page.route(url => url.pathname === '/', async route => {
+    const response = await route.fetch({ url: new URL('/cover.html', route.request().url()).href });
+    await route.fulfill({ response });
+  });
   await page.route('**/auth/me', route => route.fulfill({
     status: loggedIn ? 200 : 401,
     json: loggedIn ? { playerId: 'fixture', username: '黎明旅者', termsAccepted: true } : { error: 'login' },
@@ -218,4 +223,105 @@ test('transient preload failure retries only that resource and keeps login gated
     expect(counts.get('/preload-fixture/game.js')).toBe(1);
     expect(errors).toEqual([]);
   } finally { release(); }
+});
+
+
+test('guest consent, character creation, refresh, logout and relogin preserve an isolated local save', async ({ page }) => {
+  await fixture(page);
+  const remoteRequests: string[] = [];
+  page.on('request', request => {
+    if (/\/(api\/(meta|presence)|auth\/(login|logout))/.test(new URL(request.url()).pathname)) remoteRequests.push(request.url());
+  });
+  await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => localStorage.setItem('gems.meta.save', 'existing development save'));
+  await expect(page.locator('#guestLoginBtn')).toBeDisabled();
+  await page.locator('#agreeBox').click();
+  await readTerms(page);
+  await expect(page.locator('#guestLoginBtn')).toBeEnabled();
+  await page.locator('#guestLoginBtn').click();
+  await expect(page.locator('#createCharacter')).toBeEnabled();
+  await expect(page.locator('#characterName')).toHaveValue('本地旅者');
+  await page.locator('[name="characterGender"][value="female"]').check();
+  await page.locator('#createCharacter').click();
+  await expect(page.locator('#playerName')).toHaveText('本地旅者');
+  await page.reload();
+  await expect(page.locator('#playerName')).toHaveText('本地旅者');
+  await expect(page.locator('#playerPortrait')).toHaveAttribute('src', '/static/hero/character-female.webp');
+  // Finish onboarding in the fixture so settings can be exercised without playing the tutorial battle.
+  await page.evaluate(() => {
+    const save = JSON.parse(localStorage.getItem('guest.gems.meta.save')!);
+    save.onboarding = { step: 'done', noviceSummonUsed: true };
+    localStorage.setItem('guest.gems.meta.save', JSON.stringify(save));
+  });
+  await page.reload();
+  await page.locator('#settings').click();
+  await expect(page.locator('.account-card')).toContainText('本地游客');
+  await expect(page.locator('#resetDemo')).toHaveCount(0);
+  await page.locator('#guestLogoutBtn').click();
+  await expect(page.locator('#guestLoginBtn')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('gems.auth.localGuest'))).toBeNull();
+  await page.locator('#agreeBox').click();
+  await readTerms(page);
+  await page.locator('#guestLoginBtn').click();
+  await expect(page.locator('#playerPortrait')).toHaveAttribute('src', '/static/hero/character-female.webp');
+  expect(await page.evaluate(() => localStorage.getItem('gems.meta.save'))).toBe('existing development save');
+  expect(remoteRequests).toEqual([]);
+});
+
+test('guest login stays available when the authentication service is down', async ({ page }) => {
+  await fixture(page);
+  await page.route('**/auth/me', route => route.fulfill({ status: 503, body: 'offline' }));
+  await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[role="alert"]:visible')).toContainText('本地游客');
+  await page.locator('#agreeBox').click();
+  await readTerms(page);
+  await page.locator('#guestLoginBtn').click();
+  await expect(page.locator('#createCharacter')).toBeEnabled();
+});
+
+test('Discord users can choose guest login while keeping cloud progress independent', async ({ page }) => {
+  await fixture(page, true);
+  await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+  await page.locator('#switchGuestBtn').click();
+  await page.locator('#agreeBox').click();
+  await readTerms(page);
+  await page.locator('#guestLoginBtn').click();
+  await expect(page.locator('#characterName')).toHaveValue('本地旅者');
+  await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.cover-welcome')).toContainText('本地游客');
+  await page.locator('#guestLogoutBtn').click();
+  await expect(page.locator('.cover-welcome')).toContainText('黎明旅者');
+  await expect(page.locator('#enterBtn')).toBeEnabled();
+});
+
+test('guest login reports blocked browser storage', async ({ page }) => {
+  await fixture(page);
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = () => { throw new DOMException('blocked', 'QuotaExceededError'); };
+  });
+  await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+  await page.locator('#agreeBox').click();
+  await readTerms(page);
+  await page.locator('#guestLoginBtn').click();
+  await expect(page.locator('#guestLoginError')).toContainText('浏览器存储写入失败');
+  await expect(page.locator('#cover')).toBeVisible();
+});
+
+
+test('Discord login still works when browser storage is blocked', async ({ page }) => {
+  await fixture(page);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.addInitScript(() => {
+    for (const method of ['getItem', 'setItem', 'removeItem'] as const) {
+      Storage.prototype[method] = () => { throw new DOMException('blocked', 'SecurityError'); };
+    }
+  });
+  await page.route('**/auth/login?*', route => route.fulfill({ contentType: 'text/html', body: 'Discord OAuth started' }));
+  await page.goto('/cover.html', { waitUntil: 'domcontentloaded' });
+  await page.locator('#agreeBox').click();
+  await readTerms(page);
+  await page.locator('#loginBtn').click();
+  await expect(page).toHaveURL(/\/auth\/login\?terms=\d+$/);
+  expect(errors).toEqual([]);
 });

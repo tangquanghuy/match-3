@@ -6,6 +6,7 @@
  *  - 本地后端：存档在浏览器里，直接「进入游戏」。
  */
 import './cover.css';
+import { guestTermsAccepted, isLocalGuest, loginLocalGuest, logoutLocalGuest } from '../auth/localGuest';
 import wideArt from '@assets/meta/cover/cover-wide.webp';
 import tallArt from '@assets/meta/cover/cover-tall.webp';
 import { TERMS_SECTIONS, TERMS_UPDATED, TERMS_VERSION } from '../legal/terms';
@@ -49,7 +50,7 @@ function renderTerms(): void {
     </section>`).join('');
 }
 
-/** 未登录：同意协议 → Discord 登录 */
+/** 未登录：同意协议后选择 Discord 云端账号或本地游客。 */
 function renderLogin(notice?: string): void {
   $('#coverActions').innerHTML = `
     ${notice ? `<p class="cover-notice" role="alert">${escapeHtml(notice)}</p>` : ''}
@@ -61,9 +62,12 @@ function renderLogin(notice?: string): void {
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.5 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.2 18a19.8 19.8 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12 0l.5.4-2 1 1.3 2.1a19.7 19.7 0 0 0 6-3c.5-5.1-.8-9.6-3.5-13.6ZM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>
       <span>使用 Discord 登录</span>
     </button>
-    <p class="cover-hint">使用 Discord 账号保存游戏进度。</p>`;
+    <button type="button" class="btn secondary is-disabled" id="guestLoginBtn" disabled aria-disabled="true">本地游客登录</button>
+    <p class="cover-hint">Discord 账号使用云端存档；游客进度仅保存在当前浏览器，清理浏览器数据会丢失，且与云端存档独立。</p>
+    <p class="cover-notice" id="guestLoginError" role="alert" hidden></p>`;
   const box = $<HTMLInputElement>('#agreeBox');
   const login = $<HTMLButtonElement>('#loginBtn');
+  const guest = $<HTMLButtonElement>('#guestLoginBtn');
   let accepted = false;
   let assetsReady = false;
   const sync = (): void => {
@@ -71,6 +75,9 @@ function renderLogin(notice?: string): void {
     login.disabled = !accepted || !assetsReady;
     login.classList.toggle('is-disabled', login.disabled);
     login.setAttribute('aria-disabled', String(!accepted || !assetsReady));
+    guest.disabled = login.disabled;
+    guest.classList.toggle('is-disabled', guest.disabled);
+    guest.setAttribute('aria-disabled', String(guest.disabled));
   };
   box.addEventListener('click', (event) => {
     if (accepted) { accepted = false; sync(); return; }
@@ -79,7 +86,21 @@ function renderLogin(notice?: string): void {
   });
   box.addEventListener('change', sync);
   login.addEventListener('click', () => {
-    if (accepted && assetsReady) location.assign(`/auth/login?terms=${TERMS_VERSION}`);
+    if (accepted && assetsReady) {
+      if (isLocalGuest()) logoutLocalGuest();
+      location.assign(`/auth/login?terms=${TERMS_VERSION}`);
+    }
+  });
+  guest.addEventListener('click', () => {
+    if (!accepted || !assetsReady) return;
+    try {
+      loginLocalGuest();
+      renderGuest(true);
+    } catch {
+      const error = $('#guestLoginError');
+      error.textContent = '浏览器存储写入失败，请允许本站保存数据后重试。';
+      error.hidden = false;
+    }
   });
   $('#coverActions').querySelector('[data-terms]')!.addEventListener('click', (event) => { event.preventDefault(); openTerms(); });
   onAgree = () => { accepted = true; sync(); };
@@ -118,6 +139,7 @@ function mountEnter(autoEnter: boolean, loginName?: string): string {
   unsubscribe?.();
   queueMicrotask(() => {
     const btn = $<HTMLButtonElement>('#enterBtn');
+    if (!btn) return;
     const label = $('#enterLabel');
     const bar = $('#enterProgress');
     const retry = $<HTMLButtonElement>('#retryPreload');
@@ -152,6 +174,7 @@ function mountEnter(autoEnter: boolean, loginName?: string): string {
       }
     };
     const showFailure = (): void => {
+      if (!btn.isConnected) return;
       enter = null;
       btn.disabled = true;
       btn.setAttribute('aria-disabled', 'true');
@@ -173,6 +196,7 @@ function mountEnter(autoEnter: boolean, loginName?: string): string {
           readyAssets(again),
           warmRuntime().then(module => module.prepareGame(loginName)),
         ]);
+        if (!btn.isConnected) return;
         enter = prepared;
         btn.disabled = false;
         btn.classList.remove('is-disabled');
@@ -196,9 +220,24 @@ function renderWelcome(me: Me, autoEnter: boolean): void {
   $('#coverActions').innerHTML = `
     <p class="cover-welcome">欢迎回来，<b>${escapeHtml(me.username ?? '冒险者')}</b></p>
     ${mountEnter(autoEnter, me.username ?? undefined)}
+    <button type="button" class="btn secondary" id="switchGuestBtn">本地游客登录</button>
     <button type="button" class="link" id="logoutBtn">退出登录</button>`;
+  $('#switchGuestBtn').addEventListener('click', () => renderLogin());
   $('#logoutBtn').addEventListener('click', () => {
     void fetch('/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => location.replace('/'));
+  });
+  onAgree = null;
+}
+
+function renderGuest(autoEnter: boolean): void {
+  $('#coverActions').innerHTML = `
+    <p class="cover-welcome">欢迎回来，<b>本地游客</b></p>
+    ${mountEnter(autoEnter)}
+    <p class="cover-hint">游客进度自动保存在当前浏览器，与 Discord 云端存档独立。清理浏览器数据会丢失进度。</p>
+    <button type="button" class="link" id="guestLogoutBtn">退出游客登录</button>`;
+  $('#guestLogoutBtn').addEventListener('click', () => {
+    logoutLocalGuest();
+    location.replace(remote ? '/' : '/cover.html');
   });
   onAgree = null;
 }
@@ -276,6 +315,10 @@ async function boot(): Promise<void> {
     if ($<HTMLDialogElement>('#terms').returnValue === 'agree' && termsRead) onAgree?.();
   });
 
+  if (isLocalGuest()) {
+    if (guestTermsAccepted()) return renderGuest(false);
+    return renderLogin('用户协议已更新，请重新阅读并同意后登录。');
+  }
   if (!remote) return renderLocal();
 
   const params = new URLSearchParams(location.search);
@@ -288,7 +331,7 @@ async function boot(): Promise<void> {
     if (me?.termsAccepted) return renderWelcome(me, fromLogin);
     renderLogin(error ? ERRORS[error] ?? '登录失败，请重试。' : me ? '用户协议已更新，请重新阅读并同意后登录。' : undefined);
   } catch {
-    $('#coverActions').innerHTML = '<p class="cover-notice" role="alert">暂时连不上服务器，请稍后刷新重试。</p>';
+    renderLogin('暂时连不上服务器，你仍可选择本地游客登录。');
   }
 }
 

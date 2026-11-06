@@ -2,10 +2,12 @@
  * 网关出口与实例管理。屏层一律经 `metaGateway()` 取用，禁止自建 SaveStore。
  *
  * 后端选择（initMetaGateway 的默认值）：
+ *  - 本地游客登录 → 独立浏览器存档，从新游戏开始，关闭开发者工具；
  *  - 构建时设了 `VITE_META_API`（如 `/api/meta`）→ 远端后端（Worker + D1，Discord 登录）；
  *  - 否则 → 本地后端（浏览器内权威核心 + localStorage，带开发者工具）。
  * 两者跑同一个权威核心（server/core.ts），屏层零差异。
  */
+import { isLocalGuest, localGuestStorage } from '../../auth/localGuest';
 import { CommandGateway } from './commandGateway';
 import { HttpTransport, LocalTransport } from './transport';
 import type { MetaGateway } from './types';
@@ -20,7 +22,12 @@ let current: MetaGateway | null = null;
 
 /** 按构建环境选后端 */
 export function defaultMetaGateway(): MetaGateway {
-  const api = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_META_API;
+  const api = import.meta.env.VITE_META_API;
+  if (isLocalGuest()) {
+    return new CommandGateway(new LocalTransport(localGuestStorage(localStorage), {
+      fresh: 'new', requireCharacter: true, allowDev: false,
+    }));
+  }
   return api ? new CommandGateway(new HttpTransport(api)) : new CommandGateway(new LocalTransport(undefined, { requireCharacter: true }));
 }
 

@@ -298,7 +298,7 @@ async function mountGame(gateway: ReturnType<typeof initMetaGateway>, snapshot: 
     applyPlayerPreferences();
     backgroundMusic.start();
     backgroundMusic.setScene('meta');
-    startPresence();
+    if (gateway.backend === 'remote') startPresence();
     window.addEventListener('hashchange', () => void render());
     window.addEventListener('resize', fitStage);
     window.visualViewport?.addEventListener('resize', fitStage);

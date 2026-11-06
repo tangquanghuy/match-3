@@ -1,3 +1,4 @@
+import { isLocalGuest, logoutLocalGuest } from '../../auth/localGuest';
 import { audioControlsHtml, bindAudioControls } from '../../preferences/audioControls';
 /**
  * 设置屏（游戏设置 + 账号与存档 + 重置；本地后端额外显示开发者工具：修改器、导出/导入、演示档）。
@@ -469,6 +470,7 @@ export class SettingsScreen implements Screen {
     const kingdomOptions = kingdoms.map((name) => `<option value="${escapeAttr(name)}"${name === selected ? ' selected' : ''}>${escapeAttr(name)}</option>`).join('');
     // 开发者工具（导入/演示档/修改器/调试）只有本地后端提供；远端后端整块不渲染
     const dev = ctx.gateway.dev !== null;
+    const guest = isLocalGuest();
     const remote = ctx.gateway.backend === 'remote';
     const stats = `<dl class="save-stats" aria-label="当前进度">
       <div><dt>等级</dt><dd>${cur.level}</dd></div>
@@ -485,7 +487,8 @@ export class SettingsScreen implements Screen {
         </div>`
       : `<div class="account-card local">
           <span data-icon="chest"></span>
-          <div><b>本机存档 · 自动保存</b><small>进度保存在这台设备的浏览器里，清理浏览器数据会一并清掉。</small></div>
+          <div><b>${guest ? '本地游客 · 自动保存' : '本机存档 · 自动保存'}</b><small>进度保存在这台设备的浏览器里，清理浏览器数据会一并清掉。${guest ? '游客与 Discord 云端存档独立，退出后可在本浏览器继续。' : ''}</small></div>
+          ${guest ? '<button class="s-btn ghost" id="guestLogoutBtn" type="button">退出游客登录</button>' : ''}
         </div>`;
     return `
       <style id="settingsScreenCss">${SETTINGS_CSS}</style>
@@ -694,6 +697,10 @@ export class SettingsScreen implements Screen {
     this.bind('#resetNew', 'click', () => void this.reset(false));
     this.bind('#resetDemo', 'click', () => void this.reset(true));
     this.bind('#settingsBack', 'click', () => ctx.navigate('#map'));
+    this.bind('#guestLogoutBtn', 'click', () => {
+      logoutLocalGuest();
+      location.replace(import.meta.env.VITE_META_API ? '/' : '/cover.html');
+    });
     this.bind('#logoutBtn', 'click', () => {
       void fetch('/auth/logout', { method: 'POST', credentials: 'include' })
         .then(response => { if (!response.ok) throw new Error('退出失败'); location.replace('/'); })

@@ -2,8 +2,8 @@
  * 用户协议（封面页展示 + 登录时记录同意的版本）。
  * 改动条款内容时把 TERMS_VERSION 加一：Worker 登录只接受当前版本，账号表记录玩家同意的版本。
  */
-export const TERMS_VERSION = 1;
-export const TERMS_UPDATED = '2026-09-29';
+export const TERMS_VERSION = 2;
+export const TERMS_UPDATED = '2026-11-06';
 
 export interface TermsSection {
   title: string;
@@ -29,8 +29,9 @@ export const TERMS_SECTIONS: readonly TermsSection[] = [
   {
     title: '三、账号与数据',
     items: [
-      '你通过 Discord 登录。本项目只读取你的 Discord 用户 ID 和用户名，用来绑定你的游戏存档；不读取邮箱、好友、服务器或聊天内容，也不会发布任何内容。',
+      '你可以选择 Discord 登录或本地游客登录。使用 Discord 登录时，本项目只读取你的 Discord 用户 ID 和用户名，用来绑定你的游戏存档；不读取邮箱、好友、服务器或聊天内容，也不会发布任何内容。',
       '服务器只保存上述账号信息、你的游戏存档，以及维持登录所需的会话 Cookie。这些数据托管在 Cloudflare，不会出售或提供给任何第三方。',
+      '本地游客的游戏进度仅保存在当前设备的浏览器中，与 Discord 云端存档独立；退出游客登录会保留本地进度，清理浏览器数据会删除游客存档，换设备或浏览器需重新开始。',
       '你可以随时联系项目维护者要求删除你的账号与存档。',
     ],
   },
